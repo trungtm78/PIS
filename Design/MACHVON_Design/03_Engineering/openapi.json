@@ -1351,7 +1351,8 @@
           "REASON_REQUIRED",
           "RUN_NOT_COMPLETED",
           "VERSION_CONFLICT",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "REPORT_FROZEN"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -42262,6 +42263,110 @@
         "x-exposure-reason": "Read model with DTO allowlist and object scope"
       }
     },
+    "/home/channel-health": {
+      "get": {
+        "operationId": "getHomeChannelHealth",
+        "summary": "Kênh thông báo đang suy giảm (bộ ngắt mạch mở) và lần gửi thành công gần nhất",
+        "tags": [
+          "HOME"
+        ],
+        "x-permission": "home.read",
+        "responses": {
+          "200": {
+            "description": "Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model with DTO allowlist: channel names and times only"
+      }
+    },
     "/master-records": {
       "get": {
         "operationId": "searchMasterRecords",
@@ -49407,6 +49512,20 @@
                               "ACTIVE",
                               "REVOKED"
                             ]
+                          },
+                          "permission_state": {
+                            "type": "string",
+                            "enum": [
+                              "granted",
+                              "denied",
+                              "provisional",
+                              "unknown"
+                            ],
+                            "description": "What the operating system allows this device to do with notifications"
+                          },
+                          "push_owner": {
+                            "type": "boolean",
+                            "description": "The device the push of the member goes to: the live device used last that allows notifications. One at most; a device that denied notifications or was removed never is"
                           }
                         }
                       }
@@ -58750,7 +58869,8 @@
           "TENANT_STATE_INVALID",
           "PLACEMENT_UNAVAILABLE",
           "MIGRATION_ALREADY_OPEN",
-          "TENANT_WRITE_FROZEN"
+          "TENANT_WRITE_FROZEN",
+          "VALIDATION_FAILED"
         ],
         "x-plane": "control",
         "x-required-role": "SystemAdmin",
@@ -58768,6 +58888,108 @@
           "sas.placement_migration.started.v1"
         ],
         "x-audit-action": "tenant.placement_migration_started"
+      },
+      "get": {
+        "operationId": "listPlacementMigrations",
+        "summary": "Các lần nâng cấp pool → silo của tenant, mới nhất trước (SAS-23)",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "system.tenant.read",
+        "x-plane": "control",
+        "x-error-codes": [
+          "RESOURCE_NOT_FOUND"
+        ],
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlacementMigrationPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/system/placement-migrations/{migrationId}/cutover": {
@@ -58905,7 +59127,8 @@
           "SELF_APPROVAL_DENIED",
           "MIGRATION_VERIFICATION_FAILED",
           "MIGRATION_STATE_INVALID",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "TENANT_STATE_INVALID"
         ],
         "x-plane": "control",
         "x-required-role": "SystemAdmin",
@@ -59073,6 +59296,158 @@
           }
         },
         "x-audit-action": "tenant.placement_migration_aborted"
+      }
+    },
+    "/system/placement-migrations/{migrationId}": {
+      "get": {
+        "operationId": "getPlacementMigration",
+        "summary": "Chi tiết một lần nâng cấp silo: trạng thái, cửa sổ đóng băng ghi, người duyệt cutover và bảng đối chiếu từng bảng (đếm, checksum khóa, tổng tiền) (SAS-23)",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "system.tenant.read",
+        "x-plane": "control",
+        "x-error-codes": [
+          "RESOURCE_NOT_FOUND"
+        ],
+        "parameters": [
+          {
+            "name": "migrationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlacementMigrationDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system/placements": {
+      "get": {
+        "operationId": "listPlacements",
+        "summary": "Các placement (pool và silo) và chỗ còn trống, để chọn placement đích của nâng cấp silo (SAS-23)",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "system.tenant.read",
+        "x-plane": "control",
+        "x-error-codes": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlacementList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/system/tenants/{tenantId}/domains": {
@@ -63170,6 +63545,9 @@
         },
         "x-error-codes": [
           "RECOVERY_POINT_UNAVAILABLE",
+          "RESOURCE_NOT_FOUND",
+          "RESTORE_IN_PROGRESS",
+          "TENANT_STATE_INVALID",
           "VALIDATION_FAILED"
         ],
         "x-plane": "control",
@@ -63185,6 +63563,108 @@
           }
         },
         "x-audit-action": "tenant.restore_requested"
+      },
+      "get": {
+        "operationId": "listTenantRestoreRequests",
+        "summary": "Các yêu cầu khôi phục tenant, cửa sổ recovery point và mục tiêu RPO/RTO cho System Admin (SAS-21)",
+        "tags": [
+          "SAS"
+        ],
+        "x-permission": "system.tenant.read",
+        "x-plane": "control",
+        "x-error-codes": [
+          "RESOURCE_NOT_FOUND"
+        ],
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantRestorePage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/system/restore-requests/{restoreId}/decision": {
@@ -63319,8 +63799,12 @@
           }
         },
         "x-error-codes": [
+          "RECOVERY_POINT_UNAVAILABLE",
+          "RESOURCE_NOT_FOUND",
           "SELF_APPROVAL_DENIED",
+          "STAGE_TRANSITION_DENIED",
           "TENANT_STATE_INVALID",
+          "VALIDATION_FAILED",
           "VERSION_CONFLICT"
         ],
         "x-plane": "control",
@@ -73549,11 +74033,24 @@
           "SETTLEMENT_ALREADY_APPROVED",
           "SELF_APPROVAL_DENIED",
           "CHANGE_STATE_INVALID",
+          "CHANGE_STAGE_NOT_ALLOWED",
+          "CONTRACT_STATE_INVALID",
+          "DECISION_DOCUMENT_REQUIRED",
+          "ACCEPTANCE_VALUE_EXCEEDS_CONTRACT",
+          "ACCEPTANCE_STATE_INVALID",
+          "ALLOCATION_UNAVAILABLE",
+          "BOQ_TOTAL_MISMATCH",
+          "VALUE_EXCEEDED",
+          "VALIDATION_FAILED",
+          "SCOPE_DENIED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
-          "ctr.change.retroactive_applied.v1"
+          "ctr.change.retroactive_applied.v1",
+          "ctr.contract_revision.created.v1",
+          "ctr.commitment.changed.v1",
+          "pay.ledger.adjusted.v1"
         ],
         "responses": {
           "200": {
@@ -73646,7 +74143,8 @@
               }
             }
           }
-        }
+        },
+        "description": "Approves an assessed CO that applies from a day before today (the ordinary decision refuses it with RETROACTIVE_NOT_ALLOWED). Makes the next revision of the contract (retroactive, in force from today), posts one ADJUSTMENT entry on the cumulative ledger for each item of each acceptance the new price reaches, and records the decision document and the affected acceptances. Refused while a verified or closed settlement has read the ledger (SETTLEMENT_ALREADY_APPROVED)."
       }
     },
     "/contracts/{id}/measurements": {
@@ -105123,7 +105621,10 @@
         },
         "x-error-codes": [
           "SIGNATURE_KEY_UNKNOWN",
-          "ENVELOPE_DUPLICATE"
+          "SIGNATURE_INVALID",
+          "ENVELOPE_DUPLICATE",
+          "ENVELOPE_INVALID",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -105921,11 +106422,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Scoped result; sensitive fields masked",
+            "description": "The messages of the tenant, the latest first",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/DocInteropMessageList"
                 }
               }
             }
@@ -105960,6 +106461,16 @@
               }
             }
           },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "429": {
             "description": "Rate limit",
             "content": {
@@ -105970,7 +106481,10 @@
               }
             }
           }
-        }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
       }
     },
     "/documents/{id}/usability": {
@@ -111517,7 +112031,8 @@
           "REASON_REQUIRED",
           "RUN_NOT_COMPLETED",
           "VERSION_CONFLICT",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "REPORT_FROZEN"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -111528,7 +112043,7 @@
     "/evaluation-reports": {
       "post": {
         "operationId": "createEvaluationReport",
-        "summary": "Lập báo cáo đánh giá từ các lượt cùng criteria_version; nhận xét chưa thẩm tra không được đưa vào",
+        "summary": "Lập báo cáo đánh giá từ các lượt cùng criteria_version; mọi nhận xét phải đã có quyết định của chuyên gia, nội dung lấy từ quyết định của người, không lấy lời của mô hình",
         "tags": [
           "BID"
         ],
@@ -111647,8 +112162,11 @@
           }
         },
         "x-error-codes": [
+          "CONFLICT_UNDECLARED",
           "CRITERIA_VERSION_MISMATCH",
-          "UNREVIEWED_FINDINGS"
+          "RUN_NOT_COMPLETED",
+          "UNREVIEWED_FINDINGS",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -111659,7 +112177,7 @@
     "/evaluation-reports/{id}/sign-off": {
       "post": {
         "operationId": "signOffEvaluationReport",
-        "summary": "Thành viên tổ chuyên gia thông qua; đủ thành viên → yêu cầu DOC phát hành biên bản",
+        "summary": "Thành viên tổ chuyên gia ký thông qua (kèm ý kiến khác nếu có); đủ thành viên không bị loại bởi xung đột → yêu cầu DOC phát hành biên bản",
         "tags": [
           "BID"
         ],
@@ -111786,14 +112304,30 @@
           }
         },
         "x-error-codes": [
-          "CONFLICT_UNDECLARED",
           "ALREADY_SIGNED_OFF",
+          "CONFLICT_UNDECLARED",
+          "DOC_TEMPLATE_MISSING",
+          "PROVIDER_UNAVAILABLE",
+          "REPORT_OUT_OF_DATE",
+          "REPORT_STATE_INVALID",
+          "VALIDATION_FAILED",
           "VERSION_CONFLICT"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
-          "bid.report.signed_off.v1"
-        ]
+          "bid.report.signed_off.v1",
+          "bid.report.issue_requested.v1"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BidReportSignOff"
+              }
+            }
+          }
+        }
       }
     },
     "/bid-clarifications": {
@@ -137293,6 +137827,178 @@
           "CONFLICT_UNDECLARED"
         ]
       }
+    },
+    "/procurement-packages/{id}/evaluation-reports": {
+      "get": {
+        "operationId": "listEvaluationReports",
+        "summary": "Các báo cáo đánh giá của gói, mới nhất trước; người có toàn quyền xem đề án của gói (đã khai báo xung đột, không bị loại) (BID-13)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.evaluate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BidReportList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification (CONFLICT_UNDECLARED)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "CONFLICT_UNDECLARED"
+        ]
+      }
+    },
+    "/evaluation-reports/{id}": {
+      "get": {
+        "operationId": "getEvaluationReport",
+        "summary": "Một báo cáo đánh giá với chữ ký, ý kiến khác và trạng thái biên bản DOC; báo cáo của gói người gọi không đánh giá, hoặc người gọi bị loại bởi xung đột, là không tồn tại (BID-13)",
+        "tags": [
+          "BID"
+        ],
+        "x-permission": "bid.evaluate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scoped result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BidReport"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / classification (CONFLICT_UNDECLARED)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "CONFLICT_UNDECLARED"
+        ]
+      }
     }
   },
   "components": {
@@ -144717,7 +145423,8 @@
                     "report.draft.save",
                     "issue.create",
                     "site_diary.append",
-                    "measurement.record"
+                    "measurement.record",
+                    "inspection.result"
                   ]
                 },
                 "base_server_version": {
@@ -145544,25 +146251,50 @@
           "adjustment_basis": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 2000
+            "maxLength": 2000,
+            "description": "Why the change reaches back: the words the decision rests on"
           },
           "decision_document_version_id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "The decision document the approval rests on"
           },
           "affected_acceptance_ids": {
             "type": "array",
+            "maxItems": 500,
             "items": {
               "type": "string",
               "format": "uuid"
-            }
+            },
+            "description": "Every approved acceptance the change re-prices (a line of an item whose unit price the change moves, accepted on the effective day or after), and no other; a list that differs is 422 with the ids missing and the ids not affected"
+          },
+          "effective_on": {
+            "type": "string",
+            "format": "date",
+            "description": "The first day the change applies from, before today"
+          },
+          "approved_delta_vnd": {
+            "type": "string",
+            "pattern": "^-?[0-9]+$",
+            "description": "The signed amount the contract changes by; the assessment of the request when absent"
+          },
+          "boq_lines": {
+            "type": "array",
+            "maxItems": 2000,
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "The BOQ of the new revision, as the lines of an import (REPLACE); the items whose unit price differs from the BOQ in force are re-priced"
           }
         },
         "required": [
           "adjustment_basis",
           "decision_document_version_id",
-          "affected_acceptance_ids"
-        ]
+          "affected_acceptance_ids",
+          "effective_on"
+        ],
+        "description": "The retroactive adjustment of a change order (ST-CTR-016): an assessed CO whose price applies from a day before today is approved here, by someone who had no part in its chain. The acceptances it reaches keep their lines and amounts; the money difference of each balance is a new ADJUSTMENT entry of the cumulative ledger."
       },
       "CtrRecordMeasurement": {
         "type": "object",
@@ -151065,13 +151797,15 @@
           "envelope_sha256",
           "external_message_id",
           "sender_code",
+          "signature",
           "signature_key_id"
         ],
         "properties": {
           "envelope_object_key": {
             "type": "string",
             "minLength": 10,
-            "maxLength": 500
+            "maxLength": 500,
+            "description": "The clean upload of the envelope, in the object store of the tenant"
           },
           "envelope_sha256": {
             "type": "string",
@@ -151091,6 +151825,11 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 100
+          },
+          "signature": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "hex(HMAC-SHA256(key named by signature_key_id, [\"external_message_id\",\"sender_code\",\"envelope_sha256\",\"envelope_object_key\",\"signature_key_id\"] as JSON)); the digest of the envelope is under it"
           }
         }
       },
@@ -152132,17 +152871,23 @@
               "type": "string",
               "format": "uuid"
             },
-            "maxItems": 500
+            "minItems": 1,
+            "maxItems": 500,
+            "description": "The analyses that stand for the proposals the report covers, each named once; every finding of them has a decision of an expert"
           },
           "summary": {
-            "type": "object"
-          },
-          "dissenting_opinions": {
-            "type": "array",
-            "items": {
-              "type": "object"
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "conclusion"
+            ],
+            "properties": {
+              "conclusion": {
+                "type": "string",
+                "description": "The conclusion of the evaluation team in its own words: 20 to 8000 characters once trimmed"
+              }
             },
-            "maxItems": 500
+            "description": "What the author writes; the rest of the content is taken from the decisions of the experts, never from what the model said"
           }
         }
       },
@@ -157236,12 +157981,13 @@
           "actions": {
             "type": "object",
             "additionalProperties": false,
-            "description": "What the caller may do with the request as it stands (staff only); the server judges each command again",
+            "description": "What the caller may do with the request as it stands (staff only); the server judges each command again; adjust is the retroactive adjustment of an assessed CO",
             "required": [
               "promote",
               "evaluate",
               "withdraw",
-              "decide"
+              "decide",
+              "adjust"
             ],
             "properties": {
               "promote": {
@@ -157255,6 +158001,9 @@
               },
               "decide": {
                 "type": "boolean"
+              },
+              "adjust": {
+                "type": "boolean"
               }
             }
           },
@@ -157267,6 +158016,10 @@
               "null"
             ],
             "format": "uuid"
+          },
+          "retroactive": {
+            "type": "boolean",
+            "description": "The change order was approved through the retroactive adjustment: it applies from a day before its approval (staff only)"
           }
         }
       },
@@ -158932,7 +159685,7 @@
           "reversal_of_id",
           "posted_at"
         ],
-        "description": "Một bút toán của sổ lũy kế; không bao giờ sửa hay xóa, chỉ sửa sai bằng bút toán đảo",
+        "description": "Một bút toán của sổ lũy kế; không bao giờ sửa hay xóa, chỉ sửa sai bằng bút toán đảo hoặc bằng bút toán điều chỉnh (ADJUSTMENT: chênh lệch đơn giá hồi tố, có dấu, chỉ trên số đã nghiệm thu)",
         "properties": {
           "id": {
             "type": "string",
@@ -158950,7 +159703,8 @@
               "ADVANCE_RECOVERY",
               "ADVANCE_RECOVERY_REVERSAL",
               "RETENTION_HOLD",
-              "RETENTION_RELEASE"
+              "RETENTION_RELEASE",
+              "ADJUSTMENT"
             ]
           },
           "accepted_delta_vnd": {
@@ -163338,6 +164092,441 @@
               "string",
               "null"
             ]
+          }
+        }
+      },
+      "PlacementMigration": {
+        "type": "object",
+        "required": [
+          "id",
+          "tenant_id",
+          "from_placement_id",
+          "to_placement_id",
+          "status",
+          "write_freeze_max_minutes",
+          "planned_window_start",
+          "reason",
+          "requested_by",
+          "created_at",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenant_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "from_placement_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "to_placement_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Planned",
+              "Copying",
+              "Verifying",
+              "AwaitingCutover",
+              "CutoverFrozen",
+              "Switched",
+              "Completed",
+              "Aborted",
+              "RolledBack"
+            ]
+          },
+          "write_freeze_max_minutes": {
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 240
+          },
+          "planned_window_start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "requested_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cutover_approved_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "cutover_approved_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "approval_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "write_freeze_started_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "write_frozen_until": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "While the cutover is frozen: the instant until which the writes of the tenant are refused (503 TENANT_WRITE_FROZEN); the migration is rolled back when the switch has not happened by then"
+          },
+          "checksum_match": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "verified_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "verification_report_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "switched_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "observation_ends_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "When the 24 hours of observation after the switch end and the migration is Completed"
+          },
+          "completed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "ended_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "ended_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid",
+            "description": "Who aborted; null when the system rolled the migration back by itself"
+          },
+          "end_reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The words of the System Admin who aborted, or FREEZE_EXPIRED / FINAL_VERIFICATION_FAILED when the system rolled back"
+          },
+          "last_error_code": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The class of the failure that stopped the worker at the last pass (never its message)"
+          },
+          "target_discarded_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "source_purge_due_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "source_purged_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "PlacementMigrationPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlacementMigration"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "PlacementReconciliation": {
+        "type": "object",
+        "description": "The copy compared with the original, table by table: the number of rows, the checksum of the primary keys and the sum of every numeric(24,0) money column (decimal text). A table is in agreement only when all three are the same.",
+        "required": [
+          "match",
+          "measured_at",
+          "source_rows",
+          "target_rows",
+          "mismatched_tables",
+          "unreadable_tables",
+          "tables"
+        ],
+        "properties": {
+          "match": {
+            "type": "boolean"
+          },
+          "measured_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source_rows": {
+            "type": "integer"
+          },
+          "target_rows": {
+            "type": "integer"
+          },
+          "mismatched_tables": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "unreadable_tables": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Tables of the tenant plane that the worker cannot read: they are not compared"
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "table",
+                "rows_match",
+                "checksum_match",
+                "money",
+                "money_match",
+                "match"
+              ],
+              "properties": {
+                "table": {
+                  "type": "string"
+                },
+                "source_rows": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "target_rows": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "rows_match": {
+                  "type": "boolean"
+                },
+                "source_checksum": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "target_checksum": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "checksum_match": {
+                  "type": "boolean"
+                },
+                "money": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "column",
+                      "match"
+                    ],
+                    "properties": {
+                      "column": {
+                        "type": "string"
+                      },
+                      "source": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "description": "Decimal text, numeric(24,0)"
+                      },
+                      "target": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "description": "Decimal text, numeric(24,0)"
+                      },
+                      "match": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "money_match": {
+                  "type": "boolean"
+                },
+                "match": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "PlacementMigrationDetail": {
+        "type": "object",
+        "required": [
+          "migration",
+          "reconciliation"
+        ],
+        "properties": {
+          "migration": {
+            "$ref": "#/components/schemas/PlacementMigration"
+          },
+          "reconciliation": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PlacementReconciliation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "PlacementChoice": {
+        "type": "object",
+        "description": "A placement a tenant can be moved to (or is on): infrastructure references are not shown",
+        "required": [
+          "id",
+          "kind",
+          "region",
+          "status",
+          "tenant_count",
+          "incoming_migrations",
+          "available"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "POOL",
+              "SILO"
+            ]
+          },
+          "region": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Active",
+              "Draining",
+              "Retired"
+            ]
+          },
+          "max_tenants": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "tenant_count": {
+            "type": "integer"
+          },
+          "incoming_migrations": {
+            "type": "integer"
+          },
+          "available": {
+            "type": "boolean",
+            "description": "Whether a promotion can be started towards it: an Active silo with room"
+          }
+        }
+      },
+      "PlacementList": {
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlacementChoice"
+            }
           }
         }
       },
@@ -170171,6 +171360,1137 @@
             "items": {
               "$ref": "#/components/schemas/BidClarificationLine"
             }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RestoreMoneyCheck": {
+        "type": "object",
+        "required": [
+          "column",
+          "expected",
+          "restored",
+          "match"
+        ],
+        "properties": {
+          "column": {
+            "type": "string",
+            "description": "A money column (name ends in _vnd) of the table"
+          },
+          "expected": {
+            "type": "string",
+            "description": "The total the backup recorded, in dong, as a decimal text"
+          },
+          "restored": {
+            "type": "string",
+            "description": "The total the restored copy holds, in dong, as a decimal text"
+          },
+          "match": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RestoreTableCheck": {
+        "type": "object",
+        "required": [
+          "table",
+          "expected_rows",
+          "restored_rows",
+          "rows_match",
+          "expected_checksum",
+          "restored_checksum",
+          "checksum_match",
+          "money"
+        ],
+        "properties": {
+          "table": {
+            "type": "string"
+          },
+          "expected_rows": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "restored_rows": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "rows_match": {
+            "type": "boolean"
+          },
+          "expected_checksum": {
+            "type": "string"
+          },
+          "restored_checksum": {
+            "type": "string"
+          },
+          "checksum_match": {
+            "type": "boolean"
+          },
+          "money": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RestoreMoneyCheck"
+            }
+          }
+        }
+      },
+      "RestoreVerificationReport": {
+        "type": "object",
+        "required": [
+          "schema_version",
+          "matched",
+          "tables",
+          "totals",
+          "foreign_rows",
+          "mismatches",
+          "rpo_seconds",
+          "rto_seconds",
+          "rpo_target_seconds",
+          "rto_target_seconds",
+          "within_targets"
+        ],
+        "properties": {
+          "schema_version": {
+            "type": "integer"
+          },
+          "matched": {
+            "type": "boolean",
+            "description": "Every table has the rows, the checksum and the money totals the backup recorded, and no row of another tenant"
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RestoreTableCheck"
+            }
+          },
+          "totals": {
+            "type": "object",
+            "required": [
+              "tables",
+              "rows_expected",
+              "rows_restored",
+              "money_expected_vnd",
+              "money_restored_vnd"
+            ],
+            "properties": {
+              "tables": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "rows_expected": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "rows_restored": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "money_expected_vnd": {
+                "type": "string"
+              },
+              "money_restored_vnd": {
+                "type": "string"
+              }
+            }
+          },
+          "foreign_rows": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Rows of another tenant found in the restored copy: it must be 0"
+          },
+          "mismatches": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "What differs, as rows:table, checksum:table, money:table.column, missing_table:table, unexpected_table:table, foreign_rows"
+          },
+          "rpo_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "How far before the recovery point asked for the restored copy stops"
+          },
+          "rto_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "From the approval to the end of the verification"
+          },
+          "rpo_target_seconds": {
+            "type": "integer"
+          },
+          "rto_target_seconds": {
+            "type": "integer"
+          },
+          "within_targets": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TenantRestore": {
+        "type": "object",
+        "required": [
+          "id",
+          "recovery_point",
+          "target",
+          "reason",
+          "status",
+          "requested_by",
+          "requested_at",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recovery_point": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "target": {
+            "type": "string",
+            "enum": [
+              "SANDBOX",
+              "IN_PLACE"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Requested",
+              "Approved",
+              "Restoring",
+              "Verifying",
+              "Completed",
+              "Failed",
+              "Rejected"
+            ]
+          },
+          "requested_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "requested_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "decided_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "approved_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "decided_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "decision_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "started_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "completed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "restored_to": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "sandbox_ref": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Where the restored copy was placed (a sandbox restore only)"
+          },
+          "error_code": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The class of the failure, never its message"
+          },
+          "verification_report_ref": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "sha256 of the verification report: the drill record"
+          },
+          "verification_report": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RestoreVerificationReport"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "description": "The If-Match of the decision"
+          }
+        }
+      },
+      "TenantRestorePage": {
+        "type": "object",
+        "required": [
+          "tenant_status",
+          "tenant_version",
+          "recovery_window",
+          "rpo_target_seconds",
+          "rto_target_seconds",
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "tenant_status": {
+            "type": "string",
+            "enum": [
+              "Requested",
+              "Provisioning",
+              "Active",
+              "Failed",
+              "Suspended",
+              "Offboarding",
+              "Archived"
+            ]
+          },
+          "tenant_version": {
+            "type": "integer"
+          },
+          "recovery_window": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": [
+                  "earliest",
+                  "latest"
+                ],
+                "properties": {
+                  "earliest": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "latest": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The recovery points the backups hold for the tenant; null when none can be restored (no restore engine is bound)"
+          },
+          "rpo_target_seconds": {
+            "type": "integer"
+          },
+          "rto_target_seconds": {
+            "type": "integer"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TenantRestore"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "BidReportSignOff": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "dissent": {
+            "type": "string",
+            "description": "The dissent the member signs with, in their own words: 20 to 4000 characters once trimmed; omitted when the member has none"
+          }
+        }
+      },
+      "BidReportSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "conclusion",
+          "package",
+          "criteria_version_id",
+          "decisions_sha256",
+          "proposals",
+          "rows",
+          "not_covered",
+          "excluded_criteria",
+          "excluded_attributes"
+        ],
+        "description": "What the report froze: the comparison of the chosen runs from what the experts decided, with no ranking and no winner",
+        "properties": {
+          "conclusion": {
+            "type": "string"
+          },
+          "package": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              }
+            }
+          },
+          "criteria_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "decisions_sha256": {
+            "type": "string",
+            "description": "The digest of the decisions the report was made from; a decision taken again changes it"
+          },
+          "proposals": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "proposal_id",
+                "contractor",
+                "run_id",
+                "criteria_count",
+                "decided_count",
+                "mandatory_not_met",
+                "weighted_score"
+              ],
+              "properties": {
+                "proposal_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "contractor": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "legal_name"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "legal_name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "run_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "criteria_count": {
+                  "type": "integer"
+                },
+                "decided_count": {
+                  "type": "integer"
+                },
+                "mandatory_not_met": {
+                  "type": "integer"
+                },
+                "weighted_score": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "criterion",
+                "cells"
+              ],
+              "properties": {
+                "criterion": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "code",
+                    "name",
+                    "kind",
+                    "weight",
+                    "max_score",
+                    "threshold",
+                    "mandatory"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string"
+                    },
+                    "weight": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "max_score": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "threshold": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "mandatory": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "cells": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "proposal_id",
+                      "finding_id",
+                      "decided",
+                      "risk"
+                    ],
+                    "properties": {
+                      "proposal_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "finding_id": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "format": "uuid"
+                      },
+                      "decided": {
+                        "type": [
+                          "object",
+                          "null"
+                        ],
+                        "additionalProperties": false,
+                        "required": [
+                          "status",
+                          "score",
+                          "decision",
+                          "decided_at"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "SUPPORTED",
+                              "CONTRADICTED",
+                              "MISSING",
+                              "NEEDS_REVIEW"
+                            ]
+                          },
+                          "score": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "decision": {
+                            "type": "string",
+                            "enum": [
+                              "ACCEPTED",
+                              "ACCEPTED_WITH_CHANGE",
+                              "REJECTED"
+                            ]
+                          },
+                          "decided_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      },
+                      "risk": {
+                        "type": "string",
+                        "enum": [
+                          "UNDECIDED",
+                          "NONE",
+                          "ATTENTION",
+                          "MANDATORY_NOT_MET"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "not_covered": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "proposal_id",
+                "contractor",
+                "reason"
+              ],
+              "properties": {
+                "proposal_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "contractor": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "legal_name"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "legal_name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "reason": {
+                  "type": "string",
+                  "enum": [
+                    "NOT_SELECTED",
+                    "NO_ANALYSIS_RUN",
+                    "CRITERIA_VERSION_MISMATCH"
+                  ]
+                }
+              }
+            },
+            "description": "The proposals of the package that are not in the report, and why"
+          },
+          "excluded_criteria": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "rule"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "rule": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "excluded_attributes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "BidReport": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "package",
+          "project_id",
+          "criteria_version_id",
+          "run_ids",
+          "status",
+          "summary",
+          "signed_off_by",
+          "awaiting",
+          "dissenting_opinions",
+          "payload_sha256",
+          "report_document_id",
+          "document_status",
+          "stale",
+          "actions",
+          "created_by",
+          "created_at",
+          "issue_requested_at",
+          "issued_at",
+          "recalled_at",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "package": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              }
+            }
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "criteria_version_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "run_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "SIGNED_OFF",
+              "ISSUE_REQUESTED",
+              "ISSUED",
+              "SUPERSEDED"
+            ]
+          },
+          "summary": {
+            "$ref": "#/components/schemas/BidReportSummary"
+          },
+          "signed_off_by": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "membership_id",
+                "display_name",
+                "signed_at",
+                "dissent"
+              ],
+              "properties": {
+                "membership_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "display_name": {
+                  "type": "string"
+                },
+                "signed_at": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "dissent": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "awaiting": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "membership_id",
+                "display_name",
+                "standing"
+              ],
+              "properties": {
+                "membership_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "display_name": {
+                  "type": "string"
+                },
+                "standing": {
+                  "type": "string",
+                  "enum": [
+                    "UNDECLARED",
+                    "CLEAR",
+                    "ALLOWED",
+                    "PENDING"
+                  ]
+                }
+              }
+            },
+            "description": "The members of the evaluation team the report still waits for; the ones a decision on a conflict of interest shut out are not waited for"
+          },
+          "dissenting_opinions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "membership_id",
+                "display_name",
+                "text",
+                "recorded_at"
+              ],
+              "properties": {
+                "membership_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "display_name": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "recorded_at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            },
+            "description": "The dissent members signed with, each in the words of the member"
+          },
+          "payload_sha256": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "report_document_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid",
+            "description": "The minutes DOC issued; null until doc.issued.v1 names this report"
+          },
+          "document_status": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The state of the document DOC drafted for the minutes, as DOC keeps it"
+          },
+          "stale": {
+            "type": "boolean",
+            "description": "Experts decided a finding of the runs again after the draft: the report no longer says what stands and cannot be signed"
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "sign_off"
+            ],
+            "properties": {
+              "sign_off": {
+                "type": "boolean"
+              }
+            }
+          },
+          "created_by": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "membership_id",
+              "display_name"
+            ],
+            "properties": {
+              "membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "display_name": {
+                "type": "string"
+              }
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "issue_requested_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "issued_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "recalled_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "BidReportList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BidReport"
+            }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "DocInteropMessage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "direction",
+          "status",
+          "adapter_code",
+          "adapter_status",
+          "external_message_id",
+          "sender_code",
+          "receiver_code",
+          "outgoing_document_id",
+          "incoming_document_id",
+          "attempts",
+          "next_attempt_at",
+          "error_code",
+          "processed_at",
+          "created_at",
+          "updated_at",
+          "version",
+          "actions"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "OUTBOUND",
+              "INBOUND"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "QUEUED",
+              "SENT",
+              "ACKED",
+              "REJECTED",
+              "FAILED",
+              "DEAD",
+              "RECEIVED",
+              "PROCESSED"
+            ]
+          },
+          "adapter_code": {
+            "type": "string"
+          },
+          "adapter_status": {
+            "type": "string",
+            "enum": [
+              "VERIFIED",
+              "PROPOSED",
+              "MOCK",
+              "MISSING"
+            ]
+          },
+          "external_message_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sender_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "receiver_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "outgoing_document_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "incoming_document_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "attempts": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 20
+          },
+          "next_attempt_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "error_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "processed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "retry"
+            ],
+            "properties": {
+              "retry": {
+                "type": "boolean",
+                "description": "The message failed or is dead and can be sent again by a person who may manage the messages; the server judges the command again"
+              }
+            }
+          }
+        }
+      },
+      "DocInteropMessageList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocInteropMessage"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "as_of": {
             "type": "string",

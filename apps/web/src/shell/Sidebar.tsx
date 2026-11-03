@@ -166,7 +166,8 @@ export function Sidebar(props: SidebarProps) {
       {...modalProps}
     >
       <div className="tenant-identity">
-        <Link to={props.homePath} className="tenant-monogram" aria-label={t('shell.tenant.home.label', { name: tenant?.name ?? '' })}>
+        {/* The name starts with the letters the link shows, so that the visible label is in the accessible name (WCAG 2.5.3). */}
+        <Link to={props.homePath} className="tenant-monogram" aria-label={t('shell.tenant.home.label', { monogram: tenant?.monogram ?? '·', name: tenant?.name ?? '' })}>
           {tenant?.monogram ?? '·'}
           <span />
         </Link>
@@ -216,11 +217,10 @@ export function Sidebar(props: SidebarProps) {
           <Icon name="chevron" />
         </button>
         {user === undefined ? null : (
-          <Link to={props.accountPath} className="account-link" aria-label={t('shell.account.open.label')}>
-            <span className="account-avatar">{user.initials}</span>
+          <Link to={props.accountPath} className="account-link" aria-label={t('shell.account.open.label', { initials: user.initials, name: user.displayName, role: t('shell.account.role.text') })}>
+            <span className="account-avatar">{user.initials}</span>{' '}
             <span>
-              <strong>{user.displayName}</strong>
-              <small>{t('shell.account.role.text')}</small>
+              <strong>{user.displayName}</strong> <small>{t('shell.account.role.text')}</small>
             </span>
             <span aria-hidden="true">···</span>
           </Link>

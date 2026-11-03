@@ -1,10 +1,11 @@
 import { Controller, Get, Inject, Optional } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { DocIncomingStore, DocumentTemplateStore, OUTGOING_SCOPE_COLUMNS, OutgoingDocumentStore, TenantDatabase, scopePredicate } from '@machvon/db';
+import { DocIncomingStore, DocInteropStore, DocumentTemplateStore, OUTGOING_SCOPE_COLUMNS, OutgoingDocumentStore, TenantDatabase, scopePredicate } from '@machvon/db';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
+import { holdsOnWholeTenant } from '../adm/tenant-authority';
 import { holdsAnywhere, incomingScope } from './incoming.controller';
 import { DOC_CLOCK } from './tokens';
 
@@ -31,6 +32,7 @@ export class DocumentOverviewController {
   private readonly outgoing = new OutgoingDocumentStore();
   private readonly incoming = new DocIncomingStore();
   private readonly templates = new DocumentTemplateStore();
+  private readonly interop = new DocInteropStore();
   private readonly clock: () => Date;
 
   constructor(
@@ -48,17 +50,19 @@ export class DocumentOverviewController {
     const mayReadOutgoing = outgoingScope(1).sql !== 'false';
     const mayReadIncoming = holdsAnywhere(access, PERMISSIONS.getIncomingDocument, now);
     const mayReadTemplates = holdsAnywhere(access, PERMISSIONS.getDocumentTemplate, now);
+    const mayReadInterop = holdsOnWholeTenant(access, PERMISSIONS.listInteropMessages);
     return this.database.withTenant(tenant, async (tx) => {
       const queued = mayReadOutgoing ? await this.outgoing.countByStatus(tx, OUTGOING_QUEUES.map((queue) => queue.status), outgoingScope) : undefined;
       const overdue = mayReadIncoming ? await this.incoming.countOverdue(tx, incomingScope(access, PERMISSIONS.getIncomingDocument, now, tenant.membershipId)) : null;
       const unconfirmed = mayReadTemplates ? await this.templates.countPendingConfirmation(tx) : null;
+      const interopErrors = mayReadInterop ? await this.interop.countByStatus(tx, ['FAILED', 'DEAD']) : null;
       return {
         as_of: now.toISOString(),
         tiles: [
           ...OUTGOING_QUEUES.map((queue): Tile => ({ key: queue.key, count: queued === undefined ? null : (queued[queue.status] ?? 0) })),
           { key: 'overdue_incoming', count: overdue },
-          // The interoperability with other systems is not built yet (ST-DOC-021): there is nothing that can have failed.
-          { key: 'interop_errors', count: 0 },
+          // The messages of the LGSP that failed and wait for another attempt, or died (ST-DOC-021): they belong to the tenant, so only a grant on the whole tenant counts them.
+          { key: 'interop_errors', count: interopErrors },
           { key: 'templates_pending_confirmation', count: unconfirmed },
         ],
       };

@@ -1,0 +1,13 @@
+{
+  "id": "SLO_SLOW_BURN",
+  "severity": "warning",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/SLO_SLOW_BURN.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "event",
+    "code": "SLO_SLOW_BURN"
+  },
+  "summary": "A core service spends its 30 day error budget at 6 times the rate its 99.9 percent objective allows, over the last 6 hours and the last 30 minutes."
+}

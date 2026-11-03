@@ -153,7 +153,7 @@ describe('the approval workflows over HTTP (ST-ADM-012)', () => {
     expect(await draft(UNIT_ADMIN, 'report.accept', definitionOf([step('review')]))).toMatchObject({ status: 403, json: { code: 'SCOPE_DENIED' } });
   });
 
-  it('AC-ST-ADM-012-3, UAT-AC121: a leader on a first factor only is refused with MFA_REQUIRED until the second factor, then decides', async () => {
+  it('AC-ST-ADM-012-3, AC-ST-IAM-002-4, UAT-AC121: a leader on a first factor only is refused with MFA_REQUIRED until the second factor, then decides', async () => {
     await publish('report.accept', definitionOf([step('review')]));
     const instanceId = await startInstance();
     const task = await taskOf(instanceId, LEADER_A);

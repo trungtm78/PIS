@@ -1,0 +1,77 @@
+# Promotion of a tenant from the pool to a silo (ST-SAS-018, SAS.md 3.3, BR-SAS-05)
+
+A tenant on the shared pool can be moved to a database of its own (a **silo**) **only after the copy has been compared with the original, table by table, and agrees to the last row and the last dong**. A System Admin plans the promotion, a **different** System Admin approves the cutover, writes of the tenant are frozen for a bounded time, the copy is compared again, the routing is switched, and the tenant is watched for 24 hours before the migration is Completed. Screen SAS-23.
+
+**Read this first: the data path is not built.** The platform side of the promotion is complete and tested; the component that actually copies the rows to another database does not exist, because the replication on the chosen cloud is unconfirmed (SAS.md risk table, decision D02, spike `docs/spikes/SAS-SPK-SILO.md`, NOT RUN). See "What is not built" below. In production every attempt to copy is refused with `PLACEMENT_MOVER_UNAVAILABLE`, so no promotion can claim to have moved anything.
+
+## The way of a promotion
+
+`Planned → Copying → Verifying → AwaitingCutover → CutoverFrozen → Switched → Completed`, and `Aborted` or `RolledBack` from any point before `Completed` (`packages/kernel/src/sas-placement.ts`; the same list is held by the guard trigger of the table, and a test walks every pair of statuses against both).
+
+| Status | What happens | Who moves it |
+| --- | --- | --- |
+| Planned | `startSiloPromotion` recorded the target silo, the longest freeze (5 to 240 minutes), the planned start and the reason | System Admin |
+| Copying, Verifying | at the planned start the worker begins the copy, then measures the original and the copy | worker (job `placement-migration`) |
+| AwaitingCutover | the comparison is kept (whole, with a `sha256:` reference); while the cutover waits the worker catches the copy up and compares again at every pass | worker |
+| CutoverFrozen | `approvePlacementCutover` by **another** System Admin: `tenant.write_frozen_until = now + write_freeze_max_minutes`, so every write of the tenant is 503 `TENANT_WRITE_FROZEN` (retryable) | System Admin |
+| Switched | inside the freeze the worker sends the last difference, **compares again with writes frozen**, and only if every table agrees sets `tenant.placement_id` to the silo and `isolation_mode` to `SILO`, lifts the freeze and emits `sas.placement_migration.switched.v1` | worker |
+| Completed | 24 hours after the switch; the old data is deleted 30 days later unless a legal hold is in force | worker |
+| Aborted | `abortPlacementMigration` before the cutover: nothing had changed; the copy is destroyed | System Admin |
+| RolledBack | an abort once writes were frozen or the routing switched: the freeze is lifted, the routing is the old one, the copy is destroyed; or the **system** rolled it back (`ended_by` null) because the freeze ran out (`FREEZE_EXPIRED`) or the comparison under the freeze disagreed (`FINAL_VERIFICATION_FAILED`) | System Admin or worker |
+
+## What "agrees" means (BR-SAS-05)
+
+For every table of the tenant plane (the tables with row-level security that carry `tenant_id`; `packages/db/src/placement-measure.ts`) the same three measures are taken on the original and on the copy, in one `REPEATABLE READ` snapshot of the original:
+
+1. the **number of rows**;
+2. a **checksum of the primary keys**: the sum of `hashtextextended(row(pk columns)::text, 0)` over the rows (the whole row for a table without a key), so it does not depend on the order of the rows and costs no memory;
+3. the **sum of every `numeric(24,0)` column**, the money of the platform, as exact decimal text (compared as integers, never as text or floating point).
+
+A table agrees only when all three are equal on both sides; a table on one side only is a difference. The whole agrees only when every table does. The verdict is worked out again from the numbers whenever it is read, and the report is kept whole (`tenant_placement_migration.verification_report`) with its reference, so a report that is altered no longer matches its reference. The report holds table names, counts, checksums and sums, never a row.
+Tables the worker cannot read (the theme drafts, reviews and assets: `tenant_theme_draft`, `tenant_theme_review`, `tenant_theme_asset`) are **named as not compared** in the report and on the screen instead of being written as empty.
+
+## Operations (control plane, System Admin)
+
+| Operation | What happens |
+| --- | --- |
+| `startSiloPromotion` (`POST /system/tenants/{tenantId}/placement-migrations`, 202, `system.tenant.manage`) | `{to_placement_id, write_freeze_max_minutes, planned_window_start, reason}` (the window may be 5 minutes late and up to 90 days ahead; the reason 10 to 2000 characters, else 422 `VALIDATION_FAILED` naming the field). The tenant must be Active and on the pool (409 `TENANT_STATE_INVALID`), have no migration open (409 `MIGRATION_ALREADY_OPEN`; the unique index of the table holds it too), and the target must be an **Active silo of the region of the tenant with room** (a silo is one tenant's own: no tenant on it and none on its way to it, counted across tenants with the same lock the tenant registry uses) else 422 `PLACEMENT_UNAVAILABLE` with `reason` `NOT_FOUND`, `SAME_PLACEMENT`, `NOT_SILO`, `NOT_ACTIVE`, `OTHER_REGION` or `NO_ROOM`. Event `sas.placement_migration.started.v1`. |
+| `approvePlacementCutover` (`POST /system/placement-migrations/{migrationId}/cutover`, 202, If-Match) | The migration must wait (409 `MIGRATION_STATE_INVALID`); the approver is **not the one who started** (403 `SELF_APPROVAL_DENIED`; the database holds it too, a CHECK); the last comparison must **agree and be at most 10 minutes old** (422 `MIGRATION_VERIFICATION_FAILED`, `reason` `MISMATCH` with the `tables`, `STALE` or `NOT_VERIFIED`). The person is judged before the copy, so the initiator is told so even while the copy differs. The tenant must still be Active. Writes are frozen from now. |
+| `abortPlacementMigration` (`POST /system/placement-migrations/{migrationId}/abort`, 202, If-Match) | See the table above. From `Switched` the routing returns to the pool only while the silo holds what the last comparison saw (409 `MIGRATION_STATE_INVALID`, detail `TARGET_CHANGED`): there is no reverse replication, so a silo that has taken a write cannot be rolled back without losing it. |
+| `listPlacementMigrations`, `getPlacementMigration` (`GET`, `system.tenant.read`) | The migrations of a tenant, newest first; one migration with its comparison table by table (rows, checksums and money sums on both sides, the tables that differ, the tables not compared). Added by this story: the design had no read for SAS-23. |
+| `listPlacements` (`GET /system/placements`, `system.tenant.read`) | The pools and silos with the tenants on each and on their way, and `available`. The references of the infrastructure (cluster, key) are never shown. |
+
+Every command runs in the pipeline of the control plane (idempotency key, If-Match, audit, outbox) acting as the tenant of the migration. Audit actions: `tenant.placement_migration_started|copy_started|verified|aborted|rolled_back|completed`, `tenant.placement_cutover_approved`, `tenant.placement_switched`, `tenant.placement_target_discarded`, `tenant.placement_source_purged`.
+
+## What the database holds, whatever the application does (V1494)
+
+- What was asked for (tenant, from, to, freeze, reason, window, who) never changes; an approval, the freeze and the switch are recorded once; a migration that ended changes only in what the worker records of the data it destroyed.
+- A migration moves only along the transitions above. It cannot be frozen, switched or completed without an approver other than the initiator, nor switched without a comparison that agreed.
+- **The routing of a tenant (`placement_id`, `isolation_mode`) changes only with a switched migration and goes back only with a rolled back one** (trigger on `tenant`): no command and no hand edit moves a tenant to another database.
+- One open migration per tenant (unique index of V002). Nothing deletes a migration.
+- The tenant plane may read its migration and nothing else (`INSERT`, `UPDATE`, `DELETE` are revoked from `machvon_app`); the control plane writes it acting as the tenant.
+- `tenant_placement_migration_directory` (no row-level security, control role only, kept by a trigger) finds the tenant of a migration named by its id alone and counts the migrations on their way to a silo.
+
+## The worker (job `placement-migration`, every minute)
+
+`PlacementMigrationRunner` (`packages/db/src/placement-migration-runner.ts`) moves each migration of a tenant as far as it can in a pass, deciding what to do with the pure function `workerStep`. Every step is idempotent. A step that fails leaves the migration where it is with `last_error_code` (the class of the failure, never its message) and is tried again at the next pass; a migration that somebody moved while the step ran is left alone. The worker waits **5 seconds after writes are frozen** before it sends the last difference (every process of the API keeps its answer about the tenant for a second, and a command that began before the freeze finishes within seconds), and the routing is switched only if the freeze is **not over at the moment of the switch** (the clock is read again after the comparison). Gauges: `placement_migration_mismatch_total` (alert `SAS_PLACEMENT_MISMATCH`), `placement_migration_failing_total` (alert `SAS_PLACEMENT_FAILING`), and `placement_migration_attention{tenant_id}` for the tenant that needs a person. Runbooks: `docs/runbooks/alerts/`, `docs/runbooks/silo-promotion-rollback.md`, `docs/runbooks/jobs.md`.
+
+## Screen SAS-23
+
+`PromotionScreen`: the tenant picker; the form to plan a promotion (a free silo, the longest freeze, the window, the reason) when none is open; the list of the promotions of the tenant; and for the one shown the five fields of the design (Placement đích, Cửa sổ đóng băng ghi with a countdown drawn every second while frozen, Kết quả đối chiếu, Người duyệt cutover, Trạng thái), the steps of the way, and **the comparison table by table with the rows, checksum and money of both sides and the totals** (tables with no data are hidden until the filter is lifted). Approve and abort take a reason; a refusal is shown outside the form with the tables that differ and the reference of the request, and the words typed stay. The one who started is told before trying that the platform will not take their approval. A reader of the registry sees everything and writes nothing. The seven states come from `StateBoundary`.
+
+## What is not built (report to the lead)
+
+1. **There is no data mover.** `PlacementMover` is a port with a stand-in (`MockPlacementMover`) that keeps a picture of what the original measures in the memory of the process and answers it as the copy. It proves the state machine, the comparison, the four-eyes approval, the freeze, the switch and the rollback; it proves nothing about a real replication, and its "copy" is the original's own measure (tests alter it to stand for a copy with a row different). In production the mover is `UnboundPlacementMover`: every operation is refused with 503 `PLACEMENT_MOVER_UNAVAILABLE`. Binding a real one needs the spike on the chosen cloud (D02). The object-storage copy by prefix is part of the same port and equally absent.
+2. **There is no per-placement connection router.** The switch changes `tenant.placement_id` and `isolation_mode`, which the platform records and guards, but nothing in the application opens a connection to the database of another placement yet: today every tenant is served from the one database. The switch is therefore a recorded, verified decision that the router (a separate piece of work) will read.
+3. **The silo database is not provisioned by this story.** The target must already be an Active placement of kind SILO with room; creating the database from the template (SAS.md 3.1 step 4) belongs to provisioning.
+4. **Silo-specific identity is not touched** (a realm of its own for a silo, SAS.md 3.1 step 1).
+5. **The data written to a silo after the switch cannot be carried back** (no reverse replication): the rollback from Switched is refused once the silo differs from the last comparison, rather than losing the data.
+6. **The theme tables the worker cannot read are not compared** (named in the report); their content is moved by the theme module's own export, not by this comparison.
+7. **The deletion of the old data after 30 days** calls `purgeSource` of the same port (a no-op in the stand-in) after the check for legal holds (`tenant_legal_holds_active`).
+8. **The flag `sas.silo_promotion`** (V1493) exists but nothing reads release flags yet (`docs/sas-feature-flags.md`), so the operations are not gated by it; the permission and the role are the gate.
+9. **A comparison is made while the tenant is writing**, so before the freeze the numbers can differ by what was written between the two measures. The pass catches the copy up and compares again; the approval needs an agreeing comparison at most ten minutes old, and the comparison that decides is the one made under the freeze.
+10. **No notification of the lifecycle** (NOT) is sent for the steps of a promotion; the audit trail, the two events and the screen are the record.
+
+## Files
+
+Kernel `packages/kernel/src/sas-placement.ts`; migration `db/migrations/V1494__sas1_placement_migration.sql`; db `packages/db/src/placement-migration-store.ts`, `placement-migration-runner.ts`, `placement-measure.ts`, `placement-mover.ts`; API `apps/api/src/modules/sas/placement-migration.controller.ts`; web `apps/web/src/screens/sas/PromotionScreen.tsx` and `promotion/`. Telemetry carries `tenant_id` and no personal data.

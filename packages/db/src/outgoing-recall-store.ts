@@ -1,5 +1,6 @@
 import { DomainError, isInForce } from '@machvon/kernel';
 import { DocIssueRequestStore } from './doc-issue-request-store.ts';
+import { DocInteropStore } from './doc-interop-store.ts';
 import { DocumentDistributionStore } from './document-distribution-store.ts';
 import type { DistributionRecord } from './document-distribution-store.ts';
 import { NumberRegisterStore } from './number-register-store.ts';
@@ -61,6 +62,7 @@ export class OutgoingRecallStore {
   private readonly drafts = new OutgoingDraftStore();
   private readonly registers = new NumberRegisterStore();
   private readonly distributions = new DocumentDistributionStore();
+  private readonly interop = new DocInteropStore();
   private readonly requests = new DocIssueRequestStore();
 
   /**
@@ -93,6 +95,8 @@ export class OutgoingRecallStore {
     }
     const requestRecalled = (await this.requests.markRecalled(tx, document.id, input.actor)) !== undefined;
     const { cancelled, notified } = await this.distributions.applyRecall(tx, document.id, { at: input.now, notify: input.notifyRecipients }, input.actor);
+    // What was queued for the LGSP and has not left is called off with its row: nothing goes out for a document that is no longer in force.
+    await this.interop.cancelOfDistributions(tx, cancelled.map((row) => row.id), input.now, input.actor);
     const recalled = await this.outgoing.find(tx, document.id);
     if (recalled === undefined) throw new Error('outgoing document vanished while it was locked');
     return { document: recalled, from, notified, cancelled, requestRecalled };

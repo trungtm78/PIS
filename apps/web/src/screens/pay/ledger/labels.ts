@@ -25,5 +25,7 @@ export function entryKindLabel(t: Translate, kind: EntryKind): string {
       return t('pay.ledger.entry.kind.retentionHold');
     case 'RETENTION_RELEASE':
       return t('pay.ledger.entry.kind.retentionRelease');
+    case 'ADJUSTMENT':
+      return t('pay.ledger.entry.kind.adjustment');
   }
 }

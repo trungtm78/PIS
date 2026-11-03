@@ -64,47 +64,50 @@ function ProjectListContent({ route }: ScreenProps) {
               {t('prj.list.missingCode.label')}
             </label>
           </form>
+          {/* A table is wider than a phone: it scrolls inside its own box, and the page does not scroll sideways (WCAG 1.4.10). */}
           {shown.length === 0 ? (
             <p className="callout" role="status" data-testid="no-match">
               {t('prj.list.noMatch.notice')}
             </p>
           ) : (
-            <table className="table" data-testid="projects">
-              <thead>
-                <tr>
-                  <th scope="col">{t('prj.list.column.code')}</th>
-                  <th scope="col">{t('prj.list.column.name')}</th>
-                  <th scope="col">{t('prj.list.column.investor')}</th>
-                  <th scope="col">{t('prj.list.column.group')}</th>
-                  <th scope="col">{t('prj.list.column.status')}</th>
-                  <th scope="col">{t('prj.list.column.nationalCode')}</th>
-                  <th scope="col">{t('prj.list.column.stage')}</th>
-                  <th scope="col">{t('prj.list.column.leader')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {shown.map((project) => (
-                  <tr key={project.id} data-project-id={project.id}>
-                    <th scope="row">
-                      <Link to={workspaceLink(project.id)}>{project.code}</Link>
-                    </th>
-                    <td>{project.name}</td>
-                    <td>{project.investorUnitName ?? project.ownerUnitName}</td>
-                    <td>{project.projectGroup ?? t('prj.list.group.none')}</td>
-                    <td>{lifeLabel(t, project.status)}</td>
-                    <td>
-                      <NationalCode code={project.nationalProjectCode} />
-                    </td>
-                    <td>
-                      <span className="prj-badge" data-testid="stage">
-                        {stageLabel(t, project.status)}
-                      </span>
-                    </td>
-                    <td>{project.leaderName ?? t('prj.list.leader.none')}</td>
+            <div className="prj-scroll">
+              <table className="table" data-testid="projects">
+                <thead>
+                  <tr>
+                    <th scope="col">{t('prj.list.column.code')}</th>
+                    <th scope="col">{t('prj.list.column.name')}</th>
+                    <th scope="col">{t('prj.list.column.investor')}</th>
+                    <th scope="col">{t('prj.list.column.group')}</th>
+                    <th scope="col">{t('prj.list.column.status')}</th>
+                    <th scope="col">{t('prj.list.column.nationalCode')}</th>
+                    <th scope="col">{t('prj.list.column.stage')}</th>
+                    <th scope="col">{t('prj.list.column.leader')}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {shown.map((project) => (
+                    <tr key={project.id} data-project-id={project.id}>
+                      <th scope="row">
+                        <Link to={workspaceLink(project.id)}>{project.code}</Link>
+                      </th>
+                      <td>{project.name}</td>
+                      <td>{project.investorUnitName ?? project.ownerUnitName}</td>
+                      <td>{project.projectGroup ?? t('prj.list.group.none')}</td>
+                      <td>{lifeLabel(t, project.status)}</td>
+                      <td>
+                        <NationalCode code={project.nationalProjectCode} />
+                      </td>
+                      <td>
+                        <span className="prj-badge" data-testid="stage">
+                          {stageLabel(t, project.status)}
+                        </span>
+                      </td>
+                      <td>{project.leaderName ?? t('prj.list.leader.none')}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </StateBoundary>

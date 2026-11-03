@@ -227,6 +227,7 @@
     "postCompensationPlan",
     "post_acceptances_id_decision",
     "post_contract_changes_id_decision",
+    "approveRetroactiveAdjustment",
     "post_contracts_id_activate",
     "post_dashboard_queries",
     "post_handovers_id_decision",
@@ -338,6 +339,10 @@
     "post_findings_id_review",
     "sendBidClarification",
     "recordClarificationAnswer",
+    "receiveInteropMessage",
+    "retryInteropMessage",
+    "createEvaluationReport",
+    "signOffEvaluationReport",
     "createMaturityMilestone",
     "post_maturity_assessments_id_publish",
     "post_master_records_id_merge",
@@ -544,6 +549,8 @@
     "post_tenants_id_export"
   ],
   "controlCommands": [
+    "decideTenantRestore",
+    "requestTenantRestore",
     "assignTenantOwner",
     "cancelSubscription",
     "changeSubscriptionPlan",
@@ -579,7 +586,10 @@
     "startTenantOffboarding",
     "addTenantDomain",
     "verifyTenantDomain",
-    "removeTenantDomain"
+    "removeTenantDomain",
+    "startSiloPromotion",
+    "approvePlacementCutover",
+    "abortPlacementMigration"
   ],
   "identityCommands": [
     "acceptInvitation",

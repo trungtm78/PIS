@@ -14,7 +14,7 @@ state, resume a SHA-256 checked photo upload after the network is lost, and rend
 Three small Dart modules next to the generated API client, each with tests that run with `flutter test`
 (`packages/mobile-api-client/spike/`, tests in `packages/mobile-api-client/test/spike/`):
 
-- `pkce.dart`: verifier, S256 challenge, authorization URL, state check, token request, restorable session.
+- `pkce.dart`: verifier, S256 challenge, authorization URL, state check, token request, restorable session. Moved to `apps/mobile/lib/features/session/auth/pkce.dart` by ST-MOB-002 (see `docs/mob-session.md`); the spike keeps `sha256.dart` for the upload spike.
 - `offline_command_queue.dart`: an ordered queue over the generated `MachvonApiClient`; a command keeps one
   `CommandAttempt` key for its whole life, so a replay is the same intention.
 - `resumable_upload.dart`: a chunked uploader over a `ChunkUploadServer` port; after a failure it asks the server which

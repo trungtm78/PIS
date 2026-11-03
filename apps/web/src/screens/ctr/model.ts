@@ -82,6 +82,35 @@ export interface RevisionLine {
   boqLineCount: number | undefined;
 }
 
+/** One balance of the ledger that a retroactive adjustment moved: an item of an acceptance (and member), what it was accepted for and what it is worth at the new price. Exact decimal strings in VND. */
+export interface AdjustedLine {
+  id: string;
+  acceptanceId: string;
+  acceptanceNo: string | null;
+  boqItemKey: string;
+  partyId: string | null;
+  quantity: string;
+  oldAmountVnd: string;
+  newUnitPrice: string;
+  newAmountVnd: string;
+  /** New less old, signed: positive when the price rose, negative when it fell. */
+  deltaVnd: string;
+}
+
+/** A retroactive adjustment of a change order (ST-CTR-016): the day it reaches back to, the revision it made, what it rests on and the balances it moved. Read by right of the ledger. */
+export interface AdjustmentRecord {
+  id: string;
+  changeRequestId: string;
+  changeRequestCode: string | null;
+  revisionId: string;
+  effectiveOn: string;
+  approvedOn: string;
+  basis: string;
+  decisionDocumentVersionId: string;
+  totalDeltaVnd: string;
+  affected: AdjustedLine[];
+}
+
 export interface PartyLine {
   id: string;
   contractorId: string;
@@ -106,6 +135,8 @@ export interface ContractView extends ContractLine {
   statusReason: string | null;
   documentVersionId: string | null;
   revisions: RevisionLine[];
+  /** The retroactive adjustments of the contract, oldest first; empty for a reader without the right to the ledger. */
+  retroactiveAdjustments: AdjustmentRecord[];
   parties: PartyLine[];
   /** Whether the work the members take adds up to the value of the contract, as the server counted it. */
   workMatchesValue: boolean;
@@ -170,6 +201,54 @@ function toRevision(raw: unknown): RevisionLine[] {
   ];
 }
 
+function toAdjustedLine(raw: unknown): AdjustedLine[] {
+  const row = asRecord(raw);
+  const id = text(row?.id);
+  const acceptanceId = text(row?.acceptance_id);
+  const oldAmount = text(row?.old_amount_vnd);
+  const newAmount = text(row?.new_amount_vnd);
+  const delta = text(row?.delta_vnd);
+  if (row === undefined || id === undefined || acceptanceId === undefined || oldAmount === undefined || newAmount === undefined || delta === undefined) return [];
+  return [
+    {
+      id,
+      acceptanceId,
+      acceptanceNo: nullableText(row.acceptance_no),
+      boqItemKey: text(row.boq_item_key) ?? '',
+      partyId: nullableText(row.party_id),
+      quantity: text(row.quantity) ?? '',
+      oldAmountVnd: oldAmount,
+      newUnitPrice: text(row.new_unit_price) ?? '',
+      newAmountVnd: newAmount,
+      deltaVnd: delta,
+    },
+  ];
+}
+
+function toAdjustment(raw: unknown): AdjustmentRecord[] {
+  const row = asRecord(raw);
+  const id = text(row?.id);
+  const changeRequestId = text(row?.change_request_id);
+  const revisionId = text(row?.revision_id);
+  const effectiveOn = text(row?.effective_on);
+  const total = text(row?.total_delta_vnd);
+  if (row === undefined || id === undefined || changeRequestId === undefined || revisionId === undefined || effectiveOn === undefined || total === undefined) return [];
+  return [
+    {
+      id,
+      changeRequestId,
+      changeRequestCode: nullableText(row.change_request_code),
+      revisionId,
+      effectiveOn,
+      approvedOn: text(row.approved_on) ?? '',
+      basis: text(row.basis) ?? '',
+      decisionDocumentVersionId: text(row.decision_document_version_id) ?? '',
+      totalDeltaVnd: total,
+      affected: listOf(row.affected, toAdjustedLine),
+    },
+  ];
+}
+
 function toParty(raw: unknown): PartyLine[] {
   const row = asRecord(raw);
   const id = text(row?.id);
@@ -204,6 +283,7 @@ export function toContractView(raw: unknown): ContractView | undefined {
     statusReason: nullableText(row.status_reason),
     documentVersionId: current?.documentVersionId ?? null,
     revisions,
+    retroactiveAdjustments: listOf(row.retroactive_adjustments, toAdjustment),
     parties: listOf(row.parties, toParty),
     workMatchesValue: asRecord(row.parties_check)?.work_matches_value === true,
     statusChanges: listOf(row.status_changes, toStatusChange),

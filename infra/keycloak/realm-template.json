@@ -39,6 +39,9 @@
   ],
   "bruteForce": {
     "failureFactor": 5,
+    "maxDeltaTimeSeconds": 900,
+    "waitIncrementSeconds": 900,
+    "maxFailureWaitSeconds": 900,
     "permanentLockout": false
   }
 }

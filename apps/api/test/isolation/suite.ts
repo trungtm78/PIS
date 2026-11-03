@@ -488,6 +488,24 @@ export const SETTLEMENT_FIXTURES: Readonly<Record<TenantName, { id: string; note
   'TNT-B': { id: '00000000-0000-4000-b0d1-000000000001', note: 'BETA-SETTLEMENT-NOTE-0001' },
 };
 
+/** The retroactive adjustment of the change order of each tenant: its line, the balance it moved and the entry of the ledger (the basis is distinctive; tenant financial data). */
+export const RETROACTIVE_FIXTURES: Readonly<Record<TenantName, { id: string; lineId: string; ledgerId: string; entryId: string; basis: string }>> = {
+  'TNT-A': {
+    id: '00000000-0000-4000-a0c8-000000000011',
+    lineId: '00000000-0000-4000-a0c8-000000000012',
+    ledgerId: '00000000-0000-4000-a0c8-000000000013',
+    entryId: '00000000-0000-4000-a0c8-000000000014',
+    basis: 'ALPHA-RETROACTIVE-BASIS-0001',
+  },
+  'TNT-B': {
+    id: '00000000-0000-4000-b0c8-000000000011',
+    lineId: '00000000-0000-4000-b0c8-000000000012',
+    ledgerId: '00000000-0000-4000-b0c8-000000000013',
+    entryId: '00000000-0000-4000-b0c8-000000000014',
+    basis: 'BETA-RETROACTIVE-BASIS-0001',
+  },
+};
+
 /** The cumulative ledger of the work acceptance of each tenant, with one entry (the reason is distinctive; tenant financial data). */
 export const LEDGER_FIXTURES: Readonly<Record<TenantName, { id: string; entryId: string; entryReason: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0cd-000000000001', entryId: '00000000-0000-4000-a0cd-000000000002', entryReason: 'ALPHA-LEDGER-ENTRY-0001' },
@@ -552,6 +570,18 @@ export const PETITION_FIXTURES: Readonly<Record<TenantName, { id: string }>> = {
 export const CLARIFICATION_FIXTURES: Readonly<Record<TenantName, { id: string; question: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0bd-000000000001', question: 'ALPHA isolation clarification: explain the unit price of the bridge deck.' },
   'TNT-B': { id: '00000000-0000-4000-b0bd-000000000001', question: 'BETA isolation clarification: explain the unit price of the viaduct deck.' },
+};
+
+/** An evaluation report of the package of each tenant, a draft of the run with its decision (the conclusion is distinctive; tenant confidential data). */
+export const EVALUATION_REPORT_FIXTURES: Readonly<Record<TenantName, { id: string; conclusion: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0bf-000000000001', conclusion: 'ALPHA isolation report: the team finds the bridge proposal acceptable.' },
+  'TNT-B': { id: '00000000-0000-4000-b0bf-000000000001', conclusion: 'BETA isolation report: the team finds the viaduct proposal acceptable.' },
+};
+
+/** A message that arrived through the LGSP of each tenant and waits: neither its id nor the code of its sender may be seen by the other tenant (the sender code is distinctive; tenant confidential data). */
+export const INTEROP_FIXTURES: Readonly<Record<TenantName, { id: string; externalId: string; sender: string; digest: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0be-000000000001', externalId: 'ALPHA-LGSP-MESSAGE-0001', sender: 'ALPHA.LGSP.SENDER', digest: 'a'.repeat(64) },
+  'TNT-B': { id: '00000000-0000-4000-b0be-000000000001', externalId: 'BETA-LGSP-MESSAGE-0001', sender: 'BETA.LGSP.SENDER', digest: 'b'.repeat(64) },
 };
 
 /** A stage of land clearance reported by an external unit, in the section of each tenant (its note is distinctive; tenant data). */
@@ -1683,6 +1713,11 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'procurement petition id', value: PETITION_FIXTURES[tenant].id },
     { kind: 'bid clarification id', value: CLARIFICATION_FIXTURES[tenant].id },
     { kind: 'bid clarification question', value: CLARIFICATION_FIXTURES[tenant].question },
+    { kind: 'interop message id', value: INTEROP_FIXTURES[tenant].id },
+    { kind: 'interop message external id', value: INTEROP_FIXTURES[tenant].externalId },
+    { kind: 'interop message sender code', value: INTEROP_FIXTURES[tenant].sender },
+    { kind: 'evaluation report id', value: EVALUATION_REPORT_FIXTURES[tenant].id },
+    { kind: 'evaluation report conclusion', value: EVALUATION_REPORT_FIXTURES[tenant].conclusion },
     { kind: 'analysis run id', value: RUN_FIXTURES[tenant].id },
     { kind: 'analysis finding id', value: RUN_FIXTURES[tenant].findingId },
     { kind: 'analysis finding text', value: RUN_FIXTURES[tenant].finding },
@@ -1729,6 +1764,10 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'cumulative ledger id', value: LEDGER_FIXTURES[tenant].id },
     { kind: 'cumulative ledger entry id', value: LEDGER_FIXTURES[tenant].entryId },
     { kind: 'cumulative ledger entry reason', value: LEDGER_FIXTURES[tenant].entryReason },
+    { kind: 'retroactive adjustment id', value: RETROACTIVE_FIXTURES[tenant].id },
+    { kind: 'retroactive adjustment line id', value: RETROACTIVE_FIXTURES[tenant].lineId },
+    { kind: 'retroactive adjustment ledger entry id', value: RETROACTIVE_FIXTURES[tenant].entryId },
+    { kind: 'retroactive adjustment basis', value: RETROACTIVE_FIXTURES[tenant].basis },
     { kind: 'inspection id', value: INSPECTION_FIXTURES[tenant].id },
     { kind: 'inspection title', value: INSPECTION_FIXTURES[tenant].title },
     { kind: 'handover id', value: HANDOVER_FIXTURES[tenant].id },

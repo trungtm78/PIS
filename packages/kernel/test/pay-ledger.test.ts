@@ -30,7 +30,8 @@ const delta = (overrides: Partial<LedgerDelta> = {}): LedgerDelta => ({ ...ZERO_
 
 describe('the cumulative ledger (ST-PAY-001)', () => {
   it('knows the kinds of entry and which entry each reversal reverses', () => {
-    expect(LEDGER_ENTRY_KINDS).toHaveLength(10);
+    expect(LEDGER_ENTRY_KINDS).toHaveLength(11);
+    expect(LEDGER_ENTRY_KINDS.at(-1)).toBe('ADJUSTMENT');
     expect(Object.keys(REVERSAL_OF).sort()).toEqual(['ADVANCE_RECOVERY_REVERSAL', 'CLAIM_RELEASE', 'PAYMENT_REVERSAL', 'REVOKE_ACCEPTANCE']);
     expect(LEDGER_ENTRY_KINDS.filter(isReversal)).toEqual(['REVOKE_ACCEPTANCE', 'CLAIM_RELEASE', 'PAYMENT_REVERSAL', 'ADVANCE_RECOVERY_REVERSAL']);
     expect(REVERSAL_OF.REVOKE_ACCEPTANCE).toBe('RECOGNIZE_ACCEPTANCE');
@@ -75,6 +76,18 @@ describe('the cumulative ledger (ST-PAY-001)', () => {
     expect(refusal(() => assertEntryShape('REVOKE_ACCEPTANCE', delta({ accepted: '5' }), 'e'))).toMatchObject({ detail: 'delta' });
     expect(refusal(() => assertEntryShape('REVOKE_ACCEPTANCE', delta({ accepted: '-5' }), null))).toMatchObject({ detail: 'reversal_of_id' });
     expect(refusal(() => assertEntryShape('CLAIM', delta({ requested: '5' }), 'e'))).toMatchObject({ detail: 'reversal_of_id' });
+  });
+
+  it('AC-ST-CTR-016-1: lets an adjustment move the accepted amount either way, and nothing else, without reversing an entry', () => {
+    expect(() => assertEntryShape('ADJUSTMENT', delta({ accepted: '50' }), null)).not.toThrow();
+    expect(() => assertEntryShape('ADJUSTMENT', delta({ accepted: '-50' }), null)).not.toThrow();
+    expect(isReversal('ADJUSTMENT')).toBe(false);
+    expect(refusal(() => assertEntryShape('ADJUSTMENT', delta(), null))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'delta' });
+    for (const field of ['requested', 'paid', 'advanceRecovery', 'retention'] as const) {
+      expect(refusal(() => assertEntryShape('ADJUSTMENT', delta({ accepted: '5', [field]: '1' }), null))).toMatchObject({ detail: 'delta' });
+      expect(refusal(() => assertEntryShape('ADJUSTMENT', delta({ accepted: '5', [field]: '-1' }), null))).toMatchObject({ detail: 'delta' });
+    }
+    expect(refusal(() => assertEntryShape('ADJUSTMENT', delta({ accepted: '5' }), 'e'))).toMatchObject({ detail: 'reversal_of_id' });
   });
 
   it('counts the advance still to be recovered, never below zero, and adds balances together', () => {

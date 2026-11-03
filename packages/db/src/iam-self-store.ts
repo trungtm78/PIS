@@ -1,5 +1,6 @@
 import { DomainError, maskEmail, maskPhone, versionConflict } from '@machvon/kernel';
 import type { ProfilePatch } from '@machvon/kernel';
+import { PUSH_ELIGIBLE_SQL, PUSH_OWNER_ORDER_SQL } from './device-registration-store.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 const TIME = (column: string): string => `to_char(${column} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`;
@@ -30,6 +31,10 @@ export interface DeviceView {
   devicePublicId: string;
   lastSeenAt: string;
   revokedAt: string | null;
+  /** What the operating system allows this device to do with notifications. */
+  permissionState: string;
+  /** The device the person's push goes to (the owner of the push policy of the device registrations); at most one of the person's devices. */
+  pushOwner: boolean;
 }
 
 /** What revoking a session did: the sessions that are revoked now (its own, and those of the device it was opened on) and the device that went with it. */
@@ -122,12 +127,13 @@ export class IamSelfStore {
 
   /** The devices of the member, the live ones first, then the revoked (kept as history). */
   async devices(tx: TenantTx, membershipId: string): Promise<DeviceView[]> {
-    const rows = await tx.query<{ id: string; platform: string; device_public_id: string; last_seen_at: string; revoked_at: string | null }>(
-      `select id, platform, device_public_id, ${TIME('last_seen_at')} as last_seen_at, ${TIME('revoked_at')} as revoked_at
+    const rows = await tx.query<{ id: string; platform: string; device_public_id: string; last_seen_at: string; revoked_at: string | null; permission_state: string; push_owner: boolean }>(
+      `select id, platform, device_public_id, ${TIME('last_seen_at')} as last_seen_at, ${TIME('revoked_at')} as revoked_at, permission_state,
+              id = (select o.id from machvon.device_registration o where o.membership_id = $1::uuid and ${PUSH_ELIGIBLE_SQL} order by ${PUSH_OWNER_ORDER_SQL} limit 1) as push_owner
          from machvon.device_registration where membership_id = $1::uuid order by (revoked_at is not null), last_seen_at desc, id limit 200`,
       [membershipId],
     );
-    return rows.map((row) => ({ id: row.id, platform: row.platform, devicePublicId: row.device_public_id, lastSeenAt: row.last_seen_at, revokedAt: row.revoked_at }));
+    return rows.map((row) => ({ id: row.id, platform: row.platform, devicePublicId: row.device_public_id, lastSeenAt: row.last_seen_at, revokedAt: row.revoked_at, permissionState: row.permission_state, pushOwner: row.push_owner === true }));
   }
 
   /**

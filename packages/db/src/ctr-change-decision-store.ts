@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import {
   DomainError,
   assertFollowsRevision,
@@ -11,11 +10,10 @@ import {
   valueAfterChange,
 } from '@machvon/kernel';
 import type { ChangeDecision, ChangeStatus } from '@machvon/kernel';
-import { CtrBoqStore } from './ctr-boq-store.ts';
-import type { BoqImportResult } from './ctr-boq-store.ts';
-import { reconciliationOf, totalMismatch } from './ctr-boq-lines.ts';
 import { CtrChangeChainStore } from './ctr-change-chain-store.ts';
 import type { ChangeRow } from './ctr-change-chain-store.ts';
+import { CtrChangeRevisions, absoluteVnd } from './ctr-change-revision.ts';
+import type { NewRevisionResult } from './ctr-change-revision.ts';
 import { CtrContractSource } from './ctr-contract-source.ts';
 import type { ProjectRef } from './ctr-contract-source.ts';
 import { calendarDate, textOf } from './ctr-contract-store.ts';
@@ -26,8 +24,6 @@ import type { TenantTx } from './tenant-database.ts';
 const MAX_TEXT = 2000;
 const MAX_EVIDENCE = 50;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const TENANT = `nullif(current_setting('app.tenant_id', true), '')::uuid`;
-
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
 
 export interface DecideInput {
@@ -50,20 +46,6 @@ export interface DecisionHooks {
   authorise(facts: { amountVnd: string; contractId: string; projectId: string; ownerUnit: { id: string; path: string } }): Promise<void>;
   /** Throws 422 `ALLOCATION_UNAVAILABLE` when the line of capital cannot take the increase. */
   available(allocationLineId: string, amountVnd: string): Promise<void>;
-}
-
-export interface NewRevisionResult {
-  id: string;
-  revision: number;
-  amountVnd: string;
-  validFrom: string;
-  status: 'PENDING_EFFECTIVE';
-  supersedesId: string;
-  version: number;
-  boqLineCount: number;
-  boqTotalVnd: string;
-  /** The import that put the lines of the change order in, when the decision carried them. */
-  boqImport: BoqImportResult | undefined;
 }
 
 /** The decision as the command answers it, for the audit rows, the events and the answer. */
@@ -93,14 +75,6 @@ export interface DecisionResult {
 /** What every decision tells: which change order, which decision, and on whose contract and reason. */
 type Common = Pick<DecisionResult, 'id' | 'code' | 'decision' | 'fromStatus' | 'contractId' | 'contractCode' | 'projectId' | 'reason' | 'evidenceIds'>;
 
-interface RevisionHead {
-  id: string;
-  revision: number;
-  amount_vnd: string;
-  valid_from: string;
-  status: string;
-}
-
 /**
  * The decision of a change order (ST-CTR-007, CTR 3.3 step 4, BR-CTR-06): a CO that was assessed is approved, given back to be assessed again, or rejected, by someone who had no part in it
  * (403 `SELF_APPROVAL_DENIED`: not whoever raised or promoted a request of its chain, nor whoever assessed it, nor whoever made the decision document). An approval rests on a decision
@@ -111,7 +85,7 @@ interface RevisionHead {
  */
 export class CtrChangeDecisionStore {
   private readonly chain: CtrChangeChainStore;
-  private readonly boq = new CtrBoqStore();
+  private readonly revisions = new CtrChangeRevisions();
   private readonly source: CtrContractSource;
 
   constructor(source: CtrContractSource = new CtrContractSource()) {
@@ -131,7 +105,7 @@ export class CtrChangeDecisionStore {
     if (row.status !== 'EVALUATED') throw new DomainError('CHANGE_STATE_INVALID', 409, 'status', { extensions: { change_status: row.status } });
     if (contract.status !== 'ACTIVE' && contract.status !== 'SUSPENDED') throw new DomainError('CONTRACT_STATE_INVALID', 409, 'contract_id', { extensions: { contract_status: contract.status } });
     await this.assertDocuments(tx, evidenceIds);
-    const makers = await this.makersOf(tx, row);
+    const makers = await this.revisions.makersOf(tx, row);
 
     const base = {
       id: row.id,
@@ -158,19 +132,19 @@ export class CtrChangeDecisionStore {
     assertNotRetroactive(effectiveOn, today);
 
     const project = await this.projectOf(tx, contract.projectId);
-    await hooks.authorise({ amountVnd: absolute(delta), contractId: contract.id, projectId: contract.projectId, ownerUnit: project.ownerUnit });
-    const head = await this.head(tx, contract.id);
+    await hooks.authorise({ amountVnd: absoluteVnd(delta), contractId: contract.id, projectId: contract.projectId, ownerUnit: project.ownerUnit });
+    const head = await this.revisions.head(tx, contract.id);
     assertFollowsRevision(effectiveOn, head.valid_from);
     const newValue = valueAfterChange(head.amount_vnd, delta);
     if (compareDecimal(newValue, '0') <= 0) throw invalid('approved_delta_vnd');
-    assertValueAboveFloor(newValue, await this.ledgerOf(tx, contract.id));
+    assertValueAboveFloor(newValue, await this.revisions.figuresOf(tx, contract.id));
     const increase = compareDecimal(delta, '0') > 0;
     if (increase) {
       if (row.evaluation_allocation_line_id === null) throw new DomainError('ALLOCATION_UNAVAILABLE', 422, 'allocation_line_id', { extensions: { reason: 'ALLOCATION_LINE_REQUIRED' } });
       await hooks.available(row.evaluation_allocation_line_id, delta);
     }
 
-    const revision = await this.makeRevision(tx, { head, contractId: contract.id, row, value: newValue, validFrom: effectiveOn, documentVersionId: document.versionId, actor, boqLines: input.boqLines, scopes });
+    const revision = await this.revisions.make(tx, { head, contractId: contract.id, row, value: newValue, validFrom: effectiveOn, documentVersionId: document.versionId, actor, boqLines: input.boqLines, scopes, retroactive: false });
     await tx.query(
       `update machvon.change_request
           set status = 'APPROVED', status_reason = $2, approved_delta_vnd = $3::numeric, effective_on = $4::date, decision_document_version_id = $5::uuid, resulting_revision_id = $6::uuid,
@@ -207,95 +181,6 @@ export class CtrChangeDecisionStore {
     return { ...base, status: 'REJECTED', version: Number(row.version) + 1, ...EMPTY_DECIDED, allocationLineId: row.evaluation_allocation_line_id };
   }
 
-  // ---- the revision -------------------------------------------------------------------------------------------------------
-
-  /**
-   * Writes the next revision of the contract for an approved change order: PENDING_EFFECTIVE, from the first day the change takes effect, with the value the change gives. Its BOQ is the
-   * lines sent with the decision, or a copy of the BOQ of the revision it follows (which then has to fit the value); a pending revision can still be put right by an import before its day.
-   */
-  private async makeRevision(
-    tx: TenantTx,
-    values: { head: RevisionHead; contractId: string; row: ChangeRow; value: string; validFrom: string; documentVersionId: string; actor: string; boqLines: unknown; scopes: ContractScopes },
-  ): Promise<NewRevisionResult> {
-    const { head, contractId, row, actor } = values;
-    const numbers = await tx.query<{ next: number }>('select coalesce(max(revision), 0) + 1 as next from machvon.contract_revision where contract_id = $1::uuid', [contractId]);
-    const revision = numbers[0]?.next ?? head.revision + 1;
-    const id = randomUUID();
-    await tx.query(
-      `insert into machvon.contract_revision
-         (tenant_id, id, contract_id, revision, amount_vnd, document_version_id, valid_from, status, kind, change_request_id, supersedes_id, retroactive, decided_by, decided_at, version, created_by, updated_by)
-       values (${TENANT}, $1::uuid, $2::uuid, $3, $4::numeric, $5::uuid, $6::date, 'PENDING_EFFECTIVE', 'CHANGE_ORDER', $7::uuid, $8::uuid, false, $9::uuid, now(), 1, $9::uuid, $9::uuid)`,
-      [id, contractId, revision, values.value, values.documentVersionId, values.validFrom, row.id, head.id, actor],
-    );
-    let boqImport: BoqImportResult | undefined;
-    if (values.boqLines === undefined) await this.copyLines(tx, head.id, id, actor);
-    else boqImport = await this.boq.importLines(tx, id, 1, { mode: 'REPLACE', lines: values.boqLines }, actor, values.scopes);
-    const totals = await tx.query<{ total: string; n: number }>('select coalesce(sum(amount_vnd), 0)::text as total, count(*)::int as n from machvon.boq_line where contract_revision_id = $1::uuid', [id]);
-    // The lines never add up to more than the value of their revision: a change that takes from the contract has to say which lines shrink.
-    if (compareDecimal(totals[0]?.total ?? '0', values.value) > 0) throw totalMismatch(reconciliationOf(values.value, totals[0]?.total ?? '0', totals[0]?.n ?? 0));
-    return {
-      id,
-      revision,
-      amountVnd: values.value,
-      validFrom: values.validFrom,
-      status: 'PENDING_EFFECTIVE',
-      supersedesId: head.id,
-      version: boqImport?.version ?? 1,
-      boqLineCount: totals[0]?.n ?? 0,
-      boqTotalVnd: totals[0]?.total ?? '0',
-      boqImport,
-    };
-  }
-
-  private async copyLines(tx: TenantTx, fromRevisionId: string, toRevisionId: string, actor: string): Promise<void> {
-    await tx.query(
-      `insert into machvon.boq_line
-         (tenant_id, id, contract_revision_id, contract_id, boq_item_id, line_no, business_key, description, unit_code, quantity, unit_price, rounding_rule, amount_vnd,
-          retention_pct, milestone_code, milestone_due_on, party_id, created_by)
-       select tenant_id, gen_random_uuid(), $2::uuid, contract_id, boq_item_id, line_no, business_key, description, unit_code, quantity, unit_price, rounding_rule, amount_vnd,
-              retention_pct, milestone_code, milestone_due_on, party_id, $3::uuid
-         from machvon.boq_line where contract_revision_id = $1::uuid`,
-      [fromRevisionId, toRevisionId, actor],
-    );
-  }
-
-  /** The revision the change follows: the latest one in force or waiting for its day. A contract that is being performed always has one. */
-  private async head(tx: TenantTx, contractId: string): Promise<RevisionHead> {
-    const rows = await tx.query<RevisionHead>(
-      `select id, revision, amount_vnd::text as amount_vnd, valid_from::text as valid_from, status
-         from machvon.contract_revision where contract_id = $1::uuid and status in ('PENDING_EFFECTIVE', 'EFFECTIVE') order by revision desc limit 1`,
-      [contractId],
-    );
-    const head = rows[0];
-    if (head === undefined) throw new DomainError('CONTRACT_STATE_INVALID', 409, 'contract_id', { extensions: { reason: 'NO_REVISION_IN_FORCE' } });
-    return head;
-  }
-
-  // ---- what the decision is judged on --------------------------------------------------------------------------------------
-
-  /** Whoever raised or promoted a request of the chain and whoever assessed the request: the people whose work the decision approves. */
-  private async makersOf(tx: TenantTx, row: ChangeRow): Promise<string[]> {
-    const rows = await tx.query<{ submitted_by: string | null; evaluated_by: string | null }>(
-      `with recursive chain as (
-         select id, parent_id, submitted_by, evaluated_by from machvon.change_request where id = $1::uuid
-         union all
-         select r.id, r.parent_id, r.submitted_by, r.evaluated_by from machvon.change_request r join chain c on r.id = c.parent_id
-       ) select submitted_by, evaluated_by from chain`,
-      [row.id],
-    );
-    return rows.flatMap((each) => [each.submitted_by, each.evaluated_by].filter((who): who is string => who !== null));
-  }
-
-  private async ledgerOf(tx: TenantTx, contractId: string) {
-    const rows = await tx.query<{ accepted_total_vnd: string; advance_paid_vnd: string; paid_total_vnd: string; advance_recovered_vnd: string }>(
-      'select accepted_total_vnd::text, advance_paid_vnd::text, paid_total_vnd::text, advance_recovered_vnd::text from machvon.contract where id = $1::uuid',
-      [contractId],
-    );
-    const ledger = rows[0];
-    if (ledger === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    return { acceptedTotalVnd: ledger.accepted_total_vnd, advancePaidVnd: ledger.advance_paid_vnd, paidTotalVnd: ledger.paid_total_vnd, advanceRecoveredVnd: ledger.advance_recovered_vnd };
-  }
-
   private async projectOf(tx: TenantTx, projectId: string): Promise<ProjectRef> {
     const project = await this.source.projectRef(tx, projectId);
     if (project === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
@@ -322,8 +207,3 @@ const EMPTY_DECIDED = {
   toValueVnd: null,
   revision: undefined,
 } as const;
-
-/** The size of a signed amount without its sign: the delegation limit judges how much is changed, not which way. */
-function absolute(amount: string): string {
-  return amount.startsWith('-') ? amount.slice(1) : amount;
-}

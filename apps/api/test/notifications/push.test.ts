@@ -24,6 +24,9 @@ const RELAY_KEY = randomBytes(32);
 const PERSON = 1;
 const OTHER = 2;
 const NOBODY = 3;
+const TRAVELLER = 4;
+const FALLBACK = 5;
+const SWITCHER = 6;
 const NOON = new Date('2026-10-22T05:00:00.000Z');
 const CONTEXT = { tenantId: TENANT_A, membershipId: memberId(PERSON), scopeVersion: 0 };
 const NEUTRAL = 'A dossier needs your attention.';
@@ -47,7 +50,7 @@ describe('the push channels (ST-NOT-007, NOT 9)', () => {
   const engine = createDeliveryEngine({ recordInTx: (tx, actor, entry) => new AuditWriter(harness.tenants).recordInTx(tx, actor, entry) });
 
   /** A device as the registration command leaves it: a row, and the token in the vault under its reference. */
-  async function device(member: number, options: { platform?: string; permission?: string; token?: string; tenant?: string } = {}): Promise<{ id: string; ref: string; token: string }> {
+  async function device(member: number, options: { platform?: string; permission?: string; token?: string; tenant?: string; seenMinutesAgo?: number } = {}): Promise<{ id: string; ref: string; token: string }> {
     const tenant = options.tenant ?? TENANT_A;
     const deviceId = randomUUID();
     const token = options.token ?? `token-${(counter += 1)}-${randomUUID()}`;
@@ -55,8 +58,8 @@ describe('the push channels (ST-NOT-007, NOT 9)', () => {
     await harness.owner(tenant, [
       [
         `insert into machvon.device_registration (tenant_id, id, membership_id, device_public_id, push_secret_ref, platform, last_seen_at, token_fingerprint, permission_state, app_version)
-         values ($1, $2, $3, $4, $5, $6, now(), $7, $8, '1.0.0')`,
-        [tenant, deviceId, memberId(member), `public-${deviceId}`, ref, options.platform ?? 'android', sha(token), options.permission ?? 'granted'],
+         values ($1, $2, $3, $4, $5, $6, now() - make_interval(mins => $9::int), $7, $8, '1.0.0')`,
+        [tenant, deviceId, memberId(member), `public-${deviceId}`, ref, options.platform ?? 'android', sha(token), options.permission ?? 'granted', options.seenMinutesAgo ?? 0],
       ],
     ]);
     await vault.put(ref, token);
@@ -70,9 +73,8 @@ describe('the push channels (ST-NOT-007, NOT 9)', () => {
   };
 
   /** A notification as the consumer makes it: inserted with its plan for one push channel, and its chain started. */
-  async function notify(member: number, channel: 'PUSH_FCM' | 'PUSH_APNS' = 'PUSH_FCM'): Promise<string> {
+  async function notify(member: number, channel: 'PUSH_FCM' | 'PUSH_APNS' | Array<'PUSH_FCM' | 'PUSH_APNS'> = 'PUSH_FCM', eventId: string = randomUUID()): Promise<string> {
     return as(member, async (tx) => {
-      const eventId = randomUUID();
       const inserted = await notifications.insert(tx, {
         eventId,
         workflowVersionId: WORKFLOW,
@@ -84,9 +86,10 @@ describe('the push channels (ST-NOT-007, NOT 9)', () => {
         eventVersion: 1,
         priority: 'NORMAL',
         ackRequired: false,
-        channelPlan: [channel],
+        channelPlan: Array.isArray(channel) ? channel : [channel],
       });
-      await engine.startChain(tx, await deliveries.requireNotification(tx, inserted.id));
+      // An event delivered again finds its notification (the dedupe key) and starts nothing: the chain began with the first delivery.
+      if (inserted.created) await engine.startChain(tx, await deliveries.requireNotification(tx, inserted.id));
       return inserted.id;
     });
   }
@@ -112,7 +115,7 @@ describe('the push channels (ST-NOT-007, NOT 9)', () => {
   beforeAll(async () => {
     await harness.start();
     await harness.seedUnits(TENANT_A, [{ n: 1, path: '/1/' }]);
-    for (const member of [PERSON, OTHER, NOBODY]) await harness.seedMembership(TENANT_A, member, 1, { validFrom: '2026-01-01T00:00:00Z' });
+    for (const member of [PERSON, OTHER, NOBODY, TRAVELLER, FALLBACK, SWITCHER]) await harness.seedMembership(TENANT_A, member, 1, { validFrom: '2026-01-01T00:00:00Z' });
     await harness.owner(TENANT_A, [
       [
         `insert into machvon.workflow_version (tenant_id, id, business_type, revision, definition_json, status, kind, event_type, created_by, definition_hash)
@@ -154,7 +157,7 @@ describe('the push channels (ST-NOT-007, NOT 9)', () => {
   });
 
   describe('a push to the devices of the recipient', () => {
-    it('AC-ST-NOT-007-2 UAT-AC28: the provider receives a neutral sentence and an opaque link, nothing of the event, and a figure in the event reaches no lock screen', async () => {
+    it('AC-ST-NOT-007-2, AC-ST-KERNEL-061-1 (payload clause) UAT-AC28, UAT-NFR-PRIVACY-02: the provider receives a neutral sentence and an opaque link, nothing of the event, and a figure in the event reaches no lock screen', async () => {
       const mine = await device(PERSON);
       const notificationId = await notify(PERSON);
       await dispatch();
@@ -164,16 +167,21 @@ describe('the push channels (ST-NOT-007, NOT 9)', () => {
       expect(message).toMatchObject({ token: mine.token, body: NEUTRAL, silent: false });
       expect(message?.data).toEqual({ deep_link: `/r/${notificationId}` });
       expect(JSON.stringify(message)).not.toMatch(/\{\{|amount|đồng|VND/i);
+      // The generic sentence and the opaque reference are all the provider is given: no title of the record, no event type, no resource.
+      expect(Object.keys(message ?? {}).sort()).toEqual(['body', 'data', 'idempotencyKey', 'silent', 'token']);
+      expect(JSON.stringify(message)).not.toContain('report.overdue');
     });
 
-    it('AC-ST-NOT-007-1 UAT-AC179: a token the provider no longer knows is revoked with its token, the attempt is PERMANENT, and the other device of the person is still served', async () => {
-      const gone = await device(PERSON, { token: 'token-unregistered' });
-      const kept = await device(PERSON);
+    it('AC-ST-NOT-007-1 UAT-AC179, AC-ST-MOB-031-1: the token of the owner device is one the provider no longer knows: it is revoked with its token and the next device in line, now the owner, is served in the same send', async () => {
+      const kept = await device(FALLBACK, { seenMinutesAgo: 30 });
+      const gone = await device(FALLBACK, { token: 'token-unregistered' });
       fcm.refuseToken('token-unregistered', 'UNREGISTERED');
-      const notificationId = await notify(PERSON);
+      const notificationId = await notify(FALLBACK);
       await dispatch();
-      // One device accepted: the send is accepted and only the dead one is revoked.
+      // The owner (used last) was dead and is revoked; the device after it took over and accepted.
       expect(await attemptOf(notificationId)).toMatchObject({ status: 'ProviderAccepted' });
+      // The provider saw the dead token first (and refused it), then the token of the device after it.
+      expect(fcm.sent.map((message) => message.token)).toEqual(['token-unregistered', kept.token]);
       expect(await deviceRow(gone.id)).toMatchObject({ push_secret_ref: null, revoke_reason: 'PROVIDER_UNREGISTERED' });
       expect((await deviceRow(gone.id)).revoked_at).not.toBeNull();
       expect(vault.tokens.has(gone.ref)).toBe(false);
@@ -213,12 +221,16 @@ describe('the push channels (ST-NOT-007, NOT 9)', () => {
       expect((await deviceRow(denied.id)).revoked_at).toBeNull();
     });
 
-    it('a refusal of the token a device had does not revoke the token it rotated to while the push was in flight', async () => {
+    it('a refusal of the token a device had does not revoke the token it rotated to while the push was in flight, and the owner is tried again with the new one', async () => {
       const phone = await device(PERSON, { token: 'token-before-rotation' });
       const rotatedRef = `${phone.ref}/rotated`;
       await vault.put(rotatedRef, 'token-after-rotation');
       const rotating = new (class extends MockPushProvider {
+        private calls = 0;
+
         override async send(): Promise<PushProviderAnswer> {
+          this.calls += 1;
+          if (this.calls > 1) return { ok: true, messageId: 'mock-push-after-rotation' };
           // The app registers its new token (a new reference) while the provider is still answering about the old one.
           await owner('update machvon.device_registration set push_secret_ref = $2 where id = $1', [phone.id, rotatedRef]);
           return { ok: false, code: 'UNREGISTERED' };
@@ -229,28 +241,71 @@ describe('the push channels (ST-NOT-007, NOT 9)', () => {
       const other = new DeliveryDispatcher({ database: harness.tenants, engine, adapters: quick, loadAccess: (ctx) => access.load(ctx), resourceAccess: new PermissionResourceAccess(), now: () => NOON, pushTokens: vault }, 'test');
       const notificationId = await notify(PERSON);
       await other.dispatchDue(CONTEXT);
-      expect(await attemptOf(notificationId)).toMatchObject({ status: 'Failed', failure_class: 'PERMANENT', error_code: 'UNREGISTERED' });
+      // The refusal was about the old token: the device keeps the new one, which the owner is tried with at once and the provider accepts.
+      expect(await attemptOf(notificationId)).toMatchObject({ status: 'ProviderAccepted' });
       expect(await deviceRow(phone.id)).toMatchObject({ revoked_at: null, push_secret_ref: rotatedRef });
       expect(vault.tokens.get(rotatedRef)).toBe('token-after-rotation');
     });
 
-    it('a vault that does not answer is a pause, not the end: the send is retried, and a device whose token could not be read does not stop the others', async () => {
-      const mine = await device(NOBODY);
+    it('a vault that does not answer is a pause, not the end: the send is retried, and the owner is not replaced by another device because of a hiccup', async () => {
+      const mine = await device(NOBODY, { seenMinutesAgo: 10 });
+      const newest = await device(NOBODY);
       vault.failNext('read');
       const first = await notify(NOBODY);
       await dispatch();
       expect(await attemptOf(first)).toMatchObject({ failure_class: 'RETRYABLE', error_code: 'VAULT_UNAVAILABLE' });
       expect(fcm.sent).toHaveLength(0);
       expect((await deviceRow(mine.id)).revoked_at).toBeNull();
-      // With two live devices and the vault failing for one read only, the other is still served.
-      await device(NOBODY);
-      await device(NOBODY);
-      vault.failNext('read');
+      expect((await deviceRow(newest.id)).revoked_at).toBeNull();
+      // The vault answers again: the owner is the one served, and only the owner.
       const next = await notify(NOBODY);
       await dispatch();
       expect(await attemptOf(next)).toMatchObject({ status: 'ProviderAccepted' });
-      // Three live devices, one read failed: the other two are written to.
-      expect(fcm.sent).toHaveLength(2);
+      expect(fcm.sent.map((message) => message.token)).toEqual([newest.token]);
+    });
+
+    it('AC-ST-MOB-031-1 UAT-AC176: one event for a person with two devices, delivered twice, is one notification and one push, to the device the person used last', async () => {
+      const phone = await device(TRAVELLER, { token: 'traveller-phone', seenMinutesAgo: 45 });
+      const tablet = await device(TRAVELLER, { token: 'traveller-tablet' });
+      const eventId = randomUUID();
+      const first = await notify(TRAVELLER, 'PUSH_FCM', eventId);
+      const again = await notify(TRAVELLER, 'PUSH_FCM', eventId);
+      expect(again).toBe(first);
+      const key = dedupeKeyOf({ tenantId: TENANT_A, sourceEventId: eventId, recipientId: memberId(TRAVELLER), purpose: 'OPERATIONAL' });
+      expect(await owner('select id from machvon.notification_instance where dedupe_key = $1', [key])).toHaveLength(1);
+      expect(await owner('select id from machvon.delivery_attempt where notification_id = $1', [first])).toHaveLength(1);
+      await dispatch();
+      expect(await attemptOf(first)).toMatchObject({ status: 'ProviderAccepted' });
+      expect(fcm.sent.map((message) => message.token)).toEqual([tablet.token]);
+      expect(fcm.sent.some((message) => message.token === phone.token)).toBe(false);
+
+      // The person opens the application on the phone (its registration moves `last_seen_at`): the phone is the owner from then on.
+      await owner("update machvon.device_registration set last_seen_at = now() + interval '1 minute' where id = $1", [phone.id]);
+      const second = await notify(TRAVELLER);
+      await dispatch();
+      expect(await attemptOf(second)).toMatchObject({ status: 'ProviderAccepted' });
+      expect(fcm.sent.map((message) => message.token)).toEqual([tablet.token, phone.token]);
+
+      // The phone no longer allows notifications: it is not the owner any more, and the tablet is.
+      await owner("update machvon.device_registration set permission_state = 'denied' where id = $1", [phone.id]);
+      await notify(TRAVELLER);
+      await dispatch();
+      expect(fcm.sent.map((message) => message.token)).toEqual([tablet.token, phone.token, tablet.token]);
+    });
+
+    it('AC-ST-MOB-031-1: the owner is chosen across the platforms: the person used the iPhone last, so the Android phone is not written to and the APNs channel serves them', async () => {
+      const android = await device(SWITCHER, { platform: 'android', token: 'switcher-android', seenMinutesAgo: 20 });
+      const iphone = await device(SWITCHER, { platform: 'ios', token: 'switcher-iphone' });
+      const id = await notify(SWITCHER, ['PUSH_FCM', 'PUSH_APNS']);
+      await dispatch();
+      await dispatch();
+      expect(fcm.sent).toHaveLength(0);
+      expect(apns.sent.map((message) => message.token)).toEqual([iphone.token]);
+      expect((await owner<{ channel: string; status: string; error_code: string | null }>('select channel, status, error_code from machvon.delivery_attempt where notification_id = $1 order by attempt_no', [id])).map((row) => [row.channel, row.status, row.error_code])).toEqual([
+        ['PUSH_FCM', 'Failed', 'NO_DEVICE'],
+        ['PUSH_APNS', 'ProviderAccepted', null],
+      ]);
+      expect((await deviceRow(android.id)).revoked_at).toBeNull();
     });
 
     it('an outage of the provider is retried and revokes nothing', async () => {

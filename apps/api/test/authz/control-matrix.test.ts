@@ -50,6 +50,12 @@ describe('control-plane authorization matrix generator', () => {
     // The domains of a tenant: written like the tenant itself, read like the registry.
     for (const operationId of ['addTenantDomain', 'verifyTenantDomain', 'removeTenantDomain']) expect(verdict(operationId)).toEqual(verdict('suspendTenant'));
     expect(verdict('listTenantDomains')).toEqual(verdict('listSystemTenants'));
+    // A restore of one tenant is asked for and decided like the lifecycle of the tenant (the System Admin's), and read like the registry.
+    for (const operationId of ['requestTenantRestore', 'decideTenantRestore']) expect(verdict(operationId)).toEqual(verdict('suspendTenant'));
+    expect(verdict('listTenantRestoreRequests')).toEqual(verdict('listSystemTenants'));
+    // The promotion of a tenant to a silo is written like the tenant itself (the System Admin's alone), and read like the registry.
+    for (const operationId of ['startSiloPromotion', 'approvePlacementCutover', 'abortPlacementMigration']) expect(verdict(operationId)).toEqual(verdict('suspendTenant'));
+    for (const operationId of ['listPlacements', 'listPlacementMigrations', 'getPlacementMigration']) expect(verdict(operationId)).toEqual(verdict('listSystemTenants'));
     expect(verdict('requestSupportAccess')).toEqual({ SystemAdmin: 'allow', PlatformOperator: 'deny', BillingOperator: 'deny', SupportOperator: 'allow' });
     // The release flags are the System Admin's alone: the other realm roles hold no `system.release.manage`.
     for (const operationId of ['listFeatureFlags', 'updateFeatureFlag']) expect(verdict(operationId)).toEqual({ SystemAdmin: 'allow', PlatformOperator: 'deny', BillingOperator: 'deny', SupportOperator: 'deny' });
@@ -57,6 +63,6 @@ describe('control-plane authorization matrix generator', () => {
   });
 
   it('derives the permission from the generated table', () => {
-    expect(CONTROL_OPERATIONS.map((operation) => operation.permission)).toEqual([...Array<string>(5).fill('system.tenant.manage'), ...Array<string>(5).fill('system.license.manage'), 'system.tenant.read', 'system.tenant.read', ...Array<string>(6).fill('system.theme.manage'), 'system.tenant.read', 'system.tenant.read', ...Array<string>(3).fill('system.billing.manage'), 'system.tenant.read', ...Array<string>(4).fill('system.billing.manage'), 'system.tenant.read', ...Array<string>(3).fill('system.billing.manage'), 'system.tenant.read', 'system.billing.manage', 'system.billing.manage', 'system.tenant.read', 'system.billing.manage', 'system.billing.manage', 'system.tenant.read', 'system.billing.manage', 'system.support.request', 'system.tenant.manage', 'system.tenant.manage', 'system.tenant.read', 'system.tenant.read', 'system.tenant.manage', 'system.tenant.manage', 'system.tenant.manage', 'system.support.request', 'system.release.manage', 'system.release.manage']);
+    expect(CONTROL_OPERATIONS.map((operation) => operation.permission)).toEqual([...Array<string>(5).fill('system.tenant.manage'), ...Array<string>(5).fill('system.license.manage'), 'system.tenant.read', 'system.tenant.read', ...Array<string>(6).fill('system.theme.manage'), 'system.tenant.read', 'system.tenant.read', ...Array<string>(3).fill('system.billing.manage'), 'system.tenant.read', ...Array<string>(4).fill('system.billing.manage'), 'system.tenant.read', ...Array<string>(3).fill('system.billing.manage'), 'system.tenant.read', 'system.billing.manage', 'system.billing.manage', 'system.tenant.read', 'system.billing.manage', 'system.billing.manage', 'system.tenant.read', 'system.billing.manage', 'system.support.request', 'system.tenant.manage', 'system.tenant.manage', 'system.tenant.read', 'system.tenant.read', 'system.tenant.manage', 'system.tenant.manage', 'system.tenant.manage', 'system.support.request', 'system.release.manage', 'system.release.manage', 'system.tenant.manage', 'system.tenant.manage', 'system.tenant.read', 'system.tenant.read', 'system.tenant.read', 'system.tenant.read', 'system.tenant.manage', 'system.tenant.manage', 'system.tenant.manage']);
   });
 });

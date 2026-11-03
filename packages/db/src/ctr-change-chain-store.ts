@@ -131,6 +131,8 @@ export interface ChangeLine {
   makers: string[];
   /** The revision of the contract that an approved change order made. */
   resultingRevisionId: string | null;
+  /** The change order was approved through the retroactive adjustment (ST-CTR-016): it applies from a day before its approval. */
+  retroactive: boolean;
 }
 
 /** A request as the database holds it: the columns of the board and of the commands. */
@@ -171,7 +173,7 @@ const COLUMNS = `r.id, r.code, r.stage, r.status, r.contract_id, c.code as contr
   ${TIMESTAMP('r.created_at')} as created_at, ${TIMESTAMP('r.evaluated_at')} as evaluated_at, ${TIMESTAMP('r.decided_at')} as decided_at, r.version::text as version`;
 
 /** Where the contract lies: the units of its project, which the permissions of a caller are judged against. */
-const REACH_COLUMNS = `ou.id as owner_unit_id, ou.path as owner_unit_path, iu.id as investor_unit_id, iu.path as investor_unit_path, r.resulting_revision_id,
+const REACH_COLUMNS = `ou.id as owner_unit_id, ou.path as owner_unit_path, iu.id as investor_unit_id, iu.path as investor_unit_path, r.resulting_revision_id, r.retroactive,
   (with recursive chain as (
      select q.id, q.parent_id, q.submitted_by, q.evaluated_by from machvon.change_request q where q.tenant_id = r.tenant_id and q.id = r.id
      union all
@@ -184,6 +186,7 @@ interface ReachSql extends ChangeRow {
   investor_unit_id: string | null;
   investor_unit_path: string | null;
   resulting_revision_id: string | null;
+  retroactive: boolean;
   makers: string[];
 }
 
@@ -220,6 +223,7 @@ const toLine = (row: ReachSql): ChangeLine => ({
   version: Number(row.version),
   makers: row.makers,
   resultingRevisionId: row.resulting_revision_id,
+  retroactive: row.retroactive,
   reach: {
     contractId: row.contract_id,
     projectId: row.project_id,

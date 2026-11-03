@@ -14,6 +14,7 @@ import { useFavourites } from './favourites';
 import { ModuleDirectory } from './ModuleDirectory';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
+import { useFocusFirstInvalid } from './useFocusFirstInvalid';
 import { useMediaQuery } from './useMediaQuery';
 
 /** `businessNavigation.mobileDrawerBreakpoint` of design_tokens.json: below it the sidebar is a drawer. */
@@ -36,6 +37,7 @@ type Overlay = { kind: 'library'; scope: LibraryScope } | { kind: 'directory'; m
  * its stylesheets apply unchanged.
  */
 export function Shell() {
+  useFocusFirstInvalid();
   const { t } = useTranslation();
   const session = useSession();
   const location = useLocation();

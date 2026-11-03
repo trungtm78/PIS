@@ -284,3 +284,12 @@ The acceptance criteria of ADM-004, ADM-005 and eleven more stories end with "th
 is a test case of `test_cases.json`; the tool that would run it is not identified in the repository. The gated regions above, the route walk, the component
 tests of the seven states and the browser flows stand in for it, and `docs/r10-baseline-approvals.md` lists exactly which steps of the test case they cover
 and which (field names against the catalogue, an accessibility engine) they do not.
+
+## Accessibility (ST-KERNEL-032, AC-1)
+
+Two layers check WCAG 2.2 AA with axe-core:
+
+- Component tests (`apps/web/src/a11y/families.test.tsx`, run by `npm test -w @machvon/web`): the states of a screen (default, loading, empty, error, denied, expired, signed out, offline), a table with its filter form, a dialog with a form that shows its errors, and the shell around a screen, each at 390 px, 1280 px and 1280 px at 200 percent zoom (640 CSS px); 0 serious or critical violations. The same file proves that a dialog keeps Tab inside it in both directions, closes on Escape and returns focus to the button that opened it, and that the checker itself finds a missing image alternative and a button without a name. A DOM without layout cannot compute the colour contrast or the match between a visible label and an accessible name, so those two rules are left to the browser layer.
+- Browser run (`apps/web/e2e/a11y.spec.ts`, `npm run e2e:a11y -w @machvon/web`): nine core flows (HOME-01, HOME-09, HOME-02, ADM-01, ADM-02, NOT-01, PRJ-01, DIS-01, CAP-01) at the same three viewports, with all rules on, and no horizontal scroll (`scrollWidth` not above the window).
+
+A violation is fixed in the component or the screen, never by turning the rule off. The list of rules left out of the component tests is in `apps/web/src/test/axe.ts` and is not to grow.

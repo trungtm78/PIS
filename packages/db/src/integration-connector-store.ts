@@ -101,6 +101,12 @@ export class IntegrationConnectorStore {
     return rows.map(toRow);
   }
 
+  /** The connector of a mode that the tenant runs: the Active one when there is one, otherwise the first by code (the caller sees that it does not run). Undefined when the tenant declared none. */
+  async primaryOfMode(tx: TenantTx, mode: ConnectorMode): Promise<ConnectorRow | undefined> {
+    const rows = await tx.query<Row>(`select ${COLUMNS} from machvon.integration_connector where mode = $1 order by (status = 'Active') desc, connector_code, id limit 1`, [mode]);
+    return rows[0] === undefined ? undefined : toRow(rows[0]);
+  }
+
   /** The verdict that the platform recorded for the cursor of a connector (its code in lower case), if it has one. */
   async cursorAdapter(tx: TenantTx, connectorCode: string): Promise<AdapterStatus | undefined> {
     const rows = await tx.query<{ adapter_status: AdapterStatus }>('select adapter_status from machvon.integration_cursor where lower(connector_code) = $1 limit 1', [connectorCode]);

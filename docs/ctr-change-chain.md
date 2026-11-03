@@ -76,7 +76,7 @@ the `reason` of the row.
   the decision. They can withdraw it instead.
 * **`return`** puts the CO back to `SUBMITTED` with the reason, to be assessed again. **`reject`** ends it (`REJECTED`, with who and when). Both need the reason only.
 * **`approve`** needs a decision document (422 `DECISION_DOCUMENT_REQUIRED`: a version of a file of the tenant that is not infected and not a sealed bid), a first day that is today or later
-  (422 `RETROACTIVE_NOT_ALLOWED`: what was accepted and paid under the old terms is not rewritten; a change that reaches back goes through the adjustment of its own, a later story) and
+  (422 `RETROACTIVE_NOT_ALLOWED`: what was accepted and paid under the old terms is not rewritten; a change that reaches back goes through the adjustment of its own, `docs/ctr-retroactive-adjustment.md`) and
   after the first day of the revision it follows (revisions cannot begin on the same day), and an amount (`approved_delta_vnd`, the assessment by default). The new value is the value of the
   revision it follows plus the amount; it must be above zero and **at or above the floor** (BR-CTR-06): the greater of `accepted_total_vnd` and `advance_paid + paid_total - advance_recovered`
   (422 `ACCEPTANCE_VALUE_EXCEEDS_CONTRACT`, with the new value and the floor). The size of the change, whichever way it goes, is judged against the delegation matrix of ADM for the document
@@ -112,5 +112,5 @@ DRAFT, PENDING_EFFECTIVE, EFFECTIVE, SUPERSEDED (or is REJECTED as a draft) and 
 
 ## Not in this story
 
-The retroactive adjustment (`approveRetroactiveAdjustment`) is a later story. The capital's own commitment of the change (a new source kind for the ledger and the release of a decrease) is not
+The retroactive adjustment (`approveRetroactiveAdjustment`) is ST-CTR-016 (`docs/ctr-retroactive-adjustment.md`). The capital's own commitment of the change (a new source kind for the ledger and the release of a decrease) is not
 written: the job tells CAP the value to commit with `ctr.commitment.changed.v1`, and the approval only asks whether the line can take an increase.

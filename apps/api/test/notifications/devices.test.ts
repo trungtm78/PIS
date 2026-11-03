@@ -19,6 +19,7 @@ const OTHER = 2; // the same, another person
 const OPERATOR = 3; // device_registration.read on the whole tenant
 const SUBTREE = 4; // the same, on one unit
 const NOBODY = 5;
+const TRAVELLER = 6; // notification.self and session.self: several devices
 const OTHER_TENANT_MEMBER = 1; // of tenant B
 const REASON = 'The phone was lost on the way to the site.';
 
@@ -63,7 +64,7 @@ describe('the push devices of the members (ST-NOT-006, NOT-14)', () => {
   beforeAll(async () => {
     await harness.start();
     for (const tenant of [TENANT_A, TENANT_B]) await harness.seedUnits(tenant, [{ n: 1, path: `/${unitId(1)}/` }, { n: 2, path: `/${unitId(1)}/${unitId(2)}/`, parent: 1 }]);
-    for (const [member, unit] of [[OWNER, 1], [OTHER, 1], [OPERATOR, 1], [SUBTREE, 2], [NOBODY, 1]] as const) await harness.seedMembership(TENANT_A, member, unit, { validFrom: '2026-01-01T00:00:00Z' });
+    for (const [member, unit] of [[OWNER, 1], [OTHER, 1], [OPERATOR, 1], [SUBTREE, 2], [NOBODY, 1], [TRAVELLER, 1]] as const) await harness.seedMembership(TENANT_A, member, unit, { validFrom: '2026-01-01T00:00:00Z' });
     await harness.seedMembership(TENANT_B, OTHER_TENANT_MEMBER, 1, { validFrom: '2026-01-01T00:00:00Z' });
     for (const tenant of [TENANT_A, TENANT_B]) {
       await harness.seedRole(tenant, 1, 'MEMBER_SELF', ['notification.self', 'session.self'], 5);
@@ -74,6 +75,7 @@ describe('the push devices of the members (ST-NOT-006, NOT-14)', () => {
       { n: 2, member: OTHER, role: 1, kind: 'TENANT' },
       { n: 3, member: OPERATOR, role: 2, kind: 'TENANT' },
       { n: 4, member: SUBTREE, role: 2, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+      { n: 5, member: TRAVELLER, role: 1, kind: 'TENANT' },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: OTHER_TENANT_MEMBER, role: 2, kind: 'TENANT' }]);
     const tenants = harness.tenants as TenantDatabase;
@@ -153,6 +155,33 @@ describe('the push devices of the members (ST-NOT-006, NOT-14)', () => {
       const a = await register(shared, OWNER);
       const b = await register(shared, OTHER);
       expect(a.json.resource_id).not.toBe(b.json.resource_id);
+    });
+
+    it('AC-ST-MOB-031-1: the list of the own devices of a member says which one the push goes to: the one used last that allows notifications, and never a device that denied them or was removed', async () => {
+      const MEMBER = TRAVELLER;
+      const owned = (list: Reply) => (list.json.items as Array<Record<string, unknown>>).filter((item) => item.push_owner === true);
+      const older = registration({ device_public_id: publicId() });
+      const newer = registration({ device_public_id: publicId() });
+      const olderId = (await register(older, MEMBER)).json.resource_id as string;
+      await rows("update machvon.device_registration set last_seen_at = now() - interval '1 hour' where id = $1", [olderId]);
+      const newerId = (await register(newer, MEMBER)).json.resource_id as string;
+
+      let list = await call('GET', '/me/devices', { member: MEMBER });
+      expect(owned(list).map((item) => item.id)).toEqual([newerId]);
+      expect((list.json.items as Array<Record<string, unknown>>).find((item) => item.id === olderId)).toMatchObject({ push_owner: false, permission_state: 'granted' });
+
+      // The newer device is used again later than the other and still owns; once it denies notifications the older one does.
+      await register({ ...newer, permission_state: 'denied', push_token: `fcm-token-${randomUUID()}` }, MEMBER);
+      list = await call('GET', '/me/devices', { member: MEMBER });
+      expect(owned(list).map((item) => item.id)).toEqual([olderId]);
+      expect((list.json.items as Array<Record<string, unknown>>).find((item) => item.id === newerId)).toMatchObject({ push_owner: false, permission_state: 'denied' });
+
+      // A removed device is never the owner, and a person with no device that can be pushed to has none.
+      await call('POST', `/me/devices/${olderId}/revoke`, { member: MEMBER, body: { reason: REASON } });
+      list = await call('GET', '/me/devices', { member: MEMBER });
+      expect(owned(list)).toEqual([]);
+      // Another member's devices are not in the list at all.
+      expect((list.json.items as Array<Record<string, unknown>>).every((item) => [olderId, newerId].includes(item.id as string))).toBe(true);
     });
 
     it('keeps one live registration when the app asks twice at the same moment, and replays the answer of a repeated request', async () => {

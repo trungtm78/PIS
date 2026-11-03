@@ -26,6 +26,8 @@ function destination(name: string): HTMLElement {
   return wrapper;
 }
 
+const accountLabel = vi_['shell.account.open.label'].replace('{initials}', 'AN').replace('{name}', 'Nguyễn An').replace('{role}', vi_['shell.account.role.text']);
+
 describe('active sidebar item of screens that are not a destination themselves', () => {
   it.each(['HOME-03', 'HOME-08', 'HOME-10'])('keeps the overview destination active on %s without marking it as the current page', (id) => {
     renderApp(`/home/${id.toLowerCase()}`);
@@ -145,7 +147,7 @@ describe('pinned screens manager', () => {
 describe('account link', () => {
   it('ends with the three-dot marker of the prototype', () => {
     renderApp('/home/home-01');
-    const account = screen.getByRole('link', { name: vi_['shell.account.open.label'] });
+    const account = screen.getByRole('link', { name: accountLabel });
     expect(account.lastElementChild?.textContent).toBe('···');
   });
 });

@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, MAX_CHECKED_EVIDENCE, assertRunReviewable, compareProposals, findingVersion, reviewDecision, reviewScoreOf, scoreAfterReview, statusForForm, versionConflict } from '@machvon/kernel';
-import type { Comparison, ComparisonCriterion, ComparisonRunInput, DecidedFinding, FindingDecisionForm, FindingStatus, ReviewDecision, RunStatus } from '@machvon/kernel';
+import { DomainError, FROZEN_REPORT_STATUSES, MAX_CHECKED_EVIDENCE, assertRunReviewable, compareProposals, findingVersion, reviewDecision, reviewScoreOf, scoreAfterReview, statusForForm, versionConflict } from '@machvon/kernel';
+import type { Comparison, ComparisonCriterion, ComparisonInput, ComparisonRunInput, DecidedFinding, FindingDecisionForm, FindingStatus, ReviewDecision, RunStatus } from '@machvon/kernel';
 import { BidAnalysisStore, LATEST_REVIEW } from './bid-analysis-store.ts';
 import type { FindingLine, ReviewLine } from './bid-analysis-store.ts';
 import { PROHIBITED_RULES, prohibitedRuleOf } from './bid-criteria-rules.ts';
@@ -46,6 +46,7 @@ export interface ReviewedFinding {
 interface FindingRow {
   id: string;
   run_id: string;
+  package_id: string;
   criterion_id: string;
   proposal_id: string;
   criteria_version_id: string;
@@ -101,6 +102,13 @@ export interface ComparisonRead {
   comparison: Comparison;
 }
 
+/** What the comparison of a package is made from, before it is made: the package, the version of the criteria and the proposals with their standing analysis and what the experts decided. */
+export interface ComparisonBasis {
+  package: { id: string; code: string; title: string | null };
+  criteriaStatus: string;
+  input: ComparisonInput;
+}
+
 const notFound = (field?: string): DomainError => new DomainError('RESOURCE_NOT_FOUND', 404, field);
 
 /**
@@ -125,6 +133,7 @@ export class BidReviewStore {
     if (found.kind === 'DECLARATION_REQUIRED') throw new DomainError('CONFLICT_UNDECLARED', 403);
     if (found.kind !== 'SEEN' || found.line.view !== 'FULL') throw notFound();
     await tx.query("select pg_advisory_xact_lock(hashtextextended('bid_analysis:' || current_setting('app.tenant_id') || ':' || $1::text, 0))", [row.proposal_id]);
+    await this.assertNotFrozen(tx, row);
 
     const standing = await this.standing(tx, row.id);
     assertRunReviewable(standing.runStatus);
@@ -161,9 +170,15 @@ export class BidReviewStore {
     };
   }
 
+  /** The minutes of the package were asked for (or issued) from the run of this finding: what the experts decided is in them, and it is not decided again (409 REPORT_FROZEN). */
+  private async assertNotFrozen(tx: TenantTx, row: FindingRow): Promise<void> {
+    const frozen = await tx.query('select 1 from machvon.evaluation_report e where e.package_id = $1::uuid and e.status = any($2::text[]) and e.run_ids ? $3::text limit 1', [row.package_id, [...FROZEN_REPORT_STATUSES], row.run_id]);
+    if (frozen.length > 0) throw new DomainError('REPORT_FROZEN', 409, 'finding_id');
+  }
+
   private async findingRow(tx: TenantTx, id: string): Promise<FindingRow | undefined> {
     const rows = await tx.query<FindingRow>(
-      `select f.id, f.run_id, f.criterion_id, r.proposal_id, r.criteria_version_id, r.ai_request_id, k.code as package_code
+      `select f.id, f.run_id, f.criterion_id, r.package_id, r.proposal_id, r.criteria_version_id, r.ai_request_id, k.code as package_code
          from machvon.analysis_finding f
          join machvon.analysis_run r on r.tenant_id = f.tenant_id and r.id = f.run_id
          join machvon.procurement_package k on k.tenant_id = r.tenant_id and k.id = r.package_id
@@ -236,10 +251,16 @@ export class BidReviewStore {
    * waiting for it. `undefined` when the package is not of a project the caller evaluates. The version is the one asked for (404 when there is none, 422 when it is of another package) or the one in force.
    */
   async compare(tx: TenantTx, packageId: string, requestedVersionId: string | undefined, viewer: ProposalViewer): Promise<ComparisonRead | undefined> {
+    const basis = await this.comparisonBasis(tx, packageId, requestedVersionId, viewer);
+    return basis === undefined ? undefined : { package: { id: basis.package.id, code: basis.package.code }, criteriaStatus: basis.criteriaStatus, comparison: compareProposals(basis.input) };
+  }
+
+  /** What `compare` sets side by side, with the same refusals; the evaluation report keeps the part of it that its author chose. */
+  async comparisonBasis(tx: TenantTx, packageId: string, requestedVersionId: string | undefined, viewer: ProposalViewer): Promise<ComparisonBasis | undefined> {
     const params = new SqlParams();
     const evaluate = params.scope(viewer.evaluate);
-    const reach = await tx.query<{ id: string; code: string }>(
-      `select k.id, k.code from ${SCOPE_FROM} join machvon.procurement_package k on k.tenant_id = p.tenant_id and k.project_id = p.id where k.id = ${params.add(packageId)}::uuid and ${evaluate}`,
+    const reach = await tx.query<{ id: string; code: string; title: string | null }>(
+      `select k.id, k.code, k.title from ${SCOPE_FROM} join machvon.procurement_package k on k.tenant_id = p.tenant_id and k.project_id = p.id where k.id = ${params.add(packageId)}::uuid and ${evaluate}`,
       params.values,
     );
     const target = reach[0];
@@ -260,8 +281,7 @@ export class BidReviewStore {
         findings: (findings.get(run?.id ?? '') ?? []).map((finding) => ({ findingId: finding.id, criterionCode: finding.criterion_id, decided: decidedOf(finding) })),
       };
     });
-    const comparison = compareProposals({ criteriaVersionId: version.id, criteria: criteriaOf(version), runs: inputs, excludedAttributes: PROHIBITED_RULES.map((rule) => rule.code) });
-    return { package: { id: target.id, code: target.code }, criteriaStatus: version.status, comparison };
+    return { package: { id: target.id, code: target.code, title: target.title }, criteriaStatus: version.status, input: { criteriaVersionId: version.id, criteria: criteriaOf(version), runs: inputs, excludedAttributes: PROHIBITED_RULES.map((rule) => rule.code) } };
   }
 
   private async versionToCompare(tx: TenantTx, packageId: string, requested: string | undefined): Promise<CriteriaVersionRow> {

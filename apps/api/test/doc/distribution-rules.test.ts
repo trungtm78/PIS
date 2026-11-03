@@ -23,7 +23,7 @@ function problemOf(work: () => unknown): { code: string; detail: string | undefi
 }
 
 describe('the recipients of a dispatch (ST-DOC-010, RECIPIENT_INVALID)', () => {
-  it('takes recipients the document names on a channel of the first release, in the stored form, once each', () => {
+  it('takes recipients the document names on a channel of the distribution, in the stored form, once each', () => {
     const items = normaliseDispatch(
       [
         { kind: 'INTERNAL_UNIT', name: ' planning division ', channel: 'INTERNAL' },
@@ -44,7 +44,8 @@ describe('the recipients of a dispatch (ST-DOC-010, RECIPIENT_INVALID)', () => {
     ['nothing', [], 'recipients', 'EMPTY'],
     ['a member that is not an object', ['text'], 'recipients[0].name', undefined],
     ['a member the request may not carry', [{ name: 'Department of Finance', channel: 'EMAIL', status: 'SENT' }], 'recipients[0].status', undefined],
-    ['the LGSP channel', [{ name: 'Department of Finance', channel: 'LGSP' }], 'recipients[0].channel', 'CHANNEL_NOT_SUPPORTED'],
+    ['the LGSP channel for a unit of this system', [{ name: 'Planning Division', kind: 'INTERNAL_UNIT', channel: 'LGSP' }], 'recipients[0].channel', 'LGSP_NEEDS_AGENCY'],
+    ['the LGSP channel for a person', [{ name: 'Nguyen Van A', kind: 'PERSON', channel: 'LGSP' }], 'recipients[0].channel', 'LGSP_NEEDS_AGENCY'],
     ['no channel', [{ name: 'Department of Finance' }], 'recipients[0].channel', undefined],
     ['a duty to acknowledge that is not a boolean', [{ name: 'Department of Finance', channel: 'EMAIL', acknowledgement_required: 1 }], 'recipients[0].acknowledgement_required', undefined],
     ['a name that is empty', [{ name: '   ', channel: 'EMAIL' }], 'recipients[0].name', undefined],
@@ -54,6 +55,16 @@ describe('the recipients of a dispatch (ST-DOC-010, RECIPIENT_INVALID)', () => {
     ['the inbox of an agency outside the system', [{ name: 'Department of Finance', channel: 'INTERNAL' }], 'recipients[0].channel', 'INTERNAL_CHANNEL_NEEDS_UNIT'],
   ])('refuses %s', (_name, raw, detail, reason) => {
     expect(problemOf(() => normaliseDispatch(raw as object[], onDocument))).toEqual({ code: 'RECIPIENT_INVALID', detail, reason });
+  });
+
+  it('takes an agency on the LGSP channel by the code the document prints for it (AC-ST-DOC-021-1)', () => {
+    expect(normaliseDispatch([{ name: 'Department of Finance', channel: 'LGSP' }], onDocument)).toEqual([{ recipient: onDocument[1], channel: 'LGSP', acknowledgementRequired: true }]);
+  });
+
+  it('refuses an agency with no code on the LGSP channel: the gateway addresses a message by the code of the receiving agency (AC-ST-DOC-021-1)', () => {
+    const nameless: DraftRecipient[] = [{ kind: 'EXTERNAL_AGENCY', name: 'Provincial Archive' }];
+    expect(problemOf(() => normaliseDispatch([{ name: 'Provincial Archive', channel: 'LGSP' }], nameless))).toEqual({ code: 'RECIPIENT_INVALID', detail: 'recipients[0].code', reason: 'CODE_REQUIRED_FOR_LGSP' });
+    expect(normaliseDispatch([{ name: 'Provincial Archive', channel: 'EMAIL' }], nameless)).toHaveLength(1);
   });
 
   it('sends to every recipient at once on the channel that needs no transport', () => {

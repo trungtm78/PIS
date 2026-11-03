@@ -35,6 +35,7 @@ export const FINDING_CODES = [
   'PIPELINE_APPROVAL',
   'PIPELINE_CANARY',
   'PIPELINE_ROLLBACK',
+  'PIPELINE_ERROR_BUDGET',
   'POSTGRES_ARCHIVE_TIMEOUT',
   'POSTGRES_WAL_LEVEL',
   'BACKUP_TARGET',
@@ -78,7 +79,7 @@ function readInfra(root, findings) {
 }
 
 const filesIn = (files, prefix) => [...files].filter(([rel]) => rel.startsWith(prefix));
-const isString = (value) => typeof value === 'string' && value !== '';
+const isString = (value) => typeof value === 'string' && value.trim() !== '';
 const isVietnamese = (host, policy) =>
   policy.egress.allowedHosts.includes(host) || policy.egress.allowedHostSuffixes.some((suffix) => host.endsWith(suffix));
 
@@ -185,6 +186,23 @@ function checkPipelines(files, operations, findings) {
     findings.push(finding('PIPELINE_CANARY', rel, 'a canary by tenant cohort that starts small and ends at 100 percent is required'));
   }
   if (!(pipeline.rollback?.maxMinutes <= rules.maxRollbackMinutes)) findings.push(finding('PIPELINE_ROLLBACK', rel, `rollback within ${rules.maxRollbackMinutes} minutes`));
+  checkErrorBudget(rel, pipeline.errorBudget, rules, findings);
+}
+
+// A spent error budget stops feature releases and lets reliability and security fixes through (ST-KERNEL-052).
+function checkErrorBudget(rel, policy, rules, findings) {
+  const kinds = (list) => (Array.isArray(list) ? list : []);
+  const blocked = kinds(policy?.blockedKinds);
+  const allowed = kinds(policy?.allowedKinds);
+  const problems = [];
+  if (!blocked.includes('feature')) problems.push('feature releases must be blocked');
+  if (!['reliability', 'security'].every((kind) => allowed.includes(kind))) problems.push('reliability and security fixes must be allowed');
+  if (blocked.some((kind) => allowed.includes(kind))) problems.push('a kind cannot be both blocked and allowed');
+  if (!(Number.isInteger(policy?.postMortemWorkingDays) && policy.postMortemWorkingDays >= 1 && policy.postMortemWorkingDays <= rules.maxPostMortemWorkingDays)) {
+    problems.push(`the post-mortem is due within ${rules.maxPostMortemWorkingDays} working days`);
+  }
+  if (!(Number.isInteger(policy?.maxReportAgeMinutes) && policy.maxReportAgeMinutes >= 1)) problems.push('the budget report needs a maximum age in minutes');
+  for (const problem of problems) findings.push(finding('PIPELINE_ERROR_BUDGET', rel, problem));
 }
 
 function seconds(value) {

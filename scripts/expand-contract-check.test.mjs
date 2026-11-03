@@ -33,7 +33,7 @@ test('a new NOT NULL column without a default is not an expand step', () => {
   assert.deepEqual(codes(withDefault), []);
 });
 
-test('drops, renames, type changes and tightening existing columns need a contract marker', () => {
+test('AC-ST-KERNEL-014-1 (UAT-NFR-OPERABILITY-03) drops, renames, type changes and tightening existing columns need a contract marker', () => {
   for (const sql of [
     'ALTER TABLE t DROP COLUMN note;',
     'DROP TABLE t;',

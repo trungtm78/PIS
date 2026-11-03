@@ -67,6 +67,8 @@ export interface RequestActions {
   evaluate: boolean;
   withdraw: boolean;
   decide: boolean;
+  /** The retroactive adjustment of an assessed CO (CTR-14). */
+  adjust: boolean;
 }
 
 /** What the staff of the owner read of a request beyond its place in the chain; a guest contractor does not have it. */
@@ -101,6 +103,8 @@ export interface ChangeRequest {
   actions: RequestActions | undefined;
   /** The revision of the contract that an approved change order made; null until it is approved. */
   resultingRevisionId: string | null;
+  /** The change order was approved through the retroactive adjustment: it applies from a day before its approval. */
+  retroactive: boolean;
 }
 
 export interface Chain {
@@ -173,8 +177,9 @@ export function toRequest(raw: unknown): ChangeRequest[] {
       createdAt: text(row.created_at) ?? '',
       version,
       detail: toDetail(row),
-      actions: actions === undefined ? undefined : { promote: actions.promote === true, evaluate: actions.evaluate === true, withdraw: actions.withdraw === true, decide: actions.decide === true },
+      actions: actions === undefined ? undefined : { promote: actions.promote === true, evaluate: actions.evaluate === true, withdraw: actions.withdraw === true, decide: actions.decide === true, adjust: actions.adjust === true },
       resultingRevisionId: nullableText(row.resulting_revision_id),
+      retroactive: row.retroactive === true,
     },
   ];
 }
@@ -362,6 +367,14 @@ export type Problem =
   | 'contractState'
   | 'lineRequired'
   | 'allocation'
+  | 'settlementApproved'
+  | 'valueExceeded'
+  | 'notOnLedger'
+  | 'notRetroactive'
+  | 'beforeContract'
+  | 'afterRevision'
+  | 'affectedMismatch'
+  | 'revisionPending'
   | 'versionConflict'
   | 'validation'
   | 'notFound'
@@ -409,12 +422,30 @@ export function describeProblem(error: unknown): ProblemView {
     case 'CHANGE_STATE_INVALID':
       return view('stateInvalid');
     case 'CONTRACT_STATE_INVALID':
-      return view('contractState');
+      return view(extensions.reason === 'REVISION_PENDING' ? 'revisionPending' : 'contractState');
+    case 'SETTLEMENT_ALREADY_APPROVED':
+      return view('settlementApproved');
+    case 'VALUE_EXCEEDED':
+      return view('valueExceeded');
+    case 'ACCEPTANCE_STATE_INVALID':
+      return view(extensions.reason === 'NOT_ON_LEDGER' ? 'notOnLedger' : 'general');
     case 'ALLOCATION_UNAVAILABLE':
       return view(extensions.reason === 'ALLOCATION_LINE_REQUIRED' ? 'lineRequired' : 'allocation');
     case 'VERSION_CONFLICT':
       return view('versionConflict');
     case 'VALIDATION_FAILED':
+      switch (extensions.reason) {
+        case 'NOT_RETROACTIVE':
+          return view('notRetroactive');
+        case 'BEFORE_CONTRACT':
+          return view('beforeContract');
+        case 'NOT_AFTER_REVISION':
+          return view('afterRevision');
+        case 'AFFECTED_MISMATCH':
+          return view('affectedMismatch');
+        default:
+          return view('validation');
+      }
     case 'INVALID_REQUEST':
     case 'FIELD_NOT_ALLOWED':
       return view('validation');

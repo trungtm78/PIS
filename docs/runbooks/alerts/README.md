@@ -19,3 +19,6 @@ One rule per file in `alerts/rules`; one runbook per rule here. `npm run alerts:
 - [NOTIFICATION_UNKNOWN_STALE](NOTIFICATION_UNKNOWN_STALE.md) · warning · platform-oncall
 - [CHANNEL_CIRCUIT_OPEN](CHANNEL_CIRCUIT_OPEN.md) · warning · platform-oncall
 - [CTR_ADVANCE_GUARANTEE_AT_RISK](CTR_ADVANCE_GUARANTEE_AT_RISK.md) · warning · contract-office (product channel)
+- [SLO_FAST_BURN](SLO_FAST_BURN.md) · critical · platform-oncall
+- [SLO_SLOW_BURN](SLO_SLOW_BURN.md) · warning · platform-oncall
+- [SLO_BUDGET_EXHAUSTED](SLO_BUDGET_EXHAUSTED.md) · critical · platform-oncall

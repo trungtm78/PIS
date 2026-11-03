@@ -176,7 +176,7 @@ describe('PaymentsScreen (SAS-10): the invoices and the reconciliation of the pa
     expect(h.command).not.toHaveBeenCalled();
   });
 
-  it('offers a reader the queue and the invoices and nothing to match', async () => {
+  it('AC-ST-SAS-012-4: UI-SAS-10 offers a reader the queue and the invoices and nothing to match', async () => {
     mount(<PaymentsScreen route={ROUTE} />, client(world()), READER);
     await waitFor(() => expect(row('pay-1')).not.toBeNull());
     expect(screen.queryByRole('button', { name: vi_['sas.payments.match.action'] })).toBeNull();
@@ -197,7 +197,7 @@ describe('PaymentsScreen (SAS-10): the invoices and the reconciliation of the pa
     expect(screen.queryByRole('button', { name: vi_['sas.payments.queue.more.action'] })).toBeNull();
   });
 
-  it('shows the states: nothing waits, a queue that could not be read with a way to try again, and invoices that could not be read', async () => {
+  it('AC-ST-SAS-012-4: UI-SAS-10 shows the states: nothing waits, a queue that could not be read with a way to try again, and invoices that could not be read', async () => {
     mount(<PaymentsScreen route={ROUTE} />, client(world({ pages: new Map([[undefined, { items: [], next_cursor: null }]]) })), BILLING);
     await waitFor(() => expect(screen.queryByText(vi_['sas.payments.queue.none'])).not.toBeNull());
     cleanup();

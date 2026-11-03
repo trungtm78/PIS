@@ -32,3 +32,6 @@ export { CapitalCommitments } from './commitment.port';
 
 export { APPROVAL_STATES, CAPITAL_PLAN_APPROVAL_WORKFLOW, capitalPlanApprovalWorkflow } from './plan-approval.workflow';
 export type { ApprovalWorkflowDeps } from './plan-approval.workflow';
+
+export { CAPITAL_REALLOCATION_WORKFLOW, REALLOCATION_STATES, capitalReallocationWorkflow } from './reallocation.workflow';
+export type { ReallocationWorkflowDeps } from './reallocation.workflow';

@@ -34,6 +34,17 @@
       "isolation-violation"
     ]
   },
+  "errorBudget": {
+    "blockedKinds": [
+      "feature"
+    ],
+    "allowedKinds": [
+      "reliability",
+      "security"
+    ],
+    "postMortemWorkingDays": 5,
+    "maxReportAgeMinutes": 15
+  },
   "rollback": {
     "strategy": "redeploy-previous",
     "maxMinutes": 15,

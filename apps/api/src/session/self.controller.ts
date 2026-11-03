@@ -107,7 +107,7 @@ export class SelfServiceController {
   async devices(@CurrentTenant() tenant: TenantContext): Promise<{ items: Array<Record<string, unknown>>; as_of: string }> {
     const rows = await this.database.withTenant(tenant, (tx) => this.self.devices(tx, tenant.membershipId));
     return {
-      items: rows.map((row) => ({ id: row.id, platform: row.platform, device_public_id: row.devicePublicId, last_seen_at: row.lastSeenAt, revoked_at: row.revokedAt, status: row.revokedAt === null ? 'ACTIVE' : 'REVOKED' })),
+      items: rows.map((row) => ({ id: row.id, platform: row.platform, device_public_id: row.devicePublicId, last_seen_at: row.lastSeenAt, revoked_at: row.revokedAt, status: row.revokedAt === null ? 'ACTIVE' : 'REVOKED', permission_state: row.permissionState, push_owner: row.pushOwner })),
       as_of: new Date().toISOString(),
     };
   }

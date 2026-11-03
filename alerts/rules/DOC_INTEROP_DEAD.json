@@ -1,0 +1,14 @@
+{
+  "id": "DOC_INTEROP_DEAD",
+  "severity": "critical",
+  "channel": "operations",
+  "owner": "integration-admin",
+  "runbook": "docs/runbooks/alerts/DOC_INTEROP_DEAD.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "gauge",
+    "metric": "doc_interop_dead_gauge",
+    "above": 0
+  },
+  "summary": "A document could not be delivered through the LGSP: a message failed twenty times and is DEAD."
+}

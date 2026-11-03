@@ -1,0 +1,13 @@
+{
+  "id": "SLO_BUDGET_EXHAUSTED",
+  "severity": "critical",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/SLO_BUDGET_EXHAUSTED.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "event",
+    "code": "SLO_BUDGET_EXHAUSTED"
+  },
+  "summary": "The 30 day error budget of a core service is spent: feature releases are stopped and a post-mortem is due within 5 working days."
+}

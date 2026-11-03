@@ -1,4 +1,4 @@
-import { AuditWriter, BillingStore, EINVOICE_PROVIDER, PLATFORM_DOMAIN, sharedMockDomainPorts, EntitlementOverrideStore, PlanStore, SubscriptionStore, SupportAccessStore, TenantBootstrapStore, ThemeStore, UsageMeterStore, sharedMockEInvoiceProvider } from '@machvon/db';
+import { AuditWriter, BillingStore, EINVOICE_PROVIDER, PLATFORM_DOMAIN, defaultPlacementMover, defaultRestoreEngine, sharedMockDomainPorts, EntitlementOverrideStore, PlanStore, SubscriptionStore, SupportAccessStore, TenantBootstrapStore, ThemeStore, UsageMeterStore, sharedMockEInvoiceProvider } from '@machvon/db';
 import type { InboxHandlerRegistry } from '@machvon/db';
 import { TenantDatabase } from '@machvon/db';
 import { WEBHOOK_PAYLOADS } from '../../notifications/delivery/webhook-support';
@@ -16,9 +16,11 @@ import { SubscriptionController } from './subscription.controller';
 import { SubscriptionReadsController } from './subscription-reads.controller';
 import { SupportAccessController, SupportAccessReadsController, SupportAccessRequestController } from './support-access.controller';
 import { SupportTokenController } from './support-token.controller';
+import { PLACEMENT_MOVER, PlacementMigrationController } from './placement-migration.controller';
 import { DOMAIN_PORTS, PLATFORM_DOMAIN_TOKEN, TenantDomainController } from './tenant-domain.controller';
 import { SystemTenantExportsController, TenantExportController, TenantExportFilesController } from './tenant-export.controller';
 import { TenantOwnerController } from './tenant-owner.controller';
+import { RESTORE_ENGINE, TenantRestoreController } from './tenant-restore.controller';
 import { TenantStateController } from './tenant-state.controller';
 import { TenantThemeController } from './tenant-theme.controller';
 import { ThemeController } from './theme.controller';
@@ -48,13 +50,17 @@ export const sasModule = defineModule({
     { provide: SupportAccessStore, useFactory: () => new SupportAccessStore() },
   ],
   controlPlane: {
-    controllers: [SupportAccessRequestController, SupportTokenController, SystemTenantExportsController, TenantDomainController, TenantStateController, TenantOwnerController, ThemeController, FeatureFlagController, PlanController, UsageControlController, SubscriptionController, EntitlementOverrideController, BillingController, PaymentController, PaymentWebhookController, EInvoiceWebhookController],
+    controllers: [SupportAccessRequestController, SupportTokenController, SystemTenantExportsController, TenantDomainController, PlacementMigrationController, TenantRestoreController, TenantStateController, TenantOwnerController, ThemeController, FeatureFlagController, PlanController, UsageControlController, SubscriptionController, EntitlementOverrideController, BillingController, PaymentController, PaymentWebhookController, EInvoiceWebhookController],
     providers: [
       // The exchange of a grant for a support token writes its audit rows outside a command.
       { provide: AuditWriter, useFactory: (database: TenantDatabase) => new AuditWriter(database), inject: [TenantDatabase] },
       // The DNS lookup and the certificate authority are the MOCK until real ones are bound (D05/D06): the same pair serves the commands and the lifecycle job.
       { provide: DOMAIN_PORTS, useFactory: () => sharedMockDomainPorts() },
+      // The data path of a promotion to a silo is the stand-in until the replication on the chosen cloud is confirmed (D02), and none in production: the commands that check a switched copy and the worker see the same one.
+      { provide: PLACEMENT_MOVER, useFactory: () => defaultPlacementMover(process.env.MACHVON_ENVIRONMENT) },
       { provide: PLATFORM_DOMAIN_TOKEN, useFactory: () => process.env.MACHVON_PLATFORM_DOMAIN ?? PLATFORM_DOMAIN },
+      // The restore engine is the MOCK where no real data is held and none where it is (D10): the commands and the restore job see the same one.
+      { provide: RESTORE_ENGINE, useFactory: (tenants: TenantDatabase) => defaultRestoreEngine(tenants, process.env.MACHVON_ENVIRONMENT), inject: [TenantDatabase] },
       { provide: TenantBootstrapStore, useFactory: () => new TenantBootstrapStore() },
       { provide: PlanStore, useFactory: () => new PlanStore() },
       { provide: EntitlementOverrideStore, useFactory: () => new EntitlementOverrideStore() },

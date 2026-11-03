@@ -15,7 +15,7 @@
   outline: none;
 }
 
-.unit-tree [role='treeitem']:focus-visible > .unit-row {
+.unit-tree [role='treeitem']:focus-visible {
   outline: 2px solid var(--primary, #b4233d);
   outline-offset: 1px;
 }

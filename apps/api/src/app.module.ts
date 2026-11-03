@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import type { AuthGuardOptions } from './auth/auth.guard';
 import { CommandModule } from './command.module';
 import { EntitlementsController } from './entitlements/entitlements.controller';
+import { ControlFeatureFlagSource, FeatureFlagModule, NoFeatureFlags } from './entitlements/feature-flag.guard';
 import { MyFeatureFlagsController } from './entitlements/my-feature-flags.controller';
 import { ADM_METRICS } from './modules/adm/tokens';
 import { BI_DRILL_SECRET } from './modules/bi/tokens';
@@ -71,13 +72,16 @@ export interface AppModuleOptions {
 @Module({})
 export class AppModule {
   static register(options: AppModuleOptions): DynamicModule {
+    const control = options.control?.database ?? options.entitlements?.control;
     return {
       module: AppModule,
       imports: [
-        CommandModule.register({ database: options.database, control: options.control?.database ?? options.entitlements?.control }),
+        CommandModule.register({ database: options.database, control }),
         ...(options.auth === undefined ? [] : [AuthModule.register(options.auth, options.tenantState?.runtime)]),
         ...(options.policy === undefined ? [] : [PolicyModule.register(options.policy)]),
         ...(options.session === undefined ? [] : [SessionModule.register(options.session)]),
+        // Last of the guards: a route behind a release flag is judged after the caller is authenticated and holds the permission.
+        FeatureFlagModule.register(control === undefined ? new NoFeatureFlags() : new ControlFeatureFlagSource(control)),
       ],
       controllers: [
         OrganizationUnitsController,

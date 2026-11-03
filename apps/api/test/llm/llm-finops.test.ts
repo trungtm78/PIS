@@ -231,7 +231,7 @@ describe('the reservation, the settlement and the reconciliation of a budget (ST
     expect((await hold(TENANT_SCOPE, 1)).kind).toBe('DENIED');
   });
 
-  it('AC-ST-LLM-003-6: UAT-AC469 sends the event of the soft threshold once when a settlement crosses 80 percent, refuses a 250,000 estimate above 190,000, and asks for an approval when the budget does not stop', async () => {
+  it('AC-ST-LLM-003-6, AC-ST-KERNEL-046-3: UAT-AC469, UAT-NFR-AI-03 sends the event of the soft threshold once when a settlement crosses 80 percent, refuses a 250,000 estimate above 190,000, and asks for an approval when the budget does not stop', async () => {
     const projectId = await project();
     const tenant = await budget({ scopeKind: 'TENANT', limit: 5_000_000 });
     const scoped = await budget({ scopeKind: 'PROJECT', scopeRefId: projectId, limit: 1_000_000, settled: 790_000 });

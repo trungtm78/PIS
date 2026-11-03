@@ -20,7 +20,7 @@ describe('the correction of an issued report (ST-MNE-007, MNE F3)', () => {
   afterAll(() => app.stop(), 60_000);
   afterEach(() => flow.clean());
 
-  it('UAT-AC294: refuses a correction without its reason, starts revision 2 as a draft that supersedes the filed revision 1, and supersedes it only when DOC issues the new one', async () => {
+  it('AC-ST-MNE-007-1, UAT-AC294: refuses a correction without its reason, starts revision 2 as a draft that supersedes the filed revision 1, and supersedes it only when DOC issues the new one', async () => {
     const { id } = await flow.issuedReport();
     await generate(id);
     const [first] = await packages(id);

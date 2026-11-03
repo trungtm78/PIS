@@ -14,6 +14,7 @@ import { OperationId } from '../../operation-id.decorator';
 import type { EmailChannelPort } from './distribution-channel';
 import { normaliseDispatch } from './distribution-rules';
 import { DocumentDistributionService } from './distribution.service';
+import { DocInteropService } from './interop.service';
 import { normaliseRecipients } from './outgoing-rules';
 import { DOC_CLOCK, DOC_EMAIL_CHANNEL, DOC_METRICS } from './tokens';
 
@@ -37,8 +38,10 @@ export class DocumentDistributionsController {
     @Inject(DOC_EMAIL_CHANNEL) email: EmailChannelPort,
     @Optional() @Inject(DOC_METRICS) metrics?: MetricsSink,
     @Optional() @Inject(DOC_CLOCK) clock?: () => Date,
+    // Without the interoperability service the LGSP channel has no way to carry a row: it fails with CHANNEL_NOT_SUPPORTED.
+    @Optional() @Inject(DocInteropService) interop?: DocInteropService,
   ) {
-    this.service = new DocumentDistributionService(email, metrics ?? NOOP_METRICS);
+    this.service = new DocumentDistributionService(email, metrics ?? NOOP_METRICS, interop);
     this.clock = clock ?? ((): Date => new Date());
   }
 

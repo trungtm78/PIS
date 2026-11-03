@@ -90,6 +90,43 @@ describe('RevisionsScreen (CTR-26): the revisions of a contract and when they ap
     expect((await screen.findByTestId('no-revisions')).textContent).toBe(vi_['ctr.revision.versions.empty']);
   });
 
+  it('UI-CTR-26, AC-ST-CTR-016-1, UAT-AC58: lists, on a revision that reaches back, the acceptances it re-priced with the difference on each, and links to the adjustment', async () => {
+    const adjustment = {
+      id: 'adj-1',
+      change_request_id: requestId(2),
+      change_request_code: 'CO-002',
+      revision_id: 'r2',
+      effective_on: '2026-06-01',
+      approved_on: '2026-08-10',
+      basis: 'The owner agreed the new price from 1 June.',
+      decision_document_version_id: UUID_A,
+      total_delta_vnd: '50000000',
+      affected: [{ id: 'l1', acceptance_id: UUID_A, acceptance_no: 'NT-001', boq_item_key: 'B02', party_id: null, quantity: '500.000000', old_amount_vnd: '1000000000', new_unit_price: '2100000.000000', new_amount_vnd: '1050000000', delta_vnd: '50000000' }],
+    };
+    const rows = [
+      revision(1, { id: 'r1', revision: 1, status: 'SUPERSEDED', valid_until: '2026-08-10' }),
+      revision(1, { id: 'r2', revision: 2, status: 'EFFECTIVE', kind: 'CHANGE_ORDER', retroactive: true, valid_from: '2026-08-10', supersedes_id: 'r1', change_request_id: requestId(2), change_request_code: 'CO-002' }),
+    ];
+    open(stateOf({ details: [active({ revisions: rows, retroactive_adjustments: [adjustment] })] }));
+    await screen.findByTestId('timeline');
+    const [first, second] = Array.from(document.querySelectorAll('[data-revision]')) as HTMLElement[];
+    expect(within(first!).queryByTestId('retroactive-block')).toBeNull();
+    const block = within(second!).getByTestId('retroactive-block');
+    expect(within(block).getByTestId('adjustment-effective').textContent).toBe('2026-06-01');
+    expect(within(block).getByTestId('adjustment-basis').textContent).toBe('The owner agreed the new price from 1 June.');
+    expect(within(block).getByTestId('line-delta').textContent).toBe('+50.000.000');
+    expect(within(block).getByText('NT-001')).toBeTruthy();
+    expect(within(block).getByTestId('retro-link').getAttribute('href')).toBe(`/ctr/ctr-14?id=${contractId(1)}&request=${requestId(2)}`);
+  });
+
+  it('shows the flag and the link of a revision that reaches back, and no money, to a reader without the ledger', async () => {
+    open(stateOf({ details: [active({ revisions: [revision(1, { id: 'r1', status: 'EFFECTIVE', retroactive: true })] })] }));
+    await screen.findByTestId('timeline');
+    expect(screen.getByTestId('retroactive-block')).toBeTruthy();
+    expect(screen.queryByTestId('adjustment-total')).toBeNull();
+    expect(screen.getByTestId('retro-link').getAttribute('href')).toBe(`/ctr/ctr-14?id=${contractId(1)}`);
+  });
+
   it('answers a failed read with the error state, and a contract out of reach with the error state of a miss', async () => {
     const state = stateOf({ failing: new Set(['get_resources_contract_id']) });
     const h = open(state);

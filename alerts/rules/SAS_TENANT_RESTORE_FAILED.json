@@ -1,0 +1,14 @@
+{
+  "id": "SAS_TENANT_RESTORE_FAILED",
+  "severity": "warning",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/SAS_TENANT_RESTORE_FAILED.md",
+  "adapter": "log",
+  "source": {
+    "type": "gauge",
+    "metric": "tenant_restore_failed_24h",
+    "above": 0
+  },
+  "summary": "A restore of a tenant ended as Failed in the last day: the copy did not match its backup, or the restore could not be made."
+}

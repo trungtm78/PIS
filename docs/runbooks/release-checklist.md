@@ -80,3 +80,13 @@ Database-backed and browser runs on a developer machine go through the lanes of 
 - The SBOM artifact `sbom-cyclonedx` of the `CI` run.
 - The output of `npm test`, `npm run lint` and `npm run typecheck` (counts of tests and suites) and the line coverage of the touched packages.
 - The list of open items: DONE_PENDING_ENV stories, `docs/r10-baseline-approvals.md` decisions, and the carry-overs of `TODOS.md`.
+
+## 7. Cutting a release (ST-KERNEL-033)
+
+`scripts/release.mjs` makes the artifacts of a release and checks them:
+
+1. `node scripts/release.mjs next --from <previous tag> --current <version>` prints the next semantic version from the conventional commits since the tag: a breaking change (`!` or `BREAKING CHANGE:`) raises the major, `feat` the minor, `fix`, `perf` and `revert` the patch; other types do not make a release and the command exits 1.
+2. `npm run sbom`, then `node scripts/release.mjs cut --from <previous tag> --current <version> --sbom dist/sbom.cdx.json --image api=sha256:<digest> --image worker=sha256:<digest> --signing-key <Ed25519 private key PEM> --out dist/release` writes `CHANGELOG.md` (the commits of the range grouped by module, the modules being the scopes of the commit subjects; a commit that names two modules is listed under both), `sbom.cdx.json`, `manifest.json` (version, commit, creation time, the image digests, the SHA-256 of the SBOM and of the changelog) and `manifest.sig` (the Ed25519 signature of the manifest). The digests are those of the images the build pushed to the registry.
+3. `node scripts/release.mjs verify --dir dist/release --public-key <public key PEM>` exits 1 and names every way the release does not hold together: a manifest that is not valid, a version that is not semantic, an image without a sha256 digest, an SBOM or a changelog that is not the file the manifest hashes (the SBOM must also be a valid CycloneDX document), a missing or wrong signature. A release that does not verify is not promoted. The public key is kept with the release manager, not in the release.
+4. The `Release` workflow publishes the changelog of the tag as the release notes (`release.mjs notes`). The job that builds the images and calls `cut` does not exist yet (the product has no runtime image); until it does, the manifest is cut by hand with the digests of the images that were built. The signature of the images in the registry itself (cosign) needs the registry and is an external check of the deployment.
+5. Rollback within 15 minutes with 100 pending outbox events still delivered is OPS02, an external check (it needs a real staging environment); `docs/runbooks/infra/rollback.md` is the procedure.

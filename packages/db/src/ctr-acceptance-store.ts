@@ -455,6 +455,9 @@ export class CtrAcceptanceStore {
     if ((await tx.query("select 1 from machvon.document_version where id = $1::uuid and scan_status = 'CLEAN'", [documentId])).length === 0) throw invalid('approval_document_version_id');
     const claim = await tx.query<{ id: string }>('select id from machvon.payment_request where acceptance_id = $1::uuid and claims_acceptance limit 1', [id]);
     if (claim[0] !== undefined) throw new DomainError('ACCEPTANCE_ALREADY_CLAIMED', 409, 'id', { extensions: { payment_request_id: claim[0].id } });
+    // A retroactive adjustment (ST-CTR-016) moved the balance of this acceptance on the ledger; withdrawing the acceptance would leave that behind, so the adjustment is put right first.
+    const adjusted = await tx.query<{ adjustment_id: string }>('select adjustment_id from machvon.retroactive_adjustment_line where acceptance_id = $1::uuid limit 1', [id]);
+    if (adjusted[0] !== undefined) throw new DomainError('ACCEPTANCE_STATE_INVALID', 409, 'id', { extensions: { acceptance_status: held.status, reason: 'RETROACTIVELY_ADJUSTED', adjustment_id: adjusted[0].adjustment_id } });
     await tx.query(
       `update machvon.acceptance
           set status = 'REVOKED', revoke_reason = $2, revoke_approval_document_version_id = $3::uuid, revoked_at = now(), revoked_by = $4::uuid, updated_at = now(), updated_by = $4::uuid, version = version + 1

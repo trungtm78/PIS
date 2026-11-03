@@ -29,7 +29,7 @@ export function statusKeyOf(status: string): string | undefined {
 interface NodeViewProps extends UnitTreeProps {
   node: TreeNode;
   focusedId: string | undefined;
-  register(unitId: string, element: HTMLLIElement | null): void;
+  register(unitId: string, element: HTMLDivElement | null): void;
 }
 
 function NodeView({ node, expanded, onToggle, selectedId, onSelect, focusedId, register, forest }: NodeViewProps) {
@@ -37,18 +37,24 @@ function NodeView({ node, expanded, onToggle, selectedId, onSelect, focusedId, r
   const { unit } = node;
   const open = expanded.has(unit.id);
   const hasChildren = node.children.length > 0;
+  const groupId = `unit-group-${unit.id}`;
+  const showsGroup = hasChildren && open;
+  // The name of the unit is everything the row shows besides the buttons (code and name, status, successor), in the order it is read, so that the visible text is in the accessible name (WCAG 2.5.3).
+  const labelledBy = [`unit-label-${unit.id}`, `unit-status-${unit.id}`, ...(node.successor === undefined ? [] : [`unit-successor-${unit.id}`])].join(' ');
   return (
-    <li
-      role="treeitem"
-      aria-labelledby={`unit-label-${unit.id}`}
-      aria-level={node.level}
-      aria-selected={selectedId === unit.id}
-      aria-expanded={hasChildren ? open : undefined}
-      tabIndex={focusedId === unit.id ? 0 : -1}
-      data-unit-id={unit.id}
-      ref={(element) => register(unit.id, element)}
-    >
-      <div className={`unit-row${node.dimmed ? ' dimmed' : ''}${selectedId === unit.id ? ' selected' : ''}`}>
+    <li role="none">
+      <div
+        role="treeitem"
+        aria-labelledby={labelledBy}
+        aria-level={node.level}
+        aria-selected={selectedId === unit.id}
+        aria-expanded={hasChildren ? open : undefined}
+        aria-owns={showsGroup ? groupId : undefined}
+        tabIndex={focusedId === unit.id ? 0 : -1}
+        data-unit-id={unit.id}
+        ref={(element) => register(unit.id, element)}
+        className={`unit-row${node.dimmed ? ' dimmed' : ''}${selectedId === unit.id ? ' selected' : ''}`}
+      >
         {hasChildren ? (
           <button type="button" tabIndex={-1} className="unit-caret" aria-label={t('adm.orgUnit.tree.expand.label', { name: unit.name })} onClick={() => onToggle(unit.id)}>
             {open ? '▾' : '▸'}
@@ -61,15 +67,21 @@ function NodeView({ node, expanded, onToggle, selectedId, onSelect, focusedId, r
             <span className="badge">{unit.code}</span> <span className="unit-name">{unit.name}</span>
           </span>
         </button>
-        <span className={`pill ${unit.status === 'Active' ? '' : 'gray'}`}>{statusLabel(t, unit.status)}</span>
+        {/* A space between the parts of a row is not drawn (the row is a flex container) but it is in the text, so that the visible text reads as the name does. */}{' '}
+        <span id={`unit-status-${unit.id}`} className={`pill ${unit.status === 'Active' ? '' : 'gray'}`}>
+          {statusLabel(t, unit.status)}
+        </span>
         {node.successor === undefined ? null : (
-          <button type="button" tabIndex={-1} className="unit-successor" onClick={() => onSelect(node.successor?.id ?? unit.id)}>
-            {t('adm.orgUnit.node.successor.label', { name: node.successor.name })}
-          </button>
+          <>
+            {' '}
+            <button type="button" tabIndex={-1} className="unit-successor" id={`unit-successor-${unit.id}`} onClick={() => onSelect(node.successor?.id ?? unit.id)}>
+              {t('adm.orgUnit.node.successor.label', { name: node.successor.name })}
+            </button>
+          </>
         )}
       </div>
-      {hasChildren && open ? (
-        <ul role="group">
+      {showsGroup ? (
+        <ul role="group" id={groupId}>
           {node.children.map((child) => (
             <NodeView key={child.unit.id} node={child} forest={forest} expanded={expanded} onToggle={onToggle} selectedId={selectedId} onSelect={onSelect} focusedId={focusedId} register={register} />
           ))}
@@ -87,7 +99,7 @@ export function UnitTree({ forest, expanded, onToggle, selectedId, onSelect }: U
   const { t } = useTranslation();
   const visible = visibleNodes(forest, expanded);
   const [focusedId, setFocusedId] = useState<string | undefined>(undefined);
-  const elements = useRef(new Map<string, HTMLLIElement>());
+  const elements = useRef(new Map<string, HTMLDivElement>());
   const moveFocus = useRef(false);
   const current = visible.some((node) => node.unit.id === focusedId) ? focusedId : (visible.find((node) => node.unit.id === selectedId) ?? visible[0])?.unit.id;
 
@@ -96,7 +108,7 @@ export function UnitTree({ forest, expanded, onToggle, selectedId, onSelect }: U
     moveFocus.current = false;
   }, [current]);
 
-  const register = (unitId: string, element: HTMLLIElement | null): void => {
+  const register = (unitId: string, element: HTMLDivElement | null): void => {
     if (element === null) elements.current.delete(unitId);
     else elements.current.set(unitId, element);
   };

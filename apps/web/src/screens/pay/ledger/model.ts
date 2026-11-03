@@ -26,6 +26,7 @@ export const ENTRY_KINDS = [
   'ADVANCE_RECOVERY_REVERSAL',
   'RETENTION_HOLD',
   'RETENTION_RELEASE',
+  'ADJUSTMENT',
 ] as const;
 export type EntryKind = (typeof ENTRY_KINDS)[number];
 

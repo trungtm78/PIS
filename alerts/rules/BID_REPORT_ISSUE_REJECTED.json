@@ -1,0 +1,13 @@
+{
+  "id": "BID_REPORT_ISSUE_REJECTED",
+  "severity": "warning",
+  "channel": "product",
+  "owner": "procurement-office",
+  "runbook": "docs/runbooks/alerts/BID_REPORT_ISSUE_REJECTED.md",
+  "adapter": "log",
+  "source": {
+    "type": "event",
+    "code": "BID_REPORT_ISSUE_REJECTED"
+  },
+  "summary": "DOC could not issue the minutes of an evaluation report that every member signed: the report is SIGNED_OFF again."
+}

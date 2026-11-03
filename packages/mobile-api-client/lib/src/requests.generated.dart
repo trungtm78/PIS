@@ -1325,14 +1325,12 @@ final class BidReportCreate implements RequestModel {
     required this.criteriaVersionId,
     required this.runIds,
     required this.summary,
-    this.dissentingOpinions,
   });
 
   final String packageId;
   final String criteriaVersionId;
   final List<String> runIds;
-  final Map<String, Object?> summary;
-  final List<Map<String, Object?>>? dissentingOpinions;
+  final BidReportCreateSummary summary;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -1340,7 +1338,32 @@ final class BidReportCreate implements RequestModel {
         'criteria_version_id': criteriaVersionId,
         'run_ids': runIds,
         'summary': summary,
-        if (dissentingOpinions != null) 'dissenting_opinions': dissentingOpinions,
+      };
+}
+
+final class BidReportCreateSummary implements RequestModel {
+  const BidReportCreateSummary({
+    required this.conclusion,
+  });
+
+  final String conclusion;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'conclusion': conclusion,
+      };
+}
+
+final class BidReportSignOff implements RequestModel {
+  const BidReportSignOff({
+    this.dissent,
+  });
+
+  final String? dissent;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (dissent != null) 'dissent': dissent,
       };
 }
 
@@ -2483,17 +2506,26 @@ final class CtrApproveRetroactiveAdjustment implements RequestModel {
     required this.adjustmentBasis,
     required this.decisionDocumentVersionId,
     required this.affectedAcceptanceIds,
+    required this.effectiveOn,
+    this.approvedDeltaVnd,
+    this.boqLines,
   });
 
   final String adjustmentBasis;
   final String decisionDocumentVersionId;
   final List<String> affectedAcceptanceIds;
+  final String effectiveOn;
+  final String? approvedDeltaVnd;
+  final List<Map<String, Object?>>? boqLines;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'adjustment_basis': adjustmentBasis,
         'decision_document_version_id': decisionDocumentVersionId,
         'affected_acceptance_ids': affectedAcceptanceIds,
+        'effective_on': effectiveOn,
+        if (approvedDeltaVnd != null) 'approved_delta_vnd': approvedDeltaVnd,
+        if (boqLines != null) 'boq_lines': boqLines,
       };
 }
 
@@ -4530,6 +4562,7 @@ final class DocInteropInbound implements RequestModel {
     required this.externalMessageId,
     required this.senderCode,
     required this.signatureKeyId,
+    required this.signature,
   });
 
   final String envelopeObjectKey;
@@ -4537,6 +4570,7 @@ final class DocInteropInbound implements RequestModel {
   final String externalMessageId;
   final String senderCode;
   final String signatureKeyId;
+  final String signature;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -4545,6 +4579,7 @@ final class DocInteropInbound implements RequestModel {
         'external_message_id': externalMessageId,
         'sender_code': senderCode,
         'signature_key_id': signatureKeyId,
+        'signature': signature,
       };
 }
 

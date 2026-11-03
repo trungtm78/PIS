@@ -26,6 +26,13 @@ describe('the operations that queued commands stand for (ST-MOB-005)', () => {
     expect(planOf('site_diary.append', { diary_id: ID, note: 'x' })).toEqual({ path: `/site-diaries/${ID}/draft`, body: { note: 'x' }, versioned: true });
   });
 
+  it('sends the result of an inspection to the operation that records it, over the version the phone read (ST-MOB-021)', () => {
+    const result = { result: 'CONDITIONAL', result_note: 'replace the steel', checklist: [{ code: 'K1', outcome: 'FAIL', note: 'x' }] };
+    expect(planOf('inspection.result', { inspection_id: ID.toUpperCase(), ...result }, 3)).toEqual({ path: `/inspections/${ID}/result`, body: result, versioned: true });
+    expect(refusal(() => planOf('inspection.result', { inspection_id: '../../admin', ...result }))).toEqual({ code: 'VALIDATION_FAILED', detail: 'inspection_id' });
+    expect(refusal(() => planOf('inspection.result', result))).toEqual({ code: 'VALIDATION_FAILED', detail: 'inspection_id' });
+  });
+
   it('never puts anything but a UUID into a path, and refuses a type it does not carry and a payload that is not an object', () => {
     for (const bad of ['../../admin', `${ID}/extra`, '', 7, undefined]) {
       expect(refusal(() => planOf('report.submit', { report_id: bad }))).toEqual({ code: 'VALIDATION_FAILED', detail: 'report_id' });

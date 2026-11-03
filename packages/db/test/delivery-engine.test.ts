@@ -436,6 +436,23 @@ describe('DeliveryEngine (ST-NOT-002)', () => {
       expect(metrics.count(OUT_OF_ORDER_METRIC)).toBeGreaterThanOrEqual(1);
     });
 
+    it('AC-ST-MOB-031-2 (UAT-AC182): the same provider callback arriving at the same moment three times is applied once, adds no history row, and a late older status does not move the send back', async () => {
+      const { id, attemptId, messageId } = await acceptedNotification();
+      const key = `evt-${messageId}-delivered`;
+      const answers = await Promise.all([callback(EMAIL, EMAIL_ACCOUNT, key, messageId, 'DELIVERED'), callback(EMAIL, EMAIL_ACCOUNT, key, messageId, 'DELIVERED'), callback(EMAIL, EMAIL_ACCOUNT, key, messageId, 'DELIVERED')]);
+      expect(answers.filter((answer) => answer.outcome === 'APPLIED')).toHaveLength(1);
+      expect(answers.filter((answer) => answer.duplicate === true)).toHaveLength(2);
+      // The older status of the same message, with an event key the inbox has not seen, is stale: it changes neither the status nor the history.
+      expect(await callback(EMAIL, EMAIL_ACCOUNT, `evt-${messageId}-accepted-late`, messageId, 'ACCEPTED')).toMatchObject({ outcome: 'STALE' });
+      expect((await attemptsOf(id))[0]).toMatchObject({ status: 'Delivered' });
+      expect(await statusOf(id)).toMatchObject({ status: 'Delivered' });
+      expect(await historyOf(attemptId)).toEqual([
+        { to_status: 'SENDING', cause: 'CREATED' },
+        { to_status: 'ACCEPTED', cause: 'RESPONSE' },
+        { to_status: 'DELIVERED', cause: 'CALLBACK' },
+      ]);
+    });
+
     it('stamps the moments of the attempt from the callbacks, and a provider read leaves the notification Delivered', async () => {
       const { id, messageId } = await acceptedNotification();
       await callback(EMAIL, EMAIL_ACCOUNT, `evt-${messageId}-r`, messageId, 'READ');

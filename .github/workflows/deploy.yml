@@ -15,6 +15,11 @@ name: Deploy
 # resolves the commit once, and every later job checks out that SHA, never the moving branch or tag the dispatch named.
 # The scripts (checks, gate) and the canary policy come from the revision of this workflow, checked out in .deploy-tools,
 # because the release being deployed can be older than them.
+#
+# Error budget (ST-KERNEL-052): the gate also reads the budget report the SLO evaluation exports (repository variable
+# SLO_BUDGET_REPORT_URL). While the 30 day budget is spent a feature release is refused; reliability and security fixes
+# pass. A feature release with no readable fresh report is refused too, because the gate cannot vouch for a budget it
+# cannot see. The gate job opens the post-mortem task (due within 5 working days) when the report says the budget is spent.
 
 on:
   workflow_run:
@@ -32,6 +37,11 @@ on:
         description: Commit or tag to deploy (default is main)
         type: string
         default: main
+      kind:
+        description: Kind of release. While the 30 day error budget is spent only reliability and security fixes are promoted
+        type: choice
+        options: [feature, reliability, security]
+        default: feature
 
 permissions:
   contents: read
@@ -149,6 +159,7 @@ jobs:
       contents: read
       actions: read
       statuses: read
+      issues: write
     steps:
       # The gate tooling and the canary policy come from the revision of this workflow, not from the release being
       # deployed: a release older than the tooling has no scripts/deploy-gate.mjs.
@@ -163,10 +174,17 @@ jobs:
         with:
           node-version: 24
 
-      - name: Green CI, green staging, canary order and bake time
+      - name: Fetch the error budget report
+        if: vars.DEPLOY_COMMAND_PRODUCTION != '' && vars.SLO_BUDGET_REPORT_URL != ''
+        env:
+          SLO_BUDGET_REPORT_URL: ${{ vars.SLO_BUDGET_REPORT_URL }}
+        run: curl --fail --silent --show-error --location "$SLO_BUDGET_REPORT_URL" --output budget-report.json
+
+      - name: Green CI, green staging, canary order, bake time and error budget
         env:
           DEPLOY_COMMAND: ${{ vars.DEPLOY_COMMAND_PRODUCTION }}
           DEPLOY_COHORT: ${{ inputs.cohort }}
+          DEPLOY_KIND: ${{ inputs.kind }}
           DEPLOY_SHA: ${{ needs.preflight.outputs.sha }}
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -174,7 +192,13 @@ jobs:
             echo "::notice::No production deploy target is configured (variable DEPLOY_COMMAND_PRODUCTION is empty); the gate was not evaluated."
             exit 0
           fi
-          node .deploy-tools/scripts/deploy-gate.mjs check --locale en --root .deploy-tools --repo "$GITHUB_REPOSITORY" --sha "$DEPLOY_SHA" --cohort "$DEPLOY_COHORT"
+          node .deploy-tools/scripts/deploy-gate.mjs check --locale en --root .deploy-tools --repo "$GITHUB_REPOSITORY" --sha "$DEPLOY_SHA" --cohort "$DEPLOY_COHORT" --kind "$DEPLOY_KIND" --budget-report budget-report.json
+
+      - name: Open the post-mortem task when the error budget is spent
+        if: always() && vars.DEPLOY_COMMAND_PRODUCTION != '' && hashFiles('budget-report.json') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node .deploy-tools/scripts/deploy-gate.mjs postmortem --locale en --root .deploy-tools --repo "$GITHUB_REPOSITORY" --budget-report budget-report.json
 
   production:
     name: Production (canary by cohort)
@@ -213,13 +237,21 @@ jobs:
         if: vars.DEPLOY_COMMAND_PRODUCTION == ''
         run: echo "::notice::No production deploy target is configured (variable DEPLOY_COMMAND_PRODUCTION is empty); nothing was deployed."
 
+      # The budget can be spent while the approvers were deciding: the report is fetched again, after the approval.
+      - name: Fetch the error budget report
+        if: vars.DEPLOY_COMMAND_PRODUCTION != '' && vars.SLO_BUDGET_REPORT_URL != ''
+        env:
+          SLO_BUDGET_REPORT_URL: ${{ vars.SLO_BUDGET_REPORT_URL }}
+        run: curl --fail --silent --show-error --location "$SLO_BUDGET_REPORT_URL" --output budget-report.json
+
       - name: Check the promotion gate again
         if: vars.DEPLOY_COMMAND_PRODUCTION != ''
         env:
           DEPLOY_COHORT: ${{ inputs.cohort }}
+          DEPLOY_KIND: ${{ inputs.kind }}
           DEPLOY_SHA: ${{ needs.preflight.outputs.sha }}
           GH_TOKEN: ${{ github.token }}
-        run: node .deploy-tools/scripts/deploy-gate.mjs check --locale en --root .deploy-tools --repo "$GITHUB_REPOSITORY" --sha "$DEPLOY_SHA" --cohort "$DEPLOY_COHORT"
+        run: node .deploy-tools/scripts/deploy-gate.mjs check --locale en --root .deploy-tools --repo "$GITHUB_REPOSITORY" --sha "$DEPLOY_SHA" --cohort "$DEPLOY_COHORT" --kind "$DEPLOY_KIND" --budget-report budget-report.json
 
       # From here on the cohort may be half deployed: the pending status takes the place of an earlier success, so the next
       # cohort can only be promoted by the latest attempt that succeeded.

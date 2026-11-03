@@ -25,7 +25,7 @@ afterEach(() => {
   setOnline(true);
 });
 
-describe('IAM-01: sign in (ST-IAM-002)', () => {
+describe('AC-ST-IAM-002-3: UI-IAM-01 IAM-01: sign in (ST-IAM-002)', () => {
   it('labels every control, names the fields of the screen and never asks for the password', () => {
     mountAuth(<SignInScreen route={SIGN_IN} />, { signIn: vi.fn(() => Promise.resolve()) });
     expect(screen.getByRole('heading', { name: word('iam.signin.page.title') })).toBeTruthy();
@@ -131,7 +131,7 @@ describe('IAM-01: sign in (ST-IAM-002)', () => {
     expect(screen.getByRole('button', { name: word('iam.signin.submit.action') })).toBeTruthy();
   });
 
-  it('shows the same neutral message with a countdown while the account waits, and the form once the wait is over (UAT-AC124)', () => {
+  it('AC-ST-IAM-002-1: shows the same neutral message with a countdown while the account waits, and the form once the wait is over (UAT-AC124)', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-11-02T08:00:00Z'));
     const until = Math.floor(Date.now() / 1000) + 90;
@@ -182,7 +182,7 @@ describe('IAM-01: sign in (ST-IAM-002)', () => {
   });
 });
 
-describe('IAM-02: the second factor (ST-IAM-002)', () => {
+describe('AC-ST-IAM-002-3, AC-ST-IAM-002-4: IAM-02: the second factor (ST-IAM-002)', () => {
   const signedIn: Partial<SessionValue> = { status: 'identified', identity: { subject: 's', displayName: 'An' } };
 
   it('names the fields, is labelled and asks the provider for the step-up', async () => {
@@ -330,7 +330,7 @@ describe('the destination asked for, from the sign-in to the recovery and back',
   });
 });
 
-describe('IAM-03: recover access (ST-IAM-002)', () => {
+describe('AC-ST-IAM-002-5: UI-IAM-03 IAM-03: recover access (ST-IAM-002)', () => {
   it('names the fields, says the answer is the same for every address, and asks for no address', () => {
     mountAuth(<RecoveryScreen route={RECOVERY} />, { signIn: vi.fn(() => Promise.resolve()) });
     expect(screen.getByText(word('iam.recovery.email.label'))).toBeTruthy();

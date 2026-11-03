@@ -221,6 +221,52 @@ describe('the delivery engine in the real API process (ST-NOT-002)', () => {
     expect(lines.join('\n')).not.toContain('user2@example.test');
   }, TEST_TIMEOUT);
 
+  it('AC-ST-KERNEL-073-1 (UAT-NFR-AVAILABILITY-04): a provider that fails every call does not touch the business commands: 20 of 20 succeed, every delivery waits for its retry, and the breaker of the account opens within 30 seconds and stops the calls', async () => {
+    const { api, adapter } = await start();
+    if (adapter === undefined) throw new Error('no e-mail adapter');
+    // The provider fails every call (more refusals than there will be calls).
+    adapter.enqueue(...Array.from({ length: 30 }, () => ({ kind: 'FAILED', failureClass: 'RETRYABLE', errorCode: 'HTTP_503' }) as const));
+    try {
+      const started = Date.now();
+      // The business commands (a unit is created here: the commands of the reports need a world this fixture does not have) are answered at once and none of them reaches the provider.
+      const events: string[] = [];
+      for (let n = 0; n < 20; n += 1) {
+        const command = await createUnit(api);
+        expect(command.status).toBeLessThan(300);
+        events.push(await plantEvent(`Report ${n}`));
+      }
+      expect(adapter.requests).toHaveLength(0);
+      const circuit = async (): Promise<string | undefined> => (await rows<{ state: string }>('select state from machvon.channel_account_circuit where channel_account_id = $1', [ACCOUNT]))[0]?.state;
+      await pump(async () => (await circuit()) === 'OPEN', 'the breaker of the account to open');
+      expect(Date.now() - started).toBeLessThan(30_000);
+      // 20 failures opened it: 20 calls were made, one for each delivery, and each of them waits for a retry that is scheduled.
+      expect(adapter.requests).toHaveLength(20);
+      for (const eventId of events) {
+        const attempts = await attemptsOf(eventId);
+        expect(attempts.map((attempt) => [attempt.attempt_no, attempt.status, attempt.error_code])).toEqual([
+          [1, 'Failed', 'HTTP_503'],
+          [2, 'Queued', null],
+        ]);
+      }
+      const [scheduled] = await rows<{ waiting: string }>("select count(*)::text as waiting from machvon.delivery_attempt where status = 'Queued' and attempt_no = 2 and next_retry_at > now()");
+      expect(scheduled?.waiting).toBe('20');
+      // With the breaker open, the retries that fall due are put back and the provider is not called again.
+      await rows("update machvon.delivery_attempt set next_retry_at = now() where status = 'Queued'");
+      for (let tick = 0; tick < 3; tick += 1) {
+        timers.fire(TICK);
+        await new Promise((wait) => setTimeout(wait, 150));
+      }
+      expect(adapter.requests).toHaveLength(20);
+      expect(await circuit()).toBe('OPEN');
+    } finally {
+      // The account is left as the other tests expect it: a closed circuit and no send waiting.
+      await rows('delete from machvon.channel_account_circuit where channel_account_id = $1', [ACCOUNT]);
+      await rows("update machvon.delivery_attempt set status = 'Cancelled', error_code = 'TEST_CLEANUP' where status = 'Queued'");
+      // The failures are over for the circuit, which counts those of the last minute.
+      await rows("update machvon.delivery_attempt set failed_at = now() - interval '2 hours' where status = 'Failed' and failed_at > now() - interval '5 minutes'");
+    }
+  }, TEST_TIMEOUT);
+
   it('AC-ST-NOT-002-4 (NOT01): provider receipts that are unsigned, stale, repeated or late are judged by the signature first and by the reducer after', async () => {
     const { api, adapter } = await start();
     if (adapter === undefined) throw new Error('no e-mail adapter');

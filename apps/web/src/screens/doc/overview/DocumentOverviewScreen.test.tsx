@@ -57,9 +57,9 @@ describe('DocumentOverviewScreen (DOC-01): the overview of the documents', () =>
     ).toBe('/doc/doc-14');
     expect(templates.textContent).toContain('[CXN-DOC-01]');
     expect(within(screen.getByTestId('tile-awaiting_number')).getByRole('link').getAttribute('href')).toBe('/doc/doc-03?status=SIGNED');
-    // The interoperability has nothing behind it yet and says so.
+    // The interoperability leads to its monitor and says what it counts.
     const interop = screen.getByTestId('tile-interop_errors');
-    expect(within(interop).queryByRole('link')).toBeNull();
+    expect(within(interop).getByRole('link', { name: word('doc.overview.open') }).getAttribute('href')).toBe('/doc/doc-20');
     expect(interop.textContent).toContain(word('doc.overview.interop.note'));
   });
 
@@ -117,10 +117,10 @@ describe('the model of the overview', () => {
     expect(toOverview({ tiles: 'x' })).toEqual({ asOf: '', tiles: [] });
   });
 
-  it('has a word and, but for the interoperability, a link for every tile', () => {
+  it('has a word and a link for every tile', () => {
     const t = ((key: string) => (vi_ as Record<string, string>)[key] ?? `MISSING:${key}`) as never;
     expect(TILE_KEYS.map((key) => tileLabel(t, key)).filter((label) => label.startsWith('MISSING:'))).toEqual([]);
-    expect(TILE_KEYS.filter((key) => tileLink(key) === undefined)).toEqual(['interop_errors']);
+    expect(TILE_KEYS.filter((key) => tileLink(key) === undefined)).toEqual([]);
   });
 });
 

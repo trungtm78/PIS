@@ -160,6 +160,28 @@ test('the entry gate fails naming the missing runbook, restore test or alert, on
   assert.deepEqual(codesOf(run(noAlerts)), ['COMPONENT_ALERT_MISSING']);
 });
 
+test('LiteLLM and Langfuse enter use only with a runbook, a successful restore test and an alert (AC-ST-LLM-002-3, UAT-NFR-OPERABILITY-01)', () => {
+  const name = 'litellm-langfuse';
+  const planned = run(scratch());
+  assert.equal(planned.components.find((c) => c.name === name).entered, false);
+  const ready = run(scratch((api) => entered(api, name)));
+  assert.deepEqual(ready.findings, []);
+  assert.equal(ready.components.find((c) => c.name === name).entered, true);
+  const noRunbook = scratch((api) => entered(api, name, (c) => { c.runbook = 'docs/runbooks/infra/absent.md'; }));
+  assert.deepEqual(codesOf(run(noRunbook)), ['COMPONENT_RUNBOOK_MISSING']);
+  const noRestore = scratch((api) => entered(api, name, (c) => { c.restoreEvidence = null; }));
+  assert.deepEqual(codesOf(run(noRestore)), ['COMPONENT_RESTORE_MISSING']);
+  const noAlert = scratch((api) => entered(api, name, (c) => { c.alerts = []; }));
+  assert.deepEqual(codesOf(run(noAlert)), ['COMPONENT_ALERT_MISSING']);
+  const unknownAlert = scratch((api) => entered(api, name, (c) => { c.alerts = ['llm-cost-spike', 'llm-does-not-exist']; }));
+  assert.deepEqual(codesOf(run(unknownAlert)), ['COMPONENT_ALERT_MISSING']);
+  // The alerts the component names are the real cost and route alerts of this slice.
+  const ids = readdirSync(join(REPO_ROOT, 'infra', 'alerts')).flatMap((file) => JSON.parse(readFileSync(join(REPO_ROOT, 'infra', 'alerts', file), 'utf8')).map((rule) => rule.id));
+  const component = JSON.parse(readFileSync(join(REPO_ROOT, 'infra', 'components', `${name}.json`), 'utf8'));
+  assert.deepEqual(component.alerts.filter((alert) => !ids.includes(alert)), []);
+  assert.ok(component.alerts.includes('llm-cost-spike') && component.alerts.includes('llm-route-errors'));
+});
+
 test('restore evidence older than the component version is stale (AC-ST-KERNEL-015-2)', () => {
   const s = scratch((api) => entered(api, 'postgres', (c) => { c.restoreEvidence.verifiedVersion = '17'; }));
   assert.deepEqual(codesOf(run(s)), ['EVIDENCE_STALE']);
@@ -210,6 +232,20 @@ test('pipelines: production needs an approval, a canary by cohort that starts sm
   assert.deepEqual(codesOf(run(noCanaryAtAll)), ['PIPELINE_CANARY']);
 });
 
+test('AC-ST-KERNEL-052-2 UAT-NFR-AVAILABILITY-01 pipelines: a spent error budget must stop feature releases, allow reliability and security fixes, and ask for a post-mortem within 5 working days', () => {
+  const broken = (change) => scratch((api) => api.json('infra/pipelines/production.json', (p) => change(p.errorBudget)));
+  assert.deepEqual(codesOf(run(broken((budget) => { budget.blockedKinds = []; }))), ['PIPELINE_ERROR_BUDGET']);
+  assert.deepEqual(codesOf(run(broken((budget) => { budget.allowedKinds = ['reliability']; }))), ['PIPELINE_ERROR_BUDGET']);
+  assert.deepEqual(codesOf(run(broken((budget) => { budget.allowedKinds = ['security']; }))), ['PIPELINE_ERROR_BUDGET']);
+  assert.deepEqual(codesOf(run(broken((budget) => { budget.allowedKinds = ['reliability', 'security', 'feature']; }))), ['PIPELINE_ERROR_BUDGET']);
+  assert.deepEqual(codesOf(run(broken((budget) => { budget.postMortemWorkingDays = 6; }))), ['PIPELINE_ERROR_BUDGET']);
+  assert.deepEqual(codesOf(run(broken((budget) => { budget.postMortemWorkingDays = 0; }))), ['PIPELINE_ERROR_BUDGET']);
+  assert.deepEqual(codesOf(run(broken((budget) => { budget.maxReportAgeMinutes = 0; }))), ['PIPELINE_ERROR_BUDGET']);
+  const noPolicy = scratch((api) => api.json('infra/pipelines/production.json', (p) => { delete p.errorBudget; }));
+  assert.ok(codesOf(run(noPolicy)).includes('PIPELINE_ERROR_BUDGET'));
+  assert.deepEqual(codesOf(run(scratch(() => undefined))), []);
+});
+
 test('postgres: archive timeout, WAL level and recovery targets follow the design', () => {
   const timeout = scratch((api) => api.text('infra/postgres/postgresql.conf.tpl', (text) => text.replace('archive_timeout = 60s', 'archive_timeout = 300s')));
   assert.deepEqual(codesOf(run(timeout)), ['POSTGRES_ARCHIVE_TIMEOUT']);
@@ -235,6 +271,16 @@ test('keycloak: the control-plane client needs its own audience and WebAuthn for
   assert.deepEqual(codesOf(run(noClient)), ['KEYCLOAK_CONTROL_CLIENT']);
 });
 
+test('keycloak: five wrong passwords within 15 minutes lock the account for 15 minutes, and the lock is temporary (AC-ST-IAM-002-1, UAT-AC124)', () => {
+  const { bruteForce } = JSON.parse(readFileSync(join(REPO_ROOT, 'infra', 'keycloak', 'realm-template.json'), 'utf8'));
+  const FIFTEEN_MINUTES = 15 * 60;
+  assert.equal(bruteForce.failureFactor, 5);
+  assert.equal(bruteForce.maxDeltaTimeSeconds, FIFTEEN_MINUTES, 'the failures count within a window of 15 minutes');
+  assert.equal(bruteForce.waitIncrementSeconds, FIFTEEN_MINUTES, 'the first lock lasts 15 minutes');
+  assert.equal(bruteForce.maxFailureWaitSeconds, FIFTEEN_MINUTES, 'repeated locks do not grow beyond 15 minutes');
+  assert.equal(bruteForce.permanentLockout, false);
+});
+
 test('alerts: the channel must be independent of the product, each rule needs an owner and an existing runbook', () => {
   const channel = scratch((api) => api.json('infra/alerts/postgres.json', (rules) => { rules[0].channel = 'notification-center'; }));
   assert.deepEqual(codesOf(run(channel)), ['ALERT_CHANNEL']);
@@ -242,6 +288,52 @@ test('alerts: the channel must be independent of the product, each rule needs an
   assert.deepEqual(codesOf(run(owner)), ['ALERT_OWNER']);
   const runbook = scratch((api) => api.json('infra/alerts/postgres.json', (rules) => { rules[0].runbook = 'docs/runbooks/infra/missing.md#x'; }));
   assert.deepEqual(codesOf(run(runbook)), ['ALERT_RUNBOOK']);
+});
+
+// The rule as the repository declares it, and the runbook heading its anchor points at.
+function declaredRule(id) {
+  for (const file of readdirSync(join(REPO_ROOT, 'infra', 'alerts'))) {
+    const found = JSON.parse(readFileSync(join(REPO_ROOT, 'infra', 'alerts', file), 'utf8')).find((rule) => rule.id === id);
+    if (found !== undefined) return found;
+  }
+  throw new Error(`no alert rule ${id}`);
+}
+
+function runbookHasHeading(runbookWithAnchor) {
+  const [path, anchor] = runbookWithAnchor.split('#');
+  const headings = readFileSync(join(REPO_ROOT, path), 'utf8').split(/\r?\n/).filter((line) => line.startsWith('#')).map((line) => line.replace(/^#+\s*/, '').trim().toLowerCase().replace(/\s+/g, '-'));
+  return headings.includes(anchor);
+}
+
+test('replication delayed by 120 seconds pages the on-call channel within 5 minutes, with an owner and a runbook that has its section (AC-ST-KERNEL-045-2, UAT-NFR-OBSERVABILITY-02)', () => {
+  const rule = declaredRule('powersync-sync-lag');
+  const threshold = /above (\d+) s\b/.exec(rule.expr);
+  assert.ok(threshold !== null, `the expression names a lag threshold in seconds: ${rule.expr}`);
+  const FAULT_SECONDS = 120;
+  assert.ok(FAULT_SECONDS > Number(threshold[1]), 'a lag of 120 seconds is above the threshold');
+  assert.ok(rule.forMinutes > 0 && rule.forMinutes <= 5, 'the rule fires after at most 5 minutes above the threshold');
+  assert.equal(rule.channel, 'ops-pager');
+  assert.ok(typeof rule.owner === 'string' && rule.owner.trim() !== '');
+  assert.ok(runbookHasHeading(rule.runbook), `the runbook ${rule.runbook} has the section the alert links to`);
+  // The rule is what the component names, and the whole check finds nothing wrong with it.
+  assert.ok(JSON.parse(readFileSync(join(REPO_ROOT, 'infra', 'components', 'powersync.json'), 'utf8')).alerts.includes('powersync-sync-lag'));
+  assert.deepEqual(infraCheck(REPO_ROOT).findings, []);
+  // A rule that loses its owner or its channel is a finding.
+  const noOwner = scratch((api) => api.json('infra/alerts/powersync.json', (rules) => { rules[0].owner = ''; }));
+  assert.deepEqual(codesOf(run(noOwner)), ['ALERT_OWNER']);
+  const notThePager = scratch((api) => api.json('infra/alerts/powersync.json', (rules) => { rules[0].channel = 'notification-center'; }));
+  assert.deepEqual(codesOf(run(notThePager)), ['ALERT_CHANNEL']);
+});
+
+test('the cost alert rule has an owner, the on-call channel and a runbook with its section (AC-ST-KERNEL-046-3, UAT-NFR-AI-03)', () => {
+  const rule = declaredRule('llm-cost-spike');
+  assert.ok(typeof rule.owner === 'string' && rule.owner.trim() !== '');
+  assert.equal(rule.channel, 'ops-pager');
+  assert.ok(runbookHasHeading(rule.runbook), `the runbook ${rule.runbook} has the section the alert links to`);
+  const noOwner = scratch((api) => api.json('infra/alerts/litellm-langfuse.json', (rules) => { rules[0].owner = ' '; }));
+  assert.deepEqual(codesOf(run(noOwner)), ['ALERT_OWNER']);
+  const noRunbook = scratch((api) => api.json('infra/alerts/litellm-langfuse.json', (rules) => { rules[0].runbook = 'docs/runbooks/infra/absent.md#cost'; }));
+  assert.deepEqual(codesOf(run(noRunbook)), ['ALERT_RUNBOOK']);
 });
 
 test('a malformed JSON file is a finding, not a crash', () => {

@@ -5,6 +5,7 @@ import vi_ from '../i18n/vi.json';
 import { mockMatchMedia, renderApp, TENANT_A, TENANT_B } from '../test/render';
 
 const MAIN_NAV = vi_['shell.nav.main.label'];
+const accountLabel = vi_['shell.account.open.label'].replace('{initials}', 'AN').replace('{name}', 'Nguyễn An').replace('{role}', vi_['shell.account.role.text']);
 const BREADCRUMB = vi_['shell.nav.breadcrumb.label'];
 
 beforeEach(() => {
@@ -37,7 +38,7 @@ describe('shell frame', () => {
       expect(within(sidebar).getByRole('link', { name })).toBeInTheDocument();
     }
     expect(within(sidebar).getByRole('link', { name: vi_['shell.nav.home.label'] })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('link', { name: `Trang chủ ${TENANT_A.name}` })).toHaveAttribute('href', '/home/home-01');
+    expect(screen.getByRole('link', { name: `${TENANT_A.monogram}: trang chủ ${TENANT_A.name}` })).toHaveAttribute('href', '/home/home-01');
     expect(screen.getByText(TENANT_A.name, { selector: 'strong' })).toBeInTheDocument();
   });
 
@@ -276,7 +277,7 @@ describe('help and account', () => {
   it('links the help and account destinations', async () => {
     renderApp('/home/home-01');
     expect(screen.getByRole('link', { name: vi_['shell.nav.help.label'] })).toHaveAttribute('href', '/iam/iam-08');
-    const account = screen.getByRole('link', { name: vi_['shell.account.open.label'] });
+    const account = screen.getByRole('link', { name: accountLabel });
     expect(account).toHaveAttribute('href', '/iam/iam-05');
     expect(within(account).getByText('Nguyễn An')).toBeInTheDocument();
     await act(async () => undefined);

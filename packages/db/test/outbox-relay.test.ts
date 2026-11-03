@@ -295,6 +295,36 @@ describe('OutboxRelay', () => {
     expect((await relay.runOnce()).published).toBe(5);
   });
 
+  it('AC-ST-KERNEL-014-1 (UAT-NFR-OPERABILITY-03) delivers 100 events that release N wrote, through the relay of release N-1, after the rollback', async () => {
+    // Release N writes 100 events of a version of its own, and its relay dies in the middle of the first batch: nothing is lost and nothing is half-delivered.
+    const ids = await enqueue(TENANT_A, 100, 'n');
+    await admin("update machvon.outbox_event set schema_version = 2, payload = payload || '{\"added_by_n\": true}'::jsonb");
+    let published = 0;
+    const releaseN = new TestRelay(relayPool(), async () => {
+      published += 1;
+      if (published === 40) {
+        await admin(
+          "select pg_terminate_backend(pid) from pg_stat_activity where usename = 'machvon_outbox_relay' and datname = current_database() and pid <> pg_backend_pid()",
+        );
+      }
+    });
+    await expect(releaseN.runOnce()).rejects.toThrow();
+    expect((await admin<{ n: string }>("select count(*) as n from machvon.outbox_event where status = 'PENDING'"))[0]?.n).toBe('100');
+    // The rollback starts release N-1: a relay of its own, on a connection of its own, which only reads the fields of the event that N-1 knows.
+    const delivered = new Map<string, number>();
+    const releaseNMinus1 = new TestRelay(relayPool(), async (delivery) => {
+      const { id, type, aggregateId, payload } = delivery;
+      expect({ type, aggregateId, n: typeof payload.n }).toEqual({ type: 'ContractSubmitted', aggregateId: AGGREGATE, n: 'number' });
+      delivered.set(id, (delivered.get(id) ?? 0) + 1);
+    });
+    expect(await releaseNMinus1.runOnce()).toEqual({ published: 100, retried: 0, dead: 0 });
+    expect([...delivered.keys()].sort()).toEqual([...ids].sort());
+    expect([...delivered.values()].every((count) => count === 1)).toBe(true);
+    const rows = await admin<{ status: string; schema_version: number; added: boolean }>("select status, schema_version, payload ? 'added_by_n' as added from machvon.outbox_event");
+    expect(rows).toHaveLength(100);
+    expect(rows.every((row) => row.status === 'PUBLISHED' && row.schema_version === 2 && row.added)).toBe(true);
+  }, 120_000);
+
   it('gives the relay role no way to insert events or read business tables', async () => {
     const pool = relayPool();
     await expect(pool.query("insert into machvon.outbox_event (tenant_id, id) values ($1, $1)", [TENANT_A])).rejects.toMatchObject({ code: '42501' });

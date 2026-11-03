@@ -65,6 +65,8 @@ import {
   PARCEL_FIXTURES,
   PETITION_FIXTURES,
   CLARIFICATION_FIXTURES,
+  INTEROP_FIXTURES,
+  EVALUATION_REPORT_FIXTURES,
   PROJECT_FIXTURES,
   PROPOSAL_FIXTURES,
   RESULT_FIXTURES,
@@ -72,6 +74,7 @@ import {
   STAGE_FIXTURES,
 } from '../suite';
 import { CONTRACTOR_FIXTURES } from '../suite';
+import { RETROACTIVE_FIXTURES } from '../suite';
 import {
   ACCEPTANCE_FIXTURES,
   ADVANCE_FIXTURES,
@@ -436,6 +439,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'getHomeWarnings',
   'getDisbursementRankings',
   'getMyWork',
+  'getHomeChannelHealth',
   'getDisbursementForecast',
   'listExplanationRequests',
   'listProjectTransfers',
@@ -641,6 +645,13 @@ export const FULL_RIGHTS_OPERATIONS = [
   'recordClarificationAnswer',
   'listBidClarifications',
   'getBidClarification',
+  'receiveInteropMessage',
+  'retryInteropMessage',
+  'listInteropMessages',
+  'createEvaluationReport',
+  'signOffEvaluationReport',
+  'listEvaluationReports',
+  'getEvaluationReport',
   'reviewOcrPage',
   'uploadOcrCorrectionFile',
   'listProposalOcrPages',
@@ -739,6 +750,7 @@ export const FULL_RIGHTS_OPERATIONS = [
   'promoteChangeRequest',
   'evaluateChangeRequest',
   'post_contract_changes_id_decision',
+  'approveRetroactiveAdjustment',
   'withdrawChangeRequest',
   'getChangeChain',
   'get_resources_change_request',
@@ -1677,6 +1689,23 @@ const INSERT_LEDGER_ENTRY = `insert into machvon.cumulative_ledger_entry
   (tenant_id, id, ledger_id, contract_id, boq_item_id, acceptance_id, entry_kind, advance_outstanding_after_vnd, reason, request_id, created_by)
   values ($1, $2, $3, $4, $5, $6, 'RECOGNIZE_ACCEPTANCE', 0, $7, gen_random_uuid(), $8) on conflict do nothing`;
 
+/** The adjustment of the approved acceptance of the payment request: the balance of the acceptance holds the difference, the line names it and the entry carries it. */
+const INSERT_ADJUSTED_LEDGER = `insert into machvon.cumulative_ledger
+  (tenant_id, id, contract_id, boq_item_id, acceptance_id, accepted_vnd, created_by, updated_by)
+  values ($1, $2, $3, $4, $5, 5, $6, $6) on conflict do nothing`;
+
+const INSERT_RETROACTIVE_ADJUSTMENT = `insert into machvon.retroactive_adjustment
+  (tenant_id, id, contract_id, change_request_id, revision_id, effective_on, approved_on, basis, decision_document_version_id, line_count, acceptance_count, total_delta_vnd, created_by)
+  values ($1, $2, $3, $4, $5, date '2026-06-01', date '2026-08-01', $6, $7, 1, 1, 5, $8) on conflict do nothing`;
+
+const INSERT_RETROACTIVE_ADJUSTMENT_LINE = `insert into machvon.retroactive_adjustment_line
+  (tenant_id, id, adjustment_id, contract_id, acceptance_id, boq_item_id, quantity, old_amount_vnd, new_unit_price, new_amount_vnd, delta_vnd, created_by)
+  values ($1, $2, $3, $4, $5, $6, 1, 1000, 1005, 1005, 5, $7) on conflict do nothing`;
+
+const INSERT_ADJUSTMENT_ENTRY = `insert into machvon.cumulative_ledger_entry
+  (tenant_id, id, ledger_id, contract_id, boq_item_id, acceptance_id, entry_kind, accepted_delta_vnd, advance_outstanding_after_vnd, reason, request_id, created_by, adjustment_line_id)
+  values ($1, $2, $3, $4, $5, $6, 'ADJUSTMENT', 5, 0, $7, gen_random_uuid(), $8, $9) on conflict do nothing`;
+
 const INSERT_INSPECTION = `insert into machvon.inspection
   (tenant_id, id, project_id, contract_id, inspection_no, inspection_type, title, requested_by, requested_for, status, created_by, updated_by, version)
   values ($1, $2, $3, $4, 'KT-001', 'SAFETY', $5, $6, date '2026-12-31', 'REQUESTED', $6, $6, 1) on conflict do nothing`;
@@ -1790,6 +1819,10 @@ const INSERT_CLARIFICATION = `insert into machvon.bid_clarification
   (tenant_id, id, package_id, proposal_id, question, due_at, status, sent_document_id, created_by, updated_by, version)
   values ($1, $2, $3, $4, $5, now() + interval '30 days', 'SENT', $6, $7, $7, 1) on conflict do nothing`;
 
+const INSERT_INTEROP = `insert into machvon.doc_interop_message
+  (tenant_id, id, direction, adapter_code, adapter_status, external_message_id, sender_code, envelope_sha256, envelope_object_key, status, created_by, updated_by, version)
+  values ($1, $2, 'INBOUND', 'LGSP_EDXML', 'MOCK', $3, $4, $5, $6, 'RECEIVED', $7, $7, 1) on conflict do nothing`;
+
 const INSERT_PETITION = `insert into machvon.procurement_petition
   (tenant_id, id, package_id, contractor_id, petition_kind, received_on, due_on, petition_document_id, status, days_applied, rule_version_id, created_by, updated_by, version)
   values ($1, $2, $3, $4, 'PROCESS', date '2026-10-20', date '2026-10-27', $5, 'RECEIVED', 7, gen_random_uuid(), $6, $6, 1) on conflict do nothing`;
@@ -1823,6 +1856,10 @@ const INSERT_ANALYSIS_EVIDENCE = `insert into machvon.analysis_evidence
 const INSERT_ANALYSIS_REVIEW = `insert into machvon.analysis_finding_review
   (tenant_id, id, finding_id, reviewer_user_id, from_status, to_status, score_before, score_after, reason, decision, ai_decision_record_id)
   values ($1, $2, $3, $4, 'SUPPORTED', 'CONTRADICTED', null, 2, $5, 'ACCEPTED_WITH_CHANGE', $6) on conflict do nothing`;
+
+const INSERT_EVALUATION_REPORT = `insert into machvon.evaluation_report
+  (tenant_id, id, package_id, criteria_version_id, run_ids, summary_json, status, created_by, updated_by, version)
+  values ($1, $2, $3::uuid, $4::uuid, jsonb_build_array($5::text), jsonb_build_object('conclusion', $6::text, 'package', jsonb_build_object('id', $3::uuid::text, 'code', 'ISOLATION'), 'criteria_version_id', $4::uuid::text, 'decisions_sha256', repeat('0', 64), 'proposals', '[]'::jsonb, 'rows', '[]'::jsonb, 'not_covered', '[]'::jsonb, 'excluded_criteria', '[]'::jsonb, 'excluded_attributes', '[]'::jsonb), 'DRAFT', $7, $7, 1) on conflict do nothing`;
 
 const INSERT_CLEAR_DECLARATION = `insert into machvon.bid_conflict_declaration
   (tenant_id, id, package_id, user_id, has_conflict, created_by, updated_by, version)
@@ -2342,6 +2379,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_RESULT, [tenantId, result.id, pack.id, contractor.id, result.awardPrice, documents.documentId, ACTOR_ID]);
     await client.query(INSERT_PETITION, [tenantId, PETITION_FIXTURES[tenant].id, pack.id, contractor.id, documents.documentId, ACTOR_ID]);
     // A question to the contractor of the proposal; the letter that carries it is a document of the tenant.
+    // A message the LGSP delivered and nobody has processed yet: the monitor of the tenant lists it, and a foreign tenant cannot reach it.
+    await client.query(INSERT_INTEROP, [tenantId, INTEROP_FIXTURES[tenant].id, INTEROP_FIXTURES[tenant].externalId, INTEROP_FIXTURES[tenant].sender, INTEROP_FIXTURES[tenant].digest, `tenants/${tenantId}/interop-envelope/isolation`, ACTOR_ID]);
     await client.query(INSERT_CLARIFICATION, [tenantId, CLARIFICATION_FIXTURES[tenant].id, pack.id, proposal.id, CLARIFICATION_FIXTURES[tenant].question, documents.documentId, ACTOR_ID]);
     await client.query(INSERT_DOCUMENT_VERSION, [tenantId, documents.versionId, documents.documentId, documents.objectKey]);
     // A file of the proposal and the page of it that waits for a person: the review command finds the page through the proposal.
@@ -2428,6 +2467,11 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const ledger = LEDGER_FIXTURES[tenant];
     await client.query(INSERT_LEDGER, [tenantId, ledger.id, draft.id, boq.itemId, workAcceptance.id, ACTOR_ID]);
     await client.query(INSERT_LEDGER_ENTRY, [tenantId, ledger.entryId, ledger.id, draft.id, boq.itemId, workAcceptance.id, ledger.entryReason, ACTOR_ID]);
+    const adjustment = RETROACTIVE_FIXTURES[tenant];
+    await client.query(INSERT_ADJUSTED_LEDGER, [tenantId, adjustment.ledgerId, draft.id, boq.itemId, payment.acceptanceId, ACTOR_ID]);
+    await client.query(INSERT_RETROACTIVE_ADJUSTMENT, [tenantId, adjustment.id, draft.id, CHANGE_FIXTURES[tenant].id, draft.revisionId, adjustment.basis, documents.versionId, ACTOR_ID]);
+    await client.query(INSERT_RETROACTIVE_ADJUSTMENT_LINE, [tenantId, adjustment.lineId, adjustment.id, draft.id, payment.acceptanceId, boq.itemId, ACTOR_ID]);
+    await client.query(INSERT_ADJUSTMENT_ENTRY, [tenantId, adjustment.entryId, adjustment.ledgerId, draft.id, boq.itemId, payment.acceptanceId, adjustment.basis, ACTOR_ID, adjustment.lineId]);
     const guarantee = GUARANTEE_FIXTURES[tenant];
     await client.query(INSERT_GUARANTEE, [tenantId, guarantee.id, draft.id, guarantee.issuer, guarantee.guaranteeNo, 'PENDING_VERIFICATION', documents.versionId, ACTOR_ID, MEMBERSHIP_ID]);
     await client.query(INSERT_GUARANTEE, [tenantId, guarantee.activeId, draft.id, guarantee.issuer, guarantee.activeGuaranteeNo, 'ACTIVE', documents.versionId, ACTOR_ID, MEMBERSHIP_ID]);
@@ -2478,6 +2522,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_LLM_DECISION, [tenantId, llm.decisionId, llm.requestId, 'd'.repeat(64), llm.decisionRationale, ACTOR_ID]);
     // What an expert decided about the finding of the analysis: a row of its own that points at the finding and at the record of the decision of a person.
     await client.query(INSERT_ANALYSIS_REVIEW, [tenantId, analysis.reviewId, analysis.findingId, ACTOR_ID, analysis.reviewReason, llm.decisionId]);
+    // The minutes of the evaluation of the package, drafted from the run.
+    await client.query(INSERT_EVALUATION_REPORT, [tenantId, EVALUATION_REPORT_FIXTURES[tenant].id, pack.id, criteria.approvedId, analysis.id, EVALUATION_REPORT_FIXTURES[tenant].conclusion, ACTOR_ID]);
     const mne = MNE_FIXTURES[tenant];
     await client.query(INSERT_MNE_FORM, [tenantId, mne.formId, mne.formCode, mne.formLegalBasis, ACTOR_ID]);
     await client.query(INSERT_MNE_RULE, [tenantId, mne.ruleId, mne.ruleCode, mne.formId, mne.ruleRecipient, ACTOR_ID]);
@@ -2547,6 +2593,8 @@ const SNAPSHOT_TABLES = [
   'procurement_plan_event',
   'procurement_petition',
   'bid_clarification',
+  'doc_interop_message',
+  'evaluation_report',
   'document_page_ocr',
   'analysis_run',
   'analysis_finding',
@@ -2577,6 +2625,8 @@ const SNAPSHOT_TABLES = [
   'acceptance_line',
   'cumulative_ledger',
   'cumulative_ledger_entry',
+  'retroactive_adjustment',
+  'retroactive_adjustment_line',
   'payment_request',
   'payment_request_line',
   'payment_document',

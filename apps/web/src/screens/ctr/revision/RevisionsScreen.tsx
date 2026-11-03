@@ -9,7 +9,9 @@ import { signedAmountText } from '../change/model';
 import { BackLink, StatusBadge } from '../components';
 import { useContract, useContracts } from '../hooks';
 import { DRAFT_PATH, amountText, draftLink } from '../model';
-import type { ContractView } from '../model';
+import type { AdjustmentRecord, ContractView } from '../model';
+import { AdjustmentView } from '../retroactive/AdjustmentView';
+import { retroactiveLink } from '../retroactive/model';
 import { kindLabel, standingLabel } from './labels';
 import { decisionLink, timelineOf } from './model';
 import type { TimelineEntry } from './model';
@@ -18,7 +20,8 @@ import '../ctr.css';
 /**
  * CTR-26: the revisions of a contract in time (ST-CTR-007, CTR 3.3, BR-CTR-03). Each revision shows when it is in force, what it adds to the one it follows, the change order that made it
  * and how far its BOQ covers its value. Only the revision in force prices the work: one that waits for its day is shown and says it is not used for payment. A guest contractor reads the
- * same history of its own contract. Nothing is decided here; the change order is decided on CTR-08.
+ * same history of its own contract. A revision that reaches back (ST-CTR-016) says so, and for the staff who read the ledger lists the acceptances it re-priced and the difference on each; the
+ * adjustment itself is made on CTR-14. Nothing is decided here; the change order is decided on CTR-08.
  */
 export default function RevisionsScreen({ route }: ScreenProps) {
   const { tenant } = useSession();
@@ -108,7 +111,7 @@ function Timeline({ contract, locale }: { contract: ContractView; locale: string
       ) : (
         <ol className="ctr-timeline" data-testid="timeline">
           {entries.map((entry) => (
-            <Revision key={entry.revision.id} entry={entry} contract={contract} locale={locale} />
+            <Revision key={entry.revision.id} entry={entry} contract={contract} locale={locale} adjustment={contract.retroactiveAdjustments.find((record) => record.revisionId === entry.revision.id)} />
           ))}
         </ol>
       )}
@@ -116,7 +119,7 @@ function Timeline({ contract, locale }: { contract: ContractView; locale: string
   );
 }
 
-function Revision({ entry, contract, locale }: { entry: TimelineEntry; contract: ContractView; locale: string }) {
+function Revision({ entry, contract, locale, adjustment }: { entry: TimelineEntry; contract: ContractView; locale: string; adjustment: AdjustmentRecord | undefined }) {
   const { t } = useTranslation();
   const { revision } = entry;
   const delta = signedAmountText(entry.deltaVnd, locale);
@@ -169,6 +172,21 @@ function Revision({ entry, contract, locale }: { entry: TimelineEntry; contract:
           </>
         )}
       </dl>
+      {revision.retroactive ? (
+        <div className="ctr-retroactive" data-testid="retroactive-block">
+          {adjustment === undefined ? null : (
+            <>
+              <h3>{t('ctr.revision.adjust.title')}</h3>
+              <AdjustmentView record={adjustment} locale={locale} />
+            </>
+          )}
+          <p>
+            <Link to={retroactiveLink(contract.id, revision.changeRequest?.id)} data-testid="retro-link">
+              {t('ctr.revision.adjust.link')}
+            </Link>
+          </p>
+        </div>
+      ) : null}
     </li>
   );
 }

@@ -58,7 +58,7 @@ afterEach(() => {
   window.sessionStorage.clear();
 });
 
-describe('IAM-02 under the real sign-in (the ID token of the provider carries the assurance)', () => {
+describe('AC-ST-IAM-002-4: UAT-PLAN-44 IAM-02 under the real sign-in (the ID token of the provider carries the assurance)', () => {
   it('offers Continue, not another verification, when the provider returned the person with an aal2 acr', async () => {
     await backFromTheProvider({ acr: 'aal2', auth_time: nowSeconds() - 30 });
     expect(session.assurance?.level).toBe('aal2');

@@ -1,0 +1,33 @@
+.bid-report {
+  margin: 0 0 16px;
+}
+.bid-report-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin: 0 0 6px;
+}
+.bid-report-scroll {
+  overflow-x: auto;
+}
+.bid-report-conclusion {
+  white-space: pre-wrap;
+  margin: 8px 0;
+}
+.bid-report-list {
+  margin: 4px 0 8px;
+  padding-left: 20px;
+}
+.bid-report-runs {
+  border: 0;
+  margin: 0 0 12px;
+  padding: 0;
+}
+.bid-report-run {
+  display: block;
+}
+.bid-report-link {
+  margin-right: 8px;
+}

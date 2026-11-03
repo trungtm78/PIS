@@ -186,6 +186,29 @@ export {
 export type { FinishedSpan, Span, SpanAttributeValue, SpanExporter, TraceContext, TracerOptions } from './telemetry.ts';
 export { AlertEvaluator, CollectingTelemetry, LICENSE_EXPIRING_ALERT, MANDATORY_ALERT_RULES, raiseExpiringLicenses } from './alerts.ts';
 export type { AlertAdapter, AlertChannel, AlertRule, AlertSeverity, AlertSource, Evaluation, FiredAlert, MetricSample, MetricsSnapshot } from './alerts.ts';
+export { LangfuseTraceExporter, SanitisingTraceExporter, maskPii, piiMatches, sanitizeTrace } from './llm-trace.ts';
+export type { LangfuseOptions, LlmTrace, PiiKind, PiiMatch, TraceExporter } from './llm-trace.ts';
+export {
+  FAST_BURN,
+  SLOW_BURN,
+  SLO_BUDGET_CONSUMED_METRIC,
+  SLO_BUDGET_EXHAUSTED_ALERT,
+  SLO_BUDGET_REMAINING_METRIC,
+  SLO_BURN_RATE_METRIC,
+  SLO_FAST_BURN_ALERT,
+  SLO_OBJECTIVE,
+  SLO_SERVICES,
+  SLO_SLOW_BURN_ALERT,
+  SLO_WINDOW_DAYS,
+  budgetReport,
+  budgetStatus,
+  burnRateOver,
+  evaluateBurn,
+  isBadResponse,
+  minuteOf,
+  reportSlo,
+} from './slo.ts';
+export type { BudgetInput, BudgetReport, BudgetStatus, BurnEvaluation, BurnRule, DeclaredOutage, SliBucket, SloReport, SloReportInput, SloService } from './slo.ts';
 export { ACCESS_REVOCATION_LAG_METRIC, percentile95, reportAccessRevocationLag } from './alerts.ts';
 export { CHANGE_REQUEST_STATES, assertFourEyes, canTransition, changeRequestNext } from './four-eyes.ts';
 export type { ChangeRequestAction, ChangeRequestState } from './four-eyes.ts';
@@ -535,6 +558,52 @@ export {
 } from './bid-clarification.ts';
 export type { AnswerFacts, ClarificationReader, ClarificationStatus } from './bid-clarification.ts';
 export {
+  INBOUND_STATUSES,
+  INTEROP_ADAPTER_STATUSES,
+  INTEROP_BACKOFF_BASE_SECONDS,
+  INTEROP_BACKOFF_CAP_SECONDS,
+  INTEROP_DIRECTIONS,
+  INTEROP_MAX_ATTEMPTS,
+  INTEROP_SIGNATURE_SCHEME,
+  INTEROP_STATUSES,
+  OUTBOUND_STATUSES,
+  assertEgressAllowed,
+  assertInteropEvent,
+  assertRetryable,
+  egressDecision,
+  interopBackoffSeconds,
+  interopSignedPayload,
+  isEgressEntry,
+  planFailure,
+  signInteropMessage,
+} from './doc-interop.ts';
+export type { EgressRefusal, FailurePlan, InteropAdapterStatus, InteropDirection, InteropEvent, InteropSignedFields, InteropStatus } from './doc-interop.ts';
+export {
+  EVALUATION_REPORT_SOURCE_MODULE,
+  EVALUATION_REPORT_STATUSES,
+  EVALUATION_REPORT_TEMPLATE_CODE,
+  EVALUATION_REPORT_TRANSITIONS,
+  FROZEN_REPORT_STATUSES,
+  MAX_CONCLUSION,
+  MAX_DISSENT,
+  MAX_REPORT_RUNS,
+  MIN_CONCLUSION,
+  MIN_DISSENT,
+  assertReportDraft,
+  assertEvaluationReportState,
+  decisionsDigest,
+  evaluationQuorum,
+  evaluationReportPayload,
+  evaluationReportSourceRef,
+  parseEvaluationReportSourceRef,
+  reportConclusionOf,
+  reportDissentOf,
+  reportRunIdsOf,
+  reportSummary,
+  signerIds,
+} from './bid-report.ts';
+export type { DecisionLine, Dissent, EvaluationReportStatus, NotCoveredReason, PayloadInput, Quorum, ReportSummary, Signature, SummaryInput, TeamMember } from './bid-report.ts';
+export {
   CHECKLIST_OUTCOMES,
   INSPECTION_COMMANDS,
   INSPECTION_RESULTS,
@@ -614,6 +683,21 @@ export { exifJpeg, strippedJpeg } from './qms-photo-fixture.ts';
 export type { ExifJpegInput } from './qms-photo-fixture.ts';
 export { WORK_ACCEPTANCE_COMMANDS, WORK_ACCEPTANCE_STATUSES, assertWithinContractValue, assertWorkAcceptanceTransition, isAccepted, lineAmount, notApproved, sumAmounts } from './ctr-acceptance.ts';
 export type { WorkAcceptanceCommand, WorkAcceptanceStatus } from './ctr-acceptance.ts';
+export {
+  APPROVED_SETTLEMENT_STATUSES,
+  adjustmentLedgerDelta,
+  affectedAcceptanceIds,
+  assertAffectedMatches,
+  assertNoApprovedSettlement,
+  assertNotBeforeContract,
+  assertRetroactiveDay,
+  groupByBalance,
+  repriceAcceptedLines,
+  repricedItems,
+  settlementBlocks,
+  totalDelta,
+} from './ctr-retroactive.ts';
+export type { AcceptedLine, BalanceAdjustment, PostingTarget, PricedItem, RepricedLine, Repricing, SettlementFact } from './ctr-retroactive.ts';
 export {
   LEDGER_ENTRY_KINDS,
   LEDGER_RULES,
@@ -1478,6 +1562,85 @@ export {
   reservedUntil,
 } from './sas-domain.ts';
 export type { DomainKind } from './sas-domain.ts';
+export {
+  MAX_RESTORE_REASON,
+  MIN_RESTORE_REASON,
+  OPEN_RESTORE_STATUSES,
+  RECOVERY_WINDOW_DAYS,
+  RESTORABLE_TENANT_STATUSES,
+  RESTORE_REPORT_SCHEMA_VERSION,
+  RESTORE_RPO_TARGET_SECONDS,
+  RESTORE_RTO_TARGET_SECONDS,
+  RESTORE_STALLED_AFTER_MS,
+  RESTORE_TARGETS,
+  assertRecoveryPointHeld,
+  assertRestorable,
+  normalizeMoney,
+  recoveryWindowEndingAt,
+  restoreReportReference,
+  restoreRequestDefects,
+  verifyRestore,
+} from './sas-restore.ts';
+export type {
+  Measurement,
+  RecoveryWindow,
+  RestoreMoneyCheck,
+  RestoreStatus,
+  RestoreTableCheck,
+  RestoreTarget,
+  RestoreTimings,
+  RestoreVerificationReport,
+  RestoredCopy,
+  TableMeasurement,
+} from './sas-restore.ts';
+export {
+  FINAL_MIGRATION_STATUSES,
+  MAX_FREEZE_MINUTES,
+  MAX_REASON_LENGTH as MAX_MIGRATION_REASON_LENGTH,
+  MAX_STEPS_PER_PASS,
+  MIGRATION_STATUSES,
+  MIGRATION_TRANSITIONS,
+  MIN_FREEZE_MINUTES,
+  MIN_REASON_LENGTH as MIN_MIGRATION_REASON_LENGTH,
+  OBSERVATION_HOURS,
+  OPEN_MIGRATION_STATUSES,
+  SOURCE_RETENTION_DAYS,
+  VERIFICATION_MAX_AGE_MINUTES,
+  abortedStatus,
+  assertCutoverApproved,
+  assertSiloPromotable,
+  assertStartAccepted,
+  freezeEndsAt,
+  freezeOver,
+  isOpenMigration,
+  isReportFresh,
+  mayPurgeSource,
+  nextMigrationStatus,
+  observationEndsAt,
+  reconcileCopy,
+  reportReference,
+  sameAmount,
+  sourcePurgeDueAt,
+  startDefect,
+  verificationReport,
+  workerStep,
+} from './sas-placement.ts';
+export type {
+  CutoverFacts,
+  MigrationAction,
+  MigrationStartInput,
+  MigrationStatus,
+  MoneyReconciliation,
+  PromotableTenant,
+  PromotionTarget,
+  CopyReconciliation,
+  SystemEndReason,
+  TableMeasure,
+  TableReconciliation,
+  VerificationReport,
+  WorkerFacts,
+  WorkerStep,
+} from './sas-placement.ts';
 export {
   PROVIDER_CHANNELS,
   RESTRICTED_CHANNELS,

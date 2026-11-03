@@ -504,7 +504,7 @@ describe('quality rules, runs on frozen snapshots and scorecards (ST-DGV-002)', 
       expect(card?.dataset.qualityBadge).toBe('PASSED');
     });
 
-    it('quarantines the failing rows of a QUARANTINE rule that does not pass, fails the run without a hard fail, and warns for a rule inside its warning band', async () => {
+    it('AC-ST-DGV-004-3, UAT-AC51: quarantines the failing rows of a QUARANTINE rule that does not pass, fails the run without a hard fail, and warns for a rule inside its warning band', async () => {
       const world = await newWorld({ isCritical: true });
       // 12 of 1000 would be 98.8 percent: here 1 of 4 lines has no treasury coverage value to check, so use a compare rule that fails one line of four.
       await approvedRule(world, { code: 'R-QUARANTINE', dimension: 'CONSISTENCY', expressionAst: { op: 'compare_fields', left: 'ctmtqg_subset_vnd', cmp: 'lte', right: 'plan_total_vnd' }, thresholdJson: { min_pass_rate_pct: '100' }, actionOnFail: 'QUARANTINE', severity: 'HIGH', criticalityWeight: 5 });

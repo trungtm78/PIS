@@ -118,12 +118,12 @@ describe('HOME-07 funding structure (ST-HOME-005, HOME 3 F6)', () => {
       ['offline', { rows: new ApiError({ status: 0, code: NETWORK_ERROR_CODE, correlationId: 'c' }), lines: [] }, vi_['states.offline.title']],
       ['error', { rows: failure(500, 'INTERNAL_ERROR'), lines: [] }, vi_['states.error.title']],
       ['signed out', { rows: failure(401, 'SESSION_EXPIRED'), lines: [] }, vi_['states.signedOut.title']],
-    ] as Array<[string, World, string]>)('UI-HOME-07 shows the %s state', async (_name, world, title) => {
+    ] as Array<[string, World, string]>)('AC-ST-HOME-005-3: UI-HOME-07 shows the %s state', async (_name, world, title) => {
       mount(<FundingScreen route={OVERVIEW} />, client(world), { permissions: READER });
       expect(await screen.findByText(title)).toBeTruthy();
     });
 
-    it('UI-HOME-07 shows the loading state first, names the page, and retries after an error', async () => {
+    it('AC-ST-HOME-005-3: UI-HOME-07 shows the loading state first, names the page, and retries after an error', async () => {
       const h = harness(() => new Error('unexpected'));
       (h.client as unknown as { readAll: unknown }).readAll = vi.fn(() => new Promise(() => undefined));
       mount(<FundingScreen route={OVERVIEW} />, h, { permissions: READER });

@@ -1,0 +1,14 @@
+.doc-interop-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 16px;
+  margin: 0 0 12px;
+}
+.doc-interop-adapter {
+  display: inline-block;
+  margin-top: 2px;
+}
+.doc-interop-more {
+  margin: 12px 0 0;
+}

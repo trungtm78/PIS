@@ -412,6 +412,24 @@ describe('the households affected by a land recovery: sealed personal data, mask
       expect(mixed.find((item) => item.id === household)).toMatchObject({ national_id_masked: '********' + nid.slice(-4) });
     });
 
+    it('AC-ST-KERNEL-061-3, UAT-AC379: what leaves the module to a caller without the right to open personal data has the PERSONAL columns masked, and the sealed national id column holds no plaintext', async () => {
+      const nid = nationalId();
+      const household = (await register(OFFICER, { national_id: nid })).json.resource_id as string;
+      const read = await listOf(AUDITOR);
+      expect(read.status).toBe(200);
+      const line = (read.json.items as Array<Record<string, unknown>>).find((item) => item.id === household);
+      expect(line).toMatchObject({ head_name_masked: 'N***** V** A**', national_id_masked: '************', phone_masked: '************', address_masked: '***, Quận 1' });
+      const leaving = JSON.stringify(read.json);
+      for (const personal of [HEAD, 'Nguyễn', ADDRESS, '12 Lê Lợi', PHONE, nid, nid.slice(-4), PHONE.slice(-3)]) expect(leaving).not.toContain(personal);
+      // The column that keeps the identity number holds a sealed value: the digits are not in it, as text or as hexadecimal.
+      const [sealed] = await rows<{ sealed: string; length: number }>("select encode(national_id_enc, 'hex') as sealed, length(national_id_enc) as length from machvon.affected_household where id = $1::uuid", [household]);
+      expect(sealed?.length).toBeGreaterThan(nid.length);
+      expect(sealed?.sealed).not.toContain(nid);
+      expect(sealed?.sealed).not.toContain(Buffer.from(nid).toString('hex'));
+      // The right to open the data is a separate act that is refused to this caller.
+      expect((await reveal(AUDITOR, household)).status).toBe(403);
+    });
+
     it('opens the personal data per unit: where the caller may read households but not open them in a unit, that unit shows the hidden form', async () => {
       const elsewhere = (await register(OFFICER, {}, { unit: ELSEWHERE })).json.resource_id as string;
       const items = (await listOf(DEPARTMENT_OPENER)).json.items as Array<Record<string, unknown>>;

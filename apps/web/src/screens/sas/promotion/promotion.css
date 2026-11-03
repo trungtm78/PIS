@@ -1,0 +1,39 @@
+/* SAS-23: the way of a promotion to a silo, step by step. The shared cards, tables, pills and callouts do the rest. */
+.sas-billing .steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: 8px 0 16px;
+  padding: 0;
+}
+
+.sas-billing .steps li {
+  border: 1px solid var(--shell-line, #e4e0e6);
+  border-radius: 12px;
+  padding: 2px 10px;
+  color: var(--shell-muted, #5b6472);
+}
+
+.sas-billing .steps li[data-state='done'] {
+  border-color: var(--shell-success, #15803d);
+  color: var(--shell-success, #15803d);
+}
+
+.sas-billing .steps li[data-state='current'] {
+  border-color: var(--shell-warning, #b45309);
+  color: var(--shell-warning, #b45309);
+  font-weight: 600;
+}
+
+.sas-billing [data-tables] td[data-money] div {
+  font-variant-numeric: tabular-nums;
+}
+
+.sas-billing [data-tables] tr[data-match='false'] td {
+  color: var(--shell-danger, #b91c1c);
+}
+
+.sas-billing .promotion-scroll {
+  overflow-x: auto;
+}

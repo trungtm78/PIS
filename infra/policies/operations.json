@@ -8,7 +8,8 @@
     "productionRequiresApproval": true,
     "minCanaryCohorts": 2,
     "maxFirstCanaryPercent": 5,
-    "maxRollbackMinutes": 15
+    "maxRollbackMinutes": 15,
+    "maxPostMortemWorkingDays": 5
   },
   "postgres": {
     "maxArchiveTimeoutSeconds": 60,

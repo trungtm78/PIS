@@ -632,6 +632,49 @@ describe('standard jobs', () => {
     expect(gauges).toEqual([['tenant_domain_failed_total', 4]]);
   });
 
+  it('placement-migration: sums the copies that differ and the workers that fail of every tenant into the gauges, names the tenant that needs a person, whatever tenant fails (ST-SAS-018)', async () => {
+    const gauges: Array<[string, number, Record<string, string> | undefined]> = [];
+    const handlers = standardJobs({
+      tenantIds: async () => [TENANT_A, TENANT_B, PLATFORM_TENANT_ID],
+      seal: new AuditSealJob(harness.tenantDatabase),
+      idempotency: new IdempotencyStore(harness.tenantDatabase),
+      placementMigration: {
+        run: async (ctx) => {
+          if (ctx.tenantId === TENANT_B) throw new Error('boom');
+          return ctx.tenantId === TENANT_A ? { open: 1, mismatch: 1, failing: 2 } : { open: 0, mismatch: 0, failing: 0 };
+        },
+      },
+      metrics: { increment: () => undefined, gauge: (name, value, labels) => void gauges.push([name, value, labels]) },
+    });
+    await expect(handlers.find((handler) => handler.name === 'placement-migration')?.run()).rejects.toMatchObject({ name: 'TenantJobsFailed', failed: 1 });
+    expect(gauges).toEqual([
+      ['placement_migration_attention', 3, { tenant_id: TENANT_A }],
+      ['placement_migration_mismatch_total', 1, undefined],
+      ['placement_migration_failing_total', 2, undefined],
+    ]);
+  });
+
+  it('tenant-restore: sums the restores that wait and the ones that failed of every tenant into the gauges, whatever tenant fails (ST-SAS-019)', async () => {
+    const gauges: Array<[string, number]> = [];
+    const handlers = standardJobs({
+      tenantIds: async () => [TENANT_A, TENANT_B, PLATFORM_TENANT_ID],
+      seal: new AuditSealJob(harness.tenantDatabase),
+      idempotency: new IdempotencyStore(harness.tenantDatabase),
+      tenantRestore: {
+        run: async (ctx) => {
+          if (ctx.tenantId === TENANT_B) throw new Error('boom');
+          return { pending: 2, failed: 1 };
+        },
+      },
+      metrics: { increment: () => undefined, gauge: (name, value) => void gauges.push([name, value]) },
+    });
+    await expect(handlers.find((handler) => handler.name === 'tenant-restore')?.run()).rejects.toMatchObject({ name: 'TenantJobsFailed', failed: 1 });
+    expect(gauges).toEqual([
+      ['tenant_restore_pending', 4],
+      ['tenant_restore_failed_24h', 2],
+    ]);
+  });
+
   it('einvoice-billing: sums the invoices that could not be issued of every tenant into the gauge, whatever tenant fails (ST-SAS-011)', async () => {
     const gauges: Array<[string, number]> = [];
     const handlers = standardJobs({
@@ -753,7 +796,9 @@ describe('standard jobs', () => {
       delegationLifecycle: { run: async () => ({ activated: 0, expired: 0, sourceEnded: 0, active: 0 }) },
       supportAccessLifecycle: { run: async () => ({ activated: [], expired: [], lapsed: [], active: 0 }) },
       tenantExport: { run: async () => ({ expired: [], pending: 0 }), pending: async () => 0 },
+      tenantRestore: { run: async () => ({ pending: 0, failed: 0 }) },
       tenantDomain: { run: async () => ({ activated: [], failed: [], renewed: [], failing: 0 }) },
+      placementMigration: { run: async () => ({ open: 0, mismatch: 0, failing: 0 }) },
       approvalSla: { run: async () => ({ reminded: 0, overdueReminded: 0, breached: 0, escalated: 0, escalationFailed: 0, expired: 0, instancesExpired: 0, open: 0, overdue: 0 }) },
       inbox: { processDue: async () => undefined },
       notificationDelivery: { dispatchDue: async () => undefined, reconcile: async () => undefined },
@@ -771,6 +816,7 @@ describe('standard jobs', () => {
       transferApply: { run: async () => ({ applied: 0 }) },
       incomingOverdue: { run: async () => ({ marked: 0 }) },
       handoverDue: { run: async () => ({ sent: 0 }) },
+      docInteropSend: { run: async () => ({ sent: 0 }) },
       biExportRunner: { run: async () => [] },
       biExportExpiry: { run: async () => [] },
       biQueryJobs: { run: async () => 0 },
@@ -791,7 +837,7 @@ describe('standard jobs', () => {
       llmReservationExpiry: { run: async () => ({ expired: 0, oldestAgeSeconds: 0 }) },
       accessCache: { expire: () => (expired += 1) },
     });
-    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'retention-due', 'revision-effective', 'petition-due', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'unit-reorganization', 'adm-migration', 'llm-knowledge-reindex', 'delegation-lifecycle', 'support-access-lifecycle', 'tenant-domain', 'tenant-export', 'approval-sla', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'notification-campaign-progress', 'dgv-quality-run', 'subscription-cycle', 'einvoice-billing', 'payment-reconciliation', 'allocation-extension-lapse', 'fiscal-year-relock', 'entitlement-override-expiry', 'license-status', 'membership-invitation-expiry', 'land-stage-late', 'prj-explanation-overdue', 'mne-package-expiry', 'prj-transfer-apply', 'incoming-overdue', 'doc-handover-due', 'bi-export-schedule-runner', 'bi-export-expiry', 'bi-query-jobs', 'bi-query-answer-expiry', 'dgv-incident-sweep', 'dgv-product-cert-expiry', 'dgv-maturity-sweep', 'reconciliation-overdue', 'settlement-deadline', 'advance-overdue', 'diary-coverage', 'capital-balance-reconcile', 'capital-reservation-expiry', 'ast-evaluation-due', 'ast-claim-overdue', 'aud-recovery-reconcile', 'llm-key-sweep', 'llm-reservation-expiry', 'access-cache-expiry']);
+    expect(all.map((handler) => handler.name)).toEqual(['audit-seal', 'audit-verify', 'outbox-relay', 'idempotency-purge', 'certificate-expiry', 'master-activation', 'master-baseline-sync', 'dis-period-autoclose', 'dis-reopen-expiry', 'retention-purge', 'guarantee-expiry', 'retention-due', 'revision-effective', 'petition-due', 'permit-expiry', 'gate-waiver-expiry', 'issue-sla', 'unit-reorganization', 'adm-migration', 'llm-knowledge-reindex', 'delegation-lifecycle', 'support-access-lifecycle', 'tenant-domain', 'placement-migration', 'tenant-export', 'tenant-restore', 'approval-sla', 'integration-inbox', 'notification-dispatch', 'notification-reconcile', 'notification-campaign-progress', 'dgv-quality-run', 'subscription-cycle', 'einvoice-billing', 'payment-reconciliation', 'allocation-extension-lapse', 'fiscal-year-relock', 'entitlement-override-expiry', 'license-status', 'membership-invitation-expiry', 'land-stage-late', 'prj-explanation-overdue', 'mne-package-expiry', 'prj-transfer-apply', 'incoming-overdue', 'doc-handover-due', 'doc-interop-send', 'bi-export-schedule-runner', 'bi-export-expiry', 'bi-query-jobs', 'bi-query-answer-expiry', 'dgv-incident-sweep', 'dgv-product-cert-expiry', 'dgv-maturity-sweep', 'reconciliation-overdue', 'settlement-deadline', 'advance-overdue', 'diary-coverage', 'capital-balance-reconcile', 'capital-reservation-expiry', 'ast-evaluation-due', 'ast-claim-overdue', 'aud-recovery-reconcile', 'llm-key-sweep', 'llm-reservation-expiry', 'access-cache-expiry']);
     expect(all.map((handler) => handler.name)).toEqual(Object.keys(JOB_INTERVAL_SECONDS));
     for (const handler of all.filter((candidate) => ['outbox-relay', 'access-cache-expiry'].includes(candidate.name))) await handler.run();
     expect({ relayed, expired }).toEqual({ relayed: 1, expired: 1 });

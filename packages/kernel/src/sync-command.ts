@@ -5,7 +5,7 @@ import { DomainError } from './errors.ts';
  * The commands a phone queues offline (ST-MOB-005, MOB 4, 6, 7). Each carries the key it was given on the phone (a local UUID, at least 16 characters) and is carried out by the operation of the platform that
  * it stands for, exactly as if it had been sent online: the same permission, scope, license, period and version rules decide it. The rules below are pure.
  */
-export const SYNC_COMMAND_TYPES = ['report.submit', 'report.draft.save', 'issue.create', 'site_diary.append', 'measurement.record'] as const;
+export const SYNC_COMMAND_TYPES = ['report.submit', 'report.draft.save', 'issue.create', 'site_diary.append', 'measurement.record', 'inspection.result'] as const;
 export type SyncCommandType = (typeof SYNC_COMMAND_TYPES)[number];
 export const MAX_BATCH_ITEMS = 50;
 export const MIN_KEY_LENGTH = 16;
@@ -59,6 +59,11 @@ export function planOf(commandType: string, payload: unknown, baseServerVersion 
     case 'measurement.record': {
       const { id, rest } = split(payload, 'contract_id');
       return { path: `/contracts/${id}/measurements`, body: rest, versioned: false };
+    }
+    case 'inspection.result': {
+      // The result of an inspection is recorded over the version of the inspection the phone read (`If-Match`).
+      const { id, rest } = split(payload, 'inspection_id');
+      return { path: `/inspections/${id}/result`, body: rest, versioned: true };
     }
     default:
       throw invalid('command_type');

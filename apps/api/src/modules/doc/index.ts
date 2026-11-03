@@ -1,3 +1,7 @@
+import { AuditWriter, TenantDatabase } from '@machvon/db';
+import { WEBHOOK_SECRETS } from '../../notifications/delivery/webhook-support';
+import type { WebhookSecretResolver } from '../../notifications/delivery/webhook-support';
+import { FileService } from '../files';
 import { defineModule } from '../module-descriptor';
 import { DocumentFilesController } from './document-files.controller';
 import { DocumentVersionReadsController, DocumentsController } from './documents.controller';
@@ -11,6 +15,12 @@ import { IncomingController, IncomingReadsController } from './incoming.controll
 import { OutgoingController } from './outgoing.controller';
 import { UnconfiguredEmailChannel } from './distribution-channel';
 import { DocumentDistributionsController } from './distributions.controller';
+import { DocInteropController } from './interop.controller';
+import { JsonInteropCodec } from './interop-codec';
+import { DocInteropSender } from './interop-sender';
+import { DocInteropService } from './interop.service';
+import { UnconfiguredInteropTransport } from './interop-port';
+import type { InteropCodec, InteropTransportPort } from './interop-port';
 import { OutgoingIssuanceController } from './issuance.controller';
 import { IssueRequestsController } from './issue-requests.controller';
 import { DocumentIssueService } from './issue-request.service';
@@ -25,7 +35,7 @@ import { RegistersController } from './registers.controller';
 import { SignaturesController } from './signatures.controller';
 import { UnconfiguredSigningPort } from './signing-adapters';
 import { DocumentTemplatesController } from './templates.controller';
-import { DOC_CLOCK, DOC_EMAIL_CHANNEL, DOC_METRICS, DOC_RESOURCES, DOC_REVOCATION, DOC_SIGNING_PORT, DOC_STATE_TEXT, DOC_TRUST_STORE, PDF_RENDERER } from './tokens';
+import { DOC_CLOCK, DOC_EMAIL_CHANNEL, DOC_INTEROP_CODEC, DOC_INTEROP_TRANSPORT, DOC_METRICS, DOC_RESOURCES, DOC_REVOCATION, DOC_SIGNING_PORT, DOC_STATE_TEXT, DOC_TRUST_STORE, PDF_RENDERER } from './tokens';
 import { StaticTrustStoreProvider, UnavailableRevocationPort, loadTrustAnchors } from './trust-anchors';
 
 /**
@@ -35,7 +45,7 @@ import { StaticTrustStoreProvider, UnavailableRevocationPort, loadTrustAnchors }
  * (ST-DOC-006), the composing, review and lock of outgoing documents (ST-DOC-007) and the issue-request and document-reference ports for source
  * modules (ST-DOC-008), the documents signed outside the system (ST-DOC-009, the production path while no certification authority sandbox exists) and
  * the verify-and-issue gate with the distribution of an issued document to its recipients (ST-DOC-010) and the recall of an issued document with the voiding
- * of the number of one that cannot be sealed (ST-DOC-012). The incoming documents (ST-DOC-011) are received, registered, assigned, worked and resolved here, and the dossiers they are filed in join it in a later slice.
+ * of the number of one that cannot be sealed (ST-DOC-012). * of the number of one that cannot be sealed (ST-DOC-012). The documents are exchanged with other agencies through the LGSP (ST-DOC-021): the webhook that receives them, the job that sends them with its waits and its end as DEAD, and the monitor. The incoming documents (ST-DOC-011) are received, registered, assigned, worked and resolved here, and the dossiers they are filed in join it in a later slice.
  */
 export const docModule = defineModule({
   code: 'DOC',
@@ -59,6 +69,7 @@ export const docModule = defineModule({
     LayoutProfilesController,
     OutgoingIssuanceController,
     DocumentDistributionsController,
+    DocInteropController,
     OutgoingRecallController,
     OutgoingSupersessionController,
   ],
@@ -76,6 +87,21 @@ export const docModule = defineModule({
     { provide: DOC_SIGNING_PORT, useValue: new UnconfiguredSigningPort() },
     // No mail transport exists yet: an email distribution is FAILED with the reason and can be sent again once an adapter is bound.
     { provide: DOC_EMAIL_CHANNEL, useValue: new UnconfiguredEmailChannel() },
+    // No gateway adapter of the LGSP exists yet (the specification of the pilot tenant is open, CXN-06): every send says the provider cannot be reached, and a message waits, fails with that reason and ends DEAD with its alert.
+    { provide: DOC_INTEROP_TRANSPORT, useValue: new UnconfiguredInteropTransport() },
+    // The envelope is the JSON stand-in until the edXML of QCVN 102:2016 is specified for the tenant.
+    { provide: DOC_INTEROP_CODEC, useValue: new JsonInteropCodec() },
+    {
+      provide: DocInteropService,
+      useFactory: (database: TenantDatabase, files: FileService, stored: DocumentFilePort, secrets: WebhookSecretResolver, codec: InteropCodec, metrics?: MetricsSink) =>
+        new DocInteropService({ database, files, stored, secrets, codec, metrics }),
+      inject: [TenantDatabase, FileService, DOCUMENT_FILE_PORT, WEBHOOK_SECRETS, DOC_INTEROP_CODEC, { token: DOC_METRICS, optional: true }],
+    },
+    {
+      provide: DocInteropSender,
+      useFactory: (database: TenantDatabase, files: FileService, transport: InteropTransportPort, metrics?: MetricsSink) => new DocInteropSender({ files, transport, audit: new AuditWriter(database), metrics }),
+      inject: [TenantDatabase, FileService, DOC_INTEROP_TRANSPORT, { token: DOC_METRICS, optional: true }],
+    },
     { provide: DOC_STATE_TEXT, useFactory: (resources: RendererResources) => resources.text, inject: [DOC_RESOURCES] },
     // The port that source modules ask for documents through; the event consumer of the workers uses the same instance.
     {

@@ -58,3 +58,13 @@ A story that cites an item that is later found wrong goes back to `DONE_UNCONFIR
   judged and `packages/db/test/effective-range-lint.test.ts` fails when a table with such a range is not declared, has no guard it names,
   or has no check that the range ends after it starts. A table with a rule-like range and no guard yet is listed there as PENDING
   with the reason (today: `metric_definition`).
+
+## Waiving an item and closing the window (ST-KERNEL-110)
+
+An item that cannot be confirmed in time can be **waived** by its own named owner: the register entry says `"status": "WAIVED"` with `waived_by` (the owner of the item, not somebody
+else), `waived_at` and `waiver_reason`. Without all three it is not a waiver and `npm run cxn:check` reports it (`WAIVER_INCOMPLETE`). A waived item no longer makes a story that cites it
+`DONE_UNCONFIRMED`.
+
+`npm run cxn:report` prints every item with its owner, its evidence (the confirmation evidence or the reason of the waiver), its status and the stories of R1 and R2 that rest on it, and
+the verdict on the legal confirmation window: it can close only when every item that gates an R1 or R2 story is confirmed or waived by its owner (exit 0), otherwise it stays open and the
+items that hold it are named (exit 1). An item that only R3 and later stories cite does not hold the window.

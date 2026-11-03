@@ -5,6 +5,14 @@ import type { TenantTx } from './tenant-database.ts';
 const TIME = (column: string): string => `to_char(${column} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`;
 const UNIQUE_VIOLATION = '23505';
 
+/**
+ * The push policy of a person with several devices (ST-MOB-031, NOT 3.7, CR-SMP-06): a notification is pushed to ONE device, the owner, so that the same event does not ring on every phone, tablet and browser of the person. The owner is the live device
+ * the person used last (`last_seen_at` is moved by every registration, which the application makes whenever it opens the inbox or the provider rotates the token) among the devices that can be pushed to: registered, with a token in the vault and with the
+ * operating system's permission granted or provisional. A tie goes to the lower id, so the choice is the same for every reader. The two fragments are the whole policy; `pushOwner` and the list of the person's devices (IAM `listMyDevices`) both read them.
+ */
+export const PUSH_ELIGIBLE_SQL = "revoked_at is null and push_secret_ref is not null and permission_state in ('granted', 'provisional')";
+export const PUSH_OWNER_ORDER_SQL = 'last_seen_at desc, id';
+
 export interface RegisterDevice {
   membershipId: string;
   devicePublicId: string;
@@ -119,6 +127,18 @@ export class DeviceRegistrationStore {
       [platforms, membershipIds === undefined ? null : [...membershipIds]],
     );
     return rows.map((row) => ({ id: row.id, membershipId: row.membership_id, platform: row.platform, secretRef: row.push_secret_ref }));
+  }
+
+  /**
+   * The device a person's push goes to (the owner, see PUSH_ELIGIBLE_SQL), or undefined when the person has none that can be pushed to. It is decided across the platforms: a person whose last device is an iPhone is pushed on the iPhone
+   * even when they also hold an Android phone, and the FCM channel then finds no device for them.
+   */
+  async pushOwner(tx: TenantTx, membershipId: string): Promise<{ id: string; membershipId: string; platform: string; secretRef: string } | undefined> {
+    const [row] = await tx.query<{ id: string; membership_id: string; platform: string; push_secret_ref: string }>(
+      `select id, membership_id, platform, push_secret_ref from machvon.device_registration where membership_id = $1::uuid and ${PUSH_ELIGIBLE_SQL} order by ${PUSH_OWNER_ORDER_SQL} limit 1`,
+      [membershipId],
+    );
+    return row === undefined ? undefined : { id: row.id, membershipId: row.membership_id, platform: row.platform, secretRef: row.push_secret_ref };
   }
 
   /**

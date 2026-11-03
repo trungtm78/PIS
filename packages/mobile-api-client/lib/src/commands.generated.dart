@@ -820,8 +820,14 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getDossier({required String id, Map<String, Object?>? query}) =>
       execute('getDossier', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getEvaluationReport({required String id, Map<String, Object?>? query}) =>
+      execute('getEvaluationReport', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getHandoverTrace({required String id, Map<String, Object?>? query}) =>
       execute('getHandoverTrace', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getHomeChannelHealth({Map<String, Object?>? query}) =>
+      execute('getHomeChannelHealth', query: query);
 
   Future<Object?> getHomeWarnings({Map<String, Object?>? query}) =>
       execute('getHomeWarnings', query: query);
@@ -894,6 +900,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> getPaymentChain({Map<String, Object?>? query}) =>
       execute('getPaymentChain', query: query);
+
+  Future<Object?> getPlacementMigration({required String migrationId, Map<String, Object?>? query}) =>
+      execute('getPlacementMigration', path: <String, Object?>{'migrationId': migrationId}, query: query);
 
   Future<Object?> getProjectLifecycle({required String id, Map<String, Object?>? query}) =>
       execute('getProjectLifecycle', path: <String, Object?>{'id': id}, query: query);
@@ -1732,6 +1741,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listEnforcementCases({Map<String, Object?>? query}) =>
       execute('listEnforcementCases', query: query);
 
+  Future<Object?> listEvaluationReports({required String id, Map<String, Object?>? query}) =>
+      execute('listEvaluationReports', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> listEvaluationTriggers({Map<String, Object?>? query}) =>
       execute('listEvaluationTriggers', query: query);
 
@@ -1870,6 +1882,12 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listPeriodSnapshots({Map<String, Object?>? query}) =>
       execute('listPeriodSnapshots', query: query);
 
+  Future<Object?> listPlacementMigrations({required String tenantId, Map<String, Object?>? query}) =>
+      execute('listPlacementMigrations', path: <String, Object?>{'tenantId': tenantId}, query: query);
+
+  Future<Object?> listPlacements({Map<String, Object?>? query}) =>
+      execute('listPlacements', query: query);
+
   Future<Object?> listPlanFeedback({required String id, Map<String, Object?>? query}) =>
       execute('listPlanFeedback', path: <String, Object?>{'id': id}, query: query);
 
@@ -1971,6 +1989,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listTenantInvoices({required String tenantId, Map<String, Object?>? query}) =>
       execute('listTenantInvoices', path: <String, Object?>{'tenantId': tenantId}, query: query);
+
+  Future<Object?> listTenantRestoreRequests({required String tenantId, Map<String, Object?>? query}) =>
+      execute('listTenantRestoreRequests', path: <String, Object?>{'tenantId': tenantId}, query: query);
 
   Future<Object?> listTenantSelectionCandidates({Map<String, Object?>? query}) =>
       execute('listTenantSelectionCandidates', query: query);
@@ -2758,8 +2779,8 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> signAiEvalRun(LlmEvalSign body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('signAiEvalRun', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
-  Future<Object?> signOffEvaluationReport({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
-      execute('signOffEvaluationReport', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
+  Future<Object?> signOffEvaluationReport(BidReportSignOff body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('signOffEvaluationReport', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> signQualityAcceptance(QmsSignQualityAcceptance body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('signQualityAcceptance', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);

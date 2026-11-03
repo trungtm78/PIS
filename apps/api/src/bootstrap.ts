@@ -53,6 +53,7 @@ import { UserSessionDenyList } from './session/user-session-deny-list';
 import { requestTelemetry } from './telemetry/request-telemetry';
 import { DocumentIssueConsumer } from './modules/doc/issue-consumer';
 import { DocumentIssueService } from './modules/doc/issue-request.service';
+import { DocInteropSender } from './modules/doc/interop-sender';
 import { CHANNEL_VERIFIER } from './omni/channel-verifier';
 import type { ChannelVerifierPort } from './omni/channel-verifier';
 import { PUSH_TOKEN_VAULT } from './notifications/devices/push-vault';
@@ -287,6 +288,8 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
           // The exports of the data of a tenant are written to the same object store and read from it for the attachments (ST-SAS-016).
           exportFiles: app.get(FileService, { strict: false }),
           documentFiles: app.get<DocumentFilePort>(DOCUMENT_FILE_PORT, { strict: false }),
+          // The messages of the LGSP leave through the sender the module binds; its gateway is the adapter of the module (ST-DOC-021).
+          docInterop: app.get(DocInteropSender, { strict: false }),
           // The adapters that modules register for their inbound provider events are served by the inbox job (ST-ADM-018).
           inboxHandlers: app.get<InboxHandlerRegistry>(ADM_INBOX_HANDLERS, { strict: false }),
           // The sends that are due go out, and the ones whose result was lost are asked about (ST-NOT-002).

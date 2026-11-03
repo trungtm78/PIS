@@ -208,7 +208,7 @@ describe('HOME-09 command center (ST-HOME-001, BR-HOME-01)', () => {
       scope = { unit_id: null, denominator_kind: null, projects: 1, scope_hash: 'h2' };
       await view.queries.invalidateQueries({ queryKey: [...homeRoot(TENANT), 'latest'] });
       await waitFor(() => expect(screen.getByTestId('context-scope').textContent).toBe(fill(vi_['home.context.scope.all'], { projects: 1 })));
-      const reread = h.read.mock.calls.map((call) => (call[1] as { query: Record<string, string> }).query).filter((query) => query.snapshot_id !== undefined);
+      const reread = h.read.mock.calls.filter(([operation]) => operation === 'getCommandCenter').map((call) => (call[1] as { query: Record<string, string> }).query).filter((query) => query.snapshot_id !== undefined);
       expect(reread.length).toBeGreaterThan(0);
       expect(reread.every((query) => query.snapshot_id === S40)).toBe(true);
     });
@@ -388,7 +388,7 @@ describe('HOME-01 executive overview (ST-HOME-001)', () => {
     await screen.findByTestId('home-rates');
     await user.selectOptions(await screen.findByLabelText(vi_['home.filter.unit.label']), NORTH);
     await waitFor(() => expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('55.0000%'));
-    expect(h.read.mock.calls.some((call) => (call[1] as { query: Record<string, string> }).query.unit_id === NORTH)).toBe(true);
+    expect(h.read.mock.calls.some((call) => call[0] === 'getCommandCenter' && (call[1] as { query: Record<string, string> }).query.unit_id === NORTH)).toBe(true);
     expect(screen.getByTestId('context-scope').textContent).toBe(fill(vi_['home.context.scope.unit'], { unit: 'Bắc', projects: 1 }));
   });
 
@@ -409,9 +409,9 @@ describe('HOME-01 executive overview (ST-HOME-001)', () => {
     await view.queries.invalidateQueries({ queryKey: [...homeRoot(TENANT), 'latest'] });
     await screen.findByTestId('new-data-banner');
     await user.selectOptions(await screen.findByLabelText(vi_['home.filter.unit.label']), NORTH);
-    await waitFor(() => expect(h.read.mock.calls.some((call) => (call[1] as { query: Record<string, string> }).query.unit_id === NORTH)).toBe(true));
+    await waitFor(() => expect(h.read.mock.calls.some((call) => call[0] === 'getCommandCenter' && (call[1] as { query: Record<string, string> }).query.unit_id === NORTH)).toBe(true));
     // The unit was read over the snapshot on the screen, not over the newer one (the background reading names no snapshot, it only asks which is the latest and what waits).
-    const narrowed = h.read.mock.calls.map((call) => (call[1] as { query: Record<string, string> }).query).filter((query) => query.unit_id === NORTH && query.snapshot_id !== undefined);
+    const narrowed = h.read.mock.calls.filter(([operation]) => operation === 'getCommandCenter').map((call) => (call[1] as { query: Record<string, string> }).query).filter((query) => query.unit_id === NORTH && query.snapshot_id !== undefined);
     expect(narrowed.length).toBeGreaterThan(0);
     expect(narrowed.every((query) => query.snapshot_id === S40)).toBe(true);
     expect(screen.getByTestId('context-as-of').textContent).toBe('2027-10-12');

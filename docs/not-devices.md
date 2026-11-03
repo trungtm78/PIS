@@ -18,6 +18,10 @@ The body names the device (`device_public_id`, 16 to 128 characters of letters, 
 
 The operator sees, for each device: the id, the membership, the platform, `device_hint` (the first four and the last four characters of the public id), the permission state, the app version, the locale, when it was last seen, `Active` or `Revoked`, and when and why it was revoked. **Never the token, the reference, the fingerprint or the whole public id.** Filters: `status`, `platform`, `membership_id`; the most recently seen first, a page at a time.
 
+## The member's own list (`listMyDevices`, `session.self`)
+
+Besides the device, its platform, its public id (the member's own), when it was last seen and `ACTIVE` or `REVOKED`, the list carries `permission_state` and `push_owner`: the one device (at most) the member's push goes to, see `docs/not-push.md` (ST-MOB-031). A revoked device and a device that denied notifications are never the owner.
+
 ## Screen NOT-14
 
 `DeviceListScreen`: the table of the devices with the two filters, a note that nothing secret is shown, the removed devices with their time and reason, "load more", and the seven states from `StateBoundary`. The mobile side (the permission prompt MOB-05, the refresh of the token and the local cleanup on a change of tenant) belongs to the Flutter app, which is not in this repository yet.

@@ -1,0 +1,13 @@
+{
+  "id": "BID_REPORT_RECALLED",
+  "severity": "warning",
+  "channel": "product",
+  "owner": "procurement-office",
+  "runbook": "docs/runbooks/alerts/BID_REPORT_RECALLED.md",
+  "adapter": "log",
+  "source": {
+    "type": "event",
+    "code": "BID_REPORT_RECALLED"
+  },
+  "summary": "DOC recalled the minutes of an evaluation report it had issued: the evaluation is looked at again."
+}

@@ -44,6 +44,17 @@ test('owners and confirmations from the human-maintained register override defau
   assert.deepEqual([row.owner, row.evidence, row.status, row.confirmed_by], ['Chủ nghiệp vụ vốn', 'Công báo số 123', 'CONFIRMED', 'PO']);
 });
 
+test('a waiver of the register reaches the ledger with who waived it, when and why, and an item that is not waived carries none of it (AC-ST-KERNEL-110-1)', () => {
+  const markers = extractMarkers(SPEC_B, 'DIS.md');
+  const ledger = buildLedger(markers, {
+    'CXN-12': { owner: 'Chủ nghiệp vụ vốn', status: 'WAIVED', waived_by: 'Chủ nghiệp vụ vốn', waived_at: '2026-11-02', waiver_reason: 'Rủi ro được chấp nhận đến khi có nghị định' },
+  });
+  const waived = ledger.find((r) => r.id === 'CXN-12');
+  assert.deepEqual([waived.status, waived.waived_by, waived.waived_at, waived.waiver_reason], ['WAIVED', 'Chủ nghiệp vụ vốn', '2026-11-02', 'Rủi ro được chấp nhận đến khi có nghị định']);
+  assert.equal('waived_by' in ledger.find((r) => r.id === 'CXN-03'), false);
+  assert.equal(buildLedger(markers, { 'CXN-12': { status: 'WAIVED' } }).find((r) => r.id === 'CXN-12').waived_by, null);
+});
+
 test('a CONFIRMED entry without evidence and confirmer is rejected as an invalid confirmation', () => {
   const markers = extractMarkers(SPEC_B, 'DIS.md');
   const ledger = buildLedger(markers, { 'CXN-12': { status: 'CONFIRMED' } });

@@ -46,7 +46,7 @@ const body = (overrides: Record<string, unknown> = {}) => ({
 afterEach(cleanup);
 
 describe('HOME-04 ranking (ST-HOME-003, HOME 3 F3, BR-HOME-06)', () => {
-  it('AC-ST-HOME-003-3: UAT-AC04 shows a table for each denominator apart, with the 14% and the order of FX-DIS-007, and the unit with a plan of nothing left out with its reason', async () => {
+  it('AC-ST-HOME-003-3, AC-ST-HOME-003-4: UAT-AC04 shows a table for each denominator apart, with the 14% and the order of FX-DIS-007, and the unit with a plan of nothing left out with its reason', async () => {
     const user = userEvent.setup();
     mount(<RankingScreen route={ROUTE} />, harness(() => body()), { permissions: READER });
     const tables = await screen.findAllByTestId('ranking-table');
@@ -64,7 +64,7 @@ describe('HOME-04 ranking (ST-HOME-003, HOME 3 F3, BR-HOME-06)', () => {
     expect(within(total).getByTestId(`rate-${U1}`).textContent).toBe('11.2000%');
   });
 
-  it('shows the snapshot and the day, says the formulas are proposals, and says which units are shown when the tenant limits the ranking to the reader', async () => {
+  it('AC-ST-HOME-003-5: UI-HOME-04 shows the snapshot and the day, says the formulas are proposals, and says which units are shown when the tenant limits the ranking to the reader', async () => {
     mount(<RankingScreen route={ROUTE} />, harness(() => body({ visibility: 'OWN_ONLY' })), { permissions: READER });
     const context = await screen.findByTestId('ranking-context');
     expect(context.textContent).toBe(fill(vi_['home.ranking.snapshot'], { id: '00000000…00f2', date: '2027-10-12' }));
@@ -96,13 +96,13 @@ describe('HOME-04 ranking (ST-HOME-003, HOME 3 F3, BR-HOME-06)', () => {
       ['offline', new ApiError({ status: 0, code: NETWORK_ERROR_CODE, correlationId: 'c' }), vi_['states.offline.title']],
       ['error', failure(500, 'INTERNAL_ERROR'), vi_['states.error.title']],
       ['signed out', failure(401, 'SESSION_EXPIRED'), vi_['states.signedOut.title']],
-    ])('UI-HOME-04 shows the %s state and keeps the filters', async (_name, reply, title) => {
+    ])('AC-ST-HOME-003-5: UI-HOME-04 shows the %s state and keeps the filters', async (_name, reply, title) => {
       mount(<RankingScreen route={ROUTE} />, harness(() => reply), { permissions: READER });
       expect(await screen.findByText(title)).toBeTruthy();
       expect(screen.getByLabelText(vi_['home.ranking.denominator.label'])).toBeTruthy();
     });
 
-    it('UI-HOME-04 shows the loading state first, names the page, and retries after an error', async () => {
+    it('AC-ST-HOME-003-5: UI-HOME-04 shows the loading state first, names the page, and retries after an error', async () => {
       mount(<RankingScreen route={ROUTE} />, harness(() => new Promise(() => undefined)), { permissions: READER });
       expect(screen.getByRole('status', { name: vi_['states.loading.label'] })).toBeTruthy();
       expect(screen.getByRole('region', { name: vi_['home.ranking.page.title'] })).toBeTruthy();

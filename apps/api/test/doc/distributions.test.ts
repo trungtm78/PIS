@@ -197,7 +197,7 @@ describe('distributing an issued document and tracking the receipts (ST-DOC-010)
   describe('recipients and channels that are refused (RECIPIENT_INVALID)', () => {
     it.each([
       ['a recipient the document does not name', [paper({ kind: 'EXTERNAL_AGENCY', name: 'Somebody Else' })], 'recipients[0].name', 'NOT_ON_DOCUMENT'],
-      ['the LGSP channel, which waits for another story', [{ ...EXTERNAL_RECIPIENT, channel: 'LGSP' }], 'recipients[0].channel', 'CHANNEL_NOT_SUPPORTED'],
+      ['the LGSP channel for a unit of this system', [{ ...INTERNAL_RECIPIENT, channel: 'LGSP' }], 'recipients[0].channel', 'LGSP_NEEDS_AGENCY'],
       ['a channel nobody knows', [{ ...EXTERNAL_RECIPIENT, channel: 'FAX' }], 'recipients[0].channel', undefined],
       ['the internal channel for an agency outside the system', [{ ...EXTERNAL_RECIPIENT, channel: 'INTERNAL' }], 'recipients[0].channel', 'INTERNAL_CHANNEL_NEEDS_UNIT'],
       ['a member the request may not carry', [paper(EXTERNAL_RECIPIENT, { status: 'DELIVERED' })], 'recipients[0].status', undefined],

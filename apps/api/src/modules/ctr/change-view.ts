@@ -13,6 +13,7 @@ export interface ChangePermissions {
   evaluate: string;
   withdraw: string;
   decide: string;
+  adjust: string;
 }
 
 /**
@@ -26,7 +27,7 @@ export function changeActionsOf(
   now: Date,
   permissions: ChangePermissions,
   caller: string,
-): Record<'promote' | 'evaluate' | 'withdraw' | 'decide', boolean> {
+): Record<'promote' | 'evaluate' | 'withdraw' | 'decide' | 'adjust', boolean> {
   const open = OPEN_CHANGE_STATUSES.includes(line.status);
   const changeable = CHANGEABLE_CONTRACT_STATUSES.includes(line.contract.status);
   const refs = placeRefs(line.reach);
@@ -36,6 +37,8 @@ export function changeActionsOf(
     withdraw: (open || line.status === 'DRAFT') && reaches(access, permissions.withdraw, refs, now),
     // Only an assessed CO is decided, and not by anyone who had a part in its chain (the server judges the people again, with the document and the limit).
     decide: line.stage === 'CO' && line.status === 'EVALUATED' && changeable && reaches(access, permissions.decide, refs, now) && !line.makers.includes(caller.toLowerCase()),
+    // The same CO may instead be approved from a day before today, by its own right (ST-CTR-016).
+    adjust: line.stage === 'CO' && line.status === 'EVALUATED' && changeable && reaches(access, permissions.adjust, refs, now) && !line.makers.includes(caller.toLowerCase()),
   };
 }
 
@@ -68,6 +71,7 @@ export function changeRequestView(line: CtrChangeLine, rights: ChangeRights, act
     allocation_line_id: line.allocationLineId,
     effective_on: line.effectiveOn,
     resulting_revision_id: line.resultingRevisionId,
+    retroactive: line.retroactive,
     submitted_by: line.submittedBy,
     evaluated_by: line.evaluatedBy,
     decided_by: line.decidedBy,

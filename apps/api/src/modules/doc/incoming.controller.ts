@@ -18,15 +18,13 @@ import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { assertPdf, pageCountOf } from './external-signature';
+import { INCOMING_RESOURCE_TYPE, announceIncoming, takeInLetter } from './incoming-intake';
 import { DOC_CLOCK } from './tokens';
 import { mayActOnUnit } from './unit-scope';
 
-const RESOURCE_TYPE = 'incoming_document';
-const CLASSIFICATION = 'INTERNAL';
 /** The calendar the deadlines of letters are counted by (ADM work calendar). */
 export const INCOMING_CALENDAR = 'VN-STD';
 const SYMBOL_PATTERN = '{number}/{unit}';
-const PDF_MIME = 'application/pdf';
 
 const REGISTER = PERMISSIONS.registerIncomingDocument;
 const ASSIGN = PERMISSIONS.assignIncomingDocument;
@@ -145,7 +143,7 @@ export class IncomingController {
       ['sender_name', body.sender_name],
     ] as const) {
       if (value !== undefined && stateSecretMarking(value)) {
-        await this.audit.recordDenied(scope.tenant, { action: 'incoming_document.receive', resourceType: RESOURCE_TYPE, resourceId: NIL_RESOURCE_ID, diff: { reason: 'STATE_SECRET_NOT_SUPPORTED', field }, correlationId: scope.correlationId, requestId: scope.requestId });
+        await this.audit.recordDenied(scope.tenant, { action: 'incoming_document.receive', resourceType: INCOMING_RESOURCE_TYPE, resourceId: NIL_RESOURCE_ID, diff: { reason: 'STATE_SECRET_NOT_SUPPORTED', field }, correlationId: scope.correlationId, requestId: scope.requestId });
         throw new DomainError('STATE_SECRET_NOT_SUPPORTED', 422, field);
       }
     }
@@ -173,36 +171,28 @@ export class IncomingController {
     const pages = await pageCountOf(bytes);
 
     const classification = body.classification ?? 'INTERNAL';
-    const document = await this.documents.insertDocument(scope.tx, { docKind: 'INCOMING', docTypeCode: body.doc_type_code, title: body.title, classification, createdBy: scope.tenant.membershipId });
-    // The file is kept where the documents are served from (the download of a version reads that store), under a key that holds its digest: a step that is repeated writes the same object.
-    const objectKey = `tenants/${scope.tenant.tenantId}/documents/${document.id}-${checksum}.pdf`;
-    await this.stored.put(objectKey, bytes, PDF_MIME);
-    const version = await this.documents.appendVersion(scope.tx, {
-      documentId: document.id,
-      objectKey,
-      checksum,
-      mime: PDF_MIME,
-      pageCount: pages,
-      classification,
-      stage: 'RECEIVED_SCAN',
-      byteLength: bytes.length,
-      createdBy: scope.tenant.membershipId,
-    });
-    await this.documents.setScanResult(scope.tx, version.id, 'CLEAN');
-    const letter = await this.incoming.insert(scope.tx, {
-      documentId: document.id,
-      channel,
-      receivedAt: now,
-      receivedBy: scope.tenant.membershipId,
-      originalSymbol: body.original_symbol,
-      originalIssuedOn: body.original_issued_on,
-      senderName: body.sender_name.normalize('NFC').trim(),
-      urgency,
-      duplicateOfId: duplicate?.id,
-      duplicateOverrideReason: override,
-    });
-    await this.written(scope, letter.id, document.id, 'RECEIVED', 1, 'incoming_document.received', 'doc.incoming_received.v1', now, { channel, urgency, duplicate_of_id: duplicate?.id ?? null, page_count: pages });
-    return { ...commandResult(scope, 'RECEIVED', 1, letter.id), document_id: document.id, version_id: version.id };
+    const taken = await takeInLetter(
+      scope.tx,
+      scope.tenant.tenantId,
+      { documents: this.documents, incoming: this.incoming, stored: this.stored },
+      {
+        title: body.title,
+        docTypeCode: body.doc_type_code,
+        classification,
+        file: { bytes, checksum, pages },
+        channel,
+        receivedAt: now,
+        receivedBy: scope.tenant.membershipId,
+        originalSymbol: body.original_symbol,
+        originalIssuedOn: body.original_issued_on,
+        senderName: body.sender_name.normalize('NFC').trim(),
+        urgency,
+        duplicateOfId: duplicate?.id,
+        duplicateOverrideReason: override,
+      },
+    );
+    await this.written(scope, taken.letterId, taken.documentId, 'RECEIVED', 1, 'incoming_document.received', 'doc.incoming_received.v1', now, { channel, urgency, duplicate_of_id: duplicate?.id ?? null, page_count: pages });
+    return { ...commandResult(scope, 'RECEIVED', 1, taken.letterId), document_id: taken.documentId, version_id: taken.versionId };
   }
 
   @Post('incoming-documents/:id/registration')
@@ -371,17 +361,8 @@ export class IncomingController {
   }
 
   /** The audit row and the event of a step: ids, the states and the facts of the step; never the words of the letter. */
-  private async written(scope: CommandScope, id: string, documentId: string, status: IncomingStatus, version: number, action: string, type: string, now: Date, facts: Record<string, unknown>, reason?: string): Promise<void> {
-    await scope.audit({ action, resourceType: RESOURCE_TYPE, resourceId: id, classification: CLASSIFICATION, ...(reason === undefined ? {} : { reason }), diff: { to_status: status, ...facts } });
-    await scope.emit({
-      aggregateType: RESOURCE_TYPE,
-      aggregateId: id,
-      aggregateVersion: version,
-      type,
-      schemaVersion: 1,
-      payload: { tenant_id: scope.tenant.tenantId, document_id: documentId, incoming_document_id: id, version, status, ...facts, actor_id: scope.tenant.membershipId, occurred_at: now.toISOString() },
-      eventKey: `${RESOURCE_TYPE}:${id}:${version}`,
-    });
+  private written(scope: CommandScope, id: string, documentId: string, status: IncomingStatus, version: number, action: string, type: string, now: Date, facts: Record<string, unknown>, reason?: string): Promise<void> {
+    return announceIncoming(scope, { id, documentId, status, version, action, type, now, facts, ...(reason === undefined ? {} : { reason }) });
   }
 }
 

@@ -2191,6 +2191,32 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/bid-clarifications/${t.analysisRunId}/answer`, ifMatch: '"1"', body: { answer_document_id: t.documentVersionId } }),
   },
+  // The evaluation report: nothing is drafted and nothing is signed for a caller that is refused.
+  createEvaluationReport: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/evaluation-reports',
+      body: { package_id: t.contractPackageId, criteria_version_id: t.criteriaPackageId, run_ids: [t.analysisRunId], summary: { conclusion: 'The team finds the proposals evaluated on the same criteria.' } },
+    }),
+  },
+  signOffEvaluationReport: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/evaluation-reports/${t.analysisRunId}/sign-off`, ifMatch: '"1"', body: {} }),
+  },
+  // The messages of the LGSP: nothing is taken in and nothing is sent again for a caller that is refused.
+  receiveInteropMessage: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/integrations/lgsp/inbound-messages',
+      body: { envelope_object_key: 'tenants/matrix/interop-envelope/none', envelope_sha256: 'a'.repeat(64), external_message_id: 'MATRIX-MESSAGE-1', sender_code: 'MATRIX', signature_key_id: 'matrix-key', signature: 'b'.repeat(64) },
+    }),
+  },
+  retryInteropMessage: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/doc-interop-messages/${t.analysisRunId}/retry`, ifMatch: '"1"', body: {} }),
+  },
   uploadOcrCorrectionFile: {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/document-page-ocr/files', body: {} }),
@@ -2827,6 +2853,16 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   post_contract_changes_id_decision: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/contract-changes/${t.changeRequestId}/decision`, ifMatch: '"1"', body: { decision: 'return', reason: REASON, evidence_ids: [] } }),
+  },
+  // The retroactive adjustment: a caller that is refused approves no change order, makes no revision and posts no entry on the ledger.
+  approveRetroactiveAdjustment: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: `/change-requests/${t.changeRequestId}/retroactive-adjustment`,
+      ifMatch: '"1"',
+      body: { adjustment_basis: REASON, decision_document_version_id: t.documentVersionId, affected_acceptance_ids: [], effective_on: '2026-06-01' },
+    }),
   },
   // The measurements: a caller that is refused records no quantity, sends none, decides none and corrects none.
   recordMeasurement: {

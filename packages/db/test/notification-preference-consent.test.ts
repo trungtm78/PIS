@@ -447,7 +447,7 @@ describe('preferences, consent and the gate before a send (ST-NOT-003)', () => {
       const waiting = await notify(NO_QUIET_PERSON, ['SMS']);
       await as(NO_QUIET_PERSON, (tx) => consents.withdraw(tx, memberId(NO_QUIET_PERSON), granted.id, 1, 'Stopping the text messages'));
       expect(await claim(NO_QUIET_PERSON, waiting.attemptId, NOON)).toEqual({ kind: 'SKIPPED', reason: 'SUPPRESSED' });
-      expect(await attemptRow(waiting.attemptId)).toMatchObject({ status: 'Suppressed', error_code: 'NO_CONSENT' });
+      expect(await attemptRow(waiting.attemptId)).toMatchObject({ status: 'Suppressed', error_code: 'CONSENT_WITHDRAWN' });
     });
 
     it('needs the consent of the purpose of the message: an announcement is not covered by a consent to operational messages', async () => {

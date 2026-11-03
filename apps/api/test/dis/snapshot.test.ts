@@ -636,4 +636,72 @@ describe('the period snapshot over HTTP (ST-DIS-009)', () => {
       }
     });
   });
+
+  // The last block of the file: it adds a thousand projects to the tenant, which no test after it should see.
+  describe('AC-ST-DIS-009-5 / UAT-PLAN-11: a snapshot of 1000 projects', () => {
+    const PROJECTS = 1000;
+    const BUILD_BUDGET_SECONDS = 300;
+    const READ_P95_BUDGET_MS = 2000;
+    const p95 = (values: number[]): number => [...values].sort((a, b) => a - b)[Math.ceil(0.95 * values.length) - 1] as number;
+
+    /** A thousand projects of the department, each with its plan of the year in force and a payment of the Treasury, written in one statement. */
+    const seedThousand = (confirmedAt: string): Promise<void> =>
+      seedReplica([
+        [
+          `with p as (
+             insert into machvon.project (tenant_id, id, code, name, owner_unit_id, area_master_version_id, classification, total_investment_vnd, status, version, project_group)
+             select $1, gen_random_uuid(), 'SC-' || g, 'Project SC-' || g, $2, $3, 'INTERNAL', 1000, 'IMPLEMENTATION', 1, 'B' from generate_series(1, $4::int) g returning id
+           ), v as (
+             insert into machvon.plan_version (tenant_id, id, project_id, fiscal_year, revision, decision_id, status, effective_at)
+             select $1, gen_random_uuid(), p.id, 2027, 1, $5, 'PUBLISHED', timestamptz '2026-12-20T01:00:00Z' from p returning id, project_id
+           ), a as (
+             insert into machvon.allocation_line (tenant_id, id, plan_version_id, fund_source_version_id, bucket, source_year, amount_vnd, ctmtqg_subset_vnd, project_id, budget_level, origin, is_extended)
+             select $1, gen_random_uuid(), v.id, $6, 'CURRENT_YEAR', 2027, 500000000, 0, v.project_id, 'CENTRAL', 'PM_ASSIGNED', false from v returning 1
+           )
+           insert into machvon.treasury_transaction (tenant_id, id, project_id, external_id, provider, amount_vnd, confirmed_at, source_hash, direction, reversal_of_id, import_id)
+           select $1, gen_random_uuid(), p.id, 'EXT-SC-' || p.id, 'TREASURY', 100000000, $7::timestamptz, repeat('d', 64), 'PAYMENT', null, gen_random_uuid() from p`,
+          [TENANT_A, unitId(DEPARTMENT), AREA, PROJECTS, DECISION, FUND_SOURCE, confirmedAt],
+        ],
+      ]);
+
+    it('builds within 300 seconds, keeps every project, and serves the reads of the figures with a p95 of 2 seconds or less (the read replica itself is an environment check)', async () => {
+      const period = week();
+      await seedThousand(`${period.start}T09:00:00+07:00`);
+      await softClose(period.id);
+
+      const started = performance.now();
+      const built = await build(closeBody(period));
+      const buildSeconds = (performance.now() - started) / 1000;
+      expect(built).toMatchObject({ status: 200, json: { status: 'BUILDING' } });
+      expect(buildSeconds).toBeLessThanOrEqual(BUILD_BUDGET_SECONDS);
+      const snapshotId = idOf(built);
+      // Every one of the thousand projects has its cells in the snapshot (the projects the other tests made are in it as well).
+      expect(await rows<{ projects: string; cells: string }>("select count(distinct l.project_id)::text as projects, count(*)::text as cells from machvon.period_snapshot_line l join machvon.project p on p.id = l.project_id where l.snapshot_id = $1 and p.code like 'SC-%'", [snapshotId])).toEqual([{ projects: String(PROJECTS), cells: String(PROJECTS * 6) }]);
+
+      expect(await freeze(snapshotId, 1)).toMatchObject({ status: 200, json: { status: 'FROZEN' } });
+
+      // The reads of the snapshot: pages of the lines through the whole snapshot, the lines of single projects, and the rates over it.
+      const samples: number[] = [];
+      const timed = async (work: () => Promise<Reply>): Promise<Reply> => {
+        const at = performance.now();
+        const reply = await work();
+        samples.push(performance.now() - at);
+        return reply;
+      };
+      let cursor: string | null = null;
+      let read = 0;
+      do {
+        const page: Reply = await timed(() => lines(snapshotId, READER, `?limit=200${cursor === null ? '' : `&cursor=${cursor}`}`));
+        expect(page.status).toBe(200);
+        read += items(page).length;
+        cursor = page.json.next_cursor as string | null;
+      } while (cursor !== null);
+      expect(read).toBeGreaterThanOrEqual(PROJECTS * 6);
+      const some = await rows<{ project_id: string }>('select distinct project_id from machvon.period_snapshot_line where snapshot_id = $1 limit 20', [snapshotId]);
+      for (const { project_id: projectId } of some) expect((await timed(() => lines(snapshotId, READER, `?project_id=${projectId}`))).status).toBe(200);
+      for (let n = 0; n < 5; n += 1) expect((await timed(() => call('GET', `/disbursement-rates?snapshot_id=${snapshotId}`, { member: READER }))).status).toBe(200);
+      expect(samples.length).toBeGreaterThanOrEqual(30);
+      expect(p95(samples)).toBeLessThanOrEqual(READ_P95_BUDGET_MS);
+    }, 600_000);
+  });
 });

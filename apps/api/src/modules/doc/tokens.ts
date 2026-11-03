@@ -22,3 +22,8 @@ export const DOC_SIGNING_PORT = Symbol('DOC_SIGNING_PORT');
 
 /** Injection token of the `EmailChannelPort` of the distribution; the adapter that says "no provider" is bound until a mail transport exists. */
 export const DOC_EMAIL_CHANNEL = Symbol('DOC_EMAIL_CHANNEL');
+
+/** Injection token of the `InteropTransportPort`: the gateway of the LGSP, or the adapter that says "no provider" until the specification of the pilot tenant exists [CXN-06]. */
+export const DOC_INTEROP_TRANSPORT = Symbol('DOC_INTEROP_TRANSPORT');
+/** Injection token of the `InteropCodec`: the format of the envelope of the LGSP. */
+export const DOC_INTEROP_CODEC = Symbol('DOC_INTEROP_CODEC');

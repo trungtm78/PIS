@@ -698,6 +698,40 @@
       "location": "decision",
       "reason": "the decision of an expert about a finding is to approve what stands or to set it aside: a finding has nothing to be returned to, and the operation was a scaffold with the generic Decision body that nothing called",
       "change_request": "ST-BID-010"
+    },
+    {
+      "operation": "createEvaluationReport",
+      "kind": "FIELD_REMOVED",
+      "location": "dissenting_opinions",
+      "reason": "a dissent is written by the member who holds it, when they sign (signOffEvaluationReport), not by the author of the report on their behalf; nothing called the operation before",
+      "change_request": "ST-BID-012"
+    },
+    {
+      "operation": "createEvaluationReport",
+      "kind": "REQUIRED_FIELD_ADDED",
+      "location": "summary.conclusion",
+      "reason": "the summary of the report was a free object; it now names the one thing its author writes, the conclusion, and the rest is taken from the decisions of the experts; nothing called the operation before",
+      "change_request": "ST-BID-012"
+    },
+    {
+      "operation": "receiveInteropMessage",
+      "kind": "REQUIRED_FIELD_ADDED",
+      "location": "signature",
+      "reason": "the webhook of the LGSP named the key of the signature but carried no signature to check; nothing called the operation before, and the message is now judged by the signature it carries",
+      "change_request": "ST-DOC-021"
+    },
+    {
+      "operation": "approveRetroactiveAdjustment",
+      "kind": "REQUIRED_FIELD_ADDED",
+      "location": "effective_on",
+      "reason": "approveRetroactiveAdjustment had no implementation and no client; a retroactive adjustment cannot be applied without the day it reaches back to (the evaluation of a change order carries none)",
+      "change_request": "ST-CTR-016"
+    },
+    {
+      "operation": "signOffEvaluationReport",
+      "kind": "REQUEST_BODY_REQUIRED",
+      "reason": "a member signs with the dissent they hold, in their own words, or with an empty body when they have none; nothing called the operation before",
+      "change_request": "ST-BID-012"
     }
   ]
 }

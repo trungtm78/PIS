@@ -1,10 +1,11 @@
-import { DocumentDistributionStore, DocumentStore, OutgoingDocumentStore, OutgoingDraftStore } from '@machvon/db';
-import type { DistributionOutcome, DistributionRecord, OutgoingDocumentRecord, OutgoingStatus } from '@machvon/db';
+import { DocumentDistributionStore, DocumentStore } from '@machvon/db';
+import type { DistributionOutcome, DistributionRecord, InteropRecord, OutgoingDocumentRecord, OutgoingStatus } from '@machvon/db';
 import { DomainError, NOOP_METRICS, versionConflict } from '@machvon/kernel';
 import type { MetricsSink } from '@machvon/kernel';
 import type { CommandScope } from '../../command-scope';
 import type { EmailChannelPort } from './distribution-channel';
 import { MAX_DISTRIBUTIONS } from './distribution-rules';
+import { DistributionSettlement } from './distribution-settlement';
 import type { DispatchItem } from './distribution-rules';
 
 const OUTGOING_TYPE = 'outgoing_document';
@@ -27,6 +28,12 @@ export interface DistributionChange {
 interface SealedFile {
   versionId: string;
   fileSha256: string;
+  objectKey: string;
+}
+
+/** The LGSP channel as the distribution sees it: the row is queued for the job that sends, and answered as PENDING. */
+export interface InteropQueue {
+  enqueue(scope: Pick<CommandScope, 'tx' | 'tenant'>, input: { document: OutgoingDocumentRecord; distribution: DistributionRecord; objectKey: string }): Promise<{ message: InteropRecord; created: boolean }>;
 }
 
 /** What a failed channel leaves in `error_code`: the code of the refusal when the adapter named one, otherwise a general one. */
@@ -40,19 +47,19 @@ function failureCode(error: unknown): string {
  * to DELIVERED, and the document is ACKNOWLEDGED when every recipient that had to acknowledge has. Both moves, and the events they send, happen in the
  * transaction of the command that caused them, once: the document row is locked by the caller.
  *
- * Channels of the first release: INTERNAL puts the document in the inbox of a unit of this system (delivered at once), PAPER_HANDOVER records that the
+ * Channels: INTERNAL puts the document in the inbox of a unit of this system (delivered at once), PAPER_HANDOVER records that the
  * clerk handed it over (sent; the signed receipt is the acknowledgement), EMAIL goes through the adapter that is bound (none yet: the row is FAILED with the
- * reason and can be sent again). A document is never reported as reaching someone it did not reach.
+ * reason and can be sent again), LGSP queues the envelope for the job that sends (ST-DOC-021: the row stays PENDING until the gateway took it). A document is never reported as reaching someone it did not reach.
  */
 export class DocumentDistributionService {
   private readonly rows = new DocumentDistributionStore();
-  private readonly outgoing = new OutgoingDocumentStore();
-  private readonly drafts = new OutgoingDraftStore();
+  private readonly settlement = new DistributionSettlement();
   private readonly documents = new DocumentStore();
 
   constructor(
     private readonly email: EmailChannelPort,
     private readonly metrics: MetricsSink = NOOP_METRICS,
+    private readonly interop?: InteropQueue,
   ) {}
 
   /** New recipients are taken while the document is out and nobody has confirmed that all received it (409 DOCUMENT_STATE_INVALID otherwise). */
@@ -89,7 +96,7 @@ export class DocumentDistributionService {
       if (known > MAX_DISTRIBUTIONS) throw new DomainError('RECIPIENT_INVALID', 422, 'recipients', { extensions: { reason: 'TOO_MANY' } });
       changes.push({ record: await this.attempt(scope, document, placed.record, file, now), created: true });
     }
-    const settled = await this.settle(scope, document, now);
+    const settled = await this.settlement.settle(scope, document, now);
     // Names of recipients can be those of persons: the audit row keeps the ids, the channel and the outcome, not who they are.
     await scope.audit({
       action: 'outgoing_document.distribute',
@@ -111,8 +118,10 @@ export class DocumentDistributionService {
     if (!TRACKABLE.includes(document.status)) throw new DomainError('DOCUMENT_STATE_INVALID', 409, 'status');
     if (distribution.version !== expectedVersion) throw versionConflict(distribution.version);
     if (distribution.status !== 'FAILED') throw new DomainError('DISTRIBUTION_STATE_INVALID', 409, 'status');
+    // A row on the LGSP is carried by its message: the monitor (DOC-20) sends that again, with its own attempts.
+    if (distribution.channel === 'LGSP') throw new DomainError('DISTRIBUTION_STATE_INVALID', 409, 'channel', { extensions: { reason: 'USE_INTEROP_RETRY' } });
     const record = await this.attempt(scope, document, distribution, await this.sealedFile(scope, document), now);
-    const settled = await this.settle(scope, document, now);
+    const settled = await this.settlement.settle(scope, document, now);
     await scope.audit({
       action: 'document_distribution.retry',
       resourceType: DISTRIBUTION_TYPE,
@@ -136,7 +145,7 @@ export class DocumentDistributionService {
     if (input.acknowledgedAt.getTime() > now.getTime() + CLOCK_SKEW_MS) throw new DomainError('VALIDATION_FAILED', 422, 'acknowledged_at');
     const record = await this.rows.acknowledge(scope.tx, distribution.id, expectedVersion, input, scope.tenant.membershipId);
     this.metrics.increment('doc_distribution_total', { channel: record.channel.toLowerCase(), outcome: 'acknowledged' });
-    const settled = await this.settle(scope, document, now);
+    const settled = await this.settlement.settle(scope, document, now);
     await scope.audit({
       action: 'document_distribution.acknowledge',
       resourceType: DISTRIBUTION_TYPE,
@@ -147,6 +156,12 @@ export class DocumentDistributionService {
   }
 
   private async attempt(scope: CommandScope, document: OutgoingDocumentRecord, row: DistributionRecord, file: SealedFile, now: Date): Promise<DistributionRecord> {
+    if (row.channel === 'LGSP' && this.interop !== undefined) {
+      // Queued, not sent: the row stays PENDING until the job hands the message to the gateway, and the document is not reported as delivered before.
+      await this.interop.enqueue(scope, { document, distribution: row, objectKey: file.objectKey });
+      this.metrics.increment('doc_distribution_total', { channel: 'lgsp', outcome: 'queued' });
+      return row;
+    }
     const outcome = await this.send(document, row, file, now);
     const record = await this.rows.recordAttempt(scope.tx, row.id, outcome, scope.tenant.membershipId);
     this.metrics.increment('doc_distribution_total', { channel: record.channel.toLowerCase(), outcome: record.status.toLowerCase() });
@@ -176,59 +191,6 @@ export class DocumentDistributionService {
   private async sealedFile(scope: CommandScope, document: OutgoingDocumentRecord): Promise<SealedFile> {
     const version = document.currentVersionId === null ? undefined : await this.documents.findVersion(scope.tx, document.currentVersionId);
     if (version === undefined) throw new DomainError('DOCUMENT_STATE_INVALID', 409, 'version');
-    return { versionId: version.id, fileSha256: version.checksum };
-  }
-
-  /** Moves the document to DELIVERED and to ACKNOWLEDGED when its rows say so, one event for each move. */
-  private async settle(scope: CommandScope, document: OutgoingDocumentRecord, now: Date): Promise<OutgoingDocumentRecord> {
-    const actor = scope.tenant.membershipId;
-    const tally = await this.rows.tally(scope.tx, document.id);
-    let current = document;
-    if (current.status === 'ISSUED' && tally.reached >= 1) {
-      current = await this.outgoing.markDelivered(scope.tx, current.id, { expectedVersion: current.version, actor });
-      await this.announce(scope, current, 'ISSUED', 'doc.delivered.v1', { delivered_count: tally.reached, recipient_count: tally.total }, now);
-    }
-    if (current.status === 'DELIVERED' && tally.required >= 1 && tally.requiredAcknowledged === tally.required) {
-      current = await this.outgoing.markAcknowledged(scope.tx, current.id, { expectedVersion: current.version, actor });
-      await this.announce(scope, current, 'DELIVERED', 'doc.acknowledged.v1', { acknowledged_count: tally.requiredAcknowledged, recipient_count: tally.total }, now);
-    }
-    return current;
-  }
-
-  private async announce(scope: CommandScope, moved: OutgoingDocumentRecord, from: OutgoingStatus, type: 'doc.delivered.v1' | 'doc.acknowledged.v1', counts: Record<string, number>, now: Date): Promise<void> {
-    const actor = scope.tenant.membershipId;
-    await this.drafts.appendEvent(scope.tx, {
-      outgoingDocumentId: moved.id,
-      kind: moved.status,
-      fromStatus: from,
-      toStatus: moved.status,
-      actor,
-      documentVersion: moved.version,
-      occurredAt: now,
-      details: counts,
-    });
-    await scope.emit({
-      aggregateType: OUTGOING_TYPE,
-      aggregateId: moved.id,
-      aggregateVersion: moved.version,
-      type,
-      schemaVersion: 1,
-      payload: {
-        tenant_id: scope.tenant.tenantId,
-        document_id: moved.documentId,
-        outgoing_document_id: moved.id,
-        version: moved.version,
-        actor_id: actor,
-        occurred_at: now.toISOString(),
-        source_module: moved.sourceModule,
-        source_ref: moved.sourceRef,
-        payload_sha256: moved.payloadSha256,
-        document_number: moved.documentNumber,
-        symbol: moved.symbol,
-        ...counts,
-      },
-      // One move, one event: a state is reached once.
-      eventKey: `${OUTGOING_TYPE}:${moved.id}:${moved.status.toLowerCase()}`,
-    });
+    return { versionId: version.id, fileSha256: version.checksum, objectKey: version.objectKey };
   }
 }

@@ -1,6 +1,7 @@
 import { DelegationLifecycleJob } from '../modules/adm/delegation-lifecycle';
 import { SupportAccessJob } from '../modules/sas/support-access.job';
 import { TenantDomainJob } from '../modules/sas/tenant-domain.job';
+import { TenantRestoreJob } from '../modules/sas/tenant-restore.job';
 import { TenantExportJob } from '../modules/sas/tenant-export.job';
 import type { FileService } from '../modules/files/file.service';
 import { UnboundProjectTransferPort } from '../modules/adm/unit-reorganization.port';
@@ -15,14 +16,18 @@ import { expireExports, runExportSchedulesIn } from '../modules/bi/export-jobs';
 import { expireQueryAnswers, runQueryJobsIn } from '../modules/bi/query-jobs';
 import { remindHandoverDue } from '../modules/doc/handover-jobs';
 import { markOverdueIncoming } from '../modules/doc/incoming-jobs';
+import type { DocInteropSender } from '../modules/doc/interop-sender';
 import { applyDueTransfers } from '../modules/prj/transfer-apply';
 import {
   ApprovalSlaJob,
   AstClaimOverdueJob,
   AstEvaluationDueJob,
+  defaultPlacementMover,
   sharedMockDomainPorts,
+  defaultRestoreEngine,
   BillingPaymentStore,
   PLATFORM_TENANT_ID,
+  PlacementMigrationRunner,
   WORKER_MEMBERSHIP_ID,
   AudRecoveryReconcileJob,
   AuditSealJob,
@@ -75,7 +80,7 @@ import {
   sharedMockEInvoiceProvider,
   standardJobs,
 } from '@machvon/db';
-import type { ControlDatabase, DomainPorts, EInvoiceProviderPort, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, ReorganizationProjectPort, TenantDatabase } from '@machvon/db';
+import type { ControlDatabase, DomainPorts, EInvoiceProviderPort, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, PlacementMover, ReorganizationProjectPort, TenantDatabase, TenantRestoreEngine } from '@machvon/db';
 import { IntervalScheduler, vietnamDateOf } from '@machvon/kernel';
 import type { AlertSink, JobRunRecord, LiteLlmAdminPort, MetricsSink, SecretVaultPort, TenantContext, TimerPort } from '@machvon/kernel';
 import type { Pool } from 'pg';
@@ -102,6 +107,8 @@ export interface WorkersDeps {
   payloads?: PayloadRemover;
   /** The adapters that process inbound provider events, by provider; without any, the inbox job is not scheduled (ST-ADM-018). */
   inboxHandlers?: InboxHandlerRegistry;
+  /** Sends the messages of the LGSP that are due and asks about the ones the gateway took (ST-DOC-021); without it the job `doc-interop-send` is not scheduled. */
+  docInterop?: Pick<DocInteropSender, 'runPass'>;
   /** The ports the virtual keys are kept through (ST-LLM-002): the sweep that revokes the old key of a rotation is scheduled only with them. */
   llmKeys?: { litellm: LiteLlmAdminPort; vault: SecretVaultPort };
   /** The port through which the reorganisation saga moves a project to the successor unit (XM-ADM-02); until the module that owns projects binds one, the saga stops at the first project. */
@@ -114,6 +121,10 @@ export interface WorkersDeps {
   documentFiles?: { get(key: string): Promise<{ bytes: Uint8Array } | undefined> };
   /** The DNS lookup and the certificate authority of the domains of the tenants (ST-SAS-017); the MOCK pair of the process when none is given. */
   domainPorts?: DomainPorts;
+  /** The data path of the promotions of tenants to a silo (ST-SAS-018); the stand-in of the process outside production, none in production until the replication on the chosen cloud is confirmed (D02). */
+  placementMover?: PlacementMover;
+  /** The engine that restores one tenant to a recovery point (ST-SAS-019); the MOCK where no real data is held and none where it is, when none is given. */
+  restoreEngine?: TenantRestoreEngine;
   /** The provider of e-invoices (ST-SAS-011); the MOCK when none is given. */
   einvoiceProvider?: EInvoiceProviderPort;
   /** Sends the due notifications and reconciles the lost results (ST-NOT-002); without it the delivery jobs are not scheduled. */
@@ -175,6 +186,8 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const delegationLifecycle = new DelegationLifecycleJob(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const supportAccessLifecycle = new SupportAccessJob(audit);
   const domains = new TenantDomainJob(audit, deps.domainPorts ?? sharedMockDomainPorts());
+  const placementMigrations = new PlacementMigrationRunner({ control: deps.control, tenants: deps.tenants, mover: deps.placementMover ?? defaultPlacementMover(process.env.MACHVON_ENVIRONMENT), audit });
+  const restores = new TenantRestoreJob(deps.tenants, audit, deps.restoreEngine ?? defaultRestoreEngine(deps.tenants, process.env.MACHVON_ENVIRONMENT));
   const approvalSla = new ApprovalSlaJob(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const issueSla = new IssSlaJob(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const dgvQuality = new DgvQualityRunJob(deps.tenants, audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
@@ -207,6 +220,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const inbox =
     deps.inboxHandlers === undefined ? undefined : new IntegrationInboxProcessor(deps.tenants, deps.inboxHandlers, { alerts, ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) });
   const finops = new LlmFinopsStore();
+  const interopSender = deps.docInterop;
   const keySweep = deps.llmKeys === undefined ? undefined : new LlmKeySweepJob(audit, deps.llmKeys.litellm, deps.llmKeys.vault, log);
   const campaigns = new NotificationCampaignStore();
   const handlers = standardJobs({
@@ -282,6 +296,10 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     // The invoices are tenant rows and the plans are control-plane rows: the pass of a tenant runs through the control role acting as that tenant.
     einvoiceBilling: { run: (ctx, now) => deps.control.withTenantOf(ctx.tenantId, (tx) => billing.run(tx, ctx.membershipId, now)) },
     tenantDomain: { run: (ctx, now) => deps.control.withTenantOf(ctx.tenantId, (tx) => domains.run(tx, ctx.membershipId, now)) },
+    // The migration is the tenant's own row and the placements are the control plane's: the pass of a tenant runs through the control role acting as that tenant.
+    placementMigration: { run: (ctx, now) => placementMigrations.run(ctx, now) },
+    // The restores are tenant rows, and the engine reads the tenant it restores: the pass runs as the worker of the tenant.
+    tenantRestore: { run: (ctx, now) => restores.run(ctx, now) },
     // The payments that wait belong to the platform tenant and are matched with invoices of every tenant: one pass for the platform, through the control role.
     paymentReconciliation: {
       run: (now) =>
@@ -317,6 +335,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     audRecoveryReconcile: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => audRecoveries.run(tx, ctx.membershipId, now)) },
     // Licenses are control-plane rows too: the pass of a tenant runs through the control role acting as that tenant.
     licenseStatus: { run: (ctx, now) => deps.control.withTenantOf(ctx.tenantId, (tx) => licenseStatus.run(tx, ctx.membershipId, now)) },
+    ...(interopSender === undefined ? {} : { docInteropSend: { run: (ctx: TenantContext, now: Date) => interopSender.runPass(deps.tenants, ctx, now) } }),
     ...(keySweep === undefined ? {} : { llmKeySweep: { run: (ctx: TenantContext, now: Date) => deps.tenants.withTenant(ctx, (tx) => keySweep.run(tx, ctx.membershipId, now)) } }),
     llmReservationExpiry: {
       run: (ctx, now) =>

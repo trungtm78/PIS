@@ -2,7 +2,7 @@ name: Release
 
 # Shipping is a tagged commit that passes the same gates as CI. This workflow deploys nothing:
 # there is no product runtime yet (milestone M1 is the design phase). It re-runs the gates on the
-# tagged commit and publishes release notes generated from the conventional commits.
+# tagged commit and publishes release notes generated from the conventional commits (scripts/release.mjs).
 
 on:
   push:
@@ -55,7 +55,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      # The notes are the changelog of scripts/release.mjs: the conventional commits since the previous tag, grouped by
+      # module (ST-KERNEL-033). The signed manifest with the image digests and the SBOM (release.mjs cut) is attached
+      # by the job that builds the images, which does not exist yet; docs/runbooks/release-checklist.md section 7.
       - name: Create the GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" --generate-notes --verify-tag --title "$GITHUB_REF_NAME"
+        run: |
+          PREVIOUS=$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || git hash-object -t tree /dev/null)
+          node scripts/release.mjs notes --locale en --from "$PREVIOUS" --to "$GITHUB_REF_NAME" --version "${GITHUB_REF_NAME#v}" > RELEASE_NOTES.md
+          gh release create "$GITHUB_REF_NAME" --notes-file RELEASE_NOTES.md --verify-tag --title "$GITHUB_REF_NAME"

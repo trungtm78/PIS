@@ -33,7 +33,8 @@ The same rules are checked first in the code (`packages/kernel/src/pay-ledger.ts
 ## Kinds of entry
 
 `RECOGNIZE_ACCEPTANCE` (accepted +), `REVOKE_ACCEPTANCE` (reverses it), `CLAIM` (requested +), `CLAIM_RELEASE`, `PAYMENT` (paid +), `PAYMENT_REVERSAL`, `ADVANCE_RECOVERY`, `ADVANCE_RECOVERY_REVERSAL`,
-`RETENTION_HOLD`, `RETENTION_RELEASE`. This story writes the first two; the others are the entry points the claim and payment stories use through `PayLedgerStore.post`.
+`RETENTION_HOLD`, `RETENTION_RELEASE`, and `ADJUSTMENT` (ST-CTR-016: the money difference of a retroactive change of price, signed, on the accepted amount only, naming the line of the adjustment it comes from; it reverses nothing and is
+corrected by a later adjustment; see `docs/ctr-retroactive-adjustment.md`). This story writes the first two; the others are the entry points the claim and payment stories use through `PayLedgerStore.post`.
 
 ## Lock order
 

@@ -172,13 +172,13 @@ describe('ADM-01 organisation tree', () => {
   it('dims a superseded unit and links its successor, and the as-of date decides which are dimmed (AC-ST-ADM-004-3)', async () => {
     const user = await loaded(harness());
     const old = unitItem('OLD');
-    expect(old.querySelector('.unit-row')).toHaveClass('dimmed');
-    expect(unitItem('NEW').querySelector('.unit-row')).not.toHaveClass('dimmed');
+    expect(old).toHaveClass('dimmed');
+    expect(unitItem('NEW')).not.toHaveClass('dimmed');
     await user.click(within(old).getByRole('button', { name: vi_['adm.orgUnit.node.successor.label'].replace('{name}', 'Đơn vị NEW') }));
     expect(unitItem('NEW')).toHaveAttribute('aria-selected', 'true');
     fireEvent.change(screen.getByLabelText(vi_['adm.orgUnit.asOf.label']), { target: { value: '2025-02-01' } });
-    expect(unitItem('OLD').querySelector('.unit-row')).not.toHaveClass('dimmed');
-    expect(unitItem('NEW').querySelector('.unit-row')).toHaveClass('dimmed');
+    expect(unitItem('OLD')).not.toHaveClass('dimmed');
+    expect(unitItem('NEW')).toHaveClass('dimmed');
   });
 
   it('collapses and expands a unit with the caret and moves with the arrow keys', async () => {

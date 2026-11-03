@@ -24,18 +24,46 @@ interface DueSql {
   contract_id: string;
   contract_code: string;
   contract_status: string;
-  contract_version: string;
   project_id: string;
   revision: number;
   amount_vnd: string;
   valid_from: string;
   change_request_id: string | null;
-  current_value_vnd: string;
   accepted_total_vnd: string;
   advance_paid_vnd: string;
   paid_total_vnd: string;
   advance_recovered_vnd: string;
   allocation_line_id: string | null;
+}
+
+/** What putting a revision in force did. */
+export interface RevisionTakeover {
+  /** The revision that was in force and ends where the new one begins; null when none was. */
+  supersededId: string | null;
+  /** The value of the contract before the revision. */
+  fromValueVnd: string;
+  /** The version of the contract after it. */
+  version: number;
+}
+
+/**
+ * Puts a pending revision in force (CTR 3.3 step 5): the revision in force is superseded and ends where the new one begins, the new one is EFFECTIVE, and the value and the current revision
+ * of the contract follow. The job `revision-effective` does it when the day of the revision comes; the retroactive adjustment (ST-CTR-016) does it in its own transaction, because the ledger it
+ * adjusts is judged against the value the contract has after the change. The caller holds the lock of the contract.
+ */
+export async function putRevisionInForce(tx: TenantTx, revision: { contractId: string; revisionId: string; validFrom: string; amountVnd: string; actor: string }): Promise<RevisionTakeover> {
+  const superseded = await tx.query<{ id: string }>(
+    `update machvon.contract_revision set status = 'SUPERSEDED', valid_until = $2::date, updated_at = now(), updated_by = $3::uuid, version = version + 1
+      where contract_id = $1::uuid and status = 'EFFECTIVE' returning id`,
+    [revision.contractId, revision.validFrom, revision.actor],
+  );
+  await tx.query("update machvon.contract_revision set status = 'EFFECTIVE', updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid", [revision.revisionId, revision.actor]);
+  const before = await tx.query<{ contract_value_vnd: string }>('select contract_value_vnd::text as contract_value_vnd from machvon.contract where id = $1::uuid', [revision.contractId]);
+  const after = await tx.query<{ version: string }>(
+    'update machvon.contract set contract_value_vnd = $2::numeric, current_revision_id = $3::uuid, updated_at = now(), updated_by = $4::uuid, version = version + 1 where id = $1::uuid returning version::text as version',
+    [revision.contractId, revision.amountVnd, revision.revisionId, revision.actor],
+  );
+  return { supersededId: superseded[0]?.id ?? null, fromValueVnd: before[0]?.contract_value_vnd ?? '0', version: Number(after[0]?.version ?? '0') };
 }
 
 /**
@@ -59,8 +87,8 @@ export class CtrRevisionEffective {
     const tenantId = await this.tenantOf(tx);
     const result: RevisionPass = { activated: 0, blocked: 0, overdue: 0 };
     const due = await tx.query<DueSql>(
-      `select r.id, r.contract_id, c.code as contract_code, c.status as contract_status, c.version::text as contract_version, c.project_id, r.revision, r.amount_vnd::text as amount_vnd,
-              r.valid_from::text as valid_from, r.change_request_id, c.contract_value_vnd::text as current_value_vnd, c.accepted_total_vnd::text as accepted_total_vnd,
+      `select r.id, r.contract_id, c.code as contract_code, c.status as contract_status, c.project_id, r.revision, r.amount_vnd::text as amount_vnd,
+              r.valid_from::text as valid_from, r.change_request_id, c.accepted_total_vnd::text as accepted_total_vnd,
               c.advance_paid_vnd::text as advance_paid_vnd, c.paid_total_vnd::text as paid_total_vnd, c.advance_recovered_vnd::text as advance_recovered_vnd,
               k.allocation_line_id
          from machvon.contract_revision r
@@ -97,21 +125,7 @@ export class CtrRevisionEffective {
 
   private async takeOver(tx: TenantTx, revision: DueSql, pass: { tenantId: string; actor: string; correlationId: string; now: Date }): Promise<void> {
     const { actor } = pass;
-    // The revision in force ends where this one begins.
-    const superseded = await tx.query<{ id: string }>(
-      `update machvon.contract_revision set status = 'SUPERSEDED', valid_until = $2::date, updated_at = now(), updated_by = $3::uuid, version = version + 1
-        where contract_id = $1::uuid and status = 'EFFECTIVE' returning id`,
-      [revision.contract_id, revision.valid_from, actor],
-    );
-    await tx.query("update machvon.contract_revision set status = 'EFFECTIVE', updated_at = now(), updated_by = $2::uuid, version = version + 1 where id = $1::uuid", [revision.id, actor]);
-    // Read again: an earlier revision of the same contract may have taken over a moment ago in this pass.
-    const held = (await tx.query<{ version: string; contract_value_vnd: string }>('select version::text as version, contract_value_vnd::text as contract_value_vnd from machvon.contract where id = $1::uuid', [revision.contract_id]))[0];
-    const version = Number(held?.version ?? revision.contract_version) + 1;
-    const fromValue = held?.contract_value_vnd ?? revision.current_value_vnd;
-    await tx.query(
-      'update machvon.contract set contract_value_vnd = $2::numeric, current_revision_id = $3::uuid, updated_at = now(), updated_by = $4::uuid, version = $5::bigint where id = $1::uuid',
-      [revision.contract_id, revision.amount_vnd, revision.id, actor, version],
-    );
+    const { supersededId, fromValueVnd: fromValue, version } = await putRevisionInForce(tx, { contractId: revision.contract_id, revisionId: revision.id, validFrom: revision.valid_from, amountVnd: revision.amount_vnd, actor });
     await this.audit.recordInTx(tx, actor, {
       action: 'contract.revision_effective',
       resourceType: RESOURCE_TYPE,
@@ -124,7 +138,7 @@ export class CtrRevisionEffective {
         valid_from: revision.valid_from,
         from_value_vnd: fromValue,
         to_value_vnd: revision.amount_vnd,
-        superseded_id: superseded[0]?.id ?? null,
+        superseded_id: supersededId,
         change_request_id: revision.change_request_id,
       },
       correlationId: pass.correlationId,

@@ -3,7 +3,7 @@ import type { JsonWebKey, KeyObject } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { DomainError, parseTenantContext } from '@machvon/kernel';
 import type { TenantContext } from '@machvon/kernel';
-import { TENANT_AUDIENCE, TENANT_TOKEN_TTL_SECONDS } from './claims';
+import { POWERSYNC_AUDIENCE, POWERSYNC_TOKEN_TTL_SECONDS, TENANT_AUDIENCE, TENANT_TOKEN_TTL_SECONDS } from './claims';
 
 export interface IssueInput {
   tenant: TenantContext;
@@ -82,6 +82,30 @@ export class LocalTenantTokenIssuer implements TenantTokenIssuer {
 
   publicKeys(): Promise<JsonWebKeySet> {
     return Promise.resolve({ keys: [this.options.signingKey, ...(this.options.retiredKeys ?? [])].map((key) => key.publicJwk) });
+  }
+
+  /**
+   * The token a phone gives the PowerSync service (ST-MOB-007, A1): ES256, audience `powersync`, and no longer than five minutes. It carries the member, the active tenant and the scope version of the
+   * tenant context the caller was judged under, and nothing the phone sent: the sync rules read the tenant and the membership from this token and from nothing else, so a forged parameter cannot
+   * name another tenant, and a token older than five minutes is refused by the service.
+   */
+  issuePowerSync(input: { tenant: TenantContext; now: Date }): { token: string; expiresInSeconds: number } {
+    const tenant = parseTenantContext(input.tenant);
+    const issuedAt = Math.floor(input.now.getTime() / 1000);
+    const payload = {
+      iss: this.options.issuer,
+      aud: POWERSYNC_AUDIENCE,
+      sub: tenant.membershipId,
+      tenant_id: tenant.tenantId,
+      membership_id: tenant.membershipId,
+      scope_version: tenant.scopeVersion,
+      iat: issuedAt,
+      exp: issuedAt + POWERSYNC_TOKEN_TTL_SECONDS,
+    };
+    const header = { alg: 'ES256', typ: 'JWT', kid: this.options.signingKey.kid };
+    const signingInput = `${base64url(JSON.stringify(header))}.${base64url(JSON.stringify(payload))}`;
+    const signature = sign('sha256', Buffer.from(signingInput), { key: this.options.signingKey.privateKey, dsaEncoding: 'ieee-p1363' });
+    return { token: `${signingInput}.${base64url(signature)}`, expiresInSeconds: POWERSYNC_TOKEN_TTL_SECONDS };
   }
 
   private sign(input: IssueInput): { accessToken: string; expiresInSeconds: number } {

@@ -45,7 +45,7 @@ export function tileLink(key: TileKey): string | undefined {
     case 'templates_pending_confirmation':
       return '/doc/doc-14';
     case 'interop_errors':
-      return undefined;
+      return '/doc/doc-20';
   }
 }
 

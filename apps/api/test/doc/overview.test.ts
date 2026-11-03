@@ -97,7 +97,8 @@ describe('the overview of the documents over HTTP (ST-DOC-014)', () => {
       awaiting_leader_signature: (base.awaiting_leader_signature ?? 0) + 1,
       awaiting_number: (base.awaiting_number ?? 0) + 3,
       awaiting_seal: (base.awaiting_seal ?? 0) + 1,
-      interop_errors: 0,
+      // The messages of the LGSP belong to the tenant: a reader of a unit cannot count them, and is told so, not given 0.
+      interop_errors: null,
     });
     // The viewer of unit 1 sees only the documents of unit 1.
     const unitOne = await tiles(OVERVIEW_UNIT_ONE);
@@ -144,12 +145,13 @@ describe('the overview of the documents over HTTP (ST-DOC-014)', () => {
   });
 
   it('shows a figure only for the kinds of document the viewer may read, and never 0 for what cannot be counted', async () => {
-    expect(await tiles(OVERVIEW_ONLY)).toEqual({ drafts_in_review: null, awaiting_leader_signature: null, awaiting_number: null, awaiting_seal: null, overdue_incoming: null, interop_errors: 0, templates_pending_confirmation: null });
+    expect(await tiles(OVERVIEW_ONLY)).toEqual({ drafts_in_review: null, awaiting_leader_signature: null, awaiting_number: null, awaiting_seal: null, overdue_incoming: null, interop_errors: null, templates_pending_confirmation: null });
     const incomingOnly = await tiles(OVERVIEW_INCOMING);
     expect(incomingOnly.drafts_in_review).toBeNull();
     expect(incomingOnly.templates_pending_confirmation).toBeNull();
     expect(incomingOnly.overdue_incoming).toEqual(expect.any(Number));
     const all = await tiles(OVERVIEW_UNIT_TWO);
-    expect(Object.values(all).every((count) => typeof count === 'number')).toBe(true);
+    // Every kind this viewer may read has a figure; the messages of the LGSP belong to the tenant, so a viewer of a unit has none (null, not 0).
+    expect(Object.entries(all).every(([key, count]) => (key === 'interop_errors' ? count === null : typeof count === 'number'))).toBe(true);
   });
 });

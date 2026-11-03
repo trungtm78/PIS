@@ -1,0 +1,13 @@
+{
+  "id": "SLO_FAST_BURN",
+  "severity": "critical",
+  "channel": "operations",
+  "owner": "platform-oncall",
+  "runbook": "docs/runbooks/alerts/SLO_FAST_BURN.md",
+  "adapter": "webhook",
+  "source": {
+    "type": "event",
+    "code": "SLO_FAST_BURN"
+  },
+  "summary": "A core service spends its 30 day error budget at 14.4 times the rate its 99.9 percent objective allows, over the last hour and the last 5 minutes."
+}

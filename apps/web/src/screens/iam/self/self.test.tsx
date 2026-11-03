@@ -71,7 +71,7 @@ afterEach(() => cleanup());
 describe('ProfileScreen (IAM-05): my profile', () => {
   const route = routeOf('IAM-05', 'FR-IAM-05');
 
-  it('UI-IAM-05: shows my profile with the email and the phone masked, and saves only what I changed at the version I read', async () => {
+  it('UI-IAM-05 / AC-ST-IAM-006-5: shows my profile with the email and the phone masked, and saves only what I changed at the version I read', async () => {
     const h = open(<ProfileScreen route={route} />);
     await screen.findByTestId('profile-form');
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(word('iam.profile.title'));
@@ -142,7 +142,7 @@ describe('ProfileScreen (IAM-05): my profile', () => {
     expect(commandsOf(h, 'updateMyProfile')[1]).toMatchObject({ body: { locale: 'en-US' }, ifMatchVersion: 5 });
   });
 
-  it('shows no way to save while the tenant is read-only, and a read that failed with a way to read again', async () => {
+  it('AC-ST-IAM-006-5: UI-IAM-05 shows no way to save while the tenant is read-only, and a read that failed with a way to read again', async () => {
     open(<ProfileScreen route={route} />, {}, { mode: 'READ_ONLY' });
     await screen.findByTestId('profile-form');
     expect(screen.queryByRole('button', { name: word('iam.profile.save') })).toBeNull();

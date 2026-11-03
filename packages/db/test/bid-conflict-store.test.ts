@@ -171,8 +171,9 @@ describe('the declaration of conflict of interest (ST-BID-004)', () => {
         const id = randomUUID();
         await seedAs(harness, [
           [
-            `insert into machvon.evaluation_report (tenant_id, id, package_id, criteria_version_id, summary_json, status, signed_off_by, report_document_id, created_by, updated_by)
-             values ($1, $2, $3, $4, '{}'::jsonb, $5, $6::jsonb, $8, $7, $7)`,
+            `insert into machvon.evaluation_report (tenant_id, id, package_id, criteria_version_id, summary_json, status, signed_off_by, report_document_id, created_by, updated_by, payload_sha256, payload_ref, issue_event_id, issue_requested_at, issued_at)
+             values ($1, $2, $3, $4, '{}'::jsonb, $5, $6::jsonb, $8, $7, $7, case when $5 = 'ISSUED' then repeat('a', 64) end, case when $5 = 'ISSUED' then 'tenants/t/bid/reports/r.json' end,
+                     case when $5 = 'ISSUED' then gen_random_uuid() end, case when $5 = 'ISSUED' then now() end, case when $5 = 'ISSUED' then now() end)`,
             [TENANT_A, id, seeded.packageId, randomUUID(), status, JSON.stringify(signed), memberId(1), status === 'ISSUED' ? randomUUID() : null],
           ],
         ]);

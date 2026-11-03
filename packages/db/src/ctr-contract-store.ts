@@ -3,6 +3,8 @@ import { ADVANCE_CATEGORIES, CONTRACT_STATUSES, DomainError, assertContractTrans
 import type { AdvanceCategory, ContractStatus, EffectiveAccess } from '@machvon/kernel';
 import { BidContractorStore } from './bid-contractor-store.ts';
 import { CtrContractSource } from './ctr-contract-source.ts';
+import { retroactiveRecordsOf } from './ctr-retroactive-reads.ts';
+import type { RetroactiveRecord } from './ctr-retroactive-reads.ts';
 import { projectScope } from './prj-project-store.ts';
 import type { ScopeBuilder, ScopePredicate } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -141,6 +143,8 @@ export interface ContractDetail extends ContractLine {
   activatedBy: string | null;
   ledger: ContractLedger;
   revisions: RevisionRow[];
+  /** The retroactive adjustments of the contract (ST-CTR-016): the money side, shown by right of the ledger. */
+  retroactiveAdjustments: RetroactiveRecord[];
   parties: PartyRow[];
   partiesCheck: PartiesCheck;
   statusChanges: StatusChangeRow[];
@@ -519,6 +523,7 @@ export class CtrContractStore {
         retentionReleasedVnd: row.retention_released_vnd,
       },
       revisions: revisions.map(toRevision),
+      retroactiveAdjustments: await retroactiveRecordsOf(tx, id),
       parties,
       partiesCheck: partiesCheck(parties, row.contract_value_vnd),
       statusChanges: changes.map((change) => ({

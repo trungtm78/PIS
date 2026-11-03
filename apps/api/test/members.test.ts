@@ -272,7 +272,7 @@ describe('members and invitations (ST-ADM-006 backend)', () => {
   });
 
   describe('inviteMember', () => {
-    it('refuses an invitation when no seat is free (403 QUOTA_EXCEEDED), writes nothing, and invites once a seat is free (UAT-AC156)', async () => {
+    it('AC-ST-KERNEL-074-2: refuses an invitation when no seat is free (403 QUOTA_EXCEEDED), writes nothing, and invites once a seat is free (UAT-AC156)', async () => {
       const [staff, invitations, members] = [await activeStaff(), await countOf('select count(*) as n from machvon.membership_invitation where tenant_id = $1', [T]), await countOf('select count(*) as n from machvon.membership where tenant_id = $1', [T])];
       await limitSeats(staff);
       try {

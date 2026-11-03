@@ -35,6 +35,18 @@ describe('the model of the cumulative ledger (PAY-10)', () => {
     expect(toLedger({ ...page([]), reconciled: undefined, as_of: undefined, next_cursor: undefined })).toMatchObject({ reconciled: false, asOf: '', nextCursor: null });
   });
 
+  it('AC-ST-CTR-016-1: keeps an adjustment of the accepted amount with its sign, whichever way the price went, and names no entry that it reverses', () => {
+    const rise = entry(6, { kind: 'ADJUSTMENT', accepted_delta_vnd: '50000000' });
+    const fall = entry(7, { kind: 'ADJUSTMENT', accepted_delta_vnd: '-1000' });
+    const read = toLedger(page([line(1, { entries: [entry(1), rise, fall] })]));
+    expect(read?.items[0]?.entries.map((item) => [item.kind, item.acceptedDeltaVnd])).toEqual([
+      ['RECOGNIZE_ACCEPTANCE', '400000000'],
+      ['ADJUSTMENT', '50000000'],
+      ['ADJUSTMENT', '-1000'],
+    ]);
+    expect(read?.items[0]?.entries.slice(1).map(isReversal)).toEqual([false, false]);
+  });
+
   it('joins the pages read so far: the contract and totals of the first, the lines of all, the cursor of the last', () => {
     const first = toLedger(page([line(1)], { next_cursor: 'a' }))!;
     const second = toLedger(page([line(2)], { next_cursor: null }))!;
@@ -63,7 +75,7 @@ describe('the model of the cumulative ledger (PAY-10)', () => {
   });
 
   it('names every kind of entry once and writes the time of an entry in the time of Vietnam', () => {
-    expect(new Set(ENTRY_KINDS).size).toBe(10);
+    expect(new Set(ENTRY_KINDS).size).toBe(11);
     expect(dateTimeText('2026-10-25T20:30:00.000Z', 'en')).toContain('26');
     expect(dateTimeText('not a time', 'en')).toBe('not a time');
   });

@@ -11,6 +11,7 @@ import { useOrgUnits } from '../adm/org-tree/hooks';
 import { Field } from '../mne/components';
 import '../dis/dis.css';
 import { ContextHeader, MetricTile, NewDataBanner, ProblemCard } from './components';
+import { DegradedChannelsBanner } from './DegradedBanner';
 import { centerKey, homeRoot, useCommandCenter, useLatestSnapshot } from './hooks';
 import { MY_WORK_PATH, REALLOCATION_PATH, WARNINGS_PATH, amountTiles, describeCommandCenter, hasNewSnapshot, isAuthFailure, ratePair, waitingOf } from './model';
 import type { CommandCenter, WaitingCounts } from './model';
@@ -90,6 +91,7 @@ function CenterContent({ route, variant }: ScreenProps & { variant: Variant }) {
           <p>{subtitle}</p>
         </div>
       </div>
+      <DegradedChannelsBanner />
       {variant === 'overview' ? (
         <div className="card">
           <div className="dis-filters" role="group" aria-label={t('home.filter.title')}>

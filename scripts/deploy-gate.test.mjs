@@ -1,9 +1,23 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PROBLEM_CODES, STAGING_CONTEXT, evaluateProductionGate, main, productionContext, readCanaryPolicy } from './deploy-gate.mjs';
+import {
+  PROBLEM_CODES,
+  STAGING_CONTEXT,
+  addWorkingDays,
+  evaluateErrorBudget,
+  evaluateProductionGate,
+  main,
+  openPostMortem,
+  productionContext,
+  readBudgetReport,
+  readCanaryPolicy,
+  readErrorBudgetPolicy,
+  vietnamDay,
+} from './deploy-gate.mjs';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SHA = 'a'.repeat(40);
@@ -85,9 +99,19 @@ const run = (argv, api, env = { GH_TOKEN: 'token', GITHUB_API_URL: 'https://api.
   return main(argv, { log: (line) => lines.push(line), fetchImpl: api.fetchImpl, env, now: NOW }).then((code) => ({ code, lines }));
 };
 
+const scratch = mkdtempSync(join(tmpdir(), 'deploy-gate-'));
+/** Writes a budget report as the SLO evaluation exports it (kernel budgetReport) and returns its path. */
+function reportFile(name, report) {
+  const path = join(scratch, name);
+  writeFileSync(path, typeof report === 'string' ? report : JSON.stringify(report));
+  return path;
+}
+const healthy = { generatedAt: minutesAgo(5), exhausted: false, services: [] };
+const spent = { generatedAt: minutesAgo(5), exhausted: true, exhaustedAt: '2026-05-29T03:00:00.000Z', services: [] };
+
 test('check exits 0 and names the commit when every gate is met', async () => {
   const api = fakeApi();
-  const { code, lines } = await run(['check', '--locale', 'en', '--repo', 'o/r', '--sha', SHA, '--cohort', 'pilot'], api);
+  const { code, lines } = await run(['check', '--locale', 'en', '--repo', 'o/r', '--sha', SHA, '--cohort', 'pilot', '--budget-report', reportFile('healthy.json', healthy)], api);
   assert.equal(code, 0);
   assert.match(lines.at(-1), new RegExp(`commit ${SHA} may be promoted to pilot`));
   assert.ok(api.calls.every((call) => call.url.startsWith('https://api.example.test/repos/o/r/') && call.authorization === 'Bearer token'));
@@ -95,7 +119,7 @@ test('check exits 0 and names the commit when every gate is met', async () => {
 });
 
 test('check exits 1 and prints every unmet gate', async () => {
-  const { code, lines } = await run(['check', '--locale', 'en', '--repo', 'o/r', '--sha', SHA, '--cohort', 'cohort-1'], fakeApi({ runs: [], statuses: [] }));
+  const { code, lines } = await run(['check', '--locale', 'en', '--repo', 'o/r', '--sha', SHA, '--cohort', 'cohort-1', '--kind', 'security'], fakeApi({ runs: [], statuses: [] }));
   assert.equal(code, 1);
   assert.equal(lines.length, 4);
   assert.match(lines.at(-1), /3 promotion gate\(s\) not met/);
@@ -112,11 +136,11 @@ test('record writes a commit status on the exact commit', async () => {
 
 test('a failing API call is an error, never a pass', async () => {
   const fetchImpl = async () => ({ ok: false, status: 403, json: async () => ({}) });
-  await assert.rejects(() => run(['check', '--repo', 'o/r', '--sha', SHA, '--cohort', 'pilot'], { fetchImpl }), /HTTP 403/);
+  await assert.rejects(() => run(['check', '--repo', 'o/r', '--sha', SHA, '--cohort', 'pilot', '--kind', 'security'], { fetchImpl }), /HTTP 403/);
 });
 
 test('missing or unknown arguments print the usage and exit 2', async () => {
-  for (const argv of [['--nope'], [], ['check', '--repo', 'o/r'], ['record', '--repo', 'o/r', '--sha', SHA, '--context', 'c', '--state', 'maybe']]) {
+  for (const argv of [['--nope'], [], ['check', '--repo', 'o/r'], ['postmortem', '--repo', 'o/r'], ['record', '--repo', 'o/r', '--sha', SHA, '--context', 'c', '--state', 'maybe']]) {
     const { code, lines } = await run(argv, fakeApi());
     assert.equal(code, 2, argv.join(' '));
     assert.match(lines[0], /^(usage|cách\sdùng)/);
@@ -207,4 +231,142 @@ test('staging records its evidence only after a real deployment', () => {
   assert.match(staging, /if: success\(\) && vars\.DEPLOY_COMMAND_STAGING != ''/);
   assert.match(staging, /--context deploy\/staging --state success/);
   assert.match(staging, /statuses: write/);
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// The error budget policy (ST-KERNEL-052).
+// ---------------------------------------------------------------------------------------------------------------------
+
+const policy = readErrorBudgetPolicy(REPO_ROOT);
+const codesOfBudget = (overrides) => evaluateErrorBudget({ kind: 'feature', report: spent, policy, now: NOW, ...overrides }).problems.map((problem) => problem.code);
+
+test('the error budget policy is read from the production pipeline declaration', () => {
+  assert.deepEqual(policy, { blockedKinds: ['feature'], allowedKinds: ['reliability', 'security'], postMortemWorkingDays: 5, maxReportAgeMinutes: 15 });
+});
+
+test('AC-ST-KERNEL-052-2 UAT-NFR-AVAILABILITY-01: a feature release is blocked while the 30 day budget is spent, and a reliability or a security fix is allowed', () => {
+  assert.deepEqual(codesOfBudget({ kind: 'feature' }), ['BUDGET_EXHAUSTED']);
+  assert.deepEqual(codesOfBudget({ kind: 'reliability' }), []);
+  assert.deepEqual(codesOfBudget({ kind: 'security' }), []);
+  assert.deepEqual(codesOfBudget({ kind: 'feature', report: healthy }), []);
+});
+
+test('a fix is allowed even when the budget report is missing or stale, because a fix is how the budget is earned back', () => {
+  for (const report of [undefined, { ...spent, generatedAt: minutesAgo(600) }]) {
+    assert.deepEqual(codesOfBudget({ kind: 'security', report }), []);
+    assert.deepEqual(codesOfBudget({ kind: 'reliability', report }), []);
+  }
+});
+
+test('a feature release is refused when the gate cannot see the budget: no report, or a report older than the policy allows', () => {
+  assert.deepEqual(codesOfBudget({ report: undefined }), ['BUDGET_UNKNOWN']);
+  assert.deepEqual(codesOfBudget({ report: { ...healthy, generatedAt: minutesAgo(16) } }), ['BUDGET_STALE']);
+  assert.deepEqual(codesOfBudget({ report: { ...healthy, generatedAt: minutesAgo(15) } }), []);
+  assert.deepEqual(codesOfBudget({ report: { ...healthy, generatedAt: 'not a time' } }), ['BUDGET_STALE']);
+});
+
+test('a release kind the policy does not know is refused, whatever the budget is', () => {
+  assert.deepEqual(codesOfBudget({ kind: 'hotfix', report: healthy }), ['KIND_UNKNOWN']);
+});
+
+test('the refusal names the day the budget ran out and the day the post-mortem is due', () => {
+  const result = evaluateErrorBudget({ kind: 'feature', report: spent, policy, now: NOW });
+  assert.equal(result.problems[0].detail, '2026-05-29 2026-06-05');
+  assert.equal(result.postMortemDue, '2026-06-05');
+  // Without the moment the budget ran out, the moment of the report stands in for it.
+  const { exhaustedAt, ...withoutMoment } = spent;
+  assert.notEqual(exhaustedAt, undefined);
+  assert.equal(evaluateErrorBudget({ kind: 'feature', report: withoutMoment, policy, now: NOW }).postMortemDue, addWorkingDays(withoutMoment.generatedAt, 5));
+});
+
+test('AC-ST-KERNEL-052-2 UAT-NFR-AVAILABILITY-01: the post-mortem is due 5 working days after the day the budget ran out, on the calendar of Vietnam', () => {
+  // Friday 2026-05-29: the 5 working days are Monday to Friday of the next week.
+  assert.equal(addWorkingDays('2026-05-29T03:00:00Z', 5), '2026-06-05');
+  // Saturday and Sunday count for nothing: the first working day after a Saturday is the Monday.
+  assert.equal(addWorkingDays('2026-05-30T03:00:00Z', 5), '2026-06-05');
+  assert.equal(addWorkingDays('2026-05-31T03:00:00Z', 5), '2026-06-05');
+  // Monday: the fifth working day is the next Monday.
+  assert.equal(addWorkingDays('2026-06-01T03:00:00Z', 5), '2026-06-08');
+  assert.equal(addWorkingDays('2026-06-01T03:00:00Z', 1), '2026-06-02');
+  assert.equal(addWorkingDays('2026-06-01T03:00:00Z', 0), '2026-06-01');
+  // 20:00 UTC on Friday is already Saturday in Vietnam (UTC+7).
+  assert.equal(vietnamDay('2026-05-29T20:00:00Z'), '2026-05-30');
+  assert.equal(addWorkingDays('2026-05-29T20:00:00Z', 1), '2026-06-01');
+});
+
+test('AC-ST-KERNEL-052-2 UAT-NFR-AVAILABILITY-01: check refuses a feature release with a spent budget and passes a security fix, naming the due day', async () => {
+  const path = reportFile('spent.json', spent);
+  const base = ['check', '--locale', 'en', '--repo', 'o/r', '--sha', SHA, '--cohort', 'pilot', '--budget-report', path];
+  const feature = await run([...base, '--kind', 'feature'], fakeApi());
+  assert.equal(feature.code, 1);
+  assert.match(feature.lines[0], /feature releases are stopped.*2026-05-29 2026-06-05/);
+  assert.match(feature.lines.at(-1), /1 promotion gate\(s\) not met/);
+  // The kind defaults to a feature release.
+  assert.equal((await run(base, fakeApi())).code, 1);
+  for (const kind of ['security', 'reliability']) assert.equal((await run([...base, '--kind', kind], fakeApi())).code, 0, kind);
+});
+
+test('check refuses a feature release when the budget report cannot be read', async () => {
+  for (const path of [join(scratch, 'does-not-exist.json'), reportFile('garbage.json', 'not json'), reportFile('shape.json', { exhausted: 'yes' })]) {
+    const { code, lines } = await run(['check', '--locale', 'en', '--repo', 'o/r', '--sha', SHA, '--cohort', 'pilot', '--budget-report', path], fakeApi());
+    assert.equal(code, 1, path);
+    assert.match(lines[0], /error budget of the core services is not known/);
+  }
+  assert.equal(readBudgetReport(undefined), undefined);
+});
+
+function issuesApi(existing = []) {
+  const calls = [];
+  const fetchImpl = async (url, init) => {
+    calls.push({ url, method: init.method, body: init.body === undefined ? undefined : JSON.parse(init.body) });
+    return { ok: true, status: 200, json: async () => (init.method === 'GET' ? existing : {}) };
+  };
+  return { calls, fetchImpl };
+}
+
+test('AC-ST-KERNEL-052-2 UAT-NFR-AVAILABILITY-01: a spent budget opens one post-mortem task that states the day it is due, and asking again opens nothing', async () => {
+  const path = reportFile('spent.json', spent);
+  const api = issuesApi();
+  const first = await run(['postmortem', '--locale', 'en', '--repo', 'o/r', '--budget-report', path], api);
+  assert.equal(first.code, 0);
+  assert.match(first.lines[0], /opened the post-mortem task, due 2026-06-05/);
+  assert.deepEqual(
+    api.calls.map((call) => [call.method, call.url]),
+    [
+      ['GET', 'https://api.example.test/repos/o/r/issues?labels=post-mortem&state=all&per_page=100'],
+      ['POST', 'https://api.example.test/repos/o/r/issues'],
+    ],
+  );
+  const created = api.calls[1].body;
+  assert.equal(created.title, 'Post-mortem: error budget exhausted on 2026-05-29');
+  assert.deepEqual(created.labels, ['post-mortem']);
+  assert.match(created.body, /Due: 2026-06-05 \(5 working days\)/);
+  const again = issuesApi([{ title: created.title }]);
+  const second = await run(['postmortem', '--locale', 'en', '--repo', 'o/r', '--budget-report', path], again);
+  assert.equal(second.code, 0);
+  assert.match(second.lines[0], /already open, due 2026-06-05/);
+  assert.deepEqual(again.calls.map((call) => call.method), ['GET']);
+});
+
+test('a healthy budget opens no post-mortem task, and an unreadable report is an error', async () => {
+  const api = issuesApi();
+  const quiet = await run(['postmortem', '--locale', 'en', '--repo', 'o/r', '--budget-report', reportFile('healthy.json', healthy)], api);
+  assert.equal(quiet.code, 0);
+  assert.match(quiet.lines[0], /no post-mortem task is needed/);
+  assert.deepEqual(api.calls, []);
+  const missing = await run(['postmortem', '--locale', 'en', '--repo', 'o/r', '--budget-report', join(scratch, 'nope.json')], api);
+  assert.equal(missing.code, 1);
+  const direct = await openPostMortem({ repo: 'o/r', report: undefined, policy }, { fetchImpl: api.fetchImpl, env: {} });
+  assert.deepEqual(direct, { opened: false, reason: 'NOT_EXHAUSTED' });
+});
+
+test('the workflow passes the kind and the budget report to both checks of the gate, and opens the post-mortem task from the gate job', () => {
+  for (const name of ['gate', 'production']) {
+    assert.match(jobBlock(name), /deploy-gate\.mjs check [^\n]*--kind "\$DEPLOY_KIND" --budget-report budget-report\.json/, name);
+    assert.match(jobBlock(name), /curl --fail[^\n]*"\$SLO_BUDGET_REPORT_URL"[^\n]*--output budget-report\.json/, name);
+  }
+  const gateJob = jobBlock('gate');
+  assert.match(gateJob, /deploy-gate\.mjs postmortem [^\n]*--budget-report budget-report\.json/);
+  assert.match(gateJob, /issues: write/);
+  assert.match(WORKFLOW, /kind:\n\s+description: Kind of release[^\n]*\n\s+type: choice\n\s+options: \[feature, reliability, security\]/);
 });

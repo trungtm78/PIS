@@ -13,6 +13,8 @@ const WORKFLOW = '00000000-0000-4000-8000-0000000000b1';
 const WORKFLOW_URGENT = '00000000-0000-4000-8000-0000000000b2';
 const SMS_ACCOUNT = '00000000-0000-4000-8000-0000000000d2';
 const SMS_TEMPLATE = '00000000-0000-4000-8000-0000000000e2';
+const ZNS_ACCOUNT = '00000000-0000-4000-8000-0000000000d3';
+const ZNS_TEMPLATE = '00000000-0000-4000-8000-0000000000e3';
 const VIETNAM = 1;
 const TOKYO = 2;
 const NIGHT = new Date('2026-10-22T15:30:00.000Z');
@@ -29,6 +31,7 @@ describe('the dispatcher honours consent, preferences and quiet hours (ST-NOT-00
   const consents = new ContactConsentStore();
   const preferences = new NotificationPreferenceStore();
   let sms: InMemoryChannelAdapter;
+  let zns: InMemoryChannelAdapter;
   let clock: Date;
   let dispatcher: DeliveryDispatcher;
 
@@ -36,7 +39,7 @@ describe('the dispatcher honours consent, preferences and quiet hours (ST-NOT-00
   const owner = <T extends object>(text: string, params: unknown[] = []): Promise<T[]> => harness.owner<T>(TENANT_A, [[text, params]]);
 
   /** A notification as the consumer makes it: inserted with its plan, and its chain started. */
-  async function notify(member: number, options: { priority?: NotificationPriority; workflow?: string; purpose?: string } = {}): Promise<string> {
+  async function notify(member: number, options: { priority?: NotificationPriority; workflow?: string; purpose?: string; plan?: string[] } = {}): Promise<string> {
     return as(member, async (tx) => {
       const eventId = randomUUID();
       const purpose = options.purpose ?? 'OPERATIONAL';
@@ -51,7 +54,7 @@ describe('the dispatcher honours consent, preferences and quiet hours (ST-NOT-00
         eventVersion: 1,
         priority: options.priority ?? 'NORMAL',
         ackRequired: false,
-        channelPlan: ['IN_APP', 'SMS'],
+        channelPlan: options.plan ?? ['IN_APP', 'SMS'],
       });
       await engine.startChain(tx, await deliveries.requireNotification(tx, inserted.id));
       return inserted.id;
@@ -85,7 +88,7 @@ describe('the dispatcher honours consent, preferences and quiet hours (ST-NOT-00
           TENANT_A,
           WORKFLOW,
           ACTOR,
-          JSON.stringify({ channels: [{ channel: 'IN_APP' }, { channel: 'SMS', templateCode: 'sms.a' }] }),
+          JSON.stringify({ channels: [{ channel: 'IN_APP' }, { channel: 'SMS', templateCode: 'sms.a' }, { channel: 'ZALO_ZNS', templateCode: 'zns.a' }] }),
           WORKFLOW_URGENT,
           JSON.stringify({ channels: [{ channel: 'IN_APP' }, { channel: 'SMS', templateCode: 'sms.a' }], priority: 'CRITICAL', quietHoursOverride: true }),
         ],
@@ -96,6 +99,16 @@ describe('the dispatcher honours consent, preferences and quiet hours (ST-NOT-00
         [TENANT_A, SMS_ACCOUNT],
       ],
       [
+        `insert into machvon.channel_account (tenant_id, id, channel, external_account_id, credential_secret_ref, capability_version, status, verified_at, webhook_secret_ref)
+         values ($1, $2, 'ZALO_ZNS', 'zns-1', 'secret://test/zns', 'v1', 'Active', now(), 'secret://test/zns-webhook')`,
+        [TENANT_A, ZNS_ACCOUNT],
+      ],
+      [
+        `insert into machvon.notification_template_version (tenant_id, id, code, channel, locale, revision, content_ast, variable_schema, status, content_hash, created_by, provider_status, provider_template_id)
+         values ($1, $2, 'zns.a', 'ZALO_ZNS', 'vi-VN', 1, '{"body":"B"}'::jsonb, '{}'::jsonb, 'Active', $3, $4, 'PROVIDER_APPROVED', 'zns-template-1')`,
+        [TENANT_A, ZNS_TEMPLATE, sha('zns.a'), ACTOR],
+      ],
+      [
         `insert into machvon.notification_template_version (tenant_id, id, code, channel, locale, revision, content_ast, variable_schema, status, content_hash, created_by)
          values ($1, $2, 'sms.a', 'SMS', 'vi-VN', 1, '{"body":"B"}'::jsonb, '{}'::jsonb, 'Active', $3, $4)`,
         [TENANT_A, SMS_TEMPLATE, sha('sms.a'), ACTOR],
@@ -103,12 +116,13 @@ describe('the dispatcher honours consent, preferences and quiet hours (ST-NOT-00
       [`insert into machvon.notification_preference_profile (tenant_id, membership_id, quiet_start, quiet_end, time_zone) values ($1, $2, '21:00', '07:00', 'Asia/Tokyo')`, [TENANT_A, memberId(TOKYO)]],
     ]);
     sms = new InMemoryChannelAdapter({ provider: 'sms-gateway', channel: 'SMS', status: 'MOCK', paid: true });
+    zns = new InMemoryChannelAdapter({ provider: 'zalo-zns', channel: 'ZALO_ZNS', status: 'MOCK', paid: true });
     const access = new EffectiveAccessStore(harness.tenants, new InMemoryAuthzCache());
     dispatcher = new DeliveryDispatcher(
       {
         database: harness.tenants,
         engine,
-        adapters: new ChannelAdapterRegistry([sms], 'test'),
+        adapters: new ChannelAdapterRegistry([sms, zns], 'test'),
         loadAccess: (ctx) => access.load(ctx),
         resourceAccess: new PermissionResourceAccess(),
         now: () => clock,
@@ -144,7 +158,7 @@ describe('the dispatcher honours consent, preferences and quiet hours (ST-NOT-00
     await as(VIETNAM, (tx) => consents.withdraw(tx, memberId(VIETNAM), live?.id ?? '', 1, 'I withdraw before the send time'));
     const before = sms.requests.length;
     await dispatch(new Date('2026-10-22T08:00:30Z'));
-    expect(await attemptOf(scheduled)).toMatchObject({ status: 'Suppressed', error_code: 'NO_CONSENT' });
+    expect(await attemptOf(scheduled)).toMatchObject({ status: 'Suppressed', error_code: 'CONSENT_WITHDRAWN' });
     expect(sms.requests).toHaveLength(before);
   });
 
@@ -190,5 +204,26 @@ describe('the dispatcher honours consent, preferences and quiet hours (ST-NOT-00
     await grant(TOKYO, 'ANNOUNCEMENT');
     await notify(TOKYO, { purpose: 'ANNOUNCEMENT' });
     expect(await dispatcher.dispatchDue(CONTEXT)).toMatchObject({ sent: 0, suppressed: 0, deferred: 1 });
+  });
+
+  it('AC-ST-KERNEL-061-2 (UAT-NFR-PRIVACY-01): a Zalo consent withdrawn between two events suppresses the second recipient decision with CONSENT_WITHDRAWN, and the adapter is called 0 times for it', async () => {
+    await as(VIETNAM, (tx) => consents.grant(tx, memberId(VIETNAM), { channel: 'ZALO', purpose: 'OPERATIONAL', consentTextVersion: 'v1', captureMethod: 'IN_APP' }));
+    const first = await notify(VIETNAM, { plan: ['ZALO_ZNS'] });
+    await dispatch(NOON);
+    expect(await attemptOf(first)).toMatchObject({ status: 'ProviderAccepted' });
+    expect(zns.requests).toHaveLength(1);
+    const [live] = await as(VIETNAM, (tx) => consents.historyOf(tx, memberId(VIETNAM), { limit: 5, after: undefined }));
+    expect(live).toMatchObject({ channel: 'ZALO', status: 'Granted' });
+    await as(VIETNAM, (tx) => consents.withdraw(tx, memberId(VIETNAM), live?.id ?? '', 1, 'I no longer want Zalo messages'));
+    const second = await notify(VIETNAM, { plan: ['ZALO_ZNS'] });
+    await dispatch(NOON);
+    expect(await attemptOf(second)).toMatchObject({ status: 'Suppressed', error_code: 'CONSENT_WITHDRAWN', next_retry_at: null });
+    expect((await owner<{ status: string; suppression_reason: string | null }>('select status, suppression_reason from machvon.notification_instance where id = $1', [second]))[0]).toEqual({ status: 'Suppressed', suppression_reason: 'CONSENT_WITHDRAWN' });
+    expect(zns.requests).toHaveLength(1);
+    expect(zns.requests.some((request) => request.idempotencyKey.startsWith(second))).toBe(false);
+    // A person who never consented is told apart: that is NO_CONSENT, not a withdrawal.
+    const never = await notify(TOKYO, { plan: ['ZALO_ZNS'] });
+    await dispatch(NOON);
+    expect(await attemptOf(never)).toMatchObject({ status: 'Suppressed', error_code: 'NO_CONSENT' });
   });
 });

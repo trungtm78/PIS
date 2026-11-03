@@ -232,7 +232,7 @@
     "ALREADY_SIGNED_OFF": {
       "status": 422,
       "title": "Already signed off",
-      "meaning": "Raised by signOffEvaluationReport (POST /evaluation-reports/{id}/sign-off)",
+      "meaning": "Raised by signOffEvaluationReport (POST /evaluation-reports/{id}/sign-off) when the member signed this report already",
       "module": "BID",
       "statusBasis": "default",
       "source": "spec:BID"
@@ -1056,7 +1056,7 @@
     "CRITERIA_VERSION_MISMATCH": {
       "status": 422,
       "title": "Criteria version mismatch",
-      "meaning": "Raised by createEvaluationReport (POST /evaluation-reports); compareProposals (GET /procurement-packages/{id}/proposal-comparison) names it as the reason a proposal whose analysis ran on other criteria is left out of the comparison",
+      "meaning": "Raised by createEvaluationReport (POST /evaluation-reports) for a run that ran on other criteria than the version the report names (run_ids in the problem); compareProposals (GET /procurement-packages/{id}/proposal-comparison) names it as the reason a proposal whose analysis ran on other criteria is left out of the comparison",
       "module": "BID",
       "statusBasis": "convention",
       "source": "spec:BID"
@@ -1560,7 +1560,7 @@
     "ENVELOPE_DUPLICATE": {
       "status": 409,
       "title": "Envelope duplicate",
-      "meaning": "Raised by receiveInteropMessage (POST /integrations/lgsp/inbound-messages)",
+      "meaning": "Raised by receiveInteropMessage (POST /integrations/lgsp/inbound-messages) when the digest of the envelope, or the id the sender gave the message, was received before; nothing is written and the answer names the first message and its letter",
       "module": "DOC",
       "statusBasis": "convention",
       "source": "spec:DOC"
@@ -3943,7 +3943,7 @@
     "REPORT_STATE_INVALID": {
       "status": 409,
       "title": "Report state invalid",
-      "meaning": "Bị cấm: sửa payload sau APPROVED (REPORT_STATE_INVALID);",
+      "meaning": "Bị cấm: sửa payload sau APPROVED (REPORT_STATE_INVALID); also raised by signOffEvaluationReport (POST /evaluation-reports/{id}/sign-off) for an evaluation report that is not a draft (it asked DOC for the minutes or has them), with report_status in the problem",
       "module": "MNE",
       "statusBasis": "spec",
       "source": "spec:MNE"
@@ -4199,7 +4199,7 @@
     "RUN_NOT_COMPLETED": {
       "status": 422,
       "title": "Run not completed",
-      "meaning": "Raised by reviewAnalysisFinding (POST /analysis-findings/{id}/review) and post_findings_id_review (POST /findings/{id}/review) for a finding of a run that does not wait for the experts (it ran, failed, was refused or cancelled)",
+      "meaning": "Raised by reviewAnalysisFinding (POST /analysis-findings/{id}/review) and post_findings_id_review (POST /findings/{id}/review) for a finding of a run that does not wait for the experts (it ran, failed, was refused or cancelled), and by createEvaluationReport (POST /evaluation-reports) for a run of that kind",
       "module": "BID",
       "statusBasis": "default",
       "source": "spec:BID"
@@ -4370,7 +4370,7 @@
     "SIGNATURE_KEY_UNKNOWN": {
       "status": 422,
       "title": "Signature key unknown",
-      "meaning": "Raised by receiveInteropMessage (POST /integrations/lgsp/inbound-messages)",
+      "meaning": "Raised by receiveInteropMessage (POST /integrations/lgsp/inbound-messages) when the signature key named by the message is not one the LGSP connector of the tenant holds in the vault",
       "module": "DOC",
       "statusBasis": "convention",
       "source": "spec:DOC"
@@ -5005,7 +5005,7 @@
     "UNREVIEWED_FINDINGS": {
       "status": 422,
       "title": "Unreviewed findings",
-      "meaning": "Raised by createEvaluationReport (POST /evaluation-reports)",
+      "meaning": "Raised by createEvaluationReport (POST /evaluation-reports) when a finding of the runs has no decision of an expert; the problem carries how many (unreviewed_count) and the first of them (finding_ids). Nothing is written",
       "module": "BID",
       "statusBasis": "spec",
       "source": "spec:BID"
@@ -5377,6 +5377,70 @@
       "module": "BID",
       "statusBasis": "convention",
       "source": "story:ST-BID-011"
+    },
+    "RESTORE_IN_PROGRESS": {
+      "status": 409,
+      "title": "Restore in progress",
+      "meaning": "A tenant has at most one in-place restore that is not finished: the restore overwrites the data of the tenant, so a second one waits for the first (SAS.md 3.11).",
+      "module": "SAS",
+      "statusBasis": "convention",
+      "source": "openapi"
+    },
+    "REPORT_FROZEN": {
+      "status": 409,
+      "title": "Report frozen",
+      "meaning": "Raised by reviewAnalysisFinding (POST /analysis-findings/{id}/review) and post_findings_id_review (POST /findings/{id}/review) for a finding of a run that is in an evaluation report that asked DOC for the minutes or has them: what the experts decided is in the minutes and is not decided again",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "story:ST-BID-012"
+    },
+    "REPORT_OUT_OF_DATE": {
+      "status": 409,
+      "title": "Report out of date",
+      "meaning": "Raised by signOffEvaluationReport (POST /evaluation-reports/{id}/sign-off) when experts decided a finding of the runs of the report again after the draft: it no longer says what stands, and a new report is made",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "story:ST-BID-012"
+    },
+    "PLACEMENT_MOVER_UNAVAILABLE": {
+      "status": 503,
+      "title": "Placement mover unavailable",
+      "meaning": "The data path that copies the data of a tenant to the database of another placement is not bound in this environment (the replication on the chosen cloud is not confirmed yet, spike R2, D02), so a promotion to a silo stays where it is and nothing is claimed to have moved. Retryable; it is the class of failure the worker records on the migration, not an answer of a command.",
+      "module": "SAS",
+      "statusBasis": "convention",
+      "source": "story:ST-SAS-018"
+    },
+    "ENVELOPE_INVALID": {
+      "status": 422,
+      "title": "Envelope invalid",
+      "meaning": "Raised by receiveInteropMessage (POST /integrations/lgsp/inbound-messages) for an envelope the adapter of the LGSP cannot read: not an envelope of the format, an attachment that does not match its digest, or facts that do not fit; also the code a message keeps when the envelope it was queued with changed in the store",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "story:ST-DOC-021"
+    },
+    "EGRESS_NOT_ALLOWED": {
+      "status": 422,
+      "title": "Egress not allowed",
+      "meaning": "The reason a message to the LGSP was not sent (kept as error_code of the message, shown by DOC-20): the address of the gateway is not https or its host is not on the allowlist of the tenant; nothing is ever called outside the allowlist",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "story:ST-DOC-021"
+    },
+    "INTEROP_ADAPTER_NOT_ACTIVE": {
+      "status": 409,
+      "title": "Interop adapter not active",
+      "meaning": "The reason a message to the LGSP was not sent (kept as error_code of the message, shown by DOC-20): the tenant has no LGSP connector in Active status (ADM-09); a connector is Active only with a VERIFIED adapter, or a MOCK one outside production",
+      "module": "DOC",
+      "statusBasis": "convention",
+      "source": "story:ST-DOC-021"
+    },
+    "FEATURE_UNAVAILABLE": {
+      "status": 503,
+      "title": "Feature unavailable",
+      "meaning": "Raised by any route behind a release flag (RequiresFlag) while the flag is off for the tenant of the caller; the release switches the flag on without a deploy or a schema change",
+      "module": "KERNEL",
+      "statusBasis": "convention",
+      "source": "story:ST-KERNEL-014"
     }
   }
 }

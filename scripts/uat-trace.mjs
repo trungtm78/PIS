@@ -110,7 +110,8 @@ function scanCode(source, masks, start, untilBrace) {
     } else if (char === '`') {
       index = skipTemplate(source, masks, index);
       last = char;
-    } else if (char === '/' && REGEX_CAN_FOLLOW.has(last)) {
+    } else if (char === '/' && next !== '>' && REGEX_CAN_FOLLOW.has(last)) {
+      // `/>` closes a self-closing JSX tag after an attribute in braces; it never opens a regular expression.
       const end = skipRegex(source, index);
       blank(masks.code, index + 1, end - 1);
       index = end;

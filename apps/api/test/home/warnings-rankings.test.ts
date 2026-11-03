@@ -342,7 +342,7 @@ describe('the warnings and the ranking of the command center over HTTP (ST-HOME-
   });
 
   describe('ranking (HOME-04)', () => {
-    it('AC-ST-HOME-003-3: UAT-AC04 gives a table for each denominator apart, with the order, and the unit with a plan of nothing left out with its reason and no position', async () => {
+    it('AC-ST-HOME-003-3, AC-ST-HOME-003-4: UAT-AC04 gives a table for each denominator apart, with the order, and the unit with a plan of nothing left out with its reason and no position', async () => {
       const snapshotId = await snapshot();
       await ranking(snapshotId, [
         { unit: NORTH, kind: 'PM_ASSIGNED', plan: 1000, disbursed: 140, rate: '14.0000', rank: 2 },

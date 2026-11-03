@@ -102,6 +102,15 @@ test('extractTests keeps going after a regular expression, a division and an apo
   assert.deepEqual(extractTests(source).map((entry) => entry.title), ['after the noise']);
 });
 
+test('extractTests keeps going after a self-closing JSX tag that is followed on its line by a template with a slash', () => {
+  const source = [
+    'const open = () => mount(<Screen route={ROUTE} />, { signIn }, `/iam/iam-01?until=${until}`);',
+    "it('after the tag', () => {});",
+    "it('and another one', () => {});",
+  ].join('\n');
+  assert.deepEqual(extractTests(source).map((entry) => entry.title), ['after the tag', 'and another one']);
+});
+
 test('extractTests flags every skipped form and the tests inside a skipped describe', () => {
   const source = [
     `${skipped('it')}('a', () => {});`,

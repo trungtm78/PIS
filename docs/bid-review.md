@@ -12,6 +12,7 @@ write stay unused), and the decision is a row of `analysis_finding_review` that 
 |---|---|
 | the body: `reason` trimmed under 20 or over 4000 characters, `to_status` not one of the four | 422 `REASON_REQUIRED` (judged by the command, so every refusal has one code), 422 `VALIDATION_FAILED` |
 | the finding is not one of a proposal the caller has the full view of (member of the evaluation team with `bid.evaluate` over the project, declared, released, no conflict standing: the reads of ST-BID-004/009) | 404, or 403 `CONFLICT_UNDECLARED` when the declaration is owed; a recused member gets 404 |
+| the run is in an evaluation report that asked DOC for the minutes, has them or was superseded (`docs/bid-evaluation-report.md`) | 409 `REPORT_FROZEN` |
 | the run does not wait for the experts (it must be AWAITING_REVIEW or COMPLETED) | 422 `RUN_NOT_COMPLETED` |
 | the version the caller names in `If-Match` is not the finding's current one (the number of decisions made + 1) | 409 `VERSION_CONFLICT` with `current_version` |
 | `score_after` outside 0 to the top of the scale of the criterion (two decimals), or any score for a criterion that is met or not | 422 `VALIDATION_FAILED` (`score_after`) |
@@ -71,6 +72,6 @@ action that accepts all).
 
 ## What is not here
 
-The evaluation report and its sign-off (`createEvaluationReport`, ST-BID-011 and after) that asks every finding to have a `final_status` (a finding's `final_status` is now the latest decision); the award itself (BID-18,
+The evaluation report and its sign-off (`createEvaluationReport`, ST-BID-012, `docs/bid-evaluation-report.md`) now ask every finding of the runs to have a decision, and from the moment the report asks DOC for the minutes a finding of its runs is not decided again (409 `REPORT_FROZEN`, and the table says the same); the award itself (BID-18,
 `decideProcurementResult`, which the expert is refused: `bid.result.approve` is another permission). The score of a finding exists only from the first decision: the model gives none, so `score_before` of the first decision is
 null, and a score is asked only for criteria with a scale.

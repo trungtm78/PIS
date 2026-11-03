@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, NOOP_METRICS, ZERO_BALANCE, advanceOutstanding, applyDelta, assertEntryShape, assertLedgerInvariants, negate } from '@machvon/kernel';
+import { DomainError, NOOP_METRICS, ZERO_BALANCE, adjustmentLedgerDelta, advanceOutstanding, applyDelta, assertEntryShape, assertLedgerInvariants, negate } from '@machvon/kernel';
 import type { LedgerBalance, LedgerDelta, LedgerEntryKind, MetricsSink } from '@machvon/kernel';
 import { SCOPE_FROM as CONTRACT_SCOPE_FROM, TIMESTAMP } from './ctr-contract-store.ts';
 import { lockLedgerRows } from './ledger-lock.ts';
@@ -68,12 +68,25 @@ export interface PostEntryInput {
   /** The entry this one reverses; a reversal names it and a forward entry does not. */
   reversalOfId?: string | undefined;
   paymentRequestId?: string | undefined;
+  /** The line of a retroactive adjustment an `ADJUSTMENT` entry comes from (ST-CTR-016); no other kind names one. */
+  adjustmentLineId?: string | undefined;
   reason?: string | undefined;
   /** The identifier of the request that asked for the entry (the event that was delivered, the command that was sent). */
   requestId: string;
   actor: string;
   /** The advance of the contract still to be recovered when the entry is posted. */
   advanceOutstandingVnd: string;
+}
+
+/** One difference of price to put on the balance of an item of an acceptance (and member), as the retroactive adjustment found it. */
+export interface BalanceAdjustmentInput {
+  /** The line of the adjustment the entry comes from. */
+  adjustmentLineId: string;
+  acceptanceId: string;
+  boqItemId: string;
+  partyId: string | null;
+  /** The signed difference, in whole dong. */
+  deltaVnd: string;
 }
 
 export interface LedgerOutcome {
@@ -219,6 +232,46 @@ export class PayLedgerStore {
     });
   }
 
+  /**
+   * Posts the money difference of a retroactive change of price (ST-CTR-016, CTR 3.3 step 6): one `ADJUSTMENT` entry on the balance of each item of each acceptance the change reaches, with the
+   * signed difference on the accepted amount and nothing else, naming the line of the adjustment it comes from. The acceptance and its lines are not touched; the balance is. A balance the
+   * entry would take below what was already requested, or below nothing, is refused as 409 `VALUE_EXCEEDED`, and the whole adjustment with it. An acceptance that is not on the ledger yet (the
+   * event that recognises it has not been delivered) is 409 `ACCEPTANCE_STATE_INVALID`, to be retried. The caller holds the lock of the contract.
+   */
+  async adjust(tx: TenantTx, input: { contractId: string; adjustments: readonly BalanceAdjustmentInput[]; reason: string; requestId: string; actor: string }): Promise<PostedEntry[]> {
+    if (input.adjustments.length === 0) return [];
+    const contractId = idOf(input.contractId, 'contract_id');
+    const [contract] = await tx.query<{ advance_paid_vnd: string; advance_recovered_vnd: string }>('select advance_paid_vnd::text as advance_paid_vnd, advance_recovered_vnd::text as advance_recovered_vnd from machvon.contract where id = $1::uuid', [contractId]);
+    if (contract === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    const targets: Array<{ ledgerId: string; adjustment: BalanceAdjustmentInput }> = [];
+    for (const adjustment of input.adjustments) {
+      const [ledger] = await tx.query<{ id: string }>(
+        'select l.id from machvon.cumulative_ledger l where l.contract_id = $1::uuid and l.acceptance_id = $2::uuid and l.boq_item_id = $3::uuid and l.party_id is not distinct from $4::uuid',
+        [contractId, adjustment.acceptanceId, adjustment.boqItemId, adjustment.partyId],
+      );
+      if (ledger === undefined) throw new DomainError('ACCEPTANCE_STATE_INVALID', 409, 'affected_acceptance_ids', { extensions: { reason: 'NOT_ON_LEDGER', acceptance_id: adjustment.acceptanceId, boq_item_id: adjustment.boqItemId } });
+      targets.push({ ledgerId: ledger.id, adjustment });
+    }
+    await lockLedgerRows(tx, targets.map((target) => ({ table: 'cumulative_ledger', id: target.ledgerId })));
+    const advanceOutstandingVnd = advanceOutstanding(contract.advance_paid_vnd, contract.advance_recovered_vnd);
+    const posted: PostedEntry[] = [];
+    for (const { ledgerId, adjustment } of targets) {
+      posted.push(
+        await this.post(tx, {
+          ledgerId,
+          kind: 'ADJUSTMENT',
+          delta: adjustmentLedgerDelta(adjustment.deltaVnd),
+          adjustmentLineId: adjustment.adjustmentLineId,
+          reason: input.reason,
+          requestId: input.requestId,
+          actor: input.actor,
+          advanceOutstandingVnd,
+        }),
+      );
+    }
+    return posted;
+  }
+
   /** Takes a revoked acceptance back: the entries that recognised it are reversed, once. */
   async revoke(tx: TenantTx, input: { acceptanceId: string; requestId: string; actor: string }): Promise<LedgerOutcome> {
     return this.settle(tx, input, 'REVOKED', async (held) => {
@@ -345,9 +398,9 @@ export class PayLedgerStore {
   private async write(tx: TenantTx, input: PostEntryInput, entryId: string, next: LedgerBalance): Promise<void> {
     await tx.query(
       `insert into machvon.cumulative_ledger_entry (tenant_id, id, ledger_id, contract_id, boq_item_id, acceptance_id, payment_request_id, entry_kind, accepted_delta_vnd, requested_delta_vnd,
-              paid_delta_vnd, advance_recovery_delta_vnd, retention_delta_vnd, advance_outstanding_after_vnd, reversal_of_id, reason, request_id, created_by)
+              paid_delta_vnd, advance_recovery_delta_vnd, retention_delta_vnd, advance_outstanding_after_vnd, reversal_of_id, reason, request_id, created_by, adjustment_line_id)
        select l.tenant_id, $2::uuid, l.id, l.contract_id, l.boq_item_id, l.acceptance_id, $3::uuid, $4, $5::numeric, $6::numeric, $7::numeric, $8::numeric, $9::numeric, $10::numeric, $11::uuid,
-              $12, $13::uuid, $14::uuid
+              $12, $13::uuid, $14::uuid, $15::uuid
          from machvon.cumulative_ledger l where l.id = $1::uuid`,
       [
         input.ledgerId,
@@ -364,6 +417,7 @@ export class PayLedgerStore {
         input.reason ?? null,
         input.requestId,
         input.actor,
+        input.adjustmentLineId ?? null,
       ],
     );
     await tx.query(

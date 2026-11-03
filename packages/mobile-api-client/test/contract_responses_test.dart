@@ -13,7 +13,7 @@ Map<String, Object?> _fixtures() {
 Object? _copy(Object? value) => jsonDecode(jsonEncode(value));
 
 void main() {
-  test('AC-ST-KERNEL-030-2: the generated Dart client reads and writes back 100 percent of the fixture responses', () {
+  test('AC-ST-KERNEL-030-2, AC-ST-MOB-001-3: the generated Dart client reads and writes back 100 percent of the fixture responses', () {
     final Map<String, Object?> fixtures = _fixtures();
     expect(fixtures.length, greaterThan(800));
     expect(fixtures.keys.toSet(), responseDecoders.keys.toSet(), reason: 'every operation that answers with JSON has a decoder and a fixture');
@@ -30,7 +30,7 @@ void main() {
     expect(failed, isEmpty, reason: '${fixtures.length - failed.length} of ${fixtures.length} operations round-trip');
   });
 
-  test('AC-ST-KERNEL-030-2: a response whose field was renamed fails and the failure names the field', () {
+  test('AC-ST-KERNEL-030-2, AC-ST-MOB-001-3: a response whose field was renamed fails and the failure names the field', () {
     final Object? commandResult = _copy(_fixtures()['suspendMembership']);
     expect(commandResult, isA<Map<String, Object?>>());
     final Map<String, Object?> renamed = <String, Object?>{...(commandResult! as Map<String, Object?>)};

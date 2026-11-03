@@ -27,11 +27,12 @@ const NOBODY = 4; // may not even submit batches
 const OTHER_TENANT_USER = 1; // of tenant B
 
 /** What the operations behind the sync endpoint have done in this process: a command carried out twice would show here. */
-const carried = { issues: 0, submits: new Map<string, number>(), slotsSeen: [] as number[] };
+const carried = { issues: 0, submits: new Map<string, number>(), results: new Map<string, number>(), slotsSeen: [] as number[] };
 const slots = new BatchSlots(1, 2_000);
 let slowMs = 0;
 const slow = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, slowMs));
 const reportVersions = new Map<string, number>();
+const inspectionVersions = new Map<string, number>();
 let measurementsDown = true;
 
 const audit = (scope: CommandScope, action: string, resourceId: string) => scope.audit({ action, resourceType: 'stub', resourceId, classification: 'INTERNAL', diff: {} });
@@ -64,6 +65,18 @@ class StubOperations {
     return commandResult(scope, 'SUBMITTED', current + 1, id);
   }
 
+  @Post('inspections/:id/result')
+  @OperationId('recordInspectionResult')
+  @Command({ operation: 'recordInspectionResult', versioned: true })
+  async inspect(@Scope() scope: CommandScope, @Param('id', ParseUUIDPipe) id: string): Promise<CommandResult> {
+    const current = inspectionVersions.get(id) ?? 1;
+    if ((scope.expectedVersion ?? 0) !== current) throw new DomainError('VERSION_CONFLICT', 409, undefined, { extensions: { current_version: current } });
+    inspectionVersions.set(id, current + 1);
+    carried.results.set(id, (carried.results.get(id) ?? 0) + 1);
+    await audit(scope, 'inspection.result_recorded', id);
+    return commandResult(scope, 'RESULT_RECORDED', current + 1, id);
+  }
+
   @Post('contracts/:id/measurements')
   @OperationId('recordMeasurement')
   @Command({ operation: 'recordMeasurement' })
@@ -78,6 +91,7 @@ const LOCKED_REPORT = '00000000-0000-4000-8000-0000000000e1';
 const REPORT_A = '00000000-0000-4000-8000-0000000000e2';
 const REPORT_B = '00000000-0000-4000-8000-0000000000e3';
 const CONTRACT = '00000000-0000-4000-8000-0000000000e4';
+const INSPECTION = '00000000-0000-4000-8000-0000000000e5';
 
 interface Reply {
   status: number;
@@ -135,7 +149,7 @@ describe('the commands a phone queued offline (ST-MOB-005, MOB-41)', () => {
     for (const member of [PHONE_USER, LIMITED, OTHER_USER, NOBODY]) await harness.seedMembership(TENANT_A, member, 1, { validFrom: '2026-01-01T00:00:00Z' });
     await harness.seedMembership(TENANT_B, OTHER_TENANT_USER, 1, { validFrom: '2026-01-01T00:00:00Z' });
     for (const tenant of [TENANT_A, TENANT_B]) {
-      await harness.seedRole(tenant, 1, 'PHONE', ['sync.submit', 'sync.upload', 'issue.create', 'report.submit', 'report.edit', 'measurement.record'], 5);
+      await harness.seedRole(tenant, 1, 'PHONE', ['sync.submit', 'sync.upload', 'issue.create', 'report.submit', 'report.edit', 'measurement.record', 'inspection.record'], 5);
       await harness.seedRole(tenant, 2, 'SYNC_ONLY', ['sync.submit'], 5);
     }
     await harness.seedGrants(TENANT_A, [
@@ -195,6 +209,25 @@ describe('the commands a phone queued offline (ST-MOB-005, MOB-41)', () => {
       expect(carried.submits.get(REPORT_B)).toBe(1);
       expect((await receipts(stale.idempotency_key))[0]).toMatchObject({ status: 'conflict', code: 'VERSION_CONFLICT', server_version: '2' });
       expect((await lookup(stale.idempotency_key)).json).toEqual({ status: 'conflict', code: 'VERSION_CONFLICT' });
+    });
+
+    it('AC-ST-MOB-021-3: the result of an inspection is carried out by recordInspectionResult over the version the phone read; one based on an older version is a conflict and is not carried out', async () => {
+      const result = (version: number): Item => ({
+        idempotency_key: key(),
+        command_type: 'inspection.result',
+        base_server_version: version,
+        payload: { inspection_id: INSPECTION, result: 'CONDITIONAL', result_note: 'Replace the steel', checklist: [{ code: 'K1', outcome: 'FAIL', note: 'wrong bar' }, { code: 'K2', outcome: 'PASS' }] },
+      });
+      const first = result(1);
+      expect(results(await send([first]))[0]).toMatchObject({ status: 'accepted', server_version: 2, idempotency_key: first.idempotency_key });
+      expect((await receipts(first.idempotency_key))[0]).toMatchObject({ status: 'accepted', command_type: 'inspection.result', result_ref: INSPECTION });
+      // A second inspector based the result on version 1, which is no longer the inspection.
+      const stale = result(1);
+      expect(results(await send([stale]))[0]).toEqual({ idempotency_key: stale.idempotency_key, status: 'conflict', code: 'VERSION_CONFLICT', server_version: 2 });
+      expect(carried.results.get(INSPECTION)).toBe(1);
+      // The first answer was lost: the same command sent again is answered from its receipt and recorded once.
+      expect(results(await send([first]))[0]).toMatchObject({ status: 'accepted', server_version: 2 });
+      expect(carried.results.get(INSPECTION)).toBe(1);
     });
 
     it('AC-ST-MOB-005-1 UAT-AC502: after the response was lost, the lookup by key says ACCEPTED, and sending the batch again carries nothing out a second time', async () => {

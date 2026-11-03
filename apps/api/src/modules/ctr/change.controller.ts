@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { BidContractorStore, CtrChangeChainStore, CtrChangeDecisionStore, CtrContractSource, DoaMatrixStore, TenantDatabase, contractScope, projectScope } from '@machvon/db';
-import type { ContractScopes, CtrChangeResult, CtrDecisionResult, CtrSetTiersResult } from '@machvon/db';
+import { BidContractorStore, CtrChangeChainStore, CtrChangeDecisionStore, CtrContractSource, CtrRetroactiveStore, DoaMatrixStore, TenantDatabase, contractScope, projectScope } from '@machvon/db';
+import type { ContractScopes, CtrChangeResult, CtrDecisionResult, CtrRetroactiveResult, CtrSetTiersResult } from '@machvon/db';
 import { CHANGE_DOA_DOCUMENT_TYPE, DomainError, asUuid, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
@@ -25,14 +25,16 @@ const PROMOTE_PERMISSION = PERMISSIONS.promoteChangeRequest;
 const EVALUATE_PERMISSION = PERMISSIONS.evaluateChangeRequest;
 const WITHDRAW_PERMISSION = PERMISSIONS.withdrawChangeRequest;
 const DECIDE_PERMISSION = PERMISSIONS.post_contract_changes_id_decision;
+const ADJUST_PERMISSION = PERMISSIONS.approveRetroactiveAdjustment;
 const CHAIN_READ_PERMISSION = PERMISSIONS.getChangeChain;
 const REQUEST_READ_PERMISSION = PERMISSIONS.get_resources_change_request;
 const CONFIG_RESOURCE = 'change_chain_config';
 const REVISION_RESOURCE = 'contract_revision';
 const REQUEST_RESOURCE = 'change_request';
+const LEDGER_RESOURCE = 'cumulative_ledger';
 const CLASSIFICATION = 'INTERNAL';
 
-const ACTION_PERMISSIONS: ChangePermissions = { promote: PROMOTE_PERMISSION, evaluate: EVALUATE_PERMISSION, withdraw: WITHDRAW_PERMISSION, decide: DECIDE_PERMISSION };
+const ACTION_PERMISSIONS: ChangePermissions = { promote: PROMOTE_PERMISSION, evaluate: EVALUATE_PERMISSION, withdraw: WITHDRAW_PERMISSION, decide: DECIDE_PERMISSION, adjust: ADJUST_PERMISSION };
 
 const scopesFor = (access: EffectiveAccess, permission: string, now: Date): ContractScopes => ({ update: contractScope(access, permission, now), read: contractScope(access, CHAIN_READ_PERMISSION, now) });
 
@@ -42,13 +44,16 @@ const scopesFor = (access: EffectiveAccess, permission: string, now: Date): Cont
  * elsewhere) on a contract that is being performed, promoted from tier to tier, evaluated at a PCO or a CO (an increase has to fit the line of capital it is paid from, asked of CAP
  * through its port) or withdrawn. An assessed CO is decided by someone who had no part in its chain (ST-CTR-007): the approval rests on a decision document, begins today or later, keeps the
  * value of the contract at or above what was accepted and paid, is within the delegation limit of the matrix when the tenant configured one, and makes the next revision of the contract,
- * pending until its day. Status, tier, code and version are written by no body.
+ * pending until its day. A CO that applies from a day before today is approved by the retroactive adjustment instead (ST-CTR-016): it makes the revision, puts it in force at once and posts the money
+ * difference of the acceptances it reaches on the ledger of PAY as adjustments, without touching what was approved; it is refused while a verified or closed settlement has read the ledger.
+ * Status, tier, code and version are written by no body.
  */
 @Controller()
 export class ChangeChainController {
   private readonly source = new CtrContractSource();
   private readonly chain = new CtrChangeChainStore(this.source);
   private readonly decisions = new CtrChangeDecisionStore(this.source);
+  private readonly retroactive = new CtrRetroactiveStore(this.source);
   private readonly contractors = new BidContractorStore();
   private readonly doa = new DoaMatrixStore();
 
@@ -182,6 +187,46 @@ export class ChangeChainController {
     return commandResult(scope, done.status, done.version, done.id);
   }
 
+  @Post('change-requests/:id/retroactive-adjustment')
+  @HttpCode(200)
+  @OperationId('approveRetroactiveAdjustment')
+  @Command({ operation: 'approveRetroactiveAdjustment', versioned: true })
+  async adjust(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['CtrApproveRetroactiveAdjustment']): Promise<CommandResult> {
+    const now = new Date();
+    const done = await this.retroactive.approve(
+      scope.tx,
+      id.toLowerCase(),
+      scope.expectedVersion ?? 0,
+      {
+        adjustmentBasis: body.adjustment_basis,
+        decisionDocumentVersionId: body.decision_document_version_id,
+        affectedAcceptanceIds: body.affected_acceptance_ids,
+        effectiveOn: body.effective_on,
+        approvedDeltaVnd: body.approved_delta_vnd,
+        boqLines: body.boq_lines,
+      },
+      scope.tenant.membershipId,
+      scopesFor(access, ADJUST_PERMISSION, now),
+      vietnamDateOf(now),
+      {
+        // The larger of the change and the money it moves on the ledger, against the bands the tenant configured for change orders.
+        authorise: (facts) =>
+          assertWithinDelegation(this.doa, scope, access, {
+            documentType: CHANGE_DOA_DOCUMENT_TYPE,
+            permission: ADJUST_PERMISSION,
+            amountVnd: facts.amountVnd,
+            unitId: facts.ownerUnit.id,
+            place: { ownerUnitPath: facts.ownerUnit.path, ownerUnitId: facts.ownerUnit.id, projectId: facts.projectId, contractId: facts.contractId },
+            now,
+            unconfigured: 'ALLOW',
+          }),
+        available: (allocationLineId, amountVnd) => this.commitments.assertCanAbsorb(scope, allocationLineId, amountVnd),
+      },
+    );
+    await this.adjusted(scope, done, now);
+    return commandResult(scope, done.status, done.version, done.id);
+  }
+
   /** The board of a project (CTR-19) and the form of a contract (CTR-07): the tiers of the project, the requests in the scope of the caller and what the caller may do with each. */
   @Get('projects/:id/change-chain')
   @OperationId('getChangeChain')
@@ -275,6 +320,125 @@ export class ChangeChainController {
       schemaVersion: 1,
       payload: { tenant_id: scope.tenant.tenantId, ...revision, version: done.revision.version, actor_id: scope.tenant.membershipId, occurred_at: now.toISOString() },
       eventKey: `${REVISION_RESOURCE}:${done.revision.id}:created`,
+    });
+  }
+
+  /**
+   * The audit rows and the events of a retroactive adjustment: the change order and its adjustment, the revision it made and put in force, the capital told the new value, and the ledger told what
+   * moved. Ids, days, amounts and counts, never the words of the basis beyond the row that keeps them.
+   */
+  private async adjusted(scope: CommandScope, done: CtrRetroactiveResult, now: Date): Promise<void> {
+    const base = { tenant_id: scope.tenant.tenantId, actor_id: scope.tenant.membershipId, occurred_at: now.toISOString() };
+    const facts = {
+      contract_id: done.contractId,
+      contract_code: done.contractCode,
+      project_id: done.projectId,
+      code: done.code,
+      adjustment_id: done.adjustmentId,
+      effective_on: done.effectiveOn,
+      approved_on: done.approvedOn,
+      approved_delta_vnd: done.approvedDeltaVnd,
+      decision_document_version_id: done.decisionDocumentVersionId,
+      revision_id: done.revision.id,
+      from_value_vnd: done.fromValueVnd,
+      to_value_vnd: done.toValueVnd,
+      total_adjustment_vnd: done.totalAdjustmentVnd,
+      affected_acceptance_ids: done.affectedAcceptanceIds,
+      balance_count: done.balances.length,
+    };
+    const moved = { from_status: done.fromStatus, to_status: done.status };
+    await scope.audit({ action: 'change.retroactive_applied', resourceType: REQUEST_RESOURCE, resourceId: done.id, classification: CLASSIFICATION, reason: done.adjustmentBasis, diff: { ...moved, ...facts } });
+    await scope.emit({
+      aggregateType: REQUEST_RESOURCE,
+      aggregateId: done.id,
+      aggregateVersion: done.version,
+      type: 'ctr.change.retroactive_applied.v1',
+      schemaVersion: 1,
+      payload: { ...base, change_request_id: done.id, ...moved, ...facts, allocation_line_id: done.allocationLineId, version: done.version },
+      eventKey: `${REQUEST_RESOURCE}:${done.id}:${done.version}`,
+    });
+
+    const revision = {
+      revision_id: done.revision.id,
+      contract_id: done.contractId,
+      project_id: done.projectId,
+      revision: done.revision.revision,
+      kind: 'CHANGE_ORDER',
+      retroactive: true,
+      amount_vnd: done.revision.amountVnd,
+      valid_from: done.revision.validFrom,
+      status: done.revision.status,
+      supersedes_id: done.revision.supersedesId,
+      change_request_id: done.id,
+    };
+    await scope.audit({ action: 'contract.revision_created', resourceType: REVISION_RESOURCE, resourceId: done.revision.id, classification: CLASSIFICATION, diff: { ...revision, boq_line_count: done.revision.boqLineCount, boq_total_vnd: done.revision.boqTotalVnd } });
+    await scope.emit({
+      aggregateType: REVISION_RESOURCE,
+      aggregateId: done.revision.id,
+      aggregateVersion: done.revision.version,
+      type: 'ctr.contract_revision.created.v1',
+      schemaVersion: 1,
+      payload: { ...base, ...revision, version: done.revision.version },
+      eventKey: `${REVISION_RESOURCE}:${done.revision.id}:created`,
+    });
+    // The revision is in force from the moment it is made, so the capital is told the value the contract now commits, as it is when the job puts a revision in force.
+    await scope.audit({
+      action: 'contract.revision_effective',
+      resourceType: REVISION_RESOURCE,
+      resourceId: done.revision.id,
+      classification: CLASSIFICATION,
+      diff: {
+        contract_id: done.contractId,
+        code: done.contractCode,
+        revision: done.revision.revision,
+        valid_from: done.revision.validFrom,
+        from_value_vnd: done.fromValueVnd,
+        to_value_vnd: done.toValueVnd,
+        superseded_id: done.supersededRevisionId,
+        change_request_id: done.id,
+      },
+    });
+    await scope.emit({
+      aggregateType: 'contract',
+      aggregateId: done.contractId,
+      aggregateVersion: done.contractVersion,
+      type: 'ctr.commitment.changed.v1',
+      schemaVersion: 1,
+      payload: {
+        ...base,
+        contract_id: done.contractId,
+        project_id: done.projectId,
+        allocation_line_id: done.commitmentAllocationLineId,
+        committed_vnd: done.toValueVnd,
+        previous_committed_vnd: done.fromValueVnd,
+        revision_id: done.revision.id,
+        revision: done.revision.revision,
+        version: done.contractVersion,
+      },
+      eventKey: `contract:${done.contractId}:commitment:revision:${done.revision.id}`,
+    });
+
+    // The ledger: the entries are in the audit trail of the ledger of the contract, and the event drops the pages of it that are cached.
+    await scope.audit({
+      action: 'ledger.adjusted',
+      resourceType: LEDGER_RESOURCE,
+      resourceId: done.contractId,
+      classification: CLASSIFICATION,
+      diff: {
+        adjustment_id: done.adjustmentId,
+        change_request_id: done.id,
+        total_adjustment_vnd: done.totalAdjustmentVnd,
+        entries: done.balances.map((balance) => ({ entry_id: balance.entryId, acceptance_id: balance.acceptanceId, boq_item_id: balance.boqItemId, party_id: balance.partyId, delta_vnd: balance.deltaVnd })),
+      },
+    });
+    await scope.emit({
+      aggregateType: LEDGER_RESOURCE,
+      aggregateId: done.contractId,
+      aggregateVersion: done.contractVersion,
+      type: 'pay.ledger.adjusted.v1',
+      schemaVersion: 1,
+      payload: { ...base, contract_id: done.contractId, adjustment_id: done.adjustmentId, change_request_id: done.id, entries: done.balances.length, total_adjustment_vnd: done.totalAdjustmentVnd, accepted_total_vnd: done.acceptedTotalVnd },
+      eventKey: `${LEDGER_RESOURCE}:${done.contractId}:adjusted:${done.adjustmentId}`,
     });
   }
 

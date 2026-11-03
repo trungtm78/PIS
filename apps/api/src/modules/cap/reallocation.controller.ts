@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { CapPlanStore, CapReallocationStore, TenantDatabase, reallocationAppliedEvent, reallocationRecord, reallocationScope } from '@machvon/db';
+import { CapReallocationStore, TenantDatabase, reallocationRecord, reallocationScope } from '@machvon/db';
 import type { ReallocationRow } from '@machvon/db';
 import { DomainError, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
@@ -13,8 +13,14 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
-import { planPublishedEvent } from './plan-events';
 import { unitAuthorizer } from './plan-approval.service';
+import type { StepScope } from './plan-approval.service';
+import { ReallocationApprovalService } from './reallocation.service';
+
+/** The step scope of a command: its transaction, the person who acts, and the audit trail and outbox of the command. */
+function stepOf(scope: CommandScope): StepScope {
+  return { tx: scope.tx, tenantId: scope.tenant.tenantId, actorId: scope.tenant.membershipId, audit: (entry) => scope.audit(entry), emit: (event) => scope.emit(event) };
+}
 
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
 const TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,6})?Z$/;
@@ -63,7 +69,7 @@ export function reallocationView(row: ReallocationRow): Record<string, unknown> 
 @Controller()
 export class ReallocationController {
   private readonly store = new CapReallocationStore();
-  private readonly plans = new CapPlanStore();
+  private readonly approval = new ReallocationApprovalService();
 
   constructor(@Inject(TenantDatabase) private readonly database: TenantDatabase) {}
 
@@ -121,10 +127,8 @@ export class ReallocationController {
   @OperationId('submitReallocationProposal')
   @Command({ operation: 'submitReallocationProposal', versioned: true })
   async submit(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string): Promise<CommandResult> {
-    const now = new Date();
-    const done = await this.store.submit(scope.tx, { id: id.toLowerCase(), expectedVersion: scope.expectedVersion ?? 0, actor: scope.tenant.membershipId, now, authorize: unitAuthorizer(access, PERMISSIONS.submitReallocationProposal, now) });
-    await scope.audit(reallocationRecord('submitted', done));
-    return commandResult(scope, done.row.status, done.row.version, done.row.id);
+    const done = await this.approval.submit(stepOf(scope), access, id.toLowerCase(), scope.expectedVersion ?? 0);
+    return commandResult(scope, done.status, done.version, done.proposalId);
   }
 
   @Post('reallocation-proposals/:id/decision')
@@ -132,18 +136,8 @@ export class ReallocationController {
   @OperationId('decideReallocationProposal')
   @Command({ operation: 'decideReallocationProposal', versioned: true })
   async decide(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['MdmDecision']): Promise<CommandResult> {
-    const now = new Date();
-    const done = await this.store.decide(scope.tx, {
-      id: id.toLowerCase(),
-      expectedVersion: scope.expectedVersion ?? 0,
-      actor: scope.tenant.membershipId,
-      now,
-      authorize: unitAuthorizer(access, PERMISSIONS.decideReallocationProposal, now),
-      decision: body.decision,
-      reason: body.reason,
-    });
-    await scope.audit(reallocationRecord(body.decision === 'approve' ? 'approved' : body.decision === 'reject' ? 'rejected' : 'returned', done));
-    return commandResult(scope, done.row.status, done.row.version, done.row.id);
+    const done = await this.approval.decide(stepOf(scope), access, id.toLowerCase(), scope.expectedVersion ?? 0, { decision: body.decision, reason: body.reason });
+    return commandResult(scope, done.status, done.version, done.proposalId);
   }
 
   @Post('reallocation-proposals/:id/apply')
@@ -151,37 +145,7 @@ export class ReallocationController {
   @OperationId('applyReallocationProposal')
   @Command({ operation: 'applyReallocationProposal', versioned: true })
   async apply(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['CapApplyDecision']): Promise<CommandResult> {
-    const now = new Date();
-    const done = await this.store.apply(scope.tx, {
-      id: id.toLowerCase(),
-      expectedVersion: scope.expectedVersion ?? 0,
-      actor: scope.tenant.membershipId,
-      now,
-      authorize: unitAuthorizer(access, PERMISSIONS.applyReallocationProposal, now),
-      decisionDocumentId: body.decision_document_id,
-    });
-    await scope.audit(reallocationRecord('applied', done));
-    // The revision that the application published is published like any other: its own audit row and its own event, which the project register reads to move the projects that now have money.
-    await scope.audit({
-      action: 'capital.plan_published',
-      resourceType: 'capital_plan',
-      resourceId: done.resultingPlanId,
-      diff: {
-        via: 'reallocation',
-        proposal_id: done.row.id,
-        revision: done.published.revision,
-        plan_year: done.published.planYear,
-        superseded_plan_id: done.published.supersededId,
-        decision_document_id: done.published.decisionDocumentId,
-        total_before_vnd: done.published.totalBeforeVnd,
-        total_after_vnd: done.published.totalAfterVnd,
-        transferred: done.transferred.map((entry) => ({ entry_type: entry.entryType, project_id: entry.projectId, allocation_line_id: entry.allocationLineId, amount_vnd: entry.amountVnd })),
-      },
-    });
-    await scope.emit(reallocationAppliedEvent(done, scope.tenant.tenantId, scope.tenant.membershipId, now));
-    const facts = await this.plans.publicationFacts(scope.tx, done.resultingPlanId);
-    if (facts === undefined) throw new Error('a plan that was just published is not published');
-    await scope.emit(planPublishedEvent(scope.tenant.tenantId, scope.tenant.membershipId, facts, done.published.version, now));
-    return commandResult(scope, done.row.status, done.row.version, done.row.id);
+    const done = await this.approval.apply(stepOf(scope), access, id.toLowerCase(), scope.expectedVersion ?? 0, { decisionDocumentId: body.decision_document_id });
+    return commandResult(scope, done.status, done.version, done.proposalId);
   }
 }

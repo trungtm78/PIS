@@ -53,6 +53,8 @@ export function buildLedger(markers, register) {
         status: statusOf(entry),
         confirmed_by: entry.confirmed_by ?? null,
         confirmed_at: entry.confirmed_at ?? null,
+        // A waiver (ST-KERNEL-110) is the named owner accepting the risk of going on without a confirmation; its fields travel to the ledger when the register has them.
+        ...(entry.status === 'WAIVED' ? { waived_by: entry.waived_by ?? null, waived_at: entry.waived_at ?? null, waiver_reason: entry.waiver_reason ?? null } : {}),
       };
     });
 }

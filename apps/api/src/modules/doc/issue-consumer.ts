@@ -6,9 +6,9 @@ import { normaliseIssueRequest } from './issue-request.service';
 import type { DocumentIssueService, IssueRequestInput } from './issue-request.service';
 
 export const DOC_ISSUE_CONSUMER = 'doc-issue-request';
-/** The events that ask DOC to issue a document: the common one, and the ones the report modules of monitoring and of inspections send (DOC.md section 9). */
-export const ISSUE_REQUEST_EVENTS: readonly string[] = ['doc.issue_requested.v1', 'mne.report.issue_requested.v1', 'aud.report.issue_requested.v1'];
-const DEFAULT_SOURCE_MODULE: Readonly<Record<string, string>> = { 'mne.report.issue_requested.v1': 'MNE', 'aud.report.issue_requested.v1': 'AUD' };
+/** The events that ask DOC to issue a document: the common one, and the ones the report modules of monitoring, of inspections and of the evaluation of bids send (DOC.md section 9). */
+export const ISSUE_REQUEST_EVENTS: readonly string[] = ['doc.issue_requested.v1', 'mne.report.issue_requested.v1', 'aud.report.issue_requested.v1', 'bid.report.issue_requested.v1'];
+const DEFAULT_SOURCE_MODULE: Readonly<Record<string, string>> = { 'mne.report.issue_requested.v1': 'MNE', 'aud.report.issue_requested.v1': 'AUD', 'bid.report.issue_requested.v1': 'BID' };
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const SHA256 = /^[0-9a-f]{64}$/;
 const DATE = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;

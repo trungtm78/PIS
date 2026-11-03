@@ -6,6 +6,10 @@ import { SUPPORT_ACCESS_ACTIVE_GAUGE } from './support-access-store.ts';
 import { TENANT_EXPORT_PENDING_GAUGE } from './tenant-export-store.ts';
 import { DOMAIN_FAILED_GAUGE } from './tenant-domain-store.ts';
 import type { DomainPassResult } from './tenant-domain-store.ts';
+import { PLACEMENT_ATTENTION_GAUGE, PLACEMENT_FAILING_GAUGE, PLACEMENT_MISMATCH_GAUGE } from './placement-migration-store.ts';
+import type { MigrationPressure } from './placement-migration-store.ts';
+import { TENANT_RESTORE_FAILED_GAUGE, TENANT_RESTORE_PENDING_GAUGE } from './tenant-restore-store.ts';
+import type { RestorePassResult } from './tenant-restore-store.ts';
 import type { ExportPassResult } from './tenant-export-store.ts';
 import type { SupportPassResult } from './support-access-store.ts';
 import type { SlaSweepResult } from './approval-store.ts';
@@ -70,8 +74,12 @@ export const JOB_INTERVAL_SECONDS = {
   'support-access-lifecycle': 60,
   // Every 5 minutes: a Verified domain gets its certificate and becomes Active, an Active custom domain is looked at again every week (the proof gone makes it Failed) and a certificate with 14 days left is renewed (ST-SAS-017); the pass is idempotent.
   'tenant-domain': 300,
+  // Every minute: a promotion of a tenant to a silo is carried a step on - the copy begins at its window, is compared with the original and kept in step while the cutover waits, the last difference is sent and compared again once the cutover is approved, the routing is switched or the migration rolled back when the freeze ran out, a switched one is Completed after 24 hours, the copy of an ended one is destroyed and the old data of a completed one is deleted after 30 days unless a legal hold is in force (ST-SAS-018); every step is idempotent.
+  'placement-migration': 60,
   // Every minute: the exports of the data of a tenant that wait are made (one REPEATABLE READ snapshot, the files and the manifest stored), a link that ended without a delivery is Expired and a job lost with its process is Failed (ST-SAS-016).
   'tenant-export': 60,
+  // Every minute: a restore of one tenant that a second System Admin approved is made through the restore engine and verified against the backup (rows, checksum, money totals), and one lost with its process is Failed (ST-SAS-019); the pass is idempotent.
+  'tenant-restore': 60,
   // Every 5 minutes: an approval task is reminded at 80 percent of the working time to its deadline and dealt with at the deadline as its step says (ST-ADM-013); the pass is idempotent.
   'approval-sla': 300,
   'integration-inbox': 60,
@@ -111,6 +119,8 @@ export const JOB_INTERVAL_SECONDS = {
   'incoming-overdue': 3600,
   // Hourly: the archivists of a closed dossier whose handover falls due are reminded 30, 7 and 1 days ahead, once for each stage (ST-DOC-017, DOC.md F11); the pass is idempotent.
   'doc-handover-due': 3600,
+  // Every minute: the messages of the LGSP that are due go to the gateway of the tenant, with progressive waits (1, 2, 4 minutes, up to 6 hours) and an end as DEAD after twenty failures, and the ones the gateway took are asked about (ST-DOC-021, DOC.md F13); the pass is idempotent.
+  'doc-interop-send': 60,
   // Every minute: a schedule of exports whose time has come makes one job for each recipient under that recipient's scope as it is then (ST-BI-008, BI.md F7); a schedule runs once for each of its times (its last run is kept).
   'bi-export-schedule-runner': 60,
   // Hourly: a file of an export whose seven days are over is removed and its job is EXPIRED, once (ST-BI-008, BI.md F7); the pass is idempotent.
@@ -287,6 +297,10 @@ export interface StandardJobDeps {
   /** The pass over the exports of a tenant (ST-SAS-016): makes the ones that wait, ends the links that are over; tells how many wait or run, for the gauge. */
   /** The pass over the domains of a tenant (ST-SAS-017), through the control role acting as the tenant; tells how many are failing, for the gauge. */
   tenantDomain?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<DomainPassResult> };
+  /** The pass over the promotions of a tenant to a silo (ST-SAS-018), through the control role acting as the tenant; tells how many are open, how many wait with a copy that differs and how many need a person, for the gauges. */
+  placementMigration?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<MigrationPressure> };
+  /** The pass over the restores of a tenant (ST-SAS-019): makes the approved ones and verifies them, ends the ones lost with their process; tells how many wait or run and how many failed in the last day, for the gauges. */
+  tenantRestore?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<RestorePassResult> };
   tenantExport?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<ExportPassResult>; pending(ctx: { tenantId: string; membershipId: string; scopeVersion: number }): Promise<number> };
   /** The pass over the open approval tasks of a tenant (ST-ADM-013): the reminders, the escalations and the expiries of the SLA; tells how many tasks are open and overdue, for the gauges. */
   approvalSla?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<SlaSweepResult> };
@@ -326,6 +340,7 @@ export interface StandardJobDeps {
   transferApply?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   incomingOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   handoverDue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  docInteropSend?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The runner of the schedules of exports and the expiry of their files (ST-BI-008). */
   biExportRunner?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   biExportExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
@@ -701,6 +716,31 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       },
     });
   }
+  const placements = deps.placementMigration;
+  if (placements !== undefined) {
+    handlers.push({
+      name: 'placement-migration',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        const metrics = deps.metrics ?? NOOP_METRICS;
+        let mismatch = 0;
+        let failing = 0;
+        try {
+          await eachTenant(await deps.tenantIds(), async (tenantId) => {
+            const pass = await placements.run(workerContext(tenantId), now);
+            mismatch += pass.mismatch;
+            failing += pass.failing;
+            // The tenant that has a promotion open and needs a person is named in its own series; nobody else is.
+            if (pass.open > 0) metrics.gauge(PLACEMENT_ATTENTION_GAUGE, pass.mismatch + pass.failing, { tenant_id: tenantId });
+          });
+        } finally {
+          // The tenants that could be read still count: a failing tenant must not blank the gauges for the others.
+          metrics.gauge(PLACEMENT_MISMATCH_GAUGE, mismatch);
+          metrics.gauge(PLACEMENT_FAILING_GAUGE, failing);
+        }
+      },
+    });
+  }
   const exports = deps.tenantExport;
   if (exports !== undefined) {
     handlers.push({
@@ -727,6 +767,29 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
           // What is left after the pass: counted again, so a tenant whose pass failed still shows the exports that wait for it.
           await count();
           metrics.gauge(TENANT_EXPORT_PENDING_GAUGE, total());
+        }
+      },
+    });
+  }
+  const restores = deps.tenantRestore;
+  if (restores !== undefined) {
+    handlers.push({
+      name: 'tenant-restore',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        const metrics = deps.metrics ?? NOOP_METRICS;
+        let pending = 0;
+        let failed = 0;
+        try {
+          await eachTenant(await deps.tenantIds(), async (tenantId) => {
+            const pass = await restores.run(workerContext(tenantId), now);
+            pending += pass.pending;
+            failed += pass.failed;
+          });
+        } finally {
+          // The tenants that could be read still count: a failing tenant must not blank the gauges for the others.
+          metrics.gauge(TENANT_RESTORE_PENDING_GAUGE, pending);
+          metrics.gauge(TENANT_RESTORE_FAILED_GAUGE, failed);
         }
       },
     });
@@ -938,6 +1001,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       run: async () => {
         const now = (deps.clock ?? (() => new Date()))();
         await eachTenant(await deps.tenantIds(), async (tenantId) => void (await handoverReminders.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const interopSend = deps.docInteropSend;
+  if (interopSend !== undefined) {
+    handlers.push({
+      name: 'doc-interop-send',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await interopSend.run(workerContext(tenantId), now)));
       },
     });
   }

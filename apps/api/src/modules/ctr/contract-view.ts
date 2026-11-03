@@ -1,4 +1,5 @@
 import type { ContractDetail, ContractLine, PartiesCheck, PartyRow, RevisionRow, StatusChangeRow } from '@machvon/db';
+import type { CtrRetroactiveRecord as RetroactiveRecord } from '@machvon/db';
 
 /**
  * What a reader may see of a contract, beyond the line: `internal` is the right of the staff of the owner (a guest contractor does not have
@@ -78,6 +79,36 @@ export function revisionView(row: RevisionRow): Record<string, unknown> {
   };
 }
 
+/** A retroactive adjustment (ST-CTR-016): the day it reaches back to, the decision it rests on and the balances of the ledger it moved. The money is read by right of the ledger. */
+export function adjustmentView(record: RetroactiveRecord): Record<string, unknown> {
+  return {
+    id: record.id,
+    change_request_id: record.changeRequestId,
+    change_request_code: record.changeRequestCode,
+    revision_id: record.revisionId,
+    effective_on: record.effectiveOn,
+    approved_on: record.approvedOn,
+    basis: record.basis,
+    decision_document_version_id: record.decisionDocumentVersionId,
+    total_delta_vnd: record.totalDeltaVnd,
+    approved_by: record.approvedBy,
+    created_at: record.createdAt,
+    affected: record.affected.map((line) => ({
+      id: line.id,
+      acceptance_id: line.acceptanceId,
+      acceptance_no: line.acceptanceNo,
+      boq_item_id: line.boqItemId,
+      boq_item_key: line.boqItemKey,
+      party_id: line.partyId,
+      quantity: line.quantity,
+      old_amount_vnd: line.oldAmountVnd,
+      new_unit_price: line.newUnitPrice,
+      new_amount_vnd: line.newAmountVnd,
+      delta_vnd: line.deltaVnd,
+    })),
+  };
+}
+
 function statusChangeView(row: StatusChangeRow): Record<string, unknown> {
   return {
     id: row.id,
@@ -116,6 +147,7 @@ export function contractDetailView(detail: ContractDetail, rights: ContractRight
           advance_outstanding_vnd: detail.ledger.advanceOutstandingVnd,
           retention_held_vnd: detail.ledger.retentionHeldVnd,
           retention_released_vnd: detail.ledger.retentionReleasedVnd,
+          retroactive_adjustments: detail.retroactiveAdjustments.map(adjustmentView),
         }
       : {}),
   };

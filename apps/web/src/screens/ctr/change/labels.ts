@@ -101,6 +101,22 @@ function baseMessage(t: Translate, problem: Problem): string {
       return t('ctr.change.error.lineRequired');
     case 'allocation':
       return t('ctr.change.error.allocation');
+    case 'settlementApproved':
+      return t('ctr.change.error.settlementApproved');
+    case 'valueExceeded':
+      return t('ctr.change.error.valueExceeded');
+    case 'notOnLedger':
+      return t('ctr.change.error.notOnLedger');
+    case 'notRetroactive':
+      return t('ctr.change.error.notRetroactive');
+    case 'beforeContract':
+      return t('ctr.change.error.beforeContract');
+    case 'afterRevision':
+      return t('ctr.change.error.afterRevision');
+    case 'affectedMismatch':
+      return t('ctr.change.error.affectedMismatch');
+    case 'revisionPending':
+      return t('ctr.change.error.revisionPending');
     case 'versionConflict':
       return t('ctr.change.error.versionConflict');
     case 'validation':

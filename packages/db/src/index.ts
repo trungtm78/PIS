@@ -179,7 +179,7 @@ export { CapFiscalYearStore } from './cap-fiscal-year-store.ts';
 export type { CloseYearInput, ClosedYear, FiscalYearRow, LapseSummary, RelockOutcome, ReopenYearInput } from './cap-fiscal-year-store.ts';
 export { CapAllocationExtensionStore, extensionInvalid } from './cap-allocation-extension-store.ts';
 export type { DecideExtensionInput, ExtensionApplied, ExtensionDecision, ExtensionFilter, ExtensionRow, ExtensionStatus, RequestExtensionInput } from './cap-allocation-extension-store.ts';
-export { actingAsTenant, tenantOfInvoice, tenantOfOverride, tenantOfSubscription } from './acting-as.ts';
+export { actingAsTenant, tenantOfInvoice, tenantOfOverride, tenantOfRestore, tenantOfSubscription } from './acting-as.ts';
 export { LIVE_STATUSES, SubscriptionStore } from './subscription-store.ts';
 export type {
   ApplyPlanChangeInput,
@@ -337,6 +337,8 @@ export type {
 } from './outgoing-document-store.ts';
 export { DocumentDistributionStore } from './document-distribution-store.ts';
 export type { DistributionChannel, DistributionOutcome, DistributionRecipientKind, DistributionRecord, DistributionStatus, DistributionTally, NewDistribution } from './document-distribution-store.ts';
+export { DocInteropStore } from './doc-interop-store.ts';
+export type { InteropFilters, InteropPageAnchor, InteropRecord, NewInboundMessage, NewOutboundMessage } from './doc-interop-store.ts';
 export { SecurityPolicyStore } from './security-policy-store.ts';
 export type { PolicyPageAnchor, PolicyStatus, SecurityPolicyRow } from './security-policy-store.ts';
 export { WorkCalendarStore } from './work-calendar-store.ts';
@@ -441,12 +443,27 @@ export { BidAnalysisStore } from './bid-analysis-store.ts';
 export { BidClarificationStore, CLARIFICATION_DOC_TYPE as BID_CLARIFICATION_DOC_TYPE, CLARIFICATION_SUBJECT_MODULE as BID_CLARIFICATION_SUBJECT_MODULE } from './bid-clarification-store.ts';
 export type { AnswerInput as BidClarificationAnswerInput, ClarificationLine as BidClarificationLine, ClarificationResult as BidClarificationResult, ClarificationViewer as BidClarificationViewer, FoundClarification as BidFoundClarification, SendInput as BidClarificationSendInput, SenderViewer as BidClarificationSender } from './bid-clarification-store.ts';
 export { BidReviewStore } from './bid-review-store.ts';
-export type { ComparisonRead as BidComparisonRead, ReviewInput as BidReviewInput, ReviewTarget as BidReviewTarget, ReviewedFinding as BidReviewedFinding } from './bid-review-store.ts';
+export type { ComparisonBasis as BidComparisonBasis, ComparisonRead as BidComparisonRead, ReviewInput as BidReviewInput, ReviewTarget as BidReviewTarget, ReviewedFinding as BidReviewedFinding } from './bid-review-store.ts';
+export { BidReportStore, evaluationReportPayloadRef } from './bid-report-store.ts';
+export type { CreatedReport as BidCreatedReport, IssueAsk as BidReportIssueAsk, NewReport as BidNewReport, ReportLine as BidReportLine, ReportViewer as BidReportViewer, SignedReport as BidSignedReport, SignInput as BidSignInput } from './bid-report-store.ts';
+export { BidReportIssueStore } from './bid-report-issue-store.ts';
+export type { Moved as BidReportMoved, ReportHead as BidReportHead } from './bid-report-issue-store.ts';
 export type { Admission as BidAnalysisAdmission, CancelledRun as BidCancelledRun, EvidenceLine as BidEvidenceLine, FindingFilter as BidFindingFilter, FindingLine as BidFindingLine, FoundRun as BidFoundRun, NewEvidence as BidNewEvidence, NewFinding as BidNewFinding, RecordedOcrPage, ReviewLine as BidReviewLine, RunContext as BidRunContext, RunLine as BidRunLine } from './bid-analysis-store.ts';
 export { BidConflictStore } from './bid-conflict-store.ts';
 export { CtrChangeChainStore } from './ctr-change-chain-store.ts';
 export { CtrChangeDecisionStore } from './ctr-change-decision-store.ts';
-export type { DecideInput as CtrDecideInput, DecisionHooks as CtrDecisionHooks, DecisionResult as CtrDecisionResult, NewRevisionResult as CtrNewRevisionResult } from './ctr-change-decision-store.ts';
+export type { DecideInput as CtrDecideInput, DecisionHooks as CtrDecisionHooks, DecisionResult as CtrDecisionResult } from './ctr-change-decision-store.ts';
+export type { NewRevisionResult as CtrNewRevisionResult } from './ctr-change-revision.ts';
+export { CtrRetroactiveStore } from './ctr-retroactive-store.ts';
+export { retroactiveRecordsOf } from './ctr-retroactive-reads.ts';
+export type { RetroactiveLineRecord as CtrRetroactiveLineRecord, RetroactiveRecord as CtrRetroactiveRecord } from './ctr-retroactive-reads.ts';
+export type {
+  AdjustedBalance as CtrAdjustedBalance,
+  InForceRevision as CtrInForceRevision,
+  LedgerAdjustments as CtrLedgerAdjustments,
+  RetroactiveInput as CtrRetroactiveInput,
+  RetroactiveResult as CtrRetroactiveResult,
+} from './ctr-retroactive-store.ts';
 export { CtrRevisionStore } from './ctr-revision-store.ts';
 export type { DatedPrice, PricingRevision } from './ctr-revision-store.ts';
 export { CtrAcceptanceStore } from './ctr-acceptance-store.ts';
@@ -505,7 +522,7 @@ export type {
   PaymentWarning,
   RevisePaymentInput,
 } from './pay-payment-store.ts';
-export type { LedgerEntryView, LedgerFilter, LedgerHeaderView, LedgerLineView, LedgerOutcome, LedgerPage, PostEntryInput, PostedEntry } from './pay-ledger-store.ts';
+export type { BalanceAdjustmentInput, LedgerEntryView, LedgerFilter, LedgerHeaderView, LedgerLineView, LedgerOutcome, LedgerPage, PostEntryInput, PostedEntry } from './pay-ledger-store.ts';
 export type {
   AcceptanceLine as CtrAcceptanceLine,
   AcceptanceLineResult as CtrAcceptanceLineResult,
@@ -1020,8 +1037,8 @@ export type {
   ReleaseInput as CtrReleaseRetentionInput,
   ReleaseResult as CtrReleaseRetentionResult,
 } from './ctr-retention-store.ts';
-export { CtrRevisionEffective } from './ctr-revision-effective.ts';
-export type { RevisionPass } from './ctr-revision-effective.ts';
+export { CtrRevisionEffective, putRevisionInForce } from './ctr-revision-effective.ts';
+export type { RevisionPass, RevisionTakeover } from './ctr-revision-effective.ts';
 export type { ExpiryResult } from './ctr-guarantee-expiry.ts';
 export {
   DEFAULT_TREASURY_COLUMNS,
@@ -1346,6 +1363,8 @@ export { HomeReadStore } from './home-reads-store.ts';
 export type { HomeExplanation, HomeLeader, HomeRankingRow, HomeRule } from './home-reads-store.ts';
 export { HomeWorkStore } from './home-work-store.ts';
 export type { WorkRow } from './home-work-store.ts';
+export { HomeChannelHealthStore } from './home-channel-health-store.ts';
+export type { DegradedChannel } from './home-channel-health-store.ts';
 export { BiDatasetStore, DISBURSEMENT_DATASET_CODE, DISBURSEMENT_JOIN_PATHS } from './bi-dataset-store.ts';
 export type { BiDatasetRow, BuildInput, BuildResult, DatasetVersionFilter, DatasetVersionRow } from './bi-dataset-store.ts';
 export { BiQueryStore, UNCLASSIFIED_KEY, assertFilter } from './bi-query-store.ts';
@@ -1427,7 +1446,19 @@ export { TENANT_EXPORT_DELIVERED_EVENT, TENANT_EXPORT_PENDING_GAUGE, TENANT_EXPO
 export type { ExportJobRow, ExportJobStatus, ExportPassResult, ExportReady, ExportRequest } from './tenant-export-store.ts';
 export { DOMAIN_FAILED_GAUGE, DOMAIN_REVOKED_EVENT, DOMAIN_VERIFIED_EVENT, TenantDomainStore, tenantOfDomain, tenantOfDomainId } from './tenant-domain-store.ts';
 export type { CertificatePort, DomainAdd, DomainPassResult, DomainPorts, DomainProofPort, DomainRow, DomainStatus, TlsStatus } from './tenant-domain-store.ts';
+export { PLACEMENT_FAILING_GAUGE, PLACEMENT_MIGRATION_STARTED_EVENT, PLACEMENT_MIGRATION_SWITCHED_EVENT, PLACEMENT_MISMATCH_GAUGE, PlacementMigrationStore, migrationReconciliation, tenantOfMigration, workflowIdOf as placementWorkflowIdOf } from './placement-migration-store.ts';
+export type { AbortChecks, AbortInput, ApproveInput, MigrationPressure, MigrationRow, PlacementChoice, StartInput, StoredReport } from './placement-migration-store.ts';
+export { PlacementMigrationRunner, failureCodeOf, moveOf, targetIntact } from './placement-migration-runner.ts';
+export type { PlacementMigrationRunnerDeps } from './placement-migration-runner.ts';
+export { MockPlacementMover, UnboundPlacementMover, defaultPlacementMover, sharedMockPlacementMover } from './placement-mover.ts';
+export type { MoveRef, MoveSource, PlacementMover } from './placement-mover.ts';
+export { measureSql, measureTenantTables } from './placement-measure.ts';
+export type { MeasuredTenant } from './placement-measure.ts';
 export { MockCertificateAuthority, MockDomainProof, sharedMockDomainPorts } from './domain-ports.ts';
+export { TENANT_RESTORE_COMPLETED_EVENT, TENANT_RESTORE_FAILED_GAUGE, TENANT_RESTORE_PENDING_GAUGE, TenantRestoreStore } from './tenant-restore-store.ts';
+export type { RestoreDecisionInput, RestorePassResult, RestoreRequestInput, RestoreRow } from './tenant-restore-store.ts';
+export { MockRestoreEngine, RestoreEngineUnbound, RestoreEngineUnreachable, UnboundRestoreEngine, defaultRestoreEngine, sharedMockRestoreEngine } from './restore-ports.ts';
+export type { RestoreJob, RestoreOutcome, TenantRestoreEngine } from './restore-ports.ts';
 export { PrjRiskStore, RISK_CATEGORY_TYPE, RISK_RESOURCE } from './prj-risk-store.ts';
 export type { CloseRisk, RegisterRisk, RiskCell, RiskChange, RiskLine, RiskRegister, UpdateRisk } from './prj-risk-store.ts';
 export { PrjRevisionStore, REVISABLE_STATUSES, REVISION_RESOURCE } from './prj-revision-store.ts';

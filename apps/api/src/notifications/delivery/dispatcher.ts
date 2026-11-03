@@ -1,12 +1,15 @@
 import { DeliveryStore, DeviceRegistrationStore, NotificationStore } from '@machvon/db';
 import type { ClaimedSend, DeliveryEngine, TenantDatabase, TenantTx } from '@machvon/db';
 import { CREDENTIAL_EXPIRED_CODE, DomainError, NOOP_ALERTS, NOOP_METRICS, PLATFORMS_OF_CHANNEL, asUuid, activationBlock, isPushDeliveryChannel, opaqueLinkOf } from '@machvon/kernel';
-import type { AlertSink, ChannelAdapter, ChannelSendResult, EffectiveAccess, MetricsSink, PushTarget, TenantContext } from '@machvon/kernel';
+import type { AlertSink, ChannelAdapter, ChannelSendResult, EffectiveAccess, MetricsSink, TenantContext } from '@machvon/kernel';
 import type { PushTokenVault } from '../devices/push-vault';
 import { withCurrentOwnerPath } from '../notifications.controller';
 import type { ResourceAccessPort } from '../resource-access-port';
 import type { ChannelAdapterRegistry } from './channel-adapters';
 import { renderTemplate, variablesOf } from './template-renderer';
+
+/** The most devices one push send goes through when the owner's token turns out dead: the owner, then whoever is the owner after it was revoked. */
+const OWNER_TURNS = 3;
 
 /** Raised when a circuit breaker has stayed open for ten minutes (NOT 9). */
 export const CHANNEL_CIRCUIT_OPEN_ALERT = 'CHANNEL_CIRCUIT_OPEN';
@@ -208,43 +211,51 @@ export class DeliveryDispatcher {
   }
 
   /**
-   * A push (ST-NOT-007): the devices of the recipient that can be pushed to, with their tokens read from the vault for this call, a neutral sentence and an opaque link. The sentence is the literal text of the template:
-   * no variable of the event is filled in, so nothing about the record the notification is about reaches a lock screen, and the link names the notification only (opening it asks for the permission of the moment). The
-   * devices the provider no longer knows are revoked, with their tokens, once the answer is in.
+   * A push (ST-NOT-007, ST-MOB-031): to the owner device of the recipient, with its token read from the vault for this call, a neutral sentence and an opaque link. A person with several devices is pushed on ONE of them - the device they used last that can be
+   * pushed to (`DeviceRegistrationStore.pushOwner`) - so that one event does not ring everywhere; the inbox holds it for all of them. The owner is chosen across the platforms: when it is not of the platform this channel reaches, the channel finds no device
+   * (the other push channel serves it). The sentence is the literal text of the template: no variable of the event is filled in, so nothing about the record the notification is about reaches a lock screen, and the link names the notification only (opening it
+   * asks for the permission of the moment). A device the provider no longer knows is revoked with its token once the answer is in, and the send goes on to the device that is the owner then - the next one in line - so that a dead phone does not cost the person the
+   * notification. At most `OWNER_TURNS` devices are tried in one send.
    */
   private async callPush(ctx: TenantContext, adapter: ChannelAdapter, send: ClaimedSend): Promise<ChannelSendResult> {
     const vault = this.deps.pushTokens;
     if (vault === undefined) return { kind: 'FAILED', failureClass: 'PERMANENT', errorCode: 'VAULT_MISSING' };
-    let request: Parameters<ChannelAdapter['send']>[0];
-    // The reference each token was read under: a refusal revokes that token's registration only if it still holds it.
-    const tried = new Map<string, string>();
-    let vaultFailed = false;
-    try {
-      const devices = await this.deps.database.withTenant(ctx, (tx) => this.devices.pushTargets(tx, [send.notification.recipientId], PLATFORMS_OF_CHANNEL[send.attempt.channel] ?? []));
-      const targets: PushTarget[] = [];
-      for (const device of devices) {
+    const platforms = PLATFORMS_OF_CHANNEL[send.attempt.channel] ?? [];
+    let last: ChannelSendResult | undefined;
+    for (let turn = 0; turn < OWNER_TURNS; turn += 1) {
+      let request: Parameters<ChannelAdapter['send']>[0];
+      let ownerId: string;
+      // The reference the token was read under: a refusal revokes that token's registration only if it still holds it.
+      let ownerRef: string;
+      try {
+        const owner = await this.deps.database.withTenant(ctx, (tx) => this.devices.pushOwner(tx, send.notification.recipientId));
+        if (owner === undefined || !platforms.includes(owner.platform)) return last ?? { kind: 'FAILED', failureClass: 'PERMANENT', errorCode: 'NO_DEVICE' };
+        let token: string | undefined;
         try {
-          const token = await vault.read(device.secretRef);
-          if (token !== undefined) {
-            targets.push({ deviceId: device.id, token });
-            tried.set(device.id, device.secretRef);
-          }
+          token = await vault.read(owner.secretRef);
         } catch {
-          // The vault is not answering: this device is left for the retry, the others are still served.
-          vaultFailed = true;
+          // The vault is not answering: nothing was sent and the vault is the reason, a pause and not the end of the notification.
+          return { kind: 'FAILED', failureClass: 'RETRYABLE', errorCode: 'VAULT_UNAVAILABLE' };
         }
+        if (token === undefined) return last ?? { kind: 'FAILED', failureClass: 'PERMANENT', errorCode: 'NO_DEVICE' };
+        ownerId = owner.id;
+        ownerRef = owner.secretRef;
+        const message = renderTemplate(send.template.contentAst, send.template.variableSchema, {});
+        request = { idempotencyKey: send.idempotencyKey, accountId: send.accountId, to: 'devices', text: message.text, targets: [{ deviceId: owner.id, token }], deepLink: opaqueLinkOf(send.notification.id) };
+      } catch (error) {
+        return { kind: 'FAILED', failureClass: 'PERMANENT', errorCode: error instanceof DomainError && error.code === 'TEMPLATE_INVALID' ? 'TEMPLATE_RENDER_FAILED' : 'SEND_PREPARATION_FAILED' };
       }
-      // Nothing was sent, and the vault is the reason: a pause, not the end of the notification.
-      if (targets.length === 0 && vaultFailed) return { kind: 'FAILED', failureClass: 'RETRYABLE', errorCode: 'VAULT_UNAVAILABLE' };
-      if (targets.length === 0) return { kind: 'FAILED', failureClass: 'PERMANENT', errorCode: 'NO_DEVICE' };
-      const message = renderTemplate(send.template.contentAst, send.template.variableSchema, {});
-      request = { idempotencyKey: send.idempotencyKey, accountId: send.accountId, to: 'devices', text: message.text, targets, deepLink: opaqueLinkOf(send.notification.id) };
-    } catch (error) {
-      return { kind: 'FAILED', failureClass: 'PERMANENT', errorCode: error instanceof DomainError && error.code === 'TEMPLATE_INVALID' ? 'TEMPLATE_RENDER_FAILED' : 'SEND_PREPARATION_FAILED' };
+      const result = await this.invoke(adapter, request);
+      const dead = (result.kind === 'ACCEPTED' || result.kind === 'FAILED') && result.deadTargets !== undefined && result.deadTargets.includes(ownerId);
+      if (dead) await this.dropDeadDevices(ctx, vault, [{ id: ownerId, secretRef: ownerRef }]);
+      // The owner's token is dead for good: the next device in line is the owner now.
+      if (dead && result.kind === 'FAILED' && result.failureClass === 'PERMANENT') {
+        last = result;
+        continue;
+      }
+      return result;
     }
-    const result = await this.invoke(adapter, request);
-    if ((result.kind === 'ACCEPTED' || result.kind === 'FAILED') && result.deadTargets !== undefined && result.deadTargets.length > 0) await this.dropDeadDevices(ctx, vault, result.deadTargets.flatMap((id) => (tried.has(id) ? [{ id, secretRef: tried.get(id) as string }] : [])));
-    return result;
+    return last ?? { kind: 'FAILED', failureClass: 'PERMANENT', errorCode: 'NO_DEVICE' };
   }
 
   /** The devices whose token the provider refused for good are revoked and their tokens leave the vault. A failure here never undoes the answer of the send, which is already in. */

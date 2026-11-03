@@ -6,10 +6,10 @@ import { normaliseRecipients } from './outgoing-rules';
 export const MAX_DISTRIBUTIONS = 500;
 
 /**
- * The channels of the first release (the design: internal, email, paper handover). The LGSP channel waits for ST-DOC-021 and is refused by name, not
- * silently: a recipient that cannot be reached must not look as if it was.
+ * The channels a document can be distributed on (DOC.md F8): the inbox of a unit of this system, e-mail, the paper handover, and the LGSP of the agency (ST-DOC-021), which queues the document for the job that sends
+ * it and is known to a recipient by the code of its agency.
  */
-export const DISPATCH_CHANNELS = ['INTERNAL', 'EMAIL', 'PAPER_HANDOVER'] as const satisfies readonly DistributionChannel[];
+export const DISPATCH_CHANNELS = ['INTERNAL', 'EMAIL', 'PAPER_HANDOVER', 'LGSP'] as const satisfies readonly DistributionChannel[];
 export type DispatchChannel = (typeof DISPATCH_CHANNELS)[number];
 
 const ITEM_MEMBERS: readonly string[] = ['kind', 'name', 'code', 'unit_id', 'channel', 'acknowledgement_required'];
@@ -61,7 +61,6 @@ export function normaliseDispatch(raw: readonly object[], onDocument: readonly D
     if (!plain(item)) throw invalid(index, 'name');
     for (const key of Object.keys(item)) if (!ITEM_MEMBERS.includes(key)) throw invalid(index, key);
     const channel = item.channel;
-    if (channel === 'LGSP') throw invalid(index, 'channel', 'CHANNEL_NOT_SUPPORTED');
     if (typeof channel !== 'string' || !(DISPATCH_CHANNELS as readonly string[]).includes(channel)) throw invalid(index, 'channel');
     const required = item.acknowledgement_required;
     if (required !== undefined && typeof required !== 'boolean') throw invalid(index, 'acknowledgement_required');
@@ -76,6 +75,9 @@ export function normaliseDispatch(raw: readonly object[], onDocument: readonly D
     if (named === undefined) throw invalid(index, 'name');
     const recipient = resolveOnDocument(index, named, onDocument);
     if (channel === 'INTERNAL' && (recipient.kind !== 'INTERNAL_UNIT' || recipient.unit_id === undefined)) throw invalid(index, 'channel', 'INTERNAL_CHANNEL_NEEDS_UNIT');
+    // The LGSP carries a document from agency to agency, addressed by the code of the receiving agency.
+    if (channel === 'LGSP' && recipient.kind !== 'EXTERNAL_AGENCY') throw invalid(index, 'channel', 'LGSP_NEEDS_AGENCY');
+    if (channel === 'LGSP' && recipient.code === undefined) throw invalid(index, 'code', 'CODE_REQUIRED_FOR_LGSP');
     const key = `${fold(recipient.name)}|${channel}`;
     if (seen.has(key)) continue;
     seen.add(key);

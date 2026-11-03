@@ -3,9 +3,10 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { APP_FILTER } from '@nestjs/core';
-import { DocumentStore, EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
+import { AuditWriter, DocumentStore, EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
 import type { MetricsSink } from '@machvon/kernel';
 import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
+import { EnvironmentWebhookSecrets, WEBHOOK_SECRETS } from '../../src/notifications/delivery/webhook-support';
 import type { TrustAnchor } from '../../src/modules/doc/cms-verification';
 import type { RevocationAnswer } from '../../src/modules/doc/pades-verifier';
 import { CommandModule } from '../../src/command.module';
@@ -24,6 +25,11 @@ import { IssueRequestsController } from '../../src/modules/doc/issue-requests.co
 import { DocumentFilesController } from '../../src/modules/doc/document-files.controller';
 import { SignedDocumentsController } from '../../src/modules/doc/signed-documents.controller';
 import { DocumentDistributionsController } from '../../src/modules/doc/distributions.controller';
+import { JsonInteropCodec } from '../../src/modules/doc/interop-codec';
+import { DocInteropController } from '../../src/modules/doc/interop.controller';
+import { MockLgspGateway } from '../../src/modules/doc/interop-mock';
+import { DocInteropSender } from '../../src/modules/doc/interop-sender';
+import { DocInteropService } from '../../src/modules/doc/interop.service';
 import { OutgoingIssuanceController } from '../../src/modules/doc/issuance.controller';
 import { OutgoingRecallController } from '../../src/modules/doc/recall.controller';
 import { OutgoingSupersessionController } from '../../src/modules/doc/supersession.controller';
@@ -35,7 +41,7 @@ import { DocumentIssueService } from '../../src/modules/doc/issue-request.servic
 import { RegistersController } from '../../src/modules/doc/registers.controller';
 import { MockSigningDirectory } from '../../src/modules/doc/signing-adapters';
 import { SignaturesController } from '../../src/modules/doc/signatures.controller';
-import { DOC_CLOCK, DOC_EMAIL_CHANNEL, DOC_METRICS, DOC_REVOCATION, DOC_SIGNING_PORT, DOC_STATE_TEXT, DOC_TRUST_STORE, PDF_RENDERER } from '../../src/modules/doc/tokens';
+import { DOC_CLOCK, DOC_EMAIL_CHANNEL, DOC_INTEROP_CODEC, DOC_INTEROP_TRANSPORT, DOC_METRICS, DOC_REVOCATION, DOC_SIGNING_PORT, DOC_STATE_TEXT, DOC_TRUST_STORE, PDF_RENDERER } from '../../src/modules/doc/tokens';
 import { ACTOR, AuthzHarness, TENANT_A, TENANT_B, contextFor, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
@@ -89,6 +95,10 @@ export const RULE_APPROVER = 43; // publishes the retention rules, over the whol
 export const RULE_LEGAL = 44; // confirms the legal basis of the retention rules, over the whole tenant
 export const RULE_ALL = 45; // all three rights over the retention rules: the four-eyes tests
 export const RULE_UNIT = 46; // the right to draft, publish and confirm only over unit 2: not a tenant-wide authority
+export const INTEROP_ADMIN = 47; // reads, sends again and receives the messages of the LGSP, over the whole tenant
+export const INTEROP_READER = 48; // reads the messages of the LGSP and nothing more
+export const INTEROP_GATEWAY = 49; // the service principal of the LGSP: delivers messages and nothing else
+export const INTEROP_UNIT = 50; // the three rights, but only over unit 2: the messages belong to the tenant, not to a unit
 export const INCOMING_OUTSIDE = 29; // the same rights as the clerk, but only on unit 1 itself // the same right, but only on unit 1 itself: nothing of unit 2 is in their reach and they cannot approve a void there
 
 export interface Reply {
@@ -118,6 +128,11 @@ export class DocApp {
   /** The messages the email channel was asked to send, and what it answers: a receipt, or the failure to throw. */
   readonly emailSent: EmailDelivery[] = [];
   emailBehaviour: EmailReceipt | Error = { outcome: 'SENT', externalRef: 'MAIL-1' };
+  /** The MOCK gateway of the LGSP the sender talks to, and the vault: the environment the signing keys of the LGSP connector are read from. */
+  readonly gateway = new MockLgspGateway();
+  readonly secrets: Record<string, string | undefined> = {};
+  sender!: DocInteropSender;
+  interop!: DocInteropService;
   app!: RunningApp;
   layoutProfileId = '';
   templateId = '';
@@ -184,6 +199,10 @@ export class DocApp {
       RULE_LEGAL,
       RULE_ALL,
       RULE_UNIT,
+      INTEROP_ADMIN,
+      INTEROP_READER,
+      INTEROP_GATEWAY,
+      INTEROP_UNIT,
     ])
       await harness.seedMembership(TENANT_A, n, 1);
     await harness.seedMembership(TENANT_B, ADMIN, 1);
@@ -192,6 +211,9 @@ export class DocApp {
       await harness.seedRole(tenant, 1, 'DOC_ADMIN', all, 60);
       await harness.seedGrants(tenant, [{ n: 1, member: ADMIN, role: 1, kind: 'TENANT' }]);
     }
+    // The other tenant reads its own messages of the LGSP: the isolation of the monitor is shown with a reader that is allowed.
+    await harness.seedRole(TENANT_B, 2, 'DOC_INTEROP_ADMIN', ['doc.interop.read', 'doc.interop.manage', 'doc.interop.ingest'], 40);
+    await harness.seedGrants(TENANT_B, [{ n: 2, member: ADMIN, role: 2, kind: 'TENANT' }]);
     await harness.seedRole(TENANT_A, 2, 'DOC_CLERK', ['doc.outgoing.read', 'document_version.read', 'doc.register.manage', 'doc.register.read', 'doc.signature.read'], 30);
     await harness.seedRole(TENANT_A, 3, 'DOC_RENDERER', ['doc.render'], 20);
     await harness.seedRole(TENANT_A, 4, 'DOC_SIGNER', ['doc.outgoing.read', 'doc.outgoing.sign', 'document_version.read', 'doc.signature.read'], 40);
@@ -224,7 +246,14 @@ export class DocApp {
     await harness.seedRole(TENANT_A, 31, 'DOC_RULE_APPROVER', ['doc.retention.approve', 'doc.retention.read'], 40);
     await harness.seedRole(TENANT_A, 32, 'DOC_RULE_LEGAL', ['doc.template.confirm_legal', 'doc.retention.read'], 40);
     await harness.seedRole(TENANT_A, 33, 'DOC_RULE_ALL', ['doc.retention.manage', 'doc.retention.approve', 'doc.template.confirm_legal', 'doc.retention.read'], 40);
+    await harness.seedRole(TENANT_A, 34, 'DOC_INTEROP_ADMIN', ['doc.interop.read', 'doc.interop.manage', 'doc.interop.ingest', 'doc.overview.read'], 40);
+    await harness.seedRole(TENANT_A, 35, 'DOC_INTEROP_READER', ['doc.interop.read'], 20);
+    await harness.seedRole(TENANT_A, 36, 'DOC_INTEROP_GATEWAY', ['doc.interop.ingest'], 20);
     await harness.seedGrants(TENANT_A, [
+      { n: 52, member: INTEROP_ADMIN, role: 34, kind: 'TENANT' },
+      { n: 53, member: INTEROP_READER, role: 35, kind: 'TENANT' },
+      { n: 54, member: INTEROP_GATEWAY, role: 36, kind: 'TENANT' },
+      { n: 55, member: INTEROP_UNIT, role: 34, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 45, member: COUNCIL, role: 28, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 46, member: ARCHIVE_CHIEF, role: 29, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
       { n: 47, member: RULE_DRAFTER, role: 30, kind: 'TENANT' },
@@ -283,6 +312,8 @@ export class DocApp {
         this.gauges.push({ name, value, labels });
       },
     };
+    this.interop = new DocInteropService({ database: tenants, files: this.uploads, stored: this.files, secrets: new EnvironmentWebhookSecrets(this.secrets), codec: new JsonInteropCodec(), metrics: sink });
+    this.sender = new DocInteropSender({ files: this.uploads, transport: this.gateway, audit: new AuditWriter(tenants), metrics: sink });
     this.app = await startTestApp({
       signingKey: SIGNING_KEY,
       imports: [CommandModule.register({ database: tenants }), PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) })],
@@ -306,6 +337,7 @@ export class DocApp {
         RetentionRulesController,
         DocumentOverviewController,
         IncomingReadsController,
+        DocInteropController,
       ],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
@@ -328,6 +360,10 @@ export class DocApp {
             },
           } satisfies EmailChannelPort,
         },
+        { provide: WEBHOOK_SECRETS, useValue: new EnvironmentWebhookSecrets(this.secrets) },
+        { provide: DOC_INTEROP_TRANSPORT, useValue: this.gateway },
+        { provide: DOC_INTEROP_CODEC, useValue: new JsonInteropCodec() },
+        { provide: DocInteropService, useValue: this.interop },
         { provide: DOC_REVOCATION, useValue: { check: async (): Promise<RevocationAnswer> => this.revocationAnswer } },
         { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
       ],

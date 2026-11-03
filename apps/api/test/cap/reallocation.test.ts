@@ -2,12 +2,13 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { APP_FILTER } from '@nestjs/core';
 import { Client } from 'pg';
 import { EffectiveAccessStore, InMemoryAuthzCache, PrjProjectStore, TenantDatabase, WORKER_MEMBERSHIP_ID } from '@machvon/db';
-import { loadErrorRegistry, signTenantContext, vietnamDateOf } from '@machvon/kernel';
-import type { MetricsSink } from '@machvon/kernel';
+import { loadErrorRegistry, signTenantContext, verifyTenantContext, vietnamDateOf } from '@machvon/kernel';
+import type { DomainError, MetricsSink, WorkflowDefinition } from '@machvon/kernel';
 import { CommandModule } from '../../src/command.module';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
-import { capModule } from '../../src/modules/cap';
+import { CAPITAL_REALLOCATION_WORKFLOW, REALLOCATION_STATES, capModule, capitalReallocationWorkflow } from '../../src/modules/cap';
+import { InProcessOrchestrator } from '../../src/modules/orchestration/in-process-orchestrator';
 import { CapitalPlanApprovalController } from '../../src/modules/cap/plan-approval.controller';
 import { CapitalPlanController, CapitalPlanLinesController } from '../../src/modules/cap/plan.controller';
 import { CapitalPlanRevisionController } from '../../src/modules/cap/plan-revision.controller';
@@ -538,6 +539,130 @@ describe('the reallocation of capital (ST-CAP-010)', () => {
       expect(await call('GET', `/reallocation-proposals?cursor=${badCursor}`, { member: READER })).toMatchObject({ status: 422, json: { detail: 'cursor' } });
       expect((await call('GET', '/reallocation-proposals', { member: NOBODY })).status).toBe(403);
       expect((await call('GET', '/reallocation-proposals', { member: B_PLANNER, tenantId: TENANT_B })).json.items).toEqual([]);
+    });
+  });
+
+  describe('AC-ST-CAP-010-2 / UAT-NFR-OPERABILITY-04: the approval workflow of the proposal follows the version it started on, and the domain guard still checks the four-eyes', () => {
+    const proposalVersion = async (proposalId: string): Promise<number> => Number((await rows<{ version: string }>('select version::text as version from machvon.reallocation_proposal where id = $1::uuid', [proposalId]))[0]?.version);
+    const proposalStatus = async (proposalId: string): Promise<string> => (await rows<{ status: string }>('select status from machvon.reallocation_proposal where id = $1::uuid', [proposalId]))[0]?.status as string;
+    const revisionsOf = async (planId: string): Promise<number> => (await rows('select id from machvon.capital_plan where supersedes_id = $1::uuid', [planId])).length;
+    const signal = (orchestrator: InProcessOrchestrator, instanceId: string, name: string, proposalId: string, member: number, extra: Record<string, unknown> = {}) =>
+      orchestrator.signal(instanceId, name, { proposal_id: proposalId, ...extra }, tokenOf(member));
+
+    async function failure(work: Promise<unknown>): Promise<DomainError> {
+      try {
+        await work;
+      } catch (error) {
+        return error as DomainError;
+      }
+      throw new Error('expected a failure');
+    }
+
+    /** Version 3 of the approval has two levels: the decision, and the application with its document. Version 4 adds a countersignature between them. */
+    function definitions(): { three: WorkflowDefinition; four: WorkflowDefinition } {
+      const tenants = harness.tenants as TenantDatabase;
+      const access = new EffectiveAccessStore(tenants, new InMemoryAuthzCache());
+      const base = capitalReallocationWorkflow({ database: tenants, access: (context) => access.load(context) });
+      const applying = base.transitions.find((transition) => transition.signal === 'apply');
+      if (applying === undefined) throw new Error('the workflow has no apply transition');
+      const three: WorkflowDefinition = { ...base, version: 3 };
+      const four: WorkflowDefinition = {
+        ...base,
+        version: 4,
+        transitions: [
+          ...base.transitions.filter((transition) => transition.signal !== 'apply'),
+          { from: REALLOCATION_STATES.approved, signal: 'countersign', to: 'countersigned' },
+          { ...applying, from: 'countersigned' },
+        ],
+      };
+      return { three, four };
+    }
+
+    const newOrchestrator = (): InProcessOrchestrator => new InProcessOrchestrator({ verify: (token) => verifyTenantContext(token, SIGNING_KEY) });
+
+    it('keeps the instance on version 3 when version 4 is registered, while an instance started after it must be countersigned; the author is refused 403 SELF_APPROVAL_DENIED at both levels and the instance keeps waiting', async () => {
+      const w = await world();
+      const { three, four } = definitions();
+      const orchestrator = newOrchestrator();
+      orchestrator.register(three);
+
+      // A proposal of ALL_REALLOCATION, who holds all three rights, under version 3.
+      const old = idOf(await draft(proposalBody(w, [move(w.a, w.b, 1)]), ALL_REALLOCATION));
+      const oldInstance = await orchestrator.start(CAPITAL_REALLOCATION_WORKFLOW, { proposal_id: old }, tokenOf(ALL_REALLOCATION));
+      expect(oldInstance).toMatchObject({ version: 3, state: REALLOCATION_STATES.drafting, status: 'WAITING', tenantId: TENANT_A });
+      expect(await signal(orchestrator, oldInstance.id, 'submit', old, ALL_REALLOCATION, { expected_version: await proposalVersion(old) })).toMatchObject({ state: REALLOCATION_STATES.inReview });
+      expect(await proposalStatus(old)).toBe('SUBMITTED');
+
+      // The release publishes version 4; a proposal that starts now follows it.
+      orchestrator.register(four);
+      // Its own plan: the application of the first proposal revises the plan it quotes, and a second proposal on that plan would be 409 PLAN_CHANGED_SINCE_PROPOSAL.
+      const w2 = await world();
+      const fresh = idOf(await draft(proposalBody(w2, [move(w2.a, w2.b, 1)]), ALL_REALLOCATION));
+      const freshInstance = await orchestrator.start(CAPITAL_REALLOCATION_WORKFLOW, { proposal_id: fresh }, tokenOf(ALL_REALLOCATION));
+      expect(freshInstance.version).toBe(4);
+
+      // First level: the author holds the right to decide and the workflow accepts the signal, but the domain guard refuses; nothing moves.
+      const selfDecision = await failure(signal(orchestrator, oldInstance.id, 'approve', old, ALL_REALLOCATION, { expected_version: await proposalVersion(old), reason: 'My own proposal is fine' }));
+      expect(selfDecision).toMatchObject({ code: 'SELF_APPROVAL_DENIED', status: 403 });
+      expect(await orchestrator.describe(oldInstance.id, tokenOf(DECIDER))).toMatchObject({ state: REALLOCATION_STATES.inReview, version: 3, status: 'WAITING' });
+      expect(await proposalStatus(old)).toBe('SUBMITTED');
+      expect(await signal(orchestrator, oldInstance.id, 'approve', old, DECIDER, { expected_version: await proposalVersion(old), reason: 'Reviewed against the snapshot' })).toMatchObject({ state: REALLOCATION_STATES.approved, version: 3 });
+      expect(await proposalStatus(old)).toBe('APPROVED');
+
+      // Second level, still version 3: no countersignature is asked for. The author is refused again; the applier, who is neither author nor submitter, applies.
+      const selfApply = await failure(signal(orchestrator, oldInstance.id, 'apply', old, ALL_REALLOCATION, { expected_version: await proposalVersion(old), decision_document_id: await document() }));
+      expect(selfApply).toMatchObject({ code: 'SELF_APPROVAL_DENIED', status: 403 });
+      expect(await orchestrator.describe(oldInstance.id, tokenOf(APPLIER))).toMatchObject({ state: REALLOCATION_STATES.approved, status: 'WAITING' });
+      expect(await revisionsOf(w.planId)).toBe(0);
+      const applied = await signal(orchestrator, oldInstance.id, 'apply', old, APPLIER, { expected_version: await proposalVersion(old), decision_document_id: await document() });
+      expect(applied).toMatchObject({ state: REALLOCATION_STATES.applied, status: 'COMPLETED', version: 3 });
+      expect(await proposalStatus(old)).toBe('APPLIED');
+      expect(await revisionsOf(w.planId)).toBe(1);
+
+      // The instance that started under version 4 may not apply before the countersignature, and applies once it is given.
+      await signal(orchestrator, freshInstance.id, 'submit', fresh, ALL_REALLOCATION, { expected_version: await proposalVersion(fresh) });
+      await signal(orchestrator, freshInstance.id, 'approve', fresh, DECIDER, { expected_version: await proposalVersion(fresh), reason: 'Reviewed against the snapshot' });
+      const early = await failure(signal(orchestrator, freshInstance.id, 'apply', fresh, APPLIER, { expected_version: await proposalVersion(fresh), decision_document_id: await document() }));
+      expect(early).toMatchObject({ code: 'WORKFLOW_STATE_INVALID', status: 409 });
+      expect(await proposalStatus(fresh)).toBe('APPROVED');
+      await orchestrator.signal(freshInstance.id, 'countersign', null, tokenOf(APPLIER));
+      const finished = await signal(orchestrator, freshInstance.id, 'apply', fresh, APPLIER, { expected_version: await proposalVersion(fresh), decision_document_id: await document() });
+      expect(finished).toMatchObject({ state: REALLOCATION_STATES.applied, status: 'COMPLETED', version: 4 });
+      expect(await proposalStatus(fresh)).toBe('APPLIED');
+    });
+
+    it('runs every activity for the tenant and the person of the signed context and leaves the audit rows the commands leave; refuses a signal for another proposal, another tenant or a forged context, and a person without the right', async () => {
+      const w = await world();
+      const orchestrator = newOrchestrator();
+      orchestrator.register(definitions().three);
+      const proposalId = idOf(await draft(proposalBody(w, [move(w.a, w.b, 1)])));
+      const instance = await orchestrator.start(CAPITAL_REALLOCATION_WORKFLOW, { proposal_id: proposalId }, tokenOf(PROPOSER));
+      // The signal names another proposal than the one the instance was started for, or a version that is no version: refused before any activity runs.
+      const other = idOf(await draft(proposalBody(w, [move(w.a, w.b, 1)])));
+      expect(await failure(signal(orchestrator, instance.id, 'submit', other, PROPOSER, { expected_version: 1 }))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'proposal_id' });
+      expect(await failure(signal(orchestrator, instance.id, 'submit', proposalId, PROPOSER, { expected_version: 0 }))).toMatchObject({ code: 'VALIDATION_FAILED', detail: 'expected_version' });
+      // Another tenant does not find the instance; a context that does not verify runs nothing.
+      expect(await failure(orchestrator.signal(instance.id, 'submit', { proposal_id: proposalId, expected_version: 1 }, tokenOf(B_PLANNER, TENANT_B)))).toMatchObject({ code: 'RESOURCE_NOT_FOUND', status: 404 });
+      expect(await failure(orchestrator.signal(instance.id, 'submit', { proposal_id: proposalId, expected_version: 1 }, 'not-a-token'))).toMatchObject({ code: 'TENANT_CONTEXT_INVALID' });
+      expect(await proposalStatus(proposalId)).toBe('DRAFT');
+      // The proposer holds no right to decide: SCOPE_DENIED as the command answers it, and the proposal stays where it was.
+      await signal(orchestrator, instance.id, 'submit', proposalId, PROPOSER, { expected_version: 1 });
+      expect(await failure(signal(orchestrator, instance.id, 'approve', proposalId, PROPOSER, { expected_version: 2, reason: 'Reviewed against the snapshot' }))).toMatchObject({ code: 'SCOPE_DENIED', status: 403 });
+      expect(await proposalStatus(proposalId)).toBe('SUBMITTED');
+      // A return sends it back to drafting and a rejection ends the instance, each with the audit row of the command.
+      expect(await signal(orchestrator, instance.id, 'return', proposalId, DECIDER, { expected_version: 2, reason: 'Lower the amount' })).toMatchObject({ state: REALLOCATION_STATES.drafting });
+      expect(await proposalStatus(proposalId)).toBe('DRAFT');
+      await signal(orchestrator, instance.id, 'submit', proposalId, PROPOSER, { expected_version: await proposalVersion(proposalId) });
+      expect(await signal(orchestrator, instance.id, 'reject', proposalId, DECIDER, { expected_version: await proposalVersion(proposalId), reason: 'Outside the plan' })).toMatchObject({ state: REALLOCATION_STATES.rejected, status: 'COMPLETED' });
+      expect(await proposalStatus(proposalId)).toBe('REJECTED');
+      const audit = await rows<{ action: string; actor_id: string }>('select action, actor_id from machvon.audit_event where resource_id = $1::uuid order by occurred_at', [proposalId]);
+      expect(audit.map((row) => [row.action, row.actor_id])).toEqual([
+        ['capital.reallocation_drafted', memberId(PROPOSER)],
+        ['capital.reallocation_submitted', memberId(PROPOSER)],
+        ['capital.reallocation_returned', memberId(DECIDER)],
+        ['capital.reallocation_submitted', memberId(PROPOSER)],
+        ['capital.reallocation_rejected', memberId(DECIDER)],
+      ]);
     });
   });
 });

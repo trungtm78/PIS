@@ -101,7 +101,7 @@ describe('the versions of the datasets by period (ST-BI-002, BI F2)', () => {
   });
 
   describe('the build of a period', () => {
-    it('AC-ST-BI-002-1: UAT-AC478 builds NOT_ASSESSED with no row excluded before DGV has run, then links the run with its 12 quarantined rows, supersedes the first and keeps it', async () => {
+    it('AC-ST-BI-002-1, AC-ST-DGV-004-3: UAT-AC478, UAT-AC51 builds NOT_ASSESSED with no row excluded before DGV has run, then links the run with its 12 quarantined rows, supersedes the first and keeps it', async () => {
       const snap = await snapshot({ code: '2026-10', rows: 500 });
       const first = await build({ as_of_period: '2026-10' });
       expect(first.status).toBe(202);

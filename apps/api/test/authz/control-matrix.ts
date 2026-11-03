@@ -90,5 +90,14 @@ export const CONTROL_OPERATIONS: readonly ControlOperation[] = [
   { operationId: 'issueSupportAccessToken', permission: PERMISSIONS.issueSupportAccessToken, method: 'POST', path: '/support-access/{id}/token' },
   { operationId: 'listFeatureFlags', permission: PERMISSIONS.listFeatureFlags, method: 'GET', path: '/system/feature-flags' },
   { operationId: 'updateFeatureFlag', permission: PERMISSIONS.updateFeatureFlag, method: 'PUT', path: '/system/feature-flags/{flagKey}' },
+  { operationId: 'requestTenantRestore', permission: PERMISSIONS.requestTenantRestore, method: 'POST', path: '/system/tenants/{tenantId}/restore-requests' },
+  { operationId: 'decideTenantRestore', permission: PERMISSIONS.decideTenantRestore, method: 'POST', path: '/system/restore-requests/{restoreId}/decision' },
+  { operationId: 'listTenantRestoreRequests', permission: PERMISSIONS.listTenantRestoreRequests, method: 'GET', path: '/system/tenants/{tenantId}/restore-requests' },
+  { operationId: 'listPlacements', permission: PERMISSIONS.listPlacements, method: 'GET', path: '/system/placements' },
+  { operationId: 'listPlacementMigrations', permission: PERMISSIONS.listPlacementMigrations, method: 'GET', path: '/system/tenants/{tenantId}/placement-migrations' },
+  { operationId: 'getPlacementMigration', permission: PERMISSIONS.getPlacementMigration, method: 'GET', path: '/system/placement-migrations/{migrationId}' },
+  { operationId: 'startSiloPromotion', permission: PERMISSIONS.startSiloPromotion, method: 'POST', path: '/system/tenants/{tenantId}/placement-migrations' },
+  { operationId: 'approvePlacementCutover', permission: PERMISSIONS.approvePlacementCutover, method: 'POST', path: '/system/placement-migrations/{migrationId}/cutover' },
+  { operationId: 'abortPlacementMigration', permission: PERMISSIONS.abortPlacementMigration, method: 'POST', path: '/system/placement-migrations/{migrationId}/abort' },
 ];
 

@@ -175,6 +175,33 @@ export class DocumentDistributionStore {
   }
 
   /**
+   * What the LGSP did with the message of an LGSP row (ST-DOC-021): the adapter took it (the row is SENT, a failed row that is sent again recovers), or the message died or was refused (the row is FAILED with the
+   * reason, from any state before the receipt). The attempts of the row follow the attempts of the message, never fewer than the row has counted. A row that has ended, or was cancelled by a recall, is not moved:
+   * 409 DISTRIBUTION_STATE_INVALID.
+   */
+  async recordInterop(tx: TenantTx, id: string, outcome: { kind: 'SENT'; at: Date; externalRef: string; attempts: number } | { kind: 'FAILED'; errorCode: string; attempts: number }, actor: string): Promise<DistributionRecord> {
+    const current = await this.find(tx, id, { lock: true });
+    if (current === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    const from = outcome.kind === 'SENT' ? ['PENDING', 'FAILED'] : ['PENDING', 'SENT', 'FAILED'];
+    if (!from.includes(current.status)) throw new DomainError('DISTRIBUTION_STATE_INVALID', 409, 'status');
+    if (outcome.kind === 'FAILED') {
+      await tx.query(
+        `update machvon.document_distribution set status = 'FAILED', error_code = $2, attempts = greatest(attempts, $3::int), updated_at = now(), updated_by = $4::uuid, version = version + 1 where id = $1::uuid`,
+        [id, outcome.errorCode, outcome.attempts, actor],
+      );
+    } else {
+      await tx.query(
+        `update machvon.document_distribution
+            set status = 'SENT', error_code = null, attempts = greatest(attempts, $4::int), sent_at = coalesce(sent_at, $2::timestamptz), external_ref = coalesce($3, external_ref),
+                updated_at = now(), updated_by = $5::uuid, version = version + 1
+          where id = $1::uuid`,
+        [id, outcome.at.toISOString(), outcome.externalRef, outcome.attempts, actor],
+      );
+    }
+    return this.reload(tx, id);
+  }
+
+  /**
    * The recipient confirmed the receipt (SENT or DELIVERED to ACKNOWLEDGED). A receipt implies the delivery, so a row that was only SENT is delivered at the
    * instant of the receipt. A stale version is 409 VERSION_CONFLICT, a row in another state 409 DISTRIBUTION_STATE_INVALID.
    */

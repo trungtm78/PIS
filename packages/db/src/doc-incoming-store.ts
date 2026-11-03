@@ -75,6 +75,8 @@ export interface NewIncoming {
   urgency: IncomingUrgency;
   duplicateOfId: string | undefined;
   duplicateOverrideReason: string | undefined;
+  /** The interoperability message a letter that came through the LGSP was made from. */
+  interopMessageId?: string | undefined;
 }
 
 export interface IncomingFilters {
@@ -255,10 +257,10 @@ export class DocIncomingStore {
     try {
       const [row] = await tx.query<{ id: string }>(
         `insert into machvon.incoming_document
-           (tenant_id, id, document_id, status, channel, received_at, received_by, original_symbol, original_issued_on, sender_name, urgency, duplicate_of_id, duplicate_override_reason, created_by, updated_by)
-         values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, 'RECEIVED', $2, $3::timestamptz, $4::uuid, $5, $6::date, $7, $8, $9::uuid, $10, $4::uuid, $4::uuid)
+           (tenant_id, id, document_id, status, channel, received_at, received_by, original_symbol, original_issued_on, sender_name, urgency, duplicate_of_id, duplicate_override_reason, interop_message_id, created_by, updated_by)
+         values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, 'RECEIVED', $2, $3::timestamptz, $4::uuid, $5, $6::date, $7, $8, $9::uuid, $10, $11::uuid, $4::uuid, $4::uuid)
          returning id`,
-        [input.documentId, input.channel, input.receivedAt.toISOString(), input.receivedBy, input.originalSymbol ?? null, input.originalIssuedOn ?? null, input.senderName, input.urgency, input.duplicateOfId ?? null, input.duplicateOverrideReason ?? null],
+        [input.documentId, input.channel, input.receivedAt.toISOString(), input.receivedBy, input.originalSymbol ?? null, input.originalIssuedOn ?? null, input.senderName, input.urgency, input.duplicateOfId ?? null, input.duplicateOverrideReason ?? null, input.interopMessageId ?? null],
       );
       if (row === undefined) throw new Error('incoming insert returned no row');
       return row;

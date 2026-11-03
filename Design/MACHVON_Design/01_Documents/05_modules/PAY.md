@@ -278,7 +278,7 @@ Phân loại: Nội bộ – tài chính. Lưu giữ: Giữ như chứng từ k�
 | `boq_item_id` | uuid | có |  | FK boq_item |  |
 | `acceptance_id` | uuid | có |  | FK acceptance |  |
 | `payment_request_id` | uuid | không |  | FK payment_request |  |
-| `entry_kind` | text | có |  | ∈ {RECOGNIZE_ACCEPTANCE, REVOKE_ACCEPTANCE, CLAIM, CLAIM_RELEASE, PAYMENT, PAYMENT_REVERSAL, ADVANCE_RECOVERY, ADVANCE_RECOVERY_REVERSAL, RETENTION_HOLD, RETENTION_RELEASE} |  |
+| `entry_kind` | text | có |  | ∈ {RECOGNIZE_ACCEPTANCE, REVOKE_ACCEPTANCE, CLAIM, CLAIM_RELEASE, PAYMENT, PAYMENT_REVERSAL, ADVANCE_RECOVERY, ADVANCE_RECOVERY_REVERSAL, RETENTION_HOLD, RETENTION_RELEASE, ADJUSTMENT} | `ADJUSTMENT` (ST-CTR-016): chênh lệch đơn giá hồi tố, có dấu, chỉ trên `accepted_delta_vnd`; không đảo bút toán nào; sửa sai bằng một điều chỉnh sau |
 | `accepted_delta_vnd` | numeric(24,0) | có | 0 |  |  |
 | `requested_delta_vnd` | numeric(24,0) | có | 0 |  |  |
 | `paid_delta_vnd` | numeric(24,0) | có | 0 |  |  |
@@ -286,6 +286,7 @@ Phân loại: Nội bộ – tài chính. Lưu giữ: Giữ như chứng từ k�
 | `retention_delta_vnd` | numeric(24,0) | có | 0 |  |  |
 | `advance_outstanding_after_vnd` | numeric(24,0) | có |  |  | Số tạm ứng còn lại của hợp đồng/thành viên sau bút toán (ảnh chụp để kiểm toán) |
 | `reversal_of_id` | uuid | không |  | FK cumulative_ledger_entry |  |
+| `adjustment_line_id` | uuid | không |  | FK retroactive_adjustment_line | Chỉ với `ADJUSTMENT` (CHECK `cumulative_ledger_entry_adjustment_chk`: đúng một dòng điều chỉnh, `accepted_delta_vnd <> 0`, các số còn lại bằng 0) |
 | `reason` | text | không |  |  |  |
 | `posted_at` | timestamptz | có | now() |  |  |
 | `request_id` | uuid | có |  |  | correlation_id của command đã ghi |
@@ -295,7 +296,7 @@ Phân loại: Nội bộ – tài chính. Lưu giữ: Giữ như chứng từ k�
 Bất biến DB:
 - CHECK `cumulative_ledger_entry_reversal_chk`: (entry_kind IN ('REVOKE_ACCEPTANCE','CLAIM_RELEASE','PAYMENT_REVERSAL','ADVANCE_RECOVERY_REVERSAL')) = (reversal_of_id IS NOT NULL)
 - CHECK `cumulative_ledger_entry_reversal_sign_chk`: entry_kind NOT IN ('REVOKE_ACCEPTANCE','CLAIM_RELEASE','PAYMENT_REVERSAL','ADVANCE_RECOVERY_REVERSAL') OR (accepted_delta_vnd <= 0 AND requested_delta_vnd <= 0 AND paid_delta_vnd <= 0 AND advance_recovery_delta_vnd <= 0)
-- CHECK `cumulative_ledger_entry_forward_sign_chk`: entry_kind IN ('REVOKE_ACCEPTANCE','CLAIM_RELEASE','PAYMENT_REVERSAL','ADVANCE_RECOVERY_REVERSAL','RETENTION_RELEASE') OR (accepted_delta_vnd >= 0 AND requested_delta_vnd >= 0 AND paid_delta_vnd >= 0 AND advance_recovery_delta_vnd >= 0 AND retention_delta_vnd >= 0)
+- CHECK `cumulative_ledger_entry_forward_sign_chk`: entry_kind IN ('REVOKE_ACCEPTANCE','CLAIM_RELEASE','PAYMENT_REVERSAL','ADVANCE_RECOVERY_REVERSAL','RETENTION_RELEASE','ADJUSTMENT') OR (accepted_delta_vnd >= 0 AND requested_delta_vnd >= 0 AND paid_delta_vnd >= 0 AND advance_recovery_delta_vnd >= 0 AND retention_delta_vnd >= 0)
 - UNIQUE INDEX `cumulative_ledger_entry_reversal_uq` (tenant_id, reversal_of_id) WHERE reversal_of_id IS NOT NULL
 
 Chỉ mục: `cumulative_ledger_entry_ledger_id_idx`, `cumulative_ledger_entry_contract_id_idx`, `cumulative_ledger_entry_boq_item_id_idx`, `cumulative_ledger_entry_acceptance_id_idx`, `cumulative_ledger_entry_payment_request_id_idx`, `cumulative_ledger_entry_reversal_of_id_idx`, `cumulative_ledger_entry_request_id_idx`, `cumulative_ledger_entry_ledger_posted_idx`.

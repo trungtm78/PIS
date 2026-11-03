@@ -16,6 +16,7 @@ export const LEDGER_ENTRY_KINDS = [
   'ADVANCE_RECOVERY_REVERSAL',
   'RETENTION_HOLD',
   'RETENTION_RELEASE',
+  'ADJUSTMENT',
 ] as const;
 export type LedgerEntryKind = (typeof LEDGER_ENTRY_KINDS)[number];
 
@@ -110,10 +111,17 @@ export function assertLedgerInvariants(balance: LedgerBalance): void {
 
 /**
  * 422 `VALIDATION_FAILED` unless the signs of the delta fit the kind of the entry (the CHECKs of `cumulative_ledger_entry`): an entry that reverses another takes away (accepted, requested, paid
- * and recovered are not above zero), a forward entry adds (none is below zero, the release of retention apart), and a reversal says which entry it reverses and a forward entry does not.
+ * and recovered are not above zero), a forward entry adds (none is below zero, the release of retention apart), and a reversal says which entry it reverses and a forward entry does not. An
+ * adjustment (ST-CTR-016) is neither: it moves the accepted amount of the balance by a difference of price, up or down, never by zero, leaves requested, paid, recovered and held alone, and
+ * is corrected by a later adjustment, not by reversing it.
  */
 export function assertEntryShape(kind: LedgerEntryKind, delta: LedgerDelta, reversalOfId: string | null): void {
   if (isReversal(kind) !== (reversalOfId !== null)) throw new DomainError('VALIDATION_FAILED', 422, 'reversal_of_id');
+  if (kind === 'ADJUSTMENT') {
+    const untouched = [delta.requested, delta.paid, delta.advanceRecovery, delta.retention];
+    if (BigInt(delta.accepted) === 0n || untouched.some((value) => BigInt(value) !== 0n)) throw new DomainError('VALIDATION_FAILED', 422, 'delta');
+    return;
+  }
   const signed = [BigInt(delta.accepted), BigInt(delta.requested), BigInt(delta.paid), BigInt(delta.advanceRecovery)];
   if (isReversal(kind)) {
     if (signed.some((value) => value > 0n)) throw new DomainError('VALIDATION_FAILED', 422, 'delta');

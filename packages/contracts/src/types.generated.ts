@@ -4757,6 +4757,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/home/channel-health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Kênh thông báo đang suy giảm (bộ ngắt mạch mở) và lần gửi thành công gần nhất */
+        get: operations["getHomeChannelHealth"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/master-records": {
         parameters: {
             query?: never;
@@ -6584,7 +6601,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Các lần nâng cấp pool → silo của tenant, mới nhất trước (SAS-23) */
+        get: operations["listPlacementMigrations"];
         put?: never;
         /** Nâng tenant từ pool sang silo (SAS-23) — copy, verify, chờ duyệt cutover */
         post: operations["startSiloPromotion"];
@@ -6622,6 +6640,40 @@ export interface paths {
         put?: never;
         /** Hủy/rollback trước Completed; routing giữ placement cũ */
         post: operations["abortPlacementMigration"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/placement-migrations/{migrationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Chi tiết một lần nâng cấp silo: trạng thái, cửa sổ đóng băng ghi, người duyệt cutover và bảng đối chiếu từng bảng (đếm, checksum khóa, tổng tiền) (SAS-23) */
+        get: operations["getPlacementMigration"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/placements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Các placement (pool và silo) và chỗ còn trống, để chọn placement đích của nâng cấp silo (SAS-23) */
+        get: operations["listPlacements"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -7080,7 +7132,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Các yêu cầu khôi phục tenant, cửa sổ recovery point và mục tiêu RPO/RTO cho System Admin (SAS-21) */
+        get: operations["listTenantRestoreRequests"];
         put?: never;
         /** Yêu cầu khôi phục tenant về recovery point (SAS-21), mặc định vào sandbox */
         post: operations["requestTenantRestore"];
@@ -8295,7 +8348,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Quy trình điều chỉnh hồi tố riêng cho CO có hiệu lực trước ngày duyệt */
+        /**
+         * Quy trình điều chỉnh hồi tố riêng cho CO có hiệu lực trước ngày duyệt
+         * @description Approves an assessed CO that applies from a day before today (the ordinary decision refuses it with RETROACTIVE_NOT_ALLOWED). Makes the next revision of the contract (retroactive, in force from today), posts one ADJUSTMENT entry on the cumulative ledger for each item of each acceptance the new price reaches, and records the decision document and the affected acceptances. Refused while a verified or closed settlement has read the ledger (SETTLEMENT_ALREADY_APPROVED).
+         */
         post: operations["approveRetroactiveAdjustment"];
         delete?: never;
         options?: never;
@@ -12546,7 +12602,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Lập báo cáo đánh giá từ các lượt cùng criteria_version; nhận xét chưa thẩm tra không được đưa vào */
+        /** Lập báo cáo đánh giá từ các lượt cùng criteria_version; mọi nhận xét phải đã có quyết định của chuyên gia, nội dung lấy từ quyết định của người, không lấy lời của mô hình */
         post: operations["createEvaluationReport"];
         delete?: never;
         options?: never;
@@ -12563,7 +12619,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Thành viên tổ chuyên gia thông qua; đủ thành viên → yêu cầu DOC phát hành biên bản */
+        /** Thành viên tổ chuyên gia ký thông qua (kèm ý kiến khác nếu có); đủ thành viên không bị loại bởi xung đột → yêu cầu DOC phát hành biên bản */
         post: operations["signOffEvaluationReport"];
         delete?: never;
         options?: never;
@@ -15710,6 +15766,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/procurement-packages/{id}/evaluation-reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Các báo cáo đánh giá của gói, mới nhất trước; người có toàn quyền xem đề án của gói (đã khai báo xung đột, không bị loại) (BID-13) */
+        get: operations["listEvaluationReports"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/evaluation-reports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Một báo cáo đánh giá với chữ ký, ý kiến khác và trạng thái biên bản DOC; báo cáo của gói người gọi không đánh giá, hoặc người gọi bị loại bởi xung đột, là không tồn tại (BID-13) */
+        get: operations["getEvaluationReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -17658,7 +17748,7 @@ export interface components {
             items: {
                 idempotency_key: string;
                 /** @enum {string} */
-                command_type: "report.submit" | "report.draft.save" | "issue.create" | "site_diary.append" | "measurement.record";
+                command_type: "report.submit" | "report.draft.save" | "issue.create" | "site_diary.append" | "measurement.record" | "inspection.result";
                 base_server_version: number;
                 payload: Record<string, never>;
             }[];
@@ -17891,11 +17981,28 @@ export interface components {
         CtrWithdrawChangeRequest: {
             reason: string;
         };
+        /** @description The retroactive adjustment of a change order (ST-CTR-016): an assessed CO whose price applies from a day before today is approved here, by someone who had no part in its chain. The acceptances it reaches keep their lines and amounts; the money difference of each balance is a new ADJUSTMENT entry of the cumulative ledger. */
         CtrApproveRetroactiveAdjustment: {
+            /** @description Why the change reaches back: the words the decision rests on */
             adjustment_basis: string;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description The decision document the approval rests on
+             */
             decision_document_version_id: string;
+            /** @description Every approved acceptance the change re-prices (a line of an item whose unit price the change moves, accepted on the effective day or after), and no other; a list that differs is 422 with the ids missing and the ids not affected */
             affected_acceptance_ids: string[];
+            /**
+             * Format: date
+             * @description The first day the change applies from, before today
+             */
+            effective_on: string;
+            /** @description The signed amount the contract changes by; the assessment of the request when absent */
+            approved_delta_vnd?: string;
+            /** @description The BOQ of the new revision, as the lines of an import (REPLACE); the items whose unit price differs from the BOQ in force are re-priced */
+            boq_lines?: {
+                [key: string]: unknown;
+            }[];
         };
         CtrRecordMeasurement: {
             /**
@@ -19450,11 +19557,14 @@ export interface components {
             effective_until?: string;
         };
         DocInteropInbound: {
+            /** @description The clean upload of the envelope, in the object store of the tenant */
             envelope_object_key: string;
             envelope_sha256: string;
             external_message_id: string;
             sender_code: string;
             signature_key_id: string;
+            /** @description hex(HMAC-SHA256(key named by signature_key_id, ["external_message_id","sender_code","envelope_sha256","envelope_object_key","signature_key_id"] as JSON)); the digest of the envelope is under it */
+            signature: string;
         };
         DocVerifyRequest: {
             /** @enum {string} */
@@ -19741,9 +19851,13 @@ export interface components {
             package_id: string;
             /** Format: uuid */
             criteria_version_id: string;
+            /** @description The analyses that stand for the proposals the report covers, each named once; every finding of them has a decision of an expert */
             run_ids: string[];
-            summary: Record<string, never>;
-            dissenting_opinions?: Record<string, never>[];
+            /** @description What the author writes; the rest of the content is taken from the decisions of the experts, never from what the model said */
+            summary: {
+                /** @description The conclusion of the evaluation team in its own words: 20 to 8000 characters once trimmed */
+                conclusion: string;
+            };
         };
         BidClarificationCreate: {
             /** Format: uuid */
@@ -21094,16 +21208,19 @@ export interface components {
             evaluated_at?: string | null;
             /** Format: date-time */
             decided_at?: string | null;
-            /** @description What the caller may do with the request as it stands (staff only); the server judges each command again */
+            /** @description What the caller may do with the request as it stands (staff only); the server judges each command again; adjust is the retroactive adjustment of an assessed CO */
             actions?: {
                 promote: boolean;
                 evaluate: boolean;
                 withdraw: boolean;
                 decide: boolean;
+                adjust: boolean;
             };
             version: number;
             /** Format: uuid */
             resulting_revision_id?: string | null;
+            /** @description The change order was approved through the retroactive adjustment: it applies from a day before its approval (staff only) */
+            retroactive?: boolean;
         };
         CtrChangeChainConfig: {
             /** @enum {integer} */
@@ -21570,12 +21687,12 @@ export interface components {
             /** @description Đang giữ lại; thu hồi tạm ứng cộng giữ lại không quá đã đề nghị */
             retention_held_vnd: string;
         };
-        /** @description Một bút toán của sổ lũy kế; không bao giờ sửa hay xóa, chỉ sửa sai bằng bút toán đảo */
+        /** @description Một bút toán của sổ lũy kế; không bao giờ sửa hay xóa, chỉ sửa sai bằng bút toán đảo hoặc bằng bút toán điều chỉnh (ADJUSTMENT: chênh lệch đơn giá hồi tố, có dấu, chỉ trên số đã nghiệm thu) */
         PayLedgerEntry: {
             /** Format: uuid */
             id: string;
             /** @enum {string} */
-            kind: "RECOGNIZE_ACCEPTANCE" | "REVOKE_ACCEPTANCE" | "CLAIM" | "CLAIM_RELEASE" | "PAYMENT" | "PAYMENT_REVERSAL" | "ADVANCE_RECOVERY" | "ADVANCE_RECOVERY_REVERSAL" | "RETENTION_HOLD" | "RETENTION_RELEASE";
+            kind: "RECOGNIZE_ACCEPTANCE" | "REVOKE_ACCEPTANCE" | "CLAIM" | "CLAIM_RELEASE" | "PAYMENT" | "PAYMENT_REVERSAL" | "ADVANCE_RECOVERY" | "ADVANCE_RECOVERY_REVERSAL" | "RETENTION_HOLD" | "RETENTION_RELEASE" | "ADJUSTMENT";
             /** @description Số tiền VND nguyên có dấu (bút toán đảo là số âm), dạng chuỗi */
             accepted_delta_vnd: string;
             /** @description Số tiền VND nguyên có dấu (bút toán đảo là số âm), dạng chuỗi */
@@ -22776,6 +22893,125 @@ export interface components {
         TenantDomainPage: {
             items: components["schemas"]["TenantDomain"][];
             next_cursor: string | null;
+        };
+        PlacementMigration: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            tenant_id: string;
+            /** Format: uuid */
+            from_placement_id: string;
+            /** Format: uuid */
+            to_placement_id: string;
+            /** @enum {string} */
+            status: "Planned" | "Copying" | "Verifying" | "AwaitingCutover" | "CutoverFrozen" | "Switched" | "Completed" | "Aborted" | "RolledBack";
+            write_freeze_max_minutes: number;
+            /** Format: date-time */
+            planned_window_start: string;
+            reason: string;
+            /** Format: uuid */
+            requested_by: string;
+            /** Format: uuid */
+            cutover_approved_by?: string | null;
+            /** Format: date-time */
+            cutover_approved_at?: string | null;
+            approval_reason?: string | null;
+            /** Format: date-time */
+            write_freeze_started_at?: string | null;
+            /**
+             * Format: date-time
+             * @description While the cutover is frozen: the instant until which the writes of the tenant are refused (503 TENANT_WRITE_FROZEN); the migration is rolled back when the switch has not happened by then
+             */
+            write_frozen_until?: string | null;
+            checksum_match?: boolean | null;
+            /** Format: date-time */
+            verified_at?: string | null;
+            verification_report_ref?: string | null;
+            /** Format: date-time */
+            switched_at?: string | null;
+            /**
+             * Format: date-time
+             * @description When the 24 hours of observation after the switch end and the migration is Completed
+             */
+            observation_ends_at?: string | null;
+            /** Format: date-time */
+            completed_at?: string | null;
+            /** Format: date-time */
+            ended_at?: string | null;
+            /**
+             * Format: uuid
+             * @description Who aborted; null when the system rolled the migration back by itself
+             */
+            ended_by?: string | null;
+            /** @description The words of the System Admin who aborted, or FREEZE_EXPIRED / FINAL_VERIFICATION_FAILED when the system rolled back */
+            end_reason?: string | null;
+            /** @description The class of the failure that stopped the worker at the last pass (never its message) */
+            last_error_code?: string | null;
+            /** Format: date-time */
+            target_discarded_at?: string | null;
+            /** Format: date-time */
+            source_purge_due_at?: string | null;
+            /** Format: date-time */
+            source_purged_at?: string | null;
+            /** Format: date-time */
+            created_at: string;
+            version: number;
+        };
+        PlacementMigrationPage: {
+            items: components["schemas"]["PlacementMigration"][];
+            next_cursor: string | null;
+        };
+        /** @description The copy compared with the original, table by table: the number of rows, the checksum of the primary keys and the sum of every numeric(24,0) money column (decimal text). A table is in agreement only when all three are the same. */
+        PlacementReconciliation: {
+            match: boolean;
+            /** Format: date-time */
+            measured_at: string;
+            source_rows: number;
+            target_rows: number;
+            mismatched_tables: string[];
+            /** @description Tables of the tenant plane that the worker cannot read: they are not compared */
+            unreadable_tables: string[];
+            tables: {
+                table: string;
+                source_rows?: number | null;
+                target_rows?: number | null;
+                rows_match: boolean;
+                source_checksum?: string | null;
+                target_checksum?: string | null;
+                checksum_match: boolean;
+                money: {
+                    column: string;
+                    /** @description Decimal text, numeric(24,0) */
+                    source?: string | null;
+                    /** @description Decimal text, numeric(24,0) */
+                    target?: string | null;
+                    match: boolean;
+                }[];
+                money_match: boolean;
+                match: boolean;
+            }[];
+        };
+        PlacementMigrationDetail: {
+            migration: components["schemas"]["PlacementMigration"];
+            reconciliation: components["schemas"]["PlacementReconciliation"] | null;
+        };
+        /** @description A placement a tenant can be moved to (or is on): infrastructure references are not shown */
+        PlacementChoice: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            kind: "POOL" | "SILO";
+            region: string;
+            /** @enum {string} */
+            status: "Active" | "Draining" | "Retired";
+            max_tenants?: number | null;
+            tenant_count: number;
+            incoming_migrations: number;
+            /** @description Whether a promotion can be started towards it: an Active silo with room */
+            available: boolean;
+        };
+        PlacementList: {
+            items: components["schemas"]["PlacementChoice"][];
         };
         NotificationEventType: {
             event_type: string;
@@ -24602,6 +24838,292 @@ export interface components {
         };
         BidClarificationList: {
             items: components["schemas"]["BidClarificationLine"][];
+            /** Format: date-time */
+            as_of: string;
+        };
+        RestoreMoneyCheck: {
+            /** @description A money column (name ends in _vnd) of the table */
+            column: string;
+            /** @description The total the backup recorded, in dong, as a decimal text */
+            expected: string;
+            /** @description The total the restored copy holds, in dong, as a decimal text */
+            restored: string;
+            match: boolean;
+        };
+        RestoreTableCheck: {
+            table: string;
+            expected_rows: number;
+            restored_rows: number;
+            rows_match: boolean;
+            expected_checksum: string;
+            restored_checksum: string;
+            checksum_match: boolean;
+            money: components["schemas"]["RestoreMoneyCheck"][];
+        };
+        RestoreVerificationReport: {
+            schema_version: number;
+            /** @description Every table has the rows, the checksum and the money totals the backup recorded, and no row of another tenant */
+            matched: boolean;
+            tables: components["schemas"]["RestoreTableCheck"][];
+            totals: {
+                tables: number;
+                rows_expected: number;
+                rows_restored: number;
+                money_expected_vnd: string;
+                money_restored_vnd: string;
+            };
+            /** @description Rows of another tenant found in the restored copy: it must be 0 */
+            foreign_rows: number;
+            /** @description What differs, as rows:table, checksum:table, money:table.column, missing_table:table, unexpected_table:table, foreign_rows */
+            mismatches: string[];
+            /** @description How far before the recovery point asked for the restored copy stops */
+            rpo_seconds: number;
+            /** @description From the approval to the end of the verification */
+            rto_seconds: number;
+            rpo_target_seconds: number;
+            rto_target_seconds: number;
+            within_targets: boolean;
+        };
+        TenantRestore: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            recovery_point: string;
+            /** @enum {string} */
+            target: "SANDBOX" | "IN_PLACE";
+            reason: string;
+            /** @enum {string} */
+            status: "Requested" | "Approved" | "Restoring" | "Verifying" | "Completed" | "Failed" | "Rejected";
+            /** Format: uuid */
+            requested_by: string;
+            /** Format: date-time */
+            requested_at: string;
+            /** Format: uuid */
+            decided_by?: string | null;
+            /** Format: uuid */
+            approved_by?: string | null;
+            /** Format: date-time */
+            decided_at?: string | null;
+            decision_reason?: string | null;
+            /** Format: date-time */
+            started_at?: string | null;
+            /** Format: date-time */
+            completed_at?: string | null;
+            /** Format: date-time */
+            restored_to?: string | null;
+            /** @description Where the restored copy was placed (a sandbox restore only) */
+            sandbox_ref?: string | null;
+            /** @description The class of the failure, never its message */
+            error_code?: string | null;
+            /** @description sha256 of the verification report: the drill record */
+            verification_report_ref?: string | null;
+            verification_report?: components["schemas"]["RestoreVerificationReport"] | null;
+            /** @description The If-Match of the decision */
+            version: number;
+        };
+        TenantRestorePage: {
+            /** @enum {string} */
+            tenant_status: "Requested" | "Provisioning" | "Active" | "Failed" | "Suspended" | "Offboarding" | "Archived";
+            tenant_version: number;
+            /** @description The recovery points the backups hold for the tenant; null when none can be restored (no restore engine is bound) */
+            recovery_window: {
+                /** Format: date-time */
+                earliest: string;
+                /** Format: date-time */
+                latest: string;
+            } | null;
+            rpo_target_seconds: number;
+            rto_target_seconds: number;
+            items: components["schemas"]["TenantRestore"][];
+            next_cursor: string | null;
+        };
+        BidReportSignOff: {
+            /** @description The dissent the member signs with, in their own words: 20 to 4000 characters once trimmed; omitted when the member has none */
+            dissent?: string;
+        };
+        /** @description What the report froze: the comparison of the chosen runs from what the experts decided, with no ranking and no winner */
+        BidReportSummary: {
+            conclusion: string;
+            package: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+            };
+            /** Format: uuid */
+            criteria_version_id: string;
+            /** @description The digest of the decisions the report was made from; a decision taken again changes it */
+            decisions_sha256: string;
+            proposals: {
+                /** Format: uuid */
+                proposal_id: string;
+                contractor: {
+                    /** Format: uuid */
+                    id: string;
+                    legal_name: string;
+                };
+                /** Format: uuid */
+                run_id: string;
+                criteria_count: number;
+                decided_count: number;
+                mandatory_not_met: number;
+                weighted_score: string | null;
+            }[];
+            rows: {
+                criterion: {
+                    code: string;
+                    name: string;
+                    kind: string;
+                    weight: number | null;
+                    max_score: number | null;
+                    threshold: number | null;
+                    mandatory: boolean;
+                };
+                cells: {
+                    /** Format: uuid */
+                    proposal_id: string;
+                    /** Format: uuid */
+                    finding_id: string | null;
+                    decided: {
+                        /** @enum {string} */
+                        status: "SUPPORTED" | "CONTRADICTED" | "MISSING" | "NEEDS_REVIEW";
+                        score: string | null;
+                        /** @enum {string} */
+                        decision: "ACCEPTED" | "ACCEPTED_WITH_CHANGE" | "REJECTED";
+                        /** Format: date-time */
+                        decided_at: string;
+                    } | null;
+                    /** @enum {string} */
+                    risk: "UNDECIDED" | "NONE" | "ATTENTION" | "MANDATORY_NOT_MET";
+                }[];
+            }[];
+            /** @description The proposals of the package that are not in the report, and why */
+            not_covered: {
+                /** Format: uuid */
+                proposal_id: string;
+                contractor: {
+                    /** Format: uuid */
+                    id: string;
+                    legal_name: string;
+                };
+                /** @enum {string} */
+                reason: "NOT_SELECTED" | "NO_ANALYSIS_RUN" | "CRITERIA_VERSION_MISMATCH";
+            }[];
+            excluded_criteria: {
+                code: string;
+                rule: string;
+            }[];
+            excluded_attributes: string[];
+        };
+        BidReport: {
+            /** Format: uuid */
+            id: string;
+            package: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+            };
+            /** Format: uuid */
+            project_id: string;
+            /** Format: uuid */
+            criteria_version_id: string;
+            run_ids: string[];
+            /** @enum {string} */
+            status: "DRAFT" | "SIGNED_OFF" | "ISSUE_REQUESTED" | "ISSUED" | "SUPERSEDED";
+            summary: components["schemas"]["BidReportSummary"];
+            signed_off_by: {
+                /** Format: uuid */
+                membership_id: string;
+                display_name: string;
+                /** Format: date-time */
+                signed_at: string | null;
+                dissent: boolean;
+            }[];
+            /** @description The members of the evaluation team the report still waits for; the ones a decision on a conflict of interest shut out are not waited for */
+            awaiting: {
+                /** Format: uuid */
+                membership_id: string;
+                display_name: string;
+                /** @enum {string} */
+                standing: "UNDECLARED" | "CLEAR" | "ALLOWED" | "PENDING";
+            }[];
+            /** @description The dissent members signed with, each in the words of the member */
+            dissenting_opinions: {
+                /** Format: uuid */
+                membership_id: string;
+                display_name: string;
+                text: string;
+                /** Format: date-time */
+                recorded_at: string;
+            }[];
+            payload_sha256: string | null;
+            /**
+             * Format: uuid
+             * @description The minutes DOC issued; null until doc.issued.v1 names this report
+             */
+            report_document_id: string | null;
+            /** @description The state of the document DOC drafted for the minutes, as DOC keeps it */
+            document_status: string | null;
+            /** @description Experts decided a finding of the runs again after the draft: the report no longer says what stands and cannot be signed */
+            stale: boolean;
+            actions: {
+                sign_off: boolean;
+            };
+            created_by: {
+                /** Format: uuid */
+                membership_id: string;
+                display_name: string;
+            };
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            issue_requested_at: string | null;
+            /** Format: date-time */
+            issued_at: string | null;
+            /** Format: date-time */
+            recalled_at: string | null;
+            version: number;
+        };
+        BidReportList: {
+            items: components["schemas"]["BidReport"][];
+            /** Format: date-time */
+            as_of: string;
+        };
+        DocInteropMessage: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            direction: "OUTBOUND" | "INBOUND";
+            /** @enum {string} */
+            status: "QUEUED" | "SENT" | "ACKED" | "REJECTED" | "FAILED" | "DEAD" | "RECEIVED" | "PROCESSED";
+            adapter_code: string;
+            /** @enum {string} */
+            adapter_status: "VERIFIED" | "PROPOSED" | "MOCK" | "MISSING";
+            external_message_id: string | null;
+            sender_code: string | null;
+            receiver_code: string | null;
+            /** Format: uuid */
+            outgoing_document_id: string | null;
+            /** Format: uuid */
+            incoming_document_id: string | null;
+            attempts: number;
+            /** Format: date-time */
+            next_attempt_at: string | null;
+            error_code: string | null;
+            /** Format: date-time */
+            processed_at: string | null;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+            version: number;
+            actions: {
+                /** @description The message failed or is dead and can be sent again by a person who may manage the messages; the server judges the command again */
+                retry: boolean;
+            };
+        };
+        DocInteropMessageList: {
+            items: components["schemas"]["DocInteropMessage"][];
+            next_cursor: string | null;
             /** Format: date-time */
             as_of: string;
         };
@@ -53743,6 +54265,98 @@ export interface operations {
             };
         };
     };
+    getHomeChannelHealth: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result; amounts as decimal strings; carries as_of/snapshot where applicable */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
     searchMasterRecords: {
         parameters: {
             query?: {
@@ -58831,6 +59445,13 @@ export interface operations {
                             revoked_at?: string | null;
                             /** @enum {string} */
                             status?: "ACTIVE" | "REVOKED";
+                            /**
+                             * @description What the operating system allows this device to do with notifications
+                             * @enum {string}
+                             */
+                            permission_state?: "granted" | "denied" | "provisional" | "unknown";
+                            /** @description The device the push of the member goes to: the live device used last that allows notifications. One at most; a device that denied notifications or was removed never is */
+                            push_owner?: boolean;
                         }[];
                         /** Format: date-time */
                         as_of?: string;
@@ -65060,6 +65681,76 @@ export interface operations {
             };
         };
     };
+    listPlacementMigrations: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlacementMigrationPage"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RESOURCE_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RATE_LIMIT */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
     startSiloPromotion: {
         parameters: {
             query?: never;
@@ -65340,6 +66031,129 @@ export interface operations {
             };
             /** @description PRECONDITION_REQUIRED (If-Match missing) */
             428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RATE_LIMIT */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getPlacementMigration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                migrationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlacementMigrationDetail"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RESOURCE_NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RATE_LIMIT */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listPlacements: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlacementList"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -68056,6 +68870,76 @@ export interface operations {
             };
             /** @description PRECONDITION_REQUIRED (If-Match missing) */
             428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RATE_LIMIT */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listTenantRestoreRequests: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenantId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantRestorePage"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SESSION_EXPIRED */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RESOURCE_NOT_FOUND */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -97796,13 +98680,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Scoped result; sensitive fields masked */
+            /** @description The messages of the tenant, the latest first */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["DocInteropMessageList"];
                 };
             };
             /** @description Unauthenticated */
@@ -97825,6 +98709,15 @@ export interface operations {
             };
             /** @description Not found within scope */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -101847,7 +102740,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BidReportSignOff"];
+            };
+        };
         responses: {
             /** @description Command accepted; returns resource id/version/status */
             200: {
@@ -120216,6 +121113,140 @@ export interface operations {
             };
             /** @description Not found within scope */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listEvaluationReports: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BidReportList"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification (CONFLICT_UNDECLARED) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getEvaluationReport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BidReport"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / classification (CONFLICT_UNDECLARED) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

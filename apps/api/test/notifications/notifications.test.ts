@@ -174,7 +174,7 @@ describe('notification inbox, read and acknowledge (ST-NOT-001 backend)', () => 
       expect(Object.keys(item ?? {}).sort()).toEqual(['ack_required', 'id', 'priority', 'resource_ref', 'status', 'title']);
     });
 
-    it('AC-ST-NOT-001-4: once the member cannot read the resource the content is replaced by "unavailable" and nothing else is sent', async () => {
+    it('AC-ST-NOT-001-4, AC-ST-KERNEL-061-1 (revocation clause): once the member cannot read the resource the content is replaced by "unavailable" and nothing else is sent', async () => {
       const id = await seed(SELF_ONLY);
       const before = itemsOf(await list(SELF_ONLY)).find((item) => item.id === id);
       expect(before).toMatchObject({ title: 'notification.content.unavailable.title' });
@@ -273,7 +273,7 @@ describe('notification inbox, read and acknowledge (ST-NOT-001 backend)', () => 
       expect(replay.json).toEqual(first.json);
     });
 
-    it('answers 404 for a notification of another member and for one that does not exist, without telling them apart', async () => {
+    it('AC-ST-KERNEL-061-1 (other-user clause): answers 404 for a notification of another member and for one that does not exist, without telling them apart', async () => {
       const id = await seed(READER);
       const foreign = await read(SELF_ONLY, id);
       const missing = await read(SELF_ONLY, randomUUID());
