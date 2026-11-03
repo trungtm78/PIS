@@ -8,6 +8,8 @@ import '../../core/offline/drafts/draft_store.dart';
 import '../../core/offline/drafts/local_draft.dart';
 import '../../core/offline/offline_providers.dart';
 import '../../core/offline/queue/command_queue.dart';
+import '../../core/offline/queue/offline_codes.dart';
+import '../../core/offline/queue/queue_results.dart';
 import '../../core/offline/queue/queue_runner.dart';
 import '../../core/offline/queue/queued_command.dart';
 import '../field_evidence/evidence_photos.dart';
@@ -104,7 +106,8 @@ class DiaryService {
   /// after a lost answer and a retry of the queue all give the same single diary (UAT-AC358). [over] is the diary of the day on the
   /// server when there is one: it is then written over under the version that was read, and a second editor who read the same
   /// version is refused with `VERSION_CONFLICT` and decides in MOB-42. Works without a network. Throws [DiaryNotReady] when a field
-  /// is not in order and [DiaryBusy] when the save before this one is not settled.
+  /// is not in order, [DiaryBusy] when the save before this one is not settled and [ResultUnverifiable] when it was refused as
+  /// unverifiable (it may have been carried out: only the person can say it was not).
   Future<QueuedCommand> queueSave(
     String draftId, {
     required String today,
@@ -131,6 +134,12 @@ class DiaryService {
             previous.state == CommandState.unknown ||
             previous.state == CommandState.conflict)) {
       throw DiaryBusy(previous.state);
+    }
+    if (previous != null &&
+        previous.state == CommandState.rejected &&
+        previous.errorCode == kResultUnverifiable) {
+      // It may have been carried out, and a new key would carry it out twice: the person decides in the queue.
+      throw ResultUnverifiable(previous.id);
     }
     draft = draft.copyWith(
       photos: await enforcePhotoConsent(

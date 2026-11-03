@@ -130,6 +130,32 @@ void main() {
       await phone.quiesce();
     });
 
+    test('a send cut after a photograph went up with the consent, then retried after the consent was taken back, hands that photograph over again from the stripped file', () async {
+      final _Phone phone = await _phone();
+      final IssuePhoto tagged = phone.photo('a', geotaggedJpeg(), keeps: true);
+      final IssuePhoto vanishing = phone.photo('b', plainJpeg(width: 20));
+      File(vanishing.path).deleteSync();
+      final String id = await phone.save(phone.draft(photos: <IssuePhoto>[tagged, vanishing], place: FieldPlace.none.withConsent(true)));
+      await expectLater(phone.service.send(id, manualPlaceLabel: _label), throwsA(isA<AttachmentRefused>()));
+      final AttachmentUploader uploader = await phone.container.read(attachmentUploaderProvider.future);
+      final AttachmentUpload stale = uploader.uploads().single;
+      expect(readJpegMetadata(File(stale.sourcePath).readAsBytesSync()).carriesPlaceOrTime, isTrue, reason: 'it went up with the consent');
+
+      // The consent is taken back before the retry.
+      phone.file('b.jpg', plainJpeg(width: 20));
+      final IssueDraft stored = (await phone.service.load(id))!.draft;
+      await phone.service.save(stored.copyWith(place: FieldPlace.none), draftId: id);
+      await phone.service.send(id, manualPlaceLabel: _label);
+
+      expect(uploader.upload(stale.id)!.state, UploadState.cancelled);
+      final List<AttachmentUpload> live = uploader.uploads().where((AttachmentUpload upload) => upload.state != UploadState.cancelled).toList();
+      expect(live, hasLength(2));
+      for (final AttachmentUpload upload in live) {
+        expect(readJpegMetadata(File(upload.sourcePath).readAsBytesSync()).carriesPlaceOrTime, isFalse, reason: 'nothing that is live says where or when');
+      }
+      await phone.quiesce();
+    });
+
     test('a report that is not ready is refused with the fields named, and nothing is queued or uploaded', () async {
       final _Phone phone = await _phone();
       final String id = await phone.save(phone.draft(title: '', photos: <IssuePhoto>[phone.photo('a', plainJpeg())]));

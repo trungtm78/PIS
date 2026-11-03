@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -6,11 +7,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_mobile/app/app_config.dart';
 import 'package:machvon_mobile/core/di/providers.dart';
 import 'package:machvon_mobile/core/offline/attachments/attachment_policy.dart';
+import 'package:machvon_mobile/core/offline/attachments/attachment_upload.dart';
 import 'package:machvon_mobile/core/offline/attachments/attachment_uploader.dart';
 import 'package:machvon_mobile/core/offline/offline_providers.dart';
 import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/features/field_evidence/evidence_photos.dart';
 import 'package:machvon_mobile/features/field_evidence/field_place.dart';
+import 'package:machvon_mobile/features/field_evidence/jpeg_metadata.dart';
+import 'package:machvon_mobile/features/field_evidence/png_metadata.dart';
 import 'package:machvon_mobile/features/site_photo/photo_models.dart';
 import 'package:machvon_mobile/features/site_photo/photo_service.dart';
 
@@ -80,6 +84,34 @@ void main() {
       expect(stored.record.photos.map((EvidencePhoto photo) => photo.uploadId), <String?>[firstUpload, kept.photos.last.uploadId]);
       await phone.quiesce();
     });
+
+    for (final (String, String, List<int> Function(), bool Function(List<int>)) kind in <(String, String, List<int> Function(), bool Function(List<int>))>[
+      ('jpeg', 'image/jpeg', geotaggedJpeg, (List<int> bytes) => readJpegMetadata(Uint8List.fromList(bytes)).carriesPlaceOrTime),
+      ('png', 'image/png', pngWithText, (List<int> bytes) => pngCarriesMetadata(Uint8List.fromList(bytes))),
+    ]) {
+      test('a photograph handed over while the consent held, then retried after the consent was taken back, is handed over again from the stripped file: no upload that still says where or when stays in the uploader (${kind.$1})', () async {
+        final _Phone phone = await _phone();
+        final EvidencePhoto first = EvidencePhoto(id: 'a', path: (File('${phone.folder.path}/a.${kind.$1}')..writeAsBytesSync(kind.$3())).path, mime: kind.$2, bytes: 3, keepsPlaceOrTime: true, sourceHadPlaceOrTime: true);
+        final EvidencePhoto second = EvidencePhoto(id: 'b', path: '${phone.folder.path}/b.jpg', mime: 'image/jpeg', bytes: 3);
+        PhotoRecord capture(FieldPlace place) => PhotoRecord(operationId: 'op-1', contractId: 'c-1', contractCode: 'HD-A-001', caption: '', place: place, photos: <EvidencePhoto>[first, second]);
+
+        await expectLater(phone.service.keep(capture(FieldPlace.none.withConsent(true))), throwsA(isA<AttachmentRefused>()));
+        final AttachmentUploader uploader = await phone.container.read(attachmentUploaderProvider.future);
+        final AttachmentUpload stale = uploader.uploads().single;
+        expect(kind.$4(File(stale.sourcePath).readAsBytesSync()), isTrue, reason: 'it went up with the consent: it says where');
+
+        File('${phone.folder.path}/b.jpg').writeAsBytesSync(plainJpeg(width: 20));
+        final PhotoRecord kept = await phone.service.keep(capture(FieldPlace.none));
+
+        expect(uploader.upload(stale.id)!.state, UploadState.cancelled, reason: 'the stale copy does not go up');
+        final AttachmentUpload fresh = uploader.upload(kept.photos.first.uploadId!)!;
+        expect(kind.$4(File(fresh.sourcePath).readAsBytesSync()), isFalse, reason: 'the copy that stands for the photograph says neither where nor when');
+        expect(uploader.uploads().where((AttachmentUpload upload) => upload.state != UploadState.cancelled), hasLength(2), reason: 'the photograph and the second one, each once');
+        expect(kept.photos.first.uploadId, isNot(stale.id));
+        expect(kept.photos.map((EvidencePhoto photo) => photo.uploadId), everyElement(isNotNull));
+        await phone.quiesce();
+      });
+    }
 
     test('an upload that is no longer in the uploader is handed over again, not trusted', () async {
       final _Phone phone = await _phone();

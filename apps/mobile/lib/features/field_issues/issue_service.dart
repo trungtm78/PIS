@@ -218,7 +218,7 @@ class IssueService {
     );
     final List<IssuePhoto> photos = <IssuePhoto>[];
     for (final IssuePhoto photo in draft.photos) {
-      if (photo.uploadId != null) {
+      if (await reuseUpload(uploader, photo.uploadId, keepsPlaceOrTime: photo.keepsPlaceOrTime)) {
         photos.add(photo);
         continue;
       }

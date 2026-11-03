@@ -208,6 +208,32 @@ Future<List<EvidencePhoto>> enforcePhotoConsent(
   return out;
 }
 
+/// Whether the upload made earlier for a photograph may stand for it now. A photograph is handed over once, and a send that is cut and
+/// made again must not hand it over twice; but the file of the photograph may have changed since (the consent to keep where and when
+/// was taken back and the file was rewritten), and the copy the uploader holds is the old one. A copy that is not the photograph's
+/// own any more (the uploader does not know it, or it still says where or when and the photograph must not) is cancelled when it has
+/// not finished, and the photograph is handed over again from its current file.
+Future<bool> reuseUpload(AttachmentUploader uploader, String? uploadId, {required bool keepsPlaceOrTime}) async {
+  if (uploadId == null) return false;
+  final AttachmentUpload? upload = uploader.upload(uploadId);
+  if (upload == null) return false;
+  if (keepsPlaceOrTime || !await _carriesMetadata(upload.sourcePath)) return true;
+  if (!upload.state.isFinal) uploader.cancel(uploadId);
+  return false;
+}
+
+/// Whether a file would be changed by taking the place, the time and the blocks that can say them out of it.
+Future<bool> _carriesMetadata(String path) async {
+  final File file = File(path);
+  if (!file.existsSync()) return false;
+  final Uint8List bytes = await file.readAsBytes();
+  final Uint8List clean =
+      bytes.length > 1 && bytes[0] == 0xFF && bytes[1] == 0xD8
+      ? stripJpegMetadata(bytes)
+      : stripPngMetadata(bytes);
+  return !_same(bytes, clean);
+}
+
 /// Hands each photograph that was not handed over yet to the uploader, once. [saved] is called after each, with the photographs as
 /// they stand, so a send cut between two photographs is resumed and never repeats the one that is up.
 Future<List<EvidencePhoto>> handOverPhotos(
@@ -219,7 +245,7 @@ Future<List<EvidencePhoto>> handOverPhotos(
 }) async {
   final List<EvidencePhoto> out = <EvidencePhoto>[];
   for (final EvidencePhoto photo in photos) {
-    if (photo.uploadId != null) {
+    if (await reuseUpload(uploader, photo.uploadId, keepsPlaceOrTime: photo.keepsPlaceOrTime)) {
       out.add(photo);
       continue;
     }

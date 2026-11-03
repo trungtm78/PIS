@@ -11,6 +11,8 @@ import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/offline/attachments/attachment_policy.dart';
 import '../../../core/offline/offline_providers.dart';
+import '../../../core/offline/queue/offline_codes.dart';
+import '../../../core/offline/queue/queue_results.dart';
 import '../../../core/offline/queue/queued_command.dart';
 import '../../../core/session/session.dart';
 import '../../command_support/command_flow.dart';
@@ -114,6 +116,10 @@ class _InspectionBodyState extends ConsumerState<_InspectionBody> with CommandFl
   bool _queued = false;
   bool _storeFailed = false;
   String? _photoRefusal;
+
+  /// The result before this one was refused as unverifiable: it may have been recorded, so this one is not sent until the person has
+  /// looked at it in the queue.
+  bool _unverifiable = false;
   Future<void> _writing = Future<void>.value();
 
   Inspection get _inspection => widget.inspection;
@@ -195,6 +201,7 @@ class _InspectionBodyState extends ConsumerState<_InspectionBody> with CommandFl
     setState(() {
       _problems = problems;
       _photoRefusal = null;
+      _unverifiable = false;
     });
     if (problems.isNotEmpty) return;
     setState(() => _saving = true);
@@ -205,6 +212,8 @@ class _InspectionBodyState extends ConsumerState<_InspectionBody> with CommandFl
       if (mounted) setState(() => _queued = true);
     } on ResultNotReady catch (notReady) {
       if (mounted) setState(() => _problems = notReady.problems);
+    } on ResultUnverifiable {
+      if (mounted) setState(() => _unverifiable = true);
     } on AttachmentRefused catch (refusal) {
       if (mounted) setState(() => _photoRefusal = refusal.code);
     } finally {
@@ -265,6 +274,7 @@ class _InspectionBodyState extends ConsumerState<_InspectionBody> with CommandFl
         ),
         if (_storeFailed) GateNote(text: context.t('mob.chk.store.notice')),
         if (_queued) GateNote(text: offline ? context.t('mob.chk.saved.offline') : context.t('mob.chk.saved')),
+        if (_unverifiable) GateNote(text: context.t('mob.queue.reason.unverifiable.body')),
         if (_photoRefusal != null) GateNote(text: '${evidenceRefusalText(context, _photoRefusal!)} $_photoRefusal'),
         if (pending != null && waiting) _Waiting(command: pending),
         if (inspection.isOpen && !waiting) ..._form(context, draft, readOnly) else if (!inspection.isOpen) _recorded(context, inspection),
@@ -441,7 +451,7 @@ class _Waiting extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String? code = command.errorCode;
-    final String? reason = command.state == CommandState.rejected && code != null ? inspectionRefusalText(context, inspectionRefusalOf(code)) : reasonOf(context, command);
+    final String? reason = command.state == CommandState.rejected && code != null && code != kResultUnverifiable ? inspectionRefusalText(context, inspectionRefusalOf(code)) : reasonOf(context, command);
     return SectionCard(
       title: context.t('mob.chk.waiting.title'),
       children: <Widget>[

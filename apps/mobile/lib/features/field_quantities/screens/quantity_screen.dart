@@ -11,6 +11,8 @@ import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/offline/attachments/attachment_policy.dart';
 import '../../../core/offline/offline_providers.dart';
+import '../../../core/offline/queue/offline_codes.dart';
+import '../../../core/offline/queue/queue_results.dart';
 import '../../../core/offline/queue/queued_command.dart';
 import '../../../core/session/session.dart';
 import '../../command_support/command_flow.dart';
@@ -92,6 +94,10 @@ class _QuantityBodyState extends ConsumerState<_QuantityBody> with CommandFlow<_
   bool _saving = false;
   bool _queued = false;
   bool _notRecordable = false;
+
+  /// The measurement before this one was refused as unverifiable: it may have been recorded, so this one is not sent until the person
+  /// has looked at it in the queue.
+  bool _unverifiable = false;
   bool _storeFailed = false;
   String? _photoRefusal;
   Future<void> _writing = Future<void>.value();
@@ -141,6 +147,7 @@ class _QuantityBodyState extends ConsumerState<_QuantityBody> with CommandFlow<_
       _problems = const <String, QuantityProblem>{};
       _queued = false;
       _notRecordable = false;
+      _unverifiable = false;
     });
     unawaited(_persist());
   }
@@ -175,6 +182,7 @@ class _QuantityBodyState extends ConsumerState<_QuantityBody> with CommandFlow<_
     setState(() {
       _saving = true;
       _photoRefusal = null;
+      _unverifiable = false;
     });
     try {
       final String id = await _persist();
@@ -202,6 +210,8 @@ class _QuantityBodyState extends ConsumerState<_QuantityBody> with CommandFlow<_
           _notRecordable = notReady.itemNotRecordable;
         });
       }
+    } on ResultUnverifiable {
+      if (mounted) setState(() => _unverifiable = true);
     } on AttachmentRefused catch (refusal) {
       if (mounted) setState(() => _photoRefusal = refusal.code);
     } finally {
@@ -245,6 +255,7 @@ class _QuantityBodyState extends ConsumerState<_QuantityBody> with CommandFlow<_
         if (_storeFailed) GateNote(text: context.t('mob.qty.store.notice')),
         if (_queued) GateNote(text: offline ? context.t('mob.qty.saved.offline') : context.t('mob.qty.saved')),
         if (_notRecordable) GateNote(text: context.t('mob.qty.item.notRecordable')),
+        if (_unverifiable) GateNote(text: context.t('mob.queue.reason.unverifiable.body')),
         if (_photoRefusal != null) GateNote(text: '${evidenceRefusalText(context, _photoRefusal!)} $_photoRefusal'),
         for (final QueuedCommand command in waiting) if (command.state != CommandState.accepted && command.state != CommandState.discarded) _Waiting(command: command),
         SectionCard(
@@ -421,7 +432,7 @@ class _Waiting extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String? code = command.errorCode;
-    final String? reason = command.state == CommandState.rejected && code != null ? quantityRefusalText(context, refusalOfCode(code)) : reasonOf(context, command);
+    final String? reason = command.state == CommandState.rejected && code != null && code != kResultUnverifiable ? quantityRefusalText(context, refusalOfCode(code)) : reasonOf(context, command);
     return SectionCard(
       title: context.t('mob.qty.waiting.title'),
       children: <Widget>[

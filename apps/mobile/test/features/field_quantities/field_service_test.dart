@@ -4,8 +4,11 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_mobile/app/app_config.dart';
 import 'package:machvon_mobile/core/di/providers.dart';
+import 'package:machvon_mobile/core/offline/drafts/draft_store.dart';
 import 'package:machvon_mobile/core/offline/offline_providers.dart';
 import 'package:machvon_mobile/core/offline/queue/command_queue.dart';
+import 'package:machvon_mobile/core/offline/queue/offline_codes.dart';
+import 'package:machvon_mobile/core/offline/queue/queue_results.dart';
 import 'package:machvon_mobile/core/offline/queue/queued_command.dart';
 import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/features/field_quantities/inspection_models.dart';
@@ -24,6 +27,8 @@ class _Phone {
   final ProviderContainer container;
   final FieldServer server;
 
+  Future<DraftStore> get drafts => container.read(draftStoreProvider.future);
+
   Future<CommandQueue> get queue => container.read(commandQueueProvider.future);
 
   /// Sends what is queued now, and ends the runners so nothing talks to the server when the test is over.
@@ -36,11 +41,11 @@ class _Phone {
   }
 
   /// The server answers the next command with a final refusal; the one after with an acceptance.
-  void refuseOnce() {
+  void refuseOnce({String code = 'QUANTITY_EXCEEDS_BOQ'}) {
     int answered = 0;
     server.sync.decide = (Map<String, Object?> item) {
       answered += 1;
-      return answered == 1 ? const ServerOutcome.rejected('QUANTITY_EXCEEDS_BOQ') : const ServerOutcome.accepted();
+      return answered == 1 ? ServerOutcome.rejected(code) : const ServerOutcome.accepted();
     };
   }
 }
@@ -157,6 +162,65 @@ void main() {
       final QueuedCommand second = await service.queueRecord(id, item: _item, periodsKnown: true);
       expect(second.id, first.id);
       expect((await phone.queue).commands(), hasLength(1));
+      await phone.settle();
+    });
+  });
+
+  group('AC-ST-MOB-021-2 UAT-AC358 a measurement refused as unverifiable may have been recorded: it is never sent again under a new key', () {
+    test('recording it again, corrected or not, is refused and leaves the refused command and its key as they were', () async {
+      final _Phone phone = await _phone();
+      phone.refuseOnce(code: kResultUnverifiable);
+      final QuantityService service = phone.container.read(quantityServiceProvider);
+      final String id = await service.save(_quantity((await service.draftFor('c-1')).draft, '9000'));
+      final QueuedCommand first = await service.queueRecord(id, item: _item, periodsKnown: true);
+      final CommandQueue queue = await phone.queue;
+      await queue.flush();
+      expect(queue.command(first.id)!.errorCode, kResultUnverifiable);
+
+      final StoredQuantityDraft reopened = await service.draftFor('c-1');
+      expect(reopened.id, id, reason: 'the blocked draft is the one that comes back');
+      await expectLater(service.queueRecord(id, item: _item, periodsKnown: true), throwsA(isA<ResultUnverifiable>()));
+      await service.save(_quantity(reopened.draft, '100'), draftId: id);
+      await expectLater(service.queueRecord(id, item: _item, periodsKnown: true), throwsA(isA<ResultUnverifiable>()));
+
+      expect(queue.commands(), hasLength(1), reason: 'no second measurement was made');
+      expect(queue.command(first.id)!.state, CommandState.rejected, reason: 'the person decides in the queue; nothing was discarded for them');
+      expect(QuantityDraft.fromJson((await phone.drafts).byId(id)!.fields)!.operationId, first.idempotencyKey);
+      await phone.settle();
+    });
+
+    test('once the person has discarded it in the queue, the measurement can be recorded again under a new key', () async {
+      final _Phone phone = await _phone();
+      phone.refuseOnce(code: kResultUnverifiable);
+      final QuantityService service = phone.container.read(quantityServiceProvider);
+      final String id = await service.save(_quantity((await service.draftFor('c-1')).draft, '9000'));
+      final QueuedCommand first = await service.queueRecord(id, item: _item, periodsKnown: true);
+      final CommandQueue queue = await phone.queue;
+      await queue.flush();
+
+      queue.discard(first.id);
+      final QueuedCommand second = await service.queueRecord(id, item: _item, periodsKnown: true);
+
+      expect(second.idempotencyKey, isNot(first.idempotencyKey));
+      await phone.settle();
+    });
+  });
+
+  group('AC-ST-MOB-021-3 UAT-AC358 an inspection result refused as unverifiable is never sent again under a new key', () {
+    test('recording it again is refused and leaves the refused command as it was', () async {
+      final _Phone phone = await _phone();
+      phone.refuseOnce(code: kResultUnverifiable);
+      final InspectionService service = phone.container.read(inspectionServiceProvider);
+      final String id = await service.save(_result((await service.draftFor('c-1', 'i-1')).draft, ''));
+      final QueuedCommand first = await service.queueResult(id, _inspection);
+      final CommandQueue queue = await phone.queue;
+      await queue.flush();
+      expect(queue.command(first.id)!.errorCode, kResultUnverifiable);
+
+      await expectLater(service.queueResult(id, _inspection), throwsA(isA<ResultUnverifiable>()));
+
+      expect(queue.commands(), hasLength(1));
+      expect(queue.command(first.id)!.state, CommandState.rejected);
       await phone.settle();
     });
   });

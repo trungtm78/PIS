@@ -12,6 +12,7 @@ import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/offline/attachments/attachment_policy.dart';
 import '../../../core/offline/offline_providers.dart';
+import '../../../core/offline/queue/queue_results.dart';
 import '../../../core/offline/queue/queued_command.dart';
 import '../../../core/session/session.dart';
 import '../../command_support/command_flow.dart';
@@ -117,7 +118,7 @@ class _DiaryBody extends ConsumerStatefulWidget {
   ConsumerState<_DiaryBody> createState() => _DiaryBodyState();
 }
 
-enum _Notice { queued, busy, store }
+enum _Notice { queued, busy, unverifiable, store }
 
 class _DiaryBodyState extends ConsumerState<_DiaryBody>
     with CommandFlow<_DiaryBody> {
@@ -285,6 +286,8 @@ class _DiaryBodyState extends ConsumerState<_DiaryBody>
       }
     } on DiaryBusy {
       if (mounted) setState(() => _notice = _Notice.busy);
+    } on ResultUnverifiable {
+      if (mounted) setState(() => _notice = _Notice.unverifiable);
     } on DiaryNotReady catch (notReady) {
       if (mounted) setState(() => _problems = notReady.problems);
     } on AttachmentRefused {
@@ -465,6 +468,8 @@ class _DiaryBodyState extends ConsumerState<_DiaryBody>
           ),
         if (_notice == _Notice.busy)
           GateNote(text: context.t('mob.dry.save.busy')),
+        if (_notice == _Notice.unverifiable)
+          GateNote(text: context.t('mob.queue.reason.unverifiable.body')),
         if (result != null) _outcomeCard(context, result),
         if (_editable)
           _form(context, draft, readOnlySession)

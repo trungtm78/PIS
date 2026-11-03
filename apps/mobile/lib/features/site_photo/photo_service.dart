@@ -36,7 +36,7 @@ class SitePhotoService {
     // The screen sends again what it holds: the photographs as they were taken, without the uploads an earlier, cut call gave them.
     // Those uploads are in the record that was kept, and writing the screen's photographs over it would forget them and hand the same
     // files over a second time.
-    final List<EvidencePhoto> clean = _withKnownUploads(await enforcePhotoConsent(capture.photos, consent: capture.place.consent), earlier, uploader);
+    final List<EvidencePhoto> clean = _withKnownUploads(await enforcePhotoConsent(capture.photos, consent: capture.place.consent), earlier);
     PhotoRecord record = _with(capture, clean);
     final String? existing = earlier?.id;
     final String id = drafts.save(id: existing, kind: kSitePhotoKind, fields: record.toJson(), recordId: record.contractId).id;
@@ -78,13 +78,14 @@ class SitePhotoService {
     (await _drafts).delete(capture.id);
   }
 
-  /// The photographs with the upload each already has in the record kept for this capture, when the uploader still knows that upload.
-  List<EvidencePhoto> _withKnownUploads(List<EvidencePhoto> photos, LocalDraft? kept, AttachmentUploader uploader) {
+  /// The photographs with the upload each already has in the record kept for this capture. Whether that upload still stands for the
+  /// photograph is for the hand-over to say.
+  List<EvidencePhoto> _withKnownUploads(List<EvidencePhoto> photos, LocalDraft? kept) {
     final PhotoRecord? before = kept == null ? null : PhotoRecord.fromJson(kept.fields);
     if (before == null) return photos;
     final Map<String, String> uploads = <String, String>{
       for (final EvidencePhoto photo in before.photos)
-        if (photo.uploadId case final String uploadId when uploader.upload(uploadId) != null) photo.id: uploadId,
+        if (photo.uploadId case final String uploadId) photo.id: uploadId,
     };
     return <EvidencePhoto>[
       for (final EvidencePhoto photo in photos) photo.uploadId == null && uploads.containsKey(photo.id) ? photo.copyWith(uploadId: uploads[photo.id]) : photo,

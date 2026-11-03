@@ -192,6 +192,30 @@ void main() {
     });
   });
 
+  group('AC-ST-MOB-021-2 UAT-AC358 a quantity refused as unverifiable', () {
+    testWidgets('comes back with its form when the screen is opened again, and recording it again says why it waits instead of making a second measurement', (WidgetTester tester) async {
+      useDevice(tester, kTall);
+      final FieldServer server = FieldServer();
+      server.sync.decide = (Map<String, Object?> item) => const ServerOutcome.rejected('RESULT_UNVERIFIABLE');
+      final FieldWorld world = await _open(tester, server: server);
+      await _fill(tester);
+      await tapText(tester, 'Lưu khối lượng');
+      final CommandQueue first = await _queue(tester, world);
+      await waitUntil(tester, () async => first.commands().any((QueuedCommand c) => c.state == CommandState.rejected));
+      await settleReal(tester, rounds: 8);
+
+      await openQuantityApp(tester, world, '/projects/mob-63/c-1');
+      final CommandQueue queue = await _queue(tester, world);
+      expect(find.text('Đã quá 7 ngày nên không xác nhận được kết quả. Kiểm tra hồ sơ trên web trước khi gửi lại.'), findsOneWidget, reason: 'the waiting card says why');
+      await tapText(tester, 'Lưu khối lượng');
+      await settleReal(tester, rounds: 8);
+
+      expect(find.text('Đã quá 7 ngày nên không xác nhận được kết quả. Kiểm tra hồ sơ trên web trước khi gửi lại.'), findsNWidgets(2), reason: 'the card and the note of the refused save');
+      expect(queue.commands().where((QueuedCommand c) => c.commandType == kMeasurementRecordCommand), hasLength(1));
+      expect(queue.commands().single.state, CommandState.rejected);
+    });
+  });
+
   group('AC-ST-MOB-021-1 UAT-AC367 a photograph with EXIF and no consent to keep the position', () {
     testWidgets('is kept without its place and time, carries gps_source NONE and geo_consent false, and its missing place is a warning only', (WidgetTester tester) async {
       useDevice(tester, kTall);
