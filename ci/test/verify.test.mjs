@@ -324,3 +324,30 @@ test('mobile-tests runs flutter test in every Dart package that exists and fails
   assert.match(stage.output, /client tests broke/);
   assert.equal(failed.exitCode, 1);
 });
+
+test('mobile-tests also runs flutter test in the application apps/mobile, after the two packages, and fails when it fails', () => {
+  const root = mobileWorkspace();
+  mkdirSync(join(root, 'packages', 'mobile-api-client'), { recursive: true });
+  writeFileSync(join(root, 'packages', 'mobile-api-client', 'pubspec.yaml'), 'name: machvon_api_client\n');
+  mkdirSync(join(root, 'apps', 'mobile'), { recursive: true });
+  writeFileSync(join(root, 'apps', 'mobile', 'pubspec.yaml'), 'name: machvon_mobile\n');
+  const seen = [];
+  const passing = (command, args, options) => {
+    seen.push({ line: [command, ...args].join(' '), cwd: options?.cwd });
+    return OK;
+  };
+  const passed = runVerification({ root, base: 'b', run: passing, config: {} });
+  assert.equal(passed.stages.find((s) => s.name === 'mobile-tests').status, 'pass');
+  assert.deepEqual(
+    seen.filter((call) => call.line === 'flutter test').map((call) => call.cwd),
+    [join(root, 'packages', 'mobile-tokens'), join(root, 'packages', 'mobile-api-client'), join(root, 'apps', 'mobile')],
+  );
+
+  const failing = (command, args, options) =>
+    command === 'flutter' && args[0] === 'test' && options?.cwd.endsWith('mobile') ? { status: 1, stdout: '', stderr: 'application tests broke' } : OK;
+  const failed = runVerification({ root, base: 'b', run: failing, config: {} });
+  const stage = failed.stages.find((s) => s.name === 'mobile-tests');
+  assert.equal(stage.status, 'fail');
+  assert.match(stage.output, /application tests broke/);
+  assert.equal(failed.exitCode, 1);
+});

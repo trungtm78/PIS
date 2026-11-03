@@ -1,0 +1,88 @@
+# MOB: the offline queue, draft conflicts, resumable uploads and the sync guard (ST-MOB-005, 006, 009, 007)
+
+Module documents: `Design/MACHVON_Design/01_Documents/05_modules/MOB.md` (4, 5, 6, 7), `07_Smartphone_iOS_Android.md` ("Offline và đồng bộ", CR-SMP-04, CR-SMP-05), `04_Thiet_ke_co_ban.md` (PowerSync, A1). The server half is in `docs/mob-sync.md` (batches, receipts, lookup, attachments). The foundation is `docs/mobile-foundation.md`. This page is the contract between the offline infrastructure and the stories that build screens on it (weekly report MOB-13..21, approvals, issues, site diary).
+
+The code is in `apps/mobile/lib/core/offline` (no screens) and the screens in `lib/features/offline` (MOB-41, MOB-42, MOB-43) and `lib/features/attachments` (MOB-19).
+
+## What was decided
+
+**Persistence: `sqlite3` 3.x built as SQLite3 Multiple Ciphers (`hooks: user_defines: sqlite3: source: sqlite3mc` in `pubspec.yaml`), keys in the Keychain / Keystore (`flutter_secure_storage`).** One package, no code generation, FFI. It is encrypted at rest (ChaCha20 by default; the test `local_store_test.dart` reads the file and finds neither the SQLite header nor the data, and shows that a wrong key or no key opens nothing), and the same build runs on the host, so `flutter test` exercises the real store without a device or an emulator. `drift` was not chosen: it adds a code generator and a second layer for a store that is four tables; `sqflite` and `sqlcipher_flutter_libs` need a device to run at all. The cost: the first build of a platform compiles SQLite (the build hook), and `sqlite3` is the only extra native dependency (plus `flutter_secure_storage`, `path_provider`, and the pure-Dart `image` for photos). A key is 256 bits from `Random.secure`, kept by scope; the store file and key are named by a digest of tenant and user, so nothing on the file system names a person.
+
+**One store for each user of each tenant** (`OfflineStorage`): `machvon-<digest>.db` and a private folder `uploads-<digest>` for the prepared files. Sign-out, tenant switch and a revoked scope call `purge`, which closes the store, deletes the file, its journals, the uploads folder and the key. A lapsed session does not purge: the drafts stay, locked by the session.
+
+**State names.** The story and the design say `QUEUED, SENDING, ACCEPTED, REJECTED, CONFLICT, UNKNOWN, DISCARDED`; the code uses exactly those (`CommandState`). In the words of the first draft of the story: PENDING = `queued` (also `sending`, `unknown`: `isPending`), FAILED = `rejected`, DONE = `accepted`.
+
+## The queue: `CommandQueue`
+
+```
+queued --send--> sending --accepted--> accepted
+   |                |-- rejected --> rejected --retry (new key)--> queued
+   |                |-- conflict --> conflict --resolve (new key, new base version)--> queued
+   |                |-- no answer --> unknown --lookup--> accepted | rejected | conflict | queued
+   |                '-- nothing kept (5xx, 429, ...) --> queued (backoff, same key)
+   '--discard--> discarded      (also from rejected and conflict; never from unknown)
+```
+
+`kAllowedMoves` is the table; the repository applies it to every change and a move it does not allow is a `StateError` that changes nothing.
+
+Getting the queue in a feature:
+
+```dart
+final CommandQueue queue = await ref.read(commandQueueProvider.future);   // bound to the session's tenant and user
+final QueuedCommand command = queue.enqueue(
+  commandType: 'report.submit',                    // the types of docs/mob-sync.md
+  payload: <String, Object?>{'report_id': id},
+  baseServerVersion: report.version,               // the version the person saw
+  attempt: attemptOfThisScreen,                    // the CommandAttempt of the intention: the same tap gives the same command
+  draftId: draft.id, releaseDraft: true,           // the draft the command was made from
+);
+```
+
+- **Idempotency key.** `attempt.key` (a UUID, 16 to 128 characters of `A-Za-z0-9._:-`) is the command's `Idempotency-Key`. A second `enqueue` with the same attempt and the same command returns the command that exists; the same key with another type, version or payload is `IdempotencyKeyReuse`. The key of a settled command is never reused: a rejected command sent again, and a conflict resolved, are **new decisions** and get a new key (the server's receipt for the old key would answer from itself), kept in `supersededKeys`.
+- **Sending.** `queue.flush()` looks up the unknown commands first (`GET /sync/commands/{key}`), then sends up to 50 due commands in one `POST /sync/batches` (a fresh batch key for each send: the batch is an envelope, the commands carry their keys), and reads the answer item by item. `QueueRunner` (provider `queueRunnerProvider`) calls it when the app starts, when a command is made, when `reachabilityProvider` goes online, when the session signs in and when a backoff ends. A blocked flush returns a `FlushResult.blocker` instead of throwing.
+- **UNKNOWN.** The state is written before the request leaves, so a process killed in the middle finds `sending` and `recoverInterrupted()` makes it `unknown`; a cut connection, an unreadable answer and a 5xx after the work may have started do the same. An unknown command is looked up by its key; `accepted`/`rejected`/`conflict` settle it; `not_received` sends it again under the same key (safe: the server runs a key once). After the 7 days the server keeps receipts, "not received" proves nothing, so the command is `rejected` with `RESULT_UNVERIFIABLE` and the person checks the record.
+- **Retry.** Transient answers (`INTERNAL_ERROR`, `RATE_LIMITED`, `SESSION_EXPIRED`, `UNAVAILABLE`, `IDEMPOTENCY_IN_PROGRESS`, 503 `PROVIDER_UNAVAILABLE`) go back to `queued` with exponential backoff (2 s doubling to 5 min, with jitter) and the same key. A lapsed session (401) or a refused device (403) leaves everything queued and tells the screen.
+- **The decisions of the person.** `queue.retry(id)` (a refused command is sent again with a new key; an unknown one is looked up now), `queue.discard(id, deleteDraft:)`, `queue.resolveConflict(id, payload:, baseServerVersion:)`.
+- **Reading.** `queue.watch()` (a stream of the list), `queue.events` (every move; `QueueEvent.becameConflict`, `becamePeriodLocked`, `becameAccepted`), `queue.stats()` (counts, bytes, the age of the oldest, `unknownRate`), `queue.unsentCount` (a tenant switch or sign-out waits while it is above zero) and `queue.nextDueAt`. `queuedCommandsProvider` is the stream for screens; `syncStatusPublisherProvider` writes the shell banner.
+- **Envelope.** A command carries its tenant and user and is sent only while the session is that tenant and user (`FlushBlocker.noSession` otherwise); the store is the person's own, and a command with another tenant in it is skipped even if one got in.
+- **Device.** `POST /sync/batches` names the registered device. `LocalStore.deviceId` is set by whoever registers the device (IAM / notifications story); without it nothing is sent (`FlushBlocker.noDevice`).
+
+## Drafts and conflicts (ST-MOB-006)
+
+`DraftStore` (provider `draftStoreProvider`) keeps the person's work (`local_draft`: a UUID, the kind, the record id, the fields in the shape of the command, the version they were based on). A draft is never deleted or rewritten by an answer that is not an acceptance of the command made from it: a locked period (`PERIOD_LOCKED`), an expired licence, a lost scope and a conflict make it `blocked` with the code, intact; accepting a submit releases it, accepting a save keeps it at the server's version. Editing a blocked draft makes it editable again.
+
+- **Locked period (UAT-AC507).** The command is `rejected` with `PERIOD_LOCKED`, MOB-41 shows the reopening guidance, the draft stays. After the period is reopened the person chooses *Send again* (`queue.retry`) and the command is accepted once.
+- **Conflict (UAT-AC504).** The server's `conflict` answer carries only the version (`server_version`). The record is read through the read operation of its module: register a `ConflictAdapter` for the command type (`conflictAdaptersProvider`; the standard ones are `report.draft.save` and `report.submit`, read with `GET /reports/{id}` and mapped to the draft's shape). `ConflictAdapters.conflictOf` returns the `DraftConflict` and the version the copy was read at.
+- **The comparison** (`DraftConflict.compare`) lists the fields that differ with both values; lists whose items have an identity (`listIdentity`, e.g. `funding_lines` by bucket, budget level and source year) are compared item by item, so another order is no difference; amounts (`*_vnd`) are compared as exact decimals (`Decimal`, no `double`), so `80000000.00` equals `80000000`, and a money difference carries `moneyDelta`. A field the draft leaves out is not compared (a save that leaves a field out keeps the server's value).
+- **Money is never merged by a rule.** `DraftConflict.resolve(choices)` refuses unless every difference has a choice (`FieldChoice.mine` or `.server`), money included; MOB-42's *keep mine / take server for everything that is not money* buttons never touch an amount. The resolved payload goes to `queue.resolveConflict` with the version it was read at, which must be newer than the one the command was based on; the command returns to `queued` with a new key and is accepted once.
+
+## Attachments: `AttachmentUploader` (ST-MOB-009)
+
+```dart
+final AttachmentUploader uploader = await ref.read(attachmentUploaderProvider.future);
+final AttachmentUpload upload = await uploader.add(file: file, ownerKind: 'report', ownerRef: reportId);   // AttachmentRefused before anything is copied
+// the UploadRunner (uploadRunnerProvider) resumes uploads; or: await uploader.run(upload.id);
+final String attachmentId = uploader.linkableId(upload.id);   // only when clean, else AttachmentNotClean
+```
+
+- **Checks before anything is sent** (`checkAttachment`): the file exists, is not empty, is at most 50 MiB, and is a JPEG, a PNG or a PDF **by its first bytes** (`FILE_NOT_FOUND`, `FILE_TYPE_NOT_ALLOWED`, `FILE_TOO_LARGE`; the server judges again). A JPEG over 1 MiB or wider than 2048 px is scaled and recompressed (quality 80) in another isolate; PNG and PDF are kept; the original of the gallery is untouched. The prepared copy is in the user's private uploads folder and its SHA-256 (streamed, whole file) is what is declared.
+- **Chunks.** `POST /sync/attachments` (the idempotency key of the upload, so a lost answer gives the same upload back) returns a link for each 1 MiB chunk; each is PUT to its signed link by `ChunkTransport` (https only, exact length, no redirect, no bearer token). The progress (the chunks the server acknowledged) is stored after every chunk. **What the server holds decides what is sent**: before sending, and after an expired link or a restart, `GET /sync/attachments/{id}` says which chunks it has and signs fresh links for the others, so chunks 1 to 6 are not sent again after a cut at chunk 7. Links are used only if they are root-relative, on the chunk path of an attachment, with `tenant` equal to the active tenant (`resolveChunkUrl`); anything else ends the upload (`CHUNK_LINK_REFUSED`).
+- **Completion.** `POST .../complete` with the SHA-256. `ATTACHMENT_CHUNKS_MISSING` sends the missing chunk; `CHECKSUM_MISMATCH` (the server dropped the chunks) starts again under a new completion key, at most twice, then the upload fails with the code; `FILE_TYPE_NOT_ALLOWED` fails it. The states are `pending` (waiting for a network or a retry), `uploading`, `scanning`, `clean`, `infected` (reason `FILE_INFECTED`, a *Try again* starts a new upload), `failed` (a code), `cancelled`.
+- **Not here:** picking the file. `attachmentPickerProvider` is the seam; the story that adds the camera / gallery / document plugin and its permission screens provides it, and MOB-19 shows *Add a file* only when it exists.
+
+## Sync rules and the guard (ST-MOB-007)
+
+What is built, and what waits for the service (spike ST-KERNEL-002, not run):
+
+- **Server: the token.** `LocalTenantTokenIssuer.issuePowerSync({tenant, now})` issues the PowerSync token: ES256, audience `powersync`, `sub` and `membership_id` (the membership), `tenant_id`, `scope_version`, `iat`, `exp = iat + 300`. It takes nothing from the client; the tenant context is the one the caller was judged under. **No operation exposes it yet**: the phone's `SyncCredentialSource` needs an endpoint (for example `POST /sync/token`, permission `sync.submit`) in `openapi.json`, which is a contract change for the lead (gap).
+- **Server: the static check of the rules** (`packages/contracts/src/sync-rules-check.ts`, `checkSyncBuckets`): each bucket's parameter query takes the tenant and the membership from `request.jwt()`, nothing from `request.parameters()`; every data query compares a `tenant_id` with `bucket.tenant_id`; no literal ids; no `*`; every column is on the allowlist of its table; no table of personal data; every `*_vnd` column is read only. The rules of the weekly report pass, and the test turns each rule red with a mutation. It runs on any bucket a later story adds.
+- **Phone: `SyncCoordinator`** (provider `syncCoordinatorProvider`, which is null until a `SyncEngine` and a `SyncCredentialSource` are provided). It hands the engine only a token, after checking that it is for the active tenant, lives at most 5 minutes, has the audience `powersync` and does not go back in `scope_version` (a replay); it sends **no parameter**. A checkpoint with **no buckets** for a person who had some (remembered in the encrypted store, so a restart does not forget it), a 403 from the service and a 403 from the token endpoint are a revocation: the engine deletes every synced row (`disconnectAndClear`), the person's store is purged, and `scopeRevocationProvider` is raised for the session story to sign the person out. The `as_of` of the device (`LocalStore.dataAsOf`, shown by MOB-43) is the time of the last checkpoint the server gave, never the clock of the phone.
+- **Not built:** the PowerSync SDK adapter behind `SyncEngine` (needs the service and a device to be proven; `powersync` pulls its own native binaries and SQLite handling that could not be verified here), the deployable sync rules (the reference needs joins and subqueries that the dialect does not take; translation 1 to 5 of `docs/dis-mobile-contract.md`), the consumer that projects membership and grant events into `sync_membership_scope`, the infrastructure gate of AC-ST-MOB-007-4 (runbook, bucket-rebuild test, sync-lag alert; the component stays `PLANNED`).
+
+## What only a device (or the service) can prove
+
+Listed so they become external checks: that the Keychain / Keystore really holds the key (the adapter over `flutter_secure_storage` is tested only through its port) and that a file restored from a backup cannot be opened; the kill-the-network-at-each-step matrix and an app killed in the middle of a send or of a chunk, on iOS and Android; network flapping during an upload; camera, gallery and background / foreground behaviour; text scaling, TalkBack and VoiceOver on MOB-19, 41, 42, 43 (the tests check tap targets, labels, contrast and 200 percent text on the host); the time to compress a 12 MP photo in pure Dart on a mid-range phone (the isolate keeps the screen alive; the time is not measured); the PowerSync service end to end (cross-tenant and revoke-while-offline tests, UAT-AC500, UAT-AC501 on a device).
+
+## Tests
+
+`apps/mobile/test/core/offline` (store, queue, runner, conflicts, uploader, sync coordinator), `test/features/offline`, `test/features/attachments`, `packages/contracts/test/sync-rules-check.test.ts`, `apps/api/test/auth/powersync-token.test.ts`. The fakes (`test/support/fake_sync_server.dart`, `fake_attachment_server.dart`) implement the behaviour of the server documented in `docs/mob-sync.md`; the rules themselves are proven on PostgreSQL by `apps/api/test/sync`.

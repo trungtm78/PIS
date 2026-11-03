@@ -1,0 +1,15 @@
+# STATUS: NOT RUN. Written on a host with no device; nobody has run this flow on a phone.
+# Supports: AC-ST-MOB-040-2 / UAT-NFR-PERFORMANCE-02, the 2.5 s budget of the main content after a cold start.
+# One run of this flow is ONE sample: it fails when the home tab is not visible within the budget, so a pass says "this sample
+# was within 2.5 s as seen by Maestro" (the polling of Maestro adds up to a few hundred ms: the verdict is made from the
+# timed samples of scripts/run_cold_start_samples.sh, not from this pass alone).
+# The app is killed first so that the start is cold. Needs a signed-in session (05_sign_in.yaml) and the network.
+appId: vn.machvon.app
+---
+- stopApp
+- launchApp:
+    clearState: false
+    stopApp: true
+- extendedWaitUntil:
+    visible: 'Trang chủ'
+    timeout: 2500

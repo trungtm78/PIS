@@ -1,0 +1,125 @@
+name: Mobile
+
+# The Flutter application (apps/mobile) and the two packages it is built from. Analysis, tests (unit, widget and golden,
+# at three screen sizes and 200 percent text), the generated files, and a build for each platform. The Flutter version is
+# pinned, the same as in ci.yml. docs/mobile-foundation.md explains what each step guards.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/mobile/**'
+      - 'packages/mobile-api-client/**'
+      - 'packages/mobile-tokens/**'
+      - 'Design/MACHVON_Design/03_Engineering/navigation_architecture.json'
+      - 'Design/MACHVON_Design/03_Engineering/screen_catalog.json'
+      - '.github/workflows/mobile.yml'
+  pull_request:
+    paths:
+      - 'apps/mobile/**'
+      - 'packages/mobile-api-client/**'
+      - 'packages/mobile-tokens/**'
+      - 'Design/MACHVON_Design/03_Engineering/navigation_architecture.json'
+      - 'Design/MACHVON_Design/03_Engineering/screen_catalog.json'
+      - '.github/workflows/mobile.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: 3.47.7
+
+jobs:
+  test:
+    name: Analyze and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      # The generated Dart client and the token theme: their own tests, including the contract test that reads every
+      # recorded response (a renamed backend field fails here).
+      - name: Packages (tokens, API client)
+        run: |
+          for package in packages/mobile-tokens packages/mobile-api-client; do
+            (cd "$package" && flutter pub get && flutter analyze && flutter test)
+          done
+
+      # The application: the lockfile is committed and must match pubspec.yaml.
+      - name: Application dependencies
+        working-directory: apps/mobile
+        run: flutter pub get --enforce-lockfile
+
+      - name: Generated files match the design files and the feature directories
+        working-directory: apps/mobile
+        run: |
+          dart run tool/generate_routes.dart --check
+          dart run tool/generate_registry.dart --check
+
+      - name: Analyze
+        working-directory: apps/mobile
+        run: flutter analyze
+
+      # Unit, widget and golden tests. The goldens use the test font and a small tolerance, so they hold on every OS.
+      - name: Test (with coverage)
+        working-directory: apps/mobile
+        run: flutter test --coverage
+
+      - name: Coverage floor (90 percent of lines)
+        working-directory: apps/mobile
+        run: |
+          awk -F: '/^LF:/ {lf += $2} /^LH:/ {lh += $2} END {pct = 100 * lh / lf; printf "line coverage %.1f%%\n", pct; if (pct < 90) exit 1}' coverage/lcov.info
+
+  android:
+    name: Build Android
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      # A debug build proves that the project, the plugins and the manifest assemble. A release is built by the release
+      # train with its own signing key (android/key.properties, never committed).
+      - name: Build the APK
+        working-directory: apps/mobile
+        run: flutter build apk --debug
+
+  ios:
+    name: Build iOS
+    needs: test
+    runs-on: macos-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      # No signing here: the release train signs with its own certificates.
+      - name: Build the app without code signing
+        working-directory: apps/mobile
+        run: flutter build ios --release --no-codesign

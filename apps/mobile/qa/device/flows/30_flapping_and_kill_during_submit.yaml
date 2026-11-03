@@ -1,0 +1,35 @@
+# STATUS: NOT RUN. Written on a host with no device; nobody has run this flow on a phone.
+# Supports: AC-ST-MOB-040-3 / UAT-AC502 (network flapping and an app killed during a save: one record, no field lost, the message
+# "Chưa xác định kết quả" until the server says ACCEPTED). The host version of the same cases is
+# test/hardening/resilience_matrix_test.dart; this flow is the proof on the real radio and the real process killer.
+# Android only (airplane mode is set from Maestro here; on iOS the tester switches the network off in Control Centre and follows
+# the same steps by hand: docs/mobile-device-matrix.md, "Resilience run").
+# Needs: a seeded weekly report period in draft for the test project, the device registered (a sync device id), the network.
+# Variables: -e PROJECT=<name of the seeded project as shown in MOB-09>
+# After the run the tester counts the records on the server for the submission (SQL or API) and writes the count in the results.
+appId: vn.machvon.app
+---
+- launchApp
+- tapOn: 'Dự án'
+- tapOn: ${PROJECT}
+# The tester fills the seeded figures by hand once (the fields are in docs/mobile-device-matrix.md); then:
+- setAirplaneMode: enabled
+- assertVisible: 'Bạn đang ngoại tuyến'
+- tapOn: 'Nộp báo cáo'
+# the app is killed while the submission is queued, the radio comes back and goes away again (flapping)
+- stopApp
+- setAirplaneMode: disabled
+- launchApp
+- setAirplaneMode: enabled
+- stopApp
+- setAirplaneMode: disabled
+- launchApp
+# The queue list (MOB-41) has no entry from the account tab or from the banner (finding NAV-01 of docs/mobile-security-review.md):
+# the tester reaches the state of the submission from the report it belongs to.
+- tapOn: 'Dự án'
+- tapOn: ${PROJECT}
+- takeScreenshot: results/${DEVICE}/30_report_after_flapping
+# Hold here until the radio has been steady for 60 seconds, then:
+- takeScreenshot: results/${DEVICE}/30_report_settled
+# Manual assertions written in the results sheet: the screen said "Chưa xác định kết quả" (not "Đã gửi") while the answer was missing,
+# said the submission was received only after the server confirmed, and the server holds exactly one report revision for it.

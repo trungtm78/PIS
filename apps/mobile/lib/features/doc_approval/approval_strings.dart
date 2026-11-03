@@ -1,0 +1,51 @@
+import '../../core/l10n/string_table.dart';
+
+/// The words DOC-22 adds to the signing view of MOB-67 (the list, the file, the comparison, the way of signing and the confirmation are
+/// the words of `document_signing`): the title and the return of a document to its drafter with a reason. Signing and returning are
+/// online only; the sentences follow the web DOC-22.
+const StringTable docApprovalStrings = StringTable(
+  vi: <String, String>{
+    'mob.docapv.list.title': 'Duyệt và ký văn bản',
+    'mob.docapv.detail.title': 'Duyệt và ký văn bản',
+    'mob.docapv.return.title': 'Trả lại văn bản',
+    'mob.docapv.return.intro': 'Chưa ký được thì trả văn bản về người soạn kèm lý do. Việc trả lại chỉ thực hiện khi có kết nối mạng và không bao giờ được giữ lại để gửi sau.',
+    'mob.docapv.return.open': 'Trả lại kèm lý do',
+    'mob.docapv.return.reason.label': 'Lý do trả lại',
+    'mob.docapv.return.reason.required': 'Hãy nhập lý do trả lại.',
+    'mob.docapv.return.reason.tooShort': 'Lý do trả lại cần ít nhất 10 ký tự.',
+    'mob.docapv.return.reason.tooLong': 'Lý do trả lại tối đa 2000 ký tự.',
+    'mob.docapv.return.submit': 'Trả lại người soạn',
+    'mob.docapv.return.cancel': 'Bỏ qua',
+    'mob.docapv.return.sending': 'Đang gửi…',
+    'mob.docapv.return.gate.offline': 'Cần kết nối mạng để trả lại văn bản. Việc trả lại không bao giờ được xếp hàng đợi hay gửi từ bản lưu trên máy.',
+    'mob.docapv.return.gate.readOnly': 'Tổ chức đang ở chế độ chỉ đọc nên chưa thể trả lại văn bản.',
+    'mob.docapv.return.done.title': 'Đã trả lại người soạn',
+    'mob.docapv.return.done.body': 'Văn bản không còn chờ ký. Máy chủ đã ghi nhận lý do trả lại.',
+    'mob.docapv.return.unknown.title': 'Chưa xác định kết quả',
+    'mob.docapv.return.unknown.body': 'Mất kết nối trước khi nhận được trả lời. Gửi lại cùng thao tác sẽ không tạo thêm một thao tác thứ hai.',
+    'mob.docapv.return.unknown.action': 'Gửi lại cùng thao tác',
+    'mob.docapv.return.retry.action': 'Thử lại',
+  },
+  en: <String, String>{
+    'mob.docapv.list.title': 'Approve and sign documents',
+    'mob.docapv.detail.title': 'Approve and sign a document',
+    'mob.docapv.return.title': 'Return the document',
+    'mob.docapv.return.intro': 'If it cannot be signed, give the document back to its drafter with a reason. Returning needs a connection and is never kept to be sent later.',
+    'mob.docapv.return.open': 'Return with a reason',
+    'mob.docapv.return.reason.label': 'Reason for the return',
+    'mob.docapv.return.reason.required': 'Enter the reason for the return.',
+    'mob.docapv.return.reason.tooShort': 'The reason needs at least 10 characters.',
+    'mob.docapv.return.reason.tooLong': 'The reason may be at most 2000 characters.',
+    'mob.docapv.return.submit': 'Return to the drafter',
+    'mob.docapv.return.cancel': 'Cancel',
+    'mob.docapv.return.sending': 'Sending…',
+    'mob.docapv.return.gate.offline': 'A connection is needed to return the document. Returning is never queued or sent from a copy kept on the device.',
+    'mob.docapv.return.gate.readOnly': 'The organisation is read-only, so the document cannot be returned yet.',
+    'mob.docapv.return.done.title': 'Returned to the drafter',
+    'mob.docapv.return.done.body': 'The document no longer waits for a signature. The server recorded the reason.',
+    'mob.docapv.return.unknown.title': 'Result not known',
+    'mob.docapv.return.unknown.body': 'The connection was lost before the answer arrived. Sending the same command again will not create a second one.',
+    'mob.docapv.return.unknown.action': 'Send the same command again',
+    'mob.docapv.return.retry.action': 'Try again',
+  },
+);

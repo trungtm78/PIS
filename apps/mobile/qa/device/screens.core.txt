@@ -1,0 +1,10 @@
+MOB-02 sign-in (signed out)
+MOB-07 home tab
+MOB-09 projects tab
+MOB-14 weekly report, first step of a seeded draft
+MOB-20 weekly report, review and submit
+MOB-23 approvals tab
+MOB-32 notifications tab
+MOB-41 queue (open it from the review screen: "Xem hàng đợi gửi")
+MOB-47 account tab
+MOB-52 an empty list (any list with a filter that matches nothing)

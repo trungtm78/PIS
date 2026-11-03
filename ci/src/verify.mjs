@@ -19,7 +19,7 @@ const PRODUCT_COMMANDS = [
   ['npm', ['run', 'architecture']],
 ];
 const DESIGN_TOOLS_DIR = 'Design/MACHVON_Design/work/tools';
-const MOBILE_PACKAGE_DIRS = ['packages/mobile-tokens', 'packages/mobile-api-client'];
+const MOBILE_PACKAGE_DIRS = ['packages/mobile-tokens', 'packages/mobile-api-client', 'apps/mobile'];
 const BLOCKING_SEVERITY = /\b(Critical|High)\b/;
 const RECOMMENDATION = /^Recommendation:/m;
 
@@ -66,7 +66,7 @@ function productTestsStage(run, root, { required = true } = {}) {
   return { ...result, output: failures.map((item) => item.output).join('\n') };
 }
 
-// Runs the Dart tests of the mobile packages (design tokens, generated API client). Without any package or without
+// Runs the Dart tests of the mobile packages and of the application (design tokens, generated API client, apps/mobile). Without any package or without
 // Flutter on the machine there is nothing to run, which is reported as skipped (earns no credit) rather than as a pass.
 function mobileTestsStage(run, root, { required = true } = {}) {
   const skipped = { name: 'mobile-tests', status: 'skipped', findings: [], output: '' };

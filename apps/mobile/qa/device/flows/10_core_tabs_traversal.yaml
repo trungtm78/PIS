@@ -1,0 +1,22 @@
+# STATUS: NOT RUN. Written on a host with no device; nobody has run this flow on a phone.
+# Supports: AC-ST-MOB-040-1 / UAT-NFR-ACCESSIBILITY-02 (every tab reachable and named, with the system font at 200 percent and with
+# TalkBack or VoiceOver switched on by the tester: see docs/mobile-device-matrix.md, section "Accessibility run").
+# Needs: a build installed on the device, a signed-in session of a seeded tenant (run 05_sign_in.yaml first), Vietnamese interface.
+# Run:   maestro test --format junit --output results/<device>/10_tabs.xml flows/10_core_tabs_traversal.yaml
+appId: vn.machvon.app
+---
+- launchApp
+- assertVisible: 'Trang chủ'
+- takeScreenshot: results/${DEVICE}/10_home
+- tapOn: 'Dự án'
+- assertVisible: 'Dự án'
+- takeScreenshot: results/${DEVICE}/10_projects
+- tapOn: 'Phê duyệt'
+- assertVisible: 'Phê duyệt'
+- takeScreenshot: results/${DEVICE}/10_approval
+- tapOn: 'Thông báo'
+- assertVisible: 'Thông báo'
+- takeScreenshot: results/${DEVICE}/10_inbox
+- tapOn: 'Cá nhân'
+- assertVisible: 'Cá nhân'
+- takeScreenshot: results/${DEVICE}/10_account

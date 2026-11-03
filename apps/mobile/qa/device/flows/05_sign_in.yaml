@@ -1,0 +1,24 @@
+# STATUS: NOT RUN. Written on a host with no device; nobody has run this flow on a phone.
+# Supports: AC-ST-MOB-040-1 (the entry to every other flow) and AC-ST-MOB-041-1 (a session exists on the device to inspect).
+# Needs: the build of the tenant under test; the identity provider of the pilot with a test account that has no second factor.
+# The system browser page of the identity provider is not part of the application: its fields differ by provider, so the two
+# steps in it are written for a Keycloak login page and must be adapted to the pilot provider before the first run.
+# Variables: -e IDP_USER=... -e IDP_PASSWORD=...   (never commit values; the account is synthetic data of the pilot tenant)
+appId: vn.machvon.app
+---
+- clearState
+- launchApp
+- tapOn: 'Đăng nhập bằng SSO'
+- extendedWaitUntil:
+    visible: 'Sign in'
+    timeout: 20000
+- tapOn:
+    id: username
+- inputText: ${IDP_USER}
+- tapOn:
+    id: password
+- inputText: ${IDP_PASSWORD}
+- tapOn: 'Sign In'
+- extendedWaitUntil:
+    visible: 'Trang chủ'
+    timeout: 20000

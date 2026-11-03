@@ -16,6 +16,7 @@ The body is `device_id` and 1 to 50 `items` (`idempotency_key`, `command_type`, 
 | `issue.create` | `POST /issues` | – |
 | `site_diary.append` | `POST /site-diaries` (a new draft), or `POST /site-diaries/{diary_id}/draft` when the payload names `diary_id` | the second one, `If-Match` |
 | `measurement.record` | `POST /contracts/{contract_id}/measurements` | – |
+| `inspection.result` | `POST /inspections/{inspection_id}/result` | `If-Match` = `base_server_version` |
 
 The ids that go into the path must be UUIDs (anything else is `VALIDATION_FAILED`, never forwarded).
 

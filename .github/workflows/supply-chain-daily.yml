@@ -45,13 +45,13 @@ jobs:
           set -o pipefail
           npm run supply-chain:check -- --audit --locale en 2>&1 | tee audit.log
 
-      # The pub packages of the mobile clients: the OSV scanner reads each pubspec.lock; a package without a lockfile has nothing locked to audit.
+      # The pub packages and the application of the mobile clients (packages, apps/mobile): the OSV scanner reads each pubspec.lock; a package without a lockfile has nothing locked to audit.
       - name: Audit pub dependencies
         id: pub
         continue-on-error: true
         run: |
           set -o pipefail
-          locks=$(find packages -name pubspec.lock -not -path '*/node_modules/*' | sort)
+          locks=$(find packages apps/mobile -name pubspec.lock -not -path '*/node_modules/*' | sort)
           if [ -z "$locks" ]; then echo "no pubspec.lock: nothing locked to audit" | tee pub.log; exit 0; fi
           args=""
           for lock in $locks; do args="$args --lockfile=$lock"; done
