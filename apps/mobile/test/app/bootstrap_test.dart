@@ -8,6 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_mobile/app/bootstrap.dart';
 import 'package:machvon_mobile/core/di/providers.dart';
+import 'package:machvon_mobile/core/offline/offline_probe_policy.dart';
+import 'package:machvon_mobile/core/offline/offline_providers.dart';
 import 'package:machvon_mobile/core/release/release_notice.dart';
 import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/features/release/app_info.dart';
@@ -73,6 +75,18 @@ void main() {
       expect(session.status, SessionStatus.signedIn);
       expect(session.tenantId, 'tenant-a');
       expect(await container.read(sessionProvider.notifier).accessToken(), isNotNull);
+    });
+
+    test('the application root installs the probe of a lost connection for the queue and the uploads', () async {
+      final World world = World();
+      addTearDown(world.dispose);
+      final ProviderContainer container = await bootstrap(
+        config: testConfig,
+        crashReporting: false,
+        overrides: _testOverrides(world, world.transport, BufferedTelemetrySink()),
+      );
+      addTearDown(container.dispose);
+      expect(container.read(offlineProbePolicyProvider), same(OfflineProbePolicy.standard));
     });
 
     test('a person who never signed in starts signed out', () async {

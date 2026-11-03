@@ -101,17 +101,32 @@ class _EvidencePhotosFieldState extends ConsumerState<EvidencePhotosField> {
   Future<void> _use(File file) async {
     if (_working) return;
     final PhotoSource source = ref.read(photoSourceProvider);
+    final bool keptWhenChosen = widget.keepPlaceAndTime;
     setState(() => _working = true);
     try {
       if (await checkAttachment(file) == kMimePdf)
         throw const AttachmentRefused('FILE_TYPE_NOT_ALLOWED');
-      final EvidencePhoto photo = await prepareEvidence(
+      EvidencePhoto photo = await prepareEvidence(
         file,
         directory: await ref.read(evidenceDirectoryProvider.future),
-        keepPlaceAndTime: widget.keepPlaceAndTime,
+        keepPlaceAndTime: keptWhenChosen,
         newId: newUuidV4,
       );
-      if (mounted) widget.onChanged(<EvidencePhoto>[...widget.photos, photo]);
+      if (!mounted) {
+        // Nobody holds the photograph any more: nothing may keep its files, with or without the place and time.
+        await removePreparedFiles(photo);
+        return;
+      }
+      // The preparation took time. A withdrawal of the consent meanwhile could not reach a photograph that was not in the list
+      // yet, so it is read again here: the prepared file and the original kept beside it lose the place and the time.
+      if (keptWhenChosen && !widget.keepPlaceAndTime) {
+        photo = (await enforcePhotoConsent(<EvidencePhoto>[photo], consent: false)).single;
+        if (!mounted) {
+          await removePreparedFiles(photo);
+          return;
+        }
+      }
+      widget.onChanged(<EvidencePhoto>[...widget.photos, photo]);
     } on AttachmentRefused catch (refusal) {
       if (mounted) setState(() => _refusal = refusal.code);
     } finally {

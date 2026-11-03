@@ -362,6 +362,45 @@ void main() {
     });
   });
 
+  group('AC-ST-MOB-027-1 a tile whose query changes in a refreshed dashboard is read again, and never shown with the figures of the old query', () {
+    Map<String, Object?> tileOf(String metric) => standardDashboard(widgets: <Map<String, Object?>>[widgetJson('w-1', 'BAR', metric, dimension: 'unit', title: 'Ô một')]);
+
+    testWidgets('the tile keeps its id and snapshot but names another metric: it asks the server for that metric', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = biServer(dashboard: tileOf(metricPaid));
+      await _open(tester, server, _dashboard(snapshot: snapA));
+      expect(find.text('Sở Giao thông'), findsOneWidget);
+      expect(find.text('64,13%'), findsNothing);
+
+      final Map<String, Object?> changed = tileOf(metricRate);
+      server.on('GET', '/bi/dashboards/:id', (_) => changed);
+      await tester.tap(find.byTooltip('Làm mới'));
+      await tester.pumpAndSettle();
+
+      final List<HttpCall> queries = server.callsTo('POST', '/dashboard-queries');
+      expect(queries, hasLength(2));
+      expect(_body(queries.last)['metric_version_id'], metricRate);
+      expect(find.text('64,13%'), findsOneWidget, reason: 'the figures of the new metric');
+      expect(find.text('Sở Giao thông'), findsNothing, reason: 'nothing of the old metric stays under the new definition');
+    });
+
+    testWidgets('the saved copy of the old query is not offered for the new one when the server cannot be reached', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = biServer(dashboard: tileOf(metricPaid));
+      await _open(tester, server, _dashboard(snapshot: snapA));
+      expect(find.text('Sở Giao thông'), findsOneWidget);
+
+      final Map<String, Object?> changed = tileOf(metricRate);
+      server.on('GET', '/bi/dashboards/:id', (_) => changed);
+      server.answer('POST', '/dashboard-queries', (HttpCall call) => throw const SocketException('no connection'));
+      await tester.tap(find.byTooltip('Làm mới'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Không kết nối được máy chủ và chưa có bản lưu của ô này.'), findsOneWidget);
+      expect(find.text('Sở Giao thông'), findsNothing, reason: 'a copy of another metric is not a copy of this tile');
+    });
+  });
+
   group('AC-ST-MOB-027-1 UI-MOB-40 what the tile kinds draw', () {
     testWidgets('a line and an area are sketched through the groups that have a figure, with the exact figures listed under them; a table is rows only', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);

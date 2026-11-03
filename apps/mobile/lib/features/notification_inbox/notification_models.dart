@@ -67,12 +67,15 @@ NotificationItem? parseNotification(Object? raw) {
 
 /// The notifications of the member the screen follows pages for, and whether the list ends there.
 final class NotificationList {
-  const NotificationList({required this.items, required this.complete});
+  const NotificationList({required this.items, required this.complete, this.nextCursor});
 
   final List<NotificationItem> items;
 
   /// The pages were followed to their end.
   final bool complete;
+
+  /// Where the list goes on when the pages were not followed to their end.
+  final String? nextCursor;
 
   int get unreadCount => items.where((NotificationItem item) => item.isUnread).length;
 
@@ -88,7 +91,7 @@ final class NotificationList {
 NotificationList? parseNotificationList(Object? raw) {
   final Json? body = asRecord(raw);
   if (body == null || body['items'] is! List) return null;
-  return NotificationList(items: <NotificationItem>[for (final Object? item in listOf(body['items'])) ?parseNotification(item)], complete: filled(body['next_cursor']) == null);
+  return NotificationList(items: <NotificationItem>[for (final Object? item in listOf(body['items'])) ?parseNotification(item)], complete: filled(body['next_cursor']) == null, nextCursor: filled(body['next_cursor']));
 }
 
 enum InboxView { all, unread, action }

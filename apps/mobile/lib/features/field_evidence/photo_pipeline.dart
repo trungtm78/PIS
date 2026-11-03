@@ -157,6 +157,12 @@ _Outcome _prepare(
   if (bytes.length > kMaxAttachmentBytes)
     throw const AttachmentRefused(kFileTooLarge);
   final bool jpeg = mime == kMimeJpeg;
+  // The metadata helpers hand back what they cannot parse as it came, and a decoder may hand back part of a file that was cut
+  // short: a picture is whole and decodes, or it is not an upload, whether or not it is drawn again. The encoded bytes of a
+  // picture that reads are kept as they are.
+  final bool whole = jpeg ? jpegIsComplete(bytes) : pngIsComplete(bytes);
+  final img.Image? decoded = whole ? img.decodeImage(bytes) : null;
+  if (decoded == null) throw const AttachmentRefused(kImageUnreadable);
   final JpegMetadata meta = jpeg ? readJpegMetadata(bytes) : JpegMetadata.none;
   final bool sourceHadPlaceOrTime = jpeg
       ? meta.carriesPlaceOrTime
@@ -178,7 +184,7 @@ _Outcome _prepare(
         ? bytes
         : (jpeg ? stripJpegMetadata(bytes) : stripPngMetadata(bytes));
   } else {
-    result = _redraw(bytes, marks, keep);
+    result = _redraw(decoded, marks, keep);
     resultMime = kMimeJpeg;
   }
   final Uint8List? original = retain && (annotated || needsPicture)
@@ -201,9 +207,7 @@ _Outcome _prepare(
 }
 
 /// The picture decoded, upright, marked, scaled to the transport width and compressed until it is under the transport size.
-Uint8List _redraw(Uint8List bytes, AnnotationSet marks, bool keep) {
-  final img.Image? decoded = img.decodeImage(bytes);
-  if (decoded == null) throw const AttachmentRefused(kImageUnreadable);
+Uint8List _redraw(img.Image decoded, AnnotationSet marks, bool keep) {
   // The orientation is applied to the pixels, so the file no longer needs to say it; the rest of what the file said stays only
   // with the consent of the person.
   img.Image working = img.bakeOrientation(decoded);

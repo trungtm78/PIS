@@ -6,13 +6,17 @@ import 'vendor_signing_port.dart';
 
 /// What a signing session asks the phone for when it is completed: the session and the digest the server locked for it.
 final class SigningChallenge {
-  const SigningChallenge({required this.sessionId, required this.digestHex, this.expectedSubject, this.label = ''});
+  const SigningChallenge({required this.sessionId, required this.digestHex, this.expectedSubject, this.expectedFingerprint, this.label = ''});
 
   final String sessionId;
 
   /// The distinguished name of the certificate the server registered for this signer: a signature made with another certificate is not
   /// sent (the server would refuse it, and the signer should not have to find out after the fact).
   final String? expectedSubject;
+
+  /// The SHA-256 fingerprint of that certificate (lower-case hexadecimal): the server compares a signature with it, and the name alone
+  /// does not say which certificate made the signature. Null when the server did not say.
+  final String? expectedFingerprint;
 
   /// What the signer is told they are signing, on the confirmation the SDK shows (the title of the document); it is not signed.
   final String label;

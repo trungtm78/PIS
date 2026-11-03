@@ -33,8 +33,13 @@ final class TenantDataPurge {
     await _vault.markPurgeDone(_entry(tenantId, userId));
   }
 
-  /// Deletes the data of every tenant on the device.
+  /// Writes the wipe of every tenant to the journal. Call it before the credentials are cleared: a wipe that dies half way
+  /// (the process is killed, a deletion fails on a device that was revoked) is then finished at the next start.
+  Future<void> beginAll() => _vault.markPurge(_allTenants);
+
+  /// Deletes the data of every tenant on the device and ends the journal entry of the wipe; when a purger fails the entry stays.
   Future<void> runAll() async {
+    await beginAll();
     final Set<String> tenants = await _vault.knownTenants();
     for (final LocalDataPurger purger in _purgers) {
       await purger.purgeAll();
@@ -43,11 +48,16 @@ final class TenantDataPurge {
       await _vault.deleteTenantValues(tenantId);
       await _vault.removeTenant(tenantId);
     }
+    await _vault.markPurgeDone(_allTenants);
   }
 
   /// Finishes the purges the journal still lists.
   Future<void> finishPending() async {
     for (final String entry in await _vault.pendingPurges()) {
+      if (entry == _allTenants) {
+        await runAll();
+        continue;
+      }
       final int cut = entry.indexOf('/');
       if (cut <= 0) {
         await _vault.markPurgeDone(entry);
@@ -56,6 +66,9 @@ final class TenantDataPurge {
       await run(entry.substring(0, cut), entry.substring(cut + 1));
     }
   }
+
+  /// The journal entry of the wipe of every tenant: it has no tenant and user, and no tenant id contains the separator.
+  static const String _allTenants = '*';
 
   static String _entry(String tenantId, String userId) => '$tenantId/$userId';
 }

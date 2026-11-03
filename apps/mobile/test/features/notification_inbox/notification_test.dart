@@ -41,6 +41,28 @@ ScriptedServer _server({List<Map<String, Object?>>? items}) {
   return server;
 }
 
+/// `count` notifications served fifty to a page by cursor, the way the server pages them; the one at `asking` position asks for an acknowledgement.
+ScriptedServer _pagedServer({required int count, int? asking}) {
+  String idAt(int index) => '3f2b6c1e-0000-4000-8000-${index.toString().padLeft(12, '0')}';
+  final List<Map<String, Object?>> all = <Map<String, Object?>>[for (int i = 0; i < count; i += 1) notification(idAt(i), ack: i == asking, readAt: i == asking ? null : '2026-10-31T09:00:00Z')];
+  final ScriptedServer server = ScriptedServer();
+  server.on('GET', '/me/notifications', (HttpCall call) {
+    final int from = int.parse(call.url.queryParameters['cursor'] ?? '0');
+    final int to = from + 50 > all.length ? all.length : from + 50;
+    return <String, Object?>{'items': all.sublist(from, to), 'next_cursor': to >= all.length ? null : '$to'};
+  });
+  server.on('POST', '/notifications/:id/read', (_) => <String, Object?>{'operation_id': 'o', 'status': 'Read', 'resource_version': 2});
+  return server;
+}
+
+/// The cursors the phone asked for beyond the twenty pages of the inbox (a thousand notifications), in order.
+List<String> _cursorsBeyondTheInbox(ScriptedServer server) => <String>[
+      for (final HttpCall call in server.callsTo('GET', '/me/notifications'))
+        if (int.parse(call.url.queryParameters['cursor'] ?? '0') >= 1000) call.url.queryParameters['cursor']!,
+    ];
+
+String _idAt(int index) => '3f2b6c1e-0000-4000-8000-${index.toString().padLeft(12, '0')}';
+
 void _healthy(ScriptedServer server) {
   server.on('GET', '/me/notifications', (_) => notificationsPage(standardNotifications()));
   server.on('POST', '/notifications/:id/read', (_) => <String, Object?>{'operation_id': 'o', 'status': 'Read', 'resource_version': 2});
@@ -205,6 +227,27 @@ void main() {
       await tester.tap(find.text('Về hộp thông báo'));
       await tester.pumpAndSettle();
       expect(find.text('Tất cả (4)'), findsOneWidget);
+    });
+
+    testWidgets('a notification older than the first thousand the inbox lists is found by reading on, and is read like any other', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = _pagedServer(count: 1130, asking: 1075);
+      await _open(tester, server, '/inbox/mob-33/${_idAt(1075)}');
+
+      expect(find.text('Không tìm thấy thông báo'), findsNothing);
+      expect(find.text('Thông báo này cần bạn xác nhận đã nhận.'), findsOneWidget);
+      expect(server.callsTo('POST', '/notifications/${_idAt(1075)}/read'), hasLength(1), reason: 'opening it reads it');
+      expect(_cursorsBeyondTheInbox(server).toSet(), <String>{'1000', '1050'}, reason: 'the pages after the twenty of the inbox, up to the one that holds it (the list is read again once the notification is marked read)');
+    });
+
+    testWidgets('a notification the whole list does not hold is not found, after the list was read to its end and not beyond', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = _pagedServer(count: 1130);
+      await _open(tester, server, '/inbox/mob-33/3f2b6c1e-0000-4000-8000-0000000000ff');
+
+      expect(find.text('Không tìm thấy thông báo'), findsOneWidget);
+      expect(_cursorsBeyondTheInbox(server), <String>['1000', '1050', '1100'], reason: 'every page after the inbox ones, to the end of the list and not beyond');
+      expect(server.calls.where((HttpCall call) => call.method == 'POST'), isEmpty);
     });
 
     testWidgets('the record a notification is about opens in its screen on the phone; a reference without a screen opens nothing', (WidgetTester tester) async {

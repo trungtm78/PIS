@@ -159,6 +159,16 @@ final class MethodChannelVendorSigningSdk implements VendorSigningSdk {
   }
 }
 
+final RegExp _sha256Hex = RegExp(r'^[0-9a-f]{64}$');
+
+/// A SHA-256 fingerprint of a certificate as 64 lower-case hexadecimal digits, whatever the way it was written (upper case, bytes
+/// separated by colons or spaces), or null when it is not one: only a fingerprint that is certainly one is ever compared.
+String? normalizeFingerprint(String? raw) {
+  if (raw == null) return null;
+  final String digits = raw.replaceAll(RegExp(r'[:\s]'), '').toLowerCase();
+  return _sha256Hex.hasMatch(digits) ? digits : null;
+}
+
 /// Whether two distinguished names name the same holder: the same attributes with the same values, in any order, letters of the type
 /// in any case, white space around values ignored, `\,` kept as part of a value. (A certificate prints its name most specific first
 /// or last depending on the library, RFC 2253 and 4514.)

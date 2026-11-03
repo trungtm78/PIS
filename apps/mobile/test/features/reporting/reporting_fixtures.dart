@@ -121,7 +121,9 @@ Map<String, Object?> serverReport({
             'as_of_date': '2026-11-06',
             'measurement_basis': entered.basis,
           },
-    'narrative': entered.causes.isEmpty && entered.results.isEmpty ? null : <String, Object?>{'results': entered.results, 'causes': entered.causes, 'solutions': entered.solutions, 'proposals': entered.proposals},
+    'narrative': entered.causes.isEmpty && entered.results.isEmpty && entered.linkedIssueIds.isEmpty
+        ? null
+        : <String, Object?>{'results': entered.results, 'causes': entered.causes, 'solutions': entered.solutions, 'proposals': entered.proposals, if (entered.linkedIssueIds.isNotEmpty) 'linked_issue_ids': entered.linkedIssueIds},
     'attachments': <Object?>[],
     'review': status == 'DRAFT' ? (review ?? <String, Object?>{'blocking': false, 'errors': <Object?>[], 'warnings': <Object?>[]}) : null,
   };

@@ -48,7 +48,9 @@ final class QaFailed extends QaResult {
 }
 
 /// How the approved embedding model that ranks the passages is found. The phone does not choose a model: it uses the one the tenant
-/// approved for retrieval. The default asks the model register; a tenant that fixes the model differently overrides this.
+/// approved for retrieval. The default asks the model register, which needs `llm.provider.read` while the retrieval itself needs only
+/// `bid.evaluate`; no operation hands the model to a person who holds only the second, so for that person the register is closed and
+/// the answer is "no model" (see docs/mob-ai-review.md). A tenant that fixes the model differently overrides this.
 abstract interface class EmbeddingModelResolver {
   /// The id of the approved embedding model, or null when there is none the person can read.
   Future<String?> resolve(MachvonApiClient client);
@@ -59,7 +61,16 @@ final class RegisterEmbeddingModelResolver implements EmbeddingModelResolver {
 
   @override
   Future<String?> resolve(MachvonApiClient client) async {
-    final Json? body = asRecord(await client.execute('listAiModels'));
+    final Object? raw;
+    try {
+      raw = await client.execute('listAiModels');
+    } on ApiError catch (error) {
+      // The register is closed to this person (retrieval needs less than reading it): there is no model they can be given, which is
+      // not a refusal of the question, and nothing is asked without one.
+      if (error.status == 403) return null;
+      rethrow;
+    }
+    final Json? body = asRecord(raw);
     String? chosen;
     String? chosenAt;
     for (final Object? item in listOf(body?['items'])) {

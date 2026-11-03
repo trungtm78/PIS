@@ -7,13 +7,22 @@ import 'queue_results.dart';
 typedef TimerFactory = Timer Function(Duration delay, void Function() callback);
 
 /// Keeps a [CommandQueue] moving: it flushes when started, when told that the network is back ([trigger]) and when the
-/// wait of a command that came back ends. A flush that finds nothing to do ends the loop; a flush that is blocked by the
-/// network waits for [trigger] instead of polling, so a phone without a network does not wake itself.
+/// wait of a command that came back ends. A flush that finds nothing to do ends the loop. A flush that is blocked by the
+/// network is tried again by [trigger] (the connectivity or the session changed) and, because the only connectivity signal the
+/// application has is the outcome of its own requests, also by a bounded probe: the flush itself is the request that shows the
+/// connection is back, so recovery never depends on an unrelated request made by the person.
 ///
 /// The runner never throws into the application: what a flush returned or threw is in [lastResult] and [lastError].
 class QueueRunner {
-  QueueRunner(this._queue, {TimerFactory? timer, DateTime Function()? clock, this.errorRetry = const Duration(seconds: 30), this.maxReconciliations = 5})
-      : _timer = timer ?? Timer.new,
+  QueueRunner(
+    this._queue, {
+    TimerFactory? timer,
+    DateTime Function()? clock,
+    this.errorRetry = const Duration(seconds: 30),
+    this.maxReconciliations = 5,
+    this.offlineProbes = const <Duration>[],
+    this.maxOfflineProbes = 0,
+  })  : _timer = timer ?? Timer.new,
         _clock = clock ?? DateTime.now;
 
   /// How long to wait before trying again after the server failed or the flush threw.
@@ -22,6 +31,14 @@ class QueueRunner {
   /// How many times in a row the runner looks again, on its own, for commands that stayed unknown after a flush that reached the
   /// server (an answer that missed them). A trigger from outside starts the count over.
   final int maxReconciliations;
+
+  /// The waits between the probes of a connection that was lost: each probe that finds it still lost moves to the next wait, and the
+  /// last one repeats. A phone without a network wakes itself at most [maxOfflineProbes] times in a row; after that only [trigger]
+  /// sends again. Empty (the default of the class) means no probe: the application passes [OfflineProbePolicy.standard].
+  final List<Duration> offlineProbes;
+
+  /// How many times in a row the runner probes a lost connection on its own. A trigger from outside starts the count over.
+  final int maxOfflineProbes;
 
   final CommandQueue _queue;
   final TimerFactory _timer;
@@ -32,6 +49,7 @@ class QueueRunner {
   bool _again = false;
   bool _disposed = false;
   int _reconciliations = 0;
+  int _offlineProbed = 0;
 
   FlushResult? lastResult;
   Object? lastError;
@@ -46,6 +64,7 @@ class QueueRunner {
   /// also starts the count of the reconciliations over.
   void trigger() {
     _reconciliations = 0;
+    _offlineProbed = 0;
     _flushNow();
   }
 
@@ -79,8 +98,9 @@ class QueueRunner {
   }
 
   /// Sleeps until the earliest command that waits for its backoff becomes due. When something outside the queue stopped
-  /// the flush (no network, no session, no device, a refused device) nothing is scheduled: the connectivity or session
-  /// change triggers the next flush, so a phone that cannot send does not wake itself. After a failure of the server the
+  /// the flush (no session, no device, a refused device) nothing is scheduled: the session change triggers the next flush.
+  /// When no answer arrived (no network) the connection is probed again after a growing wait, at most [maxOfflineProbes]
+  /// times in a row. After a failure of the server the
   /// lookups are tried again after [errorRetry]; so are the commands that are still unknown after a flush that reached the
   /// server and got no blocker (the batch answer missed them), at most [maxReconciliations] times in a row.
   void _scheduleWake() {
@@ -93,6 +113,15 @@ class QueueRunner {
       _wake = _timer(errorRetry, _flushNow);
       return;
     }
+    if (blocker == FlushBlocker.offline) {
+      if (_offlineProbed < maxOfflineProbes && offlineProbes.isNotEmpty) {
+        final Duration wait = offlineProbes[_offlineProbed < offlineProbes.length ? _offlineProbed : offlineProbes.length - 1];
+        _offlineProbed += 1;
+        _wake = _timer(wait, _flushNow);
+      }
+      return;
+    }
+    _offlineProbed = 0;
     if (blocker != null && blocker != FlushBlocker.busy) return;
     final DateTime? due = _queue.nextDueAt;
     Duration? wait = due == null ? null : _positive(due.difference(_clock()));

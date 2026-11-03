@@ -270,5 +270,17 @@ bool sameFigures(ReportForm a, ReportForm b) {
       a.results.trim() == b.results.trim() &&
       a.causes.trim() == b.causes.trim() &&
       a.solutions.trim() == b.solutions.trim() &&
-      a.proposals.trim() == b.proposals.trim();
+      a.proposals.trim() == b.proposals.trim() &&
+      _sameLinks(a.linkedIssueIds, b.linkedIssueIds);
+}
+
+/// The issues a report is linked to are a set: the same links in another order are the same report.
+bool _sameLinks(List<String> a, List<String> b) {
+  if (a.length != b.length) return false;
+  final List<String> left = <String>[...a]..sort();
+  final List<String> right = <String>[...b]..sort();
+  for (int i = 0; i < left.length; i++) {
+    if (left[i] != right[i]) return false;
+  }
+  return true;
 }

@@ -64,6 +64,12 @@ bool _always() => true;
 
 const Set<String> _contextLostCodes = <String>{'MEMBERSHIP_INACTIVE', 'TENANT_SELECTION_INVALID', 'SCOPE_DENIED'};
 
+/// A renewal that was started for a context the person has since left (a tenant switch or a sign-out): its
+/// answer, success or failure, says nothing about the context that is active now and is dropped.
+final class _SupersededRenewal implements Exception {
+  const _SupersededRenewal();
+}
+
 /// The session of the application, in plain Dart: the OpenID Connect tokens, the tenant token, the selection of the unit and
 /// role, the second factor, the renewal, the biometric lock, the tenant switch and the sign-out with the purge of the local
 /// data. [OidcSession] publishes its state as the `sessionProvider`; the screens of ST-MOB-002/008 call its methods.
@@ -128,6 +134,10 @@ class AuthService {
   MembershipChoice? _pendingSelection;
   ({String tenantId, String userId})? _leaving;
   Future<String?>? _renewing;
+
+  /// Changes whenever the context the tokens belong to changes (a context is entered or the person signs out), so an
+  /// answer to a request made for the previous context can be told from one that is still about the active context.
+  int _contextGeneration = 0;
   Future<String>? _refreshing;
   SessionSnapshot _last = const SessionSnapshot.signedOut();
 
@@ -262,7 +272,12 @@ class AuthService {
     if (_status != SessionStatus.signedIn || _locked) return null;
     final String? token = _tenantToken;
     if (token != null && _now().isBefore(_tenantTokenExpiresAt.subtract(_tokenMargin))) return token;
-    return _renew();
+    try {
+      return await _renew();
+    } on _SupersededRenewal {
+      // The context changed while the renewal ran: the caller asked for the token of the context that is active now.
+      return accessToken();
+    }
   }
 
   /// The token for a request that belongs to [tenantId]: refused when another tenant is active, so a command that was queued
@@ -270,7 +285,10 @@ class AuthService {
   Future<String?> accessTokenFor(String tenantId) async {
     await ready;
     if (_tenantId != tenantId) throw const TenantMismatch();
-    return accessToken();
+    final String? token = await accessToken();
+    // The renewal may have outlived a switch: a token of the tenant that is active now is not for this request.
+    if (_tenantId != tenantId) throw const TenantMismatch();
+    return token;
   }
 
   Future<String?> _renew() => _renewing ??= _doRenew().whenComplete(() => _renewing = null);
@@ -278,12 +296,15 @@ class AuthService {
   Future<String?> _doRenew() async {
     final String tenant = _tenantId ?? (throw const NoSession());
     final String membership = _membershipId ?? (throw const NoSession());
+    final int generation = _contextGeneration;
     try {
       final TenantContext context = await _api.select(await _freshIdentity(), tenantId: tenant, membershipId: membership);
+      if (generation != _contextGeneration) throw const _SupersededRenewal();
       _takeTenantToken(context);
       _publish();
       return context.accessToken;
     } on ApiError catch (error) {
+      if (generation != _contextGeneration) throw const _SupersededRenewal();
       if (_contextLostCodes.contains(error.code)) {
         await _revoke();
       } else if (error.status == 401) {
@@ -292,6 +313,7 @@ class AuthService {
       if (error.code == _mfaRequiredCode) requireSecondFactor();
       rethrow;
     } on OidcException catch (error) {
+      if (generation != _contextGeneration) throw const _SupersededRenewal();
       if (error.failure == OidcFailure.refreshRejected) {
         throw ApiError(status: 401, code: 'SESSION_EXPIRED', correlationId: _newCorrelationId());
       }
@@ -359,6 +381,7 @@ class AuthService {
     final ({String tenantId, String userId})? leaving = _leaving;
     final bool purgeLeft = leaving != null && leaving.tenantId != context.tenantId && await _vault.localDataPolicy() == LocalDataPolicy.purge;
     if (purgeLeft) await _purge.begin(leaving.tenantId, leaving.userId);
+    _contextGeneration += 1;
     _tenantId = context.tenantId;
     _membershipId = context.membershipId;
     _takeTenantToken(context);
@@ -557,6 +580,7 @@ class AuthService {
     final OidcConfig? config = _config;
     final bool purgeActive = scope == SignOutScope.activeTenant && tenant != null && user != null && await _vault.localDataPolicy() == LocalDataPolicy.purge;
     if (purgeActive) await _purge.begin(tenant, user);
+    if (scope == SignOutScope.allTenants) await _purge.beginAll();
     _clearMemory();
     _status = SessionStatus.signedOut;
     await _vault.clearSession();
@@ -570,6 +594,7 @@ class AuthService {
   }
 
   void _clearMemory() {
+    _contextGeneration += 1;
     _idToken = null;
     _refreshToken = null;
     _tenantToken = null;

@@ -147,11 +147,15 @@ Map<String, Object?> session(String id, {String status = 'AWAITING_SIGNER', int 
       'version': version,
     };
 
+/// The SHA-256 of the registered certificate of the fixtures (what the server holds as `fingerprint_sha256`).
+final String kCertificateFingerprint = 'ab' * 32;
+
 Map<String, Object?> certificate({String status = 'Active', String kind = 'PERSONAL'}) => <String, Object?>{
       'id': 'cert-1',
       'kind': kind,
       'subject_dn': 'CN=Lê Lãnh Đạo,O=UBND tỉnh A',
       'issuer_dn': 'CN=CA Test',
+      'fingerprint_sha256': kCertificateFingerprint,
       'valid_until': '2027-06-30T00:00:00Z',
       'status': status,
     };

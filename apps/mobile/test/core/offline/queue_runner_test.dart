@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart' show HttpCall, HttpResult;
+import 'package:machvon_mobile/core/offline/offline_probe_policy.dart';
 import 'package:machvon_mobile/core/offline/queue/queue_results.dart';
 import 'package:machvon_mobile/core/offline/queue/queue_runner.dart';
 import 'package:machvon_mobile/core/offline/queue/queued_command.dart';
@@ -70,7 +71,7 @@ void main() {
       runner.dispose();
     });
 
-    test('a phone without a network does not wake itself: the connectivity change is what sends', () async {
+    test('with no network the connectivity change sends at once, and nothing else is needed', () async {
       final QueueRig rig = await QueueRig.create();
       final FakeTimers timers = FakeTimers();
       final QueueRunner runner = QueueRunner(rig.queue, timer: timers.make, clock: rig.clock.call);
@@ -80,12 +81,76 @@ void main() {
       await pumpEventQueue();
       expect(runner.lastResult!.blocker, FlushBlocker.offline);
       expect(rig.queue.command(command.id)!.state, CommandState.unknown);
-      expect(timers.active, isEmpty);
       rig.server.offline = false;
       runner.trigger();
       await pumpEventQueue();
       expect(rig.queue.command(command.id)!.state, CommandState.accepted);
       expect(rig.server.effectsOf(rig.queue.command(command.id)!.idempotencyKey), 1);
+      expect(timers.active, isEmpty);
+      runner.dispose();
+    });
+
+    test('a lost connection is probed again on its own, so a phone that stays on an idle screen recovers without any other request', () async {
+      final QueueRig rig = await QueueRig.create();
+      final FakeTimers timers = FakeTimers();
+      final QueueRunner runner = QueueRunner(
+        rig.queue,
+        timer: timers.make,
+        clock: rig.clock.call,
+        offlineProbes: OfflineProbePolicy.standard.delays,
+        maxOfflineProbes: OfflineProbePolicy.standard.maxProbes,
+      );
+      rig.server.offline = true;
+      final QueuedCommand command = rig.queue.enqueue(commandType: 'issue.create', payload: <String, Object?>{});
+      runner.start();
+      await pumpEventQueue();
+      expect(runner.lastResult!.blocker, FlushBlocker.offline);
+      expect(timers.active.single.delay, const Duration(seconds: 15));
+
+      // Still no connection: the probe fails and the next one waits longer.
+      timers.active.single.run();
+      await pumpEventQueue();
+      expect(runner.lastResult!.blocker, FlushBlocker.offline);
+      expect(timers.active.last.delay, const Duration(seconds: 30));
+
+      // The connection is back and nobody touched the application: the probe sends what waited, under the same key.
+      rig.server.offline = false;
+      timers.active.last.run();
+      await pumpEventQueue();
+      expect(rig.queue.command(command.id)!.state, CommandState.accepted);
+      expect(rig.server.effectsOf(rig.queue.command(command.id)!.idempotencyKey), 1);
+      expect(timers.active.where((e) => e.timer.isActive && e.delay >= const Duration(seconds: 15)), isEmpty, reason: 'recovered: no further probe');
+      runner.dispose();
+    });
+
+    test('the probes are bounded: the delay grows to a ceiling, they stop after the limit, and a trigger from outside starts the count over', () async {
+      final QueueRig rig = await QueueRig.create();
+      final FakeTimers timers = FakeTimers();
+      final QueueRunner runner = QueueRunner(
+        rig.queue,
+        timer: timers.make,
+        clock: rig.clock.call,
+        offlineProbes: const <Duration>[Duration(seconds: 10), Duration(seconds: 20)],
+        maxOfflineProbes: 4,
+      );
+      rig.server.offline = true;
+      rig.queue.enqueue(commandType: 'issue.create', payload: <String, Object?>{});
+      runner.start();
+      await pumpEventQueue();
+      final List<Duration> delays = <Duration>[timers.active.single.delay];
+      for (int i = 0; i < 3; i++) {
+        timers.active.single.run();
+        await pumpEventQueue();
+        if (timers.active.isNotEmpty) delays.add(timers.active.single.delay);
+      }
+      expect(delays, const <Duration>[Duration(seconds: 10), Duration(seconds: 20), Duration(seconds: 20), Duration(seconds: 20)]);
+      timers.active.single.run();
+      await pumpEventQueue();
+      expect(timers.active, isEmpty, reason: 'after the limit the phone stops waking itself');
+
+      runner.trigger();
+      await pumpEventQueue();
+      expect(timers.active.single.delay, const Duration(seconds: 10), reason: 'the count started over');
       runner.dispose();
     });
 

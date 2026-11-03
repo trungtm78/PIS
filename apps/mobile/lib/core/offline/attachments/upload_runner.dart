@@ -6,7 +6,8 @@ import 'attachment_upload.dart';
 import 'attachment_uploader.dart';
 
 /// A file that waits for one of these waits for something outside the uploader (the network, a sign-in, a registration), and
-/// is resumed when that arrives, not on a timer.
+/// is resumed when that arrives, not on a timer. The network is the one cause that is also probed, because the only
+/// connectivity signal the application has is the outcome of its own requests.
 const Set<String> _outsideCauses = <String>{networkErrorCode, 'SESSION_EXPIRED', kNoDevice};
 
 /// Starts a timer; tests plug in their own so that no real time passes.
@@ -14,18 +15,34 @@ typedef UploadTimerFactory = Timer Function(Duration delay, void Function() call
 
 /// Keeps the uploads of an [AttachmentUploader] moving: it resumes them when started, when told that the network is back
 /// ([trigger]) and, for a file that waits for the server (a busy server, a scan that is not finished), after [retryAfter]. A
-/// phone without a network does not wake itself: the connectivity change is what resumes.
+/// file that waits for the network is resumed by the connectivity change and, because that signal only comes from a request that
+/// succeeds, also by a bounded probe: the upload itself is the request that shows the connection is back, so recovery never
+/// depends on an unrelated request made by the person.
 class UploadRunner {
-  UploadRunner(this._uploader, {UploadTimerFactory? timer, this.retryAfter = const Duration(seconds: 30)}) : _timer = timer ?? Timer.new;
+  UploadRunner(
+    this._uploader, {
+    UploadTimerFactory? timer,
+    this.retryAfter = const Duration(seconds: 30),
+    this.offlineProbes = const <Duration>[],
+    this.maxOfflineProbes = 0,
+  }) : _timer = timer ?? Timer.new;
 
   final AttachmentUploader _uploader;
   final UploadTimerFactory _timer;
   final Duration retryAfter;
+
+  /// The waits between the probes of a lost connection: each probe that finds it still lost moves to the next wait, the last one
+  /// repeats. Empty (the default of the class) means no probe: the application passes [OfflineProbePolicy.standard].
+  final List<Duration> offlineProbes;
+
+  /// How many times in a row the runner probes a lost connection on its own; [trigger] from outside starts the count over.
+  final int maxOfflineProbes;
   Timer? _wake;
   StreamSubscription<void>? _arrivals;
   bool _running = false;
   bool _again = false;
   bool _disposed = false;
+  int _offlineProbed = 0;
   Future<void> _current = Future<void>.value();
 
   void start() {
@@ -35,6 +52,11 @@ class UploadRunner {
   }
 
   void trigger() {
+    _offlineProbed = 0;
+    _resume();
+  }
+
+  void _resume() {
     if (_disposed) return;
     if (_running) {
       _again = true;
@@ -65,8 +87,26 @@ class UploadRunner {
       _running = false;
     }
     if (_disposed) return;
-    if (_uploader.uploads().any(_waitsOnTheServer)) _wake = _timer(retryAfter, trigger);
+    final List<AttachmentUpload> uploads = _uploader.uploads();
+    Duration? wait = uploads.any(_waitsOnTheServer) ? retryAfter : null;
+    if (uploads.any(_waitsOnTheNetwork)) {
+      final Duration? probe = _nextProbe();
+      if (probe != null && (wait == null || probe < wait)) {
+        wait = probe;
+        _offlineProbed += 1;
+      }
+    } else {
+      _offlineProbed = 0;
+    }
+    if (wait != null) _wake = _timer(wait, _resume);
   }
+
+  Duration? _nextProbe() {
+    if (_offlineProbed >= maxOfflineProbes || offlineProbes.isEmpty) return null;
+    return offlineProbes[_offlineProbed < offlineProbes.length ? _offlineProbed : offlineProbes.length - 1];
+  }
+
+  static bool _waitsOnTheNetwork(AttachmentUpload u) => u.state == UploadState.pending && u.errorCode == networkErrorCode;
 
   /// A file waits on the server, not on the phone, when the server was busy or when the scanner has not given its verdict yet:
   /// nothing outside the uploader announces either, so the runner asks again after [retryAfter].

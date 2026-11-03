@@ -12,6 +12,8 @@ import 'package:machvon_mobile/core/offline/attachments/attachment_uploader.dart
 import 'package:machvon_mobile/core/offline/drafts/local_draft.dart';
 import 'package:machvon_mobile/core/offline/offline_providers.dart';
 import 'package:machvon_mobile/core/offline/queue/command_queue.dart';
+import 'package:machvon_mobile/core/offline/queue/offline_codes.dart';
+import 'package:machvon_mobile/core/offline/queue/queue_results.dart';
 import 'package:machvon_mobile/core/offline/queue/queued_command.dart';
 import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/features/field_evidence/field_place.dart';
@@ -21,6 +23,7 @@ import 'package:machvon_mobile/features/field_issues/issue_draft.dart';
 import 'package:machvon_mobile/features/field_issues/issue_service.dart';
 import 'package:machvon_mobile/features/permissions/permission_service.dart';
 
+import '../../support/fake_sync_server.dart';
 import '../../support/harness.dart';
 import '../../support/offline_support.dart';
 import '../field_evidence/exif_fixtures.dart';
@@ -301,4 +304,89 @@ void main() {
       expect(await phone.service.load(other.id), isNull);
     });
   });
+
+  group('AC-ST-MOB-014-3 UAT-PLAN-37 a report the server refused and the person corrected is a new report under a new key', () {
+    Future<(_Phone, String, QueuedCommand)> refusedReport({String code = 'SCOPE_DENIED', bool uploadsStuck = false}) async {
+      final _Phone phone = await _phone();
+      phone.server.offline = false;
+      phone.server.attachments.offline = uploadsStuck;
+      int answered = 0;
+      phone.server.sync.decide = (Map<String, Object?> item) {
+        answered += 1;
+        return answered == 1 ? ServerOutcome.rejected(code) : const ServerOutcome.accepted(resultRef: 'iss-2');
+      };
+      final String id = await phone.save(phone.draft(photos: <IssuePhoto>[phone.photo('a', plainJpeg())]));
+      final QueuedCommand first = await phone.service.send(id, manualPlaceLabel: _label);
+      final CommandQueue queue = await phone.container.read(commandQueueProvider.future);
+      await queue.flush();
+      expect(queue.command(first.id)!.state, CommandState.rejected);
+      return (phone, id, first);
+    }
+
+    test('the corrected report is queued under a fresh key, the refused one is retired and the photograph is handed over under the new key', () async {
+      final (_Phone phone, String id, QueuedCommand first) = await refusedReport();
+      final StoredIssueDraft reopened = (await phone.service.open()).single;
+      expect(reopened.id, id, reason: 'the refused draft is the one that is corrected');
+      await phone.service.save(reopened.draft.copyWith(title: 'Sạt lở taluy km3 (đã sửa)'), draftId: id);
+
+      final QueuedCommand second = await phone.service.send(id, manualPlaceLabel: _label);
+
+      final CommandQueue queue = await phone.container.read(commandQueueProvider.future);
+      expect(second.id, isNot(first.id));
+      expect(second.idempotencyKey, isNot(first.idempotencyKey));
+      expect(second.payload!['client_operation_id'], second.idempotencyKey);
+      expect(second.payload!['title'], 'Sạt lở taluy km3 (đã sửa)');
+      expect(queue.command(first.id)!.state, CommandState.discarded, reason: 'the refused report cannot be retried beside the corrected one');
+      expect(IssueDraft.fromJson((await phone.container.read(draftStoreProvider.future)).byId(id)!.fields)!.clientOperationId, second.idempotencyKey);
+      final AttachmentUploader uploader = await phone.container.read(attachmentUploaderProvider.future);
+      final List<AttachmentUpload> live = uploader.uploads().where((AttachmentUpload upload) => upload.state != UploadState.cancelled).toList();
+      expect(live.where((AttachmentUpload upload) => upload.ownerRef == second.idempotencyKey), hasLength(1), reason: 'the follow-up screen finds the photograph under the key of the report');
+      await queue.flush();
+      expect(queue.command(second.id)!.state, CommandState.accepted);
+      await phone.quiesce();
+    });
+
+    test('a photograph of the refused report that had not finished going up is cancelled and goes up again under the new key', () async {
+      final (_Phone phone, String id, QueuedCommand first) = await refusedReport(uploadsStuck: true);
+      final AttachmentUploader uploader = await phone.container.read(attachmentUploaderProvider.future);
+      final AttachmentUpload stale = uploader.uploads().single;
+      expect(stale.state.isFinal, isFalse);
+
+      final QueuedCommand second = await phone.service.send(id, manualPlaceLabel: _label);
+
+      expect(uploader.upload(stale.id)!.state, UploadState.cancelled);
+      final List<AttachmentUpload> live = uploader.uploads().where((AttachmentUpload upload) => upload.state != UploadState.cancelled).toList();
+      expect(live.single.ownerRef, second.idempotencyKey);
+      expect(second.idempotencyKey, isNot(first.idempotencyKey));
+      await phone.quiesce();
+    });
+
+    test('the same report sent again after the refusal is a new attempt, not the refused command handed back', () async {
+      final (_Phone phone, String id, QueuedCommand first) = await refusedReport();
+
+      final QueuedCommand second = await phone.service.send(id, manualPlaceLabel: _label);
+
+      expect(second.id, isNot(first.id));
+      expect(second.state, isNot(CommandState.rejected));
+      final CommandQueue queue = await phone.container.read(commandQueueProvider.future);
+      await queue.flush();
+      expect(queue.command(second.id)!.state, CommandState.accepted);
+      await phone.quiesce();
+    });
+
+    test('a report refused as unverifiable may have been made: it is never sent again under a new key', () async {
+      final (_Phone phone, String id, QueuedCommand first) = await refusedReport(code: kResultUnverifiable);
+      final StoredIssueDraft reopened = (await phone.service.open()).single;
+      await phone.service.save(reopened.draft.copyWith(title: 'Đã sửa'), draftId: id);
+
+      await expectLater(phone.service.send(id, manualPlaceLabel: _label), throwsA(isA<ResultUnverifiable>()));
+
+      final CommandQueue queue = await phone.container.read(commandQueueProvider.future);
+      expect(queue.commands(), hasLength(1), reason: 'no second report was made');
+      expect(queue.command(first.id)!.state, CommandState.rejected);
+      expect((await phone.service.load(id))!.draft.clientOperationId, first.idempotencyKey);
+      await phone.quiesce();
+    });
+  });
+
 }

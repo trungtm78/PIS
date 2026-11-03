@@ -14,6 +14,7 @@ import '../../core/offline/queue/queued_command.dart';
 import '../field_evidence/annotation.dart';
 import '../field_evidence/evidence_photos.dart';
 import '../field_evidence/photo_pipeline.dart';
+import '../field_quantities/command_identity.dart';
 import 'issue_draft.dart';
 
 /// The report cannot be sent yet: [problems] are the fields of the form, [blockers] the lines of the checklist.
@@ -213,9 +214,23 @@ class IssueService {
         ],
       );
     }
+    final CommandQueue queue = await _ref.read(commandQueueProvider.future);
     final AttachmentUploader uploader = await _ref.read(
       attachmentUploaderProvider.future,
     );
+    // A report the server refused (or the person took back) and that is sent again is a new intention: a new identity, and the
+    // photographs go up again under it (the follow-up screen finds them by the key of the report).
+    final String operation = operationForNextSend(queue, draft.clientOperationId, _newId);
+    if (operation != draft.clientOperationId) {
+      for (final IssuePhoto photo in draft.photos) {
+        final AttachmentUpload? old = photo.uploadId == null ? null : uploader.upload(photo.uploadId!);
+        if (old != null && !old.state.isFinal) uploader.cancel(old.id);
+      }
+      draft = draft.copyWith(
+        clientOperationId: operation,
+        photos: <IssuePhoto>[for (final IssuePhoto photo in draft.photos) photo.withoutUpload()],
+      );
+    }
     final List<IssuePhoto> photos = <IssuePhoto>[];
     for (final IssuePhoto photo in draft.photos) {
       if (await reuseUpload(uploader, photo.uploadId, keepsPlaceOrTime: photo.keepsPlaceOrTime)) {
@@ -238,7 +253,6 @@ class IssueService {
     }
     draft = draft.copyWith(photos: photos);
     await save(draft, draftId: draftId);
-    final CommandQueue queue = await _ref.read(commandQueueProvider.future);
     final QueuedCommand command = queue.enqueue(
       commandType: kIssueCreateCommand,
       payload: issuePayload(draft, manualPlaceLabel: manualPlaceLabel),

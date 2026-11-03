@@ -154,6 +154,22 @@ void main() {
       expect(rig.drafts.read(draft.id)!.form.construction, '300000000');
     });
 
+    test('when somebody else changed only the issues linked to the report after the save whose answer was lost, nothing is submitted either', () async {
+      final FlowRig rig = await FlowRig.create();
+      final DraftSnapshot draft = await rig.complete();
+      rig.server.sync.dropNextBatchAnswer = true;
+      await rig.flow.submit(draft.id);
+      await rig.flow.check();
+      rig.server.only().form = rig.server.only().form.copyWith(linkedIssueIds: <String>['iss-1']);
+      rig.server.only().version += 1;
+
+      final SubmitResult result = await rig.flow.submit(draft.id);
+      expect(result.outcome, SubmitOutcome.moved);
+      expect(commandsOf(rig, kSubmitCommand), isEmpty);
+      expect(rig.server.only().submissions, 0);
+      expect(rig.drafts.read(draft.id)!.form.linkedIssueIds, isEmpty);
+    });
+
     test('when the server cannot be asked for the version of the lost save, the submit waits for the next try', () async {
       final FlowRig rig = await FlowRig.create();
       final DraftSnapshot draft = await rig.complete();

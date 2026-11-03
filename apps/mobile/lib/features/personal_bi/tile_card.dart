@@ -66,15 +66,32 @@ class _TileCardState extends ConsumerState<TileCard> {
   Object? _drillFailure;
   bool _all = false;
 
-  String get _cacheKey => 'pbi.tile.${widget.dashboardId}.${widget.tile.id}.${widget.snapshotId}';
+  /// Bumped by every read of the tile: an answer that comes back for an earlier read (another query, another snapshot) is dropped.
+  int _read = 0;
+
+  /// The copy kept for offline reading belongs to the query it answered (the metric and the cut), not to the place of the tile: a
+  /// tile whose definition changed must never show the saved figures of the old one.
+  String get _cacheKey => _cacheKeyOf(widget);
+
+  static String _cacheKeyOf(TileCard card) => 'pbi.tile.${card.dashboardId}.${card.tile.id}.${card.snapshotId}.${card.tile.metricVersionId}.${_askedOf(card.tile) ?? '-'}';
 
   /// A single figure (or a tile without a dimension) asks for the total only.
-  String? get _asked => widget.tile.kind == WidgetKind.kpi ? null : widget.tile.dimension;
+  static String? _askedOf(DashboardWidget tile) => tile.kind == WidgetKind.kpi ? null : tile.dimension;
+
+  String? get _asked => _askedOf(widget.tile);
 
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void didUpdateWidget(TileCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // A refreshed dashboard may keep the id and the snapshot of a tile and change what it asks: the figures on the screen are then
+    // the answer to another question, so the tile is read again (and anything the person drilled into is left).
+    if (_cacheKeyOf(oldWidget) != _cacheKey) _load();
   }
 
   CacheScope? _scope() {
@@ -88,6 +105,7 @@ class _TileCardState extends ConsumerState<TileCard> {
   BiQueryService _service() => BiQueryService(client: ref.read(apiClientProvider), polling: ref.read(jobPollingProvider), cancelled: () => !mounted);
 
   Future<void> _load() async {
+    final int read = ++_read;
     setState(() {
       _phase = _Phase.loading;
       _failure = null;
@@ -99,8 +117,9 @@ class _TileCardState extends ConsumerState<TileCard> {
     final DateTime now = ref.read(clockProvider)();
     try {
       final RawQuery answer = await _service().run(metricVersionId: widget.tile.metricVersionId, snapshotId: widget.snapshotId, dimension: _asked);
-      if (!mounted) return;
+      if (!mounted || read != _read) return;
       if (scope != null) await _remember(cache, scope, CacheEntry(raw: answer.raw, asOf: answer.result.asOfPeriod, fetchedAt: now));
+      if (!mounted || read != _read) return;
       setState(() {
         _base = answer.result;
         _fromCopy = false;
@@ -110,11 +129,11 @@ class _TileCardState extends ConsumerState<TileCard> {
     } on QueryCancelled {
       return;
     } on Object catch (error) {
-      if (!mounted) return;
+      if (!mounted || read != _read) return;
       if (error is ApiError && error.code == networkErrorCode && scope != null) {
         final CacheEntry? entry = await cache.read(scope, _cacheKey);
         final QueryResult? copy = entry == null ? null : parseQueryResult(entry.raw);
-        if (!mounted) return;
+        if (!mounted || read != _read) return;
         if (entry != null && copy != null) {
           setState(() {
             _base = copy;
@@ -128,7 +147,7 @@ class _TileCardState extends ConsumerState<TileCard> {
         // What the server refused is not kept: a taken-away right leaves nothing on the device.
         await cache.forget(scope, _cacheKey);
       }
-      if (!mounted) return;
+      if (!mounted || read != _read) return;
       setState(() {
         _failure = error;
         _phase = _Phase.failed;
@@ -146,13 +165,14 @@ class _TileCardState extends ConsumerState<TileCard> {
   }
 
   Future<void> _explain(Group cell, QueryResult from, String dimension) async {
+    final int read = _read;
     setState(() {
       _explaining = true;
       _drillFailure = null;
     });
     try {
       final RawQuery answer = await _service().explain(drillToken: cell.drillToken!, dimension: dimension);
-      if (!mounted) return;
+      if (!mounted || read != _read) return;
       setState(() {
         _steps.add(_Step(cell: cell, from: from, result: answer.result, dimension: dimension));
         _choosing = null;
@@ -160,7 +180,7 @@ class _TileCardState extends ConsumerState<TileCard> {
         _all = false;
       });
     } on Object catch (error) {
-      if (!mounted) return;
+      if (!mounted || read != _read) return;
       setState(() {
         _drillFailure = error;
         _explaining = false;

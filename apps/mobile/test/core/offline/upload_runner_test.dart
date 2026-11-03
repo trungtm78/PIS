@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_mobile/core/offline/attachments/attachment_upload.dart';
 import 'package:machvon_mobile/core/offline/attachments/upload_runner.dart';
+import 'package:machvon_mobile/core/offline/offline_probe_policy.dart';
 
 import '../../support/fake_attachment_server.dart';
 import 'attachment_uploader_test.dart' show UploaderRig;
@@ -34,7 +35,7 @@ class _Timer implements Timer {
 
 void main() {
   group('TK-MOB-009-4 the upload runner keeps the uploads moving', () {
-    test('it uploads what waits when started and when the network is back, and does not wake itself without a network', () async {
+    test('it uploads what waits when started and when the network is back, and the connectivity change resumes at once', () async {
       final UploaderRig rig = await UploaderRig.create();
       final _Timers timers = _Timers();
       final UploadRunner runner = UploadRunner(rig.uploader, timer: timers.make);
@@ -43,11 +44,70 @@ void main() {
       runner.start();
       await runner.idle;
       expect(rig.uploader.upload(a.id)!.errorCode, 'NETWORK_ERROR');
-      expect(timers.active, isEmpty, reason: 'the connectivity change is what resumes');
       rig.server.offline = false;
       runner.trigger();
       await runner.idle;
       expect(rig.uploader.upload(a.id)!.state, UploadState.clean);
+      expect(timers.active, isEmpty);
+      runner.dispose();
+    });
+
+    test('a lost connection is probed again on its own, so a phone that stays on an idle screen recovers without any other request', () async {
+      final UploaderRig rig = await UploaderRig.create();
+      final _Timers timers = _Timers();
+      final UploadRunner runner = UploadRunner(
+        rig.uploader,
+        timer: timers.make,
+        offlineProbes: OfflineProbePolicy.standard.delays,
+        maxOfflineProbes: OfflineProbePolicy.standard.maxProbes,
+      );
+      final AttachmentUpload a = await rig.uploader.add(file: rig.pdf('a.pdf', 12), ownerKind: 'report');
+      rig.server.offline = true;
+      runner.start();
+      await runner.idle;
+      expect(rig.uploader.upload(a.id)!.errorCode, 'NETWORK_ERROR');
+      expect(timers.active.single.delay, const Duration(seconds: 15));
+
+      timers.active.single.run();
+      await runner.idle;
+      expect(rig.uploader.upload(a.id)!.errorCode, 'NETWORK_ERROR');
+      expect(timers.active.single.delay, const Duration(seconds: 30), reason: 'a probe that finds it still lost waits longer');
+
+      rig.server.offline = false;
+      timers.active.single.run();
+      await runner.idle;
+      expect(rig.uploader.upload(a.id)!.state, UploadState.clean);
+      expect(timers.active, isEmpty, reason: 'recovered: no further probe');
+      runner.dispose();
+    });
+
+    test('the probes are bounded: the wait grows to a ceiling, they stop after the limit, and a trigger from outside starts the count over', () async {
+      final UploaderRig rig = await UploaderRig.create();
+      final _Timers timers = _Timers();
+      final UploadRunner runner = UploadRunner(
+        rig.uploader,
+        timer: timers.make,
+        offlineProbes: const <Duration>[Duration(seconds: 10), Duration(seconds: 20)],
+        maxOfflineProbes: 4,
+      );
+      await rig.uploader.add(file: rig.pdf('a.pdf', 12), ownerKind: 'report');
+      rig.server.offline = true;
+      runner.start();
+      await runner.idle;
+      final List<Duration> delays = <Duration>[timers.active.single.delay];
+      for (int i = 0; i < 3; i++) {
+        timers.active.single.run();
+        await runner.idle;
+        delays.add(timers.active.single.delay);
+      }
+      expect(delays, const <Duration>[Duration(seconds: 10), Duration(seconds: 20), Duration(seconds: 20), Duration(seconds: 20)]);
+      timers.active.single.run();
+      await runner.idle;
+      expect(timers.active, isEmpty, reason: 'after the limit the phone stops waking itself');
+
+      runner.trigger();
+      await runner.idle;
+      expect(timers.active.single.delay, const Duration(seconds: 10), reason: 'the count started over');
       runner.dispose();
     });
 
@@ -117,11 +177,16 @@ void main() {
       runner.dispose();
     });
 
-    test('REVIEW-m1-3 a scanning file on a phone without a network is not polled: the connectivity change resumes it', () async {
+    test('REVIEW-m1-3 a scanning file on a phone without a network is not asked about at the pace of the scan: the connection is probed instead', () async {
       final FakeAttachmentServer server = FakeAttachmentServer()..scanPending = true;
       final UploaderRig rig = await UploaderRig.create(server: server);
       final _Timers timers = _Timers();
-      final UploadRunner runner = UploadRunner(rig.uploader, timer: timers.make);
+      final UploadRunner runner = UploadRunner(
+        rig.uploader,
+        timer: timers.make,
+        offlineProbes: OfflineProbePolicy.standard.delays,
+        maxOfflineProbes: OfflineProbePolicy.standard.maxProbes,
+      );
       final AttachmentUpload added = await rig.uploader.add(file: rig.pdf('slow.pdf', 12), ownerKind: 'report');
       runner.start();
       await runner.idle;
@@ -129,7 +194,7 @@ void main() {
       timers.active.single.run();
       await runner.idle;
       expect(rig.uploader.upload(added.id)!.errorCode, 'NETWORK_ERROR');
-      expect(timers.active, isEmpty);
+      expect(timers.active.single.delay, const Duration(seconds: 15), reason: 'the probe of the lost connection, not the verdict wait');
       runner.dispose();
     });
   });

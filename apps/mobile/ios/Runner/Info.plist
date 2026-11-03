@@ -26,6 +26,8 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>NSCameraUsageDescription</key>
 	<string>MACHVON uses the camera only when you take a site photo to attach to an issue or a log.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>MACHVON chỉ mở thư viện ảnh khi bạn chọn một ảnh hiện trường có sẵn để đính kèm; ứng dụng không đọc các ảnh khác.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>MACHVON uses your position only while the app is open, when you add a location to a photo or a report.</string>
 	<key>NSFaceIDUsageDescription</key>

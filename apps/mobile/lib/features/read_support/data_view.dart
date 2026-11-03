@@ -127,51 +127,62 @@ class _DataViewState<T> extends ConsumerState<DataView<T>> {
     });
     final ReadCache cache = ref.read(readCacheProvider);
     final DateTime Function() now = ref.read(clockProvider);
+    // What this read was asked for: the answer may arrive after the filters or the record changed, and then it belongs to the key,
+    // the parser and the copy rules it started with, never to those of the widget now.
+    final String key = widget.cacheKey;
+    final ParseAnswer<T> parse = widget.parse;
+    final bool keepCopy = widget.keepCopy;
+    final Duration ttl = widget.ttl;
+    final String? Function(T value)? asOfOf = widget.asOf;
     final Stopwatch waited = Stopwatch()..start();
     try {
       final Object? raw = await widget.read(ref.read(apiClientProvider));
-      final T? value = widget.parse(raw);
+      final T? value = parse(raw);
       if (value == null) throw const ContractMismatch('response', 'does not hold what the screen needs');
       ref.read(telemetryProvider).recordListLoaded(waited.elapsed);
       final DateTime fetchedAt = now();
-      final String? asOf = widget.asOf?.call(value);
-      if (widget.keepCopy) await _remember(cache, scope, CacheEntry(raw: raw, asOf: asOf, fetchedAt: fetchedAt));
+      final String? asOf = asOfOf?.call(value);
+      // A read that was replaced by a newer one writes nothing: its answer is not the copy of the key that is on screen, and it
+      // may be older than the copy the newer read has just written.
+      if (!_isCurrent(generation)) return;
+      if (keepCopy) await _remember(cache, scope, key, CacheEntry(raw: raw, asOf: asOf, fetchedAt: fetchedAt));
       _showData(generation, Loaded<T>(value: value, source: DataSource.network, asOf: asOf, fetchedAt: fetchedAt));
     } on Object catch (error) {
+      if (!_isCurrent(generation)) return;
       final ProblemView problem = ProblemView.from(error, reachability: ref.read(reachabilityProvider));
       if (error is ApiError && widget.emptyOnCodes.contains(error.code)) {
         _show(generation, state: ScreenState.empty, problem: problem);
         return;
       }
       if (error is ApiError && error.code == networkErrorCode) {
-        final Loaded<T>? copy = widget.keepCopy ? await _copy(cache, scope, now()) : null;
+        final Loaded<T>? copy = keepCopy ? await _copy(generation, cache, scope, key, parse, ttl, now()) : null;
         if (copy != null) {
           _showData(generation, copy);
           return;
         }
       } else if (problem.state == ScreenState.denied || problem.state == ScreenState.signedOut || problem.state == ScreenState.expired) {
         // What the server refused is not kept: a taken-away right leaves nothing on the device.
-        await cache.forget(scope, widget.cacheKey);
+        await cache.forget(scope, key);
       }
       _show(generation, state: problem.state, problem: problem);
     }
   }
 
   /// A copy that cannot be stored costs only the offline copy: the answer on the screen is still true.
-  Future<void> _remember(ReadCache cache, CacheScope scope, CacheEntry entry) async {
+  Future<void> _remember(ReadCache cache, CacheScope scope, String key, CacheEntry entry) async {
     try {
-      await cache.write(scope, widget.cacheKey, entry);
+      await cache.write(scope, key, entry);
     } on Object {
       return;
     }
   }
 
-  Future<Loaded<T>?> _copy(ReadCache cache, CacheScope scope, DateTime now) async {
-    final CacheEntry? entry = await cache.read(scope, widget.cacheKey);
-    if (entry == null) return null;
-    final T? value = widget.parse(entry.raw);
+  Future<Loaded<T>?> _copy(int generation, ReadCache cache, CacheScope scope, String key, ParseAnswer<T> parse, Duration ttl, DateTime now) async {
+    final CacheEntry? entry = await cache.read(scope, key);
+    if (entry == null || !_isCurrent(generation)) return null;
+    final T? value = parse(entry.raw);
     if (value == null) {
-      await cache.forget(scope, widget.cacheKey);
+      await cache.forget(scope, key);
       return null;
     }
     return Loaded<T>(
@@ -179,9 +190,11 @@ class _DataViewState<T> extends ConsumerState<DataView<T>> {
       source: DataSource.cache,
       asOf: entry.asOf,
       fetchedAt: entry.fetchedAt,
-      stale: now.difference(entry.fetchedAt) > widget.ttl,
+      stale: now.difference(entry.fetchedAt) > ttl,
     );
   }
+
+  bool _isCurrent(int generation) => mounted && generation == _generation;
 
   void _showData(int generation, Loaded<T> data) {
     if (!mounted || generation != _generation) return;

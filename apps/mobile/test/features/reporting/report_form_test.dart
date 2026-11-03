@@ -419,6 +419,17 @@ void main() {
       expect(entry.isEmpty, isFalse);
     });
   });
+
+  group('AC-ST-MOB-012-1 two forms are the same report only when the issues linked to them are the same too', () {
+    test('another link makes another report; the order of the links does not', () {
+      const ReportForm base = ReportForm(projectId: 'p-1', periodId: 'per-1', linkedIssueIds: <String>['iss-1', 'iss-2']);
+      expect(sameFigures(base, const ReportForm(projectId: 'p-1', periodId: 'per-1', linkedIssueIds: <String>['iss-2', 'iss-1'])), isTrue);
+      expect(sameFigures(base, const ReportForm(projectId: 'p-1', periodId: 'per-1', linkedIssueIds: <String>['iss-1'])), isFalse);
+      expect(sameFigures(base, const ReportForm(projectId: 'p-1', periodId: 'per-1', linkedIssueIds: <String>['iss-1', 'iss-3'])), isFalse);
+      expect(sameFigures(const ReportForm(projectId: 'p-1', periodId: 'per-1'), const ReportForm(projectId: 'p-1', periodId: 'per-1', linkedIssueIds: <String>['iss-1'])), isFalse);
+      expect(sameFigures(const ReportForm(projectId: 'p-1', periodId: 'per-1', linkedIssueIds: <String>['iss-1']), const ReportForm(projectId: 'p-1', periodId: 'per-1', linkedIssueIds: <String>['iss-1'])), isTrue);
+    });
+  });
 }
 
 CellKey first() => kCells.first;

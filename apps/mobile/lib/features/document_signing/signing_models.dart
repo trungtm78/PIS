@@ -1,5 +1,5 @@
 import '../read_support/wire.dart';
-import 'vendor_sdk.dart' show sameSubject;
+import 'vendor_sdk.dart' show normalizeFingerprint, sameSubject;
 
 /// The role a signing session is for; the phone only ever opens the leader's (numbering and the seal of the organisation are the
 /// clerk's, on the web: DOC-06).
@@ -138,13 +138,17 @@ SigningSession? parseSession(Object? raw) {
 
 /// A certificate the signer may sign with.
 final class SigningCertificate {
-  const SigningCertificate({required this.id, required this.kind, required this.subject, required this.validUntil, required this.status});
+  const SigningCertificate({required this.id, required this.kind, required this.subject, required this.validUntil, required this.status, this.fingerprintSha256});
 
   final String id;
   final String kind;
   final String subject;
   final String validUntil;
   final String status;
+
+  /// SHA-256 of the registered certificate (lower-case hexadecimal), which is what the server compares a signature with: the subject
+  /// does not say which certificate it is (a renewed certificate keeps its subject). Null when the server did not say.
+  final String? fingerprintSha256;
 
   bool get isActivePersonal => kind == 'PERSONAL' && status == 'Active';
 }
@@ -159,6 +163,7 @@ SigningCertificate? parseCertificate(Object? raw) {
     subject: text(row['subject_dn']) ?? '',
     validUntil: text(row['valid_until']) ?? '',
     status: text(row['status']) ?? '',
+    fingerprintSha256: normalizeFingerprint(text(row['fingerprint_sha256'])),
   );
 }
 

@@ -194,6 +194,34 @@ void main() {
       expect(server.callsTo('GET', '/procurement-packages/$kPackage/proposal-passages'), hasLength(1), reason: 'no model, no question');
     });
 
+    testWidgets('an evaluator who may rank passages but not read the provider register is told no model is available, not that the question is denied', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      aiServer(server);
+      server.refuse('GET', '/ai-models', 403, 'PERMISSION_DENIED');
+      await _open(tester, server, _qa);
+      await _type(tester, 'Câu hỏi');
+      await tester.tap(_ask());
+      await tester.pumpAndSettle();
+      expect(find.text('EMBEDDING_MODEL_UNAVAILABLE'), findsOneWidget);
+      expect(find.text('PERMISSION_DENIED'), findsNothing);
+      expect(find.text('Bạn không có quyền hỏi về gói thầu này.'), findsNothing, reason: 'the right to ask is not what is missing');
+      expect(server.callsTo('GET', '/procurement-packages/$kPackage/proposal-passages'), isEmpty, reason: 'no model, no question');
+    });
+
+    testWidgets('a register that cannot be reached is a failure to retry, not a missing model', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      aiServer(server);
+      server.refuse('GET', '/ai-models', 503, 'DEPENDENCY_UNAVAILABLE');
+      await _open(tester, server, _qa);
+      await _type(tester, 'Câu hỏi');
+      await tester.tap(_ask());
+      await tester.pumpAndSettle();
+      expect(find.text('DEPENDENCY_UNAVAILABLE'), findsOneWidget);
+      expect(find.text('EMBEDDING_MODEL_UNAVAILABLE'), findsNothing);
+    });
+
     testWidgets('without a package the screen lists the packages of the scope and opens the thread of the one chosen', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();

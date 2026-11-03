@@ -222,6 +222,10 @@ class FakeApi implements HttpTransport {
   int selectFailureStatus = 0;
   String selectFailureCode = 'SESSION_EXPIRED';
 
+  /// The next tenant selection waits for this before it answers (a slow answer that arrives after the person moved on); it is
+  /// used once.
+  Completer<void>? selectHoldOnce;
+
   /// What the sessions and devices lists answer, the revocations received, and failures to script.
   final List<Map<String, Object?>> sessions = <Map<String, Object?>>[];
   final List<Map<String, Object?>> devices = <Map<String, Object?>>[];
@@ -308,6 +312,9 @@ class FakeApi implements HttpTransport {
       });
     }
     if (path == '/me/session/tenant-selection') {
+      final Completer<void>? hold = selectHoldOnce;
+      selectHoldOnce = null;
+      if (hold != null) await hold.future;
       final Map<String, Object?>? identity = _identity(call);
       if (identity == null) return _problem(401, 'SESSION_EXPIRED');
       if (selectFailureStatus != 0) return _problem(selectFailureStatus, selectFailureCode);
@@ -413,7 +420,11 @@ class RecordingPurger implements LocalDataPurger {
   }
 
   @override
-  Future<void> purgeAll() async => purgedAll += 1;
+  Future<void> purgeAll() async {
+    final Object? error = failure;
+    if (error != null) throw error;
+    purgedAll += 1;
+  }
 }
 
 const FakeMembership tenantAMember = FakeMembership('tenant-a', 'UBND Minh Hà', 'm-a1', 'LEADER');

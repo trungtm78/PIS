@@ -8,10 +8,12 @@
 #   dart run tool/device/perf_verdict.dart results/pixel-8a-android14/cold_start.csv
 #
 # For each run the application is force-stopped (a cold start: no process), started, and the screen is read with uiautomator until
-# the home tab is on it. The time is measured on this computer from the moment `am start` is issued to the moment the dump that
-# contains the tab was TAKEN, so the sample includes the cost of one hierarchy dump (about 0.3 to 1 s on a phone): the figure is
-# an UPPER bound on "cold start to the main content". A failure caused by that overhead must be re-measured with a screen
-# recording (docs/mobile-device-matrix.md, "Performance run"); a pass is a real pass.
+# the content of the loaded home screen is on it: the card "Hai tỷ lệ giải ngân", which is drawn only when the dashboard has its
+# answer (the tab label "Trang chủ" is on screen before that and would time the shell, not the main content). The time is
+# measured on this computer from the moment `am start` is issued to the moment the dump that contains the card was TAKEN, so the
+# sample includes the cost of one hierarchy dump (about 0.3 to 1 s on a phone): the figure is an UPPER bound on "cold start to the
+# main content". A failure caused by that overhead must be re-measured with a screen recording (docs/mobile-device-matrix.md,
+# "Performance run"); a pass is a real pass.
 #
 # Preconditions: the build is installed, signed in to a seeded tenant, the same network as the matrix document says, the phone
 # charged and cool (let it rest 2 minutes between devices), no other app in the foreground. Prints CSV lines on stdout only.
@@ -23,7 +25,8 @@ serial="${3:-}"
 package="vn.machvon.app"
 # the activity is written with its package: the applicationId (above) and the namespace of the build (where MainActivity lives) differ
 activity="vn.machvon.machvon_mobile.MainActivity"
-marker="Trang chủ"
+# the first card of the loaded home dashboard (mob.home.rates.title): on no loading, empty or failed screen; a test keeps it equal to the string table
+marker="Hai tỷ lệ giải ngân"
 adb_cmd=(adb)
 [ -n "$serial" ] && adb_cmd=(adb -s "$serial")
 
@@ -44,7 +47,7 @@ for run in $(seq 1 "$runs"); do
       break
     fi
     if [ "$taken" -gt "$deadline" ]; then
-      # a start that never shows the home tab within 15 s is a failed sample: it is written as 15000 so that it counts against the budget
+      # a start whose home content never shows within 15 s (still loading, or the dashboard failed) is a failed sample: it is written as 15000 so that it counts against the budget
       echo "cold_start_main_content_ms,$label,$run,15000"
       break
     fi

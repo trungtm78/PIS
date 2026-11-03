@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -557,6 +558,119 @@ void main() {
       await world.vault.clearSession();
       expect(await service.unlock(reason: 'Unlock'), isFalse);
       expect(service.snapshot.status, SessionStatus.expired);
+    });
+  });
+
+  group('AC-ST-MOB-008-2 MOB02 a renewal that answers after the person moved on does not touch the new context', () {
+    Future<(AuthService, MembershipChoice)> twoTenantsOnA() async {
+      world = World(memberships: <String, List<FakeMembership>>{'sub-ana': <FakeMembership>[tenantAMember, tenantBMember]});
+      final AuthService service = world.service();
+      await service.signIn(kOidcConfig);
+      final List<MembershipChoice> choices = await service.candidates();
+      await service.selectContext(choices.firstWhere((MembershipChoice c) => c.tenantId == 'tenant-a'));
+      return (service, choices.firstWhere((MembershipChoice c) => c.tenantId == 'tenant-b'));
+    }
+
+    test('the late token of tenant A never replaces the token of tenant B', () async {
+      final (AuthService service, MembershipChoice b) = await twoTenantsOnA();
+      world.advance(const Duration(minutes: 6));
+      final Completer<void> hold = world.api.selectHoldOnce = Completer<void>();
+      final Future<String?> renewal = service.accessToken();
+      await pumpEventQueue();
+
+      await service.switchTenant(b);
+      expect(service.snapshot.tenantId, 'tenant-b');
+      hold.complete();
+      final String? answered = await renewal;
+
+      expect(world.api.tenantTokens[answered]?.tenantId, 'tenant-b', reason: 'the caller gets a token of the context that is active now');
+      final String? later = await service.accessTokenFor('tenant-b');
+      expect(world.api.tenantTokens[later]?.tenantId, 'tenant-b', reason: 'every later request carries the token of tenant B');
+      expect(service.snapshot.membershipId, 'm-b1');
+    });
+
+    test('the late refusal of tenant A does not purge or end the session of tenant B', () async {
+      final (AuthService service, MembershipChoice b) = await twoTenantsOnA();
+      world.advance(const Duration(minutes: 6));
+      final Completer<void> hold = world.api.selectHoldOnce = Completer<void>();
+      final Future<String?> renewal = service.accessToken();
+      await pumpEventQueue();
+
+      await service.switchTenant(b);
+      final int purgedBefore = world.purger.purged.length;
+      world.api.selectFailureStatus = 403;
+      world.api.selectFailureCode = 'MEMBERSHIP_INACTIVE';
+      hold.complete();
+      final String? answered = await renewal;
+
+      expect(world.api.tenantTokens[answered]?.tenantId, 'tenant-b');
+      expect(service.snapshot.status, SessionStatus.signedIn);
+      expect(service.snapshot.tenantId, 'tenant-b');
+      expect(world.purger.purged.length, purgedBefore, reason: 'tenant B was not purged because tenant A lost a membership');
+      expect(world.store.data.containsKey('session.v1'), isTrue);
+    });
+
+    test('a renewal that answers after the person signed out gives no token and leaves nothing in memory', () async {
+      final (AuthService service, MembershipChoice _) = await twoTenantsOnA();
+      world.advance(const Duration(minutes: 6));
+      final Completer<void> hold = world.api.selectHoldOnce = Completer<void>();
+      final Future<String?> renewal = service.accessToken();
+      await pumpEventQueue();
+
+      await service.signOut();
+      hold.complete();
+
+      expect(await renewal, isNull);
+      expect(service.snapshot.status, SessionStatus.signedOut);
+      expect(await service.accessToken(), isNull);
+    });
+
+    test('a request queued for tenant A that is renewed across the switch is refused, not sent with the token of tenant B', () async {
+      final (AuthService service, MembershipChoice b) = await twoTenantsOnA();
+      world.advance(const Duration(minutes: 6));
+      final Completer<void> hold = world.api.selectHoldOnce = Completer<void>();
+      final Future<String?> renewal = service.accessTokenFor('tenant-a');
+      final Future<void> refused = expectLater(renewal, throwsA(isA<TenantMismatch>()));
+      await pumpEventQueue();
+
+      await service.switchTenant(b);
+      hold.complete();
+      await refused;
+    });
+  });
+
+  group('AC-ST-MOB-041-3 UAT-AC501 SEC-01 the wipe of every tenant survives a failure or a killed process', () {
+    test('a wipe that fails after the session was cleared is finished at the next start, and the journal then ends', () async {
+      world = World();
+      final AuthService service = world.service();
+      await service.signIn(kOidcConfig);
+      world.store.data['tenant.tenant-a.key'] = 'secret';
+      world.purger.failure = StateError('disk full');
+
+      await expectLater(service.signOut(discardPending: true, scope: SignOutScope.allTenants), throwsStateError);
+      expect(world.store.data.containsKey('session.v1'), isFalse);
+      expect(await world.vault.pendingPurges(), isNotEmpty, reason: 'the wipe was journaled before the credentials went');
+      expect(world.store.data['tenant.tenant-a.key'], 'secret', reason: 'nothing was deleted yet');
+
+      world.purger.failure = null;
+      final AuthService restarted = world.service();
+      await restarted.ready;
+      expect(world.purger.purgedAll, 1, reason: 'the next start finished the wipe of the revoked device');
+      expect(world.store.data.containsKey('tenant.tenant-a.key'), isFalse);
+      expect(await world.vault.pendingPurges(), isEmpty);
+      expect(restarted.snapshot.status, SessionStatus.signedOut);
+    });
+
+    test('a wipe that went through leaves no journal entry, and a next start wipes nothing again', () async {
+      world = World();
+      final AuthService service = world.service();
+      await service.signIn(kOidcConfig);
+      await service.signOut(discardPending: true, scope: SignOutScope.allTenants);
+      expect(world.purger.purgedAll, 1);
+      expect(await world.vault.pendingPurges(), isEmpty);
+
+      await world.service().ready;
+      expect(world.purger.purgedAll, 1);
     });
   });
 

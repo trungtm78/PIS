@@ -18,6 +18,7 @@ import 'attachments/image_compressor.dart';
 import 'attachments/upload_runner.dart';
 import 'drafts/conflict_adapter.dart';
 import 'drafts/draft_store.dart';
+import 'offline_probe_policy.dart';
 import 'queue/command_queue.dart';
 import 'queue/queue_runner.dart';
 import 'queue/queued_command.dart';
@@ -106,11 +107,16 @@ final Provider<ConflictAdapters> conflictAdaptersProvider = Provider<ConflictAda
   return adapters;
 });
 
+/// How the runners probe a connection that was lost (see [OfflineProbePolicy]). No probe until the application root installs one
+/// (`productionOverrides` installs [OfflineProbePolicy.standard]), so a screen test that goes offline leaves no timer behind.
+final Provider<OfflineProbePolicy> offlineProbePolicyProvider = Provider<OfflineProbePolicy>((Ref ref) => OfflineProbePolicy.none);
+
 /// The runner that keeps the queue moving: it sends when the application is signed in, when the device comes back online
 /// and when a wait ends. Watch it once at the root of the signed-in application.
 final FutureProvider<QueueRunner> queueRunnerProvider = FutureProvider<QueueRunner>(retry: _noRetry, (Ref ref) async {
   final CommandQueue queue = await ref.watch(commandQueueProvider.future);
-  final QueueRunner runner = QueueRunner(queue);
+  final OfflineProbePolicy probes = ref.watch(offlineProbePolicyProvider);
+  final QueueRunner runner = QueueRunner(queue, offlineProbes: probes.delays, maxOfflineProbes: probes.maxProbes);
   ref.listen<Reachability>(reachabilityProvider, (Reachability? previous, Reachability next) {
     if (next == Reachability.online && previous != Reachability.online) runner.trigger();
   });
@@ -168,7 +174,8 @@ final StreamProvider<List<AttachmentUpload>> attachmentUploadsProvider = StreamP
 /// again. Watch it once at the root of the signed-in application, beside [queueRunnerProvider].
 final FutureProvider<UploadRunner> uploadRunnerProvider = FutureProvider<UploadRunner>(retry: _noRetry, (Ref ref) async {
   final AttachmentUploader uploader = await ref.watch(attachmentUploaderProvider.future);
-  final UploadRunner runner = UploadRunner(uploader);
+  final OfflineProbePolicy probes = ref.watch(offlineProbePolicyProvider);
+  final UploadRunner runner = UploadRunner(uploader, offlineProbes: probes.delays, maxOfflineProbes: probes.maxProbes);
   ref.listen<Reachability>(reachabilityProvider, (Reachability? previous, Reachability next) {
     if (next == Reachability.online && previous != Reachability.online) runner.trigger();
   });

@@ -35,6 +35,10 @@ final class FakeSdk implements VendorSigningSdk {
   String holder;
   bool enrolled = true;
 
+  /// The SHA-256 of the certificate the SDK holds, and of the one it signed with when that is another; null: the SDK does not say.
+  String? fingerprint = kCertificateFingerprint;
+  String? signedFingerprint;
+
   /// The SDK cannot say what it holds (the secure element is busy, nothing is enrolled).
   SdkFailureKind? identityFails;
   SdkFailureKind? failWith;
@@ -61,7 +65,7 @@ final class FakeSdk implements VendorSigningSdk {
   @override
   Future<SdkIdentity?> identity() async {
     if (identityFails != null) throw SdkException(identityFails!);
-    return enrolled ? SdkIdentity(subjectDn: holder) : null;
+    return enrolled ? SdkIdentity(subjectDn: holder, fingerprintSha256: fingerprint) : null;
   }
 
   @override
@@ -70,7 +74,7 @@ final class FakeSdk implements VendorSigningSdk {
     reasons.add(reason);
     await holdSigning?.future;
     if (failWith != null) throw SdkException(failWith!);
-    return SdkSignature(cmsBase64: cms ?? _cms, digestHex: signedDigest ?? digestHex, signer: SdkIdentity(subjectDn: signedAs ?? holder));
+    return SdkSignature(cmsBase64: cms ?? _cms, digestHex: signedDigest ?? digestHex, signer: SdkIdentity(subjectDn: signedAs ?? holder, fingerprintSha256: signedFingerprint ?? fingerprint));
   }
 }
 
@@ -233,6 +237,30 @@ void main() {
       expect(find.textContaining('không phải chứng thư đã đăng ký cho bạn'), findsOneWidget);
       expect(rig.starts, 0);
       expect(_posts(rig.server), isEmpty);
+    });
+
+    testWidgets('a certificate in the SDK with the registered name but another fingerprint (the one before a renewal) opens no session', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final _Rig rig = _Rig();
+      await _open(tester, rig.server, FakeSdk()..fingerprint = 'cd' * 32, _Gate());
+      await tester.tap(_start());
+      await tester.pumpAndSettle();
+      expect(find.textContaining('không phải chứng thư đã đăng ký cho bạn'), findsOneWidget);
+      expect(rig.starts, 0);
+      expect(_posts(rig.server), isEmpty);
+    });
+
+    testWidgets('an SDK that signed with another certificate of the same name is not sent: the server would refuse its fingerprint', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final _Rig rig = _Rig();
+      final FakeSdk sdk = FakeSdk()..signedFingerprint = 'cd' * 32;
+      await _open(tester, rig.server, sdk, _Gate());
+      await tester.tap(_start());
+      await tester.pumpAndSettle();
+      await tester.tap(_confirm());
+      await tester.pumpAndSettle();
+      expect(find.textContaining('không phải chứng thư đã đăng ký cho bạn'), findsOneWidget);
+      expect(rig.completions, 0);
     });
 
     testWidgets('an SDK with no certificate enrolled opens no session either', (WidgetTester tester) async {
@@ -472,6 +500,8 @@ void main() {
       expect(await port.readiness(certificate: registered), Readiness.ready, reason: 'the order and the case of the attribute types do not matter');
       sdk.holder = 'CN=Người Khác,O=UBND tỉnh A';
       expect(await port.readiness(certificate: registered), Readiness.identityMismatch);
+      sdk.holder = _holder;
+      expect(await port.readiness(certificate: registered), Readiness.ready);
       sdk.enrolled = false;
       expect(await port.readiness(certificate: registered), Readiness.noCertificate);
       sdk
@@ -497,6 +527,44 @@ void main() {
       expect(port.adapterCode, 'LOCAL_AGENT');
       expect(port.needsTypedCode, isFalse);
       expect(port.unlocksCredential, isTrue);
+    });
+
+    test('readiness: the fingerprint says which certificate it is, the subject only whose: the same name with another fingerprint is not the registered one', () async {
+      final SigningCertificate registered = SigningCertificate(id: 'c', kind: 'PERSONAL', subject: _holder, validUntil: '2027-01-01', status: 'Active', fingerprintSha256: kCertificateFingerprint);
+      final FakeSdk sdk = FakeSdk();
+      final VendorSdkSigningPort port = VendorSdkSigningPort(sdk);
+      expect(await port.readiness(certificate: registered), Readiness.ready);
+      sdk.fingerprint = 'cd' * 32;
+      expect(await port.readiness(certificate: registered), Readiness.identityMismatch);
+      sdk.fingerprint = kCertificateFingerprint.toUpperCase();
+      expect(await port.readiness(certificate: registered), Readiness.ready, reason: 'the case of the digits is not part of a fingerprint');
+      sdk.fingerprint = null;
+      expect(await port.readiness(certificate: registered), Readiness.ready, reason: 'an SDK that does not report a fingerprint is judged by the name; the server compares the real one');
+      sdk
+        ..fingerprint = 'cd' * 32
+        ..holder = 'CN=Người Khác,O=UBND tỉnh A';
+      expect(await port.readiness(certificate: registered), Readiness.identityMismatch);
+    });
+
+    test('prove: a signature made with another certificate than the registered one (same name, other fingerprint) is never sent', () async {
+      final FakeSdk sdk = FakeSdk()..signedFingerprint = 'cd' * 32;
+      final VendorSdkSigningPort port = VendorSdkSigningPort(sdk);
+      await expectLater(
+        port.prove(SigningChallenge(sessionId: 's', digestHex: kDigest, expectedSubject: _holder, expectedFingerprint: kCertificateFingerprint)),
+        throwsA(isA<SigningPortException>().having((SigningPortException e) => e.kind, 'kind', PortFailureKind.identityMismatch)),
+      );
+      sdk.signedFingerprint = kCertificateFingerprint.toUpperCase();
+      expect((await port.prove(SigningChallenge(sessionId: 's', digestHex: kDigest, expectedSubject: _holder, expectedFingerprint: kCertificateFingerprint)))!.clientDigestHex, kDigest);
+    });
+
+    test('normalizeFingerprint: 64 hexadecimal digits in any case, with or without colons or spaces; anything else is not a fingerprint', () {
+      expect(normalizeFingerprint('AB' * 32), 'ab' * 32);
+      expect(normalizeFingerprint(List<String>.filled(32, 'Ab').join(':')), 'ab' * 32);
+      expect(normalizeFingerprint(List<String>.filled(32, 'ab').join(' ')), 'ab' * 32);
+      expect(normalizeFingerprint('ab' * 31), isNull);
+      expect(normalizeFingerprint('zz' * 32), isNull);
+      expect(normalizeFingerprint(''), isNull);
+      expect(normalizeFingerprint(null), isNull);
     });
 
     test('prove: a digest that is not 64 hexadecimal digits is never given to the SDK, and a signature that is not base64 is never sent', () async {

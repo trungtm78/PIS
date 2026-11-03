@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/di/providers.dart';
@@ -10,11 +11,13 @@ import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/moment.dart';
 import '../../read_support/navigate.dart';
+import '../../read_support/paged.dart';
 import '../../read_support/widgets.dart';
+import '../../read_support/wire.dart';
 import '../notification_commands.dart';
 import '../notification_labels.dart';
 import '../notification_models.dart';
-import 'notification_inbox_screen.dart' show readNotifications;
+import 'notification_inbox_screen.dart' show inboxPageSize, readNotifications;
 
 /// The query parameter that says the detail was opened from a push, so that the read receipt records it.
 const String openedViaParameter = 'via';
@@ -46,12 +49,54 @@ class NotificationDetailScreen extends ConsumerWidget {
         parse: parseNotificationList,
         builder: (BuildContext context, Loaded<NotificationList> loaded) {
           final NotificationItem? item = loaded.value.byId(notificationId);
-          if (item == null) return const _NotFound();
-          return _Detail(item: item, fromCopy: loaded.fromCache, openedVia: openedVia);
+          if (item != null) return _Detail(item: item, fromCopy: loaded.fromCache, openedVia: openedVia);
+          final String? cursor = loaded.value.nextCursor;
+          // The inbox lists the newest notifications up to a limit of pages: one that is not among them may still be further on.
+          return cursor == null ? const _NotFound() : _FurtherOn(notificationId: notificationId, cursor: cursor, openedVia: openedVia);
         },
       ),
     );
   }
+}
+
+/// A notification that is not in the pages the inbox holds, looked for in the pages after them until it is found or the list ends.
+/// Not found is said only when the server's list was read to its end.
+class _FurtherOn extends ConsumerWidget {
+  const _FurtherOn({required this.notificationId, required this.cursor, required this.openedVia});
+
+  final String notificationId;
+  final String cursor;
+  final String openedVia;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return DataView<NotificationList>(
+      cacheKey: 'notifications.detail.$notificationId',
+      keepCopy: false,
+      reloadKey: ref.watch(notificationsChangedProvider),
+      read: (MachvonApiClient client) => readNotificationsUntil(client, notificationId, from: cursor),
+      parse: parseNotificationList,
+      builder: (BuildContext context, Loaded<NotificationList> loaded) {
+        final NotificationItem? item = loaded.value.byId(notificationId);
+        return item == null ? const _NotFound() : _Detail(item: item, fromCopy: loaded.fromCache, openedVia: openedVia);
+      },
+    );
+  }
+}
+
+/// The notifications of the member from [from] on, page after page, up to the one called [id] or to the end of the list. A cursor that
+/// comes back ends the read (it would ask for the same page for ever).
+Future<Object?> readNotificationsUntil(MachvonApiClient client, String id, {required String from}) async {
+  final List<Object?> items = <Object?>[];
+  final Set<String> asked = <String>{};
+  String? cursor = from;
+  while (cursor != null && asked.add(cursor)) {
+    final Json page = await readMerged(client, 'listMyNotifications', query: <String, Object?>{'limit': inboxPageSize, 'cursor': cursor}, maxPages: 1);
+    items.addAll(listOf(page['items']));
+    cursor = filled(page['next_cursor']);
+    if (parseNotificationList(page)?.byId(id) != null) break;
+  }
+  return <String, Object?>{'items': items, 'next_cursor': null};
 }
 
 class _NotFound extends StatelessWidget {

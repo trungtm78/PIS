@@ -49,6 +49,12 @@ List<({String type, int start, int end})>? _chunks(Uint8List bytes) {
   return chunks;
 }
 
+/// Whether the bytes are a PNG whose chunks run to the end chunk: a file cut short is not whole.
+bool pngIsComplete(Uint8List bytes) {
+  final List<({String type, int start, int end})>? chunks = _chunks(bytes);
+  return chunks != null && chunks.isNotEmpty && chunks.last.type == 'IEND';
+}
+
 /// The PNG without the chunks that can say where or when it was made; the picture is copied byte for byte. Bytes that are not a
 /// PNG that parses are returned as they came.
 Uint8List stripPngMetadata(Uint8List bytes) {

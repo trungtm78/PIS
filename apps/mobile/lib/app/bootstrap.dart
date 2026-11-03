@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 
 import '../core/di/providers.dart';
+import '../core/offline/offline_probe_policy.dart';
+import '../core/offline/offline_providers.dart';
 import '../core/release/release_notice.dart';
 import '../features/release/release_providers.dart';
 import '../features/release/telemetry.dart';
@@ -14,12 +16,14 @@ import 'app_config.dart';
 ///  * the OIDC session (ST-MOB-002) in place of the signed-out one;
 ///  * the tenant theme that follows the session (ST-MOB-004);
 ///  * the release state that reads the version policy (ST-MOB-016);
+///  * the probe of a lost connection by the queue and the uploads (without it only a request that succeeds elsewhere resumes them);
 ///  * the transport of the API client, which tells the session what the API answered (401, 403 MFA_REQUIRED, 422
 ///    LICENSE_EXPIRED) and the release state what it answered (426, 503).
 List<Override> productionOverrides() => <Override>[
       ...sessionOverrides(),
       ...themeOverrides(),
       releaseNoticeProvider.overrideWith(PolicyReleaseNotice.new),
+      offlineProbePolicyProvider.overrideWithValue(OfflineProbePolicy.standard),
       apiTransportProvider.overrideWith(
         (Ref ref) => ReleaseObservingTransport(
           SessionObservingTransport(ref.watch(httpTransportProvider), ref.read(authServiceProvider).noteResponse),

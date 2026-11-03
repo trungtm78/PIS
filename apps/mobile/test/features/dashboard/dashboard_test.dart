@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:machvon_api_client/machvon_api_client.dart' show HttpCall;
 import 'package:machvon_mobile/core/navigation/feature.dart';
 import 'package:machvon_mobile/features/dashboard/dashboard_feature.dart' as dashboard;
 import 'package:machvon_mobile/features/dashboard/screens/leader_home_screen.dart';
@@ -21,6 +24,33 @@ Future<ProviderContainer> _open(WidgetTester tester, ScriptedServer server, Stri
 void _healthyCenter(ScriptedServer server) => server.on('GET', '/home/command-center', (_) => commandCenter());
 
 void main() {
+  group('AC-ST-MOB-040-2 UAT-NFR-PERFORMANCE-02 the marker the cold start is timed to is on the home screen only once its content is loaded', () {
+    const String marker = 'Hai tỷ lệ giải ngân';
+
+    testWidgets('not while the answer is awaited, not when it failed, and there when it came', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final Completer<void> slow = Completer<void>();
+      final ScriptedServer waiting = ScriptedServer()
+        ..answer('GET', '/home/command-center', (HttpCall call) async {
+          await slow.future;
+          return FakeTransport.json(200, commandCenter());
+        });
+      await _open(tester, waiting, '/home');
+      expect(find.text(marker), findsNothing, reason: 'the screen is on its loading state');
+
+      slow.complete();
+      await tester.pumpAndSettle();
+      expect(find.text(marker), findsOneWidget);
+    });
+
+    testWidgets('a server that refuses leaves the marker out', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer refusing = ScriptedServer()..refuse('GET', '/home/command-center', 500, 'INTERNAL_ERROR');
+      await _open(tester, refusing, '/home');
+      expect(find.text(marker), findsNothing);
+    });
+  });
+
   group('AC-ST-MOB-010-3 UAT-AC242 MOB-07 the leader sees two rates side by side, each with its numerator and denominator', () {
     testWidgets('the two rates are on one line, 14 percent from 140 over 1000 and not the average of the projects', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);

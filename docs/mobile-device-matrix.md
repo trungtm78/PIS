@@ -70,8 +70,8 @@ Conditions: release build (`--release`, not debug, not profile), device charged 
 
 | metric | how it is measured today | what the number means |
 |---|---|---|
-| `cold_start_main_content_ms` (Android) | `qa/device/scripts/run_cold_start_samples.sh`: force-stop, `am start`, then `uiautomator dump` until the home tab is on screen | an **upper bound** (the dump adds 0.3 to 1 s): a pass is a pass, a fail near the budget is re-measured with a screen recording read frame by frame |
-| `cold_start_main_content_ms` (iOS) | Instruments, App Launch template, or an XCTest `XCTApplicationLaunchMetric` plus a screen recording; the main content is the first frame with the home tab drawn | |
+| `cold_start_main_content_ms` (Android) | `qa/device/scripts/run_cold_start_samples.sh`: force-stop, `am start`, then `uiautomator dump` until the content of the loaded home dashboard (the card of the two disbursement rates) is on screen, not the tab label | an **upper bound** (the dump adds 0.3 to 1 s): a pass is a pass, a fail near the budget is re-measured with a screen recording read frame by frame |
+| `cold_start_main_content_ms` (iOS) | Instruments, App Launch template, or an XCTest `XCTApplicationLaunchMetric` plus a screen recording; the main content is the first frame with the loaded home dashboard drawn (the card of the two disbursement rates), not the tab bar | |
 | `list_load_ms` | screen recording from the tap on the tab to the first frame with rows (both platforms); the tester reads the frame counts | needs 20 recordings per device: slow; the event `list.loaded` (`PERF-01`, fixed) gives the same figure from the phone itself |
 | `command_round_trip_ms` | the event `command.round_trip` (`PERF-01`, fixed) is the time from the batch request to its answer on the phone, radio included; the API also logs the duration of every request with the correlation id (the server half) | measured on a device, the event is read from the telemetry of the run |
 

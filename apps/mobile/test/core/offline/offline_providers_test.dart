@@ -9,6 +9,8 @@ import 'package:machvon_mobile/core/connectivity/reachability.dart';
 import 'package:machvon_mobile/core/di/providers.dart';
 import 'package:machvon_mobile/core/offline/attachments/attachment_upload.dart';
 import 'package:machvon_mobile/core/offline/attachments/attachment_uploader.dart';
+import 'package:machvon_mobile/core/offline/attachments/upload_runner.dart';
+import 'package:machvon_mobile/core/offline/offline_probe_policy.dart';
 import 'package:machvon_mobile/core/offline/offline_providers.dart';
 import 'package:machvon_mobile/core/offline/queue/command_queue.dart';
 import 'package:machvon_mobile/core/offline/queue/queue_results.dart';
@@ -198,6 +200,40 @@ void main() {
       session.change(const SessionSnapshot(status: SessionStatus.signedIn, tenantId: 'tenant-a', userId: 'user-1'));
       await pumpEventQueue();
       expect(queue.commands(states: <CommandState>{CommandState.accepted}), hasLength(2));
+    });
+  });
+
+  group('TK-MOB-005-4 TK-MOB-009-4 the runners of the application probe a lost connection on their own', () {
+    Future<void> signedIn(ProviderContainer container) async {
+      await container.read(commandQueueProvider.future);
+    }
+
+    test('the queue runner and the upload runner are built with the probe policy of the provider: none until the application root installs one', () async {
+      final TestStorage quietStorage = TestStorage.create();
+      await quietStorage.open();
+      final ProviderContainer quiet = containerFor(storage: quietStorage, server: FakeSyncServer());
+      await signedIn(quiet);
+      quiet.listen(queueRunnerProvider, (previous, next) {});
+      quiet.listen(uploadRunnerProvider, (previous, next) {});
+      expect((await quiet.read(queueRunnerProvider.future)).maxOfflineProbes, 0);
+      expect((await quiet.read(uploadRunnerProvider.future)).maxOfflineProbes, 0);
+
+      final TestStorage storage = TestStorage.create();
+      await storage.open();
+      final ProviderContainer container = containerFor(
+        storage: storage,
+        server: FakeSyncServer(),
+        overrides: <Override>[offlineProbePolicyProvider.overrideWithValue(OfflineProbePolicy.standard)],
+      );
+      await signedIn(container);
+      container.listen(queueRunnerProvider, (previous, next) {});
+      container.listen(uploadRunnerProvider, (previous, next) {});
+      final QueueRunner queue = await container.read(queueRunnerProvider.future);
+      final UploadRunner uploads = await container.read(uploadRunnerProvider.future);
+      expect(queue.offlineProbes, OfflineProbePolicy.standard.delays);
+      expect(queue.maxOfflineProbes, OfflineProbePolicy.standard.maxProbes);
+      expect(uploads.offlineProbes, OfflineProbePolicy.standard.delays);
+      expect(uploads.maxOfflineProbes, OfflineProbePolicy.standard.maxProbes);
     });
   });
 }

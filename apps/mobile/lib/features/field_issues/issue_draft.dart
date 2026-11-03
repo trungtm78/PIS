@@ -60,6 +60,18 @@ final class IssuePhoto {
     uploadId: id,
   );
 
+  /// The photograph as it was before it was handed to the uploader: it is handed over again, under another owner.
+  IssuePhoto withoutUpload() => IssuePhoto(
+    id: id,
+    path: path,
+    mime: mime,
+    bytes: bytes,
+    annotations: annotations,
+    originalPath: originalPath,
+    sourceHadPlaceOrTime: sourceHadPlaceOrTime,
+    keepsPlaceOrTime: keepsPlaceOrTime,
+  );
+
   IssuePhoto withAnnotations(AnnotationSet next) => IssuePhoto(
     id: id,
     path: path,
@@ -140,6 +152,7 @@ final class IssueDraft {
   final FieldPlace place;
 
   IssueDraft copyWith({
+    String? clientOperationId,
     String? projectId,
     String? projectLabel,
     String? ownerUnitId,
@@ -152,7 +165,7 @@ final class IssueDraft {
     List<IssuePhoto>? photos,
     FieldPlace? place,
   }) => IssueDraft(
-    clientOperationId: clientOperationId,
+    clientOperationId: clientOperationId ?? this.clientOperationId,
     projectId: projectId ?? this.projectId,
     projectLabel: projectLabel ?? this.projectLabel,
     ownerUnitId: ownerUnitId ?? this.ownerUnitId,

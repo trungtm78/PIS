@@ -156,3 +156,14 @@ Uint8List pngWithText({int width = 16, int height = 12}) {
     ...plain.sublist(iend),
   ]);
 }
+
+/// [jpeg] as a file of two scans (the first scan once more, after [between]): the blocks between the scans are where a
+/// progressive or multi-scan file may carry its metadata. The end marker closes the file.
+Uint8List withBlocksBetweenScans(Uint8List jpeg, List<Uint8List> between) {
+  int sos = 2;
+  while (!(jpeg[sos] == 0xFF && jpeg[sos + 1] == 0xDA)) {
+    sos += 2 + ((jpeg[sos + 2] << 8) | jpeg[sos + 3]);
+  }
+  final Uint8List scan = jpeg.sublist(sos, jpeg.length - 2);
+  return Uint8List.fromList(<int>[...jpeg.sublist(0, jpeg.length - 2), for (final Uint8List block in between) ...block, ...scan, 0xFF, 0xD9]);
+}

@@ -118,7 +118,7 @@ void main() {
       expect(_plist, contains('NSLocationWhenInUseUsageDescription'));
       expect(_plist, contains('NSCameraUsageDescription'));
       expect(_plist, contains('NSFaceIDUsageDescription'));
-      expect(_plist, isNot(contains('NSPhotoLibraryUsageDescription')), reason: 'the picker of the system needs no library permission');
+      expect(_plist, contains('NSPhotoLibraryUsageDescription'), reason: 'the gallery picker is used: the store policy needs the entry, and an iOS that is ever asked for the library must find the text instead of ending the application');
     });
 
     test('iOS: no entitlement makes the build debuggable by others, and the release configuration is not the debug one', () {

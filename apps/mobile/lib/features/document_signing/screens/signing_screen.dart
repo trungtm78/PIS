@@ -167,6 +167,11 @@ class _DocumentBodyState extends ConsumerState<_DocumentBody> with CommandFlow<_
   bool _unlockRefused = false;
   Object? _last;
 
+  /// The sessions that the server refused to complete because their time ran out. The server does not change the stored status of such a
+  /// session (it expires it when the next one is opened), so reading the document again still shows it open: the refusal is what says that
+  /// a new session has to be started.
+  final Set<String> _ranOut = <String>{};
+
   /// A signing interaction is on: the check of the SDK, the prompt of the phone, the SDK signing, up to the send. It is taken at the first
   /// tap and not at the send, because each step is a native operation that must not run twice at once (the guard of the command only covers
   /// the request).
@@ -192,7 +197,12 @@ class _DocumentBodyState extends ConsumerState<_DocumentBody> with CommandFlow<_
       },
     );
     // A refusal leaves the document as it was on the server: read it again so that the screen shows that, and nothing the phone assumed.
-    if (mounted && outcome is CommandRefused) widget.onChanged();
+    if (!mounted) return;
+    final CommandOutcome? result = outcome;
+    if (result is CommandRefused) {
+      if (request is CompleteRequest && result.code == 'SIGNING_SESSION_EXPIRED') setState(() => _ranOut.add(request.sessionId));
+      widget.onChanged();
+    }
   }
 
   /// Opens the session only when the signing method can sign: an SDK that cannot be used, or that holds another certificate than the
@@ -246,7 +256,7 @@ class _DocumentBodyState extends ConsumerState<_DocumentBody> with CommandFlow<_
     final SigningProof? proof;
     try {
       proof = await port.prove(
-        SigningChallenge(sessionId: session.id, digestHex: session.digestHex ?? '', expectedSubject: widget.document.signingCertificate?.subject, label: widget.document.title),
+        SigningChallenge(sessionId: session.id, digestHex: session.digestHex ?? '', expectedSubject: widget.document.signingCertificate?.subject, expectedFingerprint: widget.document.signingCertificate?.fingerprintSha256, label: widget.document.title),
         typedCode: _otp.text,
       );
     } on SigningPortException catch (error) {
@@ -331,12 +341,14 @@ class _DocumentBodyState extends ConsumerState<_DocumentBody> with CommandFlow<_
   Widget _signCard(BuildContext context, SigningDocument document, SigningGate gate) {
     final ThemeData theme = Theme.of(context);
     final SigningPort port = ref.watch(signingPortProvider);
-    final SigningSession? open = document.openLeaderSession;
     final SigningSession? last = document.lastLeaderSession;
+    final SigningSession? stored = document.openLeaderSession;
+    final bool refused = stored != null && _ranOut.contains(stored.id);
+    final SigningSession? open = refused ? null : stored;
     final SigningCertificate? certificate = document.signingCertificate;
     final bool busy = sending || _interacting;
     final bool ready = gate == SigningGate.open && !busy;
-    final bool lapsed = open == null && last != null && last.status == 'EXPIRED';
+    final bool lapsed = open == null && last != null && (refused || last.status == 'EXPIRED');
     return SectionCard(
       title: context.t('mob.signing.sign.title'),
       children: <Widget>[

@@ -29,11 +29,18 @@ abstract interface class PositionSource {
 
 /// The camera and the gallery through `image_picker`. The picture is not scaled or recompressed by the plugin: what is sent is
 /// decided by the pipeline of [PhotoSource] users, in one place.
+///
+/// `requestFullMetadata` is false: on iOS the default (true) makes the plugin ask for authorisation to the whole photo library so
+/// that it can read the original metadata of the asset, and the person chose one picture, not their library (BR-MOB-06, data
+/// minimisation). The picker of the system hands over the picture they chose without it. What the file says of where and when is
+/// still read from the file itself and handled by the pipeline (stripped unless the person consented), so nothing in the consent
+/// logic depends on the library permission. Info.plist still carries `NSPhotoLibraryUsageDescription`: the store policy requires
+/// the entry for an application that uses the picker, and it is the text shown should a library permission ever be asked.
 final class ImagePickerPhotoSource implements PhotoSource {
   const ImagePickerPhotoSource();
 
   Future<File?> _get(ImageSource source) async {
-    final XFile? file = await ImagePicker().pickImage(source: source);
+    final XFile? file = await ImagePicker().pickImage(source: source, requestFullMetadata: false);
     return file == null ? null : File(file.path);
   }
 

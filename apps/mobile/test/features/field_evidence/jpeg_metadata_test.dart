@@ -82,6 +82,55 @@ void main() {
       expect(img.decodeJpg(stripJpegMetadata(geotaggedJpeg(orientation: 8))), isNotNull);
     });
 
+    test('removes the blocks that sit between the scans of a multi-scan file, and keeps both scans byte for byte', () {
+      final Uint8List plain = plainJpeg();
+      final Uint8List original = withBlocksBetweenScans(plain, <Uint8List>[
+        exifSegment(orientation: 1, takenAt: '2026:11:03 08:15:00', gps: true),
+        segment(0xFE, 'second scan at the south gate'.codeUnits),
+        segment(0xE1, 'http://ns.adobe.com/xap/1.0/\u0000<x:xmpmeta/>'.codeUnits),
+      ]);
+      expect(readJpegMetadata(original).hasGps, isTrue, reason: 'the reader sees the block between the scans');
+      expect(readJpegMetadata(original).carriesPlaceOrTime, isTrue);
+
+      final Uint8List stripped = stripJpegMetadata(original, keepOrientation: false);
+
+      expect(readJpegMetadata(stripped).hasExif, isFalse);
+      final String text = String.fromCharCodes(stripped);
+      for (final String leak in <String>['south gate', 'xmpmeta', 'Exif']) {
+        expect(text.contains(leak), isFalse, reason: leak);
+      }
+      expect(stripped, withBlocksBetweenScans(plain, <Uint8List>[]), reason: 'only the blocks go, the scans are copied as they are');
+    });
+
+    test('a scan whose data holds stuffed zeros and restart markers is not cut short by them', () {
+      final Uint8List plain = plainJpeg();
+      int sos = 2;
+      while (!(plain[sos] == 0xFF && plain[sos + 1] == 0xDA)) {
+        sos += 2 + ((plain[sos + 2] << 8) | plain[sos + 3]);
+      }
+      final int header = sos + 2 + ((plain[sos + 2] << 8) | plain[sos + 3]);
+      final Uint8List data = Uint8List.fromList(<int>[
+        ...plain.sublist(0, header),
+        0x12, 0xFF, 0x00, 0x34, 0xFF, 0xD0, 0x56, 0xFF, 0xFF, 0xFF, 0xD1, 0x78, // stuffed zero, restart, fill bytes, restart
+        ...segment(0xE1, <int>[0x45, 0x78, 0x69, 0x66, 0x00, 0x00, 0x4D, 0x4D]),
+        0xFF, 0xD9,
+      ]);
+      final Uint8List stripped = stripJpegMetadata(data, keepOrientation: false);
+      expect(stripped, <int>[
+        ...plain.sublist(0, header),
+        0x12, 0xFF, 0x00, 0x34, 0xFF, 0xD0, 0x56, 0xFF, 0xFF, 0xFF, 0xD1, 0x78,
+        0xFF, 0xD9,
+      ]);
+    });
+
+    test('whatever follows the end marker is not kept: a second picture appended after it cannot carry the place', () {
+      final Uint8List tagged = geotaggedJpeg();
+      final Uint8List appended = Uint8List.fromList(<int>[...plainJpeg(), ...tagged]);
+      final Uint8List stripped = stripJpegMetadata(appended, keepOrientation: false);
+      expect(stripped, plainJpeg());
+      expect(String.fromCharCodes(stripped).contains('Exif'), isFalse);
+    });
+
     test('a file that is not a JPEG that parses is handed back as it came', () {
       final Uint8List other = Uint8List.fromList(<int>[0x89, 0x50, 0x4E, 0x47]);
       expect(identical(stripJpegMetadata(other), other), isTrue);

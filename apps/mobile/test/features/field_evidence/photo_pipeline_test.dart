@@ -175,6 +175,38 @@ void main() {
     });
   });
 
+  group('AC-ST-MOB-014-2 UAT-AC367 a damaged picture is never made uploadable, also when it needs no new compression', () {
+    test('a JPEG and a PNG that are cut short are IMAGE_UNREADABLE with or without the consent, and nothing is written', () async {
+      final Uint8List jpeg = geotaggedJpeg();
+      final Uint8List png = pngWithText();
+      final Map<String, Uint8List> damaged = <String, Uint8List>{
+        'jpeg cut in the scan': Uint8List.sublistView(jpeg, 0, jpeg.length - 60),
+        'jpeg cut near its start': Uint8List.sublistView(jpeg, 0, jpeg.indexOf(0xDA) + 14),
+        'png cut in the data': Uint8List.sublistView(png, 0, 60),
+        'png without its end chunk': Uint8List.sublistView(png, 0, png.length - 12),
+      };
+      for (final MapEntry<String, Uint8List> entry in damaged.entries) {
+        for (final bool keep in <bool>[false, true]) {
+          final _Work work = _Work();
+          final File file = work.file('damaged.bin', entry.value);
+          await expectLater(work.prepare(file, keep: keep), _refusedWith('IMAGE_UNREADABLE'), reason: '${entry.key}, keep $keep');
+          expect(work.out.existsSync() && work.out.listSync().isNotEmpty, isFalse, reason: '${entry.key}: no file is created');
+        }
+      }
+    });
+
+    test('a picture that reads is still sent with its own encoded bytes, not a new compression', () async {
+      final _Work work = _Work();
+      final Uint8List source = plainJpeg();
+      final PreparedPhoto prepared = await work.prepare(work.file('ok.jpg', source), keep: true);
+      expect(prepared.recompressed, isFalse);
+      expect(File(prepared.path).readAsBytesSync(), source);
+      final Uint8List png = pngWithText();
+      final PreparedPhoto kept = await work.prepare(work.file('ok.png', png), keep: true);
+      expect(File(kept.path).readAsBytesSync(), png);
+    });
+  });
+
   group('AC-ST-MOB-014-4 UI-MOB-29 the marks of the person are drawn into the picture that is sent', () {
     test('the line lands where it was drawn, in the colour chosen, and the original keeps its pixels', () async {
       final _Work work = _Work();

@@ -240,6 +240,34 @@ void main() {
       expect(find.text('Hợp lệ'), findsNothing);
     });
 
+    testWidgets('the server leaves a session whose time ran out open: after the expiry refusal a new start request is offered, and it is sent (the server expires the old one when it opens the new)', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      Map<String, Object?> document = outgoing(sessions: <Map<String, Object?>>[session('s-1')]);
+      server
+        ..on('GET', '/outgoing-documents/d-1', (_) => document)
+        ..answer('POST', '/signing-sessions/s-1/completion', (_) => problem(409, 'SIGNING_SESSION_EXPIRED'))
+        ..answer('POST', '/outgoing-documents/d-1/leader-signing-sessions', (_) {
+          document = outgoing(version: 8, sessions: <Map<String, Object?>>[session('s-2'), session('s-1', status: 'EXPIRED')]);
+          return recorded('s-2', status: 'AWAITING_SIGNER');
+        });
+      await _open(tester, server, _detail);
+      expect(find.widgetWithText(FilledButton, 'Mở phiên ký mới'), findsNothing, reason: 'while the screen does not know the session ran out it is open');
+      await tester.enterText(_otp(), '482913');
+      await tester.tap(_confirm());
+      await tester.pumpAndSettle();
+
+      expect(find.text('SIGNING_SESSION_EXPIRED'), findsOneWidget);
+      expect(find.text('Phiên ký trước đã hết hạn mà chưa xác nhận; hãy mở phiên ký mới.'), findsOneWidget);
+      expect(_confirm(), findsNothing, reason: 'the session that the server refused is not offered for confirmation again');
+      await tester.tap(find.widgetWithText(FilledButton, 'Mở phiên ký mới'));
+      await tester.pumpAndSettle();
+      final HttpCall started = _posts(server).last;
+      expect(started.url.path, endsWith('/outgoing-documents/d-1/leader-signing-sessions'));
+      expect(_otp(), findsOneWidget, reason: 'the new session is open and asks for its code');
+      expect(_confirm(), findsOneWidget);
+    });
+
     testWidgets('a lost answer is "result unknown": sending the same confirmation again reuses the key, so the document is signed once', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();

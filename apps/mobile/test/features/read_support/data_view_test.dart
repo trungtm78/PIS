@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,6 +25,24 @@ Widget _build(BuildContext context, ScreenContext screen) => Scaffold(
         asOf: (String value) => '2026-10-31',
         isEmpty: (String value) => value == 'empty',
         builder: (BuildContext context, loaded) => Text('title ${loaded.value}'),
+      ),
+    );
+
+/// The key of the read of [_keyed]: the filters of a screen. Changing it while a read is pending is the case under test.
+final ValueNotifier<String> _filter = ValueNotifier<String>('A');
+
+const MobileFeature _keyed = MobileFeature(id: 'keyed', screens: <ScreenSpec>[ScreenSpec(screenId: 'MOB-08', builder: _buildKeyed)]);
+
+Widget _buildKeyed(BuildContext context, ScreenContext screen) => Scaffold(
+      body: ValueListenableBuilder<String>(
+        valueListenable: _filter,
+        builder: (BuildContext context, String filter, Widget? child) => DataView<String>(
+          cacheKey: 'probe/$filter',
+          read: (MachvonApiClient client) => client.getMyWork(),
+          parse: (Object? raw) => text(asRecord(raw)?['title']),
+          asOf: (String value) => '2026-10-31',
+          builder: (BuildContext context, loaded) => Text('title ${loaded.value}'),
+        ),
       ),
     );
 
@@ -144,6 +164,63 @@ void main() {
       await tester.tap(find.text('Thử lại'));
       await tester.pumpAndSettle();
       expect(find.text('Chưa có dữ liệu'), findsOneWidget);
+    });
+  });
+
+  group('TK-MOB-010-4 AC-ST-MOB-010-1 BR-MOB-01 a read that answers after the filters changed never touches the copy of the new filters', () {
+    /// The first read waits until [release] is completed and then answers [firstStatus]; every later read answers at once.
+    ScriptedServer slowFirst(Completer<void> release, {int firstStatus = 200}) {
+      final ScriptedServer server = ScriptedServer();
+      int calls = 0;
+      server.answer('GET', '/home/my-work', (HttpCall call) async {
+        if (calls++ == 0) {
+          await release.future;
+          if (firstStatus != 200) {
+            return FakeTransport.json(firstStatus, <String, Object?>{'type': 'about:blank', 'title': 'SCOPE_DENIED', 'status': firstStatus, 'code': 'SCOPE_DENIED'});
+          }
+          return FakeTransport.json(200, <String, Object?>{'title': 'late answer for A'});
+        }
+        return FakeTransport.json(200, <String, Object?>{'title': 'answer for B'});
+      });
+      return server;
+    }
+
+    setUp(() => _filter.value = 'A');
+
+    testWidgets('the late answer for A does not overwrite the copy of B, and no copy of A is written', (WidgetTester tester) async {
+      useDevice(tester, kDeviceSizes[1]);
+      final Completer<void> release = Completer<void>();
+      final ScriptedServer server = slowFirst(release);
+      final ProviderContainer container = await pumpWithServer(tester, features: <MobileFeature>[_keyed], server: server, location: '/home/mob-08');
+      _filter.value = 'B';
+      await tester.pumpAndSettle();
+      expect(find.text('title answer for B'), findsOneWidget);
+
+      release.complete();
+      await tester.pumpAndSettle();
+      expect(find.text('title answer for B'), findsOneWidget, reason: 'the late answer is not shown either');
+
+      expect((container.read(readCacheProvider) as InMemoryReadCache).length, 1, reason: 'only the copy of B exists');
+      server.offline = true;
+      await tester.tap(find.byTooltip('Làm mới'));
+      await tester.pumpAndSettle();
+      expect(find.text('title answer for B'), findsOneWidget, reason: 'the copy kept for B is the answer for B');
+    });
+
+    testWidgets('the late refusal of A does not drop the copy of B', (WidgetTester tester) async {
+      useDevice(tester, kDeviceSizes[1]);
+      final Completer<void> release = Completer<void>();
+      final ScriptedServer server = slowFirst(release, firstStatus: 403);
+      final ProviderContainer container = await pumpWithServer(tester, features: <MobileFeature>[_keyed], server: server, location: '/home/mob-08');
+      _filter.value = 'B';
+      await tester.pumpAndSettle();
+      expect((container.read(readCacheProvider) as InMemoryReadCache).length, 1);
+
+      release.complete();
+      await tester.pumpAndSettle();
+
+      expect((container.read(readCacheProvider) as InMemoryReadCache).length, 1, reason: 'what was refused for A says nothing about B');
+      expect(find.text('title answer for B'), findsOneWidget);
     });
   });
 }

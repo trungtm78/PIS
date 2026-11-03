@@ -9,9 +9,10 @@ import 'vendor_sdk.dart';
 /// embeds the signature in the PDF and verifies it at once, so what the phone adds is the checks that must not wait for the server:
 ///
 ///  * **readiness** is asked before a session is opened: an SDK that cannot be used, a holder with no certificate in it, or a certificate
-///    that is not the registered one, create no session;
+///    that is not the registered one (another subject, or the same subject with another fingerprint, as after a renewal), create no
+///    session;
 ///  * **the digest** the SDK says it signed must be the one the server locked, and **the identity** it signed as must be the registered
-///    certificate's subject; either differing, nothing is sent (the server would refuse it, and nothing partial is ever left there);
+///    certificate (its subject and its fingerprint); either differing, nothing is sent (the server would refuse it, and nothing partial is ever left there);
 ///  * **the SDK's own confirmation** (PIN or biometric) is the signer's act and its answer is not a parameter of anything sent; the
 ///    application's biometric prompt only unlocks the credential, it is not the signature (MOB.md L3).
 ///
@@ -42,7 +43,7 @@ final class VendorSdkSigningPort implements SigningPort {
       return error.kind == SdkFailureKind.noCertificate ? Readiness.noCertificate : Readiness.unavailable;
     }
     if (held == null) return Readiness.noCertificate;
-    if (certificate != null && !sameSubject(held.subjectDn, certificate.subject)) return Readiness.identityMismatch;
+    if (certificate != null && !isRegisteredCertificate(held, subject: certificate.subject, fingerprint: certificate.fingerprintSha256)) return Readiness.identityMismatch;
     return Readiness.ready;
   }
 
@@ -69,9 +70,23 @@ final class VendorSdkSigningPort implements SigningPort {
     if (signature.digestHex.toLowerCase() != digest) throw const SigningPortException(PortFailureKind.digestMismatch);
     final String? expected = challenge.expectedSubject;
     if (expected != null && !sameSubject(signature.signer.subjectDn, expected)) throw const SigningPortException(PortFailureKind.identityMismatch);
+    if (!isRegisteredFingerprint(signature.signer.fingerprintSha256, challenge.expectedFingerprint)) throw const SigningPortException(PortFailureKind.identityMismatch);
     if (!_isBase64(signature.cmsBase64)) throw const SigningPortException(PortFailureKind.failed);
     return SigningProof(cmsSignature: signature.cmsBase64, clientDigestHex: digest);
   }
+}
+
+/// Whether the certificate the SDK holds is the registered one: the subject only says whose it is (a renewed certificate keeps it), so the
+/// fingerprint is compared as well, as the server does when it checks the signature.
+bool isRegisteredCertificate(SdkIdentity held, {required String subject, String? fingerprint}) =>
+    sameSubject(held.subjectDn, subject) && isRegisteredFingerprint(held.fingerprintSha256, fingerprint);
+
+/// Two fingerprints that are both known must be the same one. An SDK that does not report its fingerprint (or a server that did not send
+/// one) leaves nothing to compare: the name was compared and the server compares the real fingerprint when it receives the signature.
+bool isRegisteredFingerprint(String? held, String? registered) {
+  final String? left = normalizeFingerprint(held);
+  final String? right = normalizeFingerprint(registered);
+  return left == null || right == null || left == right;
 }
 
 final RegExp _digest = RegExp(r'^[0-9a-f]{64}$');

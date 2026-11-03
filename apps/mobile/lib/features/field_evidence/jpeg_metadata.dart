@@ -49,9 +49,11 @@ class _Segment {
   int get payloadStart => start + 4;
 }
 
-/// The segments in front of the scan, or null when the bytes are not a JPEG that parses. Everything from the start of the
-/// scan on is picture data and is copied as it is.
-({List<_Segment> segments, int scanStart})? _walk(Uint8List bytes) {
+/// The segments of the file in order, or null when the bytes are not a JPEG that parses. A scan (its header and the entropy
+/// coded data that follows) is one segment, so the walk goes on through every scan of a progressive or multi-scan file and
+/// sees the blocks that sit between the scans. The segment of the end marker is the last one: what follows it is not part of
+/// the picture.
+List<_Segment>? _walk(Uint8List bytes) {
   if (bytes.length < 4 || bytes[0] != 0xFF || bytes[1] != _soi) return null;
   final List<_Segment> segments = <_Segment>[];
   int at = 2;
@@ -64,20 +66,45 @@ class _Segment {
       start += 1;
       marker = bytes[start + 1];
     }
-    if (marker == _sos || marker == _eoi)
-      return (segments: segments, scanStart: start);
+    if (marker == _eoi) {
+      segments.add(_Segment(marker, start, start + 2));
+      return segments;
+    }
     if (marker == 0x01 || (marker >= 0xD0 && marker <= 0xD7)) {
       at = start + 2;
       continue;
     }
     if (start + 4 > bytes.length) return null;
     final int length = (bytes[start + 2] << 8) | bytes[start + 3];
-    final int end = start + 2 + length;
+    int end = start + 2 + length;
     if (length < 2 || end > bytes.length) return null;
-    segments.add(_Segment(marker, start, end));
+    if (marker == _sos) {
+      end = _endOfScan(bytes, end);
+      segments.add(_Segment(marker, start, end));
+      // A file cut inside its last scan has no marker after it: the scan runs to the end.
+      if (end >= bytes.length) return segments;
+    } else {
+      segments.add(_Segment(marker, start, end));
+    }
     at = end;
   }
   return null;
+}
+
+/// The offset of the first marker after the entropy coded data that starts at [from]: a stuffed zero (0xFF 0x00), a restart
+/// marker and a fill byte belong to the data.
+int _endOfScan(Uint8List bytes, int from) {
+  int at = from;
+  while (at + 1 < bytes.length) {
+    if (bytes[at] == 0xFF) {
+      final int next = bytes[at + 1];
+      if (next != 0x00 && next != 0xFF && !(next >= 0xD0 && next <= 0xD7)) {
+        return at;
+      }
+    }
+    at += 1;
+  }
+  return bytes.length;
 }
 
 bool _isExif(Uint8List bytes, _Segment segment) {
@@ -203,21 +230,31 @@ JpegMetadata _readTiff(_Tiff tiff) {
   );
 }
 
-/// Reads what the Exif block of a JPEG says: whether it holds a position, whether it holds a time, and the orientation. A file
-/// that is not a JPEG, or whose block cannot be read, has no metadata.
+/// Reads what the Exif blocks of a JPEG say: whether they hold a position, whether they hold a time, and the orientation. Every
+/// block counts wherever it sits, also between the scans of the picture. A file that is not a JPEG, or whose block cannot be
+/// read, has no metadata.
 JpegMetadata readJpegMetadata(Uint8List bytes) {
-  final ({List<_Segment> segments, int scanStart})? walked = _walk(bytes);
+  final List<_Segment>? walked = _walk(bytes);
   if (walked == null) return JpegMetadata.none;
-  for (final _Segment segment in walked.segments) {
+  JpegMetadata found = JpegMetadata.none;
+  for (final _Segment segment in walked) {
     if (!_isExif(bytes, segment)) continue;
     final _Tiff? tiff = _Tiff.open(
       bytes,
       segment.payloadStart + _exifHeader.length,
       segment.end,
     );
-    return tiff == null ? const JpegMetadata(hasExif: true) : _readTiff(tiff);
+    final JpegMetadata block = tiff == null
+        ? const JpegMetadata(hasExif: true)
+        : _readTiff(tiff);
+    found = JpegMetadata(
+      hasExif: true,
+      hasGps: found.hasGps || block.hasGps,
+      hasTime: found.hasTime || block.hasTime,
+      orientation: found.orientation ?? block.orientation,
+    );
   }
-  return JpegMetadata.none;
+  return found;
 }
 
 /// An Exif block that holds nothing but the orientation, so a picture stored sideways still shows upright and the file says
@@ -261,40 +298,43 @@ bool _keeps(int marker) {
   return !application && !comment;
 }
 
-/// The file without the place and the time it says it was taken at (BR-MOB-06): every block that can hold them is removed and
-/// the picture itself is not touched (no new compression). With [keepOrientation] a block that holds only the orientation is
-/// put back. Bytes that are not a JPEG that parses are returned as they came, so the caller decides what to do with them.
+/// The file without the place and the time it says it was taken at (BR-MOB-06): every block that can hold them is removed, in
+/// front of the picture and between its scans alike, and the picture itself is not touched (no new compression). With
+/// [keepOrientation] a block that holds only the orientation is put back. Whatever follows the end marker is dropped. Bytes
+/// that are not a JPEG that parses are returned as they came, so the caller decides what to do with them.
 Uint8List stripJpegMetadata(Uint8List bytes, {bool keepOrientation = true}) {
-  final ({List<_Segment> segments, int scanStart})? walked = _walk(bytes);
+  final List<_Segment>? walked = _walk(bytes);
   if (walked == null) return bytes;
   final int? orientation = keepOrientation
       ? readJpegMetadata(bytes).orientation
       : null;
-  final List<_Segment> kept = <_Segment>[
-    for (final _Segment segment in walked.segments)
-      if (_keeps(segment.marker)) segment,
-  ];
   final BytesBuilder out = BytesBuilder()..add(const <int>[0xFF, _soi]);
   // The orientation block follows the JFIF header, as the format asks, and is the first block when there is none.
   bool pending = orientation != null && orientation != 1;
-  for (final _Segment segment in kept) {
+  for (final _Segment segment in walked) {
+    if (!_keeps(segment.marker)) continue;
     if (pending && segment.marker != _app0) {
       out.add(_orientationOnly(orientation!));
       pending = false;
     }
     out.add(Uint8List.sublistView(bytes, segment.start, segment.end));
   }
-  if (pending) out.add(_orientationOnly(orientation!));
-  out.add(Uint8List.sublistView(bytes, walked.scanStart));
   return out.toBytes();
+}
+
+/// Whether the bytes are a JPEG that runs to its end marker. A file cut short in its picture data still starts like a JPEG, and
+/// a decoder may hand back part of the picture for it: this says the file is whole.
+bool jpegIsComplete(Uint8List bytes) {
+  final List<_Segment>? walked = _walk(bytes);
+  return walked != null && walked.last.marker == _eoi;
 }
 
 /// The width and height a JPEG declares in its frame header, read without decoding the picture, or null when the file does not
 /// say. The orientation is not applied.
 ({int width, int height})? jpegSize(Uint8List bytes) {
-  final ({List<_Segment> segments, int scanStart})? walked = _walk(bytes);
+  final List<_Segment>? walked = _walk(bytes);
   if (walked == null) return null;
-  for (final _Segment segment in walked.segments) {
+  for (final _Segment segment in walked) {
     final int marker = segment.marker;
     final bool frame =
         marker >= 0xC0 &&
