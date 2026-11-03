@@ -113,6 +113,27 @@ void main() {
       });
     }
 
+    test('an upload cancelled before its replacement was saved is not reused by the next send: the photograph is handed over again from its own file', () async {
+      final _Phone phone = await _phone();
+      final EvidencePhoto first = EvidencePhoto(id: 'a', path: (File('${phone.folder.path}/a.jpg')..writeAsBytesSync(geotaggedJpeg())).path, mime: 'image/jpeg', bytes: 3);
+      final EvidencePhoto second = EvidencePhoto(id: 'b', path: '${phone.folder.path}/b.jpg', mime: 'image/jpeg', bytes: 3);
+      PhotoRecord capture() => PhotoRecord(operationId: 'op-3', contractId: 'c-1', contractCode: 'HD-A-001', caption: '', place: FieldPlace.none, photos: <EvidencePhoto>[first, second]);
+
+      await expectLater(phone.service.keep(capture()), throwsA(isA<AttachmentRefused>()));
+      final AttachmentUploader uploader = await phone.container.read(attachmentUploaderProvider.future);
+      final AttachmentUpload cut = uploader.uploads().single;
+      // The send was cut after the copy was cancelled and before the replacement id was saved: the draft still names the cancelled upload and its source is gone.
+      uploader.cancel(cut.id);
+      expect(uploader.upload(cut.id)!.state, UploadState.cancelled);
+
+      File('${phone.folder.path}/b.jpg').writeAsBytesSync(plainJpeg(width: 20));
+      final PhotoRecord kept = await phone.service.keep(capture());
+
+      expect(kept.photos.first.uploadId, isNot(cut.id), reason: 'the cancelled upload does not stand for the photograph');
+      expect(uploader.upload(kept.photos.first.uploadId!)!.state, isNot(UploadState.cancelled), reason: 'the photograph goes up');
+      await phone.quiesce();
+    });
+
     test('an upload that is no longer in the uploader is handed over again, not trusted', () async {
       final _Phone phone = await _phone();
       final File file = File('${phone.folder.path}/a.jpg')..writeAsBytesSync(plainJpeg());

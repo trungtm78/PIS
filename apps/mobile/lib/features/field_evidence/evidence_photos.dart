@@ -216,7 +216,8 @@ Future<List<EvidencePhoto>> enforcePhotoConsent(
 Future<bool> reuseUpload(AttachmentUploader uploader, String? uploadId, {required bool keepsPlaceOrTime}) async {
   if (uploadId == null) return false;
   final AttachmentUpload? upload = uploader.upload(uploadId);
-  if (upload == null) return false;
+  // A cancelled upload never goes up, whatever its source says now (cancelling deleted it): a send cut after the cancel and before the new id was saved comes back here.
+  if (upload == null || upload.state == UploadState.cancelled) return false;
   if (keepsPlaceOrTime || !await _carriesMetadata(upload.sourcePath)) return true;
   if (!upload.state.isFinal) uploader.cancel(uploadId);
   return false;
