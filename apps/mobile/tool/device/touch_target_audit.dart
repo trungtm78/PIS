@@ -8,7 +8,8 @@
 //   dart run tool/device/touch_target_audit.dart screen.xml 420 [more.xml ...]
 //
 // Exit code 0: every control of every dump is at least 48 dp in both directions and has a name. 1: at least one is not.
-// 64: the arguments are wrong.
+// 64: the arguments are wrong. 65: an input is not a whole hierarchy dump (empty, not XML, cut short, no node, or a file that cannot be
+// read): nothing was audited there, so it is neither a pass nor a finding, and it is reported even when the other dumps are clean.
 import 'dart:io';
 
 /// The smallest touch area, in dp, that Material and WCAG 2.2 (2.5.8, with the Android guideline) accept.
@@ -59,9 +60,25 @@ String _unescape(String value) => value
     .replaceAll('&#10;', '\n')
     .replaceAll('&amp;', '&');
 
-/// The controls (clickable, long-clickable or checkable) of a `uiautomator dump`, in document order. A node with a
-/// bounds attribute that cannot be read is an error: a dump that is half understood must not pass.
+final RegExp _nodeStart = RegExp(r'<node\b');
+final RegExp _hierarchyStart = RegExp(r'<hierarchy\b');
+
+/// Throws a [FormatException] unless [xml] is a whole `uiautomator dump`: a hierarchy that is opened and closed and holds at least
+/// one node, each of them closed. A capture that failed (empty, an error text, cut short) holds no control, and "no control" must
+/// never read as "no finding".
+void _requireWholeDump(String xml) {
+  final int open = xml.indexOf(_hierarchyStart);
+  if (open < 0) throw const FormatException('not a uiautomator hierarchy dump: no <hierarchy> element');
+  if (xml.indexOf('</hierarchy>', open) < 0) throw const FormatException('the hierarchy dump is cut short: <hierarchy> is not closed');
+  final int started = _nodeStart.allMatches(xml).length;
+  if (started == 0) throw const FormatException('the hierarchy dump holds no node');
+  if (_nodeTag.allMatches(xml).length != started) throw const FormatException('the hierarchy dump holds a node that is cut short');
+}
+
+/// The controls (clickable, long-clickable or checkable) of a `uiautomator dump`, in document order. A dump that is not whole
+/// ([FormatException]) and a node with a bounds attribute that cannot be read are errors: a dump that is half understood must not pass.
 List<UiNode> parseControls(String xml) {
+  _requireWholeDump(xml);
   final List<UiNode> controls = <UiNode>[];
   for (final RegExpMatch tag in _nodeTag.allMatches(xml)) {
     final Map<String, String> attributes = <String, String>{
@@ -117,12 +134,28 @@ int run(List<String> arguments) {
   }
   final List<String> files = <String>[arguments[0], ...arguments.skip(2)];
   int total = 0;
+  int unusable = 0;
   for (final String file in files) {
-    final List<TouchFinding> findings = auditDump(File(file).readAsStringSync(), densityDpi: density);
+    final List<TouchFinding> findings;
+    try {
+      findings = auditDump(File(file).readAsStringSync(), densityDpi: density);
+    } on FormatException catch (error) {
+      stdout.writeln('$file: UNUSABLE INPUT: ${error.message}');
+      unusable += 1;
+      continue;
+    } on FileSystemException catch (error) {
+      stdout.writeln('$file: UNUSABLE INPUT: ${error.message}');
+      unusable += 1;
+      continue;
+    }
     for (final TouchFinding finding in findings) {
       stdout.writeln('$file: $finding');
     }
     total += findings.length;
+  }
+  if (unusable > 0) {
+    stdout.writeln('UNUSABLE INPUT: $unusable of ${files.length} dump(s) could not be audited, so nothing is certified');
+    return 65;
   }
   stdout.writeln(total == 0 ? 'PASS: 0 findings in ${files.length} dump(s)' : 'FAIL: $total finding(s) in ${files.length} dump(s)');
   return total == 0 ? 0 : 1;

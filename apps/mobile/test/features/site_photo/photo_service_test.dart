@@ -85,6 +85,35 @@ void main() {
       await phone.quiesce();
     });
 
+    test('leaving the form takes the files of a form that was never kept, and leaves those of a capture that is kept, also one whose save ended badly or is still running', () async {
+      final _Phone phone = await _phone();
+      File photoFile(String name) => File('${phone.folder.path}/$name')..writeAsBytesSync(plainJpeg());
+      EvidencePhoto photo(String id) => EvidencePhoto(id: id, path: photoFile('$id.jpg').path, mime: 'image/jpeg', bytes: 3);
+      PhotoRecord capture(String operation, List<EvidencePhoto> photos) => PhotoRecord(operationId: operation, contractId: 'c-1', contractCode: 'HD-A-001', caption: '', place: FieldPlace.none, photos: photos);
+
+      // Never kept: nothing refers to the files.
+      final EvidencePhoto loose = photo('loose');
+      await phone.service.discardUnkept('op-none', <EvidencePhoto>[loose]);
+      expect(File(loose.path).existsSync(), isFalse);
+
+      // Kept, but the hand-over ended badly at the second photograph (its file is not there): the record refers to both.
+      final EvidencePhoto first = photo('first');
+      final EvidencePhoto missing = EvidencePhoto(id: 'missing', path: '${phone.folder.path}/missing.jpg', mime: 'image/jpeg', bytes: 3);
+      await expectLater(phone.service.keep(capture('op-cut', <EvidencePhoto>[first, missing])), throwsA(isA<AttachmentRefused>()));
+      await phone.service.discardUnkept('op-cut', <EvidencePhoto>[first, missing]);
+      expect(File(first.path).existsSync(), isTrue, reason: 'the capture that is kept refers to it');
+
+      // Still being kept: the record is not written yet when the form is left, and it is written all the same.
+      final EvidencePhoto running = photo('running');
+      final Future<PhotoRecord> keeping = phone.service.keep(capture('op-run', <EvidencePhoto>[running]));
+      final Future<void> left = phone.service.discardUnkept('op-run', <EvidencePhoto>[running]);
+      await keeping;
+      await left;
+      expect(File(running.path).existsSync(), isTrue);
+      expect((await phone.service.captures()).map((StoredCapture c) => c.record.operationId), containsAll(<String>['op-cut', 'op-run']));
+      await phone.quiesce();
+    });
+
     for (final (String, String, List<int> Function(), bool Function(List<int>)) kind in <(String, String, List<int> Function(), bool Function(List<int>))>[
       ('jpeg', 'image/jpeg', geotaggedJpeg, (List<int> bytes) => readJpegMetadata(Uint8List.fromList(bytes)).carriesPlaceOrTime),
       ('png', 'image/png', pngWithText, (List<int> bytes) => pngCarriesMetadata(Uint8List.fromList(bytes))),

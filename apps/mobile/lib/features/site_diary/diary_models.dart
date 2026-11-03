@@ -383,6 +383,7 @@ final class DiaryDraft {
     this.place = FieldPlace.none,
     this.photos = const <EvidencePhoto>[],
     this.commandId,
+    this.edited = false,
   });
 
   final String contractId;
@@ -391,6 +392,10 @@ final class DiaryDraft {
   final DiaryForm form;
   final FieldPlace place;
   final List<EvidencePhoto> photos;
+
+  /// Written on the phone after the last save was queued: the command of that save does not stand for this content, so the
+  /// command being taken by the server does not settle the draft.
+  final bool edited;
 
   /// The queued command of the last save, while it is not settled.
   final String? commandId;
@@ -402,6 +407,7 @@ final class DiaryDraft {
     String? operationId,
     String? commandId,
     bool clearCommand = false,
+    bool? edited,
   }) => DiaryDraft(
     contractId: contractId,
     recordDate: recordDate,
@@ -410,6 +416,7 @@ final class DiaryDraft {
     place: place ?? this.place,
     photos: photos ?? this.photos,
     commandId: clearCommand ? null : (commandId ?? this.commandId),
+    edited: edited ?? this.edited,
   );
 
   Map<String, Object?> toJson() => <String, Object?>{
@@ -422,6 +429,7 @@ final class DiaryDraft {
       for (final EvidencePhoto photo in photos) photo.toJson(),
     ],
     if (commandId != null) 'command_id': commandId,
+    if (edited) 'edited': true,
   };
 
   static DiaryDraft? fromJson(Map<String, Object?> json) {
@@ -438,6 +446,7 @@ final class DiaryDraft {
       place: FieldPlace.fromJson(json['place']),
       photos: EvidencePhoto.listFromJson(json['photos']),
       commandId: json['command_id'] as String?,
+      edited: json['edited'] == true,
     );
   }
 }

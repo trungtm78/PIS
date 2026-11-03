@@ -83,6 +83,7 @@ final Provider<AuthService> authServiceProvider = Provider<AuthService>((Ref ref
     purge: ref.watch(tenantDataPurgeProvider),
     biometrics: ref.watch(biometricGateProvider),
     pendingCommands: () => ref.read(pendingWorkProvider).count(),
+    discardPendingCommands: () => ref.read(pendingWorkProvider).discardUnsent(),
     biometricUnlockAllowed: () => !ref.read(integrityProvider).decision.restricts(IntegrityRestriction.biometricUnlock),
     now: ref.watch(sessionClockProvider),
   );

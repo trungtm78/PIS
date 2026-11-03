@@ -121,7 +121,7 @@ final FutureProvider<QueueRunner> queueRunnerProvider = FutureProvider<QueueRunn
     if (next == Reachability.online && previous != Reachability.online) runner.trigger();
   });
   ref.listen<SessionSnapshot>(sessionProvider, (SessionSnapshot? previous, SessionSnapshot next) {
-    if (next.isSignedIn && !(previous?.isSignedIn ?? false)) runner.trigger();
+    if (next.canAuthenticate && !(previous?.canAuthenticate ?? false)) runner.trigger();
   });
   ref.onDispose(runner.dispose);
   runner.start();
@@ -180,7 +180,7 @@ final FutureProvider<UploadRunner> uploadRunnerProvider = FutureProvider<UploadR
     if (next == Reachability.online && previous != Reachability.online) runner.trigger();
   });
   ref.listen<SessionSnapshot>(sessionProvider, (SessionSnapshot? previous, SessionSnapshot next) {
-    if (next.isSignedIn && !(previous?.isSignedIn ?? false)) runner.trigger();
+    if (next.canAuthenticate && !(previous?.canAuthenticate ?? false)) runner.trigger();
   });
   ref.onDispose(runner.dispose);
   runner.start();

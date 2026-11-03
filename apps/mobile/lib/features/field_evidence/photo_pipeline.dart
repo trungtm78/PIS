@@ -161,7 +161,7 @@ _Outcome _prepare(
   // short: a picture is whole and decodes, or it is not an upload, whether or not it is drawn again. The encoded bytes of a
   // picture that reads are kept as they are.
   final bool whole = jpeg ? jpegIsComplete(bytes) : pngIsComplete(bytes);
-  final img.Image? decoded = whole ? img.decodeImage(bytes) : null;
+  final img.Image? decoded = whole ? _decode(bytes) : null;
   if (decoded == null) throw const AttachmentRefused(kImageUnreadable);
   final JpegMetadata meta = jpeg ? readJpegMetadata(bytes) : JpegMetadata.none;
   final bool sourceHadPlaceOrTime = jpeg
@@ -204,6 +204,23 @@ _Outcome _prepare(
     keepsPlaceOrTime: keepsPlaceOrTime,
     original: original,
   );
+}
+
+/// The picture the bytes hold, or null when the decoder cannot read it. A file can be whole (its blocks run to the end) and still
+/// be damaged inside (a chunk whose checksum is wrong, compressed data that does not inflate): the decoder then throws, and what it
+/// throws on bytes that came from outside is not an error of the application but a picture that cannot be read.
+img.Image? _decode(Uint8List bytes) {
+  try {
+    return img.decodeImage(bytes);
+  } on Exception {
+    return null;
+  } on RangeError {
+    return null;
+  } on StateError {
+    return null;
+  } on ArgumentError {
+    return null;
+  }
 }
 
 /// The picture decoded, upright, marked, scaled to the transport width and compressed until it is under the transport size.

@@ -19,7 +19,6 @@ const String kMobileRedirectUri = 'vn.machvon.app:/oauth2redirect';
 const String kSecondFactorAcr = 'aal2';
 
 const Duration _clockSkew = Duration(minutes: 1);
-const int _defaultExpiresIn = 300;
 const Set<String> _loopbackHosts = <String>{'localhost', '127.0.0.1', '10.0.2.2'};
 
 /// Why a sign-in step failed. The exception carries this code and nothing else: no text from the provider, no address,
@@ -134,6 +133,8 @@ final class OidcTokens {
   final String? refreshToken;
   final String subject;
   final AssuranceLevel assurance;
+
+  /// Seconds the identity token has left, from its validated `exp` claim (0 when it is already past).
   final int expiresIn;
 
   @override
@@ -304,7 +305,6 @@ final class OidcClient {
   OidcTokens _tokensFrom(Map<String, Object?> body, OidcConfig config, {String? nonce}) {
     final Object? idToken = body['id_token'];
     final Object? refreshToken = body['refresh_token'];
-    final Object? expiresIn = body['expires_in'];
     if (idToken is! String || idToken.isEmpty) throw const OidcException(OidcFailure.tokenInvalid);
     final Map<String, Object?>? claims = jwtClaims(idToken);
     if (claims == null) throw const OidcException(OidcFailure.tokenInvalid);
@@ -314,9 +314,9 @@ final class OidcClient {
     final Object? expiry = claims['exp'];
     final Object? subject = claims['sub'];
     if (subject is! String || subject.isEmpty || expiry is! num) throw const OidcException(OidcFailure.tokenInvalid);
-    if (DateTime.fromMillisecondsSinceEpoch((expiry * 1000).round(), isUtc: true).isBefore(_now().toUtc().subtract(_clockSkew))) {
-      throw const OidcException(OidcFailure.tokenInvalid);
-    }
+    final DateTime expiresAt = DateTime.fromMillisecondsSinceEpoch((expiry * 1000).round(), isUtc: true);
+    final DateTime now = _now().toUtc();
+    if (expiresAt.isBefore(now.subtract(_clockSkew))) throw const OidcException(OidcFailure.tokenInvalid);
     if (nonce != null && !_sameText(claims['nonce'] is String ? claims['nonce']! as String : '', nonce)) {
       throw const OidcException(OidcFailure.nonceMismatch);
     }
@@ -325,7 +325,9 @@ final class OidcClient {
       subject: subject,
       refreshToken: refreshToken is String && refreshToken.isNotEmpty ? refreshToken : null,
       assurance: _assuranceOf(claims),
-      expiresIn: expiresIn is int && expiresIn > 0 ? expiresIn : _defaultExpiresIn,
+      // The lifetime of the identity token is its own `exp`: `expires_in` of the token endpoint describes the access token, which
+      // some providers keep longer than the identity token.
+      expiresIn: expiresAt.isAfter(now) ? expiresAt.difference(now).inSeconds : 0,
     );
   }
 

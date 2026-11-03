@@ -11,6 +11,10 @@ abstract interface class PendingWork {
 
   /// Tries to send everything now; the count tells afterwards what is left.
   Future<void> sendNow();
+
+  /// Drops every command that has not reached the server for good: the person chose to discard them when leaving the tenant. They
+  /// are never sent afterwards, whether or not the rest of the local data of the tenant is kept.
+  Future<void> discardUnsent();
 }
 
 /// The [PendingWork] on the command queue of the signed-in user. Nobody signed in has nothing waiting.
@@ -31,6 +35,15 @@ final class QueuePendingWork implements PendingWork {
   @override
   Future<void> sendNow() async {
     await (await _queue()).flush();
+  }
+
+  @override
+  Future<void> discardUnsent() async {
+    try {
+      (await _queue()).discardUnsent();
+    } on OfflineUnavailable {
+      return;
+    }
   }
 }
 

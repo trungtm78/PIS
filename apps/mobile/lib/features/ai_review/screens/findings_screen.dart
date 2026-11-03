@@ -32,6 +32,7 @@ class _RunList extends StatelessWidget {
     return ScreenFrame(
       title: context.t('mob.ai.runs.title'),
       body: FreshRead<RunList>(
+        resource: 'runs',
         read: (MachvonApiClient client) async => parseRunList(await readMerged(client, 'get_resources_analysis_run', query: <String, Object?>{'limit': 50}, maxPages: 4)),
         isEmpty: (RunList list) => list.runs.isEmpty,
         builder: (BuildContext context, RunList list) => ListView(
@@ -91,6 +92,7 @@ class _RunFindings extends StatelessWidget {
     return ScreenFrame(
       title: context.t('mob.ai.findings.title'),
       body: FreshRead<FindingList>(
+        resource: runId,
         read: (MachvonApiClient client) async => parseFindingList(await readMerged(client, 'listAnalysisFindings', path: <String, Object?>{'id': runId}, query: <String, Object?>{'limit': 50}, maxPages: 4)),
         builder: (BuildContext context, FindingList list) => _Findings(list: list),
       ),

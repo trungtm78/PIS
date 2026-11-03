@@ -39,6 +39,14 @@ class _Pending implements PendingWork {
   @override
   Future<int> count() async => world.pending;
 
+  int discarded = 0;
+
+  @override
+  Future<void> discardUnsent() async {
+    discarded += 1;
+    world.pending = 0;
+  }
+
   @override
   Future<void> sendNow() async {
     sent += 1;

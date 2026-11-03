@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/offline/attachments/attachment_upload.dart';
@@ -24,12 +26,37 @@ class SitePhotoService {
 
   final Ref _ref;
 
+  /// The keeps that have not ended, by operation id: the files of a capture being kept belong to it from its first write.
+  final Map<String, Future<void>> _keeping = <String, Future<void>>{};
+
   Future<DraftStore> get _drafts => _ref.read(draftStoreProvider.future);
 
   /// Keeps the capture and hands its photographs to the uploader. What the consent does not allow is taken out of the photographs
   /// first, so no coordinate is written to the phone, or sent, without it (BR-MOB-06, UAT-AC367). A hand-over cut between two
   /// photographs is resumed by the next call with the same operation id: a photograph already handed over is never handed over twice.
-  Future<PhotoRecord> keep(PhotoRecord capture) async {
+  Future<PhotoRecord> keep(PhotoRecord capture) {
+    final Future<PhotoRecord> running = _keep(capture);
+    final Future<void> ended = running.then((PhotoRecord _) {}, onError: (Object _) {});
+    _keeping[capture.operationId] = ended;
+    unawaited(ended.whenComplete(() {
+      if (identical(_keeping[capture.operationId], ended)) _keeping.remove(capture.operationId);
+    }));
+    return running;
+  }
+
+  /// Removes the files of the photographs of a form that is left, except those of a capture that is kept on the phone under
+  /// [operationId]: the record refers to them and the hand-over to the uploader copies them, so they are its files from the moment
+  /// it is written, even when the save that wrote it did not end well. A keep still running is waited for, because it may not have
+  /// written the record yet.
+  Future<void> discardUnkept(String operationId, List<EvidencePhoto> photos) async {
+    await _keeping[operationId];
+    if (_find(await _drafts, operationId) != null) return;
+    for (final EvidencePhoto photo in photos) {
+      await removePreparedFiles(photo);
+    }
+  }
+
+  Future<PhotoRecord> _keep(PhotoRecord capture) async {
     final DraftStore drafts = await _drafts;
     final AttachmentUploader uploader = await _ref.read(attachmentUploaderProvider.future);
     final LocalDraft? earlier = _find(drafts, capture.operationId);

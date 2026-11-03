@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:machvon_mobile/core/offline/attachments/attachment_upload.dart';
 import 'package:machvon_mobile/features/field_evidence/evidence_photos.dart';
 import 'package:machvon_mobile/features/field_evidence/field_place.dart';
 import 'package:machvon_mobile/features/field_evidence/jpeg_metadata.dart';
@@ -9,6 +10,7 @@ import 'package:machvon_mobile/features/field_evidence/photo_checks.dart';
 import 'package:machvon_mobile/features/field_evidence/photo_pipeline.dart' show EvidenceLimits;
 import 'package:machvon_mobile/features/field_evidence/png_metadata.dart';
 
+import '../../core/offline/attachment_uploader_test.dart' show UploaderRig;
 import 'exif_fixtures.dart';
 
 const DevicePosition _here = DevicePosition(latitude: 10.8, longitude: 106.7, accuracyMetres: 9);
@@ -39,6 +41,36 @@ void main() {
       expect(checksOf(_photo(gps: true, time: true), consenting).hasWarning, isFalse);
       expect(checksOf(_photo(), consenting).gpsSource.code, 'NONE');
       expect(checksOf(_photo(), consenting).timeMissing, isTrue);
+    });
+  });
+
+  group('AC-ST-MOB-021-1 BR-MOB-06 an upload that is finished stands for a photograph only while it says no more than the photograph may', () {
+    test('a photograph that went up with its place and time, whose local copy the uploader deleted when the server found it clean, is handed over again from the stripped file once the consent is taken back', () async {
+      final UploaderRig rig = await UploaderRig.create();
+      final File prepared = File('${rig.folder.path}/a.jpg')..writeAsBytesSync(geotaggedJpeg());
+      final AttachmentUpload up = await rig.uploader.add(file: prepared, ownerKind: 'report');
+      await rig.uploader.run(up.id);
+      final AttachmentUpload done = rig.uploader.upload(up.id)!;
+      expect(done.state, UploadState.clean);
+      expect(File(done.sourcePath).existsSync(), isFalse, reason: 'the uploader keeps no copy of a photograph that is up');
+      expect(readJpegMetadata(rig.server.storedBytes(done.serverId!)!).hasGps, isTrue, reason: 'the attachment on the server says where');
+
+      final EvidencePhoto taken = _photo(gps: true, time: true, path: prepared.path).copyWith(uploadId: up.id);
+      expect(await reuseUpload(rig.uploader, up.id, currentPath: prepared.path, keepsPlaceOrTime: true), isTrue, reason: 'with the consent it stands');
+      final EvidencePhoto stripped = (await enforcePhotoConsent(<EvidencePhoto>[taken], consent: false)).single;
+
+      expect(await reuseUpload(rig.uploader, up.id, currentPath: stripped.path, keepsPlaceOrTime: stripped.keepsPlaceOrTime), isFalse, reason: 'it must not stand for the stripped file');
+    });
+
+    test('a finished upload of a photograph that says nothing, and has not changed, stands for it though its local copy is gone', () async {
+      final UploaderRig rig = await UploaderRig.create();
+      final File prepared = File('${rig.folder.path}/a.jpg')..writeAsBytesSync(plainJpeg());
+      final AttachmentUpload up = await rig.uploader.add(file: prepared, ownerKind: 'report');
+      await rig.uploader.run(up.id);
+      expect(rig.uploader.upload(up.id)!.state, UploadState.clean);
+
+      expect(await reuseUpload(rig.uploader, up.id, currentPath: prepared.path, keepsPlaceOrTime: false), isTrue);
+      expect(await reuseUpload(rig.uploader, up.id, currentPath: '${rig.folder.path}/gone.jpg', keepsPlaceOrTime: false), isFalse, reason: 'a file that cannot be compared is not trusted');
     });
   });
 

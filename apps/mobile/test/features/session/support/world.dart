@@ -65,6 +65,16 @@ class FakeIdp implements HttpTransport {
   bool reachable = true;
   int tokenLifetime = 300;
 
+  /// What the token endpoint announces as `expires_in` when it is not the lifetime of the identity token: providers whose access token
+  /// outlives their identity token (the field describes the access token).
+  int? expiresInOverride;
+
+  /// The next refresh waits for this before the provider looks at it (a slow request); used once.
+  Completer<void>? refreshHoldOnce;
+
+  /// The next refresh is answered, with the next refresh token issued, and the answer then waits for this (a slow response); used once.
+  Completer<void>? refreshResponseHoldOnce;
+
   /// Claims of the next identity tokens that replace the honest ones (a wrong nonce, issuer, audience).
   final Map<String, Object?> claimOverrides = <String, Object?>{};
 
@@ -114,7 +124,7 @@ class FakeIdp implements HttpTransport {
   Map<String, Object?> _grant(_Family family, {String? nonce}) => <String, Object?>{
         'id_token': idToken(family.subject, family.acr, nonce: nonce),
         'refresh_token': _newRefresh(family),
-        'expires_in': tokenLifetime,
+        'expires_in': expiresInOverride ?? tokenLifetime,
         'token_type': 'Bearer',
       };
 
@@ -150,13 +160,20 @@ class FakeIdp implements HttpTransport {
       if (!proven) return _json(400, <String, Object?>{'error': 'invalid_grant'});
       return _json(200, _grant(_Family(grant.subject, grant.acr), nonce: grant.nonce));
     }
+    final Completer<void>? requestHold = refreshHoldOnce;
+    refreshHoldOnce = null;
+    if (requestHold != null) await requestHold.future;
     final _Family? family = _byRefresh[form['refresh_token']];
     if (family == null || family.revoked) return _json(400, <String, Object?>{'error': 'invalid_grant'});
     if (family.issued.last != form['refresh_token']) {
       family.revoked = true;
       return _json(400, <String, Object?>{'error': 'invalid_grant'});
     }
-    return _json(200, _grant(family));
+    final HttpResult answer = _json(200, _grant(family));
+    final Completer<void>? responseHold = refreshResponseHoldOnce;
+    refreshResponseHoldOnce = null;
+    if (responseHold != null) await responseHold.future;
+    return answer;
   }
 }
 
@@ -215,6 +232,9 @@ class FakeApi implements HttpTransport {
 
   /// The protected call answers 403 MFA_REQUIRED while the session is only `aal1`.
   bool profileNeedsSecondFactor = false;
+
+  /// The next protected call waits for this before the server looks at it (a slow request); used once.
+  Completer<void>? profileHoldOnce;
   String? profileFailureCode;
   int profileFailureStatus = 0;
 
@@ -368,6 +388,9 @@ class FakeApi implements HttpTransport {
       return _json(200, <String, Object?>{'operation_id': '3f2b6c1e-0000-4000-8000-0000000000aa', 'status': 'Done', 'resource_version': 2});
     }
     if (path == '/me/profile') {
+      final Completer<void>? held = profileHoldOnce;
+      profileHoldOnce = null;
+      if (held != null) await held.future;
       final String? token = call.headers['authorization']?.replaceFirst('Bearer ', '');
       final ({String tenantId, String membershipId, String acr})? session = tenantTokens[token];
       if (session == null || ended.contains(token)) return _problem(401, 'SESSION_EXPIRED');
@@ -453,6 +476,12 @@ class World {
   /// Purgers besides the recording one (the real encrypted store of a test).
   final List<LocalDataPurger> extraPurgers = <LocalDataPurger>[];
   late int pending;
+
+  /// How many times the session asked to drop the commands that wait on the device (the person chose to discard them).
+  int discardedPending = 0;
+
+  /// What the session called before it asked to drop them, to show the order (a tenant is left only after the new one is entered).
+  Future<void> Function()? onDiscard;
   final List<AuthService> services = <AuthService>[];
 
   DateTime clock() => now;
@@ -473,6 +502,11 @@ class World {
       purge: TenantDataPurge(vault: SessionVault(secure), purgers: <LocalDataPurger>[purger, ...extraPurgers]),
       biometrics: biometrics,
       pendingCommands: () async => pending,
+      discardPendingCommands: () async {
+        discardedPending += 1;
+        pending = 0;
+        await onDiscard?.call();
+      },
       biometricUnlockAllowed: biometricUnlockAllowed,
       now: clock,
     );

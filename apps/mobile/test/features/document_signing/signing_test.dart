@@ -515,6 +515,42 @@ void main() {
       expect(body, isNot(contains('otp_confirmation')));
     });
 
+    testWidgets('AC-ST-MOB-032-1 a session opened with another certificate in force is proved against the certificate it is bound to, not the one that ends last', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      final Map<String, Object?> newer = <String, Object?>{...certificate(), 'id': 'cert-2', 'subject_dn': 'CN=Lê Lãnh Đạo,O=UBND tỉnh B', 'fingerprint_sha256': 'cd' * 32, 'valid_until': '2029-06-30T00:00:00Z'};
+      _reads(server, document: outgoing(sessions: <Map<String, Object?>>[session('s-1')], certificates: <Map<String, Object?>>[certificate(), newer]));
+      server.answer('POST', '/signing-sessions/s-1/completion', (_) => recorded('s-1', status: 'EMBEDDED'));
+      final _Rig rig = _Rig();
+      final FakeSdkPort sdk = FakeSdkPort();
+      rig.port = sdk;
+      await _open(tester, server, _detail, rig: rig);
+
+      await tester.tap(_confirm());
+      await tester.pumpAndSettle();
+
+      expect(sdk.challenges.single.expectedSubject, 'CN=Lê Lãnh Đạo,O=UBND tỉnh A', reason: 'the certificate cert-1 the session was opened with, although cert-2 ends later');
+      expect(sdk.challenges.single.expectedFingerprint, kCertificateFingerprint);
+    });
+
+    testWidgets('AC-ST-MOB-032-1 a session bound to a certificate the document does not list is checked against no other certificate: the server decides', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      final Map<String, Object?> other = <String, Object?>{...certificate(), 'id': 'cert-2', 'subject_dn': 'CN=Người khác', 'fingerprint_sha256': 'cd' * 32};
+      _reads(server, document: outgoing(sessions: <Map<String, Object?>>[<String, Object?>{...session('s-1'), 'signing_certificate_id': 'cert-gone'}], certificates: <Map<String, Object?>>[other]));
+      server.answer('POST', '/signing-sessions/s-1/completion', (_) => recorded('s-1', status: 'EMBEDDED'));
+      final _Rig rig = _Rig();
+      final FakeSdkPort sdk = FakeSdkPort();
+      rig.port = sdk;
+      await _open(tester, server, _detail, rig: rig);
+
+      await tester.tap(_confirm());
+      await tester.pumpAndSettle();
+
+      expect(sdk.challenges.single.expectedSubject, isNull);
+      expect(sdk.challenges.single.expectedFingerprint, isNull);
+    });
+
     testWidgets('a refused prompt sends nothing: the unlock is a condition, never a substitute', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();

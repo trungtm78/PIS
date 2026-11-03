@@ -185,7 +185,8 @@ class _DiaryBodyState extends ConsumerState<_DiaryBody>
         final QueuedCommand? command = (await ref.read(
           commandQueueProvider.future,
         )).command(commandId);
-        settled = command?.state == CommandState.accepted;
+        // Only the save as it was queued is settled: what was written after it is the person's work still to be saved.
+        settled = command?.state == CommandState.accepted && !stored.draft.edited;
       }
     } on Object {
       if (mounted) setState(() => _notice = _Notice.store);
@@ -227,27 +228,30 @@ class _DiaryBodyState extends ConsumerState<_DiaryBody>
 
   void _change(DiaryDraft next) {
     setState(() {
-      _draft = next;
+      _draft = next.copyWith(edited: true);
       _problems = const <String, DiaryProblem>{};
       _notice = null;
     });
     unawaited(_persist());
   }
 
-  /// Writes the draft after every change, one write after the other, so the last change is the one that stays.
-  Future<String> _persist() {
+  /// Writes the draft after every change, one write after the other, so the last change is the one that stays. Gives the id of the
+  /// draft on the device once THIS draft is written, and null when the write failed: the id of an earlier write stands for an older
+  /// content, and nothing may be queued from that.
+  Future<String?> _persist() {
     final DiaryDraft? draft = _draft;
-    if (draft == null) return Future<String>.value(_draftId);
-    final Future<String> written = _writing.then((void _) async {
+    if (draft == null) return Future<String?>.value(_draftId);
+    final Future<String?> written = _writing.then((void _) async {
       try {
         _draftId = await _service.save(draft, draftId: _draftId);
         if (mounted && _notice == _Notice.store) setState(() => _notice = null);
+        return _draftId;
       } on Object {
         if (mounted) setState(() => _notice = _Notice.store);
+        return null;
       }
-      return _draftId;
     });
-    _writing = written.then((String _) {});
+    _writing = written.then((String? _) {});
     return written;
   }
 
@@ -266,8 +270,8 @@ class _DiaryBodyState extends ConsumerState<_DiaryBody>
       _notice = null;
     });
     try {
-      final String id = await _persist();
-      if (id.isEmpty) return;
+      final String? id = await _persist();
+      if (id == null || id.isEmpty) return;
       final QueuedCommand command = await _service.queueSave(
         id,
         today: widget.today,

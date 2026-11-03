@@ -99,8 +99,17 @@ class CommandQueue {
   /// loses the work, so the switch waits for the person (07, "Cách ly tenant trong đồng bộ").
   int get unsentCount {
     final Map<CommandState, int> counts = _store.commands.counts();
-    return counts[CommandState.queued]! + counts[CommandState.sending]! + counts[CommandState.unknown]! + counts[CommandState.conflict]! + counts[CommandState.rejected]!;
+    return _unsentStates.fold<int>(0, (int total, CommandState state) => total + counts[state]!);
   }
+
+  /// The states of a command that has not reached the server for good.
+  static const Set<CommandState> _unsentStates = <CommandState>{
+    CommandState.queued,
+    CommandState.sending,
+    CommandState.unknown,
+    CommandState.conflict,
+    CommandState.rejected,
+  };
 
   /// How many commands are unknown: sent, and the answer did not say what became of them. They are looked up by the next flush.
   int get unknownCount => _store.commands.counts()[CommandState.unknown]!;
@@ -191,11 +200,11 @@ class CommandQueue {
     return interrupted.length;
   }
 
-  /// Whether the session is the one this queue belongs to. Checked again after every wait: a tenant switch or a sign-out in the middle of
+  /// Whether the session is the one this queue belongs to and holds a credential (a locked session has none). Checked again after every wait: a tenant switch or a sign-out in the middle of
   /// a flush ends it before the next request leaves.
   bool get _inScope {
     final SessionSnapshot session = _session();
-    return session.isSignedIn && session.tenantId == tenantId && session.userId == userId;
+    return session.canAuthenticate && session.tenantId == tenantId && session.userId == userId;
   }
 
   Future<FlushResult> _flushOnce() async {
@@ -413,7 +422,9 @@ class CommandQueue {
         return flush();
       case CommandState.rejected:
         if (command.errorCode == kResultUnverifiable && !confirmedNotExecuted) throw ResultUnverifiable(id);
-        _renew(command, payload: command.payload, baseServerVersion: command.baseServerVersion);
+        // The payload is not changed, so the draft is not rewritten with it: a command that is only a control (the submit of a report
+        // names the report and nothing else) would leave the draft with nothing in it.
+        _renew(command, payload: command.payload, baseServerVersion: command.baseServerVersion, rewriteDraft: false);
         return flush();
       case CommandState.sending:
       case CommandState.conflict:
@@ -441,6 +452,29 @@ class CommandQueue {
     });
   }
 
+  /// The person chose to discard everything that waits on the device (leaving the tenant, signing out): every command that has not
+  /// reached the server for good ([unsentCount]) is dropped, whatever its state, so nothing of it is ever sent, looked up and sent
+  /// again, or offered for a retry, even when the rest of the local data of the tenant is kept. A command that was sent and whose
+  /// fate is unknown is dropped too: that is what the person was told they would lose. The drafts stay on the device and become
+  /// editable again. Returns how many commands were dropped.
+  int discardUnsent() {
+    final List<QueuedCommand> unsent = _store.commands.inStates(_unsentStates);
+    if (unsent.isEmpty) return 0;
+    final List<QueuedCommand> dropped = _store.transaction<List<QueuedCommand>>(() {
+      final List<QueuedCommand> result = <QueuedCommand>[];
+      for (final QueuedCommand command in unsent) {
+        result.add(_store.commands.abandon(command.id, (QueuedCommand c) => c.copyWith(clearPayload: true, settledAt: _now, updatedAt: _now)));
+        final String? draftId = command.draftId;
+        if (draftId != null) _markDraft(draftId, DraftStatus.editing);
+      }
+      return result;
+    });
+    for (int index = 0; index < dropped.length; index += 1) {
+      _announce(dropped[index], unsent[index].state);
+    }
+    return dropped.length;
+  }
+
   /// The person chose what to keep after a conflict (MOB-42): the command goes back to the queue with the version the
   /// server holds as its base, the payload they decided, and a new key, and is accepted once. The old key is settled as a
   /// conflict on the server and would answer from that receipt, which is why the decision is a new command.
@@ -458,7 +492,7 @@ class CommandQueue {
 
   QueuedCommand _require(String id) => _store.commands.byId(id) ?? (throw StateError('no queued command $id'));
 
-  QueuedCommand _renew(QueuedCommand command, {required Map<String, Object?>? payload, required int baseServerVersion}) {
+  QueuedCommand _renew(QueuedCommand command, {required Map<String, Object?>? payload, required int baseServerVersion, bool rewriteDraft = true}) {
     if (payload == null) throw StateError('the command has no data left to send');
     final String encoded = jsonEncode(payload);
     final String key = CommandAttempt.fresh(_newKey).key;
@@ -479,7 +513,7 @@ class CommandQueue {
         ),
       );
       final String? draftId = command.draftId;
-      if (draftId != null) _markDraft(draftId, DraftStatus.queued, fields: jsonDecode(encoded) as Map<String, Object?>, baseServerVersion: baseServerVersion);
+      if (draftId != null) _markDraft(draftId, DraftStatus.queued, fields: rewriteDraft ? jsonDecode(encoded) as Map<String, Object?> : null, baseServerVersion: baseServerVersion);
       return next;
     });
   }

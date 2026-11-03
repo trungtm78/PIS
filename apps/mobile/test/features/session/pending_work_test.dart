@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_mobile/core/offline/offline_providers.dart' show OfflineUnavailable;
+import 'package:machvon_mobile/core/offline/queue/command_queue.dart';
 import 'package:machvon_mobile/features/session/auth/pending_work.dart';
 
 import '../../support/offline_support.dart';
@@ -17,6 +18,23 @@ void main() {
 
       await pending.sendNow();
       expect(await pending.count(), 0, reason: 'the server accepted it, nothing is left to lose');
+    });
+
+    test('REVIEW-m1-7 discarding drops what waits, so the runner has nothing to send and the count is zero', () async {
+      final QueueRig rig = await QueueRig.create();
+      final QueuePendingWork pending = QueuePendingWork(() async => rig.queue);
+      rig.queue.enqueue(commandType: 'dis.report.submit', payload: <String, Object?>{'report_id': 'r-1'}, baseServerVersion: 3);
+      expect(await pending.count(), 1);
+
+      await pending.discardUnsent();
+
+      expect(await pending.count(), 0);
+      await pending.sendNow();
+      expect(rig.server.batchPosts, 0, reason: 'what the person discarded is never sent');
+    });
+
+    test('nobody signed in has nothing to discard', () async {
+      await const QueuePendingWork(_nobody).discardUnsent();
     });
 
     test('nobody signed in has nothing waiting', () async {
@@ -47,3 +65,5 @@ void main() {
     });
   });
 }
+
+Future<CommandQueue> _nobody() async => throw const OfflineUnavailable();

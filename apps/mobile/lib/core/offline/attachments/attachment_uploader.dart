@@ -244,7 +244,7 @@ class AttachmentUploader {
 
   bool get _inScope {
     final SessionSnapshot session = _session();
-    return session.isSignedIn && session.tenantId == _store.tenantId && session.userId == _store.userId;
+    return session.canAuthenticate && session.tenantId == _store.tenantId && session.userId == _store.userId;
   }
 
   /// Between two requests of a run: ends the run when it was cancelled or disposed, or when the session is no longer this store's.

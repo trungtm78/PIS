@@ -405,6 +405,40 @@ void main() {
       expect(find.text('Ảnh đã chụp trên máy'), findsNothing);
     });
 
+    testWidgets('leaving after a save that failed half way keeps the files of the capture that is kept on the phone', (WidgetTester tester) async {
+      useDevice(tester, kTall);
+      final FieldWorld world = await _open(tester, location: '$_screen?contract=c-1');
+      await _takeFromGallery(tester, world, plainJpeg());
+      await _takeFromGallery(tester, world, plainJpeg(width: 20), name: 'second.jpg');
+      await settleReal(tester, rounds: 30);
+      final Directory evidence = (await tester.runAsync(() => world.container.read(evidenceDirectoryProvider.future)))!;
+      final List<File> prepared = evidence.listSync().whereType<File>().toList()..sort((File a, File b) => a.lastModifiedSync().compareTo(b.lastModifiedSync()));
+      expect(prepared.length, greaterThanOrEqualTo(2));
+      await tester.runAsync(() async {
+        for (int attempt = 0; attempt < 40 && prepared.last.existsSync(); attempt += 1) {
+          try {
+            prepared.last.deleteSync();
+          } on FileSystemException {
+            await Future<void>.delayed(const Duration(milliseconds: 50));
+          }
+        }
+      });
+      expect(prepared.last.existsSync(), isFalse);
+
+      await tester.ensureVisible(_save());
+      await tapText(tester, 'Lưu và tải ảnh lên');
+      await waitUntil(tester, () async => find.textContaining('Chưa lưu được ảnh').evaluate().isNotEmpty);
+      final StoredCapture capture = (await _captures(tester, world)).single;
+      final List<File> owned = <File>[for (final EvidencePhoto photo in capture.record.photos) File(photo.path)].where((File file) => file.existsSync()).toList();
+      expect(owned, isNotEmpty, reason: 'the capture that is kept refers to a file that is still there');
+
+      await world.go(tester, '/projects/mob-41');
+      await settleReal(tester, rounds: 8);
+      for (final File file in owned) {
+        expect(file.existsSync(), isTrue, reason: 'the capture kept on the phone still refers to ${file.path}');
+      }
+    });
+
     testWidgets('a capture needs a contract and a photograph, and a caption the server takes; nothing is kept before it has them', (WidgetTester tester) async {
       useDevice(tester, kTall);
       final FieldWorld world = await _open(tester);

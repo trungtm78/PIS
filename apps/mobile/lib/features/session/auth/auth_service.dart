@@ -90,6 +90,7 @@ class AuthService {
     required TenantDataPurge purge,
     required BiometricGate biometrics,
     required Future<int> Function() pendingCommands,
+    required Future<void> Function() discardPendingCommands,
     bool Function()? biometricUnlockAllowed,
     DateTime Function()? now,
     String Function()? newCorrelationId,
@@ -99,6 +100,7 @@ class AuthService {
         _purge = purge,
         _biometrics = biometrics,
         _pendingCommands = pendingCommands,
+        _discardPendingCommands = discardPendingCommands,
         _biometricUnlockAllowed = biometricUnlockAllowed ?? _always,
         _now = now ?? DateTime.now,
         _newCorrelationId = newCorrelationId ?? newUuidV4;
@@ -109,6 +111,7 @@ class AuthService {
   final TenantDataPurge _purge;
   final BiometricGate _biometrics;
   final Future<int> Function() _pendingCommands;
+  final Future<void> Function() _discardPendingCommands;
   final bool Function() _biometricUnlockAllowed;
   final DateTime Function() _now;
   final String Function() _newCorrelationId;
@@ -132,12 +135,21 @@ class AuthService {
   bool _stepUpRequired = false;
   bool _locked = false;
   MembershipChoice? _pendingSelection;
-  ({String tenantId, String userId})? _leaving;
+  ({String tenantId, String userId, bool discardPending})? _leaving;
   Future<String?>? _renewing;
 
   /// Changes whenever the context the tokens belong to changes (a context is entered or the person signs out), so an
   /// answer to a request made for the previous context can be told from one that is still about the active context.
   int _contextGeneration = 0;
+
+  /// Changes whenever the identity (the refresh token the identity tokens are renewed from) is replaced by another credential: a sign-in,
+  /// a second factor, a sign-out. A tenant switch keeps it, because the same refresh token goes on. A refresh that was started under
+  /// another value belongs to a credential that is gone: its answer, success or refusal, is dropped.
+  int _identityGeneration = 0;
+
+  /// Changes whenever the tokens a request can be sent under change (a tenant token is taken, the tokens are cleared, locked or
+  /// ended). A response is only the verdict of the session when it answers a request sent under the stamp that is current ([noteResponse]).
+  int _credentialGeneration = 0;
   Future<String>? _refreshing;
   SessionSnapshot _last = const SessionSnapshot.signedOut();
 
@@ -149,6 +161,10 @@ class AuthService {
 
   /// Whether the second factor is wanted: a selection waits for it (sign-in) or the server asked for it (a call).
   bool get needsSecondFactor => _pendingSelection != null || _stepUpRequired;
+
+  /// What a request is sent under: pass it back to [noteResponse] with the answer, so a response is only taken as the verdict of the
+  /// session when the tokens the request carried are still the ones the session holds.
+  int get credentialStamp => _credentialGeneration;
 
   /// The identity provider configuration in use, or the one remembered from the last sign-in.
   OidcConfig? get config => _config;
@@ -191,6 +207,7 @@ class AuthService {
     _leaving = null;
     final OidcTokens tokens = await _oidc.signIn(config);
     _config = config;
+    _identityGeneration += 1;
     await _adoptIdentity(tokens, persist: false);
     final LastContext? last = await _vault.loadLast();
     await _vault.saveLast((last ?? const LastContext()).copyWith(config: config));
@@ -235,6 +252,7 @@ class AuthService {
     final OidcConfig config = _config ?? (throw const NoSession());
     final OidcTokens tokens = await _oidc.signIn(config, secondFactor: true);
     if (_subject != null && tokens.subject != _subject) throw const OidcException(OidcFailure.tokenInvalid);
+    _identityGeneration += 1;
     await _adoptIdentity(tokens, persist: _status == SessionStatus.signedIn);
     final MembershipChoice? waiting = _pendingSelection;
     if (waiting != null) {
@@ -298,7 +316,10 @@ class AuthService {
     final String membership = _membershipId ?? (throw const NoSession());
     final int generation = _contextGeneration;
     try {
-      final TenantContext context = await _api.select(await _freshIdentity(), tenantId: tenant, membershipId: membership);
+      final String identity = await _freshIdentity();
+      // The identity may have been renewed for a session that is not the one this renewal is for: nothing is asked for the old context.
+      if (generation != _contextGeneration) throw const _SupersededRenewal();
+      final TenantContext context = await _api.select(identity, tenantId: tenant, membershipId: membership);
       if (generation != _contextGeneration) throw const _SupersededRenewal();
       _takeTenantToken(context);
       _publish();
@@ -324,22 +345,34 @@ class AuthService {
   /// An identity token that is good for a while, renewed from the refresh token (and the next refresh token stored at once).
   /// Every caller that finds it lapsed shares one refresh: the provider rotates the refresh token, so a second use of the same
   /// one would be a replay and would end the whole session.
-  Future<String> _freshIdentity() {
-    final String? token = _idToken;
-    if (token != null && _now().isBefore(_idTokenExpiresAt.subtract(_tokenMargin))) return Future<String>.value(token);
-    return _refreshing ??= _refreshIdentity().whenComplete(() => _refreshing = null);
+  Future<String> _freshIdentity() async {
+    while (true) {
+      final String? token = _idToken;
+      if (token != null && _now().isBefore(_idTokenExpiresAt.subtract(_tokenMargin))) return token;
+      try {
+        return await (_refreshing ??= _refreshIdentity().whenComplete(() => _refreshing = null));
+      } on _SupersededRenewal {
+        // The refresh joined (or started) belonged to a session that has ended: ask again for the one that is active now, which
+        // is NoSession when nobody is signed in.
+        continue;
+      }
+    }
   }
 
   Future<String> _refreshIdentity() async {
     final String refresh = _refreshToken ?? (throw const NoSession());
     final OidcConfig config = _config ?? (throw const NoSession());
+    // Taken before the wait: what answers belongs to the credential that was used to ask.
+    final int identity = _identityGeneration;
     final OidcTokens tokens;
     try {
       tokens = await _oidc.refresh(config, refresh);
     } on OidcException catch (error) {
+      if (identity != _identityGeneration) throw const _SupersededRenewal();
       if (error.failure == OidcFailure.refreshRejected) await _expire();
       rethrow;
     }
+    if (identity != _identityGeneration) throw const _SupersededRenewal();
     if (_subject != null && tokens.subject != _subject) {
       await _expire();
       throw const OidcException(OidcFailure.tokenInvalid);
@@ -368,6 +401,7 @@ class AuthService {
   }
 
   void _takeTenantToken(TenantContext context) {
+    _credentialGeneration += 1;
     _tenantToken = context.accessToken;
     _tenantTokenIssuedAt = _now();
     _tenantTokenExpiresAt = _tenantTokenIssuedAt.add(Duration(seconds: context.expiresIn));
@@ -378,9 +412,14 @@ class AuthService {
 
   /// Makes the selected context the active one: stores it, forgets the previous tenant when the person left one.
   Future<void> _enter(TenantContext context) async {
-    final ({String tenantId, String userId})? leaving = _leaving;
-    final bool purgeLeft = leaving != null && leaving.tenantId != context.tenantId && await _vault.localDataPolicy() == LocalDataPolicy.purge;
+    final ({String tenantId, String userId, bool discardPending})? leaving = _leaving;
+    final bool departing = leaving != null && leaving.tenantId != context.tenantId;
+    final bool purgeLeft = departing && await _vault.localDataPolicy() == LocalDataPolicy.purge;
     if (purgeLeft) await _purge.begin(leaving.tenantId, leaving.userId);
+    // The server has let the person into the other tenant: they have left this one. What they chose to discard goes now, while the
+    // queue that holds it is still the active one, and whether or not the rest of the data of the tenant is kept (a purge deletes
+    // it anyway).
+    if (departing && leaving.discardPending && !purgeLeft) await _discardPendingCommands();
     _contextGeneration += 1;
     _tenantId = context.tenantId;
     _membershipId = context.membershipId;
@@ -422,10 +461,19 @@ class AuthService {
   }
 
   /// Tells the service what a call answered, from the transport; only the session-level verdicts matter here.
-  void noteResponse(int status, String? code) {
+  ///
+  /// [sentUnder] is the [credentialStamp] the request was sent under. A response to a request sent under tokens that have since been
+  /// replaced (the person switched tenant, signed out and in, or the token was renewed) says nothing about the session that is active
+  /// now and is ignored: a late 401 of tenant A must not end tenant B, a late licence refusal must not make it read-only. A revoked
+  /// device is a fact about the phone, not about a session, so it is acted on whenever it is heard. Without [sentUnder] the answer
+  /// is taken as one to the current session.
+  void noteResponse(int status, String? code, [int? sentUnder]) {
     if (status == 401 && code == _deviceRevokedCode) {
       unawaited(_wipeRevokedDevice());
-    } else if (status == 401) {
+      return;
+    }
+    if (sentUnder != null && sentUnder != _credentialGeneration) return;
+    if (status == 401) {
       noteUnauthorized();
     } else if (status == 403 && code == _mfaRequiredCode) {
       requireSecondFactor();
@@ -446,6 +494,7 @@ class AuthService {
   /// signs in again), and the router shows MOB-44.
   Future<void> _expire() async {
     if (_status != SessionStatus.signedIn) return;
+    _credentialGeneration += 1;
     _idToken = null;
     _refreshToken = null;
     _tenantToken = null;
@@ -485,6 +534,7 @@ class AuthService {
   void lock() {
     if (_status != SessionStatus.signedIn || _locked) return;
     _locked = true;
+    _credentialGeneration += 1;
     _idToken = null;
     _tenantToken = null;
     _refreshToken = null;
@@ -563,7 +613,7 @@ class AuthService {
     final String user = _subject ?? (throw const NoSession());
     final int waiting = await _pendingCommands();
     if (target.tenantId != tenant && waiting > 0 && !discardPending) throw PendingCommandsBlock(waiting);
-    _leaving = (tenantId: tenant, userId: user);
+    _leaving = (tenantId: tenant, userId: user, discardPending: discardPending);
     return selectContext(target);
   }
 
@@ -581,6 +631,8 @@ class AuthService {
     final bool purgeActive = scope == SignOutScope.activeTenant && tenant != null && user != null && await _vault.localDataPolicy() == LocalDataPolicy.purge;
     if (purgeActive) await _purge.begin(tenant, user);
     if (scope == SignOutScope.allTenants) await _purge.beginAll();
+    // The person chose to discard what waits: it goes whether or not the data of the tenant is kept (a purge and a wipe delete it).
+    if (discardPending && scope == SignOutScope.activeTenant && !purgeActive) await _discardPendingCommands();
     _clearMemory();
     _status = SessionStatus.signedOut;
     await _vault.clearSession();
@@ -595,6 +647,8 @@ class AuthService {
 
   void _clearMemory() {
     _contextGeneration += 1;
+    _identityGeneration += 1;
+    _credentialGeneration += 1;
     _idToken = null;
     _refreshToken = null;
     _tenantToken = null;

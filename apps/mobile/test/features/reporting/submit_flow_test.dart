@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_mobile/core/offline/drafts/local_draft.dart';
+import 'package:machvon_mobile/core/offline/queue/offline_codes.dart';
 import 'package:machvon_mobile/core/offline/queue/queue_results.dart';
 import 'package:machvon_mobile/core/offline/queue/queued_command.dart';
 import 'package:machvon_mobile/features/reporting/data/report_drafts.dart';
@@ -277,6 +278,62 @@ void main() {
       expect(rig.server.only().submissions, 1);
       expect(commandsOf(rig, kSubmitCommand), hasLength(1));
       expect(rig.flow.statusOf(draft.id).stage, SubmitStage.submitted);
+    });
+
+    test('Send again that is refused again keeps every figure, note and context of the draft: the payload of the submit is only the id of the report', () async {
+      final FlowRig rig = await FlowRig.create();
+      final DraftSnapshot draft = await savedDraft(rig);
+      rig.server.periodLocked = true;
+      await rig.flow.submit(draft.id);
+      final QueuedCommand refused = commandsOf(rig, kSubmitCommand).single;
+      final LocalDraft before = rig.store.drafts.byId(draft.id)!;
+
+      await rig.flow.resend(refused.id);
+      expect(rig.queue.command(refused.id)!.state, CommandState.rejected, reason: 'the period is still closed');
+      final LocalDraft after = rig.store.drafts.byId(draft.id)!;
+      expect(after.fields, before.fields, reason: 'the draft is the report as the person wrote it, not the payload of the command');
+      expect(ReportForm.fromFields(after.fields), draft.form);
+      expect(after.status, DraftStatus.blocked);
+    });
+
+    test('Send again while the phone is offline leaves the whole draft on the phone, queued with the submit', () async {
+      final FlowRig rig = await FlowRig.create();
+      final DraftSnapshot draft = await savedDraft(rig);
+      rig.server.periodLocked = true;
+      await rig.flow.submit(draft.id);
+      final QueuedCommand refused = commandsOf(rig, kSubmitCommand).single;
+      final Map<String, Object?> before = rig.store.drafts.byId(draft.id)!.fields;
+      rig.server.offline = true;
+
+      await rig.flow.resend(refused.id);
+      expect(rig.queue.command(refused.id)!.state, isNot(CommandState.rejected));
+      final LocalDraft after = rig.store.drafts.byId(draft.id)!;
+      expect(after.status, DraftStatus.queued);
+      expect(after.fields, before);
+    });
+
+    test('a submit refused as unverifiable may have been carried out: the main Submit does not discard it and make another, only the queue decision does', () async {
+      final FlowRig rig = await FlowRig.create();
+      final DraftSnapshot draft = await savedDraft(rig);
+      rig.server.periodLocked = true;
+      await rig.flow.submit(draft.id);
+      final QueuedCommand refused = commandsOf(rig, kSubmitCommand).single;
+      rig.store.commands.update(refused.id, (QueuedCommand c) => c.copyWith(errorCode: kResultUnverifiable));
+      rig.server.periodLocked = false;
+      final int commands = rig.queue.commands().length;
+
+      final SubmitResult result = await rig.flow.submit(draft.id);
+      expect(result.outcome, SubmitOutcome.unverifiable);
+      expect(rig.queue.command(refused.id)!.state, CommandState.rejected, reason: 'the history of the unresolved command is kept');
+      expect(rig.queue.commands(), hasLength(commands), reason: 'nothing new was queued');
+      expect(rig.server.only().submissions, 0);
+      expect(rig.flow.statusOf(draft.id).code, kResultUnverifiable);
+
+      // The explicit decision of the person, in the queue, frees the draft.
+      rig.queue.discard(refused.id);
+      final SubmitResult after = await rig.flow.submit(draft.id);
+      expect(after.outcome, SubmitOutcome.submitted);
+      expect(rig.server.only().submissions, 1);
     });
 
     test('when the person changes the draft after a refusal, the refused command leaves the queue and the new entry replaces it', () async {

@@ -12,7 +12,9 @@
 # answer (the tab label "Trang chủ" is on screen before that and would time the shell, not the main content). The time is
 # measured on this computer from the moment `am start` is issued to the moment the dump that contains the card was TAKEN, so the
 # sample includes the cost of one hierarchy dump (about 0.3 to 1 s on a phone): the figure is an UPPER bound on "cold start to the
-# main content". A failure caused by that overhead must be re-measured with a screen recording (docs/mobile-device-matrix.md,
+# main content". Each attempt deletes the dump of the attempt before it, in the same adb call that takes the new one, and reads the file
+# only when `uiautomator dump` succeeded: a dump that failed leaves the old file on the phone, and an old file that holds the card
+# (from the previous attempt or the previous run) must never time a start that has not shown it. A failure caused by that overhead must be re-measured with a screen recording (docs/mobile-device-matrix.md,
 # "Performance run"); a pass is a real pass.
 #
 # Preconditions: the build is installed, signed in to a seeded tenant, the same network as the matrix document says, the phone
@@ -25,6 +27,9 @@ serial="${3:-}"
 package="vn.machvon.app"
 # the activity is written with its package: the applicationId (above) and the namespace of the build (where MainActivity lives) differ
 activity="vn.machvon.machvon_mobile.MainActivity"
+dump_path="/sdcard/machvon_cold.xml"
+# the pause after the force-stop, so the process is really gone before the start (the seconds can be shortened only to test this script)
+settle="${COLD_START_SETTLE_SECONDS:-3}"
 # the first card of the loaded home dashboard (mob.home.rates.title): on no loading, empty or failed screen; a test keeps it equal to the string table
 marker="Hai tỷ lệ giải ngân"
 adb_cmd=(adb)
@@ -35,14 +40,17 @@ now_ms() { python3 -c 'import time; print(int(time.time()*1000))' 2>/dev/null ||
 echo "metric,device,run,ms"
 for run in $(seq 1 "$runs"); do
   "${adb_cmd[@]}" shell am force-stop "$package"
-  sleep 3
+  sleep "$settle"
   start=$(now_ms)
   "${adb_cmd[@]}" shell am start -n "$package/$activity" >/dev/null
   deadline=$((start + 15000))
   while :; do
-    "${adb_cmd[@]}" shell uiautomator dump /sdcard/machvon_cold.xml >/dev/null 2>&1 || true
+    screen=""
+    dumped=0
+    "${adb_cmd[@]}" shell "rm -f $dump_path; uiautomator dump $dump_path" >/dev/null 2>&1 && dumped=1
     taken=$(now_ms)
-    if "${adb_cmd[@]}" shell cat /sdcard/machvon_cold.xml 2>/dev/null | grep -q "$marker"; then
+    [ "$dumped" = 1 ] && screen=$("${adb_cmd[@]}" shell cat "$dump_path" 2>/dev/null || true)
+    if [ -n "$screen" ] && grep -q -- "$marker" <<<"$screen"; then
       echo "cold_start_main_content_ms,$label,$run,$((taken - start))"
       break
     fi

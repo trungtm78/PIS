@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
+import 'package:machvon_mobile/core/di/providers.dart';
 import 'package:machvon_mobile/core/navigation/feature.dart';
+import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/features/ai_review/ai_models.dart';
 import 'package:machvon_mobile/features/ai_review/ai_review_feature.dart' as ai;
 import 'package:machvon_mobile/features/ai_review/screens/findings_screen.dart';
@@ -564,6 +568,119 @@ void main() {
       await pumpWithServer(tester, features: <MobileFeature>[ai.feature], server: server, location: _findings, locale: const Locale('en'));
       expect(find.text('AI proposal - expert review required'), findsWidgets);
       expect(find.text('Needs verification'), findsWidgets);
+    });
+  });
+
+  group('AC-ST-MOB-030-1 AC-ST-MOB-030-3 UAT-PLAN-43 a confidential thread and a fresh read belong to one session and one resource', () {
+    const SessionSnapshot tenantB = SessionSnapshot(status: SessionStatus.signedIn, tenantId: 'tenant-b', userId: 'user-1');
+    final Map<String, SessionSnapshot> changes = <String, SessionSnapshot>{
+      'another tenant': tenantB,
+      'another person': const SessionSnapshot(status: SessionStatus.signedIn, tenantId: 'tenant-a', userId: 'user-2'),
+      'another membership': const SessionSnapshot(status: SessionStatus.signedIn, tenantId: 'tenant-a', userId: 'user-1', membershipId: 'm-2'),
+      'signing out': const SessionSnapshot.signedOut(),
+    };
+
+    for (final MapEntry<String, SessionSnapshot> change in changes.entries) {
+      testWidgets('MOB-37 the thread and the typed question are dropped when the session turns to ${change.key}', (WidgetTester tester) async {
+        useDevice(tester, kTallDevice);
+        final ScriptedServer server = ScriptedServer();
+        aiServer(server);
+        final FakeSession session = FakeSession();
+        await pumpWithServer(tester, features: <MobileFeature>[ai.feature], server: server, location: _qa, session: session);
+        await _type(tester, 'Câu hỏi bí mật');
+        await tester.tap(_ask());
+        await tester.pumpAndSettle();
+        expect(find.text('Nhà thầu đã thực hiện hợp đồng tương tự tại tỉnh B.'), findsOneWidget);
+        await _type(tester, 'Câu hỏi chưa gửi');
+
+        session.change(change.value);
+        await tester.pumpAndSettle();
+
+        expect(find.text('Nhà thầu đã thực hiện hợp đồng tương tự tại tỉnh B.'), findsNothing, reason: 'the passages of the other session are gone');
+        expect(find.text('Câu hỏi bí mật'), findsNothing);
+        expect(find.text('Câu hỏi chưa gửi'), findsNothing, reason: 'the typed question is not carried over either');
+      });
+    }
+
+    testWidgets('MOB-37 an answer that arrives after the session changed is not shown, and the new session can ask at once', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      aiServer(server);
+      final Completer<HttpResult> held = Completer<HttpResult>();
+      int asked = 0;
+      server.answer('GET', '/procurement-packages/:id/proposal-passages', (HttpCall call) {
+        asked += 1;
+        return asked == 1
+            ? held.future
+            : FakeTransport.json(200, <String, Object?>{'items': <Object?>[passage(kDoc2, 3, 0, 'Đoạn của bên B.')], 'as_of': '2026-11-03T02:00:00Z'});
+      });
+      final FakeSession session = FakeSession();
+      await pumpWithServer(tester, features: <MobileFeature>[ai.feature], server: server, location: _qa, session: session);
+      await _type(tester, 'Câu hỏi của A');
+      await tester.tap(_ask());
+      await tester.pump();
+      expect(find.text('Đang tìm dẫn chứng trong phạm vi của bạn…'), findsOneWidget);
+
+      session.change(tenantB);
+      await tester.pumpAndSettle();
+      expect(tester.widget<FilledButton>(_ask()).onPressed, isNotNull, reason: 'nothing of tenant A is still being asked');
+      held.complete(FakeTransport.json(200, <String, Object?>{'items': <Object?>[passage(kDoc, 11, 0, 'Đoạn mật của bên A.')], 'as_of': '2026-11-03T02:00:00Z'}));
+      await tester.pumpAndSettle();
+      expect(find.text('Đoạn mật của bên A.'), findsNothing);
+      expect(find.text('Câu hỏi của A'), findsNothing);
+
+      await _type(tester, 'Câu hỏi của B');
+      await tester.tap(_ask());
+      await tester.pumpAndSettle();
+      expect(find.text('Đoạn của bên B.'), findsOneWidget);
+      expect(find.text('Đoạn mật của bên A.'), findsNothing);
+    });
+
+    testWidgets('MOB-38 the findings of another run on the same route are read again, and the answer of the first run is not shown', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      aiServer(server);
+      server.on('GET', '/analysis-runs/:id/findings', (HttpCall call) {
+        final bool second = call.url.path.contains('run-2');
+        return findingsOf(<Map<String, Object?>>[finding(second ? 'f-run2' : 'f-run1', text: second ? 'Nhận định của lượt hai.' : 'Nhận định của lượt một.')]);
+      });
+      final ProviderContainer container = await _open(tester, server, _findings);
+      expect(find.text('Nhận định của lượt một.'), findsOneWidget);
+
+      container.read(routerProvider).go('/projects/mob-38?run=run-2');
+      await tester.pumpAndSettle();
+
+      expect(server.callsTo('GET', '/analysis-runs/run-2/findings'), hasLength(1));
+      expect(find.text('Nhận định của lượt hai.'), findsOneWidget);
+      expect(find.text('Nhận định của lượt một.'), findsNothing);
+    });
+
+    testWidgets('MOB-38 a change of membership reads the findings again: what a person sees depends on the unit and role', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      aiServer(server);
+      final FakeSession session = FakeSession();
+      await pumpWithServer(tester, features: <MobileFeature>[ai.feature], server: server, location: _findings, session: session);
+      expect(server.callsTo('GET', '/analysis-runs/$kRun/findings'), hasLength(1));
+
+      session.change(const SessionSnapshot(status: SessionStatus.signedIn, tenantId: 'tenant-a', userId: 'user-1', membershipId: 'm-2'));
+      await tester.pumpAndSettle();
+
+      expect(server.callsTo('GET', '/analysis-runs/$kRun/findings'), hasLength(2));
+    });
+
+    testWidgets('MOB-39 another citation on the same route is read again', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      aiServer(server);
+      final ProviderContainer container = await _open(tester, server, _source);
+      final int before = server.callsTo('GET', '/analysis-runs/$kRun/findings').length;
+      expect(before, 1);
+
+      container.read(routerProvider).go('/projects/mob-39?run=$kRun&finding=f-2&evidence=ev-x');
+      await tester.pumpAndSettle();
+
+      expect(server.callsTo('GET', '/analysis-runs/$kRun/findings'), hasLength(2), reason: 'the new citation is not the one that was read');
     });
   });
 

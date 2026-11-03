@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show Ref;
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_mobile/core/offline/offline_providers.dart';
@@ -10,6 +12,7 @@ import 'package:machvon_mobile/core/offline/queue/queued_command.dart';
 import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/features/field_quantities/inspection_commands.dart';
 import 'package:machvon_mobile/features/field_quantities/inspection_models.dart';
+import 'package:machvon_mobile/features/field_quantities/inspection_service.dart';
 
 import '../../support/fake_sync_server.dart';
 import '../../support/harness.dart';
@@ -22,11 +25,11 @@ import 'quantity_fixtures.dart';
 
 const String _document = 'a0000000-0000-4000-8000-0000000000d1';
 
-Future<FieldWorld> _open(WidgetTester tester, {FieldServer? server, void Function(FieldServer server)? answers, FakeSession? session}) async {
+Future<FieldWorld> _open(WidgetTester tester, {FieldServer? server, void Function(FieldServer server)? answers, FakeSession? session, List<Override> overrides = const <Override>[]}) async {
   final FieldServer field = server ?? FieldServer();
   (answers ?? answerInspections)(field);
   final FieldWorld world = FieldWorld.create(server: field);
-  await openQuantityApp(tester, world, '/projects/mob-64/c-1', session: session);
+  await openQuantityApp(tester, world, '/projects/mob-64/c-1', session: session, overrides: overrides);
   return world;
 }
 
@@ -209,6 +212,27 @@ void main() {
       await settleReal(tester, rounds: 8);
       expect(find.text('Đợt kiểm tra không ở trạng thái cho phép thao tác này (có thể đã có người ghi kết quả).'), findsOneWidget);
       expect(find.text('INSPECTION_STATE_INVALID'), findsOneWidget);
+    });
+  });
+
+  group('AC-ST-MOB-021-3 UI-MOB-64 a result is queued only from the form that was written to the phone', () {
+    testWidgets('when the draft can no longer be written, Save queues nothing and says so instead of queueing the older stored result', (WidgetTester tester) async {
+      useDevice(tester, kTall);
+      late FailingInspectionService service;
+      final FieldWorld world = await _open(tester, overrides: <Override>[inspectionServiceProvider.overrideWith((Ref ref) => service = FailingInspectionService(ref))]);
+      await _tapChip(tester, 'Đạt', index: 0);
+      await _tapChip(tester, 'Đạt', index: 1);
+      await _tapChip(tester, 'Đạt', index: 2);
+      await world.typeInto(tester, 'Nhận xét chung', 'Đạt, đúng bản vẽ');
+      service.failing = true;
+      await world.typeInto(tester, 'Nhận xét chung', 'Đạt, đúng bản vẽ và đúng chủng loại');
+      await tapText(tester, 'Lưu kết quả');
+      await settleReal(tester, rounds: 6);
+
+      final CommandQueue queue = await _queue(tester, world);
+      expect(queue.commands(), isEmpty, reason: 'the stored result is older than the form');
+      expect(find.text('Không lưu được nháp trên điện thoại này. Nội dung đang nhập chưa được giữ lại.'), findsOneWidget);
+      expect(find.text('Lưu kết quả'), findsOneWidget, reason: 'the form stays open');
     });
   });
 

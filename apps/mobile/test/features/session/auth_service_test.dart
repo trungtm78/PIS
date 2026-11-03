@@ -7,6 +7,7 @@ import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/features/session/auth/auth_service.dart';
 import 'package:machvon_mobile/features/session/auth/identity_api.dart';
 import 'package:machvon_mobile/features/session/auth/oidc_client.dart';
+import 'package:machvon_mobile/features/session/auth/session_transport.dart';
 import 'package:machvon_mobile/features/session/auth/session_vault.dart';
 
 import '../../support/harness.dart';
@@ -14,6 +15,13 @@ import 'support/world.dart';
 
 const FakeMembership _tenantAOther = FakeMembership('tenant-a', 'UBND Minh Hà', 'm-a2', 'INVESTOR_OFFICER');
 const FakeMembership _leaderNeedsMfa = FakeMembership('tenant-a', 'UBND Minh Hà', 'm-a1', 'LEADER', requiresMfa: true);
+
+/// A client whose transport tells the session what the API answered, as the application composes it.
+MachvonApiClient _observed(World world, AuthService service) => MachvonApiClient(
+      baseUrl: testConfig.apiBaseUrl,
+      transport: SessionObservingTransport(world.transport, service.noteResponse, () => service.credentialStamp),
+      token: service.accessToken,
+    );
 
 MachvonApiClient _client(World world, AuthService service) => MachvonApiClient(
       baseUrl: testConfig.apiBaseUrl,
@@ -279,6 +287,23 @@ void main() {
       expect(world.idp.calls.where((HttpCall c) => Uri.splitQueryString(c.body ?? '')['grant_type'] == 'refresh_token'), hasLength(1));
       expect(restarted.snapshot.status, SessionStatus.signedIn, reason: 'a second use of the same refresh token would have ended the session');
       expect(service.snapshot.status, SessionStatus.signedIn);
+    });
+
+    test('an identity token that lives shorter than the access token is renewed when it lapses, not when expires_in says (no 401, no ended session)', () async {
+      world = World();
+      world.idp.tokenLifetime = 120;
+      world.idp.expiresInOverride = 3600;
+      final AuthService service = world.service();
+      await service.signIn(kOidcConfig);
+      int refreshes() => world.idp.calls.where((HttpCall c) => Uri.splitQueryString(c.body ?? '')['grant_type'] == 'refresh_token').length;
+
+      world.advance(const Duration(seconds: 100));
+      final List<MembershipChoice> choices = await service.candidates();
+
+      expect(choices, isNotEmpty);
+      expect(refreshes(), 1, reason: 'the identity token was 20 seconds from its exp: it is renewed, not sent');
+      expect(service.snapshot.status, SessionStatus.signedIn);
+      expect(world.api.calls.where((HttpCall c) => c.url.path.endsWith('/candidates')).every((HttpCall c) => c.headers['authorization'] != null), isTrue);
     });
 
     test('the application restarted: the session comes back from the vault and renews itself', () async {
@@ -681,6 +706,252 @@ void main() {
       await service.signIn(kOidcConfig);
       expect(await service.accessTokenFor('tenant-a'), isNotNull);
       await expectLater(service.accessTokenFor('tenant-b'), throwsA(isA<TenantMismatch>()));
+    });
+  });
+
+  group('REVIEW-m1-7 discarding the pending commands is explicit, whatever happens to the rest of the local data', () {
+    Future<(AuthService, MembershipChoice)> keepingData({int pending = 3, FakeMembership b = tenantBMember}) async {
+      world = World(memberships: <String, List<FakeMembership>>{'sub-ana': <FakeMembership>[tenantAMember, b]}, pendingCommands: pending);
+      final AuthService service = world.service();
+      await service.setLocalDataPolicy(LocalDataPolicy.keepEncrypted);
+      await service.signIn(kOidcConfig);
+      final List<MembershipChoice> choices = await service.candidates();
+      await service.selectContext(choices.firstWhere((MembershipChoice c) => c.tenantId == 'tenant-a'));
+      return (service, choices.firstWhere((MembershipChoice c) => c.tenantId == 'tenant-b'));
+    }
+
+    test('a switch with the data kept drops the pending commands of the tenant left, once the server has let the person into the new tenant', () async {
+      final (AuthService service, MembershipChoice b) = await keepingData();
+      final List<String?> activeWhenDropped = <String?>[];
+      world.onDiscard = () async => activeWhenDropped.add(service.snapshot.tenantId);
+
+      await service.switchTenant(b, discardPending: true);
+
+      expect(world.discardedPending, 1);
+      expect(world.purger.purged, isEmpty, reason: 'the policy keeps the data of the tenant left');
+      expect(service.snapshot.tenantId, 'tenant-b');
+      expect(activeWhenDropped, <String?>['tenant-a'], reason: 'the queue that is dropped is the one of the tenant left: it is still the active one');
+    });
+
+    test('a switch that is refused for the pending commands, or that fails, drops nothing', () async {
+      final (AuthService service, MembershipChoice b) = await keepingData();
+      await expectLater(service.switchTenant(b), throwsA(isA<PendingCommandsBlock>()));
+      expect(world.discardedPending, 0);
+
+      world.api.selectFailureStatus = 500;
+      world.api.selectFailureCode = 'INTERNAL_ERROR';
+      await expectLater(service.switchTenant(b, discardPending: true), throwsA(isA<ApiError>()));
+      expect(world.discardedPending, 0, reason: 'the person has not left the tenant, so their work is still theirs');
+      expect(service.snapshot.tenantId, 'tenant-a');
+    });
+
+    test('a switch that waits for the second factor drops the commands only when the second factor is passed', () async {
+      final (AuthService service, MembershipChoice b) =
+          await keepingData(b: const FakeMembership('tenant-b', 'Bộ Thử Nghiệm', 'm-b1', 'SPECIALIST', requiresMfa: true));
+      expect(await service.switchTenant(b, discardPending: true), SignInOutcome.needsSecondFactor);
+      expect(world.discardedPending, 0);
+
+      expect(await service.stepUp(), SignInOutcome.signedIn);
+      expect(world.discardedPending, 1);
+      expect(service.snapshot.tenantId, 'tenant-b');
+    });
+
+    test('the second factor left without passing drops nothing', () async {
+      final (AuthService service, MembershipChoice b) =
+          await keepingData(b: const FakeMembership('tenant-b', 'Bộ Thử Nghiệm', 'm-b1', 'SPECIALIST', requiresMfa: true));
+      await service.switchTenant(b, discardPending: true);
+      service.cancelSecondFactor();
+      expect(world.discardedPending, 0);
+    });
+
+    test('the same tenant selected again is not a departure: nothing is dropped', () async {
+      final (AuthService service, MembershipChoice _) = await keepingData(pending: 0);
+      final MembershipChoice same = (await service.candidates()).firstWhere((MembershipChoice c) => c.tenantId == 'tenant-a');
+      await service.switchTenant(same, discardPending: true);
+      expect(world.discardedPending, 0);
+    });
+
+    test('signing out with the data kept and the pending commands discarded drops them; without that choice they are refused and kept', () async {
+      final (AuthService service, MembershipChoice _) = await keepingData();
+      await expectLater(service.signOut(), throwsA(isA<PendingCommandsBlock>()));
+      expect(world.discardedPending, 0);
+
+      await service.signOut(discardPending: true);
+
+      expect(world.discardedPending, 1);
+      expect(service.snapshot.status, SessionStatus.signedOut);
+      expect(world.purger.purged, isEmpty);
+    });
+  });
+
+  group('REVIEW-m1-7 an identity refresh that was on its way when the person left belongs to the session that started it', () {
+    // The identity token of the session is lapsed, a screen asks for the memberships and the refresh is in flight.
+    Future<(AuthService, Future<void>)> refreshInFlight({Completer<void>? requestHold, Completer<void>? responseHold}) async {
+      world = World(memberships: <String, List<FakeMembership>>{
+        'sub-ana': <FakeMembership>[tenantAMember],
+        'sub-bo': <FakeMembership>[tenantBMember],
+      });
+      final AuthService service = world.service();
+      await service.signIn(kOidcConfig);
+      world.advance(const Duration(minutes: 5));
+      world.idp.refreshHoldOnce = requestHold;
+      world.idp.refreshResponseHoldOnce = responseHold;
+      final Future<void> late = service.candidates().then<void>((List<MembershipChoice> _) {}, onError: (Object _) {});
+      await pumpEventQueue();
+      return (service, late);
+    }
+
+    test('the refusal of the old session does not end the session that signed in after it', () async {
+      final Completer<void> hold = Completer<void>();
+      final (AuthService service, Future<void> late) = await refreshInFlight(requestHold: hold);
+
+      await service.signOut();
+      expect(await service.signIn(kOidcConfig), SignInOutcome.signedIn);
+      hold.complete();
+      await late;
+
+      expect(service.snapshot.status, SessionStatus.signedIn, reason: 'the provider refused the refresh token of the session that was signed out');
+      expect(await service.accessToken(), isNotNull);
+      expect((await world.vault.loadSession())!.refreshToken, isNotEmpty);
+    });
+
+    test('the late answer of the old session overwrites neither the credentials nor the subject of the new one', () async {
+      final Completer<void> hold = Completer<void>();
+      final (AuthService service, Future<void> late) = await refreshInFlight(responseHold: hold);
+
+      await service.signOut();
+      world.browser.subject = 'sub-bo';
+      expect(await service.signIn(kOidcConfig), SignInOutcome.signedIn);
+      final StoredSession before = (await world.vault.loadSession())!;
+      hold.complete();
+      await late;
+
+      expect(service.snapshot.status, SessionStatus.signedIn, reason: 'a subject mismatch of the old answer is not a mismatch of the new session');
+      expect(service.snapshot.userId, 'sub-bo');
+      final StoredSession after = (await world.vault.loadSession())!;
+      expect(after.refreshToken, before.refreshToken, reason: 'the refresh token of the old session was not stored over the new one');
+      expect(after.userId, 'sub-bo');
+      world.advance(const Duration(minutes: 5));
+      expect(await service.accessToken(), isNotNull, reason: 'the new session still renews with its own refresh token');
+      expect(service.snapshot.status, SessionStatus.signedIn);
+    });
+
+    test('the same account signing in again is a new session too: the old answer does not replace its refresh token', () async {
+      final Completer<void> hold = Completer<void>();
+      final (AuthService service, Future<void> late) = await refreshInFlight(responseHold: hold);
+
+      await service.signOut();
+      expect(await service.signIn(kOidcConfig), SignInOutcome.signedIn);
+      final String current = (await world.vault.loadSession())!.refreshToken;
+      hold.complete();
+      await late;
+
+      expect((await world.vault.loadSession())!.refreshToken, current);
+      world.advance(const Duration(minutes: 5));
+      expect(await service.accessToken(), isNotNull);
+      expect(service.snapshot.status, SessionStatus.signedIn);
+    });
+
+    test('a tenant switch is not a new session: the rotated refresh token of the answer in flight is still kept', () async {
+      world = World(memberships: <String, List<FakeMembership>>{'sub-ana': <FakeMembership>[tenantAMember, tenantBMember]});
+      final AuthService service = world.service();
+      await service.signIn(kOidcConfig);
+      final List<MembershipChoice> choices = await service.candidates();
+      await service.selectContext(choices.firstWhere((MembershipChoice c) => c.tenantId == 'tenant-a'));
+      final MembershipChoice b = choices.firstWhere((MembershipChoice c) => c.tenantId == 'tenant-b');
+      final Completer<void> selecting = world.api.selectHoldOnce = Completer<void>();
+      final Future<SignInOutcome> switching = service.switchTenant(b);
+      await pumpEventQueue();
+      world.advance(const Duration(minutes: 5));
+      final Completer<void> hold = world.idp.refreshResponseHoldOnce = Completer<void>();
+      final Future<void> renewal = service.accessToken().then<void>((String? _) {}, onError: (Object _) {});
+      await pumpEventQueue();
+      selecting.complete();
+      expect(await switching, SignInOutcome.signedIn);
+      hold.complete();
+      await renewal;
+
+      final StoredSession stored = (await world.vault.loadSession())!;
+      expect(stored.refreshToken, world.idp.latestRefreshOf(stored.refreshToken), reason: 'the provider rotated the token; the old one is dead');
+      expect(service.snapshot.status, SessionStatus.signedIn);
+      expect(service.snapshot.tenantId, 'tenant-b');
+    });
+  });
+
+  group('REVIEW-m1-7 the verdict of a response belongs to the session that sent the request', () {
+    Future<(AuthService, MachvonApiClient, MembershipChoice)> twoTenants() async {
+      world = World(memberships: <String, List<FakeMembership>>{'sub-ana': <FakeMembership>[tenantAMember, tenantBMember]});
+      final AuthService service = world.service();
+      await service.signIn(kOidcConfig);
+      final List<MembershipChoice> choices = await service.candidates();
+      await service.selectContext(choices.firstWhere((MembershipChoice c) => c.tenantId == 'tenant-a'));
+      return (service, _observed(world, service), choices.firstWhere((MembershipChoice c) => c.tenantId == 'tenant-b'));
+    }
+
+    test('a 401 that arrives from tenant A after the switch does not end the session of tenant B, whose token is brand new', () async {
+      final (AuthService service, MachvonApiClient client, MembershipChoice b) = await twoTenants();
+      final Completer<void> hold = world.api.profileHoldOnce = Completer<void>();
+      final Future<void> failed = expectLater(client.execute('getMyProfile'), throwsA(isA<ApiError>()));
+      await pumpEventQueue();
+
+      await service.switchTenant(b);
+      world.api.profileFailureStatus = 401;
+      world.api.profileFailureCode = 'SESSION_EXPIRED';
+      hold.complete();
+      await failed;
+      await pumpEventQueue();
+
+      expect(service.snapshot.status, SessionStatus.signedIn);
+      expect(service.snapshot.tenantId, 'tenant-b');
+      expect(await service.accessToken(), isNotNull);
+    });
+
+    test('a 422 LICENSE_EXPIRED that arrives from tenant A after the switch does not make tenant B read-only', () async {
+      final (AuthService service, MachvonApiClient client, MembershipChoice b) = await twoTenants();
+      final Completer<void> hold = world.api.profileHoldOnce = Completer<void>();
+      final Future<void> failed = expectLater(client.execute('getMyProfile'), throwsA(isA<ApiError>()));
+      await pumpEventQueue();
+
+      await service.switchTenant(b);
+      world.api.profileFailureStatus = 422;
+      world.api.profileFailureCode = 'LICENSE_EXPIRED';
+      hold.complete();
+      await failed;
+      await pumpEventQueue();
+
+      expect(service.snapshot.mode, SessionMode.full);
+      expect(service.snapshot.isReadOnly, isFalse);
+    });
+
+    test('a 401 for a token that has since been renewed does not end the session that renewed it', () async {
+      final (AuthService service, MachvonApiClient client, MembershipChoice _) = await twoTenants();
+      final Completer<void> hold = world.api.profileHoldOnce = Completer<void>();
+      final Future<void> failed = expectLater(client.execute('getMyProfile'), throwsA(isA<ApiError>()));
+      await pumpEventQueue();
+
+      world.advance(const Duration(minutes: 6));
+      await service.accessToken();
+      world.api.profileFailureStatus = 401;
+      world.api.profileFailureCode = 'SESSION_EXPIRED';
+      hold.complete();
+      await failed;
+      await pumpEventQueue();
+
+      expect(service.snapshot.status, SessionStatus.signedIn, reason: 'the token that was refused is not the one the session holds now');
+    });
+
+    test('a 401 for the token the session holds still ends it, and a 422 LICENSE_EXPIRED still makes it read-only', () async {
+      final (AuthService service, MachvonApiClient client, MembershipChoice _) = await twoTenants();
+      world.api.profileFailureStatus = 422;
+      world.api.profileFailureCode = 'LICENSE_EXPIRED';
+      await _apiFailure(client.execute('getMyProfile'));
+      expect(service.snapshot.isReadOnly, isTrue);
+
+      world.api.profileFailureStatus = 401;
+      world.api.profileFailureCode = 'SESSION_EXPIRED';
+      await _apiFailure(client.execute('getMyProfile'));
+      await pumpEventQueue();
+      expect(service.snapshot.status, SessionStatus.expired);
     });
   });
 }

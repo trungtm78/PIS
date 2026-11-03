@@ -101,7 +101,7 @@ FileVersion? parseFileVersion(Object? raw) {
 
 /// A signing session as the server keeps it.
 final class SigningSession {
-  const SigningSession({required this.id, required this.role, required this.status, required this.expiresAt, required this.version, required this.adapterCode, this.digestHex, this.errorCode, this.resultVersionId});
+  const SigningSession({required this.id, required this.role, required this.status, required this.expiresAt, required this.version, required this.adapterCode, this.certificateId, this.digestHex, this.errorCode, this.resultVersionId});
 
   final String id;
   final String role;
@@ -109,6 +109,10 @@ final class SigningSession {
   final String expiresAt;
   final int version;
   final String adapterCode;
+
+  /// The certificate the session was opened with (`signing_certificate_id`): the one its signature is judged against, whatever certificate
+  /// the signer would be given now. Null when the server did not say.
+  final String? certificateId;
   final String? digestHex;
   final String? errorCode;
   final String? resultVersionId;
@@ -130,6 +134,7 @@ SigningSession? parseSession(Object? raw) {
     expiresAt: expiresAt,
     version: version,
     adapterCode: text(row['adapter_code']) ?? '',
+    certificateId: filled(row['signing_certificate_id']),
     digestHex: filled(row['digest_hex']),
     errorCode: filled(row['error_code']),
     resultVersionId: filled(row['result_version_id']),
@@ -272,6 +277,18 @@ final class SigningDocument {
     final List<SigningCertificate> active = certificates.where((SigningCertificate c) => c.isActivePersonal).toList()
       ..sort((SigningCertificate a, SigningCertificate b) => b.validUntil.compareTo(a.validUntil));
     return active.isEmpty ? null : active.first;
+  }
+
+  /// The certificate [session] is bound to, which is the one its proof is judged against (the server fixed it when it opened the
+  /// session, and it need not be the one that [signingCertificate] picks now). A session that does not say falls back to
+  /// [signingCertificate]; a session that names a certificate this document does not list gives null, never another certificate.
+  SigningCertificate? certificateOf(SigningSession session) {
+    final String? bound = session.certificateId;
+    if (bound == null) return signingCertificate;
+    for (final SigningCertificate certificate in certificates) {
+      if (certificate.id == bound) return certificate;
+    }
+    return null;
   }
 
   /// The verdict on the leader's signature on the current file, when there is one.

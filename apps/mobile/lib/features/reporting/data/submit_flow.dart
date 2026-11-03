@@ -2,6 +2,7 @@ import 'package:machvon_api_client/machvon_api_client.dart' show ApiError;
 
 import '../../../core/offline/drafts/local_draft.dart';
 import '../../../core/offline/queue/command_queue.dart';
+import '../../../core/offline/queue/offline_codes.dart';
 import '../../../core/offline/queue/queue_results.dart';
 import '../../../core/offline/queue/queued_command.dart';
 import '../model/report_form.dart';
@@ -110,6 +111,10 @@ enum SubmitOutcome {
 
   /// The draft is not on the server yet, or its save has not been carried out: the submit waits for the person to try again.
   savePending,
+
+  /// An earlier command of the draft was refused as unverifiable: it may have been carried out, and another one would carry it out
+  /// twice. Nothing was queued and the command stays; the person decides in the queue after looking at the report on the web.
+  unverifiable,
 }
 
 final class SubmitResult {
@@ -163,6 +168,9 @@ class SubmitFlow {
     DraftSnapshot? current = _drafts.read(draftId);
     if (current == null) return const SubmitResult(SubmitOutcome.missing);
     if (statusOf(draftId).isPending) return const SubmitResult(SubmitOutcome.alreadyPending);
+    // A command refused as unverifiable may have been carried out, and a new one would carry it out twice: it is not discarded here,
+    // the person decides in the queue after looking at the report on the web.
+    if (_hasUnverifiable(draftId)) return SubmitResult(SubmitOutcome.unverifiable, reportId: current.reportId);
     final List<Finding> errors = <Finding>[for (final Finding finding in reviewForm(current.form, current.context)) if (finding.isError) finding];
     if (errors.isNotEmpty) return SubmitResult(SubmitOutcome.blocked, findings: errors);
     current = current.reportId == null ? await _drafts.ensureRecord(draftId) : current;
@@ -215,6 +223,10 @@ class SubmitFlow {
     _drafts.markSynced(draftId, view.version);
     return null;
   }
+
+  bool _hasUnverifiable(String draftId) => _queue
+      .commands(states: <CommandState>{CommandState.rejected})
+      .any((QueuedCommand c) => c.draftId == draftId && (c.commandType == kSaveCommand || c.commandType == kSubmitCommand) && c.errorCode == kResultUnverifiable);
 
   /// A command the server refused, or that found the report moved on, is a decision the person is now replacing with a new
   /// entry of the draft: it leaves the queue so that it is not sent again beside the new one.

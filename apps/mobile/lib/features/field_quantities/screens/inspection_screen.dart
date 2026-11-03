@@ -171,19 +171,23 @@ class _InspectionBodyState extends ConsumerState<_InspectionBody> with CommandFl
     unawaited(_persist());
   }
 
-  Future<String> _persist() {
+  /// Writes the draft after every change, one write after the other, so the last change is the one that stays. Gives the id of the
+  /// draft on the device once THIS draft is written, and null when the write failed: the id of an earlier write stands for an older
+  /// content, and nothing may be queued from that.
+  Future<String?> _persist() {
     final ResultDraft? draft = _draft;
-    if (draft == null) return Future<String>.value(_draftId);
-    final Future<String> written = _writing.then((void _) async {
+    if (draft == null) return Future<String?>.value(_draftId);
+    final Future<String?> written = _writing.then((void _) async {
       try {
         _draftId = await _service.save(draft, draftId: _draftId);
         if (mounted && _storeFailed) setState(() => _storeFailed = false);
+        return _draftId;
       } on Object {
         if (mounted) setState(() => _storeFailed = true);
+        return null;
       }
-      return _draftId;
     });
-    _writing = written.then((String _) {});
+    _writing = written.then((String? _) {});
     return written;
   }
 
@@ -206,8 +210,8 @@ class _InspectionBodyState extends ConsumerState<_InspectionBody> with CommandFl
     if (problems.isNotEmpty) return;
     setState(() => _saving = true);
     try {
-      final String id = await _persist();
-      if (id.isEmpty) return;
+      final String? id = await _persist();
+      if (id == null || id.isEmpty) return;
       await _service.queueResult(id, _inspection);
       if (mounted) setState(() => _queued = true);
     } on ResultNotReady catch (notReady) {

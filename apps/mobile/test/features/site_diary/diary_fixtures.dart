@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_mobile/core/navigation/feature.dart';
+import 'package:machvon_mobile/features/site_diary/diary_models.dart';
+import 'package:machvon_mobile/features/site_diary/diary_service.dart';
 import 'package:machvon_mobile/features/site_diary/site_diary_feature.dart' as site_diary;
 
 import '../../support/harness.dart' show FakeSession;
@@ -83,8 +86,20 @@ void answerDiaries(FieldServer server, {List<Map<String, Object?>> diaries = con
 }
 
 /// A phone on the site diary screens.
-Future<void> openDiaryApp(WidgetTester tester, FieldWorld world, String location, {FakeSession? session}) async {
-  await world.open(tester, location, extra: <MobileFeature>[site_diary.feature], session: session);
+/// The diary service of a phone whose store of drafts stops taking writes when [failing] is set: the write that follows a change
+/// fails, as on a phone with no room left.
+class FailingDiaryService extends DiaryService {
+  FailingDiaryService(super.ref);
+
+  bool failing = false;
+
+  @override
+  Future<String> save(DiaryDraft draft, {String draftId = ''}) =>
+      failing ? Future<String>.error(StateError('the store is full')) : super.save(draft, draftId: draftId);
+}
+
+Future<void> openDiaryApp(WidgetTester tester, FieldWorld world, String location, {FakeSession? session, List<Override> overrides = const <Override>[]}) async {
+  await world.open(tester, location, extra: <MobileFeature>[site_diary.feature], session: session, overrides: overrides);
   await settleReal(tester, rounds: 10);
 }
 

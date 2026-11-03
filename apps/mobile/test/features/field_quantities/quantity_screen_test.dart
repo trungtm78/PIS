@@ -3,6 +3,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show Ref;
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_mobile/core/offline/drafts/draft_store.dart';
@@ -13,6 +15,7 @@ import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/features/field_evidence/jpeg_metadata.dart';
 import 'package:machvon_mobile/features/field_quantities/quantity_commands.dart';
 import 'package:machvon_mobile/features/field_quantities/quantity_models.dart';
+import 'package:machvon_mobile/features/field_quantities/quantity_service.dart';
 
 import '../../support/fake_sync_server.dart';
 import '../../support/harness.dart';
@@ -22,11 +25,11 @@ import '../support/screen_contract.dart';
 import '../support/scripted_server.dart';
 import 'quantity_fixtures.dart';
 
-Future<FieldWorld> _open(WidgetTester tester, {FieldServer? server, void Function(FieldServer server)? answers, FakeSession? session, String location = '/projects/mob-63/c-1'}) async {
+Future<FieldWorld> _open(WidgetTester tester, {FieldServer? server, void Function(FieldServer server)? answers, FakeSession? session, String location = '/projects/mob-63/c-1', List<Override> overrides = const <Override>[]}) async {
   final FieldServer field = server ?? FieldServer();
   (answers ?? answerQuantities)(field);
   final FieldWorld world = FieldWorld.create(server: field);
-  await openQuantityApp(tester, world, location, session: session);
+  await openQuantityApp(tester, world, location, session: session, overrides: overrides);
   return world;
 }
 
@@ -189,6 +192,31 @@ void main() {
       await settleReal(tester, rounds: 8);
       expect(find.text('Tổng khối lượng vượt khối lượng của hạng mục trong hợp đồng.'), findsOneWidget);
       expect(find.text('QUANTITY_EXCEEDS_BOQ'), findsOneWidget);
+    });
+  });
+
+  group('AC-ST-MOB-021-2 UI-MOB-63 a quantity is recorded only from the form that was written to the phone', () {
+    testWidgets('when the draft can no longer be written, Save queues nothing, says so and keeps the form instead of recording the older stored quantity', (WidgetTester tester) async {
+      useDevice(tester, kTall);
+      late FailingQuantityService service;
+      final FieldWorld world = await _open(tester, overrides: <Override>[quantityServiceProvider.overrideWith((Ref ref) => service = FailingQuantityService(ref))]);
+      await _fill(tester, quantity: '120.5');
+      service.failing = true;
+      await _type(tester, 'Khối lượng kỳ này (m3)', '99');
+      await tapText(tester, 'Lưu khối lượng');
+      await settleReal(tester, rounds: 6);
+
+      final CommandQueue queue = await _queue(tester, world);
+      expect(queue.commands(), isEmpty, reason: 'the 120.5 on the phone is not what the person asked to record');
+      expect(find.text('Không lưu được nháp trên điện thoại này. Nội dung đang nhập chưa được giữ lại.'), findsOneWidget);
+      expect(tester.widget<TextField>(find.widgetWithText(TextField, 'Khối lượng kỳ này (m3)')).controller!.text, '99', reason: 'the form is not cleared');
+
+      // The store is back: the same tap now records what is on the form.
+      service.failing = false;
+      await tapText(tester, 'Lưu khối lượng');
+      await waitUntil(tester, () async => queue.commands().isNotEmpty);
+      await waitUntil(tester, () async => _sent(world).isNotEmpty);
+      expect((_sent(world).first['payload']! as Map<String, Object?>)['quantity_period'], '99');
     });
   });
 

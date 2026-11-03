@@ -195,6 +195,26 @@ void main() {
       }
     });
 
+    test('a PNG that is whole but whose data the decoder throws on (a bad chunk checksum, damaged compressed data) is IMAGE_UNREADABLE, never an unhandled exception, with or without the consent', () async {
+      final Uint8List png = pngWithText();
+      final int idat = String.fromCharCodes(png).indexOf('IDAT');
+      final Uint8List badChecksum = Uint8List.fromList(png);
+      final int dataEnd = idat + 4 + ((png[idat - 4] << 24) | (png[idat - 3] << 16) | (png[idat - 2] << 8) | png[idat - 1]);
+      badChecksum[dataEnd] ^= 0xFF;
+      final Uint8List badData = Uint8List.fromList(png);
+      for (int i = idat + 6; i < dataEnd; i += 1) {
+        badData[i] ^= 0xA5;
+      }
+      final Map<String, Uint8List> damaged = <String, Uint8List>{'png with a bad chunk checksum': badChecksum, 'png with damaged compressed data': badData};
+      for (final MapEntry<String, Uint8List> entry in damaged.entries) {
+        for (final bool keep in <bool>[false, true]) {
+          final _Work work = _Work();
+          await expectLater(work.prepare(work.file('damaged.png', entry.value), keep: keep), _refusedWith('IMAGE_UNREADABLE'), reason: '${entry.key}, keep $keep');
+          expect(work.out.existsSync() && work.out.listSync().isNotEmpty, isFalse, reason: '${entry.key}: no file is created');
+        }
+      }
+    });
+
     test('a picture that reads is still sent with its own encoded bytes, not a new compression', () async {
       final _Work work = _Work();
       final Uint8List source = plainJpeg();

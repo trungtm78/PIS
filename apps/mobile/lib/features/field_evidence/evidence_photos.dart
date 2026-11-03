@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/offline/attachments/attachment_upload.dart';
@@ -212,15 +213,36 @@ Future<List<EvidencePhoto>> enforcePhotoConsent(
 /// made again must not hand it over twice; but the file of the photograph may have changed since (the consent to keep where and when
 /// was taken back and the file was rewritten), and the copy the uploader holds is the old one. A copy that is not the photograph's
 /// own any more (the uploader does not know it, or it still says where or when and the photograph must not) is cancelled when it has
-/// not finished, and the photograph is handed over again from its current file.
-Future<bool> reuseUpload(AttachmentUploader uploader, String? uploadId, {required bool keepsPlaceOrTime}) async {
+/// not finished, and the photograph is handed over again from its current file ([currentPath]).
+///
+/// The uploader deletes its copy of a photograph once the server found it clean, so a missing copy proves nothing: what the server
+/// holds is then compared with the current file by checksum, and it stands only for a file that is the very one that went up and
+/// says nothing.
+Future<bool> reuseUpload(
+  AttachmentUploader uploader,
+  String? uploadId, {
+  required String currentPath,
+  required bool keepsPlaceOrTime,
+}) async {
   if (uploadId == null) return false;
   final AttachmentUpload? upload = uploader.upload(uploadId);
   // A cancelled upload never goes up, whatever its source says now (cancelling deleted it): a send cut after the cancel and before the new id was saved comes back here.
   if (upload == null || upload.state == UploadState.cancelled) return false;
-  if (keepsPlaceOrTime || !await _carriesMetadata(upload.sourcePath)) return true;
+  if (keepsPlaceOrTime) return true;
+  final bool stands = File(upload.sourcePath).existsSync()
+      ? !await _carriesMetadata(upload.sourcePath)
+      : await _isTheUploadedFile(currentPath, upload) && !await _carriesMetadata(currentPath);
+  if (stands) return true;
   if (!upload.state.isFinal) uploader.cancel(uploadId);
   return false;
+}
+
+/// Whether the file at [path] is, byte for byte, the file the upload took (its checksum is the one the server compares).
+Future<bool> _isTheUploadedFile(String path, AttachmentUpload upload) async {
+  final File file = File(path);
+  final String? uploaded = upload.sha256;
+  if (uploaded == null || !file.existsSync()) return false;
+  return (await sha256.bind(file.openRead()).first).toString() == uploaded;
 }
 
 /// Whether a file would be changed by taking the place, the time and the blocks that can say them out of it.
@@ -246,7 +268,7 @@ Future<List<EvidencePhoto>> handOverPhotos(
 }) async {
   final List<EvidencePhoto> out = <EvidencePhoto>[];
   for (final EvidencePhoto photo in photos) {
-    if (await reuseUpload(uploader, photo.uploadId, keepsPlaceOrTime: photo.keepsPlaceOrTime)) {
+    if (await reuseUpload(uploader, photo.uploadId, currentPath: photo.path, keepsPlaceOrTime: photo.keepsPlaceOrTime)) {
       out.add(photo);
       continue;
     }

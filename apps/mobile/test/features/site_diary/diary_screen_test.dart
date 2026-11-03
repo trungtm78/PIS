@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show Ref;
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_mobile/core/offline/drafts/draft_store.dart';
@@ -12,6 +14,7 @@ import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/features/field_evidence/jpeg_metadata.dart';
 import 'package:machvon_mobile/features/permissions/permission_service.dart';
 import 'package:machvon_mobile/features/site_diary/diary_models.dart';
+import 'package:machvon_mobile/features/site_diary/diary_service.dart';
 
 import '../../support/fake_sync_server.dart';
 import '../../support/harness.dart';
@@ -23,11 +26,11 @@ import 'diary_fixtures.dart';
 
 const String _day = '2026-11-03';
 
-Future<FieldWorld> _open(WidgetTester tester, {List<Map<String, Object?>> diaries = const <Map<String, Object?>>[], FieldServer? server, String? date, FakeSession? session}) async {
+Future<FieldWorld> _open(WidgetTester tester, {List<Map<String, Object?>> diaries = const <Map<String, Object?>>[], FieldServer? server, String? date, FakeSession? session, List<Override> overrides = const <Override>[]}) async {
   final FieldServer field = server ?? FieldServer();
   answerDiaries(field, diaries: diaries);
   final FieldWorld world = FieldWorld.create(server: field);
-  await openDiaryApp(tester, world, '/projects/mob-62/c-1${date == null ? '' : '?date=$date'}', session: session);
+  await openDiaryApp(tester, world, '/projects/mob-62/c-1${date == null ? '' : '?date=$date'}', session: session, overrides: overrides);
   return world;
 }
 
@@ -199,6 +202,52 @@ void main() {
       expect(second.idempotencyKey, isNot(all.firstWhere((QueuedCommand c) => c.id == first).idempotencyKey));
       // The runner waits for the end of the backoff of the command: stop it, so no timer outlives the test.
       (await tester.runAsync(() => world.container.read(queueRunnerProvider.future)))!.dispose();
+    });
+  });
+
+  group('UI-MOB-62 AC-ST-MOB-020-2 an edit made after the server took a save is still the person\'s unsent work', () {
+    testWidgets('reopened, the text typed after the accepted save is shown and kept', (WidgetTester tester) async {
+      useDevice(tester, kTall);
+      final FieldServer server = FieldServer();
+      final FieldWorld world = await _open(tester, server: server, date: _day);
+      await world.typeInto(tester, 'Công việc trong ngày', 'Đào móng trụ T3');
+      await tapText(tester, 'Lưu nhật ký');
+      final CommandQueue queue = await _queue(tester, world);
+      await waitUntil(tester, () async => queue.commands().isNotEmpty);
+      final String id = queue.commands().single.id;
+      await waitUntil(tester, () async => queue.command(id)!.state == CommandState.accepted);
+      await settleReal(tester, rounds: 6);
+
+      // Typed after the save: the draft still carries the command that the server took.
+      await world.typeInto(tester, 'Ghi chú', 'Thêm sau khi lưu');
+      await world.go(tester, '/projects/mob-41');
+      await world.go(tester, '/projects/mob-62/c-1?date=$_day');
+      await waitUntil(tester, () async => find.widgetWithText(TextField, 'Công việc trong ngày').evaluate().isNotEmpty);
+      expect(find.text('Thêm sau khi lưu'), findsOneWidget, reason: 'the newer unsent edit is not replaced by the server form');
+      expect(find.text('Đào móng trụ T3'), findsOneWidget);
+    });
+  });
+
+  group('AC-ST-MOB-020-2 UI-MOB-62 a diary is queued only from the form that was written to the phone', () {
+    testWidgets('when the draft can no longer be written, Save queues nothing and says so instead of queueing the older stored diary', (WidgetTester tester) async {
+      useDevice(tester, kTall);
+      late FailingDiaryService service;
+      final FieldWorld world = await _open(tester, date: _day, overrides: <Override>[diaryServiceProvider.overrideWith((Ref ref) => service = FailingDiaryService(ref))]);
+      await world.typeInto(tester, 'Công việc trong ngày', 'Đào móng trụ T3');
+      service.failing = true;
+      await world.typeInto(tester, 'Công việc trong ngày', 'Đào móng trụ T3 và T4');
+      await tapText(tester, 'Lưu nhật ký');
+      await settleReal(tester, rounds: 6);
+
+      final CommandQueue queue = await _queue(tester, world);
+      expect(queue.commands(), isEmpty, reason: 'the stored diary is older than the form');
+      expect(find.text('Không lưu được nháp trên điện thoại này. Nội dung đang nhập chưa được giữ lại.'), findsOneWidget);
+
+      service.failing = false;
+      await tapText(tester, 'Lưu nhật ký');
+      await waitUntil(tester, () async => queue.commands().isNotEmpty);
+      await waitUntil(tester, () async => _appended(world).isNotEmpty);
+      expect((_appended(world).first['payload']! as Map<String, Object?>)['content'], containsPair('summary', 'Đào móng trụ T3 và T4'));
     });
   });
 

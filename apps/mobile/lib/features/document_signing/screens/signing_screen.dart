@@ -254,9 +254,10 @@ class _DocumentBodyState extends ConsumerState<_DocumentBody> with CommandFlow<_
       }
     }
     final SigningProof? proof;
+    final SigningCertificate? bound = widget.document.certificateOf(session);
     try {
       proof = await port.prove(
-        SigningChallenge(sessionId: session.id, digestHex: session.digestHex ?? '', expectedSubject: widget.document.signingCertificate?.subject, expectedFingerprint: widget.document.signingCertificate?.fingerprintSha256, label: widget.document.title),
+        SigningChallenge(sessionId: session.id, digestHex: session.digestHex ?? '', expectedSubject: bound?.subject, expectedFingerprint: bound?.fingerprintSha256, label: widget.document.title),
         typedCode: _otp.text,
       );
     } on SigningPortException catch (error) {

@@ -72,6 +72,37 @@ void main() {
       expect(() => touch.auditDump(_dump(<String>[]), densityDpi: 9000), throwsArgumentError);
     });
 
+    test('input that is not a whole hierarchy dump audits nothing and is refused, never a PASS: empty, not XML, cut short, or with no node', () {
+      final String whole = _dump(<String>[_node(desc: 'Gửi', bounds: '[0,0][200,200]')]);
+      final Map<String, String> unusable = <String, String>{
+        'empty': '',
+        'blank': '  \n ',
+        'not XML': 'adb: error: device offline',
+        'the error text of a failed dump': 'ERROR: null root node returned by UiTestAutomationBridge.',
+        'cut before the end of the hierarchy': whole.substring(0, whole.length - '</hierarchy>'.length),
+        'cut inside a node': whole.substring(0, whole.length - 40),
+        'a hierarchy with no node': '<?xml version="1.0" encoding="UTF-8"?><hierarchy rotation="0"></hierarchy>',
+      };
+      for (final MapEntry<String, String> entry in unusable.entries) {
+        expect(() => touch.auditDump(entry.value, densityDpi: 420), throwsFormatException, reason: entry.key);
+      }
+      expect(touch.auditDump(whole, densityDpi: 420), isEmpty, reason: 'a whole dump with nothing wrong is still a clean audit');
+    });
+
+    test('the command line: a dump that is unusable, or a file that cannot be read, is 65 (not 0 and not the 1 of a finding), also when other dumps are clean', () {
+      final Directory directory = Directory.systemTemp.createTempSync('machvon-touch-');
+      addTearDown(() => directory.deleteSync(recursive: true));
+      final File clean = File('${directory.path}/clean.xml')..writeAsStringSync(_dump(<String>[_node(desc: 'Gửi', bounds: '[0,0][200,200]')]));
+      final File small = File('${directory.path}/small.xml')..writeAsStringSync(_dump(<String>[_node(desc: 'Gửi', bounds: '[0,0][20,20]')]));
+      final File empty = File('${directory.path}/empty.xml')..writeAsStringSync('');
+      final File cut = File('${directory.path}/cut.xml')..writeAsStringSync('<hierarchy rotation="0"><node text="" clickable="true" bounds="[0,0][3');
+      expect(touch.run(<String>[empty.path, '420']), 65);
+      expect(touch.run(<String>[cut.path, '420']), 65);
+      expect(touch.run(<String>['${directory.path}/missing.xml', '420']), 65);
+      expect(touch.run(<String>[clean.path, '420', empty.path]), 65, reason: 'one capture that failed makes the run unusable');
+      expect(touch.run(<String>[small.path, '420', empty.path]), 65, reason: 'a finding does not hide a capture that audited nothing');
+    });
+
     test('the command line: a bad call is 64', () {
       expect(touch.run(<String>[]), 64);
       expect(touch.run(<String>['dump.xml', 'abc']), 64);
@@ -86,6 +117,74 @@ void main() {
       expect(touch.run(<String>[small.path, '420']), 1);
       expect(touch.run(<String>[clean.path, '420', small.path]), 1, reason: 'every dump of the run is audited');
     });
+  });
+
+  group('AC-ST-MOB-040-2 UAT-NFR-PERFORMANCE-02 the cold start script only reads a hierarchy dump that its own attempt has just taken', () {
+    // The script is run for real, with an `adb` that behaves like a phone whose `uiautomator dump` can fail (the file of an earlier
+    // dump then stays on the sdcard, as it does on a device).
+    const String fakeAdb = r'''#!/usr/bin/env bash
+[ "$1" = "-s" ] && shift 2
+[ "$1" = shell ] || exit 2
+shift
+root="$FAKE_SDCARD"
+am() { :; }
+uiautomator() {
+  local calls=0
+  [ -f "$root/dump_calls" ] && calls=$(cat "$root/dump_calls")
+  calls=$((calls + 1))
+  echo "$calls" >"$root/dump_calls"
+  if [ "$calls" -le "$FAKE_DUMP_FAILS" ]; then echo "ERROR: could not get idle state." >&2; return 1; fi
+  printf '<hierarchy rotation="0"><node text="%s" /></hierarchy>' "$FAKE_MARKER" >"$2"
+}
+cmd="$*"
+eval "${cmd//\/sdcard/$root}"
+''';
+
+    Future<({List<String> lines, int dumps})> sample({required int failures, required bool staleDump}) async {
+      final Directory phone = Directory.systemTemp.createTempSync('machvon-cold-');
+      addTearDown(() => phone.deleteSync(recursive: true));
+      final String marker = RegExp(r'^marker="([^"]+)"', multiLine: true).firstMatch(File('qa/device/scripts/run_cold_start_samples.sh').readAsStringSync())!.group(1)!;
+      final Directory bin = Directory('${phone.path}/bin')..createSync();
+      final Directory sdcard = Directory('${phone.path}/sdcard')..createSync();
+      File('${bin.path}/adb').writeAsStringSync(fakeAdb);
+      if (staleDump) File('${sdcard.path}/machvon_cold.xml').writeAsStringSync('<hierarchy rotation="0"><node text="$marker" /></hierarchy>');
+      final ProcessResult result = await Process.run(
+        'bash',
+        <String>['qa/device/scripts/run_cold_start_samples.sh', 'fake-phone', '1'],
+        environment: <String, String>{
+          'PATH': '${bin.path.replaceAll(r'\', '/')}${Platform.isWindows ? ';' : ':'}${Platform.environment['PATH']}',
+          'FAKE_SDCARD': sdcard.path.replaceAll(r'\', '/'),
+          'FAKE_DUMP_FAILS': '$failures',
+          'FAKE_MARKER': marker,
+          'COLD_START_SETTLE_SECONDS': '0',
+        },
+      );
+      expect(result.exitCode, 0, reason: '${result.stderr}');
+      final File calls = File('${sdcard.path}/dump_calls');
+      return (
+        lines: (result.stdout as String).trim().split(RegExp(r'\r?\n')),
+        dumps: calls.existsSync() ? int.parse(calls.readAsStringSync().trim()) : 0,
+      );
+    }
+
+    test('a dump that is taken on the first attempt is the sample', () async {
+      final ({List<String> lines, int dumps}) run = await sample(failures: 0, staleDump: true);
+      expect(run.dumps, 1);
+      expect(run.lines.last, matches(RegExp(r'^cold_start_main_content_ms,fake-phone,1,\d+$')));
+      expect(int.parse(run.lines.last.split(',').last), lessThan(15000));
+    });
+
+    test('an attempt whose dump fails is not read from the file of an earlier dump: the next attempt, with a fresh dump, is the sample', () async {
+      final ({List<String> lines, int dumps}) run = await sample(failures: 1, staleDump: true);
+      expect(run.dumps, 2, reason: 'the stale dump that holds the card must not be taken for the screen of the first attempt');
+      expect(run.lines.last, matches(RegExp(r'^cold_start_main_content_ms,fake-phone,1,\d+$')));
+    });
+
+    test('a start whose dump never succeeds is a failed sample (15000 ms) even though an earlier dump on the phone holds the card', () async {
+      final ({List<String> lines, int dumps}) run = await sample(failures: 1000000, staleDump: true);
+      expect(run.lines.last, 'cold_start_main_content_ms,fake-phone,1,15000');
+      expect(run.dumps, greaterThan(1));
+    }, timeout: const Timeout(Duration(seconds: 90)));
   });
 
   group('AC-ST-MOB-040-2 UAT-NFR-PERFORMANCE-02 the verdict of the measurements of the device matrix', () {

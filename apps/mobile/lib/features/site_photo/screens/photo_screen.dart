@@ -96,6 +96,7 @@ class _CaptureFormState extends ConsumerState<_CaptureForm> {
   List<EvidencePhoto> _photos = const <EvidencePhoto>[];
   final Map<String, String> _hashes = <String, String>{};
   String _operationId = newUuidV4();
+  late final SitePhotoService _service;
   Map<String, CaptureProblem> _problems = const <String, CaptureProblem>{};
   bool _saving = false;
   bool _failed = false;
@@ -105,6 +106,7 @@ class _CaptureFormState extends ConsumerState<_CaptureForm> {
   @override
   void initState() {
     super.initState();
+    _service = ref.read(sitePhotoServiceProvider);
     if (widget.contracts.any((ContractLine contract) => contract.id == widget.initialContract)) {
       _contractId = widget.initialContract;
       _diaryId = widget.initialDiary;
@@ -114,10 +116,8 @@ class _CaptureFormState extends ConsumerState<_CaptureForm> {
   @override
   void dispose() {
     _caption.dispose();
-    // Photographs that were prepared and never kept leave nothing behind.
-    for (final EvidencePhoto photo in _photos) {
-      unawaited(removePreparedFiles(photo));
-    }
+    // Photographs that were prepared and never kept leave nothing behind; those of a capture that is kept (or being kept) stay with it.
+    if (_photos.isNotEmpty) unawaited(_service.discardUnkept(_operationId, _photos));
     super.dispose();
   }
 
@@ -181,7 +181,7 @@ class _CaptureFormState extends ConsumerState<_CaptureForm> {
     });
     final DiaryOption? diary = _diaryId == null ? null : ref.read(diaryOptionsProvider(contract.id)).value?.where((DiaryOption option) => option.id == _diaryId).firstOrNull;
     try {
-      final PhotoRecord record = await ref.read(sitePhotoServiceProvider).keep(
+      final PhotoRecord record = await _service.keep(
             PhotoRecord(
               operationId: _operationId,
               contractId: contract.id,

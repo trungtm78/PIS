@@ -1,6 +1,11 @@
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_mobile/core/navigation/feature.dart';
 import 'package:machvon_mobile/features/field_quantities/field_quantities_feature.dart' as quantities;
+import 'package:machvon_mobile/features/field_quantities/inspection_models.dart';
+import 'package:machvon_mobile/features/field_quantities/inspection_service.dart';
+import 'package:machvon_mobile/features/field_quantities/quantity_models.dart';
+import 'package:machvon_mobile/features/field_quantities/quantity_service.dart';
 
 import '../../support/harness.dart' show FakeSession;
 import '../field_issues/field_world.dart';
@@ -87,7 +92,29 @@ void answerInspections(FieldServer server, {List<Map<String, Object?>>? inspecti
     ..on('GET', '/resources/quality_nonconformance', (_) => page(ncrs));
 }
 
-Future<void> openQuantityApp(WidgetTester tester, FieldWorld world, String location, {FakeSession? session}) async {
-  await world.open(tester, location, extra: <MobileFeature>[quantities.feature], session: session);
+/// The quantity service of a phone whose store of drafts stops taking writes when [failing] is set.
+class FailingQuantityService extends QuantityService {
+  FailingQuantityService(super.ref);
+
+  bool failing = false;
+
+  @override
+  Future<String> save(QuantityDraft draft, {String draftId = ''}) =>
+      failing ? Future<String>.error(StateError('the store is full')) : super.save(draft, draftId: draftId);
+}
+
+/// The inspection service of a phone whose store of drafts stops taking writes when [failing] is set.
+class FailingInspectionService extends InspectionService {
+  FailingInspectionService(super.ref);
+
+  bool failing = false;
+
+  @override
+  Future<String> save(ResultDraft draft, {String draftId = ''}) =>
+      failing ? Future<String>.error(StateError('the store is full')) : super.save(draft, draftId: draftId);
+}
+
+Future<void> openQuantityApp(WidgetTester tester, FieldWorld world, String location, {FakeSession? session, List<Override> overrides = const <Override>[]}) async {
+  await world.open(tester, location, extra: <MobileFeature>[quantities.feature], session: session, overrides: overrides);
   await settleReal(tester, rounds: 10);
 }

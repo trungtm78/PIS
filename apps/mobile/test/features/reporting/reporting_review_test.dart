@@ -252,6 +252,7 @@ void main() {
       expect(find.textContaining('Kiểm tra hồ sơ trên web trước khi gửi lại'), findsOneWidget);
       expect(find.text('Xem hàng đợi gửi'), findsOneWidget);
       expect(queue.command(refused.id)!.idempotencyKey, refused.idempotencyKey);
+      expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Nộp báo cáo')).onPressed, isNull, reason: 'a new submit would discard the one that may have been carried out: only the queue decides');
     });
   });
 

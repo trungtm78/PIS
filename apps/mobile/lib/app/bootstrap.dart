@@ -26,7 +26,11 @@ List<Override> productionOverrides() => <Override>[
       offlineProbePolicyProvider.overrideWithValue(OfflineProbePolicy.standard),
       apiTransportProvider.overrideWith(
         (Ref ref) => ReleaseObservingTransport(
-          SessionObservingTransport(ref.watch(httpTransportProvider), ref.read(authServiceProvider).noteResponse),
+          SessionObservingTransport(
+            ref.watch(httpTransportProvider),
+            ref.read(authServiceProvider).noteResponse,
+            () => ref.read(authServiceProvider).credentialStamp,
+          ),
           (int status, Map<String, String> headers, String body) =>
               (ref.read(releaseNoticeProvider.notifier) as PolicyReleaseNotice).noteResponse(status, headers, body),
         ),

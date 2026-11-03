@@ -166,8 +166,10 @@ class DiaryService {
       final Json again = diaryPayload(draft, over: over);
       if (previous.state == CommandState.queued &&
           previous.baseServerVersion == (over?.version ?? 0) &&
-          _same(previous.payload, again))
+          _same(previous.payload, again)) {
+        await save(draft.copyWith(edited: false), draftId: draftId);
         return previous;
+      }
       queue.discard(previous.id);
       draft = draft.copyWith(operationId: _newId(), clearCommand: true);
     } else if (previous != null) {
@@ -181,7 +183,10 @@ class DiaryService {
       attempt: CommandAttempt(draft.operationId),
       draftId: draftId,
     );
-    await save(draft.copyWith(commandId: command.id), draftId: draftId);
+    await save(
+      draft.copyWith(commandId: command.id, edited: false),
+      draftId: draftId,
+    );
     final QueueRunner runner = await _ref.read(queueRunnerProvider.future);
     runner.trigger();
     await _ref.read(uploadRunnerProvider.future);

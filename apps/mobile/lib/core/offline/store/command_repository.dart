@@ -80,6 +80,18 @@ final class CommandRepository {
     return next;
   }
 
+  /// Settles a command that has not reached the server for good as discarded, from whatever state it is in: the decision of the
+  /// person to drop everything that waits (leaving the tenant). It is the one way out of `sending` and `unknown` that
+  /// [kAllowedMoves] does not offer, because only the person may say that a command whose fate is unknown does not matter.
+  QueuedCommand abandon(String id, QueuedCommand Function(QueuedCommand current) change) {
+    final QueuedCommand? current = byId(id);
+    if (current == null) throw StateError('no queued command $id');
+    if (current.state.isSettled) throw StateError('a ${current.state.name} command is already settled');
+    final QueuedCommand next = change(current.copyWith(state: CommandState.discarded));
+    _write(next);
+    return next;
+  }
+
   /// Removes the settled commands that were settled before [beforeMs] (the receipts are kept for seven days).
   int pruneSettled(int beforeMs) {
     _database.execute(

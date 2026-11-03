@@ -8,6 +8,7 @@ import '../../../core/connectivity/reachability.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
+import '../../../core/session/session.dart';
 import '../../../core/state/screen_state.dart';
 import '../../command_support/command_flow.dart' show GateNote;
 import '../../read_support/navigate.dart';
@@ -39,6 +40,7 @@ class _PackagePicker extends StatelessWidget {
     return ScreenFrame(
       title: context.t('mob.ai.qa.title'),
       body: FreshRead<PackageList>(
+        resource: 'packages',
         read: (MachvonApiClient client) async => parsePackageList(await readMerged(client, 'get_resources_procurement_package', query: <String, Object?>{'limit': 50}, maxPages: 4)),
         isEmpty: (PackageList list) => list.packages.isEmpty,
         builder: (BuildContext context, PackageList list) => ListView(
@@ -109,6 +111,18 @@ class _ThreadState extends ConsumerState<_Thread> {
     super.dispose();
   }
 
+  /// The passages are the confidential text of one tenant's files, read for one person in one membership: when any of these changes the
+  /// thread goes, with the question typed and not yet sent. A turn still waiting is dropped with it, so its answer, when it comes, fills a
+  /// card nobody shows and the new session is not held back by a question it never asked.
+  void _sessionChanged(SessionSnapshot? previous, SessionSnapshot next) {
+    if (previous == null || (previous.tenantId == next.tenantId && previous.userId == next.userId && previous.membershipId == next.membershipId && previous.status == next.status)) return;
+    _question.clear();
+    setState(() {
+      _turns.clear();
+      _problem = null;
+    });
+  }
+
   bool get _busy => _turns.any((_Turn turn) => turn.asking);
 
   Future<void> _ask(String question) async {
@@ -134,6 +148,7 @@ class _ThreadState extends ConsumerState<_Thread> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<SessionSnapshot>(sessionProvider, _sessionChanged);
     final bool offline = isOffline(ref);
     final ThemeData theme = Theme.of(context);
     return ScreenFrame(

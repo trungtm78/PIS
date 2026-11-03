@@ -23,6 +23,7 @@ Widget buildSourceScreen(BuildContext context, ScreenContext screen) {
   return ScreenFrame(
     title: context.t('mob.ai.source.title'),
     body: FreshRead<SourceView>(
+      resource: (query.keys.toList()..sort()).map((String key) => '$key=${query[key]}').join('&'),
       read: (MachvonApiClient client) => readSource(client, query),
       builder: (BuildContext context, SourceView view) => _Source(view: view),
     ),

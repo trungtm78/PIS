@@ -48,6 +48,11 @@ final class SessionSnapshot {
 
   bool get isSignedIn => status == SessionStatus.signedIn;
 
+  /// Signed in and able to authenticate a request: a session locked by the biometric unlock is still signed in, but its tokens
+  /// are not in memory, so whatever works unattended (the queue, the uploads) waits for the unlock instead of sending a request
+  /// without a credential.
+  bool get canAuthenticate => isSignedIn && !locked;
+
   bool get isReadOnly => mode == SessionMode.readOnly;
 
   @override

@@ -39,6 +39,9 @@ class _NoPending implements PendingWork {
 
   @override
   Future<void> sendNow() async {}
+
+  @override
+  Future<void> discardUnsent() async {}
 }
 
 HttpResult _json(int status, Object? body) =>

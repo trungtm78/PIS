@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -455,6 +456,49 @@ void main() {
       rig.queue.discard(command.id, deleteDraft: true);
       expect(rig.store.drafts.byId(saved.id), isNull);
       expect(rig.queue.unsentCount, 0);
+    });
+
+    test('REVIEW-m1-7 discarding everything that is unsent leaves nothing that can be sent again, whatever state the commands are in, and keeps the drafts', () async {
+      final QueueRig rig = await QueueRig.create();
+      final QueuedCommand accepted = submit(rig, report: reportA);
+      await rig.queue.flush();
+      expect(rig.queue.command(accepted.id)!.state, CommandState.accepted);
+
+      final LocalDraft saved = draft(rig);
+      final QueuedCommand unknown = submit(rig, report: reportB, version: 4);
+      rig.server.offline = true;
+      await rig.queue.flush();
+      rig.server.offline = false;
+      final QueuedCommand rejected = rig.queue.enqueue(commandType: 'report.submit', payload: <String, Object?>{'report_id': 'r-3'}, baseServerVersion: 1);
+      final QueuedCommand conflict = rig.queue.enqueue(commandType: 'report.submit', payload: <String, Object?>{'report_id': 'r-4'}, baseServerVersion: 1);
+      final QueuedCommand sending = rig.queue.enqueue(commandType: 'report.submit', payload: <String, Object?>{'report_id': 'r-5'}, baseServerVersion: 1);
+      rig.store.commands.move(rejected.id, CommandState.sending, (QueuedCommand c) => c);
+      rig.store.commands.move(rejected.id, CommandState.rejected, (QueuedCommand c) => c.copyWith(errorCode: 'PERIOD_LOCKED'));
+      rig.store.commands.move(conflict.id, CommandState.sending, (QueuedCommand c) => c);
+      rig.store.commands.move(conflict.id, CommandState.conflict, (QueuedCommand c) => c.copyWith(errorCode: 'VERSION_CONFLICT'));
+      rig.store.commands.move(sending.id, CommandState.sending, (QueuedCommand c) => c);
+      final QueuedCommand queued = submit(rig, report: 'r-6', draftId: saved.id);
+      expect(rig.queue.unsentCount, 5, reason: 'unknown, rejected, conflict, sending and queued');
+      final List<List<QueuedCommand>> seen = <List<QueuedCommand>>[];
+      final StreamSubscription<List<QueuedCommand>> subscription = rig.queue.watch().listen(seen.add);
+      addTearDown(subscription.cancel);
+
+      final int batchesBefore = rig.server.batchPosts;
+      expect(rig.queue.discardUnsent(), 5);
+      await pumpEventQueue();
+
+      expect(rig.queue.unsentCount, 0);
+      for (final QueuedCommand each in <QueuedCommand>[unknown, rejected, conflict, sending, queued]) {
+        final QueuedCommand now = rig.queue.command(each.id)!;
+        expect(now.state, CommandState.discarded, reason: each.id);
+        expect(now.payload, isNull, reason: 'a discarded command keeps no data');
+      }
+      expect(rig.queue.command(accepted.id)!.state, CommandState.accepted, reason: 'what the server took is not touched');
+      expect(rig.store.drafts.byId(saved.id)!.status, DraftStatus.editing, reason: 'the draft stays on the device, editable');
+      expect(seen.last.where((QueuedCommand c) => c.state == CommandState.discarded), hasLength(5), reason: 'the screens see the change');
+      expect((await rig.queue.flush()).accepted, 0);
+      expect(rig.server.batchPosts, batchesBefore, reason: 'nothing that was discarded is sent');
+      expect(rig.queue.discardUnsent(), 0);
     });
 
     test('an accepted submit releases its draft, an accepted save keeps it at the new version', () async {

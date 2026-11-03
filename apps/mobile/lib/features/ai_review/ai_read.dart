@@ -21,7 +21,12 @@ typedef FreshReader<T> = Future<T?> Function(MachvonApiClient client);
 const String notFoundCode = 'RESOURCE_NOT_FOUND';
 
 class FreshRead<T> extends ConsumerStatefulWidget {
-  const FreshRead({required this.read, required this.builder, this.isEmpty, super.key});
+  const FreshRead({required this.resource, required this.read, required this.builder, this.isEmpty, super.key});
+
+  /// What is being read (a run, a citation, a list): the read is made again when this changes, because a route that keeps its page
+  /// while its parameters change would otherwise go on showing the resource that was read first, and let the answer of the old
+  /// request fill the new place. Anything with value equality will do.
+  final Object resource;
 
   /// Returns the parsed value, or null when the answer lacks what the screen needs (a contract mismatch, never half a page).
   final FreshReader<T> read;
@@ -43,6 +48,12 @@ class _FreshReadState<T> extends ConsumerState<FreshRead<T>> {
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void didUpdateWidget(FreshRead<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.resource != widget.resource) _load();
   }
 
   Future<void> _load() async {
@@ -90,7 +101,7 @@ class _FreshReadState<T> extends ConsumerState<FreshRead<T>> {
   }
 
   void _sessionChanged(SessionSnapshot? previous, SessionSnapshot next) {
-    if (previous?.tenantId == next.tenantId && previous?.userId == next.userId && previous?.status == next.status) return;
+    if (previous?.tenantId == next.tenantId && previous?.userId == next.userId && previous?.membershipId == next.membershipId && previous?.status == next.status) return;
     _load();
   }
 

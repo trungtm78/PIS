@@ -226,6 +226,22 @@ void main() {
       expect((await _failure(client.refresh(kOidcConfig, first.refreshToken!))).failure, OidcFailure.refreshRejected);
     });
 
+    test('the lifetime of the identity token is the exp claim it carries, not the expires_in of the token endpoint (that one describes the access token)', () async {
+      world.idp.tokenLifetime = 120;
+      world.idp.expiresInOverride = 3600;
+      final OidcTokens signedIn = await client.signIn(kOidcConfig);
+      expect(signedIn.expiresIn, 120);
+
+      world.advance(const Duration(seconds: 50));
+      final OidcTokens refreshed = await client.refresh(kOidcConfig, signedIn.refreshToken!);
+      expect(refreshed.expiresIn, 120, reason: 'the new token was issued for 120 seconds from now');
+    });
+
+    test('an identity token that lapsed a moment ago, within the clock skew, has no lifetime left', () async {
+      world.idp.tokenLifetime = -5;
+      expect((await client.signIn(kOidcConfig)).expiresIn, 0);
+    });
+
     test('a refresh token used twice makes the provider revoke the whole family, even the newest token', () async {
       final OidcTokens first = await client.signIn(kOidcConfig);
       final OidcTokens second = await client.refresh(kOidcConfig, first.refreshToken!);

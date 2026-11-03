@@ -213,7 +213,9 @@ class _ReviewState extends ConsumerState<_Review> {
     final List<Finding> warnings = <Finding>[for (final Finding f in findings) if (!f.isError) f];
     final bool offline = ref.watch(reachabilityProvider) == Reachability.offline;
     final ServerReview? serverReview = _server?.review;
-    final bool canSubmit = session.editable && errors.isEmpty && !_busy;
+    // A command refused as unverifiable may have been carried out: a new submit would discard it, so only the queue decides.
+    final bool unverifiable = session.status.stage == SubmitStage.rejected && session.status.code == kResultUnverifiable;
+    final bool canSubmit = session.editable && errors.isEmpty && !_busy && !unverifiable;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
