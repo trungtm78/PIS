@@ -94,31 +94,38 @@ class _AttachmentsScreenState extends ConsumerState<AttachmentsScreen> {
           ? null
           : FloatingActionButton.extended(onPressed: _add, icon: const Icon(Icons.attach_file), label: Text(context.t('mob.attach.add.action'))),
       body: SafeArea(
-        child: StateBoundary(
-          state: state,
-          problem: problem,
-          onRetry: () => ref.invalidate(attachmentUploaderProvider),
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-            children: <Widget>[
-              Text(context.t('mob.attach.summary.label', <String, Object>{'count': shown.length}), style: Theme.of(context).textTheme.titleMedium),
-              if (_refusal != null)
-                Semantics(
-                  liveRegion: true,
-                  container: true,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      '${context.t('mob.attach.refused.title')}. ${_reason(context, _refusal)} ${context.t('mob.attach.item.code.label', <String, Object>{'code': _refusal!})}',
-                      style: TextStyle(color: Theme.of(context).colorScheme.error),
-                    ),
+        child: Column(
+          children: <Widget>[
+            // Outside the boundary: a refusal of the first file leaves the list empty, and the boundary hides its content then.
+            if (_refusal != null)
+              Semantics(
+                liveRegion: true,
+                container: true,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  child: Text(
+                    '${context.t('mob.attach.refused.title')}. ${_reason(context, _refusal)} ${context.t('mob.attach.item.code.label', <String, Object>{'code': _refusal!})}',
+                    style: TextStyle(color: Theme.of(context).colorScheme.error),
                   ),
                 ),
-              const SizedBox(height: 8),
-              for (final AttachmentUpload upload in shown)
-                _UploadTile(key: ValueKey<String>(upload.id), upload: upload, onResume: () => _resume(upload), onCancel: () => _cancel(upload)),
-            ],
-          ),
+              ),
+            Expanded(
+              child: StateBoundary(
+                state: state,
+                problem: problem,
+                onRetry: () => ref.invalidate(attachmentUploaderProvider),
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+                  children: <Widget>[
+                    Text(context.t('mob.attach.summary.label', <String, Object>{'count': shown.length}), style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 8),
+                    for (final AttachmentUpload upload in shown)
+                      _UploadTile(key: ValueKey<String>(upload.id), upload: upload, onResume: () => _resume(upload), onCancel: () => _cancel(upload)),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

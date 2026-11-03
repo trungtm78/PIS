@@ -186,7 +186,21 @@ void main() {
       expect((await app.uploader).uploads().single.ownerRef, 'r-1');
     });
 
-    testWidgets('without a picker the list has no Add button', (WidgetTester tester) async {
+    testWidgets('the refusal of the only file stays on the screen although the list is still empty', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final AttachmentsApp app = AttachmentsApp.create();
+      final File script = File('${app.folder.path}/photo.jpg')..writeAsStringSync('#!/bin/sh\nrm -rf /\n');
+      await app.open(tester, location: '/projects/mob-19?owner=report&ref=r-1', overrides: [attachmentPickerProvider.overrideWithValue(() async => <File>[script])]);
+      await tester.tap(find.text('Thêm tệp'));
+      await settleIo(tester);
+      expect(find.text('good.pdf'), findsNothing);
+      expect(find.textContaining('Không thêm được tệp'), findsOneWidget, reason: 'the empty state must not hide why the file was not added');
+      expect(find.textContaining('Chỉ nhận ảnh JPEG, PNG hoặc tệp PDF'), findsOneWidget);
+      expect(find.textContaining('FILE_TYPE_NOT_ALLOWED'), findsOneWidget);
+      expect(app.server.started, 0);
+    });
+
+    testWidgets('without a picker the list has no Add button',(WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final AttachmentsApp app = AttachmentsApp.create();
       await app.open(tester);

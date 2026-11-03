@@ -54,6 +54,17 @@ class FakeAttachmentServer implements HttpTransport, ChunkTransport {
   /// Pretends the storage lost the chunks: the next completion finds the checksum wrong.
   bool corruptNextChunk = false;
 
+  /// The scanner is slow: a completion answers SCANNING and the status stays SCANNING until [finishScan], which gives the verdict
+  /// (CLEAN, or INFECTED when the bytes say so).
+  bool scanPending = false;
+
+  /// The scanner is done with the upload [id].
+  void finishScan(String id) {
+    final _Upload upload = _uploads[id]!;
+    upload.status = utf8.decode(upload.stored!, allowMalformed: true).contains('EICAR-STANDARD-ANTIVIRUS-TEST-FILE') ? 'INFECTED' : 'CLEAN';
+    if (upload.status == 'INFECTED') upload.reason = 'FILE_INFECTED';
+  }
+
   int chunkSends(String upload, int index) => chunkLog.where((e) => e.upload == upload && e.index == index).length;
 
   List<String> get uploadIds => _uploads.keys.toList();
@@ -159,6 +170,13 @@ class FakeAttachmentServer implements HttpTransport, ChunkTransport {
       return _problem(422, 'FILE_TYPE_NOT_ALLOWED');
     }
     upload.stored = bytes;
+    if (scanPending) {
+      upload.status = 'SCANNING';
+      upload.chunks.clear();
+      final Map<String, Object?> pending = <String, Object?>{'operation_id': 'post_sync_attachments_id_complete', 'status': 'SCANNING', 'resource_version': 1, 'resource_id': id};
+      _completed[key] = pending;
+      return _json(200, pending);
+    }
     upload.status = utf8.decode(bytes, allowMalformed: true).contains('EICAR-STANDARD-ANTIVIRUS-TEST-FILE') ? 'INFECTED' : 'CLEAN';
     if (upload.status == 'INFECTED') upload.reason = 'FILE_INFECTED';
     upload.chunks.clear();

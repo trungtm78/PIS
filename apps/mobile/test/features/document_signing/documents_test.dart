@@ -29,8 +29,8 @@ import 'support.dart';
 
 const String _detail = '/approval/mob-67?doc=d-1';
 
-Future<ProviderContainer> _open(WidgetTester tester, ScriptedServer server, {FakePdfEngine? engine, FakeFetcher? fetcher}) {
-  final FakePdfEngine renderer = engine ?? FakePdfEngine(<String, List<int>>{'final': <int>[0, 1, 0], 'draft': <int>[0, 0]});
+Future<ProviderContainer> _open(WidgetTester tester, ScriptedServer server, {PdfEngine? engine, FakeFetcher? fetcher}) {
+  final PdfEngine renderer = engine ?? FakePdfEngine(<String, List<int>>{'final': <int>[0, 1, 0], 'draft': <int>[0, 0]});
   final FakeFetcher files = fetcher ??
       FakeFetcher(<String, Uint8List>{
         'https://files.test/final?sig=1': pdfBytes('final'),
@@ -51,6 +51,35 @@ void _reads(ScriptedServer server) {
     ..on('GET', '/outgoing-documents/d-1', (_) => outgoing())
     ..on('GET', '/document-versions/v-1/download', (_) => download('draft'))
     ..on('GET', '/document-versions/v-2/download', (_) => download('final'));
+}
+
+/// A renderer that opens a file only when the test says so, to leave a screen while a file is still being opened.
+final class _SlowEngine implements PdfEngine {
+  _SlowEngine(Map<String, List<int>> pages) : _inner = FakePdfEngine(pages);
+
+  final FakePdfEngine _inner;
+  final List<Completer<void>> _gates = <Completer<void>>[];
+
+  List<FakePdfDoc> get opened => _inner.opened;
+
+  @override
+  Future<PdfDoc> open(Uint8List bytes) async {
+    final Completer<void> gate = Completer<void>();
+    _gates.add(gate);
+    await gate.future;
+    return _inner.open(bytes);
+  }
+
+  /// Lets the [index]th file (in the order they were handed over) be opened.
+  void finish(int index) => _gates[index].complete();
+}
+
+/// Draws frames until the renderer has been handed [count] files.
+Future<void> _untilOpening(WidgetTester tester, _SlowEngine engine, int count) async {
+  for (int frame = 0; frame < 50 && engine._gates.length < count; frame += 1) {
+    await tester.pump(const Duration(milliseconds: 20));
+  }
+  expect(engine._gates, hasLength(count));
 }
 
 void main() {
@@ -252,6 +281,43 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Tệp đang được quét, chưa mở được. Hãy thử lại sau ít phút.'), findsOneWidget);
       expect(find.textContaining('Từng trang'), findsNothing);
+    });
+  });
+
+  group('UI-MOB-67 TK-MOB-023-1 a document that finishes opening after the screen was left is closed, not kept', () {
+    testWidgets('the viewer left while the renderer is still opening the file: the document that arrives is closed at once', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _reads(server);
+      final _SlowEngine engine = _SlowEngine(<String, List<int>>{'final': <int>[0, 1, 0]});
+      await _open(tester, server, engine: engine);
+
+      await tester.tap(find.text('Xem PDF'));
+      await _untilOpening(tester, engine, 1);
+      await pressBack(tester);
+
+      engine.finish(0);
+      await tester.pump();
+      expect(engine.opened.single.closed, isTrue, reason: 'nobody holds the document any more, so the renderer must be told to let go');
+    });
+
+    testWidgets('the comparison left while the second file is still opening: both documents end up closed', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _reads(server);
+      final _SlowEngine engine = _SlowEngine(<String, List<int>>{'final': <int>[0, 1, 0], 'draft': <int>[0, 0]});
+      await _open(tester, server, engine: engine);
+
+      await tester.tap(find.text('So sánh với bản 1'));
+      await _untilOpening(tester, engine, 1);
+      engine.finish(0);
+      await _untilOpening(tester, engine, 2);
+      await pressBack(tester);
+
+      engine.finish(1);
+      await tester.pump();
+      expect(engine.opened, hasLength(2));
+      expect(engine.opened.every((FakePdfDoc doc) => doc.closed), isTrue);
     });
   });
 

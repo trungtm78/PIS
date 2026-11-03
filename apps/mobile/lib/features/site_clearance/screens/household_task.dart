@@ -131,6 +131,19 @@ class _HouseholdTaskBodyState extends ConsumerState<HouseholdTaskBody> with Comm
 
   Future<void> _send(InventoryDraft draft, {bool again = false}) async {
     _last = draft;
+    // From here the request may reach the server whatever happens to the answer (or to the application): the draft cannot be edited
+    // until the answer settles it.
+    final InventoryDrafts? keeper = await _store();
+    if (keeper != null) {
+      keeper.sent(draft);
+      if (mounted) {
+        setState(() {
+          // What is sent is the draft as it was kept: an edit of it that was not kept is abandoned, it could not be kept any more.
+          if (_editing == draft.id) _clearForm();
+          _drafts = keeper.of(_household.id);
+        });
+      }
+    }
     await run(
       () => _commands.record(draft, retryAfterUnknown: again),
       onDone: () async {
@@ -141,6 +154,11 @@ class _HouseholdTaskBodyState extends ConsumerState<HouseholdTaskBody> with Comm
       },
     );
     final CommandOutcome? result = outcome;
+    if (result is CommandOffline) {
+      final InventoryDrafts? drafts = await _store();
+      drafts?.notSent(draft);
+      if (mounted && drafts != null) setState(() => _drafts = drafts.of(_household.id));
+    }
     if (result is CommandRefused && result.isFinal) {
       // The server refused for good: the draft is kept with the code, and sending it again after it is corrected is a new command.
       final InventoryDrafts? drafts = await _store();
@@ -459,7 +477,9 @@ class _HouseholdTaskBodyState extends ConsumerState<HouseholdTaskBody> with Comm
                       ),
                       Text(draft.form.description, style: theme.textTheme.bodySmall),
                       Text(
-                        draft.lastRefusal == null ? context.t('mob.clearance.drafts.waiting') : context.t('mob.clearance.drafts.refused', <String, Object>{'code': draft.lastRefusal!}),
+                        draft.awaitingAnswer
+                            ? context.t('mob.clearance.drafts.unsettled')
+                            : draft.lastRefusal == null ? context.t('mob.clearance.drafts.waiting') : context.t('mob.clearance.drafts.refused', <String, Object>{'code': draft.lastRefusal!}),
                         style: theme.textTheme.bodySmall,
                       ),
                     ],
@@ -469,7 +489,7 @@ class _HouseholdTaskBodyState extends ConsumerState<HouseholdTaskBody> with Comm
                   spacing: MachvonSpace.space8,
                   children: <Widget>[
                     FilledButton(onPressed: open ? () => _send(draft) : null, child: Text(context.t('mob.clearance.drafts.send.action'))),
-                    OutlinedButton(onPressed: sending ? null : () => _edit(draft), child: Text(context.t('mob.clearance.drafts.edit.action'))),
+                    OutlinedButton(onPressed: sending || draft.awaitingAnswer ? null : () => _edit(draft), child: Text(context.t('mob.clearance.drafts.edit.action'))),
                     OutlinedButton(onPressed: sending ? null : () => _discard(draft), child: Text(context.t('mob.clearance.drafts.discard.action'))),
                   ],
                 ),

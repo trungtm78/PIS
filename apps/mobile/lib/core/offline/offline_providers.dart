@@ -71,12 +71,13 @@ final FutureProvider<LocalStore> localStoreProvider = FutureProvider<LocalStore>
 
 /// The offline command queue of the signed-in user (see [CommandQueue]). Use it as
 /// `final queue = await ref.read(commandQueueProvider.future);`. It is rebuilt when the tenant or the user changes, so a
-/// command made under one tenant is never sent by the queue of another.
+/// command made under one tenant is never sent by the queue of another. It sends through the client of the tenant of its store
+/// ([tenantApiClientProvider]), so a switch in the middle of a flush cannot make it carry the token of the other tenant.
 final FutureProvider<CommandQueue> commandQueueProvider = FutureProvider<CommandQueue>(retry: _noRetry, (Ref ref) async {
   final LocalStore store = await ref.watch(localStoreProvider.future);
   final CommandQueue queue = CommandQueue(
     store: store,
-    client: ref.watch(apiClientProvider),
+    client: ref.watch(tenantApiClientProvider(store.tenantId)),
     session: () => ref.read(sessionProvider),
     deviceId: () async => store.deviceId,
     onRoundTrip: ref.read(telemetryProvider).recordCommandRoundTrip,
@@ -145,7 +146,7 @@ final FutureProvider<AttachmentUploader> attachmentUploaderProvider = FutureProv
   final LocalStore store = await ref.watch(localStoreProvider.future);
   final AttachmentUploader uploader = AttachmentUploader(
     store: store,
-    client: ref.watch(apiClientProvider),
+    client: ref.watch(tenantApiClientProvider(store.tenantId)),
     baseUrl: ref.watch(appConfigProvider).apiBaseUrl,
     chunks: ref.watch(chunkTransportProvider),
     session: () => ref.read(sessionProvider),

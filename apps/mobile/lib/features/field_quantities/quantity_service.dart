@@ -9,6 +9,7 @@ import '../../core/offline/queue/command_queue.dart';
 import '../../core/offline/queue/queue_runner.dart';
 import '../../core/offline/queue/queued_command.dart';
 import '../field_evidence/evidence_photos.dart';
+import 'command_identity.dart';
 import 'quantity_models.dart';
 
 /// The quantity cannot be recorded yet: [problems] are the fields of the form; [itemNotRecordable] says the item has no stable
@@ -62,6 +63,10 @@ class QuantityService {
     QuantityDraft draft = (stored == null ? null : QuantityDraft.fromJson(stored.fields)) ?? (throw StateError('no draft $draftId'));
     final Map<String, QuantityProblem> problems = checkQuantity(draft.form, periodsKnown: periodsKnown);
     if (problems.isNotEmpty || item == null || item.itemId == null) throw QuantityNotReady(problems, itemNotRecordable: item != null && item.itemId == null);
+    final CommandQueue queue = await _ref.read(commandQueueProvider.future);
+    // A measurement the server refused (or the person took back) and that is recorded again is a new intention: a new key.
+    final String operation = operationForNextSend(queue, draft.operationId, _newId);
+    if (operation != draft.operationId) draft = draft.copyWith(operationId: operation, clearCommand: true);
     draft = draft.copyWith(photos: await enforcePhotoConsent(draft.photos, consent: draft.place.consent));
     final AttachmentUploader uploader = await _ref.read(attachmentUploaderProvider.future);
     draft = draft.copyWith(
@@ -74,7 +79,6 @@ class QuantityService {
       ),
     );
     await save(draft, draftId: draftId);
-    final CommandQueue queue = await _ref.read(commandQueueProvider.future);
     final QueuedCommand command = queue.enqueue(
       commandType: kMeasurementRecordCommand,
       payload: measurementPayload(draft, item),

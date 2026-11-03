@@ -10,6 +10,7 @@ import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/offline/attachments/attachment_upload.dart';
 import '../../../core/offline/offline_providers.dart';
+import '../../../core/offline/queue/offline_codes.dart';
 import '../../../core/offline/queue/queued_command.dart';
 import '../../../core/session/session.dart';
 import '../../../core/state/screen_state.dart';
@@ -197,10 +198,12 @@ class _Waiting extends ConsumerWidget {
               ),
             const SizedBox(height: MachvonSpace.space12),
             if (command.state == CommandState.rejected) ...<Widget>[
-              FilledButton(
-                onPressed: () => _retry(ref),
-                child: Text(context.t('mob.fld.waiting.retry.action')),
-              ),
+              // A report refused as unverifiable may have been made already: a new key would make it twice, so it is only dropped here.
+              if (command.errorCode != kResultUnverifiable)
+                FilledButton(
+                  onPressed: () => _retry(ref),
+                  child: Text(context.t('mob.fld.waiting.retry.action')),
+                ),
               TextButton(
                 onPressed: () => _discard(ref, context),
                 child: Text(context.t('mob.fld.waiting.discard.action')),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -16,6 +17,34 @@ import 'reporting_harness.dart';
 final RegExp _uuid = RegExp(r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$');
 
 String? keyOf(Iterable<dynamic> calls, int index) => (calls.elementAt(index) as HttpCall).headers['idempotency-key'];
+
+/// A server whose reads of a report are answered only when the test lets them: a slow connection, with the person typing meanwhile.
+class SlowReads extends ReportingServer {
+  Completer<void>? gate;
+
+  /// Lets the reads that wait go on.
+  void open() => gate!.complete();
+
+  @override
+  Future<HttpResult> send(HttpCall call) async {
+    final Completer<void>? waiting = gate;
+    if (waiting != null && call.method == 'GET' && call.url.path.contains('/reports/')) {
+      held++;
+      await waiting.future;
+    }
+    return super.send(call);
+  }
+
+  /// How many reads of the report are waiting for the gate.
+  int held = 0;
+}
+
+Future<void> until(bool Function() condition) async {
+  for (int i = 0; i < 200 && !condition(); i++) {
+    await Future<void>.delayed(Duration.zero);
+  }
+  expect(condition(), isTrue, reason: 'the request never started');
+}
 
 void main() {
   group('AC-ST-MOB-011-1 UI-MOB-15 a draft is a record of the phone with a UUID, and what was written is still there after a kill', () {
@@ -156,6 +185,45 @@ void main() {
       expect(const DraftExists('x').toString(), contains('x'));
     });
 
+    test('what the person types while the report is being made is kept in the draft that takes the report', () async {
+      final SlowReads server = SlowReads();
+      final FlowRig rig = await FlowRig.create(server: server);
+      final DraftSnapshot started = rig.drafts.start(context: chosenOnly, projectId: projectId, periodId: periodId, basis: 'YTD', reportType: kWeekly);
+      server.gate = Completer<void>();
+
+      final Future<DraftSnapshot> making = rig.drafts.ensureRecord(started.id);
+      await until(() => server.held > 0);
+      final ReportForm typed = started.form.copyWith(construction: '5');
+      rig.drafts.writeForm(started.id, typed);
+      server.open();
+      final DraftSnapshot made = await making;
+
+      expect(made.reportId, server.only().id);
+      expect(made.form.construction, '5', reason: 'typed while the report was read');
+      expect(made.form.planVersionId, planId, reason: 'the plan of the server is taken beside it');
+      expect(rig.drafts.read(started.id)!.form.construction, '5');
+      expect(rig.drafts.read(started.id)!.context!.hasReference, isTrue);
+      expect(rig.drafts.read(started.id)!.draft.baseServerVersion, 1);
+    });
+
+    test('the draft that took over the report of the server is not overwritten by it when the person typed meanwhile: they decide', () async {
+      final SlowReads server = SlowReads();
+      final FlowRig rig = await FlowRig.create(server: server);
+      server.existing = ServerReport(id: reportId, clientOperationId: 'someone-else', form: completeForm().copyWith(planVersionId: planId))..version = 4;
+      final DraftSnapshot started = rig.drafts.start(context: chosenOnly, projectId: projectId, periodId: periodId, basis: 'YTD', reportType: kWeekly);
+      server.gate = Completer<void>();
+
+      final Future<DraftSnapshot> making = rig.drafts.ensureRecord(started.id);
+      await until(() => server.held > 0);
+      final ReportForm typed = started.form.copyWith(construction: '5');
+      rig.drafts.writeForm(started.id, typed);
+      server.open();
+
+      await expectLater(making, throwsA(isA<DraftExists>().having((DraftExists e) => e.reportId, 'reportId', reportId)));
+      expect(rig.drafts.read(started.id)!.form, typed);
+      expect(rig.drafts.read(started.id)!.reportId, isNull);
+    });
+
     test('another refusal is passed on as it is', () async {
       final FlowRig rig = await FlowRig.create();
       rig.server.api.refuse('POST', '/reports', 422, 'PLAN_VERSION_NOT_EFFECTIVE');
@@ -229,6 +297,56 @@ void main() {
       expect(restored.context!.hasReference, isTrue);
       expect(restored.form.toPayload(written.reportId!), written.form.toPayload(written.reportId!));
       expect(restored.draft.status, DraftStatus.queued);
+    });
+
+    test('what the person types while the reference figures are on their way is kept, and the reference figures are taken beside it', () async {
+      final SlowReads server = SlowReads();
+      final FlowRig rig = await FlowRig.create(server: server);
+      final DraftSnapshot written = await rig.complete();
+      server.previous = <String, String>{'CURRENT_YEAR:CENTRAL': '90000000'};
+      server.gate = Completer<void>();
+
+      final Future<DraftSnapshot> refreshing = rig.drafts.refreshReference(written.id);
+      await until(() => server.held > 0);
+      final ReportForm typed = written.form.copyWith(construction: '777.000.000', percent: '41,5');
+      rig.drafts.writeForm(written.id, typed);
+      server.open();
+      final DraftSnapshot refreshed = await refreshing;
+
+      expect(refreshed.form, typed, reason: 'the answer of the server is not a reason to lose what was typed meanwhile');
+      expect(rig.drafts.read(written.id)!.form, typed);
+      expect(rig.drafts.read(written.id)!.context!.reference(kCells.first)!.previous, '90000000');
+      expect(rig.drafts.read(written.id)!.draft.status, DraftStatus.editing);
+    });
+
+    test('a draft dropped while the reference figures are on their way is not brought back by them', () async {
+      final SlowReads server = SlowReads();
+      final FlowRig rig = await FlowRig.create(server: server);
+      final DraftSnapshot written = await rig.complete();
+      server.gate = Completer<void>();
+
+      final Future<DraftSnapshot> refreshing = rig.drafts.refreshReference(written.id);
+      await until(() => server.held > 0);
+      rig.drafts.discard(written.id);
+      server.open();
+      await expectLater(refreshing, throwsA(isA<DraftDropped>().having((DraftDropped e) => e.id, 'id', written.id)));
+      expect(rig.drafts.read(written.id), isNull);
+      expect(rig.drafts.all(), isEmpty);
+      expect(const DraftDropped('x').toString(), contains('x'));
+    });
+
+    test('a draft dropped while its report is being made is not brought back by the answer', () async {
+      final SlowReads server = SlowReads();
+      final FlowRig rig = await FlowRig.create(server: server);
+      final DraftSnapshot started = rig.drafts.start(context: chosenOnly, projectId: projectId, periodId: periodId, basis: 'YTD', reportType: kWeekly);
+      server.gate = Completer<void>();
+
+      final Future<DraftSnapshot> making = rig.drafts.ensureRecord(started.id);
+      await until(() => server.held > 0);
+      rig.drafts.discard(started.id);
+      server.open();
+      await expectLater(making, throwsA(isA<DraftDropped>()));
+      expect(rig.drafts.all(), isEmpty);
     });
 
     test('a draft with no report on the server cannot be refreshed', () async {

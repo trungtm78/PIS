@@ -231,6 +231,30 @@ void main() {
     });
   });
 
+  group('REVIEW-m1-2 UI-MOB-20 a submit whose result cannot be verified is not sent again', () {
+    testWidgets('the screen says so, offers the queue and no Send again, and the command keeps its key', (WidgetTester tester) async {
+      useDevice(tester, kTallPhone);
+      final ReportingApp app = ReportingApp.create();
+      final String id = await savedDraft(tester, app);
+      app.server.periodLocked = true;
+      final ProviderContainer container = await app.open(tester, location: '/projects/mob-20/$id');
+      await press(tester, 'Nộp báo cáo');
+      expect(find.text('Gửi lại'), findsOneWidget, reason: 'an ordinary refusal can be sent again');
+
+      final CommandQueue queue = (await tester.runAsync(() => container.read(commandQueueProvider.future)))!;
+      final LocalStore store = (await tester.runAsync(() => container.read(localStoreProvider.future)))!;
+      final QueuedCommand refused = queue.commands(states: <CommandState>{CommandState.rejected}).single;
+      store.commands.update(refused.id, (QueuedCommand c) => c.copyWith(errorCode: 'RESULT_UNVERIFIABLE'));
+      queue.enqueue(commandType: 'x.refresh', payload: <String, Object?>{}); // announces the change to the screen
+      await tester.pumpAndSettle();
+
+      expect(find.text('Gửi lại'), findsNothing);
+      expect(find.textContaining('Kiểm tra hồ sơ trên web trước khi gửi lại'), findsOneWidget);
+      expect(find.text('Xem hàng đợi gửi'), findsOneWidget);
+      expect(queue.command(refused.id)!.idempotencyKey, refused.idempotencyKey);
+    });
+  });
+
   group('AC-ST-MOB-012-1 UI-MOB-20 offline, the command is queued and sent when the network is back', () {
     testWidgets('while the runner of the queue is not running the submit waits as queued; Send now sends it once the network is back', (WidgetTester tester) async {
       useDevice(tester, kTallPhone);

@@ -13,7 +13,7 @@ const Set<String> _outsideCauses = <String>{networkErrorCode, 'SESSION_EXPIRED',
 typedef UploadTimerFactory = Timer Function(Duration delay, void Function() callback);
 
 /// Keeps the uploads of an [AttachmentUploader] moving: it resumes them when started, when told that the network is back
-/// ([trigger]) and, for a file that waits for a reason other than the network (a busy server), after [retryAfter]. A
+/// ([trigger]) and, for a file that waits for the server (a busy server, a scan that is not finished), after [retryAfter]. A
 /// phone without a network does not wake itself: the connectivity change is what resumes.
 class UploadRunner {
   UploadRunner(this._uploader, {UploadTimerFactory? timer, this.retryAfter = const Duration(seconds: 30)}) : _timer = timer ?? Timer.new;
@@ -26,6 +26,7 @@ class UploadRunner {
   bool _running = false;
   bool _again = false;
   bool _disposed = false;
+  Future<void> _current = Future<void>.value();
 
   void start() {
     // A file added while the application is open is sent without waiting for a connectivity change.
@@ -39,7 +40,16 @@ class UploadRunner {
       _again = true;
       return;
     }
-    unawaited(_run());
+    _current = _run();
+    unawaited(_current);
+  }
+
+  /// Completes when no run is in progress (a run that was asked for while another ran is part of it). A file's real I/O takes real time,
+  /// so whoever needs to see the outcome of a trigger waits for this, not for a number of event-loop turns.
+  Future<void> get idle async {
+    while (_running) {
+      await _current;
+    }
   }
 
   Future<void> _run() async {
@@ -55,9 +65,13 @@ class UploadRunner {
       _running = false;
     }
     if (_disposed) return;
-    final bool busy = _uploader.uploads().any((AttachmentUpload u) => u.state == UploadState.pending && u.errorCode != null && !_outsideCauses.contains(u.errorCode));
-    if (busy) _wake = _timer(retryAfter, trigger);
+    if (_uploader.uploads().any(_waitsOnTheServer)) _wake = _timer(retryAfter, trigger);
   }
+
+  /// A file waits on the server, not on the phone, when the server was busy or when the scanner has not given its verdict yet:
+  /// nothing outside the uploader announces either, so the runner asks again after [retryAfter].
+  static bool _waitsOnTheServer(AttachmentUpload u) =>
+      u.state == UploadState.scanning || (u.state == UploadState.pending && u.errorCode != null && !_outsideCauses.contains(u.errorCode));
 
   void dispose() {
     _disposed = true;

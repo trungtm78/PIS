@@ -12,12 +12,16 @@ typedef TimerFactory = Timer Function(Duration delay, void Function() callback);
 ///
 /// The runner never throws into the application: what a flush returned or threw is in [lastResult] and [lastError].
 class QueueRunner {
-  QueueRunner(this._queue, {TimerFactory? timer, DateTime Function()? clock, this.errorRetry = const Duration(seconds: 30)})
+  QueueRunner(this._queue, {TimerFactory? timer, DateTime Function()? clock, this.errorRetry = const Duration(seconds: 30), this.maxReconciliations = 5})
       : _timer = timer ?? Timer.new,
         _clock = clock ?? DateTime.now;
 
   /// How long to wait before trying again after the server failed or the flush threw.
   final Duration errorRetry;
+
+  /// How many times in a row the runner looks again, on its own, for commands that stayed unknown after a flush that reached the
+  /// server (an answer that missed them). A trigger from outside starts the count over.
+  final int maxReconciliations;
 
   final CommandQueue _queue;
   final TimerFactory _timer;
@@ -27,6 +31,7 @@ class QueueRunner {
   bool _running = false;
   bool _again = false;
   bool _disposed = false;
+  int _reconciliations = 0;
 
   FlushResult? lastResult;
   Object? lastError;
@@ -37,8 +42,14 @@ class QueueRunner {
     trigger();
   }
 
-  /// Flushes now (or right after the flush that is running).
+  /// Flushes now (or right after the flush that is running). Called from outside (the network is back, a command was made), it
+  /// also starts the count of the reconciliations over.
   void trigger() {
+    _reconciliations = 0;
+    _flushNow();
+  }
+
+  void _flushNow() {
     if (_disposed) return;
     if (_running) {
       _again = true;
@@ -70,23 +81,31 @@ class QueueRunner {
   /// Sleeps until the earliest command that waits for its backoff becomes due. When something outside the queue stopped
   /// the flush (no network, no session, no device, a refused device) nothing is scheduled: the connectivity or session
   /// change triggers the next flush, so a phone that cannot send does not wake itself. After a failure of the server the
-  /// lookups are tried again after [errorRetry].
+  /// lookups are tried again after [errorRetry]; so are the commands that are still unknown after a flush that reached the
+  /// server and got no blocker (the batch answer missed them), at most [maxReconciliations] times in a row.
   void _scheduleWake() {
     final FlushBlocker? blocker = lastResult?.blocker;
     if (lastError != null) {
-      _wake = _timer(errorRetry, trigger);
+      _wake = _timer(errorRetry, _flushNow);
       return;
     }
     if (blocker == FlushBlocker.serverError) {
-      _wake = _timer(errorRetry, trigger);
+      _wake = _timer(errorRetry, _flushNow);
       return;
     }
     if (blocker != null && blocker != FlushBlocker.busy) return;
     final DateTime? due = _queue.nextDueAt;
-    if (due == null) return;
-    final Duration wait = due.difference(_clock());
-    _wake = _timer(wait.isNegative ? Duration.zero : wait, trigger);
+    Duration? wait = due == null ? null : _positive(due.difference(_clock()));
+    if (_queue.unknownCount == 0) {
+      _reconciliations = 0;
+    } else if (_reconciliations < maxReconciliations) {
+      _reconciliations += 1;
+      if (wait == null || errorRetry < wait) wait = errorRetry;
+    }
+    if (wait != null) _wake = _timer(wait, _flushNow);
   }
+
+  static Duration _positive(Duration wait) => wait.isNegative ? Duration.zero : wait;
 
   void dispose() {
     _disposed = true;

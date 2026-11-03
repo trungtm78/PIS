@@ -116,20 +116,28 @@ final FutureProvider<Directory> evidenceDirectoryProvider =
       return store.evidenceDirectory;
     });
 
-/// Takes the place and the time out of a prepared file, in place. A file that is gone, or that says neither, is left alone.
-Future<void> stripPreparedFile(String path, String mime) async {
+/// Takes the place and the time out of a prepared file, in place. The type is read from the bytes of the file itself (a prepared
+/// file and the original kept beside it need not be of the same type: a PNG over the policy size is uploaded as a JPEG), and
+/// everything that can say where or when goes, not only the Exif block (XMP, IPTC, text chunks). A file that is gone, or that is
+/// already clean, is left alone.
+Future<void> stripPreparedFile(String path) async {
   final File file = File(path);
   if (!file.existsSync()) return;
   final Uint8List bytes = await file.readAsBytes();
-  final bool png = mime == 'image/png';
-  if (!(png
-      ? pngCarriesMetadata(bytes)
-      : readJpegMetadata(bytes).carriesPlaceOrTime))
-    return;
-  await file.writeAsBytes(
-    png ? stripPngMetadata(bytes) : stripJpegMetadata(bytes),
-    flush: true,
-  );
+  final Uint8List clean =
+      bytes.length > 1 && bytes[0] == 0xFF && bytes[1] == 0xD8
+      ? stripJpegMetadata(bytes)
+      : stripPngMetadata(bytes);
+  if (_same(bytes, clean)) return;
+  await file.writeAsBytes(clean, flush: true);
+}
+
+bool _same(Uint8List a, Uint8List b) {
+  if (a.length != b.length) return false;
+  for (int i = 0; i < a.length; i += 1) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
 }
 
 /// Deletes the files of a photograph that is dropped with its draft.
@@ -183,13 +191,9 @@ Future<List<EvidencePhoto>> enforcePhotoConsent(
   if (consent) return photos;
   final List<EvidencePhoto> out = <EvidencePhoto>[];
   for (final EvidencePhoto photo in photos) {
-    if (!photo.keepsPlaceOrTime && photo.originalPath == null) {
-      out.add(photo);
-      continue;
-    }
-    await stripPreparedFile(photo.path, photo.mime);
+    await stripPreparedFile(photo.path);
     final String? original = photo.originalPath;
-    if (original != null) await stripPreparedFile(original, photo.mime);
+    if (original != null) await stripPreparedFile(original);
     out.add(
       photo.copyWith(
         bytes: File(photo.path).existsSync()

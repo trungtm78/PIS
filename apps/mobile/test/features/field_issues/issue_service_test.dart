@@ -183,6 +183,29 @@ void main() {
       expect(stripped.photos.first.bytes, File(jpeg.path).lengthSync());
     });
 
+    test('a photograph not flagged as carrying place or time still loses what only its XMP or IPTC blocks say, and so does a PNG original, when there is no consent', () async {
+      final _Phone phone = await _phone();
+      final Uint8List xmp = withBlocks(plainJpeg(), <Uint8List>[
+        segment(0xE1, 'http://ns.adobe.com/xap/1.0/ <x:xmpmeta><exif:GPSLatitude>10,48N</exif:GPSLatitude></x:xmpmeta>'.codeUnits),
+        segment(0xED, 'Photoshop 3.0 IPTC city Ho Chi Minh'.codeUnits),
+      ]);
+      final IssuePhoto unflagged = phone.photo('a', xmp);
+      final Uint8List png = pngWithText();
+      final IssuePhoto withPngOriginal = IssuePhoto(
+        id: 'b',
+        path: phone.file('b.jpg', plainJpeg(width: 20)).path,
+        originalPath: phone.file('b-original.png', png).path,
+        mime: 'image/jpeg',
+        bytes: 3,
+      );
+
+      await phone.service.enforceConsent(phone.draft(photos: <IssuePhoto>[unflagged, withPngOriginal]));
+
+      final String text = String.fromCharCodes(File(unflagged.path).readAsBytesSync());
+      expect(text.contains('xmpmeta') || text.contains('Photoshop') || text.contains('GPSLatitude'), isFalse, reason: 'no photograph is skipped because of what the draft says about it');
+      expect(pngCarriesMetadata(File(withPngOriginal.originalPath!).readAsBytesSync()), isFalse);
+    });
+
     test('a send strips what a draft still carries without the consent before the photograph is handed to the uploader', () async {
       final _Phone phone = await _phone();
       final String id = await phone.save(phone.draft(photos: <IssuePhoto>[phone.photo('a', geotaggedJpeg(), keeps: true)]));

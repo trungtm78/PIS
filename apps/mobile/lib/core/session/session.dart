@@ -66,6 +66,15 @@ final class SessionSnapshot {
   int get hashCode => Object.hash(status, tenantId, userId, membershipId, mode, assurance, stepUpRequired, locked);
 }
 
+/// A request was prepared for one tenant while another is active. Nothing is sent: a queued command of tenant A must never
+/// travel with the token of tenant B (BR-MOB, NFR-TENANCY-07).
+final class TenantMismatch implements Exception {
+  const TenantMismatch();
+
+  @override
+  String toString() => 'TenantMismatch';
+}
+
 /// The session of the application: `sessionProvider` is read by the router guard, the API client (for every request
 /// through [accessToken]) and every screen that needs to know who is signed in.
 ///
@@ -77,6 +86,13 @@ abstract class SessionController extends Notifier<SessionSnapshot> {
   /// The bearer token for the next request, refreshed when needed; null when there is no session. Called for every
   /// request, so a renewed or revoked token is never reused.
   Future<String?> accessToken();
+
+  /// The bearer token for a request that belongs to [tenantId] (a queued command, an upload): refused with [TenantMismatch] when
+  /// another tenant is, or has become, the active one, so work of tenant A never travels with the token of tenant B.
+  Future<String?> accessTokenFor(String tenantId) async {
+    if (state.tenantId != tenantId) throw const TenantMismatch();
+    return accessToken();
+  }
 }
 
 class SignedOutSession extends SessionController {

@@ -56,16 +56,19 @@ class _ReturnCardState extends ConsumerState<ReturnCard> with CommandFlow<Return
   bool _open = false;
   ReasonProblem? _problem;
 
+  /// The return that was sent last, exactly as it left the form. The field stays editable after a lost answer, but "send again" means this
+  /// return: its key is the key of its content, so a changed reason or a newer version of the document would be a second return.
+  ({String documentId, int version, String reason})? _sent;
+
   @override
   void dispose() {
     _reason.dispose();
     super.dispose();
   }
 
-  Future<void> _send({bool again = false}) async {
-    final SigningDocument document = widget.document;
-    final String words = _reason.text;
-    await run(() => _commands.giveBack(document.id, document.version, words, retryAfterUnknown: again), onDone: () {
+  Future<void> _send(({String documentId, int version, String reason}) sent, {bool again = false}) async {
+    _sent = sent;
+    await run(() => _commands.giveBack(sent.documentId, sent.version, sent.reason, retryAfterUnknown: again), onDone: () {
       _reason.clear();
       setState(() => _open = false);
       widget.onChanged();
@@ -77,7 +80,13 @@ class _ReturnCardState extends ConsumerState<ReturnCard> with CommandFlow<Return
   void _submit() {
     final ReasonProblem? problem = checkReason(_reason.text);
     setState(() => _problem = problem);
-    if (problem == null) _send();
+    if (problem == null) _send((documentId: widget.document.id, version: widget.document.version, reason: _reason.text));
+  }
+
+  /// Sends the return that was sent last again, unchanged.
+  void _sendAgain() {
+    final ({String documentId, int version, String reason})? sent = _sent;
+    if (sent != null) _send(sent, again: true);
   }
 
   String _problemLine(BuildContext context, ReasonProblem problem) {
@@ -100,7 +109,7 @@ class _ReturnCardState extends ConsumerState<ReturnCard> with CommandFlow<Return
           title: context.t('mob.docapv.return.unknown.title'),
           lines: <String>[context.t('mob.docapv.return.unknown.body')],
           actionLabel: context.t('mob.docapv.return.unknown.action'),
-          onAction: () => _send(again: true),
+          onAction: _sendAgain,
         );
       case CommandOffline():
         return OutcomeCard(title: context.t('mob.docapv.return.gate.offline'));
@@ -110,7 +119,7 @@ class _ReturnCardState extends ConsumerState<ReturnCard> with CommandFlow<Return
           title: problemText(context, problem),
           code: result.code,
           actionLabel: isRetryable(problem) ? context.t('mob.docapv.return.retry.action') : null,
-          onAction: isRetryable(problem) ? () => _send(again: true) : null,
+          onAction: isRetryable(problem) ? _sendAgain : null,
         );
     }
   }

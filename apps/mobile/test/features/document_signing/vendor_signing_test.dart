@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -45,8 +46,17 @@ final class FakeSdk implements VendorSigningSdk {
   final List<String> signed = <String>[];
   final List<String> reasons = <String>[];
 
+  /// When set, the SDK answers only once the test completes it (the person is still in front of the native screen).
+  Completer<void>? holdAvailability;
+  Completer<void>? holdSigning;
+  int availabilityAsked = 0;
+
   @override
-  Future<SdkAvailability> availability() async => state;
+  Future<SdkAvailability> availability() async {
+    availabilityAsked += 1;
+    await holdAvailability?.future;
+    return state;
+  }
 
   @override
   Future<SdkIdentity?> identity() async {
@@ -58,6 +68,7 @@ final class FakeSdk implements VendorSigningSdk {
   Future<SdkSignature> signDigest({required String digestHex, required String reason}) async {
     signed.add(digestHex);
     reasons.add(reason);
+    await holdSigning?.future;
     if (failWith != null) throw SdkException(failWith!);
     return SdkSignature(cmsBase64: cms ?? _cms, digestHex: signedDigest ?? digestHex, signer: SdkIdentity(subjectDn: signedAs ?? holder));
   }
@@ -67,13 +78,16 @@ final class _Gate implements BiometricGate {
   bool allow = true;
   int asked = 0;
 
+  /// When set, the prompt of the phone stays on the screen until the test completes it.
+  Completer<bool>? hold;
+
   @override
   Future<bool> isAvailable() async => true;
 
   @override
   Future<bool> authenticate({required String reason}) async {
     asked += 1;
-    return allow;
+    return hold == null ? allow : hold!.future;
   }
 }
 
@@ -128,6 +142,11 @@ final class _Rig {
 
 Finder _start() => find.widgetWithText(FilledButton, 'Bắt đầu ký');
 Finder _confirm() => find.widgetWithText(FilledButton, 'Xác nhận và ký');
+
+/// The button as it stands while a signing step is on: its label changes to "sending", so it is found by what it is and not by the label.
+Finder _button(List<String> labels) => find.byWidgetPredicate((Widget widget) => widget is FilledButton && widget.child is Text && labels.contains((widget.child! as Text).data));
+Finder _confirmNow() => _button(<String>['Xác nhận và ký', 'Đang gửi…']);
+Finder _startNow() => _button(<String>['Bắt đầu ký', 'Đang gửi…']);
 
 List<HttpCall> _posts(ScriptedServer server) => server.calls.where((HttpCall call) => call.method == 'POST').toList();
 
@@ -238,6 +257,72 @@ void main() {
       expect(sdk.signed, hasLength(1));
       expect(rig.completions, 0);
       expect(find.textContaining('Chưa mở khóa được thông tin ký nên chưa gửi gì'), findsOneWidget);
+    });
+  });
+
+  group('AC-ST-MOB-032-3 UI-MOB-67 one signing interaction at a time: the whole of it, from the first tap, is guarded', () {
+    testWidgets('while the biometric prompt is open, a second tap on "Xác nhận và ký" does nothing and the button is disabled', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final _Rig rig = _Rig();
+      final FakeSdk sdk = FakeSdk();
+      final _Gate gate = _Gate();
+      await _open(tester, rig.server, sdk, gate);
+      await tester.tap(_start());
+      await tester.pumpAndSettle();
+
+      gate.hold = Completer<bool>();
+      await tester.tap(_confirm());
+      await tester.pump();
+      expect(tester.widget<FilledButton>(_confirmNow()).onPressed, isNull, reason: 'the interaction is on from the first tap, not only once the request is on its way');
+      await tester.tap(_confirmNow(), warnIfMissed: false);
+      await tester.pump();
+      expect(gate.asked, 1, reason: 'a second prompt of the phone must not be launched');
+
+      gate.hold!.complete(true);
+      await tester.pumpAndSettle();
+      expect(sdk.signed, <String>[kDigest], reason: 'the digest is signed once');
+      expect(rig.completions, 1);
+      expect(find.text('Kết quả ký'), findsOneWidget);
+    });
+
+    testWidgets('while the SDK is signing, a second tap on "Xác nhận và ký" does nothing and the button is disabled', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final _Rig rig = _Rig();
+      final FakeSdk sdk = FakeSdk();
+      await _open(tester, rig.server, sdk, _Gate());
+      await tester.tap(_start());
+      await tester.pumpAndSettle();
+
+      sdk.holdSigning = Completer<void>();
+      await tester.tap(_confirm());
+      await tester.pump();
+      expect(tester.widget<FilledButton>(_confirmNow()).onPressed, isNull);
+      await tester.tap(_confirmNow(), warnIfMissed: false);
+      await tester.pump();
+      expect(sdk.signed, hasLength(1), reason: 'the SDK is not asked to sign a second time');
+
+      sdk.holdSigning!.complete();
+      await tester.pumpAndSettle();
+      expect(sdk.signed, hasLength(1));
+      expect(rig.completions, 1);
+    });
+
+    testWidgets('while the SDK is being checked before a session is opened, a second tap on "Bắt đầu ký" does nothing and the button is disabled', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final _Rig rig = _Rig();
+      final FakeSdk sdk = FakeSdk()..holdAvailability = Completer<void>();
+      await _open(tester, rig.server, sdk, _Gate());
+
+      await tester.tap(_start());
+      await tester.pump();
+      expect(tester.widget<FilledButton>(_startNow()).onPressed, isNull);
+      await tester.tap(_startNow(), warnIfMissed: false);
+      await tester.pump();
+      expect(sdk.availabilityAsked, 1, reason: 'one check of the SDK per interaction');
+
+      sdk.holdAvailability!.complete();
+      await tester.pumpAndSettle();
+      expect(rig.starts, 1);
     });
   });
 

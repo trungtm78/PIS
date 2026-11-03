@@ -10,6 +10,7 @@ import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/offline/attachments/attachment_upload.dart';
 import '../../../core/offline/offline_providers.dart';
+import '../../../core/offline/queue/offline_codes.dart';
 import '../../../core/offline/queue/queue_results.dart';
 import '../../../core/offline/queue/queue_runner.dart';
 import '../../../core/offline/queue/queued_command.dart';
@@ -298,6 +299,16 @@ class _SendStatus extends StatelessWidget {
       case SubmitStage.unknown:
         return NoticeLine(icon: Icons.help_outline, text: context.t('mob.rep.send.unknown.body'), action: _actions(context, context.t('mob.rep.send.check.action')));
       case SubmitStage.rejected:
+        // A submit refused as unverifiable may have been made already: a new key would make the report twice, so it is not offered again;
+        // the queue is where the person drops it, after looking at the report on the web.
+        if (code == kResultUnverifiable) {
+          return NoticeLine(
+            icon: Icons.error_outline,
+            error: true,
+            text: '${context.t('mob.queue.reason.unverifiable.body')}$codeLine ${context.t('mob.rep.send.rejectedKept.body')}',
+            action: _actions(context, null),
+          );
+        }
         return NoticeLine(
           icon: Icons.error_outline,
           error: true,

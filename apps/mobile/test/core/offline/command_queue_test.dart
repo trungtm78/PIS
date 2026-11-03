@@ -144,6 +144,45 @@ void main() {
       expect(settled.errorCode, 'RESULT_UNVERIFIABLE');
       expect(rig.server.effectsOf(command.idempotencyKey), 0);
     });
+
+    test('REVIEW-m1-2 such a command is not retried under a new key by the ordinary retry: it may have been carried out, so only the person who checked the record can send it again', () async {
+      final QueueRig rig = await QueueRig.create();
+      final QueuedCommand command = submit(rig);
+      rig.server.dropNextBatchAnswer = true;
+      await rig.queue.flush();
+      rig.server.forgetReceipts();
+      rig.clock.advance(const Duration(days: 7, minutes: 1));
+      await rig.queue.flush();
+      expect(rig.queue.command(command.id)!.errorCode, 'RESULT_UNVERIFIABLE');
+      final int batches = rig.server.batchPosts;
+
+      await expectLater(rig.queue.retry(command.id), throwsA(isA<ResultUnverifiable>()));
+      final QueuedCommand still = rig.queue.command(command.id)!;
+      expect(still.state, CommandState.rejected);
+      expect(still.idempotencyKey, command.idempotencyKey, reason: 'no new key was made for work that may have been done');
+      expect(still.supersededKeys, isEmpty);
+      expect(rig.server.batchPosts, batches, reason: 'nothing was sent');
+      expect(rig.server.effectsOf(command.idempotencyKey), 1, reason: 'the server did carry it out once, and still does');
+
+      await rig.queue.retry(command.id, confirmedNotExecuted: true);
+      final QueuedCommand decided = rig.queue.command(command.id)!;
+      expect(decided.idempotencyKey, isNot(command.idempotencyKey), reason: 'the explicit decision of the person is a new command');
+      expect(decided.supersededKeys, <String>[command.idempotencyKey]);
+      expect(decided.state, CommandState.accepted);
+    });
+
+    test('REVIEW-m1-2 the person can always drop an unverifiable command', () async {
+      final QueueRig rig = await QueueRig.create();
+      final QueuedCommand command = submit(rig);
+      rig.server.offline = true;
+      await rig.queue.flush();
+      rig.server.offline = false;
+      rig.clock.advance(const Duration(days: 8));
+      await rig.queue.flush();
+      expect(rig.queue.command(command.id)!.errorCode, 'RESULT_UNVERIFIABLE');
+      rig.queue.discard(command.id);
+      expect(rig.queue.command(command.id)!.state, CommandState.discarded);
+    });
   });
 
   group('AC-ST-MOB-005-2 UAT-AC503 one key is one command', () {

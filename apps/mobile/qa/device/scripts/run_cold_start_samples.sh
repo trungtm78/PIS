@@ -21,6 +21,8 @@ label="${1:?usage: $0 <device-label> [runs] [adb serial]}"
 runs="${2:-25}"
 serial="${3:-}"
 package="vn.machvon.app"
+# the activity is written with its package: the applicationId (above) and the namespace of the build (where MainActivity lives) differ
+activity="vn.machvon.machvon_mobile.MainActivity"
 marker="Trang chủ"
 adb_cmd=(adb)
 [ -n "$serial" ] && adb_cmd=(adb -s "$serial")
@@ -32,7 +34,7 @@ for run in $(seq 1 "$runs"); do
   "${adb_cmd[@]}" shell am force-stop "$package"
   sleep 3
   start=$(now_ms)
-  "${adb_cmd[@]}" shell am start -n "$package/.MainActivity" >/dev/null
+  "${adb_cmd[@]}" shell am start -n "$package/$activity" >/dev/null
   deadline=$((start + 15000))
   while :; do
     "${adb_cmd[@]}" shell uiautomator dump /sdcard/machvon_cold.xml >/dev/null 2>&1 || true

@@ -41,6 +41,18 @@ class _Failed implements Exception {
   final String code;
 }
 
+/// The run must end without writing anything more: the upload was cancelled while an answer was on its way, or the uploader was
+/// disposed (its scope changed). What the person decided, or what the next owner of the store finds, is not overwritten.
+class _Stopped implements Exception {
+  const _Stopped();
+}
+
+/// The session is no longer the one this store belongs to (another tenant or user, or nobody): the run ends before another request
+/// leaves, and the file waits for its own session.
+class _OutOfScope implements Exception {
+  const _OutOfScope();
+}
+
 /// The attachments of one user in one tenant, uploaded in chunks (ST-MOB-009, MOB.md 5 BR-MOB-03).
 ///
 /// A file is checked (size and type by its bytes), made lighter when it is a photo, copied into the private folder of the
@@ -92,6 +104,7 @@ class AttachmentUploader {
   final StreamController<void> _changes = StreamController<void>.broadcast();
   final StreamController<void> _arrivals = StreamController<void>.broadcast();
   final Map<String, Future<void>> _running = <String, Future<void>>{};
+  bool _disposed = false;
   Future<void> _tail = Future<void>.value();
 
   int get _now => _clock().millisecondsSinceEpoch;
@@ -185,6 +198,7 @@ class AttachmentUploader {
   /// Uploads every file that is waiting, one after the other, oldest first.
   Future<void> resumeAll() async {
     for (final AttachmentUpload upload in uploads()) {
+      if (_disposed) return;
       if (!upload.state.isFinal) await run(upload.id);
     }
   }
@@ -228,17 +242,60 @@ class AttachmentUploader {
     if (prepared.existsSync()) prepared.deleteSync();
   }
 
-  Future<void> _run(String id) async {
-    AttachmentUpload upload = _require(id);
-    if (upload.state.isFinal) return;
+  bool get _inScope {
     final SessionSnapshot session = _session();
-    if (!session.isSignedIn || session.tenantId != _store.tenantId || session.userId != _store.userId) return;
-    final String? device = await _deviceId();
-    if (device == null) {
-      _set(upload.copyWith(state: UploadState.pending, errorCode: kNoDevice));
+    return session.isSignedIn && session.tenantId == _store.tenantId && session.userId == _store.userId;
+  }
+
+  /// Between two requests of a run: ends the run when it was cancelled or disposed, or when the session is no longer this store's.
+  void _alive(String id) {
+    if (_disposed) throw const _Stopped();
+    final AttachmentUpload? row = _store.uploads.byId(id);
+    if (row == null || row.state == UploadState.cancelled) throw const _Stopped();
+    if (!_inScope) throw const _OutOfScope();
+  }
+
+  /// One request of a run: checked before it leaves and again when its answer arrives, so an answer that was on its way when the
+  /// upload was cancelled, or the tenant changed, is dropped and nothing further is sent.
+  Future<T> _awaiting<T>(String id, Future<T> Function() request) async {
+    _alive(id);
+    final T answer = await request();
+    _alive(id);
+    return answer;
+  }
+
+  Future<void> _run(String id) async {
+    if (_disposed) return;
+    try {
+      await _runOnce(id);
+    } on _Stopped {
+      return;
+    } on _OutOfScope {
+      _park(id);
+    }
+  }
+
+  /// The run ended because the session is not this store's: the file waits, as for a lapsed session, and is resumed when it is back.
+  void _park(String id) {
+    try {
+      final AttachmentUpload? row = _store.uploads.byId(id);
+      if (row == null || row.state.isFinal) return;
+      _set(row.copyWith(state: UploadState.pending, errorCode: 'SESSION_EXPIRED'));
+    } on _Stopped {
       return;
     }
-    upload = _set(upload.copyWith(state: UploadState.uploading, clearError: true));
+  }
+
+  Future<void> _runOnce(String id) async {
+    AttachmentUpload upload = _require(id);
+    if (upload.state.isFinal) return;
+    if (!_inScope) return;
+    final String? device = await _awaiting(id, _deviceId);
+    if (device == null) {
+      _set(_require(id).copyWith(state: UploadState.pending, errorCode: kNoDevice));
+      return;
+    }
+    upload = _set(_require(id).copyWith(state: UploadState.uploading, clearError: true));
     try {
       final File file = File(upload.sourcePath);
       if (!file.existsSync() || file.lengthSync() != upload.sizeBytes) throw const _Failed(kFileChanged);
@@ -252,6 +309,9 @@ class AttachmentUploader {
       _set(_require(id).copyWith(state: waits ? UploadState.pending : UploadState.failed, errorCode: error.code));
     } on ContractMismatch {
       _set(_require(id).copyWith(state: UploadState.pending, errorCode: contractMismatchCode));
+    } on TenantMismatch {
+      // The token of this tenant was refused because another is active: nothing was sent, the file waits for its own tenant.
+      throw const _OutOfScope();
     } on FileSystemException {
       _set(_require(id).copyWith(state: UploadState.failed, errorCode: kFileChanged));
     } on IOException {
@@ -265,9 +325,12 @@ class AttachmentUploader {
   /// upload, so if the answer was lost the same upload comes back rather than a second one.
   Future<_Links> _started(AttachmentUpload upload, String device) async {
     if (upload.serverId != null) return _Links.stale(upload);
-    final Object? answer = await _client.postSyncAttachments(
-      SyncAttachmentInit(deviceId: device, sha256: upload.sha256!, sizeBytes: upload.sizeBytes, mime: upload.mime!),
-      attempt: CommandAttempt(upload.startKey),
+    final Object? answer = await _awaiting(
+      upload.id,
+      () => _client.postSyncAttachments(
+        SyncAttachmentInit(deviceId: device, sha256: upload.sha256!, sizeBytes: upload.sizeBytes, mime: upload.mime!),
+        attempt: CommandAttempt(upload.startKey),
+      ),
     );
     final SyncAttachmentStartedResponse started = decodeAnswer('post_sync_attachments', answer)! as SyncAttachmentStartedResponse;
     final AttachmentUpload next = _set(upload.copyWith(serverId: started.resourceId, chunkBytes: started.chunkBytes, chunkCount: started.chunkCount, sentChunks: const <int>{}));
@@ -289,7 +352,9 @@ class AttachmentUploader {
       bool stale = false;
       for (final int index in (links.keys.toList()..sort())) {
         if (upload.sentChunks.contains(index)) continue;
-        final ChunkAnswer answer = await _chunks.put(resolveChunkUrl(_baseUrl, links[index]!, upload.tenantId), await _readChunk(upload, index));
+        _alive(upload.id);
+        final Uint8List bytes = await _readChunk(upload, index);
+        final ChunkAnswer answer = await _awaiting(upload.id, () => _chunks.put(resolveChunkUrl(_baseUrl, links![index]!, upload.tenantId), bytes));
         if (answer.ok) {
           upload = _set(upload.copyWith(sentChunks: <int>{...upload.sentChunks, index}));
         } else if (answer.status == 401 || answer.status == 409) {
@@ -317,7 +382,10 @@ class AttachmentUploader {
   /// with: the server is missing a chunk, or it dropped them because the checksum did not match.
   Future<AttachmentUpload?> _complete(AttachmentUpload upload) async {
     try {
-      final Object? answer = await _client.postSyncAttachmentsIdComplete(SyncAttachmentComplete(sha256: upload.sha256!), id: upload.serverId!, attempt: CommandAttempt(upload.completeKey));
+      final Object? answer = await _awaiting(
+        upload.id,
+        () => _client.postSyncAttachmentsIdComplete(SyncAttachmentComplete(sha256: upload.sha256!), id: upload.serverId!, attempt: CommandAttempt(upload.completeKey)),
+      );
       final CommandResultResponse result = decodeAnswer('post_sync_attachments_id_complete', answer)! as CommandResultResponse;
       switch (result.status) {
         case 'CLEAN':
@@ -350,7 +418,7 @@ class AttachmentUploader {
   }
 
   Future<SyncAttachmentStatusResponse> _status(AttachmentUpload upload) async {
-    final Object? answer = await _client.getSyncAttachmentsId(id: upload.serverId!);
+    final Object? answer = await _awaiting(upload.id, () => _client.getSyncAttachmentsId(id: upload.serverId!));
     return decodeAnswer('get_sync_attachments_id', answer)! as SyncAttachmentStatusResponse;
   }
 
@@ -384,13 +452,19 @@ class AttachmentUploader {
   AttachmentUpload _require(String id) => _store.uploads.byId(id) ?? (throw StateError('no upload $id'));
 
   AttachmentUpload _set(AttachmentUpload upload) {
+    if (_disposed) throw const _Stopped();
+    // A cancellation is terminal: a run that was holding an older copy of the row must not bring the upload back.
+    if (upload.state != UploadState.cancelled && _store.uploads.byId(upload.id)?.state == UploadState.cancelled) throw const _Stopped();
     final AttachmentUpload next = upload.copyWith(updatedAt: _now);
     _store.uploads.upsert(next);
     _changes.add(null);
     return next;
   }
 
+  /// Ends the uploader: a run that is waiting for an answer drops it and sends nothing more, and the row it was working on is left as it
+  /// was (`recoverInterrupted` puts it back to waiting when the store is opened again).
   Future<void> dispose() async {
+    _disposed = true;
     await _arrivals.close();
     await _changes.close();
   }

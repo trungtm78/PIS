@@ -57,15 +57,20 @@ final class SubmitStatus {
   String? get reportId => command?.resultRef;
 }
 
-/// The stage of the sending of the draft [draftId] from the commands of the queue. The last submit decides; without one the last
-/// save does, and a save the server accepted leaves the draft ready to submit ([SubmitStage.idle]).
+/// The stage of the sending of the draft [draftId] from the commands of the queue. Of the commands made after the last discarded one,
+/// the last submit decides; without one the last save does, and a save the server accepted leaves the draft ready to submit
+/// ([SubmitStage.idle]). With nothing after a discard the draft is ready to submit.
 SubmitStatus submitStatusOf(Iterable<QueuedCommand> commands, String draftId) {
   final List<QueuedCommand> mine = <QueuedCommand>[
     for (final QueuedCommand command in commands)
       if (command.draftId == draftId && (command.commandType == kSaveCommand || command.commandType == kSubmitCommand)) command,
   ]..sort((QueuedCommand a, QueuedCommand b) => a.createdAt.compareTo(b.createdAt));
-  final QueuedCommand? submit = mine.where((QueuedCommand c) => c.commandType == kSubmitCommand).lastOrNull;
-  final QueuedCommand? decisive = submit ?? mine.lastOrNull;
+  // A discarded command is a decision of the person that replaced what it stood for: it and everything made before it no longer
+  // count, but what was made after it decides, whatever its state (a new save that waits must not be reported as idle).
+  final int lastDiscarded = mine.lastIndexWhere((QueuedCommand c) => c.state == CommandState.discarded);
+  final List<QueuedCommand> live = mine.sublist(lastDiscarded + 1);
+  final QueuedCommand? submit = live.where((QueuedCommand c) => c.commandType == kSubmitCommand).lastOrNull;
+  final QueuedCommand? decisive = submit ?? live.lastOrNull;
   if (decisive == null) return const SubmitStatus(SubmitStage.idle);
   switch (decisive.state) {
     case CommandState.queued:

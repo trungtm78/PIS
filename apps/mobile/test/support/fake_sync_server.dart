@@ -59,6 +59,9 @@ class FakeSyncServer implements HttpTransport {
   int effectsOf(String key) => effects[key] ?? 0;
   bool hasReceipt(String key) => _receipts.containsKey(key);
 
+  /// The server's receipts are gone (kept seven days): what it carried out stays carried out, but it can no longer say so.
+  void forgetReceipts() => _receipts.clear();
+
   static ServerOutcome _acceptAll(Map<String, Object?> item) => const ServerOutcome.accepted();
 
   @override

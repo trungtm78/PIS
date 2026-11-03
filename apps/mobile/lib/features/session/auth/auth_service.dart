@@ -10,6 +10,8 @@ import 'local_data.dart';
 import 'oidc_client.dart';
 import 'session_vault.dart';
 
+export '../../../core/session/session.dart' show TenantMismatch;
+
 /// What a sign-in or a selection leads to.
 enum SignInOutcome {
   /// The session is open on a tenant.
@@ -40,15 +42,6 @@ final class PendingCommandsBlock implements Exception {
 
   @override
   String toString() => 'PendingCommandsBlock($count)';
-}
-
-/// A request was prepared for one tenant while another is active. Nothing is sent: a queued command of tenant A must never
-/// travel with the token of tenant B (BR-MOB, NFR-TENANCY-07).
-final class TenantMismatch implements Exception {
-  const TenantMismatch();
-
-  @override
-  String toString() => 'TenantMismatch';
 }
 
 /// The step needs a session and there is none (never signed in, or it ended).

@@ -26,6 +26,8 @@ class QueueRig {
   static Future<QueueRig> create({
     FakeSyncServer? server,
     SessionSnapshot session = kSignedInA,
+    SessionSnapshot Function()? sessionOf,
+    Future<String?> Function()? tokenOf,
     String? deviceId = '11111111-1111-4111-8111-111111111111',
     TestStorage? storage,
     FakeClock? clock,
@@ -41,14 +43,14 @@ class QueueRig {
     final MachvonApiClient client = MachvonApiClient(
       baseUrl: Uri.parse('https://api.test/v1'),
       transport: fake,
-      token: () async => 'test-token',
+      token: tokenOf ?? () async => 'test-token',
       newKey: () => 'a0000000-0000-4000-8000-${(counter++).toString().padLeft(12, '0')}',
       delay: (Duration _) async {},
     );
     final CommandQueue queue = CommandQueue(
       store: store,
       client: client,
-      session: () => session,
+      session: sessionOf ?? () => session,
       deviceId: () async => deviceId,
       clock: time.call,
       newKey: () => 'b0000000-0000-4000-8000-${(counter++).toString().padLeft(12, '0')}',

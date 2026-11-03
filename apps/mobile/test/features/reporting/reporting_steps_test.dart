@@ -735,6 +735,67 @@ void main() {
     });
   });
 
+  group('AC-ST-MOB-011-1 UI-MOB-14 UI-MOB-15 UI-MOB-20 a step kept on the stack works on the draft as it is now, never on the copy it was opened with', () {
+    testWidgets('what was typed at the next step is still there after the person goes back and types at this one', (WidgetTester tester) async {
+      useDevice(tester, kTallPhone);
+      final ReportingApp app = ReportingApp.create();
+      await app.open(tester);
+      final String id = await newDraft(app, onServer: false);
+      await app.open(tester, location: '/projects/mob-14/$id');
+      await typeInto(tester, 'Khối lượng thi công', '1.500.000.000');
+
+      await press(tester, 'Tiếp tục');
+      expect(find.text('Nhập vốn năm'), findsOneWidget);
+      await typeInto(tester, 'Lũy kế giải ngân Vốn năm NSTW', '400.000.000');
+      await press(tester, 'Quay lại');
+      expect(find.text('Nhập khối lượng'), findsOneWidget);
+      await typeInto(tester, 'Khối lượng nghiệm thu', '1.250.000.000');
+
+      final ReportForm saved = (await app.drafts).read(id)!.form;
+      expect(saved.cell(kCells.first).cumulative, '400.000.000', reason: 'typed at the next step, which this step knew nothing about');
+      expect(saved.construction, '1.500.000.000');
+      expect(saved.acceptance, '1.250.000.000');
+    });
+
+    testWidgets('a change of the draft made elsewhere, with nothing to tell this step, is not erased by the next thing typed here', (WidgetTester tester) async {
+      useDevice(tester, kTallPhone);
+      final ReportingApp app = ReportingApp.create();
+      await app.open(tester);
+      final String id = await newDraft(app, onServer: false);
+      await app.open(tester, location: '/projects/mob-14/$id');
+      await typeInto(tester, 'Khối lượng thi công', '1.500.000.000');
+
+      final ReportDrafts drafts = await app.drafts;
+      drafts.writeForm(id, drafts.read(id)!.form.withCell(kCells.first, const CellEntry(cumulative: '400.000.000')));
+      await typeInto(tester, 'Khối lượng nghiệm thu', '1.250.000.000');
+
+      final ReportForm saved = drafts.read(id)!.form;
+      expect(saved.cell(kCells.first).cumulative, '400.000.000', reason: 'the write of this step is made on the draft as it is on the device');
+      expect(saved.construction, '1.500.000.000');
+      expect(saved.acceptance, '1.250.000.000');
+    });
+
+    testWidgets('the review shows what is wrong now: the step that fixed it is left and the error is gone from the screen that comes back', (WidgetTester tester) async {
+      useDevice(tester, kTallPhone);
+      final ReportingApp app = ReportingApp.create();
+      await app.open(tester);
+      final String id = await newDraft(app, shape: (ReportForm f) => completeForm().copyWith(planVersionId: f.planVersionId, construction: '', acceptance: ''));
+      await app.open(tester, location: '/projects/mob-20/$id');
+      expect(find.textContaining('Chưa nhập khối lượng thi công, nghiệm thu'), findsOneWidget);
+      expect(find.text('Báo cáo còn lỗi nên chưa gửi được.'), findsOneWidget);
+
+      await press(tester, 'Sửa tại bước này');
+      expect(find.text('Nhập khối lượng'), findsOneWidget);
+      await typeInto(tester, 'Khối lượng thi công', '300.000.000');
+      await typeInto(tester, 'Khối lượng nghiệm thu', '250.000.000');
+      await press(tester, 'Quay lại');
+
+      expect(find.textContaining('Chưa nhập khối lượng thi công, nghiệm thu'), findsNothing, reason: 'the review was read again when the person came back');
+      expect(find.text('Báo cáo còn lỗi nên chưa gửi được.'), findsNothing);
+      expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Nộp báo cáo')).onPressed, isNotNull);
+    });
+  });
+
   group('a draft that is waiting in the queue is read only, with the reason beside it', () {
     testWidgets('the boxes cannot be typed into and the notice leads to the queue', (WidgetTester tester) async {
       useDevice(tester, kTallPhone);

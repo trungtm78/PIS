@@ -9,6 +9,7 @@ import '../../core/offline/queue/command_queue.dart';
 import '../../core/offline/queue/queue_runner.dart';
 import '../../core/offline/queue/queued_command.dart';
 import '../field_evidence/evidence_photos.dart';
+import 'command_identity.dart';
 import 'inspection_models.dart';
 
 /// The result cannot be recorded yet: [problems] are the lines of the form.
@@ -58,6 +59,10 @@ class InspectionService {
     ResultDraft draft = (stored == null ? null : ResultDraft.fromJson(stored.fields)) ?? (throw StateError('no draft $draftId'));
     final Map<String, ResultProblem> problems = checkResult(draft.form, inspection.checklist);
     if (problems.isNotEmpty) throw ResultNotReady(problems);
+    final CommandQueue queue = await _ref.read(commandQueueProvider.future);
+    // A result the server refused (or the person took back) and that is recorded again is a new intention: a new key.
+    final String operation = operationForNextSend(queue, draft.operationId, _newId);
+    if (operation != draft.operationId) draft = draft.copyWith(operationId: operation);
     draft = draft.copyWith(photos: await enforcePhotoConsent(draft.photos, consent: draft.place.consent));
     final AttachmentUploader uploader = await _ref.read(attachmentUploaderProvider.future);
     draft = draft.copyWith(
@@ -70,7 +75,6 @@ class InspectionService {
       ),
     );
     await save(draft, draftId: draftId);
-    final CommandQueue queue = await _ref.read(commandQueueProvider.future);
     final QueuedCommand command = queue.enqueue(
       commandType: kInspectionResultCommand,
       payload: resultPayload(inspection.id, draft.form, inspection.checklist),

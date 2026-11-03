@@ -167,6 +167,11 @@ class _DocumentBodyState extends ConsumerState<_DocumentBody> with CommandFlow<_
   bool _unlockRefused = false;
   Object? _last;
 
+  /// A signing interaction is on: the check of the SDK, the prompt of the phone, the SDK signing, up to the send. It is taken at the first
+  /// tap and not at the send, because each step is a native operation that must not run twice at once (the guard of the command only covers
+  /// the request).
+  bool _interacting = false;
+
   /// Why the provider's SDK did not make the signature, and what the person can do about it. Nothing was sent to the server for it.
   PortProblem? _port;
   VoidCallback? _portRetry;
@@ -192,7 +197,20 @@ class _DocumentBodyState extends ConsumerState<_DocumentBody> with CommandFlow<_
 
   /// Opens the session only when the signing method can sign: an SDK that cannot be used, or that holds another certificate than the
   /// registered one, creates nothing on the server (AC-ST-MOB-032-3).
-  Future<void> _start() async {
+  Future<void> _start() => _interaction(_startSession);
+
+  /// Runs one signing interaction from the first tap to its end, once at a time; the guard is let go on every way out.
+  Future<void> _interaction(Future<void> Function() step) async {
+    if (_interacting || sending) return;
+    setState(() => _interacting = true);
+    try {
+      await step();
+    } finally {
+      if (mounted) setState(() => _interacting = false);
+    }
+  }
+
+  Future<void> _startSession() async {
     final SigningDocument document = widget.document;
     final SigningPort port = ref.read(signingPortProvider);
     final PortProblem? problem = portProblemOfReadiness(await port.readiness(certificate: document.signingCertificate));
@@ -205,7 +223,9 @@ class _DocumentBodyState extends ConsumerState<_DocumentBody> with CommandFlow<_
     await _send(StartRequest(documentId: document.id, version: document.version, certificateId: document.signingCertificate?.id, adapterCode: ref.read(signingPortProvider).adapterCode));
   }
 
-  Future<void> _complete(SigningSession session) async {
+  Future<void> _complete(SigningSession session) => _interaction(() => _completeSession(session));
+
+  Future<void> _completeSession(SigningSession session) async {
     final SigningPort port = ref.read(signingPortProvider);
     final OtpProblem? problem = port.needsTypedCode ? checkOtp(_otp.text) : null;
     setState(() {
@@ -260,7 +280,7 @@ class _DocumentBodyState extends ConsumerState<_DocumentBody> with CommandFlow<_
       title: portProblemText(context, problem),
       lines: <String>[retry ? context.t('mob.signing.port.retryable.body') : context.t('mob.signing.port.final.body')],
       actionLabel: retry ? context.t('mob.signing.result.retry.action') : null,
-      onAction: retry ? _portRetry : null,
+      onAction: retry && !_interacting ? _portRetry : null,
     );
   }
 
@@ -273,7 +293,7 @@ class _DocumentBodyState extends ConsumerState<_DocumentBody> with CommandFlow<_
           title: context.t('mob.signing.result.unknown.title'),
           lines: <String>[context.t('mob.signing.result.unknown.body')],
           actionLabel: context.t('mob.signing.result.unknown.action'),
-          onAction: _last == null ? null : () => _send(_last!, again: true),
+          onAction: _last == null || _interacting ? null : () => _send(_last!, again: true),
         );
       case CommandOffline():
         return OutcomeCard(title: gateText(context, SigningGate.offline));
@@ -284,7 +304,7 @@ class _DocumentBodyState extends ConsumerState<_DocumentBody> with CommandFlow<_
           lines: <String>[if (isRetryable(problem)) context.t('mob.signing.result.retryable.body')],
           code: result.code,
           actionLabel: isRetryable(problem) ? context.t('mob.signing.result.retry.action') : null,
-          onAction: isRetryable(problem) && _last != null ? () => _send(_last!, again: true) : null,
+          onAction: isRetryable(problem) && _last != null && !_interacting ? () => _send(_last!, again: true) : null,
         );
     }
   }
@@ -314,7 +334,8 @@ class _DocumentBodyState extends ConsumerState<_DocumentBody> with CommandFlow<_
     final SigningSession? open = document.openLeaderSession;
     final SigningSession? last = document.lastLeaderSession;
     final SigningCertificate? certificate = document.signingCertificate;
-    final bool ready = gate == SigningGate.open && !sending;
+    final bool busy = sending || _interacting;
+    final bool ready = gate == SigningGate.open && !busy;
     final bool lapsed = open == null && last != null && last.status == 'EXPIRED';
     return SectionCard(
       title: context.t('mob.signing.sign.title'),
@@ -328,7 +349,7 @@ class _DocumentBodyState extends ConsumerState<_DocumentBody> with CommandFlow<_
         if (open == null)
           FilledButton(
             onPressed: ready && certificate != null ? _start : null,
-            child: Text(sending ? context.t('mob.signing.sending.label') : lapsed ? context.t('mob.signing.sign.restart.action') : context.t('mob.signing.sign.start.action')),
+            child: Text(busy ? context.t('mob.signing.sending.label') : lapsed ? context.t('mob.signing.sign.restart.action') : context.t('mob.signing.sign.start.action')),
           )
         else ...<Widget>[
           Text(context.t('mob.signing.sign.open.hint', <String, Object>{'until': formatMoment(open.expiresAt)}), style: theme.textTheme.bodyMedium),
@@ -337,7 +358,7 @@ class _DocumentBodyState extends ConsumerState<_DocumentBody> with CommandFlow<_
               padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space8),
               child: TextField(
                 controller: _otp,
-                readOnly: sending,
+                readOnly: busy,
                 keyboardType: TextInputType.number,
                 autofillHints: const <String>[AutofillHints.oneTimeCode],
                 decoration: InputDecoration(labelText: context.t('mob.signing.otp.label'), helperText: context.t('mob.signing.otp.helper'), errorText: _otpProblem == null ? null : otpProblemText(context, _otpProblem!)),
@@ -346,7 +367,7 @@ class _DocumentBodyState extends ConsumerState<_DocumentBody> with CommandFlow<_
           if (_unlockRefused) GateNote(text: context.t('mob.signing.unlock.refused')),
           FilledButton(
             onPressed: ready ? () => _complete(open) : null,
-            child: Text(sending ? context.t('mob.signing.sending.label') : context.t('mob.signing.sign.confirm.action')),
+            child: Text(busy ? context.t('mob.signing.sending.label') : context.t('mob.signing.sign.confirm.action')),
           ),
         ],
       ],

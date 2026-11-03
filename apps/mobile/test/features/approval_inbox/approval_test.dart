@@ -304,7 +304,35 @@ void main() {
       expect(find.text('Đã ghi nhận quyết định'), findsOneWidget);
     });
 
-    testWidgets('AC-ST-MOB-013-1 UAT-AC05 a submitter who is the assigned approver is refused, the denial is shown with its code, and the task is still pending', (WidgetTester tester) async {
+    testWidgets('the form is editable after a lost answer, but "send again" replays the opinion that was sent: same key, same body', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _reads(server);
+      int attempt = 0;
+      server.answer('POST', '/approval-tasks/t-1/decision', (HttpCall call) {
+        attempt += 1;
+        if (attempt == 1) throw const SocketException('lost');
+        return decided();
+      });
+      await _open(tester, server, '/approval/mob-25/t-1');
+
+      await tester.enterText(find.byType(TextField), 'Đồng ý');
+      await tester.tap(confirm());
+      await tester.pumpAndSettle();
+      expect(find.text('Chưa xác định kết quả'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField), 'Đổi ý: không đồng ý');
+      await tester.tap(find.text('Gửi lại cùng quyết định'));
+      await tester.pumpAndSettle();
+      final List<HttpCall> calls = server.callsTo('POST', '/approval-tasks/t-1/decision');
+      expect(calls, hasLength(2));
+      expect(calls[1].headers['idempotency-key'], calls[0].headers['idempotency-key'], reason: 'the same intention keeps its key');
+      expect(calls[1].body, calls[0].body, reason: 'what is replayed is what was sent, not what the field says now');
+      expect(calls[1].body, contains('Đồng ý'));
+      expect(calls[1].body, isNot(contains('Đổi ý')));
+    });
+
+    testWidgets('AC-ST-MOB-013-1 UAT-AC05 a submitter who is the assigned approver is refused,the denial is shown with its code, and the task is still pending', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();
       _reads(server);
@@ -449,7 +477,39 @@ void main() {
       expect(find.text('Trả lại hồ sơ'), findsNothing, reason: 'the form leaves once the decision is recorded');
     });
 
-    testWidgets('a reason and sections longer than the server allows are refused by the form, and offline the button is disabled', (WidgetTester tester) async {
+    testWidgets('after a lost answer "send again" replays the return that was sent, whatever the fields say now: same key, same body, no new check', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _reads(server);
+      int attempt = 0;
+      server.answer('POST', '/approval-tasks/t-1/decision', (HttpCall call) {
+        attempt += 1;
+        if (attempt == 1) throw const SocketException('lost');
+        return decided();
+      });
+      await _open(tester, server, '/approval/mob-26/t-1');
+
+      await tester.enterText(field('Lý do'), 'Thiếu số liệu kỳ trước');
+      await tester.enterText(field('Mục cần sửa (mỗi dòng một mục)'), 'Bảng vốn kéo dài');
+      await tester.enterText(field('Hạn bổ sung (năm-tháng-ngày, ví dụ 2026-11-20)'), '2026-11-20');
+      await tester.tap(submit());
+      await tester.pumpAndSettle();
+      expect(find.text('Chưa xác định kết quả'), findsOneWidget);
+
+      await tester.enterText(field('Lý do'), 'Lý do khác hẳn');
+      await tester.enterText(field('Mục cần sửa (mỗi dòng một mục)'), 'Mục khác');
+      await tester.enterText(field('Hạn bổ sung (năm-tháng-ngày, ví dụ 2026-11-20)'), 'không phải ngày');
+      await tester.tap(find.text('Gửi lại cùng quyết định'));
+      await tester.pumpAndSettle();
+      final List<HttpCall> calls = server.callsTo('POST', '/approval-tasks/t-1/decision');
+      expect(calls, hasLength(2));
+      expect(calls[1].headers['idempotency-key'], calls[0].headers['idempotency-key']);
+      expect(calls[1].body, calls[0].body);
+      expect(calls[1].body, contains('Bảng vốn kéo dài'));
+      expect(calls[1].body, isNot(contains('Lý do khác hẳn')));
+    });
+
+    testWidgets('a reason and sections longer than the server allows are refused by the form, and offline the button is disabled',(WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();
       _reads(server);

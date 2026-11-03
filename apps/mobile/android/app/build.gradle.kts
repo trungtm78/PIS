@@ -59,6 +59,12 @@ kotlin {
     }
 }
 
+dependencies {
+    // The biometric prompt of local_auth shows its dialog with AppCompat styles on Android 8 and below: LaunchTheme and NormalTheme
+    // (res/values, res/values-night) descend from Theme.AppCompat, so the library is a direct dependency and not only a transitive one.
+    implementation("androidx.appcompat:appcompat:1.7.0")
+}
+
 flutter {
     source = "../.."
 }

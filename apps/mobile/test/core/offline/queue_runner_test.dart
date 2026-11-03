@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:machvon_api_client/machvon_api_client.dart' show HttpCall, HttpResult;
 import 'package:machvon_mobile/core/offline/queue/queue_results.dart';
 import 'package:machvon_mobile/core/offline/queue/queue_runner.dart';
 import 'package:machvon_mobile/core/offline/queue/queued_command.dart';
@@ -146,5 +147,63 @@ void main() {
       await pumpEventQueue();
       expect(rig.server.batchPosts, 0);
     });
+
+    test('REVIEW-m1-4 commands left unknown by a batch answer that missed them are looked up again after the wait, without any other trigger', () async {
+      final _LosesResults server = _LosesResults()..losing = true;
+      final QueueRig rig = await QueueRig.create(server: server);
+      final FakeTimers timers = FakeTimers();
+      final QueueRunner runner = QueueRunner(rig.queue, timer: timers.make, clock: rig.clock.call, errorRetry: const Duration(seconds: 13));
+      final QueuedCommand command = rig.queue.enqueue(commandType: 'issue.create', payload: <String, Object?>{});
+      runner.start();
+      await pumpEventQueue();
+      expect(runner.lastResult!.blocker, isNull);
+      expect(rig.queue.command(command.id)!.state, CommandState.unknown);
+      expect(timers.active.single.delay, const Duration(seconds: 13), reason: 'unknown commands are the remaining work, so something must come back for them');
+
+      server.losing = false;
+      timers.active.single.run();
+      await pumpEventQueue();
+      expect(rig.queue.command(command.id)!.state, CommandState.accepted);
+      expect(server.effectsOf(command.idempotencyKey), 1, reason: 'looked up by its key, sent again under the same key, carried out once');
+      expect(timers.active, isEmpty);
+      runner.dispose();
+    });
+
+    test('REVIEW-m1-4 the reconciliation is bounded: a server that never answers for the command is not asked for ever, and a new trigger starts over', () async {
+      final _LosesResults server = _LosesResults()..losing = true;
+      final QueueRig rig = await QueueRig.create(server: server);
+      final FakeTimers timers = FakeTimers();
+      final QueueRunner runner = QueueRunner(rig.queue, timer: timers.make, clock: rig.clock.call, maxReconciliations: 3);
+      final QueuedCommand command = rig.queue.enqueue(commandType: 'issue.create', payload: <String, Object?>{});
+      runner.start();
+      await pumpEventQueue();
+      for (int round = 0; round < 3; round += 1) {
+        expect(timers.active, hasLength(1), reason: 'round $round');
+        timers.active.single.run();
+        await pumpEventQueue();
+      }
+      expect(timers.active, isEmpty, reason: 'three tries were made; the command stays unknown for the person to check');
+      expect(rig.queue.command(command.id)!.state, CommandState.unknown);
+
+      server.losing = false;
+      runner.trigger();
+      await pumpEventQueue();
+      expect(rig.queue.command(command.id)!.state, CommandState.accepted);
+      runner.dispose();
+    });
   });
+}
+
+/// A server whose answer to a batch can come back without the results of the commands in it (a malformed answer; it never saw them).
+class _LosesResults extends FakeSyncServer {
+  bool losing = false;
+
+  @override
+  Future<HttpResult> send(HttpCall call) async {
+    if (losing && call.method == 'POST' && call.url.path.endsWith('/sync/batches')) {
+      calls.add(call);
+      return const HttpResult(status: 200, headers: const <String, String>{'content-type': 'application/json'}, body: '{"results":[]}');
+    }
+    return super.send(call);
+  }
 }

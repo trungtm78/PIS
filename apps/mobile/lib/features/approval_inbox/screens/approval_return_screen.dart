@@ -102,7 +102,7 @@ class _ReturnFormState extends ConsumerState<_ReturnForm> with DecisionFlow<_Ret
     return ListView(
       padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
       children: <Widget>[
-        if (result != null) OutcomeCard(outcome: result, onSendAgain: () => submit(_request, returnText: _composed(context), retryAfterUnknown: true)),
+        if (result != null) OutcomeCard(outcome: result, onSendAgain: sendAgain),
         if (!done)
           SectionCard(
             title: businessTypeLabel(context, widget.task.businessType),

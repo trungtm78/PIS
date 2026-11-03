@@ -6,6 +6,8 @@ import 'package:machvon_mobile/features/field_evidence/evidence_photos.dart';
 import 'package:machvon_mobile/features/field_evidence/field_place.dart';
 import 'package:machvon_mobile/features/field_evidence/jpeg_metadata.dart';
 import 'package:machvon_mobile/features/field_evidence/photo_checks.dart';
+import 'package:machvon_mobile/features/field_evidence/photo_pipeline.dart' show EvidenceLimits;
+import 'package:machvon_mobile/features/field_evidence/png_metadata.dart';
 
 import 'exif_fixtures.dart';
 
@@ -70,6 +72,53 @@ void main() {
       // A photograph that says nothing is left as it is.
       final EvidencePhoto clean = _photo(path: '${folder.path}/missing.jpg');
       expect((await enforcePhotoConsent(<EvidencePhoto>[clean], consent: false)).single.path, clean.path);
+    });
+
+    test('lose a place or time that only the XMP or IPTC blocks say, and a PNG original kept beside a JPEG that was made from it', () async {
+      final Directory folder = Directory.systemTemp.createTempSync('machvon-evidence-');
+      addTearDown(() => folder.deleteSync(recursive: true));
+      final Uint8List xmp = withBlocks(plainJpeg(), <Uint8List>[
+        segment(0xE1, 'http://ns.adobe.com/xap/1.0/\u0000<x:xmpmeta><exif:GPSLatitude>10,48N</exif:GPSLatitude></x:xmpmeta>'.codeUnits),
+        segment(0xED, 'Photoshop 3.0\u0000IPTC city Ho Chi Minh'.codeUnits),
+      ]);
+      expect(readJpegMetadata(xmp).carriesPlaceOrTime, isFalse, reason: 'the Exif reader does not see them: that is the point');
+      final File flagged = File('${folder.path}/x.jpg')..writeAsBytesSync(xmp);
+      final File unflagged = File('${folder.path}/y.jpg')..writeAsBytesSync(xmp);
+      final File pngOriginal = File('${folder.path}/o.png')..writeAsBytesSync(pngWithText());
+      final File jpegPrepared = File('${folder.path}/p.jpg')..writeAsBytesSync(plainJpeg());
+
+      final List<EvidencePhoto> out = await enforcePhotoConsent(<EvidencePhoto>[
+        _photo(gps: true, path: flagged.path),
+        _photo(path: unflagged.path),
+        _photo(path: jpegPrepared.path, original: pngOriginal.path),
+      ], consent: false);
+
+      for (final File file in <File>[flagged, unflagged]) {
+        final String text = String.fromCharCodes(file.readAsBytesSync());
+        expect(text.contains('xmpmeta') || text.contains('Photoshop') || text.contains('GPSLatitude'), isFalse, reason: file.path);
+      }
+      expect(pngCarriesMetadata(pngOriginal.readAsBytesSync()), isFalse, reason: 'the original is a PNG whatever the prepared file is');
+      expect(out[0].bytes, flagged.lengthSync());
+    });
+
+    test('a PNG over the policy size is uploaded as a JPEG, and its original, kept as the PNG it is, loses its text when the consent goes', () async {
+      final Directory folder = Directory.systemTemp.createTempSync('machvon-evidence-');
+      addTearDown(() => folder.deleteSync(recursive: true));
+      final File source = File('${folder.path}/s.png')..writeAsBytesSync(pngWithText(width: 400, height: 300));
+      int n = 0;
+      final EvidencePhoto photo = await prepareEvidence(
+        source,
+        directory: Directory('${folder.path}/kept'),
+        keepPlaceAndTime: true,
+        newId: () => 'id-${n++}',
+        limits: const EvidenceLimits(maxUploadBytes: 100),
+      );
+      expect(photo.mime, 'image/jpeg');
+      expect(photo.originalPath, endsWith('.png'));
+      expect(pngCarriesMetadata(File(photo.originalPath!).readAsBytesSync()), isTrue);
+
+      await enforcePhotoConsent(<EvidencePhoto>[photo], consent: false);
+      expect(pngCarriesMetadata(File(photo.originalPath!).readAsBytesSync()), isFalse);
     });
 
     test('are deleted with their draft, the prepared file and the original', () async {

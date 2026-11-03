@@ -20,9 +20,14 @@ mixin DecisionFlow<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   DecisionOutcome? outcome;
   bool sending = false;
 
+  /// The decision that was sent last, exactly as it left the form. The form stays editable after a lost answer, but the person asking to
+  /// send again means this decision: its key is the key of its content, so a changed field would be a second decision.
+  ({DecisionRequest request, String returnText})? _sent;
+
   /// Sends the request once. A second call while one is on its way does nothing; a success tells the inbox to read again.
   Future<void> submit(DecisionRequest request, {String returnText = '', bool retryAfterUnknown = false}) async {
     if (sending) return;
+    _sent = (request: request, returnText: returnText);
     setState(() {
       sending = true;
       outcome = null;
@@ -34,6 +39,13 @@ mixin DecisionFlow<T extends ConsumerStatefulWidget> on ConsumerState<T> {
       sending = false;
       outcome = result;
     });
+  }
+
+  /// Sends the last decision again after a lost answer, unchanged: the same content under the same key and version.
+  Future<void> sendAgain() async {
+    final ({DecisionRequest request, String returnText})? sent = _sent;
+    if (sent == null) return;
+    await submit(sent.request, returnText: sent.returnText, retryAfterUnknown: true);
   }
 }
 

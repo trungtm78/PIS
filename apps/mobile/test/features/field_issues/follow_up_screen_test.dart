@@ -7,6 +7,7 @@ import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_mobile/core/offline/offline_providers.dart';
 import 'package:machvon_mobile/core/offline/queue/command_queue.dart';
 import 'package:machvon_mobile/core/offline/queue/queued_command.dart';
+import 'package:machvon_mobile/core/offline/store/local_store.dart';
 import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/features/field_issues/issue_draft.dart';
 
@@ -205,6 +206,29 @@ void main() {
       await tapText(tester, 'Bỏ báo cáo này');
       expect(queue.command(command.id)!.state, CommandState.discarded);
       expect(currentLocation(world.container), '/projects/mob-28');
+    });
+
+    testWidgets('REVIEW-m1-2 a report whose result cannot be verified is not offered for sending again: it may have been made, so it can only be checked on the web, looked at in the queue, or dropped', (WidgetTester tester) async {
+      useDevice(tester, kTall);
+      final FieldServer server = FieldServer();
+      server.sync.decide = (Map<String, Object?> item) => const ServerOutcome.rejected('SCOPE_DENIED');
+      final FieldWorld world = FieldWorld.create(server: server);
+      await world.open(tester, '/projects/mob-41');
+      final CommandQueue queue = (await tester.runAsync(() => world.container.read(commandQueueProvider.future)))!;
+      final LocalStore store = (await tester.runAsync(() => world.container.read(localStoreProvider.future)))!;
+      final QueuedCommand command = queue.enqueue(commandType: kIssueCreateCommand, payload: <String, Object?>{'title': 'Cọc tiêu bị gãy', 'client_operation_id': 'op-1'});
+      await tester.runAsync(queue.flush);
+      store.commands.update(command.id, (QueuedCommand c) => c.copyWith(errorCode: 'RESULT_UNVERIFIABLE'));
+      queue.enqueue(commandType: 'x.refresh', payload: <String, Object?>{}); // announces the change to the screens
+      await world.go(tester, '/projects/mob-31/${command.id}');
+
+      expect(find.textContaining('Kiểm tra hồ sơ trên web trước khi gửi lại'), findsWidgets);
+      expect(find.widgetWithText(FilledButton, 'Gửi lại'), findsNothing);
+      expect(find.text('Bỏ báo cáo này'), findsOneWidget);
+      expect(find.text('Mở hàng đợi'), findsOneWidget);
+      final int batches = server.sync.batchPosts;
+      expect(queue.command(command.id)!.idempotencyKey, command.idempotencyKey);
+      expect(server.sync.batchPosts, batches);
     });
 
     testWidgets('the number of photographs that are up is shown while the report waits', (WidgetTester tester) async {

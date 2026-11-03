@@ -68,6 +68,7 @@ class CommandQueue {
   final StreamController<QueueEvent> _events = StreamController<QueueEvent>.broadcast();
   Future<FlushResult>? _flushing;
   Future<void> _tail = Future<void>.value();
+  bool _disposed = false;
 
   String get tenantId => _store.tenantId;
   String get userId => _store.userId;
@@ -100,6 +101,9 @@ class CommandQueue {
     final Map<CommandState, int> counts = _store.commands.counts();
     return counts[CommandState.queued]! + counts[CommandState.sending]! + counts[CommandState.unknown]! + counts[CommandState.conflict]! + counts[CommandState.rejected]!;
   }
+
+  /// How many commands are unknown: sent, and the answer did not say what became of them. They are looked up by the next flush.
+  int get unknownCount => _store.commands.counts()[CommandState.unknown]!;
 
   /// The time the earliest queued command may be sent, or null when none waits for a backoff; the runner sleeps until then.
   DateTime? get nextDueAt {
@@ -187,14 +191,22 @@ class CommandQueue {
     return interrupted.length;
   }
 
-  Future<FlushResult> _flushOnce() async {
+  /// Whether the session is the one this queue belongs to. Checked again after every wait: a tenant switch or a sign-out in the middle of
+  /// a flush ends it before the next request leaves.
+  bool get _inScope {
     final SessionSnapshot session = _session();
-    if (!session.isSignedIn || session.tenantId != tenantId || session.userId != userId) return FlushResult.blocked(FlushBlocker.noSession);
+    return session.isSignedIn && session.tenantId == tenantId && session.userId == userId;
+  }
+
+  Future<FlushResult> _flushOnce() async {
+    if (_disposed || !_inScope) return FlushResult.blocked(FlushBlocker.noSession);
     final String? device = await _deviceId();
+    if (_disposed || !_inScope) return FlushResult.blocked(FlushBlocker.noSession);
     if (device == null) return FlushResult.blocked(FlushBlocker.noDevice);
     final Tally tally = Tally();
     final FlushBlocker? lookupBlocker = await _lookUpUnknown(tally);
     if (lookupBlocker != null) return tally.result(lookupBlocker);
+    if (_disposed || !_inScope) return tally.result(FlushBlocker.noSession);
     final List<QueuedCommand> due = _store.commands.due(_now, kMaxBatchItems).where((QueuedCommand c) => c.tenantId == tenantId && c.userId == userId).toList();
     if (due.isEmpty) return tally.result(null);
     final int sentAt = _now;
@@ -221,14 +233,27 @@ class CommandQueue {
       // receipt when it has seen it, so the batch gets a fresh key on every send.
       final Stopwatch roundTrip = Stopwatch()..start();
       final Object? answer = await _client.postSyncBatches(request, attempt: CommandAttempt.fresh(_newKey));
+      // Disposed while the answer was on its way: the store belongs to nobody now. The commands stay `sending`; the next owner of the
+      // store finds them so and looks them up by their keys.
+      if (_disposed) return tally.result(FlushBlocker.noSession);
       // The time the person waits for the server to take a batch (PERF-01): from the request to the answer, retries included.
       _onRoundTrip?.call(roundTrip.elapsed);
       final SyncBatchResultResponse results = decodeAnswer('post_sync_batches', answer)! as SyncBatchResultResponse;
       _applyResults(due, results, tally);
       return tally.result(null);
+    } on TenantMismatch {
+      // The token of this tenant was refused because another is active: the request never left, so nothing was tried.
+      if (_disposed) return tally.result(FlushBlocker.noSession);
+      for (final QueuedCommand command in due) {
+        _move(command.id, CommandState.queued, (QueuedCommand c) => c.copyWith(updatedAt: _now));
+        tally.requeued += 1;
+      }
+      return tally.result(FlushBlocker.noSession);
     } on ApiError catch (error) {
+      if (_disposed) return tally.result(FlushBlocker.noSession);
       return tally.result(_afterBatchError(due, error, tally));
     } on ContractMismatch {
+      if (_disposed) return tally.result(FlushBlocker.noSession);
       // The server answered with something this client cannot read: the commands may well have been carried out.
       for (final QueuedCommand command in due) {
         _move(command.id, CommandState.unknown, (QueuedCommand c) => c.copyWith(errorCode: kInterrupted, updatedAt: _now));
@@ -321,16 +346,21 @@ class CommandQueue {
   }
 
   Future<FlushBlocker?> _lookUp(QueuedCommand command, Tally tally) async {
+    if (_disposed || !_inScope) return FlushBlocker.noSession;
     final SyncCommandStatusResponse status;
     try {
       final Object? answer = await _client.getSyncCommandsKey(idempotencyKey: command.idempotencyKey);
       status = decodeAnswer('get_sync_commands_key', answer)! as SyncCommandStatusResponse;
+    } on TenantMismatch {
+      return FlushBlocker.noSession;
     } on ApiError catch (error) {
       if (error.status == 401) return FlushBlocker.sessionExpired;
       return error.status == 0 ? FlushBlocker.offline : FlushBlocker.serverError;
     } on ContractMismatch {
       return FlushBlocker.serverError;
     }
+    // Disposed while the answer was on its way: the store belongs to nobody now and the command stays unknown.
+    if (_disposed) return FlushBlocker.noSession;
     tally.looked += 1;
     switch (status.status) {
       case 'accepted':
@@ -362,7 +392,11 @@ class CommandQueue {
   /// Looks up one unknown command now, or makes a queued one due, or sends a refused one again as a new decision.
   /// A refused command gets a new key (the old one is settled on the server, which would answer from its receipt),
   /// keeps its data, and goes back to the queue; this is how the person sends again after the period was reopened.
-  Future<FlushResult> retry(String id) async {
+  ///
+  /// A command refused as [kResultUnverifiable] is the exception: it may have been carried out, and a new key would carry it out
+  /// twice, so it throws [ResultUnverifiable] unless the person, having checked the record, says with [confirmedNotExecuted] that
+  /// it was not.
+  Future<FlushResult> retry(String id, {bool confirmedNotExecuted = false}) async {
     final QueuedCommand command = _require(id);
     switch (command.state) {
       case CommandState.unknown:
@@ -378,6 +412,7 @@ class CommandQueue {
         _changes.add(null);
         return flush();
       case CommandState.rejected:
+        if (command.errorCode == kResultUnverifiable && !confirmedNotExecuted) throw ResultUnverifiable(id);
         _renew(command, payload: command.payload, baseServerVersion: command.baseServerVersion);
         return flush();
       case CommandState.sending:
@@ -541,6 +576,7 @@ class CommandQueue {
 
   /// Stops the streams; the store is closed by whoever opened it.
   Future<void> dispose() async {
+    _disposed = true;
     await _changes.close();
     await _events.close();
   }

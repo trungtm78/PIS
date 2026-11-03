@@ -54,6 +54,17 @@ final class DraftExists implements Exception {
   String toString() => 'DraftExists($reportId)';
 }
 
+/// The draft was dropped from this phone while a request for it was on its way: the answer is not written, so that a draft the person
+/// discarded is not brought back by the network.
+final class DraftDropped implements Exception {
+  const DraftDropped(this.id);
+
+  final String id;
+
+  @override
+  String toString() => 'DraftDropped($id)';
+}
+
 /// The drafts of the weekly report on this phone and what links them to the server (ST-MOB-011).
 ///
 /// A draft is a local record with a UUID (MOB.md 3). It is written at every step, offline or not. The report on the server is
@@ -79,6 +90,10 @@ class ReportDrafts {
   }
 
   DraftSnapshot _require(String id) => read(id) ?? (throw ArgumentError.value(id, 'id', 'is not a draft of the weekly report'));
+
+  /// The draft as it stands once a request ended. The person goes on typing while the network answers, so what a request returns is
+  /// merged into this copy and never into the one read before the request.
+  DraftSnapshot _afterRequest(String id) => read(id) ?? (throw DraftDropped(id));
 
   /// The reports being drafted on this phone, the last saved first.
   List<DraftSnapshot> all() => <DraftSnapshot>[for (final LocalDraft draft in _store.list(kind: kReportKind)) DraftSnapshot.of(draft)];
@@ -125,6 +140,8 @@ class ReportDrafts {
       if (error.code == 'DRAFT_EXISTS' && existing is String) {
         if (!current.form.isPristine) throw DraftExists(existing);
         final ReportView view = await fetch(existing);
+        // Entries made while the report was read are the person's: they decide, nothing is overwritten.
+        if (!_afterRequest(id).form.isPristine) throw DraftExists(existing);
         return _write(id, view.form, view.context, recordId: view.id, version: view.version);
       }
       rethrow;
@@ -133,7 +150,8 @@ class ReportDrafts {
     final CommandResultResponse made = decodeAnswer('post_reports', answer)! as CommandResultResponse;
     final String reportId = made.resourceId ?? (throw const ContractMismatch('post_reports.resource_id', 'is missing'));
     final ReportView view = await fetch(reportId);
-    return _write(id, _withPlan(current.form, view), _withReference(current.context, view), recordId: reportId, version: view.version);
+    final DraftSnapshot latest = _afterRequest(id);
+    return _write(id, _withPlan(latest.form, view), _withReference(latest.context, view), recordId: reportId, version: view.version);
   }
 
   /// Reads the report from the server.
@@ -151,14 +169,15 @@ class ReportDrafts {
     final DraftSnapshot current = _require(id);
     final String target = current.reportId ?? (throw StateError('the draft has no report on the server'));
     final ReportView view = await fetch(target);
-    final LocalDraft old = current.draft;
+    final DraftSnapshot latest = _afterRequest(id);
+    final LocalDraft old = latest.draft;
     final LocalDraft draft = LocalDraft(
       id: old.id,
       tenantId: old.tenantId,
       userId: old.userId,
       kind: old.kind,
       recordId: old.recordId,
-      fields: <String, Object?>{...current.form.toFields(), kContextKey: _withReference(current.context, view).toJson()},
+      fields: <String, Object?>{...latest.form.toFields(), kContextKey: _withReference(latest.context, view).toJson()},
       baseServerVersion: old.baseServerVersion,
       status: old.status,
       blockedCode: old.blockedCode,

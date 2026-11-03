@@ -33,7 +33,14 @@ mixin _OpensPdf<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     });
     try {
       for (final FileVersion file in files) {
-        if (!_open.containsKey(file.id)) _open[file.id] = await ref.read(pdfLoaderProvider).load(file);
+        if (_open.containsKey(file.id)) continue;
+        final PdfDoc doc = await ref.read(pdfLoaderProvider).load(file);
+        if (!mounted) {
+          // The screen was left while the file was being opened: [closeAll] has already run, so nobody would ever close this one.
+          doc.close().ignore();
+          return;
+        }
+        _open[file.id] = doc;
       }
       await opened();
       if (mounted) setState(() => loading = false);

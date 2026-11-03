@@ -279,6 +279,27 @@ void main() {
       expect(rig.server.only().submissions, 1);
     });
 
+    test('the save queued after a refused submit was discarded decides the status: the draft is still pending, never idle, and a second tap queues nothing', () async {
+      final FlowRig rig = await FlowRig.create();
+      final DraftSnapshot draft = await savedDraft(rig);
+      rig.server.periodLocked = true;
+      await rig.flow.submit(draft.id);
+      rig.server.periodLocked = false;
+      rig.drafts.writeForm(draft.id, rig.drafts.read(draft.id)!.form.copyWith(construction: '301000000'));
+      rig.online = false;
+
+      final SubmitResult first = await rig.flow.submit(draft.id);
+      expect(first.outcome, SubmitOutcome.savePending);
+      expect(rig.queue.commands(states: <CommandState>{CommandState.discarded}), hasLength(1), reason: 'the refused submit left the queue');
+      final SubmitStatus status = rig.flow.statusOf(draft.id);
+      expect(status.stage, SubmitStage.queued, reason: 'the new save waits for the network');
+      expect(status.isSubmit, isFalse);
+
+      final SubmitResult second = await rig.flow.submit(draft.id);
+      expect(second.outcome, SubmitOutcome.alreadyPending);
+      expect(commandsOf(rig, kSaveCommand).where((QueuedCommand c) => c.state == CommandState.queued), hasLength(1), reason: 'no duplicate save');
+    });
+
     test('a save that the server refuses keeps the draft too, and the submit is not made', () async {
       final FlowRig rig = await FlowRig.create();
       final DraftSnapshot draft = await rig.complete();
@@ -421,6 +442,26 @@ void main() {
       ];
       expect(submitStatusOf(commands, 'd1').stage, SubmitStage.idle);
       expect(submitStatusOf(<QueuedCommand>[...commands, command(kSubmitCommand, CommandState.queued, at: 3)], 'd1').stage, SubmitStage.queued);
+    });
+
+    test('a command made after a discarded submit decides, in whatever state; a discard still ends what came before it', () {
+      for (final CommandState state in <CommandState>[CommandState.queued, CommandState.sending, CommandState.unknown]) {
+        final List<QueuedCommand> commands = <QueuedCommand>[
+          command(kSubmitCommand, CommandState.discarded, at: 2),
+          command(kSaveCommand, state, at: 3),
+        ];
+        final SubmitStatus status = submitStatusOf(commands, 'd1');
+        expect(status.stage.name, state.name, reason: 'a save that is $state');
+        expect(status.isPending, isTrue);
+        expect(status.isSubmit, isFalse);
+      }
+      final SubmitStatus refused = submitStatusOf(<QueuedCommand>[
+        command(kSaveCommand, CommandState.rejected, at: 1, error: 'PERIOD_LOCKED'),
+        command(kSubmitCommand, CommandState.discarded, at: 2),
+        command(kSaveCommand, CommandState.rejected, at: 3, error: 'VALIDATION_FAILED'),
+      ], 'd1');
+      expect(refused.stage, SubmitStage.rejected);
+      expect(refused.code, 'VALIDATION_FAILED', reason: 'the refusal before the discard is not the one told');
     });
 
     test('a refused command tells its code', () {

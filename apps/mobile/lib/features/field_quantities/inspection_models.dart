@@ -255,8 +255,8 @@ final class ResultDraft {
   final FieldPlace place;
   final List<EvidencePhoto> photos;
 
-  ResultDraft copyWith({ResultForm? form, FieldPlace? place, List<EvidencePhoto>? photos}) =>
-      ResultDraft(contractId: contractId, inspectionId: inspectionId, operationId: operationId, form: form ?? this.form, place: place ?? this.place, photos: photos ?? this.photos);
+  ResultDraft copyWith({ResultForm? form, FieldPlace? place, List<EvidencePhoto>? photos, String? operationId}) =>
+      ResultDraft(contractId: contractId, inspectionId: inspectionId, operationId: operationId ?? this.operationId, form: form ?? this.form, place: place ?? this.place, photos: photos ?? this.photos);
 
   Map<String, Object?> toJson() => <String, Object?>{
         'contract_id': contractId,

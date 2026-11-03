@@ -73,7 +73,7 @@ class _ConfirmFormState extends ConsumerState<_ConfirmForm> with DecisionFlow<_C
     return ListView(
       padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
       children: <Widget>[
-        if (result != null) OutcomeCard(outcome: result, onSendAgain: () => submit(_request, retryAfterUnknown: true)),
+        if (result != null) OutcomeCard(outcome: result, onSendAgain: sendAgain),
         if (!done) ...<Widget>[
           SectionCard(
             title: context.t('mob.apv.confirm.summary', <String, Object>{'type': businessTypeLabel(context, widget.task.businessType), 'step': widget.task.stepName}),

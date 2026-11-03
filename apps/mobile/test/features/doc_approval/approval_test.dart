@@ -307,7 +307,38 @@ void main() {
       expect(find.text('Đã trả lại người soạn'), findsOneWidget);
     });
 
-    testWidgets('a refusal keeps the reason in the form and says why, with the stable code; the document is read again', (WidgetTester tester) async {
+    testWidgets('after a lost answer "send again" replays the reason that was sent, even when the field was edited meanwhile: same key, same body', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _reads(server);
+      int attempt = 0;
+      server.answer('POST', '/outgoing-documents/d-1/return', (_) {
+        attempt += 1;
+        if (attempt == 1) throw const SocketException('lost');
+        return recorded('d-1', status: 'RETURNED', version: 8);
+      });
+      await _open(tester, server, _detail);
+      await _scrollTo(tester, _open_());
+      await tester.tap(_open_());
+      await tester.pumpAndSettle();
+      await tester.enterText(_reason(), 'Cần bổ sung căn cứ pháp lý');
+      await _scrollTo(tester, _giveBack());
+      await tester.tap(_giveBack());
+      await tester.pumpAndSettle();
+      expect(find.text('Chưa xác định kết quả'), findsOneWidget);
+
+      await tester.enterText(_reason(), 'Một lý do hoàn toàn khác');
+      await tester.tap(find.text('Gửi lại cùng thao tác'));
+      await tester.pumpAndSettle();
+      final List<HttpCall> calls = _returns(server);
+      expect(calls, hasLength(2));
+      expect(calls[1].headers['idempotency-key'], calls[0].headers['idempotency-key']);
+      expect(calls[1].body, calls[0].body);
+      expect(calls[1].body, contains('Cần bổ sung căn cứ pháp lý'));
+      expect(calls[1].body, isNot(contains('hoàn toàn khác')));
+    });
+
+    testWidgets('a refusal keeps the reason in the form and says why, with the stable code; the document is read again',(WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();
       _reads(server);

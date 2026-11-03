@@ -72,6 +72,10 @@ class _DraftHostState extends ConsumerState<DraftHost> {
   ReportProblem? _referenceProblem;
   bool _started = false;
 
+  /// Whether this step was the one on top at the last build. A step stays alive under the one opened on it, and the draft changes
+  /// there without any event it could hear (the other step writes the device store directly): it is read again when it comes back.
+  bool _onTop = true;
+
   void _begin(ReportDrafts drafts) {
     if (identical(_drafts, drafts)) return;
     _drafts = drafts;
@@ -100,6 +104,8 @@ class _DraftHostState extends ConsumerState<DraftHost> {
       if (error.code != networkErrorCode) problem = problemOf(error);
     } on ContractMismatch {
       problem = ReportProblem.general;
+    } on DraftDropped {
+      problem = null;
     }
     if (!mounted) return;
     setState(() {
@@ -110,7 +116,9 @@ class _DraftHostState extends ConsumerState<DraftHost> {
 
   void _update(ReportForm Function(ReportForm form) change) {
     final ReportDrafts? drafts = _drafts;
-    final DraftSnapshot? current = _snapshot;
+    // The change is applied to the draft as the device holds it now, never to the copy this step was opened with: the figures
+    // typed at other steps meanwhile are in the draft and must stay in it.
+    final DraftSnapshot? current = drafts?.read(widget.draftId);
     if (drafts == null || current == null) return;
     final ReportForm next = change(current.form);
     if (next == current.form) return;
@@ -127,6 +135,7 @@ class _DraftHostState extends ConsumerState<DraftHost> {
   Widget build(BuildContext context) {
     ref.listen<AsyncValue<List<QueuedCommand>>>(queuedCommandsProvider, (AsyncValue<List<QueuedCommand>>? previous, AsyncValue<List<QueuedCommand>> next) => _reload());
     final AsyncValue<ReportDrafts> opened = ref.watch(reportDraftsProvider);
+    final bool onTop = ModalRoute.isCurrentOf(context) ?? true;
     final Reachability reachability = ref.watch(reachabilityProvider);
     final SessionSnapshot session = ref.watch(sessionProvider);
     final List<QueuedCommand> commands = ref.watch(queuedCommandsProvider).value ?? const <QueuedCommand>[];
@@ -139,8 +148,10 @@ class _DraftHostState extends ConsumerState<DraftHost> {
       state = ScreenState.loading;
     } else {
       _begin(opened.requireValue);
+      if (onTop && !_onTop) _snapshot = opened.requireValue.read(widget.draftId);
       if (_snapshot == null) state = ScreenState.empty;
     }
+    _onTop = onTop;
     final DraftSnapshot? snapshot = _snapshot;
     final SubmitStatus status = submitStatusOf(commands, widget.draftId);
     final bool editable = snapshot != null && !status.isPending && status.stage != SubmitStage.submitted && !session.isReadOnly;

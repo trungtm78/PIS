@@ -103,6 +103,18 @@ final Provider<MachvonApiClient> apiClientProvider = Provider<MachvonApiClient>(
   ),
 );
 
+/// The request client of one tenant: it takes the token only while that tenant is the active one. A command that was
+/// queued for tenant A and is sent after a switch to tenant B fails with [TenantMismatch] before anything leaves the
+/// device. The queue and every upload use it with the tenant of their store.
+final tenantApiClientProvider = Provider.family<MachvonApiClient, String>(
+  (Ref ref, String tenantId) => MachvonApiClient(
+    baseUrl: ref.watch(appConfigProvider).apiBaseUrl,
+    transport: ref.watch(apiTransportProvider),
+    token: () => ref.read(sessionProvider.notifier).accessTokenFor(tenantId),
+    locale: () => ref.read(localeProvider).languageCode,
+  ),
+);
+
 /// The router. It is rebuilt only when the features change; a session change makes it re-evaluate the guard.
 final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
   final ValueNotifier<int> sessionChanges = ValueNotifier<int>(0);

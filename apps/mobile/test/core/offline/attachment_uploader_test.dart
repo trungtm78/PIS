@@ -37,6 +37,9 @@ class UploaderRig {
     TestStorage? storage,
     ImageCompressor? compressor,
     SessionSnapshot session = kSignedInA,
+    SessionSnapshot Function()? sessionOf,
+    Future<String?> Function()? tokenOf,
+    Future<String?> Function()? deviceLookup,
     String? device = deviceId,
     int chunkBytes = 4,
   }) async {
@@ -52,7 +55,7 @@ class UploaderRig {
     final MachvonApiClient client = MachvonApiClient(
       baseUrl: Uri.parse('https://api.test/v1'),
       transport: fake,
-      token: () async => 'test-token',
+      token: tokenOf ?? () async => 'test-token',
       newKey: () => 'a0000000-0000-4000-8000-${(counter++).toString().padLeft(12, '0')}',
       delay: (Duration _) async {},
     );
@@ -61,8 +64,8 @@ class UploaderRig {
       client: client,
       baseUrl: Uri.parse('https://api.test/v1'),
       chunks: fake,
-      session: () => session,
-      deviceId: () async => device,
+      session: sessionOf ?? () => session,
+      deviceId: deviceLookup ?? () async => device,
       compressor: compressor,
       clock: clock.call,
       newKey: () => 'b0000000-0000-4000-8000-${(counter++).toString().padLeft(12, '0')}',

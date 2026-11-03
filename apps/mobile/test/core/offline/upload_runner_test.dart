@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_mobile/core/offline/attachments/attachment_upload.dart';
 import 'package:machvon_mobile/core/offline/attachments/upload_runner.dart';
 
+import '../../support/fake_attachment_server.dart';
 import 'attachment_uploader_test.dart' show UploaderRig;
 
 class _Timers {
@@ -40,12 +41,12 @@ void main() {
       final AttachmentUpload a = await rig.uploader.add(file: rig.pdf('a.pdf', 12), ownerKind: 'report');
       rig.server.offline = true;
       runner.start();
-      await pumpEventQueue();
+      await runner.idle;
       expect(rig.uploader.upload(a.id)!.errorCode, 'NETWORK_ERROR');
       expect(timers.active, isEmpty, reason: 'the connectivity change is what resumes');
       rig.server.offline = false;
       runner.trigger();
-      await pumpEventQueue();
+      await runner.idle;
       expect(rig.uploader.upload(a.id)!.state, UploadState.clean);
       runner.dispose();
     });
@@ -54,9 +55,10 @@ void main() {
       final UploaderRig rig = await UploaderRig.create();
       final UploadRunner runner = UploadRunner(rig.uploader, timer: _Timers().make);
       runner.start();
-      await pumpEventQueue();
+      await runner.idle;
       final AttachmentUpload added = await rig.uploader.add(file: rig.pdf('late.pdf', 12), ownerKind: 'report');
-      await pumpEventQueue();
+      await pumpEventQueue(); // the arrival reaches the runner
+      await runner.idle;
       expect(rig.uploader.upload(added.id)!.state, UploadState.clean);
 
       runner.dispose();
@@ -73,20 +75,62 @@ void main() {
       rig.server.failNext = (status: 503, code: 'INTERNAL_ERROR');
       runner.start();
       runner.trigger();
-      await pumpEventQueue();
+      await runner.idle;
       expect(rig.uploader.upload(a.id)!.state, UploadState.clean, reason: 'the trigger during the run made one more run, which finished it');
       expect(timers.active, isEmpty);
 
       rig.server.failNext = (status: 503, code: 'INTERNAL_ERROR');
       final AttachmentUpload b = await rig.uploader.add(file: rig.pdf('b.pdf', 12, seed: 5), ownerKind: 'report');
-      await pumpEventQueue();
+      await pumpEventQueue(); // the arrival reaches the runner
+      await runner.idle;
       expect(rig.uploader.upload(b.id)!.errorCode, 'INTERNAL_ERROR');
       expect(timers.active.single.delay, const Duration(seconds: 9));
       timers.active.single.run();
-      await pumpEventQueue();
+      await runner.idle;
       expect(rig.uploader.upload(b.id)!.state, UploadState.clean);
       runner.dispose();
       runner.trigger();
+    });
+
+    test('REVIEW-m1-3 a file the scanner has not finished with is asked about again after the wait, until it is clean', () async {
+      final FakeAttachmentServer server = FakeAttachmentServer()..scanPending = true;
+      final UploaderRig rig = await UploaderRig.create(server: server);
+      final _Timers timers = _Timers();
+      final UploadRunner runner = UploadRunner(rig.uploader, timer: timers.make, retryAfter: const Duration(seconds: 11));
+      final AttachmentUpload added = await rig.uploader.add(file: rig.pdf('slow.pdf', 12), ownerKind: 'report');
+      runner.start();
+      await runner.idle;
+      expect(rig.uploader.upload(added.id)!.state, UploadState.scanning);
+      expect(timers.active.single.delay, const Duration(seconds: 11), reason: 'nothing else would ask the server for the verdict');
+
+      timers.active.single.run();
+      await runner.idle;
+      expect(rig.uploader.upload(added.id)!.state, UploadState.scanning, reason: 'still being scanned');
+      expect(timers.active.single.delay, const Duration(seconds: 11), reason: 'asked again later');
+
+      server.finishScan(server.uploadIds.single);
+      timers.active.single.run();
+      await runner.idle;
+      expect(rig.uploader.upload(added.id)!.state, UploadState.clean);
+      expect(rig.uploader.linkableId(added.id), server.uploadIds.single);
+      expect(timers.active, isEmpty, reason: 'a settled upload needs no more questions');
+      runner.dispose();
+    });
+
+    test('REVIEW-m1-3 a scanning file on a phone without a network is not polled: the connectivity change resumes it', () async {
+      final FakeAttachmentServer server = FakeAttachmentServer()..scanPending = true;
+      final UploaderRig rig = await UploaderRig.create(server: server);
+      final _Timers timers = _Timers();
+      final UploadRunner runner = UploadRunner(rig.uploader, timer: timers.make);
+      final AttachmentUpload added = await rig.uploader.add(file: rig.pdf('slow.pdf', 12), ownerKind: 'report');
+      runner.start();
+      await runner.idle;
+      server.offline = true;
+      timers.active.single.run();
+      await runner.idle;
+      expect(rig.uploader.upload(added.id)!.errorCode, 'NETWORK_ERROR');
+      expect(timers.active, isEmpty);
+      runner.dispose();
     });
   });
 }

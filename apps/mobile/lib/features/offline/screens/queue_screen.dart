@@ -10,6 +10,7 @@ import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/offline/offline_providers.dart';
 import '../../../core/offline/queue/command_queue.dart';
+import '../../../core/offline/queue/offline_codes.dart';
 import '../../../core/offline/queue/queue_results.dart';
 import '../../../core/offline/queue/queued_command.dart';
 import '../../../core/state/screen_state.dart';
@@ -232,7 +233,8 @@ class _CommandTile extends StatelessWidget {
               spacing: 8,
               children: <Widget>[
                 if (command.state == CommandState.unknown) _Action(label: context.t('mob.queue.item.check.action'), onPressed: busy ? null : onCheck),
-                if (command.state == CommandState.rejected) _Action(label: context.t('mob.queue.item.retry.action'), onPressed: busy ? null : onRetry),
+                // A command refused as unverifiable may have been carried out: a new key would carry it out twice, so only the discard is offered.
+                if (command.state == CommandState.rejected && command.errorCode != kResultUnverifiable) _Action(label: context.t('mob.queue.item.retry.action'), onPressed: busy ? null : onRetry),
                 if (command.state == CommandState.conflict) _Action(label: context.t('mob.queue.item.resolve.action'), onPressed: onResolve),
                 if (command.state == CommandState.queued || command.state == CommandState.rejected || command.state == CommandState.conflict)
                   _Action(label: context.t('mob.queue.item.discard.action'), onPressed: busy ? null : onDiscard),

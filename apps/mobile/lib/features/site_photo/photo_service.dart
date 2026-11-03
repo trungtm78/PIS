@@ -31,11 +31,15 @@ class SitePhotoService {
   /// photographs is resumed by the next call with the same operation id: a photograph already handed over is never handed over twice.
   Future<PhotoRecord> keep(PhotoRecord capture) async {
     final DraftStore drafts = await _drafts;
-    final List<EvidencePhoto> clean = await enforcePhotoConsent(capture.photos, consent: capture.place.consent);
-    PhotoRecord record = _with(capture, clean);
-    final String? existing = _find(drafts, record.operationId)?.id;
-    final String id = drafts.save(id: existing, kind: kSitePhotoKind, fields: record.toJson(), recordId: record.contractId).id;
     final AttachmentUploader uploader = await _ref.read(attachmentUploaderProvider.future);
+    final LocalDraft? earlier = _find(drafts, capture.operationId);
+    // The screen sends again what it holds: the photographs as they were taken, without the uploads an earlier, cut call gave them.
+    // Those uploads are in the record that was kept, and writing the screen's photographs over it would forget them and hand the same
+    // files over a second time.
+    final List<EvidencePhoto> clean = _withKnownUploads(await enforcePhotoConsent(capture.photos, consent: capture.place.consent), earlier, uploader);
+    PhotoRecord record = _with(capture, clean);
+    final String? existing = earlier?.id;
+    final String id = drafts.save(id: existing, kind: kSitePhotoKind, fields: record.toJson(), recordId: record.contractId).id;
     final List<EvidencePhoto> handed = await handOverPhotos(
       uploader,
       clean,
@@ -72,6 +76,19 @@ class SitePhotoService {
       await removePreparedFiles(photo);
     }
     (await _drafts).delete(capture.id);
+  }
+
+  /// The photographs with the upload each already has in the record kept for this capture, when the uploader still knows that upload.
+  List<EvidencePhoto> _withKnownUploads(List<EvidencePhoto> photos, LocalDraft? kept, AttachmentUploader uploader) {
+    final PhotoRecord? before = kept == null ? null : PhotoRecord.fromJson(kept.fields);
+    if (before == null) return photos;
+    final Map<String, String> uploads = <String, String>{
+      for (final EvidencePhoto photo in before.photos)
+        if (photo.uploadId case final String uploadId when uploader.upload(uploadId) != null) photo.id: uploadId,
+    };
+    return <EvidencePhoto>[
+      for (final EvidencePhoto photo in photos) photo.uploadId == null && uploads.containsKey(photo.id) ? photo.copyWith(uploadId: uploads[photo.id]) : photo,
+    ];
   }
 
   LocalDraft? _find(DraftStore drafts, String operationId) {

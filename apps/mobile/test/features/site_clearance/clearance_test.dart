@@ -554,6 +554,49 @@ void main() {
       expect((await rig.storage.open()).drafts.all(), isEmpty);
     });
 
+    testWidgets('a record whose answer was lost cannot be edited, before or after a restart, until the server has answered; it is then sent under the key it had', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _reads(server);
+      int attempt = 0;
+      server.answer('POST', '/land-inventory-records', (_) {
+        attempt += 1;
+        if (attempt == 1) throw const SocketException('lost');
+        return recorded('r-9', status: 'DRAFT');
+      });
+      final _Rig rig = _Rig();
+      await _open(tester, server, _task, rig: rig);
+      await _fillForm(tester);
+      await _tap(tester, _keepAndSend());
+      expect(find.text('Chưa xác định kết quả'), findsOneWidget);
+
+      expect(tester.widget<OutlinedButton>(find.widgetWithText(OutlinedButton, 'Sửa')).onPressed, isNull, reason: 'the first request may already exist: another payload under its key would be refused or would double it');
+      expect(find.text('Chưa biết máy chủ đã ghi chưa. Gửi lại bản này; chỉ sửa được sau khi có trả lời.'), findsOneWidget);
+      final String key = (await rig.storage.open()).drafts.all().single.fields['attempt_key']! as String;
+
+      await _open(tester, server, _task, rig: rig);
+      expect(tester.widget<OutlinedButton>(find.widgetWithText(OutlinedButton, 'Sửa')).onPressed, isNull, reason: 'a restart does not make the unknown outcome known');
+
+      await _tap(tester, find.widgetWithText(FilledButton, 'Gửi'));
+      final List<HttpCall> calls = server.callsTo('POST', '/land-inventory-records');
+      expect(calls, hasLength(2));
+      expect(calls[0].headers['idempotency-key'], key);
+      expect(calls[1].headers['idempotency-key'], key);
+      expect(calls[1].body, calls[0].body);
+      expect((await rig.storage.open()).drafts.all(), isEmpty);
+    });
+
+    testWidgets('a record that was never sent (offline) stays editable', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _reads(server);
+      final _Rig rig = _Rig();
+      await _open(tester, server, _task, rig: rig);
+      await _fillForm(tester);
+      await _tap(tester, _keep());
+      expect(tester.widget<OutlinedButton>(find.widgetWithText(OutlinedButton, 'Sửa')).onPressed, isNotNull);
+    });
+
     testWidgets('a final refusal keeps the record with its code, and sending it again after the correction is a new command', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();
@@ -843,6 +886,18 @@ void main() {
       expect(drafts.of('h-2'), isEmpty);
       drafts.remove(first.id);
       expect(drafts.of('h-1'), isEmpty);
+      final InventoryDraft unsettled = drafts.sent(drafts.save(householdId: 'h-1', householdCode: 'HH-A-001', parcelId: 'pa-1', parcelCode: 'TH-001', form: form));
+      expect(unsettled.awaitingAnswer, isTrue);
+      expect(drafts.of('h-1').firstWhere((InventoryDraft d) => d.id == unsettled.id).awaitingAnswer, isTrue, reason: 'kept in the store, so it outlives the application');
+      expect(() => drafts.save(id: unsettled.id, householdId: 'h-1', householdCode: 'HH-A-001', parcelId: 'pa-1', parcelCode: 'TH-001', form: form), throwsA(isA<InventoryDraftLocked>()));
+      final InventoryDraft notSent = drafts.notSent(unsettled);
+      expect(notSent.awaitingAnswer, isFalse);
+      expect(notSent.attemptKey, unsettled.attemptKey, reason: 'nothing left the phone: the intention is the same');
+      expect(drafts.save(id: unsettled.id, householdId: 'h-1', householdCode: 'HH-A-001', parcelId: 'pa-1', parcelCode: 'TH-001', form: form).awaitingAnswer, isFalse);
+      final InventoryDraft resent = drafts.sent(notSent);
+      final InventoryDraft refusedAfter = drafts.refused(resent, 'VALIDATION_FAILED');
+      expect(refusedAfter.awaitingAnswer, isFalse, reason: 'a final refusal settles it');
+      expect(refusedAfter.attemptKey, isNot(resent.attemptKey));
       expect(InventoryDraft.fromLocal(const LocalDraft(id: 'x', tenantId: 't', userId: 'u', kind: 'report', fields: const <String, Object?>{}, baseServerVersion: 0, status: DraftStatus.editing, createdAt: 0, updatedAt: 0)), isNull);
     });
   });

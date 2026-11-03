@@ -1,11 +1,17 @@
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_mobile/app/app_config.dart';
 import 'package:machvon_mobile/core/connectivity/reachability.dart';
 import 'package:machvon_mobile/core/di/providers.dart';
+import 'package:machvon_mobile/core/offline/attachments/attachment_upload.dart';
+import 'package:machvon_mobile/core/offline/attachments/attachment_uploader.dart';
 import 'package:machvon_mobile/core/offline/offline_providers.dart';
 import 'package:machvon_mobile/core/offline/queue/command_queue.dart';
+import 'package:machvon_mobile/core/offline/queue/queue_results.dart';
 import 'package:machvon_mobile/core/offline/queue/queue_runner.dart';
 import 'package:machvon_mobile/core/offline/queue/queued_command.dart';
 import 'package:machvon_mobile/core/offline/store/local_store.dart';
@@ -32,6 +38,65 @@ ProviderContainer containerFor({required TestStorage storage, required FakeSyncS
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  group('REVIEW-m1-1 the queue and the uploads send through the client of the tenant of their store', () {
+    MachvonApiClient globalClient(FakeSyncServer server) => MachvonApiClient(
+          baseUrl: Uri.parse('https://api.test/v1'),
+          transport: server,
+          token: () async => 'token-of-whoever-is-active',
+        );
+
+    test('the queue and the uploader never use the application client, whose token follows the active tenant', () async {
+      final TestStorage storage = TestStorage.create();
+      final FakeSyncServer server = FakeSyncServer();
+      final ProviderContainer container = containerFor(
+        storage: storage,
+        server: server,
+        overrides: <Override>[apiClientProvider.overrideWithValue(globalClient(server))],
+      );
+      final LocalStore store = await container.read(localStoreProvider.future);
+      store.deviceId = '11111111-1111-4111-8111-111111111111';
+      final CommandQueue queue = await container.read(commandQueueProvider.future);
+      queue.enqueue(commandType: 'issue.create', payload: <String, Object?>{'n': 1});
+      await queue.flush();
+      expect(server.batches.single.headers['authorization'], 'Bearer test-token', reason: 'the token of the session for tenant-a, asked for tenant-a');
+      final AttachmentUploader uploader = await container.read(attachmentUploaderProvider.future);
+      final Directory folder = Directory.systemTemp.createTempSync('machvon-scope-');
+      addTearDown(() => folder.deleteSync(recursive: true));
+      final File pdf = File('${folder.path}/a.pdf')..writeAsBytesSync(<int>[...'%PDF-1.4 scope test'.codeUnits]);
+      final AttachmentUpload added = await uploader.add(file: pdf, ownerKind: 'report');
+      await uploader.run(added.id);
+      final HttpCall start = server.calls.firstWhere((HttpCall c) => c.url.path.endsWith('/sync/attachments'));
+      expect(start.headers['authorization'], 'Bearer test-token');
+    });
+
+    test('the client of tenant-a refuses to send once tenant-b is active', () async {
+      final FakeSession session = FakeSession();
+      final FakeSyncServer server = FakeSyncServer();
+      final ProviderContainer container = containerFor(storage: TestStorage.create(), server: server, session: session);
+      final MachvonApiClient clientOfA = container.read(tenantApiClientProvider('tenant-a'));
+      await expectLater(clientOfA.execute('getMyProfile'), throwsA(isA<ApiError>()), reason: 'it reaches the server while tenant-a is active');
+      final int before = server.calls.length;
+      session.change(const SessionSnapshot(status: SessionStatus.signedIn, tenantId: 'tenant-b', userId: 'user-1'));
+      await expectLater(clientOfA.execute('getMyProfile'), throwsA(isA<TenantMismatch>()));
+      expect(server.calls.length, before, reason: 'nothing left the phone under tenant-b');
+    });
+
+    test('disposing the container ends the queue and the uploader: nothing is written after it', () async {
+      final TestStorage storage = TestStorage.create();
+      final FakeSyncServer server = FakeSyncServer();
+      final ProviderContainer container = containerFor(storage: storage, server: server);
+      final LocalStore store = await container.read(localStoreProvider.future);
+      store.deviceId = '11111111-1111-4111-8111-111111111111';
+      final CommandQueue queue = await container.read(commandQueueProvider.future);
+      final AttachmentUploader uploader = await container.read(attachmentUploaderProvider.future);
+      queue.enqueue(commandType: 'issue.create', payload: <String, Object?>{'n': 1});
+      container.dispose();
+      expect((await queue.flush()).blocker, FlushBlocker.noSession);
+      expect(server.batchPosts, 0);
+      await uploader.resumeAll();
+    });
+  });
 
   group('TK-MOB-005-4 the queue is bound to the signed-in user and tenant', () {
     test('the queue opens the store of the session, sends with the device of the store, and keeps the shell banner in step', () async {

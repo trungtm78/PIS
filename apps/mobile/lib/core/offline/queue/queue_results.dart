@@ -92,6 +92,18 @@ final class QueueEvent {
   bool get becamePeriodLocked => command.state == CommandState.rejected && command.errorCode == kPeriodLocked && from != CommandState.rejected;
 }
 
+/// A command that was refused as `RESULT_UNVERIFIABLE` cannot be sent again as if it had never been tried: the server may have carried
+/// it out before it forgot its receipts, and a new key would do the work twice. The person checks the record, then either drops the
+/// command or sends it again knowingly (`CommandQueue.retry(confirmedNotExecuted: true)`).
+final class ResultUnverifiable implements Exception {
+  const ResultUnverifiable(this.commandId);
+
+  final String commandId;
+
+  @override
+  String toString() => 'ResultUnverifiable';
+}
+
 /// A key that stands for a command is used for a different one. The server would refuse it (`IDEMPOTENCY_CONFLICT`);
 /// the queue refuses it first, because it is always a programming error: one intention is one key.
 final class IdempotencyKeyReuse implements Exception {

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
-import 'package:machvon_api_client/machvon_api_client.dart';
 
 import '../../app/app_config.dart';
 import '../../core/di/providers.dart';
@@ -128,18 +127,6 @@ class _LifecycleObserver with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) => _report(state);
 }
 
-/// The request client of one tenant: it takes the token only while that tenant is the active one. A command that was
-/// queued for tenant A and is sent after a switch to tenant B fails with [TenantMismatch] before anything leaves the
-/// device. The queue and every upload use it with the tenant of the item they send.
-final tenantApiClientProvider = Provider.family<MachvonApiClient, String>(
-  (Ref ref, String tenantId) => MachvonApiClient(
-    baseUrl: ref.watch(appConfigProvider).apiBaseUrl,
-    transport: ref.watch(apiTransportProvider),
-    token: () => ref.read(authServiceProvider).accessTokenFor(tenantId),
-    locale: () => ref.read(localeProvider).languageCode,
-  ),
-);
-
 /// The session of the application on [AuthService]. `main.dart` installs it with `sessionProvider.overrideWith(OidcSession.new)`.
 class OidcSession extends SessionController {
   DateTime? _backgroundedAt;
@@ -163,6 +150,9 @@ class OidcSession extends SessionController {
 
   @override
   Future<String?> accessToken() => ref.read(authServiceProvider).accessToken();
+
+  @override
+  Future<String?> accessTokenFor(String tenantId) => ref.read(authServiceProvider).accessTokenFor(tenantId);
 
   void _onLifecycle(AppLifecycleState next) {
     final DateTime now = ref.read(sessionClockProvider)();

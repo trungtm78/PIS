@@ -162,13 +162,9 @@ class IssueService {
     if (draft.place.consent) return draft;
     final List<IssuePhoto> photos = <IssuePhoto>[];
     for (final IssuePhoto photo in draft.photos) {
-      if (!photo.keepsPlaceOrTime && photo.originalPath == null) {
-        photos.add(photo);
-        continue;
-      }
-      await stripPreparedFile(photo.path, photo.mime);
+      await stripPreparedFile(photo.path);
       final String? original = photo.originalPath;
-      if (original != null) await stripPreparedFile(original, photo.mime);
+      if (original != null) await stripPreparedFile(original);
       photos.add(
         IssuePhoto(
           id: photo.id,
