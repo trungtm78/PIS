@@ -146,11 +146,18 @@ export class BiQueryJobStore {
     return rows[0]?.result;
   }
 
-  /** Takes the jobs that wait, oldest first, as RUNNING. A job another worker holds is passed by. */
+  /**
+   * Takes the jobs that wait, oldest first, as RUNNING. A job another worker holds is passed by. The jobs are picked in a materialised step of their own: a locking
+   * `limit` inside `where ... in (select ...)` may be run again by the planner and take more rows than the limit, and a pass that was to take one job would then take two
+   * and end both in one transaction.
+   */
   async claim(tx: TenantTx, limit: number, now: Date): Promise<QueryJob[]> {
     const rows = await tx.query<Sql>(
-      `update machvon.bi_query_run r set status = 'RUNNING', started_at = $2::timestamptz
-        where (r.tenant_id, r.id) in (select q.tenant_id, q.id from machvon.bi_query_run q where q.mode = 'ASYNC_JOB' and q.status = 'QUEUED' order by q.created_at, q.id limit $1::int for update skip locked)
+      `with picked as materialized (
+         select q.tenant_id, q.id from machvon.bi_query_run q where q.mode = 'ASYNC_JOB' and q.status = 'QUEUED' order by q.created_at, q.id limit $1::int for update skip locked
+       )
+       update machvon.bi_query_run r set status = 'RUNNING', started_at = $2::timestamptz
+         from picked p where r.tenant_id = p.tenant_id and r.id = p.id
         returning r.id, r.requested_by, r.metric_version_ids, r.as_of_period, r.dataset_version_id, r.scope_hash, r.cache_key, r.query_spec, r.estimated_cost, r.created_at`,
       [limit, now.toISOString()],
     );
