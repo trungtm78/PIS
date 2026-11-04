@@ -271,8 +271,10 @@ describe('the cap and the budget of a channel account at the moment of sending (
     const sent = await notify();
     const held = await notify();
     await dispatch();
-    expect((await attemptOf(sent)).status).toBe('ProviderAccepted');
-    expect(await attemptOf(held)).toMatchObject({ status: 'Queued', cost: '0.00000000' });
+    // The two messages are sent at the same time and race for the one place under the cap: which of them gets it is not decided, that exactly one does and the other costs nothing is.
+    const attempts = [await attemptOf(sent), await attemptOf(held)];
+    expect(attempts.filter((attempt) => attempt.status === 'ProviderAccepted')).toHaveLength(1);
+    expect(attempts.filter((attempt) => attempt.status === 'Queued')).toEqual([expect.objectContaining({ status: 'Queued', cost: '0.00000000' })]);
     await account({});
     const free = [await notify(), await notify(), await notify()];
     await dispatch();

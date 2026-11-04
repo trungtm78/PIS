@@ -58,7 +58,8 @@ describe('the degraded-state banner of the home screen (ST-KERNEL-073)', () => {
     expect(line).toHaveAttribute('data-state', 'OPEN');
     expect(within(banner).getByText(vi_['home.degraded.reassure'])).toBeInTheDocument();
     // The screen itself goes on: the banner does not take the place of the figures.
-    expect(await screen.findByTestId('home-rates')).toBeInTheDocument();
+    // The figures are looked up again until they are in the document: the screen draws them again when the health of the channels arrives, and the node found first may be the one that goes.
+    await waitFor(() => expect(screen.getByTestId('home-rates')).toBeInTheDocument());
   });
 
   it('AC-ST-KERNEL-073-2 UAT-NFR-AVAILABILITY-04: names every degraded channel, and says so when a channel has not delivered yet', async () => {
