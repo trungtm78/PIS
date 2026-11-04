@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import type { ScreenProps } from '../../routes/types';
 import { useTranslation } from '../../i18n';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
@@ -26,14 +27,14 @@ function holds(permissions: readonly string[] | undefined, permission: string): 
  * and the commands createCustomRole, updateCustomRole, grantRole and revokeRoleGrant. Reads need role_grant.read;
  * the commands need iam.role.manage and iam.role.grant. Without them the screen is read-only or denied.
  */
-export default function RolesGrantsScreen() {
+export default function RolesGrantsScreen({ route }: ScreenProps) {
   const tenantId = useSession().tenant?.id;
   // Everything the screen holds (selection, drafts, dialogs) belongs to one tenant: a switch starts it over, so a
   // draft typed for one tenant can never be saved into another.
-  return <RolesGrantsContent key={tenantId ?? 'none'} />;
+  return <RolesGrantsContent key={tenantId ?? 'none'} routeId={route.id} />;
 }
 
-function RolesGrantsContent() {
+function RolesGrantsContent({ routeId }: { routeId: string }) {
   const { t } = useTranslation();
   const { permissions, mode } = useSession();
   // A suspended tenant (READ_ONLY mode) is read-only for everyone, whatever the grants say.
@@ -80,7 +81,7 @@ function RolesGrantsContent() {
   const selected = selection.kind === 'role' ? roles.data?.find((role) => role.id === selection.id) : undefined;
 
   return (
-    <>
+    <section data-screen-id={routeId}>
       <div className="heading">
         <div>
           <h1>{t('adm.roles.page.title')}</h1>
@@ -173,6 +174,6 @@ function RolesGrantsContent() {
           }}
         />
       )}
-    </>
+    </section>
   );
 }

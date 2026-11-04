@@ -9,6 +9,7 @@ import { ALL_MODULES_VISIBLE } from '../../navigation/model';
 import { SessionContext } from '../../session/SessionContext';
 import type { SessionMode, SessionTenant, SessionValue } from '../../session/SessionContext';
 import RolesGrantsScreen from './RolesGrantsScreen';
+import { routeOf } from './members/test-support';
 import type { GrantView, RoleView } from './roles/types';
 
 const UUID_A = '00000000-0000-4000-8000-0000000000a1';
@@ -105,7 +106,7 @@ function renderScreen(fixture: Fixture = {}) {
     <QueryClientProvider client={queries}>
       <SessionContext.Provider value={sessionFor(tenantId)}>
         <ApiClientProvider client={client}>
-          <RolesGrantsScreen />
+          <RolesGrantsScreen route={ROUTE} />
         </ApiClientProvider>
       </SessionContext.Provider>
     </QueryClientProvider>
@@ -134,7 +135,17 @@ async function fillGrant(user: ReturnType<typeof userEvent.setup>, dialog: HTMLE
   await user.type(within(dialog).getByLabelText('Lý do'), 'Cấp quyền theo quyết định số 12');
 }
 
+const ROUTE = routeOf('ADM-03', 'FR-ADM-03');
+
 describe('ADM-03 states (AC-ST-ADM-005-7)', () => {
+  it('marks the screen with its id in every state, as the other screens do, so a browser flow can wait for it instead of for a transient loading notice', async () => {
+    renderScreen();
+    expect(document.querySelector('[data-screen-id="ADM-03"]')).not.toBeNull();
+    expect(await screen.findByRole('table')).toBeInTheDocument();
+    expect(document.querySelector('[data-screen-id="ADM-03"]')).not.toBeNull();
+  });
+
+
   it('shows the roles, the grants and the preview in the default state', async () => {
     renderScreen();
     expect(await screen.findByRole('heading', { level: 1, name: 'Vai trò và quyền' })).toBeInTheDocument();
