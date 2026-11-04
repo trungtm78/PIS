@@ -407,7 +407,9 @@ describe('the households affected by a land recovery: sealed personal data, mask
       expect(auditor.find((item) => item.id === household)).toMatchObject({ national_id_masked: '************', phone_masked: '************', head_name_masked: 'N***** V** A**' });
       const body = JSON.stringify(seen.json);
       for (const personal of [HEAD, ADDRESS, PHONE, nid]) expect(body).not.toContain(personal);
-      expect(JSON.stringify(auditor)).not.toContain(nid.slice(-4));
+      // The last digits are looked for in the masked columns: in the whole list they would meet the digits of the ids of the rows.
+      const maskedColumns = auditor.map((item) => JSON.stringify([item.head_name_masked, item.national_id_masked, item.phone_masked, item.address_masked])).join('');
+      expect(maskedColumns).not.toContain(nid.slice(-4));
       const mixed = (await listOf(DEPARTMENT_OPENER)).json.items as Array<Record<string, unknown>>;
       expect(mixed.find((item) => item.id === household)).toMatchObject({ national_id_masked: '********' + nid.slice(-4) });
     });
@@ -420,7 +422,10 @@ describe('the households affected by a land recovery: sealed personal data, mask
       const line = (read.json.items as Array<Record<string, unknown>>).find((item) => item.id === household);
       expect(line).toMatchObject({ head_name_masked: 'N***** V** A**', national_id_masked: '************', phone_masked: '************', address_masked: '***, Quận 1' });
       const leaving = JSON.stringify(read.json);
-      for (const personal of [HEAD, 'Nguyễn', ADDRESS, '12 Lê Lợi', PHONE, nid, nid.slice(-4), PHONE.slice(-3)]) expect(leaving).not.toContain(personal);
+      for (const personal of [HEAD, 'Nguyễn', ADDRESS, '12 Lê Lợi', PHONE, nid]) expect(leaving).not.toContain(personal);
+      // The last digits are too short to look for in the whole answer (the ids and the times of the rows hold digits of their own): they are looked for in the masked columns, where they would be a leak.
+      const masked = JSON.stringify([line?.head_name_masked, line?.national_id_masked, line?.phone_masked, line?.address_masked]);
+      for (const digits of [nid.slice(-4), PHONE.slice(-3)]) expect(masked).not.toContain(digits);
       // The column that keeps the identity number holds a sealed value: the digits are not in it, as text or as hexadecimal.
       const [sealed] = await rows<{ sealed: string; length: number }>("select encode(national_id_enc, 'hex') as sealed, length(national_id_enc) as length from machvon.affected_household where id = $1::uuid", [household]);
       expect(sealed?.length).toBeGreaterThan(nid.length);
