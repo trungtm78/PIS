@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { ACTIONS_ON_FAIL, CRITICALITY_WEIGHT_MAX, CRITICALITY_WEIGHT_MIN, DomainError, QUALITY_DIMENSIONS, RULE_SEVERITIES, assertFourEyes, parseQualityThreshold, validateQualityExpression, versionConflict } from '@machvon/kernel';
+import { ACTIONS_ON_FAIL, CRITICALITY_WEIGHT_MAX, CRITICALITY_WEIGHT_MIN, DomainError, QUALITY_DIMENSIONS, RULE_SEVERITIES, assertFourEyes, parseQualityThreshold, validateQualityExpression, versionConflict, hasControlChar } from '@machvon/kernel';
 import type { ActionOnFail, QualityDimension, QualityExpr, RuleSeverity } from '@machvon/kernel';
 import { DATASET_VISIBLE } from './dgv-dataset-store.ts';
 import type { DatasetViewer } from './dgv-dataset-store.ts';
@@ -9,8 +9,6 @@ import type { TenantTx } from './tenant-database.ts';
 const MAX_CODE = 80;
 const MIN_CODE = 2;
 const MAX_FIELD_PATH = 300;
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u001f\u007f]/;
 
 export type QualityRuleStatus = 'DRAFT' | 'APPROVED' | 'SUPERSEDED';
 export const QUALITY_RULE_STATUSES: readonly QualityRuleStatus[] = ['DRAFT', 'APPROVED', 'SUPERSEDED'];
@@ -163,7 +161,7 @@ function oneOf<T extends string>(list: readonly T[], value: string, field: strin
 /** A rule code as it is stored: trimmed, 2 to 80 characters, no control characters. */
 function codeOf(value: string): string {
   const code = value.trim();
-  if (code.length < MIN_CODE || code.length > MAX_CODE || CONTROL.test(code)) throw invalid('code');
+  if (code.length < MIN_CODE || code.length > MAX_CODE || hasControlChar(code)) throw invalid('code');
   return code;
 }
 
@@ -189,7 +187,7 @@ export class DgvQualityRuleStore {
     const action = oneOf(ACTIONS_ON_FAIL, input.actionOnFail, 'action_on_fail');
     if (!Number.isInteger(input.criticalityWeight) || input.criticalityWeight < CRITICALITY_WEIGHT_MIN || input.criticalityWeight > CRITICALITY_WEIGHT_MAX) throw invalid('criticality_weight');
     const fieldPath = input.fieldPath === undefined || input.fieldPath.trim() === '' ? null : input.fieldPath.trim();
-    if (fieldPath !== null && (fieldPath.length > MAX_FIELD_PATH || CONTROL.test(fieldPath))) throw invalid('field_path');
+    if (fieldPath !== null && (fieldPath.length > MAX_FIELD_PATH || hasControlChar(fieldPath))) throw invalid('field_path');
 
     // A contract of the tenant that is bound to a dataset the writer may see; anything else is a contract that does not exist for the writer.
     const contracts = await tx.query<ContractRow>(

@@ -21,7 +21,7 @@ import type { LinesPage, SnapshotKind, SnapshotLineView, SnapshotProblem, Snapsh
 type T = Translator['t'];
 
 /** The multiplication sign on the close button of the dialog. */
-const CLOSE_GLYPH = '×';
+const CLOSE_GLYPH = '\u00d7';
 const NONE = '—';
 /** Where DIS-22 reopens a locked period: the screen the freeze of a period leads to when the figures need a correction. */
 const REOPEN_PATH = '/dis/dis-22';

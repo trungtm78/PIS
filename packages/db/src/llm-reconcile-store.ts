@@ -14,7 +14,30 @@ const MAX_PAGE = 200;
 const UNIQUE_VIOLATION = '23505';
 const VIETNAM_DAY = "(a.created_at at time zone 'Asia/Ho_Chi_Minh')::date";
 
-type Sql = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+interface Sql {
+  [column: string]: unknown;
+  id: string;
+  provider_id: string;
+  provider_code: string;
+  invoice_ref: string;
+  invoice_amount: string;
+  currency: string;
+  period_from: string;
+  period_to: string;
+  attempts_total: string;
+  variance: string;
+  tolerance_pct: string;
+  attempt_count: number;
+  pending_attempt_ids: string[];
+  reconciled_attempt_ids: string[];
+  reservations_settled: number;
+  status: "VARIANCE" | "RECONCILED";
+  owner_id: string;
+  run_count: number;
+  last_run_at: string;
+  created_at: string;
+  cost: string;
+}
 
 export interface InvoiceReconciliation {
   id: string;

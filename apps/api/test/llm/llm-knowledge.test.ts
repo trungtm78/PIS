@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- the replies of the API and the rows of the tables are read as the JSON they are */
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -20,6 +19,7 @@ import { AuthzHarness, TENANT_A, TENANT_B, memberId, roleId, unitId } from '../.
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
 import type { RunningApp } from '../isolation/test-app';
+import { asObjects, asString } from '../support/json';
 
 jest.setTimeout(240_000);
 
@@ -37,7 +37,7 @@ const LOSER = 10; // reads what unit 2 governs, until the grant is revoked
 
 interface Reply {
   status: number;
-  json: Record<string, any>;
+  json: Record<string, unknown>;
 }
 
 const sha = (bytes: Uint8Array): string => createHash('sha256').update(bytes).digest('hex');
@@ -59,7 +59,7 @@ describe('knowledge collections: indexing and retrieval filtered by tenant and a
     const headers: Record<string, string> = { [TENANT_HEADER]: tokenOf(options.member, options.tenantId), 'content-type': 'application/json' };
     if (method !== 'GET') headers['idempotency-key'] = `key-${randomUUID()}`;
     const response = await fetch(`${app.baseUrl}${url}`, { method, headers, body: method === 'GET' ? undefined : JSON.stringify(options.body ?? {}) });
-    return { status: response.status, json: (await response.json()) as Record<string, any> };
+    return { status: response.status, json: (await response.json()) as Record<string, unknown> };
   }
   const rows = async <R extends object>(sql: string, params: unknown[] = [], tenant = TENANT_A): Promise<R[]> => harness.owner<R>(tenant, [[sql, params]]);
   const context = (member = WORKER, tenantId = TENANT_A) => ({ tenantId, membershipId: memberId(member), scopeVersion: 1 });
@@ -104,7 +104,7 @@ describe('knowledge collections: indexing and retrieval filtered by tenant and a
     const modelId = await model({}, tenantId);
     const made = await call('POST', '/ai-knowledge-collections', { member, tenantId, body: collectionBody(modelId, over) });
     expect(made.status).toBe(200);
-    return { id: made.json.resource_id, modelId };
+    return { id: asString(made.json.resource_id), modelId };
   }
 
   /** A document version of the tenant with the pages the OCR recorded, a classification, a scan verdict and an access list. */
@@ -241,7 +241,7 @@ describe('knowledge collections: indexing and retrieval filtered by tenant and a
     // The classification of the version is raised behind the back of the index (an owner's correction): the chunks were indexed under another ACL.
     await rows("update machvon.document_version set classification = 'CONFIDENTIAL' where id = $1", [version]);
     expect(await ask(STC, id, TEXT)).toEqual([]);
-    expect((await call('GET', `/ai-knowledge-collections/${id}`, { member: READER })).json.items[0]).toMatchObject({ stale: true });
+    expect(asObjects((await call('GET', `/ai-knowledge-collections/${id}`, { member: READER })).json.items)[0]).toMatchObject({ stale: true });
     // It is above what the collection takes now, so it cannot be indexed again: it stays withheld.
     expect(await index(ADMIN, id, version)).toMatchObject({ status: 422, json: { code: 'CLASSIFICATION_ABOVE_COLLECTION' } });
     expect(await ask(STC, id, TEXT)).toEqual([]);
@@ -335,7 +335,7 @@ describe('knowledge collections: indexing and retrieval filtered by tenant and a
     await setUnit(mendable, 2);
     await rows('delete from machvon.document_page_ocr where document_version_id = $1', [broken]);
     // One try a pass, whoever else waits in the queue (the items of the tests before may be stopped by a switch): a failure sends an item to the back, so the mendable one is reached within a few passes.
-    const item = async (version: string) => (await call('GET', `/ai-knowledge-collections/${id}`, { member: READER })).json.items.find((one: any) => one.document_version_id === version);
+    const item = async (version: string) => asObjects((await call('GET', `/ai-knowledge-collections/${id}`, { member: READER })).json.items).find((one) => one.document_version_id === version);
     let passes = 0;
     while ((await ask(BQL1, id, TEXT)).length === 0 && passes < 40) {
       await knowledge.reindexStale(tenants, context(WORKER), 1);
@@ -343,7 +343,7 @@ describe('knowledge collections: indexing and retrieval filtered by tenant and a
     }
     expect(passes).toBeLessThan(40);
     expect(await ask(BQL1, id, TEXT)).toHaveLength(1);
-    while ((await item(broken)).failure_code === null && passes < 80) {
+    while ((await item(broken))?.failure_code === null && passes < 80) {
       await knowledge.reindexStale(tenants, context(WORKER), 1);
       passes += 1;
     }
@@ -404,7 +404,7 @@ describe('knowledge collections: indexing and retrieval filtered by tenant and a
     const made = await call('POST', '/ai-knowledge-collections', { member: ADMIN, body: collectionBody(modelId, { code: 'KB-PRJ' }) });
     expect([made.status, made.json.status]).toEqual([200, 'ACTIVE']);
     expect(await call('POST', '/ai-knowledge-collections', { member: ADMIN, body: collectionBody(modelId, { code: 'KB-PRJ' }) })).toMatchObject({ status: 409, json: { code: 'DUPLICATE_KEY' } });
-    const created = await rows<{ payload: Record<string, any> }>("select payload from machvon.outbox_event where type = 'llm.collection.created.v1' and aggregate_id = $1", [made.json.resource_id]);
+    const created = await rows<{ payload: Record<string, unknown> }>("select payload from machvon.outbox_event where type = 'llm.collection.created.v1' and aggregate_id = $1", [made.json.resource_id]);
     expect(created).toHaveLength(1);
     expect(created[0]?.payload).toMatchObject({ collection_id: made.json.resource_id, code: 'KB-PRJ', subject_module: 'PRJ', embedding_model_id: modelId, max_classification: 'INTERNAL' });
     const read = await call('GET', `/ai-knowledge-collections/${made.json.resource_id}`, { member: READER });
@@ -451,7 +451,7 @@ describe('knowledge collections: indexing and retrieval filtered by tenant and a
     const again = await index(ADMIN, id, version);
     expect([again.status, again.json.chunk_count]).toEqual([200, 1]);
     // Each indexing, the first and the one again, is told once.
-    const told = await rows<{ payload: Record<string, any> }>("select payload from machvon.outbox_event where type = 'llm.collection.item_indexed.v1' and aggregate_id = $1 order by created_at", [
+    const told = await rows<{ payload: Record<string, unknown> }>("select payload from machvon.outbox_event where type = 'llm.collection.item_indexed.v1' and aggregate_id = $1 order by created_at", [
       done.json.resource_id,
     ]);
     expect(told).toHaveLength(2);
@@ -512,14 +512,14 @@ describe('knowledge collections: indexing and retrieval filtered by tenant and a
     // The list is widened: BQL1 is on the list of the document, not yet on the one the item was indexed with, so they still get nothing, and the item is marked.
     await setUnit(documentA, 2);
     expect(await ask(BQL1, a.id, 'thẩm định dự án đầu tư công')).toEqual([]);
-    expect((await call('GET', `/ai-knowledge-collections/${a.id}`, { member: READER })).json.items[0]).toMatchObject({ stale: true });
+    expect(asObjects((await call('GET', `/ai-knowledge-collections/${a.id}`, { member: READER })).json.items)[0]).toMatchObject({ stale: true });
     // Indexed again under the new hash, BQL1 gets the chunk.
-    const firstHash = (await call('GET', `/ai-knowledge-collections/${a.id}`, { member: READER })).json.items[0].acl_hash;
+    const firstHash = asObjects((await call('GET', `/ai-knowledge-collections/${a.id}`, { member: READER })).json.items)[0]?.acl_hash;
     const again = await index(ADMIN, a.id, documentA);
     expect(again.json.acl_hash).toMatch(/^[0-9a-f]{64}$/);
     expect(again.json.acl_hash).not.toBe(firstHash);
     expect(await ask(BQL1, a.id, 'thẩm định dự án đầu tư công')).toHaveLength(1);
-    expect((await call('GET', `/ai-knowledge-collections/${a.id}`, { member: READER })).json.items[0]).toMatchObject({ stale: false });
+    expect(asObjects((await call('GET', `/ai-knowledge-collections/${a.id}`, { member: READER })).json.items)[0]).toMatchObject({ stale: false });
     // Narrowing takes effect at once, before anybody indexes again.
     await setUnit(documentA, 1);
     expect(await ask(BQL1, a.id, 'thẩm định dự án đầu tư công')).toEqual([]);
@@ -607,7 +607,7 @@ describe('knowledge collections: indexing and retrieval filtered by tenant and a
     }
     expect((await call('GET', '/ai-knowledge-collections', { member: NOBODY })).status).toBe(403);
     expect((await call('GET', `/ai-knowledge-collections/${id}`, { member: UNIT_ONLY })).status).toBe(403);
-    expect((await call('GET', '/ai-knowledge-collections', { member: B_ADMIN, tenantId: TENANT_B })).json.items.map((item: any) => item.id)).not.toContain(id);
+    expect(asObjects((await call('GET', '/ai-knowledge-collections', { member: B_ADMIN, tenantId: TENANT_B })).json.items).map((item) => item.id)).not.toContain(id);
     expect((await call('GET', `/ai-knowledge-collections/${id}`, { member: B_ADMIN, tenantId: TENANT_B })).status).toBe(404);
     expect((await index(B_ADMIN, id, version, TENANT_B)).status).toBe(404);
   });

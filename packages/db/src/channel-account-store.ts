@@ -12,7 +12,7 @@ export interface ChannelAccountRecord {
   externalAccountId: string;
   displayName: string;
   status: AccountStatus;
-  /** Whether a webhook secret is configured: the reference itself never leaves the store (OMNI 7, "secret chỉ hiển thị đã cấu hình"). */
+  /** Whether a webhook secret is configured: the reference itself never leaves the store (OMNI 7: the screen shows only that a secret is configured). */
   webhookConfigured: boolean;
   verifiedAt: string | null;
   verifyRequestedAt: string | null;

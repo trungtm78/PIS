@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { hasControlCharacter } from '../control-characters';
 
 /** LND-02: the parcels of a project and the notice of recovery that starts their timer (ST-LND-001, LND 3.1 steps 1 and 2, BR-LND-01). */
 export const PARCELS_PATH = '/lnd/lnd-02';
@@ -31,8 +32,6 @@ const PARCEL_CODE = /^[A-Z0-9][A-Z0-9/._-]{0,49}$/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const DAY_MS = 86_400_000;
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u001f\u007f]/;
 
 type Raw = Record<string, unknown>;
 
@@ -255,7 +254,7 @@ export function validateParcel(form: ParcelForm): Partial<Record<keyof ParcelFor
   else if (!AREA.test(affected) || (problems.areaTotalM2 === undefined && Number(affected) > Number(total))) problems.areaAffectedM2 = 'invalid';
   const address = form.addressText.trim();
   if (address.length > ADDRESS_MAX_LENGTH) problems.addressText = 'tooLong';
-  else if (CONTROL.test(address)) problems.addressText = 'invalid';
+  else if (hasControlCharacter(address)) problems.addressText = 'invalid';
   return problems;
 }
 
@@ -301,11 +300,11 @@ export function validateSection(form: SectionForm): Partial<Record<keyof Section
   const problems: Partial<Record<keyof SectionForm, FormProblem>> = {};
   const code = form.code.trim();
   if (code === '') problems.code = 'required';
-  else if (code.length > CODE_MAX_LENGTH || CONTROL.test(code)) problems.code = code.length > CODE_MAX_LENGTH ? 'tooLong' : 'invalid';
+  else if (code.length > CODE_MAX_LENGTH || hasControlCharacter(code)) problems.code = code.length > CODE_MAX_LENGTH ? 'tooLong' : 'invalid';
   const name = form.name.trim();
   if (name === '') problems.name = 'required';
   else if (name.length > NAME_MAX_LENGTH) problems.name = 'tooLong';
-  else if (CONTROL.test(name)) problems.name = 'invalid';
+  else if (hasControlCharacter(name)) problems.name = 'invalid';
   const area = form.requiredAreaM2.trim();
   if (area === '') problems.requiredAreaM2 = 'required';
   else if (!AREA.test(area)) problems.requiredAreaM2 = 'invalid';

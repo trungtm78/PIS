@@ -15,6 +15,7 @@ import { AuthzHarness, TENANT_A, TENANT_B, id, memberId, unitId } from '../../..
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
 import type { RunningApp } from '../isolation/test-app';
+import { asList, asObject, asObjects, asString } from '../support/json';
 
 jest.setTimeout(120_000);
 
@@ -36,8 +37,7 @@ interface Reply {
   json: Record<string, unknown>;
 }
 // A body of the server as the test reads it, whose shape each test names by what it expects.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Item = Record<string, any>;
+type Item = Record<string, unknown>;
 
 /** The warnings and the ranking of the command center over HTTP (ST-HOME-003, HOME-03, HOME-04, HOME-06). */
 describe('the warnings and the ranking of the command center over HTTP (ST-HOME-003)', () => {
@@ -259,7 +259,7 @@ describe('the warnings and the ranking of the command center over HTTP (ST-HOME-
         snapshot_id: snapshotId,
         period_id: expect.stringMatching(/^[0-9a-f-]{36}$/),
       });
-      expect(first.leader.display_name.length).toBeGreaterThan(0);
+      expect(asString(asObject(first.leader).display_name).length).toBeGreaterThan(0);
       // The list is light: the evidence and the history are of the profile.
       expect(first.history).toBeUndefined();
       expect(first.evidence).toBeUndefined();
@@ -274,9 +274,9 @@ describe('the warnings and the ranking of the command center over HTTP (ST-HOME-
       const profile = items(reply)[0] as Item;
       expect(profile).toMatchObject({ id: id1, rule: { code: 'EW-01', threshold: { points: '10' } }, observed: { observed_pct: '22.0000', expected_pct: '45.0000' }, explanation: { status: 'ACCEPTED' } });
       expect(profile.evidence).toMatchObject({ snapshot_id: snapshotId, as_of_date: '2027-10-12' });
-      expect(profile.evidence.cells).toEqual([expect.objectContaining({ bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', plan_pm_assigned_vnd: dong(1000), disbursed_treasury_vnd: dong(220), rate_pm_pct: '22.0000' })]);
-      expect(profile.history.map((entry: Item) => entry.event)).toEqual(['OPENED', 'ACKNOWLEDGED', 'EXPLANATION_REQUESTED', 'EXPLANATION_RESPONDED']);
-      expect(profile.history[1]).toMatchObject({ by: memberId(BRANCH), note: 'The unit is on it.' });
+      expect(asObject(profile.evidence).cells).toEqual([expect.objectContaining({ bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', plan_pm_assigned_vnd: dong(1000), disbursed_treasury_vnd: dong(220), rate_pm_pct: '22.0000' })]);
+      expect(asObjects(profile.history).map((entry: Item) => entry.event)).toEqual(['OPENED', 'ACKNOWLEDGED', 'EXPLANATION_REQUESTED', 'EXPLANATION_RESPONDED']);
+      expect(asObjects(profile.history)[1]).toMatchObject({ by: memberId(BRANCH), note: 'The unit is on it.' });
     });
 
     it('lists the open warnings only, the newest first, and gives the profile of one that is closed', async () => {
@@ -289,7 +289,7 @@ describe('the warnings and the ranking of the command center over HTTP (ST-HOME-
       expect(items(await warnings()).map((entry) => entry.id)).toEqual([newer, older]);
       const profile = await warnings(`?warning_id=${closed}`);
       expect(items(profile)[0]).toMatchObject({ id: closed, status: 'RESOLVED', resolution_reason: 'Caught up.' });
-      expect(items(profile)[0]?.history.map((entry: Item) => entry.event)).toEqual(['OPENED', 'ACKNOWLEDGED', 'RESOLVED']);
+      expect(asObjects(items(profile)[0]?.history).map((entry) => entry.event)).toEqual(['OPENED', 'ACKNOWLEDGED', 'RESOLVED']);
     });
 
     it('narrows by severity, by rule and by snapshot, and pages by cursor', async () => {
@@ -362,9 +362,9 @@ describe('the warnings and the ranking of the command center over HTTP (ST-HOME-
       ]);
       const [pm, total] = tables(reply) as [Item, Item];
       // The order is not the same over the two denominators: they are two tables, never one.
-      expect(pm.ranked.map((row: Item) => [row.rank, row.unit.code, row.rate_pct])).toEqual([[1, 'BQL-S', '50.0000'], [2, 'BQL-N', '14.0000']]);
-      expect(total.ranked.map((row: Item) => [row.rank, row.unit.code, row.rate_pct])).toEqual([[1, 'BQL-N', '11.2000'], [2, 'BQL-S', '8.0000']]);
-      expect(pm.ranked[1]).toMatchObject({ plan_vnd: dong(1000), disbursed_vnd: dong(140), unit: { id: unitId(NORTH), name: 'Ban Bắc' } });
+      expect(asObjects(pm.ranked).map((row: Item) => [row.rank, asObject(row.unit).code, row.rate_pct])).toEqual([[1, 'BQL-S', '50.0000'], [2, 'BQL-N', '14.0000']]);
+      expect(asObjects(total.ranked).map((row: Item) => [row.rank, asObject(row.unit).code, row.rate_pct])).toEqual([[1, 'BQL-N', '11.2000'], [2, 'BQL-S', '8.0000']]);
+      expect(asObjects(pm.ranked)[1]).toMatchObject({ plan_vnd: dong(1000), disbursed_vnd: dong(140), unit: { id: unitId(NORTH), name: 'Ban Bắc' } });
       // The unit with a plan of nothing has no position and says why (AC-ST-HOME-003-4).
       expect(pm.excluded).toEqual([{ rank: null, unit: { id: unitId(ROOT), code: 'ROOT', name: 'Tổng' }, plan_vnd: '0', disbursed_vnd: null, rate_pct: null, excluded_reason: 'ZERO_DENOMINATOR' }]);
       expect(total.excluded).toHaveLength(1);
@@ -384,7 +384,7 @@ describe('the warnings and the ranking of the command center over HTTP (ST-HOME-
       expect((await rankings()).json.snapshot_id).toBe(newer);
       expect((await rankings(`?snapshot_id=${older}`)).json.snapshot_id).toBe(older);
       const narrowed = await rankings('?comparison_group=COMMUNE&denominator_kind=PM_ASSIGNED');
-      expect(tables(narrowed).map((table) => [table.comparison_group, table.denominator_kind, table.ranked.length])).toEqual([['COMMUNE', 'PM_ASSIGNED', 1]]);
+      expect(tables(narrowed).map((table) => [table.comparison_group, table.denominator_kind, asList(table.ranked).length])).toEqual([['COMMUNE', 'PM_ASSIGNED', 1]]);
     });
 
     it('answers 404 when no snapshot has a ranking, or the one named has none or is not frozen, and 422 for a request that is not well formed', async () => {
@@ -409,9 +409,9 @@ describe('the warnings and the ranking of the command center over HTTP (ST-HOME-
       visibility = 'OWN_ONLY';
       const own = await rankings('', BRANCH);
       expect(own.json.visibility).toBe('OWN_ONLY');
-      expect((tables(own)[0] as Item).ranked.map((row: Item) => row.unit.code)).toEqual(['BQL-N']);
+      expect(asObjects((tables(own)[0] as Item).ranked).map((row) => asObject(row.unit).code)).toEqual(['BQL-N']);
       // The rank of the unit is its rank among all (the table is not re-numbered for the reader).
-      expect((tables(own)[0] as Item).ranked[0].rank).toBe(2);
+      expect(asObjects((tables(own)[0] as Item).ranked)[0]?.rank).toBe(2);
       visibility = 'ALL';
       expect(((await rankings('', BRANCH)).json.tables as Item[])[0]?.ranked).toHaveLength(2);
     });

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, isInForce, versionConflict, vietnamDateOf } from '@machvon/kernel';
+import { DomainError, isInForce, versionConflict, vietnamDateOf, hasControlChar, hasControlCharExceptWhitespace } from '@machvon/kernel';
 import { normaliseTaxIdentifier } from './bid-tax-identifier.ts';
 import { timestampKey } from './keyset.ts';
 import type { AdapterStatus } from './outgoing-document-store.ts';
@@ -177,16 +177,14 @@ const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAIL
 /** A name as it is stored: trimmed, not empty, without control characters, within its length. */
 function nameOf(value: string, field: string, max: number): string {
   const text = value.trim();
-  // eslint-disable-next-line no-control-regex
-  if (text === '' || text.length > max || /[\u0000-\u001f\u007f]/.test(text)) throw invalid(field);
+  if (text === '' || text.length > max || hasControlChar(text)) throw invalid(field);
   return text;
 }
 
 /** A note as it is stored: trimmed, within its length, without control characters other than line breaks and tabs. */
 function noteOf(value: string | undefined): string | null {
   const text = value?.trim() ?? '';
-  // eslint-disable-next-line no-control-regex
-  if (text.length > MAX_NOTE || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(text)) throw invalid('note');
+  if (text.length > MAX_NOTE || hasControlCharExceptWhitespace(text)) throw invalid('note');
   return text === '' ? null : text;
 }
 

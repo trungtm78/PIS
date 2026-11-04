@@ -1,10 +1,14 @@
 import type { PermitTypeInput } from './pmt-permit-type-store.ts';
+import { vietnameseData } from './vietnamese-data.ts';
 
 /** The day the working-assumption catalogue is dated from: a placeholder shared by every type until the original texts are read (CXN-EXE-03). */
 export const SEED_EFFECTIVE_FROM = '2026-01-01';
 
-const ASSUMPTION = 'Giả định làm việc, chưa đối chiếu văn bản gốc';
-const UNKNOWN_AUTHORITY = 'Cơ quan có thẩm quyền theo quy định (chưa xác nhận)';
+const TEXT = vietnameseData<{ assumption: string; unknownAuthority: string; types: Record<string, { name: string; basis: string }> }>('pmt-permit-type-seed');
+const ASSUMPTION = TEXT.assumption;
+const UNKNOWN_AUTHORITY = TEXT.unknownAuthority;
+/** The Vietnamese name of a type and the text of its legal basis (after the assumption), from the data file. */
+const typeText = (code: string): { name: string; basis: string } => TEXT.types[code] ?? { name: code, basis: code };
 
 /**
  * The starting catalogue of PMT 5: eight types of permit that a public investment project may need before a milestone. It is a WORKING
@@ -17,50 +21,50 @@ const UNKNOWN_AUTHORITY = 'Cơ quan có thẩm quyền theo quy định (chưa x
 export const PERMIT_TYPE_WORKING_ASSUMPTIONS: readonly PermitTypeInput[] = [
   {
     code: 'ENV_EIA',
-    name: 'Báo cáo đánh giá tác động môi trường (quyết định phê duyệt)',
+    name: typeText('ENV_EIA').name,
     category: 'ENVIRONMENT',
     authorityText: UNKNOWN_AUTHORITY,
-    legalBasis: `${ASSUMPTION}: Luật Bảo vệ môi trường 2020 (đánh giá tác động môi trường) [CXN-EXE-03]`,
+    legalBasis: `${ASSUMPTION}: ${typeText('ENV_EIA').basis}`,
     cxnRef: 'CXN-EXE-03',
     effectiveFrom: SEED_EFFECTIVE_FROM,
     appliesToRule: {},
   },
   {
     code: 'ENV_PERMIT',
-    name: 'Giấy phép môi trường',
+    name: typeText('ENV_PERMIT').name,
     category: 'ENVIRONMENT',
     authorityText: UNKNOWN_AUTHORITY,
-    legalBasis: `${ASSUMPTION}: Luật Bảo vệ môi trường 2020 (giấy phép môi trường) [CXN-EXE-03]`,
+    legalBasis: `${ASSUMPTION}: ${typeText('ENV_PERMIT').basis}`,
     cxnRef: 'CXN-EXE-03',
     effectiveFrom: SEED_EFFECTIVE_FROM,
     appliesToRule: {},
   },
   {
     code: 'DESIGN_APPRAISAL',
-    name: 'Thẩm định thiết kế và dự án',
+    name: typeText('DESIGN_APPRAISAL').name,
     category: 'DESIGN_APPRAISAL',
     authorityText: UNKNOWN_AUTHORITY,
-    legalBasis: `${ASSUMPTION}: Luật Xây dựng 135/2025 và nghị định hướng dẫn thẩm định dự án, thiết kế [CXN-EXE-03]`,
+    legalBasis: `${ASSUMPTION}: ${typeText('DESIGN_APPRAISAL').basis}`,
     cxnRef: 'CXN-EXE-03',
     effectiveFrom: SEED_EFFECTIVE_FROM,
     appliesToRule: {},
   },
   {
     code: 'FIRE_DESIGN',
-    name: 'Thẩm duyệt thiết kế phòng cháy chữa cháy',
+    name: typeText('FIRE_DESIGN').name,
     category: 'FIRE_SAFETY',
     authorityText: UNKNOWN_AUTHORITY,
-    legalBasis: `${ASSUMPTION}: pháp luật về phòng cháy và chữa cháy, văn bản cụ thể chưa xác định [CXN-EXE-03]`,
+    legalBasis: `${ASSUMPTION}: ${typeText('FIRE_DESIGN').basis}`,
     cxnRef: 'CXN-EXE-03',
     effectiveFrom: SEED_EFFECTIVE_FROM,
     appliesToRule: {},
   },
   {
     code: 'BUILDING_PERMIT',
-    name: 'Giấy phép xây dựng',
+    name: typeText('BUILDING_PERMIT').name,
     category: 'CONSTRUCTION_PERMIT',
     authorityText: UNKNOWN_AUTHORITY,
-    legalBasis: `${ASSUMPTION}: Luật Xây dựng 135/2025 (giấy phép xây dựng và các trường hợp được miễn) [CXN-EXE-02]`,
+    legalBasis: `${ASSUMPTION}: ${typeText('BUILDING_PERMIT').basis}`,
     cxnRef: 'CXN-EXE-02',
     effectiveFrom: SEED_EFFECTIVE_FROM,
     appliesToRule: {},
@@ -68,30 +72,30 @@ export const PERMIT_TYPE_WORKING_ASSUMPTIONS: readonly PermitTypeInput[] = [
   },
   {
     code: 'LAND_ALLOCATION',
-    name: 'Quyết định giao đất hoặc cho thuê đất',
+    name: typeText('LAND_ALLOCATION').name,
     category: 'LAND',
     authorityText: UNKNOWN_AUTHORITY,
-    legalBasis: `${ASSUMPTION}: căn cứ pháp lý chưa được xác định trong tài liệu thiết kế [CXN-EXE-03]`,
+    legalBasis: `${ASSUMPTION}: ${typeText('LAND_ALLOCATION').basis}`,
     cxnRef: 'CXN-EXE-03',
     effectiveFrom: SEED_EFFECTIVE_FROM,
     appliesToRule: {},
   },
   {
     code: 'TRAFFIC_CONNECTION',
-    name: 'Thỏa thuận đấu nối giao thông',
+    name: typeText('TRAFFIC_CONNECTION').name,
     category: 'TRAFFIC',
     authorityText: UNKNOWN_AUTHORITY,
-    legalBasis: `${ASSUMPTION}: căn cứ pháp lý chưa được xác định trong tài liệu thiết kế [CXN-EXE-03]`,
+    legalBasis: `${ASSUMPTION}: ${typeText('TRAFFIC_CONNECTION').basis}`,
     cxnRef: 'CXN-EXE-03',
     effectiveFrom: SEED_EFFECTIVE_FROM,
     appliesToRule: {},
   },
   {
     code: 'WATER_DISCHARGE',
-    name: 'Giấy phép xả nước thải vào nguồn nước',
+    name: typeText('WATER_DISCHARGE').name,
     category: 'WATER_RESOURCES',
     authorityText: UNKNOWN_AUTHORITY,
-    legalBasis: `${ASSUMPTION}: căn cứ pháp lý chưa được xác định trong tài liệu thiết kế [CXN-EXE-03]`,
+    legalBasis: `${ASSUMPTION}: ${typeText('WATER_DISCHARGE').basis}`,
     cxnRef: 'CXN-EXE-03',
     effectiveFrom: SEED_EFFECTIVE_FROM,
     appliesToRule: {},

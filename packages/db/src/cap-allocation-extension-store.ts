@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, MAX_DECISION_REASON, MIN_DECISION_REASON, addDecimal, assertFourEyes, compareDecimal, extensionIssues, undisbursedVnd, versionConflict, vietnamDateOf } from '@machvon/kernel';
+import { DomainError, MAX_DECISION_REASON, MIN_DECISION_REASON, addDecimal, assertFourEyes, compareDecimal, extensionIssues, undisbursedVnd, versionConflict, vietnamDateOf, hasControlChar } from '@machvon/kernel';
 import type { ExtensionIssue } from '@machvon/kernel';
 import { CapAppropriationStore } from './cap-appropriation-store.ts';
 import type { AppropriationInput } from './cap-appropriation-store.ts';
@@ -471,8 +471,7 @@ export class CapAllocationExtensionStore {
   private async issuingAuthority(tx: TenantTx, documentId: string, fallback: string): Promise<string> {
     const [row] = await tx.query<{ issuer_name: string | null }>('select issuer_name from machvon.document where id = $1::uuid', [documentId]);
     const name = row?.issuer_name?.trim();
-    // eslint-disable-next-line no-control-regex
-    return name !== undefined && name.length >= 2 && name.length <= 300 && !/[\u0000-\u001f\u007f]/.test(name) ? name : fallback;
+    return name !== undefined && name.length >= 2 && name.length <= 300 && !hasControlChar(name) ? name : fallback;
   }
 
   /** The version of a master entry that is in force today: the one given when it is, else the latest published version of the same entry. */
@@ -512,8 +511,7 @@ export class CapAllocationExtensionStore {
   private async carryOverPlanCode(tx: TenantTx, toYear: number, unitId: string): Promise<string> {
     const [row] = await tx.query<{ code: string }>('select code from machvon.organization_unit where id = $1::uuid', [unitId]);
     const code = row?.code ?? '';
-    // eslint-disable-next-line no-control-regex
-    const suffix = code.length > 0 && code.length <= MAX_UNIT_CODE_IN_PLAN_CODE && !/[\u0000-\u001f\u007f]/.test(code) ? code : unitId.slice(0, 8);
+    const suffix = code.length > 0 && code.length <= MAX_UNIT_CODE_IN_PLAN_CODE && !hasControlChar(code) ? code : unitId.slice(0, 8);
     return `CARRYOVER-${toYear}-${suffix}`;
   }
 

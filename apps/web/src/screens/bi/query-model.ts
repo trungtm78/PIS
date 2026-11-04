@@ -195,7 +195,7 @@ export interface JobWatch {
   cancelled(): boolean;
   intervalMs: number;
   attempts: number;
-  sleep?: (ms: number) => Promise<void>;
+  waitBetweenPolls?: (ms: number) => Promise<void>;
 }
 
 const pause = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
@@ -207,12 +207,12 @@ const OPEN_RUN: readonly string[] = ['QUEUED', 'RUNNING'];
  * once the question is not wanted any more (QueryCancelled): the screen was left, or the member or the tenant changed.
  */
 export async function resolveQuery(ask: () => Promise<unknown>, watch: JobWatch): Promise<QueryResult | undefined> {
-  const sleep = watch.sleep ?? pause;
+  const waitBetweenPolls = watch.waitBetweenPolls ?? pause;
   let raw = await ask();
   let queued = toQueuedQuery(raw);
   if (queued === undefined) return toQueryResult(raw);
   for (let attempt = 0; attempt < watch.attempts; attempt += 1) {
-    await sleep(watch.intervalMs);
+    await waitBetweenPolls(watch.intervalMs);
     if (watch.cancelled()) throw new QueryCancelled();
     const state = toRunState(await watch.poll(queued.runId));
     if (state === undefined) throw new Error('the run could not be read');

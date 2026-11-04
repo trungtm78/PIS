@@ -9,7 +9,7 @@ import '../../read_support/data_view.dart';
 import '../../read_support/widgets.dart';
 import '../funding.dart';
 
-/// MOB-58: the funding structure. The capital published for a year, in cards by source (NSTW, NSĐP, ODA, the others) and by
+/// MOB-58: the funding structure. The capital published for a year, in cards by source (central budget, local budget, ODA, the others) and by
 /// origin (year capital, carried over, support, revenue increase). CTMTQG is "of which" under NSTW, read from the plan
 /// lines, and is in no total: a total never adds it again (UAT-AC240: 420 million, never 460). What has no figure says
 /// "no data" and is never zero.

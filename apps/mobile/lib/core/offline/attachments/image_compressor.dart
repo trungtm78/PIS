@@ -5,7 +5,7 @@ import 'package:image/image.dart' as img;
 
 import 'attachment_policy.dart';
 
-/// Makes a photo lighter before it goes up (BR-MOB-03; 07, "Luồng hiện trường": photos are checked for size and type and
+/// Makes a photo lighter before it goes up (BR-MOB-03; design doc 07, the field flow: photos are checked for size and type and
 /// compressed). A port, so a test can use a fake and a later story can swap in a native encoder.
 abstract interface class ImageCompressor {
   /// The bytes to upload for [bytes] of type [mime]. Returns [bytes] unchanged when there is nothing to gain.

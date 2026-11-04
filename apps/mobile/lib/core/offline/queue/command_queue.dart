@@ -99,7 +99,7 @@ class CommandQueue {
   QueueStats stats() => QueueStats.of(_store.commands.counts(), _store.commands.inStates(<CommandState>{CommandState.queued, CommandState.sending, CommandState.unknown}), _now);
 
   /// How many commands have not reached the server for good. Switching tenant or signing out while this is above zero
-  /// loses the work, so the switch waits for the person (07, "Cách ly tenant trong đồng bộ").
+  /// loses the work, so the switch waits for the person (design doc 07, tenant isolation in the sync).
   int get unsentCount {
     final Map<CommandState, int> counts = _store.commands.counts();
     return _unsentStates.fold<int>(0, (int total, CommandState state) => total + counts[state]!);

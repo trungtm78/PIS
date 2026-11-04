@@ -1,6 +1,7 @@
 import { scaledMoney } from './dis-export.ts';
 import type { ExportDocument } from './dis-export.ts';
 import { DomainError } from './errors.ts';
+import { message } from './messages.ts';
 import type { MneFieldKind, MneReportStatus } from './mne-report.ts';
 
 /**
@@ -30,7 +31,7 @@ export const MNE_EXPORT_CONNECTORS: Readonly<Record<MneExportTarget, string>> = 
 export const MNE_PACKAGE_EXPIRY_DAYS = 90;
 
 /** What a file says while the legal basis of its form is not confirmed and the form names no text of its own (BR-MNE-01): it is never a file that looks final. */
-export const UNCONFIRMED_WATERMARK = 'CHƯA XÁC NHẬN PHÁP LÝ';
+export const UNCONFIRMED_WATERMARK = message('mne.export.watermark.unconfirmed');
 
 /** The notice of a file: the watermark of the form while it waits for its confirmation (or the plain words when it names none), nothing once it is confirmed. */
 export function exportWatermark(form: { legalConfirmationRef: string | null; watermarkText: string | null }): string | null {
@@ -81,10 +82,10 @@ export interface MneExportInput {
 }
 
 const COLUMNS = [
-  { key: 'label', label: 'Chỉ tiêu', numeric: false },
-  { key: 'value', label: 'Giá trị', numeric: false },
-  { key: 'unit', label: 'Đơn vị tính', numeric: false },
-  { key: 'source', label: 'Nguồn', numeric: false },
+  { key: 'label', label: message('mne.export.column.label'), numeric: false },
+  { key: 'value', label: message('mne.export.column.value'), numeric: false },
+  { key: 'unit', label: message('mne.export.column.unit'), numeric: false },
+  { key: 'source', label: message('mne.export.column.source'), numeric: false },
 ] as const;
 
 /** A cell the way the file writes it: money in million dong (the national forms count in millions) with the unit named, a rate with its percent sign, a count and a text as they are, an empty cell as nothing. */
@@ -93,7 +94,7 @@ export function exportedCell(cell: MneExportCell): { value: string; unit: string
   const text = String(cell.value);
   switch (cell.kind) {
     case 'MONEY':
-      return { value: scaledMoney(text, 'MILLION_VND'), unit: 'triệu đồng' };
+      return { value: scaledMoney(text, 'MILLION_VND'), unit: message('mne.export.unit.million_dong') };
     case 'PERCENT':
       return { value: text, unit: '%' };
     case 'INTEGER':
@@ -106,13 +107,13 @@ export function exportedCell(cell: MneExportCell): { value: string; unit: string
 /** The document the three formats are made from: the head of the report, one row per cell of its form, and the watermark as the notice while the legal basis is not confirmed. */
 export function mneExportDocument(input: MneExportInput): ExportDocument {
   const header = [
-    { key: 'form', label: 'Mẫu biểu', value: `${input.formCode} (bản ${input.formRevision})` },
-    { key: 'period', label: 'Kỳ báo cáo', value: input.periodLabel },
-    { key: 'unit', label: 'Đơn vị', value: `${input.unitName} (${input.unitCode})` },
-    { key: 'due_date', label: 'Hạn nộp', value: input.dueDate },
-    ...(input.asOfDate === null ? [] : [{ key: 'as_of_date', label: 'Số liệu đến ngày', value: input.asOfDate }]),
-    ...(input.payloadSha256 === null ? [] : [{ key: 'payload_sha256', label: 'Mã băm nội dung', value: input.payloadSha256 }]),
-    ...(input.documentId === null ? [] : [{ key: 'document_id', label: 'Mã văn bản phát hành', value: input.documentId }]),
+    { key: 'form', label: message('mne.export.header.form'), value: message('mne.export.header.form_value', { code: input.formCode, revision: input.formRevision }) },
+    { key: 'period', label: message('mne.export.header.period'), value: input.periodLabel },
+    { key: 'unit', label: message('mne.export.header.unit'), value: `${input.unitName} (${input.unitCode})` },
+    { key: 'due_date', label: message('mne.export.header.due_date'), value: input.dueDate },
+    ...(input.asOfDate === null ? [] : [{ key: 'as_of_date', label: message('mne.export.header.as_of_date'), value: input.asOfDate }]),
+    ...(input.payloadSha256 === null ? [] : [{ key: 'payload_sha256', label: message('mne.export.header.payload_sha256'), value: input.payloadSha256 }]),
+    ...(input.documentId === null ? [] : [{ key: 'document_id', label: message('mne.export.header.document_id'), value: input.documentId }]),
   ];
   return {
     title: input.formTitle,

@@ -20,7 +20,55 @@ const MAX_PAGE = 200;
 const MAX_REASON = 2000;
 const MIN_REASON = 10;
 
-type Sql = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+/** The alias a merge keeps (`alias_json`): what the merged entry and the survivor were, so that the past is read through it and an unmerge can put them back. */
+export interface MergeAlias {
+  merged: { business_key: string; label: string; version_id: string; source_system: string | null; valid_until: string | null };
+  survivor: {
+    version_before_id: string;
+    version_after_id: string;
+    label: string;
+    attributes: Record<string, unknown>;
+    source_system: string | null;
+    recorded_at: string;
+    label_after: string;
+    attributes_after: Record<string, unknown>;
+  };
+  day: string;
+}
+
+interface Sql {
+  [column: string]: unknown;
+  id: string;
+  master_type: string;
+  attribute_name: string;
+  strategy: string;
+  status: "DRAFT" | "PUBLISHED" | "RETIRED" | "APPLIED" | "REVERTED";
+  effective_from: string;
+  approved_by: string | null;
+  created_by: string;
+  created_raw: string;
+  survivor_record_id: string;
+  survivor_key: string;
+  merged_record_id: string;
+  merged_key: string;
+  alias_json: MergeAlias;
+  repointed_refs_json: RepointedReference[];
+  reason: string;
+  change_request_id: string;
+  applied_raw: string;
+  reverted_by: string | null;
+  reverted_raw: string | null;
+  revert_reason: string | null;
+  label: string;
+  attributes: Record<string, unknown>;
+  valid_from: string;
+  valid_until: string | null;
+  source_system: string | null;
+  recorded_at: string;
+  parent_id: string | null;
+  legal_basis: string | null;
+  source_priority: string[] | null;
+}
 
 export interface SurvivorshipRule {
   id: string;
@@ -51,7 +99,7 @@ export interface MasterMerge {
   mergedKey: string;
   masterType: string;
   survivorship: { decisions: AttributeDecision[]; overrides: Record<string, string> };
-  alias: Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  alias: MergeAlias;
   repointed: RepointedReference[];
   reason: string;
   changeRequestId: string;
@@ -123,7 +171,7 @@ const ruleOf = (row: Sql): SurvivorshipRule => ({
   strategy: row.strategy,
   sourcePriority: row.source_priority ?? [],
   revision: Number(row.revision),
-  status: row.status,
+  status: row.status as "DRAFT" | "PUBLISHED" | "RETIRED",
   effectiveFrom: row.effective_from,
   approvedBy: row.approved_by,
   createdBy: row.created_by,
@@ -138,12 +186,12 @@ const mergeOf = (row: Sql): MasterMerge => ({
   mergedRecordId: row.merged_record_id,
   mergedKey: row.merged_key,
   masterType: row.master_type,
-  survivorship: row.survivorship_json,
+  survivorship: row.survivorship_json as { decisions: AttributeDecision[]; overrides: Record<string, string>; },
   alias: row.alias_json,
   repointed: row.repointed_refs_json,
   reason: row.reason,
   changeRequestId: row.change_request_id,
-  status: row.status,
+  status: row.status as "APPLIED" | "REVERTED",
   appliedAt: row.applied_raw,
   revertedBy: row.reverted_by,
   revertedAt: row.reverted_raw,
@@ -554,7 +602,7 @@ export class MasterMergeStore {
     await this.assertMergeable(tx, merged, actor);
     if (survivor.status !== 'EFFECTIVE' || survivor.current_version_id === null || merged.status !== 'MERGED' || merged.merged_into_id !== survivor.id || merged.current_version_id === null)
       throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'status');
-    const alias = row.alias_json as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const alias = row.alias_json;
     const survivorNow = await this.snapshotOf(tx, survivor.current_version_id);
     const mergedRetired = await this.snapshotOf(tx, merged.current_version_id);
     await this.assertNothingWaiting(tx, survivor.id, survivorNow.revision, vietnamDateOf(new Date()));
@@ -608,7 +656,7 @@ export class MasterMergeStore {
       tx,
       { id: merged.id, masterType: merged.master_type, businessKey: merged.business_key },
       mergedRetired,
-      { label: preMerge.label, attributes: preMerge.attributes, sourceSystem: preMerge.sourceSystem, validUntil: (alias.merged.valid_until as string | null | undefined) ?? null },
+      { label: preMerge.label, attributes: preMerge.attributes, sourceSystem: preMerge.sourceSystem, validUntil: alias.merged.valid_until ?? null },
       today,
       changeRequestId,
       actor,

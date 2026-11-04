@@ -30,7 +30,8 @@ import {
 import type { FormProblem, MilestoneField, MilestoneForm, MilestoneView, Outcome, ProgressField, ProgressForm } from './model';
 import { fieldMessage, milestoneStatusLabel, milestoneTone, problemMessage } from './shared';
 
-const CLOSE_GLYPH = '×';
+// U+00D7, the multiplication sign.
+const CLOSE_GLYPH = '\u00d7';
 
 /**
  * PRJ-07: the schedule of a project (ST-PRJ-009, PRJ 3.1). Each milestone shows its baseline day (never changed), the day it is planned for, the day it was done and the milestone it waits for. A milestone late against its

@@ -9,6 +9,14 @@ import { tenantLookup, validateMasterContent } from './master-types.ts';
 import type { EntryRef, TypeLookup } from './master-types.ts';
 import { enqueueOutbox } from './outbox.ts';
 import type { TenantTx } from './tenant-database.ts';
+import { vietnameseData } from './vietnamese-data.ts';
+
+/** The Vietnamese text of the baseline (names of categories, legal citations) is master data of the platform: it lives in a resource, keyed in English. */
+const vi = (key: string): string => {
+  const text = vietnameseData<Readonly<Record<string, string>>>('master-baseline')[key];
+  if (text === undefined) throw new Error(`master baseline text ${key} is not in master-baseline.vi.json`);
+  return text;
+};
 
 export const BASELINE_SOURCE = 'PLATFORM_BASELINE';
 export const BASELINE_EVENT = 'master.baseline_applied.v1';
@@ -37,7 +45,7 @@ export const packDigest = (entries: readonly BaselineEntry[]): string => sha256H
 export const sealPack = (id: string, entries: readonly BaselineEntry[]): BaselinePack => ({ id, entries, sha256: packDigest(entries) });
 
 const SINCE = '2025-01-01';
-const LAW = 'Luật Đầu tư công 58/2024/QH15 (sửa đổi 90/2025)';
+const LAW = vi('legal.public_investment_law');
 const entry = (masterType: string, businessKey: string, label: string, attributes: Record<string, unknown> = {}, rest: Partial<BaselineEntry> = {}): BaselineEntry => ({
   masterType,
   businessKey,
@@ -84,7 +92,7 @@ const retention = (key: string, label: string, classification: string, years: nu
       ...(years === undefined ? { permanent: true } : { retention_years: years }),
       legal_hold_allowed: hold,
     },
-    { legalBasis: 'Thời hạn lưu trữ theo MDM 3.1 mục 6, chờ xác nhận văn bản gốc [CXN-05]' },
+    { legalBasis: vi('legal.retention_policy') },
   );
 
 /**
@@ -94,41 +102,41 @@ const retention = (key: string, label: string, classification: string, years: nu
  * retention); a change is a new version through a change request, never an edit.
  */
 const OPERATIONAL_CATALOGUES: readonly BaselineEntry[] = [
-  documentType('DECISION', 'Quyết định', ['number', 'issued_on', 'signature']),
-  documentType('OFFICIAL_LETTER', 'Công văn', ['number', 'issued_on']),
-  documentType('CONTRACT_FILE', 'Hồ sơ hợp đồng', ['signed_copy', 'annexes']),
-  documentType('PAYMENT_VOUCHER', 'Chứng từ thanh toán', ['request', 'acceptance', 'invoice']),
-  documentType('ACCEPTANCE_MINUTES', 'Biên bản nghiệm thu', ['signatures', 'quantities']),
-  contractType('CONSTRUCTION', 'Hợp đồng thi công xây dựng', 'NEW_REVISION'),
-  contractType('SUPPLY', 'Hợp đồng cung cấp hàng hóa', 'NEW_REVISION'),
-  contractType('CONSULTING', 'Hợp đồng tư vấn', 'NEW_REVISION'),
-  contractType('ANNEX', 'Phụ lục hợp đồng', 'ANNEX_ONLY', true),
-  paymentType('ADVANCE', 'Tạm ứng', 'ADVANCE', ['guarantee_in_place', 'contract_signed']),
-  paymentType('INTERIM', 'Thanh toán đợt', 'PAYMENT', ['acceptance_signed', 'within_contract_value']),
-  paymentType('FINAL', 'Thanh toán cuối cùng', 'PAYMENT', ['final_acceptance', 'advance_recovered']),
-  paymentType('RETENTION_RELEASE', 'Hoàn trả tiền bảo hành', 'RETENTION_RELEASE', ['warranty_period_ended']),
-  priority('URGENT', 'Khẩn cấp', 1, 4, 24, 'ALL_DAYS', 12),
+  documentType('DECISION', vi('document_type.DECISION.label'), ['number', 'issued_on', 'signature']),
+  documentType('OFFICIAL_LETTER', vi('document_type.OFFICIAL_LETTER.label'), ['number', 'issued_on']),
+  documentType('CONTRACT_FILE', vi('document_type.CONTRACT_FILE.label'), ['signed_copy', 'annexes']),
+  documentType('PAYMENT_VOUCHER', vi('document_type.PAYMENT_VOUCHER.label'), ['request', 'acceptance', 'invoice']),
+  documentType('ACCEPTANCE_MINUTES', vi('document_type.ACCEPTANCE_MINUTES.label'), ['signatures', 'quantities']),
+  contractType('CONSTRUCTION', vi('contract_type.CONSTRUCTION.label'), 'NEW_REVISION'),
+  contractType('SUPPLY', vi('contract_type.SUPPLY.label'), 'NEW_REVISION'),
+  contractType('CONSULTING', vi('contract_type.CONSULTING.label'), 'NEW_REVISION'),
+  contractType('ANNEX', vi('contract_type.ANNEX.label'), 'ANNEX_ONLY', true),
+  paymentType('ADVANCE', vi('payment_type.ADVANCE.label'), 'ADVANCE', ['guarantee_in_place', 'contract_signed']),
+  paymentType('INTERIM', vi('payment_type.INTERIM.label'), 'PAYMENT', ['acceptance_signed', 'within_contract_value']),
+  paymentType('FINAL', vi('payment_type.FINAL.label'), 'PAYMENT', ['final_acceptance', 'advance_recovered']),
+  paymentType('RETENTION_RELEASE', vi('payment_type.RETENTION_RELEASE.label'), 'RETENTION_RELEASE', ['warranty_period_ended']),
+  priority('URGENT', vi('priority.URGENT.label'), 1, 4, 24, 'ALL_DAYS', 12),
   priority('HIGH', 'Cao', 2, 8, 72, 'WORKING_DAYS', 48),
-  priority('NORMAL', 'Bình thường', 3, 24, 168, 'WORKING_DAYS', 120),
-  priority('LOW', 'Thấp', 4, 72, 336, 'WORKING_DAYS', 240),
-  criterion('QUALITY_OF_WORK', 'Chất lượng công trình', 'QUALITY', true),
-  criterion('SCHEDULE_ADHERENCE', 'Tiến độ thực hiện', 'SCHEDULE', true),
-  criterion('SAFETY_RECORD', 'An toàn lao động', 'SAFETY', true),
-  criterion('COST_DISCIPLINE', 'Kỷ luật chi phí', 'COST', false),
-  criterion('LEGAL_COMPLIANCE', 'Tuân thủ pháp luật', 'COMPLIANCE', true),
-  entry('EXPERT_ROLE', 'PROJECT_MANAGER', 'Chủ nhiệm dự án', { specialty: 'project_management', conditions: ['certificate_in_force'] }),
-  entry('EXPERT_ROLE', 'SUPERVISION_ENGINEER', 'Kỹ sư giám sát', { specialty: 'construction_supervision', conditions: ['certificate_in_force'] }),
-  entry('EXPERT_ROLE', 'COST_ESTIMATOR', 'Chuyên gia dự toán', { specialty: 'cost_estimation' }),
-  purpose('SERVICE_NOTICE', 'Thông báo dịch vụ', 'NOT_REQUIRED', 'INTERNAL'),
-  purpose('SATISFACTION_SURVEY', 'Khảo sát hài lòng', 'EXPLICIT', 'INTERNAL'),
-  purpose('SENSITIVE_FOLLOW_UP', 'Trao đổi vụ việc nhạy cảm', 'EXPLICIT', 'CONFIDENTIAL'),
-  entry('LANGUAGE', 'vi', 'Tiếng Việt', { native_name: 'Tiếng Việt' }),
-  entry('LANGUAGE', 'en', 'Tiếng Anh', { native_name: 'English' }),
-  retention('FINANCIAL_RECORD', 'Chứng từ và sổ sách tài chính', 'CONFIDENTIAL', 10, true),
-  retention('CONTRACT_RECORD', 'Hồ sơ hợp đồng', 'CONFIDENTIAL', 10, true),
-  retention('CHANGE_REQUEST', 'Đề xuất thay đổi danh mục', 'INTERNAL', 10, false),
-  retention('IMPORT_BATCH', 'Lô nhập dữ liệu', 'INTERNAL', 5, false),
-  retention('MASTER_DATA', 'Dữ liệu chủ và lịch sử phiên bản', 'INTERNAL', undefined, false),
+  priority('NORMAL', vi('priority.NORMAL.label'), 3, 24, 168, 'WORKING_DAYS', 120),
+  priority('LOW', vi('priority.LOW.label'), 4, 72, 336, 'WORKING_DAYS', 240),
+  criterion('QUALITY_OF_WORK', vi('contractor_criterion.QUALITY_OF_WORK.label'), 'QUALITY', true),
+  criterion('SCHEDULE_ADHERENCE', vi('contractor_criterion.SCHEDULE_ADHERENCE.label'), 'SCHEDULE', true),
+  criterion('SAFETY_RECORD', vi('contractor_criterion.SAFETY_RECORD.label'), 'SAFETY', true),
+  criterion('COST_DISCIPLINE', vi('contractor_criterion.COST_DISCIPLINE.label'), 'COST', false),
+  criterion('LEGAL_COMPLIANCE', vi('contractor_criterion.LEGAL_COMPLIANCE.label'), 'COMPLIANCE', true),
+  entry('EXPERT_ROLE', 'PROJECT_MANAGER', vi('expert_role.PROJECT_MANAGER.label'), { specialty: 'project_management', conditions: ['certificate_in_force'] }),
+  entry('EXPERT_ROLE', 'SUPERVISION_ENGINEER', vi('expert_role.SUPERVISION_ENGINEER.label'), { specialty: 'construction_supervision', conditions: ['certificate_in_force'] }),
+  entry('EXPERT_ROLE', 'COST_ESTIMATOR', vi('expert_role.COST_ESTIMATOR.label'), { specialty: 'cost_estimation' }),
+  purpose('SERVICE_NOTICE', vi('contact_purpose.SERVICE_NOTICE.label'), 'NOT_REQUIRED', 'INTERNAL'),
+  purpose('SATISFACTION_SURVEY', vi('contact_purpose.SATISFACTION_SURVEY.label'), 'EXPLICIT', 'INTERNAL'),
+  purpose('SENSITIVE_FOLLOW_UP', vi('contact_purpose.SENSITIVE_FOLLOW_UP.label'), 'EXPLICIT', 'CONFIDENTIAL'),
+  entry('LANGUAGE', 'vi', vi('language.vi.label'), { native_name: vi('language.vi.native_name') }),
+  entry('LANGUAGE', 'en', vi('language.en.label'), { native_name: 'English' }),
+  retention('FINANCIAL_RECORD', vi('retention_policy.FINANCIAL_RECORD.label'), 'CONFIDENTIAL', 10, true),
+  retention('CONTRACT_RECORD', vi('retention_policy.CONTRACT_RECORD.label'), 'CONFIDENTIAL', 10, true),
+  retention('CHANGE_REQUEST', vi('retention_policy.CHANGE_REQUEST.label'), 'INTERNAL', 10, false),
+  retention('IMPORT_BATCH', vi('retention_policy.IMPORT_BATCH.label'), 'INTERNAL', 5, false),
+  retention('MASTER_DATA', vi('retention_policy.MASTER_DATA.label'), 'INTERNAL', undefined, false),
 ];
 
 /**
@@ -140,7 +148,7 @@ const CALENDAR_AND_UNITS: readonly BaselineEntry[] = [
   entry(
     'CALENDAR',
     'DEFAULT',
-    'Lịch kỳ báo cáo tuần',
+    vi('calendar.DEFAULT.label'),
     {
       owner_module: 'DIS',
       awaiting_confirmation: true,
@@ -150,20 +158,20 @@ const CALENDAR_AND_UNITS: readonly BaselineEntry[] = [
       deadline_time: '10:00',
       timezone: 'Asia/Ho_Chi_Minh',
     },
-    { legalBasis: 'Giả định D03 chờ chủ nghiệp vụ vốn ký: tuần từ thứ Bảy đến thứ Sáu, hạn nộp thứ Sáu 10:00 (+07)' },
+    { legalBasis: vi('legal.calendar_default') },
   ),
-  unit('M', 'Mét', 'LENGTH', '1', 2),
-  unit('KM', 'Ki-lô-mét', 'LENGTH', '1000', 3),
-  unit('M2', 'Mét vuông', 'AREA', '1', 2),
-  unit('HA', 'Héc-ta', 'AREA', '10000', 4),
-  unit('M3', 'Mét khối', 'VOLUME', '1', 2),
-  unit('KG', 'Ki-lô-gam', 'MASS', '1', 3),
-  unit('TON', 'Tấn', 'MASS', '1000', 3),
-  unit('PCS', 'Cái, bộ', 'COUNT', '1', 0),
-  currency('VND', 'Đồng Việt Nam', 0),
-  currency('USD', 'Đô la Mỹ', 2),
+  unit('M', vi('unit.M.label'), 'LENGTH', '1', 2),
+  unit('KM', vi('unit.KM.label'), 'LENGTH', '1000', 3),
+  unit('M2', vi('unit.M2.label'), 'AREA', '1', 2),
+  unit('HA', vi('unit.HA.label'), 'AREA', '10000', 4),
+  unit('M3', vi('unit.M3.label'), 'VOLUME', '1', 2),
+  unit('KG', vi('unit.KG.label'), 'MASS', '1', 3),
+  unit('TON', vi('unit.TON.label'), 'MASS', '1000', 3),
+  unit('PCS', vi('unit.PCS.label'), 'COUNT', '1', 0),
+  currency('VND', vi('currency.VND.label'), 0),
+  currency('USD', vi('currency.USD.label'), 2),
   currency('EUR', 'Euro', 2),
-  currency('JPY', 'Yên Nhật', 0),
+  currency('JPY', vi('currency.JPY.label'), 0),
 ];
 
 /**
@@ -173,137 +181,137 @@ const CALENDAR_AND_UNITS: readonly BaselineEntry[] = [
  * that apply it label as such. An entry comes before every entry that refers to it.
  */
 const ENTRIES: readonly BaselineEntry[] = [
-  fund('NSTW', 'Ngân sách trung ương', 'NSTW', 'ADDITIVE'),
-  fund('NSTW-DTPT', 'Vốn đầu tư phát triển ngân sách trung ương', 'NSTW', 'ADDITIVE', 'NSTW'),
-  fund('NSDP', 'Ngân sách địa phương', 'NSDP', 'ADDITIVE'),
-  fund('NSDP-DTPT', 'Vốn đầu tư phát triển ngân sách địa phương', 'NSDP', 'ADDITIVE', 'NSDP'),
-  fund('ODA-NONLEND', 'Vốn ODA không vay lại', 'ODA', 'ADDITIVE', undefined, { onlending: false }),
-  fund('ODA-ONLEND', 'Vốn ODA vay lại', 'ODA', 'ADDITIVE', undefined, { onlending: true }),
-  fund('CTMTQG-NTM', 'Chương trình mục tiêu quốc gia xây dựng nông thôn mới', 'CTMTQG', 'SUBSET_OF', 'NSTW-DTPT'),
-  fund('CTMTQG-GNBV', 'Chương trình mục tiêu quốc gia giảm nghèo bền vững', 'CTMTQG', 'SUBSET_OF', 'NSTW-DTPT'),
-  fund('CTMTQG-DTTS', 'Chương trình mục tiêu quốc gia phát triển kinh tế - xã hội vùng đồng bào dân tộc thiểu số và miền núi', 'CTMTQG', 'SUBSET_OF', 'NSTW-DTPT'),
-  entry('PROGRAM', 'NTM', 'Xây dựng nông thôn mới', { kind: 'CTMTQG', period_from: 2021, period_to: 2025, fund_source_key: 'CTMTQG-NTM' }),
-  entry('PROGRAM', 'GNBV', 'Giảm nghèo bền vững', { kind: 'CTMTQG', period_from: 2021, period_to: 2025, fund_source_key: 'CTMTQG-GNBV' }),
-  entry('PROGRAM', 'DTTS', 'Phát triển kinh tế - xã hội vùng đồng bào dân tộc thiểu số và miền núi', { kind: 'CTMTQG', period_from: 2021, period_to: 2025, fund_source_key: 'CTMTQG-DTTS' }),
+  fund('NSTW', vi('fund_source.NSTW.label'), 'NSTW', 'ADDITIVE'),
+  fund('NSTW-DTPT', vi('fund_source.NSTW-DTPT.label'), 'NSTW', 'ADDITIVE', 'NSTW'),
+  fund('NSDP', vi('fund_source.NSDP.label'), 'NSDP', 'ADDITIVE'),
+  fund('NSDP-DTPT', vi('fund_source.NSDP-DTPT.label'), 'NSDP', 'ADDITIVE', 'NSDP'),
+  fund('ODA-NONLEND', vi('fund_source.ODA-NONLEND.label'), 'ODA', 'ADDITIVE', undefined, { onlending: false }),
+  fund('ODA-ONLEND', vi('fund_source.ODA-ONLEND.label'), 'ODA', 'ADDITIVE', undefined, { onlending: true }),
+  fund('CTMTQG-NTM', vi('fund_source.CTMTQG-NTM.label'), 'CTMTQG', 'SUBSET_OF', 'NSTW-DTPT'),
+  fund('CTMTQG-GNBV', vi('fund_source.CTMTQG-GNBV.label'), 'CTMTQG', 'SUBSET_OF', 'NSTW-DTPT'),
+  fund('CTMTQG-DTTS', vi('fund_source.CTMTQG-DTTS.label'), 'CTMTQG', 'SUBSET_OF', 'NSTW-DTPT'),
+  entry('PROGRAM', 'NTM', vi('program.NTM.label'), { kind: 'CTMTQG', period_from: 2021, period_to: 2025, fund_source_key: 'CTMTQG-NTM' }),
+  entry('PROGRAM', 'GNBV', vi('program.GNBV.label'), { kind: 'CTMTQG', period_from: 2021, period_to: 2025, fund_source_key: 'CTMTQG-GNBV' }),
+  entry('PROGRAM', 'DTTS', vi('program.DTTS.label'), { kind: 'CTMTQG', period_from: 2021, period_to: 2025, fund_source_key: 'CTMTQG-DTTS' }),
   ...[
-    ['TRANSPORT', 'Giao thông'],
-    ['AGRICULTURE', 'Nông nghiệp và phát triển nông thôn'],
-    ['EDUCATION', 'Giáo dục và đào tạo'],
-    ['HEALTH', 'Y tế'],
-    ['CULTURE_SPORT', 'Văn hóa, thể thao'],
-    ['ENVIRONMENT', 'Tài nguyên và môi trường'],
-    ['ICT', 'Công nghệ thông tin và chuyển đổi số'],
-    ['URBAN', 'Hạ tầng đô thị và cấp thoát nước'],
+    ['TRANSPORT', vi('sector.TRANSPORT.label')],
+    ['AGRICULTURE', vi('sector.AGRICULTURE.label')],
+    ['EDUCATION', vi('sector.EDUCATION.label')],
+    ['HEALTH', vi('sector.HEALTH.label')],
+    ['CULTURE_SPORT', vi('sector.CULTURE_SPORT.label')],
+    ['ENVIRONMENT', vi('sector.ENVIRONMENT.label')],
+    ['ICT', vi('sector.ICT.label')],
+    ['URBAN', vi('sector.URBAN.label')],
   ].map(([key, label], index) => entry('SECTOR', key as string, label as string, { sort_order: (index + 1) * 10 })),
-  entry('PROJECT_GROUP', 'QTQG', 'Dự án quan trọng quốc gia', { rank: 1 }, { legalBasis: LAW }),
-  entry('PROJECT_GROUP', 'A', 'Dự án nhóm A', { rank: 2 }, { legalBasis: LAW }),
-  entry('PROJECT_GROUP', 'B', 'Dự án nhóm B', { rank: 3 }, { legalBasis: LAW }),
-  entry('PROJECT_GROUP', 'C', 'Dự án nhóm C', { rank: 4 }, { legalBasis: LAW }),
-  entry('PROJECT_TYPE', 'NEW_BUILD', 'Đầu tư xây dựng mới', { kind: 'CAPITAL_WORKS' }),
-  entry('PROJECT_TYPE', 'UPGRADE', 'Cải tạo, nâng cấp, mở rộng', { kind: 'CAPITAL_WORKS' }),
-  entry('PROJECT_TYPE', 'PROCUREMENT', 'Mua sắm tài sản, trang thiết bị', { kind: 'PROCUREMENT' }),
-  entry('PROJECT_TYPE', 'PREPARATION', 'Chuẩn bị đầu tư', { kind: 'PREPARATION' }),
-  stage('CONCEPT', 'Ý tưởng', 1, ['APPRAISAL', 'CANCELLED']),
-  stage('APPRAISAL', 'Thẩm định', 2, ['PIPELINE', 'REJECTED', 'CONCEPT', 'CANCELLED']),
-  stage('PIPELINE', 'Ngân hàng dự án', 3, ['BUDGETED', 'CANCELLED']),
-  stage('BUDGETED', 'Đã bố trí vốn', 4, ['IMPLEMENTATION', 'CANCELLED']),
-  stage('IMPLEMENTATION', 'Đang thực hiện', 5, ['SUSPENDED', 'COMPLETED']),
-  stage('SUSPENDED', 'Tạm dừng', 6, ['IMPLEMENTATION']),
-  stage('COMPLETED', 'Hoàn thành', 7, ['SETTLED']),
-  stage('SETTLED', 'Đã quyết toán', 8, ['CLOSED']),
-  stage('CLOSED', 'Đã đóng', 9, [], true),
-  stage('REJECTED', 'Bị từ chối', 10, [], true),
-  stage('CANCELLED', 'Đã hủy', 11, [], true),
-  decisionType('INVESTMENT_POLICY', 'Quyết định chủ trương đầu tư', ['number', 'issued_on', 'issuing_authority', 'total_investment']),
-  decisionType('INVESTMENT_DECISION', 'Quyết định đầu tư', ['number', 'issued_on', 'issuing_authority', 'total_investment']),
-  decisionType('PLAN_ASSIGNMENT', 'Quyết định giao kế hoạch vốn', ['number', 'issued_on', 'issuing_authority', 'plan_year']),
-  decisionType('SETTLEMENT_APPROVAL', 'Quyết định phê duyệt quyết toán', ['number', 'issued_on', 'issuing_authority', 'settled_amount']),
-  authority('NA-POLICY', 'Quốc hội quyết định chủ trương đầu tư', 'NATIONAL_ASSEMBLY', 'INVESTMENT_POLICY', 'NATIONAL'),
-  authority('PM-POLICY', 'Thủ tướng Chính phủ quyết định chủ trương đầu tư', 'PRIME_MINISTER', 'INVESTMENT_POLICY', 'NATIONAL'),
-  authority('PC-POLICY', 'Hội đồng nhân dân tỉnh quyết định chủ trương đầu tư', 'PROVINCIAL_PEOPLES_COUNCIL', 'INVESTMENT_POLICY', 'PROVINCE'),
-  authority('PCOM-DECISION', 'Ủy ban nhân dân tỉnh quyết định đầu tư', 'PROVINCIAL_PEOPLES_COMMITTEE', 'INVESTMENT_DECISION', 'PROVINCE'),
-  authority('CCOM-DECISION', 'Ủy ban nhân dân xã quyết định đầu tư', 'COMMUNE_PEOPLES_COMMITTEE', 'INVESTMENT_DECISION', 'COMMUNE'),
+  entry('PROJECT_GROUP', 'QTQG', vi('project_group.QTQG.label'), { rank: 1 }, { legalBasis: LAW }),
+  entry('PROJECT_GROUP', 'A', vi('project_group.A.label'), { rank: 2 }, { legalBasis: LAW }),
+  entry('PROJECT_GROUP', 'B', vi('project_group.B.label'), { rank: 3 }, { legalBasis: LAW }),
+  entry('PROJECT_GROUP', 'C', vi('project_group.C.label'), { rank: 4 }, { legalBasis: LAW }),
+  entry('PROJECT_TYPE', 'NEW_BUILD', vi('project_type.NEW_BUILD.label'), { kind: 'CAPITAL_WORKS' }),
+  entry('PROJECT_TYPE', 'UPGRADE', vi('project_type.UPGRADE.label'), { kind: 'CAPITAL_WORKS' }),
+  entry('PROJECT_TYPE', 'PROCUREMENT', vi('project_type.PROCUREMENT.label'), { kind: 'PROCUREMENT' }),
+  entry('PROJECT_TYPE', 'PREPARATION', vi('project_type.PREPARATION.label'), { kind: 'PREPARATION' }),
+  stage('CONCEPT', vi('project_stage.CONCEPT.label'), 1, ['APPRAISAL', 'CANCELLED']),
+  stage('APPRAISAL', vi('project_stage.APPRAISAL.label'), 2, ['PIPELINE', 'REJECTED', 'CONCEPT', 'CANCELLED']),
+  stage('PIPELINE', vi('project_stage.PIPELINE.label'), 3, ['BUDGETED', 'CANCELLED']),
+  stage('BUDGETED', vi('project_stage.BUDGETED.label'), 4, ['IMPLEMENTATION', 'CANCELLED']),
+  stage('IMPLEMENTATION', vi('project_stage.IMPLEMENTATION.label'), 5, ['SUSPENDED', 'COMPLETED']),
+  stage('SUSPENDED', vi('project_stage.SUSPENDED.label'), 6, ['IMPLEMENTATION']),
+  stage('COMPLETED', vi('project_stage.COMPLETED.label'), 7, ['SETTLED']),
+  stage('SETTLED', vi('project_stage.SETTLED.label'), 8, ['CLOSED']),
+  stage('CLOSED', vi('project_stage.CLOSED.label'), 9, [], true),
+  stage('REJECTED', vi('project_stage.REJECTED.label'), 10, [], true),
+  stage('CANCELLED', vi('project_stage.CANCELLED.label'), 11, [], true),
+  decisionType('INVESTMENT_POLICY', vi('decision_type.INVESTMENT_POLICY.label'), ['number', 'issued_on', 'issuing_authority', 'total_investment']),
+  decisionType('INVESTMENT_DECISION', vi('decision_type.INVESTMENT_DECISION.label'), ['number', 'issued_on', 'issuing_authority', 'total_investment']),
+  decisionType('PLAN_ASSIGNMENT', vi('decision_type.PLAN_ASSIGNMENT.label'), ['number', 'issued_on', 'issuing_authority', 'plan_year']),
+  decisionType('SETTLEMENT_APPROVAL', vi('decision_type.SETTLEMENT_APPROVAL.label'), ['number', 'issued_on', 'issuing_authority', 'settled_amount']),
+  authority('NA-POLICY', vi('decision_authority.NA-POLICY.label'), 'NATIONAL_ASSEMBLY', 'INVESTMENT_POLICY', 'NATIONAL'),
+  authority('PM-POLICY', vi('decision_authority.PM-POLICY.label'), 'PRIME_MINISTER', 'INVESTMENT_POLICY', 'NATIONAL'),
+  authority('PC-POLICY', vi('decision_authority.PC-POLICY.label'), 'PROVINCIAL_PEOPLES_COUNCIL', 'INVESTMENT_POLICY', 'PROVINCE'),
+  authority('PCOM-DECISION', vi('decision_authority.PCOM-DECISION.label'), 'PROVINCIAL_PEOPLES_COMMITTEE', 'INVESTMENT_DECISION', 'PROVINCE'),
+  authority('CCOM-DECISION', vi('decision_authority.CCOM-DECISION.label'), 'COMMUNE_PEOPLES_COMMITTEE', 'INVESTMENT_DECISION', 'COMMUNE'),
   entry(
     'PROJECT_GROUP_THRESHOLDS',
     'DEFAULT',
-    'Ngưỡng nhóm dự án theo tổng mức đầu tư',
+    vi('project_group_thresholds.DEFAULT.label'),
     {
       owner_module: 'PRJ',
       awaiting_confirmation: true,
       cxn: 'CXN-32',
       bands: [band(null, 'C', '0', '120000000000'), band(null, 'B', '120000000000', '2300000000000'), band(null, 'A', '2300000000000', '30000000000000'), band(null, 'QTQG', '30000000000000', null)],
     },
-    { legalBasis: `${LAW} — bảng ngưỡng chờ xác nhận [CXN-32]` },
+    { legalBasis: `${LAW} ${vi('legal.project_group_thresholds')}` },
   ),
   entry(
     'NATIONAL_CODE_REQUIRED',
     'DEFAULT',
-    'Mã số dự án quốc gia bắt buộc từ ngân hàng dự án',
+    vi('national_code_required.DEFAULT.label'),
     { owner_module: 'CAP', awaiting_confirmation: true, cxn: 'CXN-01', mode: 'BLOCK', from_stage_key: 'PIPELINE' },
-    { legalBasis: 'Quy định mã số dự án trên hệ thống thông tin quốc gia về đầu tư công — văn bản gốc chờ xác nhận [CXN-01]' },
+    { legalBasis: vi('legal.national_code') },
   ),
   entry(
     'NATIONAL_CODE_FORMAT',
     'DEFAULT',
-    'Định dạng mã số dự án quốc gia',
+    vi('national_code_format.DEFAULT.label'),
     { owner_module: 'CAP', awaiting_confirmation: true, cxn: 'CXN-01', pattern: '^\\d{7}$', example: '7654321' },
-    { legalBasis: 'Quy định mã số dự án trên hệ thống thông tin quốc gia về đầu tư công — văn bản gốc chờ xác nhận [CXN-01]' },
+    { legalBasis: vi('legal.national_code') },
   ),
   entry(
     'APPRAISAL_CRITERIA',
     'APPR-CRIT-2026r1',
-    'Bộ tiêu chí thẩm định đề xuất chủ trương 2026 (bản 1)',
+    vi('appraisal_criteria.APPR-CRIT-2026r1.label'),
     {
       owner_module: 'PRJ',
       awaiting_confirmation: true,
       cxn: 'ASSUMPTION-APPRAISAL-60',
       criteria: [
-        { code: 'POLICY_ALIGNMENT', name: 'Phù hợp chiến lược, quy hoạch và định hướng đầu tư', max_score: 25 },
-        { code: 'FEASIBILITY', name: 'Tính khả thi về kỹ thuật và tổ chức thực hiện', max_score: 25 },
-        { code: 'EFFECTIVENESS', name: 'Hiệu quả kinh tế - xã hội', max_score: 20 },
-        { code: 'CAPITAL_READINESS', name: 'Khả năng cân đối nguồn vốn', max_score: 20 },
-        { code: 'RISK', name: 'Rủi ro và biện pháp giảm thiểu', max_score: 10 },
+        { code: 'POLICY_ALIGNMENT', name: vi('appraisal_criteria.criteria.POLICY_ALIGNMENT'), max_score: 25 },
+        { code: 'FEASIBILITY', name: vi('appraisal_criteria.criteria.FEASIBILITY'), max_score: 25 },
+        { code: 'EFFECTIVENESS', name: vi('appraisal_criteria.criteria.EFFECTIVENESS'), max_score: 20 },
+        { code: 'CAPITAL_READINESS', name: vi('appraisal_criteria.criteria.CAPITAL_READINESS'), max_score: 20 },
+        { code: 'RISK', name: vi('appraisal_criteria.criteria.RISK'), max_score: 10 },
       ],
       pass_threshold: 60,
     },
-    { legalBasis: 'Bộ tiêu chí do cơ quan tài chính ban hành — giả định chờ ban hành chính thức' },
+    { legalBasis: vi('legal.appraisal_criteria') },
   ),
 ];
 
-const LAND_LAW = 'Luật Đất đai 2024 và Nghị định 88/2024/NĐ-CP — số ngày chờ xác nhận văn bản gốc [CXN-12]';
+const LAND_LAW = vi('legal.land_law');
 const landTimer = (key: string, label: string, days: number): BaselineEntry =>
   entry('LND_TIMER', key, label, { owner_module: 'LND', awaiting_confirmation: true, cxn: 'CXN-12', days, day_count: 'CALENDAR' }, { legalBasis: LAND_LAW });
 
 /** The timers of land clearance (BR-LND-01): calendar days, flagged with the confirmation they wait for. */
 const LAND_TIMERS: readonly BaselineEntry[] = [
-  landTimer('NOTICE_AGRICULTURAL_90', 'Thông báo thu hồi đất nông nghiệp trước 90 ngày', 90),
-  landTimer('NOTICE_NON_AGRICULTURAL_180', 'Thông báo thu hồi đất phi nông nghiệp trước 180 ngày', 180),
-  landTimer('PLAN_POSTING_30', 'Niêm yết phương án bồi thường tối thiểu 30 ngày', 30),
-  landTimer('PAYMENT_30', 'Chi trả bồi thường trong 30 ngày kể từ phê duyệt', 30),
-  landTimer('COMPLAINT_RESOLUTION', 'Hạn giải quyết khiếu nại về bồi thường', 30),
+  landTimer('NOTICE_AGRICULTURAL_90', vi('lnd_timer.NOTICE_AGRICULTURAL_90.label'), 90),
+  landTimer('NOTICE_NON_AGRICULTURAL_180', vi('lnd_timer.NOTICE_NON_AGRICULTURAL_180.label'), 180),
+  landTimer('PLAN_POSTING_30', vi('lnd_timer.PLAN_POSTING_30.label'), 30),
+  landTimer('PAYMENT_30', vi('lnd_timer.PAYMENT_30.label'), 30),
+  landTimer('COMPLAINT_RESOLUTION', vi('lnd_timer.COMPLAINT_RESOLUTION.label'), 30),
 ];
 
-const PETITION_LAW = 'Luật Đấu thầu 22/2023/QH15 (sửa bởi Luật 90/2025/QH15) về kiến nghị trong lựa chọn nhà thầu — thời hạn chờ xác nhận văn bản gốc [CXN-BID-02]';
+const PETITION_LAW = vi('legal.petition_law');
 const petitionDeadline = (key: string, label: string, days: number): BaselineEntry =>
   entry('BID_PETITION', key, label, { owner_module: 'BID', awaiting_confirmation: true, cxn: 'CXN-BID-02', days, day_count: 'CALENDAR' }, { legalBasis: PETITION_LAW });
 
 /** The deadlines to answer a petition of a contractor (BR-BID-14): calendar days, the stricter reading, flagged with the confirmation they wait for. A tenant that counts working days publishes a version that names its calendar. */
 const PETITION_DEADLINES: readonly BaselineEntry[] = [
-  petitionDeadline('PROCESS', 'Hạn trả lời kiến nghị về quá trình lựa chọn nhà thầu', 7),
-  petitionDeadline('RESULT', 'Hạn trả lời kiến nghị về kết quả lựa chọn nhà thầu', 7),
+  petitionDeadline('PROCESS', vi('bid_petition.PROCESS.label'), 7),
+  petitionDeadline('RESULT', vi('bid_petition.RESULT.label'), 7),
 ];
 
-const REGIME_LAW = 'Nghị định 06/2021/NĐ-CP về quản lý chất lượng, thi công xây dựng và bảo trì công trình và văn bản thay thế dự kiến Nghị định 207/2026 — nội dung chờ xác nhận văn bản gốc [CXN-07]';
+const REGIME_LAW = vi('legal.regime_law');
 const checklist = (inspectionType: string, items: Array<[string, string]>) => ({ inspection_type: inspectionType, items: items.map(([code, label]) => ({ code, label })) });
 /** The checklists of the working assumption: what the supervisor checks for each kind of inspection, until the owner of the construction business signs the regime. */
 const REGIME_CHECKLISTS = [
-  checklist('MATERIAL_ENTRY', [['ORIGIN', 'Hồ sơ xuất xứ và chứng nhận chất lượng vật liệu'], ['SAMPLE', 'Mẫu vật liệu khớp với hồ sơ đã đăng ký']]),
-  checklist('CONCEALED_WORK', [['DRAWING', 'Thi công đúng hồ sơ thiết kế được duyệt'], ['QUALITY', 'Chất lượng công việc che khuất đạt yêu cầu'], ['RECORD', 'Hồ sơ nghiệm thu nội bộ của nhà thầu đầy đủ']]),
-  checklist('CONSTRUCTION_STAGE', [['DRAWING', 'Thi công đúng hồ sơ thiết kế được duyệt'], ['QUALITY', 'Chất lượng giai đoạn thi công đạt yêu cầu']]),
-  checklist('PART_ACCEPTANCE', [['DRAWING', 'Thi công đúng hồ sơ thiết kế được duyệt'], ['QUALITY', 'Chất lượng bộ phận công trình đạt yêu cầu']]),
-  checklist('COMPLETION', [['DRAWING', 'Thi công đúng hồ sơ thiết kế được duyệt'], ['QUALITY', 'Chất lượng hạng mục hoặc công trình đạt yêu cầu'], ['DOSSIER', 'Hồ sơ hoàn thành công trình đầy đủ']]),
-  checklist('SAFETY', [['MEASURES', 'Biện pháp an toàn lao động được thực hiện'], ['EQUIPMENT', 'Thiết bị và phương tiện bảo hộ đạt yêu cầu']]),
-  checklist('OTHER', [['CONTENT', 'Nội dung kiểm tra theo đề nghị được thực hiện']]),
+  checklist('MATERIAL_ENTRY', [['ORIGIN', vi('qms_regime.checklist.MATERIAL_ENTRY.ORIGIN')], ['SAMPLE', vi('qms_regime.checklist.MATERIAL_ENTRY.SAMPLE')]]),
+  checklist('CONCEALED_WORK', [['DRAWING', vi('qms_regime.checklist.CONCEALED_WORK.DRAWING')], ['QUALITY', vi('qms_regime.checklist.CONCEALED_WORK.QUALITY')], ['RECORD', vi('qms_regime.checklist.CONCEALED_WORK.RECORD')]]),
+  checklist('CONSTRUCTION_STAGE', [['DRAWING', vi('qms_regime.checklist.CONSTRUCTION_STAGE.DRAWING')], ['QUALITY', vi('qms_regime.checklist.CONSTRUCTION_STAGE.QUALITY')]]),
+  checklist('PART_ACCEPTANCE', [['DRAWING', vi('qms_regime.checklist.PART_ACCEPTANCE.DRAWING')], ['QUALITY', vi('qms_regime.checklist.PART_ACCEPTANCE.QUALITY')]]),
+  checklist('COMPLETION', [['DRAWING', vi('qms_regime.checklist.COMPLETION.DRAWING')], ['QUALITY', vi('qms_regime.checklist.COMPLETION.QUALITY')], ['DOSSIER', vi('qms_regime.checklist.COMPLETION.DOSSIER')]]),
+  checklist('SAFETY', [['MEASURES', vi('qms_regime.checklist.SAFETY.MEASURES')], ['EQUIPMENT', vi('qms_regime.checklist.SAFETY.EQUIPMENT')]]),
+  checklist('OTHER', [['CONTENT', vi('qms_regime.checklist.OTHER.CONTENT')]]),
 ];
 const regime = (key: string, label: string, requiredRoles: string[], validFrom: string, validUntil?: string): BaselineEntry =>
   entry(
@@ -316,32 +324,32 @@ const regime = (key: string, label: string, requiredRoles: string[], validFrom: 
 
 /** The regimes of quality management (BR-QMS-04): the current decree until the end of 2026 and the one that replaces it from 2027, both flagged with the confirmation they wait for. */
 const QMS_REGIMES: readonly BaselineEntry[] = [
-  regime('ND-06-2021', 'Quy chế Nghị định 06/2021/NĐ-CP', ['CONTRACTOR', 'SUPERVISOR', 'OWNER'], SINCE, '2027-01-01'),
-  regime('ND-207-2026', 'Quy chế Nghị định 207/2026/NĐ-CP (dự kiến)', ['CONTRACTOR', 'SUPERVISOR', 'OWNER', 'DESIGNER'], '2027-01-01'),
+  regime('ND-06-2021', vi('qms_regime.ND-06-2021.label'), ['CONTRACTOR', 'SUPERVISOR', 'OWNER'], SINCE, '2027-01-01'),
+  regime('ND-207-2026', vi('qms_regime.ND-207-2026.label'), ['CONTRACTOR', 'SUPERVISOR', 'OWNER', 'DESIGNER'], '2027-01-01'),
 ];
 
-const WARRANTY_LAW = 'Nghị định 06/2021/NĐ-CP về quản lý chất lượng, thi công xây dựng và bảo trì công trình (bảo hành công trình) và văn bản thay thế dự kiến Nghị định 207/2026 — thời hạn tối thiểu theo cấp công trình là số liệu thử, không phải quy định, chờ kiểm văn bản gốc [CXN-EXE-04]';
+const WARRANTY_LAW = vi('legal.warranty_law');
 const warrantyMinimum = (grade: string, label: string, months: number): BaselineEntry =>
   entry('AST_WARRANTY', grade, label, { owner_module: 'AST', awaiting_confirmation: true, cxn: 'CXN-EXE-04', min_months: months }, { legalBasis: WARRANTY_LAW });
 
 /** The shortest warranty of a work by its grade (BR-AST-03): the fixture of the acceptance tests, flagged as such — 24 months for a special work or a work of grade I, 12 months for the others. */
 const WARRANTY_MINIMUMS: readonly BaselineEntry[] = [
-  warrantyMinimum('SPECIAL', 'Bảo hành tối thiểu công trình cấp đặc biệt (số liệu thử)', 24),
-  warrantyMinimum('I', 'Bảo hành tối thiểu công trình cấp I (số liệu thử)', 24),
-  warrantyMinimum('II', 'Bảo hành tối thiểu công trình cấp II (số liệu thử)', 12),
-  warrantyMinimum('III', 'Bảo hành tối thiểu công trình cấp III (số liệu thử)', 12),
-  warrantyMinimum('IV', 'Bảo hành tối thiểu công trình cấp IV (số liệu thử)', 12),
+  warrantyMinimum('SPECIAL', vi('ast_warranty.SPECIAL.label'), 24),
+  warrantyMinimum('I', vi('ast_warranty.I.label'), 24),
+  warrantyMinimum('II', vi('ast_warranty.II.label'), 12),
+  warrantyMinimum('III', vi('ast_warranty.III.label'), 12),
+  warrantyMinimum('IV', vi('ast_warranty.IV.label'), 12),
 ];
 
-const ADVANCE_LAW = 'Nghị định 254/2025/NĐ-CP về điều kiện và mức tạm ứng hợp đồng (thay Nghị định 99/2021) — mức trần và ngưỡng thu hồi là số liệu thử, không phải quy định, chờ kiểm văn bản gốc [CXN-02]';
+const ADVANCE_LAW = vi('legal.advance_law');
 const advanceCap = (key: string, label: string, tiers: Array<{ min_value_vnd: string; cap_pct: string }>): BaselineEntry =>
   entry('PAY_ADVANCE_CAP', key, label, { owner_module: 'PAY', awaiting_confirmation: true, cxn: 'CXN-02', tiers, recovery_threshold_pct: '80' }, { legalBasis: ADVANCE_LAW });
 
 /** The caps of the advance (BR-PAY-10): the fixture of the acceptance tests, flagged as such. A category with no row cannot be advanced until its owner publishes one. */
 const ADVANCE_CAPS: readonly BaselineEntry[] = [
-  advanceCap('CONSTRUCTION', 'Trần tạm ứng hợp đồng thi công (số liệu thử)', [{ min_value_vnd: '10000000000', cap_pct: '20' }]),
-  advanceCap('CONSULTING', 'Trần tạm ứng hợp đồng tư vấn (số liệu thử)', [{ min_value_vnd: '0', cap_pct: '30' }]),
-  entry('PAY_ADVANCE_GPMB', 'GPMB', 'Hạn thu hồi tạm ứng giải phóng mặt bằng', { owner_module: 'PAY', awaiting_confirmation: true, cxn: 'CXN-12', recovery_days: 30 }, { legalBasis: 'Hạn thu hồi tạm ứng bồi thường, hỗ trợ, tái định cư — số ngày chờ xác nhận văn bản gốc [CXN-12]' }),
+  advanceCap('CONSTRUCTION', vi('pay_advance_cap.CONSTRUCTION.label'), [{ min_value_vnd: '10000000000', cap_pct: '20' }]),
+  advanceCap('CONSULTING', vi('pay_advance_cap.CONSULTING.label'), [{ min_value_vnd: '0', cap_pct: '30' }]),
+  entry('PAY_ADVANCE_GPMB', 'GPMB', vi('pay_advance_gpmb.GPMB.label'), { owner_module: 'PAY', awaiting_confirmation: true, cxn: 'CXN-12', recovery_days: 30 }, { legalBasis: vi('legal.pay_advance_gpmb') }),
 ];
 
 /** The days the verification of a settlement may take (BR-PAY-15): the numbers are the fixture of the acceptance tests (UAT-AC339), not a regulation, and wait for the confirmation named by CXN-09. */
@@ -349,7 +357,7 @@ const SETTLEMENT_DEADLINES: readonly BaselineEntry[] = [
   entry(
     'PAY_SETTLEMENT_DEADLINE',
     'VERIFY_DEADLINE',
-    'Hạn thẩm tra quyết toán theo nhóm dự án (số liệu thử)',
+    vi('pay_settlement_deadline.VERIFY_DEADLINE.label'),
     {
       owner_module: 'PAY',
       awaiting_confirmation: true,
@@ -361,7 +369,7 @@ const SETTLEMENT_DEADLINES: readonly BaselineEntry[] = [
         { project_group: 'C', days: 120 },
       ],
     },
-    { legalBasis: 'Thông tư 91/2025/TT-BTC về quyết toán dự án hoàn thành — số ngày theo nhóm dự án là số liệu thử, không phải quy định, chờ kiểm văn bản gốc [CXN-09]' },
+    { legalBasis: vi('legal.settlement_deadline') },
   ),
 ];
 

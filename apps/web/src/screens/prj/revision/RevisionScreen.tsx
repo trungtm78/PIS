@@ -34,7 +34,8 @@ import type { Change, DecisionField, DecisionForm, FormProblem, Kind, ProposalFi
 import { NONE, ProjectChooser, documentText, statusLabel, statusTone, useMoney, useProjectParam } from './shared';
 
 type T = Translator['t'];
-const CLOSE_GLYPH = '×';
+// U+00D7, the multiplication sign.
+const CLOSE_GLYPH = '\u00d7';
 
 function problemMessage(t: T, problem: RevisionProblem): string {
   switch (problem) {

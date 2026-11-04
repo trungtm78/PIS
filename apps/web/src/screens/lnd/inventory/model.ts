@@ -1,5 +1,6 @@
 import { ApiError } from '@machvon/api-client';
 import { isDay, isUuid } from '../model';
+import { hasControlCharacter } from '../../control-characters';
 
 /** LND-04: the inventory of the assets of an affected household, counted at a price decision in force and answered by the household (ST-LND-004, LND 3.2, BR-LND-04). */
 export const INVENTORY_PATH = '/lnd/lnd-04';
@@ -21,8 +22,6 @@ export const UNIT_CODE_MAX_LENGTH = 50;
 export const REFERENCE_MAX_LENGTH = 100;
 const QUANTITY = /^(0|[1-9]\d{0,17})(\.\d{1,6})?$/;
 const PRICE = /^(0|[1-9]\d{0,23})$/;
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u001f\u007f]/;
 
 type Raw = Record<string, unknown>;
 
@@ -107,7 +106,7 @@ export const canCount = (permissions: readonly string[] | undefined, mode: Mode)
 export const canAnswer = (record: InventoryLine, membershipId: string | undefined, permissions: readonly string[] | undefined, mode: Mode): boolean =>
   canCount(permissions, mode) && record.status === 'DRAFT' && record.surveyedBy.toLowerCase() !== (membershipId ?? '').toLowerCase();
 
-/** `quantity × unit price` rounded half up to the dong, on whole numbers; undefined while the two are not figures (BR-LND-04: 80 m2 × 4.500.000 = 360.000.000). */
+/** `quantity times unit price` rounded half up to the dong, on whole numbers; undefined while the two are not figures (BR-LND-04: 80 m2 times 4.500.000 = 360.000.000). */
 export function amountOf(quantity: string, unitPriceVnd: string): string | undefined {
   const q = quantity.trim();
   const p = unitPriceVnd.trim();
@@ -152,21 +151,21 @@ export function validateRecord(form: RecordForm, today: string): Partial<Record<
   const description = form.description.trim();
   if (description === '') problems.description = 'required';
   else if (description.length > DESCRIPTION_MAX_LENGTH) problems.description = 'tooLong';
-  else if (CONTROL.test(description)) problems.description = 'invalid';
+  else if (hasControlCharacter(description)) problems.description = 'invalid';
   const quantity = form.quantity.trim();
   if (quantity === '') problems.quantity = 'required';
   else if (!QUANTITY.test(quantity) || /^0(\.0+)?$/.test(quantity)) problems.quantity = 'invalid';
   const unit = form.unitCode.trim();
   if (unit === '') problems.unitCode = 'required';
   else if (unit.length > UNIT_CODE_MAX_LENGTH) problems.unitCode = 'tooLong';
-  else if (CONTROL.test(unit)) problems.unitCode = 'invalid';
+  else if (hasControlCharacter(unit)) problems.unitCode = 'invalid';
   const price = form.unitPriceVnd.trim();
   if (price === '') problems.unitPriceVnd = 'required';
   else if (!PRICE.test(price)) problems.unitPriceVnd = 'invalid';
   const reference = form.priceDecisionRef.trim();
   if (reference === '') problems.priceDecisionRef = 'required';
   else if (reference.length > REFERENCE_MAX_LENGTH) problems.priceDecisionRef = 'tooLong';
-  else if (CONTROL.test(reference)) problems.priceDecisionRef = 'invalid';
+  else if (hasControlCharacter(reference)) problems.priceDecisionRef = 'invalid';
   const surveyed = form.surveyedOn.trim();
   if (surveyed === '') problems.surveyedOn = 'required';
   else if (!isDay(surveyed)) problems.surveyedOn = 'invalid';
@@ -225,7 +224,7 @@ export function validateAnswer(form: AnswerForm, record: InventoryLine, today: s
   const note = form.note.trim();
   if (form.outcome === 'DISPUTED' && note === '') problems.note = 'required';
   else if (note.length > DESCRIPTION_MAX_LENGTH) problems.note = 'tooLong';
-  else if (CONTROL.test(note)) problems.note = 'invalid';
+  else if (hasControlCharacter(note)) problems.note = 'invalid';
   return problems;
 }
 

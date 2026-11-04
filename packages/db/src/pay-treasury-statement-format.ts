@@ -50,12 +50,12 @@ const MAX_AMOUNT_DIGITS = 24;
 const VIETNAM_OFFSET = '+07:00';
 const hasControlCharacter = (text: string): boolean => Array.from(text).some((character) => (character.codePointAt(0) ?? 0) < 0x20 || character.codePointAt(0) === 0x7f);
 
-/** A header as it is compared: without accents, lower case, words joined by an underscore ("Số chứng từ" is `so_chung_tu`). */
+/** A header as it is compared: without accents, lower case, words joined by an underscore (the Vietnamese header for "voucher number" is `so_chung_tu`). */
 export function normalizeHeader(header: string): string {
   return header
     .normalize('NFD')
     .replace(/\p{M}/gu, '')
-    .replace(/[đĐ]/g, 'd')
+    .replace(/[\u0111\u0110]/g, 'd') // the Vietnamese letter d-with-stroke, lower and upper case
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_+|_+$/g, '');

@@ -18,7 +18,7 @@ beforeEach(async () => {
 
 const SCHEMA = { type: 'object', properties: { text: { type: 'string' } }, required: ['text'] };
 const etag = (reply: Reply): string => `"${String(reply.json.resource_version)}"`;
-const audits = (action: string) => app.rows<{ safe_diff: Record<string, any> }>('select safe_diff from machvon.audit_event where action = $1 and occurred_at >= $2 order by occurred_at', [action, since]); // eslint-disable-line @typescript-eslint/no-explicit-any
+const audits = (action: string) => app.rows<{ safe_diff: Record<string, unknown> }>('select safe_diff from machvon.audit_event where action = $1 and occurred_at >= $2 order by occurred_at', [action, since]);
 const events = (type: string) => app.rows<{ payload: Record<string, unknown> }>('select payload from machvon.outbox_event where type = $1 and created_at >= $2 order by created_at', [type, since]);
 
 // ---- the world of a tenant that has a domestic and an international provider, an approved prompt and a dataset ----------------------------------

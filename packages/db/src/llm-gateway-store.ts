@@ -4,7 +4,42 @@ import type { Classification, Route, SourceClass } from '@machvon/kernel';
 import type { TenantTx } from './tenant-database.ts';
 
 interface Sql {
-  [column: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  [column: string]: unknown;
+  id: string;
+  task_type: string;
+  subject_module: string;
+  subject_id: string | null;
+  requested_by: string;
+  profile_version_id: string;
+  prompt_version_id: string | null;
+  data_classification: "PUBLIC" | "INTERNAL" | "CONFIDENTIAL" | "PERSONAL" | "IMPORTANT_CORE";
+  anonymisation_attestation_id: string | null;
+  policy_version_id: string | null;
+  route_class: "DOMESTIC_HOSTED" | "SELF_HOSTED" | "INTERNATIONAL" | null;
+  provider_id: string | null;
+  provider_code: string | null;
+  model_ref_id: string | null;
+  model_id: string | null;
+  status: RequestStatus;
+  reject_code: string | null;
+  input_sha256: string;
+  output_sha256: string | null;
+  citations_count: number | null;
+  budget_reservation_id: string | null;
+  cost_vnd: string | null;
+  page_key: string;
+  ai_request_id: string;
+  attempt_no: number;
+  attempt_kind: "PRIMARY" | "RETRY" | "FALLBACK";
+  actual_model: string;
+  outcome: string;
+  latency_ms: number | null;
+  input_total: string;
+  cached_input: string;
+  output_total: string;
+  reconcile_status: string;
+  classification_basis: { document_version_id: string; classification: Classification }[] | null;
+  n: number;
 }
 
 const iso = (value: unknown): string | null => (value === null || value === undefined ? null : new Date(value as string).toISOString());
@@ -115,7 +150,7 @@ const attemptOf = (row: Sql): AttemptRow => ({
   aiRequestId: row.ai_request_id,
   attemptNo: row.attempt_no,
   attemptKind: row.attempt_kind,
-  routeClass: row.route_class,
+  routeClass: row.route_class as "DOMESTIC_HOSTED" | "SELF_HOSTED" | "INTERNATIONAL",
   providerId: row.provider_id,
   providerCode: row.provider_code,
   actualModel: row.actual_model,

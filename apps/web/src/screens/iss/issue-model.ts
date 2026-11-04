@@ -388,7 +388,7 @@ export interface IssueFilter {
 
 export const EMPTY_FILTER: IssueFilter = { query: '', status: '', severity: '', assignedToMe: false, overdueOnly: false };
 
-const normal = (value: string): string => value.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const normal = (value: string): string => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
 export function filterIssues(lines: readonly IssueLine[], filter: IssueFilter, membershipId: string | undefined): IssueLine[] {
   const query = normal(filter.query.trim());

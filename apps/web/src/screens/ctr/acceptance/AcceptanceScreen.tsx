@@ -18,6 +18,9 @@ import { acceptable, canCreate, remainingVnd, signedAmountText } from './model';
 import type { Acceptance } from './model';
 import '../ctr.css';
 
+/** The multiplication sign (U+00D7) between a quantity and its unit price. */
+const TIMES = '\u00d7';
+
 /**
  * CTR-12: accept the work done under a contract (ST-CTR-009, CTR 3.4, BR-CTR-05). Approved measurements of a period are drawn up as an acceptance whose lines keep the price of the
  * revision in force on the day; it is sent with the people who sign the paper and decided by someone other than whoever drafted or sent it. Approving needs, where the contract asks for them,
@@ -163,7 +166,7 @@ function Acceptances({ contract, acceptances, measurements }: AcceptancesProps) 
                     <ul className="ctr-lines" data-testid="lines">
                       {acceptance.lines.map((line) => (
                         <li key={line.id} data-line={line.id}>
-                          <strong>{line.businessKey}</strong> · {quantityText(line.quantity, locale)} {line.unitCode} × {quantityText(line.unitPrice, locale)} = {money(line.amountVnd)}
+                          <strong>{line.businessKey}</strong> · {quantityText(line.quantity, locale)} {line.unitCode} {TIMES} {quantityText(line.unitPrice, locale)} = {money(line.amountVnd)}
                         </li>
                       ))}
                     </ul>

@@ -142,11 +142,13 @@ function Editor({ dashboard, metrics, catalogueFailed, incoming, onConsumed, onR
     const known = mayEdit && incoming !== undefined && incoming.metric !== null && metrics.some((metric) => metric.id === incoming.metric);
     return known && isKind(incoming.kind) ? { ...base, widgets: [...base.widgets, widgetOfChart({ metricVersionId: incoming.metric as string, kind: incoming.kind, dimensionCode: incoming.dimension ?? '' }, base.widgets, base.columns)] } : base;
   });
+  const opened = useRef(false);
   useEffect(() => {
-    if (incoming !== undefined && mayEdit) onConsumed();
     // Once, when the editor opens.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (opened.current) return;
+    opened.current = true;
+    if (incoming !== undefined && mayEdit) onConsumed();
+  }, [incoming, mayEdit, onConsumed]);
   const [attempted, setAttempted] = useState(false);
   const [saved, setSaved] = useState<number | undefined>(undefined);
   const metricIds = useMemo(() => new Set(metrics.map((metric) => metric.id)), [metrics]);

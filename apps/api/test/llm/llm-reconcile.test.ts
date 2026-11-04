@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- the replies of the API and the rows of the tables are read as the JSON they are */
 import { randomUUID } from 'node:crypto';
 import { LlmFinopsStore, LlmReconcileStore } from '@machvon/db';
 import type { TenantTx } from '@machvon/db';
@@ -7,6 +6,7 @@ import { contextFor } from '../../../../packages/db/test/support/authz-fixtures'
 import { AI_ADMIN, FINOPS, LlmApp, NOBODY, READER, SCOPED, TENANT_A, TENANT_B, memberId } from './llm-app';
 import { llmModule } from '../../src/modules/llm';
 import { LlmReconcileController } from '../../src/modules/llm/reconcile.controller';
+import { asList, asObjects } from '../support/json';
 
 const app = new LlmApp();
 const finops = new LlmFinopsStore();
@@ -169,12 +169,12 @@ describe('the reconciliation of the invoice of a provider with the attempts (ST-
     const second = await reconcile({});
     expect([second.status, second.json.status]).toEqual([200, 'RECONCILED']);
     expect(second.json).toMatchObject({ variance: '8000', attempts_total: '3172000', reservations_settled: 3, pending_attempt_ids: [], resource_version: 2, resource_id: first.json.resource_id });
-    const stored = await app.rows<any>(
+    const stored = await app.rows<Record<string, unknown>>(
       'select status, variance::text as variance, run_count, owner_id, reconciled_attempt_ids, tolerance_pct::text as tolerance from machvon.ai_invoice_reconciliation',
     );
     expect(stored).toHaveLength(1);
     expect(stored[0]).toMatchObject({ status: 'RECONCILED', variance: '8000.00000000', run_count: 2, owner_id: memberId(FINOPS), tolerance: '0.50' });
-    expect((stored[0].reconciled_attempt_ids as string[]).sort()).toEqual(pending.map((one) => one.attemptId).sort());
+    expect((asList(stored[0]?.reconciled_attempt_ids) as string[]).sort()).toEqual(pending.map((one) => one.attemptId).sort());
     // The attempts that waited are marked, with the figures they had; the ones that paid for them say which invoice counted them.
     const marked = await app.rows<{ reconcile_status: string; cost: string }>('select reconcile_status, cost::text as cost from machvon.llm_attempt where id = any($1::uuid[])', [
       pending.map((one) => one.attemptId),
@@ -312,9 +312,9 @@ describe('the reconciliation of the invoice of a provider with the attempts (ST-
     const ids: string[] = [];
     for (const ref of ['VN1-A', 'VN1-B', 'VN1-C']) ids.push((await reconcile({ invoice_ref: ref, invoice_amount: '1000' })).json.resource_id as string);
     const firstPage = await app.call('GET', '/ai-invoices/reconciliations?limit=2', { member: FINOPS });
-    expect((firstPage.json.items as any[]).map((item) => item.id)).toEqual([ids[2], ids[1]]);
+    expect(asObjects(firstPage.json.items).map((item) => item.id)).toEqual([ids[2], ids[1]]);
     const next = await app.call('GET', `/ai-invoices/reconciliations?limit=2&cursor=${firstPage.json.next_cursor}`, { member: FINOPS });
-    expect((next.json.items as any[]).map((item) => item.id)).toEqual([ids[0]]);
+    expect(asObjects(next.json.items).map((item) => item.id)).toEqual([ids[0]]);
     expect(next.json.next_cursor).toBeNull();
     expect((await app.call('GET', '/ai-invoices/reconciliations?status=RECONCILED', { member: FINOPS })).json.items).toHaveLength(3);
   });

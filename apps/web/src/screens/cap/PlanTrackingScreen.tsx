@@ -20,7 +20,7 @@ const NOT_FOUND = 404;
 
 /**
  * CAP-15: the tracking of a capital plan. Each line shows what the first revision gave it (initial), what the revisions added or took
- * (adjustment), what the revision in force gives (current) and what was paid by the day chosen ("Xem tại ngày"): the plan as it stood on
+ * (adjustment), what the revision in force gives (current) and what was paid by the day chosen ("As of day"): the plan as it stood on
  * that day, with the decision that backed it. Only the lines in the scope of the caller are shown.
  */
 export default function PlanTrackingScreen({ route }: ScreenProps) {

@@ -10,7 +10,7 @@ import type { MilestoneForm, MilestoneKind, MilestoneLine, TrackedPackage } from
 import '../bid.css';
 
 /** The multiplication sign on the close button of a dialog. */
-const CLOSE_GLYPH = '×';
+const CLOSE_GLYPH = '\u00d7';
 
 export interface MilestoneDialogProps {
   pack: TrackedPackage;

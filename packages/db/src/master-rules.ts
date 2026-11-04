@@ -13,7 +13,7 @@ export interface RuleReading {
   validUntil: string | null;
   legalBasis: string;
   ownerModule: string;
-  /** The rule is a working assumption until the confirmation named by `cxn` arrives; a screen that applies it says so ("chờ ký"). */
+  /** The rule is a working assumption until the confirmation named by `cxn` arrives; a screen that applies it says so (it is awaiting signature). */
   awaitingConfirmation: boolean;
   cxn: string | null;
   attributes: Record<string, unknown>;

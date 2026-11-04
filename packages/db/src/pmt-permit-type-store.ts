@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, isIsoDate, periodsOverlap, shiftDays, vietnamDateOf } from '@machvon/kernel';
+import { DomainError, isIsoDate, periodsOverlap, shiftDays, vietnamDateOf, hasControlChar } from '@machvon/kernel';
 import type { AuditWriter } from './audit-writer.ts';
 import { timestampKey } from './keyset.ts';
 import { enqueueOutbox } from './outbox.ts';
@@ -128,8 +128,7 @@ const overlap = (): DomainError => new DomainError('PERMIT_TYPE_OVERLAP', 409);
 /** A name or a text as it is stored: trimmed, not empty, without control characters, within its length. */
 function textOf(value: string, field: string, max: number): string {
   const text = value.trim();
-  // eslint-disable-next-line no-control-regex
-  if (text === '' || text.length > max || /[\u0000-\u001f\u007f]/.test(text)) throw invalid(field);
+  if (text === '' || text.length > max || hasControlChar(text)) throw invalid(field);
   return text;
 }
 

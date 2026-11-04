@@ -3,6 +3,7 @@ import { RECOMMENDATION_STATUSES, RECOMMENDATION_TYPES } from '../conclusion/mod
 import type { RecommendationStatus, RecommendationType } from '../conclusion/model';
 import { isDay, isUuid } from '../model';
 import type { FormProblem } from '../model';
+import { hasControlCharacter } from '../../control-characters';
 
 /** AUD-06 and AUD-07: the recommendations given to owners and followed to their end (ST-AUD-003, AUD 3.3 to 3.5). */
 export const RECOMMENDATIONS_PATH = '/aud/aud-06';
@@ -28,8 +29,6 @@ const REASON_MIN = 20;
 const ACTION_DESCRIPTION_MIN = 5;
 const TEXT_MAX = 4000;
 const CODE_MAX = 40;
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u001f\u007f]/;
 
 type Raw = Record<string, unknown>;
 
@@ -178,7 +177,7 @@ const wordsProblem = (value: string, max: number, min = 1): FormProblem | undefi
   if (words === '') return 'required';
   if (words.length < min) return 'tooShort';
   if (words.length > max) return 'tooLong';
-  return CONTROL.test(words) ? 'invalid' : undefined;
+  return hasControlCharacter(words) ? 'invalid' : undefined;
 };
 
 const dayProblem = (value: string): FormProblem | undefined => {

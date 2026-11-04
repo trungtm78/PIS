@@ -9,7 +9,7 @@ import { describeProblem, validateReason } from './model';
 import type { FieldProblem, PeriodMove, PeriodView } from './model';
 
 /** The multiplication sign on the close button of the dialog. */
-const CLOSE_GLYPH = '×';
+const CLOSE_GLYPH = '\u00d7';
 
 export interface TransitionDialogProps {
   period: PeriodView;

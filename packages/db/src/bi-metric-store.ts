@@ -78,7 +78,39 @@ export interface TenantMetricInput {
 }
 
 interface Sql {
-  [column: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  [column: string]: unknown;
+  id: string;
+  code: string;
+  revision: number;
+  grain: string;
+  aggregation_type: string;
+  expression_ast: MetricNode;
+  numerator_ast: MetricNode | null;
+  denominator_ast: MetricNode | null;
+  unit: string;
+  owner_id: string;
+  status: MetricStatus | SyncStatus;
+  origin: MetricOrigin;
+  source_commit: string | null;
+  definition_sha256: string | null;
+  null_policy: string;
+  dimension_codes: string[];
+  dataset_id: string | null;
+  glossary_term_id: string | null;
+  effective_from: string | null;
+  effective_until: string | null;
+  supersedes_id: string | null;
+  certified_by: string | null;
+  certified_at: string | number | Date;
+  created_at: string | number | Date;
+  created_by: string | null;
+  bundle_sha256: string;
+  bundle_object_key: string;
+  added_count: number;
+  revised_count: number;
+  retired_count: number;
+  error_json: Record<string, unknown> | null;
+  triggered_by: string;
 }
 
 export const METRIC_ORIGINS: readonly string[] = ['PLATFORM_CODE', 'TENANT_UI'];
@@ -100,7 +132,7 @@ const toRow = (row: Sql): MetricRow => ({
   denominatorAst: row.denominator_ast,
   unit: row.unit,
   ownerId: row.owner_id,
-  status: row.status,
+  status: row.status as MetricStatus,
   origin: row.origin,
   sourceCommit: row.source_commit,
   definitionSha256: row.definition_sha256,
@@ -120,13 +152,13 @@ const toRow = (row: Sql): MetricRow => ({
 
 const toRun = (row: Sql): SyncRun => ({
   id: row.id,
-  sourceCommit: row.source_commit,
+  sourceCommit: row.source_commit as string,
   bundleSha256: row.bundle_sha256,
   bundleObjectKey: row.bundle_object_key,
   addedCount: row.added_count,
   revisedCount: row.revised_count,
   retiredCount: row.retired_count,
-  status: row.status,
+  status: row.status as SyncStatus,
   errorJson: row.error_json,
   triggeredBy: row.triggered_by,
   createdAt: new Date(row.created_at).toISOString(),

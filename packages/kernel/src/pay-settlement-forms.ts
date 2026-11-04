@@ -1,15 +1,16 @@
 import { DomainError } from './errors.ts';
+import { message } from './messages.ts';
 import { groupedVnd } from './pay-forms.ts';
 import type { SettlementScope } from './pay-project-settlement.ts';
 import { wholeVnd } from './pay-money.ts';
 
 /**
  * The forms of a settlement (ST-PAY-012, PAY 3.5 step 3, CXN-09): which forms a settlement of a year or of a completed project is drawn up with, and the payload that fills them. The codes are the ones of the
- * settlement of annual capital (01 to 05/QTNĐ) and of a completed project (01 to 12/QTDA, of which 10/QTDA is the decision that approves the settlement); they await the confirmation of the original forms (CXN-09), which
+ * settlement of annual capital (01 to 05/QTN followed by D with a stroke) and of a completed project (01 to 12/QTDA, of which 10/QTDA is the decision that approves the settlement); they await the confirmation of the original forms (CXN-09), which
  * DOC holds as templates. The payload is a pure function of the facts of the settlement, so the same settlement gives the same payload and the same hash on every run.
  */
 
-export const ANNUAL_SETTLEMENT_FORM_CODES = ['01/QTNĐ', '02/QTNĐ', '03/QTNĐ', '04/QTNĐ', '05/QTNĐ'] as const;
+export const ANNUAL_SETTLEMENT_FORM_CODES = ['01/QTN\u0110', '02/QTN\u0110', '03/QTN\u0110', '04/QTN\u0110', '05/QTN\u0110'] as const; // the last letter is the capital D with a stroke (U+0110)
 export const PROJECT_SETTLEMENT_FORM_CODES = ['01/QTDA', '02/QTDA', '03/QTDA', '04/QTDA', '05/QTDA', '06/QTDA', '07/QTDA', '08/QTDA', '09/QTDA', '10/QTDA', '11/QTDA', '12/QTDA'] as const;
 export const SETTLEMENT_FORM_CODES = [...ANNUAL_SETTLEMENT_FORM_CODES, ...PROJECT_SETTLEMENT_FORM_CODES] as const;
 export type SettlementFormCode = (typeof SETTLEMENT_FORM_CODES)[number];
@@ -65,12 +66,14 @@ export interface SettlementFormFacts {
 export function settlementFormPayload(facts: SettlementFormFacts, formCode: SettlementFormCode): Record<string, unknown> {
   for (const amount of [facts.settledAmountVnd, facts.outstandingVnd, facts.unrecoveredAdvanceVnd]) wholeVnd(amount, 'amount');
   const decision = formCode === SETTLEMENT_DECISION_FORM;
-  const subject = facts.scope === 'ANNUAL' ? `quyết toán niên độ ${facts.fiscalYear ?? ''} của dự án ${facts.projectCode}` : `quyết toán dự án hoàn thành ${facts.projectCode}`;
+  const subject = facts.scope === 'ANNUAL'
+      ? message('pay.settlement.subject.annual', { year: facts.fiscalYear ?? '', project: facts.projectCode })
+      : message('pay.settlement.subject.project', { project: facts.projectCode });
   return {
     agency: facts.agency,
     place: facts.place,
     form_code: formCode,
-    summary: decision ? `Quyết định phê duyệt ${subject}` : `Báo cáo ${subject}`,
+    summary: message(decision ? 'pay.settlement.summary.decision' : 'pay.settlement.summary.report', { subject }),
     settlement_scope: facts.scope,
     revision: String(facts.revision),
     project_code: facts.projectCode,

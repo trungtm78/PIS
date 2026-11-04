@@ -20,7 +20,7 @@ import '../offline_labels.dart';
 import '../offline_problem.dart';
 
 /// MOB-41: the queue of commands waiting on the device, each with its size, its state and the reason when it is not done
-/// (ST-MOB-005). A command whose answer was lost says "Chưa xác định kết quả" and is looked up, never sent as a new one.
+/// (ST-MOB-005). A command whose answer was lost says that the result is not yet known and is looked up, never sent as a new one.
 Widget buildQueueScreen(BuildContext context, ScreenContext screen) => const QueueScreen();
 
 class QueueScreen extends ConsumerStatefulWidget {

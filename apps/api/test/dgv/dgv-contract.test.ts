@@ -17,6 +17,7 @@ import { AuthzHarness, TENANT_A, TENANT_B, memberId, unitId } from '../../../../
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
 import type { RunningApp } from '../isolation/test-app';
+import { asNumber, asObject, asObjects, asString } from '../support/json';
 
 jest.setTimeout(180_000);
 
@@ -35,7 +36,7 @@ const REASON = 'The change was read and agreed.';
 
 interface Reply {
   status: number;
-  json: Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  json: Record<string, unknown>;
 }
 
 const property = (name: string, overrides: Record<string, unknown> = {}) => ({ name, logicalType: 'string', ...overrides });
@@ -56,7 +57,7 @@ describe('the data contracts with the approval of the consumers for a breaking c
     if (method !== 'GET') headers['idempotency-key'] = options.key ?? `key-${randomUUID()}`;
     if (options.ifMatch !== undefined) headers['if-match'] = options.ifMatch;
     const response = await fetch(`${app.baseUrl}${url}`, { method, headers, body: method === 'GET' ? undefined : JSON.stringify(options.body ?? {}) });
-    return { status: response.status, json: (await response.json()) as Record<string, any> }; // eslint-disable-line @typescript-eslint/no-explicit-any
+    return { status: response.status, json: (await response.json()) as Record<string, unknown> };
   }
 
   const rows = async <R extends object>(sql: string, params: unknown[] = [], tenant = TENANT_A): Promise<R[]> => harness.owner<R>(tenant, [[sql, params]]);
@@ -97,7 +98,7 @@ describe('the data contracts with the approval of the consumers for a breaking c
   const events = (id: string, type: string) =>
     rows<{ payload: Record<string, unknown> }>('select payload from machvon.outbox_event where aggregate_id = $1 and type = $2 order by created_at', [id, type]);
   const audits = (action: string) =>
-    rows<{ resource_id: string; safe_diff: Record<string, any> }>('select resource_id, safe_diff from machvon.audit_event where action = $1 order by occurred_at', [action]); // eslint-disable-line @typescript-eslint/no-explicit-any
+    rows<{ resource_id: string; safe_diff: Record<string, unknown> }>('select resource_id, safe_diff from machvon.audit_event where action = $1 order by occurred_at', [action]);
 
   async function seedDataset(options: { classification?: string; allowedRoles?: string[]; retention?: boolean } = {}): Promise<string> {
     const id = randomUUID();
@@ -131,9 +132,9 @@ describe('the data contracts with the approval of the consumers for a breaking c
   async function published(datasetId: string, document: unknown = R1(), effectiveFrom = '2030-01-01'): Promise<{ contract: string; version: string }> {
     const made = await draft(STEWARD, datasetId, document, effectiveFrom);
     expect(made.status).toBe(200);
-    const done = await publish(OWNER, made.json.resource_id, made.json.resource_version);
+    const done = await publish(OWNER, asString(made.json.resource_id), asNumber(made.json.resource_version));
     expect([done.status, done.json.status]).toEqual([200, 'PUBLISHED']);
-    return { contract: made.json.resource_id, version: done.json.data_contract_version_id };
+    return { contract: asString(made.json.resource_id), version: asString(done.json.data_contract_version_id) };
   }
 
   beforeAll(async () => {
@@ -253,7 +254,7 @@ describe('the data contracts with the approval of the consumers for a breaking c
       serving_until: null,
     });
     expect(typeof newest.json.odcs_object_key).toBe('string');
-    const stored = await files.readStored({ tenantId: TENANT_A, membershipId: memberId(OWNER), scopeVersion: 1 } as never, newest.json.odcs_object_key);
+    const stored = await files.readStored({ tenantId: TENANT_A, membershipId: memberId(OWNER), scopeVersion: 1 } as never, asString(newest.json.odcs_object_key));
     expect(odcsSha256(JSON.parse(Buffer.from(stored.bytes).toString('utf8')))).toBe(done.json.odcs_sha256);
     const older = await call('GET', `/resources/data_contract_version/${first.version}`, { member: READER });
     expect(older.json).toMatchObject({ revision: 1, serving: true, serving_until: '2030-12-31', compatibility: 'INITIAL' });
@@ -270,9 +271,9 @@ describe('the data contracts with the approval of the consumers for a breaking c
       '2031-01-01',
     );
     expect(optional.json).toMatchObject({ compatibility: 'BACKWARD_COMPATIBLE', consumer_approvals: [], revision: 3 });
-    const withWindow = await publish(OWNER, optional.json.resource_id, 1, { migration_window_until: '2031-03-01' });
+    const withWindow = await publish(OWNER, asString(optional.json.resource_id), 1, { migration_window_until: '2031-03-01' });
     expect([withWindow.status, withWindow.json.code, withWindow.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'migration_window_until']);
-    const plain = await publish(OWNER, optional.json.resource_id, 1);
+    const plain = await publish(OWNER, asString(optional.json.resource_id), 1);
     expect(plain.status).toBe(200);
     // A backward compatible revision replaces the one before it at once: r2 serves no more (its window was for r1), and r3 serves.
     expect((await call('GET', `/resources/data_contract_version/${done.json.data_contract_version_id}`, { member: READER })).json).toMatchObject({ serving: false, serving_until: null });
@@ -297,11 +298,11 @@ describe('the data contracts with the approval of the consumers for a breaking c
     const approval = approvals.find((candidate) => candidate.consumer_ref === 'HOME') as { id: string };
     expect((await decide(EXPORT_OWNER, (approvals.find((candidate) => candidate.consumer_ref === 'MNE-07') as { id: string }).id, 1)).status).toBe(200);
     expect((await decide(HOME_OWNER, approval.id, 1)).status).toBe(200);
-    const done = await publish(OWNER, made.json.resource_id, 1, { migration_window_until: '2030-03-15' });
+    const done = await publish(OWNER, asString(made.json.resource_id), 1, { migration_window_until: '2030-03-15' });
     expect(done.status).toBe(200);
-    expect((await events(made.json.resource_id, 'dgv.contract.drafted.v1'))[0]?.payload).toMatchObject({ compatibility: 'BREAKING', revision: 2, consumer_count: 2 });
+    expect((await events(asString(made.json.resource_id), 'dgv.contract.drafted.v1'))[0]?.payload).toMatchObject({ compatibility: 'BREAKING', revision: 2, consumer_count: 2 });
     expect((await events(approval.id, 'dgv.contract.consumer_decided.v1'))[0]?.payload).toMatchObject({ consumer_kind: 'MODULE', consumer_ref: 'HOME', decision: 'APPROVED' });
-    expect((await events(made.json.resource_id, 'dgv.contract.published.v1'))[0]?.payload).toMatchObject({
+    expect((await events(asString(made.json.resource_id), 'dgv.contract.published.v1'))[0]?.payload).toMatchObject({
       compatibility: 'BREAKING',
       odcs_sha256: done.json.odcs_sha256,
       migration_window_until: '2030-03-15',
@@ -349,7 +350,7 @@ describe('the data contracts with the approval of the consumers for a breaking c
       expect((await rows<{ freshness_seconds: string }>('select freshness_seconds::text from machvon.dataset_contract where id = $1', [declared.json.resource_id]))[0]?.freshness_seconds).toBe(
         '21600',
       );
-      await baseline(DUAL, declared.json.resource_id, 1, 'reject');
+      await baseline(DUAL, asString(declared.json.resource_id), 1, 'reject');
       const plain = await draft(STEWARD, dataset, odcs([property('a')]));
       expect((await rows<{ freshness_seconds: string }>('select freshness_seconds::text from machvon.dataset_contract where id = $1', [plain.json.resource_id]))[0]?.freshness_seconds).toBe('86400');
     });
@@ -363,7 +364,7 @@ describe('the data contracts with the approval of the consumers for a breaking c
       const open = one.status === 200 ? one : two;
       const refused = one.status === 200 ? two : one;
       expect(refused.json).toMatchObject({ code: 'CONTRACT_REVISION_OPEN' });
-      expect((await baseline(DUAL, open.json.resource_id, 1, 'return')).json).toMatchObject({ status: 'RETURNED' });
+      expect((await baseline(DUAL, asString(open.json.resource_id), 1, 'return')).json).toMatchObject({ status: 'RETURNED' });
       const next = await draft(STEWARD, dataset, odcs([property('c')]));
       expect(next.status).toBe(200);
       expect(next.json.revision).toBe(2);
@@ -389,10 +390,10 @@ describe('the data contracts with the approval of the consumers for a breaking c
       const mne = asked.find((approval) => approval.consumer_ref === 'MNE-07') as { id: string };
       expect((await decide(HOME_OWNER, home.id, 1, 'REJECTED', 'We cannot move before the year end')).status).toBe(200);
       expect((await decide(EXPORT_OWNER, mne.id, 1)).status).toBe(200);
-      const blocked = await publish(OWNER, made.json.resource_id, 1, { migration_window_until: '2031-01-01' });
+      const blocked = await publish(OWNER, asString(made.json.resource_id), 1, { migration_window_until: '2031-01-01' });
       expect([blocked.status, blocked.json.code]).toEqual([409, 'CONSUMER_APPROVAL_PENDING']);
       expect(blocked.json.consumers).toEqual([{ kind: 'MODULE', ref: 'HOME', decision: 'REJECTED' }]);
-      const rejected = await baseline(OWNER, made.json.resource_id, 1, 'reject', [randomUUID()]);
+      const rejected = await baseline(OWNER, asString(made.json.resource_id), 1, 'reject', [randomUUID()]);
       expect(rejected.json).toMatchObject({ status: 'REJECTED', revision: 2 });
       expect((await audits('dgv.contract_rejected')).some((entry) => entry.resource_id === made.json.resource_id)).toBe(true);
       expect((await draft(STEWARD, dataset, odcs([property('x')]))).status).toBe(200);
@@ -414,7 +415,7 @@ describe('the data contracts with the approval of the consumers for a breaking c
           ],
         ),
       );
-      return { id: made.json.resource_id, approvals: made.json.consumer_approvals };
+      return { id: asString(made.json.resource_id), approvals: made.json.consumer_approvals as Array<{ id: string; consumer_ref: string; version: number }> };
     }
 
     it('are answered for by their owner only (403 NOT_CONSUMER_OWNER), once, against the version that was read', async () => {
@@ -464,7 +465,7 @@ describe('the data contracts with the approval of the consumers for a breaking c
       await published(dataset, R1([]), '2019-01-01');
       const made = await draft(STEWARD, dataset, odcs([property('org_unit_code', { required: true, primaryKey: true }), AMOUNT('numeric(24,0)'), property('note')], []), '2020-01-01');
       expect([made.status, made.json.compatibility]).toEqual([200, 'BREAKING']);
-      const expired = await publish(OWNER, made.json.resource_id, 1, { migration_window_until: '2020-03-01' });
+      const expired = await publish(OWNER, asString(made.json.resource_id), 1, { migration_window_until: '2020-03-01' });
       expect([expired.status, expired.json.code]).toEqual([422, 'MIGRATION_WINDOW_REQUIRED']);
     });
 
@@ -524,12 +525,12 @@ describe('the data contracts with the approval of the consumers for a breaking c
       const only = (made.json.consumer_approvals as Array<{ id: string }>)[0] as { id: string };
       expect((await decide(HOME_OWNER, only.id, 1)).status).toBe(200);
       await seedBiDataset(dataset, 'DS-BI-MISPLACED');
-      const refused = await publish(OWNER, made.json.resource_id, 1, { migration_window_until: '2030-12-31' });
+      const refused = await publish(OWNER, asString(made.json.resource_id), 1, { migration_window_until: '2030-12-31' });
       expect([refused.status, refused.json.code]).toEqual([409, 'CONSUMER_APPROVAL_PENDING']);
       expect(refused.json.consumers).toEqual([{ kind: 'BI_DATASET', ref: 'DS-BI-MISPLACED', decision: 'PENDING' }]);
       expect((await rows<{ status: string }>('select status from machvon.dataset_contract where id = $1', [made.json.resource_id]))[0]?.status).toBe('IN_REVIEW');
       // Another revision can be drafted once this one is closed, and asks the owner the platform knows.
-      expect((await baseline(DUAL, made.json.resource_id, 1, 'reject')).status).toBe(200);
+      expect((await baseline(DUAL, asString(made.json.resource_id), 1, 'reject')).status).toBe(200);
       const again = await draft(STEWARD, dataset, odcs([property('org_unit_code', { required: true, primaryKey: true }), AMOUNT('numeric(24,0)'), property('note')], claimed));
       expect(
         (await rows<{ consumer_owner_user_id: string }>('select consumer_owner_user_id from machvon.contract_consumer_approval where contract_id = $1', [again.json.resource_id]))[0]
@@ -614,7 +615,7 @@ describe('the data contracts with the approval of the consumers for a breaking c
       expect(told.some((change) => change.breaking)).toBe(true);
       // Nobody else's approval is in it.
       expect(items.every((item) => item.id !== approvals.find((approval) => approval.consumer_ref === 'MNE-07')?.id)).toBe(true);
-      expect((await call('GET', '/dgv/contract-consumer-approvals', { member: EXPORT_OWNER })).json.items.some((item: { id: string }) => item.id === home.id)).toBe(false);
+      expect(asObjects((await call('GET', '/dgv/contract-consumer-approvals', { member: EXPORT_OWNER })).json.items).some((item) => item.id === home.id)).toBe(false);
       // The owner has no right over the catalogue and none to read the contracts: the contracts are not theirs to read, the approval is.
       expect((await call('GET', '/resources/dataset_contract', { member: HOME_OWNER })).status).toBe(403);
       expect((await decide(HOME_OWNER, home.id, 1)).status).toBe(200);
@@ -648,8 +649,8 @@ describe('the data contracts with the approval of the consumers for a breaking c
       await published(dataset, odcs([property('a', { required: true })]));
       const made = await draft(STEWARD, dataset, odcs([property('b')]), '2030-05-01');
       expect(made.json).toMatchObject({ compatibility: 'BREAKING', consumer_approvals: [] });
-      expect((await publish(OWNER, made.json.resource_id, 1)).json).toMatchObject({ code: 'MIGRATION_WINDOW_REQUIRED' });
-      expect((await publish(OWNER, made.json.resource_id, 1, { migration_window_until: '2030-05-31' })).status).toBe(200);
+      expect((await publish(OWNER, asString(made.json.resource_id), 1)).json).toMatchObject({ code: 'MIGRATION_WINDOW_REQUIRED' });
+      expect((await publish(OWNER, asString(made.json.resource_id), 1, { migration_window_until: '2030-05-31' })).status).toBe(200);
     });
   });
 
@@ -662,7 +663,7 @@ describe('the data contracts with the approval of the consumers for a breaking c
       ];
       const made = await draft(STEWARD, dataset, odcs([property('a')], [], { quality: rules }));
       expect((await rows<{ quality_json: unknown }>('select quality_json from machvon.dataset_contract where id = $1', [made.json.resource_id]))[0]?.quality_json).toEqual({ rules });
-      const done = await publish(OWNER, made.json.resource_id, 1);
+      const done = await publish(OWNER, asString(made.json.resource_id), 1);
       expect((await rows<{ quality_rules: unknown }>('select quality_rules from machvon.data_contract_version where id = $1', [done.json.data_contract_version_id]))[0]?.quality_rules).toEqual({
         rules,
       });
@@ -673,10 +674,10 @@ describe('the data contracts with the approval of the consumers for a breaking c
     it('is refused to the person who drafted the revision (403 SELF_APPROVAL_DENIED), for both commands, and nothing is stored', async () => {
       const dataset = await seedDataset();
       const made = await draft(DUAL, dataset, odcs([property('a')]));
-      const own = await publish(DUAL, made.json.resource_id, 1);
+      const own = await publish(DUAL, asString(made.json.resource_id), 1);
       expect([own.status, own.json.code]).toEqual([403, 'SELF_APPROVAL_DENIED']);
-      expect((await baseline(DUAL, made.json.resource_id, 1, 'approve')).json).toMatchObject({ code: 'SELF_APPROVAL_DENIED' });
-      expect((await baseline(DUAL, made.json.resource_id, 1, 'return')).json).toMatchObject({ code: 'SELF_APPROVAL_DENIED' });
+      expect((await baseline(DUAL, asString(made.json.resource_id), 1, 'approve')).json).toMatchObject({ code: 'SELF_APPROVAL_DENIED' });
+      expect((await baseline(DUAL, asString(made.json.resource_id), 1, 'return')).json).toMatchObject({ code: 'SELF_APPROVAL_DENIED' });
       expect(await rows('select 1 from machvon.data_contract_version where dataset_id = $1', [dataset])).toEqual([]);
       expect((await rows<{ status: string }>('select status from machvon.dataset_contract where id = $1', [made.json.resource_id]))[0]?.status).toBe('IN_REVIEW');
     });
@@ -684,11 +685,11 @@ describe('the data contracts with the approval of the consumers for a breaking c
     it('judges the version first (409 VERSION_CONFLICT), then the state (409 STAGE_TRANSITION_DENIED), and leaves no file of a refused publication', async () => {
       const dataset = await seedDataset();
       const made = await draft(STEWARD, dataset, odcs([property('a')]));
-      const stale = await publish(OWNER, made.json.resource_id, 9);
+      const stale = await publish(OWNER, asString(made.json.resource_id), 9);
       expect([stale.status, stale.json.code]).toEqual([409, 'VERSION_CONFLICT']);
       const kept = await files.listKind({ tenantId: TENANT_A } as never, 'dgv_contract');
-      expect((await publish(OWNER, made.json.resource_id, 1)).status).toBe(200);
-      const again = await publish(OWNER, made.json.resource_id, 2);
+      expect((await publish(OWNER, asString(made.json.resource_id), 1)).status).toBe(200);
+      const again = await publish(OWNER, asString(made.json.resource_id), 2);
       expect([again.status, again.json.code]).toEqual([409, 'STAGE_TRANSITION_DENIED']);
       expect((await files.listKind({ tenantId: TENANT_A } as never, 'dgv_contract')).length).toBe(kept.length + 1);
     });
@@ -696,7 +697,7 @@ describe('the data contracts with the approval of the consumers for a breaking c
     it('is one publication when two come together: the other is refused, and one version is written', async () => {
       const dataset = await seedDataset();
       const made = await draft(STEWARD, dataset, odcs([property('a')]));
-      const [one, two] = await Promise.all([publish(OWNER, made.json.resource_id, 1), publish(OWNER, made.json.resource_id, 1)]);
+      const [one, two] = await Promise.all([publish(OWNER, asString(made.json.resource_id), 1), publish(OWNER, asString(made.json.resource_id), 1)]);
       expect([one.status, two.status].sort()).toEqual([200, 409]);
       expect(await rows('select 1 from machvon.data_contract_version where dataset_id = $1', [dataset])).toHaveLength(1);
     });
@@ -704,7 +705,7 @@ describe('the data contracts with the approval of the consumers for a breaking c
     it('needs the dataset to have a retention policy, as the version it makes does (422), and the revision stays in review', async () => {
       const dataset = await seedDataset({ retention: false });
       const made = await draft(STEWARD, dataset, odcs([property('a')]));
-      const refused = await publish(OWNER, made.json.resource_id, 1);
+      const refused = await publish(OWNER, asString(made.json.resource_id), 1);
       expect([refused.status, refused.json.code, refused.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'retention_policy_id']);
       expect((await rows<{ status: string }>('select status from machvon.dataset_contract where id = $1', [made.json.resource_id]))[0]?.status).toBe('IN_REVIEW');
     });
@@ -713,11 +714,11 @@ describe('the data contracts with the approval of the consumers for a breaking c
       const dataset = await seedDataset();
       await published(dataset, odcs([property('a', { required: true })]));
       const breaking = await draft(STEWARD, dataset, odcs([property('b')]));
-      const refused = await baseline(OWNER, breaking.json.resource_id, 1, 'approve', [randomUUID()]);
+      const refused = await baseline(OWNER, asString(breaking.json.resource_id), 1, 'approve', [randomUUID()]);
       expect([refused.status, refused.json.code]).toEqual([422, 'MIGRATION_WINDOW_REQUIRED']);
-      expect((await baseline(OWNER, breaking.json.resource_id, 1, 'return')).json).toMatchObject({ status: 'RETURNED' });
+      expect((await baseline(OWNER, asString(breaking.json.resource_id), 1, 'return')).json).toMatchObject({ status: 'RETURNED' });
       const plain = await draft(STEWARD, dataset, odcs([property('a', { required: true }), property('c')]));
-      const done = await baseline(OWNER, plain.json.resource_id, 1, 'approve', [randomUUID()]);
+      const done = await baseline(OWNER, asString(plain.json.resource_id), 1, 'approve', [randomUUID()]);
       expect(done.json).toMatchObject({ status: 'PUBLISHED', compatibility: 'BACKWARD_COMPATIBLE' });
       expect((await audits('dgv.contract_published')).some((entry) => entry.resource_id === plain.json.resource_id)).toBe(true);
     });
@@ -725,7 +726,7 @@ describe('the data contracts with the approval of the consumers for a breaking c
     it('refuses a baseline decision that is none of the three, and a reason that is blank', async () => {
       const dataset = await seedDataset();
       const made = await draft(STEWARD, dataset, odcs([property('a')]));
-      expect((await baseline(OWNER, made.json.resource_id, 1, 'maybe')).status).toBeGreaterThanOrEqual(400);
+      expect((await baseline(OWNER, asString(made.json.resource_id), 1, 'maybe')).status).toBeGreaterThanOrEqual(400);
       const blank = await call('POST', `/data-contracts/${made.json.resource_id}/publish`, { member: OWNER, body: { decision: 'approve', reason: '   ', evidence_ids: [] }, ifMatch: '"1"' });
       expect(blank.status).toBeGreaterThanOrEqual(400);
     });
@@ -738,9 +739,9 @@ describe('the data contracts with the approval of the consumers for a breaking c
       const unit = await draft(UNIT_STEWARD, dataset, R1());
       expect([unit.status, unit.json.code]).toEqual([403, 'SCOPE_DENIED']);
       const made = await draft(STEWARD, dataset, odcs([property('a')]));
-      expect((await publish(NOBODY, made.json.resource_id, 1)).status).toBe(403);
-      expect((await publish(STEWARD, made.json.resource_id, 1)).status).toBe(403);
-      expect((await baseline(NOBODY, made.json.resource_id, 1, 'reject')).status).toBe(403);
+      expect((await publish(NOBODY, asString(made.json.resource_id), 1)).status).toBe(403);
+      expect((await publish(STEWARD, asString(made.json.resource_id), 1)).status).toBe(403);
+      expect((await baseline(NOBODY, asString(made.json.resource_id), 1, 'reject')).status).toBe(403);
       expect((await decide(NOBODY, randomUUID(), 1)).status).toBe(403);
     });
 
@@ -764,7 +765,7 @@ describe('the data contracts with the approval of the consumers for a breaking c
       const ids = (asReader.json.items as Array<{ id: string }>).map((item) => item.id);
       expect(ids).toContain(one.json.resource_id);
       expect(ids).not.toContain(two.json.resource_id);
-      expect((await contract(two.json.resource_id)).status).toBe(404);
+      expect((await contract(asString(two.json.resource_id))).status).toBe(404);
       expect((await call('GET', `/resources/dataset_contract/${randomUUID()}`, { member: READER })).status).toBe(404);
       expect((await call('GET', '/resources/dataset_contract', { member: NOBODY })).status).toBe(403);
       expect((await call('GET', `/resources/dataset_contract/${one.json.resource_id}`, { member: B_STEWARD, tenantId: TENANT_B })).status).toBe(403);
@@ -854,7 +855,7 @@ describe('the data contracts with the approval of the consumers for a breaking c
       );
       const made = await draft(STEWARD, dataset, odcs([property('note')]));
       expect([made.status, made.json.revision]).toEqual([200, 4]);
-      const done = await publish(OWNER, made.json.resource_id, made.json.resource_version);
+      const done = await publish(OWNER, asString(made.json.resource_id), asNumber(made.json.resource_version));
       expect([done.status, done.json.status, done.json.revision]).toEqual([200, 'PUBLISHED', 4]);
     });
 
@@ -862,10 +863,10 @@ describe('the data contracts with the approval of the consumers for a breaking c
       const dataset = await seedDataset();
       await published(dataset);
       const made = await draft(STEWARD, dataset, odcs([property('org_unit_code', { required: true, primaryKey: true }), AMOUNT('numeric(24,2)'), property('note')]));
-      const shown = await contract(made.json.resource_id);
+      const shown = await contract(asString(made.json.resource_id));
       expect(shown.status).toBe(200);
       expect(shown.json).toMatchObject({ compatibility: 'BREAKING', odcs_version: 'v3.0.2', status: 'IN_REVIEW', created_by: memberId(STEWARD) });
-      expect(shown.json.odcs_json.apiVersion).toBe('v3.0.2');
+      expect(asObject(shown.json.odcs_json).apiVersion).toBe('v3.0.2');
       expect((shown.json.columns as Array<{ name: string }>).map((column) => column.name)).toEqual(['amount', 'note', 'org_unit_code']);
       expect((shown.json.changes as Array<{ kind: string; column: string }>).map((change) => `${change.kind}:${change.column}`).sort()).toEqual([
         'COLUMN_REMOVED:unit_code',
@@ -883,7 +884,7 @@ describe('the data contracts with the approval of the consumers for a breaking c
         odcs([property('unit_code', { required: true, primaryKey: true }), AMOUNT('numeric(24,0)'), property('note'), property('remark')], [{ kind: 'MODULE', ref: 'HOME', owner: HOME_OWNER }]),
         '2030-06-01',
       );
-      const done = await publish(OWNER, second.json.resource_id, 1);
+      const done = await publish(OWNER, asString(second.json.resource_id), 1);
       const list = await call('GET', `/resources/data_contract_version?dataset_id=${dataset}`, { member: READER });
       expect((list.json.items as Array<{ id: string }>).map((item) => item.id)).toEqual([done.json.data_contract_version_id, first.version]);
       const paged = await call('GET', `/resources/data_contract_version?dataset_id=${dataset}&limit=1`, { member: READER });

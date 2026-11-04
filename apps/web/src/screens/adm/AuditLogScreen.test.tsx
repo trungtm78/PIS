@@ -14,6 +14,7 @@ vi.setConfig({ testTimeout: 30_000 });
 const ROUTE = routeOf('ADM-11', 'FR-ADM-11');
 const AUDITOR = ['audit_event.read'];
 const EXPORTER = ['audit_event.read', 'audit.export'];
+const REDACTED = '[REDACTED]';
 const HASH = 'ab12cd34ef56'.padEnd(64, '0');
 
 const row = (n: number, extra: Record<string, unknown> = {}) => ({
@@ -71,7 +72,7 @@ describe('AuditLogScreen (ADM-11)', () => {
   });
 
   it('shows the diff as the server redacted it, on request, with the reason', async () => {
-    const h = harness(() => page([row(1, { safe_diff: { api_key: '[REDACTED]', note: 'kept' }, reason: 'A stated reason for the change' }), row(2, { safe_diff: null, reason: null })]));
+    const h = harness(() => page([row(1, { safe_diff: { api_key: REDACTED, note: 'kept' }, reason: 'A stated reason for the change' }), row(2, { safe_diff: null, reason: null })]));
     mountInSession(<AuditLogScreen route={ROUTE} />, h, { permissions: AUDITOR });
     const first = await found('[data-event-id="e1"]');
     const details = first.querySelector('details') as HTMLElement;
@@ -125,7 +126,7 @@ describe('AuditLogScreen (ADM-11)', () => {
     const h = harness((_operation, input) => {
       const query = (input as { query: Query }).query;
       return query.outcome === 'DENIED'
-        ? page([row(9, { outcome: 'DENIED', action: 'authz.denied:placeLegalHold', safe_diff: { reason: 'MISSING_PERMISSION', api_key: '[REDACTED]' } })])
+        ? page([row(9, { outcome: 'DENIED', action: 'authz.denied:placeLegalHold', safe_diff: { reason: 'MISSING_PERMISSION', api_key: REDACTED } })])
         : page([row(1), row(2)]);
     });
     mountInSession(<AuditLogScreen route={ROUTE} />, h, { permissions: AUDITOR });

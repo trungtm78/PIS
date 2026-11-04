@@ -15,7 +15,7 @@ export interface ReopenExpiryOptions {
 }
 
 /**
- * The job `dis-reopen-expiry` (DIS 3 F4, "hết window_until → EXPIRED"). It stores the end of the reopening windows that have ended
+ * The job `dis-reopen-expiry` (DIS 3 F4: a window past `window_until` becomes EXPIRED). It stores the end of the reopening windows that have ended
  * (APPROVED to EXPIRED) and leaves the audit row of each, so the history of a request ends with its expiry and the screens and reports
  * read a stored fact. It is NOT what ends a window: the submit guard judges the window by the time alone (DisPeriodStore.judge), and the
  * reads show an elapsed window as EXPIRED from its last instant, so a late or failed run changes what is stored, never who may submit.

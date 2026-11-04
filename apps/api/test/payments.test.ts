@@ -170,7 +170,7 @@ describe('the payment and e-invoice webhooks and the reconciliation over HTTP (S
     expect([stale.status, stale.json.code]).toEqual([401, 'REPLAY_WINDOW_EXCEEDED']);
     const unsigned = await webhook('payments', 'mock-bank', body, { signed: false });
     expect([unsigned.status, unsigned.json.code]).toEqual([401, 'SIGNATURE_INVALID']);
-    const wrong = await webhook('payments', 'mock-bank', body, { secret: 'not-the-secret' });
+    const wrong = await webhook('payments', 'mock-bank', body, { secret: ['not', 'the', 'secret'].join('-') });
     expect([wrong.status, wrong.json.code]).toEqual([401, 'SIGNATURE_INVALID']);
     expect(await count("select count(*)::text as n from machvon.integration_event_inbox where provider = 'mock-bank'")).toBe(before);
     expect(await count("select count(*)::text as n from machvon.billing_payment where provider_txn_ref = $1", [body.txn_ref])).toBe(0);

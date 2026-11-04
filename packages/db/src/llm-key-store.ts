@@ -45,7 +45,24 @@ export interface KeyInsert {
 }
 
 interface Sql {
-  [column: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  [column: string]: unknown;
+  id: string;
+  key_alias: string;
+  fingerprint: string;
+  scope_kind: "UNIT" | "TENANT" | "PROJECT" | "SERVICE";
+  budget_id: string | null;
+  allowed_model_ids: string[];
+  rpm_limit: number | null;
+  tpm_limit: number | null;
+  status: KeyStatus;
+  expires_at: string | number | Date;
+  rotated_from_id: string | null;
+  revoked_reason: string | null;
+  created_by: string;
+  created_at: string | number | Date;
+  litellm_key_ref: string;
+  secret_ref: string;
+  secret_removed_at: string | number | Date;
 }
 
 const SELECT = `select id, key_alias, litellm_key_ref, fingerprint, secret_ref, scope_kind, budget_id, allowed_model_ids, rpm_limit, tpm_limit, status, expires_at, rotated_from_id, revoked_reason, created_by, created_at, version::text as version, secret_removed_at

@@ -439,7 +439,7 @@ describe('the reservation, the settlement and the reconciliation of a budget (ST
     const held = await hold(TENANT_SCOPE, 1);
     expect(held.kind).toBe('RESERVED');
     const left = await app.call('GET', '/ai-budgets', { member: FINOPS });
-    expect(((left.json.items as Array<Record<string, any>>)[0]?.counter as Record<string, string>).available_vnd).toBe('999999999999999999999998'); // eslint-disable-line @typescript-eslint/no-explicit-any
+    expect(((left.json.items as Array<Record<string, unknown>>)[0]?.counter as Record<string, string>).available_vnd).toBe('999999999999999999999998');
     // A hold of more than 16 digits is kept: the columns are as wide as the limit.
     const wide = await hold(TENANT_SCOPE, 10_000_000_000_000_000n as unknown as number);
     expect(wide.kind).toBe('RESERVED');
@@ -537,7 +537,7 @@ describe('the budgets, the spend and the reservations over HTTP (ST-LLM-003, LLM
     expect((await createBudget({ scope_kind: 'TENANT', limit_vnd: '1000000' })).status).toBe(200);
 
     const listed = await app.call('GET', '/ai-budgets', { member: FINOPS });
-    const items = listed.json.items as Array<Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const items = listed.json.items as Array<Record<string, unknown>>;
     expect(items.map((item) => [item.scope_kind, item.period])).toEqual([['TENANT', 'MONTH'], ['TENANT', 'MONTH'], ['UNIT', 'MONTH'], ['UNIT', 'MONTH'], ['PROJECT', 'YEAR']]);
     expect(items.find((item) => item.max_concurrent === 4)).toMatchObject({ soft_threshold_pct: 90, hard_stop: true, counter: null });
     expect((await events('llm.budget.created.v1')).length).toBe(5);
@@ -564,12 +564,12 @@ describe('the budgets, the spend and the reservations over HTTP (ST-LLM-003, LLM
     await withTx((tx) => store.markPendingReconcile(tx, pending.reservation.id, 'provider timeout'));
 
     const listed = await app.call('GET', '/ai-budgets', { member: FINOPS });
-    expect((listed.json.items as Array<Record<string, any>>)[0]?.counter).toMatchObject({ settled_vnd: '4318', reserved_open_vnd: '30000', available_vnd: '965682', request_count: 2, blocked: false }); // eslint-disable-line @typescript-eslint/no-explicit-any
+    expect((listed.json.items as Array<Record<string, unknown>>)[0]?.counter).toMatchObject({ settled_vnd: '4318', reserved_open_vnd: '30000', available_vnd: '965682', request_count: 2, blocked: false });
     const spend = await app.call('GET', `/ai-budgets/${id}/spend`, { member: FINOPS });
     expect(spend.status).toBe(200);
     expect(spend.json.current).toEqual({ attempts: 1, input_total: '120000', cached_input: '100000', noncached_input: '20000', output_total: '10000', cost_vnd: '4318', pending_reconcile: 1 });
     expect((spend.json.periods as unknown[]).length).toBe(1);
-    expect((spend.json.budget as Record<string, any>).counter).toMatchObject({ settled_vnd: '4318' }); // eslint-disable-line @typescript-eslint/no-explicit-any
+    expect((spend.json.budget as Record<string, unknown>).counter).toMatchObject({ settled_vnd: '4318' });
     expect((await app.call('GET', `/ai-budgets/${randomUUID()}/spend`, { member: FINOPS })).status).toBe(404);
     expect((await app.call('GET', '/ai-budgets/not-a-uuid/spend', { member: FINOPS })).status).toBeGreaterThanOrEqual(400);
   });

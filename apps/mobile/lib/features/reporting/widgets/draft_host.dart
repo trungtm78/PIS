@@ -55,7 +55,7 @@ class DraftHost extends ConsumerStatefulWidget {
   final String screenId;
   final String title;
 
-  /// The position in [kSteps] shown as `Bước n/8`; null for a screen outside the sequence.
+  /// The position in [kSteps] shown as `Step n/8`; null for a screen outside the sequence.
   final int? step;
 
   /// The screen tells where the sending of the draft stands (waiting, unknown, refused) in its own words, so the frame does not.

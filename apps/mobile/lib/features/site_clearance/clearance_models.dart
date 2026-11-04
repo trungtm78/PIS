@@ -179,7 +179,7 @@ final class InventoryRecord {
   final String unitCode;
   final String unitPriceVnd;
 
-  /// The amount the server computed (`quantity × unit price`, half up to the dong); the phone shows it and never recomputes it.
+  /// The amount the server computed (`quantity * unit price`, half up to the dong); the phone shows it and never recomputes it.
   final String amountVnd;
   final String priceDecisionRef;
   final String surveyedOn;

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- the replies of the API are read as the JSON they are */
 import { randomBytes, randomUUID } from 'node:crypto';
 import { APP_FILTER } from '@nestjs/core';
 import { EffectiveAccessStore, InMemoryAuthzCache, MasterStore, TenantDatabase } from '@machvon/db';
@@ -13,6 +12,7 @@ import { AuthzHarness, TENANT_A, TENANT_B, memberId, unitId } from '../../../../
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
 import type { RunningApp } from '../isolation/test-app';
+import { asList, asNumber, asObject, asObjects, asString } from '../support/json';
 
 jest.setTimeout(240_000);
 
@@ -28,7 +28,7 @@ const REASON = 'The two entries are the same contractor.';
 
 interface Reply {
   status: number;
-  json: Record<string, any>;
+  json: Record<string, unknown>;
 }
 
 describe('the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275)', () => {
@@ -43,7 +43,7 @@ describe('the merge of master records and its undoing, and the rules of survivor
     if (method !== 'GET') headers['idempotency-key'] = `key-${randomUUID()}`;
     if (options.ifMatch !== undefined) headers['if-match'] = options.ifMatch;
     const response = await fetch(`${app.baseUrl}${url}`, { method, headers, body: method === 'GET' ? undefined : JSON.stringify(options.body ?? {}) });
-    return { status: response.status, json: (await response.json()) as Record<string, any> };
+    return { status: response.status, json: (await response.json()) as Record<string, unknown> };
   }
 
   const rows = async <R extends object>(sql: string, params: unknown[] = [], tenant = TENANT_A): Promise<R[]> => harness.owner<R>(tenant, [[sql, params]]);
@@ -98,11 +98,11 @@ describe('the merge of master records and its undoing, and the rules of survivor
     )[0] as { status: string; merged_into_id: string | null; current_version_id: string; version: string };
   const currentOf = async (id: string) =>
     (
-      await rows<{ revision: number; label: string; attributes: Record<string, any>; valid_from: string; valid_until: string | null; status: string }>(
+      await rows<{ revision: number; label: string; attributes: Record<string, unknown>; valid_from: string; valid_until: string | null; status: string }>(
         `select v.revision, v.label, v.attributes, v.valid_from::text as valid_from, v.valid_until::text as valid_until, v.status from machvon.master_record_version v join machvon.master_record r on r.current_version_id = v.id where r.id = $1`,
         [id],
       )
-    )[0] as { revision: number; label: string; attributes: Record<string, any>; valid_from: string; valid_until: string | null; status: string };
+    )[0] as { revision: number; label: string; attributes: Record<string, unknown>; valid_from: string; valid_until: string | null; status: string };
   const crosswalk = async (recordId: string, code: string, status = 'ACTIVE'): Promise<string> => {
     const id = randomUUID();
     await rows(
@@ -137,7 +137,7 @@ describe('the merge of master records and its undoing, and the rules of survivor
     });
   const merge = async (...args: Parameters<typeof mergeNow>): Promise<Reply> => {
     const reply = await mergeNow(...args);
-    if (reply.status === 200) await age(reply.json.merge_id);
+    if (reply.status === 200) await age(asString(reply.json.merge_id));
     return reply;
   };
   /** The version of a record as the merge command is told it. */
@@ -171,14 +171,14 @@ describe('the merge of master records and its undoing, and the rules of survivor
    * a day after the versions they ended began (long ago): what a later command does then takes effect today.
    */
   async function age(mergeId: string): Promise<void> {
-    const found = await rows<{ alias_json: Record<string, any> }>('select alias_json from machvon.master_merge where id = $1', [mergeId]);
+    const found = await rows<{ alias_json: Record<string, unknown> }>('select alias_json from machvon.master_merge where id = $1', [mergeId]);
     if (found[0] === undefined) return;
     const { survivor, merged } = found[0].alias_json;
     const day = (
-      await rows<{ day: string }>('select (max(valid_from) + 1)::text as day from machvon.master_record_version where id = any($1::uuid[])', [[survivor.version_before_id, merged.version_id]])
+      await rows<{ day: string }>('select (max(valid_from) + 1)::text as day from machvon.master_record_version where id = any($1::uuid[])', [[asObject(survivor).version_before_id, asObject(merged).version_id]])
     )[0]!.day;
-    await rows('update machvon.master_record_version set valid_until = $2::date where id = any($1::uuid[]) and valid_until > $2::date', [[survivor.version_before_id, merged.version_id], day]);
-    await rows('update machvon.master_record_version set valid_from = $2::date where id = $1 and valid_from > $2::date', [survivor.version_after_id, day]);
+    await rows('update machvon.master_record_version set valid_until = $2::date where id = any($1::uuid[]) and valid_until > $2::date', [[asObject(survivor).version_before_id, asObject(merged).version_id], day]);
+    await rows('update machvon.master_record_version set valid_from = $2::date where id = $1 and valid_from > $2::date', [asObject(survivor).version_after_id, day]);
   }
   const draftRule = (member: number, type: string, attribute: string, over: Record<string, unknown> = {}): Promise<Reply> =>
     call('POST', '/survivorship-rules', {
@@ -189,13 +189,13 @@ describe('the merge of master records and its undoing, and the rules of survivor
   async function publishedRule(type: string, attribute: string, over: Record<string, unknown> = {}): Promise<string> {
     const drafted = await draftRule(DRAFTER, type, attribute, over);
     expect(drafted.status).toBe(200);
-    const published = await publishRule(PUBLISHER, drafted.json.resource_id, drafted.json.resource_version);
+    const published = await publishRule(PUBLISHER, asString(drafted.json.resource_id), asNumber(drafted.json.resource_version));
     expect([published.status, published.json.status]).toEqual([200, 'PUBLISHED']);
-    return drafted.json.resource_id;
+    return asString(drafted.json.resource_id);
   }
-  const events = (type: string) => rows<{ payload: Record<string, any> }>('select payload from machvon.outbox_event where type = $1 order by created_at', [type]);
+  const events = (type: string) => rows<{ payload: Record<string, unknown> }>('select payload from machvon.outbox_event where type = $1 order by created_at', [type]);
   const audits = (action: string) =>
-    rows<{ resource_id: string; safe_diff: Record<string, any> }>('select resource_id, safe_diff from machvon.audit_event where action = $1 order by occurred_at', [action]);
+    rows<{ resource_id: string; safe_diff: Record<string, unknown> }>('select resource_id, safe_diff from machvon.audit_event where action = $1 order by occurred_at', [action]);
   const newType = (): string => `PARTY${(counter += 1)}`;
   /** The rules the pairs below are merged by: the phone follows the order NATIONAL, TREASURY, TENANT; the name stays the survivor's. */
   async function rulesFor(type: string): Promise<void> {
@@ -246,13 +246,13 @@ describe('the merge of master records and its undoing, and the rules of survivor
       const type = newType();
       const first = await draftRule(DRAFTER, type, 'phone');
       expect([first.status, first.json.status, first.json.resource_version]).toEqual([200, 'DRAFT', 1]);
-      expect(await publishRule(DRAFTER, first.json.resource_id)).toMatchObject({ status: 403 });
+      expect(await publishRule(DRAFTER, asString(first.json.resource_id))).toMatchObject({ status: 403 });
       const own = await call('POST', `/survivorship-rules/${first.json.resource_id}/publish`, { member: PUBLISHER, ifMatch: '"9"', body: {} });
       expect(own.json.code).toBe('VERSION_CONFLICT');
-      expect((await publishRule(PUBLISHER, first.json.resource_id)).json).toMatchObject({ status: 'PUBLISHED', resource_version: 2 });
-      expect((await publishRule(PUBLISHER, first.json.resource_id, 2)).json.code).toBe('STAGE_TRANSITION_DENIED');
+      expect((await publishRule(PUBLISHER, asString(first.json.resource_id))).json).toMatchObject({ status: 'PUBLISHED', resource_version: 2 });
+      expect((await publishRule(PUBLISHER, asString(first.json.resource_id), 2)).json.code).toBe('STAGE_TRANSITION_DENIED');
       const second = await draftRule(DRAFTER, type, 'phone', { strategy: 'MOST_RECENT', source_priority: [] });
-      expect((await publishRule(PUBLISHER, second.json.resource_id)).status).toBe(200);
+      expect((await publishRule(PUBLISHER, asString(second.json.resource_id))).status).toBe(200);
       const listed = (await call('GET', `/survivorship-rules?master_type=${type}`, { member: READER })).json.items as Array<{ revision: number; status: string; strategy: string }>;
       expect(listed.map((rule) => [rule.revision, rule.status, rule.strategy])).toEqual([
         [2, 'PUBLISHED', 'MOST_RECENT'],
@@ -260,7 +260,7 @@ describe('the merge of master records and its undoing, and the rules of survivor
       ]);
       expect(
         (await audits('master.survivorship_rule_published')).some(
-          (entry) => entry.resource_id === second.json.resource_id && (entry.safe_diff.retired_ids as string[]).includes(first.json.resource_id),
+          (entry) => entry.resource_id === second.json.resource_id && (entry.safe_diff.retired_ids as string[]).includes(asString(first.json.resource_id)),
         ),
       ).toBe(true);
     });
@@ -287,9 +287,9 @@ describe('the merge of master records and its undoing, and the rules of survivor
       // A revision for an earlier day than the future one replaces it; a draft made before and overridden from its day is refused.
       const stale = await draftRule(DRAFTER, type, 'phone', { effective_from: '2099-06-01' });
       const newest = await draftRule(DRAFTER, type, 'phone', { effective_from: '2098-01-01' });
-      expect((await publishRule(PUBLISHER, newest.json.resource_id)).status).toBe(200);
+      expect((await publishRule(PUBLISHER, asString(newest.json.resource_id))).status).toBe(200);
       expect(((await call('GET', `/survivorship-rules?master_type=${type}&status=RETIRED`, { member: READER })).json.items as Array<{ id: string }>).map((rule) => rule.id)).toEqual([future]);
-      expect(await publishRule(PUBLISHER, stale.json.resource_id)).toMatchObject({ status: 409, json: { code: 'STAGE_TRANSITION_DENIED' } });
+      expect(await publishRule(PUBLISHER, asString(stale.json.resource_id))).toMatchObject({ status: 409, json: { code: 'STAGE_TRANSITION_DENIED' } });
     });
 
     it('is the same person publishing their own draft refused by the table as well', async () => {
@@ -317,8 +317,8 @@ describe('the merge of master records and its undoing, and the rules of survivor
       expect((await draftRule(READER, newType(), 'phone')).status).toBe(403);
       expect((await draftRule(CHECKER, newType(), 'phone')).status).toBe(403);
       const drafted = await draftRule(DRAFTER, newType(), 'phone');
-      expect((await publishRule(CHECKER, drafted.json.resource_id)).status).toBe(403);
-      expect((await publishRule(NOBODY, drafted.json.resource_id)).status).toBe(403);
+      expect((await publishRule(CHECKER, asString(drafted.json.resource_id))).status).toBe(403);
+      expect((await publishRule(NOBODY, asString(drafted.json.resource_id))).status).toBe(403);
       expect((await call('GET', '/survivorship-rules', { member: NOBODY })).status).toBe(403);
       expect((await publishRule(PUBLISHER, randomUUID())).status).toBe(404);
       for (const query of ['?status=NEARLY', '?limit=0', '?cursor=bad']) expect((await call('GET', `/survivorship-rules${query}`, { member: READER })).status).toBe(422);
@@ -360,7 +360,7 @@ describe('the merge of master records and its undoing, and the rules of survivor
       expect(await pointingAt('contractor', survivor.id)).toEqual([refs[3]]);
       expect(await pointingAt('master_crosswalk', merged.id)).toEqual([retired]);
       // What was recorded.
-      const stored = (await call('GET', `/master-merges?record_id=${survivor.id}`, { member: READER })).json.items[0];
+      const stored = asObject(asObjects((await call('GET', `/master-merges?record_id=${survivor.id}`, { member: READER })).json.items)[0]);
       expect(stored).toMatchObject({
         id: done.json.merge_id,
         status: 'APPLIED',
@@ -402,7 +402,7 @@ describe('the merge of master records and its undoing, and the rules of survivor
       const undone = await unmerge(CHECKER, mergeId, 1);
       expect(await versionOfContractor()).toBe(contractorBefore + 2);
       expect([undone.status, undone.json.status, undone.json.restored, undone.json.not_restored]).toEqual([200, 'REVERTED', 4, []]);
-      expect(undone.json.reverted.sort()).toEqual(['address', 'phone']);
+      expect(asList(undone.json.reverted).sort()).toEqual(['address', 'phone']);
       // The survivor is as it was before the merge, in a new version; the merged entry is in force again as it was.
       const survivorNow = await currentOf(survivor.id);
       expect(survivorNow.attributes).toEqual({ tax_code: '0101', phone: 'tenant-phone' });
@@ -418,7 +418,7 @@ describe('the merge of master records and its undoing, and the rules of survivor
       expect(await pointingAt('master_crosswalk', merged.id)).toEqual([...refs.slice(0, 3)].sort());
       expect(await pointingAt('contractor', merged.id)).toEqual([refs[3]]);
       expect(await pointingAt('master_crosswalk', survivor.id)).toEqual([]);
-      const stored = (await call('GET', `/master-merges?record_id=${merged.id}`, { member: READER })).json.items[0];
+      const stored = asObject(asObjects((await call('GET', `/master-merges?record_id=${merged.id}`, { member: READER })).json.items)[0]);
       expect(stored).toMatchObject({ status: 'REVERTED', revert_reason: 'The merge was a mistake.', reverted_by: memberId(CHECKER) });
       expect((await events('master.unmerged.v1')).some((event) => event.payload.merge_id === mergeId)).toBe(true);
       // A merge is undone once (UAT-PLAN-56).
@@ -444,18 +444,18 @@ describe('the merge of master records and its undoing, and the rules of survivor
         [TENANT_A, edited, survivor.id, type, survivor.key, current.revision + 1, JSON.stringify({ ...current.attributes, phone: 'edited-phone' }), memberId(MAKER), editDay],
       );
       await rows('update machvon.master_record set current_version_id = $2 where id = $1', [survivor.id, edited]);
-      const refused = await unmerge(CHECKER, done.json.merge_id, 1);
+      const refused = await unmerge(CHECKER, asString(done.json.merge_id), 1);
       expect([refused.status, refused.json.code, refused.json.attributes]).toEqual([409, 'UNMERGE_CONFLICT', ['phone']]);
       expect(await recordOf(merged.id)).toMatchObject({ status: 'MERGED' });
       expect(await pointingAt('master_crosswalk', survivor.id)).toEqual(refs);
       // An answer about an attribute that is not in conflict, or that is none, is refused.
-      expect((await unmerge(CHECKER, done.json.merge_id, 1, { steward_decisions: { phone: 'MAYBE' } })).json.detail).toBe('steward_decisions.phone');
-      expect((await unmerge(CHECKER, done.json.merge_id, 1, { steward_decisions: { phone: 'KEEP', address: 'KEEP' } })).json.detail).toBe('steward_decisions.address');
-      const decided = await unmerge(CHECKER, done.json.merge_id, 1, { steward_decisions: { phone: 'KEEP' } });
+      expect((await unmerge(CHECKER, asString(done.json.merge_id), 1, { steward_decisions: { phone: 'MAYBE' } })).json.detail).toBe('steward_decisions.phone');
+      expect((await unmerge(CHECKER, asString(done.json.merge_id), 1, { steward_decisions: { phone: 'KEEP', address: 'KEEP' } })).json.detail).toBe('steward_decisions.address');
+      const decided = await unmerge(CHECKER, asString(done.json.merge_id), 1, { steward_decisions: { phone: 'KEEP' } });
       expect([decided.status, decided.json.kept, decided.json.reverted]).toEqual([200, ['phone'], ['address']]);
       expect((await currentOf(survivor.id)).attributes).toEqual({ tax_code: '0101', phone: 'edited-phone' });
       expect(await recordOf(merged.id)).toMatchObject({ status: 'EFFECTIVE' });
-      expect((await audits('master.unmerged')).some((entry) => entry.resource_id === done.json.merge_id && entry.safe_diff.steward_decisions.includes('phone'))).toBe(true);
+      expect((await audits('master.unmerged')).some((entry) => entry.resource_id === done.json.merge_id && asList(entry.safe_diff.steward_decisions).includes('phone'))).toBe(true);
     });
 
     it('is a conflict when no rule settles an attribute (409 MERGE_CONFLICT naming them), until a steward settles it', async () => {
@@ -474,7 +474,7 @@ describe('the merge of master records and its undoing, and the rules of survivor
       const done = await merge(CHECKER, survivor.id, merged.id, 1, { survivorship_overrides: { phone: 'SURVIVOR', label: 'SURVIVOR' } });
       expect(done.status).toBe(200);
       expect((await currentOf(survivor.id)).attributes.phone).toBe('tenant-phone');
-      expect((await call('GET', `/master-merges?record_id=${survivor.id}`, { member: READER })).json.items[0].decisions).toEqual(
+      expect(asObjects((await call('GET', `/master-merges?record_id=${survivor.id}`, { member: READER })).json.items)[0]?.decisions).toEqual(
         expect.arrayContaining([{ attribute: 'phone', chosen: 'SURVIVOR', by: 'OVERRIDE', strategy: null, source: 'TENANT' }]),
       );
     });
@@ -542,7 +542,7 @@ describe('the merge of master records and its undoing, and the rules of survivor
       const done = await merge(CHECKER, survivor.id, merged.id);
       expect(done.status).toBe(200);
       expect((await currentOf(survivor.id)).valid_until).toBe('2099-12-31');
-      expect((await unmerge(CHECKER, done.json.merge_id, 1)).status).toBe(200);
+      expect((await unmerge(CHECKER, asString(done.json.merge_id), 1)).status).toBe(200);
       expect((await currentOf(survivor.id)).valid_until).toBe('2099-12-31');
       expect((await currentOf(merged.id)).valid_until).toBe('2099-12-31');
       // An entry whose version ends before the merge takes effect has run out.
@@ -578,11 +578,11 @@ describe('the merge of master records and its undoing, and the rules of survivor
       expect((await byKey(merged.key, '2026-01-02')).map((row) => row.id)).toEqual([survivor.id]);
       expect((await byKey(merged.key, '2026-01-03')).map((row) => row.id)).toEqual([third.id]);
       // A merge that was undone no longer leads anywhere from the day it was undone.
-      expect((await unmerge(CHECKER, second.json.merge_id, 1)).status).toBe(200);
+      expect((await unmerge(CHECKER, asString(second.json.merge_id), 1)).status).toBe(200);
       expect((await byKey(survivor.key)).map((row) => [row.id, row.status])).toEqual([[survivor.id, 'EFFECTIVE']]);
       expect((await byKey(merged.key)).map((row) => row.id)).toEqual([survivor.id]);
       // Undone as well, the entry is itself again today, and the days of the merge still lead to the survivor and to it alone.
-      expect((await unmerge(CHECKER, done.json.merge_id, 1)).status).toBe(200);
+      expect((await unmerge(CHECKER, asString(done.json.merge_id), 1)).status).toBe(200);
       expect((await byKey(merged.key)).map((row) => row.id)).toEqual([merged.id]);
       // The entry was away from 2026-01-02 to 2026-01-05, and for those days the key leads to the survivor only.
       await rows(
@@ -600,7 +600,7 @@ describe('the merge of master records and its undoing, and the rules of survivor
       const merged = await entry(type, { label: 'A', attributes: { phone: 'p-2', address: 'Cao Bang' }, source: 'NATIONAL' });
       const done = await mergeNow(CHECKER, survivor.id, merged.id);
       expect(done.status).toBe(200);
-      expect(await unmerge(CHECKER, done.json.merge_id, 1)).toMatchObject({ status: 409, json: { code: 'STAGE_TRANSITION_DENIED' } });
+      expect(await unmerge(CHECKER, asString(done.json.merge_id), 1)).toMatchObject({ status: 409, json: { code: 'STAGE_TRANSITION_DENIED' } });
       expect(await recordOf(merged.id)).toMatchObject({ status: 'MERGED', merged_into_id: survivor.id });
       expect((await rows<{ status: string }>('select status from machvon.master_merge where id = $1', [done.json.merge_id]))[0]?.status).toBe('APPLIED');
       expect((await currentOf(survivor.id)).attributes).toMatchObject({ phone: 'p-2', address: 'Cao Bang' });
@@ -652,7 +652,7 @@ describe('the merge of master records and its undoing, and the rules of survivor
       const current = (await rows<{ current_version_id: string }>('select current_version_id from machvon.master_record where id = $1', [survivor.id]))[0]!.current_version_id;
       expect(await live(merged.key)).toEqual({ recordId: survivor.id, currentVersionId: current });
       expect(await live('NO-SUCH-KEY')).toBeUndefined();
-      expect((await unmerge(CHECKER, done.json.merge_id, 1)).status).toBe(200);
+      expect((await unmerge(CHECKER, asString(done.json.merge_id), 1)).status).toBe(200);
       expect((await live(merged.key))?.recordId).toBe(merged.id);
     });
 
@@ -665,7 +665,7 @@ describe('the merge of master records and its undoing, and the rules of survivor
       const done = await merge(CHECKER, survivor.id, merged.id, 1, { survivorship_overrides: { '~label': 'MERGED' } });
       expect(done.status).toBe(200);
       expect(await currentOf(survivor.id)).toMatchObject({ label: 'Same name', attributes: { label: 'nested-merged' } });
-      const undone = await unmerge(CHECKER, done.json.merge_id, 1);
+      const undone = await unmerge(CHECKER, asString(done.json.merge_id), 1);
       expect([undone.status, undone.json.reverted]).toEqual([200, ['~label']]);
       expect(await currentOf(survivor.id)).toMatchObject({ label: 'Same name', attributes: { label: 'nested-survivor' } });
     });
@@ -712,9 +712,9 @@ describe('the merge of master records and its undoing, and the rules of survivor
       const first = await merge(CHECKER, b.id, c.id);
       const second = await merge(CHECKER, a.id, b.id, await versionOfRecord(a.id));
       expect([first.status, second.status]).toEqual([200, 200]);
-      expect(await unmerge(CHECKER, first.json.merge_id, 1)).toMatchObject({ status: 409, json: { code: 'STAGE_TRANSITION_DENIED' } });
-      expect((await unmerge(CHECKER, second.json.merge_id, 1)).status).toBe(200);
-      expect((await unmerge(CHECKER, first.json.merge_id, 1)).status).toBe(200);
+      expect(await unmerge(CHECKER, asString(first.json.merge_id), 1)).toMatchObject({ status: 409, json: { code: 'STAGE_TRANSITION_DENIED' } });
+      expect((await unmerge(CHECKER, asString(second.json.merge_id), 1)).status).toBe(200);
+      expect((await unmerge(CHECKER, asString(first.json.merge_id), 1)).status).toBe(200);
       expect((await recordOf(c.id)).status).toBe('EFFECTIVE');
     });
 
@@ -739,19 +739,19 @@ describe('the merge of master records and its undoing, and the rules of survivor
       const made: string[] = [];
       for (let n = 0; n < 3; n += 1) {
         const { survivor, merged } = await pair(type);
-        made.push((await merge(CHECKER, survivor.id, merged.id)).json.merge_id);
+        made.push(asString((await merge(CHECKER, survivor.id, merged.id)).json.merge_id));
       }
       const seen: string[] = [];
       let cursor = '';
       for (let page = 0; page < 5; page += 1) {
         const reply = await call('GET', `/master-merges?limit=1${cursor}`, { member: READER });
-        seen.push(...reply.json.items.map((item: { id: string }) => item.id));
+        seen.push(...asObjects(reply.json.items).map((item) => asString(item.id)));
         if (reply.json.next_cursor === null) break;
         cursor = `&cursor=${reply.json.next_cursor as string}`;
       }
       expect(seen.slice(0, 3)).toEqual([...made].reverse());
       await unmerge(CHECKER, made[0] as string, 1);
-      expect((await call('GET', '/master-merges?status=REVERTED', { member: READER })).json.items.map((item: { id: string }) => item.id)).toContain(made[0]);
+      expect(asObjects((await call('GET', '/master-merges?status=REVERTED', { member: READER })).json.items).map((item) => item.id)).toContain(made[0]);
       for (const query of ['?status=NEARLY', '?record_id=x', '?limit=0', '?limit=201', '?cursor=bad']) expect((await call('GET', `/master-merges${query}`, { member: READER })).status).toBe(422);
     });
 

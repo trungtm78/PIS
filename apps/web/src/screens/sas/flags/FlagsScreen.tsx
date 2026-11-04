@@ -14,7 +14,8 @@ import { RELEASE_PERMISSION, STATUSES, describeFlag, flagBody, formOfFlag, holds
 import type { FlagField, FlagForm, FlagProblem, FlagView, FormProblem, Status } from './model';
 
 type T = Translator['t'];
-const CLOSE_GLYPH = '×';
+// U+00D7, the multiplication sign.
+const CLOSE_GLYPH = '\u00d7';
 const NONE = '—';
 
 function statusLabel(t: T, status: Status): string {

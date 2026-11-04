@@ -6,7 +6,7 @@ import type { ProgressInput, RawProgress } from './dis-progress.ts';
 import type { TabularFile } from './tabular-file.ts';
 
 /**
- * The layout of the weekly report workbook (ST-DIS-008, DIS 3 F1 "nhập hàng loạt"): one row per project, the six cells of cumulative disbursement with the CTMTQG inside the four sources that have
+ * The layout of the weekly report workbook (ST-DIS-008, DIS 3 F1 "bulk entry"): one row per project, the six cells of cumulative disbursement with the CTMTQG inside the four sources that have
  * it, the volumes, and the explanation of a fall. Only the synthetic template is known until the real workbook of the Treasury and the investors is sampled (D04): its name travels with every file
  * as `mapping_version`, so a later layout is a new name and an old file is still read the way it was.
  */

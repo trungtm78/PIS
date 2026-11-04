@@ -1,5 +1,6 @@
 import { ApiError } from '@machvon/api-client';
 import { formatVnd } from '../inventory/model';
+import { hasControlCharacter } from '../../control-characters';
 
 export { formatVnd };
 
@@ -25,8 +26,6 @@ export const CODE_MAX_LENGTH = 50;
 export const LEGAL_BASIS_MAX_LENGTH = 500;
 export const REASON_MAX_LENGTH = 2000;
 const AMOUNT = /^(0|[1-9]\d{0,23})$/;
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u001f\u007f]/;
 
 type Raw = Record<string, unknown>;
 
@@ -173,7 +172,7 @@ export function validateDraft(form: DraftForm): Partial<Record<keyof DraftForm, 
   const code = form.planCode.trim();
   if (code === '') problems.planCode = 'required';
   else if (code.length > CODE_MAX_LENGTH) problems.planCode = 'tooLong';
-  else if (CONTROL.test(code)) problems.planCode = 'invalid';
+  else if (hasControlCharacter(code)) problems.planCode = 'invalid';
   return problems;
 }
 
@@ -216,7 +215,7 @@ export function validateItem(form: ItemForm): Partial<Record<keyof ItemForm, For
   const basis = form.legalBasis.trim();
   if (basis === '') problems.legalBasis = 'required';
   else if (basis.length > LEGAL_BASIS_MAX_LENGTH) problems.legalBasis = 'tooLong';
-  else if (CONTROL.test(basis)) problems.legalBasis = 'invalid';
+  else if (hasControlCharacter(basis)) problems.legalBasis = 'invalid';
   return problems;
 }
 
@@ -247,7 +246,7 @@ export function validateRevise(form: ReviseForm): Partial<Record<keyof ReviseFor
   const reason = form.reason.trim();
   if (reason === '') return { reason: 'required' };
   if (reason.length > REASON_MAX_LENGTH) return { reason: 'tooLong' };
-  return CONTROL.test(reason) ? { reason: 'invalid' } : {};
+  return hasControlCharacter(reason) ? { reason: 'invalid' } : {};
 }
 
 export type CommandProblem = 'codeDuplicate' | 'stateInvalid' | 'notConfirmed' | 'versionConflict' | 'scopeDenied' | 'validation' | 'notFound' | 'general';

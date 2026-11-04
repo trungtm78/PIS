@@ -1,0 +1,22 @@
+{
+  "basis": "Luật Đấu thầu 22/2023/QH15 và Nghị định 214/2025/NĐ-CP: cạnh tranh công bằng, không hạn chế sự tham gia của nhà thầu [CXN-BID-01]",
+  "terms": {
+    "GENDER": ["giới tính", "nam giới", "nữ giới", "gender"],
+    "ETHNICITY": ["dân tộc", "ethnicity", "ethnic origin"],
+    "RELIGION": ["tôn giáo", "tín ngưỡng", "religion"],
+    "MARITAL_STATUS": ["tình trạng hôn nhân", "đã kết hôn", "độc thân", "marital status"],
+    "AGE": ["độ tuổi", "tuổi đời", "age of the director"],
+    "ORIGIN": ["quê quán", "nơi sinh", "hộ khẩu", "place of birth"],
+    "LOCAL_PRESENCE": [
+      "người địa phương",
+      "doanh nghiệp địa phương",
+      "nhà thầu địa phương",
+      "nhà thầu trong tỉnh",
+      "trụ sở tại địa phương",
+      "trụ sở trong tỉnh",
+      "local person",
+      "local resident",
+      "local contractor"
+    ]
+  }
+}

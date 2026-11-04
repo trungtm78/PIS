@@ -4,6 +4,7 @@ import { isDay } from '../model';
 import type { EngagementDetail, ScopeItem } from '../model';
 import { toRate } from '../recovery/model';
 import type { Rate } from '../recovery/model';
+import { hasControlCharacter } from '../../control-characters';
 
 /** AUD-10: the report of the results of the recommendations that DOC issues, and the closure of the engagement (ST-AUD-005, AUD 3.6). */
 export const REPORT_PATH = '/aud/aud-10';
@@ -21,8 +22,6 @@ export type RejectCode = (typeof REJECT_CODES)[number];
 
 const PLACE_MAX = 100;
 const HASH = /^[0-9a-f]{64}$/;
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u001f\u007f]/;
 
 type Raw = Record<string, unknown>;
 
@@ -173,7 +172,7 @@ export function validateRequest(form: RequestForm, bounds: { today: string; rece
   const place = form.place.trim();
   if (place === '') problems.place = 'required';
   else if (place.length > PLACE_MAX) problems.place = 'tooLong';
-  else if (CONTROL.test(place)) problems.place = 'invalid';
+  else if (hasControlCharacter(place)) problems.place = 'invalid';
   // The unit is chosen among the ones the server named, never typed: only a missing choice is a problem here.
   if (form.draftingUnitId === '') problems.draftingUnitId = 'required';
   return problems;

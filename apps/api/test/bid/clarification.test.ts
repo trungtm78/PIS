@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- the replies of the API and the rows of the tables are read as the JSON they are */
 import { randomBytes, randomUUID } from 'node:crypto';
 import { APP_FILTER } from '@nestjs/core';
 import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
@@ -17,6 +16,7 @@ import { seedAnalysedProposal } from '../../../../packages/db/test/support/bid-r
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
 import type { RunningApp } from '../isolation/test-app';
+import { asObject, asObjects } from '../support/json';
 
 jest.setTimeout(300_000);
 
@@ -40,7 +40,7 @@ const QUESTION = 'Giải trình đơn giá của hạng mục 7 trong bảng kh�
 
 interface Reply {
   status: number;
-  json: Record<string, any>;
+  json: Record<string, unknown>;
 }
 
 describe('the clarification requests to contractors over HTTP (ST-BID-011)', () => {
@@ -54,11 +54,11 @@ describe('the clarification requests to contractors over HTTP (ST-BID-011)', () 
     if (options.ifMatch !== null && options.ifMatch !== undefined) headers['if-match'] = options.ifMatch;
     const response = await fetch(`${app.baseUrl}${url}`, { method, headers, body: method === 'GET' ? undefined : JSON.stringify(options.body ?? {}) });
     const text = await response.text();
-    return { status: response.status, json: text === '' ? {} : (JSON.parse(text) as Record<string, any>) };
+    return { status: response.status, json: text === '' ? {} : (JSON.parse(text) as Record<string, unknown>) };
   }
   const rows = async <R extends object>(sql: string, params: unknown[] = [], tenant = TENANT_A): Promise<R[]> => harness.owner<R>(tenant, [[sql, params]]);
-  const audits = (resourceId: string, action: string) => rows<{ safe_diff: Record<string, any>; actor_id: string }>('select safe_diff, actor_id from machvon.audit_event where resource_id = $1 and action = $2', [resourceId, action]);
-  const events = (aggregateId: string, type: string) => rows<{ payload: Record<string, any>; aggregate_version: string }>('select payload, aggregate_version::text as aggregate_version from machvon.outbox_event where aggregate_id = $1 and type = $2', [aggregateId, type]);
+  const audits = (resourceId: string, action: string) => rows<{ safe_diff: Record<string, unknown>; actor_id: string }>('select safe_diff, actor_id from machvon.audit_event where resource_id = $1 and action = $2', [resourceId, action]);
+  const events = (aggregateId: string, type: string) => rows<{ payload: Record<string, unknown>; aggregate_version: string }>('select payload, aggregate_version::text as aggregate_version from machvon.outbox_event where aggregate_id = $1 and type = $2', [aggregateId, type]);
   const stored = async (id: string) =>
     (await rows<{ status: string; version: string; answer_document_id: string | null; answered_by: string | null; answered_as_guest: boolean | null }>('select status, version::text, answer_document_id, answered_by, answered_as_guest from machvon.bid_clarification where id = $1::uuid', [id]))[0];
 
@@ -166,11 +166,11 @@ describe('the clarification requests to contractors over HTTP (ST-BID-011)', () 
       expect(await send(w, { due_at: dueAt }, { key: 'send-once-for-this-key' })).toEqual(first);
       const id = first.json.resource_id as string;
       expect(await rows('select id from machvon.bid_clarification where package_id = $1::uuid', [w.seeded.packageId])).toHaveLength(1);
-      const [row] = await rows<any>('select question, status, created_by, sent_document_id, due_at from machvon.bid_clarification where id = $1::uuid', [id]);
+      const [row] = await rows<{ sent_document_id: string | null; due_at: Date }>('select question, status, created_by, sent_document_id, due_at from machvon.bid_clarification where id = $1::uuid', [id]);
       expect(row).toMatchObject({ question: QUESTION, status: 'SENT', created_by: memberId(E1) });
-      expect(row.due_at.toISOString()).toBe(new Date(dueAt).toISOString());
+      expect(row?.due_at.toISOString()).toBe(new Date(dueAt).toISOString());
       const [audit] = await audits(id, 'bid.clarification_sent');
-      expect(audit).toMatchObject({ actor_id: memberId(E1), safe_diff: { from_status: null, to_status: 'SENT', package_id: w.seeded.packageId, proposal_id: w.nt1.proposal, contractor_id: w.nt1.contractor, sent_document_id: row.sent_document_id, due_at: new Date(dueAt).toISOString() } });
+      expect(audit).toMatchObject({ actor_id: memberId(E1), safe_diff: { from_status: null, to_status: 'SENT', package_id: w.seeded.packageId, proposal_id: w.nt1.proposal, contractor_id: w.nt1.contractor, sent_document_id: row?.sent_document_id, due_at: new Date(dueAt).toISOString() } });
       const [event] = await events(id, 'bid.clarification.sent.v1');
       expect(event?.payload).toMatchObject({ clarification_id: id, package_id: w.seeded.packageId, proposal_id: w.nt1.proposal, contractor_id: w.nt1.contractor, status: 'SENT', version: 1, actor_id: memberId(E1) });
       expect(JSON.stringify([audit, event])).not.toContain('đơn giá');
@@ -288,7 +288,7 @@ describe('the clarification requests to contractors over HTTP (ST-BID-011)', () 
       const mine = await list(GUEST1);
       expect(mine.status).toBe(200);
       expect(mine.json.as_of).toEqual(expect.any(String));
-      const items = (mine.json.items as any[]).filter((item) => item.package.id === w.seeded.packageId);
+      const items = asObjects(mine.json.items).filter((item) => asObject(item.package).id === w.seeded.packageId);
       expect(items.map((item) => item.id)).toEqual([first]);
       expect(items[0]).toEqual({
         id: first,
@@ -314,9 +314,9 @@ describe('the clarification requests to contractors over HTTP (ST-BID-011)', () 
       expect((await read(GUEST1, second)).status).toBe(404);
 
       const staff = await list(CLERK, `?package_id=${w.seeded.packageId}`);
-      expect((staff.json.items as any[]).map((item) => item.id)).toEqual([second, first]);
-      expect((staff.json.items as any[])[1]).toMatchObject({ asked_by: { membership_id: memberId(E1) }, actions: { answer: true } });
-      expect((await list(CLERK, `?proposal_id=${w.nt2.proposal}`)).json.items.map((item: any) => item.id)).toEqual([second]);
+      expect(asObjects(staff.json.items).map((item) => item.id)).toEqual([second, first]);
+      expect(asObjects(staff.json.items)[1]).toMatchObject({ asked_by: { membership_id: memberId(E1) }, actions: { answer: true } });
+      expect(asObjects((await list(CLERK, `?proposal_id=${w.nt2.proposal}`)).json.items).map((item) => item.id)).toEqual([second]);
       expect((await list(E1, `?package_id=${w.seeded.packageId}`)).json.items).toHaveLength(2);
       expect((await list(ELSEWHERE_CLERK, `?package_id=${w.seeded.packageId}`)).json.items).toEqual([]);
       expect((await read(ELSEWHERE_CLERK, first)).status).toBe(404);
@@ -342,7 +342,7 @@ describe('the clarification requests to contractors over HTTP (ST-BID-011)', () 
       const id = sent.json.resource_id as string;
       expect((await read(CLERK, id)).json.basis_finding).toEqual({ id: finding, criterion_code: 'C2' });
       expect((await read(GUEST1, id)).json).toMatchObject({ basis_finding: null, asked_by: null, actions: { answer: true } });
-      expect((await list(GUEST1)).json.items.find((item: any) => item.id === id)).toMatchObject({ basis_finding: null });
+      expect(asObjects((await list(GUEST1)).json.items).find((item) => item.id === id)).toMatchObject({ basis_finding: null });
       expect((await audits(id, 'bid.clarification_sent'))[0]?.safe_diff).toMatchObject({ basis_finding_id: finding });
     });
 

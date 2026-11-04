@@ -18,7 +18,7 @@ import type { AccountView } from './channel/model';
 type Acting = 'verify' | 'disable';
 
 /**
- * OMNI-06: one channel account. It shows the facts (never a secret: "configured"), what the last verification said, and lets the supervisor change the name, the reply sent outside working hours and the calendar of
+ * OMNI-06: one channel account. It shows the facts (never a secret, only the word "configured"), what the last verification said, and lets the supervisor change the name, the reply sent outside working hours and the calendar of
  * the account, ask for a verification, or close the account. A closed account is read, not changed: it neither sends nor receives, and a new account is connected instead. While a verification waits for the provider the
  * screen reads the account again, so the answer shows without a reload.
  */

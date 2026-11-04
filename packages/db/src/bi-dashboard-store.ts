@@ -63,7 +63,28 @@ export interface MetricCheck {
 }
 
 interface Sql {
-  [column: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  [column: string]: unknown;
+  id: string;
+  code: string;
+  title: string;
+  owner_user_id: string;
+  owner_name: string | null;
+  current_version_id: string | null;
+  audience: DashboardAudience;
+  status: DashboardStatus | VersionStatus;
+  dashboard_id: string;
+  revision: number;
+  metric_versions: string[];
+  filter_mappings: Record<string, string>;
+  breakpoints: Record<string, number>;
+  dataset_version_policy: "LATEST_FROZEN" | "PINNED";
+  created_by: string;
+  published_by: string | null;
+  current_revision: number;
+  current_status: VersionStatus;
+  current_metrics: number;
+  sort_key: string;
+  pinned_dataset_version_ids: string[] | null;
 }
 
 const iso = (value: unknown): string => new Date(value as string).toISOString();
@@ -83,7 +104,7 @@ const toDashboard = (row: Sql): DashboardRecord => ({
   ownerName: row.owner_name,
   currentVersionId: row.current_version_id,
   audience: row.audience,
-  status: row.status,
+  status: row.status as DashboardStatus,
   createdAt: iso(row.created_at),
   updatedAt: iso(row.updated_at),
   version: Number(row.version),
@@ -97,13 +118,13 @@ const toVersion = (row: Sql): DashboardVersionRecord => ({
   id: row.id,
   dashboardId: row.dashboard_id,
   revision: row.revision,
-  layout: row.layout_json,
+  layout: row.layout_json as { columns: number; widgets: unknown[]; },
   metricVersionIds: row.metric_versions,
   filterMappings: row.filter_mappings,
   breakpoints: row.breakpoints,
   datasetVersionPolicy: row.dataset_version_policy,
   pinnedDatasetVersionIds: row.pinned_dataset_version_ids ?? [],
-  status: row.status,
+  status: row.status as VersionStatus,
   createdBy: row.created_by,
   createdAt: iso(row.created_at),
   publishedBy: row.published_by,

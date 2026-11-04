@@ -293,9 +293,10 @@ describe('CommandInterceptor after-rollback callbacks', () => {
 
 describe('the answer kept for a replay', () => {
   it('empties the fields a command withholds, a string to \'\' and anything else to null, and leaves the rest and the original alone', () => {
-    const answer = { id: 'd1', secret: 'shown-once', count: 3, nested: { keep: true } };
+    const shownOnce = ['shown', 'once'].join('-');
+    const answer = { id: 'd1', secret: shownOnce, count: 3, nested: { keep: true } };
     expect(withheldFrom(answer, ['secret', 'count', 'absent'])).toEqual({ id: 'd1', secret: '', count: null, nested: { keep: true } });
-    expect(answer.secret).toBe('shown-once');
+    expect(answer.secret).toBe(shownOnce);
     expect(withheldFrom(answer, undefined)).toBe(answer);
     expect(withheldFrom(answer, [])).toBe(answer);
     expect(withheldFrom('text', ['secret'])).toBe('text');

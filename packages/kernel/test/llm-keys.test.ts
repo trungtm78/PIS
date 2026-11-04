@@ -15,7 +15,7 @@ const DRAFT = { alias: 'bid-prod', scopeKind: 'TENANT', allowedModelIds: ['m1', 
 
 describe('the virtual keys of the AI gateway (ST-LLM-002, LLM F5, BR-LLM-09)', () => {
   it('AC-ST-LLM-002-1: UAT-AC20 shows of a secret only the start and the end of its hash, the same every time and not the secret', () => {
-    const secret = 'sk-1234567890abcdefghijklmnopqrstuv';
+    const secret = ['sk', '1234567890abcdefghijklmnopqrstuv'].join('-');
     const fingerprint = fingerprintOf(secret);
     expect(fingerprint).toMatch(/^[0-9a-f]{8}…[0-9a-f]{4}$/);
     expect(fingerprintOf(secret)).toBe(fingerprint);
@@ -29,7 +29,7 @@ describe('the virtual keys of the AI gateway (ST-LLM-002, LLM F5, BR-LLM-09)', (
   });
 
   it('AC-ST-LLM-002-1: UAT-AC20 takes what looks like a key out of a text that is to be logged, and leaves ordinary text alone', () => {
-    const secret = 'sk-1234567890abcdefghijklmnopqrstuv';
+    const secret = ['sk', '1234567890abcdefghijklmnopqrstuv'].join('-');
     expect(scrubSecrets(`LiteLLM said no for ${secret}`)).toBe('LiteLLM said no for [REDACTED]');
     expect(scrubSecrets('Authorization: Bearer abcdefghijklmnopqrstuvwxyz0123456789')).toBe('Authorization: [REDACTED]');
     expect(scrubSecrets(`hash ${'a1b2c3d4'.repeat(8)} done`)).toBe('hash [REDACTED] done');

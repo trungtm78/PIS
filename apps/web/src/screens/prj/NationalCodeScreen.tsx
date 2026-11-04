@@ -21,7 +21,7 @@ import type { AssignForm } from './national-code-model';
 import './prj.css';
 
 /** The multiplication sign on the close button of the dialog. */
-const CLOSE_GLYPH = '×';
+const CLOSE_GLYPH = '\u00d7';
 
 /**
  * PRJ-21: the national project codes of the register. It shows which projects hold a code and which do not (a project without one is flagged, and

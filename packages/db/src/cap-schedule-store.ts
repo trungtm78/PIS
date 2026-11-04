@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, asUuid, compareDecimal } from '@machvon/kernel';
+import { DomainError, asUuid, compareDecimal, hasControlCharExceptWhitespace } from '@machvon/kernel';
 import { assertYearsOpen } from './cap-plan-locks.ts';
 import { DRAFTABLE_PROJECT_STATUSES } from './cap-plan-store.ts';
 import { LINE_BUCKETS } from './cap-plan-reads.ts';
@@ -342,8 +342,7 @@ export class CapScheduleStore {
   /** A forecast says what it rests on; the other kinds carry no assumption. */
   private assumptionOf(input: ScheduleInput): string | undefined {
     const text = input.assumption === undefined ? '' : input.assumption.trim();
-    // eslint-disable-next-line no-control-regex
-    if (text.length > MAX_ASSUMPTION || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(text)) throw invalid('assumption');
+    if (text.length > MAX_ASSUMPTION || hasControlCharExceptWhitespace(text)) throw invalid('assumption');
     if (input.kind === 'FORECAST') {
       if (text === '') throw invalid('assumption');
       return text;

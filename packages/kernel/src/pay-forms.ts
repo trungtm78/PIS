@@ -1,4 +1,5 @@
 import { DomainError } from './errors.ts';
+import { message } from './messages.ts';
 import { wholeVnd, signedDong } from './pay-money.ts';
 
 /**
@@ -66,7 +67,7 @@ export function formPayload(facts: FormFacts, formCode: PaymentFormCode): Record
     agency: facts.agency,
     place: facts.place,
     form_code: formCode,
-    summary: `Giấy đề nghị thanh toán ${facts.requestNo} của hợp đồng ${facts.contractCode}`,
+    summary: message('pay.form.summary', { request: facts.requestNo, contract: facts.contractCode }),
     request_no: facts.requestNo,
     request_kind: facts.requestKind,
     contract_code: facts.contractCode,

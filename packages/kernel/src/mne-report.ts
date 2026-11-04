@@ -1,4 +1,5 @@
 import { DomainError } from './errors.ts';
+import { message } from './messages.ts';
 
 /**
  * The monitoring report (ST-MNE-002, MNE 3.1 F3): a report is made on a form revision (the one in force on the last day of its period), its financial cells are filled from a frozen snapshot and are locked, and its
@@ -105,10 +106,16 @@ const cut = (text: string, max: number): string => (text.length <= max ? text : 
 
 /** The slow projects as the text of a cell: one line each, the leader and the gap in it; the long parts of a line (the code, the name, the leader) are shortened, never the end of it, so that twenty lines always fit. */
 export function slowProjectsText(rows: readonly SlowProject[]): string {
-  if (rows.length === 0) return 'Không có dự án nào đang bị cảnh báo chậm giải ngân.';
+  if (rows.length === 0) return message('mne.report.slow.none');
   return rows
     .map((row, index) => {
-      return `${index + 1}. ${cut(row.code, SLOW_PART_MAX.code)} - ${cut(row.name, SLOW_PART_MAX.name)}; lãnh đạo phụ trách: ${cut(row.leader ?? 'chưa phân công', SLOW_PART_MAX.leader)}; chậm ${cut(row.gapPoints, SLOW_PART_MAX.gap)} điểm so với kỳ vọng`;
+      return message('mne.report.slow.line', {
+        index: index + 1,
+        code: cut(row.code, SLOW_PART_MAX.code),
+        name: cut(row.name, SLOW_PART_MAX.name),
+        leader: cut(row.leader ?? message('mne.report.slow.no_leader'), SLOW_PART_MAX.leader),
+        gap: cut(row.gapPoints, SLOW_PART_MAX.gap),
+      });
     })
     .join('\n');
 }
@@ -236,7 +243,7 @@ export function printedCell(cell: MnePayloadCell): string {
   const text = String(cell.value);
   switch (cell.kind) {
     case 'MONEY':
-      return `${text.startsWith('-') ? '-' : ''}${text.replace('-', '').replace(GROUPS, '.')} đồng`;
+      return `${text.startsWith('-') ? '-' : ''}${text.replace('-', '').replace(GROUPS, '.')} ${message('mne.report.money_unit')}`;
     case 'PERCENT':
       return `${text}%`;
     case 'INTEGER':
@@ -253,7 +260,7 @@ export function mneReportPayload(input: MnePayloadInput): Record<string, string>
   const lines = input.cells.map((cell) => `${cell.label}: ${printedCell(cell)}`);
   return {
     title: input.title,
-    period: `Kỳ báo cáo ${input.periodLabel} - ${input.unitName} (${input.unitCode}); hạn nộp ${input.dueDate}${input.asOfDate === null ? '' : `; số liệu đến ngày ${input.asOfDate}`}`,
+    period: message('mne.report.period', { period: input.periodLabel, unit: input.unitName, code: input.unitCode, due: input.dueDate }) + (input.asOfDate === null ? '' : message('mne.report.period_as_of', { date: input.asOfDate })),
     body: lines.join('\n'),
     agency: input.unitName,
     // The place of issue is in no record of the tenant; DOC requires it, and its drafter completes a dash before the report goes out.

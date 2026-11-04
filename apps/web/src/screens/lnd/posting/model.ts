@@ -2,6 +2,7 @@ import { ApiError } from '@machvon/api-client';
 import { TIMER_CODES, daysBetween, isDay, isUuid } from '../model';
 import type { TimerCode } from '../model';
 import type { PlanLine } from '../plan/model';
+import { hasControlCharacter } from '../../control-characters';
 
 /** LND-06: the posting of a plan to the households for the days of the rule, the opinions on it, the closing of the posting and the approval (ST-LND-006, LND 3.1 steps 5-6, BR-LND-02). */
 export const POSTING_PATH = '/lnd/lnd-06';
@@ -20,8 +21,6 @@ export const TIMER_STATUSES = ['RUNNING', 'SATISFIED', 'BREACHED', 'CANCELLED'] 
 export type TimerStatus = (typeof TIMER_STATUSES)[number];
 
 export const TEXT_MAX_LENGTH = 2000;
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u001f\u007f]/;
 
 type Raw = Record<string, unknown>;
 
@@ -166,7 +165,7 @@ const wordsProblem = (value: string): FormProblem | undefined => {
   const words = value.trim();
   if (words === '') return 'required';
   if (words.length > TEXT_MAX_LENGTH) return 'tooLong';
-  return CONTROL.test(words) ? 'invalid' : undefined;
+  return hasControlCharacter(words) ? 'invalid' : undefined;
 };
 
 export interface PostForm {

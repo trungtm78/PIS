@@ -39,8 +39,8 @@ export interface PolicyDraft {
 export function foldText(text: string): string {
   return text
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/đ/gi, 'd')
+    .replace(/[\u0300-\u036f]/g, '') // the combining marks (U+0300 to U+036F) that NFD splits off the letters
+    .replace(/\u0111/gi, 'd') // the letter d with a stroke, either case
     .toLowerCase()
     .replace(/\s+/g, ' ')
     .trim();

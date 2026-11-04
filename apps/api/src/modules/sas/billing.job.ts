@@ -21,7 +21,7 @@ export interface BillingPassResult {
 }
 
 /**
- * The job `einvoice-billing` (SAS.md 3.7, "billing hằng ngày", the e-invoice workflow of 24 hours and the reminder of the days): every five minutes, for the tenant it is given, it makes the Draft invoices of
+ * The job `einvoice-billing` (SAS.md 3.7, the daily billing, the e-invoice workflow of 24 hours and the reminder of the days): every five minutes, for the tenant it is given, it makes the Draft invoices of
  * the periods that closed (a second pass finds them), asks the provider again for the invoices waiting for another attempt (five attempts in 24 hours, then IssueFailed), and marks the invoices past their due
  * day Overdue and their subscriptions PastDue, with the proposal of a suspension after thirty days. It changes nothing about the tenant or its license: only a System Admin decides a suspension (BR-SAS-04).
  * The pass runs through the control role acting as the tenant (the plans are control-plane rows), under the worker's membership.

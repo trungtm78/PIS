@@ -1,0 +1,25 @@
+{
+  "basis": "DIS BR-DIS-05, BR-DIS-06, BR-DIS-12 [CXN-03]: định nghĩa đề xuất (giả định làm việc), chờ Chủ nghiệp vụ vốn ký D03",
+  "terms": {
+    "GIAI_NGAN_PERIOD": {
+      "termVi": "Giải ngân trong kỳ (delta kỳ)",
+      "definition": "Số giải ngân phát sinh trong kỳ báo cáo: lũy kế cuối kỳ trừ lũy kế cuối kỳ so sánh trước cùng năm kế hoạch (BR-DIS-03). Một khoản được tính tại ngày Kho bạc thanh toán, không sau ngày chốt Kho bạc (BR-DIS-06); khoản hoàn trừ vào ngày của khoản hoàn."
+    },
+    "GIAI_NGAN_YTD": {
+      "termVi": "Giải ngân lũy kế từ đầu năm (YTD)",
+      "definition": "Giải ngân lũy kế từ đầu năm kế hoạch tới cuối kỳ, theo năm kế hoạch của nguồn vốn (vốn năm) hoặc từ đầu năm kéo dài (vốn kéo dài); tính theo ngày Kho bạc thanh toán không sau ngày chốt Kho bạc. Ô lũy kế trên báo cáo tuần mặc định là YTD (BR-DIS-12)."
+    },
+    "GIAI_NGAN_PTD": {
+      "termVi": "Giải ngân lũy kế từ khởi công (PTD)",
+      "definition": "Giải ngân lũy kế từ khi khởi công dự án tới cuối kỳ, qua mọi năm kế hoạch; tính theo ngày Kho bạc thanh toán không sau ngày chốt Kho bạc (BR-DIS-06, BR-DIS-12)."
+    },
+    "MAU_SO_KH_TTG_GIAO": {
+      "termVi": "Mẫu số: kế hoạch Thủ tướng Chính phủ giao",
+      "definition": "Mẫu số của tỷ lệ giải ngân so với kế hoạch Thủ tướng Chính phủ giao: kế hoạch vốn năm có nguồn gốc phân bổ PM_ASSIGNED, không gồm phần địa phương giao thêm. Tử số là giải ngân vốn kế hoạch năm tính theo ngày Kho bạc (BR-DIS-05). Tỷ lệ có thể vượt 100% khi địa phương giao thêm."
+    },
+    "MAU_SO_KH_TONG": {
+      "termVi": "Mẫu số: kế hoạch gồm phần giao thêm",
+      "definition": "Mẫu số của tỷ lệ giải ngân so với tổng kế hoạch: kế hoạch Thủ tướng Chính phủ giao cộng phần địa phương giao thêm (LOCAL_ADDED); phần tăng thu và hỗ trợ trung ương theo cấu hình của tenant. Cùng tử số với tỷ lệ so với kế hoạch Thủ tướng giao (BR-DIS-05)."
+    }
+  }
+}

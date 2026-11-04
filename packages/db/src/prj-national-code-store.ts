@@ -1,4 +1,4 @@
-import { DomainError, NATIONAL_CODE_MAX_LENGTH, nationalCodeFileFormat, versionConflict } from '@machvon/kernel';
+import { DomainError, NATIONAL_CODE_MAX_LENGTH, nationalCodeFileFormat, versionConflict, hasControlChar } from '@machvon/kernel';
 import type { Difference, NationalCodeRow, Rejection } from '@machvon/kernel';
 import type { FileImportAdapter, ImportEntry } from './file-import-store.ts';
 import { MasterRules } from './master-rules.ts';
@@ -29,8 +29,7 @@ const FROZEN: readonly ProjectStatus[] = TERMINAL_STAGES;
 /** The code as it is stored: trimmed, at most as long as the contract says, no control character. */
 export function nationalCodeOf(value: string): string {
   const code = value.trim();
-  // eslint-disable-next-line no-control-regex
-  if (code === '' || code.length > NATIONAL_CODE_MAX_LENGTH || /[\u0000-\u001f\u007f]/.test(code)) throw invalid('national_project_code');
+  if (code === '' || code.length > NATIONAL_CODE_MAX_LENGTH || hasControlChar(code)) throw invalid('national_project_code');
   return code;
 }
 

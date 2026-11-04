@@ -37,7 +37,7 @@ import { purposeLabel } from './workflow/labels';
 type Acting = { what: 'submit' } | { what: 'decide'; decision: 'approve' | 'return' | 'reject' };
 
 /**
- * NOT-07: the templates of the messages. A revision of a code × channel × locale is written as a Draft (the words, the variables with their type and classification, the purpose), sent to review and approved by another
+ * NOT-07: the templates of the messages. A revision of a code, channel and locale is written as a Draft (the words, the variables with their type and classification, the purpose), sent to review and approved by another
  * person; the one that was Active is retired. A revision that has left Draft is locked: it is read, not edited, and a change is a new revision. The phone and provider channels carry only public or internal text without money,
  * and the screen says so before sending (the server judges again).
  */

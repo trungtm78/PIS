@@ -1,4 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { BiDatasetStore, BiExportStore, BiQueryStore, assertFilter } from '@machvon/db';
 import type { BiExportJobRow, TenantTx } from '@machvon/db';
 import { BI_DIMENSION_LABELS, BI_EXPORT_ROW_CAP, BI_EXPORT_TTL_DAYS, DomainError, PDF_ROW_CAP, activeGrants, buildBiExportDocument, csvOf, figureOf, holdsPermission, xlsxOf } from '@machvon/kernel';
@@ -8,6 +10,25 @@ import { pdfOf } from '../dis/export-pdf';
 import { DATASET_CODE, EXPORT_PERMISSION, FILTER_FIELDS, QUERY_PERMISSION } from './query-engine';
 export { EXPORT_PERMISSION };
 import type { BiQueryEngine } from './query-engine';
+
+const MESSAGES_FILE = 'messages.vi.json';
+const MESSAGES_DIRECTORIES = [
+  ['src', 'modules', 'bi'],
+  ['apps', 'api', 'src', 'modules', 'bi'],
+] as const;
+
+type ExportMessageKey = 'export.scope.denied' | 'export.scope.province' | 'export.scope.granted';
+let exportMessages: Readonly<Record<ExportMessageKey, string>> | undefined;
+
+/** A text of the files of the exports that a person reads, from `messages.vi.json` next to this module (found from the working directory, like the document resources). */
+function exportMessage(key: ExportMessageKey): string {
+  if (exportMessages === undefined) {
+    const directory = MESSAGES_DIRECTORIES.map((parts) => join(process.cwd(), ...parts)).find((candidate) => existsSync(join(candidate, MESSAGES_FILE)));
+    if (directory === undefined) throw new Error(`export messages not found (${MESSAGES_FILE})`);
+    exportMessages = JSON.parse(readFileSync(join(directory, MESSAGES_FILE), 'utf8')) as Record<ExportMessageKey, string>;
+  }
+  return exportMessages[key];
+}
 
 /** The kind of the object key the files of the exports are stored under. */
 export const EXPORT_KIND = 'bi_export';
@@ -145,7 +166,7 @@ export class BiExportRunner {
     };
     // The right is judged as it is now, for the person the file is for: the export and the query, over some scope; the job is made first, so that whatever follows is a record.
     const holds = holdsNow(input.access, EXPORT_PERMISSION, now) && holdsNow(input.access, QUERY_PERMISSION, now);
-    const scopeDescription = !holds ? 'Không có quyền' : this.engine.exportableProjects(input.access, now)(1).sql === 'true' ? 'Toàn tỉnh' : 'Theo phạm vi được cấp của người nhận';
+    const scopeDescription = !holds ? exportMessage('export.scope.denied') : this.engine.exportableProjects(input.access, now)(1).sql === 'true' ? exportMessage('export.scope.province') : exportMessage('export.scope.granted');
     await make(scopeDescription);
     await this.store.markRunning(tx, jobId);
     if (!holds) return ended('DENIED', 'SCOPE_DENIED', 403);

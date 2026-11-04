@@ -16,7 +16,7 @@ import 'png_metadata.dart';
 /// The picture cannot be read, although its first bytes say it is a JPEG or a PNG (a damaged file).
 const String kImageUnreadable = 'IMAGE_UNREADABLE';
 
-/// What the application asks of a photograph before it is uploaded (07, "Luồng hiện trường").
+/// What the application asks of a photograph before it is uploaded (design doc 07, the field flow).
 final class EvidenceLimits {
   const EvidenceLimits({
     this.maxUploadBytes = 10 * 1024 * 1024,

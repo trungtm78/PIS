@@ -1887,3 +1887,4 @@ export { EMBEDDING_DIMENSION, MAX_CHUNKS_PER_ITEM, MAX_CHUNK_CHARS, MAX_RETRIEVE
 export type { Chunk as KnowledgeChunk, CollectionInput as KnowledgeCollectionInput } from './ai-knowledge.ts';
 export { RECONCILE_TOLERANCE_PERCENT, checkReconcile, compare as compareInvoice, fromUnits, providerOfInvoice, toUnits } from './llm-reconcile.ts';
 export type { CheckedReconcile, ReconcileRequest } from './llm-reconcile.ts';
+export { hasControlChar, hasControlCharExceptWhitespace, withoutXmlForbiddenChars } from './control-chars.ts';

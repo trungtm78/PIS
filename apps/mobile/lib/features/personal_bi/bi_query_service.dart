@@ -9,11 +9,11 @@ import 'query_models.dart';
 /// a job of a question that is too heavy to wait for (`202 ASYNC_JOB`); the phone looks at its run, and asks the same question
 /// again when it has completed (it is then answered from what the job kept).
 final class JobPolling {
-  const JobPolling({required this.interval, required this.attempts, this.sleep = Future.delayed});
+  const JobPolling({required this.interval, required this.attempts, this.waitBetweenPolls = Future.delayed});
 
   final Duration interval;
   final int attempts;
-  final Future<void> Function(Duration duration) sleep;
+  final Future<void> Function(Duration duration) waitBetweenPolls;
 }
 
 /// A minute in all: a phone does not hold a leader at a dashboard for the five minutes the web waits.
@@ -76,7 +76,7 @@ class BiQueryService {
     Object? raw = await client.postDashboardQueries(body);
     String? run = _runOf(raw);
     for (int attempt = 0; run != null && attempt < polling.attempts; attempt += 1) {
-      await polling.sleep(polling.interval);
+      await polling.waitBetweenPolls(polling.interval);
       if (cancelled?.call() ?? false) throw const QueryCancelled();
       final Json? state = asRecord(await client.getBiQueryRun(id: run));
       final String? status = text(state?['status']);

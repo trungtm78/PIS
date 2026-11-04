@@ -1,4 +1,4 @@
-import { DomainError, appraisalTotal, asUuid, decisionOpposesRecommendation, meanAppraisalScore, thresholdRecommendation, versionConflict } from '@machvon/kernel';
+import { DomainError, appraisalTotal, asUuid, decisionOpposesRecommendation, meanAppraisalScore, thresholdRecommendation, versionConflict, hasControlCharExceptWhitespace } from '@machvon/kernel';
 import type { AppraisalRecommendation } from '@machvon/kernel';
 import { MasterRules } from './master-rules.ts';
 import type { AppraisalCriteriaSet } from './master-rules.ts';
@@ -202,14 +202,12 @@ const isRecommendation = (value: string): value is AppraisalRecommendation => va
 /** True when the version of a criteria set is in force on the date. */
 const inForce = (set: AppraisalCriteriaSet, on: string): boolean => set.reading.validFrom <= on && (set.reading.validUntil === null || set.reading.validUntil > on);
 
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
 
 function noteOf(value: string | undefined): string | null {
   if (value === undefined) return null;
   const text = value.trim();
   if (text === '') return null;
-  if (text.length > MAX_NOTE || CONTROL.test(text)) throw invalid('note');
+  if (text.length > MAX_NOTE || hasControlCharExceptWhitespace(text)) throw invalid('note');
   return text;
 }
 
@@ -393,7 +391,7 @@ export class PrjAppraisalStore {
     const override = request.overrideReason?.trim();
     if (against && (override === undefined || override.length < MIN_OVERRIDE_REASON)) throw new DomainError('OVERRIDE_REASON_REQUIRED', 422, 'override_reason');
     if (!against && override !== undefined) throw invalid('override_reason');
-    if (override !== undefined && CONTROL.test(override)) throw invalid('override_reason');
+    if (override !== undefined && hasControlCharExceptWhitespace(override)) throw invalid('override_reason');
     let group: string | null = null;
     let documentId: string | null = null;
     if (decision === 'ADMIT') {

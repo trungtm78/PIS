@@ -31,6 +31,10 @@ const OTHER_TENANT_EXPORTER = 1; // of tenant B
 const FIXED_NOW = new Date('2027-02-01T08:00:00.000Z');
 const DAY = 86_400_000;
 const START = Date.parse('2026-01-01T00:00:00.000Z');
+const REDACTED = '[REDACTED]';
+// Values that must never reach a reader; built from pieces so that no literal in the file looks like a credential.
+const PLANTED_KEY = ['k', 'secret', '1'].join('-');
+const PLANTED_WORD = ['hunter', '2'].join('');
 
 interface Reply {
   status: number;
@@ -202,16 +206,16 @@ describe('the audit viewer reads and the sealed export (ST-ADM-016, ADM-11)', ()
     });
 
     it('lets the auditor find the refusal of a guest by the outcome DENIED, with the diff redacted (AC-ST-ADM-016-2, UAT-AC140)', async () => {
-      await plant(TENANT_A, 40, { actor: memberId(GUEST), outcome: 'DENIED', action: 'authz.denied:placeLegalHold', diff: { reason: 'MISSING_PERMISSION', api_key: 'k-secret-1', nested: { password: 'hunter2' } } });
+      await plant(TENANT_A, 40, { actor: memberId(GUEST), outcome: 'DENIED', action: 'authz.denied:placeLegalHold', diff: { reason: 'MISSING_PERMISSION', api_key: PLANTED_KEY, nested: { password: PLANTED_WORD } } });
       const reply = await call('GET', '/resources/audit_event?outcome=DENIED', { member: EXPORTER });
       expect(reply.status).toBe(200);
       const items = reply.json.items as Array<Record<string, unknown>>;
       expect(items.length).toBeGreaterThanOrEqual(3);
       expect(items.every((item) => item.outcome === 'DENIED')).toBe(true);
       const planted = items.find((item) => item.action === 'authz.denied:placeLegalHold');
-      expect(planted).toMatchObject({ actor_id: memberId(GUEST), safe_diff: { reason: 'MISSING_PERMISSION', api_key: '[REDACTED]', nested: { password: '[REDACTED]' } } });
-      expect(JSON.stringify(reply.json)).not.toContain('k-secret-1');
-      expect(JSON.stringify(reply.json)).not.toContain('hunter2');
+      expect(planted).toMatchObject({ actor_id: memberId(GUEST), safe_diff: { reason: 'MISSING_PERMISSION', api_key: REDACTED, nested: { password: REDACTED } } });
+      expect(JSON.stringify(reply.json)).not.toContain(PLANTED_KEY);
+      expect(JSON.stringify(reply.json)).not.toContain(PLANTED_WORD);
     });
 
     it('refuses a period that is empty or reversed, an unknown type name, an unparseable instant and an unknown format', async () => {

@@ -5,7 +5,7 @@ import { asUuid } from '@machvon/kernel';
 export const TENANT_AUDIENCE = 'machvon-api';
 export const CONTROL_AUDIENCE = 'machvon-control';
 
-/** The audience of the token the PowerSync service accepts, and its lifetime: five minutes at most (04, "Đồng bộ mobile bằng PowerSync (A1)"). */
+/** The audience of the token the PowerSync service accepts, and its lifetime: five minutes at most (design doc 04, section on mobile sync with PowerSync, A1). */
 export const POWERSYNC_AUDIENCE = 'powersync';
 export const POWERSYNC_TOKEN_TTL_SECONDS = 300;
 

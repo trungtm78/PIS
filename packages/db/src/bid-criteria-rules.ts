@@ -1,3 +1,5 @@
+import { vietnameseData } from './vietnamese-data.ts';
+
 export const PROHIBITED_CATEGORIES = ['PERSONAL_ATTRIBUTE', 'REGION'] as const;
 export type ProhibitedCategory = (typeof PROHIBITED_CATEGORIES)[number];
 
@@ -16,39 +18,27 @@ export interface ProhibitedRule {
  * so a version drafted before a rule was added cannot be approved. The basis names the principle the law states (fair competition, no
  * restriction of participation); the article that fits each rule is for the legal department to confirm (TODOS.md, ST-BID-003, CXN-BID-01).
  */
-const BASIS = 'Luật Đấu thầu 22/2023/QH15 và Nghị định 214/2025/NĐ-CP: cạnh tranh công bằng, không hạn chế sự tham gia của nhà thầu [CXN-BID-01]';
+const TEXT = vietnameseData<{ basis: string; terms: Record<string, readonly string[]> }>('bid-criteria-rules');
+const BASIS = TEXT.basis;
+/** The phrases of a rule as written in the data file (Vietnamese phrases with their English counterparts). */
+const termsOf = (code: string): readonly string[] => TEXT.terms[code] ?? [];
 
 export const PROHIBITED_RULES: readonly ProhibitedRule[] = [
-  { code: 'GENDER', category: 'PERSONAL_ATTRIBUTE', terms: ['giới tính', 'nam giới', 'nữ giới', 'gender'], legalBasis: BASIS },
-  { code: 'ETHNICITY', category: 'PERSONAL_ATTRIBUTE', terms: ['dân tộc', 'ethnicity', 'ethnic origin'], legalBasis: BASIS },
-  { code: 'RELIGION', category: 'PERSONAL_ATTRIBUTE', terms: ['tôn giáo', 'tín ngưỡng', 'religion'], legalBasis: BASIS },
-  { code: 'MARITAL_STATUS', category: 'PERSONAL_ATTRIBUTE', terms: ['tình trạng hôn nhân', 'đã kết hôn', 'độc thân', 'marital status'], legalBasis: BASIS },
-  { code: 'AGE', category: 'PERSONAL_ATTRIBUTE', terms: ['độ tuổi', 'tuổi đời', 'age of the director'], legalBasis: BASIS },
-  { code: 'ORIGIN', category: 'PERSONAL_ATTRIBUTE', terms: ['quê quán', 'nơi sinh', 'hộ khẩu', 'place of birth'], legalBasis: BASIS },
-  {
-    code: 'LOCAL_PRESENCE',
-    category: 'REGION',
-    terms: [
-      'người địa phương',
-      'doanh nghiệp địa phương',
-      'nhà thầu địa phương',
-      'nhà thầu trong tỉnh',
-      'trụ sở tại địa phương',
-      'trụ sở trong tỉnh',
-      'local person',
-      'local resident',
-      'local contractor',
-    ],
-    legalBasis: BASIS,
-  },
+  { code: 'GENDER', category: 'PERSONAL_ATTRIBUTE', terms: termsOf('GENDER'), legalBasis: BASIS },
+  { code: 'ETHNICITY', category: 'PERSONAL_ATTRIBUTE', terms: termsOf('ETHNICITY'), legalBasis: BASIS },
+  { code: 'RELIGION', category: 'PERSONAL_ATTRIBUTE', terms: termsOf('RELIGION'), legalBasis: BASIS },
+  { code: 'MARITAL_STATUS', category: 'PERSONAL_ATTRIBUTE', terms: termsOf('MARITAL_STATUS'), legalBasis: BASIS },
+  { code: 'AGE', category: 'PERSONAL_ATTRIBUTE', terms: termsOf('AGE'), legalBasis: BASIS },
+  { code: 'ORIGIN', category: 'PERSONAL_ATTRIBUTE', terms: termsOf('ORIGIN'), legalBasis: BASIS },
+  { code: 'LOCAL_PRESENCE', category: 'REGION', terms: termsOf('LOCAL_PRESENCE'), legalBasis: BASIS },
 ];
 
-/** Text as it is matched: lower case, without accents, every run of non-letters one space, so "Giám đốc là NGƯỜI địa-phương" and "giam doc la nguoi dia phuong" are the same. */
+/** Text as it is matched: lower case, without accents, every run of non-letters one space, so a text with accents and capitals and the same text typed without accents are the same. */
 export function normalizedForMatch(text: string): string {
   return text
     .normalize('NFD')
     .replace(/\p{M}+/gu, '')
-    .replace(/đ/gi, 'd')
+    .replace(/\u0111/gi, 'd') // the Vietnamese letter d-with-stroke (and its upper case)
     .toLowerCase()
     .replace(/[^\p{L}\p{N}]+/gu, ' ')
     .trim();

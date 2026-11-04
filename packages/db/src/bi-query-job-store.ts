@@ -70,7 +70,23 @@ export interface QueryRunFilter {
 }
 
 interface Sql {
-  [column: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  [column: string]: unknown;
+  id: string;
+  requested_by: string;
+  metric_version_ids: string[];
+  as_of_period: string;
+  dataset_version_id: string;
+  mode: "SYNC" | "ASYNC_JOB";
+  status: "FAILED" | "QUEUED" | "RUNNING" | "DENIED" | "COMPLETED" | "TIMEOUT" | "CANCELLED";
+  served_from_cache: boolean;
+  duration_ms: number | null;
+  row_count: number | null;
+  error_code: string | null;
+  created_at: string | number | Date;
+  finished_at: string | number | Date;
+  scope_hash: string;
+  cache_key: string;
+  query_spec: Record<string, unknown>;
 }
 
 const lineOf = (row: Sql): QueryRunLine => ({

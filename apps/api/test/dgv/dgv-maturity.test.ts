@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- the replies of the API are read as the JSON they are */
 import { randomBytes, randomUUID } from 'node:crypto';
 import { APP_FILTER } from '@nestjs/core';
 import { AuditWriter, DgvMaturityJob, EffectiveAccessStore, InMemoryAuthzCache, NotificationStore, TenantDatabase, WORKER_MEMBERSHIP_ID } from '@machvon/db';
@@ -18,6 +17,7 @@ import { AuthzHarness, TENANT_A, TENANT_B, memberId, unitId } from '../../../../
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
 import type { RunningApp } from '../isolation/test-app';
+import { asList, asNumber, asObject, asObjects, asString } from '../support/json';
 
 jest.setTimeout(240_000);
 
@@ -36,7 +36,7 @@ const AUDITOR = 11; // reads the evidence of every assessment (audit.read)
 
 interface Reply {
   status: number;
-  json: Record<string, any>;
+  json: Record<string, unknown>;
 }
 
 const CODES: Record<string, string> = { GOVERNANCE: 'GOV', METADATA: 'META', QUALITY: 'QUAL', INTEGRATION: 'INTEG', SECURITY: 'SEC', LINEAGE_BI: 'LIN', AI_READINESS: 'AI', VALUE_COST: 'VAL' };
@@ -79,7 +79,7 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
     if (method !== 'GET') headers['idempotency-key'] = options.key ?? `key-${randomUUID()}`;
     if (options.ifMatch !== undefined) headers['if-match'] = options.ifMatch;
     const response = await fetch(`${app.baseUrl}${url}`, { method, headers, body: method === 'GET' ? undefined : JSON.stringify(options.body ?? {}) });
-    return { status: response.status, json: (await response.json()) as Record<string, any> };
+    return { status: response.status, json: (await response.json()) as Record<string, unknown> };
   }
 
   const rows = async <R extends object>(sql: string, params: unknown[] = [], tenant = TENANT_A): Promise<R[]> => harness.owner<R>(tenant, [[sql, params]]);
@@ -87,11 +87,11 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
     harness.tenants.withTenant({ tenantId: TENANT_A, membershipId: memberId(member), scopeVersion: 1 }, (tx) => tx.query(sql, params));
   const events = (type: string, aggregateId?: string) =>
     rows<{
-      payload: Record<string, any>;
+      payload: Record<string, unknown>;
       aggregate_id: string;
     }>('select payload, aggregate_id from machvon.outbox_event where type = $1 and ($2::uuid is null or aggregate_id = $2::uuid) order by created_at', [type, aggregateId ?? null]);
   const audits = (action: string) =>
-    rows<{ resource_id: string; safe_diff: Record<string, any> }>('select resource_id, safe_diff from machvon.audit_event where action = $1 order by occurred_at', [action]);
+    rows<{ resource_id: string; safe_diff: Record<string, unknown> }>('select resource_id, safe_diff from machvon.audit_event where action = $1 order by occurred_at', [action]);
 
   const rubricBody = (code: string, over: Record<string, unknown> = {}) => ({
     rubric_code: code,
@@ -109,7 +109,7 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
       body: { period_code: period, rubric_version_id: rubricId, scope_kind: 'TENANT', assessor_user_id: memberId(ASSESSOR), reviewer_id: memberId(REVIEWER), ...over },
     });
   const evidenceOf = async (assessmentId: string): Promise<Array<{ id: string; pillar_code: string; criterion_code: string; version: number; assessment_state: string; review_status: string }>> =>
-    (await call('GET', `/resources/maturity_evidence?assessment_id=${assessmentId}&limit=200`, { member: READER })).json.items;
+    (await call('GET', `/resources/maturity_evidence?assessment_id=${assessmentId}&limit=200`, { member: READER })).json.items as Array<{ id: string; pillar_code: string; criterion_code: string; version: number; assessment_state: string; review_status: string }>;
   const record = (member: number, assessmentId: string, row: { version: number }, body: Record<string, unknown>): Promise<Reply> =>
     call('POST', `/dgv/maturity-assessments/${assessmentId}/evidence`, { member, body, ifMatch: `"${row.version}"` });
   const review = (member: number, evidenceId: string, version: number, decision = 'ACCEPTED', note = 'Read the evidence and agreed.'): Promise<Reply> =>
@@ -136,9 +136,9 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
   async function publishedRubric(code = `RB-${(sequence += 1)}`): Promise<string> {
     const drafted = await draftRubric(MANAGER, code);
     expect(drafted.status).toBe(200);
-    const published = await publishRubric(PUBLISHER, drafted.json.resource_id);
+    const published = await publishRubric(PUBLISHER, asString(drafted.json.resource_id));
     expect([published.status, published.json.status]).toEqual([200, 'PUBLISHED']);
-    return drafted.json.resource_id;
+    return asString(drafted.json.resource_id);
   }
 
   /** Records a criterion by the assessor and has it accepted by the reviewer. */
@@ -152,7 +152,7 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
       ...(expiresOn === undefined ? {} : { evidence_expires_on: expiresOn }),
     });
     expect(recorded.status).toBe(200);
-    expect((await review(REVIEWER, row.id, recorded.json.resource_version)).status).toBe(200);
+    expect((await review(REVIEWER, row.id, asNumber(recorded.json.resource_version))).status).toBe(200);
   }
 
   async function markNotApplicable(assessmentId: string, row: { id: string; version: number; pillar_code: string; criterion_code: string }): Promise<void> {
@@ -164,7 +164,7 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
       evidence_refs: [],
     });
     expect(recorded.status).toBe(200);
-    expect((await review(REVIEWER, row.id, recorded.json.resource_version)).status).toBe(200);
+    expect((await review(REVIEWER, row.id, asNumber(recorded.json.resource_version))).status).toBe(200);
   }
 
   beforeAll(async () => {
@@ -220,13 +220,13 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
       const first = await draftRubric(MANAGER, 'RB-W');
       expect([first.status, first.json.status, first.json.resource_version]).toEqual([200, 'DRAFT', 1]);
       // Not by the person who drafted it, whatever else they may do.
-      expect(await publishRubric(DUAL, (await draftRubric(DUAL, 'RB-W-DUAL')).json.resource_id)).toMatchObject({ status: 403, json: { code: 'SELF_APPROVAL_DENIED' } });
-      expect((await publishRubric(PUBLISHER, first.json.resource_id, 7)).json.code).toBe('VERSION_CONFLICT');
-      const published = await publishRubric(PUBLISHER, first.json.resource_id);
+      expect(await publishRubric(DUAL, asString((await draftRubric(DUAL, 'RB-W-DUAL')).json.resource_id))).toMatchObject({ status: 403, json: { code: 'SELF_APPROVAL_DENIED' } });
+      expect((await publishRubric(PUBLISHER, asString(first.json.resource_id), 7)).json.code).toBe('VERSION_CONFLICT');
+      const published = await publishRubric(PUBLISHER, asString(first.json.resource_id));
       expect([published.status, published.json.status, published.json.resource_version]).toEqual([200, 'PUBLISHED', 2]);
-      expect((await publishRubric(PUBLISHER, first.json.resource_id, 2)).json.code).toBe('STAGE_TRANSITION_DENIED');
+      expect((await publishRubric(PUBLISHER, asString(first.json.resource_id), 2)).json.code).toBe('STAGE_TRANSITION_DENIED');
       const stored = await call('GET', `/dgv/maturity-rubrics?rubric_code=RB-W`, { member: READER });
-      const revision1 = stored.json.items.find((item: { id: string }) => item.id === first.json.resource_id);
+      const revision1 = asObject(asObjects(stored.json.items).find((item) => item.id === first.json.resource_id));
       expect(revision1).toMatchObject({
         rubric_code: 'RB-W',
         revision: 1,
@@ -235,24 +235,24 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
         evidence_ttl_days: 365,
         framework_refs: { DCAM: ['1.1', '2.3'], DMM: ['DM-4'] },
       });
-      expect(revision1.pillars).toHaveLength(8);
-      expect(revision1.pillars[0]).toMatchObject({
+      expect(asList(revision1.pillars)).toHaveLength(8);
+      expect(asObjects(revision1.pillars)[0]).toMatchObject({
         code: 'GOVERNANCE',
         weight: '12.50',
         criteria: [{ code: 'GOV-1', weight: '10.00', levels: { 1: 'ad hoc', 5: 'optimised' } }, expect.anything(), expect.anything()],
       });
-      expect(revision1.approved_by.membership_id).toBe(memberId(PUBLISHER));
+      expect(asObject(revision1.approved_by).membership_id).toBe(memberId(PUBLISHER));
       // The next revision of the rubric supersedes it once it is published.
       const second = await draftRubric(MANAGER, 'RB-W', { min_coverage_pct: '80.5' });
       expect(second.json.resource_id).not.toBe(first.json.resource_id);
-      expect((await publishRubric(PUBLISHER, second.json.resource_id)).status).toBe(200);
+      expect((await publishRubric(PUBLISHER, asString(second.json.resource_id))).status).toBe(200);
       const both = (await call('GET', '/dgv/maturity-rubrics?rubric_code=RB-W', { member: READER })).json.items as Array<{ revision: number; status: string; min_coverage_pct: string }>;
       expect(both.map((item) => [item.revision, item.status, item.min_coverage_pct])).toEqual([
         [2, 'PUBLISHED', '80.50'],
         [1, 'SUPERSEDED', '70.00'],
       ]);
-      expect((await events('dgv.rubric.drafted.v1', first.json.resource_id))[0]?.payload).toMatchObject({ rubric_code: 'RB-W', revision: 1 });
-      expect((await events('dgv.rubric.published.v1', second.json.resource_id))[0]?.payload).toMatchObject({ revision: 2, superseded_id: first.json.resource_id });
+      expect((await events('dgv.rubric.drafted.v1', asString(first.json.resource_id)))[0]?.payload).toMatchObject({ rubric_code: 'RB-W', revision: 1 });
+      expect((await events('dgv.rubric.published.v1', asString(second.json.resource_id)))[0]?.payload).toMatchObject({ revision: 2, superseded_id: first.json.resource_id });
       expect((await audits('dgv.maturity_rubric_published')).some((entry) => entry.resource_id === second.json.resource_id && entry.safe_diff.superseded_id === first.json.resource_id)).toBe(true);
     });
 
@@ -277,8 +277,8 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
       expect((await draftRubric(READER, 'RB-NO')).status).toBe(403);
       expect((await draftRubric(UNIT_MANAGER, 'RB-NO')).status).toBe(403);
       const drafted = await draftRubric(MANAGER, 'RB-WHO');
-      expect((await publishRubric(MANAGER, drafted.json.resource_id)).status).toBe(403);
-      expect((await publishRubric(UNIT_MANAGER, drafted.json.resource_id)).status).toBe(403);
+      expect((await publishRubric(MANAGER, asString(drafted.json.resource_id))).status).toBe(403);
+      expect((await publishRubric(UNIT_MANAGER, asString(drafted.json.resource_id))).status).toBe(403);
       expect((await call('GET', '/dgv/maturity-rubrics', { member: NOBODY })).status).toBe(403);
       expect((await call('GET', '/dgv/maturity-rubrics', { member: UNIT_MANAGER })).status).toBe(403);
     });
@@ -327,12 +327,12 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
     it('lists the rubrics newest first, by code and by state, a page at a time', async () => {
       const code = `RB-PAGE-${(sequence += 1)}`;
       const ids: string[] = [];
-      for (let n = 0; n < 3; n += 1) ids.push((await draftRubric(MANAGER, code)).json.resource_id);
+      for (let n = 0; n < 3; n += 1) ids.push(asString((await draftRubric(MANAGER, code)).json.resource_id));
       const seen: string[] = [];
       let cursor = '';
       for (let page = 0; page < 5; page += 1) {
         const reply = await call('GET', `/dgv/maturity-rubrics?rubric_code=${code}&limit=1${cursor}`, { member: READER });
-        seen.push(...reply.json.items.map((item: { id: string }) => item.id));
+        seen.push(...asObjects(reply.json.items).map((item) => asString(item.id)));
         if (reply.json.next_cursor === null) break;
         cursor = `&cursor=${reply.json.next_cursor as string}`;
       }
@@ -345,12 +345,12 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
   describe('the assessment (UAT-AC53, UAT-AC492)', () => {
     it('starts with every criterion NOT_ASSESSED, for a rubric that is published, with an assessor and a reviewer who are two people', async () => {
       const draftOnly = (await draftRubric(MANAGER, `RB-DRAFT-${(sequence += 1)}`)).json.resource_id;
-      expect(await startAssessment(MANAGER, draftOnly, '2026-H2')).toMatchObject({ status: 422, json: { code: 'RUBRIC_NOT_PUBLISHED' } });
+      expect(await startAssessment(MANAGER, asString(draftOnly), '2026-H2')).toMatchObject({ status: 422, json: { code: 'RUBRIC_NOT_PUBLISHED' } });
       const rubric = await publishedRubric();
       expect(await startAssessment(MANAGER, rubric, '2026-H2', { reviewer_id: memberId(ASSESSOR) })).toMatchObject({ status: 422, json: { code: 'ASSESSOR_IS_REVIEWER' } });
       const made = await startAssessment(MANAGER, rubric, '2026-H2');
       expect([made.status, made.json.status, made.json.resource_version]).toEqual([200, 'DRAFT', 1]);
-      const assessment = await assessmentOf(made.json.resource_id);
+      const assessment = await assessmentOf(asString(made.json.resource_id));
       expect(assessment).toMatchObject({
         period_code: '2026-H2',
         scope_kind: 'TENANT',
@@ -363,10 +363,10 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
         reviewer: { membership_id: memberId(REVIEWER) },
         rubric_version_id: rubric,
       });
-      const items = await evidenceOf(made.json.resource_id);
+      const items = await evidenceOf(asString(made.json.resource_id));
       expect(items).toHaveLength(24);
       expect(items.every((item) => item.assessment_state === 'NOT_ASSESSED' && item.review_status === 'PENDING')).toBe(true);
-      expect((await events('dgv.assessment.created.v1', made.json.resource_id))[0]?.payload).toMatchObject({ period_code: '2026-H2', scope_kind: 'TENANT' });
+      expect((await events('dgv.assessment.created.v1', asString(made.json.resource_id)))[0]?.payload).toMatchObject({ period_code: '2026-H2', scope_kind: 'TENANT' });
       // One assessment for a rubric version, a scope and a period.
       expect(await startAssessment(MANAGER, rubric, '2026-H2')).toMatchObject({ status: 409, json: { code: 'DUPLICATE_KEY', detail: 'period_code' } });
     });
@@ -442,7 +442,7 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
         true,
       );
       // Recording again starts the review over; the assessor may say a criterion is NOT_ASSESSED again.
-      const again = await record(ASSESSOR, made, { version: done.json.resource_version }, { pillar_code: 'GOVERNANCE', criterion_code: 'GOV-1', assessment_state: 'NOT_ASSESSED', evidence_refs: [] });
+      const again = await record(ASSESSOR, made, { version: asNumber(done.json.resource_version) }, { pillar_code: 'GOVERNANCE', criterion_code: 'GOV-1', assessment_state: 'NOT_ASSESSED', evidence_refs: [] });
       expect([again.status, again.json.status]).toEqual([200, 'NOT_ASSESSED']);
     });
 
@@ -479,9 +479,9 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
       const row = (await evidenceOf(made)).find((item) => item.criterion_code === 'QUAL-2') as { id: string; version: number; pillar_code: string };
       const recorded = await record(DUAL, made, row, { pillar_code: 'QUALITY', criterion_code: 'QUAL-2', assessment_state: 'ASSESSED', level: 4, evidence_refs: TEST_EVIDENCE });
       expect(recorded.status).toBe(200);
-      expect(await review(DUAL, row.id, recorded.json.resource_version)).toMatchObject({ status: 403, json: { code: 'SELF_APPROVAL_DENIED' } });
-      expect((await review(REVIEWER, row.id, recorded.json.resource_version)).status).toBe(200);
-      expect(await decide(DUAL, made, (await assessmentOf(made)).version)).toMatchObject({ status: 403, json: { code: 'SELF_APPROVAL_DENIED' } });
+      expect(await review(DUAL, row.id, asNumber(recorded.json.resource_version))).toMatchObject({ status: 403, json: { code: 'SELF_APPROVAL_DENIED' } });
+      expect((await review(REVIEWER, row.id, asNumber(recorded.json.resource_version))).status).toBe(200);
+      expect(await decide(DUAL, made, asNumber((await assessmentOf(made)).version))).toMatchObject({ status: 403, json: { code: 'SELF_APPROVAL_DENIED' } });
       expect((await assessmentOf(made)).status).toBe('IN_REVIEW');
       await expect(asApp(MANAGER, 'update machvon.maturity_evidence set reviewer_user_id = assessed_by where id = $1', [row.id])).rejects.toMatchObject({ code: '23514' });
     });
@@ -504,10 +504,10 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
         expect(JSON.stringify(redacted)).not.toContain('run-2026-10-30');
       }
       // The list is redacted the same way, and so is the reason a criterion does not apply.
-      const listed = async (member: number) => (await call('GET', `/resources/maturity_evidence?assessment_id=${made}&limit=200`, { member })).json.items as Array<Record<string, any>>;
-      const open = (await listed(READER)).find((item) => item.id === na.id) as Record<string, any>;
+      const listed = async (member: number) => (await call('GET', `/resources/maturity_evidence?assessment_id=${made}&limit=200`, { member })).json.items as Array<Record<string, unknown>>;
+      const open = (await listed(READER)).find((item) => item.id === na.id) as Record<string, unknown>;
       expect(open).toMatchObject({ na_reason: null, evidence_redacted: true });
-      expect((await listed(READER)).every((item) => item.evidence_refs.length === 0 && item.review_note === null && item.na_reason === null)).toBe(true);
+      expect((await listed(READER)).every((item) => asList(item.evidence_refs).length === 0 && item.review_note === null && item.na_reason === null)).toBe(true);
       expect((await listed(AUDITOR)).find((item) => item.id === na.id)).toMatchObject({ na_reason: 'The platform keeps no such data for this scope.', evidence_redacted: false });
       expect((await listed(REVIEWER)).find((item) => item.id === row.id)?.evidence_refs).toEqual(TEST_EVIDENCE);
     });
@@ -517,10 +517,10 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
       const made = (await startAssessment(MANAGER, rubric, '2026-A4')).json.resource_id as string;
       const row = (await evidenceOf(made)).find((item) => item.criterion_code === 'SEC-1') as { id: string; version: number; pillar_code: string };
       const recorded = await record(ASSESSOR, made, row, { pillar_code: 'SECURITY', criterion_code: 'SEC-1', assessment_state: 'ASSESSED', level: 5, evidence_refs: TEST_EVIDENCE });
-      const rejected = await review(REVIEWER, row.id, recorded.json.resource_version, 'REJECTED', 'The run does not show what is claimed.');
+      const rejected = await review(REVIEWER, row.id, asNumber(recorded.json.resource_version), 'REJECTED', 'The run does not show what is claimed.');
       expect([rejected.status, rejected.json.status]).toEqual([200, 'REJECTED']);
       expect((await call('GET', `/resources/maturity_evidence/${row.id}`, { member: READER })).json).toMatchObject({ assessment_state: 'NOT_ASSESSED', level: null, review_status: 'REJECTED' });
-      expect((await score(made)).json.criteria.find((criterion: { criterion_code: string }) => criterion.criterion_code === 'SEC-1')).toMatchObject({ state: 'NOT_ASSESSED', level: null });
+      expect(asObjects((await score(made)).json.criteria).find((criterion) => criterion.criterion_code === 'SEC-1')).toMatchObject({ state: 'NOT_ASSESSED', level: null });
     });
 
     it('scores 14 of 22 criteria as no total, and 17 of 22 as a total over the criteria that are assessed (UAT-AC53)', async () => {
@@ -546,19 +546,19 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
       });
       expect('overall_level' in before.json).toBe(false);
       // The pillars with nothing assessed are NOT_ASSESSED, not a 0 and not a 1.
-      const empty = before.json.pillars.filter((pillar: { state: string }) => pillar.state === 'NOT_ASSESSED');
+      const empty = asObjects(before.json.pillars).filter((pillar) => pillar.state === 'NOT_ASSESSED');
       expect(empty.length).toBeGreaterThan(0);
-      expect(empty.every((pillar: { level: unknown; assessed_count: number }) => pillar.level === null && pillar.assessed_count === 0)).toBe(true);
+      expect(empty.every((pillar) => pillar.level === null && pillar.assessed_count === 0)).toBe(true);
       // Three more are accepted.
       for (let index = 14; index < 17; index += 1) await assess(made, row(index), levelOf(index));
       const after = await score(made);
       expect(after.json).toMatchObject({ coverage_percent: '77.27', overall_state: 'COMPUTED', assessed_count: 17, not_assessed_count: 5, not_applicable_count: 2 });
       // The total is the average of the pillars over their assessed criteria: pillar weights are equal, so it is the mean of the pillar levels.
-      const levels = after.json.pillars.filter((pillar: { level: string | null }) => pillar.level !== null).map((pillar: { level: string }) => Number(pillar.level));
+      const levels = asObjects(after.json.pillars).filter((pillar) => pillar.level !== null).map((pillar) => Number(pillar.level));
       const mean = levels.reduce((sum: number, level: number) => sum + level, 0) / levels.length;
       expect(Math.abs(Number(after.json.overall_level) - mean)).toBeLessThan(0.006);
       expect(after.json.criteria).toHaveLength(24);
-      expect(after.json.criteria.filter((criterion: { state: string }) => criterion.state === 'ASSESSED')).toHaveLength(17);
+      expect(asObjects(after.json.criteria).filter((criterion) => criterion.state === 'ASSESSED')).toHaveLength(17);
     });
 
     it('is published by somebody other than its assessor with the score it has, and then never changes (UAT-AC492)', async () => {
@@ -594,7 +594,7 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
       expect((await record(ASSESSOR, made, second, { pillar_code: second.pillar_code, criterion_code: second.criterion_code, assessment_state: 'NOT_ASSESSED', evidence_refs: [] })).json.code).toBe(
         'STAGE_TRANSITION_DENIED',
       );
-      expect((await decide(PUBLISHER, made, done.json.resource_version)).json.code).toBe('STAGE_TRANSITION_DENIED');
+      expect((await decide(PUBLISHER, made, asNumber(done.json.resource_version))).json.code).toBe('STAGE_TRANSITION_DENIED');
       await expect(asApp(MANAGER, 'update machvon.maturity_assessment set overall_level = 5 where id = $1', [made])).rejects.toMatchObject({ code: '42501' });
       await expect(asApp(MANAGER, 'update machvon.maturity_evidence set level = 5 where id = $1', [first.id])).rejects.toMatchObject({ code: '42501' });
       await expect(asApp(MANAGER, 'delete from machvon.maturity_evidence where id = $1', [first.id])).rejects.toMatchObject({ code: '42501' });
@@ -605,7 +605,7 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
       await rows('update machvon.maturity_evidence set evidence_expires_on = current_date - 2 where id = $1', [first.id]);
       const later = await score(made);
       expect(later.json).toMatchObject({ status: 'PUBLISHED', assessed_count: 1, coverage_percent: '4.17' });
-      expect(later.json.criteria.find((criterion: { criterion_code: string }) => criterion.criterion_code === first.criterion_code)).toMatchObject({ state: 'ASSESSED', level: 4 });
+      expect(asObjects(later.json.criteria).find((criterion) => criterion.criterion_code === first.criterion_code)).toMatchObject({ state: 'ASSESSED', level: 4 });
     });
 
     it('refuses a decision made on the score as it was once the evidence under it has changed, so that nobody publishes a score they did not read', async () => {
@@ -627,10 +627,10 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
       expect(await decide(PUBLISHER, made, read)).toMatchObject({ status: 409, json: { code: 'VERSION_CONFLICT' } });
       // ... and a review changes what the score stands on as well.
       const afterRecord = (await assessmentOf(made)).version as number;
-      expect((await review(REVIEWER, second.id, recorded.json.resource_version)).status).toBe(200);
+      expect((await review(REVIEWER, second.id, asNumber(recorded.json.resource_version))).status).toBe(200);
       expect((await assessmentOf(made)).version).toBeGreaterThan(afterRecord);
       expect((await decide(PUBLISHER, made, afterRecord)).json.code).toBe('VERSION_CONFLICT');
-      expect((await decide(PUBLISHER, made, (await assessmentOf(made)).version)).status).toBe(200);
+      expect((await decide(PUBLISHER, made, asNumber((await assessmentOf(made)).version))).status).toBe(200);
     });
 
     it('is returned to the assessor or rejected, by somebody other than the assessor', async () => {
@@ -645,7 +645,7 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
       // Recorded again, it is in review again; the reviewer rejects the whole assessment.
       const row = (await evidenceOf(made))[1] as { id: string; version: number; pillar_code: string; criterion_code: string };
       await assess(made, row, 2);
-      const rejected = await decide(PUBLISHER, made, (await assessmentOf(made)).version, 'reject');
+      const rejected = await decide(PUBLISHER, made, asNumber((await assessmentOf(made)).version), 'reject');
       expect([rejected.status, rejected.json.status]).toEqual([200, 'REJECTED']);
       expect((await events('dgv.assessment.published.v1', made)).length).toBe(0);
       // A rejected assessment frees its period for another.
@@ -655,13 +655,13 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
     it('lists the assessments and their evidence by state and by assessment, a page at a time, to those who may read', async () => {
       const rubric = await publishedRubric();
       const made = (await startAssessment(MANAGER, rubric, `LIST-${(sequence += 1)}`)).json.resource_id as string;
-      expect((await call('GET', `/resources/maturity_assessment?rubric_version_id=${rubric}&status=DRAFT`, { member: READER })).json.items.map((item: { id: string }) => item.id)).toEqual([made]);
+      expect(asObjects((await call('GET', `/resources/maturity_assessment?rubric_version_id=${rubric}&status=DRAFT`, { member: READER })).json.items).map((item) => item.id)).toEqual([made]);
       expect((await call('GET', `/resources/maturity_assessment?rubric_version_id=${rubric}&status=PUBLISHED`, { member: READER })).json.items).toEqual([]);
       const seen: string[] = [];
       let cursor = '';
       for (let page = 0; page < 30; page += 1) {
         const reply = await call('GET', `/resources/maturity_evidence?assessment_id=${made}&limit=5${cursor}`, { member: READER });
-        seen.push(...reply.json.items.map((item: { id: string }) => item.id));
+        seen.push(...asObjects(reply.json.items).map((item) => asString(item.id)));
         if (reply.json.next_cursor === null) break;
         cursor = `&cursor=${reply.json.next_cursor as string}`;
       }
@@ -719,7 +719,7 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
       const published = (await startAssessment(MANAGER, rubric, '2026-E2')).json.resource_id as string;
       const row = (await evidenceOf(published))[0] as { id: string; version: number; pillar_code: string; criterion_code: string };
       await assess(published, row, 5);
-      expect((await decide(PUBLISHER, published, (await assessmentOf(published)).version)).status).toBe(200);
+      expect((await decide(PUBLISHER, published, asNumber((await assessmentOf(published)).version))).status).toBe(200);
       await rows("update machvon.maturity_evidence set evidence_expires_on = date '2020-01-01' where id = $1", [row.id]);
       await run();
       expect((await evidenceOf(published)).find((item) => item.id === row.id)).toMatchObject({ assessment_state: 'ASSESSED', review_status: 'ACCEPTED' });
@@ -834,7 +834,7 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
   });
 
   describe('the roadmap (UAT-AC494)', () => {
-    const milestones = async (rubric: string) => (await call('GET', `/dgv/maturity-milestones?rubric_version_id=${rubric}`, { member: READER })).json.items as Array<Record<string, any>>;
+    const milestones = async (rubric: string) => (await call('GET', `/dgv/maturity-milestones?rubric_version_id=${rubric}`, { member: READER })).json.items as Array<Record<string, unknown>>;
 
     it('plans a milestone of a pillar of a published rubric, with a level to reach, an owner and the evidence it needs', async () => {
       const rubric = await publishedRubric();
@@ -851,12 +851,12 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
         evidence_required: ['a published scorecard'],
         achieved_assessment_id: null,
       });
-      expect((await events('dgv.milestone.created.v1', made.json.resource_id))[0]?.payload).toMatchObject({ pillar_code: 'QUALITY', target_level: 3 });
+      expect((await events('dgv.milestone.created.v1', asString(made.json.resource_id)))[0]?.payload).toMatchObject({ pillar_code: 'QUALITY', target_level: 3 });
       expect((await milestone(READER, rubric)).status).toBe(403);
       expect((await milestone(UNIT_MANAGER, rubric)).status).toBe(403);
       expect((await call('GET', '/dgv/maturity-milestones', { member: NOBODY })).status).toBe(403);
       const draftOnly = (await draftRubric(MANAGER, `RB-MS-${(sequence += 1)}`)).json.resource_id;
-      expect((await milestone(MANAGER, draftOnly)).json.code).toBe('RUBRIC_NOT_PUBLISHED');
+      expect((await milestone(MANAGER, asString(draftOnly))).json.code).toBe('RUBRIC_NOT_PUBLISHED');
     });
 
     it.each([
@@ -889,15 +889,15 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
       const domain = (await startAssessment(MANAGER, rubric, '2026-D1', { scope_kind: 'DOMAIN', scope_ref: 'TREASURY' })).json.resource_id as string;
       const domainRows = await evidenceOf(domain);
       for (const row of domainRows.filter((item) => item.pillar_code === 'QUALITY')) await assess(domain, row as never, 5);
-      expect((await decide(PUBLISHER, domain, (await assessmentOf(domain)).version)).json.achieved_milestone_ids).toEqual([]);
+      expect((await decide(PUBLISHER, domain, asNumber((await assessmentOf(domain)).version))).json.achieved_milestone_ids).toEqual([]);
       expect((await milestones(rubric)).every((item) => item.status === 'PLANNED')).toBe(true);
       // The assessment of the tenant reaches 3.00 in QUALITY (levels 3, 3, 3) and 2.00 in SECURITY (2, 2, 2).
       const tenant = (await startAssessment(MANAGER, rubric, '2026-T1')).json.resource_id as string;
       const tenantRows = await evidenceOf(tenant);
       for (const row of tenantRows.filter((item) => item.pillar_code === 'QUALITY')) await assess(tenant, row as never, 3);
       for (const row of tenantRows.filter((item) => item.pillar_code === 'SECURITY')) await assess(tenant, row as never, 2);
-      const published = await decide(PUBLISHER, tenant, (await assessmentOf(tenant)).version);
-      expect(published.json.achieved_milestone_ids.sort()).toEqual([reached, other].sort());
+      const published = await decide(PUBLISHER, tenant, asNumber((await assessmentOf(tenant)).version));
+      expect(asList(published.json.achieved_milestone_ids).sort()).toEqual([reached, other].sort());
       const after = await milestones(rubric);
       expect(after.find((item) => item.id === reached)).toMatchObject({ status: 'ACHIEVED', achieved_assessment_id: tenant });
       expect(after.find((item) => item.id === other)).toMatchObject({ status: 'ACHIEVED', achieved_assessment_id: tenant });
@@ -935,7 +935,7 @@ describe('the maturity of data governance: rubric, assessment, evidence, score, 
       await rows("update machvon.maturity_milestone set due_on = (now() at time zone 'Asia/Ho_Chi_Minh')::date where id = $1", [today]);
       const made = (await startAssessment(MANAGER, rubric, `LATE-${sequence}`)).json.resource_id as string;
       for (const row of (await evidenceOf(made)).filter((item) => item.pillar_code === 'QUALITY')) await assess(made, row as never, 4);
-      const published = await decide(PUBLISHER, made, (await assessmentOf(made)).version);
+      const published = await decide(PUBLISHER, made, asNumber((await assessmentOf(made)).version));
       // The milestone due today is proved on its last day; the one past its day is not, and stays for the job to mark.
       expect(published.json.achieved_milestone_ids).toEqual([today]);
       const after = await milestones(rubric);

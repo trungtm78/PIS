@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, assertFourEyes, versionConflict } from '@machvon/kernel';
+import { DomainError, assertFourEyes, versionConflict, hasControlChar } from '@machvon/kernel';
 import { validateTemplateContent, templateContentSha256 } from './document-template-content.ts';
 import type { TemplateContent } from './document-template-content.ts';
 import { DocumentStore } from './document-store.ts';
@@ -267,8 +267,7 @@ function assertDate(value: string, field: string): void {
 /** A text as it is stored: trimmed, within its length, without control characters. */
 function textOf(value: string, field: string, min: number, max: number): string {
   const text = value.trim();
-  // eslint-disable-next-line no-control-regex
-  if (text.length < min || text.length > max || /[\u0000-\u001f\u007f]/.test(text)) throw invalid(field);
+  if (text.length < min || text.length > max || hasControlChar(text)) throw invalid(field);
   return text;
 }
 

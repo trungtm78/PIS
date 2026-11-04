@@ -70,7 +70,32 @@ export interface BiScheduleInput {
 }
 
 interface Sql {
-  [column: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  [column: string]: unknown;
+  id: string;
+  requested_by: string;
+  subject_user_id: string;
+  subject_name: string | null;
+  schedule_id: string | null;
+  query_spec: Record<string, unknown>;
+  as_of_period: string;
+  dataset_version_id: string;
+  scope_description: string;
+  format: "CSV" | "XLSX" | "PDF" | "LINK_ONLY";
+  row_count: number | null;
+  row_cap: number;
+  truncated: boolean;
+  file_object_key: string | null;
+  status: BiExportStatus | BiScheduleStatus;
+  denied_reason: string | null;
+  dashboard_id: string | null;
+  cron: string;
+  timezone: string;
+  recipients: string[];
+  owner_user_id: string;
+  owner_name: string | null;
+  sort_key: string;
+  scope_hash: string;
+  file_sha256: string | null;
 }
 
 const iso = (value: unknown): string => new Date(value as string).toISOString();
@@ -93,13 +118,13 @@ const toJob = (row: Sql): BiExportJobRow => ({
   datasetVersionId: row.dataset_version_id,
   scopeHash: row.scope_hash.trim(),
   scopeDescription: row.scope_description,
-  format: row.format,
+  format: row.format as "CSV" | "XLSX" | "PDF",
   rowCount: row.row_count,
   rowCap: row.row_cap,
   truncated: row.truncated,
   fileObjectKey: row.file_object_key,
   fileSha256: row.file_sha256 === null ? null : row.file_sha256.trim(),
-  status: row.status,
+  status: row.status as BiExportStatus,
   deniedReason: row.denied_reason,
   expiresAt: isoOrNull(row.expires_at),
   createdAt: iso(row.created_at),
@@ -119,7 +144,7 @@ const toSchedule = (row: Sql): BiScheduleRow => ({
   timezone: row.timezone,
   format: row.format,
   recipients: row.recipients,
-  status: row.status,
+  status: row.status as BiScheduleStatus,
   ownerUserId: row.owner_user_id,
   ownerName: row.owner_name,
   lastRunAt: isoOrNull(row.last_run_at),

@@ -1,6 +1,6 @@
 /// Where a draft stands. A draft is the person's work on a record, kept on the device with a UUID; the commands made
 /// from it go to the queue, and whatever the server answers, the draft is never overwritten or deleted by an answer
-/// that is not an acceptance (MOB.md 3: "nháp là bản ghi cục bộ có UUID").
+/// that is not an acceptance (MOB.md 3: a draft is a local record with a UUID).
 enum DraftStatus {
   /// Being edited, or saved and not sent yet.
   editing,

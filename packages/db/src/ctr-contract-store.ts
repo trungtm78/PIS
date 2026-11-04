@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { ADVANCE_CATEGORIES, CONTRACT_STATUSES, DomainError, assertContractTransition, activeGrants, addDecimal, compareDecimal, permissionMatches, versionConflict } from '@machvon/kernel';
+import { ADVANCE_CATEGORIES, CONTRACT_STATUSES, DomainError, assertContractTransition, activeGrants, addDecimal, compareDecimal, permissionMatches, versionConflict, hasControlChar } from '@machvon/kernel';
 import type { AdvanceCategory, ContractStatus, EffectiveAccess } from '@machvon/kernel';
 import { BidContractorStore } from './bid-contractor-store.ts';
 import { CtrContractSource } from './ctr-contract-source.ts';
@@ -414,8 +414,7 @@ const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAIL
 /** A code or a title as it is stored: trimmed, within its length, without control characters. */
 export function textOf(value: string, field: string, max: number): string {
   const text = value.trim();
-  // eslint-disable-next-line no-control-regex
-  if (text.length < 1 || text.length > max || /[\u0000-\u001f\u007f]/.test(text)) throw invalid(field);
+  if (text.length < 1 || text.length > max || hasControlChar(text)) throw invalid(field);
   return text;
 }
 

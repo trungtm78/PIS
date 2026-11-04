@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, assertFourEyes, isIsoDate, parseReportSchema, versionConflict } from '@machvon/kernel';
+import { DomainError, assertFourEyes, isIsoDate, parseReportSchema, versionConflict, hasControlChar } from '@machvon/kernel';
 import { DocumentStore } from './document-store.ts';
 import { MneRevisionTable } from './mne-revision-table.ts';
 import type { ClosedRevision } from './mne-revision-table.ts';
@@ -150,8 +150,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> => typeof va
 /** A text as it is stored: trimmed, within its length, without control characters. */
 function textOf(value: string, field: string, min: number, max: number): string {
   const text = value.trim();
-  // eslint-disable-next-line no-control-regex
-  if (text.length < min || text.length > max || /[\u0000-\u001f\u007f]/.test(text)) throw invalid(field);
+  if (text.length < min || text.length > max || hasControlChar(text)) throw invalid(field);
   return text;
 }
 

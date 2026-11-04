@@ -3,6 +3,7 @@ import { harness as baseHarness } from '../sas/test-support';
 import type { Harness } from '../sas/test-support';
 
 export { mount, routeOf } from './test-support';
+import fixtureText from './fixture-text.vi.json';
 export type { Harness };
 
 const uuid = (n: number): string => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
@@ -11,15 +12,15 @@ export const DOCUMENT = uuid(900);
 export const card = (n: number, overrides: Record<string, unknown> = {}) => ({
   id: uuid(100 + n),
   code: `DA-2026-${String(n).padStart(3, '0')}`,
-  name: `Dự án số ${n}`,
+  name: `${fixtureText['project.numbered']} ${n}`,
   status: 'PIPELINE',
   project_group: 'B',
   appraisal_score: '72.50',
   total_investment_vnd: '500000000000',
   national_project_code: '7654321',
   capital_ready: true,
-  owner_unit_name: 'Sở Giao thông',
-  investor_unit_name: 'Ban QLDA tỉnh',
+  owner_unit_name: fixtureText['unit.transport.name'],
+  investor_unit_name: fixtureText['unit.provincialPmb.name'],
   leader_in_charge: null,
   status_changed_at: '2026-10-24T01:00:00.000Z',
   version: 1,

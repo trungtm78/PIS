@@ -1,5 +1,6 @@
 import { DomainError } from './errors.ts';
 import { asUuid } from './tenant-context.ts';
+import { hasControlChar } from './control-chars.ts';
 
 /**
  * Data quality rules (ST-DGV-002, DGV 3.3 F3): the declarative, allowlisted expression a steward may write, the threshold it is judged by, and
@@ -57,8 +58,6 @@ const MAX_TEXT_LITERAL = 200;
 const MAX_AGE_SECONDS = 31_536_000;
 const NUMERIC_LITERAL = /^-?\d{1,18}(\.\d{1,6})?$/;
 const FIELD_NAME = /^[a-z][a-z0-9_]{0,63}$/;
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u001f\u007f]/;
 
 /** The operators each dimension may use. A dimension with an empty list cannot be written as a rule yet (accuracy needs a confirmed source or an expert sample). */
 const LEAVES: Readonly<Record<QualityDimension, ReadonlySet<QualityExpr['op']>>> = {
@@ -111,7 +110,7 @@ function literalOf(type: FieldType, value: unknown): string {
     if (id === undefined) throw notAllowed();
     return id;
   }
-  if (typeof value !== 'string' || value === '' || value.length > MAX_TEXT_LITERAL || CONTROL.test(value)) throw notAllowed();
+  if (typeof value !== 'string' || value === '' || value.length > MAX_TEXT_LITERAL || hasControlChar(value)) throw notAllowed();
   return value;
 }
 

@@ -124,7 +124,7 @@ export class FieldCipher {
 
 const MASK = '*';
 
-/** The name with the first letter of each word and the rest hidden: `Nguyễn Văn An` is `N***** V** A*`. */
+/** The name with the first letter of each word and the rest hidden: `Nguyen Van An` is `N***** V** A*`. */
 export function maskName(name: string): string {
   return name
     .trim()

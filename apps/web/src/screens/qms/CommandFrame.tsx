@@ -4,7 +4,7 @@ import { NavigationDialog } from '../../shell/NavigationDialog';
 import './qms.css';
 
 /** The multiplication sign on the close button of a dialog. */
-const CLOSE_GLYPH = '×';
+const CLOSE_GLYPH = '\u00d7';
 
 export interface CommandFrameProps {
   title: string;

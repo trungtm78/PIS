@@ -2,7 +2,7 @@ import '../read_support/money.dart';
 import '../read_support/wire.dart';
 
 // Everything here is read from the server and shown. Money is a string of whole dong (never a number, never a float) and is shown
-// exactly, in dong, so that 2.100.000.000 is never "2,1 tỷ" on a screen that an accountant checks against a voucher. Times are the
+// exactly, in dong, so that 2.100.000.000 is never rounded to billions on a screen that an accountant checks against a voucher. Times are the
 // server's instants; the clock of the phone is used for nothing on these screens.
 
 const List<String> paymentStatuses = <String>['DRAFT', 'SUBMITTED', 'VERIFIED', 'SENT_TREASURY', 'SETTLED', 'RETURNED', 'CANCELLED', 'REVERSED'];

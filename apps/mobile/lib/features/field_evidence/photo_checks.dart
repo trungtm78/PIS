@@ -13,7 +13,7 @@ enum GpsSource {
   final String code;
 }
 
-/// What the reviewer will be told about a photograph, shown to the person before it is sent (QMS-10: "hiển thị cờ trước khi gửi").
+/// What the reviewer will be told about a photograph, shown to the person before it is sent (QMS-10: the flags are shown before sending).
 /// A flag is a note for review and never stops a photograph: a missing place or time is a warning only, because the person may have
 /// refused the position (BR-MOB-06) and the server does not call a photograph true or false.
 final class PhotoChecks {

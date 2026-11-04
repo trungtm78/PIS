@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { hasControlCharacter } from '../control-characters';
 
 /** AUD-02 and AUD-03: the audit and inspection engagements and the file of one of them (ST-AUD-001, AUD 3.1). */
 export const ENGAGEMENTS_PATH = '/aud/aud-02';
@@ -29,8 +30,6 @@ const CODE_MAX = 60;
 const AUTHORITY_MAX = 300;
 const TITLE_MAX = 500;
 const REASON_MIN = 10;
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u001f\u007f]/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -191,7 +190,7 @@ const wordsProblem = (value: string, max: number, min = 1): FormProblem | undefi
   if (words === '') return 'required';
   if (words.length < min) return 'tooShort';
   if (words.length > max) return 'tooLong';
-  return CONTROL.test(words) ? 'invalid' : undefined;
+  return hasControlCharacter(words) ? 'invalid' : undefined;
 };
 
 const dayProblem = (value: string): FormProblem | undefined => {

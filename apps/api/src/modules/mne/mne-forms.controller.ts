@@ -41,7 +41,7 @@ function pageAnchor(cursor: ReturnType<typeof parsePageRequest>['after']): { for
   return { formCode: cursor.code.slice(0, cut), revision: Number(revision) };
 }
 
-/** The forms belong to the tenant (MNE 2: "Quản trị mẫu biểu" and "Người duyệt mẫu biểu" act on the tenant): a grant on a subtree does not reach them. */
+/** The forms belong to the tenant (MNE 2: the form administrator and the form approver act on the tenant): a grant on a subtree does not reach them. */
 function assertWholeTenant(access: EffectiveAccess, permission: string): void {
   if (!holdsOnWholeTenant(access, permission)) throw new DomainError('SCOPE_DENIED', 403);
 }

@@ -8,7 +8,7 @@ import type { Proposal } from './model';
 import '../bid.css';
 
 /** The multiplication sign on the close button of a dialog. */
-const CLOSE_GLYPH = '×';
+const CLOSE_GLYPH = '\u00d7';
 
 export interface ProposalDetailDialogProps {
   proposal: Proposal;

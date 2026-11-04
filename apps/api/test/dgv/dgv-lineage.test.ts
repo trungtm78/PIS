@@ -12,6 +12,7 @@ import { AuthzHarness, TENANT_A, TENANT_B, contextFor, memberId, unitId } from '
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
 import type { RunningApp } from '../isolation/test-app';
+import { asObjects } from '../support/json';
 
 jest.setTimeout(180_000);
 
@@ -30,7 +31,7 @@ const U_OTHER = 3;
 
 interface Reply {
   status: number;
-  json: Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  json: Record<string, unknown>;
 }
 
 describe('the lineage graph with a check on each node (ST-DGV-006, DGV 3 F5, DGV-05)', () => {
@@ -54,7 +55,7 @@ describe('the lineage graph with a check on each node (ST-DGV-006, DGV 3 F5, DGV
     const headers: Record<string, string> = { [TENANT_HEADER]: signTenantContext({ tenantId, membershipId: memberId(member), scopeVersion: 1 }, SIGNING_KEY), 'content-type': 'application/json' };
     if (method !== 'GET') headers['idempotency-key'] = `key-${randomUUID()}`;
     const response = await fetch(`${app.baseUrl}${url}`, { method, headers, body: method === 'GET' ? undefined : JSON.stringify(body ?? {}) });
-    return { status: response.status, json: (await response.json()) as Record<string, any> }; // eslint-disable-line @typescript-eslint/no-explicit-any
+    return { status: response.status, json: (await response.json()) as Record<string, unknown> };
   };
   const rows = <R extends object>(sql: string, params: unknown[] = [], tenant = TENANT_A): Promise<R[]> => harness.owner<R>(tenant, [[sql, params]]);
   const batch = (member: number, edges: unknown[], overrides: Record<string, unknown> = {}, tenantId = TENANT_A): Promise<Reply> =>
@@ -271,7 +272,7 @@ describe('the lineage graph with a check on each node (ST-DGV-006, DGV 3 F5, DGV
     const full = await graph(LEAD, 'DASHBOARD_VERSION', dashboardVersionId, '&depth=6');
     expect(full.status).toBe(200);
     expect(full.json).toMatchObject({ start: expect.any(String), direction: 'upstream', depth: 6, truncated: false });
-    const nodes = full.json.nodes as Array<Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const nodes = full.json.nodes as Array<Record<string, unknown>>;
     expect(nodes.every((node) => node.restricted === false)).toBe(true);
     expect(nodes.map((node) => [node.level, node.node_kind])).toEqual([
       [0, 'DASHBOARD_VERSION'],
@@ -283,14 +284,14 @@ describe('the lineage graph with a check on each node (ST-DGV-006, DGV 3 F5, DGV
       [6, 'SOURCE_SYSTEM'],
     ]);
     expect(nodes.find((node) => node.node_kind === 'METRIC_VERSION')).toMatchObject({ display_name: 'Tỷ lệ giải ngân U-STC', ref_id: metricId, classification: 'INTERNAL' });
-    const edges = full.json.edges as Array<Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const edges = full.json.edges as Array<Record<string, unknown>>;
     expect(edges).toHaveLength(7);
     expect(edges.filter((edge) => edge.transform_version === 'dis-snapshot-v1' && edge.run_id === run)).toHaveLength(6);
 
     // A person with no right over the record sees it, and what only the whole tenant sees, as restricted; the metric they read is told.
     const partial = await graph(OTHER, 'METRIC_VERSION', metricId, '&depth=6');
     expect(partial.status).toBe(200);
-    const seen = partial.json.nodes as Array<Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const seen = partial.json.nodes as Array<Record<string, unknown>>;
     const restricted = seen.filter((node) => node.restricted);
     expect(restricted.length).toBeGreaterThanOrEqual(2);
     for (const node of restricted) expect(Object.keys(node).sort()).toEqual(['key', 'level', 'restricted']);
@@ -301,18 +302,18 @@ describe('the lineage graph with a check on each node (ST-DGV-006, DGV 3 F5, DGV
     expect(text).not.toContain('Dự án U-STC');
     expect(text).not.toContain(datasetVersionId);
     // An edge that touches a restricted node says nothing of its run or its transform.
-    const shown = partial.json.edges as Array<Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const shown = partial.json.edges as Array<Record<string, unknown>>;
     const touching = shown.filter((edge) => /^restricted-/.test(edge.from as string) || /^restricted-/.test(edge.to as string));
     expect(touching.length).toBeGreaterThan(0);
     for (const edge of touching) expect(edge).toMatchObject({ run_id: null, transform_version: null, observed_at: null });
     // The person of the unit sees the record (of a project of their unit) as the others do not.
     const unit = await graph(STC, 'METRIC_VERSION', metricId, '&depth=6');
-    expect((unit.json.nodes as Array<Record<string, any>>).find((node) => node.node_kind === 'RECORD')).toMatchObject({ restricted: false, display_name: 'Dự án U-STC' }); // eslint-disable-line @typescript-eslint/no-explicit-any
-    expect((partial.json.nodes as Array<Record<string, any>>).find((node) => node.node_kind === 'RECORD')).toBeUndefined(); // eslint-disable-line @typescript-eslint/no-explicit-any
+    expect((unit.json.nodes as Array<Record<string, unknown>>).find((node) => node.node_kind === 'RECORD')).toMatchObject({ restricted: false, display_name: 'Dự án U-STC' });
+    expect((partial.json.nodes as Array<Record<string, unknown>>).find((node) => node.node_kind === 'RECORD')).toBeUndefined();
     // Downward from the metric reaches the dashboard version, which only its owner sees.
     const down = await graph(STC, 'METRIC_VERSION', metricId, '&direction=downstream');
     expect(down.json.nodes).toEqual([expect.objectContaining({ level: 0, restricted: false }), expect.objectContaining({ level: 1, restricted: true })]);
-    expect((await graph(LEAD, 'METRIC_VERSION', metricId, '&direction=downstream')).json.nodes[1]).toMatchObject({ level: 1, restricted: false, node_kind: 'DASHBOARD_VERSION' });
+    expect(asObjects((await graph(LEAD, 'METRIC_VERSION', metricId, '&direction=downstream')).json.nodes)[1]).toMatchObject({ level: 1, restricted: false, node_kind: 'DASHBOARD_VERSION' });
   });
 
   it('takes the writes of the lineage of the tenant one batch after the other, so two batches that share nodes in another order cannot wait for each other', async () => {
@@ -374,7 +375,7 @@ describe('the lineage graph with a check on each node (ST-DGV-006, DGV 3 F5, DGV
     const orphan = described('DATASET_VERSION', 'BI', 'Bản dữ liệu không rõ', { ref_id: ghost });
     expect((await batch(PIPELINE, [{ from: orphan, to: metric }], { transform_version: 'ghost-v1' })).status).toBe(200);
     const lead = await graph(LEAD, 'METRIC_VERSION', metricId, '&depth=1');
-    const nodes = lead.json.nodes as Array<Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const nodes = lead.json.nodes as Array<Record<string, unknown>>;
     expect(JSON.stringify(lead.json)).not.toContain('Bản dữ liệu không rõ');
     expect(JSON.stringify(lead.json)).not.toContain(ghost);
     // The version that does resolve (still BUILDING) is told to the person a policy opens the dataset to, and to nobody else.
@@ -385,11 +386,11 @@ describe('the lineage graph with a check on each node (ST-DGV-006, DGV 3 F5, DGV
 
   it('tells a record only to the person who may read the project it is of, whatever the right over the lineage: the lineage never tells what the source would refuse', async () => {
     const lead = await graph(LEAD, 'METRIC_VERSION', metricId, '&depth=6');
-    expect((lead.json.nodes as Array<Record<string, any>>).find((node) => node.node_kind === 'RECORD')).toMatchObject({ restricted: false, display_name: 'Dự án U-STC' }); // eslint-disable-line @typescript-eslint/no-explicit-any
+    expect((lead.json.nodes as Array<Record<string, unknown>>).find((node) => node.node_kind === 'RECORD')).toMatchObject({ restricted: false, display_name: 'Dự án U-STC' });
     // The person who reads the lineage over the whole tenant and has no right over the projects is not told the record.
     const blind = await graph(LINEAGE_ONLY, 'METRIC_VERSION', metricId, '&depth=6');
     expect(blind.status).toBe(200);
-    const nodes = blind.json.nodes as Array<Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const nodes = blind.json.nodes as Array<Record<string, unknown>>;
     expect(nodes.some((node) => node.restricted === true)).toBe(true);
     expect(nodes.find((node) => node.node_kind === 'RECORD')).toBeUndefined();
     expect(JSON.stringify(blind.json)).not.toContain('Dự án U-STC');
@@ -399,7 +400,7 @@ describe('the lineage graph with a check on each node (ST-DGV-006, DGV 3 F5, DGV
     const dataset = described('DATASET', 'DGV', 'Bộ dữ liệu kho bạc', { ref_id: catalogueDatasetId });
     expect((await batch(PIPELINE, [{ from: dataset, to: metric }], { transform_version: 'catalogue-v1' })).status).toBe(200);
     const owner = await graph(LEAD, 'METRIC_VERSION', metricId, '&depth=1');
-    expect((owner.json.nodes as Array<Record<string, any>>).some((node) => node.display_name === 'Bộ dữ liệu kho bạc' && node.restricted === false)).toBe(true); // eslint-disable-line @typescript-eslint/no-explicit-any
+    expect((owner.json.nodes as Array<Record<string, unknown>>).some((node) => node.display_name === 'Bộ dữ liệu kho bạc' && node.restricted === false)).toBe(true);
     const other = await graph(OTHER, 'METRIC_VERSION', metricId, '&depth=1');
     expect(JSON.stringify(other.json)).not.toContain('Bộ dữ liệu kho bạc');
   });
@@ -463,10 +464,10 @@ describe('the lineage graph with a check on each node (ST-DGV-006, DGV 3 F5, DGV
     const posted = await batch(PIPELINE, [{ from: described('RECORD', 'PRJ', 'Hồ sơ cá nhân', { ref_id: personal }, 'PERSONAL'), to: metric }], { transform_version: 'pii-v1' });
     expect(posted.status).toBe(200);
     const lead = await graph(LEAD, 'METRIC_VERSION', metricId, '&depth=1');
-    expect((lead.json.nodes as Array<Record<string, any>>).some((node) => node.display_name === 'Hồ sơ cá nhân' && node.classification === 'PERSONAL')).toBe(true); // eslint-disable-line @typescript-eslint/no-explicit-any
+    expect((lead.json.nodes as Array<Record<string, unknown>>).some((node) => node.display_name === 'Hồ sơ cá nhân' && node.classification === 'PERSONAL')).toBe(true);
     const stc = await graph(STC, 'METRIC_VERSION', metricId, '&depth=1');
     expect(JSON.stringify(stc.json)).not.toContain('Hồ sơ cá nhân');
-    expect((stc.json.nodes as Array<Record<string, any>>).filter((node) => node.restricted).length).toBeGreaterThan(0); // eslint-disable-line @typescript-eslint/no-explicit-any
+    expect((stc.json.nodes as Array<Record<string, unknown>>).filter((node) => node.restricted).length).toBeGreaterThan(0);
   });
 
   it('keeps the graph as a record, in the database: no node and no edge is changed or deleted, and a node with no id or key is refused', async () => {

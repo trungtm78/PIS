@@ -27,6 +27,7 @@ import {
   unitId,
 } from './bi-app';
 import type { Reply } from './bi-app';
+import { asNumber } from '../support/json';
 
 jest.setTimeout(300_000);
 
@@ -39,7 +40,7 @@ const OUTSIDER = 30; // a member of tenant B only
 const owner = <T extends object>(sql: string, params: unknown[] = []): Promise<T[]> => app.harness.owner<T>(TENANT_A, [[sql, params]]);
 const events = (id: string, type: string) =>
   owner<{ payload: Record<string, unknown> }>('select payload from machvon.outbox_event where aggregate_id = $1 and type = $2 order by created_at', [id, type]);
-const audits = (action: string) => owner<{ safe_diff: Record<string, any> }>('select safe_diff from machvon.audit_event where action = $1 order by occurred_at', [action]); // eslint-disable-line @typescript-eslint/no-explicit-any
+const audits = (action: string) => owner<{ safe_diff: Record<string, unknown> }>('select safe_diff from machvon.audit_event where action = $1 order by occurred_at', [action]);
 const runRow = async (id: string) =>
   (
     await owner<{
@@ -52,7 +53,7 @@ const runRow = async (id: string) =>
       served_from_cache: boolean;
       result: unknown;
       requested_by: string;
-      query_spec: Record<string, any> | null; // eslint-disable-line @typescript-eslint/no-explicit-any
+      query_spec: Record<string, unknown> | null;
       finished_at: string | null;
     }>('select status, mode, error_code, duration_ms, row_count, estimated_cost::text, served_from_cache, result, requested_by, query_spec, finished_at from machvon.bi_query_run where id = $1', [id])
   )[0];
@@ -655,7 +656,7 @@ describe('the log of the queries, the jobs the heavy ones become and the lineage
     it('shows whoever reads it the metric, the version of the dataset, the snapshot, the transform of each step and the records, level by level', async () => {
       const reply = await lineage(LINEAGE_ALL, probe, '?depth=6');
       expect(reply.status).toBe(200);
-      const nodes = reply.json.nodes as Array<Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
+      const nodes = reply.json.nodes as Array<Record<string, unknown>>;
       const kinds = (level: number) => nodes.filter((node) => node.level === level).map((node) => node.node_kind);
       expect(kinds(0)).toEqual(['METRIC_VERSION']);
       expect(kinds(1)).toContain('DATASET_VERSION');
@@ -669,7 +670,7 @@ describe('the log of the queries, the jobs the heavy ones become and the lineage
 
     it('tells the quality of the version of the dataset on the way, never a value of the data', async () => {
       const reply = await lineage(LINEAGE_ALL, probe, '?depth=2');
-      const version = (reply.json.nodes as Array<Record<string, any>>).find((node) => node.node_kind === 'DATASET_VERSION'); // eslint-disable-line @typescript-eslint/no-explicit-any
+      const version = (reply.json.nodes as Array<Record<string, unknown>>).find((node) => node.node_kind === 'DATASET_VERSION');
       expect((reply.json.quality as Record<string, unknown>)[version?.key as string]).toMatchObject({ quality_badge: 'NOT_ASSESSED', excluded_quarantine_rows: 0 });
       expect(JSON.stringify(reply.json)).not.toContain('1000000000');
     });
@@ -677,7 +678,7 @@ describe('the log of the queries, the jobs the heavy ones become and the lineage
     it('shows the person without rights over a source unit only that a node is restricted, in its place and its level, with no name, no id and no kind', async () => {
       const reply = await lineage(LINEAGE_UNIT, probe, '?depth=6');
       expect(reply.status).toBe(200);
-      const nodes = reply.json.nodes as Array<Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
+      const nodes = reply.json.nodes as Array<Record<string, unknown>>;
       const records = nodes.filter((node) => node.level === 3);
       expect(records).toHaveLength(3);
       const shown = records.filter((node) => node.restricted === false);
@@ -690,7 +691,7 @@ describe('the log of the queries, the jobs the heavy ones become and the lineage
       expect(JSON.stringify(reply.json)).not.toContain(outside[0]?.ref_id as string);
       expect(JSON.stringify(reply.json)).not.toContain(outside[0]?.display_name as string);
       // The steps that touch it say nothing of their transform.
-      const touching = (reply.json.edges as Array<Record<string, any>>).filter((edge) => hidden.some((node) => node.key === edge.from || node.key === edge.to)); // eslint-disable-line @typescript-eslint/no-explicit-any
+      const touching = (reply.json.edges as Array<Record<string, unknown>>).filter((edge) => hidden.some((node) => node.key === edge.from || node.key === edge.to));
       expect(touching.length).toBe(1);
       expect(touching[0]).toMatchObject({ run_id: null, transform_version: null, observed_at: null });
     });
@@ -698,10 +699,10 @@ describe('the log of the queries, the jobs the heavy ones become and the lineage
     it('tells no record to a person who reads the lineage over the whole tenant and cannot read the projects: the lineage never tells what the source would refuse', async () => {
       const reply = await lineage(LINEAGE_NO_PROJECTS, probe, '?depth=6');
       expect(reply.status).toBe(200);
-      const nodes = reply.json.nodes as Array<Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
+      const nodes = reply.json.nodes as Array<Record<string, unknown>>;
       expect(nodes.filter((node) => node.level === 3)).toEqual(expect.arrayContaining([expect.objectContaining({ restricted: true })]));
       expect(nodes.filter((node) => node.level === 3 && node.restricted === false)).toEqual([]);
-      expect(nodes.filter((node) => node.level < 3).every((node) => node.restricted === false)).toBe(true);
+      expect(nodes.filter((node) => asNumber(node.level) < 3).every((node) => node.restricted === false)).toBe(true);
     });
 
     it('reads the metric of another tenant as no metric, and the person without the right as refused', async () => {

@@ -13,7 +13,33 @@ const MAX_PAGE = 200;
 const MAX_ERRORS_SHOWN = 1000;
 const UNIQUE_VIOLATION = '23505';
 
-type Sql = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+interface Sql {
+  [column: string]: unknown;
+  id: string;
+  source_system: string;
+  target_entity: string;
+  file_sha256: string;
+  file_storage_key: string;
+  mapping_version: string;
+  row_count: number;
+  error_count: number;
+  status: "Uploaded" | "Validating" | "Validated" | "DryRunPassed" | "DryRunFailed" | "PendingApproval" | "Applying" | "Applied" | "Failed" | "RolledBack";
+  dry_run_report_ref: string | null;
+  rows_applied: number;
+  failure_code: string | null;
+  created_by: string;
+  approved_by: string | null;
+  applied_at: string | null;
+  rolled_back_by: string | null;
+  rolled_back_at: string | null;
+  rollback_reason: string | null;
+  created_at: string;
+  row_number: number;
+  line_number: number;
+  field: string;
+  code: string;
+  message: string;
+}
 
 export const MIGRATION_STATUSES = ['Uploaded', 'Validating', 'Validated', 'DryRunPassed', 'DryRunFailed', 'PendingApproval', 'Applying', 'Applied', 'Failed', 'RolledBack'] as const;
 export type MigrationStatus = (typeof MIGRATION_STATUSES)[number];
@@ -77,7 +103,7 @@ function batchOf(row: Sql): MigrationBatch {
     errorCount: row.error_count,
     status: row.status,
     dryRunReportRef: row.dry_run_report_ref,
-    controlTotals: row.control_totals,
+    controlTotals: row.control_totals as { expected?: ControlTotals | undefined; actual?: ControlTotals | undefined; matched?: boolean | undefined; } | null,
     rowsApplied: row.rows_applied,
     failureCode: row.failure_code,
     createdBy: row.created_by,

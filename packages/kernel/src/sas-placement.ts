@@ -124,7 +124,7 @@ export interface PromotionTarget {
 
 /**
  * Whether the tenant may be moved to the placement. Only an Active tenant that is on the pool (409 `TENANT_STATE_INVALID`), to an Active silo of its own region that is free and is not where it already is (422
- * `PLACEMENT_UNAVAILABLE`, the extension `reason` says which). The region matters because the data of a tenant stays in the country and the region it was given (Luật Dữ liệu 60/2024/QH15).
+ * `PLACEMENT_UNAVAILABLE`, the extension `reason` says which). The region matters because the data of a tenant stays in the country and the region it was given (the Data Law, 60/2024/QH15).
  */
 export function assertSiloPromotable(tenant: PromotableTenant, target: PromotionTarget): void {
   if (tenant.status !== 'Active') throw new DomainError('TENANT_STATE_INVALID', 409, tenant.status);

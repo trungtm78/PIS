@@ -38,17 +38,18 @@ export const isWorkable = (status: IncomingStatus): boolean => status === 'ASSIG
 
 // ---- state secrets (BR-DOC-20) -----------------------------------------------------------------------------------------------------
 
-const STRIP_MARKS = /[̀-ͯ]/g;
+// The combining marks (U+0300 to U+036F) that NFD splits off the letters.
+const STRIP_MARKS = /[\u0300-\u036f]/g;
 /** The text without marks and with the letters that have a stroke written plainly, in capitals: how a marking is compared. */
-const fold = (text: string): string => text.normalize('NFD').replace(STRIP_MARKS, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');
+const fold = (text: string): string => text.normalize('NFD').replace(STRIP_MARKS, '').replace(/\u0111/g, 'd').replace(/\u0110/g, 'D'); // the letters d and D with a stroke
 
 /**
- * A letter that declares a level of state secret (Mật, Tối mật, Tuyệt mật) is not taken in (422 `STATE_SECRET_NOT_SUPPORTED`): it travels by the channel made for it, outside this system. The declaration is read from the words
- * the clerk typed (the title, the symbol, the sender) as the marking is written on a letter: "TỐI MẬT" or "TUYỆT MẬT" in capitals, and "MẬT" in capitals when it names the degree ("Độ mật:", "dấu độ mật", or alone in brackets).
- * A word like "bảo mật" or a title in capitals about "mật độ" is not a marking.
+ * A letter that declares a level of state secret ("Mat", "Toi mat", "Tuyet mat": confidential, secret, top secret) is not taken in (422 `STATE_SECRET_NOT_SUPPORTED`): it travels by the channel made for it, outside this system. The declaration is read from the words
+ * the clerk typed (the title, the symbol, the sender) as the marking is written on a letter: "TOI MAT" or "TUYET MAT" in capitals (with their marks), and "MAT" in capitals when it names the degree ("Do mat:", "dau do mat", or alone in brackets).
+ * A word like "bao mat" (security) or a title in capitals about "mat do" (density) is not a marking.
  */
 export function stateSecretMarking(text: string): boolean {
-  // The marks are removed and the case is kept, so that "TỐI MẬT" and "TOI MAT" are the stamp and "Tối mật" in a sentence is not.
+  // The marks are removed and the case is kept, so that "TOI MAT" with or without its marks is the stamp and "Toi mat" in a sentence is not.
   const folded = fold(text.normalize('NFC'));
   if (/(^|[^A-Za-z0-9])(TUYET MAT|TOI MAT)(?![A-Za-z0-9])/.test(folded)) return true;
   if (/(?:DO MAT|Do mat|do mat)\s*[:-]\s*MAT(?![A-Za-z0-9])/.test(folded)) return true;

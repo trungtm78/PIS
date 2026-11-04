@@ -3,6 +3,7 @@ import { digitsOf } from '../conclusion/model';
 import type { ConclusionFormProblem } from '../conclusion/model';
 import { isDay, isUuid } from '../model';
 import type { FormProblem } from '../model';
+import { hasControlCharacter } from '../../control-characters';
 
 /** AUD-01 and AUD-08: the overview of the engagements and the ledger of the recoveries of the recommendations (ST-AUD-004, AUD 3.4). */
 export const OVERVIEW_PATH = '/aud/aud-01';
@@ -23,8 +24,6 @@ export type ExceptionKind = (typeof EXCEPTION_KINDS)[number];
 
 const REASON_MIN = 10;
 const REASON_MAX = 1000;
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u001f\u007f]/;
 
 type Raw = Record<string, unknown>;
 
@@ -322,7 +321,7 @@ export function validateReverse(form: ReverseForm): Problems<ReverseForm> {
   if (reason === '') return { reason: 'required' };
   if (reason.length < REASON_MIN) return { reason: 'tooShort' };
   if (reason.length > REASON_MAX) return { reason: 'tooLong' };
-  return CONTROL.test(reason.replace(/[\n\r\t]/g, '')) ? { reason: 'invalid' } : {};
+  return hasControlCharacter(reason.replace(/[\n\r\t]/g, '')) ? { reason: 'invalid' } : {};
 }
 
 export const reverseBody = (form: ReverseForm): { reason: string } => ({ reason: form.reason.trim() });

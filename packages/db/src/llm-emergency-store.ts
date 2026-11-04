@@ -4,7 +4,30 @@ import type { KillScope, KillSwitch } from '@machvon/kernel';
 import type { TenantTx } from './tenant-database.ts';
 
 interface Sql {
-  [column: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  [column: string]: unknown;
+  id: string;
+  scope_kind: "TENANT" | "PROVIDER" | "MODEL" | "PROFILE" | "TASK_TYPE";
+  scope_ref: string | null;
+  reason: string;
+  state: "RELEASED" | "ENGAGED";
+  engaged_by: string;
+  release_approved_by: string | null;
+  release_reason: string | null;
+  affected_requests: number;
+  page_key: string;
+  ai_request_id: string;
+  subject_module: string;
+  subject_kind: string;
+  subject_id: string;
+  ai_output_sha256: string;
+  action_kind: "WRITE" | "MONEY" | "DECISION" | "PUBLISH";
+  decision: "REJECTED" | "ACCEPTED" | "ACCEPTED_WITH_CHANGE";
+  rationale: string;
+  decided_by: string;
+  applied_operation_id: string | null;
+  applied_resource_version: string | null;
+  task_type: string;
+  budget_reservation_id: string | null;
 }
 
 const iso = (value: unknown): string | null => (value === null || value === undefined ? null : new Date(value as string).toISOString());

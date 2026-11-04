@@ -1,6 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import { FROZEN_STATUSES } from './model';
 import type { ProjectLine, ProjectStatus } from './model';
+import { hasControlCharacter } from '../control-characters';
 
 /** PRJ-21: the national project codes of the register, reconciled by hand (ST-PRJ-004, PRJ 3.1 F7, BR-PRJ-02). */
 export const RECONCILE_PATH = '/prj/prj-21';
@@ -44,8 +45,7 @@ export function validateAssign(project: ProjectLine, form: AssignForm): Partial<
   const code = form.code.trim();
   if (code === '') problems.code = 'codeRequired';
   else if (code.length > CODE_MAX_LENGTH) problems.code = 'codeTooLong';
-  // eslint-disable-next-line no-control-regex
-  else if (/[\u0000-\u001f\u007f]/.test(code)) problems.code = 'codeInvalid';
+  else if (hasControlCharacter(code)) problems.code = 'codeInvalid';
   const evidence = form.evidenceId.trim();
   if (evidence !== '' && !UUID.test(evidence)) problems.evidenceId = 'evidenceInvalid';
   else if (evidence === '' && needsEvidence(project) && code !== project.nationalProjectCode) problems.evidenceId = 'evidenceRequired';

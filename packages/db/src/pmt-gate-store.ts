@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, isIsoDate, periodsOverlap, shiftDays, vietnamDateOf } from '@machvon/kernel';
+import { DomainError, isIsoDate, periodsOverlap, shiftDays, vietnamDateOf, hasControlChar, hasControlCharExceptWhitespace } from '@machvon/kernel';
 import { timestampKey } from './keyset.ts';
 import { PmtDossierStore } from './pmt-dossier-store.ts';
 import { appliesTo, checkApplicability } from './pmt-permit-applicability.ts';
@@ -210,11 +210,9 @@ export class PmtGateStore {
     if (typeof input.requirement !== 'string' || !(GATE_REQUIREMENTS as readonly string[]).includes(input.requirement)) throw invalid('requirement');
     if (typeof input.legalBasis !== 'string' || input.legalBasis.trim() === '') throw new DomainError('LEGAL_BASIS_REQUIRED', 422, 'legal_basis');
     const legalBasis = input.legalBasis.trim();
-    // eslint-disable-next-line no-control-regex
-    if (legalBasis.length > MAX_LEGAL_BASIS || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(legalBasis)) throw invalid('legal_basis');
+    if (legalBasis.length > MAX_LEGAL_BASIS || hasControlCharExceptWhitespace(legalBasis)) throw invalid('legal_basis');
     const milestone = input.projectMilestoneCode === undefined ? null : input.projectMilestoneCode.trim();
-    // eslint-disable-next-line no-control-regex
-    if (milestone !== null && (milestone === '' || milestone.length > MAX_MILESTONE || /[\u0000-\u001f\u007f]/.test(milestone))) throw invalid('project_milestone_code');
+    if (milestone !== null && (milestone === '' || milestone.length > MAX_MILESTONE || hasControlChar(milestone))) throw invalid('project_milestone_code');
     const appliesToRule = checkApplicability(input.appliesToRule);
     const effectiveFrom = dateOf(input.effectiveFrom, 'effective_from');
     const effectiveUntil = input.effectiveUntil === undefined ? null : dateOf(input.effectiveUntil, 'effective_until');

@@ -15,6 +15,7 @@ import {
   versionConflict,
   vietnamDateOf,
   windowExpiresAt,
+  hasControlChar,
 } from '@machvon/kernel';
 import type { Assignment, ConversationStatus, EffectiveAccess, StoredLink } from '@machvon/kernel';
 import { ContactConsentStore } from './contact-consent-store.ts';
@@ -462,6 +463,5 @@ export class ConversationStore {
 /** The name a contact that came in is given: the one the provider gives, when it is a name; else the masked identity. */
 function nameOf(given: string | undefined, fallback: string): string {
   const name = (given ?? '').normalize('NFC').trim();
-  // eslint-disable-next-line no-control-regex
-  return name === '' || name.length > 120 || /[\u0000-\u001f\u007f]/.test(name) ? fallback : name;
+  return name === '' || name.length > 120 || hasControlChar(name) ? fallback : name;
 }

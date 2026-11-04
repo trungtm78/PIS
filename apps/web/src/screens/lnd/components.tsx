@@ -23,7 +23,7 @@ import type { ContractOption, NoticeForm, ParcelForm, ParcelLine, SectionForm, S
 import './lnd.css';
 
 /** The multiplication sign on the close button of a dialog. */
-const CLOSE_GLYPH = '×';
+const CLOSE_GLYPH = '\u00d7';
 
 interface FieldProps {
   id: string;

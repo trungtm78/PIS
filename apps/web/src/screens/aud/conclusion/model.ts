@@ -1,6 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import { isDay, isUuid } from '../model';
 import type { EngagementStatus, FormProblem, ScopeItem, ScopeKind } from '../model';
+import { hasControlCharacter } from '../../control-characters';
 
 /** AUD-04 and AUD-05: what an authority concluded about an engagement, the findings in it and the recommendations on it (ST-AUD-002, AUD 3.2). */
 export const CONCLUSIONS_PATH = '/aud/aud-04';
@@ -34,8 +35,6 @@ const SUMMARY_MAX = 8000;
 const CODE_MAX = 40;
 const LEGAL_BASIS_MAX = 2000;
 const AMOUNT_DIGITS = 24;
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u001f\u007f]/;
 
 type Raw = Record<string, unknown>;
 
@@ -213,7 +212,7 @@ const wordsProblem = (value: string, max: number, min = 1): FormProblem | undefi
   if (words === '') return 'required';
   if (words.length < min) return 'tooShort';
   if (words.length > max) return 'tooLong';
-  return CONTROL.test(words) ? 'invalid' : undefined;
+  return hasControlCharacter(words) ? 'invalid' : undefined;
 };
 
 const dayProblem = (value: string): FormProblem | undefined => {
@@ -338,7 +337,7 @@ export function validateFinding(form: FindingForm): Problems<FindingForm> {
   const description = wordsProblem(form.description, SUMMARY_MAX, SUMMARY_MIN);
   if (description !== undefined) problems.description = description;
   if (form.legalBasis.trim().length > LEGAL_BASIS_MAX) problems.legalBasis = 'tooLong';
-  else if (CONTROL.test(form.legalBasis.replace(/[\n\r\t]/g, ''))) problems.legalBasis = 'invalid';
+  else if (hasControlCharacter(form.legalBasis.replace(/[\n\r\t]/g, ''))) problems.legalBasis = 'invalid';
   const amount = amountProblem(form.amountVnd, false);
   if (amount !== undefined) problems.amountVnd = amount;
   return problems;

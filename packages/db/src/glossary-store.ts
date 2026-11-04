@@ -1,14 +1,13 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, assertFourEyes, vietnamDateOf, versionConflict } from '@machvon/kernel';
+import { DomainError, assertFourEyes, vietnamDateOf, versionConflict, hasControlCharExceptWhitespace } from '@machvon/kernel';
 import { assertTimestampCursor, timestampKey } from './keyset.ts';
 import type { TenantTx } from './tenant-database.ts';
+import { vietnameseData } from './vietnamese-data.ts';
 
 const UNIQUE_VIOLATION = '23505';
 const CHECK_VIOLATION = '23514';
 const CODE_PATTERN = /^[A-Z][A-Z0-9_]*$/;
 // Text may carry line breaks and tabs; every other control character (and NUL, which PostgreSQL cannot hold) is refused.
-// eslint-disable-next-line no-control-regex
-const FORBIDDEN_TEXT = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
 const MAX_CODE = 80;
 const MAX_DOMAIN = 50;
 const MAX_TERM = 300;
@@ -82,7 +81,10 @@ interface SeedTerm {
   formulaRef: string;
 }
 
-const DISBURSEMENT_BASIS = 'DIS BR-DIS-05, BR-DIS-06, BR-DIS-12 [CXN-03]: định nghĩa đề xuất (giả định làm việc), chờ Chủ nghiệp vụ vốn ký D03';
+const DISBURSEMENT_TEXT = vietnameseData<{ basis: string; terms: Record<string, { termVi: string; definition: string }> }>('glossary-disbursement');
+const DISBURSEMENT_BASIS = DISBURSEMENT_TEXT.basis;
+/** The Vietnamese term and definition of a seeded term, from the data file. */
+const seedText = (termCode: string): { termVi: string; definition: string } => DISBURSEMENT_TEXT.terms[termCode] ?? { termVi: termCode, definition: termCode };
 
 /**
  * The definitions that the disbursement figures stand on (DIS BR-DIS-03, 05, 06, 12): the period delta, the year-to-date and project-to-date
@@ -93,37 +95,32 @@ const DISBURSEMENT_BASIS = 'DIS BR-DIS-05, BR-DIS-06, BR-DIS-12 [CXN-03]: địn
 export const DISBURSEMENT_TERMS: readonly SeedTerm[] = [
   {
     termCode: 'GIAI_NGAN_PERIOD',
-    termVi: 'Giải ngân trong kỳ (delta kỳ)',
-    definition:
-      'Số giải ngân phát sinh trong kỳ báo cáo: lũy kế cuối kỳ trừ lũy kế cuối kỳ so sánh trước cùng năm kế hoạch (BR-DIS-03). Một khoản được tính tại ngày Kho bạc thanh toán, không sau ngày chốt Kho bạc (BR-DIS-06); khoản hoàn trừ vào ngày của khoản hoàn.',
+    termVi: seedText('GIAI_NGAN_PERIOD').termVi,
+    definition: seedText('GIAI_NGAN_PERIOD').definition,
     formulaRef: 'period_delta = cumulative(period) - cumulative(previous period, same plan_year)',
   },
   {
     termCode: 'GIAI_NGAN_YTD',
-    termVi: 'Giải ngân lũy kế từ đầu năm (YTD)',
-    definition:
-      'Giải ngân lũy kế từ đầu năm kế hoạch tới cuối kỳ, theo năm kế hoạch của nguồn vốn (vốn năm) hoặc từ đầu năm kéo dài (vốn kéo dài); tính theo ngày Kho bạc thanh toán không sau ngày chốt Kho bạc. Ô lũy kế trên báo cáo tuần mặc định là YTD (BR-DIS-12).',
+    termVi: seedText('GIAI_NGAN_YTD').termVi,
+    definition: seedText('GIAI_NGAN_YTD').definition,
     formulaRef: 'ytd = SUM(treasury_amount WHERE plan_year_start <= treasury_paid_on <= cutoff)',
   },
   {
     termCode: 'GIAI_NGAN_PTD',
-    termVi: 'Giải ngân lũy kế từ khởi công (PTD)',
-    definition:
-      'Giải ngân lũy kế từ khi khởi công dự án tới cuối kỳ, qua mọi năm kế hoạch; tính theo ngày Kho bạc thanh toán không sau ngày chốt Kho bạc (BR-DIS-06, BR-DIS-12).',
+    termVi: seedText('GIAI_NGAN_PTD').termVi,
+    definition: seedText('GIAI_NGAN_PTD').definition,
     formulaRef: 'ptd = SUM(treasury_amount WHERE treasury_paid_on <= cutoff, all plan years)',
   },
   {
     termCode: 'MAU_SO_KH_TTG_GIAO',
-    termVi: 'Mẫu số: kế hoạch Thủ tướng Chính phủ giao',
-    definition:
-      'Mẫu số của tỷ lệ giải ngân so với kế hoạch Thủ tướng Chính phủ giao: kế hoạch vốn năm có nguồn gốc phân bổ PM_ASSIGNED, không gồm phần địa phương giao thêm. Tử số là giải ngân vốn kế hoạch năm tính theo ngày Kho bạc (BR-DIS-05). Tỷ lệ có thể vượt 100% khi địa phương giao thêm.',
+    termVi: seedText('MAU_SO_KH_TTG_GIAO').termVi,
+    definition: seedText('MAU_SO_KH_TTG_GIAO').definition,
     formulaRef: 'rate_pm_pct = D / plan_pm_assigned_vnd * 100',
   },
   {
     termCode: 'MAU_SO_KH_TONG',
-    termVi: 'Mẫu số: kế hoạch gồm phần giao thêm',
-    definition:
-      'Mẫu số của tỷ lệ giải ngân so với tổng kế hoạch: kế hoạch Thủ tướng Chính phủ giao cộng phần địa phương giao thêm (LOCAL_ADDED); phần tăng thu và hỗ trợ trung ương theo cấu hình của tenant. Cùng tử số với tỷ lệ so với kế hoạch Thủ tướng giao (BR-DIS-05).',
+    termVi: seedText('MAU_SO_KH_TONG').termVi,
+    definition: seedText('MAU_SO_KH_TONG').definition,
     formulaRef: 'rate_total_pct = D / (plan_pm_assigned_vnd + plan_local_added_vnd) * 100',
   },
 ];
@@ -192,7 +189,7 @@ const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAIL
 function textOf(value: string | undefined, field: string, min: number, max: number, optional = false): string | null {
   const text = (value ?? '').trim();
   if (optional && text === '') return null;
-  if (text.length < min || text.length > max || FORBIDDEN_TEXT.test(text)) throw invalid(field);
+  if (text.length < min || text.length > max || hasControlCharExceptWhitespace(text)) throw invalid(field);
   return text;
 }
 

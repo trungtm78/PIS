@@ -18,7 +18,31 @@ export const KNOWLEDGE_ITEM_RESOURCE = 'ai_knowledge_item';
 const MAX_PAGE = 200;
 const UNIQUE_VIOLATION = '23505';
 
-type Sql = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+interface Sql {
+  [column: string]: unknown;
+  id: string;
+  code: string;
+  title: string;
+  subject_module: string;
+  embedding_model_id: string;
+  index_version: number;
+  max_classification: string;
+  status: string;
+  item_count: number;
+  created_at: string;
+  classification: string | null;
+  descriptor: Record<string, unknown>;
+  acl_hash: string;
+  collection_id: string;
+  document_version_id: string;
+  chunk_count: number;
+  failure_code: string | null;
+  indexed_at: string | null;
+  page_index: number;
+  chunk_no: number;
+  text_object_key: string;
+  text_sha256: string;
+}
 
 export interface KnowledgeCollection {
   id: string;
@@ -281,11 +305,11 @@ export class LlmKnowledgeStore {
     if (version === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (version.scan_status === 'INFECTED') throw new DomainError('FILE_NOT_CLEAN', 422);
     if (version.scan_status !== 'CLEAN') throw new DomainError('SCAN_PENDING', 409);
-    assertWithin(version.classification, collection.maxClassification);
+    assertWithin(version.classification as string, collection.maxClassification);
     return {
       collection,
       documentVersionId,
-      classification: version.classification,
+      classification: version.classification as string,
       descriptor: version.descriptor,
       aclHash: version.acl_hash,
       model: await this.providerModelOf(tx, collection.embeddingModelId),
@@ -381,7 +405,7 @@ export class LlmKnowledgeStore {
       chunkNo: row.chunk_no,
       textObjectKey: row.text_object_key,
       textSha256: row.text_sha256,
-      classification: row.classification,
+      classification: row.classification as string,
       distance: Number(row.distance),
     }));
   }

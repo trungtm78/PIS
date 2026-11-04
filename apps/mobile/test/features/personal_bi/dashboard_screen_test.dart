@@ -21,7 +21,7 @@ import '../support/scripted_server.dart';
 import 'bi_fixtures.dart';
 
 /// No waiting between the looks at a job: the tests decide what a job answers.
-final Override _instantJobs = jobPollingProvider.overrideWithValue(JobPolling(interval: Duration.zero, attempts: 3, sleep: (Duration d) async {}));
+final Override _instantJobs = jobPollingProvider.overrideWithValue(JobPolling(interval: Duration.zero, attempts: 3, waitBetweenPolls: (Duration d) async {}));
 
 Future<ProviderContainer> _open(WidgetTester tester, ScriptedServer server, String location, {Locale locale = const Locale('vi'), List<Override> overrides = const <Override>[]}) {
   return pumpWithServer(tester, features: <MobileFeature>[personal_bi.feature], server: server, location: location, locale: locale, overrides: <Override>[_instantJobs, ...overrides]);

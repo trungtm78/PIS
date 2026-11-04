@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, VND_SCALE, addDecimal, asUuid, compareDecimal, requirePositiveAmount, subtractDecimal, versionConflict, vietnamDateOf } from '@machvon/kernel';
+import { DomainError, VND_SCALE, addDecimal, asUuid, compareDecimal, requirePositiveAmount, subtractDecimal, versionConflict, vietnamDateOf, hasControlChar } from '@machvon/kernel';
 import { CapAppropriationStore } from './cap-appropriation-store.ts';
 import type { AppropriationOrigin, BudgetLevel } from './cap-appropriation-store.ts';
 import { assertYearsOpen } from './cap-fiscal-year-guard.ts';
@@ -248,8 +248,7 @@ function subsetOf(value: unknown, amount: string): string {
 
 function planCodeOf(value: unknown): string {
   const text = typeof value === 'string' ? value.trim() : '';
-  // eslint-disable-next-line no-control-regex
-  if (text.length < 1 || text.length > MAX_PLAN_CODE || /[\u0000-\u001f\u007f]/.test(text)) throw invalid('plan_code');
+  if (text.length < 1 || text.length > MAX_PLAN_CODE || hasControlChar(text)) throw invalid('plan_code');
   return text;
 }
 

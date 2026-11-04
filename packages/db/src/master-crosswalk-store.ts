@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, vietnamDateOf, versionConflict } from '@machvon/kernel';
+import { DomainError, vietnamDateOf, versionConflict, hasControlChar } from '@machvon/kernel';
 import { timestampKey } from './keyset.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -112,8 +112,7 @@ function aliasOf(input: CrosswalkInput, externalType: string, externalCode: stri
 /** A name or a code as it is stored: trimmed, not empty, without control characters, within its length. */
 function textOf(value: string, field: string, max: number): string {
   const text = value.trim();
-  // eslint-disable-next-line no-control-regex
-  if (text === '' || text.length > max || /[\u0000-\u001f\u007f]/.test(text)) throw invalid(field);
+  if (text === '' || text.length > max || hasControlChar(text)) throw invalid(field);
   return text;
 }
 

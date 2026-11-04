@@ -834,8 +834,9 @@ export async function validateMasterContent(input: TypeInput): Promise<void> {
 }
 
 const SPLIT = /[;,|]/;
-const YES = new Set(['true', 'yes', '1', 'có', 'co']);
-const NO = new Set(['false', 'no', '0', 'không', 'khong']);
+// The Vietnamese words for yes and no, accents written as escapes (o with acute; o with circumflex).
+const YES = new Set(['true', 'yes', '1', 'c\u00f3', 'co']);
+const NO = new Set(['false', 'no', '0', 'kh\u00f4ng', 'khong']);
 
 /**
  * The value that a cell of a file stands for in an attribute of a type: numbers and flags are read from their text, lists are split

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, MNE_FREQUENCIES, assertFourEyes, isIsoDate, parseDueRule, versionConflict } from '@machvon/kernel';
+import { DomainError, MNE_FREQUENCIES, assertFourEyes, isIsoDate, parseDueRule, versionConflict, hasControlChar } from '@machvon/kernel';
 import { assertTimestampCursor, timestampKey } from './keyset.ts';
 import { MneRevisionTable } from './mne-revision-table.ts';
 import type { ClosedRevision } from './mne-revision-table.ts';
@@ -137,8 +137,7 @@ const formNotEffective = (): DomainError => new DomainError('FORM_NOT_EFFECTIVE'
 
 function textOf(value: string, field: string, min: number, max: number): string {
   const text = value.trim();
-  // eslint-disable-next-line no-control-regex
-  if (text.length < min || text.length > max || /[\u0000-\u001f\u007f]/.test(text)) throw invalid(field);
+  if (text.length < min || text.length > max || hasControlChar(text)) throw invalid(field);
   return text;
 }
 

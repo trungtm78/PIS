@@ -3,7 +3,7 @@ import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe
 import { PERMISSIONS } from '@machvon/contracts';
 import { AuditWriter, HOUSEHOLD_STATUSES, LndHouseholdStore, TenantDatabase, householdScopeUnits, unitInScope } from '@machvon/db';
 import type { HouseholdIdentity, HouseholdLine } from '@machvon/db';
-import { DomainError, NOOP_METRICS, asUuid, vietnamDateOf } from '@machvon/kernel';
+import { DomainError, NOOP_METRICS, asUuid, vietnamDateOf, hasControlChar } from '@machvon/kernel';
 import type { EffectiveAccess, FieldCipher, MetricsSink, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -59,13 +59,11 @@ export function householdLineView(line: HouseholdLine): Record<string, unknown> 
 
 const REASON_MIN = 10;
 const REASON_MAX = 300;
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u001f\u007f]/;
 
 /** The reason a person gives for opening personal data: words of at least ten characters and at most three hundred, nothing that is not text. It is kept in the trail, so it is judged before anything is read. */
 function reasonOf(value: unknown): string {
   const reason = typeof value === 'string' ? value.trim() : '';
-  if (reason.length < REASON_MIN || reason.length > REASON_MAX || CONTROL.test(reason)) throw new DomainError('VALIDATION_FAILED', 422, 'reason');
+  if (reason.length < REASON_MIN || reason.length > REASON_MAX || hasControlChar(reason)) throw new DomainError('VALIDATION_FAILED', 422, 'reason');
   return reason;
 }
 

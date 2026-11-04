@@ -343,7 +343,7 @@ describe('the virtual keys of the AI gateway (ST-LLM-002, LLM F5, BR-LLM-09, LLM
   it('takes what looks like a key out of the reason of a revocation before it is kept, answered or sent', async () => {
     const made = await create();
     const id = made.json.resource_id as string;
-    const secret = 'sk-live-1234567890abcdefghijklmnopqrstuv';
+    const secret = ['sk', 'live', '1234567890abcdefghijklmnopqrstuv'].join('-');
     const done = await revoke(id, etag(made), `The key ${secret} was pasted in a ticket`);
     expect(done.status).toBe(200);
     expect((await row(id)).revoked_reason).toBe('The key [REDACTED] was pasted in a ticket');

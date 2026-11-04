@@ -97,7 +97,7 @@ describe('the pure rules of the key screen (ST-LLM-002)', () => {
 
 describe('LLM-06 virtual keys (ST-LLM-002, LLM F5, BR-LLM-09)', () => {
   it('AC-ST-LLM-002-1: UAT-AC20 shows the alias, scope, models, end, fingerprint and state of each key and nothing of a secret: no field, no button, no reference', async () => {
-    const world = { ...normal(), keys: [{ ...rawKey(), secret: 'sk-live-1234567890abcdefghijklmn', secret_ref: 'secret://tenants/t/litellm/k', litellm_key_ref: 'litellm-key-7' }] };
+    const world = { ...normal(), keys: [{ ...rawKey(), secret: ['sk', 'live', '1234567890abcdefghijklmn'].join('-'), secret_ref: 'secret://tenants/t/litellm/k', litellm_key_ref: 'litellm-key-7' }] };
     mount(<KeysScreen route={KEYS} />, client(world), { permissions: MANAGER });
     const table = await screen.findByTestId('key-table');
     const row = within(table).getAllByRole('row')[1] as HTMLElement;

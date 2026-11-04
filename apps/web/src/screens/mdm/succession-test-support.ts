@@ -1,10 +1,11 @@
 import { record } from './test-support';
+import fixtureText from './fixture-text.vi.json';
 
-export const DISTRICT = record(1, { master_type: 'AREA', business_key: 'HUYEN-X', label: 'Huyện X', attributes: { level: 'DISTRICT' }, valid_until: '2025-07-01' });
-export const PROVINCE = record(2, { master_type: 'AREA', business_key: 'TINH-X', label: 'Tỉnh X', attributes: { level: 'PROVINCE' } });
-export const COMMUNE_A = record(3, { master_type: 'AREA', business_key: 'XA-A', label: 'Xã A', parent_record_id: DISTRICT.id, valid_until: '2025-07-01', attributes: { level: 'COMMUNE' } });
-export const COMMUNE_B = record(4, { master_type: 'AREA', business_key: 'XA-B', label: 'Xã B', parent_record_id: DISTRICT.id, valid_until: '2025-07-01', attributes: { level: 'COMMUNE' } });
-export const MERGED = record(5, { master_type: 'AREA', business_key: 'XA-Y', label: 'Xã Y', parent_record_id: PROVINCE.id, valid_from: '2025-07-01', attributes: { level: 'COMMUNE' } });
+export const DISTRICT = record(1, { master_type: 'AREA', business_key: 'HUYEN-X', label: fixtureText['area.district.label'], attributes: { level: 'DISTRICT' }, valid_until: '2025-07-01' });
+export const PROVINCE = record(2, { master_type: 'AREA', business_key: 'TINH-X', label: fixtureText['area.province.label'], attributes: { level: 'PROVINCE' } });
+export const COMMUNE_A = record(3, { master_type: 'AREA', business_key: 'XA-A', label: fixtureText['area.communeA.label'], parent_record_id: DISTRICT.id, valid_until: '2025-07-01', attributes: { level: 'COMMUNE' } });
+export const COMMUNE_B = record(4, { master_type: 'AREA', business_key: 'XA-B', label: fixtureText['area.communeB.label'], parent_record_id: DISTRICT.id, valid_until: '2025-07-01', attributes: { level: 'COMMUNE' } });
+export const MERGED = record(5, { master_type: 'AREA', business_key: 'XA-Y', label: fixtureText['area.merged.label'], parent_record_id: PROVINCE.id, valid_from: '2025-07-01', attributes: { level: 'COMMUNE' } });
 
 export const BASIS = 'Resolution of the 2025 reform (working assumption awaiting CXN-34)';
 

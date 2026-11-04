@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- the replies of the API and the rows of the tables are read as the JSON they are */
 import { randomBytes, randomUUID } from 'node:crypto';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -32,6 +31,7 @@ import type { AnalysedProposal, AnalysisWorld } from '../../../../packages/db/te
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
 import type { RunningApp } from '../isolation/test-app';
+import { asNumber, asObject, asObjects, asString } from '../support/json';
 
 jest.setTimeout(300_000);
 
@@ -50,7 +50,7 @@ const WHY = 'Hợp đồng tương tự ở trang 18 chưa được nghiệm thu
 
 interface Reply {
   status: number;
-  json: Record<string, any>;
+  json: Record<string, unknown>;
 }
 
 describe('the review of the findings of an analysis by an expert and the comparison of proposals (ST-BID-010)', () => {
@@ -66,7 +66,7 @@ describe('the review of the findings of an analysis by an expert and the compari
     if (options.ifMatch !== null && options.ifMatch !== undefined) headers['if-match'] = options.ifMatch;
     const response = await fetch(`${app.baseUrl}${url}`, { method, headers, body: method === 'GET' ? undefined : JSON.stringify(options.body ?? {}) });
     const text = await response.text();
-    return { status: response.status, json: text === '' ? {} : (JSON.parse(text) as Record<string, any>) };
+    return { status: response.status, json: text === '' ? {} : (JSON.parse(text) as Record<string, unknown>) };
   }
   const rows = async <R extends object>(sql: string, params: unknown[] = [], tenant = TENANT_A): Promise<R[]> => harness.owner<R>(tenant, [[sql, params]]);
 
@@ -170,7 +170,7 @@ describe('the review of the findings of an analysis by an expert and the compari
 
       const done = await review(finding, 2, { to_status: 'CONTRADICTED', score_after: '2', reason: WHY });
       expect(done).toMatchObject({ status: 200, json: { status: 'CONTRADICTED', final_status: 'CONTRADICTED', final_score: '2.00', decision: 'ACCEPTED_WITH_CHANGE', resource_id: finding, resource_version: 3, run_status: 'AWAITING_REVIEW' } });
-      const [stored] = await rows<any>(
+      const [stored] = await rows<Record<string, unknown>>(
         `select r.from_status, r.to_status, r.score_before::text as score_before, r.score_after::text as score_after, r.reason, r.decision, r.reviewer_user_id, d.decision as record, d.rationale, d.subject_id, d.action_kind, d.applied_operation_id,
                 d.applied_resource_version::int as applied_version
            from machvon.analysis_finding_review r join machvon.ai_decision_record d on d.id = r.ai_decision_record_id where r.id = $1`,
@@ -194,15 +194,15 @@ describe('the review of the findings of an analysis by an expert and the compari
       expect(done.json.ai_decision_record_id).toEqual(expect.any(String));
       // What the model said is what it said: the finding still reads SUPPORTED and the expert's decision is read beside it.
       const read = await findings(fx.run.runId);
-      const item = (read.json.items as any[]).find((entry) => entry.id === finding);
+      const item = asObject(asObjects(read.json.items).find((entry) => entry.id === finding));
       expect(item).toMatchObject({ status: 'SUPPORTED', final_status: 'CONTRADICTED', final_score: '2.00', review_count: 2, version: 3 });
-      expect(item.reviews.map((entry: any) => [entry.from_status, entry.to_status, entry.score_before, entry.score_after, entry.decision])).toEqual([
+      expect(asObjects(item.reviews).map((entry) => [entry.from_status, entry.to_status, entry.score_before, entry.score_after, entry.decision])).toEqual([
         ['SUPPORTED', 'SUPPORTED', null, '4.00', 'ACCEPTED_WITH_CHANGE'],
         ['SUPPORTED', 'CONTRADICTED', '4.00', '2.00', 'ACCEPTED_WITH_CHANGE'],
       ]);
-      expect(item.reviews[1].reviewer.id).toBe(memberId(E1));
+      expect(asObject(asObjects(item.reviews)[1]?.reviewer).id).toBe(memberId(E1));
       // The trail and the event say who decided what, with the reason; the text of the finding is not in them.
-      const audit = await rows<any>("select safe_diff, reason from machvon.audit_event where action = 'bid.finding_reviewed' and resource_id = $1 order by occurred_at desc limit 1", [finding]);
+      const audit = await rows<Record<string, unknown>>("select safe_diff, reason from machvon.audit_event where action = 'bid.finding_reviewed' and resource_id = $1 order by occurred_at desc limit 1", [finding]);
       expect(audit[0]).toMatchObject({ reason: WHY, safe_diff: { from_status: 'SUPPORTED', to_status: 'CONTRADICTED', score_before: '4.00', score_after: '2.00', decision: 'ACCEPTED_WITH_CHANGE' } });
       expect(JSON.stringify(audit[0]?.safe_diff)).not.toContain('NT-1 on C2');
       expect(await rows("select count(*)::int as n from machvon.outbox_event where aggregate_id = $1 and type = 'bid.finding.reviewed.v1'", [finding])).toEqual([{ n: 2 }]);
@@ -271,7 +271,7 @@ describe('the review of the findings of an analysis by an expert and the compari
       const finalVersions = new Map<string, number>();
       for (const code of ['C1', 'C2', 'C3']) {
         const done = await review(fx.run.findings.get(code) as string, 1, { to_status: code === 'C3' ? 'MISSING' : 'SUPPORTED', reason: WHY });
-        finalVersions.set(code, done.json.resource_version);
+        finalVersions.set(code, asNumber(done.json.resource_version));
         expect(done.json.run_status).toBe(code === 'C3' ? 'COMPLETED' : 'AWAITING_REVIEW');
       }
       expect(await rows('select status, version::int as version from machvon.analysis_run where id = $1', [fx.run.runId])).toEqual([{ status: 'COMPLETED', version: 3 }]);
@@ -290,7 +290,7 @@ describe('the review of the findings of an analysis by an expert and the compari
       const [evidence] = await rows<{ id: string }>('select id from machvon.analysis_evidence where finding_id = $1', [c1]);
       const approved = await decide(c1, 1, { decision: 'approve', reason: WHY, evidence_ids: [evidence?.id] });
       expect(approved).toMatchObject({ status: 200, json: { decision: 'ACCEPTED', final_status: 'SUPPORTED', resource_version: 2 } });
-      const [row] = await rows<any>('select checked_evidence_ids, decision from machvon.analysis_finding_review where id = $1', [approved.json.review_id]);
+      const [row] = await rows<Record<string, unknown>>('select checked_evidence_ids, decision from machvon.analysis_finding_review where id = $1', [approved.json.review_id]);
       expect(row).toEqual({ checked_evidence_ids: [evidence?.id], decision: 'ACCEPTED' });
       const rejected = await decide(c1, 2, { decision: 'reject', reason: WHY, evidence_ids: [] });
       expect(rejected).toMatchObject({ status: 200, json: { decision: 'REJECTED', final_status: 'NEEDS_REVIEW', resource_version: 3 } });
@@ -319,20 +319,20 @@ describe('the review of the findings of an analysis by an expert and the compari
       const read = await compare(fx.seeded.packageId, `?criteria_version_id=${second.id}`);
       expect(read.status).toBe(200);
       expect(read.json).toMatchObject({ package: { id: fx.seeded.packageId }, criteria_version_id: second.id, criteria_status: 'APPROVED' });
-      expect(read.json.proposals.map((proposal: any) => [proposal.proposal_id, proposal.contractor.legal_name, proposal.decided_count])).toEqual([[other.proposalId, 'NT-2', 1]]);
+      expect(asObjects(read.json.proposals).map((proposal) => [proposal.proposal_id, asObject(proposal.contractor).legal_name, proposal.decided_count])).toEqual([[other.proposalId, 'NT-2', 1]]);
       expect(read.json.excluded).toEqual([
         { proposal_id: fx.run.proposalId, contractor: { id: fx.run.contractorId, legal_name: 'NT-1' }, run_id: fx.run.runId, criteria_version_id: fx.criteriaId, reason: 'CRITERIA_VERSION_MISMATCH' },
       ]);
       expect(read.json.excluded_attributes).toEqual(expect.arrayContaining(['GENDER', 'LOCAL_PRESENCE', 'ETHNICITY']));
       // A cell holds what the expert decided and nothing the model said: one is decided, the others wait.
-      const cells = new Map<string, any>(read.json.rows.map((row: any) => [row.criterion.code, row.cells[0]]));
+      const cells = new Map<string, unknown>(asObjects(read.json.rows).map((row) => [asString(asObject(row.criterion).code), asObjects(row.cells)[0]]));
       expect(cells.get('C2')).toMatchObject({ risk: 'NONE', decided: { status: 'SUPPORTED', score: '8.00', decision: 'ACCEPTED_WITH_CHANGE' } });
       expect(cells.get('C1')).toMatchObject({ risk: 'UNDECIDED', decided: null });
       expect(JSON.stringify(read.json)).not.toContain('NT-2 on C');
-      expect(read.json.proposals[0]).not.toHaveProperty('rank');
+      expect(asObjects(read.json.proposals)[0]).not.toHaveProperty('rank');
       // The default is the version in force, and opening the comparison is on the trail.
       expect((await compare(fx.seeded.packageId)).json.criteria_version_id).toBe(second.id);
-      const audit = await rows<any>("select safe_diff from machvon.audit_event where action = 'bid.comparison_opened' and resource_id = $1 order by occurred_at desc limit 1", [fx.seeded.packageId]);
+      const audit = await rows<Record<string, unknown>>("select safe_diff from machvon.audit_event where action = 'bid.comparison_opened' and resource_id = $1 order by occurred_at desc limit 1", [fx.seeded.packageId]);
       expect(audit[0]?.safe_diff).toMatchObject({ criteria_version_id: second.id, compared: 1, excluded: 1 });
     });
 

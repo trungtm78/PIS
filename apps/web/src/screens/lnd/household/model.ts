@@ -1,5 +1,6 @@
 import { ApiError } from '@machvon/api-client';
 import { isDay, isUuid } from '../model';
+import { hasControlCharacter } from '../../control-characters';
 
 /** LND-03: the households affected by a land recovery, their personal data masked and the one reading that opens it (ST-LND-002, LND 3.5, BR-LND-07, BR-LND-09). */
 export const HOUSEHOLDS_PATH = '/lnd/lnd-03';
@@ -32,8 +33,6 @@ export const MEMBER_MAX = 1000;
 const NATIONAL_ID = /^(\d{9}|\d{12})$/;
 const PHONE = /^\d{9,11}$/;
 const SHARE = /^(\d{1,3})(\.\d{1,4})?$/;
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u001f\u007f]/;
 
 type Raw = Record<string, unknown>;
 
@@ -214,19 +213,19 @@ export function validateRegister(form: RegisterForm, today: string): Partial<Rec
   const name = form.headName.trim();
   if (name === '') problems.headName = 'required';
   else if (name.length > TEXT_MAX_LENGTH) problems.headName = 'tooLong';
-  else if (CONTROL.test(name)) problems.headName = 'invalid';
+  else if (hasControlCharacter(name)) problems.headName = 'invalid';
   if (form.nationalId.trim() !== '' && !NATIONAL_ID.test(digitsOf(form.nationalId.trim()))) problems.nationalId = 'invalid';
   if (form.phone.trim() !== '' && !PHONE.test(phoneOf(form.phone.trim()))) problems.phone = 'invalid';
   const address = form.addressText.trim();
   if (address.length > TEXT_MAX_LENGTH) problems.addressText = 'tooLong';
-  else if (CONTROL.test(address)) problems.addressText = 'invalid';
+  else if (hasControlCharacter(address)) problems.addressText = 'invalid';
   const members = form.memberCount.trim();
   if (members !== '' && !(/^\d{1,4}$/.test(members) && Number(members) >= 1 && Number(members) <= MEMBER_MAX)) problems.memberCount = 'invalid';
   if (form.legalBasis === '') problems.legalBasis = 'required';
   const reference = form.legalBasisRef.trim();
   if (reference === '') problems.legalBasisRef = 'required';
   else if (reference.length > TEXT_MAX_LENGTH) problems.legalBasisRef = 'tooLong';
-  else if (CONTROL.test(reference)) problems.legalBasisRef = 'invalid';
+  else if (hasControlCharacter(reference)) problems.legalBasisRef = 'invalid';
   const consent = form.consentRecordId.trim();
   if (form.legalBasis === 'CONSENT' && consent === '') problems.consentRecordId = 'required';
   else if (consent !== '' && !isUuid(consent)) problems.consentRecordId = 'invalid';
@@ -278,7 +277,7 @@ export function validateReason(reason: string): FormProblem | undefined {
   const text = reason.trim();
   if (text === '') return 'required';
   if (text.length > REASON_MAX_LENGTH) return 'tooLong';
-  return text.length < REASON_MIN_LENGTH || CONTROL.test(text) ? 'invalid' : undefined;
+  return text.length < REASON_MIN_LENGTH || hasControlCharacter(text) ? 'invalid' : undefined;
 }
 
 export interface LinkForm {
@@ -333,7 +332,7 @@ export function validateRequest(form: RequestForm): Partial<Record<keyof Request
   const reason = form.reason.trim();
   if (reason === '') problems.reason = 'required';
   else if (reason.length > TEXT_MAX_LENGTH) problems.reason = 'tooLong';
-  else if (CONTROL.test(reason)) problems.reason = 'invalid';
+  else if (hasControlCharacter(reason)) problems.reason = 'invalid';
   return problems;
 }
 

@@ -17,7 +17,7 @@ enum CommandState {
   /// Sent in a batch; the answer has not arrived. A command found in this state after a restart is [unknown].
   sending,
 
-  /// The request may have been carried out and the answer was lost ("Chưa xác định kết quả"). It is looked up by its
+  /// The request may have been carried out and the answer was lost (the result is not yet known). It is looked up by its
   /// key and never created again.
   unknown,
 

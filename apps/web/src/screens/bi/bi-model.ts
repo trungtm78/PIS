@@ -101,7 +101,8 @@ export function toMetric(raw: unknown): Metric | undefined {
   };
 }
 
-const OPERATORS: Readonly<Record<string, string>> = { add: '+', sub: '-', mul: '×', div: '/' };
+// The multiplication sign (U+00D7) stands for `mul`.
+const OPERATORS: Readonly<Record<string, string>> = { add: '+', sub: '-', mul: '\u00d7', div: '/' };
 
 /** A tree written as a formula a person reads: `SUM(GIAI_NGAN) / SUM(KE_HOACH_TTG)`. Anything the grammar does not have is shown as a question mark, not guessed. */
 export function formulaText(node: Node | null): string {

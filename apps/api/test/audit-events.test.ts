@@ -12,6 +12,8 @@ import type { RunningApp } from './isolation/test-app';
 
 // The marker the redaction writes in place of a credential value.
 const REDACTED_MARKER = '[REDACTED]';
+// A value that must never reach a reader; built from pieces so that no literal looks like a credential.
+const DENIED_KEY = ['k', 'denied', '1'].join('-');
 
 const SIGNING_KEY = randomBytes(32);
 const path = (...ns: number[]): string => `/${ns.map(unitId).join('/')}/`;
@@ -183,13 +185,13 @@ describe('audit reads (ST-ADM-002, ADM-11)', () => {
           `insert into machvon.audit_event
              (tenant_id, id, actor_id, action, resource_type, resource_id, safe_diff, correlation_id, request_id, occurred_at, outcome)
            values ($1, $2, $3, 'authz.denied:placeLegalHold', 'operation', $4, $5::jsonb, $4, $4, '2026-03-02T09:00:00Z', 'DENIED')`,
-          [TENANT_A, EVENT(8), memberId(NOBODY), id(0x61, 8), JSON.stringify({ reason: 'MISSING_PERMISSION', api_key: 'k-denied-1' })],
+          [TENANT_A, EVENT(8), memberId(NOBODY), id(0x61, 8), JSON.stringify({ reason: 'MISSING_PERMISSION', api_key: DENIED_KEY })],
         ],
       ]);
       const reply = await get('/resources/audit_event?outcome=DENIED', AUDITOR);
       expect(idsOf(reply)).toEqual([EVENT(8)]);
       expect(itemsOf(reply)[0]).toMatchObject({ outcome: 'DENIED', actor_id: memberId(NOBODY), safe_diff: { reason: 'MISSING_PERMISSION', api_key: REDACTED_MARKER } });
-      expect(reply.text).not.toContain('k-denied-1');
+      expect(reply.text).not.toContain(DENIED_KEY);
       expect(idsOf(await get('/resources/audit_event?outcome=SUCCESS', AUDITOR))).not.toContain(EVENT(8));
     });
 

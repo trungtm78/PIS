@@ -1,4 +1,5 @@
 import { DomainError } from './errors.ts';
+import { message } from './messages.ts';
 
 /**
  * Source mappings and the reconciliation of two sources (ST-DGV-004, DGV.md F7, BR-DGV-09). A field of a source reaches a dataset only through a mapping that its owner confirmed, with the unit the source writes it in; and
@@ -10,9 +11,9 @@ import { DomainError } from './errors.ts';
 const FOLD = (text: string): string =>
   text
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/đ/g, 'd')
-    .replace(/Đ/g, 'D')
+    .replace(/[\u0300-\u036f]/g, '') // the combining marks (U+0300 to U+036F) that NFD splits off the letters
+    .replace(/\u0111/g, 'd') // the small letter d with stroke
+    .replace(/\u0110/g, 'D') // the capital letter D with stroke
     .toLowerCase()
     .replace(/\s+/g, ' ')
     .trim();
@@ -86,7 +87,7 @@ export function gateBatch(sourceFields: readonly string[], confirmed: readonly C
 // ---- reconciliation ------------------------------------------------------------------------------------------------------------------------
 
 /** The basis both sources are read on: dong, by the day the Treasury paid. */
-export const RECON_BASIS = 'VND, ngày Kho bạc thanh toán';
+export const RECON_BASIS = message('dgv.recon.basis');
 const SUPPORTED_BASES = [FOLD(RECON_BASIS), FOLD('VND, treasury payment date')];
 export const RECON_SOURCE_A = 'PAY.treasury_transaction';
 export const RECON_SOURCE_B = 'DIS.report_accepted';

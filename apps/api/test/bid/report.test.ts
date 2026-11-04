@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- the replies of the API and the rows of the tables are read as the JSON they are */
 import { randomBytes, randomUUID } from 'node:crypto';
 import { APP_FILTER } from '@nestjs/core';
 import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase, WORKER_MEMBERSHIP_ID } from '@machvon/db';
@@ -27,6 +26,7 @@ import type { AnalysedProposal } from '../../../../packages/db/test/support/bid-
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
 import type { RunningApp } from '../isolation/test-app';
+import { asObject, asObjects } from '../support/json';
 
 jest.setTimeout(300_000);
 
@@ -45,7 +45,7 @@ const WHY = 'The contract of the bridge was examined by the team and found as sa
 
 interface Reply {
   status: number;
-  json: Record<string, any>;
+  json: Record<string, unknown>;
 }
 
 describe('the evaluation report and its sign-off over HTTP (ST-BID-012, BID-13)', () => {
@@ -65,18 +65,18 @@ describe('the evaluation report and its sign-off over HTTP (ST-BID-012, BID-13)'
     if (options.ifMatch !== null && options.ifMatch !== undefined) headers['if-match'] = options.ifMatch;
     const response = await fetch(`${(options.on ?? app).baseUrl}${url}`, { method, headers, body: method === 'GET' ? undefined : JSON.stringify(options.body ?? {}) });
     const text = await response.text();
-    return { status: response.status, json: text === '' ? {} : (JSON.parse(text) as Record<string, any>) };
+    return { status: response.status, json: text === '' ? {} : (JSON.parse(text) as Record<string, unknown>) };
   }
   const rows = async <R extends object>(sql: string, params: unknown[] = [], tenant = TENANT_A): Promise<R[]> => harness.owner<R>(tenant, [[sql, params]]);
-  const audits = (resourceId: string, action: string) => rows<{ safe_diff: Record<string, any>; actor_id: string }>('select safe_diff, actor_id from machvon.audit_event where resource_id = $1 and action = $2', [resourceId, action]);
-  const events = (aggregateId: string, type: string) => rows<{ payload: Record<string, any>; aggregate_version: string }>('select payload, aggregate_version::text as aggregate_version from machvon.outbox_event where aggregate_id = $1 and type = $2', [aggregateId, type]);
+  const audits = (resourceId: string, action: string) => rows<{ safe_diff: Record<string, unknown>; actor_id: string }>('select safe_diff, actor_id from machvon.audit_event where resource_id = $1 and action = $2', [resourceId, action]);
+  const events = (aggregateId: string, type: string) => rows<{ payload: Record<string, unknown>; aggregate_version: string }>('select payload, aggregate_version::text as aggregate_version from machvon.outbox_event where aggregate_id = $1 and type = $2', [aggregateId, type]);
   const stored = async (id: string) =>
     (
-      await rows<{ status: string; version: string; signed_off_by: any[]; payload_sha256: string | null; payload_ref: string | null; issue_event_id: string | null; report_document_id: string | null; recalled_at: Date | null }>(
+      await rows<{ status: string; version: string; signed_off_by: Array<{ membership_id: string }>; payload_sha256: string | null; payload_ref: string | null; issue_event_id: string | null; report_document_id: string | null; recalled_at: Date | null }>(
         'select status, version::text, signed_off_by, payload_sha256, payload_ref, issue_event_id, report_document_id, recalled_at from machvon.evaluation_report where id = $1::uuid',
         [id],
       )
-    )[0] as { status: string; version: string; signed_off_by: any[]; payload_sha256: string | null; payload_ref: string | null; issue_event_id: string | null; report_document_id: string | null; recalled_at: Date | null };
+    )[0] as { status: string; version: string; signed_off_by: Array<{ membership_id: string }>; payload_sha256: string | null; payload_ref: string | null; issue_event_id: string | null; report_document_id: string | null; recalled_at: Date | null };
   const etag = (version: number): string => `"${version}"`;
 
   interface World {
@@ -404,12 +404,12 @@ describe('the evaluation report and its sign-off over HTTP (ST-BID-012, BID-13)'
       await sign(second, E1);
       const listed = await call('GET', `/procurement-packages/${w.seeded.packageId}/evaluation-reports`, { member: E2 });
       expect(listed.status).toBe(200);
-      expect(listed.json.items.map((item: any) => item.id)).toEqual([second, first]);
-      expect(listed.json.items[0]).toMatchObject({ status: 'DRAFT', package: { code: w.seeded.packageCode }, actions: { sign_off: true }, version: 2 });
-      expect(listed.json.items[0].signed_off_by).toEqual([expect.objectContaining({ membership_id: memberId(E1), display_name: 'User 1', dissent: false })]);
-      expect(listed.json.items[0].awaiting.map((member: any) => member.membership_id).sort()).toEqual([memberId(E2), memberId(E3)].sort());
-      expect(listed.json.items[0].summary.not_covered).toEqual([]);
-      expect(listed.json.items[1].summary.not_covered).toEqual([expect.objectContaining({ reason: 'NOT_SELECTED' })]);
+      expect(asObjects(listed.json.items).map((item) => item.id)).toEqual([second, first]);
+      expect(asObjects(listed.json.items)[0]).toMatchObject({ status: 'DRAFT', package: { code: w.seeded.packageCode }, actions: { sign_off: true }, version: 2 });
+      expect(asObjects(listed.json.items)[0]?.signed_off_by).toEqual([expect.objectContaining({ membership_id: memberId(E1), display_name: 'User 1', dissent: false })]);
+      expect(asObjects(asObjects(listed.json.items)[0]?.awaiting).map((member) => member.membership_id).sort()).toEqual([memberId(E2), memberId(E3)].sort());
+      expect(asObject(asObjects(listed.json.items)[0]?.summary).not_covered).toEqual([]);
+      expect(asObject(asObjects(listed.json.items)[1]?.summary).not_covered).toEqual([expect.objectContaining({ reason: 'NOT_SELECTED' })]);
       expect(listed.json.as_of).toEqual(expect.any(String));
       expect((await call('GET', `/procurement-packages/${randomUUID()}/evaluation-reports`, { member: E1 })).status).toBe(404);
       expect((await call('GET', `/evaluation-reports/${randomUUID()}`, { member: E1 })).status).toBe(404);

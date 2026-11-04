@@ -36,7 +36,8 @@ import type { Decision, DraftForm, DraftLineForm, DraftProblems, FormProblem, Pr
 
 type T = Translator['t'];
 const NONE = '—';
-const CLOSE_GLYPH = '×';
+// U+00D7, the multiplication sign.
+const CLOSE_GLYPH = '\u00d7';
 
 function problemMessage(t: T, problem: ReallocationProblem): string {
   switch (problem) {

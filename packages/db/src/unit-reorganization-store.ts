@@ -6,6 +6,7 @@ import { createUnit, lockUnitTree } from './org-unit-tree.ts';
 import type { CreateUnitInput } from './org-unit-tree.ts';
 import { bumpScopeVersion } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
+import { fillText, vietnameseData } from './vietnamese-data.ts';
 
 const TIME = (column: string): string => `to_char(${column} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`;
 /** The gauge of the reorganisations that stopped on a step and wait for someone to mend the cause and decide again (alert `ADM_UNIT_REORGANIZATION_FAILED`). */
@@ -415,7 +416,7 @@ export class UnitReorganizationStore {
         await tx.query(
           `insert into machvon.role_grant (tenant_id, id, membership_id, role_id, scope_json, effective_from, effective_until, scope_kind, scope_ref_ids, status, granted_by, grant_reason, reorganization_id)
            values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2::uuid, $3::jsonb, $4::timestamptz, $10::timestamptz, $5, $6::uuid[], 'Active', $7::uuid, $8, $9::uuid)`,
-          [grant.membership_id, grant.role_id, scopeJson, from.toISOString(), grant.scope_kind, refs, reorganization.approvedBy ?? reorganization.requestedBy, `Tổ chức lại đơn vị: ${reorganization.legalBasisRef}`, id, grant.effective_until],
+          [grant.membership_id, grant.role_id, scopeJson, from.toISOString(), grant.scope_kind, refs, reorganization.approvedBy ?? reorganization.requestedBy, fillText(vietnameseData<{ grantReason: string }>('unit-reorganization').grantReason, { legalBasisRef: reorganization.legalBasisRef }), id, grant.effective_until],
         );
       } else {
         const heldFrom = Date.parse(held.effective_from);

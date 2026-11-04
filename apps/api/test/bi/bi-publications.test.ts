@@ -13,7 +13,7 @@ const sum = (name: string) => ({ op: 'sum', args: [field(name)] });
 const owner = <T extends object>(sql: string, params: unknown[] = []): Promise<T[]> => app.harness.owner<T>(TENANT_A, [[sql, params]]);
 const sqlAs = (member: number, statement: string, params: unknown[] = []): Promise<unknown> => app.harness.tenants.withTenant(app.contextOf(member), (tx) => tx.query(statement, params));
 const events = (id: string, type: string) => owner<{ payload: Record<string, unknown> }>('select payload from machvon.outbox_event where aggregate_id = $1 and type = $2 order by created_at', [id, type]);
-const audits = (action: string, id: string) => owner<{ safe_diff: Record<string, any> }>('select safe_diff from machvon.audit_event where action = $1 and resource_id = $2 order by occurred_at', [action, id]); // eslint-disable-line @typescript-eslint/no-explicit-any
+const audits = (action: string, id: string) => owner<{ safe_diff: Record<string, unknown> }>('select safe_diff from machvon.audit_event where action = $1 and resource_id = $2 order by occurred_at', [action, id]);
 
 /** A frozen version of the dataset over a snapshot with lines in two units; the snapshot says how many rows it has (the real number unless a test says otherwise). */
 async function frozen(options: { stored?: number; lines?: number } = {}): Promise<{ snapshot: string; version: string }> {
@@ -345,7 +345,7 @@ describe('certification and publication approval (ST-BI-006, BI 3 F5)', () => {
     const dash = await submit('DASHBOARD', board.versionIds[0] as string);
     const all = await inbox('?status=PENDING');
     expect(all.status).toBe(200);
-    const items = all.json.items as Array<Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const items = all.json.items as Array<Record<string, unknown>>;
     expect(items.map((item) => item.object_id)).toEqual([board.versionIds[0], ...kinds.slice().reverse()]);
     expect(items[0]).toMatchObject({ id: dash.json.resource_id, object_kind: 'DASHBOARD', object_revision: 1, status: 'PENDING', decision: null, decided_by: null, requested_by: { id: memberId(REQUESTER) }, version: 1 });
     expect(items[0]?.object_code).toMatch(/^D-/);

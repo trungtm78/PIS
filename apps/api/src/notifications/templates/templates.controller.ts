@@ -58,7 +58,7 @@ function judge(template: Pick<NotificationTemplateRecord, 'channel' | 'contentAs
 }
 
 /**
- * The templates of the messages (ST-NOT-005, NOT 3.4, BR-NOT-10, BR-NOT-11): a revision per code × channel × locale is written, sent to review, approved by another person, and tested with the people the tenant listed.
+ * The templates of the messages (ST-NOT-005, NOT 3.4, BR-NOT-10, BR-NOT-11): a revision per code, channel and locale is written, sent to review, approved by another person, and tested with the people the tenant listed.
  * Nothing is stored or sent that breaks the rules of the channel: a phone or a provider carries no money and nothing confidential (422 `TEMPLATE_VARIABLE_CLASSIFIED`), and a push is safe on the lock screen.
  */
 @Controller()

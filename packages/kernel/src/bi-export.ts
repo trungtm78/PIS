@@ -1,4 +1,5 @@
 import { DomainError } from './errors.ts';
+import { message, messagesUnder } from './messages.ts';
 import type { ExportColumn, ExportDocument, ExportHeaderEntry } from './dis-export.ts';
 
 /** The most rows (groups) one export holds: a larger answer is refused, never cut (BI.md BR-BI-09, an assumption of the first release). */
@@ -15,7 +16,7 @@ export const BI_SCHEDULE_TIMEZONE = 'Asia/Ho_Chi_Minh';
 export const BI_SCHEDULE_MAX_RECIPIENTS = 500;
 
 /** The name of a dimension in the header of a file (the screens name them in their own language files). */
-export const BI_DIMENSION_LABELS: Readonly<Record<string, string>> = { unit: 'Đơn vị', project: 'Dự án', fund_source: 'Nguồn vốn', budget_level: 'Cấp ngân sách', bucket: 'Nguồn kế hoạch' };
+export const BI_DIMENSION_LABELS: Readonly<Record<string, string>> = messagesUnder('bi.export.dimension');
 
 // ---- the cron of a schedule ---------------------------------------------------------------------------------------------------------------
 
@@ -162,12 +163,12 @@ export interface BiExportInput {
 }
 
 const COLUMNS = (dimensionLabel: string): readonly ExportColumn[] => [
-  { key: 'group_key', label: 'Mã nhóm', numeric: false },
+  { key: 'group_key', label: message('bi.export.column.group_key'), numeric: false },
   { key: 'group_label', label: dimensionLabel, numeric: false },
-  { key: 'value', label: 'Giá trị', numeric: true },
-  { key: 'numerator', label: 'Tử số', numeric: true },
-  { key: 'denominator', label: 'Mẫu số', numeric: true },
-  { key: 'null_reason', label: 'Lý do không có số', numeric: false },
+  { key: 'value', label: message('bi.export.column.value'), numeric: true },
+  { key: 'numerator', label: message('bi.export.column.numerator'), numeric: true },
+  { key: 'denominator', label: message('bi.export.column.denominator'), numeric: true },
+  { key: 'null_reason', label: message('bi.export.column.null_reason'), numeric: false },
 ];
 
 /**
@@ -176,12 +177,12 @@ const COLUMNS = (dimensionLabel: string): readonly ExportColumn[] => [
  */
 export function buildBiExportDocument(input: BiExportInput): ExportDocument {
   const header: ExportHeaderEntry[] = [
-    { key: 'metric', label: 'Chỉ tiêu', value: `${input.metricCode} (bản ${input.metricRevision}, ${input.unit})` },
-    { key: 'scope', label: 'Phạm vi', value: input.scopeDescription },
-    { key: 'as_of_period', label: 'Kỳ', value: input.asOfPeriod },
+    { key: 'metric', label: message('bi.export.header.metric'), value: message('bi.export.header.metric_value', { code: input.metricCode, revision: input.metricRevision, unit: input.unit }) },
+    { key: 'scope', label: message('bi.export.header.scope'), value: input.scopeDescription },
+    { key: 'as_of_period', label: message('bi.export.header.as_of_period'), value: input.asOfPeriod },
     { key: 'snapshot', label: 'Snapshot', value: input.datasetVersionId },
-    ...(input.dimension === undefined ? [] : [{ key: 'dimension', label: 'Chiều', value: input.dimension.label }]),
-    { key: 'generated_at', label: 'Thời điểm', value: input.generatedAt.toISOString() },
+    ...(input.dimension === undefined ? [] : [{ key: 'dimension', label: message('bi.export.header.dimension'), value: input.dimension.label }]),
+    { key: 'generated_at', label: message('bi.export.header.generated_at'), value: input.generatedAt.toISOString() },
   ];
   const cells = (key: string, label: string, figure: { value: string | null; numerator: string | null; denominator: string | null; nullReason: string | null }): string[] => [
     key,
@@ -191,7 +192,7 @@ export function buildBiExportDocument(input: BiExportInput): ExportDocument {
     figure.denominator ?? '',
     figure.nullReason ?? '',
   ];
-  const rows = input.rows.map((row) => cells(row.key ?? '', row.label ?? row.key ?? 'Chưa phân loại', row));
-  rows.push(cells('', 'Tổng', input.total));
-  return { title: `Xuất số liệu ${input.metricCode}`, header, columns: COLUMNS(input.dimension?.label ?? 'Nhóm'), rows, notice: null };
+  const rows = input.rows.map((row) => cells(row.key ?? '', row.label ?? row.key ?? message('bi.export.row.unclassified'), row));
+  rows.push(cells('', message('bi.export.row.total'), input.total));
+  return { title: message('bi.export.title', { code: input.metricCode }), header, columns: COLUMNS(input.dimension?.label ?? message('bi.export.default_dimension')), rows, notice: null };
 }

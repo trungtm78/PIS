@@ -215,7 +215,7 @@ String findingMessage(BuildContext context, Finding finding) {
   }
 }
 
-/// An amount of whole dong in millions of dong with its sign (`+50 triệu đồng`, `-30 triệu đồng`), exactly.
+/// An amount of whole dong in millions of dong with its sign (`+50 million dong`, `-30 million dong`), exactly.
 String signedMillionsLabel(BuildContext context, String? vnd) {
   if (vnd == null) return context.t('mob.read.money.none');
   return context.t('mob.read.money.millions', <String, Object>{'value': formatSignedMillions(vnd, AppStrings.of(context).language)});

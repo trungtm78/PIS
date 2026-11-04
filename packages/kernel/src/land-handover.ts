@@ -22,7 +22,7 @@ export const HANDOVER_READY_PARCEL_STATUSES: readonly string[] = ['PAID', 'HANDE
 
 /**
  * The share of the required area that has been handed over, as a percentage with two decimals, rounded half up and computed on whole hundredths so that no floating-point
- * figure is involved (BR-LND-06: Σ handed / Σ required × 100; 0 when nothing is required).
+ * figure is involved (BR-LND-06: sum handed / sum required x 100; 0 when nothing is required).
  */
 export function handedRatio(handedAreaM2: string, requiredAreaM2: string): string {
   const handed = hundredths(handedAreaM2);

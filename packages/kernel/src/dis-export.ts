@@ -1,5 +1,7 @@
 import { crc32, deflateRawSync } from 'node:zlib';
+import { withoutXmlForbiddenChars } from './control-chars.ts';
 import { DomainError } from './errors.ts';
+import { message } from './messages.ts';
 
 /**
  * The export of a frozen snapshot (ST-DIS-016, DIS 3 F9, DIS-17): the lines of the snapshot that the caller may see, in a neutral layout (the official layout through DOC is a later story), under a header
@@ -65,22 +67,22 @@ export interface ExportColumn {
 }
 
 export const EXPORT_COLUMNS: readonly ExportColumn[] = [
-  { key: 'project_code', label: 'Mã dự án', numeric: false },
-  { key: 'project_name', label: 'Tên dự án', numeric: false },
-  { key: 'unit_code', label: 'Mã đơn vị', numeric: false },
-  { key: 'unit_name', label: 'Đơn vị', numeric: false },
-  { key: 'bucket', label: 'Nguồn vốn', numeric: false },
-  { key: 'budget_level', label: 'Cấp ngân sách', numeric: false },
-  { key: 'plan_pm_assigned_vnd', label: 'Kế hoạch TTg giao (VND)', numeric: true },
-  { key: 'plan_local_added_vnd', label: 'Kế hoạch địa phương bổ sung (VND)', numeric: true },
-  { key: 'plan_total_vnd', label: 'Tổng kế hoạch (VND)', numeric: true },
-  { key: 'disbursed_treasury_vnd', label: 'Kho bạc đã chi (VND)', numeric: true },
-  { key: 'disbursed_reported_vnd', label: 'Chủ đầu tư báo cáo (VND)', numeric: true },
-  { key: 'ctmtqg_subset_vnd', label: 'Trong đó CTMTQG (VND)', numeric: true },
-  { key: 'rate_pm_pct', label: 'Tỷ lệ theo kế hoạch TTg giao (%)', numeric: true },
-  { key: 'rate_total_pct', label: 'Tỷ lệ theo tổng kế hoạch (%)', numeric: true },
-  { key: 'rate_null_reason', label: 'Lý do không tính được tỷ lệ', numeric: false },
-  { key: 'treasury_coverage', label: 'Độ phủ số Kho bạc', numeric: false },
+  { key: 'project_code', label: message('dis.export.column.project_code'), numeric: false },
+  { key: 'project_name', label: message('dis.export.column.project_name'), numeric: false },
+  { key: 'unit_code', label: message('dis.export.column.unit_code'), numeric: false },
+  { key: 'unit_name', label: message('dis.export.column.unit_name'), numeric: false },
+  { key: 'bucket', label: message('dis.export.column.bucket'), numeric: false },
+  { key: 'budget_level', label: message('dis.export.column.budget_level'), numeric: false },
+  { key: 'plan_pm_assigned_vnd', label: message('dis.export.column.plan_pm_assigned_vnd'), numeric: true },
+  { key: 'plan_local_added_vnd', label: message('dis.export.column.plan_local_added_vnd'), numeric: true },
+  { key: 'plan_total_vnd', label: message('dis.export.column.plan_total_vnd'), numeric: true },
+  { key: 'disbursed_treasury_vnd', label: message('dis.export.column.disbursed_treasury_vnd'), numeric: true },
+  { key: 'disbursed_reported_vnd', label: message('dis.export.column.disbursed_reported_vnd'), numeric: true },
+  { key: 'ctmtqg_subset_vnd', label: message('dis.export.column.ctmtqg_subset_vnd'), numeric: true },
+  { key: 'rate_pm_pct', label: message('dis.export.column.rate_pm_pct'), numeric: true },
+  { key: 'rate_total_pct', label: message('dis.export.column.rate_total_pct'), numeric: true },
+  { key: 'rate_null_reason', label: message('dis.export.column.rate_null_reason'), numeric: false },
+  { key: 'treasury_coverage', label: message('dis.export.column.treasury_coverage'), numeric: false },
 ];
 
 /** Million dong from whole dong, without a float: `1250000000` is `1250.000000`, `-5000` is `-0.005000`. */
@@ -120,7 +122,7 @@ export interface ExportDocument {
 
 /** The words of the notice, in the file and in the footer of a PDF: the definitions of the figures await the sign-off of the business owner. */
 export function signOffNotice(status: DefinitionStatus): string | null {
-  return status === 'SIGNED' ? null : 'Các định nghĩa chỉ tiêu (tỷ lệ giải ngân, kỳ/YTD/PTD) đang chờ ký D03 (CXN-03): số liệu mang tính đề xuất, chưa phải số điều hành.';
+  return status === 'SIGNED' ? null : message('dis.export.notice.unsigned');
 }
 
 const orEmpty = (value: string | null): string => value ?? '';
@@ -132,20 +134,20 @@ export function buildExportDocument(input: ExportInput): ExportDocument {
   const units = [...new Set(input.unitCodes)].sort();
   const entry = (key: string, label: string, value: string): ExportHeaderEntry => ({ key, label, value });
   return {
-    title: 'Báo cáo giải ngân từ snapshot đã chốt',
+    title: message('dis.export.title'),
     header: [
-      entry('scope', 'Phạm vi (đơn vị)', units.length === 0 ? '' : units.join('; ')),
-      entry('period', 'Kỳ báo cáo', input.periodCode),
-      entry('snapshot_id', 'Mã snapshot', input.snapshotId),
-      entry('snapshot_kind', 'Loại snapshot', input.snapshotKind),
-      entry('as_of_date', 'Ngày số liệu', input.asOfDate),
-      entry('treasury_cutoff_date', 'Số Kho bạc tính đến hết ngày', input.treasuryCutoffDate),
-      entry('currency_unit', 'Đơn vị tính', scale),
-      entry('created_at', 'Thời điểm tạo tệp', input.createdAt.toISOString()),
-      entry('definition_status', 'Trạng thái định nghĩa chỉ tiêu', input.definitionStatus),
-      entry('row_count', 'Số dòng', String(input.lines.length)),
+      entry('scope', message('dis.export.header.scope'), units.length === 0 ? '' : units.join('; ')),
+      entry('period', message('dis.export.header.period'), input.periodCode),
+      entry('snapshot_id', message('dis.export.header.snapshot_id'), input.snapshotId),
+      entry('snapshot_kind', message('dis.export.header.snapshot_kind'), input.snapshotKind),
+      entry('as_of_date', message('dis.export.header.as_of_date'), input.asOfDate),
+      entry('treasury_cutoff_date', message('dis.export.header.treasury_cutoff_date'), input.treasuryCutoffDate),
+      entry('currency_unit', message('dis.export.header.currency_unit'), scale),
+      entry('created_at', message('dis.export.header.created_at'), input.createdAt.toISOString()),
+      entry('definition_status', message('dis.export.header.definition_status'), input.definitionStatus),
+      entry('row_count', message('dis.export.header.row_count'), String(input.lines.length)),
     ],
-    columns: scale === 'VND' ? chosen : chosen.map((column) => (column.key.endsWith('_vnd') ? { ...column, label: column.label.replace('(VND)', '(triệu VND)') } : column)),
+    columns: scale === 'VND' ? chosen : chosen.map((column) => (column.key.endsWith('_vnd') ? { ...column, label: column.label.replace('(VND)', message('dis.export.million_vnd_mark')) } : column)),
     rows: input.lines.map((line) => [
       line.projectCode,
       line.projectName,
@@ -192,15 +194,13 @@ export function csvOf(document: ExportDocument): string {
   const lines = [csvLine(['key', 'label', 'value']), ...document.header.map((entry) => csvLine([entry.key, entry.label, entry.value])), ''];
   lines.push(csvLine(document.columns.map((column) => column.key)));
   for (const row of document.rows) lines.push(csvLine(row.map((value, index) => guarded(value, document.columns[index]?.numeric === true))));
-  if (document.notice !== null) lines.push(csvLine(['notice', 'Ghi chú', document.notice]));
+  if (document.notice !== null) lines.push(csvLine(['notice', message('dis.export.notice.label'), document.notice]));
   return `\uFEFF${lines.join('\r\n')}\r\n`;
 }
 
 // ---- XLSX -----------------------------------------------------------------------------------------------------------------------
 
-// eslint-disable-next-line no-control-regex -- the characters XML 1.0 cannot hold are exactly the control ones
-const XML_FORBIDDEN = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g;
-const xmlText = (value: string): string => value.replace(XML_FORBIDDEN, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const xmlText = (value: string): string => withoutXmlForbiddenChars(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 function columnName(index: number): string {
   let name = '';
@@ -211,7 +211,7 @@ function columnName(index: number): string {
 /** Money and rates are written as text: a whole dong has up to 24 digits, which a spreadsheet number (15 digits) would round. */
 function sheetOf(document: ExportDocument): string {
   const rows: string[][] = [['key', 'label', 'value'], ...document.header.map((entry) => [entry.key, entry.label, entry.value]), [], document.columns.map((column) => column.key), ...document.rows];
-  if (document.notice !== null) rows.push([], ['notice', 'Ghi chú', document.notice]);
+  if (document.notice !== null) rows.push([], ['notice', message('dis.export.notice.label'), document.notice]);
   const body = rows
     .map((cells, r) => {
       const refs = cells.map((value, c) => `<c r="${columnName(c)}${r + 1}" t="inlineStr"><is><t xml:space="preserve">${xmlText(value)}</t></is></c>`);

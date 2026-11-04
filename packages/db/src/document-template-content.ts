@@ -1,4 +1,4 @@
-import { DomainError, canonicalJson, sha256Hex } from '@machvon/kernel';
+import { DomainError, canonicalJson, sha256Hex, hasControlCharExceptWhitespace } from '@machvon/kernel';
 import type { TemplateBlock, TemplateGroup } from './document-store.ts';
 
 const MAX_BLOCKS = 200;
@@ -16,8 +16,6 @@ export interface TemplateContent {
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
 
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
 
 function invalidBody(): DomainError {
   return new DomainError('VALIDATION_FAILED', 422, 'body_blocks');
@@ -46,7 +44,7 @@ export function validateTemplateContent(bodyBlocks: unknown, placeholderSchema: 
     if (!isRecord(raw) || Object.keys(raw).some((key) => key !== 'kind' && key !== 'text')) throw invalidBody();
     const { kind, text } = raw;
     if (typeof kind !== 'string' || !BLOCK_KINDS.includes(kind) || typeof text !== 'string') throw invalidBody();
-    if (text.trim() === '' || text.length > MAX_BLOCK_TEXT || CONTROL.test(text)) throw invalidBody();
+    if (text.trim() === '' || text.length > MAX_BLOCK_TEXT || hasControlCharExceptWhitespace(text)) throw invalidBody();
     const names = placeholdersOf(text);
     if (names === undefined || names.some((name) => !PATH.test(name))) throw new DomainError('PLACEHOLDER_SCHEMA_INVALID', 422, 'body_blocks');
     for (const name of names) used.add(name);

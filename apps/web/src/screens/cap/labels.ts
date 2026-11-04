@@ -3,7 +3,7 @@ import type { AppropriationStatus, BudgetLevel, Category, FieldProblem, Origin, 
 
 type Translate = ReturnType<typeof useTranslation>['t'];
 
-/** The origin of the capital (loại giao): who assigned it. */
+/** The origin of the capital: who assigned it. */
 export function originLabel(t: Translate, origin: Origin): string {
   switch (origin) {
     case 'PM_ASSIGNED':

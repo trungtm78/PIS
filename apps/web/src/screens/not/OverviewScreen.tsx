@@ -21,13 +21,18 @@ const money = (locale: string, value: string): string => `${new Intl.NumberForma
  * suppressed, the unknown kept in the denominator and shown apart for the operator to reconcile — with the cutoff (the end of the period) and the time it was computed. Under it, the use of the cap and of the budget of
  * each channel account. The figures move: the screen reads them again every minute.
  */
-export default function OverviewScreen({ route }: ScreenProps) {
+export default function OverviewScreen(props: ScreenProps) {
+  // What is open belongs to one tenant: a switch starts the screen over, with a new period that ends at the new time.
+  return <OverviewContent key={useSession().tenant?.id ?? 'none'} {...props} />;
+}
+
+function OverviewContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
-  const { permissions, tenant } = useSession();
+  const { permissions } = useSession();
   const canRead = permissions === undefined || permissions.includes(READ_PERMISSION);
   const [period, setPeriod] = useState<Period>('week');
   // The period ends when the screen is opened, so that the figures do not slide from one read to the next; changing the period starts it again.
-  const range = useMemo(() => periodRange(period, new Date()), [period, tenant?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  const range = useMemo(() => periodRange(period, new Date()), [period]);
   const overview = useOverview(range, canRead);
   const queryState = useScreenState({ isLoading: overview.isLoading, error: overview.error, data: overview.data, isEmpty: (data: unknown) => (data as Overview).channels.length === 0 && (data as Overview).accounts.length === 0 });
   const state = canRead ? queryState : 'denied';

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, isIsoDate, shiftDays, versionConflict } from '@machvon/kernel';
+import { DomainError, isIsoDate, shiftDays, versionConflict, hasControlChar } from '@machvon/kernel';
 import { PmtDossierStore } from './pmt-dossier-store.ts';
 import type { PermitStatus, Readiness } from './pmt-dossier-store.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -172,8 +172,7 @@ const stateInvalid = (): DomainError => new DomainError('PERMIT_STATE_INVALID', 
 /** A text as it is stored: trimmed, not empty, without control characters, within its length. */
 function textOf(value: string, field: string, max: number): string {
   const text = value.trim();
-  // eslint-disable-next-line no-control-regex
-  if (text === '' || text.length > max || /[\u0000-\u001f\u007f]/.test(text)) throw invalid(field);
+  if (text === '' || text.length > max || hasControlChar(text)) throw invalid(field);
   return text;
 }
 

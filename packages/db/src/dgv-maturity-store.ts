@@ -24,7 +24,48 @@ export type RubricStatus = 'DRAFT' | 'PUBLISHED' | 'SUPERSEDED';
 export type MilestoneStatus = 'PLANNED' | 'IN_PROGRESS' | 'ACHIEVED' | 'MISSED';
 export type AssessmentDecision = 'approve' | 'return' | 'reject';
 
-type Sql = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+interface Sql {
+  [column: string]: unknown;
+  id: string;
+  rubric_code: string;
+  framework_refs: Record<string, string[]>;
+  min_coverage_pct: string;
+  status: RubricStatus | AssessmentStatus | MilestoneStatus;
+  approved_by: string | null;
+  created_by: string | null;
+  created_raw: string;
+  period_code: string;
+  rubric_version_id: string;
+  scope_kind: "TENANT" | "DOMAIN" | "DATA_PRODUCT";
+  scope_ref: string | null;
+  assessor_user_id: string | null;
+  reviewer_id: string | null;
+  coverage_percent: string;
+  overall_state: "COMPUTED" | "NOT_COMPUTED" | null;
+  overall_level: string | null;
+  published_by: string | null;
+  published_raw: string | null;
+  assessment_id: string;
+  pillar_code: string;
+  criterion_code: string;
+  assessment_state: "NOT_ASSESSED" | "ASSESSED" | "NOT_APPLICABLE";
+  assessment_reviewer_id: string;
+  review_status: "EXPIRED" | "REJECTED" | "PENDING" | "ACCEPTED";
+  assessed_by: string | null;
+  assessed_on: string | null;
+  confidence: string | null;
+  reviewer_user_id: string | null;
+  reviewed_at: string | null;
+  review_note: string | null;
+  evidence_expires_on: string | null;
+  na_reason: string | null;
+  due_on: string;
+  owner_user_id: string | null;
+  exit_criteria: string;
+  achieved_assessment_id: string | null;
+  today: string;
+  expires_on: string | null;
+}
 
 export interface Person {
   membershipId: string;
@@ -192,9 +233,9 @@ function rubricOfRow(row: Sql): MaturityRubric {
     rubric: rubricOf(row.pillars_json),
     minCoveragePct: row.min_coverage_pct,
     evidenceTtlDays: Number(row.evidence_ttl_days),
-    status: row.status,
-    approvedBy: person(row.approved_by, row.approver_name),
-    createdBy: person(row.created_by, row.creator_name) as Person,
+    status: row.status as RubricStatus,
+    approvedBy: person(row.approved_by, row.approver_name as string | null),
+    createdBy: person(row.created_by, row.creator_name as string | null) as Person,
     createdAt: row.created_raw,
     version: Number(row.version),
   };
@@ -209,13 +250,13 @@ function assessmentOfRow(row: Sql): MaturityAssessment {
     rubricRevision: Number(row.rubric_revision),
     scopeKind: row.scope_kind,
     scopeRef: row.scope_ref,
-    assessor: person(row.assessor_user_id, row.assessor_name) as Person,
-    reviewer: person(row.reviewer_id, row.reviewer_name) as Person,
-    status: row.status,
+    assessor: person(row.assessor_user_id, row.assessor_name as string | null) as Person,
+    reviewer: person(row.reviewer_id, row.reviewer_name as string | null) as Person,
+    status: row.status as AssessmentStatus,
     coveragePercent: row.coverage_percent,
     overallState: row.overall_state,
     overallLevel: row.overall_level,
-    publishedBy: person(row.published_by, row.published_name),
+    publishedBy: person(row.published_by, row.published_name as string | null),
     publishedAt: row.published_raw,
     createdAt: row.created_raw,
     version: Number(row.version),
@@ -232,14 +273,14 @@ function evidenceOfRow(row: Sql): MaturityEvidence {
     level: row.level === null ? null : Number(row.level),
     evidenceRefs: Array.isArray(row.evidence_refs) ? row.evidence_refs : [],
     evidenceCount: Number(row.evidence_count),
-    assessorId: row.assessor_user_id,
+    assessorId: row.assessor_user_id as string,
     reviewerId: row.assessment_reviewer_id,
     reviewStatus: row.review_status,
-    assessedBy: person(row.assessed_by, row.assessed_name),
+    assessedBy: person(row.assessed_by, row.assessed_name as string | null),
     assessedOn: row.assessed_on,
     sampleSize: row.sample_size === null ? null : Number(row.sample_size),
     confidence: row.confidence,
-    reviewer: person(row.reviewer_user_id, row.reviewer_name),
+    reviewer: person(row.reviewer_user_id, row.reviewer_name as string | null),
     reviewedAt: row.reviewed_at,
     reviewNote: row.review_note,
     evidenceExpiresOn: row.evidence_expires_on,
@@ -257,10 +298,10 @@ function milestoneOfRow(row: Sql): MaturityMilestone {
     pillarCode: row.pillar_code,
     targetLevel: Number(row.target_level),
     dueOn: row.due_on,
-    owner: person(row.owner_user_id, row.owner_name) as Person,
+    owner: person(row.owner_user_id, row.owner_name as string | null) as Person,
     exitCriteria: row.exit_criteria,
     evidenceRequired: Array.isArray(row.evidence_required) ? row.evidence_required : [],
-    status: row.status,
+    status: row.status as MilestoneStatus,
     achievedAssessmentId: row.achieved_assessment_id,
     createdAt: row.created_raw,
     version: Number(row.version),
@@ -732,6 +773,6 @@ export class DgvMaturityStore {
         where status in ('PLANNED', 'IN_PROGRESS') and due_on < ${VIETNAM_DAY}::date returning id, owner_user_id, pillar_code, target_level, due_on::text as due_on, version::text as version`,
       [actor],
     );
-    return rows.map((row) => ({ id: row.id, ownerId: row.owner_user_id, pillarCode: row.pillar_code, targetLevel: Number(row.target_level), dueOn: row.due_on, version: Number(row.version) }));
+    return rows.map((row) => ({ id: row.id, ownerId: row.owner_user_id as string, pillarCode: row.pillar_code, targetLevel: Number(row.target_level), dueOn: row.due_on, version: Number(row.version) }));
   }
 }

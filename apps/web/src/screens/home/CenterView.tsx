@@ -42,6 +42,7 @@ function CenterContent({ route, variant }: ScreenProps & { variant: Variant }) {
   // The snapshot on the screen: empty until the first answer, then the one that answer was of. A change of unit reads that snapshot and not a newer one; the leader moves to a newer one by taking the banner.
   const [pinned, setPinned] = useState('');
   const query = useCommandCenter({ snapshotId: pinned, unitId });
+  const refetch = query.refetch;
   const units = useOrgUnits();
   const own = hasOwnPage(query.error);
   // Nothing frozen yet is not the end of the screen: it goes on asking, and offers the first snapshot when there is one.
@@ -70,9 +71,8 @@ function CenterContent({ route, variant }: ScreenProps & { variant: Variant }) {
     }
   }, [pinned, center, queryClient, tenant?.id, tenant?.membershipId, unitId]);
   useEffect(() => {
-    if (scopeMoved) void query.refetch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- the reading is repeated when the scope moves, not when the query object changes
-  }, [scopeMoved, latest.data?.scopeHash]);
+    if (scopeMoved) void refetch();
+  }, [scopeMoved, latest.data?.scopeHash, refetch]);
   const unitName = units.data?.find((unit) => unit.id === unitId)?.name;
   const refresh = (): void => {
     // What was read of the old snapshot is dropped, so that the next reading is of the latest one.

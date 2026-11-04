@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, activeGrants, permissionMatches, versionConflict } from '@machvon/kernel';
+import { DomainError, activeGrants, permissionMatches, versionConflict, hasControlChar } from '@machvon/kernel';
 import type { EffectiveAccess } from '@machvon/kernel';
 import { MasterRules } from './master-rules.ts';
 import { scopePredicate } from './scope-version.ts';
@@ -227,8 +227,7 @@ const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAIL
 /** A name or a code as it is stored: trimmed, within its length, without control characters. */
 function textOf(value: string, field: string, min: number, max: number): string {
   const text = value.trim();
-  // eslint-disable-next-line no-control-regex
-  if (text.length < min || text.length > max || /[\u0000-\u001f\u007f]/.test(text)) throw invalid(field);
+  if (text.length < min || text.length > max || hasControlChar(text)) throw invalid(field);
   return text;
 }
 

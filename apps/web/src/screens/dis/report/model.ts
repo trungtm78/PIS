@@ -3,6 +3,7 @@ import type { components } from '@machvon/contracts';
 import { toAttachment, toDecisions, toNarrative, toProgress, toReview } from './detail-parts';
 import type { Attachment, DecisionEntry, Narrative, Progress, Review } from './detail-parts';
 import { digitsOf } from './money';
+import { hasControlCharacter } from '../../control-characters';
 
 /** DIS-01 the list of the weekly reports, DIS-02 the choice of the period and the project, DIS-04 the entry of the six cells, DIS-18 the draft that was saved (ST-DIS-003, DIS 3 F1). */
 export const REPORTS_PATH = '/dis/dis-01';
@@ -319,8 +320,6 @@ export interface FundingProblems {
 
 const EXPLANATION_MIN = 10;
 const EXPLANATION_MAX = 2000;
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u001f\u007f]/;
 
 export const fieldId = (cell: CellKey, field: 'cumulative' | 'ctmtqg'): string => `${cellId(cell)}.${field}`;
 
@@ -345,7 +344,7 @@ export function validateFunding(form: FundingForm): FundingProblems {
   if (words !== '') {
     if (words.length < EXPLANATION_MIN) problems.explanation = 'tooShort';
     else if (words.length > EXPLANATION_MAX) problems.explanation = 'tooLong';
-    else if (CONTROL.test(words)) problems.explanation = 'invalid';
+    else if (hasControlCharacter(words)) problems.explanation = 'invalid';
   }
   return problems;
 }

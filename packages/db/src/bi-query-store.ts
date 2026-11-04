@@ -71,7 +71,31 @@ export interface ContextRow {
 }
 
 interface Sql {
-  [column: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  [column: string]: unknown;
+  version_id: string;
+  dataset_id: string;
+  source_snapshot_id: string;
+  as_of_period: string;
+  reporting_period_id: string;
+  quality_badge: string;
+  status: string;
+  built_at: string | number | Date;
+  newer: string | null;
+  id: string;
+  metric_version_id: string;
+  snapshot_id: string;
+  subject_scope_hash: string;
+  filters_ast: QueryFilter[];
+  expires_at: string | number | Date;
+  parent_context_id: string | null;
+  created_by: string | null;
+  key: string | null;
+  label: string | null;
+  numerator: string | null;
+  denominator: string | null;
+  distinct_count: string | null;
+  line_count: string | null | undefined;
+  dimension_path: string[] | null;
 }
 
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);

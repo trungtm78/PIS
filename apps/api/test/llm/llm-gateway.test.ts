@@ -23,7 +23,7 @@ beforeEach(async () => {
 });
 
 const etag = (reply: Reply): string => `"${String(reply.json.resource_version)}"`;
-const audits = (action: string) => app.rows<{ safe_diff: Record<string, any> }>('select safe_diff from machvon.audit_event where action = $1 and occurred_at >= $2 order by occurred_at', [action, since]); // eslint-disable-line @typescript-eslint/no-explicit-any
+const audits = (action: string) => app.rows<{ safe_diff: Record<string, unknown> }>('select safe_diff from machvon.audit_event where action = $1 and occurred_at >= $2 order by occurred_at', [action, since]);
 const events = (type: string) => app.rows<{ payload: Record<string, unknown> }>('select payload from machvon.outbox_event where type = $1 and created_at >= $2 order by created_at', [type, since]);
 
 const SCHEMA = { type: 'object', properties: { text: { type: 'string' } }, required: ['text'] };
@@ -144,7 +144,7 @@ const ask = (sources: string[], overrides: Record<string, unknown> = {}, member 
     body: { task_type: 'SUMMARY', subject_module: 'BID', source_refs: sources.map((id) => ({ document_version_id: id })), input_ref: 'tenants/t/inputs/summary-1', input_sha256: sha256Of('the input'), ...overrides },
   });
 
-const request = async (id: string) => (await app.rows<Record<string, any>>('select * from machvon.ai_request where id = $1', [id]))[0] as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+const request = async (id: string) => (await app.rows<Record<string, unknown>>('select * from machvon.ai_request where id = $1', [id]))[0] as Record<string, unknown>;
 const attempts = (id: string) =>
   app.rows<{ attempt_no: number; attempt_kind: string; route_class: string; actual_model: string; outcome: string; cost_vnd: string }>(
     'select attempt_no, attempt_kind, route_class, actual_model, outcome, cost_vnd::text as cost_vnd from machvon.llm_attempt where ai_request_id = $1 order by attempt_no',

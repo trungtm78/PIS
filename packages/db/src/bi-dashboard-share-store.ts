@@ -22,7 +22,15 @@ export interface ShareRow {
 }
 
 interface Sql {
-  [column: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  [column: string]: unknown;
+  id: string;
+  dashboard_id: string;
+  grantee_kind: ShareGranteeKind;
+  grantee_ref_id: string;
+  grantee_name: string | null;
+  permission: SharePermission;
+  status: ShareStatus;
+  created_by: string;
 }
 
 const UNIQUE_VIOLATION = '23505';

@@ -477,7 +477,7 @@ describe('a query that became a job (ST-BI-009, BI F3: 202 ASYNC_JOB)', () => {
       cancelled: () => false,
       intervalMs: 10,
       attempts: 4,
-      sleep: () => Promise.resolve(),
+      waitBetweenPolls: () => Promise.resolve(),
       ...over,
     };
   };
@@ -554,7 +554,7 @@ describe('a query that became a job (ST-BI-009, BI F3: 202 ASYNC_JOB)', () => {
     let wanted = true;
     const watch = watching([state('RUNNING'), state('COMPLETED')], {
       cancelled: () => !wanted,
-      sleep: () => {
+      waitBetweenPolls: () => {
         wanted = false;
         return Promise.resolve();
       },

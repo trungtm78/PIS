@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import reconBasis from './recon-basis.vi.json';
 
 export const MAPPING_STATUSES = ['PROPOSED', 'CONFIRMED', 'REJECTED', 'RETIRED'] as const;
 export type MappingStatus = (typeof MAPPING_STATUSES)[number];
@@ -14,7 +15,7 @@ export const UNITS = ['', 'VND', 'THOUSAND_VND', 'MILLION_VND', 'BILLION_VND'] a
 /** The two sources and the basis the server compares: the only ones there are, shown and sent as they are. */
 export const RECON_SOURCE_A = 'PAY.treasury_transaction';
 export const RECON_SOURCE_B = 'DIS.report_accepted';
-export const RECON_BASIS = 'VND, ngày Kho bạc thanh toán';
+export const RECON_BASIS: string = reconBasis['recon.basis'];
 export const DEFAULT_RECON_CODE = 'PAY-DIS-MONTH';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

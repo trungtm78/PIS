@@ -4,7 +4,16 @@ import type { GraphEdge, GraphNode, LineageClassification, LineageDirection, Lin
 import type { TenantTx } from './tenant-database.ts';
 
 interface Sql {
-  [column: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  [column: string]: unknown;
+  id: string;
+  ref_module: string;
+  ref_id: string | null;
+  ref_key: string | null;
+  display_name: string;
+  from_node_id: string;
+  to_node_id: string;
+  run_id: string | null;
+  transform_version: string;
 }
 
 type Described = Extract<NodeRef, { kind: 'DESCRIBED' }>;

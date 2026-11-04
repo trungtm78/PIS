@@ -3,6 +3,7 @@ import type { Harness } from '../sas/test-support';
 import { detail } from './test-support';
 
 export { mount, routeOf } from './test-support';
+import fixtureText from './fixture-text.vi.json';
 export type { Harness };
 
 const uuid = (n: number): string => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
@@ -14,11 +15,11 @@ export const DOCUMENT = uuid(900);
 export const EVIDENCE = uuid(901);
 
 export const CRITERIA = [
-  { code: 'C1', name: 'Phù hợp quy hoạch', weight: '30' },
-  { code: 'C2', name: 'Tính khả thi', weight: '25' },
-  { code: 'C3', name: 'Hiệu quả kinh tế', weight: '20' },
-  { code: 'C4', name: 'Cân đối vốn', weight: '15' },
-  { code: 'C5', name: 'Rủi ro', weight: '10' },
+  { code: 'C1', name: fixtureText['criteria.planningFit'], weight: '30' },
+  { code: 'C2', name: fixtureText['criteria.feasibility'], weight: '25' },
+  { code: 'C3', name: fixtureText['criteria.economicEfficiency'], weight: '20' },
+  { code: 'C4', name: fixtureText['criteria.capitalBalance'], weight: '15' },
+  { code: 'C5', name: fixtureText['criteria.risk'], weight: '10' },
 ];
 
 export const criteriaSet = (overrides: Record<string, unknown> = {}) => ({
@@ -26,7 +27,7 @@ export const criteriaSet = (overrides: Record<string, unknown> = {}) => ({
   key: 'APPR-CRIT-2026r1',
   revision: 1,
   valid_from: '2026-01-01',
-  legal_basis: 'Bộ tiêu chí do cơ quan tài chính ban hành',
+  legal_basis: fixtureText['criteria.legalBasis'],
   awaiting_confirmation: true,
   cxn: 'ASSUMPTION-APPRAISAL-60',
   pass_threshold: '60',
@@ -40,7 +41,7 @@ export const sheet = (id: string, values: number[], overrides: Record<string, un
   round: 1,
   status: 'SUBMITTED',
   mine: false,
-  appraiser: { membership_id: uuid(50), display_name: 'Trần Thị Bình' },
+  appraiser: { membership_id: uuid(50), display_name: fixtureText['appraiser.displayName'] },
   scores: CRITERIA.map((criterion, index) => ({ criterion_code: criterion.code, score: values[index], evidence_ids: [] })),
   total_score: '73.00',
   recommendation: 'ADMIT',

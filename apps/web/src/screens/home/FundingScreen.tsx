@@ -13,7 +13,7 @@ import type { OriginCard, SourceCard } from './funding-model';
 const DETAIL_PATH = '/home/home-08';
 
 /**
- * HOME-07: the funding structure (ST-HOME-005, HOME 3 F6): the capital published for a year, in cards by source (NSTW, NSĐP, ODA, the others) and by origin (the Prime Minister's, added by the
+ * HOME-07: the funding structure (ST-HOME-005, HOME 3 F6): the capital published for a year, in cards by source (NSTW, NSDP, ODA, the others) and by origin (the Prime Minister's, added by the
  * province, carried over, support, the NSTW revenue increase). CTMTQG is shown as "of which" under NSTW, from the plan lines, and is in no total; what has no figure says "no data" and is never zero.
  * Read-only, from the register of CAP; HOME keeps no table of it.
  */

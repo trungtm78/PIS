@@ -1,4 +1,5 @@
 import { DomainError } from './errors.ts';
+import { hasControlChar } from './control-chars.ts';
 
 /**
  * The channel accounts of a tenant (ST-OMNI-001, OMNI.md 3.7, BR-OMNI-02, BR-OMNI-04): the account at a provider through which messages go out and webhooks come in. An account is connected with references to its secrets
@@ -17,8 +18,6 @@ export const WEBHOOK_CHANNELS: ReadonlySet<string> = new Set(['EMAIL', 'SMS', 'Z
 const EXTERNAL_ID = /^[A-Za-z0-9][A-Za-z0-9._:@-]{0,199}$/;
 const SECRET_REF = /^secret:\/\/[A-Za-z0-9._/-]{1,200}$/;
 const CALENDAR_CODE = /^[A-Za-z0-9._-]{1,60}$/;
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u001f\u007f]/;
 export const AUTO_REPLY_MAX = 500;
 /** What an adapter answers when the provider says the credential of the account no longer works: the account is CredentialExpired until it is verified again. */
 export const CREDENTIAL_EXPIRED_CODE = 'CREDENTIAL_EXPIRED';
@@ -32,7 +31,7 @@ export const isAccountChannel = (value: unknown): value is AccountChannel => typ
 export function displayNameOf(raw: unknown, field = 'display_name'): string {
   if (typeof raw !== 'string') throw invalid(field);
   const name = raw.normalize('NFC').trim();
-  if (name === '' || name.length > DISPLAY_NAME_MAX || CONTROL.test(name)) throw invalid(field);
+  if (name === '' || name.length > DISPLAY_NAME_MAX || hasControlChar(name)) throw invalid(field);
   return name;
 }
 
@@ -83,7 +82,7 @@ export function assertChanges(raw: { display_name?: unknown; auto_reply_text?: u
   if (raw.display_name !== undefined) changes.displayName = displayNameOf(raw.display_name);
   if (raw.auto_reply_text !== undefined) {
     if (raw.auto_reply_text === null || (typeof raw.auto_reply_text === 'string' && raw.auto_reply_text.trim() === '')) changes.autoReplyText = null;
-    else if (typeof raw.auto_reply_text === 'string' && raw.auto_reply_text.length <= AUTO_REPLY_MAX && !CONTROL.test(raw.auto_reply_text.replace(/[\n\r\t]/g, ' '))) changes.autoReplyText = raw.auto_reply_text.normalize('NFC').trim();
+    else if (typeof raw.auto_reply_text === 'string' && raw.auto_reply_text.length <= AUTO_REPLY_MAX && !hasControlChar(raw.auto_reply_text.replace(/[\n\r\t]/g, ' '))) changes.autoReplyText = raw.auto_reply_text.normalize('NFC').trim();
     else throw invalid('auto_reply_text');
   }
   if (raw.calendar_code !== undefined) {

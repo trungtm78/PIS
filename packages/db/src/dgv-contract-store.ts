@@ -15,7 +15,37 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const MAX_COMMENT = 2000;
 
 interface Sql {
-  [column: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  [column: string]: unknown;
+  id: string;
+  contract_id: string | null;
+  consumer_kind: string;
+  consumer_ref: string;
+  consumer_owner_user_id: string;
+  decision: DgvApprovalDecision;
+  decided_by: string | null;
+  comment: string | null;
+  dataset_id: string | null;
+  dataset_code: string;
+  grain: string;
+  owner_id: string;
+  compatibility: "INITIAL" | "BACKWARD_COMPATIBLE" | "BREAKING" | null;
+  odcs_sha256: string | null;
+  odcs_object_key: string | null;
+  published_by: string | null;
+  supersedes_id: string | null;
+  migration_window_until: string | null;
+  serving_until: string | null;
+  odcs_version: string | null;
+  status: DgvContractStatus;
+  effective_from: string | null;
+  classification: string;
+  created_by: string | null;
+  approved_by: string | null;
+  created_raw: string;
+  published_raw: string;
+  owner_name: string | null;
+  current_contract_version_id: string | null;
+  contract_status: DgvContractStatus;
 }
 
 export type DgvContractStatus = 'DRAFT' | 'IN_REVIEW' | 'PUBLISHED' | 'SUPERSEDED' | 'REJECTED' | 'RETURNED';
@@ -118,7 +148,7 @@ const toColumns = (json: unknown): ContractColumn[] =>
 
 const approvalOf = (row: Sql): DgvConsumerApproval => ({
   id: row.id,
-  contractId: row.contract_id,
+  contractId: row.contract_id as string,
   consumerKind: row.consumer_kind,
   consumerRef: row.consumer_ref,
   consumerOwnerId: row.consumer_owner_user_id,
@@ -147,7 +177,7 @@ const VERSION_SELECT = `select v.id, v.dataset_id, d.dataset_code, v.contract_id
 function versionOf(row: Sql): DgvContractVersion {
   return {
     id: row.id,
-    datasetId: row.dataset_id,
+    datasetId: row.dataset_id as string,
     datasetCode: row.dataset_code,
     contractId: row.contract_id,
     revision: Number(row.revision),
@@ -275,7 +305,7 @@ export class DgvContractStore {
     const by = new Map<string, DgvConsumerApproval[]>();
     if (contractIds.length === 0) return by;
     const rows = await tx.query<Sql>(`${APPROVAL_SELECT} where a.contract_id = any($1::uuid[]) order by a.consumer_kind, a.consumer_ref`, [[...contractIds]]);
-    for (const row of rows) by.set(row.contract_id, [...(by.get(row.contract_id) ?? []), approvalOf(row)]);
+    for (const row of rows) by.set(row.contract_id as string, [...(by.get(row.contract_id as string) ?? []), approvalOf(row)]);
     return by;
   }
 
@@ -449,8 +479,8 @@ export class DgvContractStore {
       items: page.map((row) => ({
         approval: approvalOf(row),
         contract: {
-          changes: changes.get(row.contract_id) ?? [],
-          id: row.contract_id,
+          changes: changes.get(row.contract_id as string) ?? [],
+          id: row.contract_id as string,
           datasetId: row.dataset_id,
           datasetCode: row.dataset_code,
           revision: Number(row.revision),
@@ -508,7 +538,7 @@ export class DgvContractStore {
       if (
         input.migrationWindowUntil === undefined ||
         !DATE.test(input.migrationWindowUntil) ||
-        !migrationWindowEnough(row.effective_from, input.migrationWindowUntil) ||
+        !migrationWindowEnough(row.effective_from as string, input.migrationWindowUntil) ||
         input.migrationWindowUntil < input.today
       )
         throw new DomainError('MIGRATION_WINDOW_REQUIRED', 422, 'migration_window_until');
@@ -569,8 +599,8 @@ export class DgvContractStore {
         where v.dataset_id = $1::uuid order by v.revision desc limit 1`,
       [row.dataset_id],
     );
-    const declared = before[0]?.odcs_json === undefined || before[0].odcs_json === null ? [] : parseOdcs(before[0].odcs_json, before[0].odcs_version).consumers;
-    const required = requiredConsumers(declared, await this.knownConsumers(tx, row.dataset_id));
+    const declared = before[0]?.odcs_json === undefined || before[0].odcs_json === null ? [] : parseOdcs(before[0].odcs_json, before[0].odcs_version as string).consumers;
+    const required = requiredConsumers(declared, await this.knownConsumers(tx, row.dataset_id as string));
     const asked = await tx.query<{ consumer_kind: string; consumer_ref: string; consumer_owner_user_id: string }>(
       'select consumer_kind, consumer_ref, consumer_owner_user_id from machvon.contract_consumer_approval where contract_id = $1::uuid',
       [row.id],

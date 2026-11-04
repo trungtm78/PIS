@@ -108,7 +108,55 @@ export interface SettleResult {
 }
 
 interface Sql {
-  [column: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  [column: string]: unknown;
+  id: string;
+  scope_kind: "USER" | "UNIT" | "TENANT" | "PROJECT";
+  scope_ref_id: string | null;
+  period: "MONTH" | "QUARTER" | "YEAR";
+  limit_vnd: string;
+  soft_threshold_pct: number;
+  hard_stop: boolean;
+  max_requests_per_day: number | null;
+  max_concurrent: number | null;
+  effective_from: string | number | Date;
+  status: string;
+  created_by: string;
+  created_at: string | number | Date;
+  budget_id: string;
+  period_start: string;
+  settled_vnd: string;
+  reserved_open_vnd: string;
+  request_count: number;
+  exception_count: number;
+  blocked: boolean;
+  request_id: string;
+  reserved_amount: string;
+  currency: string;
+  expires_at: string | number | Date;
+  settled_amount: string;
+  released_amount: string;
+  settled_at: string | number | Date;
+  reconcile_note: string | null;
+  page_key: string;
+  provider: string;
+  model_id: string;
+  model_ref_id: string | null;
+  effective_until: string | number | Date;
+  input_per_million: string;
+  cached_per_million: string;
+  output_per_million: string;
+  cached_semantics: CachedSemantics | null;
+  reasoning_in_output: boolean | null;
+  fx_rate_to_vnd: string | null;
+  fx_source: string | null;
+  source_url: string;
+  verified_by: string | null;
+  verified_at: string | number | Date;
+  cost_vnd: string;
+  input_total: string;
+  cached_input: string;
+  noncached_input: string;
+  output_total: string;
 }
 
 const BUDGET = `select id, scope_kind, scope_ref_id, period, limit_vnd::text as limit_vnd, soft_threshold_pct, hard_stop, max_requests_per_day, max_concurrent, effective_from::text as effective_from, status, created_by, created_at, version::text as version from machvon.ai_budget`;
@@ -127,7 +175,7 @@ const budgetOf = (row: Sql): BudgetRow => ({
   hardStop: row.hard_stop,
   maxRequestsPerDay: row.max_requests_per_day,
   maxConcurrent: row.max_concurrent,
-  effectiveFrom: row.effective_from,
+  effectiveFrom: row.effective_from as string,
   status: row.status,
   createdBy: row.created_by,
   createdAt: new Date(row.created_at).toISOString(),
@@ -151,7 +199,7 @@ const counterOf = (row: Sql): CounterRow => ({
 const reservationOf = (row: Sql): ReservationRow => ({
   id: row.id,
   requestId: row.request_id,
-  scope: row.scope_json,
+  scope: row.scope_json as { kind: "USER" | "UNIT" | "TENANT" | "PROJECT"; ref: string | null; budgetId: string; counterId: string; }[],
   reservedAmount: dong(row.reserved_amount),
   currency: row.currency,
   status: row.status,

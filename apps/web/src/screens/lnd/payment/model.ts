@@ -1,6 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import { daysBetween, isDay, isUuid } from '../model';
 import type { PlanLine } from '../plan/model';
+import { hasControlCharacter } from '../../control-characters';
 
 /** LND-07: the payments of an approved plan to its households (ST-LND-007, LND 3.2, BR-LND-03). */
 export const PAYMENTS_PATH = '/lnd/lnd-07';
@@ -19,8 +20,6 @@ export const ACCOUNT_MIN_LENGTH = 4;
 export const ACCOUNT_MAX_LENGTH = 40;
 const AMOUNT = /^[1-9]\d{0,23}$/;
 const ACCOUNT = /^[A-Za-z0-9][A-Za-z0-9 -]{2,38}[A-Za-z0-9]$/;
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u001f\u007f]/;
 
 type Raw = Record<string, unknown>;
 
@@ -128,7 +127,7 @@ const wordsProblem = (value: string): FormProblem | undefined => {
   const words = value.trim();
   if (words === '') return 'required';
   if (words.length > TEXT_MAX_LENGTH) return 'tooLong';
-  return CONTROL.test(words) ? 'invalid' : undefined;
+  return hasControlCharacter(words) ? 'invalid' : undefined;
 };
 
 export interface ScheduleForm {

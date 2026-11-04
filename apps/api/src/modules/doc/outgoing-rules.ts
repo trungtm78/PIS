@@ -25,12 +25,12 @@ const SECRET_LEVELS: ReadonlySet<string> = new Set(['mat', 'toi mat', 'tuyet mat
 
 const plain = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
 
-/** Lower case, without diacritics, single spaces: "Tuyệt  MẬT" and "tuyet mat" are the same word. */
+/** Lower case, without diacritics, single spaces: a word with accents and capitals and the same word typed without them are the same word. */
 function foldText(text: string): string {
   return text
     .normalize('NFD')
     .replace(/\p{M}/gu, '')
-    .replace(/đ/gi, 'd')
+    .replace(/\u0111/gi, 'd') // U+0111/U+0110, the Vietnamese d with a stroke, which NFD does not decompose
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, ' ')
     .trim();

@@ -11,7 +11,7 @@ import type { ConflictDecision, DecideForm, Declaration, DeclareForm } from './m
 import '../bid.css';
 
 /** The multiplication sign on the close button of a dialog. */
-const CLOSE_GLYPH = '×';
+const CLOSE_GLYPH = '\u00d7';
 
 interface DeclareDialogProps {
   pack: TrackedPackage;

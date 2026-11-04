@@ -108,7 +108,7 @@ Map<String, InventoryProblem> checkInventory(InventoryForm form) {
   return problems;
 }
 
-/// `quantity × unit price` rounded half up to the dong, on whole numbers (BR-LND-04: 80 m2 × 4.500.000 = 360.000.000); null while the two
+/// `quantity * unit price` rounded half up to the dong, on whole numbers (BR-LND-04: 80 m2 * 4.500.000 = 360.000.000); null while the two
 /// are not figures. It is a preview for the person: the amount of the record is the server's.
 String? amountOf(String quantity, String unitPriceVnd) {
   final String q = normaliseQuantity(quantity);

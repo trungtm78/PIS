@@ -11,7 +11,7 @@ import 'bi_fixtures.dart';
 
 MachvonApiClient _client(ScriptedServer server) => MachvonApiClient(baseUrl: Uri.parse('https://api.test/v1'), transport: server, token: () async => 'token');
 
-JobPolling _polling({int attempts = 3, List<Duration>? slept}) => JobPolling(interval: const Duration(seconds: 3), attempts: attempts, sleep: (Duration d) async => slept?.add(d));
+JobPolling _polling({int attempts = 3, List<Duration>? slept}) => JobPolling(interval: const Duration(seconds: 3), attempts: attempts, waitBetweenPolls: (Duration d) async => slept?.add(d));
 
 HttpResult _job(String runId) => FakeTransport.json(202, <String, Object?>{'status': 'ASYNC_JOB', 'run_id': runId, 'mode': 'ASYNC_JOB'});
 
@@ -94,7 +94,7 @@ void main() {
         ..answer('POST', '/dashboard-queries', (_) => _job('run-1'))
         ..on('GET', '/bi/query-runs/:id', (_) => <String, Object?>{'status': 'COMPLETED'});
       bool gone = false;
-      final JobPolling polling = JobPolling(interval: Duration.zero, attempts: 3, sleep: (Duration d) async => gone = true);
+      final JobPolling polling = JobPolling(interval: Duration.zero, attempts: 3, waitBetweenPolls: (Duration d) async => gone = true);
       await expectLater(BiQueryService(client: _client(server), polling: polling, cancelled: () => gone).run(metricVersionId: metricRate, snapshotId: snapA), throwsA(isA<QueryCancelled>()));
       expect(server.callsTo('GET', '/bi/query-runs/run-1'), isEmpty);
     });

@@ -10,6 +10,7 @@ import type { AuditHarness } from './support/audit-fixtures';
 const BASE = Date.parse('2026-03-01T10:00:00.000Z');
 const minute = (n: number): string => new Date(BASE + n * 60_000).toISOString();
 const MAX_BYTES = 64 * 1024 * 1024;
+const REDACTED = '[REDACTED]';
 
 type Planted = { n: number; resourceType?: string; diff?: Record<string, unknown>; reason?: string | null };
 
@@ -159,7 +160,7 @@ describe('AuditExportStore and the kept verdict of the seal verification (ST-ADM
       const file = await exportOf();
       expect(file.text).not.toContain('hunter2');
       const event = linesOf(file.text).find((record) => record.action === 'plant.a.1');
-      expect(event).toMatchObject({ redacted: true, safe_diff: { password: '[REDACTED]', note: 'kept' } });
+      expect(event).toMatchObject({ redacted: true, safe_diff: { password: REDACTED, note: 'kept' } });
       expect(verifyAuditExport(file.text, 'JSONL')).toMatchObject({ ok: true, boundEvents: 4 });
     });
 

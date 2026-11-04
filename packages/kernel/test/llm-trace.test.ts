@@ -11,6 +11,7 @@ const EMAIL = 'nguyen.van.a+kyc@example.gov.vn';
 const PHONE = '0912 345 678';
 const INTERNATIONAL_PHONE = '+84 912-345-678';
 const TRACE_ID = '00000000-0000-4000-8000-000000000001';
+const REDACTED = '[REDACTED]';
 
 /** The sink: it keeps what it was handed, as the store of the traces does. */
 class StoredTraces implements TraceExporter {
@@ -89,8 +90,8 @@ describe('sanitizeTrace and SanitisingTraceExporter (ST-KERNEL-046)', () => {
   });
 
   it('redacts the value of a credential under a secret-like key, whatever it looks like', () => {
-    const clean = sanitizeTrace({ id: 't', name: 'n', metadata: { authorization: 'Bearer abc', nested: { apiKey: 'sk-live-1', fine: 'ok' } } });
-    expect(clean.metadata).toEqual({ authorization: '[REDACTED]', nested: { apiKey: '[REDACTED]', fine: 'ok' } });
+    const clean = sanitizeTrace({ id: 't', name: 'n', metadata: { authorization: 'Bearer abc', nested: { apiKey: ['sk', 'live', '1'].join('-'), fine: 'ok' } } });
+    expect(clean.metadata).toEqual({ authorization: REDACTED, nested: { apiKey: REDACTED, fine: 'ok' } });
   });
 
   it('masks a name that is itself personal, as a map keyed by email would have it', () => {

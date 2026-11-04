@@ -38,7 +38,18 @@ export interface Requester {
 }
 
 interface Sql {
-  [column: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  [column: string]: unknown;
+  id: string;
+  dataset_id: string;
+  revision: number;
+  grantee_kind: "ROLE" | "UNIT_TREE" | "MEMBERSHIP";
+  grantee_ref_id: string;
+  row_predicate_ast: Record<string, unknown>;
+  column_masks: Record<string, string>;
+  status: BiPolicyStatus;
+  approved_by: string | null;
+  created_by: string;
+  created_at: string | number | Date;
 }
 
 const SELECT = `select p.id, p.dataset_id, p.revision, p.grantee_kind, p.grantee_ref_id, p.row_predicate_ast, p.column_masks, p.status, p.approved_by, p.created_by, p.created_at, p.version::text as version

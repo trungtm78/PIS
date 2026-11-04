@@ -27,7 +27,7 @@ export interface MilestoneOrderIssue {
 }
 
 /**
- * Where the dates of the milestones of a package break the order (BR-BID, BID 3 F8: "mốc thực tế theo thứ tự mời, đóng, mở, đánh giá, phê duyệt"): the planned dates and the
+ * Where the dates of the milestones of a package break the order (BR-BID, BID 3 F8: "the actual milestones in the order of invitation, closing, opening, evaluation, approval"): the planned dates and the
  * actual dates are each read in the order of `MILESTONE_KINDS`, and a milestone may not come before an earlier one that has a date (the same moment is allowed: the bid closes
  * and opens at once). `held` is what the package holds and `change` the new dates of one kind; the first fault is returned, none when the order holds.
  */
@@ -61,7 +61,7 @@ export function vietnamDayOf(moment: string): string {
 }
 
 /**
- * The file of the national bidding system (ST-BID-005, BID 3 F8): the export that a procurement planner downloads from the Hệ thống mạng đấu thầu quốc gia and reconciles with the
+ * The file of the national bidding system (ST-BID-005, BID 3 F8): the export that a procurement planner downloads from the national bidding network system and reconciles with the
  * register. The platform calls no API of that system (adapter PROPOSED, D05): it reads the file the person hands over.
  *
  * THE LAYOUT IS A WORKING ASSUMPTION. No sample of the file and no specification of the system were available, so the layout below is the smallest one that names a package by

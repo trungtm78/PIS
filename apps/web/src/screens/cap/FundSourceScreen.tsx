@@ -13,7 +13,7 @@ import type { FundNode } from './model';
 import './cap.css';
 
 /**
- * CAP-04: the fund sources the capital is drawn from, as a tree: the category (NSTW, NSĐP, ODA), the fund source with its validity and the
+ * CAP-04: the fund sources the capital is drawn from, as a tree: the category (NSTW, NSDP, ODA), the fund source with its validity and the
  * capital published for it, by origin. CTMTQG is part of its parent source and is never added again, so it has no total of its own.
  */
 export default function FundSourceScreen({ route }: ScreenProps) {

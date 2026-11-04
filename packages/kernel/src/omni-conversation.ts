@@ -90,8 +90,8 @@ const STOP_WORDS: ReadonlySet<string> = new Set(['STOP', 'HUY', 'DUNG']);
 export function isStopKeyword(text: string): boolean {
   const word = text
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/đ/gi, 'd')
+    .replace(/[\u0300-\u036f]/g, '') // the combining marks (U+0300 to U+036F) that NFD splits off the letters
+    .replace(/\u0111/gi, 'd') // the letter d with a stroke, either case
     .replace(/[^A-Za-z]/g, '')
     .toUpperCase();
   return text.trim().length <= 20 && STOP_WORDS.has(word);

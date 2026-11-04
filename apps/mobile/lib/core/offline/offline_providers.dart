@@ -54,7 +54,7 @@ final Provider<OfflineStorage> offlineStorageProvider = Provider<OfflineStorage>
 );
 
 /// The user and tenant the local store belongs to, or null when nobody is signed in. A lapsed session keeps its scope: the
-/// drafts stay on the device and are locked by the session, not removed (07, "Bảo mật và vòng đời phát hành").
+/// drafts stay on the device and are locked by the session, not removed (design doc 07, security and the life cycle of a release).
 final Provider<({String tenantId, String userId})?> offlineScopeProvider = Provider<({String tenantId, String userId})?>((Ref ref) {
   final SessionSnapshot session = ref.watch(sessionProvider);
   final String? tenantId = session.tenantId;

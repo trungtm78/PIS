@@ -85,8 +85,8 @@ const query = (body: Record<string, unknown>, member = ANALYST_ALL, tenantId?: s
   app.call('POST', '/dashboard-queries', { member, body: { filters: [], dimensions: [], ...body }, ...(tenantId === undefined ? {} : { tenantId }) });
 const explain = (token: string, dimension: string, member = ANALYST_ALL, tenantId?: string, limit?: number): Promise<Reply> =>
   app.call('GET', `/bi/drill?drill_token=${encodeURIComponent(token)}&child_dimension=${dimension}${limit === undefined ? '' : `&limit=${limit}`}`, { member, ...(tenantId === undefined ? {} : { tenantId }) });
-const rows = (reply: Reply): Array<Record<string, any>> => reply.json.children as Array<Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
-const total = (reply: Reply): Record<string, any> => reply.json.total as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+const rows = (reply: Reply): Array<Record<string, unknown>> => reply.json.children as Array<Record<string, unknown>>;
+const total = (reply: Reply): Record<string, unknown> => reply.json.total as Record<string, unknown>;
 const audits = (action: string) => app.harness.owner<{ outcome: string; safe_diff: Record<string, unknown> }>(TENANT_A, [['select outcome, safe_diff from machvon.audit_event where action = $1 order by occurred_at', [action]]]);
 
 /** An ACTIVE policy for a role, put in as the decision on a request will (ST-BI-006); made by one member and approved by another. */

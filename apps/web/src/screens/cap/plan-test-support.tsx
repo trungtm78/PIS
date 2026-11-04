@@ -2,6 +2,7 @@ import { vi } from 'vitest';
 import { FUND_NSDP, FUND_NSTW, NSDP, line as appropriationLine, mount, routeOf, world as appropriationWorld } from './test-support';
 import type { Harness, World as AppropriationWorld } from './test-support';
 import { harness as baseHarness } from '../sas/test-support';
+import fixtureText from './fixture-text.vi.json';
 
 export { mount, routeOf };
 export type { Harness };
@@ -30,7 +31,7 @@ export const plan = (id: string, overrides: Record<string, unknown> = {}): Recor
   plan_year: 2026,
   period_from_year: 2026,
   period_to_year: 2026,
-  scope_unit: { id: UNIT_ROOT, name: 'Sở Tài chính' },
+  scope_unit: { id: UNIT_ROOT, name: fixtureText['unit.finance.name'] },
   revision: 1,
   status: 'DRAFT',
   decision_document: null,
@@ -38,7 +39,7 @@ export const plan = (id: string, overrides: Record<string, unknown> = {}): Recor
   effective_at: null,
   published_at: null,
   totals: total(vnd(3), '400000000', vnd(10), 2),
-  fund_sources: [{ version_id: FUND_NSTW, business_key: 'NSTW-DTPT', label: 'Ngân sách trung ương' }],
+  fund_sources: [{ version_id: FUND_NSTW, business_key: 'NSTW-DTPT', label: fixtureText['fundSource.nstw.label'] }],
   version: 4,
   ...overrides,
 });
@@ -49,8 +50,8 @@ export const planLine = (n: number, overrides: Record<string, unknown> = {}): Re
   capital_plan_id: ANNUAL_ID,
   plan_code: 'CP-2026',
   plan_status: 'DRAFT',
-  project: { id: n === 2 ? PROJECT_B : PROJECT_A, code: n === 2 ? 'DA-02' : 'DA-01', name: n === 2 ? 'Cầu Thủ Thiêm 4' : 'Đường vành đai 3' },
-  fund_source: { version_id: FUND_NSTW, business_key: 'NSTW-DTPT', label: 'Ngân sách trung ương', category: 'NSTW' },
+  project: { id: n === 2 ? PROJECT_B : PROJECT_A, code: n === 2 ? 'DA-02' : 'DA-01', name: n === 2 ? fixtureText['project.bridge.name'] : fixtureText['project.ringRoad.name'] },
+  fund_source: { version_id: FUND_NSTW, business_key: 'NSTW-DTPT', label: fixtureText['fundSource.nstw.label'], category: 'NSTW' },
   appropriation: { id: appropriationLine(1).id, plan_year: 2026, amount_vnd: vnd(10), allocated_total_vnd: vnd(6), remaining_vnd: vnd(4) },
   bucket: 'CURRENT_YEAR',
   source_year: 2026,
@@ -117,12 +118,12 @@ export function planWorld(overrides: Partial<PlanWorld> = {}): PlanWorld {
       [PUBLISHED_ID]: [planLine(1, { capital_plan_id: PUBLISHED_ID, plan_status: 'PUBLISHED', committed_vnd: '500000000', reserved_vnd: '100000000' })],
     },
     projects: [
-      { id: PROJECT_A, code: 'DA-01', name: 'Đường vành đai 3', status: 'PIPELINE' },
-      { id: PROJECT_B, code: 'DA-02', name: 'Cầu Thủ Thiêm 4', status: 'BUDGETED' },
+      { id: PROJECT_A, code: 'DA-01', name: fixtureText['project.ringRoad.name'], status: 'PIPELINE' },
+      { id: PROJECT_B, code: 'DA-02', name: fixtureText['project.bridge.name'], status: 'BUDGETED' },
     ],
     units: [
-      { id: UNIT_ROOT, code: 'STC', name: 'Sở Tài chính' },
-      { id: UNIT_BQL, code: 'BQL1', name: 'Ban quản lý 1' },
+      { id: UNIT_ROOT, code: 'STC', name: fixtureText['unit.finance.name'] },
+      { id: UNIT_BQL, code: 'BQL1', name: fixtureText['unit.management1.name'] },
     ],
     appropriations: appropriationWorld({ lines: [appropriationLine(1), appropriationLine(2, { fund_source: NSDP, budget_level: 'LOCAL', origin: 'LOCAL_ADDED', remaining_vnd: vnd(4), allocated_total_vnd: '0', amount_vnd: vnd(4) })] }),
     failing: new Map(),

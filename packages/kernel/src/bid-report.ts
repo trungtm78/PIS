@@ -1,4 +1,5 @@
 import { DomainError } from './errors.ts';
+import { message } from './messages.ts';
 import type { CellRisk, Comparison, ComparisonRow } from './bid-review.ts';
 import type { FindingStatus } from './bid-analysis.ts';
 import type { ConflictStanding } from './bid-proposal.ts';
@@ -219,9 +220,23 @@ export function reportSummary(input: SummaryInput): ReportSummary {
 
 // ---- the minutes DOC prints ---------------------------------------------------------------------------------------------------------------
 
-const STATUS_WORDS: Readonly<Record<FindingStatus, string>> = { SUPPORTED: 'đáp ứng', CONTRADICTED: 'mâu thuẫn với hồ sơ', MISSING: 'thiếu', NEEDS_REVIEW: 'chưa kết luận' };
-const RISK_WORDS: Readonly<Record<CellRisk, string>> = { UNDECIDED: 'chưa có quyết định', NONE: 'không có lưu ý', ATTENTION: 'cần lưu ý', MANDATORY_NOT_MET: 'không đạt tiêu chí bắt buộc' };
-const NOT_COVERED_WORDS: Readonly<Record<NotCoveredReason, string>> = { NOT_SELECTED: 'không đưa vào biên bản', NO_ANALYSIS_RUN: 'chưa có lượt phân tích', CRITERIA_VERSION_MISMATCH: 'phân tích theo bộ tiêu chí khác' };
+const STATUS_WORDS: Readonly<Record<FindingStatus, string>> = {
+  SUPPORTED: message('bid.report.status.SUPPORTED'),
+  CONTRADICTED: message('bid.report.status.CONTRADICTED'),
+  MISSING: message('bid.report.status.MISSING'),
+  NEEDS_REVIEW: message('bid.report.status.NEEDS_REVIEW'),
+};
+const RISK_WORDS: Readonly<Record<CellRisk, string>> = {
+  UNDECIDED: message('bid.report.risk.UNDECIDED'),
+  NONE: message('bid.report.risk.NONE'),
+  ATTENTION: message('bid.report.risk.ATTENTION'),
+  MANDATORY_NOT_MET: message('bid.report.risk.MANDATORY_NOT_MET'),
+};
+const NOT_COVERED_WORDS: Readonly<Record<NotCoveredReason, string>> = {
+  NOT_SELECTED: message('bid.report.not_covered.NOT_SELECTED'),
+  NO_ANALYSIS_RUN: message('bid.report.not_covered.NO_ANALYSIS_RUN'),
+  CRITERIA_VERSION_MISMATCH: message('bid.report.not_covered.CRITERIA_VERSION_MISMATCH'),
+};
 
 export interface Signature {
   displayName: string;
@@ -245,8 +260,8 @@ export interface PayloadInput {
 const criterionLine = (row: ReportSummary['rows'][number], index: number): string => {
   const cell = row.cells[index];
   const decided = cell?.decided ?? null;
-  if (decided === null) return `   - ${row.criterion.code} ${row.criterion.name}: chưa có quyết định`;
-  const score = decided.score === null ? '' : `, điểm ${decided.score}${row.criterion.max_score === null ? '' : `/${row.criterion.max_score}`}`;
+  if (decided === null) return `   - ${row.criterion.code} ${row.criterion.name}: ${message('bid.report.criterion.undecided')}`;
+  const score = decided.score === null ? '' : `${message('bid.report.criterion.score', { score: decided.score })}${row.criterion.max_score === null ? '' : `/${row.criterion.max_score}`}`;
   return `   - ${row.criterion.code} ${row.criterion.name}: ${STATUS_WORDS[decided.status]}${score}; ${RISK_WORDS[cell?.risk ?? 'NONE']}`;
 };
 
@@ -257,24 +272,31 @@ const criterionLine = (row: ReportSummary['rows'][number], index: number): strin
  */
 export function evaluationReportPayload(input: PayloadInput): Record<string, string> {
   const { summary } = input;
-  const lines: string[] = [`Gói thầu ${summary.package.code}: ${input.packageName}`, `Số hồ sơ dự thầu được đánh giá: ${summary.proposals.length}.`];
+  const lines: string[] = [message('bid.report.package', { code: summary.package.code, name: input.packageName }), message('bid.report.proposal_count', { count: summary.proposals.length })];
   summary.proposals.forEach((proposal, position) => {
-    const score = proposal.weighted_score === null ? 'chưa đủ điểm để tính' : proposal.weighted_score;
-    lines.push('', `${position + 1}. ${proposal.contractor.legal_name}: điểm theo trọng số ${score}; tiêu chí bắt buộc không đạt: ${proposal.mandatory_not_met}; đã quyết định ${proposal.decided_count}/${proposal.criteria_count} tiêu chí.`);
+    const score = proposal.weighted_score === null ? message('bid.report.score_missing') : proposal.weighted_score;
+    lines.push('', message('bid.report.proposal', {
+        position: position + 1,
+        name: proposal.contractor.legal_name,
+        score,
+        mandatory: proposal.mandatory_not_met,
+        decided: proposal.decided_count,
+        total: proposal.criteria_count,
+      }));
     for (const row of summary.rows) lines.push(criterionLine(row, summary.proposals.findIndex((candidate) => candidate.proposal_id === proposal.proposal_id)));
   });
   if (summary.not_covered.length > 0) {
-    lines.push('', 'Hồ sơ không có trong biên bản:');
+    lines.push('', message('bid.report.not_covered_heading'));
     for (const entry of summary.not_covered) lines.push(`   - ${entry.contractor.legal_name}: ${NOT_COVERED_WORDS[entry.reason]}`);
   }
-  lines.push('', 'Kết luận của tổ chuyên gia:', summary.conclusion, '', 'Các thành viên đã ký:');
+  lines.push('', message('bid.report.conclusion_heading'), summary.conclusion, '', message('bid.report.signed_heading'));
   for (const signature of input.signatures) lines.push(`   - ${signature.displayName} (${signature.signedAt})`);
   if (input.dissents.length > 0) {
-    lines.push('', 'Ý kiến khác:');
+    lines.push('', message('bid.report.dissent_heading'));
     for (const dissent of input.dissents) lines.push(`   - ${dissent.displayName} (${dissent.recordedAt}): ${dissent.text}`);
   }
   return {
-    title: `BIÊN BẢN ĐÁNH GIÁ HỒ SƠ DỰ THẦU - GÓI THẦU ${summary.package.code}`,
+    title: message('bid.report.title', { code: summary.package.code }),
     body: lines.join('\n'),
     agency: input.agency,
     // The place of issue is in no record of the tenant; DOC requires it, and its drafter completes a dash before the minutes go out.

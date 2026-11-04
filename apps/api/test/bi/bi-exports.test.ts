@@ -18,7 +18,7 @@ const STAFF = ANALYST_BRANCH; // the units under the branch
 const owner = <T extends object>(sql: string, params: unknown[] = []): Promise<T[]> => app.harness.owner<T>(TENANT_A, [[sql, params]]);
 const sqlAs = (member: number, statement: string, params: unknown[] = []): Promise<unknown> => app.harness.tenants.withTenant(contextFor(TENANT_A, memberId(member)), (tx) => tx.query(statement, params));
 const events = (id: string, type: string) => owner<{ payload: Record<string, unknown> }>('select payload from machvon.outbox_event where aggregate_id = $1 and type = $2 order by created_at', [id, type]);
-const audits = (action: string) => owner<{ safe_diff: Record<string, any> }>('select safe_diff from machvon.audit_event where action = $1 order by occurred_at', [action]); // eslint-disable-line @typescript-eslint/no-explicit-any
+const audits = (action: string) => owner<{ safe_diff: Record<string, unknown> }>('select safe_diff from machvon.audit_event where action = $1 order by occurred_at', [action]);
 const jobRow = async (id: string) =>
   (await owner<{ status: string; denied_reason: string | null; file_object_key: string | null; file_sha256: string | null; row_count: number | null; truncated: boolean; subject_user_id: string; schedule_id: string | null; expires_at: string | null; scope_description: string }>(
     'select status, denied_reason, file_object_key, file_sha256, row_count, truncated, subject_user_id, schedule_id, expires_at, scope_description from machvon.bi_export_job where id = $1',

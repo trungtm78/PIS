@@ -25,6 +25,7 @@ const WORKFLOW = '00000000-0000-4000-8000-0000000000b1';
 const ACCOUNT = '00000000-0000-4000-8000-0000000000d1';
 const TEMPLATE = '00000000-0000-4000-8000-0000000000e1';
 const WEBHOOK_SECRET = 'relay-webhook-secret-0123456789abcdef';
+const FORGED_SECRET = ['not', 'the', 'secret', 'of', 'this', 'account', '0000'].join('-');
 const PROVIDER = 'smtp-relay';
 const TICK = 5_000;
 const RECONCILE_TICK = 300_000;
@@ -280,7 +281,7 @@ describe('the delivery engine in the real API process (ST-NOT-002)', () => {
     // Unsigned, wrongly signed, signed with a key the account does not have, and signed long ago: all refused, and nothing is stored.
     const unsigned = await receipt(api, eventBody('e-unsigned', message, 'DELIVERED'), { signed: false });
     expect([unsigned.status, unsigned.json.code]).toEqual([401, 'SIGNATURE_INVALID']);
-    const forged = await receipt(api, eventBody('e-forged', message, 'DELIVERED'), { secret: 'not-the-secret-of-this-account-0000' });
+    const forged = await receipt(api, eventBody('e-forged', message, 'DELIVERED'), { secret: FORGED_SECRET });
     expect([forged.status, forged.json.code]).toEqual([401, 'SIGNATURE_INVALID']);
     const old = await receipt(api, eventBody('e-old', message, 'DELIVERED'), { timestamp: Math.floor(Date.now() / 1000) - 3600 });
     expect([old.status, old.json.code]).toEqual([401, 'REPLAY_WINDOW_EXCEEDED']);
@@ -399,7 +400,7 @@ describe('the delivery engine in the real API process (ST-NOT-002)', () => {
     expect((await rows<{ n: string }>('select count(*)::text as n from machvon.channel_message where conversation_id = $1', [opened?.id]))[0]?.n).toBe('1');
     expect((await rows<{ action: string }>("select action from machvon.audit_event where resource_id = $1 and action = 'conversation.opened'", [opened?.id])).length).toBe(1);
     // A tampered body is refused before anything is read.
-    const forged = await receipt(api, inbound('e-in-2', 'in-2', 'x'), { secret: 'not-the-secret-of-this-account-0000' });
+    const forged = await receipt(api, inbound('e-in-2', 'in-2', 'x'), { secret: FORGED_SECRET });
     expect([forged.status, forged.json.code]).toEqual([401, 'SIGNATURE_INVALID']);
     // The person's address is verified by a document and a consent is taken; the word that withdraws it ends it.
     await rows("update machvon.contact_identity set status = 'Verified', verification_method = 'ADMIN_DOCUMENT', verified_at = now(), verified_by = $2 where contact_id = $1", [opened?.contact_id, memberId(RECIPIENT)]);

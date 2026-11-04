@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, VND_SCALE, assertFourEyes, compareDecimal, requirePositiveAmount, vietnamDateOf, versionConflict } from '@machvon/kernel';
+import { DomainError, VND_SCALE, assertFourEyes, compareDecimal, requirePositiveAmount, vietnamDateOf, versionConflict, hasControlChar } from '@machvon/kernel';
 import { assertYearsOpen } from './cap-fiscal-year-guard.ts';
 import { timestampKey } from './keyset.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -226,8 +226,7 @@ function amountOf(value: string): string {
 
 function authorityOf(value: string): string {
   const text = value.trim();
-  // eslint-disable-next-line no-control-regex
-  if (text.length < MIN_AUTHORITY || text.length > MAX_AUTHORITY || /[\u0000-\u001f\u007f]/.test(text)) throw invalid('issuing_authority');
+  if (text.length < MIN_AUTHORITY || text.length > MAX_AUTHORITY || hasControlChar(text)) throw invalid('issuing_authority');
   return text;
 }
 

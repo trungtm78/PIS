@@ -38,7 +38,7 @@ interface Acting {
 
 /**
  * CAP-16: the book of the capital assigned to the province, by fund source, plan year, origin and budget level, each line backed by the
- * decision document that assigned it. "Còn lại" is the amount less what is allocated. A planner registers a draft or a revision, an
+ * decision document that assigned it. "Remaining" is the amount less what is allocated. A planner registers a draft or a revision, an
  * approver who is not the planner publishes or rejects it; the amount is typed in millions of dong and sent as exact VND.
  */
 export default function AppropriationBookScreen({ route }: ScreenProps) {

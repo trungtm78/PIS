@@ -19,7 +19,7 @@ import type { Settlement } from './model';
 
 /**
  * PAY-16: the forms of a settlement and the calendar of its verification (ST-PAY-012, PAY 3.5 steps 3 and 4, CXN-09, UAT-AC340). The calendar lists the settlements that were sent and wait for their verification by the
- * last day of it, with the days left and the stage of the reminders (30 days, 7 days, overdue). The forms are those of a settlement that is verified, of a year (01 to 05/QTNĐ) or of a completed project (01 to 12/QTDA): drawn
+ * last day of it, with the days left and the stage of the reminders (30 days, 7 days, overdue). The forms are those of a settlement that is verified, of a year (01 to 05/QTND) or of a completed project (01 to 12/QTDA): drawn
  * by DOC from the template in force that is confirmed, kept with the revision, the legal basis and the hash of the file. A template that waits for its confirmation is refused by name; the server judges every command again.
  */
 export default function SettlementFormsScreen({ route }: ScreenProps) {

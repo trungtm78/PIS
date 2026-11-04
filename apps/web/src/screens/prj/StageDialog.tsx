@@ -20,7 +20,7 @@ import type { BoardCard, Lifecycle, NextMove, StageForm } from './pipeline-model
 import './prj.css';
 
 /** The multiplication sign on the close button of the dialog. */
-const CLOSE_GLYPH = '×';
+const CLOSE_GLYPH = '\u00d7';
 
 export interface StageDialogProps {
   card: BoardCard;

@@ -8,7 +8,8 @@ export const FORMS_PATH = '/pay/pay-16';
 
 export const formsLink = (settlementId?: string): string => (settlementId === undefined ? FORMS_PATH : `${FORMS_PATH}?${new URLSearchParams({ settlement: settlementId }).toString()}`);
 
-export const ANNUAL_FORMS = ['01/QTNĐ', '02/QTNĐ', '03/QTNĐ', '04/QTNĐ', '05/QTNĐ'] as const;
+/** The annual forms: the code of each ends with the letter D with a stroke (U+0110). */
+export const ANNUAL_FORMS = ['01/QTN\u0110', '02/QTN\u0110', '03/QTN\u0110', '04/QTN\u0110', '05/QTN\u0110'] as const;
 export const PROJECT_FORMS = ['01/QTDA', '02/QTDA', '03/QTDA', '04/QTDA', '05/QTDA', '06/QTDA', '07/QTDA', '08/QTDA', '09/QTDA', '10/QTDA', '11/QTDA', '12/QTDA'] as const;
 /** The form that is the decision approving the settlement of a project: it is drawn as the draft of a document that DOC issues by its own steps. */
 export const DECISION_FORM = '10/QTDA';

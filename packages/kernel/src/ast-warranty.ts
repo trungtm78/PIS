@@ -7,7 +7,7 @@ import { DomainError } from './errors.ts';
  * apart from the database.
  */
 
-/** The grade of a construction work (cấp công trình); the minimum term of the warranty depends on it. */
+/** The grade of a construction work (in Vietnamese, "cap cong trinh"); the minimum term of the warranty depends on it. */
 export const CONSTRUCTION_GRADES = ['SPECIAL', 'I', 'II', 'III', 'IV'] as const;
 export type ConstructionGrade = (typeof CONSTRUCTION_GRADES)[number];
 

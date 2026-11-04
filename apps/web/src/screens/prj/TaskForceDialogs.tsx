@@ -10,7 +10,7 @@ import { Field } from './components';
 import './prj.css';
 
 /** The multiplication sign on the close button of the dialog. */
-const CLOSE_GLYPH = '×';
+const CLOSE_GLYPH = '\u00d7';
 
 export interface AddMemberDialogProps {
   force: TaskForceLine;

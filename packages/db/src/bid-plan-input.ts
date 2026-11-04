@@ -1,6 +1,6 @@
 import { DomainError, VND_SCALE, asUuid, creditAmount, requirePositiveAmount } from '@machvon/kernel';
 
-/** How a package is chosen (Luật Đấu thầu 22/2023/QH15 Chương II). The list is a working assumption until legal confirms it (TODOS.md, ST-BID-001). */
+/** How a package is chosen (Law on Bidding 22/2023/QH15, Chapter II). The list is a working assumption until legal confirms it (TODOS.md, ST-BID-001). */
 export const SELECTION_METHODS = [
   'OPEN_BIDDING',
   'LIMITED_BIDDING',

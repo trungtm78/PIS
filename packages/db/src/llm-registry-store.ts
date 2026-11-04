@@ -84,7 +84,31 @@ export interface PolicyDraftInput {
 }
 
 interface Sql {
-  [column: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  [column: string]: unknown;
+  id: string;
+  provider_code: string;
+  name: string;
+  region_country: string;
+  route_class: "DOMESTIC_HOSTED" | "SELF_HOSTED" | "INTERNATIONAL";
+  max_classification: "PUBLIC" | "INTERNAL" | "CONFIDENTIAL" | "PERSONAL" | "IMPORTANT_CORE";
+  data_agreement_document_id: string | null;
+  d07_approval_ref: string | null;
+  adapter_status: string;
+  status: ProviderStatus | string | PolicyStatus;
+  approved_by: string | null;
+  created_by: string;
+  created_at: string | number | Date;
+  provider_id: string;
+  model_id: string;
+  model_version: string | null;
+  capabilities: Record<string, unknown>;
+  context_window: number;
+  max_output: number;
+  revision: number;
+  matrix_json: Partial<Record<"PUBLIC" | "INTERNAL" | "CONFIDENTIAL" | "PERSONAL" | "IMPORTANT_CORE", ("DOMESTIC_HOSTED" | "SELF_HOSTED" | "INTERNATIONAL")[]>>;
+  international_enabled: boolean;
+  legal_basis: string;
+  effective_from: string | number | Date;
 }
 
 const PROVIDER = `select id, provider_code, name, region_country, route_class, max_classification, data_agreement_document_id, d07_approval_ref, adapter_status, status, approved_by, created_by, created_at, version::text as version
@@ -103,7 +127,7 @@ const provider = (row: Sql): ProviderRow => ({
   dataAgreementDocumentId: row.data_agreement_document_id,
   d07ApprovalRef: row.d07_approval_ref,
   adapterStatus: row.adapter_status,
-  status: row.status,
+  status: row.status as ProviderStatus,
   approvedBy: row.approved_by,
   createdBy: row.created_by,
   createdAt: new Date(row.created_at).toISOString(),
@@ -131,7 +155,7 @@ const policy = (row: Sql): PolicyVersionRow => ({
   d07ApprovalRef: row.d07_approval_ref,
   legalBasis: row.legal_basis,
   effectiveFrom: new Date(row.effective_from).toISOString(),
-  status: row.status,
+  status: row.status as PolicyStatus,
   approvedBy: row.approved_by,
   createdBy: row.created_by,
   createdAt: new Date(row.created_at).toISOString(),

@@ -12,6 +12,7 @@ import type { SessionTenant, SessionValue } from '../../session/SessionContext';
 import { harness as baseHarness } from '../sas/test-support';
 import type { Harness } from '../sas/test-support';
 import { permitType } from './test-support';
+import fixtureText from './fixture-text.vi.json';
 
 export type { Harness };
 
@@ -42,11 +43,11 @@ export const dossierLine = (n: number, overrides: Record<string, unknown> = {}) 
   id: dossierId(n),
   project_id: projectId(n),
   project_code: `DA-2026-00${n}`,
-  project_name: `Dự án số ${n}`,
+  project_name: `${fixtureText['project.numbered']} ${n}`,
   project_component_id: null,
   project_component_code: null,
   owner_unit_id: OWNER_UNIT,
-  owner_unit_name: 'Ban QLDA tỉnh',
+  owner_unit_name: fixtureText['unit.provincialPmb.name'],
   owner_membership: null,
   status: 'OPEN',
   readiness_pct: '50.00',
@@ -65,13 +66,13 @@ export const permitLine = (n: number, overrides: Record<string, unknown> = {}) =
   permit_type_id: uuid('0106', n),
   permit_type_code: `PERMIT_${n}`,
   permit_type_revision: 1,
-  permit_type_name: `Giấy phép ${n}`,
+  permit_type_name: `${fixtureText['permit.namePrefix']} ${n}`,
   cxn_ref: null,
   exemption_allowed: false,
   is_required: true,
   status: 'PLANNED',
   permit_no: null,
-  authority_name: 'Sở Xây dựng',
+  authority_name: fixtureText['authority.construction.name'],
   submitted_on: null,
   expected_decision_on: null,
   issued_on: null,
@@ -102,7 +103,7 @@ export const permitDetail = (n: number, overrides: Record<string, unknown> = {})
   dossier_id: dossierId(1),
   project_id: projectId(1),
   project_code: 'DA-2026-001',
-  project_name: 'Dự án số 1',
+  project_name: `${fixtureText['project.numbered']} 1`,
   document_version_id: null,
   exemption_basis: null,
   exemption_decision_document_version_id: null,
@@ -112,17 +113,17 @@ export const permitDetail = (n: number, overrides: Record<string, unknown> = {})
   ...overrides,
 });
 
-export const projectRow = (n: number, overrides: Record<string, unknown> = {}) => ({ id: projectId(n), code: `DA-2026-00${n}`, name: `Dự án số ${n}`, owner_unit_id: OWNER_UNIT, ...overrides });
+export const projectRow = (n: number, overrides: Record<string, unknown> = {}) => ({ id: projectId(n), code: `DA-2026-00${n}`, name: `${fixtureText['project.numbered']} ${n}`, owner_unit_id: OWNER_UNIT, ...overrides });
 
 /** A waiver of a gate, in the shape the server writes it. */
 export const waiverLine = (n: number, overrides: Record<string, unknown> = {}) => ({
   id: uuid('0108', n),
-  project: { id: projectId(1), code: 'DA-2026-001', name: 'Dự án số 1' },
+  project: { id: projectId(1), code: 'DA-2026-001', name: `${fixtureText['project.numbered']} 1` },
   gate_code: 'START_CONSTRUCTION',
   permit_type_id: uuid('0106', n),
   permit_type_code: `PERMIT_${n}`,
-  permit_type_name: `Giấy phép ${n}`,
-  reason: `Cơ quan có thẩm quyền cho phép khởi công trước ${n}`,
+  permit_type_name: `${fixtureText['permit.namePrefix']} ${n}`,
+  reason: `${fixtureText['waiver.reasonPrefix']} ${n}`,
   decision_document_version_id: DOCUMENT,
   valid_until: '2026-11-20',
   granted_on: '2026-10-20',

@@ -7,6 +7,7 @@ import { DisSnapshotStore } from './dis-snapshot-store.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
+import { vietnameseData } from './vietnamese-data.ts';
 
 export const WARNING_RULE_RESOURCE = 'early_warning_rule';
 export const WARNING_RESOURCE = 'early_warning';
@@ -176,11 +177,13 @@ const toWarning = (row: WarningSql): WarningRow => ({
 });
 
 /** The rules that every tenant is given as drafts: the thresholds are the working assumption of the design, to be published once the finance office has signed them (DIS BR-DIS-13). */
-const SEED_BASIS = 'DIS BR-DIS-13: ngưỡng là giả định làm việc, chờ phòng Tài chính xác nhận trước khi công bố';
+const SEED_TEXT = vietnameseData<{ basis: string; names: Record<string, string> }>('dis-warning-seed');
+const SEED_BASIS = SEED_TEXT.basis;
+const seedName = (ruleCode: string): string => SEED_TEXT.names[ruleCode] ?? ruleCode;
 export const SEED_RULES: readonly RuleDraft[] = [
   {
     ruleCode: 'EW-01',
-    name: 'Tỷ lệ giải ngân lũy kế thấp hơn đường kỳ vọng',
+    name: seedName('EW-01'),
     metricCode: 'YTD_RATE_GAP',
     comparator: 'GTE',
     threshold: { points: '10', critical_points: '20' },
@@ -193,7 +196,7 @@ export const SEED_RULES: readonly RuleDraft[] = [
   },
   {
     ruleCode: 'EW-02',
-    name: 'Chưa gửi báo cáo sau hạn',
+    name: seedName('EW-02'),
     metricCode: 'REPORT_OVERDUE',
     comparator: 'MISSING',
     threshold: { grace_days: 0, explanation_due_days: 3 },
@@ -206,7 +209,7 @@ export const SEED_RULES: readonly RuleDraft[] = [
   },
   {
     ruleCode: 'EW-05',
-    name: 'Dự án có vốn nhưng chưa có mã dự án quốc gia',
+    name: seedName('EW-05'),
     metricCode: 'NATIONAL_CODE_MISSING',
     comparator: 'MISSING',
     threshold: {},
@@ -219,7 +222,7 @@ export const SEED_RULES: readonly RuleDraft[] = [
   },
   {
     ruleCode: 'EW-07',
-    name: 'Giải ngân trong kỳ âm',
+    name: seedName('EW-07'),
     metricCode: 'PERIOD_DELTA_NEGATIVE',
     comparator: 'LT',
     threshold: {},

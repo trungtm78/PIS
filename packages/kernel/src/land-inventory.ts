@@ -33,7 +33,7 @@ export function normalizeUnitPrice(value: string): string {
   return price;
 }
 
-/** `quantity × unit price` rounded half up to the dong, as a decimal string of whole dong (BR-LND-04: 80 m2 × 4.500.000 = 360.000.000). */
+/** `quantity x unit price` rounded half up to the dong, as a decimal string of whole dong (BR-LND-04: 80 m2 x 4.500.000 = 360.000.000). */
 export function inventoryAmountVnd(quantity: string, unitPriceVnd: string): string {
   const [whole = '0', fraction = ''] = normalizeQuantity(quantity).split('.');
   const scaled = BigInt(whole + fraction.padEnd(QUANTITY_SCALE, '0'));

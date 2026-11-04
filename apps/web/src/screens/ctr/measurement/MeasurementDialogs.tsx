@@ -12,7 +12,7 @@ import type { CorrectForm, DecideForm, ItemRow, Measurement, RecordForm } from '
 import '../ctr.css';
 
 /** The multiplication sign on the close button of a dialog. */
-const CLOSE_GLYPH = '×';
+const CLOSE_GLYPH = '\u00d7';
 
 interface FrameProps {
   title: string;

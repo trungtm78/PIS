@@ -11,7 +11,7 @@ final class SyncTokenRefused implements Exception {
   String toString() => 'SyncTokenRefused($reason)';
 }
 
-/// The audience of the PowerSync token and its longest lifetime in seconds (04, "Đồng bộ mobile bằng PowerSync (A1)").
+/// The audience of the PowerSync token and its longest lifetime in seconds (design doc 04, mobile sync with PowerSync, A1).
 const String kSyncAudience = 'powersync';
 const int kSyncTokenMaxLifetimeSeconds = 300;
 

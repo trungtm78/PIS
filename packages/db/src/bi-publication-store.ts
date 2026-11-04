@@ -32,7 +32,20 @@ export interface PublicationFilter {
 }
 
 interface Sql {
-  [column: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  [column: string]: unknown;
+  id: string;
+  object_kind: "METRIC" | "DASHBOARD" | "ACCESS_POLICY";
+  object_id: string;
+  object_code: string | null;
+  object_revision: number | null;
+  requested_by: string;
+  requested_by_name: string | null;
+  decision: "REJECTED" | "APPROVED" | null;
+  decided_by: string | null;
+  decided_by_name: string | null;
+  comment: string | null;
+  status: PublicationStatus;
+  sort_key: string;
 }
 
 const iso = (value: unknown): string => new Date(value as string).toISOString();

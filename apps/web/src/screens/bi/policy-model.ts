@@ -56,7 +56,7 @@ export function toPolicy(raw: unknown): Policy | undefined {
 
 const OPERATORS: Readonly<Record<string, string>> = { eq: '=', ne: '≠' };
 
-/** A predicate written as a condition a person reads: `unit trong phạm vi AND fund ∈ (NSTW)`; what the grammar does not have is a question mark. */
+/** A predicate written as a condition a person reads: `unit in scope AND fund ∈ (NSTW)`; what the grammar does not have is a question mark. */
 export function predicateText(node: Raw, scope: string): string {
   const op = text(node.op);
   const args = Array.isArray(node.args) ? node.args.map((child) => asRecord(child) ?? {}) : [];

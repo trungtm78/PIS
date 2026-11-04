@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, asUuid } from '@machvon/kernel';
+import { DomainError, asUuid, hasControlCharExceptWhitespace } from '@machvon/kernel';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ProjectClassification, ProjectStatus } from './prj-project-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
@@ -74,8 +74,7 @@ export const lockedProjectOf = (row: LockSql): LockedProject => ({
 /** The reason as it is stored: trimmed, within its length, with line breaks but no other control character. */
 export function reasonOf(value: string, field = 'reason'): string {
   const text = value.trim();
-  // eslint-disable-next-line no-control-regex
-  if (text.length < MIN_REASON || text.length > MAX_REASON || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(text)) throw invalid(field);
+  if (text.length < MIN_REASON || text.length > MAX_REASON || hasControlCharExceptWhitespace(text)) throw invalid(field);
   return text;
 }
 

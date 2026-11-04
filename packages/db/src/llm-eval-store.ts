@@ -18,7 +18,55 @@ import { LlmRegistryStore } from './llm-registry-store.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 interface Sql {
-  [column: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  [column: string]: unknown;
+  id: string;
+  task_type: string;
+  name: string;
+  revision: number;
+  template_object_key: string;
+  template_sha256: string;
+  input_schema: Record<string, unknown>;
+  output_schema: Record<string, unknown> | null;
+  label: string | null;
+  status: string;
+  approved_by: string | null;
+  created_by: string | null;
+  dataset_code: string;
+  source: string;
+  max_classification: "PUBLIC" | "INTERNAL" | "CONFIDENTIAL" | "PERSONAL" | "IMPORTANT_CORE" | null;
+  case_count: number;
+  injection_cases: number;
+  model_id: string;
+  effort: string | null;
+  output_cap: number;
+  max_input_tokens: number | null;
+  timeout_ms: number | null;
+  concurrency_limit: number | null;
+  prompt_version_id: string | null;
+  rollback_profile_id: string | null;
+  retention_days: number | null;
+  profile_version_id: string;
+  dataset_version_id: string;
+  route_class: "DOMESTIC_HOSTED" | "SELF_HOSTED" | "INTERNATIONAL" | null;
+  model_ref_id: string | null;
+  metrics_json: Record<string, number> | null;
+  thresholds_json: Record<string, number> | null;
+  passed: boolean | null;
+  review_status: EvalStatus;
+  started_by: string | null;
+  signed_by: string | null;
+  case_code: string;
+  input_ref: string;
+  expected_json: Record<string, unknown>;
+  classification: "PUBLIC" | "INTERNAL" | "CONFIDENTIAL" | "PERSONAL" | "IMPORTANT_CORE";
+  tags: string[];
+  provider_status: string;
+  provider_id: string;
+  provider_code: string;
+  allowed_model_ids: string[] | null;
+  tool_allowlist: string[] | null;
+  results_json: Record<string, unknown> | null;
+  capabilities: Record<string, unknown> | null;
 }
 
 // ---- views --------------------------------------------------------------------------------------------------------------------------------
@@ -118,11 +166,11 @@ const promptOf = (row: Sql): PromptRow => ({
   templateObjectKey: row.template_object_key,
   templateSha256: row.template_sha256,
   inputSchema: row.input_schema,
-  outputSchema: row.output_schema,
+  outputSchema: row.output_schema as Record<string, unknown>,
   label: row.label,
   status: row.status,
   approvedBy: row.approved_by,
-  createdBy: row.created_by,
+  createdBy: row.created_by as string,
   createdAt: iso(row.created_at) as string,
   version: Number(row.version),
 });
@@ -132,11 +180,11 @@ const datasetOf = (row: Sql): EvalDatasetRow => ({
   revision: row.revision,
   taskType: row.task_type,
   source: row.source,
-  maxClassification: row.max_classification,
+  maxClassification: row.max_classification as "PUBLIC" | "INTERNAL" | "CONFIDENTIAL" | "PERSONAL" | "IMPORTANT_CORE",
   caseCount: row.case_count,
   injectionCases: row.injection_cases,
   status: row.status,
-  createdBy: row.created_by,
+  createdBy: row.created_by as string,
   createdAt: iso(row.created_at) as string,
   version: Number(row.version),
 });
@@ -147,7 +195,7 @@ const profileOf = (row: Sql): ProfileRow => ({
   modelId: row.model_id,
   effort: row.effort,
   outputCap: row.output_cap,
-  routingPolicy: row.routing_policy,
+  routingPolicy: row.routing_policy as { routes: ("DOMESTIC_HOSTED" | "SELF_HOSTED" | "INTERNATIONAL")[]; thresholds: Record<string, number>; },
   status: row.status,
   allowedModelIds: row.allowed_model_ids ?? [],
   maxInputTokens: row.max_input_tokens,
@@ -382,7 +430,7 @@ export class LlmEvalStore {
     // In the order the profile lists them.
     return profile.allowedModelIds.flatMap((id) => {
       const row = byId.get(id);
-      return row === undefined ? [] : [{ id, modelId: row.model_id, status: row.status, route: row.route_class, providerStatus: row.provider_status, providerId: row.provider_id, providerCode: row.provider_code, maxClassification: row.max_classification }];
+      return row === undefined ? [] : [{ id, modelId: row.model_id, status: row.status, route: row.route_class as Route, providerStatus: row.provider_status, providerId: row.provider_id, providerCode: row.provider_code, maxClassification: row.max_classification as Classification }];
     });
   }
 
@@ -398,7 +446,7 @@ export class LlmEvalStore {
       `select m.id, m.model_id, m.status, m.max_classification, p.route_class, p.status as provider_status, m.capabilities from machvon.ai_model m join machvon.ai_provider p on p.id = m.provider_id where m.id = any($1::uuid[])`,
       [[...ids]],
     );
-    return rows.map((row) => ({ id: row.id, modelId: row.model_id, status: row.status, route: row.route_class, providerStatus: row.provider_status, supportsEffort: row.capabilities?.reasoning === true, maxClassification: row.max_classification }));
+    return rows.map((row) => ({ id: row.id, modelId: row.model_id, status: row.status, route: row.route_class as Route, providerStatus: row.provider_status, supportsEffort: row.capabilities?.reasoning === true, maxClassification: row.max_classification as Classification }));
   }
 
   /**

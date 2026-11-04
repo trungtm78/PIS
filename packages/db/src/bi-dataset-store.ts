@@ -3,6 +3,7 @@ import { DomainError, isSameBuild, qualityOfVersion, versionChecksum } from '@ma
 import type { DatasetVersionStatus, QualityBadge, QualityRunFacts, VersionContent } from '@machvon/kernel';
 import { BiLineageStore } from './bi-lineage-store.ts';
 import type { TenantTx } from './tenant-database.ts';
+import { vietnameseData } from './vietnamese-data.ts';
 
 /** The dataset of the disbursement figures, built from the frozen close snapshots of DIS (BI 3 F2). */
 export const DISBURSEMENT_DATASET_CODE = 'DS-DISB';
@@ -15,7 +16,7 @@ export const DISBURSEMENT_JOIN_PATHS = {
     { from: 'period_snapshot_line.fund_source_version_id', to: 'master_record_version.id' },
   ],
 } as const;
-const DISBURSEMENT_TITLE = 'Giải ngân theo kỳ (từ ảnh chụp chốt kỳ của DIS)';
+const DISBURSEMENT_TITLE = vietnameseData<{ 'disbursement.title': string }>('bi-dataset')['disbursement.title'];
 /** A build that stays BUILDING this long is taken for dead: the next build marks it FAILED and goes on. */
 const STALE_BUILD_MINUTES = 60;
 
@@ -76,7 +77,31 @@ export interface BuildResult {
 }
 
 interface Sql {
-  [column: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  [column: string]: unknown;
+  id: string;
+  dataset_code: string;
+  title: string;
+  source_kind: string;
+  grain: string;
+  join_paths: Record<string, unknown>;
+  dgv_dataset_id: string | null;
+  classification: string;
+  refresh_policy: string;
+  status: string;
+  latest_built_at: string | number | Date;
+  dataset_id: string;
+  as_of_period: string;
+  reporting_period_id: string | null;
+  source_snapshot_id: string | null;
+  built_at: string | number | Date;
+  quality_run_id: string | null;
+  quality_badge: "FAILED" | "NOT_ASSESSED" | "PASSED" | "WARNING" | "STALE";
+  supersedes_id: string | null;
+  created_at: string | number | Date;
+  created_at_key: string;
+  latest_badge: "FAILED" | "NOT_ASSESSED" | "PASSED" | "WARNING" | "STALE";
+  latest_period: string;
+  checksum_sha256: string;
 }
 
 const DATASET_SELECT = `select d.id, d.dataset_code, d.title, d.source_kind, d.grain, d.join_paths, d.dgv_dataset_id, d.classification, d.refresh_policy, d.status, d.version::text as version,
@@ -116,7 +141,7 @@ const toVersion = (row: Sql): DatasetVersionRow => ({
   qualityRunId: row.quality_run_id,
   qualityBadge: row.quality_badge,
   excludedQuarantineRows: Number(row.excluded_quarantine_rows),
-  status: row.status,
+  status: row.status as "FAILED" | "SUPERSEDED" | "BUILDING" | "FROZEN",
   supersedesId: row.supersedes_id,
   createdAt: new Date(row.created_at).toISOString(),
   createdAtKey: row.created_at_key,

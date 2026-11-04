@@ -1,0 +1,10 @@
+{
+  "project.name": "Cầu qua sông",
+  "plan.titlePrefix": "Kế hoạch lựa chọn nhà thầu",
+  "package.titlePrefix": "Gói thầu xây lắp",
+  "criteria.scored.namePrefix": "Tiêu chí",
+  "criteria.passFail.namePrefix": "Yêu cầu",
+  "criteria.evidence.auditedFinancialReport": "Báo cáo tài chính đã kiểm toán",
+  "legalBasis.procurementLaw": "Luật Đấu thầu 22/2023/QH15",
+  "fundSource.nstw.label": "Ngân sách trung ương"
+}

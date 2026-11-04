@@ -4,6 +4,7 @@ import type { Harness } from '../sas/test-support';
 import { pack, packageId, project } from './plan-test-support';
 
 export { mount, routeOf } from './plan-test-support';
+import fixtureText from './fixture-text.vi.json';
 export { pack, packageId, project };
 export type { Harness };
 
@@ -17,19 +18,19 @@ export const versionId = (n: number): string => uuid('0060', n);
 
 export const scored = (code: string, weight: number, overrides: Record<string, unknown> = {}) => ({
   code,
-  name: `Tiêu chí ${code}`,
+  name: `${fixtureText['criteria.scored.namePrefix']} ${code}`,
   kind: 'SCORED',
   weight,
   max_score: 10,
   threshold: 5,
   mandatory: false,
-  required_evidence: ['Báo cáo tài chính đã kiểm toán'],
+  required_evidence: [fixtureText['criteria.evidence.auditedFinancialReport']],
   ...overrides,
 });
 
 export const passFail = (code: string, overrides: Record<string, unknown> = {}) => ({
   code,
-  name: `Yêu cầu ${code}`,
+  name: `${fixtureText['criteria.passFail.namePrefix']} ${code}`,
   kind: 'PASS_FAIL',
   weight: null,
   max_score: null,
@@ -42,12 +43,12 @@ export const passFail = (code: string, overrides: Record<string, unknown> = {}) 
 /** A version of the criteria of package 1 as the read answers it. */
 export const version = (n: number, overrides: Record<string, unknown> = {}) => ({
   id: versionId(n),
-  package: { id: packageId(1), code: 'GT-1', title: 'Gói thầu xây lắp 1', status: 'PLANNED', project: project() },
+  package: { id: packageId(1), code: 'GT-1', title: `${fixtureText['package.titlePrefix']} 1`, status: 'PLANNED', project: project() },
   revision: n,
   status: 'APPROVED',
   criteria: [scored('C1', 40), scored('C2', 30), scored('C3', 20), scored('C4', 10), passFail('R1')],
   weights_sum: 100,
-  legal_basis: 'Luật Đấu thầu 22/2023/QH15',
+  legal_basis: fixtureText['legalBasis.procurementLaw'],
   approved_at: '2026-10-20T02:00:00.000000Z',
   version: 2,
   ...overrides,

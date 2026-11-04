@@ -1,0 +1,38 @@
+{
+  "assumption": "Giả định làm việc, chưa đối chiếu văn bản gốc",
+  "unknownAuthority": "Cơ quan có thẩm quyền theo quy định (chưa xác nhận)",
+  "types": {
+    "ENV_EIA": {
+      "name": "Báo cáo đánh giá tác động môi trường (quyết định phê duyệt)",
+      "basis": "Luật Bảo vệ môi trường 2020 (đánh giá tác động môi trường) [CXN-EXE-03]"
+    },
+    "ENV_PERMIT": {
+      "name": "Giấy phép môi trường",
+      "basis": "Luật Bảo vệ môi trường 2020 (giấy phép môi trường) [CXN-EXE-03]"
+    },
+    "DESIGN_APPRAISAL": {
+      "name": "Thẩm định thiết kế và dự án",
+      "basis": "Luật Xây dựng 135/2025 và nghị định hướng dẫn thẩm định dự án, thiết kế [CXN-EXE-03]"
+    },
+    "FIRE_DESIGN": {
+      "name": "Thẩm duyệt thiết kế phòng cháy chữa cháy",
+      "basis": "pháp luật về phòng cháy và chữa cháy, văn bản cụ thể chưa xác định [CXN-EXE-03]"
+    },
+    "BUILDING_PERMIT": {
+      "name": "Giấy phép xây dựng",
+      "basis": "Luật Xây dựng 135/2025 (giấy phép xây dựng và các trường hợp được miễn) [CXN-EXE-02]"
+    },
+    "LAND_ALLOCATION": {
+      "name": "Quyết định giao đất hoặc cho thuê đất",
+      "basis": "căn cứ pháp lý chưa được xác định trong tài liệu thiết kế [CXN-EXE-03]"
+    },
+    "TRAFFIC_CONNECTION": {
+      "name": "Thỏa thuận đấu nối giao thông",
+      "basis": "căn cứ pháp lý chưa được xác định trong tài liệu thiết kế [CXN-EXE-03]"
+    },
+    "WATER_DISCHARGE": {
+      "name": "Giấy phép xả nước thải vào nguồn nước",
+      "basis": "căn cứ pháp lý chưa được xác định trong tài liệu thiết kế [CXN-EXE-03]"
+    }
+  }
+}

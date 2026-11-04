@@ -1,3 +1,5 @@
+import fixtureText from '../fixture-text.vi.json';
+
 export const PERIOD_ID = '00000000-0000-4000-8000-0000000000e1';
 export const UNIT_ID = '00000000-0000-4000-8000-0000000000e2';
 export const OTHER_UNIT_ID = '00000000-0000-4000-8000-0000000000e3';
@@ -5,8 +7,8 @@ export const OTHER_UNIT_ID = '00000000-0000-4000-8000-0000000000e3';
 export const counts = (over: Record<string, number> = {}): Record<string, number> => ({ must_report: 10, submitted: 7, submitted_late: 1, draft: 2, not_started: 1, overdue: 3, ...over });
 
 export const projectRow = (code: string, over: Record<string, unknown> = {}): Record<string, unknown> => ({
-  project: { id: `00000000-0000-4000-8000-00000000${code.slice(-4).padStart(4, '0')}`, code, name: `Dự án ${code}` },
-  unit: { id: UNIT_ID, code: 'U-BQL1', name: 'Ban quản lý 1' },
+  project: { id: `00000000-0000-4000-8000-00000000${code.slice(-4).padStart(4, '0')}`, code, name: `${fixtureText['project.namePrefix']} ${code}` },
+  unit: { id: UNIT_ID, code: 'U-BQL1', name: fixtureText['unit.management1.name'] },
   state: 'DRAFT',
   is_late: false,
   overdue: true,
@@ -21,8 +23,8 @@ export const boardRecord = (over: Record<string, unknown> = {}): Record<string, 
   as_of: '2027-10-15T03:00:00.000Z',
   total: counts({ must_report: 12, submitted: 9, draft: 2, not_started: 1, overdue: 3 }),
   units: [
-    { unit: { id: UNIT_ID, code: 'U-BQL1', name: 'Ban quản lý 1' }, ...counts() },
-    { unit: { id: OTHER_UNIT_ID, code: 'U-BQL2', name: 'Ban quản lý 2' }, ...counts({ must_report: 2, submitted: 2, submitted_late: 0, draft: 0, not_started: 0, overdue: 0 }) },
+    { unit: { id: UNIT_ID, code: 'U-BQL1', name: fixtureText['unit.management1.name'] }, ...counts() },
+    { unit: { id: OTHER_UNIT_ID, code: 'U-BQL2', name: fixtureText['unit.management2.name'] }, ...counts({ must_report: 2, submitted: 2, submitted_late: 0, draft: 0, not_started: 0, overdue: 0 }) },
   ],
   ...over,
 });

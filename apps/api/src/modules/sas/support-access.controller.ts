@@ -15,7 +15,7 @@ import { CurrentTenant } from '../../tenant-context.decorator';
 const STATUSES = ['Requested', 'Approved', 'Active', 'Expired', 'Revoked', 'Rejected'] as const;
 
 /**
- * A grant as the tenant sees it (SAS.md 3.6 "DTO riêng"): who asked and for what, when, how long, who approved. The status is the one at the time of the read, so a grant whose window ended is Expired before the pass of
+ * A grant as the tenant sees it (SAS.md 3.6, a DTO of its own): who asked and for what, when, how long, who approved. The status is the one at the time of the read, so a grant whose window ended is Expired before the pass of
  * the lifecycle job says so; `in_force` is the judgment the guard makes on each request of the operator.
  */
 export function supportGrantView(row: SupportGrantRow, now: Date): Record<string, unknown> {

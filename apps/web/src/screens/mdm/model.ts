@@ -652,7 +652,7 @@ const plainName = (value: string): string =>
   value
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
-    .replace(/đ/gi, 'd')
+    .replace(/\u0111/gi, 'd') // the letter d with a stroke (U+0111)
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, ' ')
     .trim();

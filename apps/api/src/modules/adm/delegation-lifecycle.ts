@@ -10,7 +10,7 @@ import { delegatorStillHolds } from './delegation.controller';
 export const DELEGATION_SOURCE_ENDED_METRIC = 'delegation_source_ended_total';
 
 /**
- * The job `delegation-lifecycle` (ADM 3.5, "hết hạn delegation/grant mỗi phút"): every minute a delegation whose first instant has come is put in force, one whose window has ended is Ended, and one whose delegator no longer
+ * The job `delegation-lifecycle` (ADM 3.5, delegations and grants lapse every minute): every minute a delegation whose first instant has come is put in force, one whose window has ended is Ended, and one whose delegator no longer
  * holds what it passed on (the source grant was revoked or lapsed, the membership is no longer active) is Ended at once, so a delegate never keeps an authority their delegator lost. The work is `DelegationStore.sweep`; this class
  * gives it the audit trail and the outbox of the pass, under the worker's membership. The pass is idempotent.
  */

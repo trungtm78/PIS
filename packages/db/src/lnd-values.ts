@@ -1,4 +1,4 @@
-import { DomainError } from '@machvon/kernel';
+import { DomainError, hasControlChar } from '@machvon/kernel';
 
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
 
@@ -12,13 +12,11 @@ export const MAX_ADDRESS = 500;
 const MAX_BOUNDARY_BYTES = 200_000;
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u001f\u007f]/;
 
 /** A text as it is stored: trimmed, within its length, without control characters. */
 export function textOf(value: string, field: string, min: number, max: number): string {
   const text = value.trim();
-  if (text.length < min || text.length > max || CONTROL.test(text)) throw invalid(field);
+  if (text.length < min || text.length > max || hasControlChar(text)) throw invalid(field);
   return text;
 }
 

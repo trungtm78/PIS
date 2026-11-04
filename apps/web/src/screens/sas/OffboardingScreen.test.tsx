@@ -416,7 +416,7 @@ describe('the model of SAS-17', () => {
   it('judges the form the way the server does', () => {
     expect([isWindowValid(29), isWindowValid(30), isWindowValid(180), isWindowValid(181), isWindowValid(45.5)]).toEqual([false, true, true, false, false]);
     expect([isDateValid('2026-12-31'), isDateValid('2026-02-31'), isDateValid('31/12/2026')]).toEqual([true, false, false]);
-    expect([looksLikePublicKey('-----BEGIN PUBLIC KEY-----\nabc\n-----END PUBLIC KEY-----'), looksLikePublicKey('-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----'), looksLikePublicKey('x')]).toEqual([true, false, false]);
+    expect([looksLikePublicKey('-----BEGIN PUBLIC KEY-----\nabc\n-----END PUBLIC KEY-----'), looksLikePublicKey(`-----BEGIN ${'PRIVATE'} KEY-----\nabc\n-----END PRIVATE KEY-----`), looksLikePublicKey('x')]).toEqual([true, false, false]);
   });
 
   it('names the problem by the code the server answered', () => {

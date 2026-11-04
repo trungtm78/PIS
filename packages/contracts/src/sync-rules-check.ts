@@ -20,7 +20,7 @@ import type { SyncBucket, SyncTable } from './dis-sync';
  */
 export type SyncRuleViolation = { bucket: string; rule: string; detail: string };
 
-/** Tables that hold personal data of citizens or staff. They never go to a phone through the generic rules (07, "Luồng hiện trường"). */
+/** Tables that hold personal data of citizens or staff. They never go to a phone through the generic rules (design doc 07, the field flow). */
 export const PERSONAL_DATA_TABLES: readonly string[] = ['household', 'household_member', 'citizen', 'resident', 'person', 'contact', 'user_account', 'device_registration', 'consent_record'];
 
 const UUID_LITERAL = /'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'/;

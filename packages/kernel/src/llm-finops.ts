@@ -69,8 +69,8 @@ const whole = (value: number, field: string): number => {
 };
 
 /**
- * BR-LLM-04. `noncached = input_total − cached_input` when the price includes the cached tokens in the input, and `input_total` when it counts them apart;
- * `cost = noncached × input_rate + cached × cached_rate + output_total × output_rate + tool_fee` (rates per million tokens); `cost_vnd = round_half_up(cost × fx, 0)`.
+ * BR-LLM-04. `noncached = input_total - cached_input` when the price includes the cached tokens in the input, and `input_total` when it counts them apart;
+ * `cost = noncached * input_rate + cached * cached_rate + output_total * output_rate + tool_fee` (rates per million tokens); `cost_vnd = round_half_up(cost * fx, 0)`.
  */
 export function costOf(usage: Usage, price: Price): AttemptCost {
   const inputTotal = whole(usage.inputTotal, 'input_total');
@@ -78,12 +78,12 @@ export function costOf(usage: Usage, price: Price): AttemptCost {
   const outputTotal = whole(usage.outputTotal, 'output_total');
   if (price.cachedSemantics === 'INCLUDED_IN_INPUT' && cachedInput > inputTotal) throw new DomainError('VALIDATION_FAILED', 422, 'cached_input');
   const noncached = price.cachedSemantics === 'INCLUDED_IN_INPUT' ? inputTotal - cachedInput : inputTotal;
-  // Every term is tokens × rate, in 1e-8 of the currency per million tokens: the sum is divided by a million once, at the end.
+  // Every term is tokens * rate, in 1e-8 of the currency per million tokens: the sum is divided by a million once, at the end.
   const perMillion = BigInt(noncached) * toScaled(price.inputPerMillion) + BigInt(cachedInput) * toScaled(price.cachedPerMillion) + BigInt(outputTotal) * toScaled(price.outputPerMillion);
   // A fee is not negative: a negative one would take dong off the settled amount and give the budget room back.
   if (!STORED_RATE.test(usage.toolFee ?? '0')) throw new DomainError('VALIDATION_FAILED', 422, 'tool_fee');
   const toolFee = toScaled(usage.toolFee ?? '0');
-  // The currency amount is kept to eight places for the record; the dong are worked out from the exact amount (tokens × rate, tool fee, exchange rate), rounded once.
+  // The currency amount is kept to eight places for the record; the dong are worked out from the exact amount (tokens * rate, tool fee, exchange rate), rounded once.
   const exact = perMillion + toolFee * MILLION;
   const cost = divideHalfUp(exact, MILLION);
   const costVnd = divideHalfUp(exact * toScaled(price.fxRateToVnd), MILLION * ONE * ONE);

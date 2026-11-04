@@ -192,7 +192,7 @@ export function ruleErrorLabel(t: Translate, code: string | null): string {
   }
 }
 
-/** A length of time in words ("2 ngày"), cut down to the unit it fills. */
+/** A length of time in words ("2 days"), cut down to the unit it fills. */
 export function durationLabel(t: Translate, seconds: number): string {
   const { unit, count } = durationOf(seconds);
   switch (unit) {

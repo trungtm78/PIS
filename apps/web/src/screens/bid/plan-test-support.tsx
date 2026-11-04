@@ -3,6 +3,7 @@ import { harness as baseHarness } from '../sas/test-support';
 import type { Harness } from '../sas/test-support';
 
 export { mount, routeOf } from './test-support';
+import fixtureText from './fixture-text.vi.json';
 export type { Harness };
 
 export const PLANNER = ['bid.read', 'bid.plan.manage', 'procurement_package.read'];
@@ -17,14 +18,14 @@ export const DECISION_DOCUMENT = uuid('0050', 1);
 export const planId = (n: number): string => uuid('0010', n);
 export const packageId = (n: number): string => uuid('0020', n);
 
-export const project = (overrides: Record<string, unknown> = {}) => ({ id: PROJECT, code: 'PRJ-001', name: 'Cầu qua sông', status: 'IMPLEMENTATION', ...overrides });
+export const project = (overrides: Record<string, unknown> = {}) => ({ id: PROJECT, code: 'PRJ-001', name: fixtureText['project.name'], status: 'IMPLEMENTATION', ...overrides });
 
 export const plan = (n: number, overrides: Record<string, unknown> = {}) => ({
   id: planId(n),
   project: project(),
   revision: n,
-  title: `Kế hoạch lựa chọn nhà thầu ${n}`,
-  legal_basis: 'Luật Đấu thầu 22/2023/QH15',
+  title: `${fixtureText['plan.titlePrefix']} ${n}`,
+  legal_basis: fixtureText['legalBasis.procurementLaw'],
   total_value_vnd: '28000000000',
   status: 'DRAFT',
   supersedes_id: null,
@@ -39,7 +40,7 @@ export const plan = (n: number, overrides: Record<string, unknown> = {}) => ({
 export const pack = (n: number, planNumber: number | null, overrides: Record<string, unknown> = {}) => ({
   id: packageId(n),
   code: `GT-${n}`,
-  title: `Gói thầu xây lắp ${n}`,
+  title: `${fixtureText['package.titlePrefix']} ${n}`,
   project: project(),
   plan: planNumber === null ? null : { id: planId(planNumber), revision: planNumber, status: 'DRAFT' },
   budget_vnd: n === 1 ? '18000000000' : '10000000000',
@@ -47,7 +48,7 @@ export const pack = (n: number, planNumber: number | null, overrides: Record<str
   contract_type: 'LUMP_SUM',
   bidding_form: 'ONLINE',
   allocation_line_id: LINE,
-  fund_source: { business_key: 'NSTW', label: 'Ngân sách trung ương' },
+  fund_source: { business_key: 'NSTW', label: fixtureText['fundSource.nstw.label'] },
   planned_start_period: '2026-Q4',
   duration_days: 180,
   status: 'DRAFT',
@@ -60,7 +61,7 @@ export const line = (overrides: Record<string, unknown> = {}) => ({
   id: LINE,
   project: project(),
   plan_status: 'PUBLISHED',
-  fund_source: { label: 'Ngân sách trung ương' },
+  fund_source: { label: fixtureText['fundSource.nstw.label'] },
   source_year: 2026,
   amount_vnd: '30000000000',
   ...overrides,

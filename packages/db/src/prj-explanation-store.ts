@@ -9,6 +9,7 @@ import { invalid, projectInScope, usableDocumentId } from './prj-stage-support.t
 import { scopePredicate } from './scope-version.ts';
 import type { ScopeBuilder, ScopePredicate } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
+import { fillText, vietnameseData } from './vietnamese-data.ts';
 import { WorkCalendarStore } from './work-calendar-store.ts';
 import type { AuditWriter } from './audit-writer.ts';
 
@@ -255,7 +256,7 @@ export class PrjExplanationStore {
     );
     if (leader === undefined) return { outcome: 'SKIPPED', reason: 'NO_LEADER_IN_CHARGE' };
     const { date, calendar } = await this.dueDate(tx, warning.periodId, countedFrom, dueWorkingDays);
-    const question = `Đề nghị giải trình về cảnh báo ${warning.ruleCode} (${warning.ruleName}) của dự án ${warning.projectCode ?? ''}: nêu nguyên nhân và biện pháp khắc phục.`;
+    const question = fillText(vietnameseData<{ question: string }>('prj-explanation').question, { ruleCode: warning.ruleCode, ruleName: warning.ruleName, projectCode: warning.projectCode ?? '' });
     let id: string;
     try {
       id = await this.insert(tx, {

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, versionConflict } from '@machvon/kernel';
+import { DomainError, versionConflict, hasControlChar } from '@machvon/kernel';
 import type { TenantTx } from './tenant-database.ts';
 
 const UNIQUE_VIOLATION = '23505';
@@ -225,8 +225,7 @@ const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAIL
 /** A name or a code as it is stored: trimmed, not empty, without control characters, within its length. */
 function textOf(value: string, field: string, max: number): string {
   const text = value.trim();
-  // eslint-disable-next-line no-control-regex
-  if (text === '' || text.length > max || /[\u0000-\u001f\u007f]/.test(text)) throw invalid(field);
+  if (text === '' || text.length > max || hasControlChar(text)) throw invalid(field);
   return text;
 }
 

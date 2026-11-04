@@ -1,5 +1,6 @@
 import { ApiError } from '@machvon/api-client';
 import { isDay, isUuid } from '../model';
+import { hasControlCharacter } from '../../control-characters';
 
 /** LND-08: the complaints of the households about the clearance of their land (ST-LND-008, LND 3.3). */
 export const COMPLAINTS_PATH = '/lnd/lnd-08';
@@ -23,8 +24,6 @@ export type ComplaintOutcome = (typeof COMPLAINT_OUTCOMES)[number];
 /** A complaint is answered while it waits, is under review, or was escalated and the answer of the higher level is recorded. */
 export const ANSWERABLE: readonly ComplaintStatus[] = ['RECEIVED', 'UNDER_REVIEW', 'ESCALATED'];
 export const TEXT_MAX_LENGTH = 2000;
-// eslint-disable-next-line no-control-regex
-const CONTROL = /[\u0000-\u001f\u007f]/;
 
 type Raw = Record<string, unknown>;
 
@@ -111,7 +110,7 @@ const wordsProblem = (value: string): FormProblem | undefined => {
   const words = value.trim();
   if (words === '') return 'required';
   if (words.length > TEXT_MAX_LENGTH) return 'tooLong';
-  return CONTROL.test(words) ? 'invalid' : undefined;
+  return hasControlCharacter(words) ? 'invalid' : undefined;
 };
 
 export interface FileForm {

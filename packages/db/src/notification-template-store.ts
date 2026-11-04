@@ -83,12 +83,12 @@ export interface NewNotificationTemplate {
 }
 
 /**
- * The template revisions of a tenant (ST-NOT-005, NOT 3.4). A revision of a code × channel × locale is written as a Draft, goes to review, and is approved by another person (a maker is never the checker, judged on the
+ * The template revisions of a tenant (ST-NOT-005, NOT 3.4). A revision of a code, channel and locale is written as a Draft, goes to review, and is approved by another person (a maker is never the checker, judged on the
  * person and not on the membership); the Active revision before it is Retired. What a revision says never changes once it has left Draft: the database refuses it (migration V1443), and so does this store before asking
  * it. The content is judged by the caller (`assertTemplateAllowed`); this store keeps the revisions and the moves.
  */
 export class NotificationTemplateStore {
-  /** A new Draft, one revision after the latest of its code × channel × locale. A revision it supersedes must be of the same code, channel and locale. */
+  /** A new Draft, one revision after the latest of its code, channel and locale. A revision it supersedes must be of the same code, channel and locale. */
   async create(tx: TenantTx, input: NewNotificationTemplate, actor: string): Promise<NotificationTemplateRecord> {
     if (input.supersedesId !== undefined) {
       const [older] = await tx.query<{ code: string; channel: string; locale: string }>('select code, channel, locale from machvon.notification_template_version where id = $1::uuid', [input.supersedesId]);
@@ -143,7 +143,7 @@ export class NotificationTemplateStore {
   }
 
   /**
-   * Decides a revision that waits: not by the person who wrote it (403 `SELF_APPROVAL_DENIED`). Approving makes it Active and Retires the Active revision of the same code × channel × locale; a template of a provider
+   * Decides a revision that waits: not by the person who wrote it (403 `SELF_APPROVAL_DENIED`). Approving makes it Active and Retires the Active revision of the same code, channel and locale; a template of a provider
    * that the provider has not approved is 409 `TEMPLATE_PROVIDER_PENDING`. Returning sends it back to Draft, rejecting closes it.
    */
   async decide(tx: TenantTx, id: string, expectedVersion: number, decision: 'approve' | 'return' | 'reject', approver: string): Promise<NotificationTemplateRecord> {
@@ -161,7 +161,7 @@ export class NotificationTemplateStore {
     if (decision === 'return') return this.move(tx, id, 'Draft');
     if (decision === 'reject') return this.move(tx, id, 'Rejected');
     if (current.status === 'PendingProvider' && current.providerStatus !== 'PROVIDER_APPROVED') throw new DomainError('TEMPLATE_PROVIDER_PENDING', 409);
-    // One Active revision for each code × channel × locale: the one before it is Retired in the same transaction.
+    // One Active revision for each code, channel and locale: the one before it is Retired in the same transaction.
     await tx.query(
       "update machvon.notification_template_version set status = 'Retired', version = version + 1 where code = $1 and channel = $2 and locale = $3 and status = 'Active' and id <> $4::uuid",
       [current.code, current.channel, current.locale, id],

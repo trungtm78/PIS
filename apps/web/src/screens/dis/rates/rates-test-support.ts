@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import fixtureText from '../fixture-text.vi.json';
 
 export const SNAPSHOT = '00000000-0000-4000-8000-0000000000d1';
 export const OTHER_SNAPSHOT = '00000000-0000-4000-8000-0000000000d2';
@@ -20,7 +21,7 @@ export const figures = (over: Record<string, unknown> = {}): Record<string, unkn
   ...over,
 });
 
-export const groupRecord = (code: string, over: Record<string, unknown> = {}): Record<string, unknown> => ({ id: `00000000-0000-4000-8000-00000000${code.slice(-4).padStart(4, '0')}`, code, name: `Tên ${code}`, ...figures(), ...over });
+export const groupRecord = (code: string, over: Record<string, unknown> = {}): Record<string, unknown> => ({ id: `00000000-0000-4000-8000-00000000${code.slice(-4).padStart(4, '0')}`, code, name: `${fixtureText['group.namePrefix']} ${code}`, ...figures(), ...over });
 
 export const ratesRecord = (over: Record<string, unknown> = {}): Record<string, unknown> => ({
   snapshot_id: SNAPSHOT,
