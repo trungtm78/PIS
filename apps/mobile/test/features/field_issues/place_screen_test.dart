@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show Ref;
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_mobile/core/offline/offline_providers.dart';
 import 'package:machvon_mobile/core/offline/queue/command_queue.dart';
@@ -12,6 +15,7 @@ import 'package:machvon_mobile/features/field_evidence/field_place.dart';
 import 'package:machvon_mobile/features/field_evidence/jpeg_metadata.dart';
 import 'package:machvon_mobile/features/field_issues/issue_draft.dart';
 import 'package:machvon_mobile/features/field_issues/issue_providers.dart';
+import 'package:machvon_mobile/features/field_issues/issue_service.dart';
 import 'package:machvon_mobile/features/permissions/permission_service.dart';
 
 import '../../support/fake_sync_server.dart';
@@ -50,6 +54,24 @@ Future<void> _flush(WidgetTester tester, FieldWorld world) async {
 /// A photograph already prepared for the draft, on the disk of the phone.
 IssuePhoto _photo(FieldWorld world, String name, Uint8List bytes, {required bool keeps, bool hadPlace = true}) =>
     IssuePhoto(id: name, path: world.file('$name.jpg', bytes).path, mime: 'image/jpeg', bytes: bytes.length, sourceHadPlaceOrTime: hadPlace, keepsPlaceOrTime: keeps);
+
+/// An issue service whose rewriting of the photographs waits for the test, so the time between the withdrawal and the end of the
+/// rewriting can be looked at.
+class _GatedIssueService extends IssueService {
+  _GatedIssueService(super.ref);
+
+  final Completer<void> gate = Completer<void>();
+  bool waiting = false;
+
+  @override
+  Future<IssueDraft> enforceConsent(IssueDraft draft) async {
+    if (!draft.place.consent) {
+      waiting = true;
+      await gate.future;
+    }
+    return super.enforceConsent(draft);
+  }
+}
 
 void main() {
   group('AC-ST-MOB-014-1 UAT-AC355 UI-MOB-30 a report made with the location permission refused', () {
@@ -177,6 +199,35 @@ void main() {
       expect(draft.photos.single.keepsPlaceOrTime, isFalse);
       expect(readJpegMetadata(File(photo.path).readAsBytesSync()).carriesPlaceOrTime, isFalse, reason: 'the file on the phone was rewritten without them');
       expect(find.text('Chưa có vị trí.'), findsOneWidget);
+    });
+
+    testWidgets('the withdrawal is on the phone before the photographs are rewritten, and the report cannot be sent meanwhile', (WidgetTester tester) async {
+      useDevice(tester, kTall);
+      final FieldWorld world = FieldWorld.create();
+      _GatedIssueService? gated;
+      await world.open(tester, '/projects/mob-41', overrides: <Override>[issueServiceProvider.overrideWith((Ref ref) => gated = _GatedIssueService(ref))]);
+      final IssuePhoto photo = _photo(world, 'gate', geotaggedJpeg(), keeps: true);
+      final String id = await world.seedDraft(
+        tester,
+        place: FieldPlace.none.withConsent(true).withDevicePosition(const DevicePosition(latitude: 10.8, longitude: 106.7, accuracyMetres: 8)),
+        photos: <IssuePhoto>[photo],
+      );
+      await world.go(tester, '/projects/mob-30/$id');
+      final Finder send = find.widgetWithText(FilledButton, 'Gửi báo cáo');
+      expect(tester.widget<FilledButton>(send).onPressed, isNotNull);
+
+      await tester.tap(find.byType(SwitchListTile));
+      await settleReal(tester, rounds: 8);
+      // The files are still being rewritten (the gate holds them): a send now must find the withdrawal, not the old place.
+      expect(gated!.waiting, isTrue);
+      expect((await _draft(tester, world, id)).place.consent, isFalse, reason: 'the withdrawal is stored before the files are touched');
+      expect(tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value, isFalse);
+      expect(tester.widget<FilledButton>(send).onPressed, isNull, reason: 'no send while the photographs still say where they were taken');
+
+      gated!.gate.complete();
+      await settleReal(tester, rounds: 12);
+      expect(readJpegMetadata(File(photo.path).readAsBytesSync()).carriesPlaceOrTime, isFalse);
+      expect(tester.widget<FilledButton>(send).onPressed, isNotNull, reason: 'the send is back once the photographs are clean');
     });
 
     testWidgets('a reading that arrives after the consent was taken back is dropped', (WidgetTester tester) async {

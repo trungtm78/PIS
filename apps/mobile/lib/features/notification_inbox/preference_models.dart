@@ -24,6 +24,7 @@ final class PreferenceView {
     required this.off,
     required this.explicitOn,
     required this.digest,
+    required this.channelDigest,
     required this.categories,
     required this.locked,
     this.quietStart,
@@ -44,8 +45,14 @@ final class PreferenceView {
   /// the category before the row of every category, so such a row is an override of a wildcard that is off, not a default: it is kept.
   final Set<String> explicitOn;
 
-  /// The digest mode of a category (every channel of it); absent means immediate.
+  /// The digest mode of a category (every channel of it); absent means immediate. A category whose channels are in different
+  /// digests shows the first one that is not immediate, and is also in [channelDigest].
   final Map<String, String> digest;
+
+  /// The digest mode of each channel row of a category whose channels are not all in the same digest, as the server holds it (the
+  /// server keeps the mode per category and channel). A save sends these as they are, unless the person chooses a digest for the
+  /// category.
+  final Map<String, Map<String, String>> channelDigest;
 
   /// The categories shown as rows besides every category.
   final List<String> categories;
@@ -71,6 +78,7 @@ PreferenceView? parsePreferences(Object? raw) {
   final Set<String> off = <String>{};
   final Set<String> explicitOn = <String>{};
   final Map<String, String> digest = <String, String>{};
+  final Map<String, Map<String, String>> rowDigest = <String, Map<String, String>>{};
   final Set<String> categories = <String>{};
   for (final Object? entry in listOf(view['items'])) {
     final Json? item = asRecord(entry);
@@ -83,9 +91,15 @@ PreferenceView? parsePreferences(Object? raw) {
       explicitOn.add(cellKey(category, channel));
     }
     final String mode = text(item['digest_mode']) ?? 'IMMEDIATE';
-    if (digestModes.contains(mode) && mode != 'IMMEDIATE') digest[category] = mode;
+    final String known = digestModes.contains(mode) ? mode : 'IMMEDIATE';
+    if (known != 'IMMEDIATE') digest.putIfAbsent(category, () => known);
+    rowDigest.putIfAbsent(category, () => <String, String>{})[channel] = known;
     if (category != allCategories) categories.add(category);
   }
+  final Map<String, Map<String, String>> channelDigest = <String, Map<String, String>>{
+    for (final MapEntry<String, Map<String, String>> entry in rowDigest.entries)
+      if (entry.value.values.toSet().length > 1) entry.key: entry.value,
+  };
   final List<({String category, String channel})> locked = <({String category, String channel})>[];
   for (final Object? entry in listOf(view['locked'])) {
     final Json? item = asRecord(entry);
@@ -105,6 +119,7 @@ PreferenceView? parsePreferences(Object? raw) {
     off: off,
     explicitOn: explicitOn,
     digest: digest,
+    channelDigest: channelDigest,
     categories: categories.toList()..sort(),
     locked: locked,
   );
@@ -116,6 +131,7 @@ final class PreferenceDraft {
     required this.off,
     required this.explicitOn,
     required this.digest,
+    required this.channelDigest,
     required this.categories,
     required this.quietOn,
     required this.quietStart,
@@ -128,6 +144,7 @@ final class PreferenceDraft {
         off: <String>{...view.off},
         explicitOn: <String>{...view.explicitOn},
         digest: <String, String>{...view.digest},
+        channelDigest: <String, Map<String, String>>{for (final MapEntry<String, Map<String, String>> entry in view.channelDigest.entries) entry.key: <String, String>{...entry.value}},
         categories: <String>[...view.categories],
         quietOn: view.quietOn,
         quietStart: view.quietStart ?? '21:00',
@@ -138,11 +155,29 @@ final class PreferenceDraft {
   final Set<String> off;
   final Set<String> explicitOn;
   final Map<String, String> digest;
+  final Map<String, Map<String, String>> channelDigest;
   final List<String> categories;
   bool quietOn;
   String quietStart;
   String quietEnd;
   String timeZone;
+
+  /// The person chose a digest for a kind: it is the digest of every channel of the kind from now on.
+  void setDigest(String category, String mode) {
+    channelDigest.remove(category);
+    if (mode == 'IMMEDIATE') {
+      digest.remove(category);
+    } else {
+      digest[category] = mode;
+    }
+  }
+
+  /// The digest of a cell: its own when the kind keeps different digests per channel, else the one of the kind.
+  String digestOf(String category, String channel) {
+    final Map<String, String>? perChannel = channelDigest[category];
+    if (perChannel != null) return perChannel[channel] ?? 'IMMEDIATE';
+    return digest[category] ?? 'IMMEDIATE';
+  }
 
   /// Whether the cell reaches the person, as the server resolves it: its own row first, else the row of every category, else yes.
   bool isOn(String category, String channel) {
@@ -174,14 +209,15 @@ QuietProblem? quietProblem(PreferenceDraft draft) {
   return draft.quietStart == draft.quietEnd ? QuietProblem.empty : null;
 }
 
-/// The body of a save: a cell is sent when the person or the server set it (off, or an explicit enabled row) or its category has a
-/// digest mode; everything else is inherited from the wildcard or on by default.
+/// The body of a save: a cell is sent when the person or the server set it (off, or an explicit enabled row) or it has a digest
+/// mode (its own when the kind keeps different digests per channel, else the one of the kind); everything else is inherited from
+/// the wildcard or on by default.
 Map<String, Object?> preferenceBody(PreferenceDraft draft) {
   final List<Map<String, Object?>> items = <Map<String, Object?>>[];
   for (final String category in <String>[allCategories, ...draft.categories]) {
-    final String mode = draft.digest[category] ?? 'IMMEDIATE';
     for (final String channel in preferenceChannels) {
       final String key = cellKey(category, channel);
+      final String mode = draft.digestOf(category, channel);
       if (draft.off.contains(key) || draft.explicitOn.contains(key) || mode != 'IMMEDIATE') {
         items.add(<String, Object?>{'event_category': category, 'channel': channel, 'enabled': draft.isOn(category, channel), 'digest_mode': mode});
       }

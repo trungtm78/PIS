@@ -10,7 +10,6 @@ import '../../core/offline/offline_providers.dart';
 import '../../core/offline/store/local_store.dart';
 import 'jpeg_metadata.dart';
 import 'photo_pipeline.dart';
-import 'png_metadata.dart';
 
 /// A photograph kept for a record (a site diary, a measurement, an inspection): the file that is uploaded, what was done to it,
 /// and the upload once it was handed to the uploader. The photographs of an issue carry their marks as well ([IssuePhoto]).
@@ -125,20 +124,8 @@ Future<void> stripPreparedFile(String path) async {
   final File file = File(path);
   if (!file.existsSync()) return;
   final Uint8List bytes = await file.readAsBytes();
-  final Uint8List clean =
-      bytes.length > 1 && bytes[0] == 0xFF && bytes[1] == 0xD8
-      ? stripJpegMetadata(bytes)
-      : stripPngMetadata(bytes);
-  if (_same(bytes, clean)) return;
-  await file.writeAsBytes(clean, flush: true);
-}
-
-bool _same(Uint8List a, Uint8List b) {
-  if (a.length != b.length) return false;
-  for (int i = 0; i < a.length; i += 1) {
-    if (a[i] != b[i]) return false;
-  }
-  return true;
+  if (!carriesMetadata(bytes)) return;
+  await file.writeAsBytes(withoutMetadata(bytes), flush: true);
 }
 
 /// Deletes the files of a photograph that is dropped with its draft.
@@ -249,12 +236,7 @@ Future<bool> _isTheUploadedFile(String path, AttachmentUpload upload) async {
 Future<bool> _carriesMetadata(String path) async {
   final File file = File(path);
   if (!file.existsSync()) return false;
-  final Uint8List bytes = await file.readAsBytes();
-  final Uint8List clean =
-      bytes.length > 1 && bytes[0] == 0xFF && bytes[1] == 0xD8
-      ? stripJpegMetadata(bytes)
-      : stripPngMetadata(bytes);
-  return !_same(bytes, clean);
+  return carriesMetadata(await file.readAsBytes());
 }
 
 /// Hands each photograph that was not handed over yet to the uploader, once. [saved] is called after each, with the photographs as

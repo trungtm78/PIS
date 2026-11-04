@@ -141,6 +141,14 @@ class _DiaryBodyState extends ConsumerState<_DiaryBody>
   _Notice? _notice;
   String? _lastCommand;
   bool _saving = false;
+
+  /// The consent was taken back and the photographs are being rewritten without their place and time: the diary is not saved or
+  /// changed until they are clean.
+  bool _sanitizing = false;
+
+  /// The summary and the notes the correction fields were last filled with from the diary: while the fields still hold them, the
+  /// person has not written a correction yet, and they follow the diary.
+  ({String summary, String notes}) _correctionBase = (summary: '', notes: '');
   Future<void> _writing = Future<void>.value();
 
   DiaryRecord? get _diary => widget.day.diary;
@@ -218,12 +226,27 @@ class _DiaryBodyState extends ConsumerState<_DiaryBody>
       _items.text = form.workItems;
       _workforce.text = form.workforce;
       _notes.text = form.notes;
-      if (diary != null) {
-        final DiaryForm shown = DiaryForm.of(diary);
-        _correctionSummary.text = shown.summary;
-        _correctionNotes.text = shown.notes;
-      }
+      _fillCorrection(diary);
     });
+  }
+
+  @override
+  void didUpdateWidget(_DiaryBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // The diary was read again (a save was taken, it was signed): the correction starts from the diary as it is now.
+    if (!identical(oldWidget.day.diary, widget.day.diary)) _fillCorrection(widget.day.diary);
+  }
+
+  /// Fills the correction fields from [diary] unless the person is already writing a correction in them (they no longer hold what
+  /// they were last filled with).
+  void _fillCorrection(DiaryRecord? diary) {
+    if (diary == null) return;
+    final DiaryForm shown = DiaryForm.of(diary);
+    final bool written = _correctionSummary.text != _correctionBase.summary || _correctionNotes.text != _correctionBase.notes;
+    if (written) return;
+    _correctionSummary.text = shown.summary;
+    _correctionNotes.text = shown.notes;
+    _correctionBase = (summary: shown.summary, notes: shown.notes);
   }
 
   void _change(DiaryDraft next) {
@@ -257,7 +280,7 @@ class _DiaryBodyState extends ConsumerState<_DiaryBody>
 
   Future<void> _save() async {
     final DiaryDraft? draft = _draft;
-    if (draft == null || _saving) return;
+    if (draft == null || _saving || _sanitizing) return;
     final Map<String, DiaryProblem> problems = checkDiary(
       draft.form,
       recordDate: widget.recordDate,
@@ -301,12 +324,24 @@ class _DiaryBodyState extends ConsumerState<_DiaryBody>
     }
   }
 
-  /// The consent changed or a position arrived. Taking the consent back takes the place and the time out of the photographs too.
+  /// The consent changed or a position arrived. The place is the one chosen from this moment, written to the phone at once; taking
+  /// the consent back takes the place and the time out of the photographs too, and the diary cannot be saved before they have gone.
   Future<void> _placeChanged(FieldPlace next) async {
     final DiaryDraft? draft = _draft;
     if (draft == null) return;
-    final List<EvidencePhoto> photos = await enforcePhotoConsent(draft.photos, consent: next.consent);
-    _change(draft.copyWith(place: next, photos: photos));
+    final bool withdrawn = !next.consent && draft.photos.isNotEmpty;
+    if (withdrawn) _sanitizing = true;
+    _change(draft.copyWith(place: next));
+    if (!withdrawn) return;
+    List<EvidencePhoto> clean = draft.photos;
+    try {
+      clean = await enforcePhotoConsent(draft.photos, consent: false);
+    } finally {
+      if (mounted) {
+        _change(_draft!.copyWith(photos: clean));
+        setState(() => _sanitizing = false);
+      }
+    }
   }
 
   Future<void> _sign({bool again = false}) {
@@ -545,6 +580,7 @@ class _DiaryBodyState extends ConsumerState<_DiaryBody>
         ? null
         : diaryProblemText(context, _problems[field]!);
     final bool busy = _saving;
+    final bool settled = !busy && !_sanitizing;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
@@ -637,7 +673,7 @@ class _DiaryBodyState extends ConsumerState<_DiaryBody>
         ),
         SectionCard(
           title: context.t('mob.dry.place.title'),
-          children: <Widget>[PlaceConsentField(place: draft.place, enabled: !busy, onChanged: _placeChanged)],
+          children: <Widget>[PlaceConsentField(place: draft.place, enabled: settled, onChanged: _placeChanged)],
         ),
         SectionCard(
           title: context.t('mob.dry.photos.title'),
@@ -645,7 +681,7 @@ class _DiaryBodyState extends ConsumerState<_DiaryBody>
             EvidencePhotosField(
               photos: draft.photos,
               keepPlaceAndTime: draft.place.consent,
-              enabled: !busy,
+              enabled: settled,
               onChanged: (List<EvidencePhoto> photos) =>
                   _change(draft.copyWith(photos: photos)),
             ),
@@ -667,7 +703,7 @@ class _DiaryBodyState extends ConsumerState<_DiaryBody>
               if (readOnlySession)
                 GateNote(text: context.t('mob.dry.gate.readOnly')),
               FilledButton(
-                onPressed: readOnlySession || busy ? null : _save,
+                onPressed: readOnlySession || !settled ? null : _save,
                 child: Text(
                   busy
                       ? context.t('mob.dry.save.pending')

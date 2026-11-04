@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' show MaterialPageRoute;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -45,3 +46,9 @@ class _SecureScreenState extends ConsumerState<SecureScreen> {
   @override
   Widget build(BuildContext context) => widget.child;
 }
+
+/// The route of a screen that is pushed by hand (not through the router) over a protected screen. A route that covers the protected
+/// screen releases the protection of that screen (it is no longer the one being looked at), and a route pushed by hand does not pass
+/// through the router's [SecureScreen] wrapper, so the screen it shows (a document, a page of it) would be capturable exactly while
+/// its content is on display. Every such route is built with this function.
+Route<T> secureRoute<T>(WidgetBuilder builder) => MaterialPageRoute<T>(builder: (BuildContext context) => SecureScreen(child: builder(context)));

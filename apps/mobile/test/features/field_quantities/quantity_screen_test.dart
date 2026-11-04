@@ -271,6 +271,37 @@ void main() {
       expect(payload.keys.where((String key) => key.startsWith('geo') || key.contains('gps')), isEmpty);
     }, timeout: const Timeout(Duration(minutes: 2)));
 
+    testWidgets('the consent taken back is on the phone at once, and the quantity cannot be recorded until the photographs have lost their place and time', (WidgetTester tester) async {
+      useDevice(tester, kTall);
+      final FieldWorld world = await _open(tester);
+      await tester.ensureVisible(find.byType(SwitchListTile));
+      await tester.tap(find.byType(SwitchListTile));
+      await settleReal(tester, rounds: 6);
+      world.photos.gallery = world.file('wall.jpg', geotaggedJpeg());
+      await tester.ensureVisible(find.text('Chọn từ thư viện'));
+      await tester.pump();
+      await tester.tap(find.text('Chọn từ thư viện'));
+      await waitUntil(tester, () async => find.textContaining('Dung lượng').evaluate().isNotEmpty);
+      await settleReal(tester, rounds: 6);
+      final Finder save = find.widgetWithText(FilledButton, 'Lưu khối lượng');
+      await tester.ensureVisible(save);
+      expect(tester.widget<FilledButton>(save).onPressed, isNotNull);
+
+      await tester.ensureVisible(find.byType(SwitchListTile));
+      await tester.tap(find.byType(SwitchListTile));
+      await tester.pump();
+      // The files are still being rewritten (real input and output has not run).
+      expect(tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value, isFalse);
+      expect(tester.widget<FilledButton>(save).onPressed, isNull, reason: 'nothing is recorded while the photographs still say where they were taken');
+      final DraftStore store = (await tester.runAsync(() => world.container.read(draftStoreProvider.future)))!;
+      expect(QuantityDraft.fromJson(store.list(kind: kQuantityDraftKind).single.fields)!.place.consent, isFalse, reason: 'the withdrawal is already written to the phone');
+
+      await settleReal(tester, rounds: 8);
+      expect(tester.widget<FilledButton>(save).onPressed, isNotNull);
+      final QuantityDraft after = QuantityDraft.fromJson(store.list(kind: kQuantityDraftKind).single.fields)!;
+      expect(readJpegMetadata(File(after.photos.single.path).readAsBytesSync()).carriesPlaceOrTime, isFalse);
+    });
+
     testWidgets('with the consent and a position, the place of the photograph is the position of the phone at capture', (WidgetTester tester) async {
       useDevice(tester, kTall);
       final FieldWorld world = await _open(tester);

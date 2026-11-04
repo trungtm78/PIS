@@ -59,6 +59,9 @@ class _PlaceState extends ConsumerState<_Place> {
   final TextEditingController _manual = TextEditingController();
   bool _locating = false;
   bool _sending = false;
+
+  /// The consent was taken back and the photographs are being rewritten without their place and time: nothing is sent until they are clean.
+  bool _withdrawing = false;
   String? _locateNotice;
   String? _manualProblem;
   String? _sendRefusal;
@@ -86,11 +89,22 @@ class _PlaceState extends ConsumerState<_Place> {
   }
 
   Future<void> _consent(bool given) async {
-    setState(() => _locateNotice = null);
-    IssueDraft next = _draft.copyWith(place: _draft.place.withConsent(given));
-    // Taking the consent back takes the place and the time out of the photographs too, in the same step.
-    if (!given) next = await _service.enforceConsent(next);
-    await _save(next);
+    setState(() {
+      _locateNotice = null;
+      _withdrawing = !given;
+    });
+    try {
+      IssueDraft next = _draft.copyWith(place: _draft.place.withConsent(given));
+      if (!given) {
+        // The withdrawal is on the phone before anything else is done: a send that reads the draft from now on finds no consent.
+        await _save(next);
+        // Taking the consent back takes the place and the time out of the photographs too.
+        next = await _service.enforceConsent(next);
+      }
+      await _save(next);
+    } finally {
+      if (mounted) setState(() => _withdrawing = false);
+    }
   }
 
   Future<void> _locate() async {
@@ -160,7 +174,7 @@ class _PlaceState extends ConsumerState<_Place> {
   }
 
   Future<void> _send() async {
-    if (_sending) return;
+    if (_sending || _withdrawing) return;
     setState(() {
       _sending = true;
       _sendRefusal = null;
@@ -204,8 +218,8 @@ class _PlaceState extends ConsumerState<_Place> {
               contentPadding: EdgeInsets.zero,
               title: Text(context.t('mob.fld.place.consent.label')),
               subtitle: Text(context.t('mob.fld.place.consent.hint')),
-              value: place.consent,
-              onChanged: _consent,
+              value: place.consent && !_withdrawing,
+              onChanged: _withdrawing ? null : _consent,
             ),
             Text(
               placeSummary(context, place),
@@ -336,7 +350,7 @@ class _PlaceState extends ConsumerState<_Place> {
             vertical: MachvonSpace.space8,
           ),
           child: FilledButton(
-            onPressed: ready && !readOnly && !_sending ? _send : null,
+            onPressed: ready && !readOnly && !_sending && !_withdrawing ? _send : null,
             child: Text(
               _sending
                   ? context.t('mob.fld.send.pending')

@@ -99,6 +99,10 @@ class _CaptureFormState extends ConsumerState<_CaptureForm> {
   late final SitePhotoService _service;
   Map<String, CaptureProblem> _problems = const <String, CaptureProblem>{};
   bool _saving = false;
+
+  /// The consent was taken back and the photographs are being rewritten without their place and time: nothing is kept or changed
+  /// until they are clean.
+  bool _sanitizing = false;
   bool _failed = false;
   int? _saved;
   int _revision = 0;
@@ -148,14 +152,27 @@ class _CaptureFormState extends ConsumerState<_CaptureForm> {
     }
   }
 
+  /// The place is the one the person chose from this moment (the withdrawal of the consent is not delayed by the work on the files);
+  /// the photographs lose their place and time meanwhile, and the capture cannot be kept before they have.
   Future<void> _placeChanged(FieldPlace next) async {
-    final List<EvidencePhoto> photos = await enforcePhotoConsent(_photos, consent: next.consent);
-    if (!mounted) return;
+    final List<EvidencePhoto> before = _photos;
     setState(() {
       _place = next;
-      _photos = photos;
+      _sanitizing = !next.consent && before.isNotEmpty;
       _touched();
     });
+    if (!_sanitizing) return;
+    List<EvidencePhoto> clean = before;
+    try {
+      clean = await enforcePhotoConsent(before, consent: false);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _photos = clean;
+          _sanitizing = false;
+        });
+      }
+    }
   }
 
   Set<String> _duplicateIds(Set<String>? registered) {
@@ -173,7 +190,7 @@ class _CaptureFormState extends ConsumerState<_CaptureForm> {
     final ContractLine? contract = widget.contracts.where((ContractLine candidate) => candidate.id == _contractId).firstOrNull;
     final Map<String, CaptureProblem> problems = checkCapture(contractId: contract?.id, photos: _photos.length, caption: _caption.text);
     setState(() => _problems = problems);
-    if (problems.isNotEmpty || contract == null || _saving) return;
+    if (problems.isNotEmpty || contract == null || _saving || _sanitizing) return;
     setState(() {
       _saving = true;
       _failed = false;
@@ -231,6 +248,7 @@ class _CaptureFormState extends ConsumerState<_CaptureForm> {
     final ThemeData theme = Theme.of(context);
     final bool readOnly = ref.watch(sessionProvider).isReadOnly;
     final bool enabled = !readOnly && !_saving;
+    final bool settled = enabled && !_sanitizing;
     final String? contractId = _contractId;
     final AsyncValue<List<DiaryOption>?> diaries = contractId == null ? const AsyncData<List<DiaryOption>?>(<DiaryOption>[]) : ref.watch(diaryOptionsProvider(contractId));
     final AsyncValue<Set<String>?> registered = contractId == null ? const AsyncData<Set<String>?>(<String>{}) : ref.watch(registeredHashesProvider(contractId));
@@ -314,20 +332,20 @@ class _CaptureFormState extends ConsumerState<_CaptureForm> {
         SectionCard(
           title: context.t('mob.sitepic.photos.title'),
           children: <Widget>[
-            EvidencePhotosField(photos: _photos, keepPlaceAndTime: _place.consent, place: _place, enabled: enabled, onChanged: _photosChanged),
+            EvidencePhotosField(photos: _photos, keepPlaceAndTime: _place.consent, place: _place, enabled: settled, onChanged: _photosChanged),
             if (_problems['photos'] != null)
               Semantics(liveRegion: true, child: Text(_problemText(context, _problems['photos']!), style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.error))),
           ],
         ),
         SectionCard(
           title: context.t('mob.sitepic.place.title'),
-          children: <Widget>[PlaceConsentField(place: _place, enabled: enabled, onChanged: _placeChanged)],
+          children: <Widget>[PlaceConsentField(place: _place, enabled: settled, onChanged: _placeChanged)],
         ),
         SectionCard(title: context.t('mob.sitepic.flags.title'), children: _flagLines(context, flags)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
           child: FilledButton(
-            onPressed: enabled ? _save : null,
+            onPressed: settled ? _save : null,
             child: Text(_saving ? context.t('mob.sitepic.submit.sending') : context.t('mob.sitepic.submit.action')),
           ),
         ),

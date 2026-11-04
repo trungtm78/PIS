@@ -6,6 +6,7 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
+import '../../../core/security/secure_screen.dart';
 import '../../../core/session/session.dart';
 import '../../command_support/command_flow.dart';
 import '../../command_support/command_outcome.dart';
@@ -438,13 +439,13 @@ class _FileCard extends StatelessWidget {
           if (!current.isClean) Text(context.t('mob.signing.file.notClean'), style: theme.textTheme.bodyMedium),
           const SizedBox(height: MachvonSpace.space8),
           FilledButton(
-            onPressed: current.isClean ? () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => PdfViewerPage(file: current, title: document.title))) : null,
+            onPressed: current.isClean ? () => Navigator.of(context).push(secureRoute<void>((_) => PdfViewerPage(file: current, title: document.title))) : null,
             child: Text(context.t('mob.signing.file.view.action')),
           ),
           const SizedBox(height: MachvonSpace.space8),
           if (previous != null)
             OutlinedButton(
-              onPressed: current.isClean && previous.isClean ? () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => PdfComparePage(previous: previous, current: current))) : null,
+              onPressed: current.isClean && previous.isClean ? () => Navigator.of(context).push(secureRoute<void>((_) => PdfComparePage(previous: previous, current: current))) : null,
               child: Text(context.t('mob.signing.file.compare.action', <String, Object>{'previous': previous.version})),
             )
           else

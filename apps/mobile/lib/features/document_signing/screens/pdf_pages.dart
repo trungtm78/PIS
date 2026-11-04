@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/l10n/app_strings.dart';
+import '../../../core/security/secure_screen.dart';
 import '../../read_support/moment.dart';
 import '../../read_support/widgets.dart';
 import '../pdf_engine.dart';
@@ -151,7 +152,7 @@ class _PdfViewerPageState extends ConsumerState<PdfViewerPage> with _OpensPdf<Pd
         return _PageTile(
           label: context.t('mob.signing.viewer.page', <String, Object>{'page': page + 1, 'pages': doc.pageCount}),
           render: _pages.putIfAbsent(page, () => doc.render(page, width: width)),
-          zoom: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => ZoomPage(label: context.t('mob.signing.viewer.page', <String, Object>{'page': page + 1, 'pages': doc.pageCount}), doc: doc, index: page))),
+          zoom: () => Navigator.of(context).push(secureRoute<void>((_) => ZoomPage(label: context.t('mob.signing.viewer.page', <String, Object>{'page': page + 1, 'pages': doc.pageCount}), doc: doc, index: page))),
         );
       },
     );
@@ -317,7 +318,7 @@ class _PdfComparePageState extends ConsumerState<PdfComparePage> with _OpensPdf<
     final bool inPrevious = page.change != PageChange.added;
     final bool inCurrent = page.change != PageChange.removed;
     void zoom(FileVersion file, String label) => Navigator.of(context).push(
-          MaterialPageRoute<void>(builder: (_) => ZoomPage(label: context.t('mob.signing.compare.page.zoom', <String, Object>{'page': number, 'which': label}), doc: docOf(file), index: page.index)),
+          secureRoute<void>((_) => ZoomPage(label: context.t('mob.signing.compare.page.zoom', <String, Object>{'page': number, 'which': label}), doc: docOf(file), index: page.index)),
         );
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space8),

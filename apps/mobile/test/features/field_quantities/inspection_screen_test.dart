@@ -6,17 +6,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart' show Ref;
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
+import 'package:machvon_mobile/core/offline/drafts/draft_store.dart';
 import 'package:machvon_mobile/core/offline/offline_providers.dart';
 import 'package:machvon_mobile/core/offline/queue/command_queue.dart';
 import 'package:machvon_mobile/core/offline/queue/queued_command.dart';
 import 'package:machvon_mobile/core/session/session.dart';
+import 'package:machvon_mobile/features/field_evidence/jpeg_metadata.dart';
 import 'package:machvon_mobile/features/field_quantities/inspection_commands.dart';
 import 'package:machvon_mobile/features/field_quantities/inspection_models.dart';
 import 'package:machvon_mobile/features/field_quantities/inspection_service.dart';
 
 import '../../support/fake_sync_server.dart';
 import '../../support/harness.dart';
-import '../field_evidence/exif_fixtures.dart' show plainJpeg;
+import '../field_evidence/exif_fixtures.dart' show geotaggedJpeg, plainJpeg;
 import '../field_issues/field_world.dart';
 import '../site_diary/diary_fixtures.dart' show DiaryWorldTools;
 import '../support/screen_contract.dart';
@@ -283,6 +285,39 @@ void main() {
       await tester.tap(find.text('Chọn từ thư viện'));
       await waitUntil(tester, () async => find.textContaining('Nguồn vị trí của ảnh:').evaluate().isNotEmpty);
       expect(find.text('Nguồn vị trí của ảnh: NONE; đồng ý lưu vị trí: không'), findsOneWidget);
+    });
+  });
+
+  group('AC-ST-MOB-021-1 UAT-AC367 the consent of an inspection taken back while its photographs are being cleaned', () {
+    testWidgets('the consent taken back is on the phone at once, and the result cannot be saved until the photographs have lost their place and time', (WidgetTester tester) async {
+      useDevice(tester, kTall);
+      final FieldWorld world = await _open(tester);
+      await tester.ensureVisible(find.byType(SwitchListTile));
+      await tester.tap(find.byType(SwitchListTile));
+      await settleReal(tester, rounds: 6);
+      world.photos.gallery = world.file('wall.jpg', geotaggedJpeg());
+      await tester.ensureVisible(find.text('Chọn từ thư viện'));
+      await tester.pump();
+      await tester.tap(find.text('Chọn từ thư viện'));
+      await waitUntil(tester, () async => find.textContaining('Dung lượng').evaluate().isNotEmpty);
+      await settleReal(tester, rounds: 6);
+      final Finder save = find.widgetWithText(FilledButton, 'Lưu kết quả');
+      await tester.ensureVisible(save);
+      expect(tester.widget<FilledButton>(save).onPressed, isNotNull);
+
+      await tester.ensureVisible(find.byType(SwitchListTile));
+      await tester.tap(find.byType(SwitchListTile));
+      await tester.pump();
+      // The files are still being rewritten (real input and output has not run).
+      expect(tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value, isFalse);
+      expect(tester.widget<FilledButton>(save).onPressed, isNull, reason: 'nothing is recorded while the photographs still say where they were taken');
+      final DraftStore store = (await tester.runAsync(() => world.container.read(draftStoreProvider.future)))!;
+      expect(ResultDraft.fromJson(store.list(kind: kInspectionDraftKind).single.fields)!.place.consent, isFalse, reason: 'the withdrawal is already written to the phone');
+
+      await settleReal(tester, rounds: 8);
+      expect(tester.widget<FilledButton>(save).onPressed, isNotNull);
+      final ResultDraft after = ResultDraft.fromJson(store.list(kind: kInspectionDraftKind).single.fields)!;
+      expect(readJpegMetadata(File(after.photos.single.path).readAsBytesSync()).carriesPlaceOrTime, isFalse);
     });
   });
 

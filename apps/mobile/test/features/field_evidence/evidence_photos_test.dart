@@ -74,6 +74,41 @@ void main() {
     });
   });
 
+  group('AC-ST-MOB-021-1 BR-MOB-06 a photograph whose place or time is only in its XMP or IPTC block is judged the same way when it is prepared and when it is handed over', () {
+    Uint8List xmpOnly() => withBlocks(plainJpeg(), <Uint8List>[
+          segment(0xE1, 'http://ns.adobe.com/xap/1.0/\u0000<x:xmpmeta><exif:GPSLatitude>10,48N</exif:GPSLatitude></x:xmpmeta>'.codeUnits),
+          segment(0xED, 'Photoshop 3.0\u0000IPTC city Ho Chi Minh'.codeUnits),
+        ]);
+
+    test('prepared with the consent it is reported as keeping what it says, and the unchanged upload stands at every handover', () async {
+      final UploaderRig rig = await UploaderRig.create();
+      final File source = File('${rig.folder.path}/source.jpg')..writeAsBytesSync(xmpOnly());
+      int next = 0;
+      final EvidencePhoto photo = await prepareEvidence(source, directory: Directory('${rig.folder.path}/out'), keepPlaceAndTime: true, newId: () => 'e${next++}');
+      expect(File(photo.path).readAsBytesSync(), xmpOnly(), reason: 'with the consent the file goes as it was taken');
+      expect(photo.sourceHadPlaceOrTime, isTrue);
+      expect(photo.keepsPlaceOrTime, isTrue, reason: 'XMP and IPTC say where and when as well as Exif');
+
+      final List<EvidencePhoto> first = await handOverPhotos(rig.uploader, <EvidencePhoto>[photo], ownerKind: 'report', ownerRef: 'r-1');
+      final List<EvidencePhoto> second = await handOverPhotos(rig.uploader, first, ownerKind: 'report', ownerRef: 'r-1');
+      expect(second.single.uploadId, first.single.uploadId);
+      expect(rig.uploader.uploads(), hasLength(1), reason: 'a send made again hands nothing over twice');
+      expect(rig.uploader.uploads().single.state, isNot(UploadState.cancelled));
+    });
+
+    test('prepared without the consent it is stripped and reported as having lost what it said', () async {
+      final UploaderRig rig = await UploaderRig.create();
+      final File source = File('${rig.folder.path}/source.jpg')..writeAsBytesSync(xmpOnly());
+      int next = 0;
+      final EvidencePhoto photo = await prepareEvidence(source, directory: Directory('${rig.folder.path}/out'), keepPlaceAndTime: false, newId: () => 'e${next++}');
+      expect(photo.sourceHadPlaceOrTime, isTrue, reason: 'the screen tells the person that something was removed');
+      expect(photo.keepsPlaceOrTime, isFalse);
+      final Uint8List sent = File(photo.path).readAsBytesSync();
+      expect(sent, stripJpegMetadata(sent), reason: 'nothing in the file is left to strip');
+      expect(sent.length, lessThan(xmpOnly().length));
+    });
+  });
+
   group('UI-MOB-62 the photographs kept for a record', () {
     test('are stored and read back whole; one that cannot be read is left out', () {
       final EvidencePhoto photo = _photo(gps: true, time: true, original: 'o.jpg').copyWith(uploadId: 'up-1');

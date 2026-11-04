@@ -48,13 +48,10 @@ class _ApprovalInboxScreenState extends ConsumerState<ApprovalInboxScreen> {
         parse: parseApprovalInbox,
         asOf: (ApprovalInbox inbox) => inbox.asOf,
         isEmpty: (ApprovalInbox inbox) => inbox.tasks.isEmpty,
+        onLoaded: (Loaded<ApprovalInbox> loaded) => ref.read(tabBadgeProvider.notifier).set(AppTab.approval, loaded.value.tasks.length),
         builder: (BuildContext context, Loaded<ApprovalInbox> loaded) {
-          final ApprovalInbox inbox = loaded.value;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) ref.read(tabBadgeProvider.notifier).set(AppTab.approval, inbox.tasks.length);
-          });
           return _InboxBody(
-            inbox: inbox,
+            inbox: loaded.value,
             filter: _filter,
             onFilter: (InboxFilter next) => setState(() => _filter = next),
           );

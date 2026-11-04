@@ -144,6 +144,25 @@ Future<PreparedPhoto> preparePhoto({
   );
 }
 
+/// The file without the place, the time and every block that can say them. The type is read from the bytes: a JPEG is stripped as
+/// a JPEG, anything else as a PNG. Bytes that do not parse are returned as they came.
+Uint8List withoutMetadata(Uint8List bytes) =>
+    bytes.length > 1 && bytes[0] == 0xFF && bytes[1] == 0xD8
+    ? stripJpegMetadata(bytes)
+    : stripPngMetadata(bytes);
+
+/// Whether stripping would change the file: it holds a place, a time or a block that can say them (Exif, XMP, IPTC, text chunks).
+/// This is the one definition used when a photograph is prepared (what it said, what it still says) and when an upload made earlier
+/// is judged for it, so the two never disagree.
+bool carriesMetadata(Uint8List bytes) {
+  final Uint8List clean = withoutMetadata(bytes);
+  if (clean.length != bytes.length) return true;
+  for (int i = 0; i < bytes.length; i += 1) {
+    if (clean[i] != bytes[i]) return true;
+  }
+  return false;
+}
+
 const PackageImageCompressor _transport = PackageImageCompressor();
 
 _Outcome _prepare(
@@ -163,10 +182,7 @@ _Outcome _prepare(
   final bool whole = jpeg ? jpegIsComplete(bytes) : pngIsComplete(bytes);
   final img.Image? decoded = whole ? _decode(bytes) : null;
   if (decoded == null) throw const AttachmentRefused(kImageUnreadable);
-  final JpegMetadata meta = jpeg ? readJpegMetadata(bytes) : JpegMetadata.none;
-  final bool sourceHadPlaceOrTime = jpeg
-      ? meta.carriesPlaceOrTime
-      : pngCarriesMetadata(bytes);
+  final bool sourceHadPlaceOrTime = carriesMetadata(bytes);
   final bool annotated = !marks.isEmpty;
   final ({int width, int height})? size = jpeg ? jpegSize(bytes) : null;
   final bool tooWide =
@@ -182,19 +198,15 @@ _Outcome _prepare(
   if (!needsPicture) {
     result = keep
         ? bytes
-        : (jpeg ? stripJpegMetadata(bytes) : stripPngMetadata(bytes));
+        : withoutMetadata(bytes);
   } else {
     result = _redraw(decoded, marks, keep);
     resultMime = kMimeJpeg;
   }
   final Uint8List? original = retain && (annotated || needsPicture)
-      ? (keep
-            ? bytes
-            : (jpeg ? stripJpegMetadata(bytes) : stripPngMetadata(bytes)))
+      ? (keep ? bytes : withoutMetadata(bytes))
       : null;
-  final bool keepsPlaceOrTime = resultMime == kMimeJpeg
-      ? readJpegMetadata(result).carriesPlaceOrTime
-      : pngCarriesMetadata(result);
+  final bool keepsPlaceOrTime = carriesMetadata(result);
   return _Outcome(
     bytes: result,
     mime: resultMime,

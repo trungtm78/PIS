@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_mobile/core/navigation/feature.dart';
+import 'package:machvon_mobile/core/security/secure_window.dart';
 import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/features/command_support/command_outcome.dart';
 import 'package:machvon_mobile/features/document_signing/document_fetcher.dart';
@@ -44,6 +45,17 @@ Future<ProviderContainer> _open(WidgetTester tester, ScriptedServer server, {Pdf
     session: FakeSession(const SessionSnapshot(status: SessionStatus.signedIn, tenantId: 'tenant-a', userId: 'user-1', membershipId: 'mem-1')),
     overrides: [pdfEngineProvider.overrideWithValue(renderer), documentFetcherProvider.overrideWithValue(files)],
   );
+}
+
+/// The platform side of the screen protection, as the list of what it was asked.
+final class _RecordingWindow implements SecureWindowPlatform {
+  final List<bool> calls = <bool>[];
+
+  @override
+  Future<bool> setSecure({required bool enabled}) async {
+    calls.add(enabled);
+    return true;
+  }
 }
 
 void _reads(ScriptedServer server) {
@@ -213,6 +225,55 @@ void main() {
       await _open(tester, server);
       expect(find.text('Chưa có tệp để ký.'), findsOneWidget);
       expect(find.text('Xem PDF'), findsNothing);
+    });
+  });
+
+  group('AC-ST-MOB-041-1 SEC-04 UI-MOB-67 the document stays protected against capture while it is read', () {
+    testWidgets('the viewer, the comparison and the enlarged page pushed over the signing screen each hold the protection', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _reads(server);
+      final _RecordingWindow window = _RecordingWindow();
+      final FakePdfEngine engine = FakePdfEngine(<String, List<int>>{'final': <int>[0, 1, 0], 'draft': <int>[0, 0]});
+      final ProviderContainer container = await pumpWithServer(
+        tester,
+        features: <MobileFeature>[signing.feature],
+        server: server,
+        location: _detail,
+        session: FakeSession(const SessionSnapshot(status: SessionStatus.signedIn, tenantId: 'tenant-a', userId: 'user-1', membershipId: 'mem-1')),
+        overrides: [
+          secureWindowPlatformProvider.overrideWithValue(window),
+          pdfEngineProvider.overrideWithValue(engine),
+          documentFetcherProvider.overrideWithValue(FakeFetcher(<String, Uint8List>{'https://files.test/final?sig=1': pdfBytes('final'), 'https://files.test/draft?sig=1': pdfBytes('draft')})),
+        ],
+      );
+      final SecureWindowController controller = container.read(secureWindowControllerProvider);
+      Future<void> expectProtected(String where) async {
+        await tester.pumpAndSettle();
+        await controller.settled;
+        expect(controller.holders, 1, reason: where);
+        expect(window.calls.last, isTrue, reason: '$where: the platform was last told to protect the window');
+      }
+
+      await expectProtected('the signing screen');
+
+      await tester.tap(find.text('Xem PDF'));
+      await expectProtected('the viewer');
+      await tester.tap(find.descendant(of: find.byType(PdfViewerPage), matching: find.byType(InkWell)).first);
+      await expectProtected('the enlarged page of the viewer');
+      await pressBack(tester);
+      await expectProtected('the viewer again');
+      await pressBack(tester);
+      await expectProtected('the signing screen again');
+
+      await tester.tap(find.text('So sánh với bản 1'));
+      await expectProtected('the comparison');
+      await tester.tap(find.text('Trang 2 bản trước'));
+      await expectProtected('the enlarged page of the comparison');
+      await pressBack(tester);
+      await pressBack(tester);
+      await expectProtected('the signing screen at the end');
+      expect(window.calls, <bool>[true], reason: 'the protection was never dropped while the document was read');
     });
   });
 

@@ -12,6 +12,7 @@ import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/core/sync/sync_status.dart';
 import 'package:machvon_mobile/features/approval_inbox/approval_commands.dart';
 import 'package:machvon_mobile/features/approval_inbox/approval_inbox_feature.dart' as approval;
+import 'package:machvon_mobile/features/approval_inbox/approval_support.dart' show approvalsChangedProvider;
 
 import '../../support/harness.dart';
 import '../support/screen_contract.dart';
@@ -68,6 +69,31 @@ void main() {
       expect(find.text('Hạn 01/11/2026 17:00'), findsOneWidget);
       expect(container.read(tabBadgeProvider)[AppTab.approval], 3);
       expect(server.callsTo('GET', '/resources/approval_task').single.url.queryParameters, containsPair('mine', 'true'));
+    });
+
+    testWidgets('the badge goes to zero when the last task is decided and the inbox reads empty', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      final List<Map<String, Object?>> waiting = <Map<String, Object?>>[approvalTask('t-1')];
+      _reads(server, tasks: waiting);
+      final ProviderContainer container = await _open(tester, server, '/approval');
+      expect(container.read(tabBadgeProvider)[AppTab.approval], 1);
+
+      waiting.clear();
+      container.read(approvalsChangedProvider.notifier).bump();
+      await tester.pumpAndSettle();
+
+      expect(find.text('Chưa có dữ liệu'), findsOneWidget, reason: 'the inbox is empty');
+      expect(container.read(tabBadgeProvider)[AppTab.approval], 0, reason: 'the tab no longer announces a task that was decided');
+    });
+
+    testWidgets('an inbox that is empty from the start sets the badge to zero too', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _reads(server, tasks: <Map<String, Object?>>[]);
+      final ProviderContainer container = await _open(tester, server, '/approval');
+
+      expect(container.read(tabBadgeProvider)[AppTab.approval], 0);
     });
 
     testWidgets('there is no swipe and no button that approves from the list, and opening a row sends no decision', (WidgetTester tester) async {

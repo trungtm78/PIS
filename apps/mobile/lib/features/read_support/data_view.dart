@@ -50,6 +50,7 @@ class DataView<T> extends ConsumerStatefulWidget {
     this.onClearFilters,
     this.reloadKey,
     this.keepCopy = true,
+    this.onLoaded,
     super.key,
   });
 
@@ -75,6 +76,10 @@ class DataView<T> extends ConsumerStatefulWidget {
   /// is not to be kept (the conversations: MOB.md lets only drafts be offline) passes false: it then has no copy to show, and a lost
   /// connection is the offline state.
   final bool keepCopy;
+
+  /// Called every time a read succeeds with the data that is then shown, an empty result included (the builder is not run for the
+  /// empty state, so a screen that publishes a figure from the data, such as a tab badge, does it here). It runs outside the build.
+  final void Function(Loaded<T> data)? onLoaded;
   final Widget Function(BuildContext context, Loaded<T> data) builder;
 
   @override
@@ -205,6 +210,7 @@ class _DataViewState<T> extends ConsumerState<DataView<T>> {
       _refreshing = false;
       _state = empty ? ScreenState.empty : ScreenState.defaultState;
     });
+    widget.onLoaded?.call(data);
   }
 
   void _show(int generation, {required ScreenState state, required ProblemView problem}) {

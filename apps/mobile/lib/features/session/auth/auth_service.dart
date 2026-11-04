@@ -154,6 +154,10 @@ class AuthService {
   /// Changes whenever the credential is locked. A renewal or a selection that was started before the lock was asked for under a
   /// credential that has since left memory: whatever it is answered, nothing is put back in memory and no token is returned.
   int _lockGeneration = 0;
+
+  /// Changes whenever the session ends (a sign-out, a revoked device, an expiry). A tenant selection that was started before is a
+  /// request of a session that is over: whatever it is answered, it enters no context and puts no token in memory.
+  int _endGeneration = 0;
   Future<String>? _refreshing;
   SessionSnapshot _last = const SessionSnapshot.signedOut();
 
@@ -244,6 +248,9 @@ class AuthService {
       }
       _leaving = null;
       rethrow;
+    } on NoSession {
+      _leaving = null;
+      rethrow;
     }
     await _enter(context);
     return SignInOutcome.signedIn;
@@ -269,12 +276,24 @@ class AuthService {
     return SignInOutcome.signedIn;
   }
 
-  /// The tenant selection, refused ([NoSession]) when the credential was locked while the server was answering: entering the
-  /// context would put a token in memory and release the lock without the biometric prompt.
+  /// The tenant selection, refused ([NoSession]) when the credential was locked while the server was answering (entering the
+  /// context would put a token in memory and release the lock without the biometric prompt), or when the session it was asked for
+  /// ended or its identity was replaced (a sign-out, a revoked device or an expiry must not be undone by a late answer, and a
+  /// second-factor demand of an ended session must not leave a selection waiting). A tenant switch keeps the identity generation,
+  /// so a switch is only refused by a session that really ended.
   Future<TenantContext> _select(String identity, {required String tenantId, required String membershipId}) async {
     final int locks = _lockGeneration;
-    final TenantContext context = await _api.select(identity, tenantId: tenantId, membershipId: membershipId);
-    if (locks != _lockGeneration) throw const NoSession();
+    final int ends = _endGeneration;
+    final int identityStamp = _identityGeneration;
+    bool ended() => ends != _endGeneration || identityStamp != _identityGeneration;
+    final TenantContext context;
+    try {
+      context = await _api.select(identity, tenantId: tenantId, membershipId: membershipId);
+    } on ApiError {
+      if (ended()) throw const NoSession();
+      rethrow;
+    }
+    if (ended() || locks != _lockGeneration) throw const NoSession();
     return context;
   }
 
@@ -524,6 +543,7 @@ class AuthService {
   /// signs in again), and the router shows MOB-44.
   Future<void> _expire() async {
     if (_status != SessionStatus.signedIn) return;
+    _endGeneration += 1;
     _credentialGeneration += 1;
     _idToken = null;
     _refreshToken = null;
@@ -679,6 +699,7 @@ class AuthService {
   }
 
   void _clearMemory() {
+    _endGeneration += 1;
     _contextGeneration += 1;
     _identityGeneration += 1;
     _credentialGeneration += 1;

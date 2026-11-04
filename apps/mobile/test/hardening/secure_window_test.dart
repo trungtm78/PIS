@@ -192,6 +192,45 @@ void main() {
     });
   });
 
+  group('AC-ST-MOB-041-1 SEC-04 D-SEC-03 a route pushed by hand over a protected screen is protected too', () {
+    testWidgets('secureRoute holds the protection while it is the screen on top, and the screen under it does not keep it alone', (WidgetTester tester) async {
+      final RecordingPlatform platform = RecordingPlatform();
+      final container = await pumpApp(tester, overrides: <Override>[secureWindowPlatformProvider.overrideWithValue(platform)]);
+      final SecureWindowController controller = container.read(secureWindowControllerProvider);
+      final GlobalKey<NavigatorState> navigator = GlobalKey<NavigatorState>();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: <Override>[secureWindowControllerProvider.overrideWithValue(controller)],
+          child: MaterialApp(navigatorKey: navigator, home: const Scaffold(body: Text('ordinary'))),
+        ),
+      );
+      expect(controller.holders, 0);
+
+      navigator.currentState!.push(secureRoute<void>((_) => const Scaffold(body: Text('document'))));
+      await tester.pumpAndSettle();
+      expect(find.text('document'), findsOneWidget);
+      expect(controller.holders, 1, reason: 'the document is on display: the window is protected');
+
+      navigator.currentState!.push(secureRoute<void>((_) => const Scaffold(body: Text('page'))));
+      await tester.pumpAndSettle();
+      expect(controller.holders, 1, reason: 'the enlarged page covers the document: one holder, never none');
+
+      navigator.currentState!.pop();
+      navigator.currentState!.pop();
+      await tester.pumpAndSettle();
+      expect(controller.holders, 0);
+    });
+
+    test('no screen of the application pushes a page route of its own: every one goes through secureRoute', () {
+      final RegExp raw = RegExp(r'MaterialPageRoute|CupertinoPageRoute|PageRouteBuilder|showGeneralDialog');
+      final List<String> offenders = <String>[
+        for (final FileSystemEntity entity in Directory('lib').listSync(recursive: true))
+          if (entity is File && entity.path.endsWith('.dart') && !entity.path.replaceAll(r'\', '/').endsWith('core/security/secure_screen.dart') && raw.hasMatch(entity.readAsStringSync())) entity.path,
+      ];
+      expect(offenders, isEmpty, reason: 'a route pushed by hand bypasses the router wrapper: use secureRoute (core/security/secure_screen.dart)');
+    });
+  });
+
   group('AC-ST-MOB-041-1 SEC-04 D-SEC-03 the platform side exists on both platforms and answers on the same channel', () {
     test('Android flags the window secure and clears the flag, on the channel of the Dart service', () {
       final String activity = _read('android/app/src/main/kotlin/vn/machvon/machvon_mobile/MainActivity.kt');

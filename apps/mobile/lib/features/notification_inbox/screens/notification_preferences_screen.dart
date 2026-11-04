@@ -145,7 +145,7 @@ class _FormState extends ConsumerState<_Form> {
                 isExpanded: true,
                 decoration: InputDecoration(labelText: context.t('mob.ntf.pref.digest.label')),
                 items: <DropdownMenuItem<String>>[for (final String mode in digestModes) DropdownMenuItem<String>(value: mode, child: Text(digestName(context, mode)))],
-                onChanged: widget.canSave && !widget.saving ? (String? mode) => setState(() => _draft.digest[category] = mode ?? 'IMMEDIATE') : null,
+                onChanged: widget.canSave && !widget.saving ? (String? mode) => setState(() => _draft.setDigest(category, mode ?? 'IMMEDIATE')) : null,
               ),
             ],
           ),

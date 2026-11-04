@@ -92,6 +92,9 @@ class _QuantityBodyState extends ConsumerState<_QuantityBody> with CommandFlow<_
   String _draftId = '';
   Map<String, QuantityProblem> _problems = const <String, QuantityProblem>{};
   bool _saving = false;
+
+  /// The consent was taken back and the photographs are being rewritten without their place and time: nothing is recorded until they are clean.
+  bool _sanitizing = false;
   bool _queued = false;
   bool _notRecordable = false;
 
@@ -172,16 +175,29 @@ class _QuantityBodyState extends ConsumerState<_QuantityBody> with CommandFlow<_
     return written;
   }
 
+  /// The place is the one chosen from this moment, written to the phone at once; taking the consent back takes the place and the
+  /// time out of the photographs too, and nothing is recorded before they have gone.
   Future<void> _placeChanged(FieldPlace next) async {
     final QuantityDraft? draft = _draft;
     if (draft == null) return;
-    final List<EvidencePhoto> photos = await enforcePhotoConsent(draft.photos, consent: next.consent);
-    _change(draft.copyWith(place: next, photos: photos));
+    final bool withdrawn = !next.consent && draft.photos.isNotEmpty;
+    if (withdrawn) _sanitizing = true;
+    _change(draft.copyWith(place: next));
+    if (!withdrawn) return;
+    List<EvidencePhoto> clean = draft.photos;
+    try {
+      clean = await enforcePhotoConsent(draft.photos, consent: false);
+    } finally {
+      if (mounted) {
+        _change(_draft!.copyWith(photos: clean));
+        setState(() => _sanitizing = false);
+      }
+    }
   }
 
   Future<void> _record() async {
     final QuantityDraft? draft = _draft;
-    if (draft == null || _saving) return;
+    if (draft == null || _saving || _sanitizing) return;
     setState(() {
       _saving = true;
       _photoRefusal = null;
@@ -324,11 +340,11 @@ class _QuantityBodyState extends ConsumerState<_QuantityBody> with CommandFlow<_
             ),
           ],
         ),
-        SectionCard(title: context.t('mob.qty.place.title'), children: <Widget>[PlaceConsentField(place: draft.place, enabled: !_saving, onChanged: _placeChanged)]),
+        SectionCard(title: context.t('mob.qty.place.title'), children: <Widget>[PlaceConsentField(place: draft.place, enabled: !_saving && !_sanitizing, onChanged: _placeChanged)]),
         SectionCard(
           title: context.t('mob.qty.photos.title'),
           children: <Widget>[
-            EvidencePhotosField(photos: draft.photos, keepPlaceAndTime: draft.place.consent, place: draft.place, enabled: !_saving, onChanged: (List<EvidencePhoto> photos) => _change(draft.copyWith(photos: photos))),
+            EvidencePhotosField(photos: draft.photos, keepPlaceAndTime: draft.place.consent, place: draft.place, enabled: !_saving && !_sanitizing, onChanged: (List<EvidencePhoto> photos) => _change(draft.copyWith(photos: photos))),
             const SizedBox(height: MachvonSpace.space8),
             Text(context.t('mob.qty.photos.note'), style: theme.textTheme.bodySmall),
           ],
@@ -339,7 +355,7 @@ class _QuantityBodyState extends ConsumerState<_QuantityBody> with CommandFlow<_
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               if (readOnly) GateNote(text: context.t('mob.qty.gate.readOnly')),
-              FilledButton(onPressed: readOnly || _saving ? null : _record, child: Text(_saving ? context.t('mob.qty.save.pending') : context.t('mob.qty.save.action'))),
+              FilledButton(onPressed: readOnly || _saving || _sanitizing ? null : _record, child: Text(_saving ? context.t('mob.qty.save.pending') : context.t('mob.qty.save.action'))),
             ],
           ),
         ),

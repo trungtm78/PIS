@@ -385,6 +385,48 @@ void main() {
       expect(body['client_operation_id'], keys.single);
     });
 
+    testWidgets('edited, saved and signed without leaving the screen, the correction starts from the diary that was signed, not from the text the screen was opened with', (WidgetTester tester) async {
+      useDevice(tester, kTall);
+      final FieldServer server = FieldServer();
+      Map<String, Object?> row = diaryRow('d-1', content: <String, Object?>{'summary': 'Đào móng trụ T3', 'notes': 'Ghi chú cũ', 'workforce_count': 12});
+      server.api
+        ..on('GET', '/resources/contract/c-1', (_) => contractRow('c-1', 'HD-A-001'))
+        ..on('GET', '/resources/site_diary', (_) => page(<Object?>[row]))
+        ..on('GET', '/resources/site_diary/d-1', (_) => row);
+      // The server takes the save: the diary it shows from then on has the text that was saved.
+      server.sync.decide = (Map<String, Object?> item) {
+        row = diaryRow('d-1', version: 3, content: <String, Object?>{'summary': 'Đào móng trụ T3 và T4', 'notes': 'Ghi chú mới thêm', 'workforce_count': 12});
+        return const ServerOutcome.accepted(version: 3);
+      };
+      server.api.answer('POST', '/site-diaries/d-1/contractor-sign', (HttpCall call) {
+        row = diaryRow('d-1', status: 'LOCKED', version: 4, sign: false, revise: false, correct: true, signatures: <Object?>[signatureRow()], content: <String, Object?>{'summary': 'Đào móng trụ T3 và T4', 'notes': 'Ghi chú mới thêm', 'workforce_count': 12});
+        return FakeTransport.json(200, <String, Object?>{'operation_id': 'signSiteDiaryByContractor', 'status': 'CONTRACTOR_SIGNED', 'resource_version': 4, 'resource_id': 'd-1'});
+      });
+      final FieldWorld world = await _open(tester, server: server, diaries: <Map<String, Object?>>[row], date: _day);
+      server.api
+        ..on('GET', '/resources/site_diary', (_) => page(<Object?>[row]))
+        ..on('GET', '/resources/site_diary/d-1', (_) => row);
+
+      await world.typeInto(tester, 'Công việc trong ngày', 'Đào móng trụ T3 và T4');
+      await world.typeInto(tester, 'Ghi chú', 'Ghi chú mới thêm');
+      await tapText(tester, 'Lưu bản sửa của nhật ký');
+      final CommandQueue queue = await _queue(tester, world);
+      await waitUntil(tester, () async => queue.commands().any((QueuedCommand c) => c.state == CommandState.accepted));
+      await settleReal(tester, rounds: 8);
+      await tapText(tester, 'Ký nhật ký');
+      await waitUntil(tester, () async => find.text('Gửi bản điều chỉnh').evaluate().isNotEmpty);
+
+      String shown(String label) => tester.widget<TextField>(find.widgetWithText(TextField, label).last).controller!.text;
+      expect(shown('Công việc trong ngày'), 'Đào móng trụ T3 và T4', reason: 'the correction starts from the signed content, not the text of the first reading');
+      expect(shown('Ghi chú'), 'Ghi chú mới thêm');
+
+      await tester.enterText(find.widgetWithText(TextField, 'Lý do điều chỉnh').last, 'Sai khối lượng');
+      await tapText(tester, 'Gửi bản điều chỉnh');
+      final HttpCall sent = server.api.callsTo('POST', '/site-diaries/d-1/corrections').single;
+      final Map<String, Object?> content = (jsonDecode(sent.body!) as Map<String, Object?>)['content']! as Map<String, Object?>;
+      expect(content['summary'], 'Đào móng trụ T3 và T4', reason: 'a correction sent without a change in the fields does not bring the old text back');
+    });
+
     testWidgets('a refused correction says why with its code', (WidgetTester tester) async {
       useDevice(tester, kTall);
       final FieldServer server = FieldServer();
@@ -466,6 +508,38 @@ void main() {
       await tapText(tester, 'Để sau');
       expect(find.text('Điện thoại chưa cho phép lấy vị trí. Bản ghi vẫn lưu được không kèm vị trí.'), findsOneWidget);
       expect(world.position.asked, 0);
+    });
+
+    testWidgets('the consent taken back is on the phone at once, and the diary cannot be saved until the photographs have lost their place and time', (WidgetTester tester) async {
+      useDevice(tester, kTall);
+      final FieldWorld world = await _open(tester, date: _day);
+      await world.typeInto(tester, 'Công việc trong ngày', 'Đào móng trụ T3');
+      await tester.ensureVisible(find.byType(SwitchListTile));
+      await tester.tap(find.byType(SwitchListTile));
+      await settleReal(tester, rounds: 6);
+      world.photos.gallery = world.file('gate.jpg', geotaggedJpeg());
+      await tester.ensureVisible(find.text('Chọn từ thư viện'));
+      await tester.pump();
+      await tester.tap(find.text('Chọn từ thư viện'));
+      await waitUntil(tester, () async => find.textContaining('Dung lượng').evaluate().isNotEmpty);
+      await settleReal(tester, rounds: 6);
+      final Finder save = find.widgetWithText(FilledButton, 'Lưu nhật ký');
+      expect(tester.widget<FilledButton>(save).onPressed, isNotNull);
+
+      await tester.ensureVisible(find.byType(SwitchListTile));
+      await tester.tap(find.byType(SwitchListTile));
+      await tester.pump();
+      // The files are still being rewritten (real input and output has not run).
+      expect(tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value, isFalse);
+      expect(tester.widget<FilledButton>(save).onPressed, isNull, reason: 'no save while the photographs still say where they were taken');
+      final DraftStore store = (await tester.runAsync(() => world.container.read(draftStoreProvider.future)))!;
+      expect(DiaryDraft.fromJson(store.list(kind: kDiaryDraftKind).single.fields)!.place.consent, isFalse, reason: 'the withdrawal is already written to the phone');
+
+      await settleReal(tester, rounds: 8);
+      expect(tester.widget<FilledButton>(save).onPressed, isNotNull);
+      final DiaryDraft after = DiaryDraft.fromJson(store.list(kind: kDiaryDraftKind).single.fields)!;
+      expect(readJpegMetadata(File(after.photos.single.path).readAsBytesSync()).carriesPlaceOrTime, isFalse);
+      expect(after.form.summary, 'Đào móng trụ T3');
     });
 
     testWidgets('a photograph taken without the consent is kept for the upload without its place and time', (WidgetTester tester) async {

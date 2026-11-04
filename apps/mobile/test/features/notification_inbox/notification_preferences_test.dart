@@ -83,6 +83,22 @@ void main() {
       expect(find.text('Đã lưu cài đặt thông báo.'), findsOneWidget);
     });
 
+    testWidgets('REVIEW-r8 saving after a change of the quiet hours only does not move a channel into the digest of another', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      server.on('GET', '/me/notification-preferences', (_) => preferenceView(quietStart: '21:00', quietEnd: '07:00', items: <Map<String, Object?>>[prefItem('report_reminder', 'EMAIL', true, digest: 'DAILY'), prefItem('report_reminder', 'PUSH', true, digest: 'IMMEDIATE'), prefItem('report_reminder', 'SMS', false)]));
+      server.on('PUT', '/me/notification-preferences', (_) => <String, Object?>{'operation_id': 'o', 'status': 'SAVED', 'resource_version': 4});
+      await _open(tester, server, push: FakePush());
+
+      await tester.enterText(find.widgetWithText(TextField, 'Từ (giờ:phút)'), '22:00');
+      await tester.tap(find.widgetWithText(FilledButton, 'Lưu cài đặt'));
+      await tester.pumpAndSettle();
+
+      final Map<String, Object?> body = jsonDecode(server.callsTo('PUT', '/me/notification-preferences').single.body!) as Map<String, Object?>;
+      final List<String> cells = <String>[for (final Object? item in body['items']! as List<Object?>) '${(item! as Map<String, Object?>)['event_category']}|${(item as Map<String, Object?>)['channel']}|${item['enabled']}|${item['digest_mode']}'];
+      expect(cells, unorderedEquals(<String>['report_reminder|EMAIL|true|DAILY', 'report_reminder|PUSH|true|IMMEDIATE', 'report_reminder|SMS|false|IMMEDIATE']));
+    });
+
     testWidgets('REVIEW-r7 saving an unrelated change keeps the explicit enabled row of a category beside a wildcard that is off, and its switch stays on', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();
@@ -200,6 +216,23 @@ void main() {
       expect(quietProblem(draft), QuietProblem.empty);
       draft.quietEnd = '6:30';
       expect(quietProblem(draft), QuietProblem.clock);
+    });
+
+    test('REVIEW-r8 a category whose channels are in different digests keeps each channel in its own digest until the person chooses one for the kind', () {
+      final PreferenceView view = parsePreferences(preferenceView(items: <Map<String, Object?>>[prefItem('report', 'EMAIL', true, digest: 'DAILY'), prefItem('report', 'PUSH', false), prefItem('b', 'EMAIL', true, digest: 'HOURLY')]))!;
+      final PreferenceDraft draft = PreferenceDraft.of(view);
+      draft.quietOn = true; // an unrelated change
+      List<String> cells() => <String>[for (final Object? item in preferenceBody(draft)['items']! as List<Object?>) '${(item! as Map<String, Object?>)['event_category']}|${(item as Map<String, Object?>)['channel']}|${item['enabled']}|${item['digest_mode']}'];
+      expect(cells(), containsAll(<String>['report|EMAIL|true|DAILY', 'report|PUSH|false|IMMEDIATE']), reason: 'the push of the kind was not in a digest and stays so');
+      expect(cells().where((String cell) => cell.startsWith('report|')), hasLength(2), reason: 'no other channel of the kind is put in the digest of the email');
+      expect(cells().where((String cell) => cell.startsWith('b|')), hasLength(6), reason: 'a kind with one digest for its channels still has it on all of them');
+
+      draft.setDigest('report', 'HOURLY');
+      expect(cells().where((String cell) => cell.startsWith('report|')).toSet(), <String>{
+        for (final String channel in preferenceChannels) 'report|$channel|${channel == 'PUSH' ? 'false' : 'true'}|HOURLY',
+      }, reason: 'the choice of the person is for every channel of the kind');
+      draft.setDigest('report', 'IMMEDIATE');
+      expect(cells().where((String cell) => cell.startsWith('report|')), unorderedEquals(<String>['report|EMAIL|true|IMMEDIATE', 'report|PUSH|false|IMMEDIATE']));
     });
 
     test('REVIEW-r7 the server resolves the row of the category before the row of every category, so a save keeps an explicit enabled row beside a wildcard that is off', () {

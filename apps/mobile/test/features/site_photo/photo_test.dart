@@ -253,6 +253,30 @@ void main() {
       expect(find.text('1 ảnh chưa có vị trí.'), findsOneWidget);
     });
 
+    testWidgets('the consent is taken back at once and the capture cannot be kept until the photographs have lost their place and time', (WidgetTester tester) async {
+      useDevice(tester, kTall);
+      final FieldWorld world = await _open(tester);
+      await _chooseContract(tester);
+      await _consent(tester);
+      await tapText(tester, 'Lấy vị trí hiện tại');
+      await _takeFromGallery(tester, world, geotaggedJpeg());
+      expect(tester.widget<FilledButton>(_save()).onPressed, isNotNull);
+      expect(tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value, isTrue);
+
+      await tester.ensureVisible(find.byType(SwitchListTile));
+      await tester.tap(find.byType(SwitchListTile));
+      await tester.pump();
+      // The files are still being rewritten (real input and output has not run): the place already says no, and nothing can keep the capture with the old place.
+      expect(tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value, isFalse, reason: 'the withdrawal is applied before the files are rewritten');
+      expect(tester.widget<FilledButton>(_save()).onPressed, isNull, reason: 'no save while the photographs still say where they were taken');
+
+      await settleReal(tester, rounds: 8);
+      expect(tester.widget<FilledButton>(_save()).onPressed, isNotNull, reason: 'the save is back once the photographs are clean');
+      final Directory evidence = (await tester.runAsync(() => world.container.read(evidenceDirectoryProvider.future)))!;
+      final File prepared = evidence.listSync().whereType<File>().firstWhere((File file) => !file.path.contains('original'));
+      expect(readJpegMetadata(prepared.readAsBytesSync()).hasGps, isFalse);
+    });
+
     testWidgets('a capture kept without the consent has no coordinate in the store and none in the file that goes up', (WidgetTester tester) async {
       useDevice(tester, kTall);
       final FieldServer server = FieldServer();

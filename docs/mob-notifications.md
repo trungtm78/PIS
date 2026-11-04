@@ -25,7 +25,7 @@ MOB-33 then reads the member's notifications and shows the notification only if 
 
 ## Preferences (MOB-34, UAT-AC186)
 
-For each kind of event the six channels (the inbox of a kind that holds an urgent event is locked and says why), how normal messages are sent (at once, hourly or daily digest), the quiet hours and the time zone; the whole set is saved with `If-Match` under the version seen. The screen says what the policy is: in quiet hours normal messages are deferred, high-priority ones are sent at once (the decision itself is the server's, `UAT-AC186` is a server test). Saving is online only; the push state of the device (granted, blocked, not registered) is shown and says that the inbox still works.
+For each kind of event the six channels (the inbox of a kind that holds an urgent event is locked and says why), how normal messages are sent (at once, hourly or daily digest; the server keeps the digest per kind and channel, so a kind whose channels were saved in different digests keeps each channel as it is until the person chooses a digest for the kind, which then applies to all its channels), the quiet hours and the time zone; the whole set is saved with `If-Match` under the version seen. The screen says what the policy is: in quiet hours normal messages are deferred, high-priority ones are sent at once (the decision itself is the server's, `UAT-AC186` is a server test). Saving is online only; the push state of the device (granted, blocked, not registered) is shown and says that the inbox still works.
 
 ## Several devices: one push, one owner (ST-MOB-031, CR-SMP-06)
 

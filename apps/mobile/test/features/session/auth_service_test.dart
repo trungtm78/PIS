@@ -1000,6 +1000,106 @@ void main() {
     });
   });
 
+  group('AC-ST-MOB-008-4 REVIEW-m1-8 a tenant selection that is answered after the session ended does not reopen it', () {
+    Future<(AuthService, MembershipChoice, Completer<void>)> switching() async {
+      world = World(memberships: <String, List<FakeMembership>>{'sub-ana': <FakeMembership>[tenantAMember, tenantBMember]});
+      final AuthService service = world.service();
+      await service.signIn(kOidcConfig);
+      final List<MembershipChoice> choices = await service.candidates();
+      await service.selectContext(choices.firstWhere((MembershipChoice c) => c.tenantId == 'tenant-a'));
+      final MembershipChoice b = choices.firstWhere((MembershipChoice c) => c.tenantId == 'tenant-b');
+      return (service, b, world.api.selectHoldOnce = Completer<void>());
+    }
+
+    Future<Object?> outcomeOf(Future<SignInOutcome> selection) => selection.then<Object?>((SignInOutcome o) => o, onError: (Object e) => e);
+
+    void expectNothingRestored(AuthService service, Object? outcome, {String? tenant}) {
+      expect(outcome, isA<NoSession>());
+      expect(service.snapshot.tenantId, tenant, reason: 'no context was entered');
+      expect(service.snapshot.status, isNot(SessionStatus.signedIn));
+      expect(world.store.data.containsKey('session.v1'), isFalse, reason: 'the credentials stay gone');
+    }
+
+    test('a sign-out that completes while the switch is answered keeps the person signed out', () async {
+      final (AuthService service, MembershipChoice b, Completer<void> hold) = await switching();
+      final Future<Object?> selection = outcomeOf(service.switchTenant(b));
+      await pumpEventQueue();
+
+      await service.signOut();
+      hold.complete();
+
+      expectNothingRestored(service, await selection);
+      expect(service.snapshot.status, SessionStatus.signedOut);
+      expect(await service.accessToken(), isNull);
+    });
+
+    test('the wipe of a revoked device that completes while the switch is answered keeps the person signed out', () async {
+      final (AuthService service, MembershipChoice b, Completer<void> hold) = await switching();
+      final Future<Object?> selection = outcomeOf(service.switchTenant(b));
+      await pumpEventQueue();
+
+      service.noteResponse(401, 'DEVICE_REVOKED');
+      await pumpEventQueue();
+      hold.complete();
+
+      expectNothingRestored(service, await selection);
+      expect(service.snapshot.status, SessionStatus.signedOut);
+    });
+
+    test('a session that the server ended while the switch is answered stays expired', () async {
+      final (AuthService service, MembershipChoice b, Completer<void> hold) = await switching();
+      final Future<Object?> selection = outcomeOf(service.switchTenant(b));
+      await pumpEventQueue();
+
+      service.noteUnauthorized();
+      await pumpEventQueue();
+      expect(service.snapshot.status, SessionStatus.expired);
+      hold.complete();
+
+      expectNothingRestored(service, await selection, tenant: 'tenant-a');
+      expect(service.snapshot.status, SessionStatus.expired);
+      expect(await service.accessToken(), isNull);
+    });
+
+    test('a sign-in selection that is answered after a sign-out does not sign the person in', () async {
+      world = World();
+      final AuthService service = world.service();
+      final Completer<void> hold = world.api.selectHoldOnce = Completer<void>();
+      final Future<Object?> signingIn = outcomeOf(service.signIn(kOidcConfig));
+      await pumpEventQueue();
+
+      await service.signOut();
+      hold.complete();
+
+      expectNothingRestored(service, await signingIn);
+      expect(service.snapshot.status, SessionStatus.signedOut);
+    });
+
+    test('a second-factor demand that arrives after a sign-out leaves no selection waiting', () async {
+      world = World(memberships: <String, List<FakeMembership>>{'sub-ana': <FakeMembership>[_leaderNeedsMfa]});
+      final AuthService service = world.service();
+      final Completer<void> hold = world.api.selectHoldOnce = Completer<void>();
+      final Future<Object?> signingIn = outcomeOf(service.signIn(kOidcConfig));
+      await pumpEventQueue();
+
+      await service.signOut();
+      hold.complete();
+
+      expectNothingRestored(service, await signingIn);
+      expect(service.needsSecondFactor, isFalse, reason: 'the selection that waited for the second factor belonged to the ended session');
+    });
+
+    test('a switch that is answered with nothing in between still enters the tenant and keeps the same refresh token going', () async {
+      final (AuthService service, MembershipChoice b, Completer<void> hold) = await switching();
+      final Future<SignInOutcome> selection = service.switchTenant(b);
+      await pumpEventQueue();
+      hold.complete();
+
+      expect(await selection, SignInOutcome.signedIn);
+      expect(service.snapshot.tenantId, 'tenant-b');
+    });
+  });
+
   group('AC-ST-MOB-041-3 UAT-AC501 SEC-01 a sign-out that discards what waits does not read the queue', () {
     test('the queue is not asked for its count, and a queue that cannot be read does not keep the person signed in', () async {
       world = World();

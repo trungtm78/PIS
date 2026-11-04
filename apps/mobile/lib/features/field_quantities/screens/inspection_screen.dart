@@ -113,6 +113,9 @@ class _InspectionBodyState extends ConsumerState<_InspectionBody> with CommandFl
   Map<String, ResultProblem> _problems = const <String, ResultProblem>{};
   Map<String, RequestProblem> _requestProblems = const <String, RequestProblem>{};
   bool _saving = false;
+
+  /// The consent was taken back and the photographs are being rewritten without their place and time: nothing is saved until they are clean.
+  bool _sanitizing = false;
   bool _queued = false;
   bool _storeFailed = false;
   String? _photoRefusal;
@@ -191,16 +194,29 @@ class _InspectionBodyState extends ConsumerState<_InspectionBody> with CommandFl
     return written;
   }
 
+  /// The place is the one chosen from this moment, written to the phone at once; taking the consent back takes the place and the
+  /// time out of the photographs too, and nothing is recorded before they have gone.
   Future<void> _placeChanged(FieldPlace next) async {
     final ResultDraft? draft = _draft;
     if (draft == null) return;
-    final List<EvidencePhoto> photos = await enforcePhotoConsent(draft.photos, consent: next.consent);
-    _change(draft.copyWith(place: next, photos: photos));
+    final bool withdrawn = !next.consent && draft.photos.isNotEmpty;
+    if (withdrawn) _sanitizing = true;
+    _change(draft.copyWith(place: next));
+    if (!withdrawn) return;
+    List<EvidencePhoto> clean = draft.photos;
+    try {
+      clean = await enforcePhotoConsent(draft.photos, consent: false);
+    } finally {
+      if (mounted) {
+        _change(_draft!.copyWith(photos: clean));
+        setState(() => _sanitizing = false);
+      }
+    }
   }
 
   Future<void> _save() async {
     final ResultDraft? draft = _draft;
-    if (draft == null || _saving) return;
+    if (draft == null || _saving || _sanitizing) return;
     final Map<String, ResultProblem> problems = checkResult(draft.form, _inspection.checklist);
     setState(() {
       _problems = problems;
@@ -350,11 +366,11 @@ class _InspectionBodyState extends ConsumerState<_InspectionBody> with CommandFl
           ),
         ],
       ),
-      SectionCard(title: context.t('mob.chk.place.title'), children: <Widget>[PlaceConsentField(place: draft.place, enabled: !_saving, onChanged: _placeChanged)]),
+      SectionCard(title: context.t('mob.chk.place.title'), children: <Widget>[PlaceConsentField(place: draft.place, enabled: !_saving && !_sanitizing, onChanged: _placeChanged)]),
       SectionCard(
         title: context.t('mob.chk.photos.title'),
         children: <Widget>[
-          EvidencePhotosField(photos: draft.photos, keepPlaceAndTime: draft.place.consent, place: draft.place, enabled: !_saving, onChanged: (List<EvidencePhoto> photos) => _change(draft.copyWith(photos: photos))),
+          EvidencePhotosField(photos: draft.photos, keepPlaceAndTime: draft.place.consent, place: draft.place, enabled: !_saving && !_sanitizing, onChanged: (List<EvidencePhoto> photos) => _change(draft.copyWith(photos: photos))),
           const SizedBox(height: MachvonSpace.space8),
           Text(context.t('mob.chk.photos.note'), style: Theme.of(context).textTheme.bodySmall),
         ],
@@ -365,7 +381,7 @@ class _InspectionBodyState extends ConsumerState<_InspectionBody> with CommandFl
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             if (readOnly) GateNote(text: context.t('mob.chk.gate.readOnly')),
-            FilledButton(onPressed: readOnly || _saving ? null : _save, child: Text(_saving ? context.t('mob.chk.save.pending') : context.t('mob.chk.save.action'))),
+            FilledButton(onPressed: readOnly || _saving || _sanitizing ? null : _save, child: Text(_saving ? context.t('mob.chk.save.pending') : context.t('mob.chk.save.action'))),
           ],
         ),
       ),
