@@ -42,7 +42,8 @@ export default defineConfig({
   // One browser at a time: the machine runs real PostgreSQL servers and other builds alongside.
   workers: 1,
   fullyParallel: false,
-  reporter: [['list']],
+  // A UAT run (scripts/uat-run.mjs) sets UAT_JOURNAL: the result of each test is then written to that file as well.
+  reporter: process.env.UAT_JOURNAL ? [['list'], ['./e2e/support/uat-reporter.ts']] : [['list']],
   outputDir: './e2e/test-results',
   use: {
     baseURL: `http://127.0.0.1:${port}`,

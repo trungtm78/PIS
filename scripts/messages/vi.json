@@ -194,5 +194,7 @@
   "coverage.report.missing": "Thiếu báo cáo độ phủ: {path} (chạy npm test trước)",
   "coverage.library.line": "{name}: {pct}% số dòng được chạy ({covered}/{total}), ngưỡng {threshold}%",
   "coverage.summary.fail": "{count} mục độ phủ không đạt: thêm test cho các dòng chưa chạy",
-  "coverage.summary.pass": "Độ phủ của các thư viện đạt ngưỡng"
+  "coverage.summary.pass": "Độ phủ của các thư viện đạt ngưỡng",
+  "uatrun.journal.missing": "Thiếu nhật ký của lượt chạy UAT: truyền --journal <tệp> cho từng bộ test đã chạy (đặt UAT_JOURNAL khi chạy test)",
+  "uatrun.summary": "Lượt chạy {run}: {pass} ca PASS ({unproven} chưa đủ bằng chứng), {fail} ca FAIL, {skipped} ca bị bỏ qua"
 }

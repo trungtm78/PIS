@@ -2,11 +2,16 @@
 // directory of the project, and most of the code of `packages/db` and `packages/kernel` is exercised by these tests
 // (the stores, through the routes). The coverage of those two packages is judged on all the suites together by
 // `npm run coverage:libs`; here the threshold is the one of the sources of the api.
+// A UAT run (scripts/uat-run.mjs) sets UAT_JOURNAL: the requests of the tests and the result of each test case are then written to that file.
+const uatRun = process.env.UAT_JOURNAL !== undefined && process.env.UAT_JOURNAL !== '';
+
 module.exports = {
   rootDir: '../..',
   roots: ['<rootDir>/apps/api', '<rootDir>/packages'],
   preset: './jest.preset.cjs',
   setupFiles: ['reflect-metadata'],
+  setupFilesAfterEnv: uatRun ? ['<rootDir>/apps/api/test/support/uat-fetch-setup.ts'] : [],
+  reporters: uatRun ? ['default', '<rootDir>/scripts/uat-jest-reporter.mjs'] : ['default'],
   testMatch: ['<rootDir>/apps/api/src/**/*.test.ts', '<rootDir>/apps/api/test/**/*.test.ts'],
   transform: {
     '^.+.ts$': [

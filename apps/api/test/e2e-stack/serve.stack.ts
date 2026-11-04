@@ -63,6 +63,7 @@ import { id as fixtureId } from '../../../../packages/db/test/support/authz-fixt
 import { CONTROL_AUDIENCE, IDENTITY_AUDIENCE, TENANT_ISSUER, issuerKey, newIssuer } from '../auth/auth-fixtures';
 import { ERROR_CODES_PATH } from '../isolation/test-app';
 import { E2eIdentityProvider } from './oidc-idp';
+import { requestJournal } from '../support/uat-journal';
 
 /**
  * The API stack of the browser end-to-end tests (apps/web/e2e): one embedded PostgreSQL with every migration, the
@@ -1698,6 +1699,8 @@ describe('e2e API stack', () => {
         .useValue({ check: async () => ({ status: 'GOOD' as const }) })
         .compile();
       app = moduleRef.createNestApplication();
+      // A UAT run (scripts/uat-run.mjs) keeps a line for each request the browser tests make.
+      if (process.env.UAT_JOURNAL !== undefined && process.env.UAT_JOURNAL !== '') app.use(requestJournal(process.env.UAT_JOURNAL));
       await app.listen(port, '127.0.0.1');
       // The background work is the code of the API process (apps/api/src/workers): the saga runs in this process behind the
       // outbox relay, over mock infrastructure ports, and all eleven steps run; the invitation goes to the mailer of the
