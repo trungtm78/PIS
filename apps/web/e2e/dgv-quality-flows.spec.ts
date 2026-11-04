@@ -30,7 +30,11 @@ interface Seeded {
   contractId: string;
   code: string;
   snapshotId: string;
+  projectIds: string[];
 }
+
+/** What the flows seeded and have not released yet. */
+const seeded: Seeded[] = [];
 
 /** Runs statements as the superuser with the foreign keys switched off for the session, so that a snapshot with an orphan reference can be written. */
 async function seedWithoutKeys(statements: Array<[string, unknown[]]>): Promise<void> {
@@ -69,9 +73,11 @@ async function seed(): Promise<Seeded> {
       [tenant, snapshotId, randomUUID(), membershipOf(STEWARD)],
     ],
   ];
+  const projectIds: string[] = [];
   for (let index = 0; index < 4; index += 1) {
     const projectId = randomUUID();
     if (index < 2) {
+      projectIds.push(projectId);
       statements.push([
         `insert into machvon.project (tenant_id, id, code, name, owner_unit_id, area_master_version_id, classification, total_investment_vnd, status, version, created_by, updated_by)
          values ($1, $2, $3, $3, $4, $5, 'INTERNAL', 1000, 'CONCEPT', 1, $6, $6)`,
@@ -85,7 +91,19 @@ async function seed(): Promise<Seeded> {
     ]);
   }
   await seedWithoutKeys(statements);
-  return { datasetId, contractId, code, snapshotId };
+  const world = { datasetId, contractId, code, snapshotId, projectIds };
+  seeded.push(world);
+  return world;
+}
+
+/** The snapshot is the newest frozen one of the tenant, and its projects name a master version that is not there: the screens of the other flows would read them, so they are set aside when the flow ends. */
+async function release(): Promise<void> {
+  const worlds = seeded.splice(0);
+  if (worlds.length === 0) return;
+  await seedWithoutKeys([
+    ["update machvon.period_snapshot set status = 'SUPERSEDED' where id = any($1::uuid[])", [worlds.map((world) => world.snapshotId)]],
+    ['delete from machvon.project where id = any($1::uuid[])', [worlds.flatMap((world) => world.projectIds)]],
+  ]);
 }
 
 const form = (page: Page) => page.getByRole('form', { name: vi['dgv.rules.form.title'] });
@@ -103,6 +121,8 @@ async function writeRule(page: Page, fields: { code: string; dimension: string; 
 }
 
 test.describe('DGV-06 quality rules, DGV-07 score and DGV-01 control', () => {
+  test.afterEach(release);
+
   test('the steward writes rules, another person approves them, the run is executed on the frozen snapshot, and the scorecard shows a hard fail with a CRITICAL incident (AC-ST-DGV-002-1, AC-ST-DGV-002-3, AC-ST-DGV-002-4)', async ({ page }) => {
     const world = await seed();
     await open(page, 'dgv-06', STEWARD, world.datasetId);
