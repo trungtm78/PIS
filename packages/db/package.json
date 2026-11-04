@@ -6,7 +6,7 @@
   "types": "src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --coverage",
+    "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --coverage --forceExit",
     "db:generate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/cli.ts generate --root ../..",
     "db:migrate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/cli.ts migrate --root ../..",
     "db:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/cli.ts check --root ../.."
