@@ -9955,6 +9955,33 @@
   },
   {
     "collection": "operations",
+    "key": "post_analysis_runs",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-02",
+    "reason": "Request body schema, permission and responses refined per module specs; summaries, parameters and baseline responses kept (execution CR list item 6, platform and capital specs)."
+  },
+  {
+    "collection": "operations",
+    "key": "post_analysis_runs_id_cancel",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-02",
+    "reason": "Request body schema, permission and responses refined per module specs; summaries, parameters and baseline responses kept (execution CR list item 6, platform and capital specs)."
+  },
+  {
+    "collection": "operations",
+    "key": "post_findings_id_review",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-02",
+    "reason": "Request body schema, permission and responses refined per module specs; summaries, parameters and baseline responses kept (execution CR list item 6, platform and capital specs)."
+  },
+  {
+    "collection": "operations",
     "key": "post_notifications_id_replay",
     "fields": [
       "operation"
@@ -9965,6 +9992,24 @@
   {
     "collection": "operations",
     "key": "post_notification_workflows_id_publish",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-02",
+    "reason": "Request body schema, permission and responses refined per module specs; summaries, parameters and baseline responses kept (execution CR list item 6, platform and capital specs)."
+  },
+  {
+    "collection": "operations",
+    "key": "post_dashboard_queries",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-02",
+    "reason": "Request body schema, permission and responses refined per module specs; summaries, parameters and baseline responses kept (execution CR list item 6, platform and capital specs)."
+  },
+  {
+    "collection": "operations",
+    "key": "post_dashboards_id_publish",
     "fields": [
       "operation"
     ],
@@ -10001,6 +10046,15 @@
   {
     "collection": "operations",
     "key": "post_master_records_id_merge",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-02",
+    "reason": "Request body schema, permission and responses refined per module specs; summaries, parameters and baseline responses kept (execution CR list item 6, platform and capital specs)."
+  },
+  {
+    "collection": "operations",
+    "key": "post_quality_exceptions_id_decision",
     "fields": [
       "operation"
     ],
@@ -10720,6 +10774,15 @@
   },
   {
     "collection": "operations",
+    "key": "get_resources_data_contract_version",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
     "key": "get_resources_quality_incident",
     "fields": [
       "operation"
@@ -11180,6 +11243,15 @@
   {
     "collection": "operations",
     "key": "get_resources_device_registration_id",
+    "fields": [
+      "operation"
+    ],
+    "cr": "CR-API-01",
+    "reason": "x-exposure (keep/dto/internal) and its reason added to the GET scaffold per module specs; no baseline field removed."
+  },
+  {
+    "collection": "operations",
+    "key": "get_resources_ai_eval_run",
     "fields": [
       "operation"
     ],

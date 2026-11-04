@@ -134294,6 +134294,8 @@
         "x-plane": "control",
         "x-required-role": "SupportOperator",
         "x-audit-action": "support_access.token_issued",
+        "x-idempotency": "not-stored",
+        "x-idempotency-reason": "The answer is a short-lived secret token; it is never kept in an idempotency record for a replay, and the grant is judged again on every request that carries it",
         "x-error-codes": [
           "SCOPE_DENIED",
           "RESOURCE_NOT_FOUND",

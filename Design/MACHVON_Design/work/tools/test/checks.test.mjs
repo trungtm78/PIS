@@ -106,6 +106,21 @@ test('openapi write operations need idempotency, unique ids and a permission', (
   ]);
 });
 
+test('a write that returns a secret may declare that nothing is stored, with its reason, and only then', () => {
+  const model = validModel();
+  const secret = { 'x-required-role': 'SupportOperator', parameters: [] };
+  model.openapi.paths['/tokens'] = {
+    post: { ...secret, operationId: 'issue_token', 'x-idempotency': 'not-stored', 'x-idempotency-reason': 'The answer is a secret and is never kept for a replay' },
+    put: { ...secret, operationId: 'no_reason', 'x-idempotency': 'not-stored' },
+    patch: { ...secret, operationId: 'blank_reason', 'x-idempotency': 'not-stored', 'x-idempotency-reason': '  ' },
+    delete: { ...secret, operationId: 'other_value', 'x-idempotency': 'stored', 'x-idempotency-reason': 'x' },
+  };
+  assert.deepEqual(
+    checkOpenApi(model).filter((item) => item.code === 'WRITE_WITHOUT_IDEMPOTENCY').map((item) => item.params.id),
+    ['no_reason', 'blank_reason', 'other_value'],
+  );
+});
+
 test('public operations flagged x-public do not need a permission', () => {
   const model = validModel();
   model.openapi.paths['/health'] = { get: { operationId: 'get_health', 'x-public': true } };

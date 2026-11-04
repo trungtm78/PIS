@@ -13,6 +13,11 @@ function hasHeader(operation, name) {
   return (operation.parameters ?? []).some((p) => p.in === 'header' && p.name === name);
 }
 
+/** A write that returns a secret keeps nothing for a replay, so it may say so with its reason instead of taking the header. */
+function isNotStored(operation) {
+  return operation['x-idempotency'] === 'not-stored' && typeof operation['x-idempotency-reason'] === 'string' && operation['x-idempotency-reason'].trim() !== '';
+}
+
 function isAuthorized(operation) {
   return Boolean(operation['x-permission'] || operation['x-required-role'] || operation['x-public'] === true);
 }
@@ -26,7 +31,7 @@ export function checkOpenApi(model) {
     if (seen.has(id)) findings.push(finding('OPERATION_DUPLICATE_ID', { id, path, method }));
     seen.add(id);
     if (!isAuthorized(operation)) findings.push(finding('OPERATION_WITHOUT_PERMISSION', { id, path, method }));
-    if (WRITE_METHODS.has(method) && !hasHeader(operation, 'Idempotency-Key')) {
+    if (WRITE_METHODS.has(method) && !hasHeader(operation, 'Idempotency-Key') && !isNotStored(operation)) {
       findings.push(finding('WRITE_WITHOUT_IDEMPOTENCY', { id, path, method }));
     }
   }
