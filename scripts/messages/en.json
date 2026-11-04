@@ -214,5 +214,9 @@
   "uatev.doc.gapsHeading": "Screens with no test",
   "uatev.doc.noGaps": "Every screen names at least one test.",
   "uatev.doc.screensHeading": "Screens",
-  "uatev.doc.requirementsHeading": "Requirements"
+  "uatev.doc.requirementsHeading": "Requirements",
+  "coverage.report.missing": "Coverage report not found: {path} (run npm test first)",
+  "coverage.library.line": "{name}: {pct}% of lines run ({covered}/{total}), threshold {threshold}%",
+  "coverage.summary.fail": "{count} coverage item(s) failed: add tests for the lines that were not run",
+  "coverage.summary.pass": "The coverage of the libraries meets the threshold"
 }

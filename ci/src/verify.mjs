@@ -15,6 +15,7 @@ const ZERO_SHA = /^0+$/;
 // Product gates, in the order they run; each must exit 0 in the repository root.
 const PRODUCT_COMMANDS = [
   ['npm', ['test', '--workspaces', '--if-present']],
+  ['npm', ['run', 'coverage:libs']],
   ['npm', ['run', 'lint']],
   ['npm', ['run', 'architecture']],
 ];

@@ -10,6 +10,7 @@
   },
   "jest": {
     "preset": "../../jest.preset.cjs",
+    "coverageThreshold": {},
     "testMatch": [
       "<rootDir>/src/**/*.test.ts",
       "<rootDir>/test/**/*.test.ts"

@@ -229,6 +229,7 @@ File liên quan: Design/MACHVON_Design/01_Documents/05_modules/PRJ.md, apps/api/
 ## Quyết định kiến trúc
 | Ngày | Quyết định | Lý do | Ảnh hưởng |
 |---|---|---|---|
+| 2026-11-04 | Độ phủ của `packages/db` và `packages/kernel` tính trên mọi bộ test gộp lại (`npm run coverage:libs`, ngưỡng vẫn 90% dòng cho từng gói), không còn tính riêng bộ test của từng gói; bộ test `apps/api` chạy từ gốc repo (`apps/api/jest.config.cjs`) để đo cả mã db và kernel | Store của db được kiểm thử qua route của api: riêng db chỉ đạt 79,41% và kernel 89,36%, gộp lại db 98,47% và kernel 95,87%; công cụ đo của jest bỏ qua file ngoài thư mục gốc của dự án nên api phải chạy từ gốc | Cổng product-tests thêm bước `coverage:libs` sau `npm test --workspaces`; ngưỡng riêng của db/kernel đặt `{}`, ngưỡng của api là 90% trên `apps/api/src` |
 | 2026-10-22 | Stack: NestJS modular monolith + React/Vite + Flutter + PostgreSQL RLS + Redis + Keycloak + Temporal + LiteLLM/Langfuse + PowerSync, cloud VN | D-B07 (Claude quyết), D-B12 Flutter (người dùng chốt), D-B03 | Thay kế hoạch Java cũ |
 | 2026-10-22 | `Design/MACHVON_Design` vào git (trừ `work/` lịch sử 194 MB, ZIP, bản v1.2, PDF/MP4 nguồn) | Protocol yêu cầu commit theo task; cần diff tài liệu | `.gitignore` |
 | 2026-10-22 | Tài liệu danh mục: JSON/SQL/OpenAPI là nguồn duy nhất; HTML/PDF sinh bằng script node | D3 (người dùng chốt), máy không có Python | `work/tools/` |

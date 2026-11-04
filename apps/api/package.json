@@ -8,39 +8,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "build": "tsc --noEmit -p tsconfig.json",
     "start": "node --disable-warning=ExperimentalWarning --import ./scripts/ts-register.mjs src/serve.ts",
-    "e2e:stack": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --coverage=false --runInBand --forceExit --testMatch \"<rootDir>/test/e2e-stack/serve.stack.ts\"",
+    "e2e:stack": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --coverage=false --runInBand --forceExit --testMatch \"<rootDir>/apps/api/test/e2e-stack/serve.stack.ts\"",
     "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --coverage"
-  },
-  "jest": {
-    "preset": "../../jest.preset.cjs",
-    "setupFiles": [
-      "reflect-metadata"
-    ],
-    "testMatch": [
-      "<rootDir>/src/**/*.test.ts",
-      "<rootDir>/test/**/*.test.ts"
-    ],
-    "transform": {
-      "^.+.ts$": [
-        "@swc/jest",
-        {
-          "jsc": {
-            "target": "es2022",
-            "parser": {
-              "syntax": "typescript",
-              "decorators": true
-            },
-            "transform": {
-              "legacyDecorator": true,
-              "decoratorMetadata": true
-            }
-          }
-        }
-      ]
-    },
-    "maxWorkers": 4,
-    "globalSetup": "<rootDir>/../../packages/db/jest.global-setup.mjs",
-    "globalTeardown": "<rootDir>/../../packages/db/jest.global-teardown.mjs"
   },
   "dependencies": {
     "@machvon/contracts": "*",

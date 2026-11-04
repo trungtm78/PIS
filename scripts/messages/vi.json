@@ -190,5 +190,9 @@
   "uatev.REQUIREMENT_NOT_COMPLETE": "yêu cầu {id} chưa hoàn tất nghiệm thu: {state}",
   "uatev.WAIVER_NOT_VALID": "miễn trừ cho {id} không còn hiệu lực hoặc thiếu thông tin: {state}",
   "uatev.summary.pass": "màn hình hoàn tất {screensComplete}/{screens}; dòng yêu cầu hoàn tất {rowsComplete}/{rows}; khoảng trống {gaps}; test then chốt PASS {criticalPass}/{critical}",
-  "uatev.summary.fail": "{count} vấn đề nghiệm thu; màn hình hoàn tất {screensComplete}/{screens}; dòng yêu cầu hoàn tất {rowsComplete}/{rows}; khoảng trống {gaps}; test then chốt PASS {criticalPass}/{critical}"
+  "uatev.summary.fail": "{count} vấn đề nghiệm thu; màn hình hoàn tất {screensComplete}/{screens}; dòng yêu cầu hoàn tất {rowsComplete}/{rows}; khoảng trống {gaps}; test then chốt PASS {criticalPass}/{critical}",
+  "coverage.report.missing": "Thiếu báo cáo độ phủ: {path} (chạy npm test trước)",
+  "coverage.library.line": "{name}: {pct}% số dòng được chạy ({covered}/{total}), ngưỡng {threshold}%",
+  "coverage.summary.fail": "{count} mục độ phủ không đạt: thêm test cho các dòng chưa chạy",
+  "coverage.summary.pass": "Độ phủ của các thư viện đạt ngưỡng"
 }

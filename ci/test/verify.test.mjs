@@ -208,12 +208,12 @@ test('product-tests runs workspace tests, lint and the architecture check in the
   const stage = result.stages.find((s) => s.name === 'product-tests');
   assert.equal(stage.status, 'pass');
   const product = seen.filter((call) => call.cwd === root && call.line.startsWith('npm'));
-  assert.deepEqual(product.map((call) => call.line), ['npm test --workspaces --if-present', 'npm run lint', 'npm run architecture']);
+  assert.deepEqual(product.map((call) => call.line), ['npm test --workspaces --if-present', 'npm run coverage:libs', 'npm run lint', 'npm run architecture']);
 });
 
 test('product-tests fails and names the command when any of the three scripts exits non-zero', () => {
   const root = productWorkspace();
-  for (const failing of ['npm test --workspaces --if-present', 'npm run lint', 'npm run architecture']) {
+  for (const failing of ['npm test --workspaces --if-present', 'npm run coverage:libs', 'npm run lint', 'npm run architecture']) {
     const { run } = fakeRunner({ [failing]: { status: 2, stdout: 'broken', stderr: 'boom' } });
     const result = runVerification({ root, base: 'b', run, config: {} });
     const stage = result.stages.find((s) => s.name === 'product-tests');
