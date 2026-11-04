@@ -6,7 +6,9 @@ export const COVERAGE_FLOOR = 90;
 
 const CODE_FILE = /\.(mjs|cjs|js|jsx|ts|tsx|dart|py|java|kt|cs|go|rs|sql|json|ya?ml|toml)$/;
 const SOURCE_FILE = /\.(mjs|cjs|js|jsx|ts|tsx|dart|py|java|kt|cs|go|rs)$/;
-const RESOURCE_OR_TEST = /(^|\/)(messages|locales|i18n|test|tests|__tests__|fixtures?)\/|\.(test|spec)\.[a-z]+$|_test\.(go|py|dart)$/;
+// Resources and tests: the message files, the string tables of the apps (`*_strings.dart`, `l10n/`), the files that a tool writes (`*.generated.*`),
+// the tests and the helpers that only the tests use (`test-support.*`).
+const RESOURCE_OR_TEST = /(^|\/)(messages|locales|i18n|l10n|test|tests|__tests__|fixtures?)\/|\.(test|spec)\.[a-z]+$|_test\.(go|py|dart)$|_strings\.dart$|\.generated\.[a-z]+$|(^|\/)test-support\.[a-z]+$/;
 const VIETNAMESE_LETTER = /[À-ỹ]/;
 // The interactive mockup is a design artifact whose on-screen copy is Vietnamese by design; the
 // English-code rule protects product code and is not applied to it. Every other rule still is.

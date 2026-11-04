@@ -119,3 +119,18 @@ test('the Vietnamese UI mockup is exempt from the English-code rule but not from
   assert.deepEqual(codes(scanDiff(diffFor(mockup, ['// @ts-ignore']), CODE_RULES)), ['TYPE_SUPPRESSION']);
   assert.deepEqual(codes(scanDiff(diffFor('Design/MACHVON_Design/work/tools/src/render.mjs', ['// Tính tổng']), CODE_RULES)), ['NON_ENGLISH_CODE']);
 });
+
+test('generated files, the string tables of the apps and the helpers of the tests are resources, and product code is still flagged', () => {
+  const vietnamese = ["'a.b': 'Trang chủ',"];
+  for (const file of [
+    'packages/contracts/src/types.generated.ts',
+    'apps/mobile/lib/features/reporting/reporting_strings.dart',
+    'apps/mobile/lib/core/l10n/core_strings.dart',
+    'apps/web/src/screens/mdm/test-support.tsx',
+  ]) {
+    assert.deepEqual(scanDiff(diffFor(file, vietnamese), CODE_RULES), [], file);
+  }
+  for (const file of ['apps/mobile/lib/features/reporting/reporting_service.dart', 'apps/web/src/screens/mdm/MasterScreen.tsx']) {
+    assert.deepEqual(codes(scanDiff(diffFor(file, vietnamese), CODE_RULES)), ['NON_ENGLISH_CODE'], file);
+  }
+});
