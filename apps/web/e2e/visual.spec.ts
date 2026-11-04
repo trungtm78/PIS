@@ -18,6 +18,12 @@ const VIEWPORT = { width: 1440, height: 1000 };
 /** The prototype export lays the sidebar out statically, so the element screenshot has the height of the content. */
 /** The export ran with the prototype's design-studio bar (56px, as `--studio-height`), which made the baselines 944 px high; the application has no such bar, so the capture reserves the same 56px. */
 const EXPORT_STYLE = '.studio{position:static!important}.workspace-sidebar.sidebar{position:static!important}:root{--studio-height:56px!important}';
+/**
+ * A grid of the capital screens (CAP-06 and the like) scrolls sideways inside its card when it has rows that are wider than the card. Chrome then composites that scroller and draws the text of the rest of the page (top bar,
+ * heading) with grayscale instead of the sub-pixel anti-aliasing the baselines were rendered with: the frame regions differ by about 0.4 percent of their pixels with the very same frame. The export had no rows, hence no scroller,
+ * so the capture takes the scrolling away (what is inside the card is not compared). Measured: with the scroller 263 pixels of the top bar differ, without it none.
+ */
+const SCROLLER_STYLE = '.cap-scroll{overflow-x:visible!important}';
 const SIDEBAR_WIDTH = 252;
 const TOPBAR_HEIGHT = 54;
 const STATES = ['loading', 'empty', 'error', 'denied', 'offline', 'expired'] as const;
@@ -55,7 +61,7 @@ async function capture(page: Page, id: string, file: string, query = ''): Promis
   await page.goto(`${pathOf(id)}${query}`);
   await page.waitForSelector('.workspace-breadcrumb');
   await page.waitForLoadState('networkidle');
-  await page.addStyleTag({ content: EXPORT_STYLE });
+  await page.addStyleTag({ content: `${EXPORT_STYLE}${SCROLLER_STYLE}` });
   // Every route without an implementation renders NotImplementedScreen, which marks itself.
   const implemented = (await page.locator('[data-not-implemented]').count()) === 0;
   await page.locator('#screen-capture').screenshot({ path: file });

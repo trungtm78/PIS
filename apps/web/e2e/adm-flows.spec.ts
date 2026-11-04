@@ -53,9 +53,10 @@ test.describe('ADM-01 organisation tree', () => {
     expect(moved?.parent_id).toBe(unitOf('CB-STC'));
     expect(moved?.path).toBe(`/${unitOf('CB-HQ')}/${unitOf('CB-STC')}/${moved?.id}/`);
     expect(moved?.depth).toBe(2);
-    // The tree shows the unit under its new parent: it is a child of the Sở Tài chính item.
-    const finance = tree.getByRole('treeitem').filter({ hasText: 'CB-STC' }).first();
-    await expect(finance.getByRole('group').getByText(code)).toBeVisible();
+    // The tree shows the unit under its new parent: a treeitem is a row whose children sit in the group it owns (aria-owns), the group is not nested in the row.
+    const financeId = unitOf('CB-STC');
+    await expect(tree.locator(`[role="treeitem"][data-unit-id="${financeId}"]`)).toHaveAttribute('aria-owns', `unit-group-${financeId}`);
+    await expect(tree.locator(`#unit-group-${financeId}`).getByRole('treeitem').filter({ hasText: code })).toBeVisible();
   });
 
   test('a move that would create a cycle is refused on the field and changes nothing', async ({ page }) => {

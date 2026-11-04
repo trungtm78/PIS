@@ -203,6 +203,6 @@ test.describe('DIS-01, DIS-02, DIS-04, DIS-18 weekly report of the disbursement'
 
   test('a maker sees the list with the button that starts a report', async ({ page }) => {
     await open(page, 'reportMaker', '/dis/dis-01');
-    await expect(page.getByRole('link', { name: vi['dis.reports.create.action'] })).toHaveAttribute('href', '/dis/dis-02');
+    await expect(page.getByRole('link', { name: vi['dis.reports.create.action'], exact: true })).toHaveAttribute('href', '/dis/dis-02');
   });
 });

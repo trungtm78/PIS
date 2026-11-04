@@ -23,11 +23,14 @@ import {
   seedSystemRoles,
   applyBaseline,
   BASELINE_PACK,
+  DisRankingStore,
+  DisSnapshotStore,
 } from '@machvon/db';
 import type { ThemeConfig } from '@machvon/db';
 import { startMigratedTestDatabase } from '@machvon/db/src/migrated-test-database';
 import type { TestDatabase } from '@machvon/db/src/test-database';
-import { DomainError, STANDARD_FEATURES, loadErrorRegistry, verifyTenantContext } from '@machvon/kernel';
+import { DomainError, METRIC_SET_VERSION, STANDARD_FEATURES, buildLines, loadErrorRegistry, verifyTenantContext } from '@machvon/kernel';
+import type { SnapshotProject } from '@machvon/kernel';
 import { Client, Pool } from 'pg';
 import { createAlertSink } from '../../src/alerts/alert-sinks';
 import { AppModule } from '../../src/app.module';
@@ -1288,6 +1291,130 @@ async function seedPayFixtures(database: TestDatabase): Promise<void> {
   }
 }
 
+/**
+ * What the executive screens of the disbursement (DIS-12, DIS-16, DIS-19, DIS-23, CAP-12, CAP-13) and of the home (HOME-01, HOME-04, HOME-05, HOME-09) stand on: the close snapshot of the last month, frozen, with its lines, and the
+ * ranking of the units, both made by the stores of the product (the lines by the formulas of the kernel, the freeze with its hash, the ranking when the snapshot is frozen), and the monthly forecasts of the projects the
+ * snapshot holds. Without a frozen snapshot those endpoints answer 404 RESOURCE_NOT_FOUND by design (a figure is never made up), so the screens could only show their empty state. The period belongs to a calendar of its own
+ * (E2E-CLOSE), so it overlaps no year a flow generates. The three projects are the ones the fixtures above made: the Department's, the Project Management Board's contract project and its Treasury project.
+ */
+async function seedDisbursementFixtures(database: TestDatabase, tenants: TenantDatabase): Promise<void> {
+  const tenantId = fixtures.tenants.A;
+  const owner = userKey('owner').membershipId;
+  const today = new Date();
+  const end = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 0));
+  const start = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), 1));
+  const dayOf = (date: Date): string => date.toISOString().slice(0, 10);
+  const fiscalYear = end.getUTCFullYear();
+  const cutoff = dayOf(end);
+  const periodId = fixtureId(0x5f, 1);
+  const snapshotId = fixtureId(0x5f, 2);
+  const [calendar] = await asOwner<{ id: string }>(database, tenantId, [["select id from machvon.master_record_version where master_type = 'CALENDAR' limit 1", []]]);
+  const paid = (amountVnd: string, month: number, day: number): SnapshotProject['treasury'][number] => ({
+    amountVnd,
+    reversal: false,
+    paidOn: `${fiscalYear}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+  });
+  const plan = (bucket: 'CURRENT_YEAR' | 'CARRYOVER', budgetLevel: 'CENTRAL' | 'LOCAL', amountVnd: string, origin: string | null): SnapshotProject['plans'][number] => ({
+    bucket,
+    budgetLevel,
+    amountVnd,
+    origin,
+    fundSourceVersionId: null,
+  });
+  const treasuryFrom = `${fiscalYear}-01-01`;
+  const projects: SnapshotProject[] = [
+    {
+      projectId: fixtureId(0x50, 1),
+      unitId: unitId(2),
+      planVersionId: null,
+      plans: [plan('CURRENT_YEAR', 'CENTRAL', '12000000000', null), plan('CURRENT_YEAR', 'LOCAL', '3000000000', 'LOCAL_ADDED'), plan('CARRYOVER', 'CENTRAL', '2000000000', null)],
+      reported: null,
+      previous: null,
+      treasury: [paid('4000000000', 1, 15), paid('2500000000', 1, 20)],
+      treasuryFrom,
+    },
+    {
+      projectId: fixtureId(0x5b, 2),
+      unitId: unitId(5),
+      planVersionId: null,
+      plans: [plan('CURRENT_YEAR', 'CENTRAL', '8000000000', null)],
+      reported: null,
+      previous: null,
+      treasury: [paid('2000000000', 1, 15)],
+      treasuryFrom,
+    },
+    {
+      projectId: fixtureId(0x5e, 1),
+      unitId: unitId(5),
+      planVersionId: null,
+      plans: [plan('CURRENT_YEAR', 'CENTRAL', '5000000000', null)],
+      reported: null,
+      previous: null,
+      treasury: [paid('4500000000', 1, 15)],
+      treasuryFrom,
+    },
+  ];
+  const lines = projects.flatMap((project) => buildLines(project, cutoff).map((line) => ({ ...line, projectId: project.projectId, unitId: project.unitId })));
+  const statements: Array<[string, unknown[]]> = [
+    [
+      `insert into machvon.reporting_period
+         (tenant_id, id, code, calendar_version, start_date, end_date, deadline_at, calendar_code, period_type, fiscal_year, status, soft_closed_at, locked_at, locked_by, calendar_version_id, created_by, updated_by)
+       values ($1, $2, $3, 1, $4::date, $5::date, $5::date + interval '3 hours', 'E2E-CLOSE', 'MONTH', $6, 'LOCKED', now(), now(), $7, $8, $7, $7)`,
+      [tenantId, periodId, `E2E-CLOSE-${cutoff.slice(0, 7)}`, dayOf(start), cutoff, fiscalYear, owner, calendar?.id],
+    ],
+    [
+      `insert into machvon.period_snapshot (tenant_id, id, period_id, snapshot_kind, as_of_at, as_of_date, treasury_cutoff_date, status, metric_set_version, definition_status, row_count, created_by, updated_by, version)
+       values ($1, $2, $3, 'PERIOD_CLOSE', $4::timestamptz, $5::date, $5::date, 'BUILDING', $6, 'PROPOSED_PENDING_SIGNOFF', $7::int, $8, $8, 1)`,
+      [tenantId, snapshotId, periodId, `${cutoff}T10:00:00Z`, cutoff, METRIC_SET_VERSION, lines.length, owner],
+    ],
+    ...lines.map((line): [string, unknown[]] => [
+      `insert into machvon.period_snapshot_line
+         (tenant_id, id, snapshot_id, project_id, unit_id, bucket, budget_level, plan_pm_assigned_vnd, plan_local_added_vnd, plan_total_vnd, disbursed_treasury_vnd, disbursed_reported_vnd, period_delta_vnd, registered_month_vnd,
+          forecast_eac_vnd, ctmtqg_subset_vnd, rate_pm_pct, rate_total_pct, rate_null_reason, treasury_coverage)
+       values ($1, gen_random_uuid(), $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
+      [
+        tenantId,
+        snapshotId,
+        line.projectId,
+        line.unitId,
+        line.bucket,
+        line.budgetLevel,
+        line.planPmAssignedVnd,
+        line.planLocalAddedVnd,
+        line.planTotalVnd,
+        line.disbursedTreasuryVnd,
+        line.disbursedReportedVnd,
+        line.periodDeltaVnd,
+        line.registeredMonthVnd,
+        line.forecastEacVnd,
+        line.ctmtqgSubsetVnd,
+        line.ratePmPct,
+        line.rateTotalPct,
+        line.rateNullReason,
+        line.treasuryCoverage,
+      ],
+    ]),
+    // The forecast of each project for the three months after the cutoff, in the year of the plan (a cutoff in December leaves none to forecast).
+    ...projects.flatMap((project) =>
+      [1, 2, 3]
+        .map((offset) => end.getUTCMonth() + 1 + offset)
+        .filter((month) => month <= 12)
+        .map((month): [string, unknown[]] => [
+          `insert into machvon.disbursement_schedule_line
+             (tenant_id, id, project_id, plan_year, granularity, month, bucket, budget_level, kind, amount_vnd, assumption, revision, is_current, created_by, updated_by)
+           values ($1, gen_random_uuid(), $2, $3, 'MONTH', $4, 'CURRENT_YEAR', 'CENTRAL', 'FORECAST', 1000000000, 'Theo tiến độ thi công của quý', 1, true, $5, $5)`,
+          [tenantId, project.projectId, fiscalYear, month, owner],
+        ]),
+    ),
+  ];
+  await asOwner(database, tenantId, statements);
+  // Frozen and ranked the way the product does it: the hash of what the snapshot holds, then the order of the units within the groups of their kind.
+  await tenants.withTenant({ tenantId, membershipId: ACTOR, scopeVersion: 1 }, async (tx) => {
+    await new DisSnapshotStore().freeze(tx, snapshotId, 1, owner, new Date());
+    await new DisRankingStore().compute(tx, snapshotId);
+  });
+}
+
 const PLACEMENT_NORTH = '00000000-0000-4000-8000-0000000000c1';
 
 /** The control plane needs one Active placement for the DB_PLACEMENT step; the STANDARD plan comes from migration V009. */
@@ -1473,6 +1600,7 @@ describe('e2e API stack', () => {
       await seedMemberFixtures(database);
       await seedCtrFixtures(database);
       await seedPayFixtures(database);
+      await seedDisbursementFixtures(database, tenants);
       await seedPlacement(database);
       // Outgoing documents of tenant A with a signed PDF, a certificate authority of the test and a signing adapter that approves by itself.
       const outgoing = await seedOutgoingDocuments({

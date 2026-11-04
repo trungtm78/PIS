@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import vi from '../src/i18n/vi.json' with { type: 'json' };
 import fixtures from './support/e2e-fixtures.json' with { type: 'json' };
 import { membershipOf, sql, stackInfo } from './support/stack.ts';
@@ -36,6 +36,21 @@ async function openScreen(page: Page, screen: 'adm-02' | 'adm-17', user: string)
   await page.waitForSelector('[data-screen-id], [role="alert"], [role="status"]');
 }
 
+/**
+ * The directory comes page by page, ordered by display name (50 a page, the fixtures of the other stories alone are more than a page), and the
+ * filters of the screen work on the pages loaded. Like a person looking for a member, the flow asks for the next page until the row is on the screen.
+ */
+async function reveal(page: Page, row: Locator): Promise<Locator> {
+  await expect(page.locator('tbody tr').first()).toBeVisible();
+  const more = page.getByRole('button', { name: vi['adm.members.more.action'] });
+  // Asking for a page is retried as a whole: the button is disabled while a page comes and is gone once the last one is in.
+  await expect(async () => {
+    if (!(await row.first().isVisible()) && (await more.count()) > 0) await more.click({ timeout: 1000 });
+    await expect(row.first()).toBeVisible({ timeout: 1000 });
+  }).toPass({ timeout: 20_000 });
+  return row;
+}
+
 const statusOf = async (membershipId: string): Promise<string | undefined> =>
   (await sql<{ status: string }>('select status from machvon.membership where id = $1', [membershipId]))[0]?.status;
 
@@ -43,7 +58,7 @@ test.describe('ADM-02 members', () => {
   test('the tenant owner suspends a member with a reason and reactivates them', async ({ page }) => {
     await openScreen(page, 'adm-02', 'owner');
     await expect(page.getByRole('heading', { level: 1, name: vi['adm.members.page.title'] })).toBeVisible();
-    const row = page.locator(`tr[data-member-id="${LIFECYCLE_MEMBER}"]`);
+    const row = await reveal(page, page.locator(`tr[data-member-id="${LIFECYCLE_MEMBER}"]`));
     await expect(row).toBeVisible();
     await expect(row.getByText(vi['adm.members.status.active'])).toBeVisible();
 
@@ -82,7 +97,7 @@ test.describe('ADM-02 members', () => {
       [email],
     );
     expect(stored).toEqual([{ status: 'Invited', invitation: 'Pending' }]);
-    const row = page.locator('tr', { hasText: email });
+    const row = await reveal(page, page.locator('tr', { hasText: email }));
     await expect(row.getByText(vi['adm.members.invitation.pending'])).toBeVisible();
     await expect(row.getByText(vi['adm.members.status.invited'])).toBeVisible();
   });
@@ -110,7 +125,7 @@ test.describe('ADM-02 members', () => {
 
   test('an auditor reads the list and has no control', async ({ page }) => {
     await openScreen(page, 'adm-02', 'auditor');
-    await expect(page.locator(`tr[data-member-id="${LIFECYCLE_MEMBER}"]`)).toBeVisible();
+    await expect(await reveal(page, page.locator(`tr[data-member-id="${LIFECYCLE_MEMBER}"]`))).toBeVisible();
     await expect(page.getByRole('button', { name: vi['adm.members.invite.action'] })).toHaveCount(0);
     await expect(page.locator('tbody').getByRole('button')).toHaveCount(0);
   });

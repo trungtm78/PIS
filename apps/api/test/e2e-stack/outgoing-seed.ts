@@ -348,7 +348,8 @@ async function seedRecallDocuments(seed: RecallSeed): Promise<void> {
   const registers = new NumberRegisterStore();
   const register = await input.tenants.withTenant(seed.context, (tx) =>
     registers.openRegister(tx, {
-      registerCode: 'RCL',
+      // Its code sorts after UBND (like ZEXT): the numbering screen offers the registers by code and keeps choosing UBND, which the signing flow expects.
+      registerCode: 'ZRCL',
       name: 'So van ban di (thu hoi)',
       direction: 'OUTGOING',
       organizationUnitId: input.draftingUnitId,
