@@ -69,3 +69,13 @@ const CONTROL_PLANE_MODULES: ReadonlySet<string> = new Set(['SAS']);
 export function devUserFor(route: { module: string }): 'owner' | 'sysAdmin' {
   return CONTROL_PLANE_MODULES.has(route.module) ? 'sysAdmin' : 'owner';
 }
+
+const ABSENT_ESTIMATE = /\/api\/disbursement-forecasts\?project_id=/;
+
+/**
+ * Whether a console error is the browser noting a 404 that the product specifies: a project that has no line in the latest frozen snapshot has no
+ * estimate, and DIS answers 404 for it (docs/dis-forecast.md). The screens of CAP show that as "no estimate"; it is not a defect of the screen.
+ */
+export function isExpectedAbsence(text: string, url: string): boolean {
+  return /status of 404/.test(text) && ABSENT_ESTIMATE.test(url);
+}

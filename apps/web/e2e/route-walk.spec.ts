@@ -4,7 +4,7 @@ import { WEB_ROUTES } from './support/web-routes.ts';
 import { browserChannel } from './support/browser-channel.ts';
 import { problemsOf, writeReportPart } from './support/report.ts';
 import { selectRoutes } from './support/routes-filter.ts';
-import { ROUTES_PER_BROWSER, batchesOf, devUserFor, isInfrastructureFailure, parseWalkPages, retryShareExceeded, summariseRetries } from './support/walk-plan.ts';
+import { ROUTES_PER_BROWSER, batchesOf, devUserFor, isExpectedAbsence, isInfrastructureFailure, parseWalkPages, retryShareExceeded, summariseRetries } from './support/walk-plan.ts';
 import type { RouteWalkEntry, WalkViewport } from './support/report.ts';
 
 type WalkRoute = (typeof WEB_ROUTES)[number];
@@ -40,7 +40,8 @@ async function measureRoute(page: Page, route: WalkRoute, viewport: WalkViewport
   const consoleErrors: string[] = [];
   const onConsole = (message: { type(): string; text(): string; location(): { url: string } }): void => {
     // A failed resource says only 404; the URL tells which one.
-    if (message.type() === 'error') consoleErrors.push(`${message.text()} ${message.location().url}`.trim());
+    if (message.type() !== 'error' || isExpectedAbsence(message.text(), message.location().url)) return;
+    consoleErrors.push(`${message.text()} ${message.location().url}`.trim());
   };
   const onPageError = (error: Error): void => void consoleErrors.push(error.message);
   page.on('console', onConsole);

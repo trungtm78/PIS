@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { DEFAULT_WALK_PAGES, devUserFor, MAX_RETRY_SHARE, batchesOf, isInfrastructureFailure, parseWalkPages, retryShareExceeded, summariseRetries } from './walk-plan.ts';
+import { DEFAULT_WALK_PAGES, devUserFor, MAX_RETRY_SHARE, batchesOf, isExpectedAbsence, isInfrastructureFailure, parseWalkPages, retryShareExceeded, summariseRetries } from './walk-plan.ts';
 
 test('the failures a starved machine produces are infrastructure failures', () => {
   for (const message of [
@@ -67,4 +67,14 @@ test('retries are counted per page and the run is flagged when more than two per
 test('control-plane screens are opened by a system administrator, every other screen by the tenant owner', () => {
   assert.equal(devUserFor({ module: 'SAS' }), 'sysAdmin');
   for (const module of ['HOME', 'ADM', 'IAM', 'NOT', 'PRJ', 'DOC']) assert.equal(devUserFor({ module }), 'owner', module);
+});
+
+test('the 404 of an estimate that DIS has none to give for a project is an answer of the product, and no other failed resource is', () => {
+  const missing = 'Failed to load resource: the server responded with a status of 404 (Not Found)';
+  const estimate = 'http://127.0.0.1:1/api/disbursement-forecasts?project_id=d9761587-3cad-4e67-b7d2-cdcdc2826c85';
+  assert.equal(isExpectedAbsence(missing, estimate), true);
+  assert.equal(isExpectedAbsence(missing, 'http://127.0.0.1:1/api/disbursement-forecasts?limit=50'), false);
+  assert.equal(isExpectedAbsence(missing, 'http://127.0.0.1:1/api/projects/x'), false);
+  assert.equal(isExpectedAbsence('Failed to load resource: the server responded with a status of 500 (Internal Server Error)', estimate), false);
+  assert.equal(isExpectedAbsence('Uncaught TypeError', estimate), false);
 });
