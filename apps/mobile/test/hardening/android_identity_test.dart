@@ -53,7 +53,7 @@ void main() {
     });
   });
 
-  group('AC-ST-MOB-041-5 the scripts, flows and documents name the application the way the build does', () {
+  group('the scripts, flows and documents name the application the way the build does', () {
     test('the activity that a script starts is written with its package: applicationId and namespace differ, so ".MainActivity" would resolve against the wrong one', () {
       final String applicationId = _gradleValue('applicationId');
       final String namespace = _gradleValue('namespace');
