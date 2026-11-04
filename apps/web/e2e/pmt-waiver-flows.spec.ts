@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { expect, test } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
 import vi from '../src/i18n/vi.json' with { type: 'json' };
-import { membershipOf, sql, stackInfo } from './support/stack.ts';
+import { membershipOf, retireTestPermitTypes, sql, stackInfo } from './support/stack.ts';
 
 /**
  * PMT-06 (waivers of the permit gates) in a real browser against the real API and database (apps/api/test/e2e-stack): the leader in charge lets a blocked
@@ -82,6 +82,8 @@ async function fill(page: Page, values: { projectId: string; typeId: string; rea
 const grant = (page: Page) => form(page).getByRole('button', { name: vi['pmt.waiver.form.save.action'] }).click();
 
 test.describe('PMT-06 gate waivers', () => {
+  test.beforeEach(retireTestPermitTypes);
+
   test('the leader lets a blocked gate pass for a while, the gate says so, a second waiver is refused, and the waiver is revoked (AC-ST-PMT-005-1)', async ({ page }) => {
     const label = Date.now().toString(36).toUpperCase();
     const code = `E2E_WV_${label}`;

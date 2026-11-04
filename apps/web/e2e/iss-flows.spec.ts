@@ -64,7 +64,10 @@ test.describe('ISS-09 SLA policies', () => {
     const code = unique();
     await open(page);
     await expect(page.getByRole('heading', { level: 1, name: vi['iss.sla.page.title'] })).toBeVisible();
-    await expect(page.getByLabel(vi['iss.sla.form.category.label'], { exact: true }).locator('option')).toHaveCount(3);
+    // The two categories the stack seeds are offered (other tests may have added categories of their own).
+    for (const label of Object.values(CATEGORY_LABELS)) {
+      await expect(page.getByLabel(vi['iss.sla.form.category.label'], { exact: true }).locator('option').filter({ hasText: label })).toHaveCount(1);
+    }
 
     // An empty form sends nothing: every field says it is required and the database has nothing.
     await publish(page);

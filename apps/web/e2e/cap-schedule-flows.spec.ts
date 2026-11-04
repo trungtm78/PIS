@@ -112,7 +112,7 @@ const setYear = async (page: Page, year: number): Promise<void> => {
 
 test.describe('CAP-08 monthly disbursement registration', () => {
   test('the investor registers October, the Treasury paid 300 of 800 million (37,50 %), registering again makes the next revision, and the registration is never money paid (AC-ST-CAP-009-1)', async ({ page }) => {
-    const year = 2051;
+    const year = 2061;
     const target = await seedFunded('REG', year);
     await open(page, 'scheduleInvestor', `/cap/cap-08?project=${target.projectId}`);
     await expect(page.getByRole('heading', { level: 1, name: vi['cap.schedule.page.title'] })).toBeVisible();
@@ -166,7 +166,7 @@ test.describe('CAP-08 monthly disbursement registration', () => {
   });
 
   test('a locked month is refused by the server and nothing is written; the other months of the year still take a registration (AC-ST-CAP-009-2)', async ({ page }) => {
-    const year = 2052;
+    const year = 2062;
     const target = await seedFunded('LOCK', year);
     const [calendar] = await sql<{ id: string }>("select id from machvon.master_record_version where tenant_id = $1 and master_type = 'CALENDAR' limit 1", [TENANT]);
     await sql(
@@ -189,7 +189,7 @@ test.describe('CAP-08 monthly disbursement registration', () => {
   });
 
   test('someone who may not register sees the schedule and no form; a planner of one unit is offered the projects of that unit only', async ({ page }) => {
-    const year = 2053;
+    const year = 2063;
     const inside = await seedFunded('IN', year);
     const outside = await seedProject('OUT', 'CB-SKHDT-VP');
     await open(page, 'planPlanner', `/cap/cap-08?project=${inside.projectId}`);

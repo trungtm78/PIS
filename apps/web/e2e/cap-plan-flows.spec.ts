@@ -227,8 +227,10 @@ test.describe('CAP-01 and CAP-02: creating a plan and proposing capital', () => 
     expect(await allocatedOf(nstw)).toBe(String(BILLION));
 
     await open(page, 'planReader', `/cap/cap-03?plan=${plan}`);
-    // A reader does not see a revision in work: the plan is a draft.
-    await expect(page.getByText(vi['states.empty.title'])).toBeVisible();
+    // A reader does not see a revision in work: the plan is a draft, so the screen offers it nowhere (it may show a published plan of another test instead).
+    await expect(page.getByRole('heading', { level: 1, name: vi['cap.annual.page.title'] })).toBeVisible();
+    await expect(page.locator('#annual-plan').or(page.getByText(vi['states.empty.title']))).toBeVisible();
+    await expect(page.getByText('E2E-CT-2032')).toHaveCount(0);
     await open(page, 'planPlanner', `/cap/cap-03?plan=${plan}`);
     await expect(page.getByTestId('lines')).toBeVisible();
     await expect(money(page.getByTestId('total'))).toHaveAttribute('data-vnd', String(1.5 * BILLION));

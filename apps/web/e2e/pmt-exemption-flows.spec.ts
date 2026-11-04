@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import vi from '../src/i18n/vi.json' with { type: 'json' };
-import { membershipOf, sql, stackInfo } from './support/stack.ts';
+import { membershipOf, retireTestPermitTypes, sql, stackInfo } from './support/stack.ts';
 
 /**
  * The exemption of a permit on PMT-02 (ST-PMT-003) in a real browser against the real API and database (apps/api/test/e2e-stack): the officer plans the permit,
@@ -86,6 +86,8 @@ async function planPermit(page: Page, user: string, projectCode: string, typeCod
 }
 
 test.describe('PMT-02 exemption of a permit (ST-PMT-003)', () => {
+  test.beforeEach(retireTestPermitTypes);
+
   test('the leader exempts a planned permit on its basis and decision document, and the dossier counts it as covered (AC-ST-PMT-003-1)', async ({ page }) => {
     const code = unique();
     const typeCode = unique();

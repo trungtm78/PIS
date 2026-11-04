@@ -42,3 +42,24 @@ export async function sql<T extends object = Record<string, unknown>>(text: stri
     await client.end();
   }
 }
+
+/**
+ * Puts the permit types, and the gate rules on them, that earlier tests published or ended for a later day (their codes start with E2E_) behind a window long past: a
+ * project's dossier plans one permit for each type in force that applies to it, and its readiness and the gates count them all, so a test that
+ * reads either starts from the types and rules it seeds itself. The rows are written with the triggers of a published row off (the connection
+ * is a superuser's): a published row cannot be ended before the day it began through the application.
+ */
+export async function retireTestPermitTypes(): Promise<void> {
+  await sql(
+    `begin;
+     set local session_replication_role = replica;
+     update machvon.permit_gate_rule set status = 'RETIRED', effective_from = date '2000-01-01' + (abs(hashtext(id::text)) % 20000), updated_at = now(),
+            effective_until = date '2000-01-02' + (abs(hashtext(id::text)) % 20000)
+      where status in ('PUBLISHED', 'RETIRED') and (effective_until is null or effective_until >= current_date)
+        and permit_type_id in (select id from machvon.permit_type where left(code, 4) = 'E2E_');
+     update machvon.permit_type set status = 'RETIRED', effective_from = date '2000-01-01' + (abs(hashtext(id::text)) % 20000), updated_at = now(),
+            effective_until = date '2000-01-02' + (abs(hashtext(id::text)) % 20000)
+      where status in ('PUBLISHED', 'RETIRED') and left(code, 4) = 'E2E_' and (effective_until is null or effective_until >= current_date);
+     commit`,
+  );
+}

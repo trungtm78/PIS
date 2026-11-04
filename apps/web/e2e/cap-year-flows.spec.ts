@@ -106,7 +106,7 @@ async function close(page: Page, action: string, confirm: string, reason: string
 
 test.describe('CAP-11: the closing of a fiscal year', () => {
   test('the officer soft-closes the year and locks it: the capital that was not carried over lapses and the year shows the red banner (AC-ST-CAP-008-1, UAT-AC230)', async ({ page }) => {
-    const year = 2041;
+    const year = 2071;
     const target = await seedFunded('A', year);
     await open(page, 'yearCloser', year);
     await expect(page.getByRole('heading', { level: 1, name: vi['cap.year.page.title'] })).toBeVisible();
@@ -135,7 +135,7 @@ test.describe('CAP-11: the closing of a fiscal year', () => {
   });
 
   test('the person who locked the year is refused its reopening, and another officer reopens it for the window with a reason', async ({ page }) => {
-    const year = 2043;
+    const year = 2073;
     await seedFunded('B', year);
     await open(page, 'yearSolo', year);
     await close(page, vi['cap.year.lock.action'], vi['cap.year.dialog.confirm.lock'], 'Khóa thẳng năm không qua kỳ chỉnh lý');
@@ -168,7 +168,7 @@ test.describe('CAP-11: the closing of a fiscal year', () => {
   });
 
   test('a year with a plan waiting for a decision cannot be closed, and the screen says how many (AC-ST-CAP-008-2, UAT-PLAN-62)', async ({ page }) => {
-    const year = 2045;
+    const year = 2075;
     await sql(
       `insert into machvon.capital_plan (tenant_id, id, plan_code, plan_kind, plan_year, period_from_year, period_to_year, scope_unit_id, revision, status, submitted_by, created_by, updated_by)
        values ($1, $2, $3, 'ANNUAL', $4, $4, $4, $5, 1, 'IN_REVIEW', $6, $6, $6)`,
@@ -182,14 +182,14 @@ test.describe('CAP-11: the closing of a fiscal year', () => {
   });
 
   test('a reader sees the years and nothing to do', async ({ page }) => {
-    const year = 2047;
+    const year = 2077;
     await seedFunded('C', year);
     await open(page, 'yearCloser', year);
     await close(page, vi['cap.year.softClose.action'], vi['cap.year.dialog.confirm.softClose'], 'Hết năm, bắt đầu kỳ chỉnh lý');
     await expect(page.getByTestId('year-state')).toHaveAttribute('data-status', 'SOFT_CLOSED');
     await open(page, 'yearReader', year);
     await expect(page.getByTestId('year-state')).toHaveAttribute('data-status', 'SOFT_CLOSED');
-    await expect(page.locator('tr[data-year="2047"]')).toBeVisible();
+    await expect(page.locator('tr[data-year="2077"]')).toBeVisible();
     await expect(page.getByRole('button', { name: vi['cap.year.softClose.action'] })).toHaveCount(0);
     await expect(page.getByRole('button', { name: vi['cap.year.lock.action'] })).toHaveCount(0);
   });

@@ -112,8 +112,9 @@ test.describe('CAP-16 appropriation book', () => {
     await expect(rowOf(page, first)).toHaveAttribute('data-origin', 'PM_ASSIGNED');
     await expect(rowOf(page, first).locator('[data-status]')).toHaveText(vi['cap.status.draft.label']);
     await expect(rowOf(page, first)).toContainText(CITATION(1));
-    // The planner holds no approval permission: the draft offers no decision, and a draft is not in the total.
+    // The planner holds no approval permission: the draft offers no decision, and a draft is not in the total (of the year: the book holds the capital of other years too).
     await expect(rowOf(page, first).locator('[data-decision]')).toHaveCount(0);
+    await field(page.getByRole('search', { name: vi['cap.book.filters.title'] }), vi['cap.book.year.label']).selectOption('2027');
     await expect(page.getByTestId('totals').locator('.cap-money').first()).toHaveAttribute('data-vnd', '0');
 
     // The same decision cannot assign the same capital twice.
