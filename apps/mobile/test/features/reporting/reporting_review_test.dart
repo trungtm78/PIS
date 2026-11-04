@@ -231,6 +231,30 @@ void main() {
     });
   });
 
+  group('REVIEW-r7 UI-MOB-20 Send again after a refusal does not hand in an older copy than the one on the screen', () {
+    testWidgets('a draft edited since the refusal is saved first: the server holds the corrections when it holds the submitted report', (WidgetTester tester) async {
+      useDevice(tester, kTallPhone);
+      final ReportingApp app = ReportingApp.create();
+      final String id = await savedDraft(tester, app);
+      app.server.periodLocked = true;
+      final ProviderContainer container = await app.open(tester, location: '/projects/mob-20/$id');
+      await press(tester, 'Nộp báo cáo');
+      expect(find.text('Gửi lại'), findsOneWidget);
+
+      final ReportDrafts drafts = await app.drafts;
+      drafts.writeForm(id, drafts.read(id)!.form.copyWith(results: 'Đã sửa sau khi bị từ chối'));
+      final CommandQueue queue = (await tester.runAsync(() => container.read(commandQueueProvider.future)))!;
+      queue.enqueue(commandType: 'x.refresh', payload: <String, Object?>{}); // announces the change to the screen
+      await tester.pumpAndSettle();
+
+      app.server.periodLocked = false;
+      await press(tester, 'Gửi lại');
+      expect(find.text('Báo cáo đã được gửi'), findsOneWidget);
+      expect(app.server.only().submissions, 1);
+      expect(app.server.only().form.results, 'Đã sửa sau khi bị từ chối', reason: 'the corrections reached the server before the report was handed in');
+    });
+  });
+
   group('REVIEW-m1-2 UI-MOB-20 a submit whose result cannot be verified is not sent again', () {
     testWidgets('the screen says so, offers the queue and no Send again, and the command keeps its key', (WidgetTester tester) async {
       useDevice(tester, kTallPhone);

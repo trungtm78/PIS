@@ -43,6 +43,20 @@ void main() {
     });
   });
 
+  group('AC-ST-MOB-041-3 UAT-AC501 SEC-01 a store the coordinator deleted has nothing left to count, discard or send', () {
+    test('a closed store counts zero, so the sign-out that follows a revocation is not blocked or broken by it', () async {
+      final QueueRig rig = await QueueRig.create();
+      final QueuePendingWork pending = QueuePendingWork(() async => rig.queue);
+      rig.queue.enqueue(commandType: 'dis.report.submit', payload: <String, Object?>{'report_id': 'r-1'}, baseServerVersion: 3);
+      rig.store.close();
+
+      expect(await pending.count(), 0);
+      await pending.discardUnsent();
+      await pending.sendNow();
+      expect(rig.server.batchPosts, 0);
+    });
+  });
+
   group('AC-ST-MOB-008-1 UAT-AC505 the purge of the local stores', () {
     test('deletes the store of one user in one tenant, with its key, and leaves the others', () async {
       final TestStorage storage = TestStorage.create();

@@ -213,7 +213,7 @@ class _ChannelSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool locked = view.isLocked(category, channel);
-    final bool on = locked || !draft.off.contains(cellKey(category, channel));
+    final bool on = locked || draft.isOn(category, channel);
     return SwitchListTile(
       contentPadding: EdgeInsets.zero,
       title: Text(channelName(context, channel)),

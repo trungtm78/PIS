@@ -69,6 +69,10 @@ class _TileCardState extends ConsumerState<TileCard> {
   /// Bumped by every read of the tile: an answer that comes back for an earlier read (another query, another snapshot) is dropped.
   int _read = 0;
 
+  /// Bumped by every drill and by a step back: the answer of a drill whose level the person has left (or that was replaced) is dropped,
+  /// so it is never added under a path it does not belong to.
+  int _drill = 0;
+
   /// The copy kept for offline reading belongs to the query it answered (the metric and the cut), not to the place of the tile: a
   /// tile whose definition changed must never show the saved figures of the old one.
   String get _cacheKey => _cacheKeyOf(widget);
@@ -166,13 +170,14 @@ class _TileCardState extends ConsumerState<TileCard> {
 
   Future<void> _explain(Group cell, QueryResult from, String dimension) async {
     final int read = _read;
+    final int drill = ++_drill;
     setState(() {
       _explaining = true;
       _drillFailure = null;
     });
     try {
       final RawQuery answer = await _service().explain(drillToken: cell.drillToken!, dimension: dimension);
-      if (!mounted || read != _read) return;
+      if (!mounted || read != _read || drill != _drill) return;
       setState(() {
         _steps.add(_Step(cell: cell, from: from, result: answer.result, dimension: dimension));
         _choosing = null;
@@ -180,12 +185,24 @@ class _TileCardState extends ConsumerState<TileCard> {
         _all = false;
       });
     } on Object catch (error) {
-      if (!mounted || read != _read) return;
+      if (!mounted || read != _read || drill != _drill) return;
       setState(() {
         _drillFailure = error;
         _explaining = false;
       });
     }
+  }
+
+  /// One step up. A drill that is on its way started from the level that is being left, and the chooser that is open belongs to it: both end.
+  void _back() {
+    setState(() {
+      _drill += 1;
+      _steps.removeLast();
+      _choosing = null;
+      _explaining = false;
+      _drillFailure = null;
+      _all = false;
+    });
   }
 
   Set<String> _pathDimensions() => <String>{
@@ -259,7 +276,7 @@ class _TileCardState extends ConsumerState<TileCard> {
     final bool line = (widget.tile.kind == WidgetKind.line || widget.tile.kind == WidgetKind.area) && _steps.isEmpty;
     return <Widget>[
       if (_fromCopy) _CopyNote(result: base, stale: _stale),
-      if (_steps.isNotEmpty) _Breadcrumb(base: base, steps: _steps, onBack: () => setState(() => _steps.removeLast())),
+      if (_steps.isNotEmpty) _Breadcrumb(base: base, steps: _steps, onBack: _back),
       if (_steps.isNotEmpty) _CheckLine(step: _steps.last),
       Text(context.t('mob.pbi.tile.total.label'), style: theme.textTheme.bodySmall),
       Text(figureLabel(context, current.total, unit), key: const ValueKey<String>('total'), style: theme.textTheme.headlineSmall),

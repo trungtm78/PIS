@@ -22,6 +22,7 @@ final class PreferenceView {
     required this.isDefault,
     required this.timeZone,
     required this.off,
+    required this.explicitOn,
     required this.digest,
     required this.categories,
     required this.locked,
@@ -38,6 +39,10 @@ final class PreferenceView {
 
   /// `category|channel` of every cell that is switched off.
   final Set<String> off;
+
+  /// `category|channel` of every cell of a category that the server holds as an explicit enabled row. The server resolves the row of
+  /// the category before the row of every category, so such a row is an override of a wildcard that is off, not a default: it is kept.
+  final Set<String> explicitOn;
 
   /// The digest mode of a category (every channel of it); absent means immediate.
   final Map<String, String> digest;
@@ -64,6 +69,7 @@ PreferenceView? parsePreferences(Object? raw) {
   final String? zone = filled(view?['time_zone']);
   if (view == null || version == null || version < 0 || zone == null || view['items'] is! List) return null;
   final Set<String> off = <String>{};
+  final Set<String> explicitOn = <String>{};
   final Map<String, String> digest = <String, String>{};
   final Set<String> categories = <String>{};
   for (final Object? entry in listOf(view['items'])) {
@@ -71,7 +77,11 @@ PreferenceView? parsePreferences(Object? raw) {
     final String? category = filled(item?['event_category']);
     final String? channel = text(item?['channel']);
     if (item == null || category == null || channel == null || !preferenceChannels.contains(channel) || item['enabled'] is! bool) return null;
-    if (item['enabled'] == false) off.add(cellKey(category, channel));
+    if (item['enabled'] == false) {
+      off.add(cellKey(category, channel));
+    } else if (category != allCategories) {
+      explicitOn.add(cellKey(category, channel));
+    }
     final String mode = text(item['digest_mode']) ?? 'IMMEDIATE';
     if (digestModes.contains(mode) && mode != 'IMMEDIATE') digest[category] = mode;
     if (category != allCategories) categories.add(category);
@@ -93,6 +103,7 @@ PreferenceView? parsePreferences(Object? raw) {
     quietStart: filled(view['quiet_start']),
     quietEnd: filled(view['quiet_end']),
     off: off,
+    explicitOn: explicitOn,
     digest: digest,
     categories: categories.toList()..sort(),
     locked: locked,
@@ -103,6 +114,7 @@ PreferenceView? parsePreferences(Object? raw) {
 final class PreferenceDraft {
   PreferenceDraft({
     required this.off,
+    required this.explicitOn,
     required this.digest,
     required this.categories,
     required this.quietOn,
@@ -114,6 +126,7 @@ final class PreferenceDraft {
   /// The draft a reading starts from; the quiet hours default to 21:00 - 07:00 when none were saved.
   factory PreferenceDraft.of(PreferenceView view) => PreferenceDraft(
         off: <String>{...view.off},
+        explicitOn: <String>{...view.explicitOn},
         digest: <String, String>{...view.digest},
         categories: <String>[...view.categories],
         quietOn: view.quietOn,
@@ -123,6 +136,7 @@ final class PreferenceDraft {
       );
 
   final Set<String> off;
+  final Set<String> explicitOn;
   final Map<String, String> digest;
   final List<String> categories;
   bool quietOn;
@@ -130,9 +144,24 @@ final class PreferenceDraft {
   String quietEnd;
   String timeZone;
 
+  /// Whether the cell reaches the person, as the server resolves it: its own row first, else the row of every category, else yes.
+  bool isOn(String category, String channel) {
+    final String key = cellKey(category, channel);
+    if (off.contains(key)) return false;
+    if (explicitOn.contains(key)) return true;
+    return category == allCategories || !off.contains(cellKey(allCategories, channel));
+  }
+
+  /// Turns a cell the other way. A category cell turned on under a wildcard that is off needs a row of its own to be on.
   void toggle(String category, String channel) {
     final String key = cellKey(category, channel);
-    if (!off.remove(key)) off.add(key);
+    if (isOn(category, channel)) {
+      explicitOn.remove(key);
+      off.add(key);
+    } else {
+      off.remove(key);
+      if (category != allCategories && off.contains(cellKey(allCategories, channel))) explicitOn.add(key);
+    }
   }
 }
 
@@ -145,14 +174,17 @@ QuietProblem? quietProblem(PreferenceDraft draft) {
   return draft.quietStart == draft.quietEnd ? QuietProblem.empty : null;
 }
 
-/// The body of a save: a cell is sent when it is off or its category has a digest mode; everything else is on by default.
+/// The body of a save: a cell is sent when the person or the server set it (off, or an explicit enabled row) or its category has a
+/// digest mode; everything else is inherited from the wildcard or on by default.
 Map<String, Object?> preferenceBody(PreferenceDraft draft) {
   final List<Map<String, Object?>> items = <Map<String, Object?>>[];
   for (final String category in <String>[allCategories, ...draft.categories]) {
     final String mode = draft.digest[category] ?? 'IMMEDIATE';
     for (final String channel in preferenceChannels) {
-      final bool enabled = !draft.off.contains(cellKey(category, channel));
-      if (!enabled || mode != 'IMMEDIATE') items.add(<String, Object?>{'event_category': category, 'channel': channel, 'enabled': enabled, 'digest_mode': mode});
+      final String key = cellKey(category, channel);
+      if (draft.off.contains(key) || draft.explicitOn.contains(key) || mode != 'IMMEDIATE') {
+        items.add(<String, Object?>{'event_category': category, 'channel': channel, 'enabled': draft.isOn(category, channel), 'digest_mode': mode});
+      }
     }
   }
   return <String, Object?>{

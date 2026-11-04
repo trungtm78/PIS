@@ -85,8 +85,9 @@ class _EvidencePhotosFieldState extends ConsumerState<EvidencePhotosField> {
       setState(() => _cameraDenied = true);
       return;
     }
-    final File? file = await ref.read(photoSourceProvider).takePhoto();
-    if (file != null) await _use(file);
+    // The source is taken before the camera opens: the screen may be gone when it returns, and a gone widget may not read its ref.
+    final PhotoSource source = ref.read(photoSourceProvider);
+    await _useReturned(source, await source.takePhoto());
   }
 
   Future<void> _choose() async {
@@ -94,21 +95,38 @@ class _EvidencePhotosFieldState extends ConsumerState<EvidencePhotosField> {
       _refusal = null;
       _cameraDenied = false;
     });
-    final File? file = await ref.read(photoSourceProvider).pickPhoto();
-    if (file != null) await _use(file);
+    final PhotoSource source = ref.read(photoSourceProvider);
+    await _useReturned(source, await source.pickPhoto());
   }
 
-  Future<void> _use(File file) async {
-    if (_working) return;
-    final PhotoSource source = ref.read(photoSourceProvider);
+  /// What the camera or the gallery returned. The screen may have been left while the picker was open (a session that ended, a
+  /// navigation): nobody wants the picture then, and the copy the plug-in left in the cache, with the place and the time it says,
+  /// is deleted all the same.
+  Future<void> _useReturned(PhotoSource source, File? file) async {
+    if (file == null) return;
+    if (!mounted) {
+      await source.discard(file);
+      return;
+    }
+    await _use(source, file);
+  }
+
+  Future<void> _use(PhotoSource source, File file) async {
+    if (_working) {
+      // A second picture while one is being prepared is not taken: its copy is not kept either.
+      await source.discard(file);
+      return;
+    }
     final bool keptWhenChosen = widget.keepPlaceAndTime;
+    // Asked before the first wait: the screen may be gone by the time the preparation needs the folder.
+    final Future<Directory> evidenceDirectory = ref.read(evidenceDirectoryProvider.future);
     setState(() => _working = true);
     try {
       if (await checkAttachment(file) == kMimePdf)
         throw const AttachmentRefused('FILE_TYPE_NOT_ALLOWED');
       EvidencePhoto photo = await prepareEvidence(
         file,
-        directory: await ref.read(evidenceDirectoryProvider.future),
+        directory: await evidenceDirectory,
         keepPlaceAndTime: keptWhenChosen,
         newId: newUuidV4,
       );

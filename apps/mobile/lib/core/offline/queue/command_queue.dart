@@ -73,6 +73,9 @@ class CommandQueue {
   String get tenantId => _store.tenantId;
   String get userId => _store.userId;
 
+  /// The store this queue lives on was closed (the user's data was purged): there is nothing left to read, send or drop.
+  bool get isStoreClosed => _store.isClosed;
+
   int get _now => _clock().millisecondsSinceEpoch;
 
   // ---------------------------------------------------------------------------------------------------- reading

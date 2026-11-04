@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 
 import '../../core/l10n/app_strings.dart';
@@ -10,6 +11,18 @@ import 'signing_models.dart';
 import 'signing_port.dart';
 
 export '../read_support/offline.dart' show isOffline;
+
+/// Counts the changes made to the documents that wait for the leader (a signature, a return, or a refusal that shows the document is not
+/// as the phone assumed), so that the list, which stays mounted under the document it opened, reads again and does not go on showing
+/// a document that was dealt with as awaiting the signature.
+class SigningChanged extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void bump() => state += 1;
+}
+
+final NotifierProvider<SigningChanged, int> signingChangedProvider = NotifierProvider<SigningChanged, int>(SigningChanged.new);
 
 /// Why a signature cannot be started or confirmed now. The reason is always written beside the disabled button. Offline wins over
 /// everything: a signature is made on the server, in a session that is online, on a document as the server just gave it, never on a

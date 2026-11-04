@@ -9,6 +9,7 @@ import '../../../core/di/providers.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/offline/attachments/attachment_upload.dart';
+import '../../../core/offline/drafts/local_draft.dart';
 import '../../../core/offline/offline_providers.dart';
 import '../../../core/offline/queue/offline_codes.dart';
 import '../../../core/offline/queue/queue_results.dart';
@@ -189,7 +190,16 @@ class _ReviewState extends ConsumerState<_Review> {
       final SubmitFlow flow = await ref.read(submitFlowProvider.future);
       final SubmitStatus status = flow.statusOf(widget.session.snapshot.id);
       final QueuedCommand? command = status.command;
-      final FlushResult result = command != null && status.stage == SubmitStage.rejected ? await flow.resend(command.id) : await flow.check();
+      final bool refused = command != null && status.stage == SubmitStage.rejected;
+      // The refused submit carries only the id of the report: sent again it would hand in the copy the server holds. A draft edited since
+      // the refusal (editing a blocked draft makes it editable again) is the person's newer copy, so it goes the way of a new submit:
+      // validated, saved, then handed in.
+      if (refused && widget.session.snapshot.draft.status != DraftStatus.blocked) {
+        if (mounted) setState(() => _busy = false);
+        await _submit();
+        return;
+      }
+      final FlushResult result = refused ? await flow.resend(command.id) : await flow.check();
       if (mounted) setState(() => _result = SubmitResult(SubmitOutcome.alreadyPending, blocker: result.blocker));
     } finally {
       if (mounted) setState(() => _busy = false);

@@ -55,6 +55,7 @@ class SigningWaitingList extends ConsumerWidget {
       title: title,
       body: DataView<WaitingList>(
         cacheKey: 'signing.waiting',
+        reloadKey: ref.watch(signingChangedProvider),
         read: (MachvonApiClient client) => readMerged(client, 'listOutgoingDocuments', query: <String, Object?>{'status': 'SUBMITTED', 'limit': 50}, maxPages: 4),
         parse: parseWaitingList,
         asOf: (WaitingList list) => list.asOf,
@@ -118,7 +119,7 @@ class _DocumentRow extends StatelessWidget {
 
 /// One document that waits for the leader: the document, its file, the signature, and what the screen that shows it adds under them
 /// ([footer]). MOB-67 adds nothing; DOC-22 adds the return of the document with a reason.
-class SigningDocumentView extends StatefulWidget {
+class SigningDocumentView extends ConsumerStatefulWidget {
   const SigningDocumentView({required this.documentId, required this.title, this.footer, super.key});
 
   final String documentId;
@@ -126,14 +127,15 @@ class SigningDocumentView extends StatefulWidget {
   final SigningFooter? footer;
 
   @override
-  State<SigningDocumentView> createState() => _SigningDocumentViewState();
+  ConsumerState<SigningDocumentView> createState() => _SigningDocumentViewState();
 }
 
-class _SigningDocumentViewState extends State<SigningDocumentView> {
+class _SigningDocumentViewState extends ConsumerState<SigningDocumentView> {
   int _changed = 0;
 
   @override
   Widget build(BuildContext context) {
+    final SigningChanged changes = ref.read(signingChangedProvider.notifier);
     return ScreenFrame(
       title: widget.title,
       body: DataView<SigningDocument>(
@@ -142,7 +144,10 @@ class _SigningDocumentViewState extends State<SigningDocumentView> {
         read: (MachvonApiClient client) => client.getOutgoingDocument(id: widget.documentId),
         parse: parseSigningDocument,
         asOf: (SigningDocument document) => document.asOf,
-        builder: (BuildContext context, Loaded<SigningDocument> loaded) => _DocumentBody(document: loaded.value, fromCopy: loaded.fromCache, footer: widget.footer, onChanged: () => setState(() => _changed += 1)),
+        builder: (BuildContext context, Loaded<SigningDocument> loaded) => _DocumentBody(document: loaded.value, fromCopy: loaded.fromCache, footer: widget.footer, onChanged: () {
+          changes.bump();
+          setState(() => _changed += 1);
+        }),
       ),
     );
   }

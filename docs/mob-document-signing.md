@@ -4,7 +4,7 @@ MOB-67 lets a leader open the final PDF of an outgoing document, compare it with
 
 ## The screen (`/approval/mob-67`)
 
-Without a parameter it lists the documents waiting for the leader (`listOutgoingDocuments?status=SUBMITTED`, at most four pages of 50, with a note when there are more), those that name the person as signer first. With `?doc=<id>` it opens one document (`getOutgoingDocument`):
+Without a parameter it lists the documents waiting for the leader (`listOutgoingDocuments?status=SUBMITTED`, at most four pages of 50, with a note when there are more), those that name the person as signer first. The list stays mounted under the document it opened, so a signature, a return, or a refusal that shows the document is not as the phone assumed tells it (`signingChangedProvider`) and it reads again when it is back in view. With `?doc=<id>` it opens one document (`getOutgoingDocument`):
 
 | part | shows |
 |---|---|

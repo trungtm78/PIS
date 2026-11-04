@@ -299,6 +299,10 @@ class _IssueBodyState extends ConsumerState<_IssueBody> {
   CommentFormProblem? _problem;
   bool _sending = false;
 
+  /// The words that left the screen last, exactly as sent. The field stays editable after a lost answer, but "send again" means
+  /// this comment (it may already be recorded): reading the field then would send a different comment under the same key.
+  String? _sent;
+
   @override
   void dispose() {
     _note.dispose();
@@ -307,21 +311,25 @@ class _IssueBodyState extends ConsumerState<_IssueBody> {
 
   Future<void> _send({bool retryAfterUnknown = false}) async {
     if (_sending) return;
-    final CommentFormProblem? problem = checkComment(_note.text);
-    setState(() => _problem = problem);
+    final String? settling = retryAfterUnknown ? _sent : null;
+    final String words = settling ?? _note.text;
+    final CommentFormProblem? problem = checkComment(words);
+    setState(() => _problem = settling == null ? problem : null);
     if (problem != null) return;
+    _sent = words;
     setState(() {
       _sending = true;
       _outcome = null;
     });
     final CommentOutcome outcome = await _comments.send(
       widget.issue.id,
-      _note.text,
+      words,
       retryAfterUnknown: retryAfterUnknown,
     );
     if (!mounted) return;
     if (outcome is Commented) {
-      _note.clear();
+      // Words typed since the send are another comment: they stay.
+      if (_note.text == words) _note.clear();
       widget.onCommented();
     }
     setState(() {

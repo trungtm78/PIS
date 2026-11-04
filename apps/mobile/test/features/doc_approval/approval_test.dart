@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_mobile/core/connectivity/reachability.dart';
+import 'package:machvon_mobile/core/di/providers.dart';
 import 'package:machvon_mobile/core/navigation/feature.dart';
 import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/core/sync/sync_status.dart';
@@ -252,6 +253,37 @@ void main() {
       expect(find.text('Đã trả lại người soạn'), findsOneWidget);
       expect(_open_(), findsNothing, reason: 'the document no longer waits, so it cannot be returned again');
       expect(find.text('Văn bản không còn chờ lãnh đạo ký.'), findsOneWidget);
+    });
+
+    testWidgets('the list under the document reads again after a return, so going back does not show the returned document as waiting', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      bool returned = false;
+      server.on('GET', '/outgoing-documents', (_) => page(returned ? <Object?>[] : <Object?>[outgoing()]));
+      server.on('GET', '/outgoing-documents/d-1', (_) => returned ? outgoing(status: 'RETURNED', version: 8) : outgoing());
+      server.answer('POST', '/outgoing-documents/d-1/return', (_) {
+        returned = true;
+        return recorded('d-1', status: 'RETURNED', version: 8);
+      });
+      final ProviderContainer container = await _open(tester, server, _list);
+      await tester.tap(find.text('Quyết định giao vốn năm 2026'));
+      await tester.pumpAndSettle();
+      expect(server.callsTo('GET', '/outgoing-documents'), hasLength(1));
+
+      await _scrollTo(tester, _open_());
+      await tester.tap(_open_());
+      await tester.pumpAndSettle();
+      await tester.enterText(_reason(), 'Cần bổ sung căn cứ pháp lý');
+      await _scrollTo(tester, _giveBack());
+      await tester.tap(_giveBack());
+      await tester.pumpAndSettle();
+      expect(find.text('Đã trả lại người soạn'), findsOneWidget);
+
+      container.read(routerProvider).pop();
+      await tester.pumpAndSettle();
+      expect(currentLocation(container), _list);
+      expect(server.callsTo('GET', '/outgoing-documents'), hasLength(2), reason: 'the list read again when it came back into view');
+      expect(find.text('Quyết định giao vốn năm 2026'), findsNothing, reason: 'the returned document is not shown as waiting');
     });
 
     testWidgets('the reason is required, at least 10 and at most 2000 characters, checked before anything is sent', (WidgetTester tester) async {

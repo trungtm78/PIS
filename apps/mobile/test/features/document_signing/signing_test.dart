@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_mobile/core/connectivity/reachability.dart';
+import 'package:machvon_mobile/core/di/providers.dart';
 import 'package:machvon_mobile/core/navigation/feature.dart';
 import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/core/sync/sync_status.dart';
@@ -129,6 +130,42 @@ void main() {
       await _open(tester, server, '/approval/mob-67');
       expect(pages, 4, reason: 'a phone follows a few pages of the queue and says there is more');
       expect(find.textContaining('Còn văn bản khác chưa hiển thị'), findsOneWidget);
+    });
+
+    testWidgets('the list under the document reads again after a signature, so going back does not show a document that was signed as still waiting', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      Map<String, Object?> document = outgoing();
+      bool signed = false;
+      server
+        ..on('GET', '/outgoing-documents', (_) => page(signed ? <Object?>[] : <Object?>[document]))
+        ..on('GET', '/outgoing-documents/d-1', (_) => document)
+        ..answer('POST', '/outgoing-documents/d-1/leader-signing-sessions', (_) {
+          document = outgoing(version: 8, sessions: <Map<String, Object?>>[session('s-1')]);
+          return recorded('s-1', status: 'AWAITING_SIGNER');
+        })
+        ..answer('POST', '/signing-sessions/s-1/completion', (_) {
+          document = signedOutgoing();
+          signed = true;
+          return recorded('s-1', status: 'EMBEDDED');
+        });
+      final ProviderContainer container = await _open(tester, server, '/approval/mob-67');
+      await tester.tap(find.text('Quyết định giao vốn năm 2026'));
+      await tester.pumpAndSettle();
+      expect(server.callsTo('GET', '/outgoing-documents'), hasLength(1));
+
+      await tester.tap(_start());
+      await tester.pumpAndSettle();
+      await tester.enterText(_otp(), '482913');
+      await tester.tap(_confirm());
+      await tester.pumpAndSettle();
+      expect(find.text('Kết quả ký'), findsOneWidget);
+
+      container.read(routerProvider).pop();
+      await tester.pumpAndSettle();
+      expect(currentLocation(container), '/approval/mob-67');
+      expect(server.callsTo('GET', '/outgoing-documents'), hasLength(2), reason: 'the list read again when it came back into view');
+      expect(find.text('Quyết định giao vốn năm 2026'), findsNothing, reason: 'the signed document is not shown as waiting');
     });
 
     testWidgets('shows the document, the versions, who signs and with what, and that numbering and the seal are the clerk\'s', (WidgetTester tester) async {

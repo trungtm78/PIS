@@ -150,6 +150,10 @@ class AuthService {
   /// Changes whenever the tokens a request can be sent under change (a tenant token is taken, the tokens are cleared, locked or
   /// ended). A response is only the verdict of the session when it answers a request sent under the stamp that is current ([noteResponse]).
   int _credentialGeneration = 0;
+
+  /// Changes whenever the credential is locked. A renewal or a selection that was started before the lock was asked for under a
+  /// credential that has since left memory: whatever it is answered, nothing is put back in memory and no token is returned.
+  int _lockGeneration = 0;
   Future<String>? _refreshing;
   SessionSnapshot _last = const SessionSnapshot.signedOut();
 
@@ -231,7 +235,7 @@ class AuthService {
     final String identity = await _freshIdentity();
     final TenantContext context;
     try {
-      context = await _api.select(identity, tenantId: choice.tenantId, membershipId: choice.membershipId);
+      context = await _select(identity, tenantId: choice.tenantId, membershipId: choice.membershipId);
     } on ApiError catch (error) {
       if (error.code == _mfaRequiredCode) {
         _pendingSelection = choice;
@@ -261,8 +265,17 @@ class AuthService {
     }
     final String tenant = _tenantId ?? (throw const NoSession());
     final String membership = _membershipId ?? (throw const NoSession());
-    await _enter(await _api.select(_idToken!, tenantId: tenant, membershipId: membership));
+    await _enter(await _select(_idToken!, tenantId: tenant, membershipId: membership));
     return SignInOutcome.signedIn;
+  }
+
+  /// The tenant selection, refused ([NoSession]) when the credential was locked while the server was answering: entering the
+  /// context would put a token in memory and release the lock without the biometric prompt.
+  Future<TenantContext> _select(String identity, {required String tenantId, required String membershipId}) async {
+    final int locks = _lockGeneration;
+    final TenantContext context = await _api.select(identity, tenantId: tenantId, membershipId: membershipId);
+    if (locks != _lockGeneration) throw const NoSession();
+    return context;
   }
 
   /// The person left MOB-03 without passing the second factor: the selection that waited is dropped, and so is the switch it
@@ -293,8 +306,12 @@ class AuthService {
     try {
       return await _renew();
     } on _SupersededRenewal {
-      // The context changed while the renewal ran: the caller asked for the token of the context that is active now.
+      // The context changed (or the credential was locked) while the renewal ran: the caller asked for the token of the session
+      // that is active now, which is none while it is locked.
       return accessToken();
+    } on NoSession {
+      if (_status != SessionStatus.signedIn || _locked) return null;
+      rethrow;
     }
   }
 
@@ -315,17 +332,19 @@ class AuthService {
     final String tenant = _tenantId ?? (throw const NoSession());
     final String membership = _membershipId ?? (throw const NoSession());
     final int generation = _contextGeneration;
+    final int locks = _lockGeneration;
+    bool superseded() => generation != _contextGeneration || locks != _lockGeneration;
     try {
       final String identity = await _freshIdentity();
       // The identity may have been renewed for a session that is not the one this renewal is for: nothing is asked for the old context.
-      if (generation != _contextGeneration) throw const _SupersededRenewal();
+      if (superseded()) throw const _SupersededRenewal();
       final TenantContext context = await _api.select(identity, tenantId: tenant, membershipId: membership);
-      if (generation != _contextGeneration) throw const _SupersededRenewal();
+      if (superseded()) throw const _SupersededRenewal();
       _takeTenantToken(context);
       _publish();
       return context.accessToken;
     } on ApiError catch (error) {
-      if (generation != _contextGeneration) throw const _SupersededRenewal();
+      if (superseded()) throw const _SupersededRenewal();
       if (_contextLostCodes.contains(error.code)) {
         await _revoke();
       } else if (error.status == 401) {
@@ -334,7 +353,7 @@ class AuthService {
       if (error.code == _mfaRequiredCode) requireSecondFactor();
       rethrow;
     } on OidcException catch (error) {
-      if (generation != _contextGeneration) throw const _SupersededRenewal();
+      if (superseded()) throw const _SupersededRenewal();
       if (error.failure == OidcFailure.refreshRejected) {
         throw ApiError(status: 401, code: 'SESSION_EXPIRED', correlationId: _newCorrelationId());
       }
@@ -364,11 +383,12 @@ class AuthService {
     final OidcConfig config = _config ?? (throw const NoSession());
     // Taken before the wait: what answers belongs to the credential that was used to ask.
     final int identity = _identityGeneration;
+    final int locks = _lockGeneration;
     final OidcTokens tokens;
     try {
       tokens = await _oidc.refresh(config, refresh);
     } on OidcException catch (error) {
-      if (identity != _identityGeneration) throw const _SupersededRenewal();
+      if (identity != _identityGeneration || locks != _lockGeneration) throw const _SupersededRenewal();
       if (error.failure == OidcFailure.refreshRejected) await _expire();
       rethrow;
     }
@@ -376,6 +396,16 @@ class AuthService {
     if (_subject != null && tokens.subject != _subject) {
       await _expire();
       throw const OidcException(OidcFailure.tokenInvalid);
+    }
+    if (locks != _lockGeneration) {
+      // The credential was locked while the provider answered. It has rotated the refresh token, so the vault must keep the new one
+      // (the old one is dead), but nothing goes back into memory until the person passes the biometric prompt.
+      final String? rotated = tokens.refreshToken;
+      if (rotated != null && _status == SessionStatus.signedIn) {
+        await _persist(refresh: rotated);
+        if (!_locked) _refreshToken = rotated;
+      }
+      throw const _SupersededRenewal();
     }
     await _adoptIdentity(tokens, persist: _status == SessionStatus.signedIn);
     return _idToken!;
@@ -390,9 +420,9 @@ class AuthService {
     if (persist && rotated != null) await _persist();
   }
 
-  Future<void> _persist() async {
+  Future<void> _persist({String? refresh}) async {
     final OidcConfig? config = _config;
-    final String? refresh = _refreshToken;
+    refresh ??= _refreshToken;
     final String? subject = _subject;
     final String? tenant = _tenantId;
     final String? membership = _membershipId;
@@ -534,6 +564,7 @@ class AuthService {
   void lock() {
     if (_status != SessionStatus.signedIn || _locked) return;
     _locked = true;
+    _lockGeneration += 1;
     _credentialGeneration += 1;
     _idToken = null;
     _tenantToken = null;
@@ -622,7 +653,9 @@ class AuthService {
   /// ([PendingCommandsBlock]) unless the person chose to discard them; a session that already ended signs out freely.
   Future<void> signOut({bool discardPending = false, SignOutScope scope = SignOutScope.activeTenant}) async {
     await ready;
-    final int waiting = await _pendingCommands();
+    // What the person chose to discard is not counted: the count is only there to refuse a sign-out that would lose it, and the
+    // queue may be unreadable (the revocation of a scope deletes the store before it signs the person out).
+    final int waiting = discardPending ? 0 : await _pendingCommands();
     if (_status == SessionStatus.signedIn && waiting > 0 && !discardPending) throw PendingCommandsBlock(waiting);
     final String? tenant = _tenantId;
     final String? user = _subject;

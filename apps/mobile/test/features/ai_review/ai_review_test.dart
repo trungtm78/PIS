@@ -684,6 +684,137 @@ void main() {
     });
   });
 
+  group('AC-ST-MOB-030-1 AC-ST-MOB-030-3 UAT-PLAN-43 a thread belongs to one package and a lookup follows the cursors to the end of the collection', () {
+    testWidgets('MOB-37 another package on the same route starts an empty thread: no answer, no pending question, no old question asked again', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      aiServer(server);
+      final Completer<HttpResult> held = Completer<HttpResult>();
+      int asked = 0;
+      server.answer('GET', '/procurement-packages/:id/proposal-passages', (HttpCall call) {
+        asked += 1;
+        return asked == 1 ? FakeTransport.json(200, <String, Object?>{'items': <Object?>[passage(kDoc, 11, 0, 'Đoạn của gói một.')], 'as_of': '2026-11-03T02:00:00Z'}) : held.future;
+      });
+      final ProviderContainer container = await _open(tester, server, _qa);
+      await _type(tester, 'Câu hỏi gói một');
+      await tester.tap(_ask());
+      await tester.pumpAndSettle();
+      expect(find.text('Đoạn của gói một.'), findsOneWidget);
+      await _type(tester, 'Câu hỏi gói hai');
+      await tester.tap(_ask());
+      await tester.pump();
+      expect(find.text('Đang tìm dẫn chứng trong phạm vi của bạn…'), findsOneWidget);
+      await _type(tester, 'Câu hỏi chưa gửi');
+
+      container.read(routerProvider).go('/projects/mob-37?package=pk-2');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Đoạn của gói một.'), findsNothing, reason: 'the answer of the first package is not shown under the second');
+      expect(find.text('Câu hỏi gói một'), findsNothing);
+      expect(find.text('Câu hỏi gói hai'), findsNothing, reason: 'a question still waiting for the first package is dropped with it');
+      expect(find.text('Câu hỏi chưa gửi'), findsNothing, reason: 'the typed question is not carried over either');
+      expect(tester.widget<FilledButton>(_ask()).onPressed, isNotNull, reason: 'nothing is still being asked');
+      held.complete(FakeTransport.json(200, <String, Object?>{'items': <Object?>[passage(kDoc2, 3, 0, 'Đoạn muộn của gói một.')], 'as_of': '2026-11-03T02:00:00Z'}));
+      await tester.pumpAndSettle();
+      expect(find.text('Đoạn muộn của gói một.'), findsNothing, reason: 'the late answer fills a card nobody shows');
+    });
+
+    testWidgets('MOB-37 a question asked after the package changed goes to the new package, and its chips name it', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      aiServer(server);
+      final ProviderContainer container = await _open(tester, server, _qa);
+      container.read(routerProvider).go('/projects/mob-37?package=pk-2');
+      await tester.pumpAndSettle();
+
+      await _type(tester, 'Câu hỏi gói hai');
+      await tester.tap(_ask());
+      await tester.pumpAndSettle();
+      expect(server.callsTo('GET', '/procurement-packages/pk-2/proposal-passages'), hasLength(1));
+      expect(server.callsTo('GET', '/procurement-packages/$kPackage/proposal-passages'), isEmpty);
+      await tester.tap(find.text('Tệp aaaaaaaa · Trang 12'));
+      await tester.pumpAndSettle();
+      expect(currentLocation(container), '/projects/mob-39?package=pk-2&doc=$kDoc&page=11');
+    });
+
+    int cursorNo(HttpCall call) => int.tryParse((call.url.queryParameters['cursor'] ?? 'c0').substring(1)) ?? 0;
+    Map<String, Object?> pageOfRecords(List<Object?> items, String? next) => <String, Object?>{...ocrPages(<Map<String, Object?>>[]), 'items': items, 'next_cursor': next};
+
+    testWidgets('MOB-39 a cited page beyond the first thousand records is found by following the cursors to the end', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      aiServer(server);
+      server.on('GET', '/proposals/:id/ocr-pages', (HttpCall call) {
+        final int n = cursorNo(call);
+        return n < 7 ? pageOfRecords(<Object?>[ocrPage(kDoc, 100 + n, 'Trang khác')], 'c${n + 1}') : pageOfRecords(<Object?>[ocrPage(kDoc, 11, kPageText)], null);
+      });
+      await _open(tester, server, _source);
+
+      expect(find.textContaining('tại tỉnh B trong năm 2024'), findsOneWidget, reason: 'the cited page is on the eighth page of records');
+      expect(find.text('Không đọc được nội dung của trang này.'), findsNothing);
+      expect(server.callsTo('GET', '/proposals/$kProposal/ocr-pages'), hasLength(8));
+    });
+
+    testWidgets('MOB-39 a page the collection really lacks is called unreadable only after every cursor was followed', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      aiServer(server);
+      server.on('GET', '/proposals/:id/ocr-pages', (HttpCall call) {
+        final int n = cursorNo(call);
+        return pageOfRecords(<Object?>[ocrPage(kDoc, 100 + n, 'Trang khác')], n < 8 ? 'c${n + 1}' : null);
+      });
+      await _open(tester, server, _source);
+
+      expect(server.callsTo('GET', '/proposals/$kProposal/ocr-pages'), hasLength(9), reason: 'the collection is read to its end before the page is called absent');
+      expect(find.text('Không đọc được nội dung của trang này.'), findsOneWidget);
+    });
+
+    testWidgets('MOB-39 a cursor that repeats stops the lookup instead of asking for ever', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      aiServer(server);
+      server.on('GET', '/proposals/:id/ocr-pages', (_) => pageOfRecords(<Object?>[ocrPage(kDoc, 100, 'Trang khác')], 'same'));
+      await _open(tester, server, _source);
+
+      expect(server.callsTo('GET', '/proposals/$kProposal/ocr-pages'), hasLength(2));
+    });
+
+    testWidgets('MOB-39 a finding on a late page of the run is found, not called a record that does not exist', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      aiServer(server);
+      server.on('GET', '/analysis-runs/:id/findings', (HttpCall call) {
+        final int n = cursorNo(call);
+        return <String, Object?>{...findingsOf(<Map<String, Object?>>[finding(n < 6 ? 'f-other-$n' : 'f-1')]), 'next_cursor': n < 6 ? 'c${n + 1}' : null};
+      });
+      await _open(tester, server, _source);
+
+      expect(find.textContaining('tại tỉnh B trong năm 2024'), findsOneWidget);
+    });
+
+    testWidgets('MOB-39 the proposal that holds the cited passage is found on a late page of the package proposals', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      aiServer(server);
+      server.on('GET', '/resources/proposal', (HttpCall call) {
+        final int n = cursorNo(call);
+        return <String, Object?>{
+          'items': <Object?>[
+            <String, Object?>{'id': n < 3 ? 'prop-x$n' : kProposal, 'access': 'FULL', 'locked': false},
+          ],
+          'next_cursor': n < 3 ? 'c${n + 1}' : null,
+          'as_of': '2026-11-02T09:00:00Z',
+        };
+      });
+      server.on('GET', '/proposals/prop-x0/ocr-pages', (_) => ocrPages(<Map<String, Object?>>[]));
+      server.refuse('GET', '/proposals/prop-x1/ocr-pages', 404, 'RESOURCE_NOT_FOUND');
+      server.refuse('GET', '/proposals/prop-x2/ocr-pages', 403, 'FORBIDDEN');
+      await _open(tester, server, '/projects/mob-39?package=$kPackage&doc=$kDoc&page=11');
+
+      expect(find.textContaining('tại tỉnh B trong năm 2024'), findsOneWidget);
+    });
+  });
+
   group('the pure rules of the citations', () {
     test('locateQuote finds the words where the page has other white space and refuses words that are not there', () {
       expect(locateQuote('a  b\nc d', 'b c'), (start: 3, end: 6));

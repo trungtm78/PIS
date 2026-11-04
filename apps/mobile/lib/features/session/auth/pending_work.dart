@@ -17,7 +17,9 @@ abstract interface class PendingWork {
   Future<void> discardUnsent();
 }
 
-/// The [PendingWork] on the command queue of the signed-in user. Nobody signed in has nothing waiting.
+/// The [PendingWork] on the command queue of the signed-in user. Nobody signed in has nothing waiting, and neither has a user whose
+/// store was deleted under the queue (a revoked scope, a purge): its commands went with the file, there is nothing to count, send
+/// or drop, and asking the closed database would only throw.
 final class QueuePendingWork implements PendingWork {
   const QueuePendingWork(this._queue);
 
@@ -26,7 +28,8 @@ final class QueuePendingWork implements PendingWork {
   @override
   Future<int> count() async {
     try {
-      return (await _queue()).unsentCount;
+      final CommandQueue queue = await _queue();
+      return queue.isStoreClosed ? 0 : queue.unsentCount;
     } on OfflineUnavailable {
       return 0;
     }
@@ -34,13 +37,16 @@ final class QueuePendingWork implements PendingWork {
 
   @override
   Future<void> sendNow() async {
-    await (await _queue()).flush();
+    final CommandQueue queue = await _queue();
+    if (queue.isStoreClosed) return;
+    await queue.flush();
   }
 
   @override
   Future<void> discardUnsent() async {
     try {
-      (await _queue()).discardUnsent();
+      final CommandQueue queue = await _queue();
+      if (!queue.isStoreClosed) queue.discardUnsent();
     } on OfflineUnavailable {
       return;
     }

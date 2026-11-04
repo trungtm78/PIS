@@ -4,12 +4,12 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
-import '../../read_support/paged.dart';
 import '../../read_support/widgets.dart';
 import '../../read_support/wire.dart';
 import '../ai_models.dart';
 import '../ai_read.dart';
 import '../ai_support.dart';
+import '../paged_lookup.dart';
 
 /// MOB-39: the cited source. The cited page opens only after the server has judged the person's access again, in the same request that
 /// reads it: the finding (or the proposal of the package) is read first, and a person whose access was taken away gets exactly the
@@ -61,20 +61,43 @@ Future<SourceView> readSource(MachvonApiClient client, Map<String, String> query
   throw _hidden;
 }
 
-Future<SourcePage?> _pageOf(MachvonApiClient client, String proposalId, String documentVersionId, int pageIndex) async {
-  final Json merged = await readMerged(client, 'listProposalOcrPages', path: <String, Object?>{'id': proposalId}, query: <String, Object?>{'document_version_id': documentVersionId, 'limit': 200}, maxPages: 5);
-  return parseSourcePage(merged, documentVersionId: documentVersionId, pageIndex: pageIndex);
+/// The cited page of one file, looked for in every page of the proposal's records until it is found: a long file has more records than
+/// one screen reads, and a page beyond the first ones is still the page that was cited. The file's title comes with the page that
+/// names it, which may be an earlier one.
+Future<SourcePage?> _pageOf(MachvonApiClient client, String proposalId, String documentVersionId, int pageIndex) {
+  final List<Object?> documents = <Object?>[];
+  return findInPages<SourcePage>(
+    client,
+    'listProposalOcrPages',
+    path: <String, Object?>{'id': proposalId},
+    query: <String, Object?>{'document_version_id': documentVersionId, 'limit': 200},
+    pick: (Json body) {
+      documents.addAll(listOf(body['documents']));
+      return parseSourcePage(<String, Object?>{...body, 'documents': documents}, documentVersionId: documentVersionId, pageIndex: pageIndex);
+    },
+  );
 }
 
 Future<SourceView> _readFindingSource(MachvonApiClient client, String run, String finding, String evidence) async {
-  final FindingList? list = parseFindingList(await readMerged(client, 'listAnalysisFindings', path: <String, Object?>{'id': run}, query: <String, Object?>{'limit': 50}, maxPages: 4));
-  if (list == null) throw const ContractMismatch('response', 'does not hold what the screen needs');
-  Finding? found;
-  for (final Finding candidate in list.findings) {
-    if (candidate.id == finding) found = candidate;
-  }
+  // The finding is looked for in every page of the run's findings: one beyond the first pages exists all the same.
+  final ({FindingList list, Finding finding})? located = await findInPages<({FindingList list, Finding finding})>(
+    client,
+    'listAnalysisFindings',
+    path: <String, Object?>{'id': run},
+    query: <String, Object?>{'limit': 50},
+    pick: (Json body) {
+      final FindingList? list = parseFindingList(body);
+      if (list == null) throw const ContractMismatch('response', 'does not hold what the screen needs');
+      for (final Finding candidate in list.findings) {
+        if (candidate.id == finding) return (list: list, finding: candidate);
+      }
+      return null;
+    },
+  );
+  if (located == null) throw _hidden;
+  final FindingList list = located.list;
   Evidence? cited;
-  for (final Evidence candidate in found?.evidence ?? const <Evidence>[]) {
+  for (final Evidence candidate in located.finding.evidence) {
     if (candidate.id == evidence) cited = candidate;
   }
   if (cited == null || !cited.hasSource) throw _hidden;
@@ -90,20 +113,30 @@ Future<SourceView> _readFindingSource(MachvonApiClient client, String run, Strin
 }
 
 Future<SourceView> _readPassageSource(MachvonApiClient client, String package, String doc, int pageIndex) async {
-  final Json proposals = await readMerged(client, 'get_resources_proposal', query: <String, Object?>{'package_id': package, 'limit': 50}, maxPages: 2);
-  for (final Object? item in listOf(proposals['items'])) {
-    final Json? row = asRecord(item);
-    final String? id = filled(row?['id']);
-    if (id == null || row?['access'] != 'FULL' || row?['locked'] == true) continue;
-    try {
-      final SourcePage? page = await _pageOf(client, id, doc, pageIndex);
-      if (page != null) return SourceView(documentVersionId: doc, pageIndex: pageIndex, page: page);
-    } on ApiError catch (error) {
-      // A proposal this person may not open holds no page for them; the next one may.
-      if (error.status != 403 && error.status != 404) rethrow;
-    }
-  }
-  throw _hidden;
+  // Every page of the package's proposals is walked until one holds the page: the passage was found among all the proposals the person
+  // may read, not among the first ones.
+  final SourceView? view = await findInPages<SourceView>(
+    client,
+    'get_resources_proposal',
+    query: <String, Object?>{'package_id': package, 'limit': 50},
+    pick: (Json body) async {
+      for (final Object? item in listOf(body['items'])) {
+        final Json? row = asRecord(item);
+        final String? id = filled(row?['id']);
+        if (id == null || row?['access'] != 'FULL' || row?['locked'] == true) continue;
+        try {
+          final SourcePage? page = await _pageOf(client, id, doc, pageIndex);
+          if (page != null) return SourceView(documentVersionId: doc, pageIndex: pageIndex, page: page);
+        } on ApiError catch (error) {
+          // A proposal this person may not open holds no page for them; the next one may.
+          if (error.status != 403 && error.status != 404) rethrow;
+        }
+      }
+      return null;
+    },
+  );
+  if (view == null) throw _hidden;
+  return view;
 }
 
 class _Source extends StatelessWidget {

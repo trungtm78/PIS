@@ -148,6 +148,34 @@ void main() {
       expect(world.store.data.containsKey('session.v1'), isFalse);
     });
 
+    testWidgets('the coordinator deletes the store the queue is cached on, and the sign-out that follows still clears the credentials', (WidgetTester tester) async {
+      useDevice(tester, kDeviceSizes[1]);
+      final LocalStore store = await phoneWithQueuedCommand();
+      final FakeEngine engine = FakeEngine();
+      final FakeSource source = FakeSource(() async => credentialsOf(jwt(tenant: 'tenant-a')));
+      final ProviderContainer container = await pumpSessionApp(
+        tester,
+        world,
+        overrides: overrides(more: <Override>[
+          syncEngineProvider.overrideWithValue(engine),
+          syncCredentialSourceProvider.overrideWithValue(source),
+        ]),
+      );
+      // The service reads the real queue of the signed-in user, as the application wires it.
+      world.countPending = () => container.read(pendingWorkProvider).count();
+      world.onDiscard = () => container.read(pendingWorkProvider).discardUnsent();
+      await settle(tester);
+      await container.read(commandQueueProvider.future);
+
+      engine.controller.add(SyncCheckpoint(serverTime: DateTime.utc(2026, 11, 3, 8), bucketCount: 2));
+      engine.controller.add(SyncCheckpoint(serverTime: DateTime.utc(2026, 11, 3, 9), bucketCount: 0));
+      await settle(tester);
+
+      expect(store.isClosed, isTrue);
+      expect(container.read(sessionProvider).status, SessionStatus.signedOut, reason: 'the closed queue must not keep the person signed in');
+      expect(world.store.data.containsKey('session.v1'), isFalse);
+    });
+
     testWidgets('the sign-out that follows a revocation does not wait for commands that can no longer be sent', (WidgetTester tester) async {
       useDevice(tester, kDeviceSizes[1]);
       await phoneWithQueuedCommand();

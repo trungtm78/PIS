@@ -162,6 +162,33 @@ void main() {
       expect(find.text('Đã thêm ý kiến vào dòng thời gian.'), findsOneWidget);
     });
 
+    testWidgets('REVIEW-r7 sending again after a lost answer sends the comment that was sent, not the words edited since, and keeps those words', (WidgetTester tester) async {
+      useDevice(tester, kTall);
+      final FieldServer server = FieldServer();
+      int posts = 0;
+      server.api.answer('POST', '/issues/iss-1/comments', (HttpCall call) {
+        posts += 1;
+        if (posts == 1) throw const SocketException('the connection was cut after the server did the work');
+        return FakeTransport.json(200, <String, Object?>{'operation_id': 'commentIssue', 'status': 'COMMENTED', 'resource_version': 1, 'resource_id': 'iss-1'});
+      });
+      await _open(tester, server: server);
+      await _type(tester, 'Đã báo cho đội thi công.');
+      await tapText(tester, 'Gửi ý kiến');
+      await settleReal(tester, rounds: 6);
+      expect(find.text('Chưa xác định kết quả'), findsOneWidget);
+
+      await _type(tester, 'Một ý kiến khác hẳn.');
+      await tapText(tester, 'Gửi lại cùng ý kiến');
+      await settleReal(tester, rounds: 8);
+
+      final List<HttpCall> calls = server.api.callsTo('POST', '/issues/iss-1/comments');
+      expect(calls, hasLength(2));
+      expect(jsonDecode(calls[1].body!), <String, Object?>{'note': 'Đã báo cho đội thi công.'}, reason: 'the retry settles the first comment');
+      expect(calls[1].headers['idempotency-key'], calls[0].headers['idempotency-key']);
+      expect(find.text('Đã thêm ý kiến vào dòng thời gian.'), findsOneWidget);
+      expect(tester.widget<TextField>(find.widgetWithText(TextField, 'Nội dung ý kiến')).controller!.text, 'Một ý kiến khác hẳn.', reason: 'the words typed since are not lost');
+    });
+
     testWidgets('without a network nothing is sent, the words stay, and the screen says a comment needs a network', (WidgetTester tester) async {
       useDevice(tester, kTall);
       final FieldServer server = FieldServer();

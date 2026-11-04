@@ -83,6 +83,21 @@ void main() {
       expect(find.text('Đã lưu cài đặt thông báo.'), findsOneWidget);
     });
 
+    testWidgets('REVIEW-r7 saving an unrelated change keeps the explicit enabled row of a category beside a wildcard that is off, and its switch stays on', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      server.on('GET', '/me/notification-preferences', (_) => preferenceView(items: <Map<String, Object?>>[prefItem('*', 'SMS', false), prefItem('report', 'SMS', true)]));
+      server.on('PUT', '/me/notification-preferences', (_) => <String, Object?>{'operation_id': 'o', 'status': 'SAVED', 'resource_version': 4});
+      await _open(tester, server, push: FakePush());
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Lưu cài đặt'));
+      await tester.pumpAndSettle();
+
+      final Map<String, Object?> body = jsonDecode(server.callsTo('PUT', '/me/notification-preferences').single.body!) as Map<String, Object?>;
+      final List<String> cells = <String>[for (final Object? item in body['items']! as List<Object?>) '${(item! as Map<String, Object?>)['event_category']}|${(item as Map<String, Object?>)['channel']}|${item['enabled']}'];
+      expect(cells, unorderedEquals(<String>['*|SMS|false', 'report|SMS|true']));
+    });
+
     testWidgets('quiet hours that are not clock times, or are the same time, block the save', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();
@@ -185,6 +200,30 @@ void main() {
       expect(quietProblem(draft), QuietProblem.empty);
       draft.quietEnd = '6:30';
       expect(quietProblem(draft), QuietProblem.clock);
+    });
+
+    test('REVIEW-r7 the server resolves the row of the category before the row of every category, so a save keeps an explicit enabled row beside a wildcard that is off', () {
+      final PreferenceView view = parsePreferences(preferenceView(items: <Map<String, Object?>>[prefItem('*', 'SMS', false), prefItem('report', 'SMS', true)]))!;
+      final PreferenceDraft draft = PreferenceDraft.of(view);
+      draft.timeZone = 'Asia/Tokyo'; // an unrelated change
+      final List<String> cells = <String>[for (final Object? item in preferenceBody(draft)['items']! as List<Object?>) '${(item! as Map<String, Object?>)['event_category']}|${(item as Map<String, Object?>)['channel']}|${item['enabled']}'];
+      expect(cells, unorderedEquals(<String>['*|SMS|false', 'report|SMS|true']));
+    });
+
+    test('REVIEW-r7 a category cell under a wildcard that is off shows off until the person turns it on, and then is sent as an explicit enabled row', () {
+      final PreferenceView view = parsePreferences(preferenceView(items: <Map<String, Object?>>[prefItem('*', 'SMS', false), prefItem('report', 'EMAIL', false)]))!;
+      final PreferenceDraft draft = PreferenceDraft.of(view);
+      expect(draft.isOn('report', 'SMS'), isFalse, reason: 'it inherits the wildcard');
+      expect(draft.isOn('report', 'PUSH'), isTrue);
+      draft.toggle('report', 'SMS');
+      expect(draft.isOn('report', 'SMS'), isTrue);
+      final List<String> cells = <String>[for (final Object? item in preferenceBody(draft)['items']! as List<Object?>) '${(item! as Map<String, Object?>)['event_category']}|${(item as Map<String, Object?>)['channel']}|${item['enabled']}'];
+      expect(cells, unorderedEquals(<String>['*|SMS|false', 'report|EMAIL|false', 'report|SMS|true']));
+      draft.toggle('report', 'SMS');
+      expect(draft.isOn('report', 'SMS'), isFalse);
+      draft.toggle('*', 'SMS');
+      expect(draft.isOn('report', 'SMS'), isFalse, reason: 'the cell was switched off by the person');
+      expect(draft.isOn('report', 'PUSH'), isTrue);
     });
 
     test('too many entries are refused before the server does, and each refusal code has its problem', () {

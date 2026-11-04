@@ -156,6 +156,39 @@ void main() {
       semantics.dispose();
     });
 
+    testWidgets('REVIEW-r7 Back while a deeper drill is on its way drops that drill and closes the chooser: the late answer is not added under the group the person left', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final SemanticsHandle semantics = tester.ensureSemantics();
+      final ScriptedServer server = biServer();
+      final Completer<HttpResult> held = Completer<HttpResult>();
+      server.answer('GET', '/bi/drill', (HttpCall call) => call.url.queryParameters['child_dimension'] == 'project'
+          ? FakeTransport.json(200, answer(dimension: 'project', total: figure('300000000'), children: <Map<String, Object?>>[groupJson('p-1', 'Cầu Bình An', '300000000', token: 'tk-1')], token: tokenAUnit))
+          : held.future);
+      await _open(tester, server, _dashboard(snapshot: snapA));
+      await tester.tap(find.bySemanticsLabel('Đi sâu vào Sở Giao thông'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ActionChip, 'Dự án'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.bySemanticsLabel('Đi sâu vào Cầu Bình An'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ActionChip, 'Nguồn vốn'));
+      await tester.pump();
+      expect(server.callsTo('GET', '/bi/drill'), hasLength(2), reason: 'the deeper drill is on its way');
+
+      await tester.tap(find.text('Quay lại'));
+      await tester.pump();
+      expect(find.text('Đi sâu vào Cầu Bình An theo:'), findsNothing, reason: 'the chooser of the level that was left is closed');
+      expect(find.text('Sở Nông nghiệp'), findsOneWidget);
+
+      held.complete(FakeTransport.json(200, answer(dimension: 'fund_source', total: figure('300000000'), children: <Map<String, Object?>>[groupJson('f-1', 'Ngân sách trung ương', '300000000')], token: tokenAUnit)));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Ngân sách trung ương'), findsNothing, reason: 'the answer belongs to a level the person left');
+      expect(find.textContaining('Cầu Bình An (Nguồn vốn)'), findsNothing);
+      expect(find.text('Sở Nông nghiệp'), findsOneWidget);
+      semantics.dispose();
+    });
+
     testWidgets('a drill the server refuses is told with its code beside the figures, which stay', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final SemanticsHandle semantics = tester.ensureSemantics();

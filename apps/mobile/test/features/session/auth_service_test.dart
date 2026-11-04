@@ -878,6 +878,154 @@ void main() {
     });
   });
 
+  group('AC-ST-MOB-008-4 UAT-PLAN-33 REVIEW-m1-7 a renewal that was on its way when the credential was locked gives no token', () {
+    Future<AuthService> twoTenants() async {
+      world = World(memberships: <String, List<FakeMembership>>{'sub-ana': <FakeMembership>[tenantAMember, tenantBMember]});
+      final AuthService service = world.service();
+      await service.signIn(kOidcConfig);
+      return service;
+    }
+
+    test('a tenant token that is selected after the lock is not returned to the request that waited for it', () async {
+      world = World();
+      final AuthService service = await _signedInOnce(world);
+      world.advance(const Duration(minutes: 6));
+      final Completer<void> hold = world.api.selectHoldOnce = Completer<void>();
+      final Future<String?> waiting = service.accessToken();
+      await pumpEventQueue();
+
+      service.lock();
+      hold.complete();
+
+      expect(await waiting, isNull, reason: 'the biometric lock is engaged: no bearer token leaves the service');
+      expect(service.snapshot.locked, isTrue);
+      expect(await service.accessToken(), isNull);
+    });
+
+    test('an identity refresh that answers after the lock keeps the rotated refresh token in the vault only, and the unlock goes on with it', () async {
+      world = World();
+      final AuthService service = await _signedInOnce(world);
+      final String before = (await world.vault.loadSession())!.refreshToken;
+      world.advance(const Duration(minutes: 6));
+      final Completer<void> hold = world.idp.refreshResponseHoldOnce = Completer<void>();
+      final Future<String?> waiting = service.accessToken();
+      await pumpEventQueue();
+
+      service.lock();
+      hold.complete();
+
+      expect(await waiting, isNull);
+      expect(service.snapshot.locked, isTrue);
+      final String stored = (await world.vault.loadSession())!.refreshToken;
+      expect(stored, world.idp.latestRefreshOf(before), reason: 'the provider rotated it: the vault must not keep the dead one');
+      expect(await service.accessToken(), isNull, reason: 'nothing was put back in memory while locked');
+      expect(await service.unlock(reason: 'Unlock'), isTrue);
+      expect(await service.accessToken(), isNotNull, reason: 'the stored token still renews the session');
+      expect(service.snapshot.status, SessionStatus.signedIn);
+    });
+
+    test('the rotated refresh token that answers after the lock is not in memory: a late 401 cannot renew the locked session with it', () async {
+      world = World();
+      final AuthService service = await _signedInOnce(world);
+      world.advance(const Duration(minutes: 6));
+      final Completer<void> hold = world.idp.refreshResponseHoldOnce = Completer<void>();
+      final Future<String?> waiting = service.accessToken();
+      await pumpEventQueue();
+      service.lock();
+      hold.complete();
+      expect(await waiting, isNull);
+
+      final int calls = world.api.calls.length + world.idp.calls.length;
+      world.advance(const Duration(minutes: 6));
+      service.noteUnauthorized();
+      await pumpEventQueue();
+
+      expect(world.api.calls.length + world.idp.calls.length, calls, reason: 'nothing is asked of the server with a credential that is locked');
+      expect(service.snapshot.locked, isTrue);
+    });
+
+    test('a lock that was lifted again before the provider answered keeps the rotated refresh token in memory and in the vault', () async {
+      world = World();
+      final AuthService service = await _signedInOnce(world);
+      final String before = (await world.vault.loadSession())!.refreshToken;
+      world.advance(const Duration(minutes: 6));
+      final Completer<void> hold = world.idp.refreshResponseHoldOnce = Completer<void>();
+      final Future<String?> waiting = service.accessToken();
+      await pumpEventQueue();
+      service.lock();
+      expect(await service.unlock(reason: 'Unlock'), isTrue);
+      hold.complete();
+
+      expect(await waiting, isNotNull, reason: 'the person is unlocked again and the request asked for a token of this session');
+      expect((await world.vault.loadSession())!.refreshToken, isNot(before));
+      world.advance(const Duration(minutes: 6));
+      expect(await service.accessToken(), isNotNull, reason: 'the refresh token in memory is the live one, not the one the vault held before the rotation');
+      expect(service.snapshot.status, SessionStatus.signedIn);
+    });
+
+    test('a refusal that answers after the lock does not end the locked session', () async {
+      world = World();
+      final AuthService service = await _signedInOnce(world);
+      world.advance(const Duration(minutes: 6));
+      final Completer<void> hold = world.api.selectHoldOnce = Completer<void>();
+      final Future<String?> waiting = service.accessToken();
+      await pumpEventQueue();
+
+      service.lock();
+      world.api.selectFailureStatus = 401;
+      world.api.selectFailureCode = 'SESSION_EXPIRED';
+      hold.complete();
+
+      expect(await waiting, isNull);
+      expect(service.snapshot.locked, isTrue);
+      expect(service.snapshot.status, SessionStatus.signedIn, reason: 'the person has not been asked to prove anything yet');
+    });
+
+    test('a tenant switch that the server answers after the lock does not unlock the credential', () async {
+      final AuthService service = await twoTenants();
+      final List<MembershipChoice> choices = await service.candidates();
+      await service.selectContext(choices.firstWhere((MembershipChoice c) => c.tenantId == 'tenant-a'));
+      final MembershipChoice b = choices.firstWhere((MembershipChoice c) => c.tenantId == 'tenant-b');
+      final Completer<void> hold = world.api.selectHoldOnce = Completer<void>();
+      final Future<Object?> switching = service.switchTenant(b).then<Object?>((SignInOutcome o) => o, onError: (Object e) => e);
+      await pumpEventQueue();
+
+      service.lock();
+      hold.complete();
+
+      expect(await switching, isA<NoSession>());
+      expect(service.snapshot.locked, isTrue, reason: 'only the biometric prompt unlocks');
+      expect(service.snapshot.tenantId, 'tenant-a');
+      expect(await service.accessToken(), isNull);
+    });
+  });
+
+  group('AC-ST-MOB-041-3 UAT-AC501 SEC-01 a sign-out that discards what waits does not read the queue', () {
+    test('the queue is not asked for its count, and a queue that cannot be read does not keep the person signed in', () async {
+      world = World();
+      final AuthService service = await _signedInOnce(world);
+      int asked = 0;
+      world.countPending = () async {
+        asked += 1;
+        throw StateError('This database has already been closed');
+      };
+
+      await service.signOut(discardPending: true);
+
+      expect(asked, 0, reason: 'what is discarded is not counted');
+      expect(service.snapshot.status, SessionStatus.signedOut);
+      expect(world.store.data.containsKey('session.v1'), isFalse, reason: 'the credentials are gone');
+    });
+
+    test('a sign-out that has not chosen to discard still counts, and is refused while commands wait', () async {
+      world = World();
+      final AuthService service = await _signedInOnce(world);
+      world.countPending = () async => 2;
+      await expectLater(service.signOut(), throwsA(isA<PendingCommandsBlock>()));
+      expect(service.snapshot.status, SessionStatus.signedIn);
+    });
+  });
+
   group('REVIEW-m1-7 the verdict of a response belongs to the session that sent the request', () {
     Future<(AuthService, MachvonApiClient, MembershipChoice)> twoTenants() async {
       world = World(memberships: <String, List<FakeMembership>>{'sub-ana': <FakeMembership>[tenantAMember, tenantBMember]});

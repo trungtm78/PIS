@@ -34,6 +34,16 @@ class _Source implements PhotoSource {
   }
 }
 
+/// A source whose picker stays open until the test lets it return, as the camera and the gallery do: the screen can go meanwhile.
+class _OpenPicker extends _Source {
+  _OpenPicker(super.file);
+
+  final Completer<File?> returned = Completer<File?>();
+
+  @override
+  Future<File?> pickPhoto() => returned.future;
+}
+
 /// The screen around the field: it holds the consent and the list, as the real screens do, and can take the consent back or
 /// drop the field while a photograph is being prepared.
 class _Host extends StatefulWidget {
@@ -101,6 +111,33 @@ Future<void> _remove(Directory folder) async {
 }
 
 void main() {
+  group('AC-ST-MOB-014-2 UAT-AC367 BR-MOB-06 SEC-03 the screen is gone while the gallery is open', () {
+    testWidgets('the file the picker returns afterwards is discarded, nothing is read from the gone field, and nothing is thrown', (WidgetTester tester) async {
+      final Directory folder = Directory.systemTemp.createTempSync('machvon-field-');
+      addTearDown(() => tester.runAsync(() => _remove(folder)));
+      final _OpenPicker source = _OpenPicker(File('${folder.path}/picked.jpg')..writeAsBytesSync(_wideGeotaggedJpeg()));
+      late _HostState host;
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: <Override>[photoSourceProvider.overrideWithValue(source)],
+          child: hostWidget(_Host(onState: (_HostState state) => host = state), tables: <StringTable>[fieldEvidenceStrings]),
+        ),
+      );
+
+      await tester.tap(find.byType(OutlinedButton));
+      await tester.pump();
+      host.leave();
+      await tester.pump();
+      source.returned.complete(source.file);
+      await tester.runAsync(() => source.discarded.future.timeout(const Duration(seconds: 5)));
+      await tester.pump();
+
+      expect(tester.takeException(), isNull, reason: 'the disposed field touched its ref or its state');
+      expect(source.discarded.isCompleted, isTrue, reason: 'the copy the picker left in the cache, with its place and time, is deleted');
+      expect(host.photos, isEmpty);
+    });
+  });
+
   group('AC-ST-MOB-014-2 UAT-AC367 BR-MOB-06 the consent is read again when the photograph is ready', () {
     Future<({_HostState host, Directory folder, _Source source})> pumpField(WidgetTester tester, void Function(_HostState host) duringPreparation) async {
       final Directory folder = Directory.systemTemp.createTempSync('machvon-field-');

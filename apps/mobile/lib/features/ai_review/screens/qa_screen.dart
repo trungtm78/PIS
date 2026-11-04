@@ -26,10 +26,11 @@ import '../qa_service.dart';
 /// sent from here. The thread lives in memory for as long as the screen: no question and no passage is written to the device, put in a
 /// location or kept as a copy, and with no connection the question is not asked.
 ///
-/// The package is `?package=<id>`; without it the screen lists the packages of the person's scope to choose from.
+/// The package is `?package=<id>` and the thread is keyed by it: a route that keeps its page while the package changes would otherwise carry
+/// the answers, the pending questions and the retries of one package over to the other. Without it the screen lists the packages of the person's scope to choose from.
 Widget buildQaScreen(BuildContext context, ScreenContext screen) {
   final String? package = screen.queryParameters['package'];
-  return package == null || package.isEmpty ? const _PackagePicker() : _Thread(packageId: package);
+  return package == null || package.isEmpty ? const _PackagePicker() : _Thread(key: ValueKey<String>(package), packageId: package);
 }
 
 class _PackagePicker extends StatelessWidget {
@@ -92,7 +93,7 @@ final class _Turn {
 }
 
 class _Thread extends ConsumerStatefulWidget {
-  const _Thread({required this.packageId});
+  const _Thread({required this.packageId, super.key});
 
   final String packageId;
 

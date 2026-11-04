@@ -1,4 +1,5 @@
 import Flutter
+import MachO
 import UIKit
 
 @main

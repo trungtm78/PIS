@@ -477,6 +477,9 @@ class World {
   final List<LocalDataPurger> extraPurgers = <LocalDataPurger>[];
   late int pending;
 
+  /// How the service counts the commands that wait, when a test wires the real queue (or one that fails) instead of `pending`.
+  Future<int> Function()? countPending;
+
   /// How many times the session asked to drop the commands that wait on the device (the person chose to discard them).
   int discardedPending = 0;
 
@@ -501,7 +504,7 @@ class World {
       vault: SessionVault(secure),
       purge: TenantDataPurge(vault: SessionVault(secure), purgers: <LocalDataPurger>[purger, ...extraPurgers]),
       biometrics: biometrics,
-      pendingCommands: () async => pending,
+      pendingCommands: () => countPending?.call() ?? Future<int>.value(pending),
       discardPendingCommands: () async {
         discardedPending += 1;
         pending = 0;
