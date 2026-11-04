@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { resolveBase, runVerification, EMPTY_TREE } from '../src/verify.mjs';
+import { defaultRun, resolveBase, runVerification, EMPTY_TREE } from '../src/verify.mjs';
 import { formatReport } from '../src/report.mjs';
 import { loadMessages } from '../src/i18n.mjs';
 
@@ -350,4 +350,11 @@ test('mobile-tests also runs flutter test in the application apps/mobile, after 
   assert.equal(stage.status, 'fail');
   assert.match(stage.output, /application tests broke/);
   assert.equal(failed.exitCode, 1);
+});
+
+test('a command that writes more than a megabyte (the whole output of the product tests) still ends with its own status', () => {
+  const size = 4 * 1024 * 1024;
+  const result = defaultRun(process.execPath, ['-e', `process.stdout.write('x'.repeat(${size}))`]);
+  assert.equal(result.status, 0);
+  assert.equal(result.stdout.length, size);
 });

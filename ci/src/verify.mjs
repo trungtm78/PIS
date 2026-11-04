@@ -24,10 +24,13 @@ const MOBILE_PACKAGE_DIRS = ['packages/mobile-tokens', 'packages/mobile-api-clie
 const BLOCKING_SEVERITY = /\b(Critical|High)\b/;
 const RECOMMENDATION = /^Recommendation:/m;
 
+// The output of the product tests (every suite and its coverage table) is far above the megabyte that spawnSync keeps by default, and a child that passes it is killed.
+const MAX_OUTPUT_BYTES = 1024 * 1024 * 1024;
+
 export function defaultRun(command, args, options = {}) {
   // npm and flutter ship as .cmd/.bat files on Windows; Node refuses to spawn those without a shell.
   const needsShell = process.platform === 'win32' && (command === 'npm' || command === 'flutter');
-  const result = spawnSync(command, args, { encoding: 'utf8', shell: needsShell, ...options });
+  const result = spawnSync(command, args, { encoding: 'utf8', shell: needsShell, maxBuffer: MAX_OUTPUT_BYTES, ...options });
   return { status: result.status ?? 1, stdout: result.stdout ?? '', stderr: result.stderr ?? '', error: result.error };
 }
 
