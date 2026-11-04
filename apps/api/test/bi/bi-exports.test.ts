@@ -4,7 +4,7 @@ import { BiExportController } from '../../src/modules/bi/export.controller';
 import type { CommandScope } from '../../src/command-scope';
 import { expireExports, runExportSchedules, runExportSchedulesIn } from '../../src/modules/bi/export-jobs';
 import type { ExportJobDeps } from '../../src/modules/bi/export-jobs';
-import { ANALYST_ALL, ANALYST_BRANCH, ANALYST_NONE, BUILDER, BiApp, DATASET, NOBODY, PIPELINE, TENANT_A, TENANT_B, UNIT_A, UNIT_OUT, contextFor, memberId, roleId, unitId } from './bi-app';
+import { ANALYST_ALL, ANALYST_BRANCH, ANALYST_NONE, BUILDER, BiApp, CLOCK, DATASET, NOBODY, PIPELINE, TENANT_A, TENANT_B, UNIT_A, UNIT_OUT, contextFor, memberId, roleId, unitId } from './bi-app';
 import type { Reply } from './bi-app';
 
 jest.setTimeout(300_000);
@@ -339,7 +339,8 @@ describe('exports and the per-recipient schedules (ST-BI-008, BI 3 F7)', () => {
     expect(await show(id)).toMatchObject({ status: 422, json: { code: 'EXPORT_EXPIRED' } });
     // Once, and a job that is READY with its days gone is told expired before the job has run.
     const second = await request(world, 'CSV');
-    await owner("update machvon.bi_export_job set expires_at = now() - interval '1 minute' where id = $1", [second.json.resource_id as string]);
+    // The days are gone by the clock of the app, which began with the suite: a minute before the database's own now() would be after it when the suite has run for a while.
+    await owner('update machvon.bi_export_job set expires_at = $2::timestamptz where id = $1', [second.json.resource_id as string, new Date(CLOCK.now.getTime() - 60_000).toISOString()]);
     expect(await show(second.json.resource_id as string)).toMatchObject({ status: 422, json: { code: 'EXPORT_EXPIRED' } });
     expect(await app.harness.tenants.withTenant(contextFor(TENANT_A, WORKER_MEMBERSHIP_ID), (tx) => expireExports(tx, contextFor(TENANT_A, WORKER_MEMBERSHIP_ID), later(8), { files: app.objects }))).not.toContain(id);
   });
