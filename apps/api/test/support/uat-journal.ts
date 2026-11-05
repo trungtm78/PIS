@@ -33,7 +33,8 @@ const isLocal = (url: URL): boolean => url.hostname === '127.0.0.1' || url.hostn
 
 /**
  * Wraps the global `fetch` of a Jest test file: a request to the local API gets an `x-correlation-id` (the id by which the audit trail and the
- * outbox of the API record the request) when it carries none, and a line is written when the answer comes.
+ * outbox of the API record the request) when it carries neither that header nor a `traceparent` (the correlation id outranks the trace of the caller,
+ * so a request that names its trace is left as it is and is known by the id of that trace), and a line is written when the answer comes.
  */
 export function journalFetch(file: string | undefined = process.env.UAT_JOURNAL): void {
   if (file === undefined || file === '') return;
@@ -43,8 +44,9 @@ export function journalFetch(file: string | undefined = process.env.UAT_JOURNAL)
     const url = new URL(input);
     if (!isLocal(url)) return original(input, init);
     const headers = new Headers(init?.headers);
-    const id = headers.get('x-correlation-id') ?? randomUUID();
-    headers.set('x-correlation-id', id);
+    const trace = /^[0-9a-f]{2}-([0-9a-f]{32})-/.exec(headers.get('traceparent') ?? '')?.[1];
+    const id = headers.get('x-correlation-id') ?? trace ?? randomUUID();
+    if (trace === undefined) headers.set('x-correlation-id', id);
     const started = Date.now();
     const response = await original(input, { ...init, headers });
     const state = stateOfJest();
