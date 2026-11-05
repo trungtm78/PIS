@@ -151,3 +151,14 @@ test('the messages are in both languages', () => {
   main(['--root', root], { log: (line) => lines.push(line) });
   assert.match(lines[0], /Thiếu nhật ký/);
 });
+
+test('a test names a design case by its id wherever the id stands as a word: after a TC- prefix too, the longest id first, and never inside another word', () => {
+  const known = new Set(['UAT-AC1', 'UAT-AC10', 'SEC01', 'TX01', 'UAT-NFR-TENANCY-01']);
+  const named = (name) => ({ suite: 'playwright', file: 'f', name, status: 'passed', durationMs: 1, at: 'x', requests: [] });
+  const outcome = resultsOfTests(
+    [named('TC-SEC01: another tenant gets 404'), named('TC-UAT-NFR-TENANCY-01: sweep'), named('UAT-AC10 and TX01 together'), named('XSEC01 is not a case'), named('UAT-AC1x is not UAT-AC1')],
+    known,
+  );
+  assert.deepEqual([...outcome.keys()].sort(), ['SEC01', 'TX01', 'UAT-AC1', 'UAT-AC10', 'UAT-NFR-TENANCY-01']);
+  assert.deepEqual(outcome.get('UAT-AC1').tests.map((test) => test.name), ['UAT-AC1x is not UAT-AC1']);
+});

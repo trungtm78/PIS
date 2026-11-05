@@ -11,7 +11,6 @@ const ENGINEERING = join('Design', 'MACHVON_Design', '03_Engineering');
 const DEFAULT_LOCALE = 'vi';
 /** The files whose bytes make the dataset of the run: the fixtures of the design and the ones of the browser stack. */
 const DATASET_FILES = [join(ENGINEERING, 'test_fixtures.json'), join('apps', 'web', 'e2e', 'support', 'e2e-fixtures.json')];
-const UAT_ID = /UAT-[A-Z0-9]+(?:-[A-Z0-9]+)*/g;
 
 function loadMessages(locale) {
   return JSON.parse(readFileSync(join(SCRIPT_DIR, 'messages', `${locale}.json`), 'utf8'));
@@ -69,12 +68,24 @@ export function testsOfRun(lines, root = REPO_ROOT) {
 const passed = (test) => test.status === 'passed';
 const skipped = (test) => test.status === 'skipped' || test.status === 'pending' || test.status === 'todo' || test.status === 'disabled';
 
+const matchers = new WeakMap();
+
+/** The design cases a test names: an id counts where it stands as a word (a `TC-` before it is fine, a letter or a digit on either side is not), the longest id first. */
+export function idsNamedBy(name, knownIds) {
+  let matcher = matchers.get(knownIds);
+  if (matcher === undefined) {
+    const escaped = [...knownIds].sort((left, right) => right.length - left.length).map((id) => id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    matcher = new RegExp(`(?<![A-Za-z0-9])(${escaped.join('|')})(?![A-Za-z0-9])`, 'g');
+    matchers.set(knownIds, matcher);
+  }
+  return new Set([...name.matchAll(matcher)].map((found) => found[1]));
+}
+
 /** What a design test case came to: FAIL when any test that names it failed, PASS when at least one ran and none failed, SKIPPED when all were skipped. */
 export function resultsOfTests(tests, knownIds) {
   const byId = new Map();
   for (const test of tests) {
-    const ids = new Set((test.name.match(UAT_ID) ?? []).filter((id) => knownIds.has(id)));
-    for (const id of ids) byId.set(id, [...(byId.get(id) ?? []), test]);
+    for (const id of idsNamedBy(test.name, knownIds)) byId.set(id, [...(byId.get(id) ?? []), test]);
   }
   const results = new Map();
   for (const [id, named] of byId) {
