@@ -1,0 +1,54 @@
+{
+  "id": "UAT-AC03",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports_id_submit (ST-DIS-005) AC-ST-DIS-005-2 / UAT-AC03: refuses a period that was locked with no reopening (409 PERIOD_LOCKED) and leaves the draft as it was; takes it for the project a reopening names",
+      "status": "passed",
+      "durationMs": 528,
+      "at": "2026-11-05T09:16:08.927Z",
+      "requests": [
+        {
+          "id": "9a1e8d4c-eeac-4f58-97cb-9b0072151417",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:08.440Z"
+        },
+        {
+          "id": "114dfbfa-8087-4a88-a5db-0fa746486036",
+          "method": "POST",
+          "path": "/reports/f5ba5378-b089-4969-9c2e-1b83806f7ba3/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:08.467Z"
+        },
+        {
+          "id": "e25e370f-1aed-42ee-8c55-cc5eafaf0b03",
+          "method": "POST",
+          "path": "/reports/f5ba5378-b089-4969-9c2e-1b83806f7ba3/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:08.497Z"
+        },
+        {
+          "id": "a19aaab4-039d-499a-8327-667bcd12625a",
+          "method": "POST",
+          "path": "/reports/f5ba5378-b089-4969-9c2e-1b83806f7ba3/submit",
+          "status": 409,
+          "at": "2026-11-05T09:16:08.616Z"
+        },
+        {
+          "id": "bcfb604b-5c40-43dd-94f6-453b5c441eff",
+          "method": "POST",
+          "path": "/reports/f5ba5378-b089-4969-9c2e-1b83806f7ba3/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:08.848Z"
+        }
+      ]
+    }
+  ]
+}

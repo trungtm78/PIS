@@ -1,0 +1,495 @@
+{
+  "id": "UAT-AC205",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/project-stage.test.ts",
+      "name": "the guarded lifecycle transitions and the project bank (ST-PRJ-002) the transition table over HTTP refuses every command from every stage the table does not give it, the closed, rejected and cancelled stages included, and emits nothing (AC-ST-PRJ-002-2, UAT-AC205)",
+      "status": "passed",
+      "durationMs": 6077,
+      "at": "2026-11-05T09:15:46.980Z",
+      "requests": [
+        {
+          "id": "6cdb7cb9-4cf6-4b6d-98ba-16d7bf256bf2",
+          "method": "POST",
+          "path": "/projects",
+          "status": 200,
+          "at": "2026-11-05T09:15:40.904Z"
+        },
+        {
+          "id": "61c49ed4-b972-46d1-af00-a65bc36a00ac",
+          "method": "POST",
+          "path": "/projects/40bb4679-6879-47d1-9a81-468ce5d54d1d/implementation-start",
+          "status": 409,
+          "at": "2026-11-05T09:15:41.291Z"
+        },
+        {
+          "id": "9af26f5f-1a6c-4276-814d-e080f0013968",
+          "method": "POST",
+          "path": "/projects/40bb4679-6879-47d1-9a81-468ce5d54d1d/suspension",
+          "status": 409,
+          "at": "2026-11-05T09:15:41.450Z"
+        },
+        {
+          "id": "a6406309-eff3-4252-a587-0d462f4045e2",
+          "method": "POST",
+          "path": "/projects/40bb4679-6879-47d1-9a81-468ce5d54d1d/resumption",
+          "status": 409,
+          "at": "2026-11-05T09:15:41.621Z"
+        },
+        {
+          "id": "5bf3b82f-70b9-477b-b684-988145051319",
+          "method": "POST",
+          "path": "/projects/40bb4679-6879-47d1-9a81-468ce5d54d1d/completion",
+          "status": 409,
+          "at": "2026-11-05T09:15:41.901Z"
+        },
+        {
+          "id": "505e465a-d52c-4ece-bd6d-f64a878a9a5b",
+          "method": "POST",
+          "path": "/projects/40bb4679-6879-47d1-9a81-468ce5d54d1d/closure",
+          "status": 409,
+          "at": "2026-11-05T09:15:42.050Z"
+        },
+        {
+          "id": "98c75221-76ad-4663-abe0-2d805b7f821b",
+          "method": "POST",
+          "path": "/projects",
+          "status": 200,
+          "at": "2026-11-05T09:15:42.111Z"
+        },
+        {
+          "id": "7e53119f-df44-486b-b629-500115d87b60",
+          "method": "POST",
+          "path": "/projects/721f5484-f381-41a1-ac5a-a09bcb666df6/implementation-start",
+          "status": 409,
+          "at": "2026-11-05T09:15:42.261Z"
+        },
+        {
+          "id": "7ec720c9-e84a-415b-9bd9-b49759386447",
+          "method": "POST",
+          "path": "/projects/721f5484-f381-41a1-ac5a-a09bcb666df6/suspension",
+          "status": 409,
+          "at": "2026-11-05T09:15:42.318Z"
+        },
+        {
+          "id": "5026e286-0ec8-4865-bc8a-d7504ace5061",
+          "method": "POST",
+          "path": "/projects/721f5484-f381-41a1-ac5a-a09bcb666df6/resumption",
+          "status": 409,
+          "at": "2026-11-05T09:15:42.384Z"
+        },
+        {
+          "id": "a836378c-08d5-4b73-948c-4806102310cf",
+          "method": "POST",
+          "path": "/projects/721f5484-f381-41a1-ac5a-a09bcb666df6/completion",
+          "status": 409,
+          "at": "2026-11-05T09:15:42.446Z"
+        },
+        {
+          "id": "31494702-ee93-4b79-bba6-bd3313139645",
+          "method": "POST",
+          "path": "/projects/721f5484-f381-41a1-ac5a-a09bcb666df6/closure",
+          "status": 409,
+          "at": "2026-11-05T09:15:42.498Z"
+        },
+        {
+          "id": "de2f242f-758e-49ce-844c-8c98dc6fe52e",
+          "method": "POST",
+          "path": "/projects",
+          "status": 200,
+          "at": "2026-11-05T09:15:42.561Z"
+        },
+        {
+          "id": "5cb23e5f-8ef6-41dd-994c-8d79da0a1015",
+          "method": "POST",
+          "path": "/projects/da5c7c46-250d-4682-94cb-cbe001e54d8b/implementation-start",
+          "status": 409,
+          "at": "2026-11-05T09:15:42.763Z"
+        },
+        {
+          "id": "ed574ef0-4b88-4052-aada-4421006ab194",
+          "method": "POST",
+          "path": "/projects/da5c7c46-250d-4682-94cb-cbe001e54d8b/suspension",
+          "status": 409,
+          "at": "2026-11-05T09:15:42.815Z"
+        },
+        {
+          "id": "2eb1cca5-fbb3-4168-8ed8-b2adec9423eb",
+          "method": "POST",
+          "path": "/projects/da5c7c46-250d-4682-94cb-cbe001e54d8b/resumption",
+          "status": 409,
+          "at": "2026-11-05T09:15:42.879Z"
+        },
+        {
+          "id": "8612d283-f74d-4dd9-a724-9766ae2f948a",
+          "method": "POST",
+          "path": "/projects/da5c7c46-250d-4682-94cb-cbe001e54d8b/completion",
+          "status": 409,
+          "at": "2026-11-05T09:15:42.945Z"
+        },
+        {
+          "id": "39d00900-bdcf-4425-ac4d-2a3963a6a2f2",
+          "method": "POST",
+          "path": "/projects/da5c7c46-250d-4682-94cb-cbe001e54d8b/closure",
+          "status": 409,
+          "at": "2026-11-05T09:15:43.010Z"
+        },
+        {
+          "id": "4d14cb72-8b41-4b7e-991e-f14b2fcc947f",
+          "method": "POST",
+          "path": "/projects",
+          "status": 200,
+          "at": "2026-11-05T09:15:43.075Z"
+        },
+        {
+          "id": "a0a84f99-bc8a-442b-8fd0-6d8b04fb060c",
+          "method": "POST",
+          "path": "/projects/ca4914d1-d336-4d19-b042-3149255fe4bc/suspension",
+          "status": 409,
+          "at": "2026-11-05T09:15:43.255Z"
+        },
+        {
+          "id": "bdd8215b-2286-4f06-8363-967143b5ad13",
+          "method": "POST",
+          "path": "/projects/ca4914d1-d336-4d19-b042-3149255fe4bc/resumption",
+          "status": 409,
+          "at": "2026-11-05T09:15:43.314Z"
+        },
+        {
+          "id": "93a01688-50c9-4f2f-8fb9-3c7946e08b98",
+          "method": "POST",
+          "path": "/projects/ca4914d1-d336-4d19-b042-3149255fe4bc/completion",
+          "status": 409,
+          "at": "2026-11-05T09:15:43.374Z"
+        },
+        {
+          "id": "e62a4dce-08ec-470e-8024-233bea5b0966",
+          "method": "POST",
+          "path": "/projects/ca4914d1-d336-4d19-b042-3149255fe4bc/closure",
+          "status": 409,
+          "at": "2026-11-05T09:15:43.436Z"
+        },
+        {
+          "id": "977369ab-1b88-49a2-b4b7-bc8ae6ce7821",
+          "method": "POST",
+          "path": "/projects",
+          "status": 200,
+          "at": "2026-11-05T09:15:43.487Z"
+        },
+        {
+          "id": "ea3fec54-2a8e-4829-b61d-a464752adafa",
+          "method": "POST",
+          "path": "/projects/a4df3bd1-dcce-4a7e-8916-ea02c711e94b/implementation-start",
+          "status": 409,
+          "at": "2026-11-05T09:15:43.639Z"
+        },
+        {
+          "id": "39f339ff-6a49-4af9-be25-ee5a533c3557",
+          "method": "POST",
+          "path": "/projects/a4df3bd1-dcce-4a7e-8916-ea02c711e94b/resumption",
+          "status": 409,
+          "at": "2026-11-05T09:15:43.695Z"
+        },
+        {
+          "id": "fb0729cd-2e7a-4af4-9200-03b559be232f",
+          "method": "POST",
+          "path": "/projects/a4df3bd1-dcce-4a7e-8916-ea02c711e94b/closure",
+          "status": 409,
+          "at": "2026-11-05T09:15:43.824Z"
+        },
+        {
+          "id": "3bc81890-67b6-4fac-b307-84eb28efcaf4",
+          "method": "POST",
+          "path": "/projects/a4df3bd1-dcce-4a7e-8916-ea02c711e94b/cancellation",
+          "status": 409,
+          "at": "2026-11-05T09:15:43.886Z"
+        },
+        {
+          "id": "98d8d49e-e865-4b4a-9ebc-d997170d6a0d",
+          "method": "POST",
+          "path": "/projects",
+          "status": 200,
+          "at": "2026-11-05T09:15:43.950Z"
+        },
+        {
+          "id": "f8d505c8-a435-45c1-8578-49821fb2ed1e",
+          "method": "POST",
+          "path": "/projects/408f76d4-a0d8-4345-904f-9914a36cf07e/implementation-start",
+          "status": 409,
+          "at": "2026-11-05T09:15:44.104Z"
+        },
+        {
+          "id": "88b9d39a-f2aa-4f2c-9f35-2ea424a7a65a",
+          "method": "POST",
+          "path": "/projects/408f76d4-a0d8-4345-904f-9914a36cf07e/suspension",
+          "status": 409,
+          "at": "2026-11-05T09:15:44.158Z"
+        },
+        {
+          "id": "3e2a23b5-10bc-4245-aeb4-20904f2aa054",
+          "method": "POST",
+          "path": "/projects/408f76d4-a0d8-4345-904f-9914a36cf07e/completion",
+          "status": 409,
+          "at": "2026-11-05T09:15:44.210Z"
+        },
+        {
+          "id": "03dc332a-caa9-4940-8c08-8e2e45a37833",
+          "method": "POST",
+          "path": "/projects/408f76d4-a0d8-4345-904f-9914a36cf07e/closure",
+          "status": 409,
+          "at": "2026-11-05T09:15:44.269Z"
+        },
+        {
+          "id": "8eaf7470-f6eb-4bb3-81eb-932a8efb89c8",
+          "method": "POST",
+          "path": "/projects/408f76d4-a0d8-4345-904f-9914a36cf07e/cancellation",
+          "status": 409,
+          "at": "2026-11-05T09:15:44.315Z"
+        },
+        {
+          "id": "c39f6b01-506b-48b4-879e-e69d7a8aa2b5",
+          "method": "POST",
+          "path": "/projects",
+          "status": 200,
+          "at": "2026-11-05T09:15:44.420Z"
+        },
+        {
+          "id": "a47792f4-da60-4388-8eb6-a62853c50bb9",
+          "method": "POST",
+          "path": "/projects/a5436311-1938-4d4f-bec0-99db71ea7526/implementation-start",
+          "status": 409,
+          "at": "2026-11-05T09:15:44.567Z"
+        },
+        {
+          "id": "c5eefac5-ae8f-4d47-b19e-43ce4377adc8",
+          "method": "POST",
+          "path": "/projects/a5436311-1938-4d4f-bec0-99db71ea7526/suspension",
+          "status": 409,
+          "at": "2026-11-05T09:15:44.620Z"
+        },
+        {
+          "id": "6a405f86-d52e-49e7-b16d-883f047f85d2",
+          "method": "POST",
+          "path": "/projects/a5436311-1938-4d4f-bec0-99db71ea7526/resumption",
+          "status": 409,
+          "at": "2026-11-05T09:15:44.671Z"
+        },
+        {
+          "id": "a9e47ce4-7fe4-4759-88d9-31cd86003de4",
+          "method": "POST",
+          "path": "/projects/a5436311-1938-4d4f-bec0-99db71ea7526/completion",
+          "status": 409,
+          "at": "2026-11-05T09:15:44.736Z"
+        },
+        {
+          "id": "ce2f675c-1826-4eda-845c-40dcf5bd837b",
+          "method": "POST",
+          "path": "/projects/a5436311-1938-4d4f-bec0-99db71ea7526/closure",
+          "status": 409,
+          "at": "2026-11-05T09:15:44.783Z"
+        },
+        {
+          "id": "b9fbb2a8-c0ee-4a45-9db5-a40af57e5aa1",
+          "method": "POST",
+          "path": "/projects/a5436311-1938-4d4f-bec0-99db71ea7526/cancellation",
+          "status": 409,
+          "at": "2026-11-05T09:15:44.848Z"
+        },
+        {
+          "id": "f0d1915d-3863-49ca-a672-e5af833682d9",
+          "method": "POST",
+          "path": "/projects",
+          "status": 200,
+          "at": "2026-11-05T09:15:44.912Z"
+        },
+        {
+          "id": "c0c2b3bf-9975-49bf-b47f-9bd20a180e8d",
+          "method": "POST",
+          "path": "/projects/518ab843-cad2-4b40-b603-5112e1a21e1d/implementation-start",
+          "status": 409,
+          "at": "2026-11-05T09:15:45.128Z"
+        },
+        {
+          "id": "f64d9f8e-6a9e-400b-b9fb-c1d333c66614",
+          "method": "POST",
+          "path": "/projects/518ab843-cad2-4b40-b603-5112e1a21e1d/suspension",
+          "status": 409,
+          "at": "2026-11-05T09:15:45.176Z"
+        },
+        {
+          "id": "ea67ef86-af8a-4ed3-a8cc-241a1a7827e2",
+          "method": "POST",
+          "path": "/projects/518ab843-cad2-4b40-b603-5112e1a21e1d/resumption",
+          "status": 409,
+          "at": "2026-11-05T09:15:45.230Z"
+        },
+        {
+          "id": "6b5c7488-021e-48f4-a2d8-98585850d842",
+          "method": "POST",
+          "path": "/projects/518ab843-cad2-4b40-b603-5112e1a21e1d/completion",
+          "status": 409,
+          "at": "2026-11-05T09:15:45.286Z"
+        },
+        {
+          "id": "9e3ad9cc-6773-4617-97f4-c93eca42329c",
+          "method": "POST",
+          "path": "/projects/518ab843-cad2-4b40-b603-5112e1a21e1d/cancellation",
+          "status": 409,
+          "at": "2026-11-05T09:15:45.341Z"
+        },
+        {
+          "id": "fabb4831-ab3d-4231-a2ae-4f2f04e9892f",
+          "method": "POST",
+          "path": "/projects",
+          "status": 200,
+          "at": "2026-11-05T09:15:45.406Z"
+        },
+        {
+          "id": "9c250e00-634c-4f35-b2be-3fca1b264b86",
+          "method": "POST",
+          "path": "/projects/55de67d8-ddf2-4d72-996c-2817ec17e8f5/implementation-start",
+          "status": 409,
+          "at": "2026-11-05T09:15:45.590Z"
+        },
+        {
+          "id": "95d690ca-c789-4ff6-b81f-194ada2b5bef",
+          "method": "POST",
+          "path": "/projects/55de67d8-ddf2-4d72-996c-2817ec17e8f5/suspension",
+          "status": 409,
+          "at": "2026-11-05T09:15:45.649Z"
+        },
+        {
+          "id": "8f89bf25-160f-4a5c-91a3-57a079f3124b",
+          "method": "POST",
+          "path": "/projects/55de67d8-ddf2-4d72-996c-2817ec17e8f5/resumption",
+          "status": 409,
+          "at": "2026-11-05T09:15:45.700Z"
+        },
+        {
+          "id": "5270a69c-8267-4026-ae86-1a8bbb5ec74c",
+          "method": "POST",
+          "path": "/projects/55de67d8-ddf2-4d72-996c-2817ec17e8f5/completion",
+          "status": 409,
+          "at": "2026-11-05T09:15:45.749Z"
+        },
+        {
+          "id": "d5633530-ed74-4aef-a56c-ff79405b6020",
+          "method": "POST",
+          "path": "/projects/55de67d8-ddf2-4d72-996c-2817ec17e8f5/closure",
+          "status": 409,
+          "at": "2026-11-05T09:15:45.864Z"
+        },
+        {
+          "id": "476247b4-fa3e-4e70-a15a-910e484582eb",
+          "method": "POST",
+          "path": "/projects/55de67d8-ddf2-4d72-996c-2817ec17e8f5/cancellation",
+          "status": 409,
+          "at": "2026-11-05T09:15:45.924Z"
+        },
+        {
+          "id": "ff1b8651-0295-4153-b403-8b1829d79a77",
+          "method": "POST",
+          "path": "/projects",
+          "status": 200,
+          "at": "2026-11-05T09:15:45.973Z"
+        },
+        {
+          "id": "eb23b76f-9a97-4e3e-b929-c89cb4f7c102",
+          "method": "POST",
+          "path": "/projects/0f9a04e0-4775-499e-90b7-3694b8c4617f/implementation-start",
+          "status": 409,
+          "at": "2026-11-05T09:15:46.107Z"
+        },
+        {
+          "id": "d855ab13-f9ed-44e2-a87b-ec0b39b67b11",
+          "method": "POST",
+          "path": "/projects/0f9a04e0-4775-499e-90b7-3694b8c4617f/suspension",
+          "status": 409,
+          "at": "2026-11-05T09:15:46.164Z"
+        },
+        {
+          "id": "6225204e-9dba-4560-bb00-0401c74cde17",
+          "method": "POST",
+          "path": "/projects/0f9a04e0-4775-499e-90b7-3694b8c4617f/resumption",
+          "status": 409,
+          "at": "2026-11-05T09:15:46.216Z"
+        },
+        {
+          "id": "03512df0-e37e-4ca4-b614-2ba8b072740b",
+          "method": "POST",
+          "path": "/projects/0f9a04e0-4775-499e-90b7-3694b8c4617f/completion",
+          "status": 409,
+          "at": "2026-11-05T09:15:46.287Z"
+        },
+        {
+          "id": "6c7c134f-e852-4848-b6b7-3b0191a2ef48",
+          "method": "POST",
+          "path": "/projects/0f9a04e0-4775-499e-90b7-3694b8c4617f/closure",
+          "status": 409,
+          "at": "2026-11-05T09:15:46.349Z"
+        },
+        {
+          "id": "3e0d90cc-5c40-470c-ad4f-a4821ce9b368",
+          "method": "POST",
+          "path": "/projects/0f9a04e0-4775-499e-90b7-3694b8c4617f/cancellation",
+          "status": 409,
+          "at": "2026-11-05T09:15:46.410Z"
+        },
+        {
+          "id": "a2bb29c3-84a0-400f-9c99-b0eadd59e8f7",
+          "method": "POST",
+          "path": "/projects",
+          "status": 200,
+          "at": "2026-11-05T09:15:46.469Z"
+        },
+        {
+          "id": "a2da7c90-8ebf-4acd-a482-71446884a774",
+          "method": "POST",
+          "path": "/projects/a9c5ec18-151b-4bb8-81f0-a257e39f6c46/implementation-start",
+          "status": 409,
+          "at": "2026-11-05T09:15:46.645Z"
+        },
+        {
+          "id": "19b34e29-3c6c-4cf2-b905-c73dd2fdf788",
+          "method": "POST",
+          "path": "/projects/a9c5ec18-151b-4bb8-81f0-a257e39f6c46/suspension",
+          "status": 409,
+          "at": "2026-11-05T09:15:46.698Z"
+        },
+        {
+          "id": "d66095dc-6693-40dc-bceb-9fc17d803c27",
+          "method": "POST",
+          "path": "/projects/a9c5ec18-151b-4bb8-81f0-a257e39f6c46/resumption",
+          "status": 409,
+          "at": "2026-11-05T09:15:46.761Z"
+        },
+        {
+          "id": "96ca9e61-91c7-4b70-8464-ab9742c58695",
+          "method": "POST",
+          "path": "/projects/a9c5ec18-151b-4bb8-81f0-a257e39f6c46/completion",
+          "status": 409,
+          "at": "2026-11-05T09:15:46.824Z"
+        },
+        {
+          "id": "8594d74d-df07-4cfc-a0e3-d3a71183ca2d",
+          "method": "POST",
+          "path": "/projects/a9c5ec18-151b-4bb8-81f0-a257e39f6c46/closure",
+          "status": 409,
+          "at": "2026-11-05T09:15:46.885Z"
+        },
+        {
+          "id": "f7491bcb-3579-4d40-bf57-aebb85f27701",
+          "method": "POST",
+          "path": "/projects/a9c5ec18-151b-4bb8-81f0-a257e39f6c46/cancellation",
+          "status": 409,
+          "at": "2026-11-05T09:15:46.931Z"
+        }
+      ]
+    }
+  ]
+}

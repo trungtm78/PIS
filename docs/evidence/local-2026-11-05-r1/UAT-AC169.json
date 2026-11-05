@@ -1,0 +1,82 @@
+{
+  "id": "UAT-AC169",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/support-access.test.ts",
+      "name": "controlled support access over HTTP (ST-SAS-015) AC-ST-SAS-015-2 UAT-AC169: a request for 600 minutes is 400, a write with one approver is refused 403, and the grant is Active once the second approver acts",
+      "status": "passed",
+      "durationMs": 176,
+      "at": "2026-11-05T09:21:59.654Z",
+      "requests": [
+        {
+          "id": "c2db48ca-99a3-4991-a8b8-8a422491f108",
+          "method": "POST",
+          "path": "/support-access",
+          "status": 400,
+          "at": "2026-11-05T09:21:59.535Z"
+        },
+        {
+          "id": "8dad3f97-e156-4310-82e5-606705c91cdf",
+          "method": "POST",
+          "path": "/support-access",
+          "status": 201,
+          "at": "2026-11-05T09:21:59.539Z"
+        },
+        {
+          "id": "a5baad42-6337-455d-85aa-4c99245846fe",
+          "method": "POST",
+          "path": "/support-access/177c5397-1025-4a52-9296-c391dd6667a7/approve",
+          "status": 200,
+          "at": "2026-11-05T09:21:59.560Z"
+        },
+        {
+          "id": "6999181d-e1a1-4478-b474-8fb80d05b98f",
+          "method": "POST",
+          "path": "/explanation-requests/2a191735-dedd-486c-aef8-6c428bc56fe7/response",
+          "status": 403,
+          "at": "2026-11-05T09:21:59.581Z"
+        },
+        {
+          "id": "c6a72ff4-dc7f-4be7-bb5a-d983799b66b2",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 403,
+          "at": "2026-11-05T09:21:59.589Z"
+        },
+        {
+          "id": "2d06fe11-1782-4bbe-8245-054818882b1d",
+          "method": "POST",
+          "path": "/support-access/177c5397-1025-4a52-9296-c391dd6667a7/approve",
+          "status": 403,
+          "at": "2026-11-05T09:21:59.593Z"
+        },
+        {
+          "id": "5421423d-e178-4436-9759-46f6617ce1ff",
+          "method": "POST",
+          "path": "/support-access/177c5397-1025-4a52-9296-c391dd6667a7/approve",
+          "status": 200,
+          "at": "2026-11-05T09:21:59.608Z"
+        },
+        {
+          "id": "4e1c98e9-6a6b-4be4-b85c-2689015deb6c",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 200,
+          "at": "2026-11-05T09:21:59.628Z"
+        },
+        {
+          "id": "712dab42-948d-455f-9759-26cb7c1fabf8",
+          "method": "POST",
+          "path": "/explanation-requests/da49e1f6-6271-4b7b-9423-ca2953b9d241/response",
+          "status": 428,
+          "at": "2026-11-05T09:21:59.640Z"
+        }
+      ]
+    }
+  ]
+}

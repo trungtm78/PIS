@@ -1,0 +1,75 @@
+{
+  "id": "UAT-AC249",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports_id_submit (ST-DIS-005) AC-ST-DIS-005-4 / UAT-AC249: answers the same key with the same answer, refuses the same key with another request (409 IDEMPOTENCY_CONFLICT) and a new key for a report that was handed in (409)",
+      "status": "passed",
+      "durationMs": 443,
+      "at": "2026-11-05T09:16:09.665Z",
+      "requests": [
+        {
+          "id": "7828d372-783b-4c14-b5d2-e96cd021d22d",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:09.271Z"
+        },
+        {
+          "id": "0eb9e98d-661b-43bb-afdf-a2910c6d932e",
+          "method": "POST",
+          "path": "/reports/3ffc794a-a856-4fe6-bf77-c82a0047cc6d/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:09.305Z"
+        },
+        {
+          "id": "179d5884-1acc-450b-91d7-341e3aa4dcac",
+          "method": "POST",
+          "path": "/reports/3ffc794a-a856-4fe6-bf77-c82a0047cc6d/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:09.339Z"
+        },
+        {
+          "id": "8b58e6a2-0ddc-4ff4-b48b-812633c7f2e0",
+          "method": "POST",
+          "path": "/reports/3ffc794a-a856-4fe6-bf77-c82a0047cc6d/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:09.372Z"
+        },
+        {
+          "id": "f842320b-1250-4a95-84e1-8c330648141b",
+          "method": "POST",
+          "path": "/reports/3ffc794a-a856-4fe6-bf77-c82a0047cc6d/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:09.404Z"
+        },
+        {
+          "id": "bc72aa00-f583-47c8-8350-7b0630386ea9",
+          "method": "POST",
+          "path": "/reports/3ffc794a-a856-4fe6-bf77-c82a0047cc6d/submit",
+          "status": 409,
+          "at": "2026-11-05T09:16:09.419Z"
+        },
+        {
+          "id": "46c3eadb-b86a-45a3-8d34-4f18291c506c",
+          "method": "POST",
+          "path": "/reports/3ffc794a-a856-4fe6-bf77-c82a0047cc6d/submit",
+          "status": 409,
+          "at": "2026-11-05T09:16:09.435Z"
+        },
+        {
+          "id": "d0efbf0e-19a2-4062-b27f-c3956ab57f7f",
+          "method": "POST",
+          "path": "/reports/3ffc794a-a856-4fe6-bf77-c82a0047cc6d/submit",
+          "status": 409,
+          "at": "2026-11-05T09:16:09.456Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,208 @@
+{
+  "id": "UAT-AC356",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/diary.test.ts",
+      "name": "the electronic site diary over HTTP (ST-QMS-001) AC-ST-QMS-001-1, UAT-AC356: goes from the draft through the three signatures to the lock, blocks every edit after a signature, and replaces a locked diary only by a correction with a reason",
+      "status": "passed",
+      "durationMs": 3053,
+      "at": "2026-11-05T09:11:59.066Z",
+      "requests": [
+        {
+          "id": "b1a6396e-0e83-4fc9-b3e5-b3a5a653d560",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 200,
+          "at": "2026-11-05T09:11:56.876Z"
+        },
+        {
+          "id": "7b4d4f7d-2452-4433-bf5f-2b96efe69ea9",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 200,
+          "at": "2026-11-05T09:11:56.920Z"
+        },
+        {
+          "id": "5887d7d7-e2fd-4acd-a934-43cadcaada68",
+          "method": "POST",
+          "path": "/site-diaries/0b880a25-84ad-47ac-a814-01503f99b04a/draft",
+          "status": 200,
+          "at": "2026-11-05T09:11:57.100Z"
+        },
+        {
+          "id": "8312074c-0881-4a24-9e7c-1957c370476c",
+          "method": "POST",
+          "path": "/site-diaries/0b880a25-84ad-47ac-a814-01503f99b04a/draft",
+          "status": 409,
+          "at": "2026-11-05T09:11:57.135Z"
+        },
+        {
+          "id": "88b59350-683a-4154-8211-1e03d51c3bfb",
+          "method": "POST",
+          "path": "/site-diaries/0b880a25-84ad-47ac-a814-01503f99b04a/contractor-sign",
+          "status": 200,
+          "at": "2026-11-05T09:11:57.161Z"
+        },
+        {
+          "id": "5082111a-2406-41ea-bedd-ef616ecbaedf",
+          "method": "POST",
+          "path": "/site-diaries/0b880a25-84ad-47ac-a814-01503f99b04a/draft",
+          "status": 409,
+          "at": "2026-11-05T09:11:57.339Z"
+        },
+        {
+          "id": "a88174a6-a149-4602-b12a-3a2a9a4320b1",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 409,
+          "at": "2026-11-05T09:11:57.366Z"
+        },
+        {
+          "id": "f09cc38b-e5af-4321-a625-fcfae9095f9f",
+          "method": "POST",
+          "path": "/site-diaries/0b880a25-84ad-47ac-a814-01503f99b04a/contractor-sign",
+          "status": 409,
+          "at": "2026-11-05T09:11:57.496Z"
+        },
+        {
+          "id": "d9a08b26-6879-4d18-9a38-3cbb3a1e04f4",
+          "method": "POST",
+          "path": "/site-diaries/0b880a25-84ad-47ac-a814-01503f99b04a/lock",
+          "status": 409,
+          "at": "2026-11-05T09:11:57.508Z"
+        },
+        {
+          "id": "a0acaebb-028b-4a80-93b5-4fb1ee6317b4",
+          "method": "POST",
+          "path": "/site-diaries/0b880a25-84ad-47ac-a814-01503f99b04a/supervisor-remark",
+          "status": 200,
+          "at": "2026-11-05T09:11:57.522Z"
+        },
+        {
+          "id": "62b67a47-ff17-45b6-9a8c-8661d248bc7d",
+          "method": "POST",
+          "path": "/site-diaries/0b880a25-84ad-47ac-a814-01503f99b04a/owner-confirm",
+          "status": 200,
+          "at": "2026-11-05T09:11:57.582Z"
+        },
+        {
+          "id": "d2ffe946-21a5-4d13-bee9-678e43b59689",
+          "method": "POST",
+          "path": "/site-diaries/0b880a25-84ad-47ac-a814-01503f99b04a/lock",
+          "status": 200,
+          "at": "2026-11-05T09:11:57.892Z"
+        },
+        {
+          "id": "5174f86e-b25a-4f66-a7fc-251a24a93e2d",
+          "method": "POST",
+          "path": "/site-diaries/0b880a25-84ad-47ac-a814-01503f99b04a/draft",
+          "status": 409,
+          "at": "2026-11-05T09:11:58.372Z"
+        },
+        {
+          "id": "adfa02e3-b01d-45f5-927e-539f4bcea8b6",
+          "method": "POST",
+          "path": "/site-diaries/0b880a25-84ad-47ac-a814-01503f99b04a/lock",
+          "status": 409,
+          "at": "2026-11-05T09:11:58.386Z"
+        },
+        {
+          "id": "709d1c10-b123-48ae-962b-de59d747b518",
+          "method": "POST",
+          "path": "/site-diaries/0b880a25-84ad-47ac-a814-01503f99b04a/corrections",
+          "status": 422,
+          "at": "2026-11-05T09:11:58.402Z"
+        },
+        {
+          "id": "27c7f94f-e88b-4547-9961-c1f095b5e1ce",
+          "method": "POST",
+          "path": "/site-diaries/0b880a25-84ad-47ac-a814-01503f99b04a/corrections",
+          "status": 200,
+          "at": "2026-11-05T09:11:58.412Z"
+        },
+        {
+          "id": "84bdbe54-2743-4098-9d52-5ed03fbc754c",
+          "method": "POST",
+          "path": "/site-diaries/0b880a25-84ad-47ac-a814-01503f99b04a/corrections",
+          "status": 200,
+          "at": "2026-11-05T09:11:58.437Z"
+        },
+        {
+          "id": "0e901e23-32c6-4a22-b686-214dc5c5857c",
+          "method": "POST",
+          "path": "/site-diaries/0b880a25-84ad-47ac-a814-01503f99b04a/corrections",
+          "status": 409,
+          "at": "2026-11-05T09:11:58.719Z"
+        },
+        {
+          "id": "d738aaa8-fa74-467f-8ce7-78586bfae0ea",
+          "method": "POST",
+          "path": "/site-diaries/639a6d2e-5712-43fa-b81f-ec131bae54d2/corrections",
+          "status": 409,
+          "at": "2026-11-05T09:11:58.738Z"
+        },
+        {
+          "id": "32fec5c8-f444-47f0-89cc-fb9eb1a40e7f",
+          "method": "POST",
+          "path": "/site-diaries/639a6d2e-5712-43fa-b81f-ec131bae54d2/contractor-sign",
+          "status": 200,
+          "at": "2026-11-05T09:11:58.746Z"
+        },
+        {
+          "id": "c73f6e88-a89b-4847-acd4-ad5363eec887",
+          "method": "POST",
+          "path": "/site-diaries/639a6d2e-5712-43fa-b81f-ec131bae54d2/supervisor-remark",
+          "status": 200,
+          "at": "2026-11-05T09:11:58.855Z"
+        },
+        {
+          "id": "f8b52d72-911b-4ff8-9de3-0ff51fc268b5",
+          "method": "POST",
+          "path": "/site-diaries/639a6d2e-5712-43fa-b81f-ec131bae54d2/lock",
+          "status": 200,
+          "at": "2026-11-05T09:11:58.882Z"
+        },
+        {
+          "id": "26da8d6b-54d1-4121-bc30-b8919ad39506",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 409,
+          "at": "2026-11-05T09:11:58.942Z"
+        },
+        {
+          "id": "03e1a88a-a95c-426d-a551-31ff0d67c080",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 409,
+          "at": "2026-11-05T09:11:58.960Z"
+        },
+        {
+          "id": "52f87e8b-ad70-4571-be11-990c153dafe4",
+          "method": "POST",
+          "path": "/site-diaries/0b880a25-84ad-47ac-a814-01503f99b04a/draft",
+          "status": 409,
+          "at": "2026-11-05T09:11:58.974Z"
+        },
+        {
+          "id": "88a32e1c-3f60-49a3-ab0b-d110ef958aec",
+          "method": "POST",
+          "path": "/site-diaries/0b880a25-84ad-47ac-a814-01503f99b04a/corrections",
+          "status": 409,
+          "at": "2026-11-05T09:11:58.991Z"
+        },
+        {
+          "id": "2a950c21-59a0-40c2-8ba4-1036d443300d",
+          "method": "POST",
+          "path": "/site-diaries/639a6d2e-5712-43fa-b81f-ec131bae54d2/corrections",
+          "status": 200,
+          "at": "2026-11-05T09:11:59.008Z"
+        }
+      ]
+    }
+  ]
+}

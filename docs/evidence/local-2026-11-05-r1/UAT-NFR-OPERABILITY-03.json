@@ -1,0 +1,221 @@
+{
+  "id": "UAT-NFR-OPERABILITY-03",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/feature-flag-guard.test.ts",
+      "name": "a route behind a release flag (ST-KERNEL-014 AC-3, FeatureFlagGuard) AC-ST-KERNEL-014-3 (UAT-NFR-OPERABILITY-03) answers unavailable while the flag is off, and serves the route once it is on, with no schema change between",
+      "status": "passed",
+      "durationMs": 589,
+      "at": "2026-11-05T09:22:11.247Z",
+      "requests": [
+        {
+          "id": "cd83fe3e-bfcd-4972-b194-774d97f9d68e",
+          "method": "GET",
+          "path": "/flagged/silo",
+          "status": 503,
+          "at": "2026-11-05T09:22:10.980Z"
+        },
+        {
+          "id": "5652e6ca-566f-49d4-945d-b4f2eb2e3c47",
+          "method": "GET",
+          "path": "/flagged/silo",
+          "status": 200,
+          "at": "2026-11-05T09:22:11.076Z"
+        },
+        {
+          "id": "8fc91126-3204-44e4-8b12-a3ddaddd57e4",
+          "method": "GET",
+          "path": "/flagged/silo",
+          "status": 503,
+          "at": "2026-11-05T09:22:11.127Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/feature-flag-guard.test.ts",
+      "name": "a route behind a release flag (ST-KERNEL-014 AC-3, FeatureFlagGuard) AC-ST-KERNEL-014-3 (UAT-NFR-OPERABILITY-03) turns the route on for a cohort of tenants first",
+      "status": "passed",
+      "durationMs": 152,
+      "at": "2026-11-05T09:22:11.399Z",
+      "requests": [
+        {
+          "id": "9bb2b828-0ff7-4e93-9057-65404820cb3e",
+          "method": "GET",
+          "path": "/flagged/silo",
+          "status": 200,
+          "at": "2026-11-05T09:22:11.380Z"
+        },
+        {
+          "id": "cca3b088-0e1e-4836-8dd2-677c20b17bf9",
+          "method": "GET",
+          "path": "/flagged/silo",
+          "status": 503,
+          "at": "2026-11-05T09:22:11.392Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/feature-flag-guard.test.ts",
+      "name": "a route behind a release flag (ST-KERNEL-014 AC-3, FeatureFlagGuard) AC-ST-KERNEL-014-3 (UAT-NFR-OPERABILITY-03) puts every route of a controller behind its flag, and each flag decides only its own routes",
+      "status": "passed",
+      "durationMs": 348,
+      "at": "2026-11-05T09:22:11.747Z",
+      "requests": [
+        {
+          "id": "cd5e5bd1-572c-479b-996b-fac2670b1d89",
+          "method": "GET",
+          "path": "/flagged-whole/a",
+          "status": 503,
+          "at": "2026-11-05T09:22:11.597Z"
+        },
+        {
+          "id": "d1be1962-c363-4215-b2b0-1f05df26ce0a",
+          "method": "GET",
+          "path": "/flagged-whole/b",
+          "status": 503,
+          "at": "2026-11-05T09:22:11.614Z"
+        },
+        {
+          "id": "1e80ac87-53d7-4c8b-bb77-e39459a4bb60",
+          "method": "GET",
+          "path": "/flagged-whole/a",
+          "status": 200,
+          "at": "2026-11-05T09:22:11.672Z"
+        },
+        {
+          "id": "2b09465b-d39e-4177-bc80-1d01461d6ab2",
+          "method": "GET",
+          "path": "/flagged-whole/b",
+          "status": 200,
+          "at": "2026-11-05T09:22:11.678Z"
+        },
+        {
+          "id": "f86ae13c-b0c1-49cc-b251-a8ca6b218e3d",
+          "method": "GET",
+          "path": "/flagged-whole/a",
+          "status": 200,
+          "at": "2026-11-05T09:22:11.734Z"
+        },
+        {
+          "id": "f3fffdd9-83b5-4e4d-b5e1-3f5834236771",
+          "method": "GET",
+          "path": "/flagged/silo",
+          "status": 503,
+          "at": "2026-11-05T09:22:11.743Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/feature-flag-guard.test.ts",
+      "name": "a route behind a release flag (ST-KERNEL-014 AC-3, FeatureFlagGuard) AC-ST-KERNEL-014-3 (UAT-NFR-OPERABILITY-03) leaves a route with no flag alone and reads no flag for it",
+      "status": "passed",
+      "durationMs": 107,
+      "at": "2026-11-05T09:22:11.854Z",
+      "requests": [
+        {
+          "id": "667f6dce-6e73-4ff8-937c-1a917763833b",
+          "method": "GET",
+          "path": "/flagged/open",
+          "status": 200,
+          "at": "2026-11-05T09:22:11.827Z"
+        },
+        {
+          "id": "32c50da8-d0e5-469c-b5c9-0b61f6c9036b",
+          "method": "GET",
+          "path": "/flagged/silo",
+          "status": 503,
+          "at": "2026-11-05T09:22:11.837Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/feature-flag-guard.test.ts",
+      "name": "a route behind a release flag (ST-KERNEL-014 AC-3, FeatureFlagGuard) AC-ST-KERNEL-014-3 (UAT-NFR-OPERABILITY-03) tells a caller without the permission 403 and nothing about the flag",
+      "status": "passed",
+      "durationMs": 336,
+      "at": "2026-11-05T09:22:12.190Z",
+      "requests": [
+        {
+          "id": "69ee4345-4779-4c85-8349-370af1750be4",
+          "method": "GET",
+          "path": "/flagged/silo",
+          "status": 403,
+          "at": "2026-11-05T09:22:12.115Z"
+        },
+        {
+          "id": "de96d716-67f6-4c26-b818-37133deca27d",
+          "method": "GET",
+          "path": "/flagged/silo",
+          "status": 403,
+          "at": "2026-11-05T09:22:12.170Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/feature-flag-guard.test.ts",
+      "name": "a route behind a release flag (ST-KERNEL-014 AC-3, FeatureFlagGuard) AC-ST-KERNEL-014-3 (UAT-NFR-OPERABILITY-03) keeps the route closed where there is no control plane to read the flag from",
+      "status": "passed",
+      "durationMs": 155,
+      "at": "2026-11-05T09:22:12.345Z",
+      "requests": [
+        {
+          "id": "867e0d12-4a92-46da-b217-238763dcd3f1",
+          "method": "GET",
+          "path": "/flagged/silo",
+          "status": 503,
+          "at": "2026-11-05T09:22:12.335Z"
+        },
+        {
+          "id": "7dbba8af-fa28-4d6d-bacf-d2417eb3ceea",
+          "method": "GET",
+          "path": "/flagged/open",
+          "status": 200,
+          "at": "2026-11-05T09:22:12.342Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/feature-flag-guard.test.ts",
+      "name": "a route behind a release flag (ST-KERNEL-014 AC-3, FeatureFlagGuard) AC-ST-KERNEL-014-3 (UAT-NFR-OPERABILITY-03) refuses to start with a flag the code does not declare",
+      "status": "passed",
+      "durationMs": 118,
+      "at": "2026-11-05T09:22:12.463Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/feature-flag-guard.test.ts",
+      "name": "a route behind a release flag (ST-KERNEL-014 AC-3, FeatureFlagGuard) AC-ST-KERNEL-014-3 (UAT-NFR-OPERABILITY-03) closes the route for good once its flag is retired",
+      "status": "passed",
+      "durationMs": 333,
+      "at": "2026-11-05T09:22:12.796Z",
+      "requests": [
+        {
+          "id": "b04edc8f-68fd-47a2-9dad-d6936cb115ae",
+          "method": "GET",
+          "path": "/flagged-whole/a",
+          "status": 200,
+          "at": "2026-11-05T09:22:12.652Z"
+        },
+        {
+          "id": "1af7b025-b114-4974-8225-228c799d6a3a",
+          "method": "GET",
+          "path": "/flagged-whole/a",
+          "status": 503,
+          "at": "2026-11-05T09:22:12.786Z"
+        }
+      ]
+    }
+  ]
+}

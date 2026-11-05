@@ -1,0 +1,189 @@
+{
+  "id": "UAT-AC395",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/retention.test.ts",
+      "name": "the release of the retention over HTTP (ST-CTR-010, AC-ST-CTR-010-1, AC-ST-CTR-010-2, UAT-AC309, UAT-AC397) another tenant (UAT-AC395) does not release the retention of the first tenant, whatever its rights in its own",
+      "status": "passed",
+      "durationMs": 1607,
+      "at": "2026-11-05T09:15:51.924Z",
+      "requests": [
+        {
+          "id": "9ffaa9b3-3825-46d3-87ae-4d54e1bd5059",
+          "method": "POST",
+          "path": "/retention-holds/50e6edb8-fb29-4749-8645-b27e5cf3842f/release",
+          "status": 404,
+          "at": "2026-11-05T09:15:51.859Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/asset.test.ts",
+      "name": "the assets of a work over HTTP (ST-AST-002) another tenant (UAT-AC395) does not see or transfer an asset of the first tenant, whatever its rights in its own",
+      "status": "passed",
+      "durationMs": 768,
+      "at": "2026-11-05T09:16:28.774Z",
+      "requests": [
+        {
+          "id": "a290a0f5-674d-4b0d-886e-ca8cdbd55cec",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 200,
+          "at": "2026-11-05T09:16:28.661Z"
+        },
+        {
+          "id": "aa973b31-f086-4b4d-b404-e7ad0b299512",
+          "method": "GET",
+          "path": "/resources/asset_record/b55fb8e4-b102-4c1e-9039-01e5a02e5d77",
+          "status": 404,
+          "at": "2026-11-05T09:16:28.681Z"
+        },
+        {
+          "id": "3628029f-d188-48c2-94a1-b60d7c86c181",
+          "method": "GET",
+          "path": "/resources/asset_record",
+          "status": 200,
+          "at": "2026-11-05T09:16:28.693Z"
+        },
+        {
+          "id": "1c09216f-91e4-4e27-8f80-881949ee3c85",
+          "method": "POST",
+          "path": "/asset-records/b55fb8e4-b102-4c1e-9039-01e5a02e5d77/transfer",
+          "status": 404,
+          "at": "2026-11-05T09:16:28.711Z"
+        },
+        {
+          "id": "146daf7c-cfe5-40e7-be75-bcbc8438ffe8",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 404,
+          "at": "2026-11-05T09:16:28.726Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/warranty.test.ts",
+      "name": "the warranty of a work over HTTP (ST-AST-003) another tenant (UAT-AC395) does not see, create or close the warranty of the first tenant, whatever its rights in its own",
+      "status": "passed",
+      "durationMs": 815,
+      "at": "2026-11-05T09:16:42.779Z",
+      "requests": [
+        {
+          "id": "54866552-5cc8-43a4-9b69-b5d97ac22b83",
+          "method": "POST",
+          "path": "/warranty-obligations",
+          "status": 200,
+          "at": "2026-11-05T09:16:42.651Z"
+        },
+        {
+          "id": "86b4a1fb-7a94-4f7c-a712-3e912b4c6147",
+          "method": "GET",
+          "path": "/warranty-obligations",
+          "status": 200,
+          "at": "2026-11-05T09:16:42.679Z"
+        },
+        {
+          "id": "099a73e3-facb-4f49-aeb5-5fa3a057dda0",
+          "method": "POST",
+          "path": "/warranty-obligations/847cf62d-3910-4dcb-be10-3f1a71b7162f/close",
+          "status": 404,
+          "at": "2026-11-05T09:16:42.698Z"
+        },
+        {
+          "id": "f0f330c0-9134-432f-9376-4ba2fbf99d6f",
+          "method": "POST",
+          "path": "/warranty-obligations",
+          "status": 404,
+          "at": "2026-11-05T09:16:42.728Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/handover.test.ts",
+      "name": "the handover and its punch list over HTTP (ST-AST-001) another tenant (AC-ST-AST-001-3, UAT-AC395) AC-ST-AST-001-3, UAT-AC395: does not see, change or decide a handover of the first tenant, whatever its rights in its own",
+      "status": "passed",
+      "durationMs": 990,
+      "at": "2026-11-05T09:17:39.428Z",
+      "requests": [
+        {
+          "id": "e2c8c35e-88fb-4da0-8466-a4ed0fb09cc0",
+          "method": "POST",
+          "path": "/handovers",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.166Z"
+        },
+        {
+          "id": "de5449df-198b-406b-8a56-5ec2c4faf684",
+          "method": "POST",
+          "path": "/handovers/fe4857d5-3127-47ec-a3c1-b99884ca5a63/punch-items",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.200Z"
+        },
+        {
+          "id": "79c0b214-5146-4dd1-9151-1875432325ed",
+          "method": "GET",
+          "path": "/handovers/fe4857d5-3127-47ec-a3c1-b99884ca5a63/trace",
+          "status": 404,
+          "at": "2026-11-05T09:17:39.264Z"
+        },
+        {
+          "id": "133eded5-9bd9-4266-b6b9-9a2a95e8296e",
+          "method": "GET",
+          "path": "/resources/handover/fe4857d5-3127-47ec-a3c1-b99884ca5a63",
+          "status": 404,
+          "at": "2026-11-05T09:17:39.284Z"
+        },
+        {
+          "id": "9b3634bc-2483-454a-8e95-3d48988051de",
+          "method": "GET",
+          "path": "/resources/handover",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.297Z"
+        },
+        {
+          "id": "2483f5ca-d544-4c53-9d4d-cd8994b228a6",
+          "method": "POST",
+          "path": "/handovers/fe4857d5-3127-47ec-a3c1-b99884ca5a63/punch-items",
+          "status": 404,
+          "at": "2026-11-05T09:17:39.316Z"
+        },
+        {
+          "id": "fa95d9e9-762e-468e-9a96-f49ebf28cf01",
+          "method": "POST",
+          "path": "/punch-items/31257cc0-1e98-47b6-ba3a-d3aa23543d48/fixed",
+          "status": 404,
+          "at": "2026-11-05T09:17:39.333Z"
+        },
+        {
+          "id": "68fabdb7-7e30-4fbb-a010-5d33b5dfb691",
+          "method": "POST",
+          "path": "/punch-items/31257cc0-1e98-47b6-ba3a-d3aa23543d48/verify",
+          "status": 404,
+          "at": "2026-11-05T09:17:39.345Z"
+        },
+        {
+          "id": "363455b4-2278-492d-9f84-bc45fdebbe1f",
+          "method": "POST",
+          "path": "/punch-items/31257cc0-1e98-47b6-ba3a-d3aa23543d48/waive",
+          "status": 404,
+          "at": "2026-11-05T09:17:39.361Z"
+        },
+        {
+          "id": "57769164-8ca7-4fb2-91f8-71fc9557ca6a",
+          "method": "POST",
+          "path": "/handovers/fe4857d5-3127-47ec-a3c1-b99884ca5a63/decision",
+          "status": 404,
+          "at": "2026-11-05T09:17:39.377Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+{
+  "id": "BI02",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-exports.test.ts",
+      "name": "exports and the per-recipient schedules (ST-BI-008, BI 3 F7) AC-ST-BI-008-3: BI02 judges the right again when the file is asked for: a person whose scope changed gets no link to data they may no longer read, and a new export is cut to the scope they have now",
+      "status": "passed",
+      "durationMs": 1236,
+      "at": "2026-11-05T09:10:12.723Z",
+      "requests": [
+        {
+          "id": "1d80c610-96e0-455f-9bb1-02a97240f1b4",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:10:11.624Z"
+        },
+        {
+          "id": "9dc2234d-af06-4f11-80c8-e98d09b3e12b",
+          "method": "POST",
+          "path": "/bi/exports",
+          "status": 200,
+          "at": "2026-11-05T09:10:11.829Z"
+        },
+        {
+          "id": "c1481dfe-5541-4a97-a12b-67f369e166db",
+          "method": "GET",
+          "path": "/bi/exports/51bcb9c7-0111-4eb6-adea-ec817d5059dc",
+          "status": 200,
+          "at": "2026-11-05T09:10:11.858Z"
+        },
+        {
+          "id": "e558f892-91df-4a5f-b7de-858a71a6f509",
+          "method": "GET",
+          "path": "/bi/exports/51bcb9c7-0111-4eb6-adea-ec817d5059dc/file",
+          "status": 200,
+          "at": "2026-11-05T09:10:11.869Z"
+        },
+        {
+          "id": "b70c664f-ab6e-4427-9443-ce8d063547ac",
+          "method": "GET",
+          "path": "/bi/exports/51bcb9c7-0111-4eb6-adea-ec817d5059dc/file",
+          "status": 401,
+          "at": "2026-11-05T09:10:11.886Z"
+        },
+        {
+          "id": "cd3ce8b1-e070-4f8f-b156-c23f9e21df21",
+          "method": "GET",
+          "path": "/bi/exports/31b1cc9d-5649-42c2-9df4-d9e77fdfb8c2/file",
+          "status": 401,
+          "at": "2026-11-05T09:10:11.901Z"
+        },
+        {
+          "id": "eef86ae6-332a-47bd-9156-52a4f9729fca",
+          "method": "GET",
+          "path": "/bi/exports/51bcb9c7-0111-4eb6-adea-ec817d5059dc/file",
+          "status": 401,
+          "at": "2026-11-05T09:10:11.917Z"
+        },
+        {
+          "id": "dc65e7a4-6e06-41da-a6bc-7e501bb4418f",
+          "method": "GET",
+          "path": "/bi/exports/51bcb9c7-0111-4eb6-adea-ec817d5059dc",
+          "status": 403,
+          "at": "2026-11-05T09:10:12.124Z"
+        },
+        {
+          "id": "833e42a6-3520-4a47-a136-9c6e62388b34",
+          "method": "POST",
+          "path": "/bi/exports",
+          "status": 200,
+          "at": "2026-11-05T09:10:12.150Z"
+        },
+        {
+          "id": "23cef8a1-235f-40ec-b79e-7261e305eaf4",
+          "method": "POST",
+          "path": "/bi/exports",
+          "status": 403,
+          "at": "2026-11-05T09:10:12.708Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/uat/isolation-api.uat.spec.ts",
+      "name": "TC-BI02: after the scope of the requester narrows, the old export gives no link and a new one holds only what the old and the new scope both cover",
+      "status": "passed",
+      "durationMs": 1092,
+      "at": "2026-11-05T08:56:01.219Z",
+      "requests": [
+        {
+          "id": "07041e9d-5595-49e0-b62e-ba06807b0ca8",
+          "method": "POST",
+          "path": "/bi/datasets/c4605dd1-df5a-4a79-af37-2b9ee9d2a5ee/versions",
+          "status": 202,
+          "at": "2026-11-05T08:56:01.353Z"
+        },
+        {
+          "id": "ebe01d61-9add-4a5d-a6e6-73d2951b25a5",
+          "method": "POST",
+          "path": "/bi/exports",
+          "status": 401,
+          "at": "2026-11-05T08:56:01.377Z"
+        },
+        {
+          "id": "65dd21a6-a74e-442f-af7b-4e9baad1c8c5",
+          "method": "POST",
+          "path": "/bi/exports",
+          "status": 200,
+          "at": "2026-11-05T08:56:01.417Z"
+        },
+        {
+          "id": "21febe56-2596-4d56-acd9-e7c7353023f1",
+          "method": "GET",
+          "path": "/bi/exports/2fa6e06c-29ba-4e2c-959e-63c03d39882e",
+          "status": 200,
+          "at": "2026-11-05T08:56:01.482Z"
+        },
+        {
+          "id": "424123bc-b0b4-4172-ac85-d8581f3a8205",
+          "method": "GET",
+          "path": "/bi/exports/2fa6e06c-29ba-4e2c-959e-63c03d39882e/file",
+          "status": 200,
+          "at": "2026-11-05T08:56:01.490Z"
+        },
+        {
+          "id": "700c7c66-408f-498f-bf53-df3bf0ad51ba",
+          "method": "POST",
+          "path": "/role-grants/937e8db1-cb6a-43c8-b080-d9612d791dcf/revoke",
+          "status": 200,
+          "at": "2026-11-05T08:56:01.494Z"
+        },
+        {
+          "id": "23eb6b70-4374-425c-abe6-e55034bf42e7",
+          "method": "GET",
+          "path": "/bi/exports/2fa6e06c-29ba-4e2c-959e-63c03d39882e",
+          "status": 403,
+          "at": "2026-11-05T08:56:01.542Z"
+        },
+        {
+          "id": "81782492-1661-4dd1-9a53-3e9a826380a2",
+          "method": "POST",
+          "path": "/bi/exports",
+          "status": 200,
+          "at": "2026-11-05T08:56:01.627Z"
+        },
+        {
+          "id": "9db81c75-4dd1-47ec-8cfc-f7d46907a1a0",
+          "method": "GET",
+          "path": "/bi/exports/798df1df-d700-4b2f-b198-7822b72e07e4",
+          "status": 200,
+          "at": "2026-11-05T08:56:01.685Z"
+        },
+        {
+          "id": "91785607-3639-4bae-977b-fcec46c867f4",
+          "method": "GET",
+          "path": "/bi/exports/798df1df-d700-4b2f-b198-7822b72e07e4/file",
+          "status": 200,
+          "at": "2026-11-05T08:56:01.694Z"
+        }
+      ]
+    }
+  ]
+}

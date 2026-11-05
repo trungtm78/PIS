@@ -1,0 +1,141 @@
+{
+  "id": "UAT-AC325",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/advance.test.ts",
+      "name": "the advance of a contract over HTTP (ST-PAY-004) AC-ST-PAY-004-1, UAT-AC325: plans the advance of a contract in force under a guarantee; the same key answers the same, audited and told once",
+      "status": "passed",
+      "durationMs": 689,
+      "at": "2026-11-05T09:18:11.632Z",
+      "requests": [
+        {
+          "id": "642ee3e2-b326-4f18-830d-1c8d5ad487e6",
+          "method": "POST",
+          "path": "/contracts/f074dd48-d8cf-45b2-9b1f-cf6b0d588269/advances",
+          "status": 200,
+          "at": "2026-11-05T09:18:11.246Z"
+        },
+        {
+          "id": "9ec30e45-6891-44a7-b61c-09320b387a8d",
+          "method": "POST",
+          "path": "/contracts/f074dd48-d8cf-45b2-9b1f-cf6b0d588269/advances",
+          "status": 200,
+          "at": "2026-11-05T09:18:11.302Z"
+        },
+        {
+          "id": "3bc3d5a1-a395-496c-9eaa-1d4871873357",
+          "method": "POST",
+          "path": "/contracts/f074dd48-d8cf-45b2-9b1f-cf6b0d588269/advances",
+          "status": 400,
+          "at": "2026-11-05T09:18:11.592Z"
+        },
+        {
+          "id": "0421e73c-99e9-446d-b1bc-38217030cf43",
+          "method": "POST",
+          "path": "/contracts/f074dd48-d8cf-45b2-9b1f-cf6b0d588269/advances",
+          "status": 400,
+          "at": "2026-11-05T09:18:11.601Z"
+        },
+        {
+          "id": "26583539-64ef-4120-ba7e-ae6a6e3fd3c3",
+          "method": "POST",
+          "path": "/contracts/f074dd48-d8cf-45b2-9b1f-cf6b0d588269/advances",
+          "status": 400,
+          "at": "2026-11-05T09:18:11.604Z"
+        },
+        {
+          "id": "5c193925-d3b3-4549-9279-9430fff2f406",
+          "method": "POST",
+          "path": "/contracts/f074dd48-d8cf-45b2-9b1f-cf6b0d588269/advances",
+          "status": 400,
+          "at": "2026-11-05T09:18:11.616Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/advance.test.ts",
+      "name": "the advance of a contract over HTTP (ST-PAY-004) keeps the people apart: who may ask, who may cancel, who may recover, who may read, who may not see (UAT-AC325 authorization)",
+      "status": "passed",
+      "durationMs": 473,
+      "at": "2026-11-05T09:18:14.382Z",
+      "requests": [
+        {
+          "id": "2ff639d1-9243-474f-8ccc-a16d6d8a9826",
+          "method": "POST",
+          "path": "/contracts/97433c16-f164-4a95-b199-0599a34333c1/advances",
+          "status": 403,
+          "at": "2026-11-05T09:18:14.167Z"
+        },
+        {
+          "id": "e31439be-ffc3-41da-bdf8-653102aa4c96",
+          "method": "POST",
+          "path": "/contracts/97433c16-f164-4a95-b199-0599a34333c1/advances",
+          "status": 403,
+          "at": "2026-11-05T09:18:14.177Z"
+        },
+        {
+          "id": "80c09f08-fbe9-46f5-9592-c004dcf118fd",
+          "method": "POST",
+          "path": "/contracts/97433c16-f164-4a95-b199-0599a34333c1/advances",
+          "status": 403,
+          "at": "2026-11-05T09:18:14.190Z"
+        },
+        {
+          "id": "1708aea0-5d25-48c6-a183-32b90365de07",
+          "method": "POST",
+          "path": "/contracts/97433c16-f164-4a95-b199-0599a34333c1/advances",
+          "status": 404,
+          "at": "2026-11-05T09:18:14.207Z"
+        },
+        {
+          "id": "e5fce395-6ac2-476a-be55-b46fb88de053",
+          "method": "POST",
+          "path": "/contracts/97433c16-f164-4a95-b199-0599a34333c1/advances",
+          "status": 200,
+          "at": "2026-11-05T09:18:14.230Z"
+        },
+        {
+          "id": "7d75bf75-bf7c-4279-a2ec-1b3ce43ec078",
+          "method": "POST",
+          "path": "/advances/0f5f809f-356b-42d5-99b0-50da90aa2d72/cancel",
+          "status": 403,
+          "at": "2026-11-05T09:18:14.254Z"
+        },
+        {
+          "id": "64d0544a-01ad-4640-87cd-5794c95ddfb2",
+          "method": "POST",
+          "path": "/advances/0f5f809f-356b-42d5-99b0-50da90aa2d72/cancel",
+          "status": 404,
+          "at": "2026-11-05T09:18:14.270Z"
+        },
+        {
+          "id": "95986c81-157d-4625-80f1-ea3550f25950",
+          "method": "GET",
+          "path": "/advances/0f5f809f-356b-42d5-99b0-50da90aa2d72/recovery-plan",
+          "status": 403,
+          "at": "2026-11-05T09:18:14.332Z"
+        },
+        {
+          "id": "df7bc54c-4511-45ea-9d25-d30b10ed1fea",
+          "method": "GET",
+          "path": "/advances/0f5f809f-356b-42d5-99b0-50da90aa2d72/recovery-plan",
+          "status": 404,
+          "at": "2026-11-05T09:18:14.349Z"
+        },
+        {
+          "id": "600fedc4-7cb2-493f-956f-6f2953db2bc9",
+          "method": "GET",
+          "path": "/advances",
+          "status": 403,
+          "at": "2026-11-05T09:18:14.371Z"
+        }
+      ]
+    }
+  ]
+}

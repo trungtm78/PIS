@@ -1,0 +1,140 @@
+{
+  "id": "UAT-AC379",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/household.test.ts",
+      "name": "the households affected by a land recovery: sealed personal data, masked views and the scope of the unit (ST-LND-002) registerAffectedHousehold AC-ST-LND-002-1, UAT-AC379: registers a household with its personal data sealed and masked, and keeps no personal value in the trail, the event or the stored answer",
+      "status": "passed",
+      "durationMs": 289,
+      "at": "2026-11-05T09:20:47.028Z",
+      "requests": [
+        {
+          "id": "e0647c0f-a0fe-41ed-8c21-7bda1c6ab7bc",
+          "method": "POST",
+          "path": "/affected-households",
+          "status": 200,
+          "at": "2026-11-05T09:20:46.739Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/household.test.ts",
+      "name": "the households affected by a land recovery: sealed personal data, masked views and the scope of the unit (ST-LND-002) listAffectedHouseholds AC-ST-KERNEL-061-3, UAT-AC379: what leaves the module to a caller without the right to open personal data has the PERSONAL columns masked, and the sealed national id column holds no plaintext",
+      "status": "passed",
+      "durationMs": 92,
+      "at": "2026-11-05T09:20:48.523Z",
+      "requests": [
+        {
+          "id": "7d292344-b6fe-4b55-b74f-954168a77e94",
+          "method": "POST",
+          "path": "/affected-households",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.431Z"
+        },
+        {
+          "id": "66a45a66-c49d-4ebe-b613-6917b52df4c0",
+          "method": "GET",
+          "path": "/affected-households",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.450Z"
+        },
+        {
+          "id": "3889f4f7-9ac2-44d0-98fe-32bc0b44cb11",
+          "method": "GET",
+          "path": "/affected-households/612f454c-ad6a-4c9a-99ec-3a93cefee324/identity",
+          "status": 403,
+          "at": "2026-11-05T09:20:48.504Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/household.test.ts",
+      "name": "the households affected by a land recovery: sealed personal data, masked views and the scope of the unit (ST-LND-002) listAffectedHouseholds AC-ST-LND-002-1, UAT-AC379: shows a unit only the households of its own tree, nothing to a grant on a project, and nothing of another tenant",
+      "status": "passed",
+      "durationMs": 94,
+      "at": "2026-11-05T09:20:48.651Z",
+      "requests": [
+        {
+          "id": "c18e8551-46aa-42c7-b231-8e92f4392895",
+          "method": "POST",
+          "path": "/affected-households",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.556Z"
+        },
+        {
+          "id": "1c3c818e-5816-4850-b263-be259fb6b97c",
+          "method": "POST",
+          "path": "/affected-households",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.579Z"
+        },
+        {
+          "id": "34b9031e-ff44-4d59-a036-faad5439efe9",
+          "method": "GET",
+          "path": "/affected-households",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.593Z"
+        },
+        {
+          "id": "dcba347d-fd87-4cc4-9a14-e661b35d6416",
+          "method": "GET",
+          "path": "/affected-households",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.604Z"
+        },
+        {
+          "id": "1678b550-4c10-4e29-b744-854540118806",
+          "method": "GET",
+          "path": "/affected-households",
+          "status": 403,
+          "at": "2026-11-05T09:20:48.620Z"
+        },
+        {
+          "id": "a225788c-a5bc-440a-85bb-04e6c227082a",
+          "method": "GET",
+          "path": "/affected-households",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.633Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/household.test.ts",
+      "name": "the households affected by a land recovery: sealed personal data, masked views and the scope of the unit (ST-LND-002) revealHouseholdIdentity AC-ST-LND-002-1, UAT-AC379: opens the sealed data for the holder of the right over the unit of the household, and records that it was opened without recording what it held",
+      "status": "passed",
+      "durationMs": 121,
+      "at": "2026-11-05T09:20:48.931Z",
+      "requests": [
+        {
+          "id": "6317e913-0e21-419c-bdb7-b05da4267da2",
+          "method": "POST",
+          "path": "/affected-households",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.809Z"
+        },
+        {
+          "id": "c0972bfd-b523-4fb5-a48a-847cbc4e5fe7",
+          "method": "GET",
+          "path": "/affected-households/230d221c-236b-4faf-9d9f-cd6ac93b92b1/identity",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.824Z"
+        },
+        {
+          "id": "2d6ae2d9-6326-421c-8a66-f3583f0a9a17",
+          "method": "GET",
+          "path": "/affected-households/230d221c-236b-4faf-9d9f-cd6ac93b92b1/identity",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.882Z"
+        }
+      ]
+    }
+  ]
+}

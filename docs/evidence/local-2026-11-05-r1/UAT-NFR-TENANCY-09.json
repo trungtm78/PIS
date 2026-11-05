@@ -1,0 +1,176 @@
+{
+  "id": "UAT-NFR-TENANCY-09",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contract-register.test.ts",
+      "name": "contract register commands and reads (ST-CTR-001) reads AC-ST-KERNEL-026-2 / UAT-NFR-TENANCY-09: a department user, a user of another branch and a contractor guest each list only their own projects and contracts, and every out-of-scope id is 404",
+      "status": "passed",
+      "durationMs": 283,
+      "at": "2026-11-05T09:20:40.763Z",
+      "requests": [
+        {
+          "id": "ab61569d-4edc-403a-8481-202ab19b3365",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T09:20:40.529Z"
+        },
+        {
+          "id": "d50d64f0-4e63-4f52-888d-7ef5d8ae7a24",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T09:20:40.550Z"
+        },
+        {
+          "id": "b2479c50-1aaa-47f1-ac42-0f25b5388394",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T09:20:40.562Z"
+        },
+        {
+          "id": "61d2741a-b9c0-4a05-b8bb-59b41bc1f411",
+          "method": "GET",
+          "path": "/resources/contract/00000000-0000-4000-0092-00000000003e",
+          "status": 404,
+          "at": "2026-11-05T09:20:40.579Z"
+        },
+        {
+          "id": "579fd82a-c452-408c-aaa8-5e32de1826f8",
+          "method": "GET",
+          "path": "/resources/project/00000000-0000-4000-0092-00000000003d",
+          "status": 404,
+          "at": "2026-11-05T09:20:40.594Z"
+        },
+        {
+          "id": "9edbd210-7203-4a5d-a1c1-da9e9ef03aa3",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T09:20:40.612Z"
+        },
+        {
+          "id": "bd75bb35-2440-4ad7-b88e-91be4ec7a7ce",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T09:20:40.628Z"
+        },
+        {
+          "id": "24104f8d-b5ea-4dd9-8d3f-bf90ddf9f16b",
+          "method": "GET",
+          "path": "/resources/contract/0600a08b-1091-483c-9172-34ddaf0d87f7",
+          "status": 404,
+          "at": "2026-11-05T09:20:40.644Z"
+        },
+        {
+          "id": "057db908-f32b-4fc9-a9b2-50d97602a53c",
+          "method": "GET",
+          "path": "/resources/contract/ef3c62c7-d0c9-419e-86b8-de70fb4276ca",
+          "status": 404,
+          "at": "2026-11-05T09:20:40.657Z"
+        },
+        {
+          "id": "4715e564-03bd-4f53-b0dd-fe9f9c1503d5",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T09:20:40.661Z"
+        },
+        {
+          "id": "3bc0bc79-c3ba-4ea3-b559-ef1b85e45a93",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 403,
+          "at": "2026-11-05T09:20:40.673Z"
+        },
+        {
+          "id": "eaabc441-a088-4e8c-9da5-a60a2548d0a5",
+          "method": "GET",
+          "path": "/resources/contract/ef3c62c7-d0c9-419e-86b8-de70fb4276ca",
+          "status": 404,
+          "at": "2026-11-05T09:20:40.688Z"
+        },
+        {
+          "id": "7931fb26-2fe7-4eb2-9c43-046b6ae9671c",
+          "method": "GET",
+          "path": "/resources/contract/00000000-0000-4000-0092-00000000003e",
+          "status": 404,
+          "at": "2026-11-05T09:20:40.706Z"
+        },
+        {
+          "id": "5b2511f3-f24a-415b-8464-a7bd978657f8",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T09:20:40.712Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/uat/isolation-api.uat.spec.ts",
+      "name": "TC-UAT-NFR-TENANCY-09: a member sees only the projects of their unit, and a guest contractor only their own contract",
+      "status": "passed",
+      "durationMs": 253,
+      "at": "2026-11-05T08:56:00.957Z",
+      "requests": [
+        {
+          "id": "6eb06888-d961-40e1-8e88-ae49c3873772",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:56:01.130Z"
+        },
+        {
+          "id": "93b59a29-1eea-4b9c-bece-20594cd97fcb",
+          "method": "GET",
+          "path": "/resources/project/0011add9-8d46-44e9-827b-a0ca2d06321c",
+          "status": 404,
+          "at": "2026-11-05T08:56:01.138Z"
+        },
+        {
+          "id": "007ec8a1-b916-4517-bf6d-bbc737b9b790",
+          "method": "GET",
+          "path": "/resources/project/88b58458-35b9-4dce-9bed-7a25b630b593",
+          "status": 200,
+          "at": "2026-11-05T08:56:01.144Z"
+        },
+        {
+          "id": "15efe1f6-fcb8-458f-a14b-8cc09d71290e",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T08:56:01.150Z"
+        },
+        {
+          "id": "fd79cc8b-2766-49c4-b2af-5125f24a1115",
+          "method": "GET",
+          "path": "/resources/contract/df1e8569-3b73-4016-8580-9e8252f2f5c4",
+          "status": 404,
+          "at": "2026-11-05T08:56:01.156Z"
+        },
+        {
+          "id": "098b2b76-234b-4e6e-b4bd-727b23703b20",
+          "method": "GET",
+          "path": "/resources/contract/b6555465-1461-4ada-b0b1-80aee8ebd0b9",
+          "status": 200,
+          "at": "2026-11-05T08:56:01.160Z"
+        },
+        {
+          "id": "17123983-f7d8-4abf-b5f7-590a638594dc",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 403,
+          "at": "2026-11-05T08:56:01.171Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "id": "UAT-AC461",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-finops.test.ts",
+      "name": "the price versions of the models (ST-LLM-003, LLM BR-LLM-13) AC-ST-LLM-003-3: UAT-AC461 costs an attempt of 120,000 input of which 100,000 cached, and 10,000 output, at 2.00, 0.50 and 8.00 per million and 25,400 dong to the dollar, as 0.17 USD and 4,318 VND",
+      "status": "passed",
+      "durationMs": 352,
+      "at": "2026-11-05T09:15:33.378Z",
+      "requests": [
+        {
+          "id": "eee016c4-1036-49aa-9f7f-c38b1ab20b0d",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:15:33.084Z"
+        },
+        {
+          "id": "ef306e03-8973-4cd0-a4b2-a08b5f453414",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:15:33.106Z"
+        },
+        {
+          "id": "65672d13-bbe4-43e3-8f6d-4ce3e650dd81",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:15:33.113Z"
+        },
+        {
+          "id": "ee36b5a5-e8d8-49ce-a014-93aba2b1f9fd",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:15:33.299Z"
+        },
+        {
+          "id": "6903d9ea-feb2-436a-859f-fc964b7a8995",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:15:33.313Z"
+        },
+        {
+          "id": "c992d958-262a-4ef4-a806-7f92742483ef",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:15:33.319Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-finops.test.ts",
+      "name": "the price versions of the models (ST-LLM-003, LLM BR-LLM-13) AC-ST-LLM-003-3: UAT-AC461 refuses a price version that overlaps the one in force with 409 PRICING_RANGE_OVERLAP, and ends the one in force where the next begins",
+      "status": "passed",
+      "durationMs": 247,
+      "at": "2026-11-05T09:15:33.626Z",
+      "requests": [
+        {
+          "id": "88702e99-645d-42ff-bae6-61b15ae4fd5e",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:15:33.444Z"
+        },
+        {
+          "id": "980b4bab-12ea-4ac4-85b1-70437152b131",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:15:33.458Z"
+        },
+        {
+          "id": "381b2fda-3521-4990-a1b4-715492373718",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:15:33.474Z"
+        },
+        {
+          "id": "849e91d2-01a1-45bf-b3dd-42d423eed179",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 409,
+          "at": "2026-11-05T09:15:33.490Z"
+        },
+        {
+          "id": "4e4541fd-f7e5-4bb0-9f2f-d55c2392cda3",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 409,
+          "at": "2026-11-05T09:15:33.504Z"
+        },
+        {
+          "id": "59dc604f-3c11-408e-b438-af2e6ac7bbd6",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:15:33.519Z"
+        }
+      ]
+    }
+  ]
+}

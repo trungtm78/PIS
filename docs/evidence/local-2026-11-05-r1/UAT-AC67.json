@@ -1,0 +1,180 @@
+{
+  "id": "UAT-AC67",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/payment-chain.test.ts",
+      "name": "the trace of a payment over HTTP (ST-PAY-010, AC-ST-PAY-010-1, PAY-17, UAT-AC67) is registered in the module of PAY",
+      "status": "passed",
+      "durationMs": 1,
+      "at": "2026-11-05T09:19:43.469Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/payment-chain.test.ts",
+      "name": "the trace of a payment over HTTP (ST-PAY-010, AC-ST-PAY-010-1, PAY-17, UAT-AC67) UAT-AC67: gives the whole chain with the version of each node, and nothing that names a person",
+      "status": "passed",
+      "durationMs": 1494,
+      "at": "2026-11-05T09:19:44.964Z",
+      "requests": [
+        {
+          "id": "09418d66-2d12-407b-bf58-0e806a8bddf1",
+          "method": "GET",
+          "path": "/payment-chain",
+          "status": 200,
+          "at": "2026-11-05T09:19:44.935Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/payment-chain.test.ts",
+      "name": "the trace of a payment over HTTP (ST-PAY-010, AC-ST-PAY-010-1, PAY-17, UAT-AC67) gives every contract of the project when none is named",
+      "status": "passed",
+      "durationMs": 13,
+      "at": "2026-11-05T09:19:44.977Z",
+      "requests": [
+        {
+          "id": "607fc90e-c5b4-4b29-8640-6fd6326c3f25",
+          "method": "GET",
+          "path": "/payment-chain",
+          "status": 200,
+          "at": "2026-11-05T09:19:44.964Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/payment-chain.test.ts",
+      "name": "the trace of a payment over HTTP (ST-PAY-010, AC-ST-PAY-010-1, PAY-17, UAT-AC67) answers 404 for a project that is not there, a project outside the scope, a contract of another project, and a contractor who is a guest",
+      "status": "passed",
+      "durationMs": 1668,
+      "at": "2026-11-05T09:19:46.645Z",
+      "requests": [
+        {
+          "id": "93d7f79d-7d2b-4c9f-b52f-fd1e066b05c8",
+          "method": "GET",
+          "path": "/payment-chain",
+          "status": 404,
+          "at": "2026-11-05T09:19:46.562Z"
+        },
+        {
+          "id": "66afb2a3-b356-4e7a-8345-1fab6171767c",
+          "method": "GET",
+          "path": "/payment-chain",
+          "status": 404,
+          "at": "2026-11-05T09:19:46.582Z"
+        },
+        {
+          "id": "880d371e-8fcf-4acc-9bd9-99727a074898",
+          "method": "GET",
+          "path": "/payment-chain",
+          "status": 200,
+          "at": "2026-11-05T09:19:46.598Z"
+        },
+        {
+          "id": "6e714143-6b8e-465b-a60d-80f0921872de",
+          "method": "GET",
+          "path": "/payment-chain",
+          "status": 404,
+          "at": "2026-11-05T09:19:46.619Z"
+        },
+        {
+          "id": "b74ab3ff-f815-48e6-8a0b-95fd51243e0e",
+          "method": "GET",
+          "path": "/payment-chain",
+          "status": 200,
+          "at": "2026-11-05T09:19:46.630Z"
+        },
+        {
+          "id": "1e699a4d-2030-41e0-b752-898374ceed6a",
+          "method": "GET",
+          "path": "/payment-chain",
+          "status": 404,
+          "at": "2026-11-05T09:19:46.638Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/payment-chain.test.ts",
+      "name": "the trace of a payment over HTTP (ST-PAY-010, AC-ST-PAY-010-1, PAY-17, UAT-AC67) shows nothing of another tenant: its project is not there for ours, ours is not there for theirs, and a contract of theirs is not found under ours",
+      "status": "passed",
+      "durationMs": 1294,
+      "at": "2026-11-05T09:19:47.940Z",
+      "requests": [
+        {
+          "id": "94997cdf-6a4e-4622-be77-429059301eb7",
+          "method": "GET",
+          "path": "/payment-chain",
+          "status": 200,
+          "at": "2026-11-05T09:19:47.878Z"
+        },
+        {
+          "id": "34ac193c-e12d-46d9-a4fc-ed616dfcfdad",
+          "method": "GET",
+          "path": "/payment-chain",
+          "status": 404,
+          "at": "2026-11-05T09:19:47.899Z"
+        },
+        {
+          "id": "ec5f6256-6afd-44b8-b80f-02e2fb834a3c",
+          "method": "GET",
+          "path": "/payment-chain",
+          "status": 404,
+          "at": "2026-11-05T09:19:47.906Z"
+        },
+        {
+          "id": "c4c65ff9-9c5c-48c0-afa0-3c71a2d529c6",
+          "method": "GET",
+          "path": "/payment-chain",
+          "status": 404,
+          "at": "2026-11-05T09:19:47.922Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/payment-chain.test.ts",
+      "name": "the trace of a payment over HTTP (ST-PAY-010, AC-ST-PAY-010-1, PAY-17, UAT-AC67) refuses a caller without the right to the chain, and a request that names no project or a project that is not an identifier",
+      "status": "passed",
+      "durationMs": 45,
+      "at": "2026-11-05T09:19:47.984Z",
+      "requests": [
+        {
+          "id": "c06302c2-ef17-49a4-84aa-6bb782d40fb9",
+          "method": "GET",
+          "path": "/payment-chain",
+          "status": 403,
+          "at": "2026-11-05T09:19:47.940Z"
+        },
+        {
+          "id": "7ea02d51-ed30-40c7-b6c8-723b953e4410",
+          "method": "GET",
+          "path": "/payment-chain",
+          "status": 422,
+          "at": "2026-11-05T09:19:47.955Z"
+        },
+        {
+          "id": "13c6884f-73d8-4bf0-a39b-afb7ecce4a6b",
+          "method": "GET",
+          "path": "/payment-chain",
+          "status": 422,
+          "at": "2026-11-05T09:19:47.959Z"
+        },
+        {
+          "id": "17a2e483-2988-4b00-a3c5-34d6f8e104e1",
+          "method": "GET",
+          "path": "/payment-chain",
+          "status": 422,
+          "at": "2026-11-05T09:19:47.968Z"
+        }
+      ]
+    }
+  ]
+}

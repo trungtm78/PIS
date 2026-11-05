@@ -1,0 +1,27 @@
+{
+  "id": "UAT-AC254",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/ranking.test.ts",
+      "name": "the ranking job over the outbox (ST-DIS-013) AC-ST-DIS-013-1 / UAT-AC254: ranks the units of the group when the snapshot is frozen, once however often the event is delivered, with one audit row without any amount",
+      "status": "passed",
+      "durationMs": 899,
+      "at": "2026-11-05T09:23:35.481Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/golden.test.ts",
+      "name": "[CHỜ KÝ D03] golden fixtures FX-DIS-001..007 (ST-DIS-011) [CHỜ KÝ D03] FX-DIS-007 / UAT-AC254: ranks by rate, breaks the tie by the larger disbursement, and leaves out the unit below the minimum plan with its reason",
+      "status": "passed",
+      "durationMs": 1,
+      "at": "2026-11-05T09:24:00.406Z",
+      "requests": []
+    }
+  ]
+}

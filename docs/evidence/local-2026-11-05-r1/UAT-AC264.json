@@ -1,0 +1,261 @@
+{
+  "id": "UAT-AC264",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report-decision.test.ts",
+      "name": "the decision on a weekly report and its corrections over HTTP (ST-DIS-006) web and mobile file the same report, and a phone that replays its queue (ST-DIS-017) AC-ST-DIS-017-1 / UAT-AC264: the web and the phone file a report each for different projects with the same structure and total 420 million, and 300 million registered for next month become the REGISTERED rows of November once both are accepted",
+      "status": "passed",
+      "durationMs": 598,
+      "at": "2026-11-05T09:15:35.701Z",
+      "requests": [
+        {
+          "id": "c0ea0f9e-a985-4745-914c-db0b7a45c422",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:15:35.183Z"
+        },
+        {
+          "id": "d4315bc2-9aa1-4b11-85c7-36dd54ee81df",
+          "method": "POST",
+          "path": "/reports/9d63bbee-b072-41da-8f84-52fad7029ffd/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:35.207Z"
+        },
+        {
+          "id": "16eff9a8-4662-4f41-8e17-72bd64f62759",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:15:35.265Z"
+        },
+        {
+          "id": "e22ecaea-e370-4a50-9e0b-1e60b452b6f1",
+          "method": "POST",
+          "path": "/reports/e76f4d2b-4d6a-433f-a079-aa4bf555fddc/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:15:35.288Z"
+        },
+        {
+          "id": "1694a9ab-7573-458c-84fd-407e8f63cfaf",
+          "method": "POST",
+          "path": "/reports/e76f4d2b-4d6a-433f-a079-aa4bf555fddc/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:35.324Z"
+        },
+        {
+          "id": "e4644f4a-fb9e-465e-a9ec-cafd76a8bbca",
+          "method": "GET",
+          "path": "/reports/9d63bbee-b072-41da-8f84-52fad7029ffd",
+          "status": 200,
+          "at": "2026-11-05T09:15:35.357Z"
+        },
+        {
+          "id": "aae48d32-1af4-4546-9baa-5dca3986ab48",
+          "method": "GET",
+          "path": "/reports/e76f4d2b-4d6a-433f-a079-aa4bf555fddc",
+          "status": 200,
+          "at": "2026-11-05T09:15:35.376Z"
+        },
+        {
+          "id": "674a0528-7371-4353-9093-5dc20515940b",
+          "method": "POST",
+          "path": "/reports/9d63bbee-b072-41da-8f84-52fad7029ffd/decision",
+          "status": 200,
+          "at": "2026-11-05T09:15:35.394Z"
+        },
+        {
+          "id": "4ebfb6a7-bd23-456b-b727-cabe77cc4c8b",
+          "method": "POST",
+          "path": "/reports/e76f4d2b-4d6a-433f-a079-aa4bf555fddc/decision",
+          "status": 200,
+          "at": "2026-11-05T09:15:35.415Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) the volumes, the registration for next month, the narrative and the files (ST-DIS-004) AC-ST-DIS-004-1 / UAT-AC264: saves the four volumes and the percent with the date of the period and the basis of the report, reads them back, and keeps them when a save does not name them",
+      "status": "passed",
+      "durationMs": 322,
+      "at": "2026-11-05T09:16:03.923Z",
+      "requests": [
+        {
+          "id": "ac44615a-6b64-4817-9684-6a3613981192",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:03.649Z"
+        },
+        {
+          "id": "4f123928-c23b-47ef-a894-769df16b0891",
+          "method": "GET",
+          "path": "/reports/e2dc1a33-2269-4d90-8784-83bc5ab4f184",
+          "status": 200,
+          "at": "2026-11-05T09:16:03.681Z"
+        },
+        {
+          "id": "807f8b57-8b5c-4dc1-a8cf-7d12205cc8d8",
+          "method": "POST",
+          "path": "/reports/e2dc1a33-2269-4d90-8784-83bc5ab4f184/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:03.708Z"
+        },
+        {
+          "id": "5216a8c8-281a-4fd1-82e7-32abaa81ba22",
+          "method": "GET",
+          "path": "/reports/e2dc1a33-2269-4d90-8784-83bc5ab4f184",
+          "status": 200,
+          "at": "2026-11-05T09:16:03.772Z"
+        },
+        {
+          "id": "acd3d043-0237-4995-856f-bef7c2a97565",
+          "method": "POST",
+          "path": "/reports/e2dc1a33-2269-4d90-8784-83bc5ab4f184/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:03.826Z"
+        },
+        {
+          "id": "548858d0-c725-44c7-8d81-12bd9f474022",
+          "method": "GET",
+          "path": "/reports/e2dc1a33-2269-4d90-8784-83bc5ab4f184",
+          "status": 200,
+          "at": "2026-11-05T09:16:03.855Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) the volumes, the registration for next month, the narrative and the files (ST-DIS-004) AC-ST-DIS-004-3 / UAT-AC264: keeps the registration for next month with its CTMTQG per cell, adds it up, and refuses a CTMTQG above the registration",
+      "status": "passed",
+      "durationMs": 111,
+      "at": "2026-11-05T09:16:05.520Z",
+      "requests": [
+        {
+          "id": "a8ed4453-046e-4082-8c0c-872db004fbf4",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:05.451Z"
+        },
+        {
+          "id": "d885cec1-ccdd-410a-a9e3-94eac94caf6a",
+          "method": "GET",
+          "path": "/reports/a62721d8-f4a6-4fa3-b98f-2ee896a628fd",
+          "status": 200,
+          "at": "2026-11-05T09:16:05.475Z"
+        },
+        {
+          "id": "cec71dd0-abb1-4bd8-acb6-c1ab6158805f",
+          "method": "POST",
+          "path": "/reports/a62721d8-f4a6-4fa3-b98f-2ee896a628fd/revisions",
+          "status": 422,
+          "at": "2026-11-05T09:16:05.489Z"
+        },
+        {
+          "id": "fd5778c1-b661-4beb-85d6-b821933e5d94",
+          "method": "GET",
+          "path": "/reports/a62721d8-f4a6-4fa3-b98f-2ee896a628fd",
+          "status": 200,
+          "at": "2026-11-05T09:16:05.501Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/registration.test.ts",
+      "name": "the registration for next month over the outbox (ST-DIS-017) AC-ST-DIS-017-1 / UAT-AC264: an accepted report of October with 300 million registered for next month creates the REGISTERED rows of November, with the CTMTQG kept apart, and a cell with nothing creates none",
+      "status": "passed",
+      "durationMs": 256,
+      "at": "2026-11-05T09:21:09.640Z",
+      "requests": []
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/dis-report-steps-flows.spec.ts",
+      "name": "a maker draws the draft and enters the volumes with the basis of the year to date marked as awaiting the sign-off (AC-ST-DIS-004-1, UAT-AC264)",
+      "status": "passed",
+      "durationMs": 1037,
+      "at": "2026-11-05T08:46:43.524Z",
+      "requests": [
+        {
+          "id": "06544310-9f09-4b08-9eee-aa82dd4ea190",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:44.079Z"
+        },
+        {
+          "id": "5a6d5fb1-10a0-4dfe-9978-cf45c1c96530",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:46:44.080Z"
+        },
+        {
+          "id": "54524551-970b-433c-bea9-089fcffba8ce",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:44.122Z"
+        },
+        {
+          "id": "5e1585a9-d5e0-4602-a5db-66cd420dfe68",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:46:44.126Z"
+        },
+        {
+          "id": "77e85076-fd55-493a-970d-287377600a18",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:44.131Z"
+        },
+        {
+          "id": "942312d3-092b-44eb-ac56-a7012501b996",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T08:46:44.230Z"
+        },
+        {
+          "id": "31282f73-5531-40b9-992a-4fa35e7a3eb6",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:46:44.256Z"
+        },
+        {
+          "id": "aafeae71-efa2-4bc2-acda-1b8f2e8fb8c4",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:46:44.265Z"
+        },
+        {
+          "id": "79c48b22-7202-4df9-8a7c-59beb098c6fc",
+          "method": "GET",
+          "path": "/reports/e4124cdb-4d18-489b-b3c7-75148108d982",
+          "status": 200,
+          "at": "2026-11-05T08:46:44.300Z"
+        },
+        {
+          "id": "f230ea6a-5141-4f17-ab86-34a6709a5b89",
+          "method": "GET",
+          "path": "/reports/e4124cdb-4d18-489b-b3c7-75148108d982",
+          "status": 304,
+          "at": "2026-11-05T08:46:44.434Z"
+        }
+      ]
+    }
+  ]
+}

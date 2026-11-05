@@ -1,0 +1,443 @@
+{
+  "id": "UAT-AC363",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/inspection.test.ts",
+      "name": "the inspections over HTTP (ST-QMS-004) requestInspection (AC-ST-QMS-004-1, UAT-AC363) requests an inspection with the regime of its day, its audit row and its event, and answers the same key once",
+      "status": "passed",
+      "durationMs": 877,
+      "at": "2026-11-05T09:17:05.309Z",
+      "requests": [
+        {
+          "id": "0d4f7541-b2ed-4111-b31f-940461f23a5c",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.007Z"
+        },
+        {
+          "id": "4871e9e7-3acd-418f-a384-c8b216482f68",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.069Z"
+        },
+        {
+          "id": "dc2266b3-d154-4821-9813-c43375105b17",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.293Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/inspection.test.ts",
+      "name": "the inspections over HTTP (ST-QMS-004) requestInspection (AC-ST-QMS-004-1, UAT-AC363) gives the day after the change of the regime the roles of the new one, the designer among them",
+      "status": "passed",
+      "durationMs": 606,
+      "at": "2026-11-05T09:17:05.916Z",
+      "requests": [
+        {
+          "id": "6aeb8ed4-78d5-4873-b71a-80a49659fc74",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.803Z"
+        },
+        {
+          "id": "5e224fd9-7401-4854-9373-7e4f953ea219",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 422,
+          "at": "2026-11-05T09:17:05.888Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/inspection.test.ts",
+      "name": "the inspections over HTTP (ST-QMS-004) requestInspection (AC-ST-QMS-004-1, UAT-AC363) refuses a duplicate while one is open, a shape that is not one, a field that is not allowed and a contract not being performed",
+      "status": "passed",
+      "durationMs": 1141,
+      "at": "2026-11-05T09:17:07.057Z",
+      "requests": [
+        {
+          "id": "d3b127d2-3a7d-4b24-8781-86734885df04",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.418Z"
+        },
+        {
+          "id": "8d93b40c-b454-49e0-a1ea-5902ce01e948",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 409,
+          "at": "2026-11-05T09:17:06.447Z"
+        },
+        {
+          "id": "b353343f-987d-4a55-a5e9-5929ba2381cd",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 422,
+          "at": "2026-11-05T09:17:06.476Z"
+        },
+        {
+          "id": "131f966d-d00c-458f-8fa0-1469045f39db",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 422,
+          "at": "2026-11-05T09:17:06.492Z"
+        },
+        {
+          "id": "934b0d09-aea1-4c21-aace-a2a18db9e14d",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 422,
+          "at": "2026-11-05T09:17:06.512Z"
+        },
+        {
+          "id": "5ce54120-712e-4d34-9d75-f3e9e995cffa",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 400,
+          "at": "2026-11-05T09:17:06.524Z"
+        },
+        {
+          "id": "22c1ec17-3546-4ca5-9276-6a3f9b7ddaad",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 409,
+          "at": "2026-11-05T09:17:07.040Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/inspection.test.ts",
+      "name": "the inspections over HTTP (ST-QMS-004) requestInspection (AC-ST-QMS-004-1, UAT-AC363) AC-ST-QMS-004-2, UAT-AC369: is blocked while the permits of the start of construction are missing, and names the gate",
+      "status": "passed",
+      "durationMs": 703,
+      "at": "2026-11-05T09:17:07.760Z",
+      "requests": [
+        {
+          "id": "b76767de-b2d8-46b0-80bb-64028ea27aa1",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 422,
+          "at": "2026-11-05T09:17:07.610Z"
+        },
+        {
+          "id": "b47354a3-c375-4b7b-a695-2d4c6446a12a",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.731Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/inspection.test.ts",
+      "name": "the inspections over HTTP (ST-QMS-004) requestInspection (AC-ST-QMS-004-1, UAT-AC363) is for whoever holds the permission over the contract, and a guest contractor requests only in the contract it was invited to",
+      "status": "passed",
+      "durationMs": 1302,
+      "at": "2026-11-05T09:17:09.062Z",
+      "requests": [
+        {
+          "id": "24ee4032-0533-49e1-b2db-d59b3f2dbd75",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 403,
+          "at": "2026-11-05T09:17:08.810Z"
+        },
+        {
+          "id": "10d827ea-1490-4797-ab90-9492d4558845",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 403,
+          "at": "2026-11-05T09:17:08.827Z"
+        },
+        {
+          "id": "3fa83dbf-d1af-497a-988d-c8ad58affcc4",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 404,
+          "at": "2026-11-05T09:17:08.844Z"
+        },
+        {
+          "id": "cf1bb9f5-63c6-4a5b-83f6-a9a5abbf2bad",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 404,
+          "at": "2026-11-05T09:17:08.861Z"
+        },
+        {
+          "id": "543a5f58-58a8-46d5-8ec9-4dd0fa89ba16",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.922Z"
+        },
+        {
+          "id": "49de6841-4758-4377-bc7a-ed64c1ae3670",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 404,
+          "at": "2026-11-05T09:17:09.008Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/qms-inspection-flows.spec.ts",
+      "name": "the contractor asks, the supervisor schedules and records a failed result, and the inspection is kept as it is (UI-QMS-04, AC-ST-QMS-004-1, AC-ST-QMS-004-3, UAT-AC363, UAT-AC360)",
+      "status": "passed",
+      "durationMs": 3349,
+      "at": "2026-11-05T08:51:01.510Z",
+      "requests": [
+        {
+          "id": "beaf3441-8bda-40e3-828d-5eeba4e0823a",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T08:51:02.049Z"
+        },
+        {
+          "id": "4916651e-06a6-480e-b3a4-44ba96d215f9",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:51:02.050Z"
+        },
+        {
+          "id": "c37b1a86-6451-475e-a7de-7ba56e405e4f",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:51:02.093Z"
+        },
+        {
+          "id": "aaf84e9c-8aea-4ba4-b6d2-fe4c70cd54ef",
+          "method": "GET",
+          "path": "/resources/boq_line",
+          "status": 200,
+          "at": "2026-11-05T08:51:02.211Z"
+        },
+        {
+          "id": "cd00c660-3c08-4248-a796-6f0c39c5e41d",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:51:03.245Z"
+        },
+        {
+          "id": "e9a46cfe-6ca5-4818-9620-b12e28ea700d",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:51:03.274Z"
+        },
+        {
+          "id": "681b6a46-1215-4652-af6b-94a7d8d3660a",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 409,
+          "at": "2026-11-05T08:51:03.445Z"
+        },
+        {
+          "id": "027c52ce-bce5-4a43-8815-c82c9301684e",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T08:51:03.714Z"
+        },
+        {
+          "id": "96081419-fb62-4943-8917-519beee427d1",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:51:03.715Z"
+        },
+        {
+          "id": "1ca41341-9856-449f-bf93-737aeb009662",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:51:03.728Z"
+        },
+        {
+          "id": "1bf84719-b767-47b6-8079-491e1f04b6d8",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T08:51:03.894Z"
+        },
+        {
+          "id": "989c753f-1c7d-43fd-bfeb-b5eeb97fe3b6",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:51:03.895Z"
+        },
+        {
+          "id": "7109ed24-eff7-47d9-b605-f0d3aa4b0065",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:51:03.907Z"
+        },
+        {
+          "id": "879b5cd8-e2b3-4432-a935-e6e39691c5ee",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 200,
+          "at": "2026-11-05T08:51:03.999Z"
+        },
+        {
+          "id": "ada71f8f-8223-4e29-ba78-a7d5c7d34c46",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 200,
+          "at": "2026-11-05T08:51:04.023Z"
+        },
+        {
+          "id": "4fc55623-5325-43b0-9966-2f6cbcf44f82",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 200,
+          "at": "2026-11-05T08:51:04.057Z"
+        },
+        {
+          "id": "11f9df59-ec24-4c94-8689-c9cc5c4fba95",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 200,
+          "at": "2026-11-05T08:51:04.075Z"
+        },
+        {
+          "id": "fb8e85a1-fc6c-485f-87aa-bae735869cff",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 200,
+          "at": "2026-11-05T08:51:04.089Z"
+        },
+        {
+          "id": "bf2fc652-6aee-4487-a567-3d546ad6084d",
+          "method": "POST",
+          "path": "/inspections/46d6b875-4a38-49cf-a949-9b4fb34f2aeb/schedule",
+          "status": 200,
+          "at": "2026-11-05T08:51:04.212Z"
+        },
+        {
+          "id": "f7006938-f7f2-4bcd-a237-38b83202e89d",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:51:04.228Z"
+        },
+        {
+          "id": "6dd74fb2-c423-4b59-b2e5-da614388ff6b",
+          "method": "GET",
+          "path": "/resources/boq_line",
+          "status": 200,
+          "at": "2026-11-05T08:51:03.399Z"
+        },
+        {
+          "id": "6e1cb967-01db-438e-a158-0655c93f4f86",
+          "method": "POST",
+          "path": "/inspections/46d6b875-4a38-49cf-a949-9b4fb34f2aeb/result",
+          "status": 200,
+          "at": "2026-11-05T08:51:04.513Z"
+        },
+        {
+          "id": "b6423407-7b06-4e31-b5bf-fc3efde305e8",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:51:04.529Z"
+        },
+        {
+          "id": "bd622006-f720-4e73-b35f-765a3a3dfae0",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T08:51:04.791Z"
+        },
+        {
+          "id": "6b8629b2-7048-4ba4-91c6-c4906a2d0c3e",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:51:04.792Z"
+        },
+        {
+          "id": "848a532b-9997-4945-9c60-c8bf9ac9f2c4",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:51:04.807Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/qms-inspection-flows.spec.ts",
+      "name": "the regime that replaces the current one from 2027 gives the inspection of that day its own roles (UI-QMS-04, AC-ST-QMS-004-1, UAT-AC363)",
+      "status": "passed",
+      "durationMs": 2065,
+      "at": "2026-11-05T08:51:04.867Z",
+      "requests": [
+        {
+          "id": "5397186a-c4d0-4747-ab91-0c6f4afcae37",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T08:51:05.387Z"
+        },
+        {
+          "id": "5590cfcb-5554-45d8-9f75-30161c0444c7",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:51:05.388Z"
+        },
+        {
+          "id": "d00519c2-e33a-4f56-8b9e-e1b14b91d3b5",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:51:05.431Z"
+        },
+        {
+          "id": "ea47f6a7-c47c-45c3-b85b-8e07bfd2673f",
+          "method": "GET",
+          "path": "/resources/boq_line",
+          "status": 200,
+          "at": "2026-11-05T08:51:05.495Z"
+        },
+        {
+          "id": "491b22c5-07c1-4141-8df9-7baf0eb2ae46",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:51:06.827Z"
+        },
+        {
+          "id": "273f47ac-edaf-4205-a104-6c2f2c2d96d0",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:51:06.854Z"
+        }
+      ]
+    }
+  ]
+}

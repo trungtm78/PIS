@@ -1,0 +1,166 @@
+{
+  "id": "UAT-AC365",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/diary.test.ts",
+      "name": "the electronic site diary over HTTP (ST-QMS-001) AC-ST-QMS-001-3, UAT-AC365: refuses a guest on a foreign contract (404), a signature for another role (403) and a right that is not the side of the signer",
+      "status": "passed",
+      "durationMs": 1927,
+      "at": "2026-11-05T09:12:02.997Z",
+      "requests": [
+        {
+          "id": "2036c67d-7626-49e1-b7e5-695751f3b331",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 404,
+          "at": "2026-11-05T09:12:02.573Z"
+        },
+        {
+          "id": "e4db8ebc-5c3f-4fc9-b5d0-da53d568b6b4",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 200,
+          "at": "2026-11-05T09:12:02.642Z"
+        },
+        {
+          "id": "e9698567-2a93-41d7-87d2-5bc74afac4b4",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 200,
+          "at": "2026-11-05T09:12:02.660Z"
+        },
+        {
+          "id": "9af3ba6f-4586-4739-be8f-9902cf18992f",
+          "method": "GET",
+          "path": "/resources/site_diary/3b8de0a0-762a-4f30-a1b5-660ce3498dd0",
+          "status": 404,
+          "at": "2026-11-05T09:12:02.678Z"
+        },
+        {
+          "id": "cdded594-7e6b-46f0-ab5f-1e4b7319b8b3",
+          "method": "POST",
+          "path": "/site-diaries/3b8de0a0-762a-4f30-a1b5-660ce3498dd0/draft",
+          "status": 404,
+          "at": "2026-11-05T09:12:02.688Z"
+        },
+        {
+          "id": "4983bc61-2f17-4968-a35a-acaa7b8f2d2c",
+          "method": "POST",
+          "path": "/site-diaries/3b8de0a0-762a-4f30-a1b5-660ce3498dd0/contractor-sign",
+          "status": 404,
+          "at": "2026-11-05T09:12:02.697Z"
+        },
+        {
+          "id": "19b9b967-c462-4639-a35b-691d23f62305",
+          "method": "GET",
+          "path": "/resources/site_diary",
+          "status": 200,
+          "at": "2026-11-05T09:12:02.722Z"
+        },
+        {
+          "id": "8c8396f2-5175-4d58-bb76-f30ba04ddde8",
+          "method": "POST",
+          "path": "/site-diaries/cc9e8da1-c573-4c96-8c81-cda7613f8ca5/contractor-sign",
+          "status": 200,
+          "at": "2026-11-05T09:12:02.729Z"
+        },
+        {
+          "id": "6b867759-42f6-4052-b9b4-5ed7cde51bda",
+          "method": "POST",
+          "path": "/site-diaries/cc9e8da1-c573-4c96-8c81-cda7613f8ca5/supervisor-remark",
+          "status": 403,
+          "at": "2026-11-05T09:12:02.756Z"
+        },
+        {
+          "id": "f1b3ee35-983b-4205-b2d6-7d78257deb62",
+          "method": "POST",
+          "path": "/site-diaries/cc9e8da1-c573-4c96-8c81-cda7613f8ca5/owner-confirm",
+          "status": 403,
+          "at": "2026-11-05T09:12:02.764Z"
+        },
+        {
+          "id": "3ac17335-c16b-49a4-a6e3-0ed3a8950cb9",
+          "method": "POST",
+          "path": "/site-diaries/cc9e8da1-c573-4c96-8c81-cda7613f8ca5/lock",
+          "status": 403,
+          "at": "2026-11-05T09:12:02.779Z"
+        },
+        {
+          "id": "8456568d-0678-4bd9-bd84-6eddb481dee2",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 200,
+          "at": "2026-11-05T09:12:02.795Z"
+        },
+        {
+          "id": "066dc6e5-0fb9-4d1e-8c95-f741db5e7a33",
+          "method": "POST",
+          "path": "/site-diaries/698193a7-26cf-4e68-bc4a-a5f786e969a5/contractor-sign",
+          "status": 403,
+          "at": "2026-11-05T09:12:02.817Z"
+        },
+        {
+          "id": "9b4c0eb2-e178-4ec5-867f-fe00ef541c05",
+          "method": "POST",
+          "path": "/site-diaries/698193a7-26cf-4e68-bc4a-a5f786e969a5/contractor-sign",
+          "status": 403,
+          "at": "2026-11-05T09:12:02.835Z"
+        },
+        {
+          "id": "006e83c2-e143-4b16-b3bf-b96c17c36c75",
+          "method": "POST",
+          "path": "/site-diaries/cc9e8da1-c573-4c96-8c81-cda7613f8ca5/supervisor-remark",
+          "status": 200,
+          "at": "2026-11-05T09:12:02.844Z"
+        },
+        {
+          "id": "0e6d8263-ddf4-443a-8a33-1ef30a4c46c2",
+          "method": "POST",
+          "path": "/site-diaries/cc9e8da1-c573-4c96-8c81-cda7613f8ca5/owner-confirm",
+          "status": 403,
+          "at": "2026-11-05T09:12:02.855Z"
+        },
+        {
+          "id": "8e359528-ac76-4854-a063-4eb1e71c0c18",
+          "method": "POST",
+          "path": "/site-diaries/cc9e8da1-c573-4c96-8c81-cda7613f8ca5/supervisor-remark",
+          "status": 409,
+          "at": "2026-11-05T09:12:02.876Z"
+        },
+        {
+          "id": "6ff31166-c63c-4407-b8e9-a7a1f46f4dcf",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 403,
+          "at": "2026-11-05T09:12:02.939Z"
+        },
+        {
+          "id": "188fae93-1843-45b3-b8d8-61f9bef1d09b",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 403,
+          "at": "2026-11-05T09:12:02.955Z"
+        },
+        {
+          "id": "336eac00-1165-4dbe-ae7c-91220c0d5969",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 404,
+          "at": "2026-11-05T09:12:02.973Z"
+        },
+        {
+          "id": "41d0f1fa-9a81-475e-bcf7-5f9a8d846b87",
+          "method": "GET",
+          "path": "/resources/site_diary/cc9e8da1-c573-4c96-8c81-cda7613f8ca5",
+          "status": 403,
+          "at": "2026-11-05T09:12:02.993Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "UI-AUD-01",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/aud-recovery-flows.spec.ts",
+      "name": "a reader sees the ledger, the rates with their numerators and denominators, and the overview, and has no button that records or reverses (UI-AUD-08, UI-AUD-01)",
+      "status": "passed",
+      "durationMs": 952,
+      "at": "2026-11-05T08:43:56.641Z",
+      "requests": [
+        {
+          "id": "74f0360b-d35d-45e2-8506-2d48c618dcf0",
+          "method": "GET",
+          "path": "/audit-engagements",
+          "status": 200,
+          "at": "2026-11-05T08:43:57.271Z"
+        },
+        {
+          "id": "ebbe7fb4-58bc-4812-a03a-f9c5121787d7",
+          "method": "GET",
+          "path": "/audit-engagements/990fc78c-6ff5-4c8d-816f-79892eb44eb0/recovery-links",
+          "status": 200,
+          "at": "2026-11-05T08:43:57.272Z"
+        },
+        {
+          "id": "7f11158c-dd59-4e8c-b250-89b269fa1758",
+          "method": "GET",
+          "path": "/audit-engagements/990fc78c-6ff5-4c8d-816f-79892eb44eb0/recovery-summary",
+          "status": 200,
+          "at": "2026-11-05T08:43:57.272Z"
+        },
+        {
+          "id": "6a016043-4785-41d5-aad7-839a7d5c2732",
+          "method": "GET",
+          "path": "/audit-overview",
+          "status": 200,
+          "at": "2026-11-05T08:43:57.534Z"
+        }
+      ]
+    }
+  ]
+}

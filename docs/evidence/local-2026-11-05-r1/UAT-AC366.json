@@ -1,0 +1,54 @@
+{
+  "id": "UAT-AC366",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/diary.test.ts",
+      "name": "the electronic site diary over HTTP (ST-QMS-001) AC-ST-QMS-001-4, UAT-AC366: refuses the second of two supervisors who write with the same If-Match, and tells them to reload; nothing is overwritten",
+      "status": "passed",
+      "durationMs": 917,
+      "at": "2026-11-05T09:12:03.915Z",
+      "requests": [
+        {
+          "id": "e6c10593-b153-439f-b398-f752af70746b",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 200,
+          "at": "2026-11-05T09:12:03.731Z"
+        },
+        {
+          "id": "ca2f42a2-2a9d-408b-8b3c-3c4d126ed5cc",
+          "method": "POST",
+          "path": "/site-diaries/dc758b32-1bfb-4362-853e-b35b7464681d/contractor-sign",
+          "status": 200,
+          "at": "2026-11-05T09:12:03.746Z"
+        },
+        {
+          "id": "1a0fbcd1-cb4f-4dcb-b536-2b4a285c5bc0",
+          "method": "POST",
+          "path": "/site-diaries/dc758b32-1bfb-4362-853e-b35b7464681d/supervisor-remark",
+          "status": 200,
+          "at": "2026-11-05T09:12:03.763Z"
+        },
+        {
+          "id": "e92931aa-b540-41d9-9c7d-5754dec87caf",
+          "method": "POST",
+          "path": "/site-diaries/dc758b32-1bfb-4362-853e-b35b7464681d/supervisor-remark",
+          "status": 409,
+          "at": "2026-11-05T09:12:03.763Z"
+        },
+        {
+          "id": "ed4ebf70-dc64-4202-a455-eb96aff7c270",
+          "method": "POST",
+          "path": "/site-diaries/dc758b32-1bfb-4362-853e-b35b7464681d/supervisor-remark",
+          "status": 409,
+          "at": "2026-11-05T09:12:03.859Z"
+        }
+      ]
+    }
+  ]
+}

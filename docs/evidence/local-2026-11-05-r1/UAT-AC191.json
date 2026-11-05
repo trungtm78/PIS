@@ -1,0 +1,18 @@
+{
+  "id": "UAT-AC191",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/channel-limits-delivery.test.ts",
+      "name": "the cap and the budget of a channel account at the moment of sending (ST-NOT-010, BR-NOT-13) AC-ST-NOT-010-1 UAT-AC191: a budget at 999,900 of 1,000,000: an ordinary message is held until next month and a CRITICAL one is sent",
+      "status": "passed",
+      "durationMs": 453,
+      "at": "2026-11-05T09:22:05.513Z",
+      "requests": []
+    }
+  ]
+}

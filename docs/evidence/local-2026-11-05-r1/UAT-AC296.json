@@ -1,0 +1,40 @@
+{
+  "id": "UAT-AC296",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mne/mne-reports.test.ts",
+      "name": "the periodic overall report API (ST-MNE-002, MNE F3, MNE-03) AC-ST-MNE-002-3: a form that is not in force UAT-AC296: refuses a 2025 report of a form that takes effect in 2026, naming the day (422 FORM_NOT_EFFECTIVE)",
+      "status": "passed",
+      "durationMs": 328,
+      "at": "2026-11-05T09:18:47.030Z",
+      "requests": [
+        {
+          "id": "5686fb3e-9dc9-441d-8390-07f2cdf09cb1",
+          "method": "POST",
+          "path": "/mne-forms",
+          "status": 200,
+          "at": "2026-11-05T09:18:46.701Z"
+        },
+        {
+          "id": "c4698e7e-faa2-4190-897c-f229884b5a68",
+          "method": "POST",
+          "path": "/mne-forms/253d4b6c-9289-4430-a8e7-7db828e1deab/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:46.724Z"
+        },
+        {
+          "id": "5fcb7cb5-cb17-4a51-b222-e1f92dd1d98b",
+          "method": "POST",
+          "path": "/mne-reports",
+          "status": 422,
+          "at": "2026-11-05T09:18:46.793Z"
+        }
+      ]
+    }
+  ]
+}

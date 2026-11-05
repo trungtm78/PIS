@@ -1,0 +1,71 @@
+{
+  "id": "UAT-AC317",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contract-lifecycle.test.ts",
+      "name": "the life of a contract over HTTP (ST-CTR-004, ST-CTR-005) returnContractDraft UAT-AC317: refuses the one who drafted it (403 SELF_APPROVAL_DENIED)",
+      "status": "passed",
+      "durationMs": 790,
+      "at": "2026-11-05T09:11:19.322Z",
+      "requests": [
+        {
+          "id": "1ea84de4-a0b1-438c-b97d-8433a3a9f1a2",
+          "method": "POST",
+          "path": "/contracts/668104c6-8d78-4e65-8c07-ef41f0795b26/return",
+          "status": 403,
+          "at": "2026-11-05T09:11:19.235Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contract-lifecycle.test.ts",
+      "name": "the life of a contract over HTTP (ST-CTR-004, ST-CTR-005) recordContractSigning AC-ST-CTR-004-3, UAT-AC317: refuses the drafter (403 SELF_APPROVAL_DENIED), a leader below the band of 25 billion (403 SCOPE_DENIED) and a body with a status or a tenant, and accepts the leader of the province",
+      "status": "passed",
+      "durationMs": 1289,
+      "at": "2026-11-05T09:11:22.035Z",
+      "requests": [
+        {
+          "id": "9540bc2f-d501-491b-b68c-a63438168a14",
+          "method": "POST",
+          "path": "/contracts/517875df-47de-4b1c-bd1f-7a5e96c3916f/sign",
+          "status": 403,
+          "at": "2026-11-05T09:11:21.369Z"
+        },
+        {
+          "id": "3d7c8d07-0dfa-4111-8435-ed24f600570a",
+          "method": "POST",
+          "path": "/contracts/b1e390ed-69d2-4c49-8710-160936793b2a/sign",
+          "status": 403,
+          "at": "2026-11-05T09:11:21.916Z"
+        },
+        {
+          "id": "cbe8c9b9-4f1f-48e0-ab11-ea70634311f9",
+          "method": "POST",
+          "path": "/contracts/b1e390ed-69d2-4c49-8710-160936793b2a/sign",
+          "status": 403,
+          "at": "2026-11-05T09:11:21.935Z"
+        },
+        {
+          "id": "a70be8b4-b1e1-42d5-aec4-04588f581dc3",
+          "method": "POST",
+          "path": "/contracts/b1e390ed-69d2-4c49-8710-160936793b2a/sign",
+          "status": 400,
+          "at": "2026-11-05T09:11:21.946Z"
+        },
+        {
+          "id": "93c1b38c-c2f3-4ed7-865e-892b4922ed8e",
+          "method": "POST",
+          "path": "/contracts/b1e390ed-69d2-4c49-8710-160936793b2a/sign",
+          "status": 200,
+          "at": "2026-11-05T09:11:22.004Z"
+        }
+      ]
+    }
+  ]
+}

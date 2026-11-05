@@ -1,0 +1,54 @@
+{
+  "id": "UI-CTR-04",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/ctr-flows.spec.ts",
+      "name": "a file with faults is answered row by row and writes nothing; lines above the value are refused with the figures (AC-ST-CTR-002-3, UI-CTR-04)",
+      "status": "passed",
+      "durationMs": 1143,
+      "at": "2026-11-05T08:46:03.891Z",
+      "requests": [
+        {
+          "id": "e0b44e7a-09b1-4b98-b04a-87b9f49ce27b",
+          "method": "GET",
+          "path": "/resources/contract/b68a37e3-7a43-44d4-ab62-94294783474c",
+          "status": 200,
+          "at": "2026-11-05T08:46:04.399Z"
+        },
+        {
+          "id": "e2ce2787-ee7c-4ffe-8338-a431843a9f91",
+          "method": "GET",
+          "path": "/resources/boq_line",
+          "status": 200,
+          "at": "2026-11-05T08:46:04.400Z"
+        },
+        {
+          "id": "86ddc068-f98b-4e9d-8be0-00882dd12d0e",
+          "method": "POST",
+          "path": "/contract-revisions/206cd268-b1a8-43c7-ae58-e25b05296812/boq-lines",
+          "status": 422,
+          "at": "2026-11-05T08:46:04.534Z"
+        },
+        {
+          "id": "34098e1e-4c95-4267-8cf2-b2551e9249d7",
+          "method": "POST",
+          "path": "/contract-revisions/206cd268-b1a8-43c7-ae58-e25b05296812/boq-lines",
+          "status": 422,
+          "at": "2026-11-05T08:46:04.746Z"
+        },
+        {
+          "id": "b4bb611b-8969-4150-adfc-a8050d37a997",
+          "method": "POST",
+          "path": "/contract-revisions/206cd268-b1a8-43c7-ae58-e25b05296812/boq-lines",
+          "status": 422,
+          "at": "2026-11-05T08:46:04.813Z"
+        }
+      ]
+    }
+  ]
+}

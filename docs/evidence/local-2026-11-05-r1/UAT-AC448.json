@@ -1,0 +1,519 @@
+{
+  "id": "UAT-AC448",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/proposal.test.ts",
+      "name": "the sealed proposal and the declaration of conflict of interest (ST-BID-004) receiveProposal receives the proposal sealed, audits it and tells the world who sent it and how many files, never the price or a file (UAT-AC448 step 0)",
+      "status": "passed",
+      "durationMs": 444,
+      "at": "2026-11-05T09:18:24.066Z",
+      "requests": [
+        {
+          "id": "b5842f50-3c48-4b13-b41c-e7653fb4801d",
+          "method": "POST",
+          "path": "/proposals",
+          "status": 200,
+          "at": "2026-11-05T09:18:23.865Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/proposal.test.ts",
+      "name": "the sealed proposal and the declaration of conflict of interest (ST-BID-004) receiveProposal is for the clerk of the scope of the project: a clerk of another branch gets 404, an evaluator and a reader get 403 (UAT-AC448)",
+      "status": "passed",
+      "durationMs": 329,
+      "at": "2026-11-05T09:18:26.442Z",
+      "requests": [
+        {
+          "id": "64d9f7f3-d8d3-4c36-ae59-20a2cb37ebb2",
+          "method": "POST",
+          "path": "/proposals",
+          "status": 404,
+          "at": "2026-11-05T09:18:26.318Z"
+        },
+        {
+          "id": "29623402-6880-4068-bd5c-9b6c0527a0a5",
+          "method": "POST",
+          "path": "/proposals",
+          "status": 200,
+          "at": "2026-11-05T09:18:26.350Z"
+        },
+        {
+          "id": "6589ab7c-8d55-48c1-a80d-7fc3d75e5efe",
+          "method": "POST",
+          "path": "/proposals",
+          "status": 403,
+          "at": "2026-11-05T09:18:26.398Z"
+        },
+        {
+          "id": "e59807c6-cf16-4216-9413-7664f2e10d7e",
+          "method": "POST",
+          "path": "/proposals",
+          "status": 403,
+          "at": "2026-11-05T09:18:26.419Z"
+        },
+        {
+          "id": "2735b99b-60d1-4367-b29b-74ea75d97e3d",
+          "method": "POST",
+          "path": "/proposals",
+          "status": 403,
+          "at": "2026-11-05T09:18:26.436Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/proposal.test.ts",
+      "name": "the sealed proposal and the declaration of conflict of interest (ST-BID-004) reading a sealed proposal (AC-ST-BID-004-1, UAT-AC448) hides the proposal from an evaluator who declared before the opening (404), and shows the clerk the metadata and nothing else",
+      "status": "passed",
+      "durationMs": 338,
+      "at": "2026-11-05T09:18:26.780Z",
+      "requests": [
+        {
+          "id": "77069026-c13e-46e2-b2dd-6818cb497765",
+          "method": "POST",
+          "path": "/proposals",
+          "status": 200,
+          "at": "2026-11-05T09:18:26.676Z"
+        },
+        {
+          "id": "735bf858-ccf9-4e39-ad5c-605a7eaa14d2",
+          "method": "POST",
+          "path": "/procurement-packages/d2cd7b46-f26e-44eb-8b3a-c19bf5f83ac9/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:18:26.699Z"
+        },
+        {
+          "id": "35e92c7d-6803-4e6e-844d-c5656a49b1ff",
+          "method": "GET",
+          "path": "/resources/proposal/0bb7426d-56f0-4734-938d-8d61d3e2e1e0",
+          "status": 404,
+          "at": "2026-11-05T09:18:26.722Z"
+        },
+        {
+          "id": "53bc586d-b81b-4d1f-880f-0be1d4d2c926",
+          "method": "GET",
+          "path": "/resources/proposal",
+          "status": 200,
+          "at": "2026-11-05T09:18:26.733Z"
+        },
+        {
+          "id": "33a444e0-2ffa-4590-b766-f45c6ca4cb52",
+          "method": "GET",
+          "path": "/resources/proposal/0bb7426d-56f0-4734-938d-8d61d3e2e1e0",
+          "status": 200,
+          "at": "2026-11-05T09:18:26.748Z"
+        },
+        {
+          "id": "462cc3e1-7d10-4a9b-a24a-32fe00fd75fe",
+          "method": "GET",
+          "path": "/resources/proposal",
+          "status": 200,
+          "at": "2026-11-05T09:18:26.763Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/proposal.test.ts",
+      "name": "the sealed proposal and the declaration of conflict of interest (ST-BID-004) reading a sealed proposal (AC-ST-BID-004-1, UAT-AC448) shows the evaluator who declared the whole proposal after the opening, and records that they opened it",
+      "status": "passed",
+      "durationMs": 442,
+      "at": "2026-11-05T09:18:27.223Z",
+      "requests": [
+        {
+          "id": "5f527717-4183-4969-b823-128989cef845",
+          "method": "POST",
+          "path": "/proposals",
+          "status": 200,
+          "at": "2026-11-05T09:18:27.005Z"
+        },
+        {
+          "id": "c3cf0629-b21a-44dd-b501-cc0d22b74de2",
+          "method": "POST",
+          "path": "/procurement-packages/87258b67-d7f3-48b9-95b2-9bf6754f58f9/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:18:27.031Z"
+        },
+        {
+          "id": "2432f3c8-05fc-42b4-adaf-c6c01ecb9a14",
+          "method": "GET",
+          "path": "/resources/proposal/8a00da93-04c2-4e8a-9414-60b3040be657",
+          "status": 200,
+          "at": "2026-11-05T09:18:27.141Z"
+        },
+        {
+          "id": "cd37748c-8133-444f-9224-f1c0ec96e34d",
+          "method": "GET",
+          "path": "/resources/proposal/8a00da93-04c2-4e8a-9414-60b3040be657",
+          "status": 200,
+          "at": "2026-11-05T09:18:27.211Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/proposal.test.ts",
+      "name": "the sealed proposal and the declaration of conflict of interest (ST-BID-004) reading a sealed proposal (AC-ST-BID-004-1, UAT-AC448) asks the evaluator who has not declared to declare first (403 CONFLICT_UNDECLARED), and shows them the proposal as one that waits for it",
+      "status": "passed",
+      "durationMs": 419,
+      "at": "2026-11-05T09:18:27.642Z",
+      "requests": [
+        {
+          "id": "12255ae8-901c-442b-bf66-a90ef848036f",
+          "method": "POST",
+          "path": "/proposals",
+          "status": 200,
+          "at": "2026-11-05T09:18:27.463Z"
+        },
+        {
+          "id": "c94465e5-9b1a-4532-8b0f-f9026c9ce126",
+          "method": "GET",
+          "path": "/resources/proposal/61468311-1124-4d78-9035-bac977bcdd2c",
+          "status": 403,
+          "at": "2026-11-05T09:18:27.580Z"
+        },
+        {
+          "id": "60d63096-e6a3-452d-a8ad-de76d8443330",
+          "method": "GET",
+          "path": "/resources/proposal",
+          "status": 200,
+          "at": "2026-11-05T09:18:27.594Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/proposal.test.ts",
+      "name": "the sealed proposal and the declaration of conflict of interest (ST-BID-004) reading a sealed proposal (AC-ST-BID-004-1, UAT-AC448) shows nothing to a caller who may only read proposals, to a clerk of another branch, and to another tenant",
+      "status": "passed",
+      "durationMs": 431,
+      "at": "2026-11-05T09:18:28.073Z",
+      "requests": [
+        {
+          "id": "1a01c577-24d5-4327-b676-46dc84b361de",
+          "method": "POST",
+          "path": "/proposals",
+          "status": 200,
+          "at": "2026-11-05T09:18:27.892Z"
+        },
+        {
+          "id": "57af7b09-3cde-4926-b06e-f6387d1f7064",
+          "method": "GET",
+          "path": "/resources/proposal/ae1ee678-85ce-466d-9b23-25ac9088cc1c",
+          "status": 404,
+          "at": "2026-11-05T09:18:28.005Z"
+        },
+        {
+          "id": "e3902c4e-e0fa-4b1a-84ea-f867d9b30079",
+          "method": "GET",
+          "path": "/resources/proposal",
+          "status": 200,
+          "at": "2026-11-05T09:18:28.022Z"
+        },
+        {
+          "id": "bd0c5373-8d83-4a80-8754-3fb67f1da89b",
+          "method": "GET",
+          "path": "/resources/proposal/ae1ee678-85ce-466d-9b23-25ac9088cc1c",
+          "status": 404,
+          "at": "2026-11-05T09:18:28.039Z"
+        },
+        {
+          "id": "375adeec-8ddd-40a6-82a9-bf2333395838",
+          "method": "GET",
+          "path": "/resources/proposal/ae1ee678-85ce-466d-9b23-25ac9088cc1c",
+          "status": 404,
+          "at": "2026-11-05T09:18:28.056Z"
+        },
+        {
+          "id": "a8d64d13-2edc-43b1-91ed-775f77ce48b5",
+          "method": "GET",
+          "path": "/resources/proposal/ae1ee678-85ce-466d-9b23-25ac9088cc1c",
+          "status": 403,
+          "at": "2026-11-05T09:18:28.071Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/proposal.test.ts",
+      "name": "the sealed proposal and the declaration of conflict of interest (ST-BID-004) reading a sealed proposal (AC-ST-BID-004-1, UAT-AC448) pages the proposals and refuses a package id that is not one",
+      "status": "passed",
+      "durationMs": 506,
+      "at": "2026-11-05T09:18:28.579Z",
+      "requests": [
+        {
+          "id": "224958a2-e7c9-4467-9e8c-cb8451ae4bc6",
+          "method": "POST",
+          "path": "/proposals",
+          "status": 200,
+          "at": "2026-11-05T09:18:28.312Z"
+        },
+        {
+          "id": "764c72ae-0a97-427e-b4c3-6c9955c30319",
+          "method": "POST",
+          "path": "/proposals",
+          "status": 200,
+          "at": "2026-11-05T09:18:28.389Z"
+        },
+        {
+          "id": "496a5d88-3287-43e3-b8bf-5bee068ae03d",
+          "method": "POST",
+          "path": "/proposals",
+          "status": 200,
+          "at": "2026-11-05T09:18:28.500Z"
+        },
+        {
+          "id": "c0126164-6baf-41a6-95ef-007ef474033e",
+          "method": "GET",
+          "path": "/resources/proposal",
+          "status": 200,
+          "at": "2026-11-05T09:18:28.531Z"
+        },
+        {
+          "id": "0a71ae03-c1b2-4a17-9a0c-b3d82a76883b",
+          "method": "GET",
+          "path": "/resources/proposal",
+          "status": 200,
+          "at": "2026-11-05T09:18:28.552Z"
+        },
+        {
+          "id": "0076b8b9-bf3b-4da2-a80f-e2e72814d084",
+          "method": "GET",
+          "path": "/resources/proposal",
+          "status": 422,
+          "at": "2026-11-05T09:18:28.559Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/bid-proposal-flows.spec.ts",
+      "name": "the clerk logs the files a contractor handed in; the proposal is stored confidential and sealed until the opening, and the clerk sees the receipt and never the price (UI-BID-05, AC-ST-BID-004-1, UAT-AC448)",
+      "status": "passed",
+      "durationMs": 1304,
+      "at": "2026-11-05T08:44:41.144Z",
+      "requests": [
+        {
+          "id": "edf17b6e-b338-4428-a025-898e863902b7",
+          "method": "GET",
+          "path": "/procurement-milestones",
+          "status": 200,
+          "at": "2026-11-05T08:44:41.810Z"
+        },
+        {
+          "id": "2c992ab2-6b1e-4947-9b2f-01a63f918161",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:41.809Z"
+        },
+        {
+          "id": "8fcc4c02-2c4e-4128-923e-05ba40edd31c",
+          "method": "GET",
+          "path": "/resources/proposal",
+          "status": 200,
+          "at": "2026-11-05T08:44:41.859Z"
+        },
+        {
+          "id": "e9f695d6-514a-48f5-bab3-0ce70e7d3aae",
+          "method": "GET",
+          "path": "/procurement-packages/e165bac2-fc98-470e-bde8-5fef953a80a5/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T08:44:41.859Z"
+        },
+        {
+          "id": "4b726043-d7ac-4caa-b355-7e1204f23e1a",
+          "method": "GET",
+          "path": "/resources/contractor",
+          "status": 200,
+          "at": "2026-11-05T08:44:41.955Z"
+        },
+        {
+          "id": "ae340eff-1772-4423-8650-73fc1a0fed34",
+          "method": "POST",
+          "path": "/proposals/files",
+          "status": 422,
+          "at": "2026-11-05T08:44:42.072Z"
+        },
+        {
+          "id": "b23d08f2-1a5a-49ac-9cc3-771992aa255b",
+          "method": "POST",
+          "path": "/proposals/files",
+          "status": 200,
+          "at": "2026-11-05T08:44:42.108Z"
+        },
+        {
+          "id": "d0ac924f-add3-4533-9c73-fad910244c52",
+          "method": "POST",
+          "path": "/proposals",
+          "status": 200,
+          "at": "2026-11-05T08:44:42.192Z"
+        },
+        {
+          "id": "d2d655a3-934d-4d3b-9b15-d88b1d9ee3c9",
+          "method": "GET",
+          "path": "/resources/contractor",
+          "status": 200,
+          "at": "2026-11-05T08:44:42.220Z"
+        },
+        {
+          "id": "255f6c70-7e19-42d7-b9a7-fb7fcc7d4f1d",
+          "method": "GET",
+          "path": "/resources/proposal",
+          "status": 200,
+          "at": "2026-11-05T08:44:42.219Z"
+        },
+        {
+          "id": "1790db91-4c90-411a-9b1e-7ebf7adc0654",
+          "method": "GET",
+          "path": "/procurement-packages/e165bac2-fc98-470e-bde8-5fef953a80a5/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T08:44:42.220Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/bid-proposal-flows.spec.ts",
+      "name": "a member of the evaluation team sees nothing of the proposal before the opening, declares, and opens it in full after it; the clerk still sees the receipt only (UI-BID-05, AC-ST-BID-004-1, UAT-AC448)",
+      "status": "passed",
+      "durationMs": 1837,
+      "at": "2026-11-05T08:44:42.454Z",
+      "requests": [
+        {
+          "id": "5a3d2fcc-62b2-4a57-97b6-12cbb6bd9045",
+          "method": "GET",
+          "path": "/procurement-milestones",
+          "status": 200,
+          "at": "2026-11-05T08:44:43.382Z"
+        },
+        {
+          "id": "c36b79b6-0e07-4d9b-a8f6-c73bed1b5b3d",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:43.381Z"
+        },
+        {
+          "id": "d23cd8cf-183c-4115-9d75-2e9277806f46",
+          "method": "GET",
+          "path": "/resources/proposal",
+          "status": 200,
+          "at": "2026-11-05T08:44:43.442Z"
+        },
+        {
+          "id": "189567e0-bd83-48f8-8eaa-8d2620b4476b",
+          "method": "GET",
+          "path": "/procurement-packages/ba77f826-fa94-4063-924d-7b3bfd049b0d/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T08:44:43.441Z"
+        },
+        {
+          "id": "46f8df60-b26c-4ad9-8e82-11f79f260193",
+          "method": "GET",
+          "path": "/resources/contractor",
+          "status": 200,
+          "at": "2026-11-05T08:44:43.502Z"
+        },
+        {
+          "id": "63af96a6-ab38-4c6a-8123-170ab0fec8d6",
+          "method": "POST",
+          "path": "/procurement-packages/ba77f826-fa94-4063-924d-7b3bfd049b0d/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T08:44:43.608Z"
+        },
+        {
+          "id": "30954253-94e9-455c-8d0e-cd85413994f7",
+          "method": "GET",
+          "path": "/resources/contractor",
+          "status": 200,
+          "at": "2026-11-05T08:44:43.629Z"
+        },
+        {
+          "id": "0e31b1a6-e3db-46bf-9c5b-599c32a3f576",
+          "method": "GET",
+          "path": "/resources/proposal",
+          "status": 200,
+          "at": "2026-11-05T08:44:43.627Z"
+        },
+        {
+          "id": "1199c5ce-75e3-45bd-adcc-3836cfc58ce2",
+          "method": "GET",
+          "path": "/procurement-packages/ba77f826-fa94-4063-924d-7b3bfd049b0d/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T08:44:43.628Z"
+        },
+        {
+          "id": "88e784c1-ce2b-4eb8-9474-c7d4801d7dff",
+          "method": "GET",
+          "path": "/procurement-milestones",
+          "status": 200,
+          "at": "2026-11-05T08:44:43.931Z"
+        },
+        {
+          "id": "3c99ecad-fba8-4429-beae-be72978906d8",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:43.930Z"
+        },
+        {
+          "id": "dbf6d201-63da-4209-9540-350f64f1ff5e",
+          "method": "GET",
+          "path": "/resources/proposal",
+          "status": 200,
+          "at": "2026-11-05T08:44:43.949Z"
+        },
+        {
+          "id": "700ad7ab-dd1c-4afb-927b-494df80558c5",
+          "method": "GET",
+          "path": "/procurement-packages/ba77f826-fa94-4063-924d-7b3bfd049b0d/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T08:44:43.948Z"
+        },
+        {
+          "id": "0530ea73-6af6-4ddf-a13d-00e1cf04483d",
+          "method": "GET",
+          "path": "/resources/proposal/85137af3-c0b0-4287-907a-dba8d704880b",
+          "status": 200,
+          "at": "2026-11-05T08:44:44.011Z"
+        },
+        {
+          "id": "559583fe-0b67-4f95-8696-22d2507fbfbb",
+          "method": "GET",
+          "path": "/procurement-milestones",
+          "status": 200,
+          "at": "2026-11-05T08:44:44.218Z"
+        },
+        {
+          "id": "b43d1eeb-6cf6-407c-932c-d008bfe00e9e",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:44.218Z"
+        },
+        {
+          "id": "4b9b5a07-063d-4a96-ab3d-d00043e211ea",
+          "method": "GET",
+          "path": "/resources/proposal",
+          "status": 200,
+          "at": "2026-11-05T08:44:44.237Z"
+        },
+        {
+          "id": "a74a095c-95ca-41bf-a949-99deed250017",
+          "method": "GET",
+          "path": "/procurement-packages/ba77f826-fa94-4063-924d-7b3bfd049b0d/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T08:44:44.236Z"
+        }
+      ]
+    }
+  ]
+}

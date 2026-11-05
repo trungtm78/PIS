@@ -1,0 +1,376 @@
+{
+  "id": "UAT-AC168",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/usage.test.ts",
+      "name": "usage metering over HTTP (ST-SAS-010) recordUsageEvent (UAT-AC168) answers 201 for the event that was recorded and says what it is",
+      "status": "passed",
+      "durationMs": 360,
+      "at": "2026-11-05T09:20:31.121Z",
+      "requests": [
+        {
+          "id": "88952fb9-797c-405c-b8d3-b689d606c1b5",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 201,
+          "at": "2026-11-05T09:20:30.988Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/usage.test.ts",
+      "name": "usage metering over HTTP (ST-SAS-010) recordUsageEvent (UAT-AC168) records the same external_event_key once: 200 with the id of the first event, the counter 101 and not 102, one row (AC-ST-SAS-010-1)",
+      "status": "passed",
+      "durationMs": 332,
+      "at": "2026-11-05T09:20:31.453Z",
+      "requests": [
+        {
+          "id": "7f7d493d-18e5-40af-b6f6-77a69d5f9b3c",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 201,
+          "at": "2026-11-05T09:20:31.183Z"
+        },
+        {
+          "id": "8a78b69d-af45-47cf-a9c0-28d49227b12c",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 201,
+          "at": "2026-11-05T09:20:31.215Z"
+        },
+        {
+          "id": "b5d4f731-f60d-49b2-b2a4-e8276ddd8095",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 200,
+          "at": "2026-11-05T09:20:31.229Z"
+        },
+        {
+          "id": "8cb9a843-4728-4664-a003-05aae21bf672",
+          "method": "GET",
+          "path": "/me/usage",
+          "status": 200,
+          "at": "2026-11-05T09:20:31.428Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/usage.test.ts",
+      "name": "usage metering over HTTP (ST-SAS-010) recordUsageEvent (UAT-AC168) replays the answer of the same idempotency key without touching the counter",
+      "status": "passed",
+      "durationMs": 206,
+      "at": "2026-11-05T09:20:31.659Z",
+      "requests": [
+        {
+          "id": "092d6c74-1a74-49ee-9bc2-d9bac9a59837",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 201,
+          "at": "2026-11-05T09:20:31.555Z"
+        },
+        {
+          "id": "7f4bf4c4-56ca-4fda-a841-dd35ec1e8180",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 201,
+          "at": "2026-11-05T09:20:31.574Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/usage.test.ts",
+      "name": "usage metering over HTTP (ST-SAS-010) recordUsageEvent (UAT-AC168) keeps one event and one count when the same key is sent by many at once",
+      "status": "passed",
+      "durationMs": 585,
+      "at": "2026-11-05T09:20:32.245Z",
+      "requests": [
+        {
+          "id": "da9f80b7-7ca8-46d7-a49b-a181be4aa4c5",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 201,
+          "at": "2026-11-05T09:20:31.791Z"
+        },
+        {
+          "id": "f4bb7de8-ca95-4a59-a608-a7dccfd6ea9d",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 200,
+          "at": "2026-11-05T09:20:31.793Z"
+        },
+        {
+          "id": "c73e8ceb-2704-41e7-9dab-e4691f8d0744",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 200,
+          "at": "2026-11-05T09:20:31.793Z"
+        },
+        {
+          "id": "5d0ec1f9-bb79-4b9d-91d5-03f6b8fbe427",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 200,
+          "at": "2026-11-05T09:20:31.792Z"
+        },
+        {
+          "id": "cc207dac-46d1-4215-bf01-09269740e686",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 200,
+          "at": "2026-11-05T09:20:31.792Z"
+        },
+        {
+          "id": "7620be44-4eb6-4de2-b4c2-2c6efc329894",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 200,
+          "at": "2026-11-05T09:20:31.792Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/usage.test.ts",
+      "name": "usage metering over HTTP (ST-SAS-010) recordUsageEvent (UAT-AC168) takes a correction away from the counter, and refuses one the counter cannot bear",
+      "status": "passed",
+      "durationMs": 199,
+      "at": "2026-11-05T09:20:32.444Z",
+      "requests": [
+        {
+          "id": "25bc6a95-d16f-4141-915e-8a0480e128ff",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 201,
+          "at": "2026-11-05T09:20:32.307Z"
+        },
+        {
+          "id": "064cd2b4-2ca1-4682-9aa5-0cba23c14726",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 201,
+          "at": "2026-11-05T09:20:32.329Z"
+        },
+        {
+          "id": "832add23-a10c-436c-871b-41860508be99",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 422,
+          "at": "2026-11-05T09:20:32.381Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/usage.test.ts",
+      "name": "usage metering over HTTP (ST-SAS-010) recordUsageEvent (UAT-AC168) refuses a meter nobody knows with 422 METER_UNKNOWN, and writes nothing",
+      "status": "passed",
+      "durationMs": 110,
+      "at": "2026-11-05T09:20:32.555Z",
+      "requests": [
+        {
+          "id": "737ef8ee-9361-45ae-8b0f-29441bb583ae",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 422,
+          "at": "2026-11-05T09:20:32.506Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/usage.test.ts",
+      "name": "usage metering over HTTP (ST-SAS-010) recordUsageEvent (UAT-AC168) refuses a quantity with a sign",
+      "status": "passed",
+      "durationMs": 71,
+      "at": "2026-11-05T09:20:32.626Z",
+      "requests": [
+        {
+          "id": "d081526b-9346-450a-89bc-86c202989b11",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 422,
+          "at": "2026-11-05T09:20:32.610Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/usage.test.ts",
+      "name": "usage metering over HTTP (ST-SAS-010) recordUsageEvent (UAT-AC168) refuses a quantity of zero",
+      "status": "passed",
+      "durationMs": 65,
+      "at": "2026-11-05T09:20:32.690Z",
+      "requests": [
+        {
+          "id": "2950ad5e-804d-47df-be1c-abb8e0e50a42",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 422,
+          "at": "2026-11-05T09:20:32.682Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/usage.test.ts",
+      "name": "usage metering over HTTP (ST-SAS-010) recordUsageEvent (UAT-AC168) refuses an event from the future",
+      "status": "passed",
+      "durationMs": 64,
+      "at": "2026-11-05T09:20:32.755Z",
+      "requests": [
+        {
+          "id": "05aa555f-20df-4261-a3d9-f00b720cd511",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 422,
+          "at": "2026-11-05T09:20:32.745Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/usage.test.ts",
+      "name": "usage metering over HTTP (ST-SAS-010) recordUsageEvent (UAT-AC168) refuses a unit that is not the unit of the meter",
+      "status": "passed",
+      "durationMs": 65,
+      "at": "2026-11-05T09:20:32.821Z",
+      "requests": [
+        {
+          "id": "d5f9dcc3-53a5-4144-a320-8a688d3d0e2d",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 422,
+          "at": "2026-11-05T09:20:32.812Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/usage.test.ts",
+      "name": "usage metering over HTTP (ST-SAS-010) recordUsageEvent (UAT-AC168) refuses a key that is too long",
+      "status": "passed",
+      "durationMs": 60,
+      "at": "2026-11-05T09:20:32.881Z",
+      "requests": [
+        {
+          "id": "203af5a7-483d-40d2-9f18-649e6dad1666",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 422,
+          "at": "2026-11-05T09:20:32.875Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/usage.test.ts",
+      "name": "usage metering over HTTP (ST-SAS-010) recordUsageEvent (UAT-AC168) refuses a member the contract does not have",
+      "status": "passed",
+      "durationMs": 64,
+      "at": "2026-11-05T09:20:32.944Z",
+      "requests": [
+        {
+          "id": "40e5df6d-f46c-43eb-a85c-29ac4c426c2c",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 400,
+          "at": "2026-11-05T09:20:32.936Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/usage.test.ts",
+      "name": "usage metering over HTTP (ST-SAS-010) recordUsageEvent (UAT-AC168) leaves an audit row for the event and one for a repeat, with the meter and no personal data",
+      "status": "passed",
+      "durationMs": 123,
+      "at": "2026-11-05T09:20:33.067Z",
+      "requests": [
+        {
+          "id": "50d72017-ba7d-4657-b904-936bdc74d5c2",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 201,
+          "at": "2026-11-05T09:20:32.998Z"
+        },
+        {
+          "id": "d699e424-6230-47b4-9d46-396b1b33dd81",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 200,
+          "at": "2026-11-05T09:20:33.014Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/usage.test.ts",
+      "name": "usage metering over HTTP (ST-SAS-010) recordUsageEvent (UAT-AC168) is the internal plane: a tenant token is refused whatever it holds, and so is a service account that holds nothing",
+      "status": "passed",
+      "durationMs": 157,
+      "at": "2026-11-05T09:20:33.225Z",
+      "requests": [
+        {
+          "id": "074a66e7-7206-4b21-8e82-55788f0229f1",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 403,
+          "at": "2026-11-05T09:20:33.121Z"
+        },
+        {
+          "id": "9fa9b627-9e3f-4713-b079-82e78a6d9d7b",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 403,
+          "at": "2026-11-05T09:20:33.138Z"
+        },
+        {
+          "id": "9cdf60a9-edec-4ac1-a64d-8ac820ac5293",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 403,
+          "at": "2026-11-05T09:20:33.152Z"
+        },
+        {
+          "id": "e02ec89f-af20-41c9-911e-d0b46583efe3",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 403,
+          "at": "2026-11-05T09:20:33.168Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/usage.test.ts",
+      "name": "usage metering over HTTP (ST-SAS-010) recordUsageEvent (UAT-AC168) writes to the tenant of the token, and no other",
+      "status": "passed",
+      "durationMs": 234,
+      "at": "2026-11-05T09:20:33.458Z",
+      "requests": [
+        {
+          "id": "6d20457c-a120-4b65-815f-440a29cbc44b",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 201,
+          "at": "2026-11-05T09:20:33.346Z"
+        },
+        {
+          "id": "f678e83e-60cb-4e4d-8595-177df0ebffd4",
+          "method": "POST",
+          "path": "/internal/usage-events",
+          "status": 201,
+          "at": "2026-11-05T09:20:33.369Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "UAT-AC378",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/payment.test.ts",
+      "name": "the payments of a plan of compensation to its households (ST-LND-007) scheduleCompensationPayments AC-ST-LND-007-1, UAT-AC378: schedules a payment for each household inside the 30 days of the approval, audits it and tells the world with the id, the plan and the amount and nothing of the household or the account",
+      "status": "passed",
+      "durationMs": 445,
+      "at": "2026-11-05T09:20:37.831Z",
+      "requests": [
+        {
+          "id": "e4fd482d-4f4a-47f8-ba28-02f2f878a04c",
+          "method": "POST",
+          "path": "/compensation-plans/f28150d7-30b2-41a3-a349-51275cca18dd/payments",
+          "status": 200,
+          "at": "2026-11-05T09:20:37.577Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/payment.test.ts",
+      "name": "the payments of a plan of compensation to its households (ST-LND-007) confirmCompensationPayment and depositCompensationPayment AC-ST-LND-007-1, UAT-AC378: confirms on time, refuses a late payment without a reason and records it with one, deposits what the household does not take, and says so with ids, amounts and dates only",
+      "status": "passed",
+      "durationMs": 974,
+      "at": "2026-11-05T09:20:39.769Z",
+      "requests": [
+        {
+          "id": "ced8d8b9-3cf8-45f6-8b3e-ca2a26a1de84",
+          "method": "POST",
+          "path": "/compensation-plans/a9a8743b-d332-4c2a-a723-46b00429bd0a/payments",
+          "status": 200,
+          "at": "2026-11-05T09:20:39.008Z"
+        },
+        {
+          "id": "7bdbca98-4e95-4dca-a350-ff404d5880f6",
+          "method": "POST",
+          "path": "/compensation-payments/5e969102-7318-46a0-9e26-b0daede3bc65/confirm",
+          "status": 200,
+          "at": "2026-11-05T09:20:39.088Z"
+        },
+        {
+          "id": "1de1b20e-3ea9-49f5-8128-54023ab6980a",
+          "method": "POST",
+          "path": "/compensation-payments/f44b260d-1d35-4960-ac53-a61409c758a0/confirm",
+          "status": 422,
+          "at": "2026-11-05T09:20:39.255Z"
+        },
+        {
+          "id": "2aa90675-6b55-41cb-aae8-a68a71971c3e",
+          "method": "POST",
+          "path": "/compensation-payments/f44b260d-1d35-4960-ac53-a61409c758a0/confirm",
+          "status": 200,
+          "at": "2026-11-05T09:20:39.406Z"
+        },
+        {
+          "id": "918d6f71-8b48-4b31-8a8f-d4ff9534da04",
+          "method": "POST",
+          "path": "/compensation-payments/5e8f57d1-71d6-44de-a6c4-259973e2a33e/deposit",
+          "status": 422,
+          "at": "2026-11-05T09:20:39.506Z"
+        },
+        {
+          "id": "1ecf31a8-3cc4-4f30-a7d2-b0b5f364d3d3",
+          "method": "POST",
+          "path": "/compensation-payments/5e8f57d1-71d6-44de-a6c4-259973e2a33e/deposit",
+          "status": 200,
+          "at": "2026-11-05T09:20:39.523Z"
+        }
+      ]
+    }
+  ]
+}

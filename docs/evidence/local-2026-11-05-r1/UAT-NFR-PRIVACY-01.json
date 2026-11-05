@@ -1,0 +1,18 @@
+{
+  "id": "UAT-NFR-PRIVACY-01",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/delivery-policy.test.ts",
+      "name": "the dispatcher honours consent, preferences and quiet hours (ST-NOT-003) AC-ST-KERNEL-061-2 (UAT-NFR-PRIVACY-01): a Zalo consent withdrawn between two events suppresses the second recipient decision with CONSENT_WITHDRAWN, and the adapter is called 0 times for it",
+      "status": "passed",
+      "durationMs": 220,
+      "at": "2026-11-05T09:23:35.594Z",
+      "requests": []
+    }
+  ]
+}

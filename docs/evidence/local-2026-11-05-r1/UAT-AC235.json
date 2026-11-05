@@ -1,0 +1,68 @@
+{
+  "id": "UAT-AC235",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/appropriation.test.ts",
+      "name": "appropriation register commands and reads (ST-CAP-001) registerAppropriation and decideAppropriation keeps central support and revenue increase as groups of their own beside the Prime Minister assigned capital (AC-ST-CAP-001-2, UAT-AC235)",
+      "status": "passed",
+      "durationMs": 417,
+      "at": "2026-11-05T09:21:11.560Z",
+      "requests": [
+        {
+          "id": "1ba0ef6c-4711-4fc5-a906-74896636634c",
+          "method": "POST",
+          "path": "/appropriations",
+          "status": 200,
+          "at": "2026-11-05T09:21:11.187Z"
+        },
+        {
+          "id": "c5b4ede6-626d-4fd8-b7e7-f93f9312a7e3",
+          "method": "POST",
+          "path": "/appropriations/f3a91edd-9f9f-4eb9-a96d-07fd8ed2da16/decision",
+          "status": 200,
+          "at": "2026-11-05T09:21:11.212Z"
+        },
+        {
+          "id": "7db098d2-f2c8-466e-95fb-a5360d024735",
+          "method": "POST",
+          "path": "/appropriations",
+          "status": 200,
+          "at": "2026-11-05T09:21:11.332Z"
+        },
+        {
+          "id": "c7738117-4a80-4f51-9367-2045ab02b7f7",
+          "method": "POST",
+          "path": "/appropriations/b1c4a7fb-f13e-448e-89c2-a7392a672648/decision",
+          "status": 200,
+          "at": "2026-11-05T09:21:11.358Z"
+        },
+        {
+          "id": "b595ef56-43ae-4348-a06a-133ef875bf99",
+          "method": "POST",
+          "path": "/appropriations",
+          "status": 200,
+          "at": "2026-11-05T09:21:11.408Z"
+        },
+        {
+          "id": "ab26ea13-5c47-4787-a3a8-76c66002d47a",
+          "method": "POST",
+          "path": "/appropriations/b74bbc88-3ff8-414c-b981-2141d0a87a84/decision",
+          "status": 200,
+          "at": "2026-11-05T09:21:11.417Z"
+        },
+        {
+          "id": "1c685c72-e43c-4f90-a02e-191530dcfbd7",
+          "method": "GET",
+          "path": "/appropriations",
+          "status": 200,
+          "at": "2026-11-05T09:21:11.540Z"
+        }
+      ]
+    }
+  ]
+}

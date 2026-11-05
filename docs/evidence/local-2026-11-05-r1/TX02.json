@@ -1,0 +1,85 @@
+{
+  "id": "TX02",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/project-stage.test.ts",
+      "name": "the guarded lifecycle transitions and the project bank (ST-PRJ-002) capital.plan_published.v1 (AC-ST-PRJ-002-3) makes the project BUDGETED once with one stage_changed event, however often the event is delivered, in the name of the system (TX02)",
+      "status": "passed",
+      "durationMs": 394,
+      "at": "2026-11-05T09:15:54.722Z",
+      "requests": [
+        {
+          "id": "07a22148-3dec-4136-9717-7b06e1232230",
+          "method": "POST",
+          "path": "/projects",
+          "status": 200,
+          "at": "2026-11-05T09:15:54.328Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/uat/money.uat.spec.ts",
+      "name": "TC-TX02: a retry after a timeout, a repeat of the same key and body, and the same key with another body leave one business audit row and one logical event",
+      "status": "passed",
+      "durationMs": 934,
+      "at": "2026-11-05T08:57:09.661Z",
+      "requests": [
+        {
+          "id": "b17d2c83-6a80-44c1-b25b-d590534402eb",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T08:57:09.867Z"
+        },
+        {
+          "id": "bfbfa786-2422-4b70-bfc7-57a7f90583e7",
+          "method": "POST",
+          "path": "/reports/ae39868e-fdc3-498a-8ce6-cc3e49d3812d/revisions",
+          "status": 200,
+          "at": "2026-11-05T08:57:09.883Z"
+        },
+        {
+          "id": "28475edf-2566-4cf7-89c5-a266dc23eee5",
+          "method": "POST",
+          "path": "/reports/ae39868e-fdc3-498a-8ce6-cc3e49d3812d/revisions",
+          "status": 200,
+          "at": "2026-11-05T08:57:09.899Z"
+        },
+        {
+          "id": "93d9c079-392e-4538-9e1e-d1a782cbf571",
+          "method": "POST",
+          "path": "/reports/ae39868e-fdc3-498a-8ce6-cc3e49d3812d/revisions",
+          "status": 200,
+          "at": "2026-11-05T08:57:09.915Z"
+        },
+        {
+          "id": "2f80987d-4598-4d01-894a-898c84456230",
+          "method": "POST",
+          "path": "/reports/ae39868e-fdc3-498a-8ce6-cc3e49d3812d/submit",
+          "status": 200,
+          "at": "2026-11-05T08:57:10.251Z"
+        },
+        {
+          "id": "bd56e5da-6d92-4bc0-9c43-c1067a4598ec",
+          "method": "POST",
+          "path": "/reports/ae39868e-fdc3-498a-8ce6-cc3e49d3812d/submit",
+          "status": 200,
+          "at": "2026-11-05T08:57:10.345Z"
+        },
+        {
+          "id": "47349f06-7563-43c0-a475-41ca48af5434",
+          "method": "POST",
+          "path": "/reports/ae39868e-fdc3-498a-8ce6-cc3e49d3812d/submit",
+          "status": 409,
+          "at": "2026-11-05T08:57:10.360Z"
+        }
+      ]
+    }
+  ]
+}

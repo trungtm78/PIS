@@ -1,0 +1,162 @@
+{
+  "id": "UAT-AC62",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/diary.test.ts",
+      "name": "the electronic site diary over HTTP (ST-QMS-001) ST-QMS-002: two devices, the conflict between them, and the place AC-ST-QMS-002-1: UAT-AC62 keeps the copy of a device that wrote over a draft it had not read, shows it, and does not touch the diary of the day",
+      "status": "passed",
+      "durationMs": 1515,
+      "at": "2026-11-05T09:12:09.742Z",
+      "requests": [
+        {
+          "id": "a8078d4a-4a5d-4055-84ec-8e19c24e0d93",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 200,
+          "at": "2026-11-05T09:12:09.212Z"
+        },
+        {
+          "id": "b4d4c740-4e8f-41cd-ab4b-ae75f38bcf79",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 200,
+          "at": "2026-11-05T09:12:09.237Z"
+        },
+        {
+          "id": "037ab537-dd13-447e-95ed-443f4a0cf9f4",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 409,
+          "at": "2026-11-05T09:12:09.254Z"
+        },
+        {
+          "id": "4244f100-e7a7-4532-ab88-417de7922890",
+          "method": "GET",
+          "path": "/resources/site_diary",
+          "status": 200,
+          "at": "2026-11-05T09:12:09.450Z"
+        },
+        {
+          "id": "82d69f58-da84-4a0b-a004-c01776c2b09f",
+          "method": "GET",
+          "path": "/resources/site_diary/e9926c66-c499-4b95-9193-e4b51f2383c2",
+          "status": 200,
+          "at": "2026-11-05T09:12:09.476Z"
+        },
+        {
+          "id": "291b8ab2-9e82-4f5c-8456-3909f54dab3b",
+          "method": "GET",
+          "path": "/resources/site_diary/e9926c66-c499-4b95-9193-e4b51f2383c2",
+          "status": 200,
+          "at": "2026-11-05T09:12:09.487Z"
+        },
+        {
+          "id": "830db7d6-aacd-4432-874f-4bbec429da7e",
+          "method": "POST",
+          "path": "/site-diaries/85716797-252e-4825-a465-95a3372b22c9/draft",
+          "status": 409,
+          "at": "2026-11-05T09:12:09.587Z"
+        },
+        {
+          "id": "4b234954-045d-411b-8ff8-aa793c733bae",
+          "method": "POST",
+          "path": "/site-diaries/85716797-252e-4825-a465-95a3372b22c9/contractor-sign",
+          "status": 409,
+          "at": "2026-11-05T09:12:09.602Z"
+        },
+        {
+          "id": "8591b8e6-b8e1-4066-94c2-cca88601eaf1",
+          "method": "POST",
+          "path": "/site-diaries/85716797-252e-4825-a465-95a3372b22c9/lock",
+          "status": 409,
+          "at": "2026-11-05T09:12:09.615Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/diary.test.ts",
+      "name": "the electronic site diary over HTTP (ST-QMS-001) ST-QMS-002: two devices, the conflict between them, and the place AC-ST-QMS-002-1: UAT-AC62 settles a conflict by keeping the diary, taking the copy or merging them, and keeps what was set aside",
+      "status": "passed",
+      "durationMs": 1901,
+      "at": "2026-11-05T09:12:13.122Z",
+      "requests": [
+        {
+          "id": "53fb6568-4f4e-4a3f-8e1a-c4f5731ac8c5",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 200,
+          "at": "2026-11-05T09:12:12.307Z"
+        },
+        {
+          "id": "d6ac074c-75b2-4f2c-aae3-7d2933b62cce",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 200,
+          "at": "2026-11-05T09:12:12.321Z"
+        },
+        {
+          "id": "18c106a3-16a6-4634-814c-82c697ce6504",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 409,
+          "at": "2026-11-05T09:12:12.336Z"
+        },
+        {
+          "id": "e676da14-b464-4ef4-abe3-9c707a29ea65",
+          "method": "POST",
+          "path": "/site-diaries/0d53ec82-290e-4812-8e58-9e60caec8917/resolve-conflict",
+          "status": 200,
+          "at": "2026-11-05T09:12:12.398Z"
+        },
+        {
+          "id": "5165ecb0-84c4-4f8e-9939-c41fb6083af7",
+          "method": "POST",
+          "path": "/site-diaries/0d53ec82-290e-4812-8e58-9e60caec8917/resolve-conflict",
+          "status": 409,
+          "at": "2026-11-05T09:12:12.666Z"
+        },
+        {
+          "id": "f700536f-75b9-4a30-8f2b-fa216f420a59",
+          "method": "GET",
+          "path": "/resources/site_diary/0d53ec82-290e-4812-8e58-9e60caec8917",
+          "status": 200,
+          "at": "2026-11-05T09:12:12.771Z"
+        },
+        {
+          "id": "69f954fb-7cbf-43a2-a1de-e5738d923baa",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 409,
+          "at": "2026-11-05T09:12:12.794Z"
+        },
+        {
+          "id": "73fe0e29-5bb1-4579-a778-d9459bf3435c",
+          "method": "POST",
+          "path": "/site-diaries/0d53ec82-290e-4812-8e58-9e60caec8917/resolve-conflict",
+          "status": 200,
+          "at": "2026-11-05T09:12:12.852Z"
+        },
+        {
+          "id": "68cc9408-4b88-4f48-9542-b8694d439454",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 409,
+          "at": "2026-11-05T09:12:12.958Z"
+        },
+        {
+          "id": "02ea949a-338d-4b6f-8a3a-c9f4057227ba",
+          "method": "POST",
+          "path": "/site-diaries/0d53ec82-290e-4812-8e58-9e60caec8917/resolve-conflict",
+          "status": 200,
+          "at": "2026-11-05T09:12:13.011Z"
+        }
+      ]
+    }
+  ]
+}

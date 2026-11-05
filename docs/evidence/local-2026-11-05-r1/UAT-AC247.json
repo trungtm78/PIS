@@ -1,0 +1,127 @@
+{
+  "id": "UAT-AC247",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report-decision.test.ts",
+      "name": "the decision on a weekly report and its corrections over HTTP (ST-DIS-006) post_reports_id_corrections AC-ST-DIS-006-2 / UAT-AC247: a submitted revision is not edited (409 REVISION_IMMUTABLE); after the return a correction without its reason is 422 CORRECTION_REASON_REQUIRED, then rev2 is a DRAFT that points at rev1, is handed in, and rev1 keeps its payload_hash",
+      "status": "passed",
+      "durationMs": 543,
+      "at": "2026-11-05T09:15:24.706Z",
+      "requests": [
+        {
+          "id": "bdac47f1-8d9b-44ac-8719-29f97751ad02",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:15:24.207Z"
+        },
+        {
+          "id": "babdcf77-b5f5-4ef6-a88a-cd82ed0b7a59",
+          "method": "POST",
+          "path": "/reports/482a09d3-6335-4e75-82f2-92e51221bd7c/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:24.225Z"
+        },
+        {
+          "id": "77fa2e5e-31cb-4ca0-97e3-8356a13dc498",
+          "method": "POST",
+          "path": "/reports/482a09d3-6335-4e75-82f2-92e51221bd7c/revisions",
+          "status": 409,
+          "at": "2026-11-05T09:15:24.293Z"
+        },
+        {
+          "id": "5f9d5535-6a94-4679-9270-0420e3c2b0f4",
+          "method": "POST",
+          "path": "/reports/482a09d3-6335-4e75-82f2-92e51221bd7c/decision",
+          "status": 200,
+          "at": "2026-11-05T09:15:24.303Z"
+        },
+        {
+          "id": "5735b6e5-c592-4a4b-bcc2-e10e78d9aef7",
+          "method": "POST",
+          "path": "/reports/482a09d3-6335-4e75-82f2-92e51221bd7c/corrections",
+          "status": 422,
+          "at": "2026-11-05T09:15:24.331Z"
+        },
+        {
+          "id": "091c53c9-67c7-43ef-9032-3ed9f6b534ce",
+          "method": "POST",
+          "path": "/reports/482a09d3-6335-4e75-82f2-92e51221bd7c/corrections",
+          "status": 422,
+          "at": "2026-11-05T09:15:24.348Z"
+        },
+        {
+          "id": "abaa4bf5-2b51-445b-af8a-ed03971eb6b7",
+          "method": "POST",
+          "path": "/reports/482a09d3-6335-4e75-82f2-92e51221bd7c/corrections",
+          "status": 200,
+          "at": "2026-11-05T09:15:24.365Z"
+        },
+        {
+          "id": "8ce43250-8752-4187-ac23-fc7b9fa2901b",
+          "method": "GET",
+          "path": "/reports/e5e272a5-007c-4cbf-9326-e006f088977b",
+          "status": 200,
+          "at": "2026-11-05T09:15:24.533Z"
+        },
+        {
+          "id": "0cf17164-c868-4155-b7e1-615a0b426638",
+          "method": "POST",
+          "path": "/reports/e5e272a5-007c-4cbf-9326-e006f088977b/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:24.559Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports_id_submit (ST-DIS-005) seals the hash of what the draft held, which the saves had sealed already, and lets nothing of it change afterwards (UAT-AC247)",
+      "status": "passed",
+      "durationMs": 357,
+      "at": "2026-11-05T09:16:07.916Z",
+      "requests": [
+        {
+          "id": "c21503a0-5ea7-439c-87fe-8cdd0232d0a6",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:07.597Z"
+        },
+        {
+          "id": "138e0bb8-f527-454f-83e3-af8e2757ae23",
+          "method": "POST",
+          "path": "/reports/360f79b0-a152-4f0d-b2ca-5945c6324058/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:07.618Z"
+        },
+        {
+          "id": "eafe8d82-d510-4872-85db-def91ae724c9",
+          "method": "POST",
+          "path": "/reports/360f79b0-a152-4f0d-b2ca-5945c6324058/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:07.631Z"
+        },
+        {
+          "id": "79ae10a4-4bc4-416d-ae4c-705a34e97674",
+          "method": "POST",
+          "path": "/reports/360f79b0-a152-4f0d-b2ca-5945c6324058/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:07.687Z"
+        },
+        {
+          "id": "85a8be2d-ac06-49e4-b71c-7e50f7218bc1",
+          "method": "POST",
+          "path": "/reports/360f79b0-a152-4f0d-b2ca-5945c6324058/revisions",
+          "status": 409,
+          "at": "2026-11-05T09:16:07.716Z"
+        }
+      ]
+    }
+  ]
+}

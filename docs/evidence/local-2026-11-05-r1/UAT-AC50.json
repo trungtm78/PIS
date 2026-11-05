@@ -1,0 +1,2067 @@
+{
+  "id": "UAT-AC50",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) is registered in the module of DGV",
+      "status": "passed",
+      "durationMs": 1,
+      "at": "2026-11-05T09:17:55.407Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) UAT-AC50: a breaking revision waits for every consumer (409 listing who), then for a window (422), and is then published as an immutable version with its hash while the version before it serves to the end of the window; an optional column is backward compatible",
+      "status": "passed",
+      "durationMs": 649,
+      "at": "2026-11-05T09:17:56.056Z",
+      "requests": [
+        {
+          "id": "5462a817-306d-4621-b8e0-c04ec066fc8b",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:55.523Z"
+        },
+        {
+          "id": "ba1556df-023a-4c13-a48e-91fae5974de4",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/0ef90df9-2056-4f64-af7f-2f44b831c941/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:55.611Z"
+        },
+        {
+          "id": "3a526250-e8d4-4993-93b4-eb9c80eeec3a",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:55.676Z"
+        },
+        {
+          "id": "6c376685-0200-466f-86a7-f9b77184637f",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/df477e1e-5968-4c2f-88ec-ea933b6c7885/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:55.698Z"
+        },
+        {
+          "id": "8f09ea3b-c96b-424e-8503-43e4576089c1",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/497222cc-a5b2-4206-b274-3ab9cd226e92/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:55.728Z"
+        },
+        {
+          "id": "60112734-a782-4b93-a74a-a54474ec783a",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/596c74cd-d855-4222-ba3e-6b66a155234f/publish",
+          "status": 409,
+          "at": "2026-11-05T09:17:55.741Z"
+        },
+        {
+          "id": "dab1a56a-45bc-4d22-88cb-d6fb085526e2",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/cc4f25e0-d637-4d52-9ecd-07ab2dcc624f/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:55.756Z"
+        },
+        {
+          "id": "05a6556f-c373-483b-b208-2783dd5eaec7",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/596c74cd-d855-4222-ba3e-6b66a155234f/publish",
+          "status": 422,
+          "at": "2026-11-05T09:17:55.779Z"
+        },
+        {
+          "id": "a34b1dcd-85f9-4495-8e37-0421f299c950",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/596c74cd-d855-4222-ba3e-6b66a155234f/publish",
+          "status": 422,
+          "at": "2026-11-05T09:17:55.803Z"
+        },
+        {
+          "id": "1d12c722-5736-4f87-87ad-8e6fbdfd4792",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/596c74cd-d855-4222-ba3e-6b66a155234f/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:55.819Z"
+        },
+        {
+          "id": "96cc9290-4217-422a-999c-070044fc1f03",
+          "method": "GET",
+          "path": "/resources/dataset_contract/596c74cd-d855-4222-ba3e-6b66a155234f",
+          "status": 200,
+          "at": "2026-11-05T09:17:55.842Z"
+        },
+        {
+          "id": "b5ad3d6d-bc86-48c5-980e-c5a025924890",
+          "method": "GET",
+          "path": "/resources/data_contract_version/f7ceedfe-2580-4bac-bf4a-476f264eab4d",
+          "status": 200,
+          "at": "2026-11-05T09:17:55.864Z"
+        },
+        {
+          "id": "41a6eea2-2ecf-4eaf-b270-dbb16ad959d6",
+          "method": "GET",
+          "path": "/resources/data_contract_version/b62fada0-48de-47d3-9635-f27fc0b07527",
+          "status": 200,
+          "at": "2026-11-05T09:17:55.878Z"
+        },
+        {
+          "id": "e38c1b3b-e515-4cdc-9a81-f8b2b784fda6",
+          "method": "GET",
+          "path": "/resources/dataset_contract/0ef90df9-2056-4f64-af7f-2f44b831c941",
+          "status": 200,
+          "at": "2026-11-05T09:17:55.893Z"
+        },
+        {
+          "id": "3291b09e-2c2a-4617-8736-8d03b815da96",
+          "method": "GET",
+          "path": "/resources/dataset_contract/596c74cd-d855-4222-ba3e-6b66a155234f",
+          "status": 200,
+          "at": "2026-11-05T09:17:55.911Z"
+        },
+        {
+          "id": "df6c7208-72c3-4aa5-8d56-063b183098a5",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:55.962Z"
+        },
+        {
+          "id": "a940c55f-f0d7-410b-b1b4-c1d474f03d15",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/8ffba349-6300-44a2-bfa6-aa320f75429f/publish",
+          "status": 422,
+          "at": "2026-11-05T09:17:55.980Z"
+        },
+        {
+          "id": "9a429d9a-edde-4a21-8a72-ad94db910f1b",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/8ffba349-6300-44a2-bfa6-aa320f75429f/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:55.990Z"
+        },
+        {
+          "id": "08b849af-f03d-4f0b-b2ff-37e518aaf3b3",
+          "method": "GET",
+          "path": "/resources/data_contract_version/f7ceedfe-2580-4bac-bf4a-476f264eab4d",
+          "status": 200,
+          "at": "2026-11-05T09:17:56.020Z"
+        },
+        {
+          "id": "2354af85-e1c5-4b81-863d-75634555f3ce",
+          "method": "GET",
+          "path": "/resources/data_contract_version/350ed403-2d70-4736-af65-08f7d5820f58",
+          "status": 200,
+          "at": "2026-11-05T09:17:56.038Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) records the draft, the decisions and the publication on the audit trail and as events, with the compatibility and the hash",
+      "status": "passed",
+      "durationMs": 527,
+      "at": "2026-11-05T09:17:56.583Z",
+      "requests": [
+        {
+          "id": "f0fb25a3-8ddf-4dcc-ab71-996acec9e5d5",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:56.103Z"
+        },
+        {
+          "id": "31dcadc7-fe26-4c98-9bbc-cdb5aec73d49",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/51c25e73-5047-46c6-8b32-fc23ed8be217/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:56.129Z"
+        },
+        {
+          "id": "2d9c5ceb-62da-4879-a0b5-8bd964b02cce",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:56.165Z"
+        },
+        {
+          "id": "370933cf-2578-4f1f-b1eb-f018c2fdacb3",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/c9987ce6-1b46-4c8c-9716-cd5fa77db151/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:56.191Z"
+        },
+        {
+          "id": "2146e7cb-1cec-4f04-8a35-ebe4d027de43",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/82762ef7-a45e-4048-9aa7-6ccc1e5c04df/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:56.204Z"
+        },
+        {
+          "id": "acc00089-c02b-4c43-b346-4b6e90e5118c",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/4bb78de8-9d38-45b7-8271-8278c1bfa942/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:56.222Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the document refuses a version the platform does not pin as 422 ODCS_SCHEMA_INVALID",
+      "status": "passed",
+      "durationMs": 65,
+      "at": "2026-11-05T09:17:56.648Z",
+      "requests": [
+        {
+          "id": "47487cae-9d31-4466-8f5f-534b603e09e1",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 422,
+          "at": "2026-11-05T09:17:56.628Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the document refuses a document of another version than the one named as 422 ODCS_SCHEMA_INVALID",
+      "status": "passed",
+      "durationMs": 65,
+      "at": "2026-11-05T09:17:56.713Z",
+      "requests": [
+        {
+          "id": "1a265f58-82ff-42ba-b83e-1a3f3eb3c409",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 422,
+          "at": "2026-11-05T09:17:56.689Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the document refuses a document that is not one, naming the path, and a consumer whose owner is not a person of the tenant",
+      "status": "passed",
+      "durationMs": 109,
+      "at": "2026-11-05T09:17:56.822Z",
+      "requests": [
+        {
+          "id": "c78d5714-440b-4aea-a125-de2dfa99a9a9",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 422,
+          "at": "2026-11-05T09:17:56.754Z"
+        },
+        {
+          "id": "233d633d-2d7e-424a-8b05-dda9bbed06ce",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 422,
+          "at": "2026-11-05T09:17:56.775Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the document refuses an effective day that is not a day, and a body that has more than the contract has",
+      "status": "passed",
+      "durationMs": 78,
+      "at": "2026-11-05T09:17:56.900Z",
+      "requests": [
+        {
+          "id": "713651b2-487f-4c95-bba8-573322fd12ba",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 422,
+          "at": "2026-11-05T09:17:56.861Z"
+        },
+        {
+          "id": "f5b952cf-65d8-4c65-8fc0-8359f7e33f94",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 422,
+          "at": "2026-11-05T09:17:56.868Z"
+        },
+        {
+          "id": "060c72d4-2706-4223-ad95-d8b674ff6046",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 400,
+          "at": "2026-11-05T09:17:56.884Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the document takes the freshness the document declares, and the freshness of the dataset when it declares none",
+      "status": "passed",
+      "durationMs": 263,
+      "at": "2026-11-05T09:17:57.164Z",
+      "requests": [
+        {
+          "id": "b08c4f79-2e95-4b8c-9821-03cdb1f13d98",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:57.007Z"
+        },
+        {
+          "id": "a33998d9-68fd-4cc3-b878-d444a1043e42",
+          "method": "POST",
+          "path": "/data-contracts/27221310-5af3-4f3c-ab48-4571b427a999/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:57.064Z"
+        },
+        {
+          "id": "06b59510-f86c-4163-9d64-54cdc016c0c0",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:57.089Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) one revision is open at a time is 409 CONTRACT_REVISION_OPEN for a second draft while one is in review, also when two are drafted together, and free again once the open one is closed",
+      "status": "passed",
+      "durationMs": 148,
+      "at": "2026-11-05T09:17:57.312Z",
+      "requests": [
+        {
+          "id": "115c7399-af74-4aa6-a005-04fbec88ae2b",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:57.204Z"
+        },
+        {
+          "id": "8a0a494c-a055-4a40-8443-df93eb0ed0f8",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 409,
+          "at": "2026-11-05T09:17:57.204Z"
+        },
+        {
+          "id": "195b1ccb-4159-41a6-9316-3fa958497d22",
+          "method": "POST",
+          "path": "/data-contracts/cc4a0c7b-1c2d-449f-812e-7654b1be597b/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:57.262Z"
+        },
+        {
+          "id": "5f03c486-daf1-4865-912c-07d351fadfe5",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:57.280Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) one revision is open at a time closes a revision by rejecting it, when a consumer rejects or the owner decides so: the producer drafts another",
+      "status": "passed",
+      "durationMs": 251,
+      "at": "2026-11-05T09:17:57.563Z",
+      "requests": [
+        {
+          "id": "5991912f-91bb-4de2-ba48-e0cfd4e0e460",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:57.357Z"
+        },
+        {
+          "id": "fa7bb30d-de5b-4eb3-b745-1a779904f661",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/d25e952a-26c1-4718-b5bb-41ccf736f05a/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:57.371Z"
+        },
+        {
+          "id": "837890d6-fe71-40ca-ac4d-e48b8def6fc4",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:57.393Z"
+        },
+        {
+          "id": "26946f2e-3bc2-4c7e-aa96-c17bb24fe210",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/b0a631da-9a88-40ef-ac99-acb4adb1b525/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:57.423Z"
+        },
+        {
+          "id": "ab98e60d-d900-45d2-a356-4739903a3679",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/7ce45aa7-7caf-4fc4-9323-4b67782d3fe5/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:57.442Z"
+        },
+        {
+          "id": "6aa45cc3-875a-4f67-9d3f-ad46c0fb2e5f",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/3f05216a-e87a-4dcb-8dc7-0a962e35a632/publish",
+          "status": 409,
+          "at": "2026-11-05T09:17:57.466Z"
+        },
+        {
+          "id": "412f7e1c-ae09-46bd-aab3-a672ea832441",
+          "method": "POST",
+          "path": "/data-contracts/3f05216a-e87a-4dcb-8dc7-0a962e35a632/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:57.482Z"
+        },
+        {
+          "id": "6aeddde7-fc59-4462-a2f6-d39f16c42199",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:57.540Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the consumers are answered for by their owner only (403 NOT_CONSUMER_OWNER), once, against the version that was read",
+      "status": "passed",
+      "durationMs": 317,
+      "at": "2026-11-05T09:17:57.880Z",
+      "requests": [
+        {
+          "id": "720e76a0-8f2d-4825-a2ee-98bca8b8144c",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:57.670Z"
+        },
+        {
+          "id": "1311d6e3-39c9-4bb0-a552-50fe73bf7c10",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/d432ee4e-d737-45f6-ae3a-843ce2fea525/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:57.693Z"
+        },
+        {
+          "id": "312126fa-3f26-4c0d-a656-26542e52220c",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:57.713Z"
+        },
+        {
+          "id": "8ebbc4d2-8c7e-4aa5-8746-ff6ae7b04ec3",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/5f05ce97-5003-4beb-8dae-855a1d95fc1c/decision",
+          "status": 403,
+          "at": "2026-11-05T09:17:57.741Z"
+        },
+        {
+          "id": "e1b61d3a-aa0a-4538-8107-9b8bd47492bf",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/5f05ce97-5003-4beb-8dae-855a1d95fc1c/decision",
+          "status": 403,
+          "at": "2026-11-05T09:17:57.752Z"
+        },
+        {
+          "id": "684b8f16-b489-47e4-b233-83769c2f6c20",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/5f05ce97-5003-4beb-8dae-855a1d95fc1c/decision",
+          "status": 409,
+          "at": "2026-11-05T09:17:57.764Z"
+        },
+        {
+          "id": "aa248dfd-40cb-48ba-92a5-1d55d940a592",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/5f05ce97-5003-4beb-8dae-855a1d95fc1c/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:57.785Z"
+        },
+        {
+          "id": "84d8e290-e25b-4041-a20b-9b2464aa56cc",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/5f05ce97-5003-4beb-8dae-855a1d95fc1c/decision",
+          "status": 409,
+          "at": "2026-11-05T09:17:57.848Z"
+        },
+        {
+          "id": "94dfc469-027e-4df6-b3b8-511c5aba5e65",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/20ccbd56-412c-4c8f-b1f8-f03ee72ada62/decision",
+          "status": 404,
+          "at": "2026-11-05T09:17:57.864Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the consumers waits for a revision that is being closed: a decision that meets it is refused as the revision is no longer in review",
+      "status": "passed",
+      "durationMs": 549,
+      "at": "2026-11-05T09:17:58.429Z",
+      "requests": [
+        {
+          "id": "7f18f270-2a53-4038-9da8-4c8e333762d5",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:57.919Z"
+        },
+        {
+          "id": "75edc70b-d583-4c58-a4e0-63bce59c2201",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/8ac637f1-e14b-4929-b81c-f4140cf763b0/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:57.945Z"
+        },
+        {
+          "id": "7c613916-dda8-4948-859e-42dc00d88106",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:57.965Z"
+        },
+        {
+          "id": "5777cc0a-99c1-42f2-ba66-76fef4fb34bc",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/f7709792-ecc4-46e6-b61a-bdfb101ed75c/decision",
+          "status": 409,
+          "at": "2026-11-05T09:17:57.983Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the consumers refuses a window that has ended by the day of the publication, whatever the day the revision takes effect",
+      "status": "passed",
+      "durationMs": 203,
+      "at": "2026-11-05T09:17:58.632Z",
+      "requests": [
+        {
+          "id": "9b2e9be4-52dc-4003-a6cd-156fdffc34da",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:58.547Z"
+        },
+        {
+          "id": "c28bd8f9-117d-46e2-8d28-cd3a32122b6f",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/95eb464e-3245-4c6d-9c47-8fb56b248bb6/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:58.572Z"
+        },
+        {
+          "id": "5177ad7a-665c-4768-b101-4949ca590d62",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:58.591Z"
+        },
+        {
+          "id": "7a40bce0-e0d0-4640-8c1c-e8c9ba0a518a",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/e0a77bf2-5e55-4635-a587-33ab1493153f/publish",
+          "status": 422,
+          "at": "2026-11-05T09:17:58.620Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the consumers refuses a decision that is neither, and a comment that is too long",
+      "status": "passed",
+      "durationMs": 147,
+      "at": "2026-11-05T09:17:58.779Z",
+      "requests": [
+        {
+          "id": "9945faf1-b403-4937-9f37-54b3d42273c4",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:58.674Z"
+        },
+        {
+          "id": "2ae515e8-7117-4d98-a3e0-fcb728ff7e6e",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/544cf3fd-dc0a-41d2-85ac-705922bb80fd/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:58.701Z"
+        },
+        {
+          "id": "7c0fd393-b820-4822-a786-e9bbbadbf54a",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:58.717Z"
+        },
+        {
+          "id": "66bebd4a-7f59-4fc8-8038-2184f3913a34",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/72536b08-e7e8-4716-b7d2-ea32680283b4/decision",
+          "status": 422,
+          "at": "2026-11-05T09:17:58.731Z"
+        },
+        {
+          "id": "9eed6828-e5c3-414b-a26a-9fba1bb28476",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/72536b08-e7e8-4716-b7d2-ea32680283b4/decision",
+          "status": 422,
+          "at": "2026-11-05T09:17:58.739Z"
+        },
+        {
+          "id": "7867159b-916c-41ef-8fb0-ca7d48cb5b6b",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/72536b08-e7e8-4716-b7d2-ea32680283b4/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:58.755Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the consumers cannot decide for a revision that is not in review any more",
+      "status": "passed",
+      "durationMs": 124,
+      "at": "2026-11-05T09:17:58.903Z",
+      "requests": [
+        {
+          "id": "d836d262-2484-49fb-83fc-14d66fcbb604",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:58.820Z"
+        },
+        {
+          "id": "9791685d-4ad5-45b0-a1c0-82391708103c",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/3651b734-5012-4743-af05-a8536a173ff6/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:58.843Z"
+        },
+        {
+          "id": "70fd431e-0601-43d8-af6a-c956c0cf65d1",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:58.862Z"
+        },
+        {
+          "id": "0cfc9552-1359-49f5-8309-0f3983d851d1",
+          "method": "POST",
+          "path": "/data-contracts/7db95869-3e1c-4701-b188-36bb0e18bf79/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:58.875Z"
+        },
+        {
+          "id": "42c47b29-10aa-4669-b770-3f7c0e4acff7",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/7419e19e-fa15-413c-b07e-0b41677e3eed/decision",
+          "status": 409,
+          "at": "2026-11-05T09:17:58.888Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the consumers are the consumers of the published contract and the datasets of BI built on the dataset, whatever the revision declares: leaving one out does not spare its owner",
+      "status": "passed",
+      "durationMs": 149,
+      "at": "2026-11-05T09:17:59.052Z",
+      "requests": [
+        {
+          "id": "be6e3ae6-3a38-4b1c-8edc-f5013001b2c5",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:59.003Z"
+        },
+        {
+          "id": "6607501a-22a9-49de-81e4-ae1e5478e3c4",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/875b136a-5d34-463b-8819-d41439a6ae73/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:59.013Z"
+        },
+        {
+          "id": "6360d85c-dab9-4b26-9606-3b745abc8c30",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:59.038Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the consumers are answered for by the owner the platform knows for a dataset of BI, whoever the document names",
+      "status": "passed",
+      "durationMs": 285,
+      "at": "2026-11-05T09:17:59.337Z",
+      "requests": [
+        {
+          "id": "f3f4af05-7f6e-46a2-a3cd-300d11a873b9",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:59.138Z"
+        },
+        {
+          "id": "bc95da01-1a0c-4937-8eea-65862159b2b3",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/80a62c29-0d5e-4d29-b4c4-26f3100b4cc8/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:59.162Z"
+        },
+        {
+          "id": "78a17677-85b9-4e14-b734-ad0ebd22d5d0",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:59.179Z"
+        },
+        {
+          "id": "4b5e758a-9941-4166-8460-038a795a606e",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/0f35b81f-0ad2-4d68-a8cd-69956e010c48/decision",
+          "status": 403,
+          "at": "2026-11-05T09:17:59.304Z"
+        },
+        {
+          "id": "678674a9-0230-463b-819f-6a3cdc44d7e3",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/0f35b81f-0ad2-4d68-a8cd-69956e010c48/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:59.318Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the consumers are not answered for by the owner the document named when the platform comes to know the consumer under another owner: the publication is refused and the approval is not reassigned",
+      "status": "passed",
+      "durationMs": 364,
+      "at": "2026-11-05T09:17:59.701Z",
+      "requests": [
+        {
+          "id": "c42b110c-4943-49e2-8281-129db3bebb8f",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:59.379Z"
+        },
+        {
+          "id": "466c0632-8511-4b4d-bd7d-88ce7cb30daf",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/3a4060f2-f06d-4907-9b1f-379a58c3bff3/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:59.400Z"
+        },
+        {
+          "id": "d97444c6-b823-485a-8422-319afc5cc5a4",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:59.421Z"
+        },
+        {
+          "id": "51669196-d99a-4454-af9e-3db82b3fde9d",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/530deb26-4c39-4383-b847-52dcba59e3a0/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:59.450Z"
+        },
+        {
+          "id": "4465a6e3-fcd4-4ed5-bdf0-b386e5b3e2d3",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/c572e06b-a2c4-4765-b51d-b71b644b0537/publish",
+          "status": 409,
+          "at": "2026-11-05T09:17:59.505Z"
+        },
+        {
+          "id": "5cd3db88-b487-439f-918f-0a99e1ec5adb",
+          "method": "POST",
+          "path": "/data-contracts/c572e06b-a2c4-4765-b51d-b71b644b0537/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:59.622Z"
+        },
+        {
+          "id": "5c15e711-eb0d-4f59-a966-e7a86af9235f",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:59.638Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the consumers are read after the dataset is locked: a dataset of BI that is being built on it is seen by the publication, which waits for its owner",
+      "status": "passed",
+      "durationMs": 673,
+      "at": "2026-11-05T09:18:00.374Z",
+      "requests": [
+        {
+          "id": "8a51abc0-b392-4e4a-b661-ecb125a12a33",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:59.804Z"
+        },
+        {
+          "id": "5f9a54db-4c01-45f9-83dd-adf7a60d2c5d",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/625fb5ae-030a-4782-bf5c-4de8b701a944/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:59.832Z"
+        },
+        {
+          "id": "e99bae5e-e03a-47b7-af39-50b4a83a1266",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:17:59.854Z"
+        },
+        {
+          "id": "5c825d0a-1588-452d-8554-7163de100618",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/dadcc585-872d-446c-a9c3-4670bed5c499/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:59.878Z"
+        },
+        {
+          "id": "92c0df31-9c40-4044-9ec6-cf90887d41f5",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/3cade53b-aa8f-48a7-877b-a4cefe084a96/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:59.894Z"
+        },
+        {
+          "id": "cb9be7e0-6bae-43e4-baea-de102ae95e93",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/673d68d9-bc4c-4d81-bd61-4d51c3485686/publish",
+          "status": 409,
+          "at": "2026-11-05T09:17:59.951Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the consumers are asked again at the publication when a dataset of BI was built on the dataset after the draft: the publication waits for its owner and the question is kept",
+      "status": "passed",
+      "durationMs": 578,
+      "at": "2026-11-05T09:18:00.953Z",
+      "requests": [
+        {
+          "id": "6c188e65-d9b1-4fd8-a776-e3b7d5b1d2ed",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:00.414Z"
+        },
+        {
+          "id": "bfec801f-72b3-4a0b-a3e1-e032a6790913",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/725c2a37-2f5c-4d1a-b800-6f7c98f8ad5b/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:00.438Z"
+        },
+        {
+          "id": "c2d398b8-a061-46da-968e-f3f1c5909842",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:00.461Z"
+        },
+        {
+          "id": "e55dc090-c0e3-4211-9fc6-ae96b937b281",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/ee56a355-a78b-4f16-aa51-1a66397b599a/decision",
+          "status": 200,
+          "at": "2026-11-05T09:18:00.488Z"
+        },
+        {
+          "id": "cc7fc5d2-d442-4e28-b5a6-692d13cea249",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/01ac267b-11f1-440b-83b0-cc6608e290dd/decision",
+          "status": 200,
+          "at": "2026-11-05T09:18:00.503Z"
+        },
+        {
+          "id": "ce67f6e5-db41-4f29-841a-56e6b53ff04b",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/9dbdd52d-c734-4574-b354-17d0782bd9f4/publish",
+          "status": 409,
+          "at": "2026-11-05T09:18:00.655Z"
+        },
+        {
+          "id": "71588c00-8854-44c3-89b0-cd0db7feb84f",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/53ef3075-696d-44dc-93cc-56cfa176eb74/decision",
+          "status": 200,
+          "at": "2026-11-05T09:18:00.907Z"
+        },
+        {
+          "id": "41c897eb-1119-4ecc-95ca-c8ef63108e22",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/9dbdd52d-c734-4574-b354-17d0782bd9f4/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:00.923Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the consumers are told to their owner by a list of their own, whether or not the owner may see the dataset or read the contracts",
+      "status": "passed",
+      "durationMs": 299,
+      "at": "2026-11-05T09:18:01.252Z",
+      "requests": [
+        {
+          "id": "fe32a93b-3128-474d-8df7-9eb628550aef",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.081Z"
+        },
+        {
+          "id": "744b015b-55a7-4287-8239-a5557e00474d",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/ff1dfa02-ca3c-4254-a0b6-814f81494670/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.097Z"
+        },
+        {
+          "id": "e248960f-8ac8-4119-996c-95896150e2dd",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.117Z"
+        },
+        {
+          "id": "1bac4e9a-7336-415e-8ddf-d8354734a169",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.142Z"
+        },
+        {
+          "id": "917667f1-b7ea-431e-a5a7-25cbf63a3d10",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.161Z"
+        },
+        {
+          "id": "dc572ccc-a29e-4db6-827c-8219c376bded",
+          "method": "GET",
+          "path": "/resources/dataset_contract",
+          "status": 403,
+          "at": "2026-11-05T09:18:01.177Z"
+        },
+        {
+          "id": "6e6b7139-d923-4ac4-8b6f-b69d4a4065e7",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/caf4d9a6-1be2-4572-b507-f159b04e8808/decision",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.183Z"
+        },
+        {
+          "id": "9fd6b910-b88e-42b2-a3d7-c43103e87ad6",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.207Z"
+        },
+        {
+          "id": "8ee18ea2-bef2-4311-bd5e-1a2a752a6cc2",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.237Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the consumers page through the approvals of a person, and refuse a filter that is none or a person with no right to consume",
+      "status": "passed",
+      "durationMs": 514,
+      "at": "2026-11-05T09:18:01.766Z",
+      "requests": [
+        {
+          "id": "f5142f4e-425b-4e6c-8e76-620fa01cbf9a",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.332Z"
+        },
+        {
+          "id": "8cde9033-ff24-4805-9133-f92c461e3754",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/04ec56b6-8ca3-42b6-bb40-d3627e0558ef/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.349Z"
+        },
+        {
+          "id": "bfd6a5e7-00d6-4baa-8f9c-c7056e702bf4",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.370Z"
+        },
+        {
+          "id": "51127adf-6779-47d6-aaca-41b5a5ae1f86",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.440Z"
+        },
+        {
+          "id": "ba4aa533-5d06-409e-a311-31c122ac57be",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/260db878-63d6-4091-8f3d-db2f8063ee62/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.462Z"
+        },
+        {
+          "id": "7ca14421-a94c-421a-83a6-eafe94245824",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.481Z"
+        },
+        {
+          "id": "81fa4dd8-8cd1-47c0-a1b4-bb9f44bf4355",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.494Z"
+        },
+        {
+          "id": "ae1a291c-b5a5-40b5-a1e9-a288ed59a1c4",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.505Z"
+        },
+        {
+          "id": "d606d6a2-99cc-47a5-86c5-be5d90f539ac",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.521Z"
+        },
+        {
+          "id": "bf937c25-3534-4b07-bdba-da81299482a5",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.537Z"
+        },
+        {
+          "id": "536549ec-0c7d-4d90-b1f9-22b2b19552cc",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.553Z"
+        },
+        {
+          "id": "a11cb68c-d03b-46d8-81a0-926d62cc5b3b",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.569Z"
+        },
+        {
+          "id": "82280dac-3a41-423f-8c76-8971889df0e0",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.574Z"
+        },
+        {
+          "id": "57fb803a-5247-463b-b124-f0fa944dd8f6",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.586Z"
+        },
+        {
+          "id": "8995be17-78c9-48cb-9d56-52125d220526",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.601Z"
+        },
+        {
+          "id": "871bb9a8-d837-43c9-9014-aba915aae322",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.624Z"
+        },
+        {
+          "id": "61986602-bdb8-4600-851d-1256ad68d621",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.633Z"
+        },
+        {
+          "id": "42d3bbc8-5888-4971-8884-4ed76deedf8e",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.637Z"
+        },
+        {
+          "id": "c78aa3ed-ca29-466c-8e59-ab073f85a9a5",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.648Z"
+        },
+        {
+          "id": "9859c0bf-287b-4e5f-8374-1b71ce300f9f",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.670Z"
+        },
+        {
+          "id": "f19b91c6-4182-46b1-962c-ccb50904b327",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.683Z"
+        },
+        {
+          "id": "f2045a15-299c-48a8-8f58-84fa9c48c8d1",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 422,
+          "at": "2026-11-05T09:18:01.698Z"
+        },
+        {
+          "id": "b88efb88-0ae2-44e3-8b60-3b58504fbca1",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 422,
+          "at": "2026-11-05T09:18:01.715Z"
+        },
+        {
+          "id": "a3f95ac8-6349-4849-acf5-c5b51b36f46f",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 422,
+          "at": "2026-11-05T09:18:01.719Z"
+        },
+        {
+          "id": "6ff25956-6c15-4383-8668-1ede5b521314",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 422,
+          "at": "2026-11-05T09:18:01.729Z"
+        },
+        {
+          "id": "c527ddfc-6594-4a1c-ab52-1e7b0f83fe55",
+          "method": "GET",
+          "path": "/dgv/contract-consumer-approvals",
+          "status": 403,
+          "at": "2026-11-05T09:18:01.745Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the consumers are none for a first revision, and a breaking one with no consumer needs the window only",
+      "status": "passed",
+      "durationMs": 265,
+      "at": "2026-11-05T09:18:02.031Z",
+      "requests": [
+        {
+          "id": "753777b5-956e-4eae-811f-df4979c24d11",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.934Z"
+        },
+        {
+          "id": "fdfd1ac5-c602-4d48-a903-2b9f20157213",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/5cb838e0-1346-4840-a3a2-7292666bf4a9/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.960Z"
+        },
+        {
+          "id": "4372746e-297f-4055-8a07-256d7704f6e7",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.974Z"
+        },
+        {
+          "id": "03bc84ca-144c-480b-ab8e-7db1e774eac1",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/aa593797-1c12-425d-8aba-eadec60e1d3c/publish",
+          "status": 422,
+          "at": "2026-11-05T09:18:01.991Z"
+        },
+        {
+          "id": "1cbe5326-d747-4cb5-9b9b-f57a852222fd",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/aa593797-1c12-425d-8aba-eadec60e1d3c/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:02.004Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the quality the document declares is kept in the version that is published, as it was in the revision",
+      "status": "passed",
+      "durationMs": 164,
+      "at": "2026-11-05T09:18:02.195Z",
+      "requests": [
+        {
+          "id": "51206eaa-a143-4c31-a56d-e184835d4c16",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:02.072Z"
+        },
+        {
+          "id": "c09a0074-45be-4a98-9018-2664b2e12eba",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/7c858ecb-ea0e-4d0b-b8ad-c55f8ccf263d/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:02.127Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the publication is refused to the person who drafted the revision (403 SELF_APPROVAL_DENIED), for both commands, and nothing is stored",
+      "status": "passed",
+      "durationMs": 177,
+      "at": "2026-11-05T09:18:02.372Z",
+      "requests": [
+        {
+          "id": "b757d491-cad6-461f-833d-610d28e6cbf8",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:02.233Z"
+        },
+        {
+          "id": "d805c4c2-58de-47e4-8100-7077b0a7d393",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/232fabb7-5b02-4ae9-986a-3a33b347154c/publish",
+          "status": 403,
+          "at": "2026-11-05T09:18:02.246Z"
+        },
+        {
+          "id": "b44c0942-3a4a-44e1-890e-f849bccb912f",
+          "method": "POST",
+          "path": "/data-contracts/232fabb7-5b02-4ae9-986a-3a33b347154c/publish",
+          "status": 403,
+          "at": "2026-11-05T09:18:02.258Z"
+        },
+        {
+          "id": "e4181987-7809-4f0e-a13c-9da0c906dae9",
+          "method": "POST",
+          "path": "/data-contracts/232fabb7-5b02-4ae9-986a-3a33b347154c/publish",
+          "status": 403,
+          "at": "2026-11-05T09:18:02.275Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the publication judges the version first (409 VERSION_CONFLICT), then the state (409 STAGE_TRANSITION_DENIED), and leaves no file of a refused publication",
+      "status": "passed",
+      "durationMs": 119,
+      "at": "2026-11-05T09:18:02.491Z",
+      "requests": [
+        {
+          "id": "458b7ddd-f275-4854-8c15-6556ce0e145f",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:02.412Z"
+        },
+        {
+          "id": "13968bab-59d3-45d9-8e08-feef0947c17c",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/99b6d15b-8483-4181-9575-b64de358622d/publish",
+          "status": 409,
+          "at": "2026-11-05T09:18:02.438Z"
+        },
+        {
+          "id": "8d68da04-ec94-4fb1-a36a-499ff55eb7e3",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/99b6d15b-8483-4181-9575-b64de358622d/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:02.458Z"
+        },
+        {
+          "id": "ce822803-2624-48d7-8abe-e069816ad279",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/99b6d15b-8483-4181-9575-b64de358622d/publish",
+          "status": 409,
+          "at": "2026-11-05T09:18:02.473Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the publication is one publication when two come together: the other is refused, and one version is written",
+      "status": "passed",
+      "durationMs": 117,
+      "at": "2026-11-05T09:18:02.608Z",
+      "requests": [
+        {
+          "id": "b46fb7d5-8ba4-41b3-9c28-1504d7a0e085",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:02.531Z"
+        },
+        {
+          "id": "3eee903b-639c-41ad-a6d4-55a7105c1c35",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/e7e196c5-81c7-4abd-b206-e4cbc477cc62/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:02.550Z"
+        },
+        {
+          "id": "970fd8e0-30a3-4a76-ae9d-4aadbad7392a",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/e7e196c5-81c7-4abd-b206-e4cbc477cc62/publish",
+          "status": 409,
+          "at": "2026-11-05T09:18:02.550Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the publication needs the dataset to have a retention policy, as the version it makes does (422), and the revision stays in review",
+      "status": "passed",
+      "durationMs": 100,
+      "at": "2026-11-05T09:18:02.708Z",
+      "requests": [
+        {
+          "id": "a6159ac2-9e8b-431d-9eae-be13df558357",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:02.648Z"
+        },
+        {
+          "id": "5fd363f1-a9ac-4bb2-81e6-30fbc73337c8",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/21a499dc-b80c-4734-be3c-c35c273c47d8/publish",
+          "status": 422,
+          "at": "2026-11-05T09:18:02.663Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the publication approves with the baseline command as it publishes with the other, and a breaking one needs the window only the other takes",
+      "status": "passed",
+      "durationMs": 207,
+      "at": "2026-11-05T09:18:02.915Z",
+      "requests": [
+        {
+          "id": "734d23ad-80aa-4045-aaf0-e158fddb9207",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:02.748Z"
+        },
+        {
+          "id": "517c70e5-5e91-4014-a434-3c57d1ba824e",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/f9a4dafa-a37c-4d3d-b114-7107602668c9/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:02.774Z"
+        },
+        {
+          "id": "8c396347-c9d4-44b6-b786-709fe91b60c2",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:02.794Z"
+        },
+        {
+          "id": "4d72d0d2-4984-40fc-bd83-222cc7076f8e",
+          "method": "POST",
+          "path": "/data-contracts/5180bce8-edcd-4b3d-806a-04c3897ca865/publish",
+          "status": 422,
+          "at": "2026-11-05T09:18:02.805Z"
+        },
+        {
+          "id": "71e0e71e-c724-4150-855c-e2b6726c7490",
+          "method": "POST",
+          "path": "/data-contracts/5180bce8-edcd-4b3d-806a-04c3897ca865/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:02.820Z"
+        },
+        {
+          "id": "cdd691ce-7e91-4693-bb6b-e8e8c5d63d33",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:02.836Z"
+        },
+        {
+          "id": "d2e11bdf-1736-4894-a026-117d5dd7af2a",
+          "method": "POST",
+          "path": "/data-contracts/b18615fc-2843-4f57-8a23-a5cda15e1ba2/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:02.853Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the publication refuses a baseline decision that is none of the three, and a reason that is blank",
+      "status": "passed",
+      "durationMs": 94,
+      "at": "2026-11-05T09:18:03.009Z",
+      "requests": [
+        {
+          "id": "bd1f5ef5-84ec-4cf2-a530-5ffc022fe6ed",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:02.955Z"
+        },
+        {
+          "id": "3a77b585-414c-4b09-8e0d-05e58a76f57e",
+          "method": "POST",
+          "path": "/data-contracts/a099e2a1-6745-4279-8094-269c1ad8b508/publish",
+          "status": 422,
+          "at": "2026-11-05T09:18:02.979Z"
+        },
+        {
+          "id": "324f5723-cbc2-4fde-8136-3f0201ea9b32",
+          "method": "POST",
+          "path": "/data-contracts/a099e2a1-6745-4279-8094-269c1ad8b508/publish",
+          "status": 422,
+          "at": "2026-11-05T09:18:02.991Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) who may is refused to a person with no right over the contracts, and to a right over one unit only (403)",
+      "status": "passed",
+      "durationMs": 206,
+      "at": "2026-11-05T09:18:03.216Z",
+      "requests": [
+        {
+          "id": "c54cc07c-2695-4ad6-ae25-977d98038d29",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 403,
+          "at": "2026-11-05T09:18:03.110Z"
+        },
+        {
+          "id": "ceeb3abc-8037-47ac-bf44-4c344507a2b1",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 403,
+          "at": "2026-11-05T09:18:03.118Z"
+        },
+        {
+          "id": "17048c44-0e5f-4a59-85fc-966475a5c3b6",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:03.139Z"
+        },
+        {
+          "id": "f607c63a-8454-43e7-9775-4f62b15a91b2",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/c80a2d20-96ca-478f-9f31-7d0c88ad774f/publish",
+          "status": 403,
+          "at": "2026-11-05T09:18:03.157Z"
+        },
+        {
+          "id": "6dd25586-48e9-4b2e-bef1-fe71457ead79",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/c80a2d20-96ca-478f-9f31-7d0c88ad774f/publish",
+          "status": 403,
+          "at": "2026-11-05T09:18:03.166Z"
+        },
+        {
+          "id": "cad50c5c-c362-42e4-9ed1-56c3f92a4436",
+          "method": "POST",
+          "path": "/data-contracts/c80a2d20-96ca-478f-9f31-7d0c88ad774f/publish",
+          "status": 403,
+          "at": "2026-11-05T09:18:03.182Z"
+        },
+        {
+          "id": "6a52b6d2-cabb-41b7-8a6a-97644e2d44e2",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/fec06e65-391a-4eaf-be87-d16467916dea/decision",
+          "status": 403,
+          "at": "2026-11-05T09:18:03.198Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) who may does not draft for a dataset the person may not see (404), nor for one of another tenant",
+      "status": "passed",
+      "durationMs": 117,
+      "at": "2026-11-05T09:18:03.333Z",
+      "requests": [
+        {
+          "id": "d180e369-df2d-4582-adb6-09c4ab604d88",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 404,
+          "at": "2026-11-05T09:18:03.255Z"
+        },
+        {
+          "id": "46a467c0-edf8-4ea1-bf9f-d3d62867fb58",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 404,
+          "at": "2026-11-05T09:18:03.263Z"
+        },
+        {
+          "id": "946c2f7d-0a47-4339-8684-02d9acddc87b",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 404,
+          "at": "2026-11-05T09:18:03.282Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) who may reads the contracts of the datasets the person may see only",
+      "status": "passed",
+      "durationMs": 171,
+      "at": "2026-11-05T09:18:03.504Z",
+      "requests": [
+        {
+          "id": "7f998e30-8415-4b4e-92f0-27af0832c71f",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:03.416Z"
+        },
+        {
+          "id": "1640987f-d6bc-4658-8db9-0f20f44f8184",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:03.429Z"
+        },
+        {
+          "id": "75116d22-05c8-47a9-bc2b-0b9395dd1977",
+          "method": "GET",
+          "path": "/resources/dataset_contract",
+          "status": 200,
+          "at": "2026-11-05T09:18:03.443Z"
+        },
+        {
+          "id": "dca90b7b-d1bc-468e-bace-8103c28e7ae0",
+          "method": "GET",
+          "path": "/resources/dataset_contract/2633d70e-e938-4bcb-93b1-e6a99582d3b0",
+          "status": 404,
+          "at": "2026-11-05T09:18:03.458Z"
+        },
+        {
+          "id": "0ff522af-a653-48ce-8d81-aa9fd9c9cd0d",
+          "method": "GET",
+          "path": "/resources/dataset_contract/144e7946-e224-4961-b2c5-83b1d46524a7",
+          "status": 404,
+          "at": "2026-11-05T09:18:03.470Z"
+        },
+        {
+          "id": "a73e3590-add9-4c44-9104-38a2f38044e6",
+          "method": "GET",
+          "path": "/resources/dataset_contract",
+          "status": 403,
+          "at": "2026-11-05T09:18:03.486Z"
+        },
+        {
+          "id": "4f9cfd25-2374-4d9e-97fc-8ac23953dc6b",
+          "method": "GET",
+          "path": "/resources/dataset_contract/82706073-47a7-408f-9544-f957eaa2792a",
+          "status": 403,
+          "at": "2026-11-05T09:18:03.501Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the reads list the revisions newest first, by dataset and by state, a page at a time, with the consumers of those in review",
+      "status": "passed",
+      "durationMs": 220,
+      "at": "2026-11-05T09:18:03.724Z",
+      "requests": [
+        {
+          "id": "b4c6e8e0-589b-4afd-9719-1d229015f0db",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:03.545Z"
+        },
+        {
+          "id": "18ec8724-1967-4d47-b479-072f81594992",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/e3519162-c2df-426e-b982-b417a12a2602/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:03.559Z"
+        },
+        {
+          "id": "ebf6f923-a0dd-4dd9-9bc9-c6f5fed8701c",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:03.577Z"
+        },
+        {
+          "id": "980dcf72-4656-4583-8a8c-2642a168667f",
+          "method": "GET",
+          "path": "/resources/dataset_contract",
+          "status": 200,
+          "at": "2026-11-05T09:18:03.605Z"
+        },
+        {
+          "id": "a08b4300-77e4-42c0-bda4-134863452cce",
+          "method": "GET",
+          "path": "/resources/dataset_contract",
+          "status": 200,
+          "at": "2026-11-05T09:18:03.609Z"
+        },
+        {
+          "id": "8c02fa5e-f287-43bc-ad63-289c02dae87c",
+          "method": "GET",
+          "path": "/resources/dataset_contract",
+          "status": 200,
+          "at": "2026-11-05T09:18:03.613Z"
+        },
+        {
+          "id": "d01fcbe9-0f4b-4bd5-9d37-89c703b50d00",
+          "method": "GET",
+          "path": "/resources/dataset_contract",
+          "status": 200,
+          "at": "2026-11-05T09:18:03.630Z"
+        },
+        {
+          "id": "5fa50e6c-eb3c-41eb-9058-6f8353360dbd",
+          "method": "GET",
+          "path": "/resources/dataset_contract",
+          "status": 422,
+          "at": "2026-11-05T09:18:03.634Z"
+        },
+        {
+          "id": "464a985b-34bd-4361-8bfc-cf9ec1c9b4ad",
+          "method": "GET",
+          "path": "/resources/dataset_contract",
+          "status": 422,
+          "at": "2026-11-05T09:18:03.643Z"
+        },
+        {
+          "id": "57f87284-40db-4fa5-ae06-30ac5ef72911",
+          "method": "GET",
+          "path": "/resources/dataset_contract",
+          "status": 422,
+          "at": "2026-11-05T09:18:03.660Z"
+        },
+        {
+          "id": "df09a125-dbc3-44d4-a08d-535640f805d9",
+          "method": "GET",
+          "path": "/resources/dataset_contract",
+          "status": 422,
+          "at": "2026-11-05T09:18:03.675Z"
+        },
+        {
+          "id": "b99d2b8f-56a9-4a9b-b6af-b6f534573cab",
+          "method": "GET",
+          "path": "/resources/dataset_contract",
+          "status": 422,
+          "at": "2026-11-05T09:18:03.692Z"
+        },
+        {
+          "id": "e7b36cee-9ccf-4d6c-86fb-03ce3652e196",
+          "method": "GET",
+          "path": "/resources/dataset_contract",
+          "status": 422,
+          "at": "2026-11-05T09:18:03.709Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the reads page through revisions and versions made together, without losing one at the edge of a page: the cursor keeps the time as the database wrote it",
+      "status": "passed",
+      "durationMs": 212,
+      "at": "2026-11-05T09:18:03.936Z",
+      "requests": [
+        {
+          "id": "5ab083b9-164e-448c-8a66-2af1062fb16f",
+          "method": "GET",
+          "path": "/resources/dataset_contract",
+          "status": 200,
+          "at": "2026-11-05T09:18:03.841Z"
+        },
+        {
+          "id": "9f7de16a-9525-4005-a12c-51e40d38080f",
+          "method": "GET",
+          "path": "/resources/dataset_contract",
+          "status": 200,
+          "at": "2026-11-05T09:18:03.852Z"
+        },
+        {
+          "id": "8042eaa8-0828-4002-9ef2-a8cc25128ba3",
+          "method": "GET",
+          "path": "/resources/dataset_contract",
+          "status": 200,
+          "at": "2026-11-05T09:18:03.868Z"
+        },
+        {
+          "id": "53c29ffe-8333-4202-9099-aafd8f0bc17b",
+          "method": "GET",
+          "path": "/resources/data_contract_version",
+          "status": 200,
+          "at": "2026-11-05T09:18:03.885Z"
+        },
+        {
+          "id": "3f63718e-5fae-4c2d-a476-df77a1464d29",
+          "method": "GET",
+          "path": "/resources/data_contract_version",
+          "status": 200,
+          "at": "2026-11-05T09:18:03.903Z"
+        },
+        {
+          "id": "f198c7a3-dc0a-4c88-8bf0-bb670667cdd5",
+          "method": "GET",
+          "path": "/resources/data_contract_version",
+          "status": 200,
+          "at": "2026-11-05T09:18:03.917Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the reads page through versions that were published before the contracts had a time of publication: they are listed after the others, none is lost",
+      "status": "passed",
+      "durationMs": 141,
+      "at": "2026-11-05T09:18:04.077Z",
+      "requests": [
+        {
+          "id": "40f93083-9d7f-4220-bb70-867eb8d1e614",
+          "method": "GET",
+          "path": "/resources/data_contract_version",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.027Z"
+        },
+        {
+          "id": "3e8cbced-b23c-4884-86fd-e05324398d0c",
+          "method": "GET",
+          "path": "/resources/data_contract_version",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.046Z"
+        },
+        {
+          "id": "6ca7c6a3-a26e-4127-b13f-4d3e3b0cdaae",
+          "method": "GET",
+          "path": "/resources/data_contract_version",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.062Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the reads numbers the first revision above the versions that were published before the contracts, so that it can be published",
+      "status": "passed",
+      "durationMs": 121,
+      "at": "2026-11-05T09:18:04.198Z",
+      "requests": [
+        {
+          "id": "a1a1ba93-4e96-4dde-86f0-d79d4a62e5b4",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.159Z"
+        },
+        {
+          "id": "741faa6c-9a4c-44b4-9021-93c96f965896",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/af93813f-4472-40cb-b9b0-ff58850efb02/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.175Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the reads show a revision with its document, its columns and what changed from the published version",
+      "status": "passed",
+      "durationMs": 104,
+      "at": "2026-11-05T09:18:04.302Z",
+      "requests": [
+        {
+          "id": "3b433211-b928-4e97-9b63-0b8f63f25893",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.238Z"
+        },
+        {
+          "id": "600eac72-24f8-456f-9b24-2614b362a761",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/8d7d5c24-966d-4d01-8072-0c829d08208e/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.258Z"
+        },
+        {
+          "id": "31b5277a-c0ef-478e-a347-ad2187398b86",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.277Z"
+        },
+        {
+          "id": "18bfc42b-e2d8-4776-a4c4-0ac2540a59a2",
+          "method": "GET",
+          "path": "/resources/dataset_contract/8106f551-63e3-48e1-ae25-7485d19dacbf",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.292Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the reads list the published versions of a dataset, newest first, and show one with its columns",
+      "status": "passed",
+      "durationMs": 268,
+      "at": "2026-11-05T09:18:04.570Z",
+      "requests": [
+        {
+          "id": "8aa8b40c-a766-48ce-98fa-12294d5f10cb",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.400Z"
+        },
+        {
+          "id": "60c4c7f3-91ef-4116-b796-4272e5bf2193",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/6cbbc350-e456-4b32-aff1-5e15512fb937/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.417Z"
+        },
+        {
+          "id": "742ac00d-6239-4da0-9eae-f0ed29d5afbd",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.437Z"
+        },
+        {
+          "id": "d7ebb124-801b-4398-bf17-508140fb1481",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/85ab2741-9b03-4237-b53f-d9491e56abe5/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.452Z"
+        },
+        {
+          "id": "485c9ce4-ec44-4b69-89e2-158842f8a9cb",
+          "method": "GET",
+          "path": "/resources/data_contract_version",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.472Z"
+        },
+        {
+          "id": "51157303-7e76-4a1c-a8d8-be5b517c6d14",
+          "method": "GET",
+          "path": "/resources/data_contract_version",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.477Z"
+        },
+        {
+          "id": "2dc1b71b-e511-4f9f-8c8c-0f5817e15f21",
+          "method": "GET",
+          "path": "/resources/data_contract_version",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.492Z"
+        },
+        {
+          "id": "cc2eea21-c4ec-4d0c-8a6b-6f7ea24cd372",
+          "method": "GET",
+          "path": "/resources/data_contract_version/84ce26fb-f251-4238-bb35-92bf9d7e41fe",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.507Z"
+        },
+        {
+          "id": "be5d1c21-f6bf-465c-bd34-256c731756d1",
+          "method": "GET",
+          "path": "/resources/data_contract_version/698f6965-5744-49f3-be42-dd6d285a73d1",
+          "status": 404,
+          "at": "2026-11-05T09:18:04.524Z"
+        },
+        {
+          "id": "199f82f9-eed6-43a8-8835-67226f76a259",
+          "method": "GET",
+          "path": "/resources/data_contract_version",
+          "status": 422,
+          "at": "2026-11-05T09:18:04.540Z"
+        },
+        {
+          "id": "b5608dd4-3859-4e6a-9d83-4b0749362e84",
+          "method": "GET",
+          "path": "/resources/data_contract_version",
+          "status": 403,
+          "at": "2026-11-05T09:18:04.553Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the database never changes what a revision says, deletes it, or moves it wrongly; and writes a published version once",
+      "status": "passed",
+      "durationMs": 113,
+      "at": "2026-11-05T09:18:04.683Z",
+      "requests": [
+        {
+          "id": "9000fdbb-870c-4611-b463-9eda4988e470",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.612Z"
+        },
+        {
+          "id": "9e339f8f-bb0f-4630-9460-0042606d3b21",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/52ee06d5-b0e1-45db-92c5-d57e5a194753/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.624Z"
+        },
+        {
+          "id": "a0a32db3-9264-430d-8fe8-109dbf42bc0d",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.645Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the database does not hold a published version without its hash, or a breaking one without a window, or a revision with a document and no compatibility",
+      "status": "passed",
+      "durationMs": 157,
+      "at": "2026-11-05T09:18:04.840Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the database writes a consumer decision once, by the owner of the consumer, and never deletes an approval",
+      "status": "passed",
+      "durationMs": 102,
+      "at": "2026-11-05T09:18:04.942Z",
+      "requests": [
+        {
+          "id": "234421e3-310a-40e9-97af-00a54d1d7c10",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.880Z"
+        },
+        {
+          "id": "7fbd7790-05c1-46e5-b252-6019a1843851",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts/66dc1f2b-62b8-496c-ad4e-ca7e5c42c5e7/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.893Z"
+        },
+        {
+          "id": "b439e529-19cf-43f4-91dc-fb41d9befd5c",
+          "method": "POST",
+          "path": "/dgv/dataset-contracts",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.912Z"
+        },
+        {
+          "id": "d4ab4e6d-dfeb-477f-b51c-b3db07ca4b3d",
+          "method": "POST",
+          "path": "/dgv/contract-consumer-approvals/5637a788-89d2-43a4-9500-35a332ac8fa5/decision",
+          "status": 200,
+          "at": "2026-11-05T09:18:04.928Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-contract.test.ts",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) the dataset of BI built on a dataset (shared with the publication) is built after a publication that holds the dataset has ended, so that the publication has seen the consumers it had",
+      "status": "passed",
+      "durationMs": 494,
+      "at": "2026-11-05T09:18:05.436Z",
+      "requests": []
+    }
+  ]
+}

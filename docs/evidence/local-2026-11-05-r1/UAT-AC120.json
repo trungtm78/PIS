@@ -1,0 +1,68 @@
+{
+  "id": "UAT-AC120",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/session/self-service.test.ts",
+      "name": "the profile, the sessions and the devices of a person over HTTP (ST-IAM-006) AC-ST-IAM-006-1, UAT-AC120: S1 revokes S2: S2 is refused by the deny-list at once and from the database for any process, S1 is not, and the identity provider is told",
+      "status": "passed",
+      "durationMs": 454,
+      "at": "2026-11-05T09:22:56.160Z",
+      "requests": [
+        {
+          "id": "c13bceef-33e1-4219-a082-01b184b31a58",
+          "method": "GET",
+          "path": "/me/sessions",
+          "status": 200,
+          "at": "2026-11-05T09:22:55.869Z"
+        },
+        {
+          "id": "750c98d5-b367-4404-a8c2-962db96d2170",
+          "method": "POST",
+          "path": "/me/sessions/a635d7ee-c76f-4009-a48d-d393bcac32de/revoke",
+          "status": 422,
+          "at": "2026-11-05T09:22:55.885Z"
+        },
+        {
+          "id": "3e6cb98d-a32c-4a7f-b1cc-8546c61e4946",
+          "method": "POST",
+          "path": "/me/sessions/ec32aa49-a5f4-4a0c-bdb2-af8e0ebd1067/revoke",
+          "status": 422,
+          "at": "2026-11-05T09:22:55.904Z"
+        },
+        {
+          "id": "3ac80145-c83b-4424-9416-f2e79fa152ac",
+          "method": "POST",
+          "path": "/me/sessions/ec32aa49-a5f4-4a0c-bdb2-af8e0ebd1067/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:22:55.915Z"
+        },
+        {
+          "id": "e2272404-4080-4e6e-bd4f-8fee5a76257d",
+          "method": "GET",
+          "path": "/me/sessions",
+          "status": 200,
+          "at": "2026-11-05T09:22:55.942Z"
+        },
+        {
+          "id": "ed1c9c70-b897-4408-bace-87865acada68",
+          "method": "GET",
+          "path": "/me/sessions",
+          "status": 200,
+          "at": "2026-11-05T09:22:55.947Z"
+        },
+        {
+          "id": "03a0a4f7-f0d7-4912-8aae-c713b922dc4b",
+          "method": "POST",
+          "path": "/me/sessions/ec32aa49-a5f4-4a0c-bdb2-af8e0ebd1067/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:22:55.963Z"
+        }
+      ]
+    }
+  ]
+}

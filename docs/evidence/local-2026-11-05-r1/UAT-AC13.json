@@ -1,0 +1,182 @@
+{
+  "id": "UAT-AC13",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/analysis.test.ts",
+      "name": "the AI analysis of a proposal with verified citations and classification routing (ST-BID-009) AC-ST-BID-009-2, UAT-AC13: a finding that claims is kept only with a citation that is on its page AC-ST-BID-009-2, UAT-AC13: keeps four findings with a verified citation, takes the one without a source back to NEEDS_REVIEW with the flag, and no supported finding has no evidence",
+      "status": "passed",
+      "durationMs": 1479,
+      "at": "2026-11-05T09:11:18.086Z",
+      "requests": [
+        {
+          "id": "b1428c2e-7f0b-4871-9ea8-b1917c68ddd3",
+          "method": "POST",
+          "path": "/procurement-packages/280a56f3-51e6-41cf-b49e-772577787bf8/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:11:17.662Z"
+        },
+        {
+          "id": "496c5d8e-89ab-48ef-94d5-aa76f253002f",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 200,
+          "at": "2026-11-05T09:11:17.790Z"
+        },
+        {
+          "id": "1fe9f867-7627-470e-9c6f-aad549eed0df",
+          "method": "GET",
+          "path": "/analysis-runs/bb86a871-b7f0-4202-86f0-fd7461debd4a/findings",
+          "status": 200,
+          "at": "2026-11-05T09:11:17.873Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/analysis.test.ts",
+      "name": "the AI analysis of a proposal with verified citations and classification routing (ST-BID-009) AC-ST-BID-009-2, UAT-AC13: a finding that claims is kept only with a citation that is on its page keeps a quotation that is not on the page as evidence that was not found, and the finding on it goes back to NEEDS_REVIEW",
+      "status": "passed",
+      "durationMs": 1112,
+      "at": "2026-11-05T09:11:19.198Z",
+      "requests": [
+        {
+          "id": "74632ade-4d15-4ec4-98d1-6dfeea86879c",
+          "method": "POST",
+          "path": "/procurement-packages/2a36c8da-57e5-4982-acf5-45ac8302ae16/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:11:19.018Z"
+        },
+        {
+          "id": "a2714366-e5ad-4359-9d31-b04b4b6a62be",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 200,
+          "at": "2026-11-05T09:11:19.106Z"
+        },
+        {
+          "id": "19860be0-2e46-4cd2-bbae-3ac7c2533a66",
+          "method": "GET",
+          "path": "/analysis-runs/b93a519c-73fe-4197-8dae-7a6f8d88d0b0/findings",
+          "status": 200,
+          "at": "2026-11-05T09:11:19.172Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/analysis.test.ts",
+      "name": "the AI analysis of a proposal with verified citations and classification routing (ST-BID-009) AC-ST-BID-009-2, UAT-AC13: a finding that claims is kept only with a citation that is on its page computes no figure from the tables of a page a person corrected, because the amounts of the engine were not corrected with the text",
+      "status": "passed",
+      "durationMs": 1890,
+      "at": "2026-11-05T09:11:21.088Z",
+      "requests": [
+        {
+          "id": "b3d20a5d-d49d-4c5b-983b-9a145e950b68",
+          "method": "POST",
+          "path": "/procurement-packages/c9ea44f2-dc6d-4ab2-b8c6-cfa88b354df8/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:11:20.883Z"
+        },
+        {
+          "id": "3c057013-7b30-4cbb-9ca0-cf50ad8afa39",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 200,
+          "at": "2026-11-05T09:11:20.995Z"
+        },
+        {
+          "id": "3adcf235-3033-49be-ac14-b315ee1d60cb",
+          "method": "GET",
+          "path": "/analysis-runs/e88fe2f9-a630-426a-91ca-9915bf566e17/findings",
+          "status": 200,
+          "at": "2026-11-05T09:11:21.064Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/analysis.test.ts",
+      "name": "the AI analysis of a proposal with verified citations and classification routing (ST-BID-009) AC-ST-BID-009-2, UAT-AC13: a finding that claims is kept only with a citation that is on its page filters the findings by status and by the missing source, and pages them",
+      "status": "passed",
+      "durationMs": 1207,
+      "at": "2026-11-05T09:11:22.295Z",
+      "requests": [
+        {
+          "id": "137e0340-b58f-470f-bff7-6a406936e1bd",
+          "method": "POST",
+          "path": "/procurement-packages/696a3a30-eef4-426c-a7e7-177468154860/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:11:22.027Z"
+        },
+        {
+          "id": "5218a10f-831a-4fb1-bcbf-ffa5fd401f2e",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 200,
+          "at": "2026-11-05T09:11:22.088Z"
+        },
+        {
+          "id": "6e59c5da-d595-42c6-aacf-cdb8e2d7a290",
+          "method": "GET",
+          "path": "/analysis-runs/8d3fd04c-2a77-431b-9ef2-01856691ed21/findings",
+          "status": 200,
+          "at": "2026-11-05T09:11:22.178Z"
+        },
+        {
+          "id": "d4179a2e-01a6-4daf-be48-306e748b306c",
+          "method": "GET",
+          "path": "/analysis-runs/8d3fd04c-2a77-431b-9ef2-01856691ed21/findings",
+          "status": 200,
+          "at": "2026-11-05T09:11:22.191Z"
+        },
+        {
+          "id": "e5ec38af-52cc-4b79-9f4e-c218d3914ebc",
+          "method": "GET",
+          "path": "/analysis-runs/8d3fd04c-2a77-431b-9ef2-01856691ed21/findings",
+          "status": 200,
+          "at": "2026-11-05T09:11:22.203Z"
+        },
+        {
+          "id": "6a9a0185-84d7-44ae-bf06-0265feeb876c",
+          "method": "GET",
+          "path": "/analysis-runs/8d3fd04c-2a77-431b-9ef2-01856691ed21/findings",
+          "status": 200,
+          "at": "2026-11-05T09:11:22.222Z"
+        },
+        {
+          "id": "67901f00-d17f-425b-a01a-f9407c7d8d35",
+          "method": "GET",
+          "path": "/analysis-runs/8d3fd04c-2a77-431b-9ef2-01856691ed21/findings",
+          "status": 422,
+          "at": "2026-11-05T09:11:22.240Z"
+        },
+        {
+          "id": "966effb3-aecb-4fa7-9c08-8891972bb7c6",
+          "method": "GET",
+          "path": "/analysis-runs/8d3fd04c-2a77-431b-9ef2-01856691ed21/findings",
+          "status": 422,
+          "at": "2026-11-05T09:11:22.247Z"
+        },
+        {
+          "id": "1ba8bf34-d09b-4a21-859b-3eb1c01d6a19",
+          "method": "GET",
+          "path": "/analysis-runs/8d3fd04c-2a77-431b-9ef2-01856691ed21/findings",
+          "status": 422,
+          "at": "2026-11-05T09:11:22.262Z"
+        },
+        {
+          "id": "b044374a-98d8-44e1-b3e3-5b9ed2384200",
+          "method": "GET",
+          "path": "/analysis-runs/8d3fd04c-2a77-431b-9ef2-01856691ed21/findings",
+          "status": 422,
+          "at": "2026-11-05T09:11:22.278Z"
+        }
+      ]
+    }
+  ]
+}

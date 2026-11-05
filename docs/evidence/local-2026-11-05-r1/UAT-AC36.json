@@ -1,0 +1,47 @@
+{
+  "id": "UAT-AC36",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/payments.test.ts",
+      "name": "the payment and e-invoice webhooks and the reconciliation over HTTP (ST-SAS-012) AC-ST-SAS-012-1 UAT-AC36: the same payment webhook sent four times answers 200 duplicate false and then three times duplicate true, with one inbox row and one payment",
+      "status": "passed",
+      "durationMs": 488,
+      "at": "2026-11-05T09:20:31.659Z",
+      "requests": [
+        {
+          "id": "39c14b82-2402-4355-b48b-c835f4e361a0",
+          "method": "POST",
+          "path": "/webhooks/payments/mock-bank",
+          "status": 200,
+          "at": "2026-11-05T09:20:31.172Z"
+        },
+        {
+          "id": "7a8fb15c-e78e-414d-8762-a04c577ed73c",
+          "method": "POST",
+          "path": "/webhooks/payments/mock-bank",
+          "status": 200,
+          "at": "2026-11-05T09:20:31.302Z"
+        },
+        {
+          "id": "c2ff1d16-e5f1-48be-b643-431c1e126a65",
+          "method": "POST",
+          "path": "/webhooks/payments/mock-bank",
+          "status": 200,
+          "at": "2026-11-05T09:20:31.320Z"
+        },
+        {
+          "id": "e76b2def-b0e3-4d5c-86fd-9cf98a126a5f",
+          "method": "POST",
+          "path": "/webhooks/payments/mock-bank",
+          "status": 200,
+          "at": "2026-11-05T09:20:31.328Z"
+        }
+      ]
+    }
+  ]
+}

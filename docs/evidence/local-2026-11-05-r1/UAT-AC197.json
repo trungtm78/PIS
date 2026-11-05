@@ -1,0 +1,173 @@
+{
+  "id": "UAT-AC197",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/omni/contacts.test.ts",
+      "name": "the contact directory, verified identities and the safe merge (ST-OMNI-002, OMNI-03, BR-OMNI-05) AC-ST-OMNI-002-1 UAT-AC197: two contacts with the same name are not merged without a verified identity they share (422 RECIPIENT_AMBIGUOUS), and are merged with one, with the audit trail, the event and the conversations moved",
+      "status": "passed",
+      "durationMs": 960,
+      "at": "2026-11-05T09:19:31.962Z",
+      "requests": [
+        {
+          "id": "8109c637-eda5-4c11-b018-9adb141b3a94",
+          "method": "POST",
+          "path": "/contacts",
+          "status": 201,
+          "at": "2026-11-05T09:19:31.001Z"
+        },
+        {
+          "id": "acd12b55-3e67-456f-a4ff-005cba6abafa",
+          "method": "POST",
+          "path": "/contacts",
+          "status": 201,
+          "at": "2026-11-05T09:19:31.016Z"
+        },
+        {
+          "id": "d76e1e7a-935d-4aba-a382-490f699ab57d",
+          "method": "POST",
+          "path": "/contacts/88d95001-003a-4c74-9545-baca5e2124d9/identities",
+          "status": 201,
+          "at": "2026-11-05T09:19:31.034Z"
+        },
+        {
+          "id": "d63692cd-d70f-4838-b44a-fd11ebe33dcc",
+          "method": "POST",
+          "path": "/contacts/88d95001-003a-4c74-9545-baca5e2124d9/identities/ff69a8cb-cb01-4ad6-8461-d4fff7f36470/verify",
+          "status": 200,
+          "at": "2026-11-05T09:19:31.152Z"
+        },
+        {
+          "id": "8d1d1b45-d825-45d7-91cf-f520db25ee2e",
+          "method": "POST",
+          "path": "/contacts/merges",
+          "status": 422,
+          "at": "2026-11-05T09:19:31.178Z"
+        },
+        {
+          "id": "7e28f369-2c29-4aa3-91b5-3628bd7a63de",
+          "method": "POST",
+          "path": "/contacts/7c16413f-8512-4272-ab41-f81859a84f67/identities",
+          "status": 201,
+          "at": "2026-11-05T09:19:31.194Z"
+        },
+        {
+          "id": "9db9aaeb-c775-4da2-90d0-3f4d49982ffb",
+          "method": "POST",
+          "path": "/contacts/7c16413f-8512-4272-ab41-f81859a84f67/identities/b4fcdc12-680d-4e7c-977e-77ea55ab0681/verify",
+          "status": 200,
+          "at": "2026-11-05T09:19:31.248Z"
+        },
+        {
+          "id": "6b2236ab-617b-4e5d-acbf-93ddeecf4883",
+          "method": "POST",
+          "path": "/contacts/merges",
+          "status": 422,
+          "at": "2026-11-05T09:19:31.260Z"
+        },
+        {
+          "id": "cab992ea-60eb-42f4-8fa0-39437b8e4f1f",
+          "method": "POST",
+          "path": "/contacts/7c16413f-8512-4272-ab41-f81859a84f67/identities",
+          "status": 201,
+          "at": "2026-11-05T09:19:31.271Z"
+        },
+        {
+          "id": "cc1bc3d6-876a-45da-9884-15de74147d85",
+          "method": "POST",
+          "path": "/contacts/merges",
+          "status": 422,
+          "at": "2026-11-05T09:19:31.281Z"
+        },
+        {
+          "id": "90231f94-6528-4ecc-982a-ee5c38b85348",
+          "method": "POST",
+          "path": "/contacts/merges",
+          "status": 422,
+          "at": "2026-11-05T09:19:31.305Z"
+        },
+        {
+          "id": "0362d100-b0a1-48cd-8f69-984d79af51ab",
+          "method": "GET",
+          "path": "/resources/contact/88d95001-003a-4c74-9545-baca5e2124d9",
+          "status": 200,
+          "at": "2026-11-05T09:19:31.500Z"
+        },
+        {
+          "id": "d12de669-1797-401d-a8c8-b09c5d387c31",
+          "method": "POST",
+          "path": "/contacts/7c16413f-8512-4272-ab41-f81859a84f67/identities/2f266d66-73af-4a55-86cf-41416c604525/verify",
+          "status": 200,
+          "at": "2026-11-05T09:19:31.549Z"
+        },
+        {
+          "id": "015d230b-aeab-4574-b1df-19f703b41ab8",
+          "method": "GET",
+          "path": "/resources/contact/88d95001-003a-4c74-9545-baca5e2124d9",
+          "status": 200,
+          "at": "2026-11-05T09:19:31.561Z"
+        },
+        {
+          "id": "e01a2256-dfc5-49dd-a535-749369ed2e79",
+          "method": "GET",
+          "path": "/resources/contact/7c16413f-8512-4272-ab41-f81859a84f67",
+          "status": 200,
+          "at": "2026-11-05T09:19:31.572Z"
+        },
+        {
+          "id": "a9333dd1-6286-40e9-931a-68a05de5cb11",
+          "method": "POST",
+          "path": "/contacts/merges",
+          "status": 403,
+          "at": "2026-11-05T09:19:31.587Z"
+        },
+        {
+          "id": "068730c8-cba1-4450-a93d-b7fc9e8618af",
+          "method": "POST",
+          "path": "/contacts/merges",
+          "status": 200,
+          "at": "2026-11-05T09:19:31.601Z"
+        },
+        {
+          "id": "6b2fa49a-5510-4959-999e-d65c267396d1",
+          "method": "GET",
+          "path": "/resources/contact/88d95001-003a-4c74-9545-baca5e2124d9",
+          "status": 200,
+          "at": "2026-11-05T09:19:31.729Z"
+        },
+        {
+          "id": "c9c62037-c426-41ba-9846-d36e89b8703e",
+          "method": "GET",
+          "path": "/resources/contact/7c16413f-8512-4272-ab41-f81859a84f67",
+          "status": 200,
+          "at": "2026-11-05T09:19:31.748Z"
+        },
+        {
+          "id": "3571d3c1-70b8-4da4-836c-157cb3d17f58",
+          "method": "POST",
+          "path": "/contacts/merges",
+          "status": 409,
+          "at": "2026-11-05T09:19:31.907Z"
+        },
+        {
+          "id": "881f5e05-32fa-4ee4-8997-7eea1f06c700",
+          "method": "POST",
+          "path": "/contacts/7c16413f-8512-4272-ab41-f81859a84f67/identities",
+          "status": 409,
+          "at": "2026-11-05T09:19:31.930Z"
+        },
+        {
+          "id": "6ca1ee1b-da0b-406a-96b9-7e5ed619b65a",
+          "method": "POST",
+          "path": "/contacts/merges",
+          "status": 422,
+          "at": "2026-11-05T09:19:31.941Z"
+        }
+      ]
+    }
+  ]
+}

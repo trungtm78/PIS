@@ -1,0 +1,54 @@
+{
+  "id": "UAT-AC406",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/signed-documents.test.ts",
+      "name": "documents signed outside the system (ST-DOC-009) uploadLeaderSignedDocument takes the file the leader signed with their own tool when the signing time is proven, and refuses the one whose time nobody proved: the document stays SUBMITTED (AC-ST-DOC-009-2, UAT-AC406)",
+      "status": "passed",
+      "durationMs": 1033,
+      "at": "2026-11-05T09:15:26.481Z",
+      "requests": [
+        {
+          "id": "81ae5558-bc75-459c-a84c-a902d5e1407c",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:15:25.449Z"
+        },
+        {
+          "id": "cf6b3b13-be3f-489e-a91d-23b1fdd1bcdd",
+          "method": "POST",
+          "path": "/outgoing-documents/bfd3a56d-f0ab-47b1-a8cc-12fdfcbb0eff/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:15:25.524Z"
+        },
+        {
+          "id": "a297d779-7cd6-4388-89cc-99cae12f24d2",
+          "method": "POST",
+          "path": "/outgoing-documents/bfd3a56d-f0ab-47b1-a8cc-12fdfcbb0eff/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:15:25.556Z"
+        },
+        {
+          "id": "9e76ae67-6fcc-4544-8ed9-bfccb55e5a9c",
+          "method": "POST",
+          "path": "/outgoing-documents/bfd3a56d-f0ab-47b1-a8cc-12fdfcbb0eff/signed-uploads",
+          "status": 422,
+          "at": "2026-11-05T09:15:25.834Z"
+        },
+        {
+          "id": "38373320-9bce-4216-b685-17be7c86815d",
+          "method": "POST",
+          "path": "/outgoing-documents/bfd3a56d-f0ab-47b1-a8cc-12fdfcbb0eff/signed-uploads",
+          "status": 200,
+          "at": "2026-11-05T09:15:26.012Z"
+        }
+      ]
+    }
+  ]
+}

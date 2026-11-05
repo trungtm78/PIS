@@ -1,0 +1,47 @@
+{
+  "id": "UI-CTR-05",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/ctr-flows.spec.ts",
+      "name": "an advance guarantee is kept while an advance is owed, and the accountant sees the amount owed in the expiring view (AC-ST-CTR-003-2, UI-CTR-05)",
+      "status": "passed",
+      "durationMs": 1180,
+      "at": "2026-11-05T08:46:09.103Z",
+      "requests": [
+        {
+          "id": "ea49a694-769d-4a50-950a-68d12ddb8cd5",
+          "method": "GET",
+          "path": "/resources/contract/0270a927-5230-4217-bb1a-216713139c30",
+          "status": 200,
+          "at": "2026-11-05T08:46:09.913Z"
+        },
+        {
+          "id": "942c13a1-4d32-46f5-b502-49b03f99a840",
+          "method": "GET",
+          "path": "/resources/guarantee",
+          "status": 200,
+          "at": "2026-11-05T08:46:09.912Z"
+        },
+        {
+          "id": "a8cbe36e-aac3-45e1-bde1-b24ee3d8d420",
+          "method": "POST",
+          "path": "/guarantees/4d2ed65e-3bd8-492e-9ff8-4527f3d8ecfd/release",
+          "status": 422,
+          "at": "2026-11-05T08:46:10.083Z"
+        },
+        {
+          "id": "e62d36e0-80e4-43fb-91cc-eaa479ddf66a",
+          "method": "GET",
+          "path": "/guarantees/expiring",
+          "status": 200,
+          "at": "2026-11-05T08:46:10.247Z"
+        }
+      ]
+    }
+  ]
+}

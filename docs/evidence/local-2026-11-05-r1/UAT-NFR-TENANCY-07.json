@@ -1,0 +1,36 @@
+{
+  "id": "UAT-NFR-TENANCY-07",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/mobile-sync.test.ts",
+      "name": "the sync rules of the weekly report for the phone (ST-DIS-017) UAT-NFR-TENANCY-07 / AC-ST-DIS-017-4: the token of another tenant reaches nothing of the first, a scope row that names a project of another tenant reaches nothing, and the same member in the other tenant gets only that tenant",
+      "status": "passed",
+      "durationMs": 9,
+      "at": "2026-11-05T09:23:56.080Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/mobile-sync.test.ts",
+      "name": "the sync rules of the weekly report for the phone (ST-DIS-017) UAT-NFR-TENANCY-07 / AC-ST-DIS-017-4: when the scope is revoked the buckets are empty at the next sync, and a row that was ended for one scope leaves the others",
+      "status": "passed",
+      "durationMs": 18,
+      "at": "2026-11-05T09:23:56.098Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/auth/powersync-token.test.ts",
+      "name": "the token a phone gives the PowerSync service (ST-MOB-007, TK-MOB-007-2) AC-ST-MOB-007-3 UAT-NFR-TENANCY-07: carries the member, the active tenant and the scope version of the context it was judged under, for five minutes at most",
+      "status": "passed",
+      "durationMs": 3,
+      "at": "2026-11-05T09:24:00.886Z",
+      "requests": []
+    }
+  ]
+}

@@ -1,0 +1,419 @@
+{
+  "id": "UAT-PLAN-25",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-weekly-matrix.test.ts",
+      "name": "the weekly matrix of the issues by unit and group (ST-ISS-006, ISS-06, ISS-08, BR-ISS-08, UAT-PLAN-25) is registered in the module of ISS",
+      "status": "passed",
+      "durationMs": 2,
+      "at": "2026-11-05T09:22:07.624Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-weekly-matrix.test.ts",
+      "name": "the weekly matrix of the issues by unit and group (ST-ISS-006, ISS-06, ISS-08, BR-ISS-08, UAT-PLAN-25) UAT-PLAN-25: every count of the matrix equals the count of the rows of the database, and the cell U1 / OPEN lists exactly the issues it counts",
+      "status": "passed",
+      "durationMs": 1432,
+      "at": "2026-11-05T09:22:09.056Z",
+      "requests": [
+        {
+          "id": "3fccdfe2-eda6-47f3-9b80-37cebc9710a4",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-05T09:22:08.816Z"
+        },
+        {
+          "id": "0a32354c-a259-427d-aa52-9f3f2eda4f03",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:22:08.980Z"
+        },
+        {
+          "id": "bdce7403-6f35-4110-8b57-c509e61a5c2d",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.011Z"
+        },
+        {
+          "id": "09647eec-1c14-4b7b-9ebd-556d94263017",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.028Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-weekly-matrix.test.ts",
+      "name": "the weekly matrix of the issues by unit and group (ST-ISS-006, ISS-06, ISS-08, BR-ISS-08, UAT-PLAN-25) BR-ISS-08: closing = opening + opened - resolved, and the opening of a week is the closing of the week before it",
+      "status": "passed",
+      "durationMs": 515,
+      "at": "2026-11-05T09:22:09.572Z",
+      "requests": [
+        {
+          "id": "d38084d3-34bb-4275-af47-8db7d403d9c0",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.057Z"
+        },
+        {
+          "id": "bd7bef3d-67bb-4b24-a33a-6cebe451fdb9",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.413Z"
+        },
+        {
+          "id": "7dc07f1b-21f6-4372-84af-246815c4773a",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.434Z"
+        },
+        {
+          "id": "7db7f6c7-7340-4633-b832-83fda5c93b72",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.487Z"
+        },
+        {
+          "id": "15d2500c-8f1a-4eda-ac42-f070dc5b1b09",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.511Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-weekly-matrix.test.ts",
+      "name": "the weekly matrix of the issues by unit and group (ST-ISS-006, ISS-06, ISS-08, BR-ISS-08, UAT-PLAN-25) counts an event at the very start of a week in that week only: the closing of one week is the opening of the next, with nothing counted twice",
+      "status": "passed",
+      "durationMs": 195,
+      "at": "2026-11-05T09:22:09.767Z",
+      "requests": [
+        {
+          "id": "3f9cf027-7c50-4299-bdb5-80f3aebf4bcc",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.700Z"
+        },
+        {
+          "id": "dce7217e-8acd-425e-8cf0-dd491079c993",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.722Z"
+        },
+        {
+          "id": "a2a125c9-27a7-402f-b88f-c48e5dca3aab",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.737Z"
+        },
+        {
+          "id": "9f0d702f-1b3b-4946-9526-f9b10bac1b3b",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.750Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-weekly-matrix.test.ts",
+      "name": "the weekly matrix of the issues by unit and group (ST-ISS-006, ISS-06, ISS-08, BR-ISS-08, UAT-PLAN-25) counts an issue as overdue by the deadline it had when the week ended, not the one an extension gave it later, and keeps it overdue once it was late",
+      "status": "passed",
+      "durationMs": 113,
+      "at": "2026-11-05T09:22:09.880Z",
+      "requests": [
+        {
+          "id": "8f24ea78-ce7f-4e78-aaf5-2236ed76b9fe",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.807Z"
+        },
+        {
+          "id": "51fa7692-a3ac-4c0b-a3e2-9dc5f90a54ff",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.833Z"
+        },
+        {
+          "id": "63870022-e109-4058-9348-1735a433cfdf",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.850Z"
+        },
+        {
+          "id": "7a5d18a4-a641-4ab1-bcba-324b92a95265",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.865Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-weekly-matrix.test.ts",
+      "name": "the weekly matrix of the issues by unit and group (ST-ISS-006, ISS-06, ISS-08, BR-ISS-08, UAT-PLAN-25) keeps an issue that was late late when its deadline is moved past the end of the week (BR-ISS-04), and counts one that was extended before it was late as on time",
+      "status": "passed",
+      "durationMs": 114,
+      "at": "2026-11-05T09:22:09.995Z",
+      "requests": [
+        {
+          "id": "8fb4baee-bcc4-4fe6-abb2-c89f6668c3cf",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.969Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-weekly-matrix.test.ts",
+      "name": "the weekly matrix of the issues by unit and group (ST-ISS-006, ISS-06, ISS-08, BR-ISS-08, UAT-PLAN-25) keeps the closed issues out of the list of a closing, and takes only true as the flag",
+      "status": "passed",
+      "durationMs": 103,
+      "at": "2026-11-05T09:22:10.098Z",
+      "requests": [
+        {
+          "id": "58fe19a3-eea1-4b13-8c0f-46fcdc92f1fb",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.995Z"
+        },
+        {
+          "id": "9bf62a38-6b65-4dd3-8534-82497844a785",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:22:10.004Z"
+        },
+        {
+          "id": "2430f079-2350-493e-b225-7973337bf2f1",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 422,
+          "at": "2026-11-05T09:22:10.023Z"
+        },
+        {
+          "id": "22bc9b6e-7382-4d23-a06b-b5b1b9b7dbc2",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:22:10.034Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-weekly-matrix.test.ts",
+      "name": "the weekly matrix of the issues by unit and group (ST-ISS-006, ISS-06, ISS-08, BR-ISS-08, UAT-PLAN-25) limits the matrix to a unit, to the scope of the caller, and to the caller who may read issues",
+      "status": "passed",
+      "durationMs": 118,
+      "at": "2026-11-05T09:22:10.217Z",
+      "requests": [
+        {
+          "id": "86f04597-6dfa-4e94-844d-70a297c03441",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-05T09:22:10.099Z"
+        },
+        {
+          "id": "4c7fe390-752d-416e-9373-f0294922c0e5",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-05T09:22:10.122Z"
+        },
+        {
+          "id": "ff914632-667c-4bbc-92e8-171f0ffae6a2",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-05T09:22:10.138Z"
+        },
+        {
+          "id": "29f25f79-925d-4aec-a2ca-dd4042e12652",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:22:10.154Z"
+        },
+        {
+          "id": "68797d90-2dc8-4085-baa6-9b49941a461f",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 403,
+          "at": "2026-11-05T09:22:10.162Z"
+        },
+        {
+          "id": "fd951d55-fdeb-4fd7-a3c8-c1bb9fc79b73",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 403,
+          "at": "2026-11-05T09:22:10.179Z"
+        },
+        {
+          "id": "6a63ce3e-35c8-498f-bb45-4d38e3641220",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-05T09:22:10.195Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-weekly-matrix.test.ts",
+      "name": "the weekly matrix of the issues by unit and group (ST-ISS-006, ISS-06, ISS-08, BR-ISS-08, UAT-PLAN-25) reads the week that is running up to now, and a week to come as empty",
+      "status": "passed",
+      "durationMs": 62,
+      "at": "2026-11-05T09:22:10.279Z",
+      "requests": [
+        {
+          "id": "0ce9733c-bae2-485d-b149-cbc0cafd212c",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-05T09:22:10.217Z"
+        },
+        {
+          "id": "e4431ab4-22b3-4b26-afac-49070bb0954b",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-05T09:22:10.234Z"
+        },
+        {
+          "id": "470db660-84c8-4395-bff5-6c64de48f8a2",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:22:10.241Z"
+        },
+        {
+          "id": "58d5ae89-93e7-4b05-b6b3-aa6ec5310e01",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:22:10.261Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-weekly-matrix.test.ts",
+      "name": "the weekly matrix of the issues by unit and group (ST-ISS-006, ISS-06, ISS-08, BR-ISS-08, UAT-PLAN-25) refuses a week that is not one, a unit that is not an id, and a status the list does not know",
+      "status": "passed",
+      "durationMs": 106,
+      "at": "2026-11-05T09:22:10.384Z",
+      "requests": [
+        {
+          "id": "88512e84-0678-456b-a14c-d0feb2a996db",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 422,
+          "at": "2026-11-05T09:22:10.279Z"
+        },
+        {
+          "id": "d980c6a0-8a9d-460e-85fe-05dd9040acff",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 422,
+          "at": "2026-11-05T09:22:10.288Z"
+        },
+        {
+          "id": "83e144ed-ac8d-412f-810e-f545b058f4e3",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 422,
+          "at": "2026-11-05T09:22:10.291Z"
+        },
+        {
+          "id": "896c3e18-97ea-4c9f-bf3b-2cf729b8deb1",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 422,
+          "at": "2026-11-05T09:22:10.304Z"
+        },
+        {
+          "id": "ec6689de-4b4b-436e-85cf-90450320df5e",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 422,
+          "at": "2026-11-05T09:22:10.320Z"
+        },
+        {
+          "id": "a5d43ab9-fb75-4d23-bb61-723041a11534",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 422,
+          "at": "2026-11-05T09:22:10.337Z"
+        },
+        {
+          "id": "ce357702-edad-48a8-b9cd-30316215acf3",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 422,
+          "at": "2026-11-05T09:22:10.353Z"
+        },
+        {
+          "id": "a34a4951-5b84-4b13-a952-ff330907f5b5",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 422,
+          "at": "2026-11-05T09:22:10.368Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-weekly-matrix.test.ts",
+      "name": "the weekly matrix of the issues by unit and group (ST-ISS-006, ISS-06, ISS-08, BR-ISS-08, UAT-PLAN-25) narrows the list by group and by the status an issue has now, when no week is named",
+      "status": "passed",
+      "durationMs": 91,
+      "at": "2026-11-05T09:22:10.475Z",
+      "requests": [
+        {
+          "id": "46398e71-9c87-4a1f-81e0-18ca0d30a45a",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:22:10.385Z"
+        },
+        {
+          "id": "8901727b-7733-48d3-8a33-34c0ac58220f",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:22:10.408Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "id": "UAT-AC295",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mne/mne-reports.test.ts",
+      "name": "the periodic overall report API (ST-MNE-002, MNE F3, MNE-03) AC-ST-MNE-002-4: tenants and units UAT-AC295: a report of tenant A is not there for a user of tenant B (404 RESOURCE_NOT_FOUND)",
+      "status": "passed",
+      "durationMs": 328,
+      "at": "2026-11-05T09:18:47.359Z",
+      "requests": [
+        {
+          "id": "7e1f5e23-3807-411a-87ec-c15d1ecd1944",
+          "method": "POST",
+          "path": "/mne-forms",
+          "status": 200,
+          "at": "2026-11-05T09:18:47.030Z"
+        },
+        {
+          "id": "2f283d30-5454-45d2-8dde-55b944610534",
+          "method": "POST",
+          "path": "/mne-forms/3abb3085-a90a-4c0f-931f-a2f09d6a698f/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:47.045Z"
+        },
+        {
+          "id": "ed6a73b5-1254-4c56-9564-a9eb9711d35d",
+          "method": "POST",
+          "path": "/mne-reports",
+          "status": 200,
+          "at": "2026-11-05T09:18:47.105Z"
+        },
+        {
+          "id": "8556d6ff-6f11-4cd5-9475-f65f682d0f55",
+          "method": "GET",
+          "path": "/mne-reports/df4aeb7a-f197-4ddc-b6c2-879e94a05f82",
+          "status": 404,
+          "at": "2026-11-05T09:18:47.127Z"
+        },
+        {
+          "id": "0f650150-74c4-4e24-905d-afee5f5d76c6",
+          "method": "POST",
+          "path": "/mne-reports/df4aeb7a-f197-4ddc-b6c2-879e94a05f82/revisions",
+          "status": 403,
+          "at": "2026-11-05T09:18:47.137Z"
+        },
+        {
+          "id": "349a14cf-88b8-4345-b5cf-f3bbb27f42bf",
+          "method": "GET",
+          "path": "/mne-reports/df4aeb7a-f197-4ddc-b6c2-879e94a05f82",
+          "status": 200,
+          "at": "2026-11-05T09:18:47.154Z"
+        }
+      ]
+    }
+  ]
+}

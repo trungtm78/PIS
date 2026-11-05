@@ -1,0 +1,134 @@
+{
+  "id": "UAT-AC474",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-publications.test.ts",
+      "name": "certification and publication approval (ST-BI-006, BI 3 F5) AC-ST-BI-006-1: UAT-AC474 publishes the version of dashboard D-3 when someone other than who asked approves, after a refused self-approval, and keeps the earlier revision intact",
+      "status": "passed",
+      "durationMs": 1057,
+      "at": "2026-11-05T09:17:03.787Z",
+      "requests": [
+        {
+          "id": "17462c4d-1b91-4825-bc85-d826660f7c87",
+          "method": "POST",
+          "path": "/bi/dashboards",
+          "status": 200,
+          "at": "2026-11-05T09:17:02.872Z"
+        },
+        {
+          "id": "c9413b7c-1548-4d4a-9fc4-2844caf58607",
+          "method": "POST",
+          "path": "/bi/dashboards/576d16e0-7024-4841-99a4-8645da9759d5/versions",
+          "status": 200,
+          "at": "2026-11-05T09:17:02.965Z"
+        },
+        {
+          "id": "e4353ac8-359e-4131-a411-2c64e420bebe",
+          "method": "POST",
+          "path": "/bi/dashboards/576d16e0-7024-4841-99a4-8645da9759d5/versions",
+          "status": 200,
+          "at": "2026-11-05T09:17:02.999Z"
+        },
+        {
+          "id": "90996659-835d-43ef-904b-1c4d0202f48c",
+          "method": "POST",
+          "path": "/bi/publication-requests",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.071Z"
+        },
+        {
+          "id": "500ab3b0-8efe-4ce5-a584-efb2deba0d0f",
+          "method": "POST",
+          "path": "/bi/publication-requests/b289283a-bf25-4fc1-9e09-dd6ff4627840/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.113Z"
+        },
+        {
+          "id": "ea9d2356-fe01-4672-87ba-358bcd2d2bf8",
+          "method": "POST",
+          "path": "/bi/publication-requests",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.188Z"
+        },
+        {
+          "id": "3108edea-a691-4e0e-8b9e-73dead3ec69a",
+          "method": "POST",
+          "path": "/bi/publication-requests/4a4809bd-c6d7-40e7-895b-b293e250226d/decision",
+          "status": 403,
+          "at": "2026-11-05T09:17:03.219Z"
+        },
+        {
+          "id": "b8815b48-a124-4f71-b256-d9e2de23b4bf",
+          "method": "POST",
+          "path": "/bi/publication-requests/4a4809bd-c6d7-40e7-895b-b293e250226d/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.328Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-dashboards.test.ts",
+      "name": "dashboards and their versions (ST-BI-005, BI 3 F5) AC-ST-BI-005-1: UAT-AC474 refuses a version over a metric that is not certified, and saves it once the metric is, revision after revision",
+      "status": "passed",
+      "durationMs": 1198,
+      "at": "2026-11-05T09:19:44.681Z",
+      "requests": [
+        {
+          "id": "8e6cbd85-1673-46cb-ae70-2bbafae24009",
+          "method": "POST",
+          "path": "/bi/dashboards",
+          "status": 200,
+          "at": "2026-11-05T09:19:43.484Z"
+        },
+        {
+          "id": "8be58ed4-8727-4d21-ae71-cdfff620093c",
+          "method": "POST",
+          "path": "/bi/dashboards/e56b6b09-5a76-4877-ba25-8367bc78bfaa/versions",
+          "status": 422,
+          "at": "2026-11-05T09:19:43.885Z"
+        },
+        {
+          "id": "19d66c24-9b5a-4b77-8417-f692c7ffad08",
+          "method": "POST",
+          "path": "/bi/dashboards/e56b6b09-5a76-4877-ba25-8367bc78bfaa/versions",
+          "status": 422,
+          "at": "2026-11-05T09:19:43.989Z"
+        },
+        {
+          "id": "f6d9c031-ef71-45c9-ae51-ad8bb480c8eb",
+          "method": "POST",
+          "path": "/bi/dashboards/e56b6b09-5a76-4877-ba25-8367bc78bfaa/versions",
+          "status": 422,
+          "at": "2026-11-05T09:19:44.050Z"
+        },
+        {
+          "id": "fb178b52-739a-4b0e-9ba4-a0620d48e5b3",
+          "method": "POST",
+          "path": "/bi/dashboards/e56b6b09-5a76-4877-ba25-8367bc78bfaa/versions",
+          "status": 422,
+          "at": "2026-11-05T09:19:44.112Z"
+        },
+        {
+          "id": "7b8bd0e4-b63c-448c-988c-89ce85ff5d47",
+          "method": "POST",
+          "path": "/bi/dashboards/e56b6b09-5a76-4877-ba25-8367bc78bfaa/versions",
+          "status": 200,
+          "at": "2026-11-05T09:19:44.175Z"
+        },
+        {
+          "id": "f7641e1d-7553-4d78-8d6d-3314cc3654f8",
+          "method": "POST",
+          "path": "/bi/dashboards/e56b6b09-5a76-4877-ba25-8367bc78bfaa/versions",
+          "status": 200,
+          "at": "2026-11-05T09:19:44.210Z"
+        }
+      ]
+    }
+  ]
+}

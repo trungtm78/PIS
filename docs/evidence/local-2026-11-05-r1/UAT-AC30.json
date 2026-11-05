@@ -1,0 +1,61 @@
+{
+  "id": "UAT-AC30",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/campaigns.test.ts",
+      "name": "broadcast campaigns with preview and maker-checker (ST-NOT-009, NOT-09, NOT-10, NOT-16) AC-ST-NOT-009-1 UAT-AC30: a segment of 130 people with ten opt-outs is previewed as 120 with the reasons, the self-approval is 403 and the approval by the approver makes 120 notifications",
+      "status": "passed",
+      "durationMs": 972,
+      "at": "2026-11-05T09:13:38.576Z",
+      "requests": [
+        {
+          "id": "d5ce59bc-4e1a-4423-92d6-9dacd6b32393",
+          "method": "POST",
+          "path": "/notification-campaigns",
+          "status": 201,
+          "at": "2026-11-05T09:13:37.605Z"
+        },
+        {
+          "id": "7ce07e2f-a677-460b-9d43-a59c784b1886",
+          "method": "POST",
+          "path": "/notification-campaigns/24838a7d-a433-46c4-bf9d-e1668aef427a/preview",
+          "status": 200,
+          "at": "2026-11-05T09:13:37.768Z"
+        },
+        {
+          "id": "de19348b-4074-40de-966b-8e89071a076c",
+          "method": "POST",
+          "path": "/notification-campaigns/24838a7d-a433-46c4-bf9d-e1668aef427a/submit",
+          "status": 200,
+          "at": "2026-11-05T09:13:37.853Z"
+        },
+        {
+          "id": "68606c36-ecae-4a15-95b7-38951d94581d",
+          "method": "POST",
+          "path": "/notification-campaigns/24838a7d-a433-46c4-bf9d-e1668aef427a/decision",
+          "status": 403,
+          "at": "2026-11-05T09:13:37.915Z"
+        },
+        {
+          "id": "db72e4ef-f383-425e-aab5-ecc8aaf20a4e",
+          "method": "POST",
+          "path": "/notification-campaigns/24838a7d-a433-46c4-bf9d-e1668aef427a/decision",
+          "status": 403,
+          "at": "2026-11-05T09:13:37.981Z"
+        },
+        {
+          "id": "2950ef02-44b2-47a8-b4fe-c4ab3adf7b85",
+          "method": "POST",
+          "path": "/notification-campaigns/24838a7d-a433-46c4-bf9d-e1668aef427a/decision",
+          "status": 200,
+          "at": "2026-11-05T09:13:38.157Z"
+        }
+      ]
+    }
+  ]
+}

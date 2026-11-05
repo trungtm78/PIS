@@ -1,0 +1,75 @@
+{
+  "id": "UAT-AC164",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/billing.test.ts",
+      "name": "the billing run and the e-invoice over HTTP (ST-SAS-011) AC-ST-SAS-011-2 UAT-AC164: issues a Draft once (Issued), refuses the second issue with 409 EINVOICE_STATE_INVALID, and the API has no operation that cancels an invoice",
+      "status": "passed",
+      "durationMs": 417,
+      "at": "2026-11-05T09:19:55.888Z",
+      "requests": [
+        {
+          "id": "ec7dc5d0-6205-4dfc-8859-4e8243a999fe",
+          "method": "POST",
+          "path": "/system/tenants/87682ed6-58b7-4d7f-885e-3917b12442c3/subscriptions",
+          "status": 201,
+          "at": "2026-11-05T09:19:55.640Z"
+        },
+        {
+          "id": "7cc261fc-a73a-4690-9f6d-0797abb56cc9",
+          "method": "POST",
+          "path": "/system/billing-runs",
+          "status": 202,
+          "at": "2026-11-05T09:19:55.662Z"
+        },
+        {
+          "id": "b1623596-0fbf-46ee-a623-818c7312d4f6",
+          "method": "GET",
+          "path": "/system/tenants/87682ed6-58b7-4d7f-885e-3917b12442c3/invoices",
+          "status": 200,
+          "at": "2026-11-05T09:19:55.679Z"
+        },
+        {
+          "id": "4312bef3-9115-4c30-99a4-95d21f57ff70",
+          "method": "POST",
+          "path": "/system/invoices/2e6c2269-dcaf-43f5-9051-8096247406a0/issue",
+          "status": 409,
+          "at": "2026-11-05T09:19:55.692Z"
+        },
+        {
+          "id": "1c0d16c2-f8fc-487d-8525-79432f6a1fd8",
+          "method": "POST",
+          "path": "/system/invoices/2e6c2269-dcaf-43f5-9051-8096247406a0/issue",
+          "status": 428,
+          "at": "2026-11-05T09:19:55.710Z"
+        },
+        {
+          "id": "ac30fbf4-985f-4670-a713-05b3d4f7556b",
+          "method": "POST",
+          "path": "/system/invoices/2e6c2269-dcaf-43f5-9051-8096247406a0/issue",
+          "status": 202,
+          "at": "2026-11-05T09:19:55.719Z"
+        },
+        {
+          "id": "c9f87518-f439-4584-ba9a-3b7ceacc2182",
+          "method": "GET",
+          "path": "/system/tenants/87682ed6-58b7-4d7f-885e-3917b12442c3/invoices",
+          "status": 200,
+          "at": "2026-11-05T09:19:55.747Z"
+        },
+        {
+          "id": "8f01fe0c-2b8e-463a-a77e-f602ef2c0ce1",
+          "method": "POST",
+          "path": "/system/invoices/2e6c2269-dcaf-43f5-9051-8096247406a0/issue",
+          "status": 409,
+          "at": "2026-11-05T09:19:55.757Z"
+        }
+      ]
+    }
+  ]
+}

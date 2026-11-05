@@ -1,0 +1,40 @@
+{
+  "id": "UI-NOT-14",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/devices.test.ts",
+      "name": "the push devices of the members (ST-NOT-006, NOT-14) reading the devices (NOT-14) AC-ST-NOT-006-3 UI-NOT-14: shows the operator the devices without a token, a reference, a fingerprint or the whole public id",
+      "status": "passed",
+      "durationMs": 45,
+      "at": "2026-11-05T09:22:37.800Z",
+      "requests": [
+        {
+          "id": "5b3f8e80-ebb4-4477-954e-a2fb0ea6f37d",
+          "method": "POST",
+          "path": "/devices",
+          "status": 201,
+          "at": "2026-11-05T09:22:37.757Z"
+        },
+        {
+          "id": "04ed62a0-6f9a-450f-91e3-f9dbc6714dfc",
+          "method": "GET",
+          "path": "/resources/device_registration",
+          "status": 200,
+          "at": "2026-11-05T09:22:37.772Z"
+        },
+        {
+          "id": "8e2a083c-c1d3-4745-9f02-2554cb51b2d6",
+          "method": "GET",
+          "path": "/resources/device_registration/9e15fbbb-f012-4927-970c-3e25a70348f2",
+          "status": 200,
+          "at": "2026-11-05T09:22:37.788Z"
+        }
+      ]
+    }
+  ]
+}

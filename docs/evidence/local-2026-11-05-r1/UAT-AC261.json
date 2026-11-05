@@ -1,0 +1,47 @@
+{
+  "id": "UAT-AC261",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report-export.test.ts",
+      "name": "the report export over HTTP (ST-DIS-016) AC-ST-DIS-016-1 / UAT-AC261: a maker of the unit HERE exports the snapshot to CSV whose header names the scope, the period, the snapshot, the unit VND, the time and the definition status, with only the lines of their projects; once their scope is revoked the download answers 403 SCOPE_DENIED",
+      "status": "passed",
+      "durationMs": 869,
+      "at": "2026-11-05T09:22:39.074Z",
+      "requests": [
+        {
+          "id": "314aca55-0de3-4718-99d0-e704fb736c26",
+          "method": "POST",
+          "path": "/report-exports",
+          "status": 200,
+          "at": "2026-11-05T09:22:38.698Z"
+        },
+        {
+          "id": "444c9745-008a-4272-9c17-2364f0675023",
+          "method": "GET",
+          "path": "/report-exports/30aa95ca-c7d9-49af-a91c-0d9f4f969746/download",
+          "status": 200,
+          "at": "2026-11-05T09:22:38.837Z"
+        },
+        {
+          "id": "64286846-7d42-475d-b937-de2f78a50a73",
+          "method": "GET",
+          "path": "/report-exports/30aa95ca-c7d9-49af-a91c-0d9f4f969746/file",
+          "status": 200,
+          "at": "2026-11-05T09:22:38.853Z"
+        },
+        {
+          "id": "a9a72062-592a-4fee-b71b-3ab5ab83fcb3",
+          "method": "GET",
+          "path": "/report-exports/30aa95ca-c7d9-49af-a91c-0d9f4f969746/download",
+          "status": 403,
+          "at": "2026-11-05T09:22:39.014Z"
+        }
+      ]
+    }
+  ]
+}

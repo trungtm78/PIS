@@ -1,0 +1,207 @@
+{
+  "id": "UAT-AC329",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/advance.test.ts",
+      "name": "the advance of a contract over HTTP (ST-PAY-004) the alert of an advance that is overdue (ST-PAY-011, UAT-AC329) AC-ST-PAY-011-2: stores a plan and its day for an advance that is overdue and nothing else, audited and told without the words of the person",
+      "status": "passed",
+      "durationMs": 982,
+      "at": "2026-11-05T09:18:17.879Z",
+      "requests": [
+        {
+          "id": "5f653065-4b9d-405d-8872-7854a4319d85",
+          "method": "POST",
+          "path": "/contracts/8ec15398-9fb6-40ca-a2fc-44e457ae6de8/advances",
+          "status": 200,
+          "at": "2026-11-05T09:18:17.200Z"
+        },
+        {
+          "id": "c5da9cda-e62f-4d2a-9312-6aa7bb63c87b",
+          "method": "POST",
+          "path": "/advances/8ab1d1c1-900d-4af1-b8d0-ce5013d2a1a9/acknowledge-alert",
+          "status": 422,
+          "at": "2026-11-05T09:18:17.519Z"
+        },
+        {
+          "id": "cac3c0e4-5260-435f-827a-f4f4a9f9ab71",
+          "method": "POST",
+          "path": "/advances/8ab1d1c1-900d-4af1-b8d0-ce5013d2a1a9/acknowledge-alert",
+          "status": 200,
+          "at": "2026-11-05T09:18:17.689Z"
+        },
+        {
+          "id": "9094f464-494a-40ef-a724-40f143a408e9",
+          "method": "POST",
+          "path": "/advances/8ab1d1c1-900d-4af1-b8d0-ce5013d2a1a9/acknowledge-alert",
+          "status": 409,
+          "at": "2026-11-05T09:18:17.838Z"
+        },
+        {
+          "id": "0dbd8f34-1b7c-4de2-8bcc-413b711c0ea7",
+          "method": "POST",
+          "path": "/advances/8ab1d1c1-900d-4af1-b8d0-ce5013d2a1a9/acknowledge-alert",
+          "status": 200,
+          "at": "2026-11-05T09:18:17.854Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/advance.test.ts",
+      "name": "the advance of a contract over HTTP (ST-PAY-004) the alert of an advance that is overdue (ST-PAY-011, UAT-AC329) refuses a plan with no note, a day that is not one or that has passed, a caller without the right, and an advance nothing is owed on",
+      "status": "passed",
+      "durationMs": 758,
+      "at": "2026-11-05T09:18:18.637Z",
+      "requests": [
+        {
+          "id": "a4c655ba-2a32-42a4-8e6d-cc880c1040b1",
+          "method": "POST",
+          "path": "/contracts/fc2b99be-360f-4181-a954-0e6cd581900b/advances",
+          "status": 200,
+          "at": "2026-11-05T09:18:18.126Z"
+        },
+        {
+          "id": "5eb0a8e5-a964-4c73-9f62-81e619a7d318",
+          "method": "POST",
+          "path": "/advances/9410b5a9-a254-46e9-86f2-f1afda0c3bec/acknowledge-alert",
+          "status": 422,
+          "at": "2026-11-05T09:18:18.481Z"
+        },
+        {
+          "id": "4e116c02-1301-4e94-96f6-566fab522852",
+          "method": "POST",
+          "path": "/advances/9410b5a9-a254-46e9-86f2-f1afda0c3bec/acknowledge-alert",
+          "status": 422,
+          "at": "2026-11-05T09:18:18.491Z"
+        },
+        {
+          "id": "be1fb1f4-47f1-4a72-b1a2-424ea49946c3",
+          "method": "POST",
+          "path": "/advances/9410b5a9-a254-46e9-86f2-f1afda0c3bec/acknowledge-alert",
+          "status": 422,
+          "at": "2026-11-05T09:18:18.505Z"
+        },
+        {
+          "id": "9f5c6e5a-9030-4e31-a83b-58cb7fcd1e38",
+          "method": "POST",
+          "path": "/advances/9410b5a9-a254-46e9-86f2-f1afda0c3bec/acknowledge-alert",
+          "status": 403,
+          "at": "2026-11-05T09:18:18.527Z"
+        },
+        {
+          "id": "5b99f9da-0299-4d59-b0b3-fc30071ed84c",
+          "method": "POST",
+          "path": "/advances/9410b5a9-a254-46e9-86f2-f1afda0c3bec/acknowledge-alert",
+          "status": 403,
+          "at": "2026-11-05T09:18:18.538Z"
+        },
+        {
+          "id": "ac990075-f21e-405d-bb04-848c4e17d205",
+          "method": "POST",
+          "path": "/advances/740b08cc-69a9-4425-b975-6767b3692ffa/acknowledge-alert",
+          "status": 404,
+          "at": "2026-11-05T09:18:18.554Z"
+        },
+        {
+          "id": "584f9552-0c17-46e3-aaff-b12131e45314",
+          "method": "POST",
+          "path": "/advances/9410b5a9-a254-46e9-86f2-f1afda0c3bec/acknowledge-alert",
+          "status": 422,
+          "at": "2026-11-05T09:18:18.616Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/advance.test.ts",
+      "name": "the advance of a contract over HTTP (ST-PAY-004) the alert of an advance that is overdue (ST-PAY-011, UAT-AC329) UAT-AC329: lists the advances that were alerted and are still owed, by level, with the plan and the buttons of the caller",
+      "status": "passed",
+      "durationMs": 1005,
+      "at": "2026-11-05T09:18:19.642Z",
+      "requests": [
+        {
+          "id": "42580424-5b50-4857-a821-bbbe6298010f",
+          "method": "POST",
+          "path": "/contracts/e7c532db-016b-49c7-aa41-b93d9489fff1/advances",
+          "status": 200,
+          "at": "2026-11-05T09:18:18.908Z"
+        },
+        {
+          "id": "35d12d52-3747-4c29-97a8-c92b238ec980",
+          "method": "POST",
+          "path": "/contracts/e7c532db-016b-49c7-aa41-b93d9489fff1/advances",
+          "status": 422,
+          "at": "2026-11-05T09:18:19.132Z"
+        },
+        {
+          "id": "5e84b2f4-f723-42a2-87cc-130017f8ba9a",
+          "method": "GET",
+          "path": "/advances/overdue",
+          "status": 200,
+          "at": "2026-11-05T09:18:19.429Z"
+        },
+        {
+          "id": "42df73dd-43bc-4a8c-b898-041537e794c7",
+          "method": "POST",
+          "path": "/advances/2e6e0565-35dd-4dae-95f0-ba6152f4c89a/acknowledge-alert",
+          "status": 200,
+          "at": "2026-11-05T09:18:19.498Z"
+        },
+        {
+          "id": "97494454-cd30-4776-92bc-53ea38f8e4b5",
+          "method": "GET",
+          "path": "/advances/overdue",
+          "status": 200,
+          "at": "2026-11-05T09:18:19.530Z"
+        },
+        {
+          "id": "775b6b27-9324-48a0-a9da-670fe3db8f1d",
+          "method": "GET",
+          "path": "/advances/overdue",
+          "status": 200,
+          "at": "2026-11-05T09:18:19.552Z"
+        },
+        {
+          "id": "0f69503e-703f-4f73-9891-2efb856cbdc0",
+          "method": "GET",
+          "path": "/advances/overdue",
+          "status": 200,
+          "at": "2026-11-05T09:18:19.568Z"
+        },
+        {
+          "id": "1d6352ab-02f2-40b8-86b5-85e460ac4b57",
+          "method": "GET",
+          "path": "/advances/overdue",
+          "status": 200,
+          "at": "2026-11-05T09:18:19.585Z"
+        },
+        {
+          "id": "d456f191-ad66-485e-aa7d-2c0747eb8a6b",
+          "method": "GET",
+          "path": "/advances/overdue",
+          "status": 422,
+          "at": "2026-11-05T09:18:19.600Z"
+        },
+        {
+          "id": "efe3ecb7-ef41-4a30-9675-9ed656784778",
+          "method": "GET",
+          "path": "/advances/overdue",
+          "status": 422,
+          "at": "2026-11-05T09:18:19.608Z"
+        },
+        {
+          "id": "b6162d64-604d-4870-9f32-46d686eae03f",
+          "method": "GET",
+          "path": "/advances/overdue",
+          "status": 403,
+          "at": "2026-11-05T09:18:19.624Z"
+        }
+      ]
+    }
+  ]
+}

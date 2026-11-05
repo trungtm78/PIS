@@ -1,0 +1,89 @@
+{
+  "id": "SEC04",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/theme.test.ts",
+      "name": "tenant themes over HTTP (ST-SAS-005) review and publish rejects a review used twice, expired, issued to another person or to another tenant, or never issued, and creates no version (SEC04) (AC-ST-SAS-005-9)",
+      "status": "passed",
+      "durationMs": 539,
+      "at": "2026-11-05T09:16:30.006Z",
+      "requests": [
+        {
+          "id": "d0570518-418d-4ca5-9aa2-0deca75dd903",
+          "method": "PUT",
+          "path": "/system/tenants/79646bae-4141-46c3-9fd2-9134f247dbef/theme/draft",
+          "status": 200,
+          "at": "2026-11-05T09:16:29.631Z"
+        },
+        {
+          "id": "4049bc99-ea6d-44a4-892d-b7c79e585f13",
+          "method": "POST",
+          "path": "/system/tenants/79646bae-4141-46c3-9fd2-9134f247dbef/theme/reviews",
+          "status": 200,
+          "at": "2026-11-05T09:16:29.647Z"
+        },
+        {
+          "id": "f1517ddf-b3be-4db8-924e-ced8d8a22c71",
+          "method": "POST",
+          "path": "/system/tenants/79646bae-4141-46c3-9fd2-9134f247dbef/theme/publish",
+          "status": 409,
+          "at": "2026-11-05T09:16:29.665Z"
+        },
+        {
+          "id": "72a5720a-d732-4af7-b3e8-2f9a3117ad56",
+          "method": "POST",
+          "path": "/system/tenants/658d3b7d-8e5e-465c-9871-967b62d86098/theme/publish",
+          "status": 409,
+          "at": "2026-11-05T09:16:29.673Z"
+        },
+        {
+          "id": "8ecf8896-52c9-4717-9fac-aeaeeeada90d",
+          "method": "POST",
+          "path": "/system/tenants/79646bae-4141-46c3-9fd2-9134f247dbef/theme/publish",
+          "status": 409,
+          "at": "2026-11-05T09:16:29.696Z"
+        },
+        {
+          "id": "6ff33f94-54db-4a0f-a8e2-3e02a78b6d7b",
+          "method": "POST",
+          "path": "/system/tenants/79646bae-4141-46c3-9fd2-9134f247dbef/theme/publish",
+          "status": 409,
+          "at": "2026-11-05T09:16:29.749Z"
+        },
+        {
+          "id": "2a940852-2aa7-48a5-b299-9f3a4c0eadb2",
+          "method": "PUT",
+          "path": "/system/tenants/79646bae-4141-46c3-9fd2-9134f247dbef/theme/draft",
+          "status": 200,
+          "at": "2026-11-05T09:16:29.907Z"
+        },
+        {
+          "id": "aa2b71b7-02fe-4845-bdda-6473505b560c",
+          "method": "POST",
+          "path": "/system/tenants/79646bae-4141-46c3-9fd2-9134f247dbef/theme/reviews",
+          "status": 200,
+          "at": "2026-11-05T09:16:29.922Z"
+        },
+        {
+          "id": "4a1b0ea9-cfbe-4e79-b524-69e3e4624682",
+          "method": "POST",
+          "path": "/system/tenants/79646bae-4141-46c3-9fd2-9134f247dbef/theme/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:29.936Z"
+        },
+        {
+          "id": "216546dd-ca93-493e-a0d9-65b529fa0629",
+          "method": "POST",
+          "path": "/system/tenants/79646bae-4141-46c3-9fd2-9134f247dbef/theme/publish",
+          "status": 409,
+          "at": "2026-11-05T09:16:29.955Z"
+        }
+      ]
+    }
+  ]
+}

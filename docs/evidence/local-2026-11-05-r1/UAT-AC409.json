@@ -1,0 +1,57 @@
+{
+  "id": "UAT-AC409",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/issue-requests.test.ts",
+      "name": "issue requests and document references for source modules (ST-DOC-008) requestDocumentIssue answers a second request for the same content with 409 ISSUE_REQUEST_ALREADY_OPEN and the request that is open (AC-ST-DOC-008-2, UAT-AC409)",
+      "status": "passed",
+      "durationMs": 166,
+      "at": "2026-11-05T09:16:55.391Z",
+      "requests": [
+        {
+          "id": "45778062-e7a2-495c-9548-20f7321d615e",
+          "method": "POST",
+          "path": "/document-issue-requests",
+          "status": 200,
+          "at": "2026-11-05T09:16:55.224Z"
+        },
+        {
+          "id": "dfb14862-cad8-485f-bff5-f6b9d1b02811",
+          "method": "POST",
+          "path": "/document-issue-requests",
+          "status": 409,
+          "at": "2026-11-05T09:16:55.256Z"
+        },
+        {
+          "id": "9747b46a-7527-4d10-96e2-23bcdce30e01",
+          "method": "POST",
+          "path": "/document-issue-requests",
+          "status": 200,
+          "at": "2026-11-05T09:16:55.313Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/issue-requests.test.ts",
+      "name": "issue requests and document references for source modules (ST-DOC-008) the event consumer makes one document from the same event delivered twice and none from a second event for the same content (AC-ST-DOC-008-2, UAT-AC409)",
+      "status": "passed",
+      "durationMs": 280,
+      "at": "2026-11-05T09:16:56.070Z",
+      "requests": [
+        {
+          "id": "0fb91114-31da-4f88-b0ad-4e7dc2670b68",
+          "method": "POST",
+          "path": "/document-issue-requests",
+          "status": 409,
+          "at": "2026-11-05T09:16:55.945Z"
+        }
+      ]
+    }
+  ]
+}

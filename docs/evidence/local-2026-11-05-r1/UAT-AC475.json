@@ -1,0 +1,99 @@
+{
+  "id": "UAT-AC475",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-exports.test.ts",
+      "name": "exports and the per-recipient schedules (ST-BI-008, BI 3 F7) AC-ST-BI-008-1: UAT-AC475 makes two separate jobs for a weekly schedule, the leader's with a header that states scope, period and snapshot, the staff member's DENIED with no file once their scope is revoked",
+      "status": "passed",
+      "durationMs": 750,
+      "at": "2026-11-05T09:09:34.702Z",
+      "requests": [
+        {
+          "id": "895305d9-9adc-4a24-80be-16293cf884c7",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:09:34.101Z"
+        },
+        {
+          "id": "a57a4cd0-2a51-4224-92f3-16ed43633592",
+          "method": "POST",
+          "path": "/bi/export-schedules",
+          "status": 200,
+          "at": "2026-11-05T09:09:34.143Z"
+        },
+        {
+          "id": "41e05abe-49b4-448c-a90a-58630591ca31",
+          "method": "GET",
+          "path": "/bi/exports/8b1bc42a-fcba-4dfa-a3d3-c558ee2b9c03",
+          "status": 200,
+          "at": "2026-11-05T09:09:34.675Z"
+        },
+        {
+          "id": "3474c883-d5f5-44f7-aa2d-3fb67b60318e",
+          "method": "GET",
+          "path": "/bi/exports/8b1bc42a-fcba-4dfa-a3d3-c558ee2b9c03",
+          "status": 403,
+          "at": "2026-11-05T09:09:34.695Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-exports.test.ts",
+      "name": "exports and the per-recipient schedules (ST-BI-008, BI 3 F7) AC-ST-BI-008-1: UAT-AC475 refuses 150,000 rows with 422 EXPORT_ROW_CAP_EXCEEDED, keeps the refusal as a DENIED job, and exports 100,000",
+      "status": "passed",
+      "durationMs": 36189,
+      "at": "2026-11-05T09:10:10.891Z",
+      "requests": [
+        {
+          "id": "fa263cf9-f705-4591-8f13-20d5575440e6",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:09:40.451Z"
+        },
+        {
+          "id": "a04bba66-2eb8-4375-89e4-43aa9277d547",
+          "method": "POST",
+          "path": "/bi/exports",
+          "status": 422,
+          "at": "2026-11-05T09:10:06.678Z"
+        },
+        {
+          "id": "50f903ff-dcdb-4b33-b733-708d214f9d9b",
+          "method": "POST",
+          "path": "/bi/exports",
+          "status": 200,
+          "at": "2026-11-05T09:10:08.626Z"
+        },
+        {
+          "id": "4eef2721-ede9-4aa7-b5d6-23f26b123658",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:10:09.779Z"
+        },
+        {
+          "id": "66a9c40b-0ed1-460b-b48c-3d469d5de77e",
+          "method": "POST",
+          "path": "/bi/exports",
+          "status": 422,
+          "at": "2026-11-05T09:10:10.688Z"
+        },
+        {
+          "id": "fc298d01-9443-4912-acd0-deee251e4444",
+          "method": "POST",
+          "path": "/bi/exports",
+          "status": 200,
+          "at": "2026-11-05T09:10:10.772Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "id": "UAT-AC171",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/tenant-restore.test.ts",
+      "name": "the restore of one tenant over HTTP (ST-SAS-019, SAS-21) AC-ST-SAS-019-1 UAT-AC171: a sandbox restore is requested by one System Admin, approved by another and Completed with its verification report; an in-place request on an Active tenant is 409 TENANT_STATE_INVALID",
+      "status": "passed",
+      "durationMs": 1685,
+      "at": "2026-11-05T09:17:44.110Z",
+      "requests": [
+        {
+          "id": "9345700c-6828-4dd7-987a-45288abc5da5",
+          "method": "POST",
+          "path": "/system/tenants/dfee4b27-3146-4087-9f24-8ebf81958eca/restore-requests",
+          "status": 201,
+          "at": "2026-11-05T09:17:42.556Z"
+        },
+        {
+          "id": "34efbcd8-d647-43c2-aeab-591bc1fa75f3",
+          "method": "GET",
+          "path": "/system/tenants/dfee4b27-3146-4087-9f24-8ebf81958eca/restore-requests",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.637Z"
+        },
+        {
+          "id": "4e18e73b-67f8-4051-8784-2e4efcebe243",
+          "method": "POST",
+          "path": "/system/restore-requests/bc55e5f5-3041-4ebb-b3f8-b21923206ba0/decision",
+          "status": 202,
+          "at": "2026-11-05T09:17:42.652Z"
+        },
+        {
+          "id": "a9f0c841-3963-4070-ae26-faa9467470a2",
+          "method": "GET",
+          "path": "/system/tenants/dfee4b27-3146-4087-9f24-8ebf81958eca/restore-requests",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.675Z"
+        },
+        {
+          "id": "4b00754e-987f-46c5-9823-4363242f0f58",
+          "method": "GET",
+          "path": "/system/tenants/dfee4b27-3146-4087-9f24-8ebf81958eca/restore-requests",
+          "status": 200,
+          "at": "2026-11-05T09:17:44.062Z"
+        },
+        {
+          "id": "63e1cc7a-6487-4907-8399-0f757d9d1ac1",
+          "method": "POST",
+          "path": "/system/tenants/dfee4b27-3146-4087-9f24-8ebf81958eca/restore-requests",
+          "status": 409,
+          "at": "2026-11-05T09:17:44.076Z"
+        },
+        {
+          "id": "d812cc90-837e-4918-8b46-df0f8b468193",
+          "method": "GET",
+          "path": "/system/tenants/dfee4b27-3146-4087-9f24-8ebf81958eca/restore-requests",
+          "status": 200,
+          "at": "2026-11-05T09:17:44.096Z"
+        }
+      ]
+    }
+  ]
+}

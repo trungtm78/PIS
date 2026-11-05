@@ -1,0 +1,1446 @@
+{
+  "id": "UAT-AC385",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) is registered in the module of LND",
+      "status": "passed",
+      "durationMs": 1,
+      "at": "2026-11-05T09:12:59.110Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) startEnforcement (AC-ST-LND-011-1, UAT-AC385) refuses a case for a parcel that the plan does not compensate for the household, although the household was paid for another parcel of it",
+      "status": "passed",
+      "durationMs": 2038,
+      "at": "2026-11-05T09:13:01.148Z",
+      "requests": [
+        {
+          "id": "7d84d435-5710-4869-9bcd-b0bbee90316b",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:12:59.865Z"
+        },
+        {
+          "id": "84015efc-25e6-44d7-bbba-57997c41d99d",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:01.113Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) startEnforcement (AC-ST-LND-011-1, UAT-AC385) refuses a case while only a part of what the plan holds for the household was paid, and opens it once the installments cover it",
+      "status": "passed",
+      "durationMs": 530,
+      "at": "2026-11-05T09:13:01.679Z",
+      "requests": [
+        {
+          "id": "29ce33b3-d554-4a35-81f2-70c18d417c25",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:01.532Z"
+        },
+        {
+          "id": "0ea39a2e-2840-42b5-9752-6a8a7a9dfe81",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:01.598Z"
+        },
+        {
+          "id": "4ed8ec74-57aa-415b-a191-0ff00d3577f8",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:01.654Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) startEnforcement (AC-ST-LND-011-1, UAT-AC385) UAT-AC385: refuses a case while the money was not offered to the household, and opens it once it was deposited",
+      "status": "passed",
+      "durationMs": 1627,
+      "at": "2026-11-05T09:13:03.306Z",
+      "requests": [
+        {
+          "id": "3e7ca330-a10d-4eb1-832d-4a130f47875d",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:01.923Z"
+        },
+        {
+          "id": "f7bd99d0-bd96-4fb1-8d7c-69cd749d2be7",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:02.301Z"
+        },
+        {
+          "id": "37c9f4f7-240e-4d00-b2ad-03bd9c49213c",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:02.749Z"
+        },
+        {
+          "id": "1977c821-3751-4452-b8a5-488463c43aec",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:03.238Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) startEnforcement (AC-ST-LND-011-1, UAT-AC385) writes one audit row of personal data with ids only, and one event, and none for a refusal",
+      "status": "passed",
+      "durationMs": 865,
+      "at": "2026-11-05T09:13:04.170Z",
+      "requests": [
+        {
+          "id": "6dd6c824-18e8-419b-acfe-55e7575029b1",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:03.548Z"
+        },
+        {
+          "id": "2e41e9a0-ea2c-45f0-a85c-6df1617a9572",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:04.022Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) startEnforcement (AC-ST-LND-011-1, UAT-AC385) refuses what the recovery has not reached: a parcel with no decision, one that is not under a plan, a plan that is not approved, a household with no right on the parcel, no plan",
+      "status": "passed",
+      "durationMs": 2339,
+      "at": "2026-11-05T09:13:06.510Z",
+      "requests": [
+        {
+          "id": "7e45aaeb-ab13-457f-aa62-15c85e01b1a7",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:04.706Z"
+        },
+        {
+          "id": "4f8541a7-b361-49a7-8970-0e1d3514359d",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:05.095Z"
+        },
+        {
+          "id": "831c4683-b2d7-49d2-920e-65e1c3505cc0",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:05.211Z"
+        },
+        {
+          "id": "2a8d2c8c-2d84-4b21-8d28-67fdaec58d70",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:05.612Z"
+        },
+        {
+          "id": "08b93d9e-33d7-4015-b2de-3ba7170b9644",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:06.066Z"
+        },
+        {
+          "id": "43e25276-c23c-44f9-a455-4564096527d5",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:06.085Z"
+        },
+        {
+          "id": "06b60278-5b58-44df-b150-8a7b06f656b6",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:06.095Z"
+        },
+        {
+          "id": "33ce4289-1261-4971-8102-bc464bd27284",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:06.489Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) startEnforcement (AC-ST-LND-011-1, UAT-AC385) opens one case at a time for a parcel: a second is refused while the first is open, suspended included, and once it is completed the parcel is enforced and needs none",
+      "status": "passed",
+      "durationMs": 1109,
+      "at": "2026-11-05T09:13:07.618Z",
+      "requests": [
+        {
+          "id": "e4976c42-0629-4ddd-9b04-1c45f061e21b",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:06.935Z"
+        },
+        {
+          "id": "ca74f480-34f3-4fd8-86b5-0fa914090df4",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 409,
+          "at": "2026-11-05T09:13:06.950Z"
+        },
+        {
+          "id": "1e55d031-3803-46e6-b863-19bea6308a27",
+          "method": "POST",
+          "path": "/land-enforcement-cases/731d748d-2031-4b10-ba56-e46ee84d2833/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:06.965Z"
+        },
+        {
+          "id": "114afdde-3a0a-4756-97f6-16626d0170d4",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 409,
+          "at": "2026-11-05T09:13:06.986Z"
+        },
+        {
+          "id": "7dec69d2-57de-48aa-833d-73ea874659ff",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:07.499Z"
+        },
+        {
+          "id": "1c6d9b61-a0fb-48c8-b6ef-24eabb34568a",
+          "method": "POST",
+          "path": "/land-enforcement-cases/70a836ae-1076-49bc-8d7b-2d564d6cfe18/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:07.526Z"
+        },
+        {
+          "id": "8284466d-d9d2-40ee-9ae4-932337e611c7",
+          "method": "POST",
+          "path": "/land-enforcement-cases/70a836ae-1076-49bc-8d7b-2d564d6cfe18/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:07.540Z"
+        },
+        {
+          "id": "e5536ede-33e5-4225-bf35-03ef0256a168",
+          "method": "POST",
+          "path": "/land-enforcement-cases/70a836ae-1076-49bc-8d7b-2d564d6cfe18/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:07.554Z"
+        },
+        {
+          "id": "1ac4ba57-cf89-4553-a83d-50363ab43ef2",
+          "method": "POST",
+          "path": "/land-enforcement-cases/70a836ae-1076-49bc-8d7b-2d564d6cfe18/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:07.572Z"
+        },
+        {
+          "id": "e5f43f37-f1a5-432c-8ae7-cc41f3d49106",
+          "method": "POST",
+          "path": "/land-enforcement-cases/70a836ae-1076-49bc-8d7b-2d564d6cfe18/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:07.588Z"
+        },
+        {
+          "id": "61363702-6c58-4097-a5a1-e079539eca89",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:07.603Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) startEnforcement (AC-ST-LND-011-1, UAT-AC385) refuses what is badly formed or out of reach: a day in the future, a unit that is not the household’s, an authority that is not there, a parcel or a household of another project, a project of another tenant",
+      "status": "passed",
+      "durationMs": 676,
+      "at": "2026-11-05T09:13:08.295Z",
+      "requests": [
+        {
+          "id": "a117c7b4-61f0-456d-895b-0f3204ed16b1",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:08.084Z"
+        },
+        {
+          "id": "17b96251-1824-444c-ae11-8483ff07c093",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:08.094Z"
+        },
+        {
+          "id": "949d26eb-8fe3-4b9c-836e-36e002b964ba",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:08.107Z"
+        },
+        {
+          "id": "2abea410-f1a1-4435-b2d0-70ef5048be57",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:08.126Z"
+        },
+        {
+          "id": "93d0c97e-8585-42e0-bece-dc02e91d43da",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:08.141Z"
+        },
+        {
+          "id": "886628f1-8646-4fa8-a94b-79722ab46d37",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 404,
+          "at": "2026-11-05T09:13:08.158Z"
+        },
+        {
+          "id": "4fa81a33-3b68-42c4-bc44-8fdea51011fd",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 404,
+          "at": "2026-11-05T09:13:08.175Z"
+        },
+        {
+          "id": "de7683a5-fe90-4e5a-90b9-8dfeb540a200",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 404,
+          "at": "2026-11-05T09:13:08.195Z"
+        },
+        {
+          "id": "3c827bea-08b9-451e-b036-5522bb6b75a7",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 404,
+          "at": "2026-11-05T09:13:08.207Z"
+        },
+        {
+          "id": "50716fbf-81ec-4cb4-917f-88fcce11202a",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 400,
+          "at": "2026-11-05T09:13:08.224Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) advanceEnforcement (AC-ST-LND-011-1, UAT-AC385) UAT-AC385: refuses the execution without the decision, and the person who drew the case up, then executes it for someone else with the decision and the day, putting the parcel under enforcement",
+      "status": "passed",
+      "durationMs": 1098,
+      "at": "2026-11-05T09:13:09.394Z",
+      "requests": [
+        {
+          "id": "67a60cf3-5d0c-47de-8148-01617b278343",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:08.860Z"
+        },
+        {
+          "id": "839643ec-253a-4a71-a80c-0de98dfc1566",
+          "method": "POST",
+          "path": "/land-enforcement-cases/c70c8924-8b5f-4c22-b452-49a385aef8e5/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:08.881Z"
+        },
+        {
+          "id": "bdf0d4ed-fe20-43ea-8da7-2c8685eddc3e",
+          "method": "POST",
+          "path": "/land-enforcement-cases/c70c8924-8b5f-4c22-b452-49a385aef8e5/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:08.895Z"
+        },
+        {
+          "id": "7069a5de-a9e9-4678-b7ff-311602ab06c4",
+          "method": "POST",
+          "path": "/land-enforcement-cases/c70c8924-8b5f-4c22-b452-49a385aef8e5/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:08.910Z"
+        },
+        {
+          "id": "a157cd22-014e-44af-bf78-a1937402464a",
+          "method": "POST",
+          "path": "/land-enforcement-cases/c70c8924-8b5f-4c22-b452-49a385aef8e5/advance",
+          "status": 422,
+          "at": "2026-11-05T09:13:08.926Z"
+        },
+        {
+          "id": "64643186-0e2e-4ef0-bb49-16769d03cd87",
+          "method": "POST",
+          "path": "/land-enforcement-cases/c70c8924-8b5f-4c22-b452-49a385aef8e5/advance",
+          "status": 422,
+          "at": "2026-11-05T09:13:08.942Z"
+        },
+        {
+          "id": "d40f1ce5-3946-45f8-9c7c-db779d7bfa5e",
+          "method": "POST",
+          "path": "/land-enforcement-cases/c70c8924-8b5f-4c22-b452-49a385aef8e5/advance",
+          "status": 403,
+          "at": "2026-11-05T09:13:08.958Z"
+        },
+        {
+          "id": "d175efd7-52a7-43db-bc50-691d34e5ebf3",
+          "method": "POST",
+          "path": "/land-enforcement-cases/c70c8924-8b5f-4c22-b452-49a385aef8e5/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:09.079Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) advanceEnforcement (AC-ST-LND-011-1, UAT-AC385) goes through every step, each decision with its document, and completes with the day it was carried out",
+      "status": "passed",
+      "durationMs": 664,
+      "at": "2026-11-05T09:13:10.058Z",
+      "requests": [
+        {
+          "id": "2950f5a2-1e18-465a-b2eb-1b8876d0d2a2",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:09.803Z"
+        },
+        {
+          "id": "58302453-6ac5-4e88-ae0d-331bbaa4e97a",
+          "method": "POST",
+          "path": "/land-enforcement-cases/71d6d9bc-38f1-4429-b12b-6cbe83d21d32/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:09.820Z"
+        },
+        {
+          "id": "95bdb5db-5f4c-4b46-8977-45c2df84d88c",
+          "method": "POST",
+          "path": "/land-enforcement-cases/71d6d9bc-38f1-4429-b12b-6cbe83d21d32/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:09.834Z"
+        },
+        {
+          "id": "45059704-9e46-4fe5-bc6a-c855b6227d54",
+          "method": "POST",
+          "path": "/land-enforcement-cases/71d6d9bc-38f1-4429-b12b-6cbe83d21d32/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:09.853Z"
+        },
+        {
+          "id": "1f1c2ef1-91b1-424f-9a6d-5f4035dac0e8",
+          "method": "POST",
+          "path": "/land-enforcement-cases/71d6d9bc-38f1-4429-b12b-6cbe83d21d32/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:09.866Z"
+        },
+        {
+          "id": "5256d954-0a9d-437f-bfa3-80146f36c823",
+          "method": "POST",
+          "path": "/land-enforcement-cases/71d6d9bc-38f1-4429-b12b-6cbe83d21d32/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:09.882Z"
+        },
+        {
+          "id": "5655b67c-930c-4f0d-9b54-4c5a50e6e345",
+          "method": "POST",
+          "path": "/land-enforcement-cases/71d6d9bc-38f1-4429-b12b-6cbe83d21d32/advance",
+          "status": 422,
+          "at": "2026-11-05T09:13:10.016Z"
+        },
+        {
+          "id": "9a25c3a5-839b-4df9-b45c-bd50b9eb486a",
+          "method": "POST",
+          "path": "/land-enforcement-cases/71d6d9bc-38f1-4429-b12b-6cbe83d21d32/advance",
+          "status": 422,
+          "at": "2026-11-05T09:13:10.026Z"
+        },
+        {
+          "id": "2519af3f-4031-480c-83e2-f8f9870fc217",
+          "method": "POST",
+          "path": "/land-enforcement-cases/71d6d9bc-38f1-4429-b12b-6cbe83d21d32/advance",
+          "status": 422,
+          "at": "2026-11-05T09:13:10.041Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) advanceEnforcement (AC-ST-LND-011-1, UAT-AC385) refuses a step that is skipped or gone back to, a decision with no document or with one that is not clean, a day before the case or in the future, and a step that does not exist",
+      "status": "passed",
+      "durationMs": 2107,
+      "at": "2026-11-05T09:13:12.165Z",
+      "requests": [
+        {
+          "id": "3eb87653-34ce-4dbd-a3b1-3d99eac7b72b",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:10.610Z"
+        },
+        {
+          "id": "996b1ff1-41fd-4a96-b867-4cae2dd6c047",
+          "method": "POST",
+          "path": "/land-enforcement-cases/23f1b7db-e238-4873-9898-3cc035035fa7/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:10.635Z"
+        },
+        {
+          "id": "b1c2fddf-43d0-4f59-ac25-10d4c414287d",
+          "method": "POST",
+          "path": "/land-enforcement-cases/23f1b7db-e238-4873-9898-3cc035035fa7/advance",
+          "status": 422,
+          "at": "2026-11-05T09:13:10.648Z"
+        },
+        {
+          "id": "294b7376-5ece-40c8-9375-dc672739ec8b",
+          "method": "POST",
+          "path": "/land-enforcement-cases/23f1b7db-e238-4873-9898-3cc035035fa7/advance",
+          "status": 422,
+          "at": "2026-11-05T09:13:10.661Z"
+        },
+        {
+          "id": "6f6b2bb1-b039-4197-a6a2-256d85cf5ab6",
+          "method": "POST",
+          "path": "/land-enforcement-cases/23f1b7db-e238-4873-9898-3cc035035fa7/advance",
+          "status": 422,
+          "at": "2026-11-05T09:13:10.680Z"
+        },
+        {
+          "id": "418173d7-30c2-4c2e-a855-335f941cc254",
+          "method": "POST",
+          "path": "/land-enforcement-cases/23f1b7db-e238-4873-9898-3cc035035fa7/advance",
+          "status": 422,
+          "at": "2026-11-05T09:13:10.694Z"
+        },
+        {
+          "id": "4abb7ba2-b24f-4019-b2db-b34e3ee8e56c",
+          "method": "POST",
+          "path": "/land-enforcement-cases/23f1b7db-e238-4873-9898-3cc035035fa7/advance",
+          "status": 422,
+          "at": "2026-11-05T09:13:10.711Z"
+        },
+        {
+          "id": "eae2648e-e81e-417b-a588-492924d6b34c",
+          "method": "POST",
+          "path": "/land-enforcement-cases/23f1b7db-e238-4873-9898-3cc035035fa7/advance",
+          "status": 422,
+          "at": "2026-11-05T09:13:10.729Z"
+        },
+        {
+          "id": "95839893-f90f-42d7-8359-aabb9e51ab7e",
+          "method": "POST",
+          "path": "/land-enforcement-cases/23f1b7db-e238-4873-9898-3cc035035fa7/advance",
+          "status": 422,
+          "at": "2026-11-05T09:13:10.738Z"
+        },
+        {
+          "id": "b56db4ee-98bc-4891-8260-bd3f659b5517",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:11.437Z"
+        },
+        {
+          "id": "d52621dc-9899-4319-bce9-eda5dd3ebec3",
+          "method": "POST",
+          "path": "/land-enforcement-cases/9bed33d2-f332-4250-8eb0-89280f46fd21/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:11.451Z"
+        },
+        {
+          "id": "017e52d3-8e10-4623-bcd9-f6bd86db1293",
+          "method": "POST",
+          "path": "/land-enforcement-cases/9bed33d2-f332-4250-8eb0-89280f46fd21/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:11.463Z"
+        },
+        {
+          "id": "a61e6c38-868f-4aab-9325-de53f67ce29c",
+          "method": "POST",
+          "path": "/land-enforcement-cases/9bed33d2-f332-4250-8eb0-89280f46fd21/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:11.480Z"
+        },
+        {
+          "id": "a9c21ab3-e49d-41ea-8652-397a72eb365f",
+          "method": "POST",
+          "path": "/land-enforcement-cases/9bed33d2-f332-4250-8eb0-89280f46fd21/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:11.497Z"
+        },
+        {
+          "id": "12cf8b32-8ecd-4625-85bf-eeacbe007206",
+          "method": "POST",
+          "path": "/land-enforcement-cases/9bed33d2-f332-4250-8eb0-89280f46fd21/advance",
+          "status": 422,
+          "at": "2026-11-05T09:13:11.507Z"
+        },
+        {
+          "id": "0aa306b2-9052-4c72-85b3-d43de1199088",
+          "method": "POST",
+          "path": "/land-enforcement-cases/9bed33d2-f332-4250-8eb0-89280f46fd21/advance",
+          "status": 422,
+          "at": "2026-11-05T09:13:11.526Z"
+        },
+        {
+          "id": "4edaa75c-0d41-43ac-930a-1b66a568aea3",
+          "method": "POST",
+          "path": "/land-enforcement-cases/9bed33d2-f332-4250-8eb0-89280f46fd21/advance",
+          "status": 422,
+          "at": "2026-11-05T09:13:11.543Z"
+        },
+        {
+          "id": "387e1d5b-b8e0-4039-a709-ae9edc4f0e75",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:12.113Z"
+        },
+        {
+          "id": "ffd6a358-75af-4dbd-ac9b-b3747a32b875",
+          "method": "POST",
+          "path": "/land-enforcement-cases/6c74644d-691f-48f6-809b-e5cd5c0c65ef/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:12.135Z"
+        },
+        {
+          "id": "f665ce1a-e169-470a-961d-f0e4c788cce5",
+          "method": "POST",
+          "path": "/land-enforcement-cases/6c74644d-691f-48f6-809b-e5cd5c0c65ef/advance",
+          "status": 422,
+          "at": "2026-11-05T09:13:12.152Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) advanceEnforcement (AC-ST-LND-011-1, UAT-AC385) answers a version that moved, and a case that does not exist",
+      "status": "passed",
+      "durationMs": 704,
+      "at": "2026-11-05T09:13:12.870Z",
+      "requests": [
+        {
+          "id": "dd00e8ef-53b1-48d3-842a-ed3735bbaad0",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:12.789Z"
+        },
+        {
+          "id": "9c946de9-17d9-41c4-8baa-7a88d5d6e396",
+          "method": "POST",
+          "path": "/land-enforcement-cases/1557c5d8-e495-4d7f-b04b-7c3b85aa4202/advance",
+          "status": 409,
+          "at": "2026-11-05T09:13:12.809Z"
+        },
+        {
+          "id": "c96c7f1f-e22a-4f5c-aa3b-2756185f6ed8",
+          "method": "POST",
+          "path": "/land-enforcement-cases/b9602c9c-8dfd-46c0-ba4d-861b02b02326/advance",
+          "status": 404,
+          "at": "2026-11-05T09:13:12.820Z"
+        },
+        {
+          "id": "132784ea-1809-4c6c-994a-6bacadbc87fe",
+          "method": "POST",
+          "path": "/land-enforcement-cases/1557c5d8-e495-4d7f-b04b-7c3b85aa4202/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:12.836Z"
+        },
+        {
+          "id": "a58d4af4-78d4-4886-937d-26a0c4df4455",
+          "method": "POST",
+          "path": "/land-enforcement-cases/1557c5d8-e495-4d7f-b04b-7c3b85aa4202/advance",
+          "status": 409,
+          "at": "2026-11-05T09:13:12.855Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) advanceEnforcement (AC-ST-LND-011-1, UAT-AC385) suspends a case with a reason and takes it up again where it stopped or at the step after it, and not elsewhere",
+      "status": "passed",
+      "durationMs": 1726,
+      "at": "2026-11-05T09:13:14.595Z",
+      "requests": [
+        {
+          "id": "f093e5ec-094d-4d9e-81c3-182a866d846b",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:13.964Z"
+        },
+        {
+          "id": "f853a81e-87b9-4fcf-8ebe-ff604fc105b6",
+          "method": "POST",
+          "path": "/land-enforcement-cases/9e1b48af-3dc8-4e30-98cb-d058bcc20fd5/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:13.979Z"
+        },
+        {
+          "id": "da4d8918-5f62-426b-b5ae-508077b35c64",
+          "method": "POST",
+          "path": "/land-enforcement-cases/9e1b48af-3dc8-4e30-98cb-d058bcc20fd5/advance",
+          "status": 422,
+          "at": "2026-11-05T09:13:13.989Z"
+        },
+        {
+          "id": "ac157264-bc57-4d35-b74b-7eb04be5cd32",
+          "method": "POST",
+          "path": "/land-enforcement-cases/9e1b48af-3dc8-4e30-98cb-d058bcc20fd5/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:14.005Z"
+        },
+        {
+          "id": "1719d4e5-bf58-4d19-a444-e036669b6f14",
+          "method": "POST",
+          "path": "/land-enforcement-cases/9e1b48af-3dc8-4e30-98cb-d058bcc20fd5/advance",
+          "status": 422,
+          "at": "2026-11-05T09:13:14.065Z"
+        },
+        {
+          "id": "bfbfea74-6b88-4a8e-969e-1bd5cfdf6e6b",
+          "method": "POST",
+          "path": "/land-enforcement-cases/9e1b48af-3dc8-4e30-98cb-d058bcc20fd5/advance",
+          "status": 422,
+          "at": "2026-11-05T09:13:14.086Z"
+        },
+        {
+          "id": "16ca5d21-3594-4027-a334-b8eb9cf72042",
+          "method": "POST",
+          "path": "/land-enforcement-cases/9e1b48af-3dc8-4e30-98cb-d058bcc20fd5/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:14.101Z"
+        },
+        {
+          "id": "57d210bb-aae7-4c59-8fd2-8dddc49596d4",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:14.547Z"
+        },
+        {
+          "id": "c12aa96e-d098-411c-ac98-7c3b6df67eba",
+          "method": "POST",
+          "path": "/land-enforcement-cases/28fde0ca-1f10-44ac-aadc-b9a0221fff2d/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:14.564Z"
+        },
+        {
+          "id": "1064c557-c555-4275-9928-0d39ce0b6a21",
+          "method": "POST",
+          "path": "/land-enforcement-cases/28fde0ca-1f10-44ac-aadc-b9a0221fff2d/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:14.579Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) advanceEnforcement (AC-ST-LND-011-1, UAT-AC385) lets a case that was executing be suspended and taken up again at execution without moving the parcel twice",
+      "status": "passed",
+      "durationMs": 581,
+      "at": "2026-11-05T09:13:15.177Z",
+      "requests": [
+        {
+          "id": "fbafed51-5718-44cc-8a66-c8b9b2a3f4c7",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:14.972Z"
+        },
+        {
+          "id": "df855bcc-509d-4faf-a4a1-aafaddf27d50",
+          "method": "POST",
+          "path": "/land-enforcement-cases/b9cb8491-0097-4db7-a177-61b5f8f80e38/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:14.995Z"
+        },
+        {
+          "id": "1185c409-a5b8-40b1-b059-5c672e41620b",
+          "method": "POST",
+          "path": "/land-enforcement-cases/b9cb8491-0097-4db7-a177-61b5f8f80e38/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:15.008Z"
+        },
+        {
+          "id": "b2e41ea1-3582-4124-a06d-d3a3157ef805",
+          "method": "POST",
+          "path": "/land-enforcement-cases/b9cb8491-0097-4db7-a177-61b5f8f80e38/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:15.019Z"
+        },
+        {
+          "id": "3044f735-6938-45c4-83cd-94a3df2ec08f",
+          "method": "POST",
+          "path": "/land-enforcement-cases/b9cb8491-0097-4db7-a177-61b5f8f80e38/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:15.041Z"
+        },
+        {
+          "id": "72657718-4def-4ada-aa8a-5c203f0b6669",
+          "method": "POST",
+          "path": "/land-enforcement-cases/b9cb8491-0097-4db7-a177-61b5f8f80e38/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:15.098Z"
+        },
+        {
+          "id": "c25e4bc7-9784-4646-aeca-fca39c99cc48",
+          "method": "POST",
+          "path": "/land-enforcement-cases/b9cb8491-0097-4db7-a177-61b5f8f80e38/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:15.120Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) advanceEnforcement (AC-ST-LND-011-1, UAT-AC385) refuses to execute on a parcel that is not under a plan, a payment or a complaint any more",
+      "status": "passed",
+      "durationMs": 624,
+      "at": "2026-11-05T09:13:15.800Z",
+      "requests": [
+        {
+          "id": "aef5c47a-3521-4132-8e65-66e962f8e669",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:15.625Z"
+        },
+        {
+          "id": "c4eea7e8-7243-4e6f-af66-985fcfeb9d51",
+          "method": "POST",
+          "path": "/land-enforcement-cases/bc509ef7-17fc-4d23-b86e-bc19b2eff45d/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:15.654Z"
+        },
+        {
+          "id": "7ddb602c-f17d-409a-bd33-d543d2282fd8",
+          "method": "POST",
+          "path": "/land-enforcement-cases/bc509ef7-17fc-4d23-b86e-bc19b2eff45d/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:15.662Z"
+        },
+        {
+          "id": "aac3ef54-0e76-470e-8bde-69a6456847ec",
+          "method": "POST",
+          "path": "/land-enforcement-cases/bc509ef7-17fc-4d23-b86e-bc19b2eff45d/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:15.680Z"
+        },
+        {
+          "id": "c5e27ad5-4d73-477c-8516-9986ed29c23d",
+          "method": "POST",
+          "path": "/land-enforcement-cases/bc509ef7-17fc-4d23-b86e-bc19b2eff45d/advance",
+          "status": 422,
+          "at": "2026-11-05T09:13:15.740Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) who may is for the holders of the right over the project and the unit of the household: a project seen and not served is 403, one not seen is 404",
+      "status": "passed",
+      "durationMs": 1829,
+      "at": "2026-11-05T09:13:17.629Z",
+      "requests": [
+        {
+          "id": "01601dc3-6754-4bf0-a6b6-c2bd19c3277a",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 403,
+          "at": "2026-11-05T09:13:16.252Z"
+        },
+        {
+          "id": "18872ee5-c3d7-4e33-8f35-218be2649a87",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 403,
+          "at": "2026-11-05T09:13:16.267Z"
+        },
+        {
+          "id": "0f05cc24-6649-4fd6-90df-4c63607ab775",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:16.283Z"
+        },
+        {
+          "id": "c688193a-b681-4778-8df6-f25cb2eba776",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 404,
+          "at": "2026-11-05T09:13:16.724Z"
+        },
+        {
+          "id": "437fb4c5-1124-43df-a00c-763a48baee49",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 404,
+          "at": "2026-11-05T09:13:17.203Z"
+        },
+        {
+          "id": "ccd139c2-8cca-4417-8011-e5ac8d5b81dd",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 404,
+          "at": "2026-11-05T09:13:17.614Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) who may does not let anyone advance a case outside the units of the caller",
+      "status": "passed",
+      "durationMs": 546,
+      "at": "2026-11-05T09:13:18.175Z",
+      "requests": [
+        {
+          "id": "6ff42d5a-9123-4241-93b0-90c0bd966fb6",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:18.041Z"
+        },
+        {
+          "id": "cc1ba47d-fb97-4ca9-b043-7e33f5c1012d",
+          "method": "POST",
+          "path": "/land-enforcement-cases/f5842717-4438-4556-bc8e-b9adcbec1a79/advance",
+          "status": 403,
+          "at": "2026-11-05T09:13:18.062Z"
+        },
+        {
+          "id": "4e998b97-f841-4e5a-b26f-df20d2faee01",
+          "method": "POST",
+          "path": "/land-enforcement-cases/f5842717-4438-4556-bc8e-b9adcbec1a79/advance",
+          "status": 403,
+          "at": "2026-11-05T09:13:18.070Z"
+        },
+        {
+          "id": "d3076302-7003-4578-9970-a9dd9b8eadff",
+          "method": "POST",
+          "path": "/land-enforcement-cases/f5842717-4438-4556-bc8e-b9adcbec1a79/advance",
+          "status": 404,
+          "at": "2026-11-05T09:13:18.086Z"
+        },
+        {
+          "id": "8612b4e1-e171-418f-aecb-4c0dbb75541f",
+          "method": "POST",
+          "path": "/land-enforcement-cases/f5842717-4438-4556-bc8e-b9adcbec1a79/advance",
+          "status": 404,
+          "at": "2026-11-05T09:13:18.108Z"
+        },
+        {
+          "id": "dc8d99d6-b9fb-46e7-91c8-448ab89df55c",
+          "method": "POST",
+          "path": "/land-enforcement-cases/f5842717-4438-4556-bc8e-b9adcbec1a79/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:18.115Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) listEnforcementCases (LND-09) lists the cases of a project newest first with the household masked, what the caller may do, and a page at a time, and filters them by step",
+      "status": "passed",
+      "durationMs": 4187,
+      "at": "2026-11-05T09:13:22.362Z",
+      "requests": [
+        {
+          "id": "a6d81ed1-ec7a-4dae-9848-785e2271f66c",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:18.697Z"
+        },
+        {
+          "id": "77d82083-d2c2-43c5-aa93-16f0c2e7f582",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:19.338Z"
+        },
+        {
+          "id": "cf47a9e9-3079-4a18-bdb5-7915cdcb1f17",
+          "method": "POST",
+          "path": "/land-enforcement-cases/08f2bc5e-ba86-4d66-b968-71ead3f94e59/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:19.357Z"
+        },
+        {
+          "id": "5b572585-9ffd-4332-8e3b-cbf313804bd4",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:19.980Z"
+        },
+        {
+          "id": "66e4356d-be9b-42fe-bce8-c7ad669ae70c",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:19.997Z"
+        },
+        {
+          "id": "b16d4946-f50e-4b83-a8de-8be506b08c7c",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:20.011Z"
+        },
+        {
+          "id": "ce09ebf9-e966-408c-a6e4-2f583c85f11e",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:20.024Z"
+        },
+        {
+          "id": "f5c38818-7e6b-43f5-bac1-b491cdc12341",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:21.123Z"
+        },
+        {
+          "id": "26e312a2-0170-4c02-adaf-c2be398b2307",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:21.592Z"
+        },
+        {
+          "id": "d17912de-5ec3-47a2-9646-3d1abd039d19",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:21.612Z"
+        },
+        {
+          "id": "db3f6eae-e3c6-4043-865e-83ecff6aa045",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:21.624Z"
+        },
+        {
+          "id": "c355970a-2476-4aa7-8cda-a85bbc2c57a5",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.007Z"
+        },
+        {
+          "id": "bd090fe8-e88b-494e-94a3-9210699e55e0",
+          "method": "POST",
+          "path": "/land-enforcement-cases/5eac395b-ab19-4680-b149-5f4f9e4f2b0a/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.030Z"
+        },
+        {
+          "id": "c2c8bf8c-adb3-4497-9776-8f7886864fbf",
+          "method": "POST",
+          "path": "/land-enforcement-cases/5eac395b-ab19-4680-b149-5f4f9e4f2b0a/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.039Z"
+        },
+        {
+          "id": "86338f8c-9a9b-4fde-920f-da35a4369977",
+          "method": "POST",
+          "path": "/land-enforcement-cases/5eac395b-ab19-4680-b149-5f4f9e4f2b0a/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.061Z"
+        },
+        {
+          "id": "9983659e-8b8c-48c3-aed5-1180e95321b1",
+          "method": "POST",
+          "path": "/land-enforcement-cases/5eac395b-ab19-4680-b149-5f4f9e4f2b0a/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.076Z"
+        },
+        {
+          "id": "80053e70-b950-4dfb-9b7b-a665da59b3e6",
+          "method": "POST",
+          "path": "/land-enforcement-cases/5eac395b-ab19-4680-b149-5f4f9e4f2b0a/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.095Z"
+        },
+        {
+          "id": "7fa70375-c15c-43c7-beb0-91bc1799374f",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.108Z"
+        },
+        {
+          "id": "1b0ac656-ba07-4804-8aac-94384f1e071e",
+          "method": "POST",
+          "path": "/land-enforcement-cases/7d6c984c-6658-4e29-a0b6-b9352b6bbc88/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.121Z"
+        },
+        {
+          "id": "69998b82-708a-4268-8075-b32b9c1d6ebb",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.141Z"
+        },
+        {
+          "id": "4891da33-2a11-465b-a73b-f7bd436da497",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.154Z"
+        },
+        {
+          "id": "f071bf8d-9dfd-48a5-9831-2a3de58b4894",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.170Z"
+        },
+        {
+          "id": "b5b6ee88-5d0f-44a2-886f-e77a54994cac",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.185Z"
+        },
+        {
+          "id": "319300a3-98dd-433d-b6ed-a1a0f3fb26a0",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.201Z"
+        },
+        {
+          "id": "d2075379-e72b-4400-92e7-901a82e6b074",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.208Z"
+        },
+        {
+          "id": "c2fbbdd3-b208-40ed-8bcd-5eb9ab166e63",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.216Z"
+        },
+        {
+          "id": "cd30cb27-fa9e-44a5-a182-90b3cbccca4a",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.233Z"
+        },
+        {
+          "id": "1fcad8dc-a631-435a-ad0c-acb39fb1bc48",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.249Z"
+        },
+        {
+          "id": "f85e1012-457c-49fb-a46f-0e34e10d2ec2",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.266Z"
+        },
+        {
+          "id": "be4bc087-fe7c-42be-8947-30413f15d7e9",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.281Z"
+        },
+        {
+          "id": "3541b68a-4a19-4101-a53a-60ec549fba48",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.297Z"
+        },
+        {
+          "id": "ea9f8a21-9cd1-4e11-b0fa-2796e473964d",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.313Z"
+        },
+        {
+          "id": "8803c336-de2d-4d70-bddc-abfe9f455492",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.328Z"
+        },
+        {
+          "id": "23cf355e-5953-437f-9758-56cf81c23628",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.345Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) listEnforcementCases (LND-09) shows nothing outside the units of the reader, nothing of a project the caller cannot reach, and refuses what is badly formed",
+      "status": "passed",
+      "durationMs": 574,
+      "at": "2026-11-05T09:13:22.937Z",
+      "requests": [
+        {
+          "id": "ced905db-c582-4d1c-80d0-49a5cf478266",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.732Z"
+        },
+        {
+          "id": "cc158e8a-a044-4f2e-bc42-1587435e6190",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.752Z"
+        },
+        {
+          "id": "51976c16-2365-4716-8441-41f320d5d577",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.762Z"
+        },
+        {
+          "id": "3ff0f250-070c-40cd-9332-678edd30d192",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.776Z"
+        },
+        {
+          "id": "debbba55-c2e5-45a8-8bf1-9e75727f58d1",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.794Z"
+        },
+        {
+          "id": "698a3bd3-00f0-4214-b31b-eba96c2f5122",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 403,
+          "at": "2026-11-05T09:13:22.807Z"
+        },
+        {
+          "id": "105813f5-d74d-4f52-9644-2f7ac4142487",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:22.822Z"
+        },
+        {
+          "id": "f056f34d-ea5f-4a60-9e14-6d4d48cd533e",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:22.841Z"
+        },
+        {
+          "id": "ebfcd3c6-0b0a-46e6-9811-ae66d3189a7a",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:22.855Z"
+        },
+        {
+          "id": "202558cd-b5f1-4ad2-ac5d-3507d759d052",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:22.871Z"
+        },
+        {
+          "id": "5bed59cb-b7a8-4a01-ab82-7e06fe1d3789",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:22.887Z"
+        },
+        {
+          "id": "f1f696ba-1323-4025-b1d7-7db5bb473047",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 422,
+          "at": "2026-11-05T09:13:22.902Z"
+        },
+        {
+          "id": "abbb2973-1eea-4b36-8dee-330af70f70b2",
+          "method": "GET",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.918Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) is kept by the database as well does not let what a case is change, its step skip a step or go back, a suspension forget where it stopped, nor a completed case move",
+      "status": "passed",
+      "durationMs": 1480,
+      "at": "2026-11-05T09:13:24.417Z",
+      "requests": [
+        {
+          "id": "9030a61b-b371-48d4-8a0b-08214f2d0070",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:23.386Z"
+        },
+        {
+          "id": "dc15bf86-8952-4ced-b9f3-14716557dbaa",
+          "method": "POST",
+          "path": "/land-enforcement-cases/4d174d7e-9111-402b-9f5d-fd0eb7c7279a/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:23.404Z"
+        },
+        {
+          "id": "9b53f144-a651-4688-873f-6b95fc2004ed",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:24.214Z"
+        },
+        {
+          "id": "3ea49dfd-baff-44d4-840e-9db1e6dffa66",
+          "method": "POST",
+          "path": "/land-enforcement-cases/1288d863-f332-4350-b53f-1fb34daf8196/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:24.237Z"
+        },
+        {
+          "id": "cb7f6654-6c8d-4095-a9e2-2022590c38cc",
+          "method": "POST",
+          "path": "/land-enforcement-cases/1288d863-f332-4350-b53f-1fb34daf8196/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:24.263Z"
+        },
+        {
+          "id": "5bc36d46-a2a1-4ebc-a435-ba8e543b0207",
+          "method": "POST",
+          "path": "/land-enforcement-cases/1288d863-f332-4350-b53f-1fb34daf8196/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:24.281Z"
+        },
+        {
+          "id": "11213dd3-ed9f-4e76-990a-bdde1cef12c6",
+          "method": "POST",
+          "path": "/land-enforcement-cases/1288d863-f332-4350-b53f-1fb34daf8196/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:24.298Z"
+        },
+        {
+          "id": "9d318d49-dada-42e9-8288-de46ccf75bfd",
+          "method": "POST",
+          "path": "/land-enforcement-cases/1288d863-f332-4350-b53f-1fb34daf8196/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:24.310Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) is kept by the database as well keeps the days after the day the case started, a legal basis that is trimmed, and a case that is completed with its day",
+      "status": "passed",
+      "durationMs": 625,
+      "at": "2026-11-05T09:13:25.041Z",
+      "requests": [
+        {
+          "id": "b16b66af-2414-4d3c-b9e8-22cdd3aa20ff",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:24.883Z"
+        },
+        {
+          "id": "00b6c351-90f5-48d9-9a3a-a9f4db3d3157",
+          "method": "POST",
+          "path": "/land-enforcement-cases/dc589969-fc36-4188-8430-1311550ccc2b/advance",
+          "status": 200,
+          "at": "2026-11-05T09:13:24.901Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/enforcement.test.ts",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) is kept by the database as well is never deleted by the application",
+      "status": "passed",
+      "durationMs": 545,
+      "at": "2026-11-05T09:13:25.587Z",
+      "requests": [
+        {
+          "id": "a666bbcb-0cad-4e8e-8baa-f9135f2d2e84",
+          "method": "POST",
+          "path": "/land-enforcement-cases",
+          "status": 200,
+          "at": "2026-11-05T09:13:25.476Z"
+        }
+      ]
+    }
+  ]
+}

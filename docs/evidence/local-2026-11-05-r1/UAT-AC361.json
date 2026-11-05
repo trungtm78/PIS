@@ -1,0 +1,336 @@
+{
+  "id": "UAT-AC361",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/nonconformance.test.ts",
+      "name": "the non-conformances over HTTP (ST-QMS-006) raiseNonconformance (AC-ST-QMS-006-1, UAT-AC361) raises a non-conformance with its audit row and its event, answers the same key once, and holds the acceptance back when it is critical",
+      "status": "passed",
+      "durationMs": 1024,
+      "at": "2026-11-05T09:19:00.565Z",
+      "requests": [
+        {
+          "id": "2d2b6a0f-0568-4873-ba36-3c42599403cb",
+          "method": "POST",
+          "path": "/nonconformances",
+          "status": 200,
+          "at": "2026-11-05T09:19:00.182Z"
+        },
+        {
+          "id": "02f4bf85-64cc-4c16-b9ab-945e8cf9fb19",
+          "method": "POST",
+          "path": "/nonconformances",
+          "status": 200,
+          "at": "2026-11-05T09:19:00.229Z"
+        },
+        {
+          "id": "b4852858-5f5a-4c3f-94ec-3b3fd61b0521",
+          "method": "POST",
+          "path": "/nonconformances",
+          "status": 200,
+          "at": "2026-11-05T09:19:00.509Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/nonconformance.test.ts",
+      "name": "the non-conformances over HTTP (ST-QMS-006) raiseNonconformance (AC-ST-QMS-006-1, UAT-AC361) refuses what is badly formed, a contract that is not being performed, and a caller without the right or outside its scope",
+      "status": "passed",
+      "durationMs": 1437,
+      "at": "2026-11-05T09:19:02.001Z",
+      "requests": [
+        {
+          "id": "5a7017e6-4a3b-4ebd-ae30-c12c44cbb42c",
+          "method": "POST",
+          "path": "/nonconformances",
+          "status": 422,
+          "at": "2026-11-05T09:19:01.185Z"
+        },
+        {
+          "id": "cd675dc1-e5a7-4620-9a6b-ea1088cf1eef",
+          "method": "POST",
+          "path": "/nonconformances",
+          "status": 422,
+          "at": "2026-11-05T09:19:01.205Z"
+        },
+        {
+          "id": "00199c19-4546-4aae-b1c0-4de8657c9da4",
+          "method": "POST",
+          "path": "/nonconformances",
+          "status": 400,
+          "at": "2026-11-05T09:19:01.223Z"
+        },
+        {
+          "id": "68daa1b2-81a2-4a7e-877f-039e26097e08",
+          "method": "POST",
+          "path": "/nonconformances",
+          "status": 409,
+          "at": "2026-11-05T09:19:01.887Z"
+        },
+        {
+          "id": "8a1e0fcd-b8c4-49e6-bc18-8fc0c764d783",
+          "method": "POST",
+          "path": "/nonconformances",
+          "status": 403,
+          "at": "2026-11-05T09:19:01.911Z"
+        },
+        {
+          "id": "07469499-78c0-4485-9165-b849ae2312f2",
+          "method": "POST",
+          "path": "/nonconformances",
+          "status": 403,
+          "at": "2026-11-05T09:19:01.926Z"
+        },
+        {
+          "id": "a0767738-8a25-4bf5-b78b-087e557f0055",
+          "method": "POST",
+          "path": "/nonconformances",
+          "status": 404,
+          "at": "2026-11-05T09:19:01.940Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/nonconformance.test.ts",
+      "name": "the non-conformances over HTTP (ST-QMS-006) the actions, the evidence and the verification AC-ST-QMS-006-1, UAT-AC361: assigns an action, takes the evidence of the person given it, and verifies it by someone else, each with its audit row and event",
+      "status": "passed",
+      "durationMs": 1688,
+      "at": "2026-11-05T09:19:03.690Z",
+      "requests": [
+        {
+          "id": "d387b4d6-7834-46c2-9eb5-fcd5afd3ca5f",
+          "method": "POST",
+          "path": "/nonconformances",
+          "status": 200,
+          "at": "2026-11-05T09:19:03.146Z"
+        },
+        {
+          "id": "0b12c2be-6cda-4810-b309-ba9a412f2e68",
+          "method": "POST",
+          "path": "/nonconformances/54b296b4-5438-4a9e-9c0d-06292f872529/corrective-actions",
+          "status": 422,
+          "at": "2026-11-05T09:19:03.162Z"
+        },
+        {
+          "id": "f5d7c35a-e6cc-445f-a6c3-efe686e6e051",
+          "method": "POST",
+          "path": "/nonconformances/54b296b4-5438-4a9e-9c0d-06292f872529/corrective-actions",
+          "status": 409,
+          "at": "2026-11-05T09:19:03.170Z"
+        },
+        {
+          "id": "88c5880f-d529-4cb7-87bd-0affbf7c0e2e",
+          "method": "POST",
+          "path": "/nonconformances/54b296b4-5438-4a9e-9c0d-06292f872529/corrective-actions",
+          "status": 403,
+          "at": "2026-11-05T09:19:03.190Z"
+        },
+        {
+          "id": "94649d0c-d576-4d01-8d31-af1b86e5cff4",
+          "method": "POST",
+          "path": "/nonconformances/54b296b4-5438-4a9e-9c0d-06292f872529/corrective-actions",
+          "status": 200,
+          "at": "2026-11-05T09:19:03.202Z"
+        },
+        {
+          "id": "e9c7b6f1-741b-48bf-993e-56c905085c2c",
+          "method": "GET",
+          "path": "/resources/quality_nonconformance/54b296b4-5438-4a9e-9c0d-06292f872529",
+          "status": 200,
+          "at": "2026-11-05T09:19:03.302Z"
+        },
+        {
+          "id": "994bdfad-b4b4-46ca-90c8-632afdd8ad01",
+          "method": "POST",
+          "path": "/corrective-actions/fc90d403-1c6d-46fa-8fac-f698553129ac/evidence",
+          "status": 403,
+          "at": "2026-11-05T09:19:03.321Z"
+        },
+        {
+          "id": "2146dcf7-f264-48bd-ab43-b6c785a54076",
+          "method": "POST",
+          "path": "/corrective-actions/fc90d403-1c6d-46fa-8fac-f698553129ac/evidence",
+          "status": 422,
+          "at": "2026-11-05T09:19:03.332Z"
+        },
+        {
+          "id": "1b351a5d-8d2f-4c94-baad-8b7ae77ea891",
+          "method": "POST",
+          "path": "/corrective-actions/fc90d403-1c6d-46fa-8fac-f698553129ac/evidence",
+          "status": 422,
+          "at": "2026-11-05T09:19:03.351Z"
+        },
+        {
+          "id": "a4e4241f-201b-4694-9165-1d1b9bb0ff6d",
+          "method": "POST",
+          "path": "/corrective-actions/fc90d403-1c6d-46fa-8fac-f698553129ac/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:19:03.366Z"
+        },
+        {
+          "id": "7f51600e-7d49-446c-bf97-be13c5ba7d4a",
+          "method": "POST",
+          "path": "/corrective-actions/fc90d403-1c6d-46fa-8fac-f698553129ac/evidence",
+          "status": 409,
+          "at": "2026-11-05T09:19:03.470Z"
+        },
+        {
+          "id": "f9def733-04ff-4b9d-9e35-1cc5e7a432b7",
+          "method": "POST",
+          "path": "/corrective-actions/fc90d403-1c6d-46fa-8fac-f698553129ac/verify",
+          "status": 403,
+          "at": "2026-11-05T09:19:03.493Z"
+        },
+        {
+          "id": "03aef626-412c-4862-8395-91bddad38793",
+          "method": "POST",
+          "path": "/corrective-actions/fc90d403-1c6d-46fa-8fac-f698553129ac/verify",
+          "status": 403,
+          "at": "2026-11-05T09:19:03.510Z"
+        },
+        {
+          "id": "b0cd3f82-2da9-41cd-a76f-0933254f0e02",
+          "method": "POST",
+          "path": "/corrective-actions/fc90d403-1c6d-46fa-8fac-f698553129ac/verify",
+          "status": 200,
+          "at": "2026-11-05T09:19:03.513Z"
+        },
+        {
+          "id": "02780ec6-d467-4af4-bc2e-bac6dfe08d08",
+          "method": "POST",
+          "path": "/corrective-actions/fc90d403-1c6d-46fa-8fac-f698553129ac/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:19:03.570Z"
+        },
+        {
+          "id": "169f6c67-327e-4ef4-ae60-ca5bd2306e1b",
+          "method": "POST",
+          "path": "/corrective-actions/fc90d403-1c6d-46fa-8fac-f698553129ac/verify",
+          "status": 200,
+          "at": "2026-11-05T09:19:03.592Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/nonconformance.test.ts",
+      "name": "the non-conformances over HTTP (ST-QMS-006) closeNonconformance and reopenNonconformance AC-ST-QMS-006-1, UAT-AC361: closes a verified non-conformance by someone who is none of the people who put it right, and reopens it",
+      "status": "passed",
+      "durationMs": 953,
+      "at": "2026-11-05T09:19:04.642Z",
+      "requests": [
+        {
+          "id": "8825116e-db4d-464a-ba55-af5682fa9189",
+          "method": "POST",
+          "path": "/nonconformances",
+          "status": 200,
+          "at": "2026-11-05T09:19:04.219Z"
+        },
+        {
+          "id": "0f882960-98b7-486f-a76d-a3cd1cc8565d",
+          "method": "POST",
+          "path": "/nonconformances/78b57d72-8381-4093-ab12-ce4cb014a19d/corrective-actions",
+          "status": 200,
+          "at": "2026-11-05T09:19:04.246Z"
+        },
+        {
+          "id": "4ce508c3-6421-4f61-a669-a81fd9bd3220",
+          "method": "GET",
+          "path": "/resources/quality_nonconformance/78b57d72-8381-4093-ab12-ce4cb014a19d",
+          "status": 200,
+          "at": "2026-11-05T09:19:04.262Z"
+        },
+        {
+          "id": "2ab1f255-80e8-49ea-8bba-42c40c5959ef",
+          "method": "GET",
+          "path": "/resources/quality_nonconformance/78b57d72-8381-4093-ab12-ce4cb014a19d",
+          "status": 200,
+          "at": "2026-11-05T09:19:04.276Z"
+        },
+        {
+          "id": "6525e772-75b3-4051-a5dd-4a27778ffd4c",
+          "method": "POST",
+          "path": "/nonconformances/78b57d72-8381-4093-ab12-ce4cb014a19d/close",
+          "status": 422,
+          "at": "2026-11-05T09:19:04.293Z"
+        },
+        {
+          "id": "c042d827-fa73-47be-b0a4-a22de6ba7795",
+          "method": "POST",
+          "path": "/corrective-actions/bb5493c5-8b73-46b7-a589-0638594e33df/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:19:04.306Z"
+        },
+        {
+          "id": "40519856-3e57-44aa-a41d-447b53bb9924",
+          "method": "POST",
+          "path": "/corrective-actions/bb5493c5-8b73-46b7-a589-0638594e33df/verify",
+          "status": 200,
+          "at": "2026-11-05T09:19:04.325Z"
+        },
+        {
+          "id": "1578af01-19ba-421e-adec-7c926dee534e",
+          "method": "GET",
+          "path": "/resources/quality_nonconformance/78b57d72-8381-4093-ab12-ce4cb014a19d",
+          "status": 200,
+          "at": "2026-11-05T09:19:04.341Z"
+        },
+        {
+          "id": "d2d0c930-900c-4cfd-aeae-b5c23bea8adf",
+          "method": "POST",
+          "path": "/nonconformances/78b57d72-8381-4093-ab12-ce4cb014a19d/close",
+          "status": 403,
+          "at": "2026-11-05T09:19:04.352Z"
+        },
+        {
+          "id": "a00b7e48-4ddb-413e-b28f-f351c0cb0230",
+          "method": "POST",
+          "path": "/nonconformances/78b57d72-8381-4093-ab12-ce4cb014a19d/close",
+          "status": 403,
+          "at": "2026-11-05T09:19:04.371Z"
+        },
+        {
+          "id": "4419d676-1de0-4cee-a636-0cfc7649fe88",
+          "method": "POST",
+          "path": "/nonconformances/78b57d72-8381-4093-ab12-ce4cb014a19d/close",
+          "status": 409,
+          "at": "2026-11-05T09:19:04.382Z"
+        },
+        {
+          "id": "090ce122-0507-4f47-8b2b-6abfea831a1e",
+          "method": "POST",
+          "path": "/nonconformances/78b57d72-8381-4093-ab12-ce4cb014a19d/close",
+          "status": 200,
+          "at": "2026-11-05T09:19:04.402Z"
+        },
+        {
+          "id": "4e245b5f-06fa-488e-ba47-cb3d2716743f",
+          "method": "POST",
+          "path": "/nonconformances/78b57d72-8381-4093-ab12-ce4cb014a19d/close",
+          "status": 409,
+          "at": "2026-11-05T09:19:04.513Z"
+        },
+        {
+          "id": "8aa2435d-fe68-492a-84e1-ecfdccb96a3f",
+          "method": "POST",
+          "path": "/nonconformances/78b57d72-8381-4093-ab12-ce4cb014a19d/reopen",
+          "status": 200,
+          "at": "2026-11-05T09:19:04.530Z"
+        },
+        {
+          "id": "164d688a-8a22-461c-a611-95f9f97b0ead",
+          "method": "POST",
+          "path": "/nonconformances/78b57d72-8381-4093-ab12-ce4cb014a19d/reopen",
+          "status": 409,
+          "at": "2026-11-05T09:19:04.633Z"
+        }
+      ]
+    }
+  ]
+}

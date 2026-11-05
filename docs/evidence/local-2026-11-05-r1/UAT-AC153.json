@@ -1,0 +1,54 @@
+{
+  "id": "UAT-AC153",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/session/select-tenant.test.ts",
+      "name": "selectTenantContext, session binding and revocation (ST-IAM-003) the domain the sign-in is opened on chooses the tenant (ST-SAS-017) AC-ST-SAS-017-2 UAT-AC153: a person of tenant A who signs in on the verified domain of tenant B is refused tenant A with 403 TENANT_SELECTION_INVALID, and only tenant B can be chosen there",
+      "status": "passed",
+      "durationMs": 97,
+      "at": "2026-11-05T09:20:59.065Z",
+      "requests": [
+        {
+          "id": "125e5bd5-a0ca-4250-b02f-e9f58e67d4fd",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 403,
+          "at": "2026-11-05T09:20:58.969Z"
+        },
+        {
+          "id": "9cd76a24-489b-46ef-a72c-30bf22c295ac",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 403,
+          "at": "2026-11-05T09:20:58.991Z"
+        },
+        {
+          "id": "fa33c222-0a05-4ef1-9d2a-0d3f9f84373d",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-05T09:20:59.004Z"
+        },
+        {
+          "id": "904f253f-2853-4427-a56e-68522e86a425",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 403,
+          "at": "2026-11-05T09:20:59.031Z"
+        },
+        {
+          "id": "13e4b4a6-8228-4eb7-9153-ca22f2d9f56f",
+          "method": "GET",
+          "path": "/me/session/tenant-selection/candidates",
+          "status": 200,
+          "at": "2026-11-05T09:20:59.049Z"
+        }
+      ]
+    }
+  ]
+}

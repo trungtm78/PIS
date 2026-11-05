@@ -1,0 +1,159 @@
+{
+  "id": "UI-LND-01",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/lnd-progress-flows.spec.ts",
+      "name": "the officer reports the stage of the centre with evidence, the late stage shows on the overview with the centre, and the figures equal the rows (AC-ST-LND-010-1, UAT-AC387, UI-LND-11, UI-LND-01)",
+      "status": "passed",
+      "durationMs": 1642,
+      "at": "2026-11-05T08:48:21.091Z",
+      "requests": [
+        {
+          "id": "e6bd0aef-7bc6-43d1-a292-30f2c610b175",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 200,
+          "at": "2026-11-05T08:48:21.744Z"
+        },
+        {
+          "id": "ded8053a-5fdf-4d64-8b97-60bdd8902dce",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:21.744Z"
+        },
+        {
+          "id": "7deef160-84aa-491f-83b7-64422c1854b0",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:21.742Z"
+        },
+        {
+          "id": "98aa1af3-2e24-4d9a-aecb-a619eb6b76d7",
+          "method": "GET",
+          "path": "/projects/32537782-ef3e-4f3d-b795-f8ea7adfc056/land-progress",
+          "status": 200,
+          "at": "2026-11-05T08:48:21.743Z"
+        },
+        {
+          "id": "0599bbae-216a-45cd-b5fc-e983d7954065",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:21.791Z"
+        },
+        {
+          "id": "3cc47803-b850-431d-bc11-ee7a1c243d58",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.064Z"
+        },
+        {
+          "id": "b339f2c9-1d7e-4cfa-9118-53400a91e58e",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.082Z"
+        },
+        {
+          "id": "9779fc68-1cb2-4f52-8723-3c2f51ae9471",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 304,
+          "at": "2026-11-05T08:48:22.087Z"
+        },
+        {
+          "id": "29a63daa-4deb-4a20-b676-70a03d64ef28",
+          "method": "GET",
+          "path": "/projects/32537782-ef3e-4f3d-b795-f8ea7adfc056/land-progress",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.086Z"
+        },
+        {
+          "id": "6e472dc5-32ef-48c4-998f-4fe9f5ec6f6c",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.095Z"
+        },
+        {
+          "id": "642babf5-563e-475d-b4db-1cc16b35d1cb",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.088Z"
+        },
+        {
+          "id": "d92873b2-455b-4b4f-89be-9d4477b77fbb",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.281Z"
+        },
+        {
+          "id": "fd2a79b3-78ef-4b9d-86e5-83c209c824d3",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 304,
+          "at": "2026-11-05T08:48:22.304Z"
+        },
+        {
+          "id": "9ca37d73-238e-4e06-8857-e6a7aad3b0d2",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.303Z"
+        },
+        {
+          "id": "f504627d-5aae-4b29-8c15-12e3ae458905",
+          "method": "GET",
+          "path": "/projects/32537782-ef3e-4f3d-b795-f8ea7adfc056/land-progress",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.302Z"
+        },
+        {
+          "id": "05af5493-c1fd-46d8-9abf-42ea4298a71c",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.301Z"
+        },
+        {
+          "id": "683360d4-baf5-41b3-942b-e4b6bd445f2f",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.315Z"
+        },
+        {
+          "id": "fada2266-0d03-489a-bde9-912f377d66f6",
+          "method": "GET",
+          "path": "/projects/32537782-ef3e-4f3d-b795-f8ea7adfc056/land-progress",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.638Z"
+        },
+        {
+          "id": "21adc7e7-d6f9-46f6-b7ca-704412511a5a",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.637Z"
+        },
+        {
+          "id": "2a5c8bdb-ff6c-4e98-9492-bb3491b4b84f",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.651Z"
+        }
+      ]
+    }
+  ]
+}

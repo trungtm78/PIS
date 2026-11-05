@@ -1,0 +1,54 @@
+{
+  "id": "MOB01",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report-decision.test.ts",
+      "name": "the decision on a weekly report and its corrections over HTTP (ST-DIS-006) web and mobile file the same report, and a phone that replays its queue (ST-DIS-017) AC-ST-DIS-017-2 / MOB01: a draft made offline and sent twice after the reconnect is one revision, and a queued save that was written against a version the server has moved past is a conflict the user resolves, not a silent overwrite of money",
+      "status": "passed",
+      "durationMs": 245,
+      "at": "2026-11-05T09:15:35.945Z",
+      "requests": [
+        {
+          "id": "e6f9f618-0546-4457-a7bb-b27fce8982aa",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:15:35.739Z"
+        },
+        {
+          "id": "aae49642-bb5a-4ec3-94c0-82b31a28f2e8",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:15:35.766Z"
+        },
+        {
+          "id": "c6fde61c-4e74-48a8-a12a-39b9a38a9971",
+          "method": "POST",
+          "path": "/reports/9ca96271-616c-4130-b8d1-7fb96cb46ac0/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:15:35.843Z"
+        },
+        {
+          "id": "8ca76a3e-4463-4ce0-8fe3-80932d4d8ac6",
+          "method": "POST",
+          "path": "/reports/9ca96271-616c-4130-b8d1-7fb96cb46ac0/revisions",
+          "status": 409,
+          "at": "2026-11-05T09:15:35.877Z"
+        },
+        {
+          "id": "49e73d1b-3ad5-4fa4-84ae-0cd041fb69b3",
+          "method": "GET",
+          "path": "/reports/9ca96271-616c-4130-b8d1-7fb96cb46ac0",
+          "status": 200,
+          "at": "2026-11-05T09:15:35.889Z"
+        }
+      ]
+    }
+  ]
+}

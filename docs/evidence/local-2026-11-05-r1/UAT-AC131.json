@@ -1,0 +1,40 @@
+{
+  "id": "UAT-AC131",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/approval-operations.test.ts",
+      "name": "cancelWorkflowInstance, reassignApprovalTask and the monitor reads over HTTP (ST-ADM-013) the decision re-sent, and the reads of the monitor AC-ST-ADM-013-4, UAT-AC131: a decision re-sent with the same key replays the first result and leaves one audit row",
+      "status": "passed",
+      "durationMs": 199,
+      "at": "2026-11-05T09:21:30.220Z",
+      "requests": [
+        {
+          "id": "a9e93c57-cb0c-4388-a569-5e209b43d1a8",
+          "method": "POST",
+          "path": "/approval-tasks/78ede6c1-4894-457f-a2d8-d41f8902f7ba/decision",
+          "status": 200,
+          "at": "2026-11-05T09:21:30.072Z"
+        },
+        {
+          "id": "f984c548-279d-4f28-b017-3f287cf2ac87",
+          "method": "POST",
+          "path": "/approval-tasks/78ede6c1-4894-457f-a2d8-d41f8902f7ba/decision",
+          "status": 200,
+          "at": "2026-11-05T09:21:30.111Z"
+        },
+        {
+          "id": "60a682dd-73ab-4f6d-b29e-5e9a72125de6",
+          "method": "POST",
+          "path": "/approval-tasks/78ede6c1-4894-457f-a2d8-d41f8902f7ba/decision",
+          "status": 409,
+          "at": "2026-11-05T09:21:30.203Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,410 @@
+{
+  "id": "UI-CTR-12",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/ctr-acceptance-flows.spec.ts",
+      "name": "the officer draws up and sends an acceptance, a leader approves it and payment is told once, and another person revokes it (UI-CTR-12, AC-ST-CTR-009-1, UAT-AC63, UAT-AC313)",
+      "status": "passed",
+      "durationMs": 2964,
+      "at": "2026-11-05T08:45:45.398Z",
+      "requests": [
+        {
+          "id": "32c55e24-778b-4e59-a3ef-920ad2a84154",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:46.039Z"
+        },
+        {
+          "id": "a30623a3-8d2b-43a2-b616-5bc51cadb5ec",
+          "method": "GET",
+          "path": "/resources/contract/01a52ebf-1e7b-4a0f-aaa4-3626f9559d69",
+          "status": 200,
+          "at": "2026-11-05T08:45:46.038Z"
+        },
+        {
+          "id": "7869097c-d607-4538-8ec9-c4df6aba9162",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 200,
+          "at": "2026-11-05T08:45:46.039Z"
+        },
+        {
+          "id": "d685b5a8-f99f-4553-972e-0efd4526f775",
+          "method": "POST",
+          "path": "/contracts/01a52ebf-1e7b-4a0f-aaa4-3626f9559d69/acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:45:46.467Z"
+        },
+        {
+          "id": "901f51d7-93c0-4979-976e-a8b4ac7b69f2",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:46.497Z"
+        },
+        {
+          "id": "4efdd2cf-0cd8-4fe1-ae45-61e0bfb8d4f8",
+          "method": "GET",
+          "path": "/resources/contract/01a52ebf-1e7b-4a0f-aaa4-3626f9559d69",
+          "status": 304,
+          "at": "2026-11-05T08:45:46.495Z"
+        },
+        {
+          "id": "526dfce0-d8c6-4f8e-8ab2-ae5155c3507b",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 200,
+          "at": "2026-11-05T08:45:46.496Z"
+        },
+        {
+          "id": "5d415c23-7c32-4910-b565-632c9ed4d29a",
+          "method": "POST",
+          "path": "/acceptances/e4ab0fb7-a552-4d1b-8aa7-1e228ea554f4/submit",
+          "status": 200,
+          "at": "2026-11-05T08:45:46.803Z"
+        },
+        {
+          "id": "9fa7c723-cf16-40d5-ad43-c0ff834203db",
+          "method": "GET",
+          "path": "/resources/contract/01a52ebf-1e7b-4a0f-aaa4-3626f9559d69",
+          "status": 304,
+          "at": "2026-11-05T08:45:46.821Z"
+        },
+        {
+          "id": "c6dc6b99-c167-4c9a-aaf8-b03c9d7b8f72",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:46.822Z"
+        },
+        {
+          "id": "f54a61dc-1a67-4d9e-b493-efa6180e6380",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 200,
+          "at": "2026-11-05T08:45:46.823Z"
+        },
+        {
+          "id": "49ecd1a1-024a-4b37-ba79-a797374aa8c6",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 403,
+          "at": "2026-11-05T08:45:47.112Z"
+        },
+        {
+          "id": "bd0b8f2c-5c03-4b90-8561-818920d067fc",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:47.111Z"
+        },
+        {
+          "id": "7b1388da-0306-45de-8e30-4b0e7c071c99",
+          "method": "GET",
+          "path": "/resources/contract/01a52ebf-1e7b-4a0f-aaa4-3626f9559d69",
+          "status": 304,
+          "at": "2026-11-05T08:45:47.110Z"
+        },
+        {
+          "id": "830339d6-8502-4bb8-aef5-e375440a1b03",
+          "method": "POST",
+          "path": "/acceptances/e4ab0fb7-a552-4d1b-8aa7-1e228ea554f4/decision",
+          "status": 200,
+          "at": "2026-11-05T08:45:47.316Z"
+        },
+        {
+          "id": "b4a958dd-5e96-4f92-b991-54636e9867b8",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 403,
+          "at": "2026-11-05T08:45:47.335Z"
+        },
+        {
+          "id": "67e1e28d-2f45-4d70-9091-7926492b088a",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:47.334Z"
+        },
+        {
+          "id": "84fe56e6-a06f-4814-88a9-580878a8ff26",
+          "method": "GET",
+          "path": "/resources/contract/01a52ebf-1e7b-4a0f-aaa4-3626f9559d69",
+          "status": 200,
+          "at": "2026-11-05T08:45:47.333Z"
+        },
+        {
+          "id": "e514ab1c-7604-443d-a87e-300d1d4f64e9",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:47.674Z"
+        },
+        {
+          "id": "19288c10-4e9f-4e31-9089-720b1bfea2af",
+          "method": "GET",
+          "path": "/resources/contract/01a52ebf-1e7b-4a0f-aaa4-3626f9559d69",
+          "status": 304,
+          "at": "2026-11-05T08:45:47.673Z"
+        },
+        {
+          "id": "cc1a4bec-b0dd-4d48-b059-bebdba2a5460",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 200,
+          "at": "2026-11-05T08:45:47.674Z"
+        },
+        {
+          "id": "73948f3f-6ef2-4c81-a260-11485b0cca62",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 403,
+          "at": "2026-11-05T08:45:47.884Z"
+        },
+        {
+          "id": "0e0bfc7e-5e58-430a-952c-94a238079a3e",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:47.882Z"
+        },
+        {
+          "id": "4482e6b7-1eb9-4d95-8422-1021686be009",
+          "method": "GET",
+          "path": "/resources/contract/01a52ebf-1e7b-4a0f-aaa4-3626f9559d69",
+          "status": 304,
+          "at": "2026-11-05T08:45:47.882Z"
+        },
+        {
+          "id": "1972cce1-0353-4fc9-a998-c120871287d2",
+          "method": "POST",
+          "path": "/acceptances/e4ab0fb7-a552-4d1b-8aa7-1e228ea554f4/revoke",
+          "status": 200,
+          "at": "2026-11-05T08:45:48.050Z"
+        },
+        {
+          "id": "79f2ec9e-fcff-47b4-9a4d-4746e1dd1e5a",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 403,
+          "at": "2026-11-05T08:45:48.070Z"
+        },
+        {
+          "id": "0f0ae2ca-1626-447a-b0e1-36ebb4d43a4e",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:48.070Z"
+        },
+        {
+          "id": "b52fffc4-c935-4af4-a1f2-ac32b91867d1",
+          "method": "GET",
+          "path": "/resources/contract/01a52ebf-1e7b-4a0f-aaa4-3626f9559d69",
+          "status": 200,
+          "at": "2026-11-05T08:45:48.069Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/ctr-acceptance-flows.spec.ts",
+      "name": "a contract that asks for quality acceptance minutes refuses the approval in words until there are some (UI-CTR-12, AC-ST-CTR-009-2, UAT-AC313)",
+      "status": "passed",
+      "durationMs": 1579,
+      "at": "2026-11-05T08:45:48.370Z",
+      "requests": [
+        {
+          "id": "408f3172-6166-4e7f-bcac-494f8d763daf",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:49.004Z"
+        },
+        {
+          "id": "8a6bd6cb-e22b-4802-9584-0bf3c5651866",
+          "method": "GET",
+          "path": "/resources/contract/ce9e8d7f-fec1-4be2-98a0-50de69b1bae0",
+          "status": 200,
+          "at": "2026-11-05T08:45:49.004Z"
+        },
+        {
+          "id": "8df1e7a2-c254-48f0-87b5-13862b591aff",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 200,
+          "at": "2026-11-05T08:45:49.005Z"
+        },
+        {
+          "id": "f49a596b-bd80-4d6c-a6fd-a12ea5d87daf",
+          "method": "POST",
+          "path": "/contracts/ce9e8d7f-fec1-4be2-98a0-50de69b1bae0/acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:45:49.201Z"
+        },
+        {
+          "id": "42384014-e63d-44e7-a58c-ecf68f3716e8",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:49.225Z"
+        },
+        {
+          "id": "45a0020c-b345-4d73-995d-10b76730b172",
+          "method": "GET",
+          "path": "/resources/contract/ce9e8d7f-fec1-4be2-98a0-50de69b1bae0",
+          "status": 304,
+          "at": "2026-11-05T08:45:49.224Z"
+        },
+        {
+          "id": "90e7659e-7c7e-4217-942d-2d9d96e68e40",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 200,
+          "at": "2026-11-05T08:45:49.226Z"
+        },
+        {
+          "id": "9e0d7b6a-44e2-4b23-969c-994bf9297d86",
+          "method": "POST",
+          "path": "/acceptances/26f4daa8-cad5-4262-a00a-b2678a34e8de/submit",
+          "status": 200,
+          "at": "2026-11-05T08:45:49.332Z"
+        },
+        {
+          "id": "c3290ab1-46e1-4208-b049-c68326f63694",
+          "method": "GET",
+          "path": "/resources/contract/ce9e8d7f-fec1-4be2-98a0-50de69b1bae0",
+          "status": 304,
+          "at": "2026-11-05T08:45:49.348Z"
+        },
+        {
+          "id": "9fc07144-503f-4144-8262-78cbfe489cda",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:49.349Z"
+        },
+        {
+          "id": "77e8874a-fbe8-4aa7-8d16-062a7c2d2c1f",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 200,
+          "at": "2026-11-05T08:45:49.350Z"
+        },
+        {
+          "id": "b492b7c5-bc79-41dc-b51d-56c3faf7eec9",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 403,
+          "at": "2026-11-05T08:45:49.591Z"
+        },
+        {
+          "id": "05c93a45-d650-40d6-bf06-74cf5918cbe1",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:49.591Z"
+        },
+        {
+          "id": "0b9e2742-fc81-46eb-a83f-1e860c4bb13f",
+          "method": "GET",
+          "path": "/resources/contract/ce9e8d7f-fec1-4be2-98a0-50de69b1bae0",
+          "status": 304,
+          "at": "2026-11-05T08:45:49.590Z"
+        },
+        {
+          "id": "b892e003-9103-4f63-af2c-bcbc4db2064b",
+          "method": "POST",
+          "path": "/acceptances/26f4daa8-cad5-4262-a00a-b2678a34e8de/decision",
+          "status": 422,
+          "at": "2026-11-05T08:45:49.785Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/ctr-acceptance-flows.spec.ts",
+      "name": "a reader sees the acceptances and no command (UI-CTR-12)",
+      "status": "passed",
+      "durationMs": 996,
+      "at": "2026-11-05T08:45:49.956Z",
+      "requests": [
+        {
+          "id": "30dce54f-a272-42eb-84d4-fa56e4880ec1",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:50.474Z"
+        },
+        {
+          "id": "9d313f28-4025-4db8-8e3c-3dec19e9d8ba",
+          "method": "GET",
+          "path": "/resources/contract/288052ee-a067-4717-8c0d-acb5f96039c1",
+          "status": 200,
+          "at": "2026-11-05T08:45:50.473Z"
+        },
+        {
+          "id": "0e565522-ee90-4b31-ae09-e36f0e76cd22",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 200,
+          "at": "2026-11-05T08:45:50.474Z"
+        },
+        {
+          "id": "95d9d4da-55c5-483b-88df-53523acb21c8",
+          "method": "POST",
+          "path": "/contracts/288052ee-a067-4717-8c0d-acb5f96039c1/acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:45:50.684Z"
+        },
+        {
+          "id": "20c5ff54-6c9b-48d0-9640-ac7b24978bd7",
+          "method": "GET",
+          "path": "/resources/contract/288052ee-a067-4717-8c0d-acb5f96039c1",
+          "status": 304,
+          "at": "2026-11-05T08:45:50.703Z"
+        },
+        {
+          "id": "f6de5dbb-cbd7-4f09-910f-eff65ad930e3",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:50.705Z"
+        },
+        {
+          "id": "99047b31-96ba-4a1f-9769-f261f67c6771",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 200,
+          "at": "2026-11-05T08:45:50.704Z"
+        },
+        {
+          "id": "3570ee4c-69e2-4f49-aff2-61b8ba324fc4",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 403,
+          "at": "2026-11-05T08:45:50.893Z"
+        },
+        {
+          "id": "88259496-7b1f-42da-bfce-0fd5d99fde58",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:50.892Z"
+        },
+        {
+          "id": "bbb30302-3272-41ff-8a19-7c0c6a8bd16a",
+          "method": "GET",
+          "path": "/resources/contract/288052ee-a067-4717-8c0d-acb5f96039c1",
+          "status": 304,
+          "at": "2026-11-05T08:45:50.892Z"
+        }
+      ]
+    }
+  ]
+}

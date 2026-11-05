@@ -1,0 +1,129 @@
+{
+  "id": "UAT-AC240",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports AC-ST-DIS-003-1 / UAT-AC240 / FX-DIS-001: six cells of 100/200/30/70/0/20 million are 420 million (not 460), the CTMTQG of 40 million is shown apart, and the money is text",
+      "status": "passed",
+      "durationMs": 216,
+      "at": "2026-11-05T09:15:59.038Z",
+      "requests": [
+        {
+          "id": "422e0ca7-c878-4c81-9e3e-c912dd94a32e",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:15:58.923Z"
+        },
+        {
+          "id": "7a0febde-7c3d-43f7-83bc-436f10a6881d",
+          "method": "GET",
+          "path": "/reports/7fe10326-fbbc-4392-ab57-8b10c6b6c5d4",
+          "status": 200,
+          "at": "2026-11-05T09:15:58.977Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/golden.test.ts",
+      "name": "[CHỜ KÝ D03] golden fixtures FX-DIS-001..007 (ST-DIS-011) [CHỜ KÝ D03] AC-ST-DIS-011-2 / FX-DIS-001 / UAT-AC240: the six cells are 420 million and the CTMTQG of 40 million is apart, never added",
+      "status": "passed",
+      "durationMs": 1,
+      "at": "2026-11-05T09:24:00.403Z",
+      "requests": []
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/dis-report-flows.spec.ts",
+      "name": "a maker draws the draft of a project for an open week, enters FX-DIS-001, is refused a CTMTQG above its cell, and saves (AC-ST-DIS-003-1, AC-ST-DIS-003-2, UAT-AC240)",
+      "status": "passed",
+      "durationMs": 1535,
+      "at": "2026-11-05T08:46:39.958Z",
+      "requests": [
+        {
+          "id": "9e377453-611f-45cd-ad2c-1bb38919b762",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:40.595Z"
+        },
+        {
+          "id": "5c2eef33-eaf4-4b7a-bd0f-4f39d065a235",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:46:40.596Z"
+        },
+        {
+          "id": "d09ba52a-a508-44c5-b512-673b0241e49d",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:40.637Z"
+        },
+        {
+          "id": "f9804f1f-fc60-4a11-b87b-b47e8f6f0995",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:46:40.638Z"
+        },
+        {
+          "id": "fecc5fb2-e8ea-455a-931b-36bf403983c9",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:40.659Z"
+        },
+        {
+          "id": "0a49325a-3f22-4bf8-bc6a-e2f904f61d72",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T08:46:40.899Z"
+        },
+        {
+          "id": "7b7bee41-2213-40e7-92db-dfefabb3c259",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:46:40.926Z"
+        },
+        {
+          "id": "32063e8d-2663-45c5-a980-993bbdedc159",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:46:40.935Z"
+        },
+        {
+          "id": "493db736-17e3-491c-b20b-3f20183fee43",
+          "method": "GET",
+          "path": "/reports/6ff2006d-bf63-4093-a4ca-0c714f80818f",
+          "status": 200,
+          "at": "2026-11-05T08:46:40.992Z"
+        },
+        {
+          "id": "4207ed34-9aae-46d1-a644-39c891df4297",
+          "method": "POST",
+          "path": "/reports/6ff2006d-bf63-4093-a4ca-0c714f80818f/revisions",
+          "status": 200,
+          "at": "2026-11-05T08:46:41.460Z"
+        },
+        {
+          "id": "0a5064ce-a276-4966-95e4-be5504272f6e",
+          "method": "GET",
+          "path": "/reports/6ff2006d-bf63-4093-a4ca-0c714f80818f",
+          "status": 200,
+          "at": "2026-11-05T08:46:41.481Z"
+        }
+      ]
+    }
+  ]
+}

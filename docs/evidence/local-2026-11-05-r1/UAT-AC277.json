@@ -1,0 +1,313 @@
+{
+  "id": "UAT-AC277",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-succession.test.ts",
+      "name": "administrative succession commands and reads (ST-MDM-009) the district abolished and two communes merged (FX-MDM-001) reads the old structure before 2025-07-01 and the merged commune after it, over the API (AC-ST-MDM-009-1, UAT-AC277)",
+      "status": "passed",
+      "durationMs": 1476,
+      "at": "2026-11-05T09:19:28.494Z",
+      "requests": [
+        {
+          "id": "5b3f9c19-bef3-455b-a31d-cf7802da3280",
+          "method": "POST",
+          "path": "/master-records",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.016Z"
+        },
+        {
+          "id": "159367a1-a71e-460f-9478-fbfc276a3f23",
+          "method": "POST",
+          "path": "/master-change-requests/912a5656-f659-47a9-b4d1-8092132a5edb/submit",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.118Z"
+        },
+        {
+          "id": "c377ead5-1a18-40a3-8e77-a68b35798088",
+          "method": "POST",
+          "path": "/master-change-requests/912a5656-f659-47a9-b4d1-8092132a5edb/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.145Z"
+        },
+        {
+          "id": "399816c9-a6c9-42cf-b2da-98cdec0b5f4b",
+          "method": "POST",
+          "path": "/master-records/6ac4a934-cf35-43e7-ae1c-daafc6caf23f/publish",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.212Z"
+        },
+        {
+          "id": "7b2dff10-99e3-4507-ac3e-46167a3725f4",
+          "method": "POST",
+          "path": "/master-records",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.235Z"
+        },
+        {
+          "id": "d81b5d97-48c3-49f9-9fbe-6c5f0827a19e",
+          "method": "POST",
+          "path": "/master-change-requests/070e2fef-1e15-4bfa-9040-5a4704ad3c87/submit",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.299Z"
+        },
+        {
+          "id": "40ad7c83-2b2e-4372-ac5a-6a88ebbbca79",
+          "method": "POST",
+          "path": "/master-change-requests/070e2fef-1e15-4bfa-9040-5a4704ad3c87/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.333Z"
+        },
+        {
+          "id": "57f86021-83d7-4831-bd6c-05ca814bb3fb",
+          "method": "POST",
+          "path": "/master-records/452811f6-3627-4a80-97ce-865a8ed70132/publish",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.391Z"
+        },
+        {
+          "id": "3635246c-cff3-4eb7-aa2f-0606a2abf9f3",
+          "method": "POST",
+          "path": "/master-records",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.403Z"
+        },
+        {
+          "id": "7957049b-592f-43e5-aebb-d20e512f9e11",
+          "method": "POST",
+          "path": "/master-change-requests/29d114bf-d5f4-482d-8411-8f2f2cf32fa8/submit",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.458Z"
+        },
+        {
+          "id": "d87e9269-1ca7-414c-a1c6-859541842e09",
+          "method": "POST",
+          "path": "/master-change-requests/29d114bf-d5f4-482d-8411-8f2f2cf32fa8/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.494Z"
+        },
+        {
+          "id": "ca1d0b78-34ee-49a7-88a5-084092756f3f",
+          "method": "POST",
+          "path": "/master-records/a95b73fd-7e33-4513-ac36-afbacd3fdc21/publish",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.624Z"
+        },
+        {
+          "id": "400074e6-b980-4995-b261-e0634f3f18fb",
+          "method": "POST",
+          "path": "/master-records",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.646Z"
+        },
+        {
+          "id": "cbd21fd3-a292-4661-bc76-ba779537dc77",
+          "method": "POST",
+          "path": "/master-change-requests/7db9f01c-0ff1-43a6-9762-43066e5700e3/submit",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.697Z"
+        },
+        {
+          "id": "5ce61a2e-bcf0-4f4e-8de1-7dd1014e60a5",
+          "method": "POST",
+          "path": "/master-change-requests/7db9f01c-0ff1-43a6-9762-43066e5700e3/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.720Z"
+        },
+        {
+          "id": "7b9cb88a-efa6-4697-8f99-ccc14a413f03",
+          "method": "POST",
+          "path": "/master-records/63d7b648-6476-4b15-8252-c09e48e5a3cd/publish",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.776Z"
+        },
+        {
+          "id": "292718ff-3014-4fcf-97ad-95fd143267fd",
+          "method": "POST",
+          "path": "/master-records",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.787Z"
+        },
+        {
+          "id": "5b925375-7402-4a8d-a96c-49e21f58e7f4",
+          "method": "POST",
+          "path": "/master-change-requests/c54ac481-6702-405c-980d-22b66a57688f/submit",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.850Z"
+        },
+        {
+          "id": "e53aa16c-5181-46b5-ac66-b080701bd0f5",
+          "method": "POST",
+          "path": "/master-change-requests/c54ac481-6702-405c-980d-22b66a57688f/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.874Z"
+        },
+        {
+          "id": "53d2f354-3824-4a8a-bfa9-bd8bf019dff8",
+          "method": "POST",
+          "path": "/master-records/bf87d553-3fbf-431e-9c83-ed6889e413a4/publish",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.936Z"
+        },
+        {
+          "id": "7278af36-2bf7-4646-9396-94dd66e35e28",
+          "method": "POST",
+          "path": "/master-successions",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.948Z"
+        },
+        {
+          "id": "76afeec1-5dc8-4656-8047-8c45cf2bd0b2",
+          "method": "POST",
+          "path": "/master-change-requests/a9aa5b42-9a41-43e5-9ae0-4dcfb9029f9d/submit",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.966Z"
+        },
+        {
+          "id": "ccb0189a-2cc2-4b6c-a3ed-d310b5679e8e",
+          "method": "POST",
+          "path": "/master-change-requests/a9aa5b42-9a41-43e5-9ae0-4dcfb9029f9d/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:27.990Z"
+        },
+        {
+          "id": "9e805441-5301-4b80-bbb5-1868106b8706",
+          "method": "POST",
+          "path": "/master-records/a95b73fd-7e33-4513-ac36-afbacd3fdc21/publish",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.052Z"
+        },
+        {
+          "id": "f281182a-1165-4174-a6e9-650ab98037ea",
+          "method": "POST",
+          "path": "/master-successions",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.078Z"
+        },
+        {
+          "id": "f60b50a4-5812-45a9-b50b-302afda02b95",
+          "method": "POST",
+          "path": "/master-change-requests/7ee5ebe6-0c96-464f-a912-b17268916308/submit",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.101Z"
+        },
+        {
+          "id": "be0e4ffd-c61c-4215-b5f4-28cef9aff2f8",
+          "method": "POST",
+          "path": "/master-change-requests/7ee5ebe6-0c96-464f-a912-b17268916308/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.132Z"
+        },
+        {
+          "id": "300fbee0-a38e-4282-99e7-5d3b7056e3d8",
+          "method": "POST",
+          "path": "/master-records/63d7b648-6476-4b15-8252-c09e48e5a3cd/publish",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.196Z"
+        },
+        {
+          "id": "09d51994-85e3-4013-b727-8ddff5e5f1a7",
+          "method": "POST",
+          "path": "/master-successions",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.224Z"
+        },
+        {
+          "id": "a328a4c4-f5e6-42b4-a5c9-5ae783a06298",
+          "method": "POST",
+          "path": "/master-change-requests/323ad9b0-a414-45de-bf04-9705c4302d49/submit",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.247Z"
+        },
+        {
+          "id": "f800b2a6-9539-4be8-9901-3d2df1fd1fa2",
+          "method": "POST",
+          "path": "/master-change-requests/323ad9b0-a414-45de-bf04-9705c4302d49/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.288Z"
+        },
+        {
+          "id": "fffa3b85-a866-4f1a-87de-f835a2ddcc6f",
+          "method": "POST",
+          "path": "/master-records/6ac4a934-cf35-43e7-ae1c-daafc6caf23f/publish",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.336Z"
+        },
+        {
+          "id": "078cb065-9b3d-413a-870c-b493144e7cac",
+          "method": "GET",
+          "path": "/master-records/6ac4a934-cf35-43e7-ae1c-daafc6caf23f/as-of",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.352Z"
+        },
+        {
+          "id": "317e0469-ff22-451c-a6da-d8610af2763b",
+          "method": "GET",
+          "path": "/master-records/a95b73fd-7e33-4513-ac36-afbacd3fdc21/as-of",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.362Z"
+        },
+        {
+          "id": "9c2098f9-3d30-45f0-918b-9d02fbaea5b1",
+          "method": "GET",
+          "path": "/master-records/63d7b648-6476-4b15-8252-c09e48e5a3cd/as-of",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.376Z"
+        },
+        {
+          "id": "4f999ab6-3391-456e-bf59-45051f0cafb6",
+          "method": "GET",
+          "path": "/master-records/a95b73fd-7e33-4513-ac36-afbacd3fdc21/as-of",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.392Z"
+        },
+        {
+          "id": "a4206637-b89e-405a-870b-93a7b0d79bf0",
+          "method": "GET",
+          "path": "/master-records/bf87d553-3fbf-431e-9c83-ed6889e413a4/as-of",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.408Z"
+        },
+        {
+          "id": "57f9d7d8-915c-4b1b-8e0e-2faac62c8143",
+          "method": "GET",
+          "path": "/master-records/bf87d553-3fbf-431e-9c83-ed6889e413a4/as-of",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.423Z"
+        },
+        {
+          "id": "24771725-a885-496b-8c2c-421ebeac7c48",
+          "method": "GET",
+          "path": "/master-records/a95b73fd-7e33-4513-ac36-afbacd3fdc21/successors",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.440Z"
+        },
+        {
+          "id": "1c28b17f-6be5-4bec-8e55-dfe78bb715af",
+          "method": "GET",
+          "path": "/master-records/a95b73fd-7e33-4513-ac36-afbacd3fdc21/successors",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.454Z"
+        },
+        {
+          "id": "32247a53-6e32-424c-8528-c84a0c97b420",
+          "method": "GET",
+          "path": "/master-records/a95b73fd-7e33-4513-ac36-afbacd3fdc21/successors",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.470Z"
+        },
+        {
+          "id": "04ee3422-e541-48af-8be3-7ab0259d2798",
+          "method": "GET",
+          "path": "/master-records/a95b73fd-7e33-4513-ac36-afbacd3fdc21/as-of",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.485Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "id": "UAT-AC109",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/guest-contract-closed.test.ts",
+      "name": "guest access follows the contract (AC-ST-ADM-007-2) AC-ST-ADM-007-2 / UAT-AC109: expires the grants of a guest when their contract closes, ends the guest with their sessions, and tells the access to be judged again",
+      "status": "passed",
+      "durationMs": 665,
+      "at": "2026-11-05T09:23:39.448Z",
+      "requests": []
+    }
+  ]
+}

@@ -1,0 +1,224 @@
+{
+  "id": "UAT-AC375",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pmt/permit-dossier.test.ts",
+      "name": "permit dossier commands (ST-PMT-002) addPermit adds an optional permit written under the type version in force, and refuses a second of the type (UAT-AC375, AC-ST-PMT-002-1)",
+      "status": "passed",
+      "durationMs": 244,
+      "at": "2026-11-05T09:18:56.113Z",
+      "requests": [
+        {
+          "id": "f7e7f7e0-306b-4341-8d3d-882a2347af25",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-0094-000000000069/permit-dossiers",
+          "status": 200,
+          "at": "2026-11-05T09:18:55.907Z"
+        },
+        {
+          "id": "8818d2c7-ec3b-4120-9bed-3af955fc1819",
+          "method": "POST",
+          "path": "/permit-dossiers/269153ec-49fc-4c10-aaa5-6efd93db1360/permits",
+          "status": 200,
+          "at": "2026-11-05T09:18:55.926Z"
+        },
+        {
+          "id": "c3300905-432a-43f0-a902-52762d563599",
+          "method": "POST",
+          "path": "/permit-dossiers/269153ec-49fc-4c10-aaa5-6efd93db1360/permits",
+          "status": 409,
+          "at": "2026-11-05T09:18:56.078Z"
+        },
+        {
+          "id": "5fecf7d1-e7e0-40ce-b14b-0f97b40d0128",
+          "method": "POST",
+          "path": "/permit-dossiers/269153ec-49fc-4c10-aaa5-6efd93db1360/permits",
+          "status": 409,
+          "at": "2026-11-05T09:18:56.103Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pmt/permit-dossier.test.ts",
+      "name": "permit dossier commands (ST-PMT-002) the milestones and the decision issues a permit with its number, days and scan; the permit keeps the type version; the issue is audited and announced (UAT-AC375, AC-ST-PMT-002-1)",
+      "status": "passed",
+      "durationMs": 468,
+      "at": "2026-11-05T09:18:57.447Z",
+      "requests": [
+        {
+          "id": "856fcf4b-dc27-498b-a04c-85de521ae7d3",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-0094-00000000006d/permit-dossiers",
+          "status": 200,
+          "at": "2026-11-05T09:18:57.036Z"
+        },
+        {
+          "id": "57526a5c-60fb-425b-82cc-ff65cc974061",
+          "method": "POST",
+          "path": "/permits/7fa999eb-32c2-4b41-a3b0-78a523e0f4ee/milestones",
+          "status": 200,
+          "at": "2026-11-05T09:18:57.122Z"
+        },
+        {
+          "id": "6d329fcd-6748-4c68-9074-ccf592f0f353",
+          "method": "POST",
+          "path": "/permits/7fa999eb-32c2-4b41-a3b0-78a523e0f4ee/milestones",
+          "status": 200,
+          "at": "2026-11-05T09:18:57.146Z"
+        },
+        {
+          "id": "ce6b64e1-df7a-496e-a667-87c57012cbca",
+          "method": "POST",
+          "path": "/permits/7fa999eb-32c2-4b41-a3b0-78a523e0f4ee/decision",
+          "status": 200,
+          "at": "2026-11-05T09:18:57.176Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pmt/permit-dossier.test.ts",
+      "name": "permit dossier commands (ST-PMT-002) the milestones and the decision refuses a number the type already uses, in the same tenant, with 409 PERMIT_NO_DUPLICATE, and allows it for another type (UAT-AC375, AC-ST-PMT-002-1)",
+      "status": "passed",
+      "durationMs": 520,
+      "at": "2026-11-05T09:18:58.339Z",
+      "requests": [
+        {
+          "id": "5045ed9a-dfaf-4403-968c-d0f7b95ee745",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-0094-00000000006f/permit-dossiers",
+          "status": 200,
+          "at": "2026-11-05T09:18:57.876Z"
+        },
+        {
+          "id": "85a3e2e7-a05e-4795-b92b-e134c6b81c47",
+          "method": "POST",
+          "path": "/permits/2c9eb1cb-0fe5-4ee1-bb60-90ab60d87c20/milestones",
+          "status": 200,
+          "at": "2026-11-05T09:18:57.962Z"
+        },
+        {
+          "id": "11d2b2ac-04de-4d42-9b71-9de29e1923fb",
+          "method": "POST",
+          "path": "/permits/2c9eb1cb-0fe5-4ee1-bb60-90ab60d87c20/milestones",
+          "status": 200,
+          "at": "2026-11-05T09:18:57.987Z"
+        },
+        {
+          "id": "1efe05af-b032-4b58-8c26-0f96791e0252",
+          "method": "POST",
+          "path": "/permits/2c9eb1cb-0fe5-4ee1-bb60-90ab60d87c20/decision",
+          "status": 200,
+          "at": "2026-11-05T09:18:58.001Z"
+        },
+        {
+          "id": "5724a256-1871-4037-bbeb-88eb770c2b12",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-0094-000000000070/permit-dossiers",
+          "status": 200,
+          "at": "2026-11-05T09:18:58.159Z"
+        },
+        {
+          "id": "24d03c50-9287-460d-ae1d-2691137a4ee5",
+          "method": "POST",
+          "path": "/permits/f85b93c0-ff21-4424-a338-72e813c0a1e8/milestones",
+          "status": 200,
+          "at": "2026-11-05T09:18:58.214Z"
+        },
+        {
+          "id": "a0468d30-7977-4428-b4d1-2088e96660c1",
+          "method": "POST",
+          "path": "/permits/f85b93c0-ff21-4424-a338-72e813c0a1e8/milestones",
+          "status": 200,
+          "at": "2026-11-05T09:18:58.240Z"
+        },
+        {
+          "id": "94f71499-a3e8-482c-b8ed-e8c75b1a984e",
+          "method": "POST",
+          "path": "/permits/f85b93c0-ff21-4424-a338-72e813c0a1e8/decision",
+          "status": 409,
+          "at": "2026-11-05T09:18:58.258Z"
+        },
+        {
+          "id": "5eb8c280-6b24-4987-a89b-cefbeefcc63f",
+          "method": "POST",
+          "path": "/permit-dossiers/7d8c4836-8bc8-4915-ae42-cddac024a35e/permits",
+          "status": 200,
+          "at": "2026-11-05T09:18:58.270Z"
+        },
+        {
+          "id": "9fe3d7c3-5b9f-4b3d-9f18-991dd91f44e5",
+          "method": "POST",
+          "path": "/permits/eee44785-0600-49f4-87a1-7e19b319ff40/milestones",
+          "status": 200,
+          "at": "2026-11-05T09:18:58.286Z"
+        },
+        {
+          "id": "e476bd0c-6912-43c9-95ea-c560324d942b",
+          "method": "POST",
+          "path": "/permits/eee44785-0600-49f4-87a1-7e19b319ff40/milestones",
+          "status": 200,
+          "at": "2026-11-05T09:18:58.305Z"
+        },
+        {
+          "id": "f9e2a6e7-debb-4716-b7b4-90ed5a407ad7",
+          "method": "POST",
+          "path": "/permits/eee44785-0600-49f4-87a1-7e19b319ff40/decision",
+          "status": 200,
+          "at": "2026-11-05T09:18:58.318Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pmt/permit-dossier.test.ts",
+      "name": "permit dossier commands (ST-PMT-002) the milestones and the decision refuses a second current permit of a type in the dossier with 409 PERMIT_ALREADY_CURRENT (UAT-AC375, AC-ST-PMT-002-1)",
+      "status": "passed",
+      "durationMs": 229,
+      "at": "2026-11-05T09:18:58.569Z",
+      "requests": [
+        {
+          "id": "fa025831-8be3-47fa-99d7-7fca57bd860e",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-0094-000000000071/permit-dossiers",
+          "status": 200,
+          "at": "2026-11-05T09:18:58.383Z"
+        },
+        {
+          "id": "ec589529-6aa8-430b-a8f6-387df1c91536",
+          "method": "POST",
+          "path": "/permits/f4fcbe96-eec8-4b76-8d76-b2a7ad1ceba4/milestones",
+          "status": 200,
+          "at": "2026-11-05T09:18:58.448Z"
+        },
+        {
+          "id": "ff64614f-efd0-45d0-86aa-af18bdf16b73",
+          "method": "POST",
+          "path": "/permits/f4fcbe96-eec8-4b76-8d76-b2a7ad1ceba4/milestones",
+          "status": 200,
+          "at": "2026-11-05T09:18:58.462Z"
+        },
+        {
+          "id": "9f1f9cdb-1191-43ad-93ae-fac7a5065e8b",
+          "method": "POST",
+          "path": "/permits/f4fcbe96-eec8-4b76-8d76-b2a7ad1ceba4/decision",
+          "status": 200,
+          "at": "2026-11-05T09:18:58.478Z"
+        },
+        {
+          "id": "558cc21a-7fd5-4804-bd84-516a3ad41060",
+          "method": "POST",
+          "path": "/permit-dossiers/6069ee61-8e14-4858-8f31-174b7f157051/permits",
+          "status": 409,
+          "at": "2026-11-05T09:18:58.492Z"
+        }
+      ]
+    }
+  ]
+}

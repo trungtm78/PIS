@@ -1,0 +1,345 @@
+{
+  "id": "UAT-AC230",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/fiscal-year.test.ts",
+      "name": "the closing, the lapse and the reopening of a fiscal year over HTTP (ST-CAP-008) closeFiscalYear soft-closes a year: the adjustment period, with the audit row and the event; the plan commands of the year are refused with the state (UAT-AC230)",
+      "status": "passed",
+      "durationMs": 226,
+      "at": "2026-11-05T09:22:26.371Z",
+      "requests": [
+        {
+          "id": "2333cc65-2500-45b0-b799-572e7e04f0e6",
+          "method": "POST",
+          "path": "/fiscal-years/2088/close",
+          "status": 200,
+          "at": "2026-11-05T09:22:26.145Z"
+        },
+        {
+          "id": "4d584bcd-bec1-46bf-800e-1be2fc86a474",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 409,
+          "at": "2026-11-05T09:22:26.268Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/fiscal-year.test.ts",
+      "name": "the closing, the lapse and the reopening of a fiscal year over HTTP (ST-CAP-008) closeFiscalYear locks a year: what was not carried over lapses, the line gives up the capital and the event says how much (UAT-AC230)",
+      "status": "passed",
+      "durationMs": 693,
+      "at": "2026-11-05T09:22:27.063Z",
+      "requests": [
+        {
+          "id": "78e767b7-18e1-484a-b602-d3051f362ac1",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:22:26.561Z"
+        },
+        {
+          "id": "73c1342a-6ade-4813-93cc-ecbf79abc9aa",
+          "method": "POST",
+          "path": "/capital-plans/96ccbfb6-bd9b-40d6-89f9-c948e1b166ce/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:22:26.576Z"
+        },
+        {
+          "id": "5958bf02-f8f6-4f23-b8df-6d39375a1738",
+          "method": "POST",
+          "path": "/capital-plans/96ccbfb6-bd9b-40d6-89f9-c948e1b166ce/submit",
+          "status": 200,
+          "at": "2026-11-05T09:22:26.600Z"
+        },
+        {
+          "id": "d67325eb-7654-4129-9bfc-592e6e41e32d",
+          "method": "POST",
+          "path": "/capital-plans/96ccbfb6-bd9b-40d6-89f9-c948e1b166ce/decision",
+          "status": 200,
+          "at": "2026-11-05T09:22:26.630Z"
+        },
+        {
+          "id": "4d7c7756-1274-4ea4-b47d-7445f2ed7515",
+          "method": "POST",
+          "path": "/plans/96ccbfb6-bd9b-40d6-89f9-c948e1b166ce/publish",
+          "status": 200,
+          "at": "2026-11-05T09:22:26.699Z"
+        },
+        {
+          "id": "5c01b35c-7652-48ec-bc4f-0fc0a478c7eb",
+          "method": "POST",
+          "path": "/fiscal-years/2086/close",
+          "status": 200,
+          "at": "2026-11-05T09:22:26.874Z"
+        },
+        {
+          "id": "e654e135-0006-4230-8aa2-7b6b884acfb7",
+          "method": "GET",
+          "path": "/capital/availability",
+          "status": 200,
+          "at": "2026-11-05T09:22:26.990Z"
+        },
+        {
+          "id": "396d4234-2c05-4538-bb84-f758640100fb",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 409,
+          "at": "2026-11-05T09:22:27.057Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/fiscal-year.test.ts",
+      "name": "the closing, the lapse and the reopening of a fiscal year over HTTP (ST-CAP-008) reopenFiscalYear (AC-ST-CAP-008-1, UAT-AC230) refuses the person who locked the year with 403 SELF_APPROVAL_DENIED; another officer reopens it for the window and the plan commands are allowed again",
+      "status": "passed",
+      "durationMs": 266,
+      "at": "2026-11-05T09:22:28.624Z",
+      "requests": [
+        {
+          "id": "454e6ff9-61f7-4911-9d66-83806fe89728",
+          "method": "POST",
+          "path": "/fiscal-years/2078/close",
+          "status": 200,
+          "at": "2026-11-05T09:22:28.359Z"
+        },
+        {
+          "id": "55d186c4-2fb8-4573-8bde-5c80d0fa1f87",
+          "method": "POST",
+          "path": "/fiscal-years/2078/reopen",
+          "status": 403,
+          "at": "2026-11-05T09:22:28.385Z"
+        },
+        {
+          "id": "152b4cff-5229-497a-8cae-75d54036a0a7",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 409,
+          "at": "2026-11-05T09:22:28.440Z"
+        },
+        {
+          "id": "006d2b53-b190-416c-84f6-0317876b1cdf",
+          "method": "POST",
+          "path": "/fiscal-years/2078/reopen",
+          "status": 200,
+          "at": "2026-11-05T09:22:28.460Z"
+        },
+        {
+          "id": "12e4500f-dc57-4167-951f-cda59883e64a",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:22:28.518Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/fiscal-year.test.ts",
+      "name": "the closing, the lapse and the reopening of a fiscal year over HTTP (ST-CAP-008) reopenFiscalYear (AC-ST-CAP-008-1, UAT-AC230) is locked again by the job when the window ends, and a year that is locked again lapses what came back",
+      "status": "passed",
+      "durationMs": 763,
+      "at": "2026-11-05T09:22:29.388Z",
+      "requests": [
+        {
+          "id": "149ad872-faa6-4509-ae78-8aba6787b2ef",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:22:28.816Z"
+        },
+        {
+          "id": "5d903408-dc4b-4ae5-b6b9-f5e581272ed6",
+          "method": "POST",
+          "path": "/capital-plans/bf03b628-cbb0-4235-999a-f9f233af8557/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:22:28.828Z"
+        },
+        {
+          "id": "00ff7161-9be0-4351-9291-c6f536f0b283",
+          "method": "POST",
+          "path": "/capital-plans/bf03b628-cbb0-4235-999a-f9f233af8557/submit",
+          "status": 200,
+          "at": "2026-11-05T09:22:28.855Z"
+        },
+        {
+          "id": "29df0e03-8298-46e4-93ef-e1e1f266fb18",
+          "method": "POST",
+          "path": "/capital-plans/bf03b628-cbb0-4235-999a-f9f233af8557/decision",
+          "status": 200,
+          "at": "2026-11-05T09:22:28.881Z"
+        },
+        {
+          "id": "1e6b1cc6-3dde-4ac2-89e9-709c9495e41a",
+          "method": "POST",
+          "path": "/plans/bf03b628-cbb0-4235-999a-f9f233af8557/publish",
+          "status": 200,
+          "at": "2026-11-05T09:22:28.945Z"
+        },
+        {
+          "id": "2a0e8611-2596-4177-8124-93c82c2b86cb",
+          "method": "POST",
+          "path": "/fiscal-years/2076/close",
+          "status": 200,
+          "at": "2026-11-05T09:22:29.168Z"
+        },
+        {
+          "id": "3e8aeff9-a40e-485d-9c69-b8aad155534b",
+          "method": "POST",
+          "path": "/fiscal-years/2076/reopen",
+          "status": 200,
+          "at": "2026-11-05T09:22:29.198Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/fiscal-year.test.ts",
+      "name": "the closing, the lapse and the reopening of a fiscal year over HTTP (ST-CAP-008) reopenFiscalYear (AC-ST-CAP-008-1, UAT-AC230) answers 422 REOPEN_REASON_REQUIRED to a short reason, 422 to a window outside a week, 409 to a year that is not locked and 403 to a member without the right",
+      "status": "passed",
+      "durationMs": 106,
+      "at": "2026-11-05T09:22:29.493Z",
+      "requests": [
+        {
+          "id": "e7a17ca9-fb9a-4cd6-a8cb-2a9aec664b59",
+          "method": "POST",
+          "path": "/fiscal-years/2074/close",
+          "status": 200,
+          "at": "2026-11-05T09:22:29.389Z"
+        },
+        {
+          "id": "c9ccccf7-f3d1-4dbd-a5cf-1330c9c695c8",
+          "method": "POST",
+          "path": "/fiscal-years/2074/reopen",
+          "status": 422,
+          "at": "2026-11-05T09:22:29.406Z"
+        },
+        {
+          "id": "a86941f4-a56d-4157-93a7-383b57869bcc",
+          "method": "POST",
+          "path": "/fiscal-years/2074/reopen",
+          "status": 422,
+          "at": "2026-11-05T09:22:29.416Z"
+        },
+        {
+          "id": "82a6ad1c-8900-44b4-a1b3-cad089b87412",
+          "method": "POST",
+          "path": "/fiscal-years/2074/reopen",
+          "status": 422,
+          "at": "2026-11-05T09:22:29.429Z"
+        },
+        {
+          "id": "f3929417-86f3-457d-b947-304247d9db8f",
+          "method": "POST",
+          "path": "/fiscal-years/2074/reopen",
+          "status": 403,
+          "at": "2026-11-05T09:22:29.444Z"
+        },
+        {
+          "id": "7ab1d497-ee7e-449a-acb4-1ad6b8699341",
+          "method": "POST",
+          "path": "/fiscal-years/2074/reopen",
+          "status": 409,
+          "at": "2026-11-05T09:22:29.461Z"
+        },
+        {
+          "id": "779fa434-2364-4e14-8dee-8247878b55da",
+          "method": "POST",
+          "path": "/fiscal-years/2074/reopen",
+          "status": 200,
+          "at": "2026-11-05T09:22:29.480Z"
+        },
+        {
+          "id": "630ed3a1-e8ca-4847-aea8-511a930e1063",
+          "method": "POST",
+          "path": "/fiscal-years/2074/reopen",
+          "status": 409,
+          "at": "2026-11-05T09:22:29.488Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/cap-plan-flows.spec.ts",
+      "name": "a year that is locked turns every write off (UAT-AC230)",
+      "status": "passed",
+      "durationMs": 1082,
+      "at": "2026-11-05T08:45:24.203Z",
+      "requests": [
+        {
+          "id": "8941d2f9-ca26-41e7-b7c9-ce29977c3cfe",
+          "method": "GET",
+          "path": "/resources/plan_version",
+          "status": 200,
+          "at": "2026-11-05T08:45:25.006Z"
+        },
+        {
+          "id": "6ea94ca7-9a89-40f9-ab9f-501d4bdb308d",
+          "method": "GET",
+          "path": "/capital-plans/e024dded-21b4-4ed6-a244-9d65a4ed3190/lines",
+          "status": 200,
+          "at": "2026-11-05T08:45:25.055Z"
+        },
+        {
+          "id": "f69dd9ea-a67f-405d-b300-4dfe9d0f76b9",
+          "method": "POST",
+          "path": "/capital-plans/e024dded-21b4-4ed6-a244-9d65a4ed3190/allocations",
+          "status": 409,
+          "at": "2026-11-05T08:45:25.216Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/cap-year-flows.spec.ts",
+      "name": "the officer soft-closes the year and locks it: the capital that was not carried over lapses and the year shows the red banner (AC-ST-CAP-008-1, UAT-AC230)",
+      "status": "passed",
+      "durationMs": 1231,
+      "at": "2026-11-05T08:45:40.659Z",
+      "requests": [
+        {
+          "id": "bb6448d8-aecc-4883-b98b-a602721a41cc",
+          "method": "GET",
+          "path": "/fiscal-years",
+          "status": 200,
+          "at": "2026-11-05T08:45:41.401Z"
+        },
+        {
+          "id": "4d0c7f9e-02f6-4bab-ba04-0f3a21145c9a",
+          "method": "POST",
+          "path": "/fiscal-years/2071/close",
+          "status": 200,
+          "at": "2026-11-05T08:45:41.553Z"
+        },
+        {
+          "id": "43917a89-41f0-465b-97e5-9e666124183d",
+          "method": "GET",
+          "path": "/fiscal-years",
+          "status": 200,
+          "at": "2026-11-05T08:45:41.569Z"
+        },
+        {
+          "id": "8da82118-1ac8-4c9e-81cb-fe277767364f",
+          "method": "POST",
+          "path": "/fiscal-years/2071/close",
+          "status": 200,
+          "at": "2026-11-05T08:45:41.719Z"
+        },
+        {
+          "id": "d7b900a2-e2b1-4678-8e6b-6ffbef8ad866",
+          "method": "GET",
+          "path": "/fiscal-years",
+          "status": 200,
+          "at": "2026-11-05T08:45:41.742Z"
+        }
+      ]
+    }
+  ]
+}

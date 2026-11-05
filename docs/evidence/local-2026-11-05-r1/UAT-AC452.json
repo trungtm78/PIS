@@ -1,0 +1,238 @@
+{
+  "id": "UAT-AC452",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/clarification.test.ts",
+      "name": "the clarification requests to contractors over HTTP (ST-BID-011) recordClarificationAnswer (AC-ST-BID-011-1, UAT-AC452) AC-ST-BID-011-1, UAT-AC452: NT-2 gets 404 for reading and answering; NT-1 answers in time and it is ANSWERED with the document; the second answer after the deadline is 409 CLARIFICATION_EXPIRED and nothing changes",
+      "status": "passed",
+      "durationMs": 1094,
+      "at": "2026-11-05T09:17:49.386Z",
+      "requests": [
+        {
+          "id": "5e64ff41-c978-4546-848a-cc5bf1a9ac35",
+          "method": "POST",
+          "path": "/procurement-packages/69c6fd07-5132-4687-bdab-6825e1bd0391/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:17:48.341Z"
+        },
+        {
+          "id": "0da6c459-ff1a-4949-9d9c-e3a177ef6c1b",
+          "method": "POST",
+          "path": "/bid-clarifications",
+          "status": 200,
+          "at": "2026-11-05T09:17:48.681Z"
+        },
+        {
+          "id": "e3eab121-e1e2-4435-8c81-54c812e05827",
+          "method": "GET",
+          "path": "/bid-clarifications/123946a4-5947-4837-90d7-d267f2688345",
+          "status": 404,
+          "at": "2026-11-05T09:17:48.706Z"
+        },
+        {
+          "id": "67b713a6-53d7-483f-9f50-82a21b9e6dca",
+          "method": "POST",
+          "path": "/bid-clarifications/123946a4-5947-4837-90d7-d267f2688345/answer",
+          "status": 404,
+          "at": "2026-11-05T09:17:48.763Z"
+        },
+        {
+          "id": "f65cd88f-bac4-4be0-8e4a-e9ecc4d9db43",
+          "method": "GET",
+          "path": "/bid-clarifications",
+          "status": 200,
+          "at": "2026-11-05T09:17:48.784Z"
+        },
+        {
+          "id": "5aa9ddf5-eb29-48c7-95a5-4d73d2ecd2ae",
+          "method": "POST",
+          "path": "/bid-clarifications/123946a4-5947-4837-90d7-d267f2688345/answer",
+          "status": 200,
+          "at": "2026-11-05T09:17:48.918Z"
+        },
+        {
+          "id": "23c5ac40-6d05-45df-b898-2f919f828432",
+          "method": "POST",
+          "path": "/bid-clarifications/123946a4-5947-4837-90d7-d267f2688345/answer",
+          "status": 200,
+          "at": "2026-11-05T09:17:48.987Z"
+        },
+        {
+          "id": "2c87931d-649b-471b-b115-31392dff3ad2",
+          "method": "POST",
+          "path": "/bid-clarifications/123946a4-5947-4837-90d7-d267f2688345/answer",
+          "status": 409,
+          "at": "2026-11-05T09:17:49.198Z"
+        },
+        {
+          "id": "655bf012-9f1f-4914-b8c5-d26c57a9dcd9",
+          "method": "POST",
+          "path": "/bid-clarifications/123946a4-5947-4837-90d7-d267f2688345/answer",
+          "status": 409,
+          "at": "2026-11-05T09:17:49.251Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/clarification.test.ts",
+      "name": "the clarification requests to contractors over HTTP (ST-BID-011) recordClarificationAnswer (AC-ST-BID-011-1, UAT-AC452) is refused for a request that does not wait for an answer or a version that is not the current one, and needs the version of the request and a key",
+      "status": "passed",
+      "durationMs": 815,
+      "at": "2026-11-05T09:17:50.201Z",
+      "requests": [
+        {
+          "id": "2d5580fe-6239-4c80-ac1c-fb3b92f8eaca",
+          "method": "POST",
+          "path": "/procurement-packages/f03efd75-3a64-4644-8b32-37c4009289ec/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:17:49.442Z"
+        },
+        {
+          "id": "2866cdc3-eb09-4723-a067-240b81809172",
+          "method": "POST",
+          "path": "/bid-clarifications",
+          "status": 200,
+          "at": "2026-11-05T09:17:49.768Z"
+        },
+        {
+          "id": "82987991-62f8-4e81-86e6-f87cef8efee7",
+          "method": "POST",
+          "path": "/bid-clarifications/a9f49f10-f74c-4185-a22b-bf26285a90fe/answer",
+          "status": 428,
+          "at": "2026-11-05T09:17:49.828Z"
+        },
+        {
+          "id": "3f9e5c49-0418-406b-a886-80dc4586ff6a",
+          "method": "POST",
+          "path": "/bid-clarifications/a9f49f10-f74c-4185-a22b-bf26285a90fe/answer",
+          "status": 409,
+          "at": "2026-11-05T09:17:49.883Z"
+        },
+        {
+          "id": "2b5aba90-182b-46e8-9ff1-d6ce9290bee5",
+          "method": "POST",
+          "path": "/bid-clarifications/a9f49f10-f74c-4185-a22b-bf26285a90fe/answer",
+          "status": 200,
+          "at": "2026-11-05T09:17:49.992Z"
+        },
+        {
+          "id": "762e7336-1a40-4bcb-a6cf-428ad7bb60d2",
+          "method": "POST",
+          "path": "/bid-clarifications/a9f49f10-f74c-4185-a22b-bf26285a90fe/answer",
+          "status": 409,
+          "at": "2026-11-05T09:17:50.055Z"
+        },
+        {
+          "id": "2e70e4b0-aa1d-4444-908f-b352c6ce13aa",
+          "method": "POST",
+          "path": "/bid-clarifications/a9f49f10-f74c-4185-a22b-bf26285a90fe/answer",
+          "status": 400,
+          "at": "2026-11-05T09:17:50.116Z"
+        },
+        {
+          "id": "56d42287-08d8-4979-8492-91725e2bddaf",
+          "method": "POST",
+          "path": "/bid-clarifications/a9f49f10-f74c-4185-a22b-bf26285a90fe/answer",
+          "status": 422,
+          "at": "2026-11-05T09:17:50.182Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/clarification.test.ts",
+      "name": "the clarification requests to contractors over HTTP (ST-BID-011) recordClarificationAnswer (AC-ST-BID-011-1, UAT-AC452) lets the clerk who took the letter record the answer over the project, as staff, and not one whose scope lies elsewhere",
+      "status": "passed",
+      "durationMs": 777,
+      "at": "2026-11-05T09:17:50.978Z",
+      "requests": [
+        {
+          "id": "e2a99253-574f-438b-9bd8-4ebb16d36cec",
+          "method": "POST",
+          "path": "/procurement-packages/ac3ce8c8-9dea-4f52-b9b1-23cd6781cf6e/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:17:50.244Z"
+        },
+        {
+          "id": "79aab07c-76fb-496e-a2ab-6ba97f68183b",
+          "method": "POST",
+          "path": "/bid-clarifications",
+          "status": 200,
+          "at": "2026-11-05T09:17:50.617Z"
+        },
+        {
+          "id": "8f512eb3-d733-4a82-82c0-71fb1c25e0a6",
+          "method": "POST",
+          "path": "/bid-clarifications/c23c112c-2ab3-4f57-bfba-e5d81ef6e5ab/answer",
+          "status": 404,
+          "at": "2026-11-05T09:17:50.676Z"
+        },
+        {
+          "id": "ff1c1eed-d5a0-4804-85bb-29a73c6ad5b9",
+          "method": "POST",
+          "path": "/bid-clarifications/c23c112c-2ab3-4f57-bfba-e5d81ef6e5ab/answer",
+          "status": 403,
+          "at": "2026-11-05T09:17:50.741Z"
+        },
+        {
+          "id": "94f17b93-704b-4a25-9109-0f50aedbf320",
+          "method": "POST",
+          "path": "/bid-clarifications/c23c112c-2ab3-4f57-bfba-e5d81ef6e5ab/answer",
+          "status": 403,
+          "at": "2026-11-05T09:17:50.796Z"
+        },
+        {
+          "id": "69a6d2e0-ca87-4b06-9b20-705a445fa47a",
+          "method": "POST",
+          "path": "/bid-clarifications/c23c112c-2ab3-4f57-bfba-e5d81ef6e5ab/answer",
+          "status": 200,
+          "at": "2026-11-05T09:17:50.845Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/clarification.test.ts",
+      "name": "the clarification requests to contractors over HTTP (ST-BID-011) recordClarificationAnswer (AC-ST-BID-011-1, UAT-AC452) does not take the answer of another tenant for a request here, and the letter of the request is not an answer",
+      "status": "passed",
+      "durationMs": 754,
+      "at": "2026-11-05T09:17:51.732Z",
+      "requests": [
+        {
+          "id": "51cb0655-fb2a-4a97-bbd0-9b57358b62db",
+          "method": "POST",
+          "path": "/procurement-packages/09e1c5d5-f507-4f5f-9db5-0feecdc96851/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:17:51.020Z"
+        },
+        {
+          "id": "45a4514e-415c-454b-9ea2-6e5c6e08afd7",
+          "method": "POST",
+          "path": "/bid-clarifications",
+          "status": 200,
+          "at": "2026-11-05T09:17:51.472Z"
+        },
+        {
+          "id": "5d84bb7b-0c3d-48dc-ae6a-7e1d702cfeaf",
+          "method": "POST",
+          "path": "/bid-clarifications/814d0dbe-4a7e-420a-8bbe-84f0417499ee/answer",
+          "status": 403,
+          "at": "2026-11-05T09:17:51.536Z"
+        },
+        {
+          "id": "dde97ce0-31d7-4732-b01a-827595bf328d",
+          "method": "POST",
+          "path": "/bid-clarifications/814d0dbe-4a7e-420a-8bbe-84f0417499ee/answer",
+          "status": 422,
+          "at": "2026-11-05T09:17:51.674Z"
+        }
+      ]
+    }
+  ]
+}

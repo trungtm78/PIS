@@ -1,0 +1,71 @@
+{
+  "id": "UAT-AC302",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contract-lifecycle.test.ts",
+      "name": "the life of a contract over HTTP (ST-CTR-004, ST-CTR-005) activateContract AC-ST-CTR-004-2, UAT-AC302: judges the guarantee, then the permits, then the funds; each refusal leaves the contract SIGNED; the last one posts one commitment and one pair of events",
+      "status": "passed",
+      "durationMs": 2094,
+      "at": "2026-11-05T09:11:25.967Z",
+      "requests": [
+        {
+          "id": "22f015c8-c29a-40b0-bf8f-a4f8e49a4b1e",
+          "method": "POST",
+          "path": "/contracts/ee868cea-e040-46c4-ade6-78e38bf92198/activate",
+          "status": 422,
+          "at": "2026-11-05T09:11:25.086Z"
+        },
+        {
+          "id": "9a495290-8d97-4b25-867c-f3eef6a5b270",
+          "method": "POST",
+          "path": "/contracts/ee868cea-e040-46c4-ade6-78e38bf92198/activate",
+          "status": 409,
+          "at": "2026-11-05T09:11:25.270Z"
+        },
+        {
+          "id": "9f6c97e4-d0bf-4770-9c93-1e7041b29ca6",
+          "method": "POST",
+          "path": "/contracts/ee868cea-e040-46c4-ade6-78e38bf92198/activate",
+          "status": 422,
+          "at": "2026-11-05T09:11:25.349Z"
+        },
+        {
+          "id": "8fb97f40-f81a-45cd-9d94-4ed1db1aeb27",
+          "method": "POST",
+          "path": "/contracts/ee868cea-e040-46c4-ade6-78e38bf92198/activate",
+          "status": 200,
+          "at": "2026-11-05T09:11:25.564Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/ctr-lifecycle-flows.spec.ts",
+      "name": "the activation is refused while the conditions stand open, and the contract stays signed (AC-ST-CTR-004-2, UAT-AC302)",
+      "status": "passed",
+      "durationMs": 867,
+      "at": "2026-11-05T08:46:17.207Z",
+      "requests": [
+        {
+          "id": "ae3caff4-1678-4618-81f9-85f09e86358b",
+          "method": "GET",
+          "path": "/contracts/4e6a18aa-9d85-483e-9d92-38c4c71f8cf5/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:17.783Z"
+        },
+        {
+          "id": "b7961f01-b081-43a2-bb8a-867b4aa3a7dd",
+          "method": "POST",
+          "path": "/contracts/4e6a18aa-9d85-483e-9d92-38c4c71f8cf5/activate",
+          "status": 422,
+          "at": "2026-11-05T08:46:17.947Z"
+        }
+      ]
+    }
+  ]
+}

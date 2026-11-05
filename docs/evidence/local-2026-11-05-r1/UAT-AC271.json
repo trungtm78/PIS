@@ -1,0 +1,43 @@
+{
+  "id": "UAT-AC271",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/home/warnings-rankings.test.ts",
+      "name": "the warnings and the ranking of the command center over HTTP (ST-HOME-003) warnings (HOME-03, HOME-06) AC-ST-HOME-003-1: UAT-AC271 lists the open warning of a project with its rule, severity, the 22% observed against the 45% expected, its leader and the explanation that is open",
+      "status": "passed",
+      "durationMs": 346,
+      "at": "2026-11-05T09:22:29.968Z",
+      "requests": [
+        {
+          "id": "191e2421-049d-4812-9da7-144bafb6cf2b",
+          "method": "GET",
+          "path": "/home/warnings",
+          "status": 200,
+          "at": "2026-11-05T09:22:29.895Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/home/warnings-rankings.test.ts",
+      "name": "the warnings and the ranking of the command center over HTTP (ST-HOME-003) warnings (HOME-03, HOME-06) AC-ST-HOME-003-2: UAT-AC271 gives the profile of a warning with an accepted explanation: the cause, the evidence in the snapshot, the leader, the explanation and the history",
+      "status": "passed",
+      "durationMs": 189,
+      "at": "2026-11-05T09:22:30.157Z",
+      "requests": [
+        {
+          "id": "639de65d-3769-4a1a-b0d3-fdeaad8940b5",
+          "method": "GET",
+          "path": "/home/warnings",
+          "status": 200,
+          "at": "2026-11-05T09:22:30.137Z"
+        }
+      ]
+    }
+  ]
+}

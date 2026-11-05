@@ -1,0 +1,355 @@
+{
+  "id": "UAT-AC213",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/transfer.test.ts",
+      "name": "the transfer of a project between units (ST-PRJ-007) AC-ST-PRJ-007-1 / UAT-AC213: asking, deciding and the day AC-ST-PRJ-007-1: P-A-003 is owned by the department, a report was accepted before; the request is made, the one who asked cannot approve it (403 SELF_APPROVAL_DENIED), another person approves it for the first of next month, the job makes it on the day, and a unit of tenant B is 404",
+      "status": "passed",
+      "durationMs": 1141,
+      "at": "2026-11-05T09:20:52.675Z",
+      "requests": [
+        {
+          "id": "26d2b309-842f-4c87-b2a8-e89eff506cef",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-00ac-000000000065/transfers",
+          "status": 200,
+          "at": "2026-11-05T09:20:51.686Z"
+        },
+        {
+          "id": "8abcba57-a60e-4491-a469-c330e66152e8",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-00ac-000000000066/transfers",
+          "status": 404,
+          "at": "2026-11-05T09:20:51.803Z"
+        },
+        {
+          "id": "4d4b4f60-3f5e-4f37-a9b7-8ced34a9b694",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-00ac-000000000067/transfers",
+          "status": 200,
+          "at": "2026-11-05T09:20:52.045Z"
+        },
+        {
+          "id": "3635985b-7128-4333-8a7d-55c86ad8f3a4",
+          "method": "POST",
+          "path": "/project-transfers/278d1c03-8e14-46f4-b9bd-e245f0f1c579/decision",
+          "status": 403,
+          "at": "2026-11-05T09:20:52.065Z"
+        },
+        {
+          "id": "185071f1-7364-44c3-978b-2b6ec6e80216",
+          "method": "POST",
+          "path": "/project-transfers/278d1c03-8e14-46f4-b9bd-e245f0f1c579/decision",
+          "status": 403,
+          "at": "2026-11-05T09:20:52.076Z"
+        },
+        {
+          "id": "4b56946c-ba58-44f4-af29-de99a961ae63",
+          "method": "POST",
+          "path": "/project-transfers/9cd8c770-8a04-4595-8d88-02d8b25d8ade/decision",
+          "status": 409,
+          "at": "2026-11-05T09:20:52.142Z"
+        },
+        {
+          "id": "e1f51a05-774a-4692-a88c-e383795248d1",
+          "method": "POST",
+          "path": "/project-transfers/9cd8c770-8a04-4595-8d88-02d8b25d8ade/decision",
+          "status": 200,
+          "at": "2026-11-05T09:20:52.155Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/transfer.test.ts",
+      "name": "the transfer of a project between units (ST-PRJ-007) AC-ST-PRJ-007-1 / UAT-AC213: asking, deciding and the day keeps the unit of a snapshot that was built before the day, and the project now answers to its new unit in the scope of whoever reads it",
+      "status": "passed",
+      "durationMs": 467,
+      "at": "2026-11-05T09:20:53.142Z",
+      "requests": [
+        {
+          "id": "f7ae2860-f2f7-4732-a0f0-8ff23eab13ee",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-00ac-000000000068/transfers",
+          "status": 200,
+          "at": "2026-11-05T09:20:52.867Z"
+        },
+        {
+          "id": "81e733a7-7976-42a0-9eca-452e72dadc81",
+          "method": "POST",
+          "path": "/project-transfers/0d58ad72-53fc-48e2-8974-e7dd629ccffe/decision",
+          "status": 200,
+          "at": "2026-11-05T09:20:52.900Z"
+        },
+        {
+          "id": "1d627ed1-46bd-481f-92ac-ada4d2ab84bf",
+          "method": "GET",
+          "path": "/project-transfers",
+          "status": 200,
+          "at": "2026-11-05T09:20:53.088Z"
+        },
+        {
+          "id": "ed8fcacd-3bc7-4582-b21f-776d81da0dbb",
+          "method": "GET",
+          "path": "/project-transfers",
+          "status": 200,
+          "at": "2026-11-05T09:20:53.112Z"
+        },
+        {
+          "id": "53ae3889-0002-46d6-bf0e-69a95484e4a5",
+          "method": "GET",
+          "path": "/project-transfers",
+          "status": 200,
+          "at": "2026-11-05T09:20:53.125Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/transfer.test.ts",
+      "name": "the transfer of a project between units (ST-PRJ-007) AC-ST-PRJ-007-1 / UAT-AC213: asking, deciding and the day makes the transfer at once when the day has come with the approval, and tells approve, reject and return apart: a rejected or returned request frees the project for another",
+      "status": "passed",
+      "durationMs": 365,
+      "at": "2026-11-05T09:20:53.507Z",
+      "requests": [
+        {
+          "id": "2c463200-86bf-4e8b-8ccf-80797cc01b46",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-00ac-000000000069/transfers",
+          "status": 200,
+          "at": "2026-11-05T09:20:53.187Z"
+        },
+        {
+          "id": "e53a8e38-5045-4a81-8437-1dd8a7f0acc0",
+          "method": "POST",
+          "path": "/project-transfers/3dd1feee-b4c9-46a4-9d97-30f6dd1ffaa7/decision",
+          "status": 422,
+          "at": "2026-11-05T09:20:53.212Z"
+        },
+        {
+          "id": "295f0b30-5b80-4b01-952b-48ddf820c232",
+          "method": "POST",
+          "path": "/project-transfers/3dd1feee-b4c9-46a4-9d97-30f6dd1ffaa7/decision",
+          "status": 200,
+          "at": "2026-11-05T09:20:53.217Z"
+        },
+        {
+          "id": "fc43aae5-f19d-4b5b-84d0-07f56e02f3da",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-00ac-000000000069/transfers",
+          "status": 200,
+          "at": "2026-11-05T09:20:53.375Z"
+        },
+        {
+          "id": "e22aa7d2-f2a3-4e1a-ab77-dc82ff351a88",
+          "method": "POST",
+          "path": "/project-transfers/006e3e85-c395-4101-a98d-6c2b4935bd86/decision",
+          "status": 200,
+          "at": "2026-11-05T09:20:53.402Z"
+        },
+        {
+          "id": "b78ed8fb-c656-4346-ac47-4f537a239e90",
+          "method": "POST",
+          "path": "/project-transfers/006e3e85-c395-4101-a98d-6c2b4935bd86/decision",
+          "status": 409,
+          "at": "2026-11-05T09:20:53.415Z"
+        },
+        {
+          "id": "41e95591-08e3-4d6f-a3b2-fa16171c5898",
+          "method": "POST",
+          "path": "/project-transfers/006e3e85-c395-4101-a98d-6c2b4935bd86/decision",
+          "status": 422,
+          "at": "2026-11-05T09:20:53.431Z"
+        },
+        {
+          "id": "6fbe011d-a756-4faa-ae89-5e85346cee3d",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-00ac-000000000069/transfers",
+          "status": 200,
+          "at": "2026-11-05T09:20:53.442Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/transfer.test.ts",
+      "name": "the transfer of a project between units (ST-PRJ-007) AC-ST-PRJ-007-1 / UAT-AC213: asking, deciding and the day closes an approved transfer whose project changed unit meanwhile, and changes nothing; a reason of the longest length still closes it, and the transfers that are due beside it are made",
+      "status": "passed",
+      "durationMs": 829,
+      "at": "2026-11-05T09:20:54.336Z",
+      "requests": [
+        {
+          "id": "c5133a27-bf57-4ead-80a0-69762d5075de",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-00ac-00000000006a/transfers",
+          "status": 200,
+          "at": "2026-11-05T09:20:53.589Z"
+        },
+        {
+          "id": "9b538af1-1a89-484d-b2c1-758702c47e2b",
+          "method": "POST",
+          "path": "/project-transfers/2d4aff64-072e-4566-b11c-de3f31708721/decision",
+          "status": 200,
+          "at": "2026-11-05T09:20:53.611Z"
+        },
+        {
+          "id": "88efda08-5819-4cb9-ad79-296171acca20",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-00ac-00000000006b/transfers",
+          "status": 200,
+          "at": "2026-11-05T09:20:53.687Z"
+        },
+        {
+          "id": "3e3b56bb-fa02-4466-ad33-db845b3774da",
+          "method": "POST",
+          "path": "/project-transfers/7e2a8f05-4710-44d4-8061-f8875f690275/decision",
+          "status": 200,
+          "at": "2026-11-05T09:20:53.719Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/transfer.test.ts",
+      "name": "the transfer of a project between units (ST-PRJ-007) AC-ST-PRJ-007-1 / UAT-AC213: asking, deciding and the day closes an approved transfer whose project was settled before the day, and refuses a receiving unit that is not in force on the effective day (not yet created, or ended before it)",
+      "status": "passed",
+      "durationMs": 903,
+      "at": "2026-11-05T09:20:55.238Z",
+      "requests": [
+        {
+          "id": "534bbdbe-194c-43b3-8f54-38b9fd3dc5d3",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-00ac-00000000006c/transfers",
+          "status": 200,
+          "at": "2026-11-05T09:20:54.446Z"
+        },
+        {
+          "id": "4dc8b2f0-fef9-4c2b-9960-721d4d63347c",
+          "method": "POST",
+          "path": "/project-transfers/baccb12d-c1aa-4477-aab8-57d6fe71693a/decision",
+          "status": 200,
+          "at": "2026-11-05T09:20:54.472Z"
+        },
+        {
+          "id": "25466fc4-3f73-42ef-b918-d7c820290bab",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-00ac-00000000006d/transfers",
+          "status": 422,
+          "at": "2026-11-05T09:20:55.158Z"
+        },
+        {
+          "id": "e0f2bf76-75e0-44c6-a000-08db5b90a65b",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-00ac-00000000006e/transfers",
+          "status": 200,
+          "at": "2026-11-05T09:20:55.215Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/transfer.test.ts",
+      "name": "the transfer of a project between units (ST-PRJ-007) AC-ST-PRJ-007-1 / UAT-AC213: asking, deciding and the day records an approval that finds the project changed as a closing, not as a return, and refuses a receiving unit that is dissolved",
+      "status": "passed",
+      "durationMs": 316,
+      "at": "2026-11-05T09:20:55.555Z",
+      "requests": [
+        {
+          "id": "77c8faba-427e-4f68-b015-096ef5f401c1",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-00ac-00000000006f/transfers",
+          "status": 200,
+          "at": "2026-11-05T09:20:55.286Z"
+        },
+        {
+          "id": "764bee66-90b5-4727-89f1-3e10c59c76b0",
+          "method": "POST",
+          "path": "/project-transfers/9b2e0350-ce83-45fe-8227-6d59acbfd342/decision",
+          "status": 200,
+          "at": "2026-11-05T09:20:55.353Z"
+        },
+        {
+          "id": "a0301e5f-9356-4695-ae2e-5084a5655829",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-00ac-000000000070/transfers",
+          "status": 422,
+          "at": "2026-11-05T09:20:55.536Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/transfer.test.ts",
+      "name": "the transfer of a project between units (ST-PRJ-007) AC-ST-PRJ-007-1 / UAT-AC213: asking, deciding and the day closes an approved transfer whose receiving unit stopped being usable before the day, at the job as at an approval that comes on the day",
+      "status": "passed",
+      "durationMs": 525,
+      "at": "2026-11-05T09:20:56.080Z",
+      "requests": [
+        {
+          "id": "ffe9deb5-0c6f-410a-9e7a-cf03ee27d499",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-00ac-000000000071/transfers",
+          "status": 200,
+          "at": "2026-11-05T09:20:55.592Z"
+        },
+        {
+          "id": "98b8444c-1575-4fef-870a-415ea9f5472a",
+          "method": "POST",
+          "path": "/project-transfers/0610e7fa-8602-4447-9c92-0761bfbd0eea/decision",
+          "status": 200,
+          "at": "2026-11-05T09:20:55.607Z"
+        },
+        {
+          "id": "a7e01089-436f-40a3-9176-5a08a4bf07bb",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-00ac-000000000072/transfers",
+          "status": 200,
+          "at": "2026-11-05T09:20:55.941Z"
+        },
+        {
+          "id": "1af6f560-4644-4d5e-b94c-32458c6b31f1",
+          "method": "POST",
+          "path": "/project-transfers/e55b618d-d91d-4e05-b797-a5ced41e7bdd/decision",
+          "status": 200,
+          "at": "2026-11-05T09:20:56.010Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/transfer.test.ts",
+      "name": "the transfer of a project between units (ST-PRJ-007) AC-ST-PRJ-007-1 / UAT-AC213: asking, deciding and the day transfers the investor unit as well as the owner unit, and a project with no investor unit has none to transfer",
+      "status": "passed",
+      "durationMs": 213,
+      "at": "2026-11-05T09:20:56.293Z",
+      "requests": [
+        {
+          "id": "55510cf8-eb45-4743-a8cd-a73fa854ceb5",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-00ac-000000000073/transfers",
+          "status": 200,
+          "at": "2026-11-05T09:20:56.123Z"
+        },
+        {
+          "id": "b1bfc3bb-e566-4284-acbf-1cb13446bea8",
+          "method": "POST",
+          "path": "/project-transfers/d9978838-558d-4065-8165-b9ced3a48f49/decision",
+          "status": 200,
+          "at": "2026-11-05T09:20:56.154Z"
+        },
+        {
+          "id": "cdc7ed2e-ddf9-4f00-b4f7-99df88afcb78",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-00ac-000000000074/transfers",
+          "status": 422,
+          "at": "2026-11-05T09:20:56.273Z"
+        }
+      ]
+    }
+  ]
+}

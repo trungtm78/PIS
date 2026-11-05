@@ -1,0 +1,353 @@
+{
+  "id": "UAT-AC393",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/asset.test.ts",
+      "name": "the assets of a work over HTTP (ST-AST-002) linkOmPlan (AC-ST-AST-005-1, UAT-AC393) AC-ST-AST-005-1 UAT-AC393: an asset that was not transferred is 422 ASSET_NOT_TRANSFERRED, a transferred one is linked, and a second link is 409 OM_LINK_EXISTS",
+      "status": "passed",
+      "durationMs": 1466,
+      "at": "2026-11-05T09:16:20.498Z",
+      "requests": [
+        {
+          "id": "ae0be202-80a9-4009-9b69-f979eb29a399",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 200,
+          "at": "2026-11-05T09:16:19.881Z"
+        },
+        {
+          "id": "d2848fa6-fa1a-4f01-9f98-23d2e1f6eb21",
+          "method": "POST",
+          "path": "/asset-records/39ca13a9-59d5-4b77-9548-5d56bce1257f/om-link",
+          "status": 422,
+          "at": "2026-11-05T09:16:19.894Z"
+        },
+        {
+          "id": "bfbda095-0068-460e-9999-1a9f09d6a64f",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 200,
+          "at": "2026-11-05T09:16:20.028Z"
+        },
+        {
+          "id": "6a8372c5-bcf7-4d74-b88d-74ed38667371",
+          "method": "POST",
+          "path": "/asset-records/04392b77-840e-44f7-9e4f-639047c940e6/transfer",
+          "status": 200,
+          "at": "2026-11-05T09:16:20.055Z"
+        },
+        {
+          "id": "2a01b8e6-973a-4611-9111-f83d756bd38a",
+          "method": "POST",
+          "path": "/asset-records/04392b77-840e-44f7-9e4f-639047c940e6/om-link",
+          "status": 200,
+          "at": "2026-11-05T09:16:20.073Z"
+        },
+        {
+          "id": "76adc5cc-6e20-40ee-8d43-8a267a50a0b2",
+          "method": "POST",
+          "path": "/asset-records/04392b77-840e-44f7-9e4f-639047c940e6/om-link",
+          "status": 409,
+          "at": "2026-11-05T09:16:20.194Z"
+        },
+        {
+          "id": "0d866edc-6b53-437f-86a2-aa1d097bdc87",
+          "method": "GET",
+          "path": "/resources/asset_record/04392b77-840e-44f7-9e4f-639047c940e6",
+          "status": 200,
+          "at": "2026-11-05T09:16:20.256Z"
+        },
+        {
+          "id": "fd031311-44e3-4a4e-a65a-06f1ddf8d20d",
+          "method": "GET",
+          "path": "/resources/asset_record/39ca13a9-59d5-4b77-9548-5d56bce1257f",
+          "status": 200,
+          "at": "2026-11-05T09:16:20.280Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/asset.test.ts",
+      "name": "the assets of a work over HTTP (ST-AST-002) linkOmPlan (AC-ST-AST-005-1, UAT-AC393) offers the link to whoever may make it while the asset has none, and answers the same key once",
+      "status": "passed",
+      "durationMs": 1057,
+      "at": "2026-11-05T09:16:21.556Z",
+      "requests": [
+        {
+          "id": "4ce047b2-1fb6-4cbf-8679-dc8aa223d6a8",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 200,
+          "at": "2026-11-05T09:16:21.380Z"
+        },
+        {
+          "id": "c986c0b3-7fb8-4766-b7d9-42bba97a9313",
+          "method": "GET",
+          "path": "/resources/asset_record/ef1f608a-bb8d-4fde-a668-89fe762e6f62",
+          "status": 200,
+          "at": "2026-11-05T09:16:21.396Z"
+        },
+        {
+          "id": "200104bc-e621-48de-beed-51bd3c36ee45",
+          "method": "POST",
+          "path": "/asset-records/ef1f608a-bb8d-4fde-a668-89fe762e6f62/transfer",
+          "status": 200,
+          "at": "2026-11-05T09:16:21.408Z"
+        },
+        {
+          "id": "aee51497-6ee1-4799-8942-c62aa7869261",
+          "method": "GET",
+          "path": "/resources/asset_record/ef1f608a-bb8d-4fde-a668-89fe762e6f62",
+          "status": 200,
+          "at": "2026-11-05T09:16:21.431Z"
+        },
+        {
+          "id": "959c722a-7939-453c-b916-242faeb39a4e",
+          "method": "GET",
+          "path": "/resources/asset_record/ef1f608a-bb8d-4fde-a668-89fe762e6f62",
+          "status": 200,
+          "at": "2026-11-05T09:16:21.447Z"
+        },
+        {
+          "id": "e89b2ca8-644e-4786-a601-b059013028fe",
+          "method": "POST",
+          "path": "/asset-records/ef1f608a-bb8d-4fde-a668-89fe762e6f62/om-link",
+          "status": 200,
+          "at": "2026-11-05T09:16:21.462Z"
+        },
+        {
+          "id": "65dc1da1-87ac-4a46-ad2f-4a9d2a8199d7",
+          "method": "POST",
+          "path": "/asset-records/ef1f608a-bb8d-4fde-a668-89fe762e6f62/om-link",
+          "status": 200,
+          "at": "2026-11-05T09:16:21.479Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/asset.test.ts",
+      "name": "the assets of a work over HTTP (ST-AST-002) linkOmPlan (AC-ST-AST-005-1, UAT-AC393) takes a plan that is a clean file and a contract of the same project, a cycle of 1 to 120 months and a real day, and a unit of the tenant",
+      "status": "passed",
+      "durationMs": 2602,
+      "at": "2026-11-05T09:16:24.158Z",
+      "requests": [
+        {
+          "id": "dcdfc48e-b6bd-4944-8cbf-ce3c2a5a2c56",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 200,
+          "at": "2026-11-05T09:16:22.964Z"
+        },
+        {
+          "id": "8563c213-0131-436e-ad58-c18ffc69c774",
+          "method": "POST",
+          "path": "/asset-records/fcb60394-0759-43c5-9bbe-aac62890ca2a/transfer",
+          "status": 200,
+          "at": "2026-11-05T09:16:22.981Z"
+        },
+        {
+          "id": "bbed5451-51ac-4b15-96f6-5c827f43225a",
+          "method": "POST",
+          "path": "/asset-records/fcb60394-0759-43c5-9bbe-aac62890ca2a/om-link",
+          "status": 422,
+          "at": "2026-11-05T09:16:23.835Z"
+        },
+        {
+          "id": "4d6d8c8f-3f36-4a97-9d15-ec05872447d1",
+          "method": "POST",
+          "path": "/asset-records/fcb60394-0759-43c5-9bbe-aac62890ca2a/om-link",
+          "status": 422,
+          "at": "2026-11-05T09:16:23.847Z"
+        },
+        {
+          "id": "79a8775b-1cda-4b32-8abc-4077b186b9ee",
+          "method": "POST",
+          "path": "/asset-records/fcb60394-0759-43c5-9bbe-aac62890ca2a/om-link",
+          "status": 422,
+          "at": "2026-11-05T09:16:23.871Z"
+        },
+        {
+          "id": "34f49f14-a688-4a56-9fb2-3c107dcdbaf1",
+          "method": "POST",
+          "path": "/asset-records/fcb60394-0759-43c5-9bbe-aac62890ca2a/om-link",
+          "status": 422,
+          "at": "2026-11-05T09:16:23.887Z"
+        },
+        {
+          "id": "f5a1a933-6f34-4ea7-97e2-9337f3f8f60e",
+          "method": "POST",
+          "path": "/asset-records/fcb60394-0759-43c5-9bbe-aac62890ca2a/om-link",
+          "status": 422,
+          "at": "2026-11-05T09:16:23.902Z"
+        },
+        {
+          "id": "ba01263a-3b88-43ef-a916-7030eb212b80",
+          "method": "POST",
+          "path": "/asset-records/fcb60394-0759-43c5-9bbe-aac62890ca2a/om-link",
+          "status": 422,
+          "at": "2026-11-05T09:16:23.917Z"
+        },
+        {
+          "id": "a8b6bd01-1ef8-4b08-9223-4a10a63bf358",
+          "method": "POST",
+          "path": "/asset-records/fcb60394-0759-43c5-9bbe-aac62890ca2a/om-link",
+          "status": 422,
+          "at": "2026-11-05T09:16:23.933Z"
+        },
+        {
+          "id": "ea72871f-ddd2-4381-96d1-c3021b0d0514",
+          "method": "POST",
+          "path": "/asset-records/fcb60394-0759-43c5-9bbe-aac62890ca2a/om-link",
+          "status": 422,
+          "at": "2026-11-05T09:16:23.943Z"
+        },
+        {
+          "id": "311ed457-98d5-42db-89b6-af1d8cc74a87",
+          "method": "POST",
+          "path": "/asset-records/fcb60394-0759-43c5-9bbe-aac62890ca2a/om-link",
+          "status": 422,
+          "at": "2026-11-05T09:16:23.958Z"
+        },
+        {
+          "id": "fcfecf8b-f71d-4644-902f-118d02bacfc4",
+          "method": "POST",
+          "path": "/asset-records/fcb60394-0759-43c5-9bbe-aac62890ca2a/om-link",
+          "status": 422,
+          "at": "2026-11-05T09:16:23.973Z"
+        },
+        {
+          "id": "36fb949d-276e-4f9e-bf71-180051ae956e",
+          "method": "POST",
+          "path": "/asset-records/fcb60394-0759-43c5-9bbe-aac62890ca2a/om-link",
+          "status": 400,
+          "at": "2026-11-05T09:16:23.988Z"
+        },
+        {
+          "id": "6153671f-1aed-4c40-a465-225a2e96203d",
+          "method": "POST",
+          "path": "/asset-records/fcb60394-0759-43c5-9bbe-aac62890ca2a/om-link",
+          "status": 200,
+          "at": "2026-11-05T09:16:24.104Z"
+        },
+        {
+          "id": "37cea88f-38ad-4094-a11e-e4ebc05f945b",
+          "method": "GET",
+          "path": "/resources/asset_record/fcb60394-0759-43c5-9bbe-aac62890ca2a",
+          "status": 200,
+          "at": "2026-11-05T09:16:24.129Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/asset.test.ts",
+      "name": "the assets of a work over HTTP (ST-AST-002) linkOmPlan (AC-ST-AST-005-1, UAT-AC393) is for whoever holds the right over the asset: a caller without it is 403, one outside its scope 404, and another tenant's caller 404",
+      "status": "passed",
+      "durationMs": 1010,
+      "at": "2026-11-05T09:16:25.168Z",
+      "requests": [
+        {
+          "id": "372a5d31-6a34-4749-aa44-701c899b40bd",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 200,
+          "at": "2026-11-05T09:16:24.951Z"
+        },
+        {
+          "id": "d08fb6be-112b-4167-a779-67de05510b33",
+          "method": "POST",
+          "path": "/asset-records/3346cd69-a7aa-4005-8ed1-bb7cfd5b07b1/transfer",
+          "status": 200,
+          "at": "2026-11-05T09:16:24.974Z"
+        },
+        {
+          "id": "c32152ef-9df9-4ae7-94e5-364921ba4e75",
+          "method": "POST",
+          "path": "/asset-records/3346cd69-a7aa-4005-8ed1-bb7cfd5b07b1/om-link",
+          "status": 403,
+          "at": "2026-11-05T09:16:25.008Z"
+        },
+        {
+          "id": "8ddb8359-798f-4153-87a8-97d4d9ef4741",
+          "method": "POST",
+          "path": "/asset-records/3346cd69-a7aa-4005-8ed1-bb7cfd5b07b1/om-link",
+          "status": 403,
+          "at": "2026-11-05T09:16:25.025Z"
+        },
+        {
+          "id": "be747d0e-85b6-4c93-bafb-c0dd536138ba",
+          "method": "POST",
+          "path": "/asset-records/3346cd69-a7aa-4005-8ed1-bb7cfd5b07b1/om-link",
+          "status": 403,
+          "at": "2026-11-05T09:16:25.040Z"
+        },
+        {
+          "id": "7c2ed628-c9e8-47e0-a379-fa4df2528f3c",
+          "method": "POST",
+          "path": "/asset-records/3346cd69-a7aa-4005-8ed1-bb7cfd5b07b1/om-link",
+          "status": 404,
+          "at": "2026-11-05T09:16:25.054Z"
+        },
+        {
+          "id": "e3c3cfcb-15e4-4073-b548-d01d650f9d1f",
+          "method": "POST",
+          "path": "/asset-records/4fbd150a-b4a4-4835-b836-56f3e61fbfb8/om-link",
+          "status": 404,
+          "at": "2026-11-05T09:16:25.082Z"
+        },
+        {
+          "id": "4166398a-80f3-414b-9292-f2fbfbfe192c",
+          "method": "POST",
+          "path": "/asset-records/3346cd69-a7aa-4005-8ed1-bb7cfd5b07b1/om-link",
+          "status": 404,
+          "at": "2026-11-05T09:16:25.110Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/asset.test.ts",
+      "name": "the assets of a work over HTTP (ST-AST-002) linkOmPlan (AC-ST-AST-005-1, UAT-AC393) does not let a link change what it says, or be deleted: it is suspended, and then the asset takes another",
+      "status": "passed",
+      "durationMs": 1098,
+      "at": "2026-11-05T09:16:26.266Z",
+      "requests": [
+        {
+          "id": "9056c218-75f1-42e4-b602-2c05c10f9e81",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 200,
+          "at": "2026-11-05T09:16:25.868Z"
+        },
+        {
+          "id": "3fb0e65e-21e7-443e-a9e1-32cdd8fa56e1",
+          "method": "POST",
+          "path": "/asset-records/6cba8d7d-e194-4a90-8050-d26ed764a11b/transfer",
+          "status": 200,
+          "at": "2026-11-05T09:16:25.891Z"
+        },
+        {
+          "id": "59fe82f3-e42e-46ba-a4f4-ddf246de88c0",
+          "method": "POST",
+          "path": "/asset-records/6cba8d7d-e194-4a90-8050-d26ed764a11b/om-link",
+          "status": 200,
+          "at": "2026-11-05T09:16:25.912Z"
+        },
+        {
+          "id": "09f2a3df-fa9b-4f45-b6c4-33069b4d1a86",
+          "method": "POST",
+          "path": "/asset-records/6cba8d7d-e194-4a90-8050-d26ed764a11b/om-link",
+          "status": 200,
+          "at": "2026-11-05T09:16:26.155Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "id": "UAT-PLAN-52",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/omni/routing-policy.test.ts",
+      "name": "the routing, the SLA in working time and the canned replies of the omnichannel center (ST-OMNI-006, OMNI-07, OMNI-08) a canned reply AC-ST-OMNI-006-3 UAT-PLAN-52: a text with a variable, or a class that is confidential, is refused with 422 on the field and is not stored",
+      "status": "passed",
+      "durationMs": 166,
+      "at": "2026-11-05T09:21:55.438Z",
+      "requests": [
+        {
+          "id": "e2686fea-7427-4f2f-b263-4ba3fa303b4d",
+          "method": "POST",
+          "path": "/canned-replies",
+          "status": 422,
+          "at": "2026-11-05T09:21:55.315Z"
+        },
+        {
+          "id": "e947955d-ffb9-4f34-90dd-c1592d74f4ce",
+          "method": "POST",
+          "path": "/canned-replies",
+          "status": 422,
+          "at": "2026-11-05T09:21:55.322Z"
+        },
+        {
+          "id": "24095432-a9d0-4d9b-80b8-78d53416aafd",
+          "method": "POST",
+          "path": "/canned-replies",
+          "status": 422,
+          "at": "2026-11-05T09:21:55.337Z"
+        },
+        {
+          "id": "42e441e4-6360-4d26-8663-8b683cf32758",
+          "method": "POST",
+          "path": "/canned-replies",
+          "status": 422,
+          "at": "2026-11-05T09:21:55.355Z"
+        },
+        {
+          "id": "3e659856-12d1-4d31-90fe-a0c66dd3a188",
+          "method": "POST",
+          "path": "/canned-replies",
+          "status": 422,
+          "at": "2026-11-05T09:21:55.369Z"
+        },
+        {
+          "id": "dcecce00-0cbe-429c-a0f6-c69c82482cce",
+          "method": "POST",
+          "path": "/canned-replies",
+          "status": 422,
+          "at": "2026-11-05T09:21:55.386Z"
+        }
+      ]
+    }
+  ]
+}

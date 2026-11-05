@@ -1,0 +1,93 @@
+{
+  "id": "UAT-AC253",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/explanation.test.ts",
+      "name": "the explanation requests (ST-PRJ-006) the request that a warning asks for by itself (AC-ST-PRJ-006-2 / UAT-AC253) AC-ST-PRJ-006-2: EW-02 has auto_explanation and the weekly report is missing: warning.opened.v1 makes one request to the leader in charge, due in three working days, and none again on a replay or a second delivery of the same warning",
+      "status": "passed",
+      "durationMs": 1045,
+      "at": "2026-11-05T09:19:42.581Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/explanation.test.ts",
+      "name": "the explanation requests (ST-PRJ-006) the request that a warning asks for by itself (AC-ST-PRJ-006-2 / UAT-AC253) counts the days the rule gave from the day the warning was opened, not from the day the event is read: five days from a Friday are the next Friday, even when the delivery is late",
+      "status": "passed",
+      "durationMs": 600,
+      "at": "2026-11-05T09:19:43.182Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/explanation.test.ts",
+      "name": "the explanation requests (ST-PRJ-006) the request that a warning asks for by itself (AC-ST-PRJ-006-2 / UAT-AC253) counts by the published calendar of a year (a holiday is not a working day) and by the week for a year that has none, day by day, and says so when any day was counted by the week",
+      "status": "passed",
+      "durationMs": 650,
+      "at": "2026-11-05T09:19:43.831Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/explanation.test.ts",
+      "name": "the explanation requests (ST-PRJ-006) the request that a warning asks for by itself (AC-ST-PRJ-006-2 / UAT-AC253) skips, and does not fail the event, when a request of a person is already open for the same project, trigger and period",
+      "status": "passed",
+      "durationMs": 282,
+      "at": "2026-11-05T09:19:44.113Z",
+      "requests": [
+        {
+          "id": "1caec83e-c696-4e7f-8440-fd6ab2ec60a0",
+          "method": "POST",
+          "path": "/explanation-requests",
+          "status": 200,
+          "at": "2026-11-05T09:19:43.960Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/explanation.test.ts",
+      "name": "the explanation requests (ST-PRJ-006) the request that a warning asks for by itself (AC-ST-PRJ-006-2 / UAT-AC253) skips and says why when the project has no leader in charge or the warning is not open any more, and ignores an event that does not ask for it, is of another kind or of another tenant",
+      "status": "passed",
+      "durationMs": 662,
+      "at": "2026-11-05T09:19:44.775Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/warning.test.ts",
+      "name": "the early-warning rules and warnings over HTTP (ST-DIS-012) the evaluation after a snapshot is frozen AC-ST-DIS-012-2 / UAT-AC253: a CRITICAL warning opens when the deadline has passed without a report, and warning.opened.v1 carries auto_explanation and the days to explain, so that PRJ asks for the explanation",
+      "status": "passed",
+      "durationMs": 473,
+      "at": "2026-11-05T09:20:04.522Z",
+      "requests": [
+        {
+          "id": "5cca9cce-0a7b-4716-92d3-99ece7bc29d3",
+          "method": "POST",
+          "path": "/early-warning-rules",
+          "status": 200,
+          "at": "2026-11-05T09:20:04.093Z"
+        },
+        {
+          "id": "a6bac902-002a-4300-bfe9-b15e133542a2",
+          "method": "POST",
+          "path": "/early-warning-rules/53def046-56bd-49aa-82b1-643dab6c7439/publish",
+          "status": 200,
+          "at": "2026-11-05T09:20:04.119Z"
+        },
+        {
+          "id": "964aaee8-9ce6-4b80-81bf-9623a85e0a30",
+          "method": "GET",
+          "path": "/early-warnings",
+          "status": 200,
+          "at": "2026-11-05T09:20:04.390Z"
+        }
+      ]
+    }
+  ]
+}

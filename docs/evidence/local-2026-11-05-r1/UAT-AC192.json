@@ -1,0 +1,78 @@
+{
+  "id": "UAT-AC192",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/devices.test.ts",
+      "name": "the push devices of the members (ST-NOT-006, NOT-14) registering a device (NOT-14, MOB-05) AC-ST-NOT-006-1 UAT-AC192: a device that registers twice is one registration, and after the member removes it the registration is revoked and its token is gone from the vault",
+      "status": "passed",
+      "durationMs": 358,
+      "at": "2026-11-05T09:22:35.740Z",
+      "requests": [
+        {
+          "id": "5d14ba5b-293f-4d2f-8991-ce25d9535905",
+          "method": "POST",
+          "path": "/devices",
+          "status": 201,
+          "at": "2026-11-05T09:22:35.385Z"
+        },
+        {
+          "id": "f8db9d19-40ad-4579-973d-2003de78e212",
+          "method": "POST",
+          "path": "/devices",
+          "status": 201,
+          "at": "2026-11-05T09:22:35.464Z"
+        },
+        {
+          "id": "90988af4-5c50-4b7b-8e61-1586c565cfc5",
+          "method": "POST",
+          "path": "/me/devices/6b4b1736-6a5a-4762-9a6f-9ea68000f979/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:22:35.572Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/session/self-service.test.ts",
+      "name": "the profile, the sessions and the devices of a person over HTTP (ST-IAM-006) AC-ST-IAM-006-3, UAT-AC192: removes a device: one row, revoked, the push token gone, the sessions opened on it signed out, one event",
+      "status": "passed",
+      "durationMs": 393,
+      "at": "2026-11-05T09:22:56.810Z",
+      "requests": [
+        {
+          "id": "e4a4954b-0412-40e1-9d6e-672ad80ab04a",
+          "method": "GET",
+          "path": "/me/devices",
+          "status": 200,
+          "at": "2026-11-05T09:22:56.539Z"
+        },
+        {
+          "id": "694cc349-9913-4472-93ef-c4a7b72e9292",
+          "method": "POST",
+          "path": "/me/devices/349a2520-60ad-4aba-8f46-5ce6ce088858/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:22:56.556Z"
+        },
+        {
+          "id": "71ba7e7f-c24e-4a99-b0c2-a965d6c15582",
+          "method": "GET",
+          "path": "/me/devices",
+          "status": 200,
+          "at": "2026-11-05T09:22:56.661Z"
+        },
+        {
+          "id": "8bf9137f-2664-4c8d-b6ea-cc0d683bbd43",
+          "method": "POST",
+          "path": "/me/devices/349a2520-60ad-4aba-8f46-5ce6ce088858/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:22:56.667Z"
+        }
+      ]
+    }
+  ]
+}

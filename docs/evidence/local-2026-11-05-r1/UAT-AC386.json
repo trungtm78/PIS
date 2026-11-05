@@ -1,0 +1,391 @@
+{
+  "id": "UAT-AC386",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) recordSectionHandover (AC-ST-LND-009-1, UAT-AC386) hands the land over in steps for a contract that is active: PARTIAL, then HANDED_OVER, with the audit row and the event the contracts read",
+      "status": "passed",
+      "durationMs": 224,
+      "at": "2026-11-05T09:19:37.378Z",
+      "requests": [
+        {
+          "id": "63a9b698-0b84-43ec-8216-c397850a1eb0",
+          "method": "POST",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T09:19:37.154Z"
+        },
+        {
+          "id": "66d9d148-a675-42a5-a0f7-cc9fb3b4b7dc",
+          "method": "POST",
+          "path": "/land-sections/67ad809c-3e91-4b7a-bd57-cd4b85fc6f0e/handover",
+          "status": 200,
+          "at": "2026-11-05T09:19:37.174Z"
+        },
+        {
+          "id": "41603b34-b781-4ad1-9c16-54899a15a19a",
+          "method": "POST",
+          "path": "/land-sections/67ad809c-3e91-4b7a-bd57-cd4b85fc6f0e/handover",
+          "status": 200,
+          "at": "2026-11-05T09:19:37.237Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) recordSectionHandover (AC-ST-LND-009-1, UAT-AC386) UAT-AC386: refuses 30000.01 against 30000.00 needed (422 HANDED_AREA_EXCEEDS_REQUIRED) and a contract that is only signed (409 CONTRACT_STATE_INVALID), and changes nothing",
+      "status": "passed",
+      "durationMs": 306,
+      "at": "2026-11-05T09:19:37.685Z",
+      "requests": [
+        {
+          "id": "08004d72-ab4e-4f68-b1f1-7af75b99cf0b",
+          "method": "POST",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T09:19:37.378Z"
+        },
+        {
+          "id": "a8fff930-d98e-42af-be63-e3598530689c",
+          "method": "POST",
+          "path": "/land-sections/0b2dab9b-6a86-47bb-a5a3-5c091284f56d/handover",
+          "status": 422,
+          "at": "2026-11-05T09:19:37.397Z"
+        },
+        {
+          "id": "c436b3b9-1adf-4c74-be16-02ebeda05bdd",
+          "method": "POST",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T09:19:37.472Z"
+        },
+        {
+          "id": "109be3e8-d391-4128-b66c-0bf7970634fd",
+          "method": "POST",
+          "path": "/land-sections/ec52f3ea-a763-46d5-b535-0bb1e8e25dba/handover",
+          "status": 409,
+          "at": "2026-11-05T09:19:37.495Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) recordSectionHandover (AC-ST-LND-009-1, UAT-AC386) is for a contract that builds, and for the area, the day and the document of a real handover",
+      "status": "passed",
+      "durationMs": 275,
+      "at": "2026-11-05T09:19:37.959Z",
+      "requests": [
+        {
+          "id": "1e36cbb9-02a1-48c7-9d8e-3d9300dd3ee1",
+          "method": "POST",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T09:19:37.685Z"
+        },
+        {
+          "id": "b1a8cfc4-79cb-4baa-865b-82f8e459ec22",
+          "method": "POST",
+          "path": "/land-sections/c920b3e3-7888-46d5-a3cb-a78bef540859/handover",
+          "status": 422,
+          "at": "2026-11-05T09:19:37.702Z"
+        },
+        {
+          "id": "9ce84ccc-667e-45d7-b3a8-884bdc2c6fa2",
+          "method": "POST",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T09:19:37.767Z"
+        },
+        {
+          "id": "7316cefb-a472-4f3f-a82f-26059e8d13fe",
+          "method": "POST",
+          "path": "/land-sections/db694caf-fcf6-4811-8a85-58133a215257/handover",
+          "status": 422,
+          "at": "2026-11-05T09:19:37.782Z"
+        },
+        {
+          "id": "a15f63c8-5f90-4086-ad68-a5d3ff8b5c99",
+          "method": "POST",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T09:19:37.795Z"
+        },
+        {
+          "id": "cd3bf2e5-d8b5-41a9-bc09-3c81aed6b165",
+          "method": "POST",
+          "path": "/land-sections/8df159cf-a6d2-4400-b5bf-f37a44e424a8/handover",
+          "status": 200,
+          "at": "2026-11-05T09:19:37.812Z"
+        },
+        {
+          "id": "372ab2c6-214d-4557-80d7-0ae3af3498b3",
+          "method": "POST",
+          "path": "/land-sections/8df159cf-a6d2-4400-b5bf-f37a44e424a8/handover",
+          "status": 422,
+          "at": "2026-11-05T09:19:37.829Z"
+        },
+        {
+          "id": "d7af5428-236f-4f75-a08d-9e77839685db",
+          "method": "POST",
+          "path": "/land-sections/8df159cf-a6d2-4400-b5bf-f37a44e424a8/handover",
+          "status": 422,
+          "at": "2026-11-05T09:19:37.843Z"
+        },
+        {
+          "id": "620f107b-460e-4d27-a07e-a4f3bafbdc8a",
+          "method": "POST",
+          "path": "/land-sections/8df159cf-a6d2-4400-b5bf-f37a44e424a8/handover",
+          "status": 422,
+          "at": "2026-11-05T09:19:37.859Z"
+        },
+        {
+          "id": "46e978c4-e82a-4e63-b8bc-01c26dc8e05d",
+          "method": "POST",
+          "path": "/land-sections/8df159cf-a6d2-4400-b5bf-f37a44e424a8/handover",
+          "status": 409,
+          "at": "2026-11-05T09:19:37.876Z"
+        },
+        {
+          "id": "ee62df24-05a0-4041-b7f7-6901fd8f3d81",
+          "method": "POST",
+          "path": "/land-sections/8df159cf-a6d2-4400-b5bf-f37a44e424a8/handover",
+          "status": 400,
+          "at": "2026-11-05T09:19:37.891Z"
+        },
+        {
+          "id": "8e8d718e-ef3c-4eee-9d0e-5b3e5c48ddee",
+          "method": "POST",
+          "path": "/land-sections/8df159cf-a6d2-4400-b5bf-f37a44e424a8/handover",
+          "status": 400,
+          "at": "2026-11-05T09:19:37.903Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) recordSectionHandover (AC-ST-LND-009-1, UAT-AC386) hands the paid parcels over with the last of the area, and refuses it while a parcel is not paid",
+      "status": "passed",
+      "durationMs": 392,
+      "at": "2026-11-05T09:19:38.352Z",
+      "requests": [
+        {
+          "id": "0cc22bc4-b76f-408c-81ef-a5cac940ed0d",
+          "method": "POST",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T09:19:37.960Z"
+        },
+        {
+          "id": "78012a9d-74dd-4f2d-ab7e-e6d442ae42bb",
+          "method": "POST",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T09:19:37.973Z"
+        },
+        {
+          "id": "55c7ea02-e602-47e2-bb96-e25e6eb41096",
+          "method": "POST",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T09:19:37.991Z"
+        },
+        {
+          "id": "d3c72a7f-0234-43c8-8df9-346afec77d5c",
+          "method": "POST",
+          "path": "/land-sections/7ab012f3-b550-492e-ad4d-38687bf27d3f/handover",
+          "status": 422,
+          "at": "2026-11-05T09:19:38.049Z"
+        },
+        {
+          "id": "d3e9f431-bed6-4e96-9a51-c19d3947a7b0",
+          "method": "POST",
+          "path": "/land-sections/7ab012f3-b550-492e-ad4d-38687bf27d3f/handover",
+          "status": 200,
+          "at": "2026-11-05T09:19:38.158Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) recordSectionHandover (AC-ST-LND-009-1, UAT-AC386) is for whoever holds land.handover over the project: a reader and an officer of another branch are refused, a section of another tenant does not exist",
+      "status": "passed",
+      "durationMs": 139,
+      "at": "2026-11-05T09:19:38.491Z",
+      "requests": [
+        {
+          "id": "8460952e-4210-4fb9-b6ad-b4331c4c3182",
+          "method": "POST",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T09:19:38.352Z"
+        },
+        {
+          "id": "f3e12bde-93cd-4fc2-95cc-d0a3079c18d0",
+          "method": "POST",
+          "path": "/land-sections/88bb94e4-12bd-4c7e-b21b-1d94583f3bdd/handover",
+          "status": 403,
+          "at": "2026-11-05T09:19:38.374Z"
+        },
+        {
+          "id": "681a2996-1f3b-4831-baa0-dfd5e01c2d81",
+          "method": "POST",
+          "path": "/land-sections/88bb94e4-12bd-4c7e-b21b-1d94583f3bdd/handover",
+          "status": 403,
+          "at": "2026-11-05T09:19:38.377Z"
+        },
+        {
+          "id": "4175e969-a712-4372-b0e4-5a84315162a4",
+          "method": "POST",
+          "path": "/land-sections/88bb94e4-12bd-4c7e-b21b-1d94583f3bdd/handover",
+          "status": 403,
+          "at": "2026-11-05T09:19:38.385Z"
+        },
+        {
+          "id": "55f7d85b-136c-40b5-a32e-19ef7acdbeab",
+          "method": "POST",
+          "path": "/land-sections/88bb94e4-12bd-4c7e-b21b-1d94583f3bdd/handover",
+          "status": 403,
+          "at": "2026-11-05T09:19:38.407Z"
+        },
+        {
+          "id": "c64e5b59-37ca-46e9-8fcf-8277c42d0616",
+          "method": "POST",
+          "path": "/land-sections/26f2ccdb-779e-494a-9856-cc439aa029bf/handover",
+          "status": 404,
+          "at": "2026-11-05T09:19:38.417Z"
+        },
+        {
+          "id": "1cab4f36-af57-4569-b5d2-cf67a05b2060",
+          "method": "POST",
+          "path": "/land-sections/88bb94e4-12bd-4c7e-b21b-1d94583f3bdd/handover",
+          "status": 404,
+          "at": "2026-11-05T09:19:38.436Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/lnd-handover-flows.spec.ts",
+      "name": "an officer hands a section over to the active contract in steps, and the share of the project follows the areas (AC-ST-LND-009-1, UAT-AC386, UI-LND-10)",
+      "status": "passed",
+      "durationMs": 1548,
+      "at": "2026-11-05T08:48:18.108Z",
+      "requests": [
+        {
+          "id": "21cb9bd3-4e6c-4b7c-9c0d-22e939cdaff1",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:18.905Z"
+        },
+        {
+          "id": "98367bbe-9a4d-44ac-9b1e-8a4e22c24392",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T08:48:18.906Z"
+        },
+        {
+          "id": "9a622da0-2652-435a-9145-4414cd672e5d",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:18.904Z"
+        },
+        {
+          "id": "41e32d1b-adc1-4f31-955d-203a30e47a4f",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:18.944Z"
+        },
+        {
+          "id": "21b45b5a-b918-411f-b453-4d21392b0343",
+          "method": "POST",
+          "path": "/land-sections/ba3f35a8-1ddb-499a-a5a9-1edee8a0529e/handover",
+          "status": 200,
+          "at": "2026-11-05T08:48:19.214Z"
+        },
+        {
+          "id": "eb7e20ee-cb5b-4306-9fe0-f9d0e1531046",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:19.231Z"
+        },
+        {
+          "id": "28a24e62-3785-4ffb-897b-f98e18a42d8a",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T08:48:19.232Z"
+        },
+        {
+          "id": "3cc3d428-ccca-4853-b440-bae3cad77747",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:19.229Z"
+        },
+        {
+          "id": "559f7eba-8a0c-4aa8-b0d9-d2d407be5103",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:19.243Z"
+        },
+        {
+          "id": "8671ec15-2fe2-4748-922d-a759269ad457",
+          "method": "POST",
+          "path": "/land-sections/ba3f35a8-1ddb-499a-a5a9-1edee8a0529e/handover",
+          "status": 200,
+          "at": "2026-11-05T08:48:19.347Z"
+        },
+        {
+          "id": "973005df-7766-4960-af8c-7ae7c342ed31",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:19.365Z"
+        },
+        {
+          "id": "508a1ea6-236b-44d4-9869-0018a9e350c9",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T08:48:19.365Z"
+        },
+        {
+          "id": "2ee7e418-5e74-442a-9c8d-47b53840b77c",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:19.363Z"
+        },
+        {
+          "id": "beddabb9-e018-4313-a98d-16a58120f21d",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:19.377Z"
+        },
+        {
+          "id": "b3d4e5d0-4eeb-4aa9-b5c7-8c27218875cb",
+          "method": "POST",
+          "path": "/land-sections/b4ba9c43-9d6d-4b20-be99-d2ad88d99df3/handover",
+          "status": 409,
+          "at": "2026-11-05T08:48:19.530Z"
+        }
+      ]
+    }
+  ]
+}

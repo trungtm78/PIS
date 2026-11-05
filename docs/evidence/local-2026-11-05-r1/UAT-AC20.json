@@ -1,0 +1,238 @@
+{
+  "id": "UAT-AC20",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-keys.test.ts",
+      "name": "the virtual keys of the AI gateway (ST-LLM-002, LLM F5, BR-LLM-09, LLM-06) AC-ST-LLM-002-1: UAT-AC20 makes a key whose secret is in the vault and nowhere else: the answer, the list, the rows, the audit and the events carry only the alias and the fingerprint",
+      "status": "passed",
+      "durationMs": 589,
+      "at": "2026-11-05T09:17:36.100Z",
+      "requests": [
+        {
+          "id": "791709b6-ee32-4494-ab0b-9a77db68f163",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:17:35.566Z"
+        },
+        {
+          "id": "c2c90c37-bcaa-40cb-97c8-891258da6e09",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:35.661Z"
+        },
+        {
+          "id": "a585d8c6-a28c-4e49-99a5-d761954e1be9",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:35.674Z"
+        },
+        {
+          "id": "6c6f36f6-3ab4-4071-a3cc-ac76dea2ec50",
+          "method": "POST",
+          "path": "/ai-virtual-keys",
+          "status": 200,
+          "at": "2026-11-05T09:17:35.734Z"
+        },
+        {
+          "id": "c3f0532f-24c9-45b1-b43a-aaa76f220e30",
+          "method": "GET",
+          "path": "/ai-virtual-keys",
+          "status": 200,
+          "at": "2026-11-05T09:17:35.847Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-keys.test.ts",
+      "name": "the virtual keys of the AI gateway (ST-LLM-002, LLM F5, BR-LLM-09, LLM-06) AC-ST-LLM-002-1: UAT-AC20 leaves no secret in a log when the key service fails with a message that carries one, and no key behind",
+      "status": "passed",
+      "durationMs": 351,
+      "at": "2026-11-05T09:17:36.452Z",
+      "requests": [
+        {
+          "id": "027f6d90-f681-465b-9b01-04ed84cc237a",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:17:36.231Z"
+        },
+        {
+          "id": "518165e8-5ae6-4c8b-b901-790a0d07e214",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:36.251Z"
+        },
+        {
+          "id": "1c534ab6-068f-4f00-b6a5-3e3d5ace7d99",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:36.273Z"
+        },
+        {
+          "id": "f28a1ffe-fd7b-44be-94cb-03aca65399b9",
+          "method": "POST",
+          "path": "/ai-virtual-keys",
+          "status": 503,
+          "at": "2026-11-05T09:17:36.327Z"
+        },
+        {
+          "id": "8e18d09f-9ca4-43b9-af0a-fa81b38eecd5",
+          "method": "POST",
+          "path": "/ai-virtual-keys",
+          "status": 200,
+          "at": "2026-11-05T09:17:36.348Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-keys.test.ts",
+      "name": "the virtual keys of the AI gateway (ST-LLM-002, LLM F5, BR-LLM-09, LLM-06) AC-ST-LLM-002-2: UAT-AC20 rotates a key: the new one is ACTIVE with the alias, the old one is ROTATING for a day and works until then, and is then revoked at LiteLLM",
+      "status": "passed",
+      "durationMs": 728,
+      "at": "2026-11-05T09:17:37.180Z",
+      "requests": [
+        {
+          "id": "eb24bd03-e576-4c3d-86b0-adcf1cee6ff5",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:17:36.511Z"
+        },
+        {
+          "id": "6075d98c-6035-4b03-aa0f-85c11299bcfb",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:36.524Z"
+        },
+        {
+          "id": "7b773c27-34f2-4730-ae0a-05620b0301c1",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:36.539Z"
+        },
+        {
+          "id": "6cf85bb7-21bb-47b2-bd07-bf243cd0dd7d",
+          "method": "POST",
+          "path": "/ai-virtual-keys",
+          "status": 200,
+          "at": "2026-11-05T09:17:36.597Z"
+        },
+        {
+          "id": "4d0ba140-6f9b-4c98-8c02-48fc3dd48b9d",
+          "method": "POST",
+          "path": "/ai-virtual-keys/c0fdd03f-6e80-4373-bc24-24683d056ffb/rotation",
+          "status": 200,
+          "at": "2026-11-05T09:17:36.667Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-keys.test.ts",
+      "name": "the virtual keys of the AI gateway (ST-LLM-002, LLM F5, BR-LLM-09, LLM-06) AC-ST-LLM-002-2: UAT-AC20 revokes at once: the key fails at LiteLLM before anything else, and a key LiteLLM cannot stop stays as it is",
+      "status": "passed",
+      "durationMs": 679,
+      "at": "2026-11-05T09:17:38.168Z",
+      "requests": [
+        {
+          "id": "6d0309b4-5909-4d37-863f-b19fd7f7639d",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:17:37.612Z"
+        },
+        {
+          "id": "27206ae3-b65f-4097-a68c-bd46235bab16",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:37.623Z"
+        },
+        {
+          "id": "580658dc-34d0-44a5-a687-2a87b2ec97ff",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:37.638Z"
+        },
+        {
+          "id": "f81a452d-8906-402f-999c-994cd5abbed6",
+          "method": "POST",
+          "path": "/ai-virtual-keys",
+          "status": 200,
+          "at": "2026-11-05T09:17:37.695Z"
+        },
+        {
+          "id": "2c919db0-b43b-4f5f-8b39-afe2b2dd9ed8",
+          "method": "POST",
+          "path": "/ai-virtual-keys/90e0039b-51cd-46fe-abad-2301e00c2eec/revocation",
+          "status": 503,
+          "at": "2026-11-05T09:17:37.760Z"
+        },
+        {
+          "id": "3271ceb4-3adc-4b2b-9cef-bcd7003855a1",
+          "method": "POST",
+          "path": "/ai-virtual-keys/90e0039b-51cd-46fe-abad-2301e00c2eec/revocation",
+          "status": 409,
+          "at": "2026-11-05T09:17:37.830Z"
+        },
+        {
+          "id": "69801935-04fb-4686-a147-c8dec41b4e30",
+          "method": "POST",
+          "path": "/ai-virtual-keys/90e0039b-51cd-46fe-abad-2301e00c2eec/revocation",
+          "status": 200,
+          "at": "2026-11-05T09:17:37.847Z"
+        },
+        {
+          "id": "644e7e60-4944-49ca-80e4-c7e6aa1d0488",
+          "method": "POST",
+          "path": "/ai-virtual-keys/90e0039b-51cd-46fe-abad-2301e00c2eec/revocation",
+          "status": 409,
+          "at": "2026-11-05T09:17:37.922Z"
+        },
+        {
+          "id": "b20efd49-9fac-4838-904c-c086a941cfd2",
+          "method": "POST",
+          "path": "/ai-virtual-keys/90e0039b-51cd-46fe-abad-2301e00c2eec/rotation",
+          "status": 409,
+          "at": "2026-11-05T09:17:37.939Z"
+        },
+        {
+          "id": "2cb69cff-8f29-4bff-a59e-9b8fee4a6b30",
+          "method": "POST",
+          "path": "/ai-virtual-keys/90e0039b-51cd-46fe-abad-2301e00c2eec/revocation",
+          "status": 422,
+          "at": "2026-11-05T09:17:37.958Z"
+        },
+        {
+          "id": "0f4c8e0e-7e28-4048-9a35-e8a59a495787",
+          "method": "POST",
+          "path": "/ai-virtual-keys",
+          "status": 200,
+          "at": "2026-11-05T09:17:37.970Z"
+        },
+        {
+          "id": "1ff473ce-483a-45e8-87fc-174cfea623be",
+          "method": "POST",
+          "path": "/ai-virtual-keys/5640a268-f34c-4685-ab3c-6be3de77f3e8/revocation",
+          "status": 422,
+          "at": "2026-11-05T09:17:37.989Z"
+        }
+      ]
+    }
+  ]
+}

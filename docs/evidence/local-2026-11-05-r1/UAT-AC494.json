@@ -1,0 +1,3438 @@
+{
+  "id": "UAT-AC494",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) is registered in the module of DGV",
+      "status": "passed",
+      "durationMs": 1,
+      "at": "2026-11-05T09:17:02.648Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) refuses weights of the pillars that add up to 90 (422 RUBRIC_WEIGHTS_INVALID), then is drafted, published by somebody else, and supersedes the version before it",
+      "status": "passed",
+      "durationMs": 494,
+      "at": "2026-11-05T09:17:03.142Z",
+      "requests": [
+        {
+          "id": "360441ac-85d3-4aa7-9fa7-014a21f74089",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 422,
+          "at": "2026-11-05T09:17:02.649Z"
+        },
+        {
+          "id": "4e32d124-1e08-483a-96d4-55c7d70b3c09",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:02.826Z"
+        },
+        {
+          "id": "ec9125a9-fb98-4e0e-aa03-d3b7cc17412f",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:02.855Z"
+        },
+        {
+          "id": "5654254b-a1de-4e7a-baac-6540ee1286a7",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/f2656492-6bcd-4191-9d5d-5cee35b27a45/publish",
+          "status": 403,
+          "at": "2026-11-05T09:17:02.880Z"
+        },
+        {
+          "id": "202b4dd3-cb00-4276-8216-af360f72df2f",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/9bb1f587-f689-423f-bec7-732275a0fc7f/publish",
+          "status": 409,
+          "at": "2026-11-05T09:17:02.904Z"
+        },
+        {
+          "id": "340ff119-7b60-4077-a14c-7af011c2888a",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/9bb1f587-f689-423f-bec7-732275a0fc7f/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:02.921Z"
+        },
+        {
+          "id": "bd6d5e99-0205-4d4e-8626-6b83117d05bd",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/9bb1f587-f689-423f-bec7-732275a0fc7f/publish",
+          "status": 409,
+          "at": "2026-11-05T09:17:02.938Z"
+        },
+        {
+          "id": "6805770a-700e-4b2d-9d34-d7b382c510d2",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:02.949Z"
+        },
+        {
+          "id": "02482e77-7f06-400c-90ff-3e33458ab0f4",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:02.969Z"
+        },
+        {
+          "id": "ad0e225c-c7d4-41a6-bbe4-8133123bc408",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/0b62c0ab-e3a6-48d5-a9eb-4a45e5049a20/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:02.986Z"
+        },
+        {
+          "id": "1ccb5df4-b06a-4ce5-b002-5771a041e592",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.001Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) refuses a draft with a code with a bad shape",
+      "status": "passed",
+      "durationMs": 14,
+      "at": "2026-11-05T09:17:03.157Z",
+      "requests": [
+        {
+          "id": "7f2f9f7f-9fff-4ef3-90ca-01e9711f209b",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 422,
+          "at": "2026-11-05T09:17:03.142Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) refuses a draft with seven pillars",
+      "status": "passed",
+      "durationMs": 15,
+      "at": "2026-11-05T09:17:03.172Z",
+      "requests": [
+        {
+          "id": "5926d07b-b749-4e8f-a5d7-dfd0677cd48a",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 422,
+          "at": "2026-11-05T09:17:03.157Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) refuses a draft with a share of coverage that is none",
+      "status": "passed",
+      "durationMs": 6,
+      "at": "2026-11-05T09:17:03.178Z",
+      "requests": [
+        {
+          "id": "db8f8dac-4599-46e7-92c5-31b435a0ac17",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 422,
+          "at": "2026-11-05T09:17:03.171Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) refuses a draft with days of evidence that are none",
+      "status": "passed",
+      "durationMs": 10,
+      "at": "2026-11-05T09:17:03.188Z",
+      "requests": [
+        {
+          "id": "bfabcf57-49ae-46b4-9c31-d2897f8927f9",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 422,
+          "at": "2026-11-05T09:17:03.177Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) refuses a draft with a pillar with two criteria",
+      "status": "passed",
+      "durationMs": 17,
+      "at": "2026-11-05T09:17:03.205Z",
+      "requests": [
+        {
+          "id": "08b1c92a-8f05-42dc-b50f-be387ae7d1b1",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 422,
+          "at": "2026-11-05T09:17:03.188Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) is drafted and published only by those who may, over the whole tenant",
+      "status": "passed",
+      "durationMs": 124,
+      "at": "2026-11-05T09:17:03.329Z",
+      "requests": [
+        {
+          "id": "40a89d1f-3e87-48a1-ad96-52234538eaba",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 403,
+          "at": "2026-11-05T09:17:03.205Z"
+        },
+        {
+          "id": "d8698471-266c-408f-b3a6-bb9940f8c898",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 403,
+          "at": "2026-11-05T09:17:03.219Z"
+        },
+        {
+          "id": "3d97da13-df60-467d-a93a-ce3fa7899ec4",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 403,
+          "at": "2026-11-05T09:17:03.234Z"
+        },
+        {
+          "id": "910616d8-f9f4-4029-8b07-edd96ee27d8d",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.254Z"
+        },
+        {
+          "id": "eadc8eb2-d67d-4032-91ac-2f7bf35a84ae",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/d0b4f9b6-5cf9-4a1d-b983-fd5019379dbf/publish",
+          "status": 403,
+          "at": "2026-11-05T09:17:03.278Z"
+        },
+        {
+          "id": "d07f86c7-dd0c-44e8-97cf-e822825b0ba6",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/d0b4f9b6-5cf9-4a1d-b983-fd5019379dbf/publish",
+          "status": 403,
+          "at": "2026-11-05T09:17:03.283Z"
+        },
+        {
+          "id": "ad4a993c-81ad-4885-9b1b-996d570ace63",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 403,
+          "at": "2026-11-05T09:17:03.298Z"
+        },
+        {
+          "id": "91ba57e4-a83c-4966-938f-1ceafd12be69",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 403,
+          "at": "2026-11-05T09:17:03.312Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) publishes two drafts of one rubric one after the other: the second waits for the first and replaces it",
+      "status": "passed",
+      "durationMs": 481,
+      "at": "2026-11-05T09:17:03.810Z",
+      "requests": [
+        {
+          "id": "c496ed51-0fd1-4ee5-91e2-8803f04745ec",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.329Z"
+        },
+        {
+          "id": "18eab6cc-c9c4-40c4-9487-5464d52ac9fb",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.351Z"
+        },
+        {
+          "id": "bd7a7ab2-2ab5-4ec4-9556-14d9b5114ce0",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/cddbb97a-205d-4587-8b51-06fce6552fda/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.368Z"
+        },
+        {
+          "id": "a50bff57-eea1-4926-a68a-97210e6add71",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/cc85eee5-a2b1-4198-88b8-bf4deeda7686/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.368Z"
+        },
+        {
+          "id": "4af0f441-b725-4408-ad9c-9f8efb5c8728",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.797Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) is never changed or deleted once written, and the database refuses the same of anything else",
+      "status": "passed",
+      "durationMs": 68,
+      "at": "2026-11-05T09:17:03.878Z",
+      "requests": [
+        {
+          "id": "41562f49-59c0-4838-9f7d-1f98e3bf1792",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.810Z"
+        },
+        {
+          "id": "5975323a-d6ac-41b6-873a-90291738c1e3",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/2c7a5854-2e7c-41bb-88cf-cd02eceab064/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.830Z"
+        },
+        {
+          "id": "a14319c3-2922-42b1-b912-232f918e9e8c",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.853Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) lists the rubrics newest first, by code and by state, a page at a time",
+      "status": "passed",
+      "durationMs": 183,
+      "at": "2026-11-05T09:17:04.062Z",
+      "requests": [
+        {
+          "id": "75c9e234-5fa5-4fd4-a059-31e37452868e",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.878Z"
+        },
+        {
+          "id": "9ae1852c-ecf6-469d-a50a-bf9f74fd8c24",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.894Z"
+        },
+        {
+          "id": "48f7b78e-91b2-4b38-82f4-546f5c1a2b6f",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.915Z"
+        },
+        {
+          "id": "6d2fd820-89e0-47b9-b5e1-e02dc1380b44",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.940Z"
+        },
+        {
+          "id": "0ef6b6ae-4a76-4681-8507-75dd249c5633",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.950Z"
+        },
+        {
+          "id": "899469ae-8222-40d7-92d4-762b95e9f721",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.968Z"
+        },
+        {
+          "id": "398a5f53-7820-48c3-93c3-232ff704f8f6",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.983Z"
+        },
+        {
+          "id": "ad95d372-fb4d-4915-8da5-6c3e3e757c18",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.000Z"
+        },
+        {
+          "id": "0b3f0093-0785-41b8-b8bf-93637438ae86",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.013Z"
+        },
+        {
+          "id": "49df5875-1070-4047-9b48-1a5813d57fef",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.029Z"
+        },
+        {
+          "id": "5f757295-c257-4250-885d-8562aa49be3f",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.046Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) starts with every criterion NOT_ASSESSED, for a rubric that is published, with an assessor and a reviewer who are two people",
+      "status": "passed",
+      "durationMs": 210,
+      "at": "2026-11-05T09:17:04.273Z",
+      "requests": [
+        {
+          "id": "b7d6879c-9ab9-4ea9-bd98-b883ad83636a",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.062Z"
+        },
+        {
+          "id": "7b01612e-5f8b-48bc-b4f1-e33fc5d05a80",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.082Z"
+        },
+        {
+          "id": "67b67f83-687f-4673-97f2-37a87373f93f",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.096Z"
+        },
+        {
+          "id": "5635c92f-8cf1-42ca-98b7-27bf0bd1ef7c",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/62a4e331-5013-4041-b582-de446aecd364/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.118Z"
+        },
+        {
+          "id": "fdf75d88-06ee-4396-b27a-4b89a0303459",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.134Z"
+        },
+        {
+          "id": "ba1d2337-7f7e-48ac-a844-55332816a523",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.145Z"
+        },
+        {
+          "id": "51a03ad0-9426-47b0-8944-c3407d7dcb63",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/d15e866d-de69-47de-9167-c5c294804639",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.170Z"
+        },
+        {
+          "id": "0e5a97cb-7c5e-4e24-be6a-50ecd6aca1a7",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.191Z"
+        },
+        {
+          "id": "bcd60bf6-bddf-4c74-b8e1-424047269254",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 409,
+          "at": "2026-11-05T09:17:04.249Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) refuses an assessment with a rubric that is none",
+      "status": "passed",
+      "durationMs": 47,
+      "at": "2026-11-05T09:17:04.320Z",
+      "requests": [
+        {
+          "id": "570534ae-1194-4519-bd19-dc1f57e939ef",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.273Z"
+        },
+        {
+          "id": "d2bdc66e-7d4c-4b56-9dec-9b52b018d3fc",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/4e232f09-59cc-448b-bc56-cdc9a79173d6/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.291Z"
+        },
+        {
+          "id": "63c9b495-b69c-48e4-8296-df5f1daefcb5",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.309Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) refuses an assessment with a period that is too short",
+      "status": "passed",
+      "durationMs": 45,
+      "at": "2026-11-05T09:17:04.366Z",
+      "requests": [
+        {
+          "id": "6c3f2d8f-8724-460d-a098-de7a3bdfbca2",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.320Z"
+        },
+        {
+          "id": "17595823-0a6f-4388-b175-1487993ea742",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/144e9445-4c2c-4421-b1e9-9985690805a2/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.338Z"
+        },
+        {
+          "id": "6a0e209b-f201-4f59-96a0-e1d96e15d3e6",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.353Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) refuses an assessment with a scope that is none",
+      "status": "passed",
+      "durationMs": 47,
+      "at": "2026-11-05T09:17:04.413Z",
+      "requests": [
+        {
+          "id": "e7343282-faef-4ecb-8e79-e9edb6d13b1f",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.366Z"
+        },
+        {
+          "id": "83d2d470-4d06-4092-8453-17d983ba8d72",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/933c0add-295b-4a67-bb61-ba892488e7a6/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.388Z"
+        },
+        {
+          "id": "829826b3-faba-419b-babf-3b45272582c6",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.403Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) refuses an assessment with a scope of the tenant that names a reference",
+      "status": "passed",
+      "durationMs": 34,
+      "at": "2026-11-05T09:17:04.447Z",
+      "requests": [
+        {
+          "id": "338265c4-8933-458d-b886-0ada8f8596a8",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.413Z"
+        },
+        {
+          "id": "6f3a11a3-810c-4bed-a77c-5d67e9794dd4",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/f7777581-47b6-49b0-b82d-d3a0da5f35ea/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.423Z"
+        },
+        {
+          "id": "9606e049-6e44-4679-81f7-52237d52bd12",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.434Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) refuses an assessment with a domain with no reference",
+      "status": "passed",
+      "durationMs": 48,
+      "at": "2026-11-05T09:17:04.495Z",
+      "requests": [
+        {
+          "id": "f64225df-41f5-4429-979d-4f0fb801d0d2",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.446Z"
+        },
+        {
+          "id": "80e305cd-da9d-4118-886d-8269be7c96b4",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/dcae151d-f88a-4bb4-aa63-c84b697a1086/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.467Z"
+        },
+        {
+          "id": "897dd6c4-2e8f-4f30-8ffe-fe64ff956d72",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.482Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) refuses an assessment with a domain that no dataset has",
+      "status": "passed",
+      "durationMs": 50,
+      "at": "2026-11-05T09:17:04.545Z",
+      "requests": [
+        {
+          "id": "deba65ac-034e-46f7-bbc9-bf49f2ff6459",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.495Z"
+        },
+        {
+          "id": "15c593c0-3ddd-4328-a4cb-4d8a416e18ff",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/8c9d4a56-adba-46ce-ba45-7f98577e4355/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.517Z"
+        },
+        {
+          "id": "bba1c9ab-adc7-4ece-992f-b67b70c7bc31",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.530Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) refuses an assessment with a product that is none",
+      "status": "passed",
+      "durationMs": 47,
+      "at": "2026-11-05T09:17:04.593Z",
+      "requests": [
+        {
+          "id": "94663fdb-cf84-467c-b94e-15529af76b47",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.545Z"
+        },
+        {
+          "id": "5c626647-209b-4952-8dba-94b6561c61b3",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/6d7829fa-a398-47f9-98ee-b498ce31928a/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.562Z"
+        },
+        {
+          "id": "8436cf89-5f41-4b29-8cba-b54d318a2fcf",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.578Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) refuses an assessment with an assessor who is no member",
+      "status": "passed",
+      "durationMs": 48,
+      "at": "2026-11-05T09:17:04.641Z",
+      "requests": [
+        {
+          "id": "bae392ad-45d0-4a07-8bb1-56f72bdba35c",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.593Z"
+        },
+        {
+          "id": "cc683fa4-5188-4d1d-b815-68a3fb76f456",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/28b7b157-f0fe-4bf4-a3f4-de90b8b0e5e5/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.610Z"
+        },
+        {
+          "id": "ad6340e6-8aff-4362-afcc-16a1f2faf3b8",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.632Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) refuses an assessment with a reviewer who is no member",
+      "status": "passed",
+      "durationMs": 48,
+      "at": "2026-11-05T09:17:04.688Z",
+      "requests": [
+        {
+          "id": "35dccc9f-fb4a-44df-9ec7-3c50acb63861",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.641Z"
+        },
+        {
+          "id": "8d7c339e-8925-49e2-a1f1-ce05cb8684e3",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/c1841ad4-487c-49b3-a64e-21eba07ab35a/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.660Z"
+        },
+        {
+          "id": "f49fc84f-d6d8-48b8-857c-8efc2390c723",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.675Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) is another tenant’s: its rubric and its people are unknown",
+      "status": "passed",
+      "durationMs": 50,
+      "at": "2026-11-05T09:17:04.739Z",
+      "requests": [
+        {
+          "id": "5727dca9-3df9-4a50-a2d6-0c83fc93acea",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.688Z"
+        },
+        {
+          "id": "ef338af7-cfb3-4e19-b6ed-965d6e186b35",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/7ffb921b-75b6-4061-a8bc-1e733049f192/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.707Z"
+        },
+        {
+          "id": "f222d958-c2a3-46b8-b9fc-7721118c1900",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.724Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) refuses the evidence that is missing or has run out, with the criterion NOT_ASSESSED still (UAT-AC492)",
+      "status": "passed",
+      "durationMs": 157,
+      "at": "2026-11-05T09:17:04.895Z",
+      "requests": [
+        {
+          "id": "2af325d4-3211-4145-88c2-1157eaffb0f4",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.739Z"
+        },
+        {
+          "id": "aed07b25-891d-4b88-93dd-de86f2f44933",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/60da7cb7-4b66-450e-8f03-db0c3997df0c/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.756Z"
+        },
+        {
+          "id": "44bf45f2-f9f7-4d3a-8fdb-388f5b9355a8",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.770Z"
+        },
+        {
+          "id": "fc0330f0-9d3b-4d7b-9fdb-56acd9bdcaf0",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.789Z"
+        },
+        {
+          "id": "9c7b45c1-534c-48ae-a58c-79ee949127d6",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/871ee223-7820-4d05-9479-218b3b3c2b79/evidence",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.799Z"
+        },
+        {
+          "id": "3eff3762-d952-4011-ae7f-984f089ba25f",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/871ee223-7820-4d05-9479-218b3b3c2b79/evidence",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.818Z"
+        },
+        {
+          "id": "0fb3ce66-5c4f-4158-92ea-97e0332f50e8",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/871ee223-7820-4d05-9479-218b3b3c2b79/evidence",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.826Z"
+        },
+        {
+          "id": "78efc431-1fef-44d7-8322-24a2259d2db8",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/871ee223-7820-4d05-9479-218b3b3c2b79/evidence",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.849Z"
+        },
+        {
+          "id": "d557428d-6a04-4692-8d96-ca4fc440228b",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.863Z"
+        },
+        {
+          "id": "807cf78e-2fd5-437b-affc-ca00f50ec01f",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/871ee223-7820-4d05-9479-218b3b3c2b79",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.880Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) is recorded by its assessor only, against the version of the row that was read, and put in review by the first record",
+      "status": "passed",
+      "durationMs": 262,
+      "at": "2026-11-05T09:17:05.158Z",
+      "requests": [
+        {
+          "id": "e5f278cc-d980-48ca-9b08-1026bc5f9e43",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.895Z"
+        },
+        {
+          "id": "775cb2bf-df9e-4ac7-ab9a-936d5602cc5a",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/8077c03d-2ac8-413a-a98b-e5ccd72bb11a/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.915Z"
+        },
+        {
+          "id": "aa5b77e6-ac0e-4c75-bddb-f8c42501bf80",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.933Z"
+        },
+        {
+          "id": "6a9fea91-08e7-4a2f-beb8-f0b1ce097af3",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:04.949Z"
+        },
+        {
+          "id": "54cec89d-9b4f-49ce-b962-4d5ba576935e",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/5cdf1100-2aa1-4b1a-be93-d427d75f6e57/evidence",
+          "status": 403,
+          "at": "2026-11-05T09:17:04.959Z"
+        },
+        {
+          "id": "61d7c90a-70a9-45e2-9dbc-74bf629cb12c",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/5cdf1100-2aa1-4b1a-be93-d427d75f6e57/evidence",
+          "status": 403,
+          "at": "2026-11-05T09:17:04.975Z"
+        },
+        {
+          "id": "943b9ea9-2146-41b3-a9ca-1a47b69c0245",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/5cdf1100-2aa1-4b1a-be93-d427d75f6e57/evidence",
+          "status": 403,
+          "at": "2026-11-05T09:17:04.989Z"
+        },
+        {
+          "id": "3c8006e4-e481-4489-a310-9bf01693f75b",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/5cdf1100-2aa1-4b1a-be93-d427d75f6e57/evidence",
+          "status": 409,
+          "at": "2026-11-05T09:17:04.999Z"
+        },
+        {
+          "id": "0dce185e-3196-4215-8d30-67ab2fa7f3fc",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/5cdf1100-2aa1-4b1a-be93-d427d75f6e57/evidence",
+          "status": 422,
+          "at": "2026-11-05T09:17:05.010Z"
+        },
+        {
+          "id": "8920b98c-cc64-4ad3-b78b-11a025ee11fa",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/5cdf1100-2aa1-4b1a-be93-d427d75f6e57/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.026Z"
+        },
+        {
+          "id": "b6795dd7-98ef-421a-90a1-6b9f5c17caac",
+          "method": "GET",
+          "path": "/resources/maturity_evidence/d033c799-aa11-45c2-9aa7-5e5932795a61",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.048Z"
+        },
+        {
+          "id": "75d02262-69f7-43ca-a836-233943efa4da",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/5cdf1100-2aa1-4b1a-be93-d427d75f6e57/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.142Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) is reviewed by the reviewer of the assessment and nobody else, never by who recorded it, and never when the evidence has run out (UAT-AC492)",
+      "status": "passed",
+      "durationMs": 379,
+      "at": "2026-11-05T09:17:05.537Z",
+      "requests": [
+        {
+          "id": "402ed83d-bf4d-49d8-afc6-53dbc60a79a8",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.157Z"
+        },
+        {
+          "id": "5fc29293-e3ce-46e0-8acf-2250481efeed",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/b7527d36-ad71-48b6-83bd-6d98719b5216/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.171Z"
+        },
+        {
+          "id": "e6fa1e37-25e6-484d-8552-22bfa561af48",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.188Z"
+        },
+        {
+          "id": "645d7965-e3e6-4ff8-9b1f-2ae35522ea7f",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.203Z"
+        },
+        {
+          "id": "1f1c0e84-98b3-4616-ba2c-dbb97c263de7",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/92d2633d-5798-4ea2-adbf-e0a8bad7e659/review",
+          "status": 409,
+          "at": "2026-11-05T09:17:05.217Z"
+        },
+        {
+          "id": "7f534e5d-c4cf-40cc-8af0-48648e409242",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/32715c4e-b880-410b-bdb7-7d90b2aa6265/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.235Z"
+        },
+        {
+          "id": "02108566-336e-4077-88a9-05e290c9459c",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/92d2633d-5798-4ea2-adbf-e0a8bad7e659/review",
+          "status": 403,
+          "at": "2026-11-05T09:17:05.255Z"
+        },
+        {
+          "id": "a2896d43-2e47-426b-bf3a-cb6f674e4764",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/92d2633d-5798-4ea2-adbf-e0a8bad7e659/review",
+          "status": 403,
+          "at": "2026-11-05T09:17:05.262Z"
+        },
+        {
+          "id": "cef6b610-e281-49a0-81eb-f44079aee87d",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/92d2633d-5798-4ea2-adbf-e0a8bad7e659/review",
+          "status": 403,
+          "at": "2026-11-05T09:17:05.281Z"
+        },
+        {
+          "id": "97b744d2-e352-4066-a60d-3c6e595f8a28",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/92d2633d-5798-4ea2-adbf-e0a8bad7e659/review",
+          "status": 409,
+          "at": "2026-11-05T09:17:05.295Z"
+        },
+        {
+          "id": "bbd72449-0ca6-46f8-a669-345d41106718",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/92d2633d-5798-4ea2-adbf-e0a8bad7e659/review",
+          "status": 422,
+          "at": "2026-11-05T09:17:05.312Z"
+        },
+        {
+          "id": "a0d7106d-82f2-472b-8d2f-a56b203d0021",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/92d2633d-5798-4ea2-adbf-e0a8bad7e659/review",
+          "status": 422,
+          "at": "2026-11-05T09:17:05.325Z"
+        },
+        {
+          "id": "d09c9703-32d2-4f76-bd64-a4f681c4c898",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/92d2633d-5798-4ea2-adbf-e0a8bad7e659/review",
+          "status": 422,
+          "at": "2026-11-05T09:17:05.386Z"
+        },
+        {
+          "id": "eba519bc-b238-4fec-8fd4-414d898bb47c",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/92d2633d-5798-4ea2-adbf-e0a8bad7e659/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.451Z"
+        },
+        {
+          "id": "dc2bac8c-44d1-4bd2-b7cd-a32b96035326",
+          "method": "GET",
+          "path": "/resources/maturity_evidence/92d2633d-5798-4ea2-adbf-e0a8bad7e659",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.480Z"
+        },
+        {
+          "id": "8c97eda4-a5b2-485f-9caa-4dd7e732a35b",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/92d2633d-5798-4ea2-adbf-e0a8bad7e659/review",
+          "status": 409,
+          "at": "2026-11-05T09:17:05.528Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) is not reviewed or published by who assessed it, even by somebody who may do both (UAT-AC492)",
+      "status": "passed",
+      "durationMs": 143,
+      "at": "2026-11-05T09:17:05.680Z",
+      "requests": [
+        {
+          "id": "0e09c9d6-31d4-40f2-8aae-4d2f005a6a18",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.536Z"
+        },
+        {
+          "id": "403b7b43-cae4-4599-9fa2-e15e8ad70379",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/59cf621c-e2ff-4695-b376-e5e264714e01/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.544Z"
+        },
+        {
+          "id": "299e5ae0-0ffa-4957-8561-ca72c7e00143",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.554Z"
+        },
+        {
+          "id": "1bcb5d21-c123-4dc2-a752-0096bcf25706",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.573Z"
+        },
+        {
+          "id": "0078f7cd-b33f-4931-90b3-ab6ba249eb41",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/7d2b8724-c46c-42b1-bd39-011ebe49451f/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.582Z"
+        },
+        {
+          "id": "8adb2e6e-2a0b-4bb7-9a31-1f0569be2926",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/02c893b2-f3ec-4c53-96d7-ed0a4d7a0fa9/review",
+          "status": 403,
+          "at": "2026-11-05T09:17:05.605Z"
+        },
+        {
+          "id": "a5762b04-46c0-4d11-9bbc-d519620c4487",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/02c893b2-f3ec-4c53-96d7-ed0a4d7a0fa9/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.618Z"
+        },
+        {
+          "id": "06e22fa3-14fb-4ec0-8ff3-376a2e306d77",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/7d2b8724-c46c-42b1-bd39-011ebe49451f",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.637Z"
+        },
+        {
+          "id": "f15d0863-02a6-4cd3-9863-7a43d46a1cbd",
+          "method": "POST",
+          "path": "/maturity-assessments/7d2b8724-c46c-42b1-bd39-011ebe49451f/publish",
+          "status": 403,
+          "at": "2026-11-05T09:17:05.646Z"
+        },
+        {
+          "id": "15af820d-d1bc-4394-8388-9fe119732ba0",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/7d2b8724-c46c-42b1-bd39-011ebe49451f",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.666Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) shows what the evidence says to the assessor, the reviewer and the auditors only: to anybody else who may read the rows there is the criterion, its state and how many pieces of evidence there are",
+      "status": "passed",
+      "durationMs": 287,
+      "at": "2026-11-05T09:17:05.967Z",
+      "requests": [
+        {
+          "id": "6b7afaba-fe0d-4c0e-8c6f-f39521e6a62f",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.680Z"
+        },
+        {
+          "id": "fc2b52ec-8ca3-4df0-b980-54511bbde4ad",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/4ad42759-5ba4-45b2-ab47-ed86748f29f2/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.698Z"
+        },
+        {
+          "id": "dbf8dc5e-c380-4cc3-8141-ad43e21fa0a9",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.715Z"
+        },
+        {
+          "id": "bafd3107-b781-4625-821a-a8e0bbef5c5a",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.732Z"
+        },
+        {
+          "id": "4a70dfd1-d2c9-41e3-b28b-01cb7444dccc",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/328bcbd5-6464-4d94-a61b-f2ac9dd05c22/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.743Z"
+        },
+        {
+          "id": "2842871c-d6c1-4f78-8ba1-ba2c780a1f42",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/c35c256e-fd41-4bb8-95df-9f26ba06c767/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.765Z"
+        },
+        {
+          "id": "74cb615c-7a2b-4178-aa22-28752389afcf",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/328bcbd5-6464-4d94-a61b-f2ac9dd05c22/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.782Z"
+        },
+        {
+          "id": "a2a9c761-1b77-4d62-83ca-c9caac95a20f",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/d90d13f9-ddde-40d2-969b-17ad7dc56180/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.796Z"
+        },
+        {
+          "id": "735fa42a-03b3-4550-8ed8-f7ce46e21fd2",
+          "method": "GET",
+          "path": "/resources/maturity_evidence/d90d13f9-ddde-40d2-969b-17ad7dc56180",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.815Z"
+        },
+        {
+          "id": "7b95397e-d1d0-48f5-bbbf-daad4a055c42",
+          "method": "GET",
+          "path": "/resources/maturity_evidence/d90d13f9-ddde-40d2-969b-17ad7dc56180",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.824Z"
+        },
+        {
+          "id": "9022cd11-5705-4f41-b7a8-b388db1ea278",
+          "method": "GET",
+          "path": "/resources/maturity_evidence/d90d13f9-ddde-40d2-969b-17ad7dc56180",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.840Z"
+        },
+        {
+          "id": "44b22486-4130-4fd1-94ed-088fda542bab",
+          "method": "GET",
+          "path": "/resources/maturity_evidence/d90d13f9-ddde-40d2-969b-17ad7dc56180",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.855Z"
+        },
+        {
+          "id": "6abba59d-7190-4eb5-9fc3-130b2f532ea0",
+          "method": "GET",
+          "path": "/resources/maturity_evidence/d90d13f9-ddde-40d2-969b-17ad7dc56180",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.870Z"
+        },
+        {
+          "id": "e941f623-f80b-4dc4-aea6-808baa140524",
+          "method": "GET",
+          "path": "/resources/maturity_evidence/d90d13f9-ddde-40d2-969b-17ad7dc56180",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.886Z"
+        },
+        {
+          "id": "0e1c4182-c5e4-409e-abf3-bc627f496abf",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.903Z"
+        },
+        {
+          "id": "2588d718-bcab-4c6d-b4c4-d3c6e1aa822b",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.918Z"
+        },
+        {
+          "id": "d9ac4c44-df40-45e5-bc84-51a9a2d31d13",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.935Z"
+        },
+        {
+          "id": "bd385baa-1d3f-49da-958e-fc9c818ce780",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.951Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) turns a rejected record back to NOT_ASSESSED, with no level",
+      "status": "passed",
+      "durationMs": 129,
+      "at": "2026-11-05T09:17:06.097Z",
+      "requests": [
+        {
+          "id": "a741a6c0-6e2a-4c66-ac2c-b31e526c6536",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.967Z"
+        },
+        {
+          "id": "e202d23c-7390-4bdd-8900-8563caefb5ef",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/452547e3-6c7a-4d99-b429-2b686ceeec80/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:05.988Z"
+        },
+        {
+          "id": "473a38fb-b4a4-4bea-b15a-531684dab1ae",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.002Z"
+        },
+        {
+          "id": "ddb954a4-5228-4416-b97e-207c58368204",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.022Z"
+        },
+        {
+          "id": "22c19a65-4830-40d1-908f-f467b7592d2c",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/e14302f5-8e7c-4958-b3a2-aadad61598a9/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.031Z"
+        },
+        {
+          "id": "c3b67607-d9d9-4401-8a80-0e8cd798e072",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/e24cdcdf-e2d2-46be-8f64-7dedfbf0229a/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.052Z"
+        },
+        {
+          "id": "9e6e3ec9-5791-47a2-a583-8e6eef0221a9",
+          "method": "GET",
+          "path": "/resources/maturity_evidence/e24cdcdf-e2d2-46be-8f64-7dedfbf0229a",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.071Z"
+        },
+        {
+          "id": "b573502a-0163-44cd-9f52-7cff4f950479",
+          "method": "GET",
+          "path": "/dgv/maturity-assessments/e14302f5-8e7c-4958-b3a2-aadad61598a9/score",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.078Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) scores 14 of 22 criteria as no total, and 17 of 22 as a total over the criteria that are assessed (UAT-AC53)",
+      "status": "passed",
+      "durationMs": 718,
+      "at": "2026-11-05T09:17:06.816Z",
+      "requests": [
+        {
+          "id": "c2701619-1dbd-41b7-8afe-3f19cc0ea72e",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.097Z"
+        },
+        {
+          "id": "646e308d-1f04-4dbe-a1d1-4b941ea3ad55",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/53ec731f-bfa6-488d-90c5-0de182edb261/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.115Z"
+        },
+        {
+          "id": "aba5b400-d537-42f2-adf8-88e05972f8f3",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.130Z"
+        },
+        {
+          "id": "232dc5f8-ba95-4597-88a7-ae117f36bdea",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.147Z"
+        },
+        {
+          "id": "cbd162b9-211e-405a-be3b-06005439cd95",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.158Z"
+        },
+        {
+          "id": "210be9be-8cd5-431c-afff-f5bb3aec43ba",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/6a2ec40f-d803-4ff4-9261-17d6b9ec4406/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.180Z"
+        },
+        {
+          "id": "f2c4a90f-d1c9-482e-95c7-557fba126211",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.195Z"
+        },
+        {
+          "id": "9c2b6053-6045-4eec-bdbe-917c7c3283ee",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/e122d3c4-2b7a-4f98-b96c-524608f4818a/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.211Z"
+        },
+        {
+          "id": "b3b0726b-b1f1-4132-9f06-e748d3bd70a7",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.227Z"
+        },
+        {
+          "id": "5515a96b-29b0-4cde-a010-5a49f23f3c1b",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/0de903f2-c527-4580-b59e-6408339c27f3/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.242Z"
+        },
+        {
+          "id": "06cc8a7b-615d-4ff1-8c8d-d221a381e134",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.262Z"
+        },
+        {
+          "id": "c3ec208a-167c-43f7-a121-e058ca4a6e42",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/4f2541a0-52a1-40f6-b383-cc125815336f/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.275Z"
+        },
+        {
+          "id": "6b94faa7-c067-45e0-8e0e-8a0a858890b3",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.292Z"
+        },
+        {
+          "id": "7a85a17e-0dce-4428-acdb-b30cff561cb2",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/6f35e7f5-2e5f-4230-b5a3-bf940cc5b0c6/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.306Z"
+        },
+        {
+          "id": "95e504db-a1c9-43db-a4ea-5958a8939659",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.322Z"
+        },
+        {
+          "id": "089ac51d-ccd6-4ab0-97f4-93d5e982cdec",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/521f4a10-451f-45b9-8137-c57ca06bbb7f/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.341Z"
+        },
+        {
+          "id": "e58925e1-f825-4c01-bbb0-ca94b2b29ce1",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.355Z"
+        },
+        {
+          "id": "56c51f03-ce2f-413a-ac0a-cddfb84e7203",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/15382b64-967e-4db4-ba7d-d478dc900568/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.370Z"
+        },
+        {
+          "id": "da08f064-65d6-47af-b6bd-08a7f1f43a5e",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.388Z"
+        },
+        {
+          "id": "f5bc667b-e270-4521-8525-c06815edfc6f",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/7a123eeb-f1d4-42ba-be3a-23b957181384/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.402Z"
+        },
+        {
+          "id": "f6e44107-036d-4d46-8a7d-db3a585ff178",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.418Z"
+        },
+        {
+          "id": "0744aac2-0abe-4692-af76-f9ca6ffdb715",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/80b226ec-87a7-4280-bbd4-c848e36b0263/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.436Z"
+        },
+        {
+          "id": "35948769-c5ab-4e46-9535-e506d37733c6",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.451Z"
+        },
+        {
+          "id": "9bce440f-c46e-4906-8bef-3ba0ba72004e",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/9c3f6654-940b-4e10-b107-72285b8648fd/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.476Z"
+        },
+        {
+          "id": "e733fa98-84cd-4e79-aae1-fcc4ce94e113",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.499Z"
+        },
+        {
+          "id": "61a2d8c4-9d17-4529-87d7-11336aa683c2",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/f5617f7b-6f0d-404a-b226-6552826023cb/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.517Z"
+        },
+        {
+          "id": "7a5c641c-fc0b-4cb4-b814-4d64b2919bea",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.530Z"
+        },
+        {
+          "id": "d1d94cac-49cf-4885-a12a-1b0a01a44d52",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/1488813e-f5fc-4bad-9fd5-c08f6da8549b/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.548Z"
+        },
+        {
+          "id": "cb4e3247-06fb-43c9-a259-58c639802750",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.563Z"
+        },
+        {
+          "id": "6986eb8f-b422-43fb-83ba-4337efc30c06",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/a49f613e-ad71-4726-95b4-1e067a1ca37d/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.578Z"
+        },
+        {
+          "id": "f3c34f4e-e043-4085-840e-4a0cfba3b5c7",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.589Z"
+        },
+        {
+          "id": "21ce40c2-0aa4-46a8-9b37-ca58d469134d",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/cf672c33-2bf6-41bf-ae51-68f8cf29aab0/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.611Z"
+        },
+        {
+          "id": "dd59fd31-b140-413d-a24b-780a261b712c",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.626Z"
+        },
+        {
+          "id": "e206831f-db47-4418-b232-8cf542a3aa61",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/25f36bea-dc57-49fa-89ca-959df3e181ee/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.643Z"
+        },
+        {
+          "id": "d0469389-3b4f-40dc-bca5-c34678996136",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.658Z"
+        },
+        {
+          "id": "c45536f5-e384-4409-bf13-714283c78358",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/f52ed86c-73be-4bb4-ac7b-eb9991b34abb/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.674Z"
+        },
+        {
+          "id": "ffd49334-112d-4867-a47d-51cf7061b5ed",
+          "method": "GET",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/score",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.688Z"
+        },
+        {
+          "id": "819a53e0-3752-4496-b2de-914baa47d34d",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.702Z"
+        },
+        {
+          "id": "c8aaad05-60d7-4037-9874-8495b19445e7",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/f4d5b134-550a-4950-8ce5-2e97f79513a2/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.725Z"
+        },
+        {
+          "id": "bb824e47-0fa4-43b4-b391-05fe3b6619f8",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.738Z"
+        },
+        {
+          "id": "5db79212-69e2-4aa3-ac97-2728498f22af",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/fb344fea-cc7c-414a-b16b-0b411225f946/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.757Z"
+        },
+        {
+          "id": "04427391-ad8f-43fb-b736-73f85a2ee870",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.770Z"
+        },
+        {
+          "id": "ed6bfb7a-00b9-426a-af75-bdd39ccd4d6f",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/4d3e2c8b-67d8-4afb-b1af-2d79a8dd1a4f/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.782Z"
+        },
+        {
+          "id": "7bd4e383-2fcb-4831-a7e2-4d44d059946c",
+          "method": "GET",
+          "path": "/dgv/maturity-assessments/841bf16c-1b29-4c18-ac51-7fb9d99db561/score",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.805Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) is published by somebody other than its assessor with the score it has, and then never changes (UAT-AC492)",
+      "status": "passed",
+      "durationMs": 447,
+      "at": "2026-11-05T09:17:07.263Z",
+      "requests": [
+        {
+          "id": "a16f6381-3adf-4776-8539-0ea15be65035",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.816Z"
+        },
+        {
+          "id": "24015385-9104-4f86-bf10-ffd29b6419d3",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/bca8490f-aef9-430f-8f8e-bf1383c01d7a/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.832Z"
+        },
+        {
+          "id": "e9c1330f-ad5d-4211-9a69-6f2d552ae4ed",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.851Z"
+        },
+        {
+          "id": "ba88cc1a-2039-4caf-8f23-d6e409e5462b",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.864Z"
+        },
+        {
+          "id": "00f02ff3-3cef-4e62-ab46-117c60bc86bb",
+          "method": "POST",
+          "path": "/maturity-assessments/53b82c34-0ff9-411f-88a0-7d88f02327c1/publish",
+          "status": 409,
+          "at": "2026-11-05T09:17:06.876Z"
+        },
+        {
+          "id": "806ec990-62d7-4097-982d-bbef7f62e4d5",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/53b82c34-0ff9-411f-88a0-7d88f02327c1/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.893Z"
+        },
+        {
+          "id": "9ddef25b-811d-414d-b78f-07ae83c24cd1",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/fcbe511e-173a-46b6-b515-8bb4a47fa50d/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.914Z"
+        },
+        {
+          "id": "aad8c615-c806-4576-85c9-40aec9877b49",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/53b82c34-0ff9-411f-88a0-7d88f02327c1",
+          "status": 200,
+          "at": "2026-11-05T09:17:06.925Z"
+        },
+        {
+          "id": "79e5608d-6231-4261-862f-7f551f59ed5f",
+          "method": "POST",
+          "path": "/maturity-assessments/53b82c34-0ff9-411f-88a0-7d88f02327c1/publish",
+          "status": 403,
+          "at": "2026-11-05T09:17:06.940Z"
+        },
+        {
+          "id": "828a2747-7ec5-4d77-b92a-18f49509636f",
+          "method": "POST",
+          "path": "/maturity-assessments/53b82c34-0ff9-411f-88a0-7d88f02327c1/publish",
+          "status": 403,
+          "at": "2026-11-05T09:17:06.955Z"
+        },
+        {
+          "id": "5ff90922-16aa-4b55-8163-65196bc79674",
+          "method": "POST",
+          "path": "/maturity-assessments/53b82c34-0ff9-411f-88a0-7d88f02327c1/publish",
+          "status": 409,
+          "at": "2026-11-05T09:17:06.971Z"
+        },
+        {
+          "id": "7a697eb8-1d80-46f5-bc9a-8b615f8a7f07",
+          "method": "POST",
+          "path": "/maturity-assessments/53b82c34-0ff9-411f-88a0-7d88f02327c1/publish",
+          "status": 422,
+          "at": "2026-11-05T09:17:06.989Z"
+        },
+        {
+          "id": "bd24a519-decd-43b1-9eec-eec2b0578f3f",
+          "method": "POST",
+          "path": "/maturity-assessments/53b82c34-0ff9-411f-88a0-7d88f02327c1/publish",
+          "status": 422,
+          "at": "2026-11-05T09:17:06.992Z"
+        },
+        {
+          "id": "f1ab6cd7-5506-4ee9-ab0c-2da272e66bf4",
+          "method": "POST",
+          "path": "/maturity-assessments/53b82c34-0ff9-411f-88a0-7d88f02327c1/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.004Z"
+        },
+        {
+          "id": "0601e592-c444-42d9-96c2-3de2a1c0e90b",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/53b82c34-0ff9-411f-88a0-7d88f02327c1",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.030Z"
+        },
+        {
+          "id": "207065ec-0925-4674-8313-389325f36690",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/53b82c34-0ff9-411f-88a0-7d88f02327c1/evidence",
+          "status": 409,
+          "at": "2026-11-05T09:17:07.123Z"
+        },
+        {
+          "id": "bb3fdd7c-25bd-4989-9c8b-7bd05499def2",
+          "method": "POST",
+          "path": "/maturity-assessments/53b82c34-0ff9-411f-88a0-7d88f02327c1/publish",
+          "status": 409,
+          "at": "2026-11-05T09:17:07.133Z"
+        },
+        {
+          "id": "3db93468-dd87-468a-bb69-a6f0e301da3c",
+          "method": "GET",
+          "path": "/dgv/maturity-assessments/53b82c34-0ff9-411f-88a0-7d88f02327c1/score",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.154Z"
+        },
+        {
+          "id": "cfdefad2-0069-4fc5-b46d-34263152d3c9",
+          "method": "GET",
+          "path": "/dgv/maturity-assessments/53b82c34-0ff9-411f-88a0-7d88f02327c1/score",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.250Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) refuses a decision made on the score as it was once the evidence under it has changed, so that nobody publishes a score they did not read",
+      "status": "passed",
+      "durationMs": 247,
+      "at": "2026-11-05T09:17:07.510Z",
+      "requests": [
+        {
+          "id": "4d58d55e-b9e9-4405-b8f4-7ba1889fa4e1",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.263Z"
+        },
+        {
+          "id": "20276a12-ee80-4154-a260-750c2394c243",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/f8f4e85f-2b05-4ccd-97f4-29e0fd9984e2/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.280Z"
+        },
+        {
+          "id": "81805124-be02-4e35-b008-7a52949146f3",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.297Z"
+        },
+        {
+          "id": "698e284b-81d8-427d-95d9-2bcefc8a7c76",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.314Z"
+        },
+        {
+          "id": "4361296f-a83d-47dd-9d5c-1f5f62094ff0",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/e11cf5ac-0f64-4b3c-8c73-01a9a53aa9ad/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.325Z"
+        },
+        {
+          "id": "bb91d671-3b96-4fc0-ada1-62802839582a",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/ffce7167-9dbc-4ec8-9ea2-1a13a3cd5d7a/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.347Z"
+        },
+        {
+          "id": "6a466541-d963-41f5-96ff-9a59f4d49e3c",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/e11cf5ac-0f64-4b3c-8c73-01a9a53aa9ad",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.365Z"
+        },
+        {
+          "id": "c0a477ca-ba32-4424-981c-de25a3cdd5bf",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/e11cf5ac-0f64-4b3c-8c73-01a9a53aa9ad/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.373Z"
+        },
+        {
+          "id": "3468e60d-d364-4d54-89cd-c09ff8eb9eb9",
+          "method": "POST",
+          "path": "/maturity-assessments/e11cf5ac-0f64-4b3c-8c73-01a9a53aa9ad/publish",
+          "status": 409,
+          "at": "2026-11-05T09:17:07.396Z"
+        },
+        {
+          "id": "317d014d-396e-47d0-9c07-c677c90493a0",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/e11cf5ac-0f64-4b3c-8c73-01a9a53aa9ad",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.407Z"
+        },
+        {
+          "id": "db79edc3-73a4-42da-a999-b3dda0be6a60",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/f550dc3d-26ab-42bf-8df9-f41370ad99f1/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.420Z"
+        },
+        {
+          "id": "d984db14-0830-4a7a-95a2-ada29c843244",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/e11cf5ac-0f64-4b3c-8c73-01a9a53aa9ad",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.443Z"
+        },
+        {
+          "id": "9fe1b455-9a71-434b-9cbd-16adcd7dd838",
+          "method": "POST",
+          "path": "/maturity-assessments/e11cf5ac-0f64-4b3c-8c73-01a9a53aa9ad/publish",
+          "status": 409,
+          "at": "2026-11-05T09:17:07.452Z"
+        },
+        {
+          "id": "146bd55c-e653-486b-b1ee-dd0e1e1fe236",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/e11cf5ac-0f64-4b3c-8c73-01a9a53aa9ad",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.469Z"
+        },
+        {
+          "id": "5dc18260-7de0-4fa2-9a45-4f57956252bf",
+          "method": "POST",
+          "path": "/maturity-assessments/e11cf5ac-0f64-4b3c-8c73-01a9a53aa9ad/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.485Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) is returned to the assessor or rejected, by somebody other than the assessor",
+      "status": "passed",
+      "durationMs": 317,
+      "at": "2026-11-05T09:17:07.827Z",
+      "requests": [
+        {
+          "id": "12edafc1-a2d9-48e5-8b05-faa9853c53c4",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.509Z"
+        },
+        {
+          "id": "f3342f69-2f68-4205-aaf0-0b82cb22bfae",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/84ef044a-e85f-4966-9696-02d2aa92d2ef/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.523Z"
+        },
+        {
+          "id": "32f7598b-5f51-4ddd-9353-0f632d508e1b",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.537Z"
+        },
+        {
+          "id": "da172b27-1473-4192-b240-a59a1633c5ea",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.555Z"
+        },
+        {
+          "id": "4aa99811-9534-484d-81f5-dd59efb2b234",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/4b8ff6cb-55a4-402f-9d78-4f3b4fc9ca1a/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.564Z"
+        },
+        {
+          "id": "4581b5b6-c6ee-4768-85ae-e01c678bdf44",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/fe8f9069-16cd-474a-ad3b-71c13869d302/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.585Z"
+        },
+        {
+          "id": "c703e148-7fba-4d6f-aaf6-99b1ed6c0137",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/4b8ff6cb-55a4-402f-9d78-4f3b4fc9ca1a",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.603Z"
+        },
+        {
+          "id": "3e1ab38f-65c3-4cd0-b170-199fd55be466",
+          "method": "POST",
+          "path": "/maturity-assessments/4b8ff6cb-55a4-402f-9d78-4f3b4fc9ca1a/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.612Z"
+        },
+        {
+          "id": "806e8c3d-66ec-45ea-9347-396d05196819",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.672Z"
+        },
+        {
+          "id": "189bd77a-5be2-4be1-9f6d-dd69070ef8af",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/4b8ff6cb-55a4-402f-9d78-4f3b4fc9ca1a/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.693Z"
+        },
+        {
+          "id": "33dbd38d-494b-4989-adf8-211163615275",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/fdc9bcf2-507e-499e-a0b8-39f24177d661/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.715Z"
+        },
+        {
+          "id": "7cca0f9e-eb28-49f8-b551-bede308aedeb",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/4b8ff6cb-55a4-402f-9d78-4f3b4fc9ca1a",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.731Z"
+        },
+        {
+          "id": "b93d7c2f-4cf9-4733-a167-938473cb7daa",
+          "method": "POST",
+          "path": "/maturity-assessments/4b8ff6cb-55a4-402f-9d78-4f3b4fc9ca1a/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.741Z"
+        },
+        {
+          "id": "6bb6b004-8ac9-4aeb-afb4-8c5325a53850",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.806Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the assessment (UAT-AC53, UAT-AC492) lists the assessments and their evidence by state and by assessment, a page at a time, to those who may read",
+      "status": "passed",
+      "durationMs": 394,
+      "at": "2026-11-05T09:17:08.221Z",
+      "requests": [
+        {
+          "id": "aa3d427f-5490-4353-9272-cbbcb5e82538",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.827Z"
+        },
+        {
+          "id": "ab5710ae-61d1-496c-ac82-2fcb36ea285c",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/c20aa810-b8ba-46dc-8470-7519670d8e6a/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.841Z"
+        },
+        {
+          "id": "e97c6cec-5935-4624-9aa4-3b3d398a421d",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.856Z"
+        },
+        {
+          "id": "5e731d30-fa09-4863-943b-f786eb465c56",
+          "method": "GET",
+          "path": "/resources/maturity_assessment",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.877Z"
+        },
+        {
+          "id": "2819a3b3-80b8-4e29-9e4f-03a905332000",
+          "method": "GET",
+          "path": "/resources/maturity_assessment",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.884Z"
+        },
+        {
+          "id": "6dbfa5ed-6e2e-4cab-9afc-3a742362ec96",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.900Z"
+        },
+        {
+          "id": "8a77db09-589b-4b69-af46-612f114fc8f9",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.917Z"
+        },
+        {
+          "id": "f7e3afb0-e574-4b27-97af-4c165aed3456",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.933Z"
+        },
+        {
+          "id": "e50941d2-80ec-4b5e-8348-c1f3fbd00983",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.948Z"
+        },
+        {
+          "id": "4868583a-1d34-47ea-b2ab-3921e0833f5a",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:07.966Z"
+        },
+        {
+          "id": "72a12367-034f-4fc8-9d7d-82abdc8f0de2",
+          "method": "GET",
+          "path": "/resources/maturity_assessment",
+          "status": 422,
+          "at": "2026-11-05T09:17:07.981Z"
+        },
+        {
+          "id": "565a693c-25d2-4ee1-b6d7-cd72626133f5",
+          "method": "GET",
+          "path": "/resources/maturity_assessment",
+          "status": 422,
+          "at": "2026-11-05T09:17:07.996Z"
+        },
+        {
+          "id": "7ba98905-01da-4a69-b7a3-75878e7bf4e4",
+          "method": "GET",
+          "path": "/resources/maturity_assessment",
+          "status": 422,
+          "at": "2026-11-05T09:17:08.011Z"
+        },
+        {
+          "id": "af4387c2-2532-4194-a1d4-15dc9b5543d1",
+          "method": "GET",
+          "path": "/resources/maturity_assessment",
+          "status": 422,
+          "at": "2026-11-05T09:17:08.027Z"
+        },
+        {
+          "id": "1457fc84-5f02-41c9-9240-0dfc330afb65",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 422,
+          "at": "2026-11-05T09:17:08.032Z"
+        },
+        {
+          "id": "2b7d80d7-675c-469f-8500-f36526680689",
+          "method": "GET",
+          "path": "/resources/maturity_assessment",
+          "status": 403,
+          "at": "2026-11-05T09:17:08.043Z"
+        },
+        {
+          "id": "1574daba-d45c-45e9-9dee-ab1172247044",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 403,
+          "at": "2026-11-05T09:17:08.058Z"
+        },
+        {
+          "id": "6d182a47-06b0-4994-9338-d681b852ae15",
+          "method": "GET",
+          "path": "/dgv/maturity-assessments/ebc6d407-9f35-42c0-8172-85085a7471d5/score",
+          "status": 403,
+          "at": "2026-11-05T09:17:08.075Z"
+        },
+        {
+          "id": "43429244-fe91-4ce5-8766-34e1741a8258",
+          "method": "GET",
+          "path": "/resources/maturity_assessment",
+          "status": 403,
+          "at": "2026-11-05T09:17:08.091Z"
+        },
+        {
+          "id": "2772e26a-7dc8-44a8-8293-c8f17e0acc3f",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 403,
+          "at": "2026-11-05T09:17:08.107Z"
+        },
+        {
+          "id": "a27bd869-c068-465d-8e99-56302b924b94",
+          "method": "GET",
+          "path": "/dgv/maturity-assessments/ebc6d407-9f35-42c0-8172-85085a7471d5/score",
+          "status": 403,
+          "at": "2026-11-05T09:17:08.122Z"
+        },
+        {
+          "id": "cc8c91e7-4340-42a4-a312-6fd732164155",
+          "method": "GET",
+          "path": "/dgv/maturity-assessments/d85754db-ad9c-48b6-b7ae-287105682e15/score",
+          "status": 404,
+          "at": "2026-11-05T09:17:08.139Z"
+        },
+        {
+          "id": "76b52b27-6af7-42ad-bd49-87f8b4512dbc",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/ac200f1f-a555-4f13-a90f-0c529ce313ab",
+          "status": 404,
+          "at": "2026-11-05T09:17:08.156Z"
+        },
+        {
+          "id": "f8219d27-70d8-4118-9e95-9a456d70e054",
+          "method": "GET",
+          "path": "/resources/maturity_evidence/b24e81a4-c0b9-44f8-a03f-d2fed0a4fb68",
+          "status": 404,
+          "at": "2026-11-05T09:17:08.172Z"
+        },
+        {
+          "id": "cb45896d-11e3-42d2-a732-7d4dfe92eb88",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/ebc6d407-9f35-42c0-8172-85085a7471d5",
+          "status": 404,
+          "at": "2026-11-05T09:17:08.189Z"
+        },
+        {
+          "id": "7c79029a-c11f-405b-abc3-25992c500f14",
+          "method": "GET",
+          "path": "/dgv/maturity-assessments/ebc6d407-9f35-42c0-8172-85085a7471d5/score",
+          "status": 404,
+          "at": "2026-11-05T09:17:08.204Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the evidence that runs out (UAT-AC492) becomes NOT_ASSESSED on an assessment still being worked on, once, and its assessor is told which criteria need new evidence",
+      "status": "passed",
+      "durationMs": 590,
+      "at": "2026-11-05T09:17:08.811Z",
+      "requests": [
+        {
+          "id": "dff24776-7b1d-4e79-8d18-063389748d9b",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.221Z"
+        },
+        {
+          "id": "bad41c2a-1ebe-4d0d-996a-fb27f83f5dfa",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/256ecf70-073c-4317-a07a-46b8fc16d334/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.241Z"
+        },
+        {
+          "id": "b1f48ed8-02e6-4bda-94b4-b1a2a484421b",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.250Z"
+        },
+        {
+          "id": "cf018588-9226-4abf-87a2-727c632da66b",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.275Z"
+        },
+        {
+          "id": "72b7965b-b62d-4627-81f8-c9226d062831",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/10b0919c-cabd-4f52-9b1e-3a195bc6f97b/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.284Z"
+        },
+        {
+          "id": "1ead4938-290f-4b5d-ab1e-dd3bb254a480",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/f97426f6-509e-45c5-ba4b-521e82fa8951/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.298Z"
+        },
+        {
+          "id": "ff123425-512f-45cb-9a8c-92aee6b0c540",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/10b0919c-cabd-4f52-9b1e-3a195bc6f97b/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.324Z"
+        },
+        {
+          "id": "a0dd09f1-75cc-48a3-ae34-951d34ca761f",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/f9308c54-e78f-4695-b596-25a76ea3290c/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.338Z"
+        },
+        {
+          "id": "d2dfd00e-9e92-419a-858a-b13d69824bf7",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/10b0919c-cabd-4f52-9b1e-3a195bc6f97b/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.355Z"
+        },
+        {
+          "id": "0601b671-f4e5-46d7-af2d-f1928ad536bc",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/f7c47601-18bc-4e67-892b-246fe8409013/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.369Z"
+        },
+        {
+          "id": "37810348-19a6-4418-9fc1-320107740939",
+          "method": "GET",
+          "path": "/dgv/maturity-assessments/10b0919c-cabd-4f52-9b1e-3a195bc6f97b/score",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.427Z"
+        },
+        {
+          "id": "7ae6dd10-48f6-4f49-8bda-44224375e4d5",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.453Z"
+        },
+        {
+          "id": "ec065d6b-2e8c-4f85-8641-744f7aa9890b",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/10b0919c-cabd-4f52-9b1e-3a195bc6f97b",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.640Z"
+        },
+        {
+          "id": "837fae2f-f1cd-4546-9235-0f0dda08690f",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.650Z"
+        },
+        {
+          "id": "f6955006-fecf-4817-b6ed-412d21a34864",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.670Z"
+        },
+        {
+          "id": "41ed23b4-edf2-48bc-9329-53cbda932e7e",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/681eb20f-cbba-406f-8de8-32844ea6c95a/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.683Z"
+        },
+        {
+          "id": "a21ea12e-27b2-40c6-bb4b-5d217229bf21",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/c972318d-655c-458b-ad70-1c0074b2b5ac/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.704Z"
+        },
+        {
+          "id": "794be72c-1bb9-404b-8f90-5c858e28c4d5",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/681eb20f-cbba-406f-8de8-32844ea6c95a",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.721Z"
+        },
+        {
+          "id": "e80e65a9-43e3-4ed3-a2ac-7814a7e445b9",
+          "method": "POST",
+          "path": "/maturity-assessments/681eb20f-cbba-406f-8de8-32844ea6c95a/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.730Z"
+        },
+        {
+          "id": "58e66c27-52da-4124-8b6d-724b29cb1afc",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:08.800Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the notifications of the sweep reach the assessor whose evidence ran out and the owner of a milestone that was missed through the notification service, and nobody who may not read what they are about",
+      "status": "passed",
+      "durationMs": 921,
+      "at": "2026-11-05T09:17:09.733Z",
+      "requests": [
+        {
+          "id": "81c1e96d-bfa2-4b8f-b8ee-856f6c314239",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:09.041Z"
+        },
+        {
+          "id": "203dd3b4-0d01-475a-b6f6-a361f347b188",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/c5666279-2f2e-4e5c-a2c8-61d04dc24843/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:09.053Z"
+        },
+        {
+          "id": "b339ca5f-c67c-4244-bf3b-abe0d97cdb96",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:09.069Z"
+        },
+        {
+          "id": "ab321a53-e07d-4808-adc3-c7072c7ba9e0",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:09.088Z"
+        },
+        {
+          "id": "84f5a6e6-1d55-451f-b705-8db15b11ef85",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/f8d8b134-8ce1-4c48-9421-47cce7b36e1f/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:09.093Z"
+        },
+        {
+          "id": "7ae2ceaf-db8e-42b2-8626-230c3c65ca5a",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/f65e9f0b-912e-466c-8546-a2cb44337979/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:09.121Z"
+        },
+        {
+          "id": "d599846f-ebec-4636-b1c1-5954c80f3a1b",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:09.194Z"
+        },
+        {
+          "id": "78bafc6a-b964-4b56-95c0-665cfd65b739",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:09.223Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the sweep and a decision that overlap leaves alone an assessment that is closed while the sweep waits for it",
+      "status": "passed",
+      "durationMs": 662,
+      "at": "2026-11-05T09:17:10.395Z",
+      "requests": [
+        {
+          "id": "f0a5a3c5-ca36-4fba-9740-b0f2f73a5c47",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:09.733Z"
+        },
+        {
+          "id": "b01a3c4d-a127-4992-a193-126503bc55f8",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/64549e31-c241-435e-b543-85142883b546/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:09.753Z"
+        },
+        {
+          "id": "f888fd11-96df-48ac-a637-083e34c23082",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:09.770Z"
+        },
+        {
+          "id": "78772fe5-6f9e-48ac-9dd7-3c016b354bf4",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:09.786Z"
+        },
+        {
+          "id": "0a35eb69-d036-448f-b263-f5ff6a3246cb",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/e0a47365-2af5-4d51-9e61-b9f406dc0b49/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:09.797Z"
+        },
+        {
+          "id": "87353cd4-8408-4421-9190-7761edcfffc1",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/f3d569b4-7d87-43b0-915c-17bb29ce97c4/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:09.820Z"
+        },
+        {
+          "id": "d2263538-c6c5-433c-a79c-a01c66c0ed48",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.277Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the roadmap (UAT-AC494) plans a milestone of a pillar of a published rubric, with a level to reach, an owner and the evidence it needs",
+      "status": "passed",
+      "durationMs": 220,
+      "at": "2026-11-05T09:17:10.615Z",
+      "requests": [
+        {
+          "id": "ee3b7159-6205-466a-a8a5-175b5da45115",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.394Z"
+        },
+        {
+          "id": "5c8ed0b8-efe0-45b2-835e-b98683d94963",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/21ed1081-d942-4cd9-898d-3f0b0117177e/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.416Z"
+        },
+        {
+          "id": "02d5c6e2-ad9e-44d3-aea2-39a7a5c98126",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.443Z"
+        },
+        {
+          "id": "01d9039a-94fd-427b-9adc-81d3e80d81cd",
+          "method": "GET",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.460Z"
+        },
+        {
+          "id": "f9cbeb20-418a-4223-868c-3b3df9de2e4e",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 403,
+          "at": "2026-11-05T09:17:10.553Z"
+        },
+        {
+          "id": "fbe87f8b-6af1-4450-b158-ffca255464ef",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 403,
+          "at": "2026-11-05T09:17:10.565Z"
+        },
+        {
+          "id": "0aaa144f-0983-48e8-8d04-7a31a9b1b677",
+          "method": "GET",
+          "path": "/dgv/maturity-milestones",
+          "status": 403,
+          "at": "2026-11-05T09:17:10.573Z"
+        },
+        {
+          "id": "12e45628-1eb3-4806-9e16-b27ffcef1ec1",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.581Z"
+        },
+        {
+          "id": "64396f5c-ba0c-40dd-a299-f5275d63aa5b",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 422,
+          "at": "2026-11-05T09:17:10.603Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the roadmap (UAT-AC494) refuses a milestone with a pillar that is none",
+      "status": "passed",
+      "durationMs": 66,
+      "at": "2026-11-05T09:17:10.681Z",
+      "requests": [
+        {
+          "id": "270c71b7-854c-4cd8-9b64-83c795623654",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.614Z"
+        },
+        {
+          "id": "887e7b3c-b078-4f0e-acec-5ba79ce84297",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/eb61640d-b3d7-47b4-a73d-490ab2ab68ad/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.641Z"
+        },
+        {
+          "id": "402fb4fd-a8c7-4a52-8ac8-efe15a74a43a",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 422,
+          "at": "2026-11-05T09:17:10.667Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the roadmap (UAT-AC494) refuses a milestone with a level of 0",
+      "status": "passed",
+      "durationMs": 48,
+      "at": "2026-11-05T09:17:10.729Z",
+      "requests": [
+        {
+          "id": "a2fcc525-ed39-4fd0-9bfa-0695108847ae",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.681Z"
+        },
+        {
+          "id": "01d6ec25-3567-4fcb-8d77-a63908d0b321",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/e3d1cab6-58ae-4155-9167-11947e6e6790/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.698Z"
+        },
+        {
+          "id": "8e9582de-938e-43ce-a4b0-a241e975e318",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 422,
+          "at": "2026-11-05T09:17:10.714Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the roadmap (UAT-AC494) refuses a milestone with a level of 6",
+      "status": "passed",
+      "durationMs": 46,
+      "at": "2026-11-05T09:17:10.776Z",
+      "requests": [
+        {
+          "id": "11b93d5f-2b1a-4d39-ac51-b207b310f560",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.729Z"
+        },
+        {
+          "id": "2eeae716-9008-464b-b39c-2924b38208f9",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/b7ab25b4-3b49-4698-8fc5-93b5bed15c1a/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.747Z"
+        },
+        {
+          "id": "12cf2aa4-3aaf-4e02-8fe7-f8a803b77eea",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 422,
+          "at": "2026-11-05T09:17:10.763Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the roadmap (UAT-AC494) refuses a milestone with a last day in the past",
+      "status": "passed",
+      "durationMs": 47,
+      "at": "2026-11-05T09:17:10.823Z",
+      "requests": [
+        {
+          "id": "965616cb-42e7-4c65-bbfb-3cfe3f8f3a70",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.776Z"
+        },
+        {
+          "id": "c36f88e1-9958-479b-84c3-8291fe6aa629",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/30cf5e9e-b2a5-42e0-bc48-805193bb1b4f/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.793Z"
+        },
+        {
+          "id": "30bb5cdd-af39-4234-aee2-7ceb07360618",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 422,
+          "at": "2026-11-05T09:17:10.809Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the roadmap (UAT-AC494) refuses a milestone with criteria that are too short",
+      "status": "passed",
+      "durationMs": 46,
+      "at": "2026-11-05T09:17:10.869Z",
+      "requests": [
+        {
+          "id": "71bc3859-d5fb-41ae-9e5c-4d005fcc6dd7",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.823Z"
+        },
+        {
+          "id": "d1b9b35d-02db-43cf-ab1a-a744253f3417",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/e1a88b45-f121-4472-a3ee-d9a9bc066d1f/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.843Z"
+        },
+        {
+          "id": "bf1de221-974f-4626-84ce-117bf6a8a750",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 422,
+          "at": "2026-11-05T09:17:10.858Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the roadmap (UAT-AC494) refuses a milestone with an owner who is no member",
+      "status": "passed",
+      "durationMs": 50,
+      "at": "2026-11-05T09:17:10.919Z",
+      "requests": [
+        {
+          "id": "6a015180-6f5e-490a-b824-ed6594643cf4",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.869Z"
+        },
+        {
+          "id": "d6111174-1d57-40c0-971a-1613d950001e",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/874d640e-ec9e-4406-899f-8e91c27659a2/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.890Z"
+        },
+        {
+          "id": "ea53022f-f04a-4a53-aa0c-7ca8eb156d45",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 422,
+          "at": "2026-11-05T09:17:10.904Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the roadmap (UAT-AC494) refuses a milestone with a rubric that is none",
+      "status": "passed",
+      "durationMs": 48,
+      "at": "2026-11-05T09:17:10.966Z",
+      "requests": [
+        {
+          "id": "f0d224f7-a2f2-4e52-ad28-5f7d39b1d73d",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.919Z"
+        },
+        {
+          "id": "06ff9781-dc75-422c-8a25-19047b4f0402",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/bad0a9ad-ecaf-4dcc-9cb7-4a6c81ce19d8/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.937Z"
+        },
+        {
+          "id": "61e97dcb-172c-4240-a5eb-a7314464bca8",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 422,
+          "at": "2026-11-05T09:17:10.953Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the roadmap (UAT-AC494) is achieved only by a published assessment of the whole tenant that reaches the level, never by a mark, and is MISSED when its day passes without one",
+      "status": "passed",
+      "durationMs": 1013,
+      "at": "2026-11-05T09:17:11.980Z",
+      "requests": [
+        {
+          "id": "f541cf61-3ff4-47ee-9f73-b9e5741eafc1",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.966Z"
+        },
+        {
+          "id": "eaf9e09a-0747-4efb-a49c-226f881e639b",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/bd754856-f2f9-4c12-ad5c-d7bfb74ffc17/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.975Z"
+        },
+        {
+          "id": "8861a780-4ad2-41e8-9615-749ed9b2810f",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:10.983Z"
+        },
+        {
+          "id": "64843ebb-0059-47ef-93d1-c3f29785c9e9",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.003Z"
+        },
+        {
+          "id": "774bf062-f115-4f30-94b6-b15d489d2886",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.016Z"
+        },
+        {
+          "id": "f19ef748-f0b0-41ed-abc6-af67f385f1a0",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.068Z"
+        },
+        {
+          "id": "8e5073d2-6569-4d01-8a7a-9d269aa7c970",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.085Z"
+        },
+        {
+          "id": "aac86ad5-9330-406c-8652-ba7e7468e540",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/55aa87c3-1d5b-4113-b525-3f55b60d0715/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.092Z"
+        },
+        {
+          "id": "d4a3a09d-7885-4b2b-aab0-049b7912fc43",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/e58b793c-b4f1-4ac2-a459-a729e03ea1eb/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.116Z"
+        },
+        {
+          "id": "e2452cda-9185-45b6-a079-c79568018f66",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/55aa87c3-1d5b-4113-b525-3f55b60d0715/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.131Z"
+        },
+        {
+          "id": "3b166808-3e1d-4d92-b2d8-95810319257a",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/b9494ea1-8d9c-4750-8862-bc064aafbdda/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.146Z"
+        },
+        {
+          "id": "5cffdfc0-f80f-4928-b3bc-48cb684896e4",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/55aa87c3-1d5b-4113-b525-3f55b60d0715/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.162Z"
+        },
+        {
+          "id": "efc1ddbb-15fa-49bb-a260-f3333ccf08ce",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/53deb01f-dfc1-4d8b-b82f-90d823891458/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.177Z"
+        },
+        {
+          "id": "8a5b425e-b529-44f0-b635-1a8e7e044e76",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/55aa87c3-1d5b-4113-b525-3f55b60d0715",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.194Z"
+        },
+        {
+          "id": "7d93c037-019b-4ea7-80fa-8e8b171e3eed",
+          "method": "POST",
+          "path": "/maturity-assessments/55aa87c3-1d5b-4113-b525-3f55b60d0715/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.204Z"
+        },
+        {
+          "id": "a258d1c4-831c-4922-b8b9-cdea463036be",
+          "method": "GET",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.228Z"
+        },
+        {
+          "id": "65a27800-243d-4bc5-9505-94cce1d40c96",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.236Z"
+        },
+        {
+          "id": "964e8373-4d90-4653-bfb5-a78e1c9881a3",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.260Z"
+        },
+        {
+          "id": "dadb6efe-2a9a-4e1a-9d0a-11ad1f9ae354",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/dfea49bf-2bdd-4afb-99fc-46d91d429c8e/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.268Z"
+        },
+        {
+          "id": "457b1dd9-02f5-466a-9f21-128fb2017e02",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/b5235567-448d-416d-ad18-f08cf205ddba/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.291Z"
+        },
+        {
+          "id": "03fd5ab2-a39d-4e63-bae8-56064d8ebb49",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/dfea49bf-2bdd-4afb-99fc-46d91d429c8e/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.307Z"
+        },
+        {
+          "id": "a1102209-deaa-4ef8-b96a-e536be1562d8",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/8b1ab0c5-79a7-4fc7-a0ef-d1a276cac96a/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.323Z"
+        },
+        {
+          "id": "e8d16cb7-d945-49ed-b78a-cd71cc3b8a28",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/dfea49bf-2bdd-4afb-99fc-46d91d429c8e/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.339Z"
+        },
+        {
+          "id": "6422010e-d7fe-4dd1-90ce-de9596dfe72a",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/1888bb7b-d764-4161-aceb-55bf6b57f078/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.354Z"
+        },
+        {
+          "id": "782a3407-b2eb-4735-9a25-955620e7c366",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/dfea49bf-2bdd-4afb-99fc-46d91d429c8e/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.370Z"
+        },
+        {
+          "id": "b2bf133e-72c5-4b95-8249-f3bbd3969bcc",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/9073f406-32e7-46cd-93ff-40f08807e6aa/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.389Z"
+        },
+        {
+          "id": "82a720aa-47da-46ee-b096-36eb01d13e5c",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/dfea49bf-2bdd-4afb-99fc-46d91d429c8e/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.402Z"
+        },
+        {
+          "id": "655bb106-792e-4759-9c8e-4bebccdf777a",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/61bb2fb9-3e67-4348-bce1-d98a36d9677e/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.418Z"
+        },
+        {
+          "id": "21086247-61f1-41c9-9666-9c4fda13c7cc",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/dfea49bf-2bdd-4afb-99fc-46d91d429c8e/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.436Z"
+        },
+        {
+          "id": "9313af25-0c99-4b7e-8b09-0d34a39e6874",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/04807c0e-4086-4e88-911a-edb1700ebf48/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.450Z"
+        },
+        {
+          "id": "91f8d535-a8be-4215-9497-ad7dedc5bd7b",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/dfea49bf-2bdd-4afb-99fc-46d91d429c8e",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.466Z"
+        },
+        {
+          "id": "a70f315e-4a7a-4d9a-8288-2e7eeff8b818",
+          "method": "POST",
+          "path": "/maturity-assessments/dfea49bf-2bdd-4afb-99fc-46d91d429c8e/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.476Z"
+        },
+        {
+          "id": "74ee8fc0-b775-42ca-a908-71b0779a11e0",
+          "method": "GET",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.493Z"
+        },
+        {
+          "id": "42d1c238-4617-4096-8d85-2931e5bc7545",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 422,
+          "at": "2026-11-05T09:17:11.508Z"
+        },
+        {
+          "id": "cbf6234b-f843-490d-a178-08d4c4569b95",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.528Z"
+        },
+        {
+          "id": "4f6d701f-e517-4a2e-8b6a-34f35030611b",
+          "method": "GET",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.596Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the roadmap (UAT-AC494) does not achieve a milestone whose day is past when the assessment is published before the job has marked it, so that the deadline does not wait for the job",
+      "status": "passed",
+      "durationMs": 647,
+      "at": "2026-11-05T09:17:12.628Z",
+      "requests": [
+        {
+          "id": "58757f91-6e8a-484f-b73c-4e25100d3977",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.980Z"
+        },
+        {
+          "id": "d8c495d7-dabe-41fc-b6f1-97a319e3d977",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/672d4d26-5f0e-469b-92a5-62f2de70fa56/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:11.991Z"
+        },
+        {
+          "id": "46e9ff75-e64f-41b7-afcb-ea73e66caa47",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:12.009Z"
+        },
+        {
+          "id": "018b7ea5-16e3-4ac8-a5f6-e45b9adcccfd",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:12.025Z"
+        },
+        {
+          "id": "9d656265-1592-4a4e-8487-741748574586",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:12.438Z"
+        },
+        {
+          "id": "4b866856-9ea1-4ded-a310-b264d2341e70",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:12.463Z"
+        },
+        {
+          "id": "baff12cb-6788-452b-b81b-85735d4fdaa6",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/bf642036-ab2a-4518-9a1d-b8cc33c6c182/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:12.484Z"
+        },
+        {
+          "id": "afe24b67-524a-4d28-81b2-16ec1afef287",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/f23c7b22-cb47-4198-a6d4-df44950e10c9/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:12.505Z"
+        },
+        {
+          "id": "c623a442-5e70-4fa9-b5a1-26dd7a4ca408",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/bf642036-ab2a-4518-9a1d-b8cc33c6c182/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:12.522Z"
+        },
+        {
+          "id": "1fcf9e81-812d-4ece-86be-1b79ca2ef370",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/54152862-af31-4254-80c3-808460c45575/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:12.532Z"
+        },
+        {
+          "id": "4b2c392d-aff1-47ca-9bf6-46bac12149ae",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/bf642036-ab2a-4518-9a1d-b8cc33c6c182/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:12.557Z"
+        },
+        {
+          "id": "ee26ab1c-49e8-4f75-ad62-5161ae35f234",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/4d4345eb-12e3-490b-9c8e-13e26b84c57a/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:12.571Z"
+        },
+        {
+          "id": "cbd2acd4-8228-4ddb-af9a-a3821bebfdd1",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/bf642036-ab2a-4518-9a1d-b8cc33c6c182",
+          "status": 200,
+          "at": "2026-11-05T09:17:12.586Z"
+        },
+        {
+          "id": "9aae2d3a-3851-4a1b-8534-28534b5ade6e",
+          "method": "POST",
+          "path": "/maturity-assessments/bf642036-ab2a-4518-9a1d-b8cc33c6c182/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:12.598Z"
+        },
+        {
+          "id": "17a7e213-0d8a-4513-9ae4-b4f689a61dc7",
+          "method": "GET",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:12.622Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the roadmap (UAT-AC494) waits for a publication that is deciding the milestones of its rubric, and a publication waits for a milestone that is being planned",
+      "status": "passed",
+      "durationMs": 959,
+      "at": "2026-11-05T09:17:13.587Z",
+      "requests": [
+        {
+          "id": "6d5c35a2-2841-4872-9e27-5cca617f6224",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:12.628Z"
+        },
+        {
+          "id": "01428827-0c92-4b6c-af66-b2575d8dbac7",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/bb8e8b2f-e227-4236-8f56-22a01cc61b67/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:12.650Z"
+        },
+        {
+          "id": "b8282f03-2ae9-4b79-ab9f-d041578c226f",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:12.664Z"
+        },
+        {
+          "id": "6eb52eaa-6a80-4ce0-9db9-89b65bb58355",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.079Z"
+        },
+        {
+          "id": "69b70d7b-dd4a-4baf-80bf-788bd20eb5fd",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.099Z"
+        },
+        {
+          "id": "7210b1ad-924b-4231-a7d3-fca287a5e9fe",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments/c4f596ae-7b23-4eac-bce7-b5a8ce99b5cf/evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.109Z"
+        },
+        {
+          "id": "5225bc59-7e28-4fbe-8428-c6da931b5a61",
+          "method": "POST",
+          "path": "/dgv/maturity-evidence/fd13bc09-221f-4b97-a377-d54ae934d721/review",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.132Z"
+        },
+        {
+          "id": "ff69c210-c641-4ab9-902a-0d913e385855",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/c4f596ae-7b23-4eac-bce7-b5a8ce99b5cf",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.147Z"
+        },
+        {
+          "id": "7702a526-3162-4a38-81e6-33d7a48c114c",
+          "method": "POST",
+          "path": "/maturity-assessments/c4f596ae-7b23-4eac-bce7-b5a8ce99b5cf/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.158Z"
+        },
+        {
+          "id": "c4b810e0-8b78-4e03-84e1-a9f196e34b56",
+          "method": "GET",
+          "path": "/resources/maturity_assessment/c4f596ae-7b23-4eac-bce7-b5a8ce99b5cf",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.576Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the roadmap (UAT-AC494) lists the milestones by state and pillar, a page at a time",
+      "status": "passed",
+      "durationMs": 222,
+      "at": "2026-11-05T09:17:13.809Z",
+      "requests": [
+        {
+          "id": "8eab5114-974a-496e-9be9-0fe9e1116050",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.586Z"
+        },
+        {
+          "id": "8755b615-39b4-45a6-9af5-f485792306b4",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/9ae4e54a-670f-4ad8-aec3-a66994c2bd4a/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.608Z"
+        },
+        {
+          "id": "738cfc76-6562-4d19-b269-48fc1ab1d0c3",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.623Z"
+        },
+        {
+          "id": "09f32d1d-0248-4042-b4b5-2deabc8ee45a",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.640Z"
+        },
+        {
+          "id": "afdfd6c9-92f6-46b4-b075-bc892de9e0d2",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.656Z"
+        },
+        {
+          "id": "8da58aa5-5c35-48ce-9fef-2868b7a4fe08",
+          "method": "POST",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.669Z"
+        },
+        {
+          "id": "26be3d0d-4aa8-4085-aef7-f75eef9d6b9a",
+          "method": "GET",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.688Z"
+        },
+        {
+          "id": "27be6a6d-a35c-4277-bad4-cd6ecda766ec",
+          "method": "GET",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.699Z"
+        },
+        {
+          "id": "cc206fa4-d0d3-4ad7-bec9-2ff98a8da075",
+          "method": "GET",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.714Z"
+        },
+        {
+          "id": "bb19f8e7-42a8-43ce-95be-9f87bf391b67",
+          "method": "GET",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.723Z"
+        },
+        {
+          "id": "5bd8c69b-d51f-4c8c-b77e-67fd5766b714",
+          "method": "GET",
+          "path": "/dgv/maturity-milestones",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.731Z"
+        },
+        {
+          "id": "8f4bad94-37b5-4592-902e-efcdb3a3f39e",
+          "method": "GET",
+          "path": "/dgv/maturity-milestones",
+          "status": 422,
+          "at": "2026-11-05T09:17:13.746Z"
+        },
+        {
+          "id": "8ac77572-0eb6-4e5c-b273-d82cdb95856d",
+          "method": "GET",
+          "path": "/dgv/maturity-milestones",
+          "status": 422,
+          "at": "2026-11-05T09:17:13.751Z"
+        },
+        {
+          "id": "81dc5070-92b7-4151-bb5d-8418f2be1e1b",
+          "method": "GET",
+          "path": "/dgv/maturity-milestones",
+          "status": 422,
+          "at": "2026-11-05T09:17:13.762Z"
+        },
+        {
+          "id": "1dde2e99-c298-402c-9fbf-1903f2a98fa9",
+          "method": "GET",
+          "path": "/dgv/maturity-milestones",
+          "status": 422,
+          "at": "2026-11-05T09:17:13.778Z"
+        },
+        {
+          "id": "cd8c999d-092c-492b-a9af-7c8f8a17353d",
+          "method": "GET",
+          "path": "/dgv/maturity-milestones",
+          "status": 422,
+          "at": "2026-11-05T09:17:13.793Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the database keeps what an assessment is about, and who assesses and reviews it, and refuses an assessor who is the reviewer",
+      "status": "passed",
+      "durationMs": 72,
+      "at": "2026-11-05T09:17:13.881Z",
+      "requests": [
+        {
+          "id": "d2f70066-1815-44ad-bf2a-16744cf1a0f2",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.809Z"
+        },
+        {
+          "id": "806387a2-8ee5-4ebb-8b47-ca5dbe139ee0",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/30ac8f9c-4ecc-4d51-bad6-e27f35263b9d/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.832Z"
+        },
+        {
+          "id": "76e506dc-ef1c-459c-9872-3c8fc1eb0f33",
+          "method": "POST",
+          "path": "/dgv/maturity-assessments",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.847Z"
+        },
+        {
+          "id": "ad85f83e-0783-46aa-9df9-16b2c04ca7cf",
+          "method": "GET",
+          "path": "/resources/maturity_evidence",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.869Z"
+        }
+      ]
+    }
+  ]
+}

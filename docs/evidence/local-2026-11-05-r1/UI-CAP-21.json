@@ -1,0 +1,40 @@
+{
+  "id": "UI-CAP-21",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/ledger.test.ts",
+      "name": "the capital ledger (ST-CAP-014, CAP 3.4, CAP-21) AC-ST-CAP-014-2, UI-CAP-21: an auditor with a limited scope reads only the entries of the projects in it, and the balance follows; the entries of no project need the whole tenant",
+      "status": "passed",
+      "durationMs": 46,
+      "at": "2026-11-05T09:23:38.445Z",
+      "requests": [
+        {
+          "id": "b31388d3-baaa-4933-a511-6e38d3e4b273",
+          "method": "GET",
+          "path": "/capital-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:23:38.400Z"
+        },
+        {
+          "id": "329cf441-82ac-4343-8bee-56696ae11dfe",
+          "method": "GET",
+          "path": "/capital-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:23:38.416Z"
+        },
+        {
+          "id": "07a7c9fc-ee10-4098-a57b-5d13f4f2ce97",
+          "method": "GET",
+          "path": "/capital-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:23:38.430Z"
+        }
+      ]
+    }
+  ]
+}

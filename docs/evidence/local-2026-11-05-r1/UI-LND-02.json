@@ -1,0 +1,487 @@
+{
+  "id": "UI-LND-02",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/lnd-flows.spec.ts",
+      "name": "a parcel is declared, its notice starts 90 days for agricultural land and 180 for the rest, and the database holds the timers (AC-ST-LND-001-1, UI-LND-02)",
+      "status": "passed",
+      "durationMs": 1489,
+      "at": "2026-11-05T08:48:14.408Z",
+      "requests": [
+        {
+          "id": "4c9877a8-69c2-4d9c-845f-a97dcfe89386",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:14.948Z"
+        },
+        {
+          "id": "cc4e2d0d-8ccb-4f7f-b920-c73abd01e563",
+          "method": "GET",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T08:48:14.947Z"
+        },
+        {
+          "id": "2467882a-876c-426c-8cfa-a86cf9755b92",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:14.946Z"
+        },
+        {
+          "id": "df3751fa-91ab-47f1-80d7-b400de4080a6",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 200,
+          "at": "2026-11-05T08:48:14.948Z"
+        },
+        {
+          "id": "9a755673-7281-4627-a322-c8068a7446ef",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:14.997Z"
+        },
+        {
+          "id": "104310f9-0727-4348-aa3e-0f675c7e1662",
+          "method": "POST",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T08:48:15.182Z"
+        },
+        {
+          "id": "5121b65c-1df3-4508-b6cf-52809b6b3938",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 304,
+          "at": "2026-11-05T08:48:15.211Z"
+        },
+        {
+          "id": "62afe8bb-8316-47fd-bebd-3a21d2b61eec",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:15.210Z"
+        },
+        {
+          "id": "9911d61c-5d2a-408a-85f0-8feb51c7ed7f",
+          "method": "GET",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T08:48:15.209Z"
+        },
+        {
+          "id": "a5299d71-37b2-4995-8aa5-132bacd349c8",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:15.208Z"
+        },
+        {
+          "id": "c034cfa5-9be6-4414-877c-c880a6bcf805",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:15.222Z"
+        },
+        {
+          "id": "b0986081-15e2-4e56-8a90-700aed8de081",
+          "method": "POST",
+          "path": "/land-parcels/da48134c-d7ac-4b6d-bf61-878d306bb352/recovery-notice",
+          "status": 200,
+          "at": "2026-11-05T08:48:15.315Z"
+        },
+        {
+          "id": "a5d8a8d8-c26d-4b52-9f4e-7e47b5f37683",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 304,
+          "at": "2026-11-05T08:48:15.340Z"
+        },
+        {
+          "id": "8ae9252f-92bd-477e-bc3f-bd01a6e09f97",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:15.339Z"
+        },
+        {
+          "id": "0883710d-7201-4c8a-8f56-5bb39c20426d",
+          "method": "GET",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T08:48:15.338Z"
+        },
+        {
+          "id": "a7bea444-6efb-4a96-9605-49bdb9e9a1cc",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:15.337Z"
+        },
+        {
+          "id": "76015490-ddd5-4eb9-833c-3f46a0d31a62",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:15.349Z"
+        },
+        {
+          "id": "cdba91bb-1e7f-4dea-9054-6bfa49f2cb41",
+          "method": "POST",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T08:48:15.531Z"
+        },
+        {
+          "id": "2acdbd0e-b6e5-4e33-909b-cb587a5cf8ae",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 304,
+          "at": "2026-11-05T08:48:15.556Z"
+        },
+        {
+          "id": "e71e2f84-5cba-463c-a32c-ba247071eddb",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:15.555Z"
+        },
+        {
+          "id": "439e5ff0-6ca3-4597-ac6f-47ea467db8c8",
+          "method": "GET",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T08:48:15.555Z"
+        },
+        {
+          "id": "8f8e472e-a5cd-4a24-936f-992fc0e0147a",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:15.554Z"
+        },
+        {
+          "id": "e0e381f6-d2bb-40c5-84c9-a38924035c71",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:15.567Z"
+        },
+        {
+          "id": "cf014aa8-fdb4-483d-a541-d47b53d54890",
+          "method": "POST",
+          "path": "/land-parcels/da1ffd8e-7d61-46c2-802b-7fd29081c045/recovery-notice",
+          "status": 200,
+          "at": "2026-11-05T08:48:15.665Z"
+        },
+        {
+          "id": "97977bea-68d1-4b73-84e1-1a62d09e6e3a",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 304,
+          "at": "2026-11-05T08:48:15.688Z"
+        },
+        {
+          "id": "0f582198-2b4d-4aa5-b560-15a527a2eca5",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:15.688Z"
+        },
+        {
+          "id": "d546d964-42ee-4594-aa04-616d45128ea6",
+          "method": "GET",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T08:48:15.687Z"
+        },
+        {
+          "id": "5adb9a35-7148-45a7-a571-8c686a6a2553",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:15.685Z"
+        },
+        {
+          "id": "a109b3fe-f9e9-40e9-880f-57862068b5e4",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:15.697Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/lnd-flows.spec.ts",
+      "name": "a parcel list is imported once, the same file again creates nothing, and a file with an owner column is refused and kept nowhere (AC-ST-LND-001-2, UI-LND-02)",
+      "status": "passed",
+      "durationMs": 1133,
+      "at": "2026-11-05T08:48:15.905Z",
+      "requests": [
+        {
+          "id": "2b7a1a0c-e646-43ae-a567-3929db8eaeb2",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 200,
+          "at": "2026-11-05T08:48:16.349Z"
+        },
+        {
+          "id": "c5455eac-979f-4b14-9b60-13d61cb6e433",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:16.348Z"
+        },
+        {
+          "id": "7ace4147-7ed0-4b13-884f-0c5dc618ea09",
+          "method": "GET",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T08:48:16.348Z"
+        },
+        {
+          "id": "76031bac-a3bd-4b36-83c7-3d62933c7123",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:16.347Z"
+        },
+        {
+          "id": "d8439485-8f03-49d7-8c7a-16ad086887b6",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:16.403Z"
+        },
+        {
+          "id": "278abb13-f0bb-4ca5-b8f7-5e191d76bfaf",
+          "method": "POST",
+          "path": "/land-parcels/files",
+          "status": 200,
+          "at": "2026-11-05T08:48:16.467Z"
+        },
+        {
+          "id": "b4733b96-e982-4acf-b5b6-8237f7a94f84",
+          "method": "POST",
+          "path": "/land-parcels/import",
+          "status": 200,
+          "at": "2026-11-05T08:48:16.530Z"
+        },
+        {
+          "id": "9c57754a-1211-47e9-adca-b42bee93d5aa",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 304,
+          "at": "2026-11-05T08:48:16.558Z"
+        },
+        {
+          "id": "160c6339-b2d7-462e-b5d9-47a96f87d93a",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:16.557Z"
+        },
+        {
+          "id": "5d755d9a-17d0-45ec-83a5-294fe9c86b2b",
+          "method": "GET",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T08:48:16.557Z"
+        },
+        {
+          "id": "6ba2a424-bee0-4612-9bd0-dc06d87e9bc6",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:16.556Z"
+        },
+        {
+          "id": "efd52741-2849-4b79-b969-b2ba4c748312",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:16.570Z"
+        },
+        {
+          "id": "bcd6beef-7134-4d81-9100-eb8e5875c7e7",
+          "method": "POST",
+          "path": "/land-parcels/files",
+          "status": 200,
+          "at": "2026-11-05T08:48:16.714Z"
+        },
+        {
+          "id": "371ce16e-0c26-4b42-b640-e3e899046d17",
+          "method": "POST",
+          "path": "/land-parcels/import",
+          "status": 200,
+          "at": "2026-11-05T08:48:16.779Z"
+        },
+        {
+          "id": "5efa3a0b-879c-47c6-a291-90032811a4a4",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 304,
+          "at": "2026-11-05T08:48:16.801Z"
+        },
+        {
+          "id": "a372588b-42e4-4a45-a7a2-8160b859bd1c",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:16.800Z"
+        },
+        {
+          "id": "801b890b-7d48-4588-a649-5ee4a1c0edd3",
+          "method": "GET",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T08:48:16.799Z"
+        },
+        {
+          "id": "7983240a-ea88-4c3e-98dc-18c29272b817",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:16.797Z"
+        },
+        {
+          "id": "2ac2cb66-b88b-47fc-b391-cbbf07114f8b",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:16.813Z"
+        },
+        {
+          "id": "55b10f4b-75cb-4aa4-83c7-9a2ed4f1377f",
+          "method": "POST",
+          "path": "/land-parcels/files",
+          "status": 422,
+          "at": "2026-11-05T08:48:16.949Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/lnd-flows.spec.ts",
+      "name": "a section is created for the project, and someone who may only read sees the parcels and no button (UI-LND-02)",
+      "status": "passed",
+      "durationMs": 1044,
+      "at": "2026-11-05T08:48:17.045Z",
+      "requests": [
+        {
+          "id": "c8bdd388-dd61-4ca3-84e2-d7d6d2fa179e",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 200,
+          "at": "2026-11-05T08:48:17.551Z"
+        },
+        {
+          "id": "e97b3d79-aeb7-4039-8368-e61335d433dc",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:17.550Z"
+        },
+        {
+          "id": "702f6e1c-8035-4432-b99e-46782001cbfd",
+          "method": "GET",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T08:48:17.550Z"
+        },
+        {
+          "id": "28af2f8e-0018-429b-a19a-5af3d82fd650",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:17.549Z"
+        },
+        {
+          "id": "4ec65e8d-d270-4989-8611-75b0c176a7e8",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:17.603Z"
+        },
+        {
+          "id": "9263ee39-91d4-46ae-96b0-070bcb5b2ddd",
+          "method": "POST",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:17.733Z"
+        },
+        {
+          "id": "51c9b779-e07f-4768-bcd7-2c3050582e9e",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 304,
+          "at": "2026-11-05T08:48:17.751Z"
+        },
+        {
+          "id": "d0a86146-cf85-491f-987f-4399e9d2e790",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:17.751Z"
+        },
+        {
+          "id": "14f4d9d0-0688-476d-a167-498b71575086",
+          "method": "GET",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T08:48:17.750Z"
+        },
+        {
+          "id": "ce2dbc9b-b67e-4ad4-af0a-926b884762d5",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:17.748Z"
+        },
+        {
+          "id": "b4ce382e-6afe-4237-8ebc-6937d625be96",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:17.763Z"
+        },
+        {
+          "id": "1191883d-2e79-4d81-b303-5697aa940a1e",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:18.032Z"
+        },
+        {
+          "id": "a76c84e8-0bbc-41fb-a471-e331f62db645",
+          "method": "GET",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T08:48:18.031Z"
+        },
+        {
+          "id": "716ae6a1-c879-41ae-a34b-2b2639231f65",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:18.030Z"
+        },
+        {
+          "id": "60fece94-b251-4c1a-b06e-d49449e34530",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:18.048Z"
+        }
+      ]
+    }
+  ]
+}

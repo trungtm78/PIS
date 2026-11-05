@@ -1,0 +1,61 @@
+{
+  "id": "UAT-PLAN-51",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/omni/conversations.test.ts",
+      "name": "the conversations of the omnichannel center (ST-OMNI-004, OMNI-01, OMNI.md 3.1, 3.2) the assignment AC-ST-OMNI-004-3 UAT-PLAN-51: is 422 ASSIGNEE_NOT_ELIGIBLE for a member who may not answer, or answers elsewhere, and is a queue of a unit: only the members whose scope holds it",
+      "status": "passed",
+      "durationMs": 545,
+      "at": "2026-11-05T09:18:03.989Z",
+      "requests": [
+        {
+          "id": "7a06211b-5ffc-4ee1-941b-87fd38bf2f3b",
+          "method": "POST",
+          "path": "/conversations/56709132-1385-4873-81fb-56f8f53965e7/assign",
+          "status": 422,
+          "at": "2026-11-05T09:18:03.580Z"
+        },
+        {
+          "id": "ed2d8865-6611-4bcc-a9fa-16810c72ce64",
+          "method": "POST",
+          "path": "/conversations/56709132-1385-4873-81fb-56f8f53965e7/assign",
+          "status": 422,
+          "at": "2026-11-05T09:18:03.605Z"
+        },
+        {
+          "id": "5678616b-6a53-4c02-89f4-99fe226e7597",
+          "method": "POST",
+          "path": "/conversations/56709132-1385-4873-81fb-56f8f53965e7/assign",
+          "status": 422,
+          "at": "2026-11-05T09:18:03.618Z"
+        },
+        {
+          "id": "c1ba3fdf-ad10-40f8-bd45-2932dfe40c32",
+          "method": "POST",
+          "path": "/conversations/56709132-1385-4873-81fb-56f8f53965e7/assign",
+          "status": 200,
+          "at": "2026-11-05T09:18:03.673Z"
+        },
+        {
+          "id": "4cf904e6-b651-44da-9e7c-64ab54fae555",
+          "method": "POST",
+          "path": "/conversations/55570785-f562-4d06-975b-c19b702be82f/assign",
+          "status": 200,
+          "at": "2026-11-05T09:18:03.835Z"
+        },
+        {
+          "id": "24dd5fff-6d3c-44e8-911c-ec539e79b08b",
+          "method": "POST",
+          "path": "/conversations/cbc375ee-2be3-4b06-9716-a0070266eef0/assign",
+          "status": 422,
+          "at": "2026-11-05T09:18:03.958Z"
+        }
+      ]
+    }
+  ]
+}

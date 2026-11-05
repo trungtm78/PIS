@@ -1,0 +1,253 @@
+{
+  "id": "UAT-PLAN-64",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/reallocation.test.ts",
+      "name": "the reallocation of capital (ST-CAP-010) AC-ST-CAP-010-3 / UAT-PLAN-64: the plan changed since the proposal AC-ST-CAP-010-3: the source plan received a new revision after the proposal was drafted: apply is 409 PLAN_CHANGED_SINCE_PROPOSAL and nothing is applied",
+      "status": "passed",
+      "durationMs": 1132,
+      "at": "2026-11-05T09:14:30.923Z",
+      "requests": [
+        {
+          "id": "8e3c0557-6b47-43ad-9b86-d8a5f6b117c8",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:14:30.119Z"
+        },
+        {
+          "id": "0b6cbd89-143b-468b-bd9b-64d083b8307e",
+          "method": "POST",
+          "path": "/capital-plans/aa1874b0-b81d-48c7-b91a-90a58febe241/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:14:30.140Z"
+        },
+        {
+          "id": "02f8b48f-0b4a-438e-9c93-a1f24601484a",
+          "method": "POST",
+          "path": "/capital-plans/aa1874b0-b81d-48c7-b91a-90a58febe241/submit",
+          "status": 200,
+          "at": "2026-11-05T09:14:30.160Z"
+        },
+        {
+          "id": "df9fb132-c65a-4b67-a370-fadb512cc684",
+          "method": "POST",
+          "path": "/capital-plans/aa1874b0-b81d-48c7-b91a-90a58febe241/decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:30.176Z"
+        },
+        {
+          "id": "7b44b8b4-507a-4404-a32c-60e1fc5a2c94",
+          "method": "POST",
+          "path": "/plans/aa1874b0-b81d-48c7-b91a-90a58febe241/publish",
+          "status": 200,
+          "at": "2026-11-05T09:14:30.228Z"
+        },
+        {
+          "id": "e1b5bc17-3149-4ac5-ab27-a104119292f5",
+          "method": "POST",
+          "path": "/reallocation-proposals",
+          "status": 200,
+          "at": "2026-11-05T09:14:30.429Z"
+        },
+        {
+          "id": "8ae8a031-e28d-4641-8b41-6860b1ee6962",
+          "method": "POST",
+          "path": "/reallocation-proposals/70a07d5c-37a8-4312-944d-811d4354cbd8/submit",
+          "status": 200,
+          "at": "2026-11-05T09:14:30.450Z"
+        },
+        {
+          "id": "1634a027-5c2b-4f41-baa0-65a23b34f8ea",
+          "method": "POST",
+          "path": "/reallocation-proposals/70a07d5c-37a8-4312-944d-811d4354cbd8/decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:30.466Z"
+        },
+        {
+          "id": "d7a5c3f7-bac2-462c-8771-2fdabc1206fb",
+          "method": "POST",
+          "path": "/capital-plans/aa1874b0-b81d-48c7-b91a-90a58febe241/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:14:30.479Z"
+        },
+        {
+          "id": "f03bb6f0-cace-42fc-919c-63f84965c548",
+          "method": "POST",
+          "path": "/capital-plans/3dae2cd8-2f99-4f31-84c5-36dd48893f43/submit",
+          "status": 200,
+          "at": "2026-11-05T09:14:30.496Z"
+        },
+        {
+          "id": "3e50993b-b294-4e10-8ce0-f40cffc7aac2",
+          "method": "POST",
+          "path": "/capital-plans/3dae2cd8-2f99-4f31-84c5-36dd48893f43/decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:30.514Z"
+        },
+        {
+          "id": "30fc0966-bf21-4a91-ba3d-55eb3cb44a0c",
+          "method": "POST",
+          "path": "/plans/3dae2cd8-2f99-4f31-84c5-36dd48893f43/publish",
+          "status": 200,
+          "at": "2026-11-05T09:14:30.577Z"
+        },
+        {
+          "id": "c588f3cb-eca1-4893-82b5-f51ee9a22778",
+          "method": "POST",
+          "path": "/reallocation-proposals/70a07d5c-37a8-4312-944d-811d4354cbd8/apply",
+          "status": 409,
+          "at": "2026-11-05T09:14:30.772Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/reallocation.test.ts",
+      "name": "the reallocation of capital (ST-CAP-010) AC-ST-CAP-010-3 / UAT-PLAN-64: the plan changed since the proposal does not apply over a revision that is in work (409 REVISION_PENDING_EXISTS), and judges the floors again on the day of the application (422 REVISED_BELOW_COMMITTED)",
+      "status": "passed",
+      "durationMs": 2249,
+      "at": "2026-11-05T09:14:33.172Z",
+      "requests": [
+        {
+          "id": "18520f57-dd36-44e8-804f-9363f74be6d8",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:14:31.352Z"
+        },
+        {
+          "id": "dd842895-d50b-44e7-807c-44200ff8656e",
+          "method": "POST",
+          "path": "/capital-plans/411f082c-e056-4d4c-8f22-6c7ccbdb8c49/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:14:31.372Z"
+        },
+        {
+          "id": "4f08a775-8049-4a49-878f-04dc4bce2afb",
+          "method": "POST",
+          "path": "/capital-plans/411f082c-e056-4d4c-8f22-6c7ccbdb8c49/submit",
+          "status": 200,
+          "at": "2026-11-05T09:14:31.395Z"
+        },
+        {
+          "id": "26ceccb4-9521-43a1-a079-58eb84e2a90e",
+          "method": "POST",
+          "path": "/capital-plans/411f082c-e056-4d4c-8f22-6c7ccbdb8c49/decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:31.407Z"
+        },
+        {
+          "id": "fa46f9f5-54af-47f7-8f27-0f56aa96b228",
+          "method": "POST",
+          "path": "/plans/411f082c-e056-4d4c-8f22-6c7ccbdb8c49/publish",
+          "status": 200,
+          "at": "2026-11-05T09:14:31.494Z"
+        },
+        {
+          "id": "61b585a6-8a9a-43b8-a611-d56225011fa8",
+          "method": "POST",
+          "path": "/reallocation-proposals",
+          "status": 200,
+          "at": "2026-11-05T09:14:31.676Z"
+        },
+        {
+          "id": "f8898219-7e53-4de0-83b8-293aa518812b",
+          "method": "POST",
+          "path": "/reallocation-proposals/314af5a7-cea2-4721-8444-591291f9a10f/submit",
+          "status": 200,
+          "at": "2026-11-05T09:14:31.696Z"
+        },
+        {
+          "id": "97a14b4a-3853-437c-810b-8eacfc769098",
+          "method": "POST",
+          "path": "/reallocation-proposals/314af5a7-cea2-4721-8444-591291f9a10f/decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:31.711Z"
+        },
+        {
+          "id": "6f96399a-36af-47c1-b2e3-49a5200f3300",
+          "method": "POST",
+          "path": "/capital-plans/411f082c-e056-4d4c-8f22-6c7ccbdb8c49/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:14:31.727Z"
+        },
+        {
+          "id": "6816c189-88b9-4c1d-bfa5-d498acc84409",
+          "method": "POST",
+          "path": "/reallocation-proposals/314af5a7-cea2-4721-8444-591291f9a10f/apply",
+          "status": 409,
+          "at": "2026-11-05T09:14:31.777Z"
+        },
+        {
+          "id": "9facaaf9-7cd3-406e-8ef3-2b88f315f2cf",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:14:32.280Z"
+        },
+        {
+          "id": "0eece05a-83a2-40c2-8e50-9bb64a3542b9",
+          "method": "POST",
+          "path": "/capital-plans/18c6886a-9535-453b-826f-7b46d8fdf964/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:14:32.300Z"
+        },
+        {
+          "id": "baf42414-b029-4283-8e7d-e4c1b1f271ce",
+          "method": "POST",
+          "path": "/capital-plans/18c6886a-9535-453b-826f-7b46d8fdf964/submit",
+          "status": 200,
+          "at": "2026-11-05T09:14:32.321Z"
+        },
+        {
+          "id": "e952ee0d-f918-4b29-b4ce-5ea0d801a59b",
+          "method": "POST",
+          "path": "/capital-plans/18c6886a-9535-453b-826f-7b46d8fdf964/decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:32.337Z"
+        },
+        {
+          "id": "fcb8acde-0563-4bbb-a3a8-a03b02c37545",
+          "method": "POST",
+          "path": "/plans/18c6886a-9535-453b-826f-7b46d8fdf964/publish",
+          "status": 200,
+          "at": "2026-11-05T09:14:32.457Z"
+        },
+        {
+          "id": "c1cb5ecc-56e5-4634-944b-ad04ca4000b9",
+          "method": "POST",
+          "path": "/reallocation-proposals",
+          "status": 200,
+          "at": "2026-11-05T09:14:32.729Z"
+        },
+        {
+          "id": "9a37c9a8-38a1-45a1-ba3c-66d0537d3417",
+          "method": "POST",
+          "path": "/reallocation-proposals/84809d33-33d9-4a3a-b234-3f06d7976959/submit",
+          "status": 200,
+          "at": "2026-11-05T09:14:32.752Z"
+        },
+        {
+          "id": "9c9adcfc-8861-4e13-88b8-a5ea6df447ef",
+          "method": "POST",
+          "path": "/reallocation-proposals/84809d33-33d9-4a3a-b234-3f06d7976959/decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:32.769Z"
+        },
+        {
+          "id": "f213d0b8-acff-4a3c-a2f0-ecb15e2988e9",
+          "method": "POST",
+          "path": "/reallocation-proposals/84809d33-33d9-4a3a-b234-3f06d7976959/apply",
+          "status": 422,
+          "at": "2026-11-05T09:14:33.020Z"
+        }
+      ]
+    }
+  ]
+}

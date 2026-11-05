@@ -1,0 +1,127 @@
+{
+  "id": "UAT-AC304",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contract-lifecycle.test.ts",
+      "name": "the life of a contract over HTTP (ST-CTR-004, ST-CTR-005) terminateContract (ST-CTR-005) AC-ST-CTR-005-2, UAT-AC304: refuses the proposer and a leader below the band, then the approver ends the contract, calls the guarantee and suggests a violation; nothing brings it back and the advance stays",
+      "status": "passed",
+      "durationMs": 1389,
+      "at": "2026-11-05T09:11:48.640Z",
+      "requests": [
+        {
+          "id": "94217cb6-d827-4ee7-a167-661a2da31d36",
+          "method": "POST",
+          "path": "/contracts/5edf531f-372f-4947-977e-3175f22f26d2/terminate",
+          "status": 403,
+          "at": "2026-11-05T09:11:48.045Z"
+        },
+        {
+          "id": "5def7be5-26fa-4abc-8c1c-141610def5af",
+          "method": "POST",
+          "path": "/contracts/5edf531f-372f-4947-977e-3175f22f26d2/terminate",
+          "status": 403,
+          "at": "2026-11-05T09:11:48.066Z"
+        },
+        {
+          "id": "09530442-72a9-44fb-8f71-483b4241ac63",
+          "method": "POST",
+          "path": "/contracts/5edf531f-372f-4947-977e-3175f22f26d2/terminate",
+          "status": 403,
+          "at": "2026-11-05T09:11:48.082Z"
+        },
+        {
+          "id": "b2cf51ff-7420-472e-8f52-d32a4314730a",
+          "method": "POST",
+          "path": "/contracts/5edf531f-372f-4947-977e-3175f22f26d2/terminate",
+          "status": 422,
+          "at": "2026-11-05T09:11:48.092Z"
+        },
+        {
+          "id": "7024189f-27cf-481d-8520-00902381b86a",
+          "method": "POST",
+          "path": "/contracts/5edf531f-372f-4947-977e-3175f22f26d2/terminate",
+          "status": 422,
+          "at": "2026-11-05T09:11:48.106Z"
+        },
+        {
+          "id": "e550f8e5-1411-4051-8f12-7ef8ff8763fe",
+          "method": "POST",
+          "path": "/contracts/5edf531f-372f-4947-977e-3175f22f26d2/terminate",
+          "status": 200,
+          "at": "2026-11-05T09:11:48.207Z"
+        },
+        {
+          "id": "af921d9e-4d3c-46a4-a935-bffd6226ef50",
+          "method": "POST",
+          "path": "/contracts/5edf531f-372f-4947-977e-3175f22f26d2/resume",
+          "status": 409,
+          "at": "2026-11-05T09:11:48.546Z"
+        },
+        {
+          "id": "6fd95e7b-1b57-4b7a-ac89-7df1340e1f26",
+          "method": "POST",
+          "path": "/contracts/5edf531f-372f-4947-977e-3175f22f26d2/activate",
+          "status": 409,
+          "at": "2026-11-05T09:11:48.558Z"
+        },
+        {
+          "id": "858e0669-a4dc-4186-a0bf-7806fc436845",
+          "method": "POST",
+          "path": "/contracts/5edf531f-372f-4947-977e-3175f22f26d2/terminate",
+          "status": 409,
+          "at": "2026-11-05T09:11:48.576Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/ctr-halt-flows.spec.ts",
+      "name": "the one who made the decision document may not approve the termination; the leader terminates it with the guarantee called and nothing is offered after (UI-CTR-22, AC-ST-CTR-005-2, UAT-AC304)",
+      "status": "passed",
+      "durationMs": 1404,
+      "at": "2026-11-05T08:46:12.777Z",
+      "requests": [
+        {
+          "id": "7b2240d5-1ae1-42c4-9fef-7763d74283ad",
+          "method": "GET",
+          "path": "/contracts/b81cb8dd-c3df-41b0-928b-0112be0eb1da/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:13.293Z"
+        },
+        {
+          "id": "3a046614-305d-40fd-a646-88e2dad66f61",
+          "method": "POST",
+          "path": "/contracts/b81cb8dd-c3df-41b0-928b-0112be0eb1da/terminate",
+          "status": 403,
+          "at": "2026-11-05T08:46:13.514Z"
+        },
+        {
+          "id": "3d14e598-741c-40c4-b962-e32d60d4c80b",
+          "method": "GET",
+          "path": "/contracts/b81cb8dd-c3df-41b0-928b-0112be0eb1da/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:13.761Z"
+        },
+        {
+          "id": "b8c9c557-0192-4b4e-a7d1-250b23ea25e9",
+          "method": "POST",
+          "path": "/contracts/b81cb8dd-c3df-41b0-928b-0112be0eb1da/terminate",
+          "status": 200,
+          "at": "2026-11-05T08:46:13.947Z"
+        },
+        {
+          "id": "39ff6993-f016-482b-b6de-0d3b5f2480b8",
+          "method": "GET",
+          "path": "/contracts/b81cb8dd-c3df-41b0-928b-0112be0eb1da/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:13.974Z"
+        }
+      ]
+    }
+  ]
+}

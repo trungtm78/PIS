@@ -1,0 +1,110 @@
+{
+  "id": "UAT-AC150",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/placement-migration.test.ts",
+      "name": "the promotion of a tenant to a silo over HTTP (ST-SAS-018) AC-ST-SAS-018-1 UAT-AC150: a copy with one row different is 422 MIGRATION_VERIFICATION_FAILED, the one who started is 403 SELF_APPROVAL_DENIED, and once the copy agrees the cutover is approved and the migration Completed with matching totals",
+      "status": "passed",
+      "durationMs": 3235,
+      "at": "2026-11-05T09:14:44.610Z",
+      "requests": [
+        {
+          "id": "257c9d12-d07d-44be-89aa-ca60f6ccec0b",
+          "method": "POST",
+          "path": "/system/tenants/d08c48ae-4df5-4b44-873a-aa7a0e20717d/placement-migrations",
+          "status": 202,
+          "at": "2026-11-05T09:14:41.750Z"
+        },
+        {
+          "id": "bb132bb9-2732-4b4d-82b0-227e35489496",
+          "method": "GET",
+          "path": "/system/placement-migrations/bee8e562-0107-4ada-b6bf-36a6b596970b",
+          "status": 200,
+          "at": "2026-11-05T09:14:42.850Z"
+        },
+        {
+          "id": "5da495f5-39dd-42cd-a1f0-cbca6791234a",
+          "method": "POST",
+          "path": "/system/placement-migrations/bee8e562-0107-4ada-b6bf-36a6b596970b/cutover",
+          "status": 422,
+          "at": "2026-11-05T09:14:42.883Z"
+        },
+        {
+          "id": "a5c13bac-a7d4-4b3e-9ae3-5db7acb5eee4",
+          "method": "POST",
+          "path": "/system/placement-migrations/bee8e562-0107-4ada-b6bf-36a6b596970b/cutover",
+          "status": 403,
+          "at": "2026-11-05T09:14:42.897Z"
+        },
+        {
+          "id": "3520b994-7d66-49e3-ac90-2226be14913c",
+          "method": "GET",
+          "path": "/system/placement-migrations/bee8e562-0107-4ada-b6bf-36a6b596970b",
+          "status": 200,
+          "at": "2026-11-05T09:14:42.921Z"
+        },
+        {
+          "id": "65fe82d7-d351-4005-97bf-f7c7fc10d0e6",
+          "method": "GET",
+          "path": "/system/placement-migrations/bee8e562-0107-4ada-b6bf-36a6b596970b",
+          "status": 200,
+          "at": "2026-11-05T09:14:43.677Z"
+        },
+        {
+          "id": "65d5a64b-096f-443b-9e7c-85f47bd4b28e",
+          "method": "POST",
+          "path": "/system/placement-migrations/bee8e562-0107-4ada-b6bf-36a6b596970b/cutover",
+          "status": 202,
+          "at": "2026-11-05T09:14:43.684Z"
+        },
+        {
+          "id": "adf621b3-bf61-430f-bc95-4b88493fcb24",
+          "method": "GET",
+          "path": "/system/placement-migrations/bee8e562-0107-4ada-b6bf-36a6b596970b",
+          "status": 200,
+          "at": "2026-11-05T09:14:43.752Z"
+        },
+        {
+          "id": "58ab5e65-75f2-44ea-9c2d-e0be4650afbe",
+          "method": "GET",
+          "path": "/system/placement-migrations/bee8e562-0107-4ada-b6bf-36a6b596970b",
+          "status": 200,
+          "at": "2026-11-05T09:14:43.768Z"
+        },
+        {
+          "id": "eb2e9bc9-b458-4efd-9199-3544a8ef02e4",
+          "method": "GET",
+          "path": "/system/tenants/d08c48ae-4df5-4b44-873a-aa7a0e20717d",
+          "status": 200,
+          "at": "2026-11-05T09:14:44.530Z"
+        },
+        {
+          "id": "d86d02e3-1c0e-45e5-b527-e53d69b69ae6",
+          "method": "GET",
+          "path": "/system/placement-migrations/bee8e562-0107-4ada-b6bf-36a6b596970b",
+          "status": 200,
+          "at": "2026-11-05T09:14:44.545Z"
+        },
+        {
+          "id": "2e452edd-481d-4050-a6c9-edcb7ef8a372",
+          "method": "GET",
+          "path": "/system/placement-migrations/bee8e562-0107-4ada-b6bf-36a6b596970b",
+          "status": 200,
+          "at": "2026-11-05T09:14:44.565Z"
+        },
+        {
+          "id": "9ea1d284-30f2-490f-beb5-6267da405200",
+          "method": "GET",
+          "path": "/system/placement-migrations/bee8e562-0107-4ada-b6bf-36a6b596970b",
+          "status": 200,
+          "at": "2026-11-05T09:14:44.586Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "id": "UAT-AC166",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/billing.test.ts",
+      "name": "the billing run and the e-invoice over HTTP (ST-SAS-011) AC-ST-SAS-011-3 UAT-AC166: a provider that answers 503 twice leaves one invoice at the provider after the retries, and the retries are the schedule of the job",
+      "status": "passed",
+      "durationMs": 305,
+      "at": "2026-11-05T09:19:56.192Z",
+      "requests": [
+        {
+          "id": "d170d2c7-76e4-4981-9ecc-c98a0bdb3df8",
+          "method": "POST",
+          "path": "/system/tenants/2490fc0d-8709-4d4e-9fda-4d65b7d5c736/subscriptions",
+          "status": 201,
+          "at": "2026-11-05T09:19:56.060Z"
+        },
+        {
+          "id": "6573e42a-a26e-447c-ba39-842241d3c690",
+          "method": "POST",
+          "path": "/system/billing-runs",
+          "status": 202,
+          "at": "2026-11-05T09:19:56.078Z"
+        },
+        {
+          "id": "2288e0ac-fa0a-4569-bf7a-6dcc787a8600",
+          "method": "GET",
+          "path": "/system/tenants/2490fc0d-8709-4d4e-9fda-4d65b7d5c736/invoices",
+          "status": 200,
+          "at": "2026-11-05T09:19:56.097Z"
+        },
+        {
+          "id": "2eddfc38-d3a7-47b2-93b7-4b4e8a5e2df7",
+          "method": "POST",
+          "path": "/system/invoices/bf550fca-f6b4-4243-8774-2be1f474e1e1/issue",
+          "status": 202,
+          "at": "2026-11-05T09:19:56.110Z"
+        },
+        {
+          "id": "28243b49-3c02-4a12-b84c-b9361810fc1e",
+          "method": "GET",
+          "path": "/system/tenants/2490fc0d-8709-4d4e-9fda-4d65b7d5c736/invoices",
+          "status": 200,
+          "at": "2026-11-05T09:19:56.127Z"
+        },
+        {
+          "id": "906307c7-918c-41ff-9ebc-ba74d0c7f42c",
+          "method": "GET",
+          "path": "/system/tenants/2490fc0d-8709-4d4e-9fda-4d65b7d5c736/invoices",
+          "status": 200,
+          "at": "2026-11-05T09:19:56.167Z"
+        }
+      ]
+    }
+  ]
+}

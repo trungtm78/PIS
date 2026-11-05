@@ -1,0 +1,194 @@
+{
+  "id": "UI-BID-20",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/bid-petition-flows.spec.ts",
+      "name": "the planner logs a petition, the screen shows it overdue, a person with a conflict is not offered the answer and a different officer answers it (UI-BID-20, AC-ST-BID-007-1, AC-ST-BID-007-2, UAT-AC456, UAT-AC450)",
+      "status": "passed",
+      "durationMs": 2327,
+      "at": "2026-11-05T08:44:24.453Z",
+      "requests": [
+        {
+          "id": "b719125c-cdf2-4a26-89da-a05b37a6f725",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:25.179Z"
+        },
+        {
+          "id": "db0c0acf-3bf2-4858-8a3c-dfd32f7705b9",
+          "method": "GET",
+          "path": "/procurement-packages/006e90dd-fadb-41cf-8c68-9f2899dff3a2/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T08:44:25.224Z"
+        },
+        {
+          "id": "ea34be9f-5c66-4203-8857-043923582431",
+          "method": "GET",
+          "path": "/procurement-petitions",
+          "status": 200,
+          "at": "2026-11-05T08:44:25.224Z"
+        },
+        {
+          "id": "92871632-ad55-479c-88eb-7272f9250f4c",
+          "method": "GET",
+          "path": "/resources/contractor",
+          "status": 200,
+          "at": "2026-11-05T08:44:25.290Z"
+        },
+        {
+          "id": "46ef20d6-b735-4935-8438-a41c07a06b74",
+          "method": "POST",
+          "path": "/procurement-petitions",
+          "status": 200,
+          "at": "2026-11-05T08:44:25.476Z"
+        },
+        {
+          "id": "153f8850-beb0-416a-ac79-0a41cd2206ef",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:25.498Z"
+        },
+        {
+          "id": "65d3af93-eebf-466b-a9ca-94385b4486df",
+          "method": "GET",
+          "path": "/resources/contractor",
+          "status": 200,
+          "at": "2026-11-05T08:44:25.500Z"
+        },
+        {
+          "id": "2ca0eab3-5f77-48e0-8ee5-317461ab0c13",
+          "method": "GET",
+          "path": "/procurement-petitions",
+          "status": 200,
+          "at": "2026-11-05T08:44:25.501Z"
+        },
+        {
+          "id": "a3814f75-8a86-4374-a23f-fbd4477d6e23",
+          "method": "GET",
+          "path": "/procurement-packages/006e90dd-fadb-41cf-8c68-9f2899dff3a2/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T08:44:25.501Z"
+        },
+        {
+          "id": "dcd9ae5c-604f-4bcb-ab3b-6d568f679412",
+          "method": "GET",
+          "path": "/resources/contractor",
+          "status": 200,
+          "at": "2026-11-05T08:44:25.644Z"
+        },
+        {
+          "id": "0d213001-352d-460b-8f2b-e040307b341c",
+          "method": "POST",
+          "path": "/procurement-petitions",
+          "status": 422,
+          "at": "2026-11-05T08:44:25.694Z"
+        },
+        {
+          "id": "aa2328b9-bb43-43bf-884b-4b60a575ea96",
+          "method": "POST",
+          "path": "/procurement-petitions",
+          "status": 409,
+          "at": "2026-11-05T08:44:25.775Z"
+        },
+        {
+          "id": "74089963-5178-4ef1-8c8d-1390aa77baf0",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:26.041Z"
+        },
+        {
+          "id": "76d304ff-f81b-43fa-9711-4ab89151e93a",
+          "method": "GET",
+          "path": "/procurement-petitions",
+          "status": 200,
+          "at": "2026-11-05T08:44:26.055Z"
+        },
+        {
+          "id": "e4481f56-83d8-47d6-b406-c2001546f16b",
+          "method": "GET",
+          "path": "/procurement-packages/006e90dd-fadb-41cf-8c68-9f2899dff3a2/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T08:44:26.054Z"
+        },
+        {
+          "id": "fa170d0b-d19f-4032-ad86-21c0a9e616d4",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:26.210Z"
+        },
+        {
+          "id": "5a284528-839c-4220-9951-cba26797561f",
+          "method": "GET",
+          "path": "/procurement-packages/006e90dd-fadb-41cf-8c68-9f2899dff3a2/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T08:44:26.226Z"
+        },
+        {
+          "id": "9a3e1ad2-c634-49f4-9d0b-3483c66c465d",
+          "method": "GET",
+          "path": "/procurement-petitions",
+          "status": 200,
+          "at": "2026-11-05T08:44:26.227Z"
+        },
+        {
+          "id": "de694576-febc-45b2-ad77-e0e7f8a08cc1",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:26.421Z"
+        },
+        {
+          "id": "31e4ce20-f7e2-44f2-a1e2-40d13b3d23b2",
+          "method": "GET",
+          "path": "/procurement-packages/006e90dd-fadb-41cf-8c68-9f2899dff3a2/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T08:44:26.433Z"
+        },
+        {
+          "id": "9682bdb7-46fd-428f-87e7-89870e3ad56d",
+          "method": "GET",
+          "path": "/procurement-petitions",
+          "status": 200,
+          "at": "2026-11-05T08:44:26.434Z"
+        },
+        {
+          "id": "04042847-5b46-4836-a587-93fe1fa962eb",
+          "method": "POST",
+          "path": "/procurement-petitions/c8860a0e-aee6-4f17-b2a9-e890545747e8/resolution",
+          "status": 200,
+          "at": "2026-11-05T08:44:26.643Z"
+        },
+        {
+          "id": "f059c433-6dd5-4276-bfa9-cf2aee35c084",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:26.663Z"
+        },
+        {
+          "id": "a006188a-5c4f-4778-b95f-8d4ca6bd8a48",
+          "method": "GET",
+          "path": "/procurement-petitions",
+          "status": 200,
+          "at": "2026-11-05T08:44:26.664Z"
+        },
+        {
+          "id": "eb8f7540-2827-4c58-a715-a2fff29bcbea",
+          "method": "GET",
+          "path": "/procurement-packages/006e90dd-fadb-41cf-8c68-9f2899dff3a2/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T08:44:26.664Z"
+        }
+      ]
+    }
+  ]
+}

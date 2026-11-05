@@ -1,0 +1,169 @@
+{
+  "id": "UAT-AC259",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report-decision.test.ts",
+      "name": "the decision on a weekly report and its corrections over HTTP (ST-DIS-006) withdrawReport AC-ST-DIS-007-3 / UAT-AC259: a reason under 20 characters is 422 on reason, then a valid one makes the report WITHDRAWN, with the audit row, one event and the count after commit",
+      "status": "passed",
+      "durationMs": 323,
+      "at": "2026-11-05T09:15:26.798Z",
+      "requests": [
+        {
+          "id": "ed87dc40-18e4-4f79-b8f3-e52b75dbceae",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:15:26.524Z"
+        },
+        {
+          "id": "f2df3eef-12e2-420a-bb59-eaa6ee653e23",
+          "method": "POST",
+          "path": "/reports/2b125cb7-6720-4167-a8c4-a1b3890fb08b/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:26.543Z"
+        },
+        {
+          "id": "f261e54a-7cc0-4bf2-83b1-543b79d48321",
+          "method": "POST",
+          "path": "/reports/2b125cb7-6720-4167-a8c4-a1b3890fb08b/withdrawal",
+          "status": 422,
+          "at": "2026-11-05T09:15:26.562Z"
+        },
+        {
+          "id": "c0b48832-9869-44cc-9eda-04ebd634ff12",
+          "method": "POST",
+          "path": "/reports/2b125cb7-6720-4167-a8c4-a1b3890fb08b/withdrawal",
+          "status": 400,
+          "at": "2026-11-05T09:15:26.583Z"
+        },
+        {
+          "id": "d4e12ec8-3480-4580-b7e4-df8c73d6a1fc",
+          "method": "POST",
+          "path": "/reports/2b125cb7-6720-4167-a8c4-a1b3890fb08b/withdrawal",
+          "status": 200,
+          "at": "2026-11-05T09:15:26.629Z"
+        },
+        {
+          "id": "da1a6efc-f38b-4b3e-8a4b-28938488a738",
+          "method": "GET",
+          "path": "/reports/2b125cb7-6720-4167-a8c4-a1b3890fb08b",
+          "status": 200,
+          "at": "2026-11-05T09:15:26.700Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report-decision.test.ts",
+      "name": "the decision on a weekly report and its corrections over HTTP (ST-DIS-006) deleteDraftReport and restoreDraftReport AC-ST-DIS-007-1 / UAT-AC259: deletes a draft with a reason, lists it apart while it can be restored, restores it, and a report that was handed in is 409 REPORT_NOT_EDITABLE",
+      "status": "passed",
+      "durationMs": 430,
+      "at": "2026-11-05T09:15:28.535Z",
+      "requests": [
+        {
+          "id": "dbfd1434-c8f7-417d-ae21-af6fa364ba94",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:15:28.149Z"
+        },
+        {
+          "id": "38bd984b-c005-4164-a834-9bf870aa09fd",
+          "method": "POST",
+          "path": "/reports/d1727819-9b4f-4112-8256-529e2fc944cc/draft-deletion",
+          "status": 200,
+          "at": "2026-11-05T09:15:28.174Z"
+        },
+        {
+          "id": "73a142ba-ad19-4535-8a0e-fefe0b2f7af7",
+          "method": "GET",
+          "path": "/resources/report_revision",
+          "status": 200,
+          "at": "2026-11-05T09:15:28.206Z"
+        },
+        {
+          "id": "06bab7d7-4e24-4b33-884e-5abd7a410c66",
+          "method": "GET",
+          "path": "/resources/report_revision",
+          "status": 200,
+          "at": "2026-11-05T09:15:28.232Z"
+        },
+        {
+          "id": "f8d3c2a9-5cf8-4b75-adc9-0f408c8eba03",
+          "method": "GET",
+          "path": "/reports/d1727819-9b4f-4112-8256-529e2fc944cc",
+          "status": 200,
+          "at": "2026-11-05T09:15:28.251Z"
+        },
+        {
+          "id": "1c7efc91-96ad-41d0-aec0-1b4da19da114",
+          "method": "POST",
+          "path": "/reports/d1727819-9b4f-4112-8256-529e2fc944cc/draft-restore",
+          "status": 200,
+          "at": "2026-11-05T09:15:28.305Z"
+        },
+        {
+          "id": "ebb11bb5-7168-49f3-964b-44f5d9c52b98",
+          "method": "GET",
+          "path": "/resources/report_revision",
+          "status": 200,
+          "at": "2026-11-05T09:15:28.332Z"
+        },
+        {
+          "id": "3e93fc74-0eac-470f-8ae1-8996cf7f3dbc",
+          "method": "GET",
+          "path": "/resources/report_revision",
+          "status": 200,
+          "at": "2026-11-05T09:15:28.344Z"
+        },
+        {
+          "id": "c56b22e5-eceb-4359-8700-8d92a8abe988",
+          "method": "GET",
+          "path": "/reports/d1727819-9b4f-4112-8256-529e2fc944cc",
+          "status": 200,
+          "at": "2026-11-05T09:15:28.355Z"
+        },
+        {
+          "id": "e81998ba-b7a0-4bfa-baf5-ed4b69a79ea0",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:15:28.428Z"
+        },
+        {
+          "id": "f1c1ae65-a3d9-479f-a66a-231e96fa9624",
+          "method": "POST",
+          "path": "/reports/2f6bfb60-e93e-498a-abfb-0dc0840e9b35/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:28.451Z"
+        },
+        {
+          "id": "aff48bc9-37bf-4f3b-9984-970fa7224cf9",
+          "method": "POST",
+          "path": "/reports/2f6bfb60-e93e-498a-abfb-0dc0840e9b35/draft-deletion",
+          "status": 409,
+          "at": "2026-11-05T09:15:28.482Z"
+        },
+        {
+          "id": "7d3821ef-45c4-42e1-8e6d-19c8c480c5cb",
+          "method": "POST",
+          "path": "/reports/d1727819-9b4f-4112-8256-529e2fc944cc/draft-deletion",
+          "status": 422,
+          "at": "2026-11-05T09:15:28.507Z"
+        },
+        {
+          "id": "09f3ab27-9032-42a9-9372-11a3a1f25916",
+          "method": "POST",
+          "path": "/reports/d1727819-9b4f-4112-8256-529e2fc944cc/draft-deletion",
+          "status": 422,
+          "at": "2026-11-05T09:15:28.513Z"
+        }
+      ]
+    }
+  ]
+}

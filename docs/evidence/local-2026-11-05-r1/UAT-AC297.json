@@ -1,0 +1,96 @@
+{
+  "id": "UAT-AC297",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mne/mne-export.test.ts",
+      "name": "the export package and the receipt of the filing (ST-MNE-004, MNE-06) AC-ST-MNE-004-2: the same content is the same package UAT-AC297: answers a replay with the first answer and an asking with a new key and the same content with the same packages",
+      "status": "passed",
+      "durationMs": 1356,
+      "at": "2026-11-05T09:15:07.389Z",
+      "requests": [
+        {
+          "id": "47c0b18b-47d3-4e43-813f-771b1e01e939",
+          "method": "POST",
+          "path": "/mne-forms",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.033Z"
+        },
+        {
+          "id": "f470ef60-a772-4016-9e0f-b5c879c6b6c7",
+          "method": "POST",
+          "path": "/mne-forms/bf33aa47-cf18-42e8-aac6-a4df1d25abb5/publish",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.045Z"
+        },
+        {
+          "id": "5e397244-ee80-4eb8-8086-7beaaebef36a",
+          "method": "POST",
+          "path": "/mne-reports",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.120Z"
+        },
+        {
+          "id": "10fa5ca0-7030-411e-bb63-140d0968bfd7",
+          "method": "POST",
+          "path": "/mne-reports/8d0fb6c3-3f7c-45ca-b5ba-6c29be70a145/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.146Z"
+        },
+        {
+          "id": "eb952bf1-f840-4c69-87a5-8329ec139c84",
+          "method": "POST",
+          "path": "/mne-reports/8d0fb6c3-3f7c-45ca-b5ba-6c29be70a145/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.174Z"
+        },
+        {
+          "id": "61fb58ac-e9fc-4979-b593-46d39cbf9951",
+          "method": "POST",
+          "path": "/mne-reports/8d0fb6c3-3f7c-45ca-b5ba-6c29be70a145/decision",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.232Z"
+        },
+        {
+          "id": "34ae7343-3d88-4248-983a-f40e3fbbcda2",
+          "method": "POST",
+          "path": "/mne-reports/8d0fb6c3-3f7c-45ca-b5ba-6c29be70a145/issue-requests",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.295Z"
+        },
+        {
+          "id": "1e7543ec-b884-4470-b664-1a55e78af713",
+          "method": "POST",
+          "path": "/mne-reports/8d0fb6c3-3f7c-45ca-b5ba-6c29be70a145/export-packages",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.445Z"
+        },
+        {
+          "id": "7c16c6af-343c-4c04-92a3-9d8d3504a082",
+          "method": "POST",
+          "path": "/mne-reports/8d0fb6c3-3f7c-45ca-b5ba-6c29be70a145/export-packages",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.661Z"
+        },
+        {
+          "id": "11da1e1d-656e-4997-9486-8918f07447ab",
+          "method": "POST",
+          "path": "/mne-reports/8d0fb6c3-3f7c-45ca-b5ba-6c29be70a145/export-packages",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.718Z"
+        },
+        {
+          "id": "1b4393e9-9099-4b1c-aaf9-3886ad1dae05",
+          "method": "POST",
+          "path": "/mne-reports/8d0fb6c3-3f7c-45ca-b5ba-6c29be70a145/export-packages",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.952Z"
+        }
+      ]
+    }
+  ]
+}

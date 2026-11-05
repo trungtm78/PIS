@@ -1,0 +1,113 @@
+{
+  "id": "UAT-AC303",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contract-lifecycle.test.ts",
+      "name": "the life of a contract over HTTP (ST-CTR-004, ST-CTR-005) suspendContract and resumeContract (ST-CTR-005) AC-ST-CTR-005-1, UAT-AC303: refuses a suspension without the decision document (422 DECISION_DOCUMENT_REQUIRED), suspends with it, then resumes with an extension that does not move the due date",
+      "status": "passed",
+      "durationMs": 1070,
+      "at": "2026-11-05T09:11:44.765Z",
+      "requests": [
+        {
+          "id": "4bac8d80-0ab7-4d77-adb1-22c8947269b3",
+          "method": "POST",
+          "path": "/contracts/1bb01f10-fc3b-49ac-9bc1-b2bb34f49c4c/suspend",
+          "status": 422,
+          "at": "2026-11-05T09:11:44.367Z"
+        },
+        {
+          "id": "2541b609-6f99-4dc8-9257-5091ab5af327",
+          "method": "POST",
+          "path": "/contracts/1bb01f10-fc3b-49ac-9bc1-b2bb34f49c4c/suspend",
+          "status": 422,
+          "at": "2026-11-05T09:11:44.373Z"
+        },
+        {
+          "id": "450d941c-1b3d-43bd-a3cf-eb83b1baf997",
+          "method": "POST",
+          "path": "/contracts/1bb01f10-fc3b-49ac-9bc1-b2bb34f49c4c/suspend",
+          "status": 200,
+          "at": "2026-11-05T09:11:44.437Z"
+        },
+        {
+          "id": "a4458af3-a14b-49ef-bb38-cc8938d13d71",
+          "method": "POST",
+          "path": "/contracts/1bb01f10-fc3b-49ac-9bc1-b2bb34f49c4c/suspend",
+          "status": 409,
+          "at": "2026-11-05T09:11:44.590Z"
+        },
+        {
+          "id": "c84713e9-a859-491d-a4f2-63ca3c86705b",
+          "method": "POST",
+          "path": "/contracts/1bb01f10-fc3b-49ac-9bc1-b2bb34f49c4c/activate",
+          "status": 409,
+          "at": "2026-11-05T09:11:44.601Z"
+        },
+        {
+          "id": "414a3132-c9eb-4fde-9a4b-b6946f531a14",
+          "method": "POST",
+          "path": "/contracts/1bb01f10-fc3b-49ac-9bc1-b2bb34f49c4c/resume",
+          "status": 200,
+          "at": "2026-11-05T09:11:44.616Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/ctr-halt-flows.spec.ts",
+      "name": "the leader suspends an active contract on a decision document and resumes it with an extension that does not move the due date (UI-CTR-22, AC-ST-CTR-005-1, UAT-AC303)",
+      "status": "passed",
+      "durationMs": 1417,
+      "at": "2026-11-05T08:46:11.352Z",
+      "requests": [
+        {
+          "id": "6ee10ad5-c929-474e-8c68-be1bbd11f122",
+          "method": "GET",
+          "path": "/contracts/27ba242b-c32b-4a00-baaf-2ab2d631f1f1/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:11.943Z"
+        },
+        {
+          "id": "d24ea765-d431-4f85-b14b-3154c15c1d84",
+          "method": "POST",
+          "path": "/contracts/27ba242b-c32b-4a00-baaf-2ab2d631f1f1/suspend",
+          "status": 422,
+          "at": "2026-11-05T08:46:12.198Z"
+        },
+        {
+          "id": "876c6a7a-b4fd-4f04-9850-1d7f6e2aafac",
+          "method": "POST",
+          "path": "/contracts/27ba242b-c32b-4a00-baaf-2ab2d631f1f1/suspend",
+          "status": 200,
+          "at": "2026-11-05T08:46:12.313Z"
+        },
+        {
+          "id": "b7108d3d-c190-4b11-8ac2-54eccc30954f",
+          "method": "GET",
+          "path": "/contracts/27ba242b-c32b-4a00-baaf-2ab2d631f1f1/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:12.336Z"
+        },
+        {
+          "id": "865e7be8-0c86-47ff-81c2-f9964dc78388",
+          "method": "POST",
+          "path": "/contracts/27ba242b-c32b-4a00-baaf-2ab2d631f1f1/resume",
+          "status": 200,
+          "at": "2026-11-05T08:46:12.596Z"
+        },
+        {
+          "id": "e86bb241-8abb-4605-b519-37f39e3c60c2",
+          "method": "GET",
+          "path": "/contracts/27ba242b-c32b-4a00-baaf-2ab2d631f1f1/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:12.612Z"
+        }
+      ]
+    }
+  ]
+}

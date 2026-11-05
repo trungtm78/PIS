@@ -1,0 +1,82 @@
+{
+  "id": "UAT-PLAN-61",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/allocation-extension.test.ts",
+      "name": "the extension of the disbursement of capital over HTTP (ST-CAP-007) requestAllocationExtension refuses more than what is left with 422 AMOUNT_EXCEEDS_UNDISBURSED, and a bad form with 422 VALIDATION_FAILED naming the field (AC-ST-CAP-007-3, UAT-PLAN-61)",
+      "status": "passed",
+      "durationMs": 909,
+      "at": "2026-11-05T09:19:16.253Z",
+      "requests": [
+        {
+          "id": "456c41c9-2413-4271-8ef1-058a5a8276df",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:19:15.540Z"
+        },
+        {
+          "id": "b51d5c65-8f37-42f5-a5c1-977f4d5f095b",
+          "method": "POST",
+          "path": "/capital-plans/10472b9e-5d1f-47d2-94ae-3bebc135beb0/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:19:15.851Z"
+        },
+        {
+          "id": "e379f529-bb7b-4401-832f-36d5c436f3c0",
+          "method": "POST",
+          "path": "/capital-plans/10472b9e-5d1f-47d2-94ae-3bebc135beb0/submit",
+          "status": 200,
+          "at": "2026-11-05T09:19:15.871Z"
+        },
+        {
+          "id": "7ccb26c9-3c72-430a-a806-0829a7b490f9",
+          "method": "POST",
+          "path": "/capital-plans/10472b9e-5d1f-47d2-94ae-3bebc135beb0/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:15.885Z"
+        },
+        {
+          "id": "8a979e48-fd34-4087-a102-3ade119a708b",
+          "method": "POST",
+          "path": "/plans/10472b9e-5d1f-47d2-94ae-3bebc135beb0/publish",
+          "status": 200,
+          "at": "2026-11-05T09:19:15.938Z"
+        },
+        {
+          "id": "fdb2f793-56df-4a7d-a9b7-75c0a8d1855f",
+          "method": "POST",
+          "path": "/allocation-lines/6973cadd-360e-4f7e-b38c-e01786275b86/extensions",
+          "status": 422,
+          "at": "2026-11-05T09:19:16.126Z"
+        },
+        {
+          "id": "1dcca0a0-6256-486c-a4d4-0862f0b45b97",
+          "method": "POST",
+          "path": "/allocation-lines/6973cadd-360e-4f7e-b38c-e01786275b86/extensions",
+          "status": 422,
+          "at": "2026-11-05T09:19:16.163Z"
+        },
+        {
+          "id": "dc02b958-792a-4c12-8859-ee31d9fcd44a",
+          "method": "POST",
+          "path": "/allocation-lines/6973cadd-360e-4f7e-b38c-e01786275b86/extensions",
+          "status": 422,
+          "at": "2026-11-05T09:19:16.184Z"
+        },
+        {
+          "id": "a82c4600-82ad-46ff-8a58-192fcd866024",
+          "method": "POST",
+          "path": "/allocation-lines/6973cadd-360e-4f7e-b38c-e01786275b86/extensions",
+          "status": 400,
+          "at": "2026-11-05T09:19:16.203Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,295 @@
+{
+  "id": "UAT-AC154",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/plans.test.ts",
+      "name": "plan catalogue over HTTP (ST-SAS-007) publishPlanVersion (UAT-AC154) publishes a draft: 200 PUBLISHED at version 2, who published it recorded, audit with the reason and the event of the platform",
+      "status": "passed",
+      "durationMs": 194,
+      "at": "2026-11-05T09:20:40.279Z",
+      "requests": [
+        {
+          "id": "2815519c-56cb-44f5-b264-eb0a9f7663e4",
+          "method": "POST",
+          "path": "/system/plans",
+          "status": 201,
+          "at": "2026-11-05T09:20:40.087Z"
+        },
+        {
+          "id": "cc06b32d-96c2-49d1-9f53-e7c9f32c272f",
+          "method": "POST",
+          "path": "/system/plans/64ff56a3-3812-4737-a63c-0019522129bc/publish",
+          "status": 200,
+          "at": "2026-11-05T09:20:40.104Z"
+        },
+        {
+          "id": "5239be9a-b0ea-4568-9504-2a0c20107d34",
+          "method": "GET",
+          "path": "/system/plans",
+          "status": 200,
+          "at": "2026-11-05T09:20:40.177Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/plans.test.ts",
+      "name": "plan catalogue over HTTP (ST-SAS-007) publishPlanVersion (UAT-AC154) answers 409 PLAN_VERSION_IMMUTABLE to a second publication, then creates revision 2 as a draft and leaves revision 1 as it was (AC-ST-SAS-007-1)",
+      "status": "passed",
+      "durationMs": 242,
+      "at": "2026-11-05T09:20:40.522Z",
+      "requests": [
+        {
+          "id": "e945f83c-036e-4107-88c8-9669dc65493f",
+          "method": "POST",
+          "path": "/system/plans",
+          "status": 201,
+          "at": "2026-11-05T09:20:40.281Z"
+        },
+        {
+          "id": "c32ca828-9ed6-42c8-bf09-8eee9e852f31",
+          "method": "POST",
+          "path": "/system/plans/d2f23754-ac54-49f8-85be-651da3f93e78/publish",
+          "status": 200,
+          "at": "2026-11-05T09:20:40.297Z"
+        },
+        {
+          "id": "35a711b5-49b3-466b-bee0-5f6b6cd710f2",
+          "method": "POST",
+          "path": "/system/plans/d2f23754-ac54-49f8-85be-651da3f93e78/publish",
+          "status": 409,
+          "at": "2026-11-05T09:20:40.360Z"
+        },
+        {
+          "id": "f7f975c1-4076-40b5-a89f-c88e534f6e93",
+          "method": "POST",
+          "path": "/system/plans/d2f23754-ac54-49f8-85be-651da3f93e78/publish",
+          "status": 409,
+          "at": "2026-11-05T09:20:40.371Z"
+        },
+        {
+          "id": "1ee60412-6033-4547-8f78-622d0a135419",
+          "method": "POST",
+          "path": "/system/plans",
+          "status": 201,
+          "at": "2026-11-05T09:20:40.457Z"
+        },
+        {
+          "id": "bad427e5-a151-48f4-8cd7-7ad58d310bf9",
+          "method": "GET",
+          "path": "/system/plans",
+          "status": 200,
+          "at": "2026-11-05T09:20:40.469Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/plans.test.ts",
+      "name": "plan catalogue over HTTP (ST-SAS-007) publishPlanVersion (UAT-AC154) answers 409 VERSION_CONFLICT to a stale If-Match and 428 to a missing one, and publishes nothing",
+      "status": "passed",
+      "durationMs": 75,
+      "at": "2026-11-05T09:20:40.596Z",
+      "requests": [
+        {
+          "id": "eb2bf5b7-a2d7-4431-8354-54f1b1c24ecd",
+          "method": "POST",
+          "path": "/system/plans",
+          "status": 201,
+          "at": "2026-11-05T09:20:40.523Z"
+        },
+        {
+          "id": "75c21366-eb74-46be-bcd7-d2b39c886d3f",
+          "method": "POST",
+          "path": "/system/plans/a4baee1a-19a9-48a5-bac0-5dfcbc66b516/publish",
+          "status": 409,
+          "at": "2026-11-05T09:20:40.533Z"
+        },
+        {
+          "id": "fa02bdc4-cc61-495f-9d72-f00ea5c73302",
+          "method": "POST",
+          "path": "/system/plans/a4baee1a-19a9-48a5-bac0-5dfcbc66b516/publish",
+          "status": 428,
+          "at": "2026-11-05T09:20:40.547Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/plans.test.ts",
+      "name": "plan catalogue over HTTP (ST-SAS-007) publishPlanVersion (UAT-AC154) answers 404 for a plan version that does not exist and 422 for an id that is not one",
+      "status": "passed",
+      "durationMs": 20,
+      "at": "2026-11-05T09:20:40.617Z",
+      "requests": [
+        {
+          "id": "53a1354a-8718-4f9b-a78f-d3d5dc9ea499",
+          "method": "POST",
+          "path": "/system/plans/bf27f4a6-f4d1-42bb-9c13-83a55773ba35/publish",
+          "status": 404,
+          "at": "2026-11-05T09:20:40.597Z"
+        },
+        {
+          "id": "5d696e60-3611-4136-9e43-afec3962c3ec",
+          "method": "POST",
+          "path": "/system/plans/not-a-uuid/publish",
+          "status": 422,
+          "at": "2026-11-05T09:20:40.612Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/plans.test.ts",
+      "name": "plan catalogue over HTTP (ST-SAS-007) publishPlanVersion (UAT-AC154) refuses a reason that is too short",
+      "status": "passed",
+      "durationMs": 24,
+      "at": "2026-11-05T09:20:40.641Z",
+      "requests": [
+        {
+          "id": "0c9980cd-26a6-4eb6-bd05-399ebe418505",
+          "method": "POST",
+          "path": "/system/plans",
+          "status": 201,
+          "at": "2026-11-05T09:20:40.618Z"
+        },
+        {
+          "id": "a5a916c4-ad1d-47bf-a0bf-ba47d95081a2",
+          "method": "POST",
+          "path": "/system/plans/3c4e0dea-ea08-42ab-936d-92ace5530960/publish",
+          "status": 422,
+          "at": "2026-11-05T09:20:40.627Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/plans.test.ts",
+      "name": "plan catalogue over HTTP (ST-SAS-007) publishPlanVersion (UAT-AC154) refuses to publish a draft that is not fit to be sold with 422 PLAN_INVALID and leaves it a draft",
+      "status": "passed",
+      "durationMs": 151,
+      "at": "2026-11-05T09:20:40.791Z",
+      "requests": [
+        {
+          "id": "f507e1f6-796c-4e5a-98ab-35f3326df3c5",
+          "method": "POST",
+          "path": "/system/plans/bf8ef9e5-9fe4-46f2-a77f-8efcb984eae5/publish",
+          "status": 422,
+          "at": "2026-11-05T09:20:40.745Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/plans.test.ts",
+      "name": "plan catalogue over HTTP (ST-SAS-007) publishPlanVersion (UAT-AC154) lets exactly one of two concurrent publications through",
+      "status": "passed",
+      "durationMs": 56,
+      "at": "2026-11-05T09:20:40.847Z",
+      "requests": [
+        {
+          "id": "a7feb994-fc48-4c46-bae5-52ce85c41c85",
+          "method": "POST",
+          "path": "/system/plans",
+          "status": 201,
+          "at": "2026-11-05T09:20:40.793Z"
+        },
+        {
+          "id": "42f3dfeb-f173-47c2-9c11-02a7ef99da68",
+          "method": "POST",
+          "path": "/system/plans/94b7dff6-d41a-4da2-93f2-5f6f59275e98/publish",
+          "status": 200,
+          "at": "2026-11-05T09:20:40.803Z"
+        },
+        {
+          "id": "849184c4-230f-4d21-b11f-51108c1ce5b5",
+          "method": "POST",
+          "path": "/system/plans/94b7dff6-d41a-4da2-93f2-5f6f59275e98/publish",
+          "status": 409,
+          "at": "2026-11-05T09:20:40.804Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/plans.test.ts",
+      "name": "plan catalogue over HTTP (ST-SAS-007) publishPlanVersion (UAT-AC154) does not publish the seeded plan again",
+      "status": "passed",
+      "durationMs": 19,
+      "at": "2026-11-05T09:20:40.866Z",
+      "requests": [
+        {
+          "id": "7d12ddbd-7906-4d2f-8626-7b0f0ed2f977",
+          "method": "POST",
+          "path": "/system/plans/00000000-0000-4000-9000-000000000001/publish",
+          "status": 409,
+          "at": "2026-11-05T09:20:40.848Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/sas-plan-flows.spec.ts",
+      "name": "writes a draft, publishes it with a reason, and writes the next revision without touching the published one (UAT-AC154)",
+      "status": "passed",
+      "durationMs": 1381,
+      "at": "2026-11-05T08:55:30.587Z",
+      "requests": [
+        {
+          "id": "7567e2ef-fe7a-4597-b9f4-08659064fbe2",
+          "method": "GET",
+          "path": "/system/plans",
+          "status": 200,
+          "at": "2026-11-05T08:55:30.935Z"
+        },
+        {
+          "id": "96ad7bec-c962-4d63-adc5-f8c65786f5fa",
+          "method": "POST",
+          "path": "/system/plans",
+          "status": 201,
+          "at": "2026-11-05T08:55:31.327Z"
+        },
+        {
+          "id": "1a995f09-4893-4b9c-aa14-c69bad219188",
+          "method": "GET",
+          "path": "/system/plans",
+          "status": 200,
+          "at": "2026-11-05T08:55:31.351Z"
+        },
+        {
+          "id": "a7237212-eade-4aae-841c-c2e238abf131",
+          "method": "POST",
+          "path": "/system/plans/3ad6a79e-9e9d-41f6-994e-e8f83ed55dfa/publish",
+          "status": 200,
+          "at": "2026-11-05T08:55:31.642Z"
+        },
+        {
+          "id": "37cecd17-8272-474b-8004-5579ac696fa6",
+          "method": "GET",
+          "path": "/system/plans",
+          "status": 200,
+          "at": "2026-11-05T08:55:31.663Z"
+        },
+        {
+          "id": "710e975f-ce97-4457-a112-79f8887cd4a2",
+          "method": "POST",
+          "path": "/system/plans",
+          "status": 201,
+          "at": "2026-11-05T08:55:31.876Z"
+        },
+        {
+          "id": "c98409cb-96ae-4afc-a9a9-cc61e1f93f29",
+          "method": "GET",
+          "path": "/system/plans",
+          "status": 200,
+          "at": "2026-11-05T08:55:31.897Z"
+        }
+      ]
+    }
+  ]
+}

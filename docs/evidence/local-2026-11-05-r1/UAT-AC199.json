@@ -1,0 +1,33 @@
+{
+  "id": "UAT-AC199",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/omni/routing-policy.test.ts",
+      "name": "the routing, the SLA in working time and the canned replies of the omnichannel center (ST-OMNI-006, OMNI-07, OMNI-08) a conversation that begins AC-ST-OMNI-006-1 UAT-AC199: a message on Friday 16:50 with a first answer in 30 minutes is due on Monday 08:20, and the resolution in working hours too",
+      "status": "passed",
+      "durationMs": 165,
+      "at": "2026-11-05T09:21:52.689Z",
+      "requests": [
+        {
+          "id": "e90a2503-e7ab-4fc6-beaa-b863bb716785",
+          "method": "POST",
+          "path": "/conversation-routing-policies",
+          "status": 201,
+          "at": "2026-11-05T09:21:52.524Z"
+        },
+        {
+          "id": "f1f9a21e-4b3d-4500-92c6-d954d319e2b3",
+          "method": "POST",
+          "path": "/conversation-routing-policies/42bdb1dd-4c94-4fc6-86e7-9a5b3223b767/publish",
+          "status": 200,
+          "at": "2026-11-05T09:21:52.546Z"
+        }
+      ]
+    }
+  ]
+}

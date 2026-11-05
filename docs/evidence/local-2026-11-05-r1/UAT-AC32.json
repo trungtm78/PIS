@@ -1,0 +1,47 @@
+{
+  "id": "UAT-AC32",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-queries.test.ts",
+      "name": "the queries of BI and the drill under them (ST-BI-004, BI F3, F4) a query over a snapshot AC-ST-BI-004-2: UAT-AC32 adds the children and Unclassified to 10.5 billion, makes the ratio 10.5/30 = 35.00% from the sums, is NOT_APPLICABLE over a plan of zero, and leaves the unit out of the scope out with the label of the scope",
+      "status": "passed",
+      "durationMs": 295,
+      "at": "2026-11-05T09:18:01.343Z",
+      "requests": [
+        {
+          "id": "52e8ffc3-cd1e-4629-b24c-4f4ec4e7a202",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:18:01.215Z"
+        },
+        {
+          "id": "4b917a3c-b431-4c6b-ba44-d6ccae20395b",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.246Z"
+        },
+        {
+          "id": "b18c61fe-e8cc-42bc-8af5-c9483e4d4ba1",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.280Z"
+        },
+        {
+          "id": "76642c48-ff84-4d07-99bc-4c8475ed0a64",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.312Z"
+        }
+      ]
+    }
+  ]
+}

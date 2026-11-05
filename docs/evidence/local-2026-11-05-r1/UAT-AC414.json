@@ -1,0 +1,47 @@
+{
+  "id": "UAT-AC414",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/outgoing-drafts.test.ts",
+      "name": "outgoing documents: compose, review and submit for signature (ST-DOC-007) submitOutgoingDocumentForReview and decideOutgoingDocumentReview refuses a self-approval, a signer without the authority, a clerk who starts signing and a leader who numbers: four DENIED rows (AC-ST-DOC-007-1, UAT-AC414)",
+      "status": "passed",
+      "durationMs": 287,
+      "at": "2026-11-05T09:15:49.521Z",
+      "requests": [
+        {
+          "id": "d756855d-883a-4926-bb01-8e4c5078d85f",
+          "method": "POST",
+          "path": "/outgoing-documents/13b47da3-a185-47f7-a2c2-7c33208baf38/review-decision",
+          "status": 403,
+          "at": "2026-11-05T09:15:49.281Z"
+        },
+        {
+          "id": "14c646af-df30-49b1-9d71-41c4f249b6e3",
+          "method": "POST",
+          "path": "/outgoing-documents/13b47da3-a185-47f7-a2c2-7c33208baf38/review-decision",
+          "status": 422,
+          "at": "2026-11-05T09:15:49.308Z"
+        },
+        {
+          "id": "ec60d1da-c696-43ba-ae45-c61b851833de",
+          "method": "POST",
+          "path": "/outgoing-documents/13b47da3-a185-47f7-a2c2-7c33208baf38/leader-signing-sessions",
+          "status": 403,
+          "at": "2026-11-05T09:15:49.326Z"
+        },
+        {
+          "id": "4d711203-cc02-4831-b863-cbb1cc362270",
+          "method": "POST",
+          "path": "/outgoing-documents/13b47da3-a185-47f7-a2c2-7c33208baf38/numbering",
+          "status": 403,
+          "at": "2026-11-05T09:15:49.335Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,330 @@
+{
+  "id": "UAT-AC376",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) recordRecoveryNotice (AC-ST-LND-001-1, UAT-AC376) AC-ST-LND-001-1: starts 90 days for agricultural land and 180 for the rest from the same notice date, and tells the rule it stands on",
+      "status": "passed",
+      "durationMs": 255,
+      "at": "2026-11-05T09:19:35.219Z",
+      "requests": [
+        {
+          "id": "6b249662-47a0-41c0-a4c3-f768f14d641c",
+          "method": "POST",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T09:19:34.963Z"
+        },
+        {
+          "id": "638f2303-a157-4bcc-b737-edba6b496e16",
+          "method": "POST",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T09:19:34.982Z"
+        },
+        {
+          "id": "6f18c600-d21f-4e4a-a0bf-e73927d2dbed",
+          "method": "POST",
+          "path": "/land-parcels/38bbc079-ab45-47a4-9308-a8ec86840fa4/recovery-notice",
+          "status": 200,
+          "at": "2026-11-05T09:19:34.998Z"
+        },
+        {
+          "id": "64528899-81ee-4ee9-98e6-43d27b6a4d20",
+          "method": "POST",
+          "path": "/land-parcels/fed069c5-0559-40fb-bb02-0565286b25ba/recovery-notice",
+          "status": 200,
+          "at": "2026-11-05T09:19:35.030Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) recordRecoveryNotice (AC-ST-LND-001-1, UAT-AC376) AC-ST-LND-001-1: an earlier decision to recover is blocked by the database, whoever writes it, until the end of the notice",
+      "status": "passed",
+      "durationMs": 158,
+      "at": "2026-11-05T09:19:35.376Z",
+      "requests": [
+        {
+          "id": "32edf6c9-229d-4bf7-a489-66059b04a2f5",
+          "method": "POST",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T09:19:35.219Z"
+        },
+        {
+          "id": "6ca215ef-6be3-426d-baae-55e1b2b6fde0",
+          "method": "POST",
+          "path": "/land-parcels/164b7b96-d19e-4855-a26f-d5a25beccfb3/recovery-notice",
+          "status": 200,
+          "at": "2026-11-05T09:19:35.237Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) recordRecoveryNotice (AC-ST-LND-001-1, UAT-AC376) wants If-Match, the current version and a notice that has not been given yet",
+      "status": "passed",
+      "durationMs": 67,
+      "at": "2026-11-05T09:19:35.443Z",
+      "requests": [
+        {
+          "id": "1ad52715-f455-48aa-87ef-5ce8e21b8348",
+          "method": "POST",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T09:19:35.376Z"
+        },
+        {
+          "id": "19780c0a-2cdf-41b7-887e-2ac956247379",
+          "method": "POST",
+          "path": "/land-parcels/ed897ca0-ff54-4552-8bc2-d1214ca87458/recovery-notice",
+          "status": 428,
+          "at": "2026-11-05T09:19:35.399Z"
+        },
+        {
+          "id": "8f9a1fbd-3475-4ab5-b15c-c9c08efdf7f2",
+          "method": "POST",
+          "path": "/land-parcels/ed897ca0-ff54-4552-8bc2-d1214ca87458/recovery-notice",
+          "status": 409,
+          "at": "2026-11-05T09:19:35.407Z"
+        },
+        {
+          "id": "a48fb0ba-0d93-4b5e-96ec-325efeec409e",
+          "method": "POST",
+          "path": "/land-parcels/ed897ca0-ff54-4552-8bc2-d1214ca87458/recovery-notice",
+          "status": 200,
+          "at": "2026-11-05T09:19:35.413Z"
+        },
+        {
+          "id": "9f620b3e-b60c-4649-ba30-ff7588685eda",
+          "method": "POST",
+          "path": "/land-parcels/ed897ca0-ff54-4552-8bc2-d1214ca87458/recovery-notice",
+          "status": 409,
+          "at": "2026-11-05T09:19:35.432Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) recordRecoveryNotice (AC-ST-LND-001-1, UAT-AC376) refuses a date in the future, a document that is not clean or not there, and a day with no rule in force (TIMER_RULE_UNCONFIRMED)",
+      "status": "passed",
+      "durationMs": 146,
+      "at": "2026-11-05T09:19:35.589Z",
+      "requests": [
+        {
+          "id": "ea3616f7-578c-4c1c-8071-6a90007f0f74",
+          "method": "POST",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T09:19:35.443Z"
+        },
+        {
+          "id": "0dfa31d0-f2e9-44c4-9e73-80b5f28b4467",
+          "method": "POST",
+          "path": "/land-parcels/68f2722f-100e-4efd-9e30-e6d6533f606b/recovery-notice",
+          "status": 422,
+          "at": "2026-11-05T09:19:35.462Z"
+        },
+        {
+          "id": "4129d9c7-42c4-426f-8347-a4f97633f4b3",
+          "method": "POST",
+          "path": "/land-parcels/68f2722f-100e-4efd-9e30-e6d6533f606b/recovery-notice",
+          "status": 422,
+          "at": "2026-11-05T09:19:35.474Z"
+        },
+        {
+          "id": "589eaa7c-6850-45fa-adac-e65d02e0abb0",
+          "method": "POST",
+          "path": "/land-parcels/68f2722f-100e-4efd-9e30-e6d6533f606b/recovery-notice",
+          "status": 422,
+          "at": "2026-11-05T09:19:35.482Z"
+        },
+        {
+          "id": "8a986e92-37be-496e-85c8-1e3aa4f18b18",
+          "method": "POST",
+          "path": "/land-parcels/68f2722f-100e-4efd-9e30-e6d6533f606b/recovery-notice",
+          "status": 422,
+          "at": "2026-11-05T09:19:35.493Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) recordRecoveryNotice (AC-ST-LND-001-1, UAT-AC376) answers TIMER_RULE_UNCONFIRMED in a tenant whose rules have not been published",
+      "status": "passed",
+      "durationMs": 32,
+      "at": "2026-11-05T09:19:35.621Z",
+      "requests": [
+        {
+          "id": "facaeef0-ff3c-4f3d-9c3d-00165e67f65d",
+          "method": "POST",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T09:19:35.589Z"
+        },
+        {
+          "id": "c2c3cd92-17e1-44e0-84f2-86df790cb4a2",
+          "method": "POST",
+          "path": "/land-parcels/4b2835ee-0628-4559-83a2-54b8867204d8/recovery-notice",
+          "status": 422,
+          "at": "2026-11-05T09:19:35.606Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) recordRecoveryNotice (AC-ST-LND-001-1, UAT-AC376) does not show a parcel to a caller who cannot see it (404), and refuses one who sees it and may not act on it (403)",
+      "status": "passed",
+      "durationMs": 125,
+      "at": "2026-11-05T09:19:35.746Z",
+      "requests": [
+        {
+          "id": "fe00d37d-db58-47ca-bd70-9df25754664b",
+          "method": "POST",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T09:19:35.621Z"
+        },
+        {
+          "id": "4d9f34a3-0460-40de-a984-b79872472b08",
+          "method": "POST",
+          "path": "/land-parcels/5b9d143e-f740-47ab-81bd-0106e90172fe/recovery-notice",
+          "status": 403,
+          "at": "2026-11-05T09:19:35.637Z"
+        },
+        {
+          "id": "163d5a2b-ce7b-4a20-b8aa-c493b186ba7b",
+          "method": "POST",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T09:19:35.650Z"
+        },
+        {
+          "id": "32aa9d9e-75e0-4229-9ff7-602f8fce3196",
+          "method": "POST",
+          "path": "/land-parcels/dcfbba19-0448-4724-b4dc-73e7347dec5d/recovery-notice",
+          "status": 404,
+          "at": "2026-11-05T09:19:35.670Z"
+        },
+        {
+          "id": "145017f6-d7ef-49fc-bfdc-956e4c1f9e69",
+          "method": "POST",
+          "path": "/land-parcels/d9661e4c-40ff-4870-8757-0de72fd8f884/recovery-notice",
+          "status": 404,
+          "at": "2026-11-05T09:19:35.682Z"
+        },
+        {
+          "id": "4e447625-9582-4557-8d89-6310262a969b",
+          "method": "POST",
+          "path": "/land-parcels/5b9d143e-f740-47ab-81bd-0106e90172fe/recovery-notice",
+          "status": 403,
+          "at": "2026-11-05T09:19:35.688Z"
+        },
+        {
+          "id": "0d75454f-eeb7-4cfe-9ea4-3c88b8277e49",
+          "method": "POST",
+          "path": "/land-parcels/5b9d143e-f740-47ab-81bd-0106e90172fe/recovery-notice",
+          "status": 200,
+          "at": "2026-11-05T09:19:35.736Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) recordRecoveryNotice (AC-ST-LND-001-1, UAT-AC376) lets the officer who may only process the parcels of a unit give the notice of a parcel of that unit, and not see one of another unit",
+      "status": "passed",
+      "durationMs": 55,
+      "at": "2026-11-05T09:19:35.802Z",
+      "requests": [
+        {
+          "id": "559e36fb-f253-4d6b-a2ec-9bb643d390f6",
+          "method": "POST",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T09:19:35.746Z"
+        },
+        {
+          "id": "ec4e323b-035a-4a19-946b-8240ecc37021",
+          "method": "POST",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T09:19:35.754Z"
+        },
+        {
+          "id": "595bf7e6-c22f-4cb8-a7ca-bf440ec40b0f",
+          "method": "POST",
+          "path": "/land-parcels/e1f0df46-479a-4cb4-9c4a-9c93699fa44b/recovery-notice",
+          "status": 404,
+          "at": "2026-11-05T09:19:35.767Z"
+        },
+        {
+          "id": "0f5f0986-fe25-4e60-8ca7-1312678085d6",
+          "method": "POST",
+          "path": "/land-parcels/c4db76c2-f24d-484f-a9ce-7c7753b4af0f/recovery-notice",
+          "status": 200,
+          "at": "2026-11-05T09:19:35.780Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) recordRecoveryNotice (AC-ST-LND-001-1, UAT-AC376) does not reach a parcel of another tenant",
+      "status": "passed",
+      "durationMs": 26,
+      "at": "2026-11-05T09:19:35.827Z",
+      "requests": [
+        {
+          "id": "6a8c1b1b-dea7-4d0a-87f1-edb5e2c3da03",
+          "method": "POST",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T09:19:35.802Z"
+        },
+        {
+          "id": "988a5cd0-464c-4a64-a6df-a06c676e2e1c",
+          "method": "POST",
+          "path": "/land-parcels/96aec164-8cf0-403c-a244-232c018913ca/recovery-notice",
+          "status": 404,
+          "at": "2026-11-05T09:19:35.814Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) recordRecoveryNotice (AC-ST-LND-001-1, UAT-AC376) takes no field beyond the date and the notice document",
+      "status": "passed",
+      "durationMs": 13,
+      "at": "2026-11-05T09:19:35.840Z",
+      "requests": [
+        {
+          "id": "20cff5db-75d0-4e52-b203-622ed10d22f1",
+          "method": "POST",
+          "path": "/land-parcels",
+          "status": 200,
+          "at": "2026-11-05T09:19:35.827Z"
+        },
+        {
+          "id": "2a150fcd-363a-4dec-bd88-0b2b8b2426dd",
+          "method": "POST",
+          "path": "/land-parcels/1bdb3646-4481-44d2-9c69-47f618af64bd/recovery-notice",
+          "status": 400,
+          "at": "2026-11-05T09:19:35.836Z"
+        }
+      ]
+    }
+  ]
+}

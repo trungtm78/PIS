@@ -1,0 +1,26 @@
+{
+  "id": "UAT-AC23",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/omni/conversation-messages.test.ts",
+      "name": "what an agent says in a conversation (ST-OMNI-005, OMNI-02, OMNI.md 3.3) a note for the colleagues AC-ST-OMNI-005-1 UAT-AC23: is kept in the conversation and reaches no adapter, and the database refuses a note that has a provider id or a status",
+      "status": "passed",
+      "durationMs": 644,
+      "at": "2026-11-05T09:12:29.349Z",
+      "requests": [
+        {
+          "id": "8d60225a-489f-4ffe-a3cc-6785b5ace818",
+          "method": "POST",
+          "path": "/conversations/5aee0647-2ea3-413b-86a7-2b26d7bc146f/messages",
+          "status": 202,
+          "at": "2026-11-05T09:12:29.032Z"
+        }
+      ]
+    }
+  ]
+}

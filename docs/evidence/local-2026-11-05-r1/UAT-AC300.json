@@ -1,0 +1,751 @@
+{
+  "id": "UAT-AC300",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contract-lifecycle.test.ts",
+      "name": "the life of a contract over HTTP (ST-CTR-004, ST-CTR-005) the table of the states (AC-ST-CTR-004-4, UAT-AC300) lets exactly the valid pairs through (eight commands over nine statuses) with a leader who holds every right, answers every other pair 409 CONTRACT_STATE_INVALID without a change, and writes one row of the history per valid move",
+      "status": "passed",
+      "durationMs": 16129,
+      "at": "2026-11-05T09:11:42.986Z",
+      "requests": [
+        {
+          "id": "b694bb0d-3f15-4ba5-9056-7caa2cb11c33",
+          "method": "POST",
+          "path": "/contracts/549935f1-1bdb-4740-b774-7b53279438ad/submit-review",
+          "status": 200,
+          "at": "2026-11-05T09:11:27.549Z"
+        },
+        {
+          "id": "df75389b-f3da-42fb-9036-0d75a1d3d6d1",
+          "method": "POST",
+          "path": "/contracts/9ca01b39-aecc-4b50-b92d-9d6bdff3d3b6/return",
+          "status": 409,
+          "at": "2026-11-05T09:11:27.668Z"
+        },
+        {
+          "id": "65765e83-4dcf-48b8-889c-76dea9573c6b",
+          "method": "POST",
+          "path": "/contracts/af89fc54-988b-4422-8a99-4538736694f2/sign",
+          "status": 409,
+          "at": "2026-11-05T09:11:27.854Z"
+        },
+        {
+          "id": "79bc2234-8c23-47ea-a9c0-473ad0f1f1d7",
+          "method": "POST",
+          "path": "/contracts/bdca0919-a557-42aa-9350-eab6fd8ef209/activate",
+          "status": 409,
+          "at": "2026-11-05T09:11:28.001Z"
+        },
+        {
+          "id": "6eedfd8d-bdc0-4dae-a15d-6b1cecfe67b5",
+          "method": "POST",
+          "path": "/contracts/c7f112e0-5ef9-4914-a2e9-1406e8950345/cancel",
+          "status": 200,
+          "at": "2026-11-05T09:11:28.218Z"
+        },
+        {
+          "id": "cd18050d-9778-4b2d-97fe-585b754270c7",
+          "method": "POST",
+          "path": "/contracts/d350b5bc-4c5b-4048-94ee-3a57f5813d02/suspend",
+          "status": 409,
+          "at": "2026-11-05T09:11:28.315Z"
+        },
+        {
+          "id": "37277620-8b69-425a-a785-5541d2f43e1c",
+          "method": "POST",
+          "path": "/contracts/6f325b55-f69c-4451-b888-f584995834d4/resume",
+          "status": 409,
+          "at": "2026-11-05T09:11:28.516Z"
+        },
+        {
+          "id": "a6955095-21f4-424e-8ac1-5f2943168b31",
+          "method": "POST",
+          "path": "/contracts/a7ac3f9d-0eda-43f5-b93f-a0f60d2fbd6b/terminate",
+          "status": 409,
+          "at": "2026-11-05T09:11:28.652Z"
+        },
+        {
+          "id": "d273f669-495b-4f0e-a237-8e919b8750b4",
+          "method": "POST",
+          "path": "/contracts/23af60d2-9420-4f0a-a148-baa3085bee3a/submit-review",
+          "status": 409,
+          "at": "2026-11-05T09:11:28.874Z"
+        },
+        {
+          "id": "cfa2950e-d20c-43c1-a970-2956f2d65c8a",
+          "method": "POST",
+          "path": "/contracts/1adfe0a3-a3b5-4a6e-8efe-0bbcf501d29b/return",
+          "status": 200,
+          "at": "2026-11-05T09:11:29.017Z"
+        },
+        {
+          "id": "ebd9e1f0-a831-445c-b99c-4feb2ba20119",
+          "method": "POST",
+          "path": "/contracts/e9d0fb4a-fdb6-4394-97ac-9ffb12b99048/sign",
+          "status": 200,
+          "at": "2026-11-05T09:11:29.192Z"
+        },
+        {
+          "id": "89d65de6-af95-48f7-9afa-167715e498e1",
+          "method": "POST",
+          "path": "/contracts/8261a888-d935-441b-92aa-2caf388bd75b/activate",
+          "status": 409,
+          "at": "2026-11-05T09:11:29.292Z"
+        },
+        {
+          "id": "8aac7a08-9dc1-44a2-afb3-86ee7173d6df",
+          "method": "POST",
+          "path": "/contracts/7a0098a4-ec78-4821-9e44-fe178292b186/cancel",
+          "status": 200,
+          "at": "2026-11-05T09:11:29.506Z"
+        },
+        {
+          "id": "b8b4e169-5f2a-4a28-bfa8-ecb318f8f0c8",
+          "method": "POST",
+          "path": "/contracts/c28f247b-e298-4ad0-8198-5eaac21b2df2/suspend",
+          "status": 409,
+          "at": "2026-11-05T09:11:29.609Z"
+        },
+        {
+          "id": "1bf13357-7bc1-4920-8180-1c73a36adba2",
+          "method": "POST",
+          "path": "/contracts/22e0f1ce-8f6b-4003-ac32-e6a1e55472cc/resume",
+          "status": 409,
+          "at": "2026-11-05T09:11:29.760Z"
+        },
+        {
+          "id": "f1f1da02-a14e-480a-a010-79ed24855435",
+          "method": "POST",
+          "path": "/contracts/b9ddf569-8963-4445-859d-134009dc9ad2/terminate",
+          "status": 409,
+          "at": "2026-11-05T09:11:29.947Z"
+        },
+        {
+          "id": "95543564-d029-416e-910c-ffac7fc94e6f",
+          "method": "POST",
+          "path": "/contracts/d341541c-5c15-447e-a894-35a2d36b093b/submit-review",
+          "status": 409,
+          "at": "2026-11-05T09:11:30.189Z"
+        },
+        {
+          "id": "418f55f5-6758-4b6d-8386-c2b3650de680",
+          "method": "POST",
+          "path": "/contracts/40810a46-712d-4317-8342-56e4785807d8/return",
+          "status": 409,
+          "at": "2026-11-05T09:11:30.425Z"
+        },
+        {
+          "id": "57255b29-c6d9-46a3-9f5e-c72f5bdb4480",
+          "method": "POST",
+          "path": "/contracts/5ff00bd6-4a65-4e33-a4be-4b482f1175d7/sign",
+          "status": 409,
+          "at": "2026-11-05T09:11:30.685Z"
+        },
+        {
+          "id": "8bbb9b58-b964-46b6-8629-5a7362a3da32",
+          "method": "POST",
+          "path": "/contracts/af958033-32a9-464f-aecd-f52bb86a2c00/activate",
+          "status": 200,
+          "at": "2026-11-05T09:11:30.976Z"
+        },
+        {
+          "id": "3cfeb275-0131-4739-87bf-a63461158d7b",
+          "method": "POST",
+          "path": "/contracts/f2501ee4-adda-47fb-8550-e01c625c840b/cancel",
+          "status": 409,
+          "at": "2026-11-05T09:11:31.202Z"
+        },
+        {
+          "id": "a8eeb6dd-de7d-4677-9b16-0d1fc6013a46",
+          "method": "POST",
+          "path": "/contracts/83e22bbf-a421-460e-b2fb-a052d52a7b81/suspend",
+          "status": 409,
+          "at": "2026-11-05T09:11:31.539Z"
+        },
+        {
+          "id": "0d439c51-a867-4555-ae28-740cbe284a8a",
+          "method": "POST",
+          "path": "/contracts/650e1aa3-7e01-4667-ac7a-622e67ba8485/resume",
+          "status": 409,
+          "at": "2026-11-05T09:11:32.428Z"
+        },
+        {
+          "id": "d104fe5a-5962-4a43-9b8f-eb8a059cdb97",
+          "method": "POST",
+          "path": "/contracts/88608935-6499-4591-af09-ac45d1658698/terminate",
+          "status": 200,
+          "at": "2026-11-05T09:11:33.207Z"
+        },
+        {
+          "id": "7c5c5dd5-46b0-4d17-8e8f-64690a29c961",
+          "method": "POST",
+          "path": "/contracts/b7b20a90-2f18-491e-a1c1-93511cd07601/submit-review",
+          "status": 409,
+          "at": "2026-11-05T09:11:33.401Z"
+        },
+        {
+          "id": "4194b3f3-4a6f-4781-a3b8-516b9dc02f90",
+          "method": "POST",
+          "path": "/contracts/6eff9698-cdb8-4a7f-ad9b-e2e58255e13d/return",
+          "status": 409,
+          "at": "2026-11-05T09:11:33.550Z"
+        },
+        {
+          "id": "2dd4d9da-aefd-4863-86da-37cfbae3569c",
+          "method": "POST",
+          "path": "/contracts/b2a63ed1-6936-4089-a077-dc886ebdf6c8/sign",
+          "status": 409,
+          "at": "2026-11-05T09:11:33.699Z"
+        },
+        {
+          "id": "befe260d-0e74-4844-bd8c-83ff39729b33",
+          "method": "POST",
+          "path": "/contracts/bfccc9f7-ea99-401b-b4a3-2cfb8d800121/activate",
+          "status": 409,
+          "at": "2026-11-05T09:11:33.850Z"
+        },
+        {
+          "id": "e6fbafa0-8a5b-4405-985b-bd1056a3e9df",
+          "method": "POST",
+          "path": "/contracts/10715125-7d07-4235-8b0e-abed4a3d8f15/cancel",
+          "status": 409,
+          "at": "2026-11-05T09:11:34.045Z"
+        },
+        {
+          "id": "e5bd2de3-ffcf-4924-a03c-d9df9b0de22b",
+          "method": "POST",
+          "path": "/contracts/e9bd737c-1ae0-4055-bf88-9f14d1932628/suspend",
+          "status": 200,
+          "at": "2026-11-05T09:11:34.181Z"
+        },
+        {
+          "id": "ad0ece1a-a087-42d5-a25f-f72fc6bcc46c",
+          "method": "POST",
+          "path": "/contracts/cb93d5b7-e373-49c9-a49f-7d10dbb8982a/resume",
+          "status": 409,
+          "at": "2026-11-05T09:11:34.303Z"
+        },
+        {
+          "id": "be000fc2-8d44-4af2-b93d-eb2e9baaaa85",
+          "method": "POST",
+          "path": "/contracts/ea9dcba8-bbc8-491d-92fd-06cfea17c9d4/terminate",
+          "status": 200,
+          "at": "2026-11-05T09:11:34.444Z"
+        },
+        {
+          "id": "405ef0f9-8f3d-4565-9023-33e1e67ccb87",
+          "method": "POST",
+          "path": "/contracts/e0a183e6-835a-4e47-b7a0-db9d6ff85b32/submit-review",
+          "status": 409,
+          "at": "2026-11-05T09:11:34.560Z"
+        },
+        {
+          "id": "6d420755-ff6c-480f-9a7d-ff4c8bff818e",
+          "method": "POST",
+          "path": "/contracts/bc16f003-d17a-4593-b57f-3c8c113c35df/return",
+          "status": 409,
+          "at": "2026-11-05T09:11:34.750Z"
+        },
+        {
+          "id": "7a4b7687-6ab2-46c2-a546-202925e65849",
+          "method": "POST",
+          "path": "/contracts/a23c8a16-1c5f-4e08-a120-ba470d0814fd/sign",
+          "status": 409,
+          "at": "2026-11-05T09:11:34.894Z"
+        },
+        {
+          "id": "cb106c1c-c408-4483-b589-b5c4219f7a40",
+          "method": "POST",
+          "path": "/contracts/7269b909-2822-42c5-bcb7-2e660de1d15a/activate",
+          "status": 409,
+          "at": "2026-11-05T09:11:35.035Z"
+        },
+        {
+          "id": "2989c3ec-c9eb-4beb-a271-d4b2e1f257e6",
+          "method": "POST",
+          "path": "/contracts/a93d3a54-d3c1-45ed-a917-028e601bc19d/cancel",
+          "status": 409,
+          "at": "2026-11-05T09:11:35.179Z"
+        },
+        {
+          "id": "08e61900-2ee2-4b9b-be2f-2b94671c5ceb",
+          "method": "POST",
+          "path": "/contracts/25703ce2-2db0-4d5c-8fc2-9acf7b83656c/suspend",
+          "status": 409,
+          "at": "2026-11-05T09:11:35.367Z"
+        },
+        {
+          "id": "640ef30e-82a3-406b-809d-ded1acf993f5",
+          "method": "POST",
+          "path": "/contracts/3fef65ee-e3ee-492e-a7ef-5c8e17a328b3/resume",
+          "status": 200,
+          "at": "2026-11-05T09:11:35.512Z"
+        },
+        {
+          "id": "2b6c0944-395b-4d10-af96-1c8978a2e334",
+          "method": "POST",
+          "path": "/contracts/578eb79b-1769-4d29-a1f3-79cf5e292a6d/terminate",
+          "status": 200,
+          "at": "2026-11-05T09:11:35.620Z"
+        },
+        {
+          "id": "4a52a94b-30ae-4714-8530-8713d7a6734b",
+          "method": "POST",
+          "path": "/contracts/56d01a7b-7b5e-481f-9736-c66809c802a7/submit-review",
+          "status": 409,
+          "at": "2026-11-05T09:11:35.810Z"
+        },
+        {
+          "id": "61a94838-1ef0-4aff-a8e6-06968d7e1f7e",
+          "method": "POST",
+          "path": "/contracts/e13575de-c0b6-40da-837d-d2a2b2c55c61/return",
+          "status": 409,
+          "at": "2026-11-05T09:11:35.960Z"
+        },
+        {
+          "id": "60c82b87-be35-4729-aa4c-e33f22693aca",
+          "method": "POST",
+          "path": "/contracts/06b64201-fe9c-463e-aad0-9dfc68682c6d/sign",
+          "status": 409,
+          "at": "2026-11-05T09:11:36.172Z"
+        },
+        {
+          "id": "aec5134d-e3a5-4d4d-a9c6-e24f0e6b39cf",
+          "method": "POST",
+          "path": "/contracts/eb90be3a-3350-4e83-9cda-e8439331ba8e/activate",
+          "status": 409,
+          "at": "2026-11-05T09:11:36.333Z"
+        },
+        {
+          "id": "580eac80-d418-4f4c-8811-3513a77fa8b9",
+          "method": "POST",
+          "path": "/contracts/d3f300ea-82c8-426d-89b4-6aee967764e9/cancel",
+          "status": 409,
+          "at": "2026-11-05T09:11:36.534Z"
+        },
+        {
+          "id": "53cedeb4-1a6b-4809-9398-95704d4ced8b",
+          "method": "POST",
+          "path": "/contracts/55ba9cd0-2014-42c6-91c9-114e035418f3/suspend",
+          "status": 409,
+          "at": "2026-11-05T09:11:36.708Z"
+        },
+        {
+          "id": "45df5eac-50b1-43aa-b821-dc221e3d309f",
+          "method": "POST",
+          "path": "/contracts/52ef6fc7-2ffe-4684-87a8-02e7230d33fd/resume",
+          "status": 409,
+          "at": "2026-11-05T09:11:36.914Z"
+        },
+        {
+          "id": "43079068-4e6c-4ea7-b590-9a197f4d62be",
+          "method": "POST",
+          "path": "/contracts/5a2e0e7a-2d25-4f45-9bc1-e63027cf9673/terminate",
+          "status": 409,
+          "at": "2026-11-05T09:11:37.123Z"
+        },
+        {
+          "id": "2f3b97c4-e383-4d17-842c-42744b8d7c97",
+          "method": "POST",
+          "path": "/contracts/f5d4258d-5d32-4ef2-8438-8806a43cb701/submit-review",
+          "status": 409,
+          "at": "2026-11-05T09:11:37.440Z"
+        },
+        {
+          "id": "3e38a948-8c31-436a-8061-7deeecb11dd6",
+          "method": "POST",
+          "path": "/contracts/921054fb-400e-463e-9b11-d8371f1c6b1f/return",
+          "status": 409,
+          "at": "2026-11-05T09:11:37.754Z"
+        },
+        {
+          "id": "5c253d50-d88d-4d4d-93c4-c59472a8270c",
+          "method": "POST",
+          "path": "/contracts/e68d3d81-d5af-4da1-954f-2cf87f891872/sign",
+          "status": 409,
+          "at": "2026-11-05T09:11:37.995Z"
+        },
+        {
+          "id": "8596bce2-61d2-41c0-b41b-05e9d5ad42b2",
+          "method": "POST",
+          "path": "/contracts/63d1e87e-31b4-40f8-a917-fb46c72dc6f7/activate",
+          "status": 409,
+          "at": "2026-11-05T09:11:38.228Z"
+        },
+        {
+          "id": "5ef30c16-1a62-4edc-97be-37701affd382",
+          "method": "POST",
+          "path": "/contracts/1657bc92-b47c-47b6-8d17-d5de7c8fb758/cancel",
+          "status": 409,
+          "at": "2026-11-05T09:11:38.509Z"
+        },
+        {
+          "id": "9a95694a-85a5-4f19-bf2f-5d936e81a3e2",
+          "method": "POST",
+          "path": "/contracts/454ada6d-7e68-417b-a42b-483f58858cbb/suspend",
+          "status": 409,
+          "at": "2026-11-05T09:11:38.832Z"
+        },
+        {
+          "id": "714a03ee-ef7e-445d-ab46-8f92d4d7ab08",
+          "method": "POST",
+          "path": "/contracts/d44239ef-f44f-4374-a444-56630cdd2e0e/resume",
+          "status": 409,
+          "at": "2026-11-05T09:11:39.149Z"
+        },
+        {
+          "id": "03016332-389d-407b-bb64-64c70a52f562",
+          "method": "POST",
+          "path": "/contracts/d3153ec9-9b51-46c0-bb30-7f669167fbf2/terminate",
+          "status": 409,
+          "at": "2026-11-05T09:11:39.611Z"
+        },
+        {
+          "id": "74efcb4a-2212-4598-af7e-c19e6fd0bf4b",
+          "method": "POST",
+          "path": "/contracts/cca45c07-5226-4a2a-abce-c18d1d55ae05/submit-review",
+          "status": 409,
+          "at": "2026-11-05T09:11:39.995Z"
+        },
+        {
+          "id": "8971ee87-0c88-4fa6-924a-e0f2e8fbba17",
+          "method": "POST",
+          "path": "/contracts/2d96b46c-2a35-4d9b-abeb-77c5f544adca/return",
+          "status": 409,
+          "at": "2026-11-05T09:11:40.691Z"
+        },
+        {
+          "id": "d605e5b3-30b8-4baa-8ff2-427a75a346ff",
+          "method": "POST",
+          "path": "/contracts/3e690a72-8c53-41db-9563-78a1a2f21a5b/sign",
+          "status": 409,
+          "at": "2026-11-05T09:11:40.840Z"
+        },
+        {
+          "id": "b8ec58c7-7006-42a6-8bfb-87cf3c37ec64",
+          "method": "POST",
+          "path": "/contracts/2bbcaad8-3d4b-4470-978d-538316fca837/activate",
+          "status": 409,
+          "at": "2026-11-05T09:11:40.979Z"
+        },
+        {
+          "id": "5ea8cd60-acee-4b87-9ee1-2e733e52c628",
+          "method": "POST",
+          "path": "/contracts/d82120ad-5566-4423-a738-ab755b3f304f/cancel",
+          "status": 409,
+          "at": "2026-11-05T09:11:41.131Z"
+        },
+        {
+          "id": "e6942b78-d944-4159-be10-483edf00d061",
+          "method": "POST",
+          "path": "/contracts/c3ce724b-d59b-4972-ae29-94d20c716bd4/suspend",
+          "status": 409,
+          "at": "2026-11-05T09:11:41.276Z"
+        },
+        {
+          "id": "b8fce023-e51e-4743-8875-4e4aed5f1a72",
+          "method": "POST",
+          "path": "/contracts/b3278c4a-142d-427f-88f0-8941947aa646/resume",
+          "status": 409,
+          "at": "2026-11-05T09:11:41.423Z"
+        },
+        {
+          "id": "80bdbf03-ce15-4f40-9b97-4df9375deb08",
+          "method": "POST",
+          "path": "/contracts/29c7a850-8a60-4471-b625-3802cfaf9e4c/terminate",
+          "status": 409,
+          "at": "2026-11-05T09:11:41.637Z"
+        },
+        {
+          "id": "a8dde802-2a8f-45a4-aac6-e28327d585de",
+          "method": "POST",
+          "path": "/contracts/f7ef865a-7029-4d9f-8ffc-f68026c0570d/submit-review",
+          "status": 409,
+          "at": "2026-11-05T09:11:41.808Z"
+        },
+        {
+          "id": "b56a81fb-11f2-416c-991c-cfa6a8f28a46",
+          "method": "POST",
+          "path": "/contracts/e5b436c7-fe57-4c11-9b61-5384858ef1cb/return",
+          "status": 409,
+          "at": "2026-11-05T09:11:41.945Z"
+        },
+        {
+          "id": "e0899aac-ca08-46e3-9e49-f835d154a606",
+          "method": "POST",
+          "path": "/contracts/3f1d8c0c-500b-4800-afd0-4e52d4c861c7/sign",
+          "status": 409,
+          "at": "2026-11-05T09:11:42.084Z"
+        },
+        {
+          "id": "26dbfb3c-fcc7-477b-9403-de4da9cedc2d",
+          "method": "POST",
+          "path": "/contracts/affe3c5d-f4ca-4735-8532-b0dcea9af164/activate",
+          "status": 409,
+          "at": "2026-11-05T09:11:42.231Z"
+        },
+        {
+          "id": "03a8ea5c-7e97-4ee9-b767-f1c7f0aa9514",
+          "method": "POST",
+          "path": "/contracts/8309c8c9-7479-4adf-8e4c-0b0999ebe143/cancel",
+          "status": 409,
+          "at": "2026-11-05T09:11:42.385Z"
+        },
+        {
+          "id": "4135cae1-7f72-45d1-80dc-dc8a585eac57",
+          "method": "POST",
+          "path": "/contracts/824011bc-200a-494f-b71d-261142586284/suspend",
+          "status": 409,
+          "at": "2026-11-05T09:11:42.601Z"
+        },
+        {
+          "id": "93252c31-8856-4196-9600-011eeae15fbd",
+          "method": "POST",
+          "path": "/contracts/3d00b2f5-5510-4466-8d12-54d7e834c813/resume",
+          "status": 409,
+          "at": "2026-11-05T09:11:42.742Z"
+        },
+        {
+          "id": "9bf0daef-90d2-45c7-90a8-5704a0505c68",
+          "method": "POST",
+          "path": "/contracts/6681fd7c-2d60-4e2e-a809-6ed3cdb8e2d0/terminate",
+          "status": 409,
+          "at": "2026-11-05T09:11:42.884Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contract-lifecycle.test.ts",
+      "name": "the life of a contract over HTTP (ST-CTR-004, ST-CTR-005) the table of the states (AC-ST-CTR-004-4, UAT-AC300) has no generic write for the status or the tenant: PATCH and PUT answer 404",
+      "status": "passed",
+      "durationMs": 709,
+      "at": "2026-11-05T09:11:43.695Z",
+      "requests": [
+        {
+          "id": "92abfd79-8450-40f4-aab2-a116efc93762",
+          "method": "PATCH",
+          "path": "/contracts/959d1bf5-331d-4d9f-b99e-e61a287801b2",
+          "status": 404,
+          "at": "2026-11-05T09:11:43.635Z"
+        },
+        {
+          "id": "6ce8e1fb-0358-419d-82fe-f10b10cce237",
+          "method": "PUT",
+          "path": "/resources/contract/959d1bf5-331d-4d9f-b99e-e61a287801b2",
+          "status": 404,
+          "at": "2026-11-05T09:11:43.651Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contract-closure.test.ts",
+      "name": "the closure of a contract over HTTP (ST-CTR-012, AC-ST-CTR-012-1, UAT-AC300) AC-ST-CTR-012-1, UAT-AC300: answers each guard that is not met with its code and keeps the status, then closes with its audit row and its event, and answers the same key once",
+      "status": "passed",
+      "durationMs": 1330,
+      "at": "2026-11-05T09:20:19.867Z",
+      "requests": [
+        {
+          "id": "8ca769fe-2031-4d5c-919f-2d57657c043d",
+          "method": "POST",
+          "path": "/contracts/f0cd23d5-488a-4d1c-a8e8-7d7e8b1a7216/close",
+          "status": 422,
+          "at": "2026-11-05T09:20:19.316Z"
+        },
+        {
+          "id": "63224911-1252-491b-bdca-a8bcbd4a5c98",
+          "method": "POST",
+          "path": "/contracts/f0cd23d5-488a-4d1c-a8e8-7d7e8b1a7216/close",
+          "status": 422,
+          "at": "2026-11-05T09:20:19.440Z"
+        },
+        {
+          "id": "43339e38-aaab-4ceb-a9ef-976fe7e34d8f",
+          "method": "POST",
+          "path": "/contracts/f0cd23d5-488a-4d1c-a8e8-7d7e8b1a7216/close",
+          "status": 200,
+          "at": "2026-11-05T09:20:19.544Z"
+        },
+        {
+          "id": "2ec5415a-5782-4998-a2ae-cc552c4f37ed",
+          "method": "POST",
+          "path": "/contracts/f0cd23d5-488a-4d1c-a8e8-7d7e8b1a7216/close",
+          "status": 200,
+          "at": "2026-11-05T09:20:19.577Z"
+        },
+        {
+          "id": "e43d486b-991a-4c10-96d0-02c45a525aab",
+          "method": "POST",
+          "path": "/contracts/f0cd23d5-488a-4d1c-a8e8-7d7e8b1a7216/close",
+          "status": 409,
+          "at": "2026-11-05T09:20:19.843Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contract-closure.test.ts",
+      "name": "the closure of a contract over HTTP (ST-CTR-012, AC-ST-CTR-012-1, UAT-AC300) closes a contract that was terminated, and refuses one that is still being performed",
+      "status": "passed",
+      "durationMs": 1537,
+      "at": "2026-11-05T09:20:21.403Z",
+      "requests": [
+        {
+          "id": "9192dcc4-4895-41c8-987b-a31552c2d45b",
+          "method": "POST",
+          "path": "/contracts/851198f6-8024-445f-8431-eddbfc710373/close",
+          "status": 200,
+          "at": "2026-11-05T09:20:20.624Z"
+        },
+        {
+          "id": "3f175941-af4a-410c-a17b-1ec833b9642a",
+          "method": "POST",
+          "path": "/contracts/6a1f867f-cdeb-40f0-b4f8-6121806ff0b4/close",
+          "status": 409,
+          "at": "2026-11-05T09:20:21.379Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contract-closure.test.ts",
+      "name": "the closure of a contract over HTTP (ST-CTR-012, AC-ST-CTR-012-1, UAT-AC300) refuses what is badly formed, a stale version and a settlement that is not there",
+      "status": "passed",
+      "durationMs": 1044,
+      "at": "2026-11-05T09:20:22.448Z",
+      "requests": [
+        {
+          "id": "7727aafc-932f-4a76-a09a-e2683c7de167",
+          "method": "POST",
+          "path": "/contracts/cbad623e-e7e7-4738-bafb-3e4fd1232be9/close",
+          "status": 409,
+          "at": "2026-11-05T09:20:22.338Z"
+        },
+        {
+          "id": "199e8898-8bbd-49d5-980f-3fed5d2a6c84",
+          "method": "POST",
+          "path": "/contracts/cbad623e-e7e7-4738-bafb-3e4fd1232be9/close",
+          "status": 422,
+          "at": "2026-11-05T09:20:22.347Z"
+        },
+        {
+          "id": "f0f17d7b-280b-440b-a9ec-5fc42ce79efa",
+          "method": "POST",
+          "path": "/contracts/cbad623e-e7e7-4738-bafb-3e4fd1232be9/close",
+          "status": 422,
+          "at": "2026-11-05T09:20:22.356Z"
+        },
+        {
+          "id": "d4e8d081-e9cd-4957-b9b5-94d5dd30ef2f",
+          "method": "POST",
+          "path": "/contracts/cbad623e-e7e7-4738-bafb-3e4fd1232be9/close",
+          "status": 422,
+          "at": "2026-11-05T09:20:22.379Z"
+        },
+        {
+          "id": "202f2fa4-2511-4847-a22e-b5a0ac9b8f7a",
+          "method": "POST",
+          "path": "/contracts/cbad623e-e7e7-4738-bafb-3e4fd1232be9/close",
+          "status": 400,
+          "at": "2026-11-05T09:20:22.392Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contract-closure.test.ts",
+      "name": "the closure of a contract over HTTP (ST-CTR-012, AC-ST-CTR-012-1, UAT-AC300) is for the people who hold the right over the contract",
+      "status": "passed",
+      "durationMs": 1303,
+      "at": "2026-11-05T09:20:23.752Z",
+      "requests": [
+        {
+          "id": "30c0371c-b913-47a3-b505-9b3a230f589d",
+          "method": "POST",
+          "path": "/contracts/d709096a-ad96-4067-85c8-deb8304fa099/close",
+          "status": 403,
+          "at": "2026-11-05T09:20:23.597Z"
+        },
+        {
+          "id": "7e5cf42a-11bb-4455-838a-a556069d9f55",
+          "method": "POST",
+          "path": "/contracts/d709096a-ad96-4067-85c8-deb8304fa099/close",
+          "status": 403,
+          "at": "2026-11-05T09:20:23.619Z"
+        },
+        {
+          "id": "57ddca01-aad3-4f9a-b640-3ab6e266bde3",
+          "method": "POST",
+          "path": "/contracts/d709096a-ad96-4067-85c8-deb8304fa099/close",
+          "status": 403,
+          "at": "2026-11-05T09:20:23.624Z"
+        },
+        {
+          "id": "45e726c5-dd9b-4a4c-b8e6-8c54ea9f5712",
+          "method": "POST",
+          "path": "/contracts/d709096a-ad96-4067-85c8-deb8304fa099/close",
+          "status": 404,
+          "at": "2026-11-05T09:20:23.628Z"
+        },
+        {
+          "id": "7c7dfdef-a8b9-4b77-bdb5-d61a22411324",
+          "method": "POST",
+          "path": "/contracts/e5c1d1da-c8a8-474e-9538-611b35f43015/close",
+          "status": 404,
+          "at": "2026-11-05T09:20:23.636Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contract-closure.test.ts",
+      "name": "the closure of a contract over HTTP (ST-CTR-012, AC-ST-CTR-012-1, UAT-AC300) shows the staff what stands before the closure and whether they may close, and shows it to no contractor",
+      "status": "passed",
+      "durationMs": 2042,
+      "at": "2026-11-05T09:20:25.794Z",
+      "requests": [
+        {
+          "id": "6724d3fb-1b79-4e03-87f0-a3624a271b4a",
+          "method": "GET",
+          "path": "/contracts/63db5db1-f1d6-4209-81f2-d43b59aaaf76/summary",
+          "status": 200,
+          "at": "2026-11-05T09:20:25.051Z"
+        },
+        {
+          "id": "bad798cc-7a6b-43ca-b80b-f9619e2af414",
+          "method": "GET",
+          "path": "/contracts/63db5db1-f1d6-4209-81f2-d43b59aaaf76/summary",
+          "status": 200,
+          "at": "2026-11-05T09:20:25.142Z"
+        },
+        {
+          "id": "0649d2e1-0952-4c45-b581-0e7fa692f876",
+          "method": "GET",
+          "path": "/contracts/63db5db1-f1d6-4209-81f2-d43b59aaaf76/summary",
+          "status": 200,
+          "at": "2026-11-05T09:20:25.161Z"
+        },
+        {
+          "id": "02b8a490-21d3-43a2-98ae-64de55329752",
+          "method": "GET",
+          "path": "/contracts/63db5db1-f1d6-4209-81f2-d43b59aaaf76/summary",
+          "status": 403,
+          "at": "2026-11-05T09:20:25.192Z"
+        },
+        {
+          "id": "3e0e1210-e717-4f07-b7ff-594b274b6697",
+          "method": "GET",
+          "path": "/contracts/2bfb6ae1-1a08-4dd5-94ac-a7a605c785a5/summary",
+          "status": 200,
+          "at": "2026-11-05T09:20:25.751Z"
+        }
+      ]
+    }
+  ]
+}

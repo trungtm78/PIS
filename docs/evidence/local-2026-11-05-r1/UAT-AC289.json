@@ -1,0 +1,89 @@
+{
+  "id": "UAT-AC289",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mne/mne-issue.test.ts",
+      "name": "review, approval and issuance of the monitoring report (ST-MNE-003, MNE-05) AC-ST-MNE-003-1: approval, the request to DOC and the answer of DOC UAT-AC289: refuses the approval of who wrote or handed in the report, then approves, asks DOC to issue it, and marks it ISSUED only when DOC says so",
+      "status": "passed",
+      "durationMs": 1124,
+      "at": "2026-11-05T09:16:59.776Z",
+      "requests": [
+        {
+          "id": "454f7dce-d323-4592-8d18-7a0fc2a71183",
+          "method": "POST",
+          "path": "/mne-forms",
+          "status": 200,
+          "at": "2026-11-05T09:16:58.652Z"
+        },
+        {
+          "id": "4dd7a847-5736-46bc-ad6e-aad7939a2f12",
+          "method": "POST",
+          "path": "/mne-forms/c591cb74-0b96-4dd4-962e-b2741c3c1dcc/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:58.692Z"
+        },
+        {
+          "id": "437f9e98-b682-4daf-b4a5-92d70882d750",
+          "method": "POST",
+          "path": "/mne-reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:58.762Z"
+        },
+        {
+          "id": "5db37d92-04b5-4b4c-9042-e8c225ec6a81",
+          "method": "POST",
+          "path": "/mne-reports/9e64c30d-441c-4a58-9437-c08f9bf5d845/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:58.795Z"
+        },
+        {
+          "id": "5f1a6312-0c52-41a5-9eff-14fe9faa2a16",
+          "method": "POST",
+          "path": "/mne-reports/9e64c30d-441c-4a58-9437-c08f9bf5d845/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:58.816Z"
+        },
+        {
+          "id": "609b5357-47cd-43fb-b686-c891d7558cbb",
+          "method": "POST",
+          "path": "/mne-reports/9e64c30d-441c-4a58-9437-c08f9bf5d845/decision",
+          "status": 403,
+          "at": "2026-11-05T09:16:58.877Z"
+        },
+        {
+          "id": "99c2d46d-32e2-41b0-9ac7-13e4148eb3f1",
+          "method": "POST",
+          "path": "/mne-reports/9e64c30d-441c-4a58-9437-c08f9bf5d845/decision",
+          "status": 200,
+          "at": "2026-11-05T09:16:58.983Z"
+        },
+        {
+          "id": "9d87da29-9dc9-469d-b26b-36e0ab234f43",
+          "method": "POST",
+          "path": "/mne-reports/9e64c30d-441c-4a58-9437-c08f9bf5d845/issue-requests",
+          "status": 200,
+          "at": "2026-11-05T09:16:59.119Z"
+        },
+        {
+          "id": "78910783-2b24-4af9-b98d-18a3b5b621c4",
+          "method": "GET",
+          "path": "/mne-reports/9e64c30d-441c-4a58-9437-c08f9bf5d845",
+          "status": 200,
+          "at": "2026-11-05T09:16:59.416Z"
+        },
+        {
+          "id": "4bbeee30-a254-499d-a335-0c27da509a96",
+          "method": "GET",
+          "path": "/mne-reports/9e64c30d-441c-4a58-9437-c08f9bf5d845",
+          "status": 200,
+          "at": "2026-11-05T09:16:59.486Z"
+        }
+      ]
+    }
+  ]
+}

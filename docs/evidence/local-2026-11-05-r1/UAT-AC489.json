@@ -1,0 +1,68 @@
+{
+  "id": "UAT-AC489",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-lineage.test.ts",
+      "name": "the lineage graph with a check on each node (ST-DGV-006, DGV 3 F5, DGV-05) AC-ST-DGV-006-2: UAT-AC489 records the edges of a batch once however often it is posted, and refuses a node of another tenant with 422 LINEAGE_NODE_INVALID",
+      "status": "passed",
+      "durationMs": 809,
+      "at": "2026-11-05T09:22:02.664Z",
+      "requests": [
+        {
+          "id": "e3622dd5-8b34-46fb-bbed-dc162e3023b4",
+          "method": "POST",
+          "path": "/dgv/lineage-batches",
+          "status": 200,
+          "at": "2026-11-05T09:22:01.855Z"
+        },
+        {
+          "id": "e5461c00-fcff-4089-b9bc-2f3e814c89e4",
+          "method": "POST",
+          "path": "/dgv/lineage-batches",
+          "status": 200,
+          "at": "2026-11-05T09:22:01.956Z"
+        },
+        {
+          "id": "b71c6b98-92f1-49cf-8e25-837bfe374223",
+          "method": "POST",
+          "path": "/dgv/lineage-batches",
+          "status": 200,
+          "at": "2026-11-05T09:22:02.050Z"
+        },
+        {
+          "id": "1c6b813e-3f00-4095-88a1-f18375a411e2",
+          "method": "POST",
+          "path": "/dgv/lineage-batches",
+          "status": 200,
+          "at": "2026-11-05T09:22:02.069Z"
+        },
+        {
+          "id": "b934003e-a445-447c-b769-5660f83275bf",
+          "method": "POST",
+          "path": "/dgv/lineage-batches",
+          "status": 422,
+          "at": "2026-11-05T09:22:02.137Z"
+        },
+        {
+          "id": "b732dbef-f4ed-4667-aee9-12c8f099a767",
+          "method": "POST",
+          "path": "/dgv/lineage-batches",
+          "status": 422,
+          "at": "2026-11-05T09:22:02.187Z"
+        },
+        {
+          "id": "1ac28f95-d54b-47d5-83e8-7cb1a27f3d8a",
+          "method": "POST",
+          "path": "/dgv/lineage-batches",
+          "status": 200,
+          "at": "2026-11-05T09:22:02.234Z"
+        }
+      ]
+    }
+  ]
+}

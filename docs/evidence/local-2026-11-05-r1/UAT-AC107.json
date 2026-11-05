@@ -1,0 +1,103 @@
+{
+  "id": "UAT-AC107",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/project-register.test.ts",
+      "name": "the project register: create, profile update, list and workspace (ST-PRJ-001) the register and the workspace AC-ST-IAM-005-1 / UAT-AC107: a reader on the subtree of a unit reads the project inside it (200) and gets 404 for one outside, in the read and in the list",
+      "status": "passed",
+      "durationMs": 185,
+      "at": "2026-11-05T09:21:04.722Z",
+      "requests": [
+        {
+          "id": "28c2e630-4446-4216-9655-57c2f6ba13b8",
+          "method": "POST",
+          "path": "/projects",
+          "status": 200,
+          "at": "2026-11-05T09:21:04.539Z"
+        },
+        {
+          "id": "619023c3-680a-4764-9162-de77e38419c5",
+          "method": "POST",
+          "path": "/projects",
+          "status": 200,
+          "at": "2026-11-05T09:21:04.550Z"
+        },
+        {
+          "id": "90897443-9d06-4065-9833-376e18c44f7a",
+          "method": "POST",
+          "path": "/projects",
+          "status": 200,
+          "at": "2026-11-05T09:21:04.568Z"
+        },
+        {
+          "id": "0de1b0d4-1f70-4f93-8e9e-270930b9d248",
+          "method": "GET",
+          "path": "/resources/project/0d6ef1de-0746-4eb0-a2ab-e2a2041f56fe",
+          "status": 200,
+          "at": "2026-11-05T09:21:04.585Z"
+        },
+        {
+          "id": "aae5b513-2649-4052-a553-cac98db807cd",
+          "method": "GET",
+          "path": "/resources/project/832ec9ec-8185-4a48-b4d7-3cf15cc4a0ee",
+          "status": 404,
+          "at": "2026-11-05T09:21:04.598Z"
+        },
+        {
+          "id": "fc36e2d5-18ed-43a7-9b80-e8eef40171d8",
+          "method": "GET",
+          "path": "/resources/project/832ec9ec-8185-4a48-b4d7-3cf15cc4a0ee",
+          "status": 404,
+          "at": "2026-11-05T09:21:04.607Z"
+        },
+        {
+          "id": "4cc22b40-cb57-4c28-b589-c975d5c02b1a",
+          "method": "GET",
+          "path": "/resources/project/bdd8f0ca-ce61-4dda-9ad6-c67a176800b9",
+          "status": 404,
+          "at": "2026-11-05T09:21:04.628Z"
+        },
+        {
+          "id": "9c576460-0a08-4c79-98ac-595060f858b1",
+          "method": "GET",
+          "path": "/resources/project/bdd8f0ca-ce61-4dda-9ad6-c67a176800b9",
+          "status": 404,
+          "at": "2026-11-05T09:21:04.637Z"
+        },
+        {
+          "id": "8a5dff84-e3f5-4858-8e3e-eb149f7baccc",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T09:21:04.660Z"
+        },
+        {
+          "id": "66a33b8d-0f77-413f-8989-4b3dae3b0e16",
+          "method": "GET",
+          "path": "/resources/project/0d6ef1de-0746-4eb0-a2ab-e2a2041f56fe",
+          "status": 200,
+          "at": "2026-11-05T09:21:04.674Z"
+        },
+        {
+          "id": "4389cec5-d407-4e31-a8c2-2f55c392aa1e",
+          "method": "GET",
+          "path": "/resources/project/832ec9ec-8185-4a48-b4d7-3cf15cc4a0ee",
+          "status": 200,
+          "at": "2026-11-05T09:21:04.693Z"
+        },
+        {
+          "id": "0a7eaaae-5827-46c7-a4b6-2a1e5b89c133",
+          "method": "GET",
+          "path": "/resources/project/bdd8f0ca-ce61-4dda-9ad6-c67a176800b9",
+          "status": 200,
+          "at": "2026-11-05T09:21:04.705Z"
+        }
+      ]
+    }
+  ]
+}

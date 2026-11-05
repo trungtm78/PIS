@@ -1,0 +1,1599 @@
+{
+  "id": "UAT-AC274",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) is registered in the module of MDM",
+      "status": "passed",
+      "durationMs": 1,
+      "at": "2026-11-05T09:11:56.838Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the rules of survivorship are drafted by one person and published by another, and a new revision replaces the one before it",
+      "status": "passed",
+      "durationMs": 314,
+      "at": "2026-11-05T09:11:57.153Z",
+      "requests": [
+        {
+          "id": "f7b5fde1-c240-4339-b8de-6c5dd52c1dd2",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:11:56.839Z"
+        },
+        {
+          "id": "fd87c249-ebf9-4bc0-b513-c2a27f0f3881",
+          "method": "POST",
+          "path": "/survivorship-rules/f99387d5-3bbb-4a3c-adb1-f9d6f57a28fe/publish",
+          "status": 403,
+          "at": "2026-11-05T09:11:56.982Z"
+        },
+        {
+          "id": "827340de-2f97-491a-a268-4d7c416731a1",
+          "method": "POST",
+          "path": "/survivorship-rules/f99387d5-3bbb-4a3c-adb1-f9d6f57a28fe/publish",
+          "status": 409,
+          "at": "2026-11-05T09:11:56.989Z"
+        },
+        {
+          "id": "032d74d9-f6dc-412d-abd7-fef14e9ae1c6",
+          "method": "POST",
+          "path": "/survivorship-rules/f99387d5-3bbb-4a3c-adb1-f9d6f57a28fe/publish",
+          "status": 200,
+          "at": "2026-11-05T09:11:57.016Z"
+        },
+        {
+          "id": "4d8babf1-7f31-4ff7-8277-040544b55e71",
+          "method": "POST",
+          "path": "/survivorship-rules/f99387d5-3bbb-4a3c-adb1-f9d6f57a28fe/publish",
+          "status": 409,
+          "at": "2026-11-05T09:11:57.037Z"
+        },
+        {
+          "id": "9e90db7b-56b1-4bd4-b7f6-1b43ff5d63f9",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:11:57.060Z"
+        },
+        {
+          "id": "19d3e0b1-2df4-4d59-a149-872e61dec0eb",
+          "method": "POST",
+          "path": "/survivorship-rules/5457e541-08fe-40e8-9bed-e8740e2edef8/publish",
+          "status": 200,
+          "at": "2026-11-05T09:11:57.079Z"
+        },
+        {
+          "id": "53a8341e-2974-4bc5-af74-73866a5f5deb",
+          "method": "GET",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:11:57.094Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the rules of survivorship keeps the revision in force deciding until the day the next one takes effect, and refuses a draft that a later revision overrides from its day",
+      "status": "passed",
+      "durationMs": 864,
+      "at": "2026-11-05T09:11:58.017Z",
+      "requests": [
+        {
+          "id": "d9433601-c1d2-4593-b46c-f38ab7d2a598",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:11:57.154Z"
+        },
+        {
+          "id": "c1b91459-933a-4981-b1e2-4c7adfc577a0",
+          "method": "POST",
+          "path": "/survivorship-rules/931fda8a-2ebe-49e8-aae2-9f03be693773/publish",
+          "status": 200,
+          "at": "2026-11-05T09:11:57.173Z"
+        },
+        {
+          "id": "d074e855-b576-4d2a-97bb-b4ff97ef0c06",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:11:57.198Z"
+        },
+        {
+          "id": "04acf7e1-1898-4372-8339-e1ddb7b81cf0",
+          "method": "POST",
+          "path": "/survivorship-rules/dd72ebfc-bc09-4194-b3ad-5d12bd876d17/publish",
+          "status": 200,
+          "at": "2026-11-05T09:11:57.210Z"
+        },
+        {
+          "id": "1d31a4b1-c297-4449-a261-142fb07d1dda",
+          "method": "GET",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:11:57.221Z"
+        },
+        {
+          "id": "a8992d6b-5d5d-48c5-8532-fe0eb27eb39c",
+          "method": "POST",
+          "path": "/master-records/c91aa5fc-384c-4283-9274-afc5ec61c43e/merge",
+          "status": 200,
+          "at": "2026-11-05T09:11:57.572Z"
+        },
+        {
+          "id": "bdc9a33f-4d1f-489e-8090-b22f527d6223",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:11:57.932Z"
+        },
+        {
+          "id": "3cdbc320-7d7f-4b28-95c6-90b5ad22114a",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:11:57.955Z"
+        },
+        {
+          "id": "62658637-d805-49a5-a592-3ba546156fd6",
+          "method": "POST",
+          "path": "/survivorship-rules/83422063-c792-4396-96be-10c7b4fe5249/publish",
+          "status": 200,
+          "at": "2026-11-05T09:11:57.963Z"
+        },
+        {
+          "id": "5e4e82b6-562b-457e-af0f-2e3846ff6b3c",
+          "method": "GET",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:11:57.987Z"
+        },
+        {
+          "id": "3fd29670-3f75-4cae-9929-78260d3466db",
+          "method": "POST",
+          "path": "/survivorship-rules/79103175-b959-460a-acc5-e43ddcbb7b69/publish",
+          "status": 409,
+          "at": "2026-11-05T09:11:57.998Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the rules of survivorship is the same person publishing their own draft refused by the table as well",
+      "status": "passed",
+      "durationMs": 12,
+      "at": "2026-11-05T09:11:58.029Z",
+      "requests": [
+        {
+          "id": "7dc88670-d0b2-4e09-b96e-9f40492736c9",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:11:58.018Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the rules of survivorship refuse a draft with a strategy that is none",
+      "status": "passed",
+      "durationMs": 17,
+      "at": "2026-11-05T09:11:58.047Z",
+      "requests": [
+        {
+          "id": "a41b9121-9c72-4a97-b8c6-e047976603bb",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 422,
+          "at": "2026-11-05T09:11:58.029Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the rules of survivorship refuse a draft with SOURCE_PRIORITY with no order",
+      "status": "passed",
+      "durationMs": 18,
+      "at": "2026-11-05T09:11:58.065Z",
+      "requests": [
+        {
+          "id": "6144869e-ec80-417c-8116-76fd2b82e058",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 422,
+          "at": "2026-11-05T09:11:58.047Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the rules of survivorship refuse a draft with a source twice",
+      "status": "passed",
+      "durationMs": 18,
+      "at": "2026-11-05T09:11:58.083Z",
+      "requests": [
+        {
+          "id": "c965edc5-3e24-41b7-8a2b-2ea5bc200a69",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 422,
+          "at": "2026-11-05T09:11:58.065Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the rules of survivorship refuse a draft with a day that is none",
+      "status": "passed",
+      "durationMs": 12,
+      "at": "2026-11-05T09:11:58.095Z",
+      "requests": [
+        {
+          "id": "debb9475-096d-4277-98fd-99d2f9575a84",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 422,
+          "at": "2026-11-05T09:11:58.083Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the rules of survivorship refuse a draft with an attribute that is empty",
+      "status": "passed",
+      "durationMs": 18,
+      "at": "2026-11-05T09:11:58.113Z",
+      "requests": [
+        {
+          "id": "133ebbd7-4659-4f84-9646-b28a202e9a8d",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 422,
+          "at": "2026-11-05T09:11:58.095Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the rules of survivorship are for those who may: drafting needs the right to manage them, publishing the right to approve them",
+      "status": "passed",
+      "durationMs": 125,
+      "at": "2026-11-05T09:11:58.238Z",
+      "requests": [
+        {
+          "id": "d16acff3-e9da-487b-bd8a-f6f9ca7a98f9",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 403,
+          "at": "2026-11-05T09:11:58.114Z"
+        },
+        {
+          "id": "02588e2b-2b64-45c2-ad77-ff652f3f916d",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 403,
+          "at": "2026-11-05T09:11:58.127Z"
+        },
+        {
+          "id": "71a250e9-3c57-40bc-9402-53d03e8ee033",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:11:58.144Z"
+        },
+        {
+          "id": "786ffcd9-536b-438c-932f-937b64ec21c6",
+          "method": "POST",
+          "path": "/survivorship-rules/351bcad4-f024-4ab6-b5f7-5b5b7fe683d1/publish",
+          "status": 403,
+          "at": "2026-11-05T09:11:58.163Z"
+        },
+        {
+          "id": "5a0a984f-9ed3-4077-8439-af2d98bba04a",
+          "method": "POST",
+          "path": "/survivorship-rules/351bcad4-f024-4ab6-b5f7-5b5b7fe683d1/publish",
+          "status": 403,
+          "at": "2026-11-05T09:11:58.175Z"
+        },
+        {
+          "id": "2d9f566b-85c1-4603-a2db-50e160e299d6",
+          "method": "GET",
+          "path": "/survivorship-rules",
+          "status": 403,
+          "at": "2026-11-05T09:11:58.192Z"
+        },
+        {
+          "id": "4b22764f-935d-4e07-8d12-1136f3299765",
+          "method": "POST",
+          "path": "/survivorship-rules/a75c003f-7dc0-4395-bf6b-0f1766678482/publish",
+          "status": 404,
+          "at": "2026-11-05T09:11:58.194Z"
+        },
+        {
+          "id": "050f3680-078a-46c6-bbea-a5a11272533e",
+          "method": "GET",
+          "path": "/survivorship-rules",
+          "status": 422,
+          "at": "2026-11-05T09:11:58.208Z"
+        },
+        {
+          "id": "1694c5a8-0251-43b6-8ac3-46377ce87cb1",
+          "method": "GET",
+          "path": "/survivorship-rules",
+          "status": 422,
+          "at": "2026-11-05T09:11:58.223Z"
+        },
+        {
+          "id": "e8b2611c-151b-4775-bc56-8b77df155a95",
+          "method": "GET",
+          "path": "/survivorship-rules",
+          "status": 422,
+          "at": "2026-11-05T09:11:58.225Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) settles each attribute by the rule that is published, points the references that are alive at the survivor, and keeps the history",
+      "status": "passed",
+      "durationMs": 1768,
+      "at": "2026-11-05T09:12:00.006Z",
+      "requests": [
+        {
+          "id": "c9065ccd-c646-4e24-8054-b9218ddb154a",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:11:58.239Z"
+        },
+        {
+          "id": "9288e1d6-6687-4240-8cd6-bd1494ceafa4",
+          "method": "POST",
+          "path": "/survivorship-rules/b65bf1ee-5e86-4c19-adb5-56e32d95d55f/publish",
+          "status": 200,
+          "at": "2026-11-05T09:11:58.258Z"
+        },
+        {
+          "id": "8f7a1e7b-f1f0-46c8-bf92-9db6de52b8d0",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:11:58.277Z"
+        },
+        {
+          "id": "fe6087bc-f600-4420-bc87-525bb401b3d0",
+          "method": "POST",
+          "path": "/survivorship-rules/14d4b6a5-3dda-4aae-91ed-f8e6ef63ced3/publish",
+          "status": 200,
+          "at": "2026-11-05T09:11:58.290Z"
+        },
+        {
+          "id": "df8ca9d2-0817-4c3c-b817-f45131163b96",
+          "method": "POST",
+          "path": "/master-records/7d63383e-11b8-4dad-93cf-bbad4af0ad36/merge",
+          "status": 200,
+          "at": "2026-11-05T09:11:58.940Z"
+        },
+        {
+          "id": "57b4a249-53b1-41a6-b6a0-f4137a57eb3d",
+          "method": "GET",
+          "path": "/master-merges",
+          "status": 200,
+          "at": "2026-11-05T09:11:59.755Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) undoes the merge: the survivor gets back what it took, the merged entry returns as it was, and the four references go back",
+      "status": "passed",
+      "durationMs": 2781,
+      "at": "2026-11-05T09:12:02.787Z",
+      "requests": [
+        {
+          "id": "2ac6bd0e-d694-40ad-bc35-d779274be392",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:00.006Z"
+        },
+        {
+          "id": "ebf062b5-9bdb-499a-afb7-0dd5a1535e62",
+          "method": "POST",
+          "path": "/survivorship-rules/90b1250c-da58-419b-a253-1adccb24fcae/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:00.041Z"
+        },
+        {
+          "id": "90397baf-9a6c-48d3-91a6-dc0600e321ed",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:00.073Z"
+        },
+        {
+          "id": "cb1bb856-e6e9-4e05-8150-d8c640c6b895",
+          "method": "POST",
+          "path": "/survivorship-rules/cc11f6d8-f74a-4a29-8f6d-3707566595d5/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:00.095Z"
+        },
+        {
+          "id": "b2c3a4a0-85a8-4e7d-a0fc-19a043f5b02a",
+          "method": "POST",
+          "path": "/master-records/0169ae79-537c-476a-8528-511b3a20e1e9/merge",
+          "status": 200,
+          "at": "2026-11-05T09:12:01.426Z"
+        },
+        {
+          "id": "935ce91a-1bb8-4096-a463-c601ad5b012f",
+          "method": "POST",
+          "path": "/master-merges/aa6805c0-9065-4eca-ba0c-897c2ccad1df/unmerge",
+          "status": 200,
+          "at": "2026-11-05T09:12:01.685Z"
+        },
+        {
+          "id": "95965687-89ec-4e8a-8cb3-4f8c115aff39",
+          "method": "GET",
+          "path": "/master-merges",
+          "status": 200,
+          "at": "2026-11-05T09:12:02.471Z"
+        },
+        {
+          "id": "add32632-8cd7-442a-8be8-78a2f3315f5a",
+          "method": "POST",
+          "path": "/master-merges/aa6805c0-9065-4eca-ba0c-897c2ccad1df/unmerge",
+          "status": 409,
+          "at": "2026-11-05T09:12:02.524Z"
+        },
+        {
+          "id": "4aa18c45-dda1-4663-8604-6b144ee363b7",
+          "method": "POST",
+          "path": "/master-records/0169ae79-537c-476a-8528-511b3a20e1e9/merge",
+          "status": 200,
+          "at": "2026-11-05T09:12:02.587Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) refuses to undo a merge when the survivor edited what it took from the merged entry (409 UNMERGE_CONFLICT) until a steward decides (UAT-AC275)",
+      "status": "passed",
+      "durationMs": 1517,
+      "at": "2026-11-05T09:12:04.304Z",
+      "requests": [
+        {
+          "id": "9bd90550-bae4-4341-b019-a3bc8acc2cbf",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:02.788Z"
+        },
+        {
+          "id": "ce36e925-bc34-4892-8993-a337eb423ad3",
+          "method": "POST",
+          "path": "/survivorship-rules/f4d15be7-c103-4107-b66f-91d2be16845b/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:02.800Z"
+        },
+        {
+          "id": "7da3e65e-1a5f-4589-a0d3-408a76e6c838",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:02.817Z"
+        },
+        {
+          "id": "310a66f9-778d-402c-858d-5692db7611c7",
+          "method": "POST",
+          "path": "/survivorship-rules/b3bb2ae0-a670-431b-aa07-4bfeb1c8fb67/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:02.833Z"
+        },
+        {
+          "id": "c8f90042-2a72-4fed-977a-668d5e28b4c8",
+          "method": "POST",
+          "path": "/master-records/0079104d-d1da-4b28-ad45-05c1a5c7d564/merge",
+          "status": 200,
+          "at": "2026-11-05T09:12:03.202Z"
+        },
+        {
+          "id": "9aad0bdd-3ca4-4cdf-a89c-44655dd79c47",
+          "method": "POST",
+          "path": "/master-merges/3171841d-4f6d-4737-ad3a-9408b5e5f5fa/unmerge",
+          "status": 409,
+          "at": "2026-11-05T09:12:03.601Z"
+        },
+        {
+          "id": "61e42e77-462f-4f6e-b044-2565134370a4",
+          "method": "POST",
+          "path": "/master-merges/3171841d-4f6d-4737-ad3a-9408b5e5f5fa/unmerge",
+          "status": 422,
+          "at": "2026-11-05T09:12:03.764Z"
+        },
+        {
+          "id": "fcc64cff-e96c-4a0c-867a-bd846b38784c",
+          "method": "POST",
+          "path": "/master-merges/3171841d-4f6d-4737-ad3a-9408b5e5f5fa/unmerge",
+          "status": 422,
+          "at": "2026-11-05T09:12:03.778Z"
+        },
+        {
+          "id": "afe66d01-c514-4ab2-85ad-7c68885ebb68",
+          "method": "POST",
+          "path": "/master-merges/3171841d-4f6d-4737-ad3a-9408b5e5f5fa/unmerge",
+          "status": 200,
+          "at": "2026-11-05T09:12:03.786Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) is a conflict when no rule settles an attribute (409 MERGE_CONFLICT naming them), until a steward settles it",
+      "status": "passed",
+      "durationMs": 695,
+      "at": "2026-11-05T09:12:04.999Z",
+      "requests": [
+        {
+          "id": "4ab64dfa-723a-4b33-8559-3176819894c8",
+          "method": "POST",
+          "path": "/master-records/49cd617b-2ce3-4d37-b02b-a0f1b77166b1/merge",
+          "status": 409,
+          "at": "2026-11-05T09:12:04.600Z"
+        },
+        {
+          "id": "bca4ce3c-40b6-401d-abb4-82cd34a29b0e",
+          "method": "POST",
+          "path": "/master-records/49cd617b-2ce3-4d37-b02b-a0f1b77166b1/merge",
+          "status": 422,
+          "at": "2026-11-05T09:12:04.706Z"
+        },
+        {
+          "id": "f0f3e923-b22f-43aa-baef-ace54e22fd74",
+          "method": "POST",
+          "path": "/master-records/49cd617b-2ce3-4d37-b02b-a0f1b77166b1/merge",
+          "status": 422,
+          "at": "2026-11-05T09:12:04.732Z"
+        },
+        {
+          "id": "b4607e17-2ee8-4d95-ac91-6202aecbcd45",
+          "method": "POST",
+          "path": "/master-records/49cd617b-2ce3-4d37-b02b-a0f1b77166b1/merge",
+          "status": 400,
+          "at": "2026-11-05T09:12:04.739Z"
+        },
+        {
+          "id": "cba1acdc-242e-4160-966a-d0a2c198b592",
+          "method": "POST",
+          "path": "/master-records/49cd617b-2ce3-4d37-b02b-a0f1b77166b1/merge",
+          "status": 200,
+          "at": "2026-11-05T09:12:04.758Z"
+        },
+        {
+          "id": "6257ae09-b574-463b-bb64-c78bf679332f",
+          "method": "GET",
+          "path": "/master-merges",
+          "status": 200,
+          "at": "2026-11-05T09:12:04.991Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) is refused for an entry with a change that waits: a version published for a later day, or a change that is open (409 STAGE_TRANSITION_DENIED)",
+      "status": "passed",
+      "durationMs": 929,
+      "at": "2026-11-05T09:12:05.928Z",
+      "requests": [
+        {
+          "id": "54e6f33b-238c-456f-99f2-9e136ba0460d",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:05.307Z"
+        },
+        {
+          "id": "374a8194-bdd8-4968-86e2-4e4945630ef3",
+          "method": "POST",
+          "path": "/survivorship-rules/baadeed4-cf64-4b87-b5e9-bb1a0bde19e7/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:05.324Z"
+        },
+        {
+          "id": "8b820ccb-8bc3-40a0-92c2-684c208bd9ff",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:05.338Z"
+        },
+        {
+          "id": "eb20b9a3-dee9-4eb6-b5cc-efaa068037a8",
+          "method": "POST",
+          "path": "/survivorship-rules/499d9db8-d483-407e-a407-a71a0b99ee07/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:05.353Z"
+        },
+        {
+          "id": "8d3b3630-6b9c-4926-9833-96a62486c8d8",
+          "method": "POST",
+          "path": "/master-records/d762fd6b-e4cf-4885-90a0-1e88cb5d3869/merge",
+          "status": 409,
+          "at": "2026-11-05T09:12:05.458Z"
+        },
+        {
+          "id": "6f38464a-b470-4c3e-9d4b-11b23ca742c6",
+          "method": "POST",
+          "path": "/master-records/1c743a4a-5db3-40c1-a2f7-cfabcf3ee39b/merge",
+          "status": 409,
+          "at": "2026-11-05T09:12:05.520Z"
+        },
+        {
+          "id": "0f3ef5b4-2c82-4048-8641-954037f9f94a",
+          "method": "POST",
+          "path": "/master-records/2b9a6320-79a1-444b-a1b9-e96dca6c3fdc/merge",
+          "status": 409,
+          "at": "2026-11-05T09:12:05.909Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) is not made the day a version of either entry began: a version cannot end the day it starts, so the merge waits for tomorrow and nothing is half done",
+      "status": "passed",
+      "durationMs": 753,
+      "at": "2026-11-05T09:12:06.682Z",
+      "requests": [
+        {
+          "id": "bf4c6778-331c-452b-9bc2-229c05a840eb",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:05.969Z"
+        },
+        {
+          "id": "1ce42635-b95a-4e57-a152-68197a073243",
+          "method": "POST",
+          "path": "/survivorship-rules/5f49e2aa-3a0c-4303-81b5-5028e8cefed9/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:05.992Z"
+        },
+        {
+          "id": "724b6ae2-62b7-416a-b011-e2fa11202bef",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:06.008Z"
+        },
+        {
+          "id": "113a0e7d-e649-431d-8791-e84bf116d755",
+          "method": "POST",
+          "path": "/survivorship-rules/bd29bf7e-21af-4896-8088-785de11cddfc/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:06.025Z"
+        },
+        {
+          "id": "75f55f74-5fb1-4646-989a-19b3d286a025",
+          "method": "POST",
+          "path": "/master-records/002c45f3-4fa9-4d3d-b2db-6e7570ad3c91/merge",
+          "status": 409,
+          "at": "2026-11-05T09:12:06.371Z"
+        },
+        {
+          "id": "e264e830-06bc-49af-b0e9-521f77fb6322",
+          "method": "POST",
+          "path": "/master-records/80a81046-40e9-48b9-a4f8-66831ca246e4/merge",
+          "status": 409,
+          "at": "2026-11-05T09:12:06.439Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) refuses a merge whose result breaks the rules of the type (422), and writes nothing",
+      "status": "passed",
+      "durationMs": 846,
+      "at": "2026-11-05T09:12:07.528Z",
+      "requests": [
+        {
+          "id": "ea0db41c-0dcb-4f35-80bb-aa34193649f3",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:06.682Z"
+        },
+        {
+          "id": "cf4c8a8e-4fdc-4d41-8a8b-6dbca2196637",
+          "method": "POST",
+          "path": "/survivorship-rules/083b1a62-ba59-4316-b103-01bc7c75bed6/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:06.696Z"
+        },
+        {
+          "id": "e7f18201-221e-4e1e-bed3-5cfa50bde3d7",
+          "method": "POST",
+          "path": "/master-records/124b82d1-afef-4ea5-9717-880b15e41cdc/merge",
+          "status": 422,
+          "at": "2026-11-05T09:12:07.038Z"
+        },
+        {
+          "id": "ed2670c7-4a1b-4905-88a9-17ea6aa07b74",
+          "method": "POST",
+          "path": "/master-records/124b82d1-afef-4ea5-9717-880b15e41cdc/merge",
+          "status": 200,
+          "at": "2026-11-05T09:12:07.249Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) keeps the end date the entries were approved for, for the survivor and for the entry that comes back, and refuses an entry that has run out",
+      "status": "passed",
+      "durationMs": 1915,
+      "at": "2026-11-05T09:12:09.443Z",
+      "requests": [
+        {
+          "id": "dbc093cf-7e7d-4cb5-a9b9-6ff0ca920aa8",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:07.528Z"
+        },
+        {
+          "id": "db92f889-81fd-46eb-b244-043c1b360f4a",
+          "method": "POST",
+          "path": "/survivorship-rules/9a1285d8-330c-4a45-8c8d-d479c74d1eb7/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:07.540Z"
+        },
+        {
+          "id": "beb26533-d716-40d0-a1e9-0eb8642c9326",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:07.559Z"
+        },
+        {
+          "id": "2b21ded4-ac3c-4b59-898b-3c5dfc6bf48a",
+          "method": "POST",
+          "path": "/survivorship-rules/747f1046-1281-4f1e-a2c9-61a289f4fdd6/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:07.572Z"
+        },
+        {
+          "id": "46ba834e-879c-4dcb-8ad0-57dda4f2a904",
+          "method": "POST",
+          "path": "/master-records/e69cd057-87dc-4cd6-beb5-91ecfee04a0b/merge",
+          "status": 200,
+          "at": "2026-11-05T09:12:07.967Z"
+        },
+        {
+          "id": "6c1613ce-7bc1-401d-98e7-c523456df1b8",
+          "method": "POST",
+          "path": "/master-merges/0ee1d228-5ab9-4f95-9ff9-584605302430/unmerge",
+          "status": 200,
+          "at": "2026-11-05T09:12:08.283Z"
+        },
+        {
+          "id": "fa5eb184-d375-45ef-828e-847ae5b48ee7",
+          "method": "POST",
+          "path": "/master-records/54f88c62-89e8-4dde-b7d5-b2b18f3092c6/merge",
+          "status": 409,
+          "at": "2026-11-05T09:12:09.416Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) finds the survivor by the key of the entry that was merged away, and still finds the entry itself as of a day before the merge",
+      "status": "passed",
+      "durationMs": 3052,
+      "at": "2026-11-05T09:12:12.495Z",
+      "requests": [
+        {
+          "id": "b7c70cea-d6d7-436f-b8ba-005f74bcda18",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:09.443Z"
+        },
+        {
+          "id": "5c35c165-b89d-4cc9-8220-2ae8f4ec8074",
+          "method": "POST",
+          "path": "/survivorship-rules/23cb796a-d3ef-485e-a0c1-6e760d636411/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:09.451Z"
+        },
+        {
+          "id": "477a06d5-4355-45a0-a77b-04811c90b07b",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:09.475Z"
+        },
+        {
+          "id": "deb09451-73f7-4a8e-8194-c18e4a5ef5de",
+          "method": "POST",
+          "path": "/survivorship-rules/e3e58c00-336b-4e5a-977d-93ad90c5d826/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:09.488Z"
+        },
+        {
+          "id": "8d6e90e0-7c16-4492-a678-cb6aa9e88d22",
+          "method": "POST",
+          "path": "/master-records/5fb6414f-b8ee-40e7-ba3e-9858fcca4d60/merge",
+          "status": 200,
+          "at": "2026-11-05T09:12:09.898Z"
+        },
+        {
+          "id": "5037042f-b396-405b-8372-b8df653c7c45",
+          "method": "POST",
+          "path": "/master-records/034f584e-30a9-4874-94a0-67369c010459/merge",
+          "status": 200,
+          "at": "2026-11-05T09:12:10.576Z"
+        },
+        {
+          "id": "6980a4ff-1716-41a1-8674-ef0e71f86f61",
+          "method": "POST",
+          "path": "/master-merges/1d80cfff-d5bf-47a4-9ce6-d494a4122205/unmerge",
+          "status": 200,
+          "at": "2026-11-05T09:12:11.151Z"
+        },
+        {
+          "id": "b1b992c5-b7d4-4a62-b598-4c417c4bed3b",
+          "method": "POST",
+          "path": "/master-merges/6c977ca7-236b-45af-9f8a-1b6fbf8e7d6a/unmerge",
+          "status": 200,
+          "at": "2026-11-05T09:12:12.042Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) cannot be undone the day it took effect for a survivor whose version began that day: the two entries come back together, or not at all",
+      "status": "passed",
+      "durationMs": 551,
+      "at": "2026-11-05T09:12:13.047Z",
+      "requests": [
+        {
+          "id": "70a92990-c54e-4214-be68-ccfd3f715958",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:12.495Z"
+        },
+        {
+          "id": "e8c41911-13c0-49ec-aa6c-57e64604c136",
+          "method": "POST",
+          "path": "/survivorship-rules/37da2ff3-e9a8-4eda-9c05-539f12bf05c7/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:12.508Z"
+        },
+        {
+          "id": "0d9148e6-5245-4179-8483-453ba08f6890",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:12.519Z"
+        },
+        {
+          "id": "cdaaff9e-4535-440b-960b-014b418455c7",
+          "method": "POST",
+          "path": "/survivorship-rules/404e307e-26a3-4aeb-bbe4-3524dbe4617b/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:12.542Z"
+        },
+        {
+          "id": "251516ef-f99a-441d-8e9d-d3eb01cec0f0",
+          "method": "POST",
+          "path": "/master-records/ec9ff9b1-bf74-4550-badd-6282bde2fec4/merge",
+          "status": 200,
+          "at": "2026-11-05T09:12:12.888Z"
+        },
+        {
+          "id": "ff508a86-dff5-41aa-9b69-ec7003ba4a19",
+          "method": "POST",
+          "path": "/master-merges/11744315-63a2-4ee8-b34e-2c5256a95dc2/unmerge",
+          "status": 409,
+          "at": "2026-11-05T09:12:12.915Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) lets the key of an entry that was merged away stand for the survivor when another entry refers to it",
+      "status": "passed",
+      "durationMs": 1044,
+      "at": "2026-11-05T09:12:14.092Z",
+      "requests": [
+        {
+          "id": "a976be88-7963-4144-aba6-3a20180ee6cb",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:13.047Z"
+        },
+        {
+          "id": "348ecb53-1dee-411e-85fe-95998b0ed45d",
+          "method": "POST",
+          "path": "/survivorship-rules/95a5c7b2-0c84-45ca-b2f9-bd49aa2e5c67/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:13.067Z"
+        },
+        {
+          "id": "688cfa2a-c38d-4d42-8eea-cab1a05d36c4",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:13.084Z"
+        },
+        {
+          "id": "b0b16d9e-1fba-4d07-aa02-abab8f519759",
+          "method": "POST",
+          "path": "/survivorship-rules/7cbae9db-e601-44f1-9f71-576deec04606/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:13.098Z"
+        },
+        {
+          "id": "87f98c44-c987-4349-bea8-5f15b0a4d971",
+          "method": "POST",
+          "path": "/master-records/905a7c68-2986-4842-bf2c-dc7802708431/merge",
+          "status": 200,
+          "at": "2026-11-05T09:12:13.372Z"
+        },
+        {
+          "id": "9d2a4747-b4f4-4cc8-8dda-ed0b84e8d751",
+          "method": "POST",
+          "path": "/master-merges/5b96d5f9-4ced-4f9c-830c-dfaadb35da4a/unmerge",
+          "status": 200,
+          "at": "2026-11-05T09:12:13.665Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) leaves the rule data of a module to its owner: a checker who is not an approver of the type cannot merge it, even where the tenant owns it (BR-MDM-09)",
+      "status": "passed",
+      "durationMs": 502,
+      "at": "2026-11-05T09:12:14.593Z",
+      "requests": [
+        {
+          "id": "96fc2b1d-da43-4644-b0bd-773685985353",
+          "method": "POST",
+          "path": "/master-records/f79a5842-84d8-4fbe-a5db-6f85c1ddc7d1/merge",
+          "status": 403,
+          "at": "2026-11-05T09:12:14.424Z"
+        },
+        {
+          "id": "1c57058d-9361-4f7f-a790-e8a9c50fae3f",
+          "method": "POST",
+          "path": "/master-records/f79a5842-84d8-4fbe-a5db-6f85c1ddc7d1/merge",
+          "status": 422,
+          "at": "2026-11-05T09:12:14.489Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) refuses an entry that has run out on the day of the merge, whichever side it is on",
+      "status": "passed",
+      "durationMs": 482,
+      "at": "2026-11-05T09:12:15.075Z",
+      "requests": [
+        {
+          "id": "c1c032f4-ff48-40a8-8712-b5f0a14ddcbc",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:14.594Z"
+        },
+        {
+          "id": "732e76f8-4ac6-4127-bbc4-459763aef846",
+          "method": "POST",
+          "path": "/survivorship-rules/db276314-a7f1-45cd-bc07-bb24e66fc54e/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:14.609Z"
+        },
+        {
+          "id": "ceee919f-dea1-422a-9805-fe9ec1fb9c58",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:14.619Z"
+        },
+        {
+          "id": "a55a1d09-3849-4221-828e-55fa9143ef71",
+          "method": "POST",
+          "path": "/survivorship-rules/7bf8fad1-1e4c-4b04-9dc7-f3619657ed32/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:14.638Z"
+        },
+        {
+          "id": "e79b1415-3c31-4370-8992-df749c59a04e",
+          "method": "POST",
+          "path": "/master-records/cd39297d-6532-4496-a254-23f0f3748321/merge",
+          "status": 409,
+          "at": "2026-11-05T09:12:15.023Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) lets issue intake and the other readers of an entry by its key find the survivor of an entry that was merged away",
+      "status": "passed",
+      "durationMs": 1080,
+      "at": "2026-11-05T09:12:16.155Z",
+      "requests": [
+        {
+          "id": "f91f627a-e6be-40d2-8c0f-0b12c64acb89",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:15.076Z"
+        },
+        {
+          "id": "a7d75ce5-99ae-4d71-9293-90094bdcd625",
+          "method": "POST",
+          "path": "/survivorship-rules/d7401273-74ab-455b-bae4-2d97ec529a53/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:15.100Z"
+        },
+        {
+          "id": "515e0748-68e9-433c-9ac6-21cbdb632d80",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:15.110Z"
+        },
+        {
+          "id": "e954f7ca-ed7d-4b49-9d08-bf785b98d91a",
+          "method": "POST",
+          "path": "/survivorship-rules/4f7f3b8c-acb6-4f01-aacc-f706d8e0e9be/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:15.132Z"
+        },
+        {
+          "id": "db456762-95f2-4ab1-8ae5-e0faa0e14e89",
+          "method": "POST",
+          "path": "/master-records/1fd2c0b3-ad15-400f-975e-34f71cc3789b/merge",
+          "status": 200,
+          "at": "2026-11-05T09:12:15.474Z"
+        },
+        {
+          "id": "667f2121-bf3a-4007-a828-b7f3cb655058",
+          "method": "POST",
+          "path": "/master-merges/f370fce4-7f4c-4e96-84ae-76403b872d09/unmerge",
+          "status": 200,
+          "at": "2026-11-05T09:12:15.722Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) keeps an attribute that is itself called label apart from the name of the entry, and gives it back when the merge is undone",
+      "status": "passed",
+      "durationMs": 1151,
+      "at": "2026-11-05T09:12:17.306Z",
+      "requests": [
+        {
+          "id": "a7efb4ce-4b7e-4f7b-9d25-28639e3e0cc9",
+          "method": "POST",
+          "path": "/master-records/a9e8df8e-912f-4da6-a694-7e9fb4496f58/merge",
+          "status": 409,
+          "at": "2026-11-05T09:12:16.407Z"
+        },
+        {
+          "id": "85ea3619-ef75-4983-91e9-03f1691cc367",
+          "method": "POST",
+          "path": "/master-records/a9e8df8e-912f-4da6-a694-7e9fb4496f58/merge",
+          "status": 200,
+          "at": "2026-11-05T09:12:16.423Z"
+        },
+        {
+          "id": "99110176-11e4-494e-bcf2-72b344dbd25a",
+          "method": "POST",
+          "path": "/master-merges/ba20f90e-b5a1-411d-bcc7-1431ed74e60f/unmerge",
+          "status": 200,
+          "at": "2026-11-05T09:12:16.699Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) is refused for an entry of the platform (403 POLICY_LOCKED), for a type the platform owns, and for who made either entry (403 SELF_APPROVAL_DENIED)",
+      "status": "passed",
+      "durationMs": 994,
+      "at": "2026-11-05T09:12:18.300Z",
+      "requests": [
+        {
+          "id": "7d6c2a3f-a62d-4999-b484-df4887c39d71",
+          "method": "POST",
+          "path": "/master-records/8c21aeae-7e88-4386-8703-b8c1270aa7be/merge",
+          "status": 403,
+          "at": "2026-11-05T09:12:17.695Z"
+        },
+        {
+          "id": "1363c925-26f6-49be-93fb-38a4e6fabaa6",
+          "method": "POST",
+          "path": "/master-records/3f0bd765-5272-48c3-9f03-af94b620c5fe/merge",
+          "status": 403,
+          "at": "2026-11-05T09:12:17.710Z"
+        },
+        {
+          "id": "94cb193b-5b7a-4701-991c-752110c9ad9f",
+          "method": "POST",
+          "path": "/master-records/27ea2d23-8c2a-47dc-9403-8722645e8bbb/merge",
+          "status": 403,
+          "at": "2026-11-05T09:12:18.067Z"
+        },
+        {
+          "id": "19ed84d8-96e1-4d17-ae12-696e6b1dc77d",
+          "method": "POST",
+          "path": "/master-records/8c21aeae-7e88-4386-8703-b8c1270aa7be/merge",
+          "status": 403,
+          "at": "2026-11-05T09:12:18.271Z"
+        },
+        {
+          "id": "8dab55dc-922d-43ee-8d54-a263d3727c36",
+          "method": "POST",
+          "path": "/master-records/2b10b0ce-25cc-4d67-b38b-b01438875f88/merge",
+          "status": 403,
+          "at": "2026-11-05T09:12:18.285Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) is refused for entries that are the same, of another type, unknown, not in force, or already merged; and against a version that is not the one read",
+      "status": "passed",
+      "durationMs": 1848,
+      "at": "2026-11-05T09:12:20.149Z",
+      "requests": [
+        {
+          "id": "972ad5fc-5e72-4f3c-b6a5-51729568f0cd",
+          "method": "POST",
+          "path": "/master-records/5fbdc1bf-8c50-4caf-9e4b-73cba9740ddd/merge",
+          "status": 422,
+          "at": "2026-11-05T09:12:18.665Z"
+        },
+        {
+          "id": "c8abd801-8885-46bc-9d6c-1a6bbea9d4a9",
+          "method": "POST",
+          "path": "/master-records/5fbdc1bf-8c50-4caf-9e4b-73cba9740ddd/merge",
+          "status": 422,
+          "at": "2026-11-05T09:12:18.840Z"
+        },
+        {
+          "id": "28297b9a-552a-4911-b790-5b8118c11a08",
+          "method": "POST",
+          "path": "/master-records/5fbdc1bf-8c50-4caf-9e4b-73cba9740ddd/merge",
+          "status": 422,
+          "at": "2026-11-05T09:12:18.855Z"
+        },
+        {
+          "id": "5c107d58-e825-46ef-9d39-60284ff0ab7e",
+          "method": "POST",
+          "path": "/master-records/4ce5a8db-dc5d-42ef-b9fd-a90b85adc645/merge",
+          "status": 404,
+          "at": "2026-11-05T09:12:18.870Z"
+        },
+        {
+          "id": "dd842212-bbfe-473b-8d9f-421b6d03567b",
+          "method": "POST",
+          "path": "/master-records/5fbdc1bf-8c50-4caf-9e4b-73cba9740ddd/merge",
+          "status": 409,
+          "at": "2026-11-05T09:12:18.886Z"
+        },
+        {
+          "id": "262783e1-9e1a-4e07-9a44-8d71c5958e31",
+          "method": "POST",
+          "path": "/master-records/5fbdc1bf-8c50-4caf-9e4b-73cba9740ddd/merge",
+          "status": 422,
+          "at": "2026-11-05T09:12:18.905Z"
+        },
+        {
+          "id": "223c10ea-919c-4e2b-bd2b-35accc299805",
+          "method": "POST",
+          "path": "/master-records/5fbdc1bf-8c50-4caf-9e4b-73cba9740ddd/merge",
+          "status": 409,
+          "at": "2026-11-05T09:12:19.117Z"
+        },
+        {
+          "id": "fa02602f-e1cb-457d-8997-055713c2009d",
+          "method": "POST",
+          "path": "/master-records/ca609273-a9ad-41a1-94a5-69548cd05aab/merge",
+          "status": 409,
+          "at": "2026-11-05T09:12:19.129Z"
+        },
+        {
+          "id": "c80687ef-721e-4eda-bc46-8a00748c4662",
+          "method": "POST",
+          "path": "/master-records/5fbdc1bf-8c50-4caf-9e4b-73cba9740ddd/merge",
+          "status": 200,
+          "at": "2026-11-05T09:12:19.143Z"
+        },
+        {
+          "id": "cc87f25b-9714-446e-ba9b-47379f0f4a53",
+          "method": "POST",
+          "path": "/master-records/3443e17a-7d5a-4e0d-9db4-3082e6979887/merge",
+          "status": 409,
+          "at": "2026-11-05T09:12:19.980Z"
+        },
+        {
+          "id": "83202446-32ec-45f9-8089-1e39b5bfc8fc",
+          "method": "POST",
+          "path": "/master-records/1021b22a-a025-40c1-8c75-1d37825a2852/merge",
+          "status": 409,
+          "at": "2026-11-05T09:12:20.129Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) cannot undo a merge while the survivor itself is merged away, and each merge is undone in its turn",
+      "status": "passed",
+      "durationMs": 1958,
+      "at": "2026-11-05T09:12:22.106Z",
+      "requests": [
+        {
+          "id": "668d83f2-dad2-46b0-89d1-a377a101d97f",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:20.149Z"
+        },
+        {
+          "id": "13e1a8aa-7e7f-40af-a089-f92278f30c94",
+          "method": "POST",
+          "path": "/survivorship-rules/25da3915-3005-4527-83b4-5a306a6f4b1a/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:20.168Z"
+        },
+        {
+          "id": "f9367ac1-533c-4bbd-aac3-bfbb15a9c17a",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:20.180Z"
+        },
+        {
+          "id": "be6b8607-a8d5-4b1d-86f3-a1fd950dadfe",
+          "method": "POST",
+          "path": "/survivorship-rules/a5851060-5825-4276-a9f3-4ca522abbed6/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:20.201Z"
+        },
+        {
+          "id": "f3d3dab4-f625-4587-b56f-32e71dea98fa",
+          "method": "POST",
+          "path": "/master-records/9d69ec4a-c425-4a09-b3af-fb272ae74d40/merge",
+          "status": 200,
+          "at": "2026-11-05T09:12:20.767Z"
+        },
+        {
+          "id": "e7745542-7f15-49a3-9b9d-a9bbd3e33fd3",
+          "method": "POST",
+          "path": "/master-records/b8ec5793-2629-4b4f-ae20-73ec1043af8e/merge",
+          "status": 200,
+          "at": "2026-11-05T09:12:21.003Z"
+        },
+        {
+          "id": "a2150b33-e8c4-4e66-8031-8a64e8f7bb55",
+          "method": "POST",
+          "path": "/master-merges/8d1b0414-31f5-4de8-b715-fd31b24e9eea/unmerge",
+          "status": 409,
+          "at": "2026-11-05T09:12:21.193Z"
+        },
+        {
+          "id": "f5986347-9ffd-4bf6-b63f-1d3494db80d0",
+          "method": "POST",
+          "path": "/master-merges/c2aead84-4214-45b2-b5c5-cb7cd4ac78e1/unmerge",
+          "status": 200,
+          "at": "2026-11-05T09:12:21.202Z"
+        },
+        {
+          "id": "23a7e577-b22b-4ecb-934f-f1949ca80f4f",
+          "method": "POST",
+          "path": "/master-merges/8d1b0414-31f5-4de8-b715-fd31b24e9eea/unmerge",
+          "status": 200,
+          "at": "2026-11-05T09:12:21.663Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) is for the checker alone, and another tenant sees none of it",
+      "status": "passed",
+      "durationMs": 492,
+      "at": "2026-11-05T09:12:22.598Z",
+      "requests": [
+        {
+          "id": "78599abf-97ad-4834-b476-8dc5128bd336",
+          "method": "POST",
+          "path": "/master-records/0e76a7fc-a4f2-46d5-82d6-214462ca39e1/merge",
+          "status": 403,
+          "at": "2026-11-05T09:12:22.421Z"
+        },
+        {
+          "id": "b26cb1bd-35a6-4197-acc0-69ab956519a8",
+          "method": "POST",
+          "path": "/master-records/0e76a7fc-a4f2-46d5-82d6-214462ca39e1/merge",
+          "status": 403,
+          "at": "2026-11-05T09:12:22.441Z"
+        },
+        {
+          "id": "4696c287-0dc5-4fc9-a264-9362978d989e",
+          "method": "POST",
+          "path": "/master-records/0e76a7fc-a4f2-46d5-82d6-214462ca39e1/merge",
+          "status": 403,
+          "at": "2026-11-05T09:12:22.457Z"
+        },
+        {
+          "id": "7864d02e-6a05-4122-b616-ad6c335ac473",
+          "method": "POST",
+          "path": "/master-records/0e76a7fc-a4f2-46d5-82d6-214462ca39e1/merge",
+          "status": 404,
+          "at": "2026-11-05T09:12:22.473Z"
+        },
+        {
+          "id": "b09fc080-a30e-49b8-b9ee-2b7c9b3bb55f",
+          "method": "GET",
+          "path": "/master-merges",
+          "status": 403,
+          "at": "2026-11-05T09:12:22.493Z"
+        },
+        {
+          "id": "1fc7e336-8ca7-4206-9c34-8d01ba0e1242",
+          "method": "GET",
+          "path": "/master-merges",
+          "status": 200,
+          "at": "2026-11-05T09:12:22.504Z"
+        },
+        {
+          "id": "9bd8373f-ea48-4e04-bcea-9ff8976012b6",
+          "method": "POST",
+          "path": "/master-merges/c7a5fcca-f8a0-4846-990b-f74344447622/unmerge",
+          "status": 403,
+          "at": "2026-11-05T09:12:22.522Z"
+        },
+        {
+          "id": "b102c61f-0f6d-4eb3-95e2-2fc36f882c75",
+          "method": "POST",
+          "path": "/master-merges/47e07805-46fe-4c02-b621-d2f023d9a7d7/unmerge",
+          "status": 404,
+          "at": "2026-11-05T09:12:22.537Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) lists the merges newest first, by entry and by state, a page at a time",
+      "status": "passed",
+      "durationMs": 2074,
+      "at": "2026-11-05T09:12:24.672Z",
+      "requests": [
+        {
+          "id": "dfe5119f-70c6-4580-a80c-4116255217b9",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:22.599Z"
+        },
+        {
+          "id": "61b97716-068e-4088-b042-14a8d3b04e35",
+          "method": "POST",
+          "path": "/survivorship-rules/7bd40d29-8c37-4e74-9530-c7dbf3507f6f/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:22.623Z"
+        },
+        {
+          "id": "5a984a52-9096-4bcb-8fe7-246cec4f60c5",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:22.637Z"
+        },
+        {
+          "id": "ac560db3-fe59-4bc3-ab04-cd8c86d36ee7",
+          "method": "POST",
+          "path": "/survivorship-rules/26e3a3b1-e539-4517-bcce-189301c09506/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:22.652Z"
+        },
+        {
+          "id": "cca2818e-3432-4aa5-844b-dd5d41ae8c9f",
+          "method": "POST",
+          "path": "/master-records/aa30ec8f-ed5e-48b8-93bd-83bbcdd123b7/merge",
+          "status": 200,
+          "at": "2026-11-05T09:12:22.964Z"
+        },
+        {
+          "id": "2ce3b0db-d7db-4251-9f4e-87260022a59f",
+          "method": "POST",
+          "path": "/master-records/552669f8-9fba-4cf5-b344-c28a8187714a/merge",
+          "status": 200,
+          "at": "2026-11-05T09:12:23.411Z"
+        },
+        {
+          "id": "62185223-3ab2-4403-b120-52d33bd64e2f",
+          "method": "POST",
+          "path": "/master-records/d9a34df2-1d5e-44c8-897a-4b96f84732c9/merge",
+          "status": 200,
+          "at": "2026-11-05T09:12:23.925Z"
+        },
+        {
+          "id": "3b61bba0-8494-4419-987d-986d396ecb9c",
+          "method": "GET",
+          "path": "/master-merges",
+          "status": 200,
+          "at": "2026-11-05T09:12:24.108Z"
+        },
+        {
+          "id": "81dc2c5c-a603-468d-a39f-86045e3695a5",
+          "method": "GET",
+          "path": "/master-merges",
+          "status": 200,
+          "at": "2026-11-05T09:12:24.130Z"
+        },
+        {
+          "id": "5dec2d99-2079-4036-b084-d142a5045a9d",
+          "method": "GET",
+          "path": "/master-merges",
+          "status": 200,
+          "at": "2026-11-05T09:12:24.145Z"
+        },
+        {
+          "id": "789bcc89-c570-45c5-9944-03ad68199a5e",
+          "method": "GET",
+          "path": "/master-merges",
+          "status": 200,
+          "at": "2026-11-05T09:12:24.161Z"
+        },
+        {
+          "id": "be0c03a2-433f-44cf-871e-a2ea485b4788",
+          "method": "GET",
+          "path": "/master-merges",
+          "status": 200,
+          "at": "2026-11-05T09:12:24.176Z"
+        },
+        {
+          "id": "9ea52122-d402-444e-9480-8ef7851e822d",
+          "method": "POST",
+          "path": "/master-merges/2c0940bf-89ed-49cc-9f48-7cec2bf558f6/unmerge",
+          "status": 200,
+          "at": "2026-11-05T09:12:24.193Z"
+        },
+        {
+          "id": "0f148d88-6bfc-4cc7-b6be-ac440c0121b3",
+          "method": "GET",
+          "path": "/master-merges",
+          "status": 200,
+          "at": "2026-11-05T09:12:24.588Z"
+        },
+        {
+          "id": "de3785c8-59e3-4e47-9e96-6ecd259b0fac",
+          "method": "GET",
+          "path": "/master-merges",
+          "status": 422,
+          "at": "2026-11-05T09:12:24.594Z"
+        },
+        {
+          "id": "e03e8e4f-adb7-47a5-a610-46f35b059e47",
+          "method": "GET",
+          "path": "/master-merges",
+          "status": 422,
+          "at": "2026-11-05T09:12:24.608Z"
+        },
+        {
+          "id": "0d3bc8e3-e75c-47b3-85c1-9398e6b44c72",
+          "method": "GET",
+          "path": "/master-merges",
+          "status": 422,
+          "at": "2026-11-05T09:12:24.624Z"
+        },
+        {
+          "id": "9ef3369b-4432-4cbc-8e18-32f511bd0e28",
+          "method": "GET",
+          "path": "/master-merges",
+          "status": 422,
+          "at": "2026-11-05T09:12:24.640Z"
+        },
+        {
+          "id": "2c84b219-0c33-41e5-b090-e2377bb44f07",
+          "method": "GET",
+          "path": "/master-merges",
+          "status": 422,
+          "at": "2026-11-05T09:12:24.656Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-merge.test.ts",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) the merge (UAT-AC274) is recorded for good: the table refuses to change what it recorded, to undo it twice or to delete it",
+      "status": "passed",
+      "durationMs": 1006,
+      "at": "2026-11-05T09:12:25.679Z",
+      "requests": [
+        {
+          "id": "f6c15758-5a74-42dd-b4e0-9abbd19bd7ee",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:24.672Z"
+        },
+        {
+          "id": "a68003ec-486f-49cd-a2df-6749ab9f7513",
+          "method": "POST",
+          "path": "/survivorship-rules/05c4a841-73b7-432b-967c-5948b03ad256/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:24.694Z"
+        },
+        {
+          "id": "d7405cc2-221f-4e27-bb62-46bb5430cdf2",
+          "method": "POST",
+          "path": "/survivorship-rules",
+          "status": 200,
+          "at": "2026-11-05T09:12:24.709Z"
+        },
+        {
+          "id": "6239117c-6506-47c0-930d-00780e1d8302",
+          "method": "POST",
+          "path": "/survivorship-rules/ec5f9609-bfba-4750-b842-3fb52e2df156/publish",
+          "status": 200,
+          "at": "2026-11-05T09:12:24.724Z"
+        },
+        {
+          "id": "8cd729a2-8e84-481c-acf1-1db978a13216",
+          "method": "POST",
+          "path": "/master-records/0aff2fe0-bfce-4a4e-a5a5-3c6080e9ff80/merge",
+          "status": 200,
+          "at": "2026-11-05T09:12:25.048Z"
+        },
+        {
+          "id": "269d14d2-d357-404e-a55a-166e763a0cfe",
+          "method": "POST",
+          "path": "/master-merges/593600a0-546b-4a03-8a56-12761aae56df/unmerge",
+          "status": 200,
+          "at": "2026-11-05T09:12:25.235Z"
+        }
+      ]
+    }
+  ]
+}

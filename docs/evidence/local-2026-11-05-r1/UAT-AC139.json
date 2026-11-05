@@ -1,0 +1,85 @@
+{
+  "id": "UAT-AC139",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/audit-export.test.ts",
+      "name": "the audit viewer reads and the sealed export (ST-ADM-016, ADM-11) exportAuditLog rejects 367 days with 422 EXPORT_RANGE_TOO_LARGE and keeps no file and no audit row, and a 366-day export holds the seal list (AC-ST-ADM-016-1, UAT-AC139)",
+      "status": "passed",
+      "durationMs": 158,
+      "at": "2026-11-05T09:22:49.866Z",
+      "requests": [
+        {
+          "id": "c3ddc0cb-3785-468c-b2c1-43776699b7df",
+          "method": "POST",
+          "path": "/audit-exports",
+          "status": 422,
+          "at": "2026-11-05T09:22:49.710Z"
+        },
+        {
+          "id": "63369515-f8d1-4ce0-bb37-8ecf1a665fc0",
+          "method": "POST",
+          "path": "/audit-exports",
+          "status": 202,
+          "at": "2026-11-05T09:22:49.781Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/audit-events.test.ts",
+      "name": "audit reads (ST-ADM-002, ADM-11) filters, seals and the verdict of the verification (ST-ADM-016, ADM-11) names the seal that covers each event (null while it waits) and carries the verdict of the verification for the banner (AC-ST-ADM-016-3, UAT-AC139)",
+      "status": "passed",
+      "durationMs": 177,
+      "at": "2026-11-05T09:23:39.850Z",
+      "requests": [
+        {
+          "id": "ecb2f720-2f9c-4bf7-8c9b-270b2e95dd72",
+          "method": "GET",
+          "path": "/resources/audit_event",
+          "status": 200,
+          "at": "2026-11-05T09:23:39.672Z"
+        },
+        {
+          "id": "4c3ef801-e2ef-466a-ab38-f9ceb974ccbb",
+          "method": "GET",
+          "path": "/resources/audit_event",
+          "status": 200,
+          "at": "2026-11-05T09:23:39.696Z"
+        },
+        {
+          "id": "73d99d33-5918-47cf-95f8-d13edaf28c68",
+          "method": "GET",
+          "path": "/resources/audit_event/00000000-0000-4000-0060-000000000008",
+          "status": 200,
+          "at": "2026-11-05T09:23:39.706Z"
+        },
+        {
+          "id": "84868b36-ee58-4a3b-8b66-5c37a132b428",
+          "method": "GET",
+          "path": "/resources/audit_event",
+          "status": 200,
+          "at": "2026-11-05T09:23:39.762Z"
+        },
+        {
+          "id": "f6005817-07dc-41d0-991a-5a78b2e5028b",
+          "method": "GET",
+          "path": "/resources/audit_event",
+          "status": 200,
+          "at": "2026-11-05T09:23:39.776Z"
+        },
+        {
+          "id": "c46142de-3818-4d23-85ec-455d2ec7afc4",
+          "method": "GET",
+          "path": "/resources/audit_event",
+          "status": 200,
+          "at": "2026-11-05T09:23:39.829Z"
+        }
+      ]
+    }
+  ]
+}

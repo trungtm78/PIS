@@ -1,0 +1,106 @@
+{
+  "id": "UAT-PLAN-62",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/fiscal-year.test.ts",
+      "name": "the closing, the lapse and the reopening of a fiscal year over HTTP (ST-CAP-008) closeFiscalYear refuses to close a year with a plan in review or approved and not yet published: 409 YEAR_STATE_INVALID naming the plans (AC-ST-CAP-008-2, UAT-PLAN-62)",
+      "status": "passed",
+      "durationMs": 531,
+      "at": "2026-11-05T09:22:27.594Z",
+      "requests": [
+        {
+          "id": "114fc64c-2054-4667-a230-d036f403cb51",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:22:27.246Z"
+        },
+        {
+          "id": "4889a244-7c44-444d-b7d5-1da5f91cbd59",
+          "method": "POST",
+          "path": "/capital-plans/f7b095a4-5c31-4b04-88f9-fc54f1691fb0/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:22:27.261Z"
+        },
+        {
+          "id": "5e523362-64ef-4531-808d-20384fcc9b33",
+          "method": "POST",
+          "path": "/capital-plans/f7b095a4-5c31-4b04-88f9-fc54f1691fb0/submit",
+          "status": 200,
+          "at": "2026-11-05T09:22:27.282Z"
+        },
+        {
+          "id": "d6427c0d-999c-475f-9d73-3418ecb65166",
+          "method": "POST",
+          "path": "/capital-plans/f7b095a4-5c31-4b04-88f9-fc54f1691fb0/decision",
+          "status": 200,
+          "at": "2026-11-05T09:22:27.299Z"
+        },
+        {
+          "id": "04266b86-b584-47c2-a4cd-0288475a7ecf",
+          "method": "POST",
+          "path": "/plans/f7b095a4-5c31-4b04-88f9-fc54f1691fb0/publish",
+          "status": 200,
+          "at": "2026-11-05T09:22:27.348Z"
+        },
+        {
+          "id": "f6e29c5f-81ca-48cf-b451-fd76c73b87be",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:22:27.446Z"
+        },
+        {
+          "id": "bfc3c22e-9755-46f9-8148-59ce9157e73e",
+          "method": "POST",
+          "path": "/capital-plans/5f22a84a-a39b-4d74-b5ec-a1798b707d3a/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:22:27.469Z"
+        },
+        {
+          "id": "93a42e16-ccee-42db-8637-97ee83143101",
+          "method": "POST",
+          "path": "/capital-plans/5f22a84a-a39b-4d74-b5ec-a1798b707d3a/submit",
+          "status": 200,
+          "at": "2026-11-05T09:22:27.488Z"
+        },
+        {
+          "id": "612976cd-aa94-4c5b-85d6-dc4aa3158313",
+          "method": "POST",
+          "path": "/fiscal-years/2084/close",
+          "status": 409,
+          "at": "2026-11-05T09:22:27.505Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/cap-year-flows.spec.ts",
+      "name": "a year with a plan waiting for a decision cannot be closed, and the screen says how many (AC-ST-CAP-008-2, UAT-PLAN-62)",
+      "status": "passed",
+      "durationMs": 656,
+      "at": "2026-11-05T08:45:43.516Z",
+      "requests": [
+        {
+          "id": "95e7186f-2144-48a7-b18f-c9b6a6766b86",
+          "method": "GET",
+          "path": "/fiscal-years",
+          "status": 200,
+          "at": "2026-11-05T08:45:43.935Z"
+        },
+        {
+          "id": "f6d5980f-63e1-4136-aa0f-192c9254198d",
+          "method": "POST",
+          "path": "/fiscal-years/2075/close",
+          "status": 409,
+          "at": "2026-11-05T08:45:44.087Z"
+        }
+      ]
+    }
+  ]
+}

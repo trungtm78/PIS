@@ -1,0 +1,54 @@
+{
+  "id": "UAT-AC05",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report-decision.test.ts",
+      "name": "the decision on a weekly report and its corrections over HTTP (ST-DIS-006) post_reports_id_decision AC-ST-DIS-006-1 / UAT-AC05: the maker who also holds report.review is 403 SELF_APPROVAL_DENIED with the attempt on the trail and the report still SUBMITTED; the reviewer gets ACCEPTED, and accepted_by differs from submitted_by",
+      "status": "passed",
+      "durationMs": 622,
+      "at": "2026-11-05T09:15:21.527Z",
+      "requests": [
+        {
+          "id": "d9d4c5e6-6ef6-4b6a-9d66-2173f96b45f0",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:15:21.029Z"
+        },
+        {
+          "id": "4234a683-6ba3-49b1-bbcc-109b36684fd3",
+          "method": "POST",
+          "path": "/reports/b4fba952-4530-4c1c-901c-05fffc114e99/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:21.092Z"
+        },
+        {
+          "id": "2a9bf82f-827e-4ced-8ee9-1f7755422e6a",
+          "method": "POST",
+          "path": "/reports/b4fba952-4530-4c1c-901c-05fffc114e99/decision",
+          "status": 403,
+          "at": "2026-11-05T09:15:21.123Z"
+        },
+        {
+          "id": "abed5d62-0ba3-4514-ab44-951a9da565c0",
+          "method": "POST",
+          "path": "/reports/b4fba952-4530-4c1c-901c-05fffc114e99/decision",
+          "status": 200,
+          "at": "2026-11-05T09:15:21.329Z"
+        },
+        {
+          "id": "a014a244-b2fe-4dcb-9aca-23341970b33b",
+          "method": "GET",
+          "path": "/reports/b4fba952-4530-4c1c-901c-05fffc114e99",
+          "status": 200,
+          "at": "2026-11-05T09:15:21.504Z"
+        }
+      ]
+    }
+  ]
+}

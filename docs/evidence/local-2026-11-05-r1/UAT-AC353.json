@@ -1,0 +1,134 @@
+{
+  "id": "UAT-AC353",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-issue-closure.test.ts",
+      "name": "requestIssueVerification, closeIssue, reopenIssue and extendIssueDeadline (ST-ISS-003) extending the deadline (UAT-AC353) AC-ST-ISS-003-2: the handler cannot approve their own extension; an independent person extends twice, the third is refused, and the trail names the approver",
+      "status": "passed",
+      "durationMs": 313,
+      "at": "2026-11-05T09:22:46.587Z",
+      "requests": [
+        {
+          "id": "fba7d9f8-ab88-4b0b-9c53-4d44ac79706c",
+          "method": "POST",
+          "path": "/issues",
+          "status": 200,
+          "at": "2026-11-05T09:22:46.275Z"
+        },
+        {
+          "id": "34a38fe9-57ee-42e6-8dd7-95465327d7d9",
+          "method": "POST",
+          "path": "/issues/4895c649-fe79-40cc-a4e9-830f57ae7a78/assign",
+          "status": 200,
+          "at": "2026-11-05T09:22:46.300Z"
+        },
+        {
+          "id": "8518cbe6-830f-49bd-81c9-be49afecce2e",
+          "method": "POST",
+          "path": "/issues/4895c649-fe79-40cc-a4e9-830f57ae7a78/start",
+          "status": 200,
+          "at": "2026-11-05T09:22:46.309Z"
+        },
+        {
+          "id": "2b93adbf-fd6d-498f-9985-f29e5148d7a3",
+          "method": "POST",
+          "path": "/issues/4895c649-fe79-40cc-a4e9-830f57ae7a78/extend",
+          "status": 403,
+          "at": "2026-11-05T09:22:46.375Z"
+        },
+        {
+          "id": "1e28ca78-892a-4fe3-9a63-afea701fc5e9",
+          "method": "POST",
+          "path": "/issues/4895c649-fe79-40cc-a4e9-830f57ae7a78/extend",
+          "status": 200,
+          "at": "2026-11-05T09:22:46.393Z"
+        },
+        {
+          "id": "21de07fb-b7a6-4b5a-b512-d64bb142605c",
+          "method": "POST",
+          "path": "/issues/4895c649-fe79-40cc-a4e9-830f57ae7a78/extend",
+          "status": 200,
+          "at": "2026-11-05T09:22:46.451Z"
+        },
+        {
+          "id": "56231e1f-cb02-4096-b266-ca6adcc91a83",
+          "method": "POST",
+          "path": "/issues/4895c649-fe79-40cc-a4e9-830f57ae7a78/extend",
+          "status": 422,
+          "at": "2026-11-05T09:22:46.472Z"
+        },
+        {
+          "id": "9bf7ae30-4a26-43e6-8236-f55ed6219772",
+          "method": "GET",
+          "path": "/resources/issue/4895c649-fe79-40cc-a4e9-830f57ae7a78",
+          "status": 200,
+          "at": "2026-11-05T09:22:46.566Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-issue-closure.test.ts",
+      "name": "requestIssueVerification, closeIssue, reopenIssue and extendIssueDeadline (ST-ISS-003) extending the deadline (UAT-AC353) refuses a date that is not later, one beyond the longest extension, and an extension outside the scope of the caller",
+      "status": "passed",
+      "durationMs": 167,
+      "at": "2026-11-05T09:22:46.754Z",
+      "requests": [
+        {
+          "id": "cbe9e62c-01ac-48c1-9d46-f5d5d0cfdfc0",
+          "method": "POST",
+          "path": "/issues",
+          "status": 200,
+          "at": "2026-11-05T09:22:46.589Z"
+        },
+        {
+          "id": "9573867b-039d-4688-a401-cb22a808b73d",
+          "method": "POST",
+          "path": "/issues/4aa935c9-34df-469b-9d47-6084c2235436/assign",
+          "status": 200,
+          "at": "2026-11-05T09:22:46.619Z"
+        },
+        {
+          "id": "e4505339-ff97-4c7e-bc75-584505c828ce",
+          "method": "POST",
+          "path": "/issues/4aa935c9-34df-469b-9d47-6084c2235436/start",
+          "status": 200,
+          "at": "2026-11-05T09:22:46.631Z"
+        },
+        {
+          "id": "242eeeb5-d9cc-439a-9618-073e50de46b5",
+          "method": "POST",
+          "path": "/issues/4aa935c9-34df-469b-9d47-6084c2235436/extend",
+          "status": 422,
+          "at": "2026-11-05T09:22:46.685Z"
+        },
+        {
+          "id": "f2918769-1949-4022-9d92-093ae631bdf7",
+          "method": "POST",
+          "path": "/issues/4aa935c9-34df-469b-9d47-6084c2235436/extend",
+          "status": 422,
+          "at": "2026-11-05T09:22:46.708Z"
+        },
+        {
+          "id": "04f2c6b3-ccee-4e30-b331-41239175b19e",
+          "method": "POST",
+          "path": "/issues/4aa935c9-34df-469b-9d47-6084c2235436/extend",
+          "status": 403,
+          "at": "2026-11-05T09:22:46.725Z"
+        },
+        {
+          "id": "2635f960-7ae2-4454-a5cb-d89f41f5d8c0",
+          "method": "POST",
+          "path": "/issues/4aa935c9-34df-469b-9d47-6084c2235436/extend",
+          "status": 409,
+          "at": "2026-11-05T09:22:46.742Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "id": "UAT-AC196",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/delivery-flow.test.ts",
+      "name": "the delivery engine in the real API process (ST-NOT-002) AC-ST-OMNI-001-1 UAT-AC196: a webhook with one byte changed after it was signed is 401, one signed ten minutes ago is 401, and a valid one sent twice is 200 and 200 duplicate with one stored row",
+      "status": "passed",
+      "durationMs": 343,
+      "at": "2026-11-05T09:16:03.155Z",
+      "requests": [
+        {
+          "id": "e2d07555-662a-4235-846e-11a1459e2df2",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 401,
+          "at": "2026-11-05T09:16:02.929Z"
+        },
+        {
+          "id": "8a3dc9c7-8a79-40c8-836d-9499e5d89191",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 401,
+          "at": "2026-11-05T09:16:03.016Z"
+        },
+        {
+          "id": "55ef9acf-fc36-4ac8-8c8d-9d97769f5c5f",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 200,
+          "at": "2026-11-05T09:16:03.060Z"
+        },
+        {
+          "id": "92a6fdb8-6da5-45a9-b1ca-26142b214d6e",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 200,
+          "at": "2026-11-05T09:16:03.088Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/delivery-flow.test.ts",
+      "name": "the delivery engine in the real API process (ST-NOT-002) AC-ST-OMNI-004-1 UAT-AC196: a signed message that a person wrote to the account opens a conversation with a contact, once however often the provider sends it, and a stop word ends the consents",
+      "status": "passed",
+      "durationMs": 745,
+      "at": "2026-11-05T09:16:06.030Z",
+      "requests": [
+        {
+          "id": "cb927693-7b84-44a9-837a-85689a1d4313",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 200,
+          "at": "2026-11-05T09:16:05.391Z"
+        },
+        {
+          "id": "11c73e02-bca1-4ddc-bc04-a24210d22687",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 200,
+          "at": "2026-11-05T09:16:05.625Z"
+        },
+        {
+          "id": "61e9671c-7f20-4347-b5b0-a2610edbc91f",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 200,
+          "at": "2026-11-05T09:16:05.643Z"
+        },
+        {
+          "id": "4ffa2a27-a8ff-4c06-9469-dbfd5fa2eed7",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 401,
+          "at": "2026-11-05T09:16:05.788Z"
+        },
+        {
+          "id": "280f7ed0-4bc0-46fc-ade5-53d305297a66",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 200,
+          "at": "2026-11-05T09:16:05.888Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/omni/conversations.test.ts",
+      "name": "the conversations of the omnichannel center (ST-OMNI-004, OMNI-01, OMNI.md 3.1, 3.2) a message that comes in AC-ST-OMNI-004-1 UAT-AC196: is one message when the provider sends it twice, and the second message of a thread goes into the same conversation, the later of the two deciding the window",
+      "status": "passed",
+      "durationMs": 258,
+      "at": "2026-11-05T09:17:58.809Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/omni/channel-accounts.test.ts",
+      "name": "the channel accounts (ST-OMNI-001, OMNI-05, OMNI-06) verifying (OMNI 3.7) AC-ST-OMNI-001-1 UAT-AC196: asked for, it is 202 and the consumer makes the account Active and verified, once, with the audit row and the event",
+      "status": "passed",
+      "durationMs": 974,
+      "at": "2026-11-05T09:22:03.408Z",
+      "requests": [
+        {
+          "id": "26de39cf-099f-4ada-91b0-5b720fa2d73d",
+          "method": "POST",
+          "path": "/channel-accounts",
+          "status": 201,
+          "at": "2026-11-05T09:22:02.434Z"
+        },
+        {
+          "id": "826f94dd-2584-4a41-8777-5df05993f1d6",
+          "method": "POST",
+          "path": "/channel-accounts/0e14bc47-f215-47ef-97e6-6f986321bcd7/verify",
+          "status": 202,
+          "at": "2026-11-05T09:22:02.455Z"
+        },
+        {
+          "id": "4b5e4ae4-4695-4372-943e-d1dae10dfefc",
+          "method": "GET",
+          "path": "/resources/channel_account/0e14bc47-f215-47ef-97e6-6f986321bcd7",
+          "status": 200,
+          "at": "2026-11-05T09:22:03.312Z"
+        }
+      ]
+    }
+  ]
+}

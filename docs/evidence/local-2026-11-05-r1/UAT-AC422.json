@@ -1,0 +1,267 @@
+{
+  "id": "UAT-AC422",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/dossiers.test.ts",
+      "name": "dossiers over HTTP (ST-DOC-013) AC-ST-DOC-013-2: UAT-AC422 gives each dossier the rule in force on the day it is closed, and does not let two published rules of one set and category overlap",
+      "status": "passed",
+      "durationMs": 539,
+      "at": "2026-11-05T09:14:25.778Z",
+      "requests": [
+        {
+          "id": "5a537b30-a437-4c66-8e79-f94d5d40b209",
+          "method": "POST",
+          "path": "/dossiers",
+          "status": 200,
+          "at": "2026-11-05T09:14:25.360Z"
+        },
+        {
+          "id": "37cb7ef6-182b-4688-9a53-b0c8168d6bc4",
+          "method": "POST",
+          "path": "/dossiers/87b89ae9-dc6e-4c70-bf83-17df32245864/items",
+          "status": 200,
+          "at": "2026-11-05T09:14:25.379Z"
+        },
+        {
+          "id": "edf88622-91ff-4397-a19a-8c866e699349",
+          "method": "POST",
+          "path": "/dossiers",
+          "status": 200,
+          "at": "2026-11-05T09:14:25.397Z"
+        },
+        {
+          "id": "cecc0907-a878-4910-9f99-507f061b9461",
+          "method": "POST",
+          "path": "/dossiers/be2e49d0-d73c-4bf6-a395-603f435832a5/items",
+          "status": 200,
+          "at": "2026-11-05T09:14:25.411Z"
+        },
+        {
+          "id": "d26a88b4-38bd-477b-a643-0c51ea85c3c4",
+          "method": "POST",
+          "path": "/dossiers/87b89ae9-dc6e-4c70-bf83-17df32245864/closure",
+          "status": 200,
+          "at": "2026-11-05T09:14:25.429Z"
+        },
+        {
+          "id": "40eb90ab-a99b-4ca4-a181-9b24b0255456",
+          "method": "POST",
+          "path": "/dossiers/be2e49d0-d73c-4bf6-a395-603f435832a5/closure",
+          "status": 200,
+          "at": "2026-11-05T09:14:25.528Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/dossiers.test.ts",
+      "name": "dossiers over HTTP (ST-DOC-013) AC-ST-DOC-017-1: UAT-AC422 drafts, publishes and confirms the retention rules with three people, refuses an overlap, and lets each dossier keep the rule of the day it was closed",
+      "status": "passed",
+      "durationMs": 1636,
+      "at": "2026-11-05T09:14:35.794Z",
+      "requests": [
+        {
+          "id": "979c1d40-35d8-4f5d-94fd-00f8b1f623f0",
+          "method": "POST",
+          "path": "/document-retention-rules",
+          "status": 200,
+          "at": "2026-11-05T09:14:34.454Z"
+        },
+        {
+          "id": "f814f1a0-2a2a-46e5-83d6-e2594a41b045",
+          "method": "POST",
+          "path": "/document-retention-rules/c9cccdd8-a17b-4f0f-874c-a650cbe0ef84/legal-confirmation",
+          "status": 409,
+          "at": "2026-11-05T09:14:34.596Z"
+        },
+        {
+          "id": "3bc97be2-d435-4a69-b436-0804d43d7294",
+          "method": "POST",
+          "path": "/document-retention-rules/c9cccdd8-a17b-4f0f-874c-a650cbe0ef84/publish",
+          "status": 403,
+          "at": "2026-11-05T09:14:34.617Z"
+        },
+        {
+          "id": "76768481-1e34-46fd-ac24-119140e21c12",
+          "method": "POST",
+          "path": "/document-retention-rules/c9cccdd8-a17b-4f0f-874c-a650cbe0ef84/publish",
+          "status": 409,
+          "at": "2026-11-05T09:14:34.629Z"
+        },
+        {
+          "id": "ac1108c5-9aea-4aec-9236-e5125f28ba83",
+          "method": "POST",
+          "path": "/document-retention-rules/c9cccdd8-a17b-4f0f-874c-a650cbe0ef84/publish",
+          "status": 200,
+          "at": "2026-11-05T09:14:34.653Z"
+        },
+        {
+          "id": "5425e4a8-5eb6-464c-bcd6-fb1f05e41885",
+          "method": "POST",
+          "path": "/document-retention-rules/c9cccdd8-a17b-4f0f-874c-a650cbe0ef84/publish",
+          "status": 409,
+          "at": "2026-11-05T09:14:34.666Z"
+        },
+        {
+          "id": "39894361-3ffd-4cf9-9b3d-972e4c2f0219",
+          "method": "POST",
+          "path": "/document-retention-rules",
+          "status": 409,
+          "at": "2026-11-05T09:14:34.824Z"
+        },
+        {
+          "id": "eb76dd86-2633-4471-856f-945693c390d5",
+          "method": "POST",
+          "path": "/document-retention-rules",
+          "status": 409,
+          "at": "2026-11-05T09:14:34.839Z"
+        },
+        {
+          "id": "8618e516-fa42-4dc7-a134-87ff8b84b191",
+          "method": "POST",
+          "path": "/document-retention-rules",
+          "status": 200,
+          "at": "2026-11-05T09:14:34.855Z"
+        },
+        {
+          "id": "ad5806e3-310f-482b-80bb-ed3c10d82a6e",
+          "method": "POST",
+          "path": "/document-retention-rules/e9e9df9f-b5b1-4ce2-a25e-a6dab9465c75/publish",
+          "status": 403,
+          "at": "2026-11-05T09:14:34.875Z"
+        },
+        {
+          "id": "a9d5dd4c-4bda-4e15-b28c-c2686cec6290",
+          "method": "POST",
+          "path": "/document-retention-rules/e9e9df9f-b5b1-4ce2-a25e-a6dab9465c75/publish",
+          "status": 200,
+          "at": "2026-11-05T09:14:34.887Z"
+        },
+        {
+          "id": "31b39bb0-b1f5-46e7-95e6-609e543ada12",
+          "method": "POST",
+          "path": "/document-retention-rules/e9e9df9f-b5b1-4ce2-a25e-a6dab9465c75/legal-confirmation",
+          "status": 403,
+          "at": "2026-11-05T09:14:34.906Z"
+        },
+        {
+          "id": "30c15117-35f5-42f2-8afb-cdf6821d92e0",
+          "method": "POST",
+          "path": "/document-retention-rules/e9e9df9f-b5b1-4ce2-a25e-a6dab9465c75/legal-confirmation",
+          "status": 403,
+          "at": "2026-11-05T09:14:34.918Z"
+        },
+        {
+          "id": "eaf80b93-57cc-4b44-9299-3320e464238e",
+          "method": "POST",
+          "path": "/document-retention-rules/e9e9df9f-b5b1-4ce2-a25e-a6dab9465c75/legal-confirmation",
+          "status": 422,
+          "at": "2026-11-05T09:14:34.930Z"
+        },
+        {
+          "id": "0ad82cba-6bca-4437-a7ba-f7ecdcb8540d",
+          "method": "POST",
+          "path": "/document-retention-rules/e9e9df9f-b5b1-4ce2-a25e-a6dab9465c75/legal-confirmation",
+          "status": 422,
+          "at": "2026-11-05T09:14:34.950Z"
+        },
+        {
+          "id": "ecde7991-c3cb-4c5c-886f-ec9611397cc7",
+          "method": "POST",
+          "path": "/document-retention-rules/e9e9df9f-b5b1-4ce2-a25e-a6dab9465c75/legal-confirmation",
+          "status": 422,
+          "at": "2026-11-05T09:14:34.966Z"
+        },
+        {
+          "id": "c675668f-8e19-44b7-97e1-df602aac798e",
+          "method": "POST",
+          "path": "/document-retention-rules/e9e9df9f-b5b1-4ce2-a25e-a6dab9465c75/legal-confirmation",
+          "status": 409,
+          "at": "2026-11-05T09:14:34.969Z"
+        },
+        {
+          "id": "eed2853d-3298-4428-b048-059157795d56",
+          "method": "POST",
+          "path": "/document-retention-rules/c9cccdd8-a17b-4f0f-874c-a650cbe0ef84/legal-confirmation",
+          "status": 200,
+          "at": "2026-11-05T09:14:35.379Z"
+        },
+        {
+          "id": "39b6ebf6-6f02-4cc9-88cc-947bcac03a11",
+          "method": "POST",
+          "path": "/document-retention-rules/c9cccdd8-a17b-4f0f-874c-a650cbe0ef84/legal-confirmation",
+          "status": 409,
+          "at": "2026-11-05T09:14:35.446Z"
+        },
+        {
+          "id": "1a5bca69-c0df-490e-9118-a4c9fb548e67",
+          "method": "POST",
+          "path": "/document-retention-rules/e9e9df9f-b5b1-4ce2-a25e-a6dab9465c75/legal-confirmation",
+          "status": 200,
+          "at": "2026-11-05T09:14:35.462Z"
+        },
+        {
+          "id": "63011ebf-af3d-4b96-9dad-3a2490182942",
+          "method": "POST",
+          "path": "/document-retention-rules/e9e9df9f-b5b1-4ce2-a25e-a6dab9465c75/legal-confirmation",
+          "status": 409,
+          "at": "2026-11-05T09:14:35.520Z"
+        },
+        {
+          "id": "fccdd859-a339-4b8d-a4b5-eb4fdc68cd9a",
+          "method": "POST",
+          "path": "/dossiers",
+          "status": 200,
+          "at": "2026-11-05T09:14:35.632Z"
+        },
+        {
+          "id": "517f2953-8c0b-4bfb-836e-a6ee4d488b75",
+          "method": "POST",
+          "path": "/dossiers/0ab79e90-11e6-48ba-abdd-43ff5a6c9827/items",
+          "status": 200,
+          "at": "2026-11-05T09:14:35.658Z"
+        },
+        {
+          "id": "2cca63cc-37a2-40fa-9add-a97042fcda73",
+          "method": "POST",
+          "path": "/dossiers",
+          "status": 200,
+          "at": "2026-11-05T09:14:35.674Z"
+        },
+        {
+          "id": "8cf2ff38-0a0a-489f-b6c3-4d6d1875467e",
+          "method": "POST",
+          "path": "/dossiers/a742e04a-5dce-46a1-94a8-cbcd405f79a3/items",
+          "status": 200,
+          "at": "2026-11-05T09:14:35.687Z"
+        },
+        {
+          "id": "32cdf1f5-aca9-4b58-8e3e-5db0bdb81ed6",
+          "method": "POST",
+          "path": "/dossiers/0ab79e90-11e6-48ba-abdd-43ff5a6c9827/closure",
+          "status": 200,
+          "at": "2026-11-05T09:14:35.707Z"
+        },
+        {
+          "id": "a93f9b33-20f9-4bab-a05d-c6938d2986bf",
+          "method": "POST",
+          "path": "/dossiers/a742e04a-5dce-46a1-94a8-cbcd405f79a3/closure",
+          "status": 200,
+          "at": "2026-11-05T09:14:35.719Z"
+        },
+        {
+          "id": "9dbbacc2-5d38-4b19-b824-4c4059b07ba8",
+          "method": "GET",
+          "path": "/document-retention-rules",
+          "status": 200,
+          "at": "2026-11-05T09:14:35.778Z"
+        }
+      ]
+    }
+  ]
+}

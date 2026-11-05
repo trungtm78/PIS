@@ -1,0 +1,186 @@
+{
+  "id": "UAT-AC455",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/result.test.ts",
+      "name": "the result of the selection of a contractor over HTTP (ST-BID-006) submitProcurementResult and decideProcurementResult AC-ST-BID-006-1, UAT-AC455: refuses 18,500,000,000 (422 PRICE_EXCEEDS_PACKAGE_BUDGET), takes 17,650,000,000, refuses the proposer who approves it (403 SELF_APPROVAL_DENIED), and an approver approves it on the decision KQ-01",
+      "status": "passed",
+      "durationMs": 519,
+      "at": "2026-11-05T09:21:16.310Z",
+      "requests": [
+        {
+          "id": "542e3d6f-59d5-4348-bb93-1abce5655036",
+          "method": "POST",
+          "path": "/procurement-results",
+          "status": 422,
+          "at": "2026-11-05T09:21:15.881Z"
+        },
+        {
+          "id": "b2217eef-29be-41ee-ac54-c3e4cc8a888a",
+          "method": "POST",
+          "path": "/procurement-results",
+          "status": 200,
+          "at": "2026-11-05T09:21:15.994Z"
+        },
+        {
+          "id": "69661c58-7866-4930-91d7-299b90918c39",
+          "method": "POST",
+          "path": "/procurement-results/c073003f-cdf3-41e2-9e80-384e52f82ebc/decision",
+          "status": 200,
+          "at": "2026-11-05T09:21:16.156Z"
+        },
+        {
+          "id": "45a2a43a-a394-43bb-824e-9df9a8ca1183",
+          "method": "POST",
+          "path": "/procurement-results",
+          "status": 200,
+          "at": "2026-11-05T09:21:16.272Z"
+        },
+        {
+          "id": "57633b3a-9360-4540-8ea7-7549a61b2112",
+          "method": "POST",
+          "path": "/procurement-results/166aeb16-394f-418f-a098-dfd564052ebe/decision",
+          "status": 403,
+          "at": "2026-11-05T09:21:16.298Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/result.test.ts",
+      "name": "the result of the selection of a contractor over HTTP (ST-BID-006) submitProcurementResult and decideProcurementResult AC-ST-BID-006-1, UAT-AC455: the approval makes the package awarded and tells the contracts the package, the contractor, the price and the decision, and nothing of how it was evaluated",
+      "status": "passed",
+      "durationMs": 794,
+      "at": "2026-11-05T09:21:17.104Z",
+      "requests": [
+        {
+          "id": "21a7bce9-6583-4064-8b84-b70b99c6352d",
+          "method": "POST",
+          "path": "/procurement-results",
+          "status": 200,
+          "at": "2026-11-05T09:21:16.467Z"
+        },
+        {
+          "id": "6885ac63-b956-42ca-8596-2ff00634a222",
+          "method": "POST",
+          "path": "/procurement-results/a5a0b701-edaa-402a-9ee9-be44078d1954/decision",
+          "status": 403,
+          "at": "2026-11-05T09:21:16.495Z"
+        },
+        {
+          "id": "a99a9728-4556-4eb5-8e9f-4f168d6d8bdc",
+          "method": "POST",
+          "path": "/procurement-results/a5a0b701-edaa-402a-9ee9-be44078d1954/decision",
+          "status": 200,
+          "at": "2026-11-05T09:21:16.580Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/bid-result-flows.spec.ts",
+      "name": "the proposer submits the result at the price of the package or below, a person with the authority approves it, and the package is awarded (AC-ST-BID-006-1, UAT-AC455, UI-BID-18)",
+      "status": "passed",
+      "durationMs": 2083,
+      "at": "2026-11-05T08:44:47.801Z",
+      "requests": [
+        {
+          "id": "24c30b16-2b59-4ea1-9a80-570b27991e4e",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:48.743Z"
+        },
+        {
+          "id": "6fcb050a-0802-4a35-8fd1-dc5fd1f1ebaa",
+          "method": "GET",
+          "path": "/procurement-results",
+          "status": 200,
+          "at": "2026-11-05T08:44:48.790Z"
+        },
+        {
+          "id": "8908d826-4b63-480d-b4b4-fcf142f618d8",
+          "method": "GET",
+          "path": "/resources/contractor",
+          "status": 200,
+          "at": "2026-11-05T08:44:48.901Z"
+        },
+        {
+          "id": "046f9371-4d0b-447c-83ad-9ca88f05e8b6",
+          "method": "POST",
+          "path": "/procurement-results",
+          "status": 422,
+          "at": "2026-11-05T08:44:49.007Z"
+        },
+        {
+          "id": "c9f9d0fa-ad86-4706-83b4-e75156bf510f",
+          "method": "POST",
+          "path": "/procurement-results",
+          "status": 200,
+          "at": "2026-11-05T08:44:49.140Z"
+        },
+        {
+          "id": "e270f0c7-223a-4a30-8bfb-2c0ce5a00d4b",
+          "method": "GET",
+          "path": "/resources/contractor",
+          "status": 200,
+          "at": "2026-11-05T08:44:49.159Z"
+        },
+        {
+          "id": "82a91bdb-9eab-48b8-9704-38017490017a",
+          "method": "GET",
+          "path": "/procurement-results",
+          "status": 200,
+          "at": "2026-11-05T08:44:49.158Z"
+        },
+        {
+          "id": "9741b7ce-5a50-4e88-92ba-dfa29425e952",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:49.157Z"
+        },
+        {
+          "id": "0ea4a7df-21b6-4fa1-a6ac-77107f15ea6e",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:49.392Z"
+        },
+        {
+          "id": "c2a8d6b5-75b0-4809-8699-cebcf0b22165",
+          "method": "GET",
+          "path": "/procurement-results",
+          "status": 200,
+          "at": "2026-11-05T08:44:49.412Z"
+        },
+        {
+          "id": "f36d9dc3-9d31-49de-87a9-af8997118fb7",
+          "method": "POST",
+          "path": "/procurement-results/da2c8a60-24c8-4d30-8a6a-719ad3d3d8ac/decision",
+          "status": 200,
+          "at": "2026-11-05T08:44:49.626Z"
+        },
+        {
+          "id": "6005dda9-96cd-4ee9-bf12-e3730698b441",
+          "method": "GET",
+          "path": "/procurement-results",
+          "status": 200,
+          "at": "2026-11-05T08:44:49.650Z"
+        },
+        {
+          "id": "39b8457a-9544-4d93-834a-9c81eae921a5",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:49.649Z"
+        }
+      ]
+    }
+  ]
+}

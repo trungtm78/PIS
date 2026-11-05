@@ -1,0 +1,148 @@
+{
+  "id": "UI-BID-17",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/bid-procurement-flows.spec.ts",
+      "name": "the planner records the milestones of a package, is refused a date out of order, and the database holds the milestones with the source MANUAL (UI-BID-17)",
+      "status": "passed",
+      "durationMs": 1049,
+      "at": "2026-11-05T08:44:36.535Z",
+      "requests": [
+        {
+          "id": "4a2ff891-8e21-4077-890f-e52679bb9f5a",
+          "method": "GET",
+          "path": "/procurement-milestones",
+          "status": 200,
+          "at": "2026-11-05T08:44:37.034Z"
+        },
+        {
+          "id": "5bb4b08c-37db-465d-b2a8-6f5652c06476",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:37.034Z"
+        },
+        {
+          "id": "6e53c9d9-497a-4bc2-9c70-c5d2e557da33",
+          "method": "POST",
+          "path": "/procurement-packages/43627e33-eeb2-47bc-8f92-8e7bc7a73d9e/milestones",
+          "status": 200,
+          "at": "2026-11-05T08:44:37.192Z"
+        },
+        {
+          "id": "3362efc7-af1a-4663-87c1-4d24f32602a6",
+          "method": "GET",
+          "path": "/procurement-milestones",
+          "status": 200,
+          "at": "2026-11-05T08:44:37.217Z"
+        },
+        {
+          "id": "3cbbde74-d40f-49fe-a7cd-1c4146e73cca",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:37.217Z"
+        },
+        {
+          "id": "20c8d754-f56c-4e74-8115-ee6bbfe91b41",
+          "method": "POST",
+          "path": "/procurement-packages/43627e33-eeb2-47bc-8f92-8e7bc7a73d9e/milestones",
+          "status": 409,
+          "at": "2026-11-05T08:44:37.324Z"
+        },
+        {
+          "id": "aeffcd5d-500c-4b28-a522-a45e802f1c55",
+          "method": "POST",
+          "path": "/procurement-packages/43627e33-eeb2-47bc-8f92-8e7bc7a73d9e/milestones",
+          "status": 200,
+          "at": "2026-11-05T08:44:37.408Z"
+        },
+        {
+          "id": "78364969-3d0a-4498-a218-0768de9d9e1f",
+          "method": "GET",
+          "path": "/procurement-milestones",
+          "status": 200,
+          "at": "2026-11-05T08:44:37.425Z"
+        },
+        {
+          "id": "392dca15-8e71-4313-ad9c-3febb18d13ef",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:37.424Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/bid-procurement-flows.spec.ts",
+      "name": "someone who may only read sees the milestones, the links and no button (UI-BID-17, UI-BID-19)",
+      "status": "passed",
+      "durationMs": 1394,
+      "at": "2026-11-05T08:44:39.617Z",
+      "requests": [
+        {
+          "id": "5dbb81a5-b1f2-41c7-894d-901efbc14c25",
+          "method": "GET",
+          "path": "/procurement-milestones",
+          "status": 200,
+          "at": "2026-11-05T08:44:40.295Z"
+        },
+        {
+          "id": "6a2c366a-4e60-400b-9fbf-8815fddd68b2",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:40.294Z"
+        },
+        {
+          "id": "6ead380f-58d7-4254-9d7d-1371c754c96d",
+          "method": "POST",
+          "path": "/procurement-packages/052dec33-f76b-4867-af34-34e27cb609d4/milestones",
+          "status": 200,
+          "at": "2026-11-05T08:44:40.493Z"
+        },
+        {
+          "id": "e07f9ed8-f6a1-40dd-a2b0-9ef0d56c6fc2",
+          "method": "GET",
+          "path": "/procurement-milestones",
+          "status": 200,
+          "at": "2026-11-05T08:44:40.508Z"
+        },
+        {
+          "id": "faa82002-ca7a-4871-86f2-a2d2498db7b6",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:40.508Z"
+        },
+        {
+          "id": "7693423a-efcc-4d93-84fb-0a93bfabfd36",
+          "method": "GET",
+          "path": "/procurement-milestones",
+          "status": 200,
+          "at": "2026-11-05T08:44:40.746Z"
+        },
+        {
+          "id": "ee0a7213-f22e-4ddb-b28f-5ce6d079db2b",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:40.745Z"
+        },
+        {
+          "id": "3bd9eb43-f9ef-4812-a605-dba44799f555",
+          "method": "GET",
+          "path": "/procurement-external-links",
+          "status": 200,
+          "at": "2026-11-05T08:44:40.934Z"
+        }
+      ]
+    }
+  ]
+}

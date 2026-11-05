@@ -1,0 +1,54 @@
+{
+  "id": "UAT-AC121",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/approval.test.ts",
+      "name": "the approval workflows over HTTP (ST-ADM-012) AC-ST-ADM-012-3, AC-ST-IAM-002-4, UAT-AC121: a leader on a first factor only is refused with MFA_REQUIRED until the second factor, then decides",
+      "status": "passed",
+      "durationMs": 637,
+      "at": "2026-11-05T09:21:50.343Z",
+      "requests": [
+        {
+          "id": "0ce20bd4-9e7c-4f45-93e3-a37f26f80ad8",
+          "method": "POST",
+          "path": "/workflow-definitions",
+          "status": 200,
+          "at": "2026-11-05T09:21:49.706Z"
+        },
+        {
+          "id": "a6208402-7d90-47ad-8ea9-bb95c018e6ef",
+          "method": "POST",
+          "path": "/workflow-definitions/93c8c9b1-408e-4f45-9737-c6021ea6f028/publish",
+          "status": 200,
+          "at": "2026-11-05T09:21:49.719Z"
+        },
+        {
+          "id": "34e8b313-13bc-4c4b-a084-736cb5e436a9",
+          "method": "POST",
+          "path": "/approval-tasks/c8efac84-0404-4f3d-8047-1a80c1122764/decision",
+          "status": 403,
+          "at": "2026-11-05T09:21:49.861Z"
+        },
+        {
+          "id": "c61d89da-7e97-4d8e-a82f-0d55be291224",
+          "method": "POST",
+          "path": "/approval-tasks/c8efac84-0404-4f3d-8047-1a80c1122764/decision",
+          "status": 200,
+          "at": "2026-11-05T09:21:49.938Z"
+        },
+        {
+          "id": "eb5f5f12-a0df-4c9a-a0a0-9c9f5897e7a7",
+          "method": "POST",
+          "path": "/approval-tasks/c8efac84-0404-4f3d-8047-1a80c1122764/decision",
+          "status": 409,
+          "at": "2026-11-05T09:21:50.322Z"
+        }
+      ]
+    }
+  ]
+}

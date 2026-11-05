@@ -1,0 +1,1161 @@
+{
+  "id": "UAT-AC459",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-eval.test.ts",
+      "name": "the evaluation of a route and its signature (ST-LLM-004, LLM-13, LLM-17) AC-ST-LLM-004-1: UAT-AC459 lets an expert sign a pass only over metrics that passed, refuses the person who started the run, and refuses a stale version and a second signature",
+      "status": "passed",
+      "durationMs": 662,
+      "at": "2026-11-05T09:16:37.987Z",
+      "requests": [
+        {
+          "id": "031116ba-bff0-44c7-838b-1ff98d33c86e",
+          "method": "POST",
+          "path": "/ai-classification-policies",
+          "status": 200,
+          "at": "2026-11-05T09:16:37.400Z"
+        },
+        {
+          "id": "f8c6f436-c0da-4566-9301-9a555b76f2a0",
+          "method": "POST",
+          "path": "/ai-classification-policies/b0f06d76-72b9-43c9-bcc5-1c5d9851241f/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:37.423Z"
+        },
+        {
+          "id": "f2f90062-8681-439c-8d74-be32d34109bd",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:16:37.436Z"
+        },
+        {
+          "id": "35b558e5-0e95-40e3-bb60-4d13f88e7b67",
+          "method": "POST",
+          "path": "/ai-providers/1f49ecd5-29b9-4043-b60b-e659da96a048/activation",
+          "status": 200,
+          "at": "2026-11-05T09:16:37.453Z"
+        },
+        {
+          "id": "406fc370-8825-4e61-91a9-7a790d26ae65",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:16:37.468Z"
+        },
+        {
+          "id": "4a979685-acb0-4117-8fe9-b819a4b23450",
+          "method": "POST",
+          "path": "/ai-providers/a219c7fc-0444-4356-b118-bde970b020b2/activation",
+          "status": 200,
+          "at": "2026-11-05T09:16:37.486Z"
+        },
+        {
+          "id": "1070c5db-7bf1-4c64-98e9-e797211f7ac5",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:16:37.501Z"
+        },
+        {
+          "id": "75490fe1-cb18-49e7-89ca-3c0c36553d72",
+          "method": "POST",
+          "path": "/ai-models/5f05a16a-47e6-4a60-a0f7-486af8093207/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:37.518Z"
+        },
+        {
+          "id": "fe110fcc-dd95-4dd2-9029-9c43692cc0e2",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:16:37.536Z"
+        },
+        {
+          "id": "f9751c56-d13b-43f5-b61d-2c9de48a8d51",
+          "method": "POST",
+          "path": "/ai-models/6610f0f8-1fb7-48be-a59b-f4553975f6c8/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:37.552Z"
+        },
+        {
+          "id": "83253c28-4f2c-451b-a799-f9b3e03382d4",
+          "method": "POST",
+          "path": "/ai-prompts",
+          "status": 200,
+          "at": "2026-11-05T09:16:37.566Z"
+        },
+        {
+          "id": "bb5657b9-bde4-4487-8185-7c021cbdb765",
+          "method": "POST",
+          "path": "/ai-prompts/7be5cc3f-e23b-465d-b153-2a5bba4eff2a/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:37.582Z"
+        },
+        {
+          "id": "5e4f4c43-77e9-4ce7-9d63-9d3266c6e0db",
+          "method": "POST",
+          "path": "/ai-eval-datasets",
+          "status": 200,
+          "at": "2026-11-05T09:16:37.599Z"
+        },
+        {
+          "id": "924ae676-b9c5-4a3d-b2d4-a86ffc22d856",
+          "method": "POST",
+          "path": "/model-profiles",
+          "status": 200,
+          "at": "2026-11-05T09:16:37.619Z"
+        },
+        {
+          "id": "865110f5-154c-4d40-85b8-efa3d8e61c7c",
+          "method": "POST",
+          "path": "/ai-eval-runs",
+          "status": 200,
+          "at": "2026-11-05T09:16:37.633Z"
+        },
+        {
+          "id": "08781770-79fb-4e08-a39b-ce429918a79e",
+          "method": "POST",
+          "path": "/ai-eval-runs/d38e7cbd-d52b-46da-b024-150d6e329029/signature",
+          "status": 422,
+          "at": "2026-11-05T09:16:37.651Z"
+        },
+        {
+          "id": "d0646d7d-0f15-483a-b212-bd2596eb88d1",
+          "method": "POST",
+          "path": "/ai-eval-runs/d38e7cbd-d52b-46da-b024-150d6e329029/signature",
+          "status": 409,
+          "at": "2026-11-05T09:16:37.659Z"
+        },
+        {
+          "id": "d1c909b8-e1f1-4f6b-a1ab-7b3608d628e9",
+          "method": "POST",
+          "path": "/ai-eval-runs/d38e7cbd-d52b-46da-b024-150d6e329029/signature",
+          "status": 200,
+          "at": "2026-11-05T09:16:37.675Z"
+        },
+        {
+          "id": "d34b0cbd-d930-4740-9540-cd82ca8da0f0",
+          "method": "POST",
+          "path": "/ai-eval-runs/d38e7cbd-d52b-46da-b024-150d6e329029/signature",
+          "status": 409,
+          "at": "2026-11-05T09:16:37.693Z"
+        },
+        {
+          "id": "9ab425ce-38f5-4bf0-8a9a-13eec25ac510",
+          "method": "GET",
+          "path": "/resources/ai_eval_run/d38e7cbd-d52b-46da-b024-150d6e329029",
+          "status": 200,
+          "at": "2026-11-05T09:16:37.706Z"
+        },
+        {
+          "id": "d96d9fa6-c973-4ace-9afa-a8329918508f",
+          "method": "POST",
+          "path": "/ai-eval-runs",
+          "status": 200,
+          "at": "2026-11-05T09:16:37.721Z"
+        },
+        {
+          "id": "a10316de-5224-4360-a258-8e6bc3417399",
+          "method": "POST",
+          "path": "/ai-eval-runs/49e5e367-df27-4a1c-993a-1d54128ca22a/signature",
+          "status": 403,
+          "at": "2026-11-05T09:16:37.745Z"
+        },
+        {
+          "id": "8939c3c1-d993-4737-8a37-d62e89a48ac3",
+          "method": "POST",
+          "path": "/ai-eval-runs/49e5e367-df27-4a1c-993a-1d54128ca22a/signature",
+          "status": 422,
+          "at": "2026-11-05T09:16:37.755Z"
+        },
+        {
+          "id": "3fc73f67-a32b-4c7c-9a99-ca0bcf1a7bd2",
+          "method": "POST",
+          "path": "/ai-eval-runs/49e5e367-df27-4a1c-993a-1d54128ca22a/signature",
+          "status": 403,
+          "at": "2026-11-05T09:16:37.769Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-eval.test.ts",
+      "name": "the release of a profile (ST-LLM-004, LLM-17, LLM BR-LLM-08) AC-ST-LLM-004-1: UAT-AC459 refuses to publish without an evaluation of the international route, then after a failing one, and publishes the revision that drops that route with the profile in force as its rollback",
+      "status": "passed",
+      "durationMs": 990,
+      "at": "2026-11-05T09:16:38.977Z",
+      "requests": [
+        {
+          "id": "b3219e70-0343-4de8-8f58-0649f9a0cc15",
+          "method": "POST",
+          "path": "/ai-classification-policies",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.072Z"
+        },
+        {
+          "id": "7124a956-0869-4167-a84a-d01231851984",
+          "method": "POST",
+          "path": "/ai-classification-policies/7bb42f78-7d48-455b-8493-960278708d3a/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.097Z"
+        },
+        {
+          "id": "6cec3cf6-94f3-4fac-b625-f450bb5487d3",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.110Z"
+        },
+        {
+          "id": "ed6d2500-98a7-4c05-bbf3-edbffad8c50b",
+          "method": "POST",
+          "path": "/ai-providers/36998c54-d2d0-49ca-863d-04982be6e8d3/activation",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.126Z"
+        },
+        {
+          "id": "67f05bd3-39df-494b-93e6-d2bce8ebd001",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.132Z"
+        },
+        {
+          "id": "b303b1da-035b-4972-95c8-db75ee0da8dc",
+          "method": "POST",
+          "path": "/ai-providers/49a22494-7215-4753-9976-4f004027c663/activation",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.140Z"
+        },
+        {
+          "id": "82896183-24d0-41cc-8d35-282c1536f68f",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.156Z"
+        },
+        {
+          "id": "c7bbdba6-1404-4489-b48c-132d132dbd3d",
+          "method": "POST",
+          "path": "/ai-models/52bea14d-76c6-4d7a-99b7-e7d6d8507388/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.171Z"
+        },
+        {
+          "id": "2be8079b-fa9c-443c-b676-ba3c8bad9405",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.188Z"
+        },
+        {
+          "id": "2e66ccc9-5fac-491d-8178-bb2cc096ede3",
+          "method": "POST",
+          "path": "/ai-models/f72a7818-5b01-43f2-8da9-23d7f64e9bf8/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.206Z"
+        },
+        {
+          "id": "0b62b464-095f-40a8-918f-fa9e65a3768f",
+          "method": "POST",
+          "path": "/ai-prompts",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.220Z"
+        },
+        {
+          "id": "478b6fe3-0731-4bb1-88ca-813082693ead",
+          "method": "POST",
+          "path": "/ai-prompts/ab63a4ee-e631-446b-aa29-948b8910bd03/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.236Z"
+        },
+        {
+          "id": "2d482d21-b69b-4ebf-9a54-1ebb7e55c745",
+          "method": "POST",
+          "path": "/ai-eval-datasets",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.252Z"
+        },
+        {
+          "id": "4002444e-bab9-40d8-b255-3f0ff7764fe3",
+          "method": "POST",
+          "path": "/model-profiles",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.268Z"
+        },
+        {
+          "id": "937f1eaf-39a8-4495-b068-15e5a3d32eb4",
+          "method": "POST",
+          "path": "/ai-eval-runs",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.286Z"
+        },
+        {
+          "id": "b643e268-ccd9-4788-befa-c09b19dcdd97",
+          "method": "POST",
+          "path": "/ai-eval-runs/d846bd34-7654-4306-937e-2da41d1990f4/signature",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.303Z"
+        },
+        {
+          "id": "e20708bc-3383-492e-80b4-b3ad5766d969",
+          "method": "GET",
+          "path": "/resources/model_profile_version/4e9cb67e-9634-461d-a03a-4861b5c55b9a",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.317Z"
+        },
+        {
+          "id": "8240bf74-45bd-4676-9056-6d8b30948e84",
+          "method": "POST",
+          "path": "/model-profiles/4e9cb67e-9634-461d-a03a-4861b5c55b9a/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.329Z"
+        },
+        {
+          "id": "330bc765-7a08-4081-8866-7e2cf259136d",
+          "method": "POST",
+          "path": "/model-profiles",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.353Z"
+        },
+        {
+          "id": "59f967ec-60ea-437a-a115-6c520ddeebd7",
+          "method": "GET",
+          "path": "/resources/model_profile_version/7d777f90-6872-4aef-82b1-fd57c8a4d21e",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.366Z"
+        },
+        {
+          "id": "0c060e3f-83eb-4bf5-becb-7e5cff73f5b3",
+          "method": "POST",
+          "path": "/model-profiles/7d777f90-6872-4aef-82b1-fd57c8a4d21e/publish",
+          "status": 422,
+          "at": "2026-11-05T09:16:38.376Z"
+        },
+        {
+          "id": "2b24e696-6938-4c93-91f5-479eb1bf6607",
+          "method": "POST",
+          "path": "/ai-eval-runs",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.397Z"
+        },
+        {
+          "id": "41caa180-7633-485a-9885-6aad93a760ce",
+          "method": "POST",
+          "path": "/ai-eval-runs/2cd0f67b-e007-49df-9c37-170150f29424/signature",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.416Z"
+        },
+        {
+          "id": "1ba52fc3-85cd-4566-a72d-0d2032ce777c",
+          "method": "GET",
+          "path": "/resources/model_profile_version/7d777f90-6872-4aef-82b1-fd57c8a4d21e",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.429Z"
+        },
+        {
+          "id": "6bda2ad6-3436-4be1-b0ba-1180235cb477",
+          "method": "POST",
+          "path": "/model-profiles/7d777f90-6872-4aef-82b1-fd57c8a4d21e/publish",
+          "status": 422,
+          "at": "2026-11-05T09:16:38.440Z"
+        },
+        {
+          "id": "e08570b5-dd13-4e87-a941-d25cb2eed652",
+          "method": "POST",
+          "path": "/ai-eval-runs",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.460Z"
+        },
+        {
+          "id": "c0260ff9-b0bf-4325-b2f8-3cceb7344c46",
+          "method": "GET",
+          "path": "/resources/model_profile_version/7d777f90-6872-4aef-82b1-fd57c8a4d21e",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.478Z"
+        },
+        {
+          "id": "abbbcb92-5a93-4e6e-8b98-145ede3c3aa9",
+          "method": "POST",
+          "path": "/model-profiles/7d777f90-6872-4aef-82b1-fd57c8a4d21e/publish",
+          "status": 422,
+          "at": "2026-11-05T09:16:38.489Z"
+        },
+        {
+          "id": "17a2cc7b-609e-463e-9a1d-6b4f1e4c0ac7",
+          "method": "POST",
+          "path": "/ai-eval-runs/332bb8be-f6a6-4564-9c04-7c0ff65afa31/signature",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.509Z"
+        },
+        {
+          "id": "d7c11570-06bc-4e0a-b9db-bcae68261d45",
+          "method": "GET",
+          "path": "/resources/model_profile_version/7d777f90-6872-4aef-82b1-fd57c8a4d21e",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.525Z"
+        },
+        {
+          "id": "d65de84b-312e-4f02-b408-570b3f62d772",
+          "method": "POST",
+          "path": "/model-profiles/7d777f90-6872-4aef-82b1-fd57c8a4d21e/publish",
+          "status": 422,
+          "at": "2026-11-05T09:16:38.537Z"
+        },
+        {
+          "id": "dc9ff497-c6a9-4130-a29b-5fa3942eae52",
+          "method": "POST",
+          "path": "/model-profiles",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.717Z"
+        },
+        {
+          "id": "0accf80f-82c5-4287-8d4c-c853d53eb58a",
+          "method": "POST",
+          "path": "/ai-eval-runs",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.731Z"
+        },
+        {
+          "id": "e0ca3a79-334f-42fd-976a-4a9e29ba9d9b",
+          "method": "POST",
+          "path": "/ai-eval-runs/60c4a75e-fac6-430a-a04f-257d67825949/signature",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.751Z"
+        },
+        {
+          "id": "19a58515-8e6b-47ed-9513-12e04d406221",
+          "method": "GET",
+          "path": "/resources/model_profile_version/f50a9d72-dbf1-4e46-9231-ff351401f422",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.763Z"
+        },
+        {
+          "id": "23cb5e66-75d3-4c5f-9eca-b6b8775bdfb9",
+          "method": "POST",
+          "path": "/model-profiles/f50a9d72-dbf1-4e46-9231-ff351401f422/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.774Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-eval.test.ts",
+      "name": "the release of a profile (ST-LLM-004, LLM-17, LLM BR-LLM-08) AC-ST-LLM-004-1: UAT-AC459 evaluates the primary model of a route, and a pass of another model of the profile is not evidence for it",
+      "status": "passed",
+      "durationMs": 646,
+      "at": "2026-11-05T09:16:39.622Z",
+      "requests": [
+        {
+          "id": "e9a0fbaf-b2d5-44ed-a37a-d684628f8a87",
+          "method": "POST",
+          "path": "/ai-classification-policies",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.049Z"
+        },
+        {
+          "id": "2ab4b606-76cb-42c3-97de-57791c081a54",
+          "method": "POST",
+          "path": "/ai-classification-policies/ac6d8ee2-6611-4007-b479-5e235e8e3192/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.066Z"
+        },
+        {
+          "id": "17d1251b-68a0-479b-996a-059eb050ecc9",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.083Z"
+        },
+        {
+          "id": "baed19f4-a0d1-40b4-8ea4-e2133d0de628",
+          "method": "POST",
+          "path": "/ai-providers/98c6fbd5-841d-4c14-a51b-0da37b9aaccc/activation",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.096Z"
+        },
+        {
+          "id": "8472fa6b-1dcc-4efe-adbe-74c4ee2d0c7b",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.113Z"
+        },
+        {
+          "id": "480023c3-33e4-4c20-beea-95036b86c1f5",
+          "method": "POST",
+          "path": "/ai-providers/9dfcdb85-0d23-4030-a382-32d45c454416/activation",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.128Z"
+        },
+        {
+          "id": "05cb46bb-1799-4919-ac9f-69ac9ff25705",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.147Z"
+        },
+        {
+          "id": "21f7f5c2-3347-490e-90b6-eff2780751ae",
+          "method": "POST",
+          "path": "/ai-models/641fbdb8-c9fc-4e12-8e91-15f58a193333/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.161Z"
+        },
+        {
+          "id": "436519bb-7a75-42c2-81a3-9909ebf264dd",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.176Z"
+        },
+        {
+          "id": "b4de69d6-7bb1-4ea2-97ad-29aa512a1d49",
+          "method": "POST",
+          "path": "/ai-models/2ae9d20a-f7cb-4c27-9c2c-b2f6aed0ec31/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.191Z"
+        },
+        {
+          "id": "c2ec353a-d460-4fcb-b47a-6e6f1672ecd0",
+          "method": "POST",
+          "path": "/ai-prompts",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.208Z"
+        },
+        {
+          "id": "ed2464ef-3d8e-4aa1-927c-31853f1c8eda",
+          "method": "POST",
+          "path": "/ai-prompts/c645f82f-0e21-4a47-bdf1-20bd51c367b9/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.223Z"
+        },
+        {
+          "id": "75ae2323-5700-48ac-a47e-728fb17fc406",
+          "method": "POST",
+          "path": "/ai-eval-datasets",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.238Z"
+        },
+        {
+          "id": "918e30a3-afd1-4bde-a34e-bf64ccc23dc5",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.299Z"
+        },
+        {
+          "id": "ce3e2b08-44c9-4116-abc7-8e7b328dc81c",
+          "method": "POST",
+          "path": "/ai-models/597302d8-ed23-4730-97e3-b0bb5e9a2551/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.329Z"
+        },
+        {
+          "id": "a95a560e-3294-4982-ab68-acf097a0eed0",
+          "method": "POST",
+          "path": "/model-profiles",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.355Z"
+        },
+        {
+          "id": "47d55729-64e4-4ed8-bd07-cb79b11c7cf5",
+          "method": "POST",
+          "path": "/ai-eval-runs",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.368Z"
+        },
+        {
+          "id": "5f044e53-f2ff-4075-87d9-2548fff8a83d",
+          "method": "POST",
+          "path": "/ai-eval-runs/226224cd-f996-4597-a5e7-e65c13589339/signature",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.387Z"
+        },
+        {
+          "id": "3f992afe-31d4-4760-8813-cc1d5c5e547b",
+          "method": "GET",
+          "path": "/resources/model_profile_version/0d2bd0d4-b94b-4e46-98d8-e20cfc0e41fe",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.481Z"
+        },
+        {
+          "id": "52b7723c-2ad3-427b-a3fb-b5b175bd90d9",
+          "method": "POST",
+          "path": "/model-profiles/0d2bd0d4-b94b-4e46-98d8-e20cfc0e41fe/publish",
+          "status": 422,
+          "at": "2026-11-05T09:16:39.491Z"
+        },
+        {
+          "id": "5465224c-9938-4bfa-be27-3266832509e3",
+          "method": "GET",
+          "path": "/resources/model_profile_version/0d2bd0d4-b94b-4e46-98d8-e20cfc0e41fe",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.584Z"
+        },
+        {
+          "id": "11d0de13-3b2a-431e-8aeb-fa2e136bcc7e",
+          "method": "POST",
+          "path": "/model-profiles/0d2bd0d4-b94b-4e46-98d8-e20cfc0e41fe/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.605Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-eval.test.ts",
+      "name": "the release of a profile (ST-LLM-004, LLM-17, LLM BR-LLM-08) AC-ST-LLM-004-1: UAT-AC459 evaluates a route only when the policy in force of the tenant takes the class of the profile over it: none or one without the international route keeps it off",
+      "status": "passed",
+      "durationMs": 742,
+      "at": "2026-11-05T09:16:40.365Z",
+      "requests": [
+        {
+          "id": "c48bd614-2464-4c80-89a2-e7852d2df66c",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.678Z"
+        },
+        {
+          "id": "7e76ef40-44ba-4d1e-be48-0c4816bae383",
+          "method": "POST",
+          "path": "/ai-providers/ba3bfbff-9523-4714-82e3-d6daee73f04b/activation",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.703Z"
+        },
+        {
+          "id": "3cf7a50b-5504-41cf-87d5-4d5d418bf75a",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.718Z"
+        },
+        {
+          "id": "ebb6ddec-67a4-4e2b-b2bb-5401870c3f93",
+          "method": "POST",
+          "path": "/ai-providers/54d6ecdf-fcd4-490d-83c6-e9eb89a11ad5/activation",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.736Z"
+        },
+        {
+          "id": "eb233a9e-2f5e-4be7-bae3-7e3c7f6117be",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.750Z"
+        },
+        {
+          "id": "2085a649-654f-4889-bfca-1f1da7fe3caf",
+          "method": "POST",
+          "path": "/ai-models/e7953ccf-8762-4cd3-862b-52cd220d1818/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.766Z"
+        },
+        {
+          "id": "1007ce94-9133-4189-9b8d-56f02e249e30",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.782Z"
+        },
+        {
+          "id": "3aaf9892-bd32-43c9-bd62-4eb379adc3a7",
+          "method": "POST",
+          "path": "/ai-models/806a57bd-100c-4bae-96a0-6a691af12d22/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.798Z"
+        },
+        {
+          "id": "f78dab16-dbae-426f-ada0-d60fa1af5e0b",
+          "method": "POST",
+          "path": "/ai-prompts",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.815Z"
+        },
+        {
+          "id": "ea769fc1-cfe6-4f28-9730-0bcb2e8ed2fa",
+          "method": "POST",
+          "path": "/ai-prompts/06433ee9-9fba-4ade-9001-df37e671c73b/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.830Z"
+        },
+        {
+          "id": "54158c7e-f5be-4608-8da3-343fbe653744",
+          "method": "POST",
+          "path": "/ai-eval-datasets",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.848Z"
+        },
+        {
+          "id": "5fcb41ab-d235-4226-a7c2-cd701c0343fe",
+          "method": "POST",
+          "path": "/model-profiles",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.864Z"
+        },
+        {
+          "id": "8b6f85d8-4a77-4b87-b48c-550dd26b71cd",
+          "method": "POST",
+          "path": "/ai-eval-runs",
+          "status": 422,
+          "at": "2026-11-05T09:16:39.880Z"
+        },
+        {
+          "id": "3e22c168-87b8-454f-9c3c-4d73307bfd5e",
+          "method": "POST",
+          "path": "/ai-eval-runs",
+          "status": 200,
+          "at": "2026-11-05T09:16:39.938Z"
+        },
+        {
+          "id": "4dbd0dad-3ff7-40cd-b1cc-16037f7272b7",
+          "method": "POST",
+          "path": "/ai-classification-policies",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.021Z"
+        },
+        {
+          "id": "ceb34225-21ec-4696-a11d-6ad6c0c7c1c0",
+          "method": "POST",
+          "path": "/ai-classification-policies/46bad8ee-82f6-4385-9852-290ed3825e59/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.040Z"
+        },
+        {
+          "id": "5bbded3c-afa1-46c8-bea3-3d12ddf8f6f7",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.049Z"
+        },
+        {
+          "id": "3744269c-69a0-4dc9-96f0-a40652c9c2e3",
+          "method": "POST",
+          "path": "/ai-providers/fc85db8c-bcc5-4538-9b37-2723167e5297/activation",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.070Z"
+        },
+        {
+          "id": "03b43b21-7a48-4c20-818a-0630e55cc069",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.075Z"
+        },
+        {
+          "id": "594b603f-08d7-4262-a8ec-154e1db7c78d",
+          "method": "POST",
+          "path": "/ai-providers/b2ca81af-1e8a-4e5d-a211-ce9336db2d73/activation",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.087Z"
+        },
+        {
+          "id": "684b94aa-47d4-4375-b9a2-7275f1fc74b3",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.104Z"
+        },
+        {
+          "id": "c1cd184c-8a54-4623-bd2f-b6b960e11488",
+          "method": "POST",
+          "path": "/ai-models/1a9f2640-bf8b-470e-b51f-e67bf08284cc/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.123Z"
+        },
+        {
+          "id": "db0715c1-3a88-4f10-bbc8-46c025f69825",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.140Z"
+        },
+        {
+          "id": "825d4c1d-76be-4e59-8517-8f0955927f5e",
+          "method": "POST",
+          "path": "/ai-models/b191aded-fb89-4790-bd2b-143e68c0eb62/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.153Z"
+        },
+        {
+          "id": "5e096a61-a217-4cec-9516-022023e01e2f",
+          "method": "POST",
+          "path": "/ai-prompts",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.168Z"
+        },
+        {
+          "id": "315cf876-0c40-4324-b2a4-232ccd9e4322",
+          "method": "POST",
+          "path": "/ai-prompts/3ef9294d-7ddc-4a30-993e-df86ad4d1029/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.186Z"
+        },
+        {
+          "id": "59d56e18-bb26-4d8a-a906-da6e0c48b34f",
+          "method": "POST",
+          "path": "/ai-eval-datasets",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.200Z"
+        },
+        {
+          "id": "21174b15-fc63-4bff-9201-be90a595b21d",
+          "method": "POST",
+          "path": "/model-profiles",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.220Z"
+        },
+        {
+          "id": "86b5b440-7427-47a6-809b-5f007ed1785f",
+          "method": "POST",
+          "path": "/ai-eval-runs",
+          "status": 422,
+          "at": "2026-11-05T09:16:40.232Z"
+        },
+        {
+          "id": "08aee89f-72e4-43ba-9076-f046897c393e",
+          "method": "POST",
+          "path": "/ai-eval-runs",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.291Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-eval.test.ts",
+      "name": "the release of a profile (ST-LLM-004, LLM-17, LLM BR-LLM-08) AC-ST-LLM-004-1: UAT-AC459 does not release a route when the policy changed since it was evaluated, and refuses a model that takes less than the profile does",
+      "status": "passed",
+      "durationMs": 404,
+      "at": "2026-11-05T09:16:40.769Z",
+      "requests": [
+        {
+          "id": "894fc1ed-3d62-410a-bb51-a8eda4ca59aa",
+          "method": "POST",
+          "path": "/ai-classification-policies",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.414Z"
+        },
+        {
+          "id": "2d3233dc-9456-4d1f-b9f3-bf2593ef2e3c",
+          "method": "POST",
+          "path": "/ai-classification-policies/08063c70-05f9-48b4-802c-46b7d9efe10d/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.436Z"
+        },
+        {
+          "id": "210c220f-69cb-4750-920e-76f401675387",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.454Z"
+        },
+        {
+          "id": "b7c90db5-938c-4e6d-a317-494a1eae2b7c",
+          "method": "POST",
+          "path": "/ai-providers/6e1c558b-01b2-4e26-ac7e-dbc29cb6d3b2/activation",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.468Z"
+        },
+        {
+          "id": "fb9ac083-d68a-49cd-8512-226f75814bdf",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.485Z"
+        },
+        {
+          "id": "049f0b45-7b98-4b87-bdf9-307d796b3219",
+          "method": "POST",
+          "path": "/ai-providers/6310b3ac-bad8-4384-8ade-4e1f1fd2560c/activation",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.501Z"
+        },
+        {
+          "id": "9c050007-7d4c-4c3a-a2d4-5e56e64d0886",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.514Z"
+        },
+        {
+          "id": "a5ab7d82-1622-49db-8c08-e9f85f6054a3",
+          "method": "POST",
+          "path": "/ai-models/67df795c-7add-4697-9fd8-38dfcec4c54b/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.530Z"
+        },
+        {
+          "id": "10b50e97-1f3a-44ca-bbc2-52e8963e31b3",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.537Z"
+        },
+        {
+          "id": "9585c827-3544-48ff-af91-6945f72da823",
+          "method": "POST",
+          "path": "/ai-models/69ee26dd-f25c-4811-aaf9-dcf9bb9b6fbe/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.546Z"
+        },
+        {
+          "id": "7dd57acb-2e5e-4301-9f96-a56e8b71bfa9",
+          "method": "POST",
+          "path": "/ai-prompts",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.563Z"
+        },
+        {
+          "id": "483788f9-dd47-4eb3-849a-aef875fe8345",
+          "method": "POST",
+          "path": "/ai-prompts/a997a0a6-bc61-4db6-afde-c5ed8e583646/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.578Z"
+        },
+        {
+          "id": "fbb39a15-af21-435d-abc7-0a799a0414d9",
+          "method": "POST",
+          "path": "/ai-eval-datasets",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.596Z"
+        },
+        {
+          "id": "0860c85d-53ac-41f0-b58c-23eca53fb5cb",
+          "method": "POST",
+          "path": "/model-profiles",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.610Z"
+        },
+        {
+          "id": "5bd28b8a-5e06-4630-b889-39271c6667b9",
+          "method": "POST",
+          "path": "/ai-eval-runs",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.629Z"
+        },
+        {
+          "id": "7516dc5f-8486-47d9-8ea2-779a4e8b9b28",
+          "method": "POST",
+          "path": "/ai-eval-runs/da6812ce-1bf3-4703-8857-d8ae137cf307/signature",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.645Z"
+        },
+        {
+          "id": "d963b43c-3a00-420a-8695-c24f83bf4477",
+          "method": "POST",
+          "path": "/ai-eval-runs",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.659Z"
+        },
+        {
+          "id": "da43ef4e-9d5e-45c6-b649-65fe87b10de9",
+          "method": "POST",
+          "path": "/ai-eval-runs/97e1ed25-5415-47fd-9477-cdb0da104584/signature",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.669Z"
+        },
+        {
+          "id": "e3c66d27-9004-4c4d-a535-83656737850a",
+          "method": "POST",
+          "path": "/ai-classification-policies",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.692Z"
+        },
+        {
+          "id": "cfdd181f-f1b0-44aa-bd17-6f07442118b1",
+          "method": "POST",
+          "path": "/ai-classification-policies/83d6d4d3-7787-4cff-939d-ce876a5261ea/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.706Z"
+        },
+        {
+          "id": "d6c03fa4-49e4-4daf-ba0f-142ac15a4114",
+          "method": "GET",
+          "path": "/resources/model_profile_version/393a0c2f-61c0-48e1-bc34-6d2ff0cb2fe6",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.726Z"
+        },
+        {
+          "id": "784cf6b9-5eba-4d0e-8fcc-73c19dc6547a",
+          "method": "POST",
+          "path": "/model-profiles/393a0c2f-61c0-48e1-bc34-6d2ff0cb2fe6/publish",
+          "status": 422,
+          "at": "2026-11-05T09:16:40.734Z"
+        },
+        {
+          "id": "df36fd15-9549-4196-a254-c0771063674d",
+          "method": "POST",
+          "path": "/model-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:16:40.757Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-eval.test.ts",
+      "name": "the release of a profile (ST-LLM-004, LLM-17, LLM BR-LLM-08) AC-ST-LLM-004-1: UAT-AC459 takes the first listed of two registry entries that share the identifier of the primary model, whatever order the database returns them in",
+      "status": "passed",
+      "durationMs": 532,
+      "at": "2026-11-05T09:16:41.300Z",
+      "requests": [
+        {
+          "id": "5417dd7b-9ec1-4f46-9418-b4a031e6df17",
+          "method": "POST",
+          "path": "/ai-classification-policies",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.822Z"
+        },
+        {
+          "id": "8b9d41ef-9eae-4aba-98a4-8804983d9d1e",
+          "method": "POST",
+          "path": "/ai-classification-policies/f2b32c43-2d08-4748-8cc7-4318d2518220/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.834Z"
+        },
+        {
+          "id": "7b7b7e86-6b04-4e8f-ab25-89df3b521a38",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.852Z"
+        },
+        {
+          "id": "f329c23e-acd9-4a37-b7a9-f8d52269e18f",
+          "method": "POST",
+          "path": "/ai-providers/e812f5c1-6c7c-4c01-8d9b-0b5c31cdb232/activation",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.866Z"
+        },
+        {
+          "id": "a2c61247-caf7-46a9-af25-60339b207d86",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.883Z"
+        },
+        {
+          "id": "e2e96b8e-5819-4858-9696-3bf5865bce0e",
+          "method": "POST",
+          "path": "/ai-providers/3ce354e4-c73a-4fa5-af89-09228e2c834d/activation",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.892Z"
+        },
+        {
+          "id": "c1422d37-8b8a-416f-85b6-27ac2cfa97cb",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.913Z"
+        },
+        {
+          "id": "50621b43-3f8c-434c-812f-02a8bdb53b4c",
+          "method": "POST",
+          "path": "/ai-models/bab82289-7f31-4ab1-af2f-5395bdd41188/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.931Z"
+        },
+        {
+          "id": "cf45a949-f9f4-48a6-8785-618b75415913",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.938Z"
+        },
+        {
+          "id": "c2007df5-3758-4924-ac98-885d4500554a",
+          "method": "POST",
+          "path": "/ai-models/97d42274-a636-4631-a1cc-d6f65790d45e/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.946Z"
+        },
+        {
+          "id": "2b026d13-cd03-4d7f-b27c-7e6e9b27d007",
+          "method": "POST",
+          "path": "/ai-prompts",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.963Z"
+        },
+        {
+          "id": "fa287549-a3bb-4460-8915-9e271c7959f2",
+          "method": "POST",
+          "path": "/ai-prompts/518f5cfc-e500-4f12-a2ac-872a4395d8f9/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.983Z"
+        },
+        {
+          "id": "e86eacff-214d-497a-be54-776bdd9d8d66",
+          "method": "POST",
+          "path": "/ai-eval-datasets",
+          "status": 200,
+          "at": "2026-11-05T09:16:40.994Z"
+        },
+        {
+          "id": "debd567c-8606-49e3-8db7-2576df54a93b",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:16:41.002Z"
+        },
+        {
+          "id": "71ce4f77-3ab5-461d-8704-07395a671402",
+          "method": "POST",
+          "path": "/ai-providers/7234a3ff-96ec-40ba-8f8b-7e5afcd55d32/activation",
+          "status": 200,
+          "at": "2026-11-05T09:16:41.010Z"
+        },
+        {
+          "id": "8dcc97f7-a2a5-433d-8b6c-7ef0ec532f23",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:16:41.025Z"
+        },
+        {
+          "id": "89734f7b-cf06-4574-a296-28c99dd700a0",
+          "method": "POST",
+          "path": "/ai-models/ce05458d-2e42-4086-a88d-c83c31678fff/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:41.043Z"
+        },
+        {
+          "id": "9d557ba9-a223-4005-a5b1-40c4b1d0b188",
+          "method": "POST",
+          "path": "/model-profiles",
+          "status": 200,
+          "at": "2026-11-05T09:16:41.058Z"
+        },
+        {
+          "id": "cbdec34b-29e5-4ee3-8fb3-c5675fd9c9eb",
+          "method": "POST",
+          "path": "/ai-eval-runs",
+          "status": 200,
+          "at": "2026-11-05T09:16:41.084Z"
+        },
+        {
+          "id": "89703e3a-bab7-44e6-bb32-9e56231e1796",
+          "method": "POST",
+          "path": "/model-profiles",
+          "status": 200,
+          "at": "2026-11-05T09:16:41.149Z"
+        },
+        {
+          "id": "6421a949-c3bf-4095-910f-8cc4fa45e206",
+          "method": "POST",
+          "path": "/ai-eval-runs",
+          "status": 200,
+          "at": "2026-11-05T09:16:41.170Z"
+        }
+      ]
+    }
+  ]
+}

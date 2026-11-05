@@ -1,0 +1,99 @@
+{
+  "id": "UAT-AC170",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/feature-flags.test.ts",
+      "name": "release flags over HTTP (ST-SAS-020, SAS 3.11, SAS-20) UAT-AC170: after a rollout to the pilot cohort tenant A sees the feature and tenant B does not; a stale If-Match is 409 and changes nothing",
+      "status": "passed",
+      "durationMs": 345,
+      "at": "2026-11-05T09:21:31.763Z",
+      "requests": [
+        {
+          "id": "09f4551b-0855-4cc0-881b-3a5ddb2039f9",
+          "method": "PUT",
+          "path": "/system/feature-flags/sas.silo_promotion",
+          "status": 200,
+          "at": "2026-11-05T09:21:31.420Z"
+        },
+        {
+          "id": "b55266e8-d0ba-4a69-8ef0-961b470fc110",
+          "method": "GET",
+          "path": "/system/feature-flags",
+          "status": 200,
+          "at": "2026-11-05T09:21:31.516Z"
+        },
+        {
+          "id": "c9d0e18b-3a8e-431c-ae2e-440c140065ed",
+          "method": "PUT",
+          "path": "/system/feature-flags/sas.silo_promotion",
+          "status": 409,
+          "at": "2026-11-05T09:21:31.522Z"
+        },
+        {
+          "id": "8af301df-8484-4c79-8f16-0fb6705fca2d",
+          "method": "GET",
+          "path": "/system/feature-flags",
+          "status": 200,
+          "at": "2026-11-05T09:21:31.534Z"
+        },
+        {
+          "id": "61047798-00af-452f-bf2b-daef6a891600",
+          "method": "PUT",
+          "path": "/system/feature-flags/sas.silo_promotion",
+          "status": 428,
+          "at": "2026-11-05T09:21:31.548Z"
+        },
+        {
+          "id": "6c5dc577-18b1-424b-8070-b45f38fc45ac",
+          "method": "GET",
+          "path": "/system/feature-flags",
+          "status": 200,
+          "at": "2026-11-05T09:21:31.551Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/my-feature-flags.test.ts",
+      "name": "the release flags a tenant has on (ST-SAS-020, getMyFeatureFlags) UAT-AC170: tells a tenant which flags are on for it, none while they are Off, and by the cohort of its region once rolled out",
+      "status": "passed",
+      "durationMs": 184,
+      "at": "2026-11-05T09:23:46.400Z",
+      "requests": [
+        {
+          "id": "ec03bc92-8579-472b-b582-b9c74f4877e0",
+          "method": "GET",
+          "path": "/me/feature-flags",
+          "status": 200,
+          "at": "2026-11-05T09:23:46.216Z"
+        },
+        {
+          "id": "9b76655d-a977-4390-aab3-9c287b6e244a",
+          "method": "GET",
+          "path": "/me/feature-flags",
+          "status": 200,
+          "at": "2026-11-05T09:23:46.328Z"
+        },
+        {
+          "id": "5e09438f-1680-4148-b0de-1b4ff0dd500d",
+          "method": "GET",
+          "path": "/me/feature-flags",
+          "status": 200,
+          "at": "2026-11-05T09:23:46.335Z"
+        },
+        {
+          "id": "ceded679-a8cc-48c8-9048-c7af2aa35e5b",
+          "method": "GET",
+          "path": "/me/feature-flags",
+          "status": 200,
+          "at": "2026-11-05T09:23:46.381Z"
+        }
+      ]
+    }
+  ]
+}

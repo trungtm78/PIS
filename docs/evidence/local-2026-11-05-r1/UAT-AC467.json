@@ -1,0 +1,970 @@
+{
+  "id": "UAT-AC467",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) is registered in the module of LLM",
+      "status": "passed",
+      "durationMs": 1,
+      "at": "2026-11-05T09:16:11.578Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) builds the service that the module registers with an audit writer on the database of the tenants, so that a retrieval through the application is logged",
+      "status": "passed",
+      "durationMs": 697,
+      "at": "2026-11-05T09:16:12.275Z",
+      "requests": [
+        {
+          "id": "8b6f8b83-4863-4c01-8f3d-c650900410f3",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:11.712Z"
+        },
+        {
+          "id": "b7670bee-1fec-45eb-b9a2-dcd06317b2f1",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/817e1b8c-eef1-4f18-b248-95059245f17b/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:12.052Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) lets the document module decide who reads: the grants over the unit that governs a document, and nothing the document does not govern",
+      "status": "passed",
+      "durationMs": 1757,
+      "at": "2026-11-05T09:16:14.033Z",
+      "requests": [
+        {
+          "id": "29d85409-60a0-429e-aa4d-ec8327de7286",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:12.430Z"
+        },
+        {
+          "id": "c3dad2f9-3f3a-41af-b062-06e781bdd2e2",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/a28ddc55-02e9-41da-8c17-5ad4135a9fa5/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:13.529Z"
+        },
+        {
+          "id": "df7fd6f0-6ddf-4cc6-8a34-60c43a76685d",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/a28ddc55-02e9-41da-8c17-5ad4135a9fa5/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:13.551Z"
+        },
+        {
+          "id": "62eaabe8-2877-4629-8d06-73f9ed47deee",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/a28ddc55-02e9-41da-8c17-5ad4135a9fa5/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:13.582Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) withholds a document from everybody when what governs it changed since it was indexed, until it is indexed again; and never offers a sealed proposal",
+      "status": "passed",
+      "durationMs": 794,
+      "at": "2026-11-05T09:16:14.827Z",
+      "requests": [
+        {
+          "id": "3b5089dc-5da3-42c1-9fa8-075a5815cf78",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:14.120Z"
+        },
+        {
+          "id": "5e5174a3-13b2-4f37-8c54-af062300b1f2",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/c6a0daa8-38a9-4678-b4c8-77bb198f72f7/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:14.275Z"
+        },
+        {
+          "id": "22aa76c6-f0e3-4b11-8686-42b359f76366",
+          "method": "GET",
+          "path": "/ai-knowledge-collections/c6a0daa8-38a9-4678-b4c8-77bb198f72f7",
+          "status": 200,
+          "at": "2026-11-05T09:16:14.373Z"
+        },
+        {
+          "id": "d3b49b7f-838d-4773-b991-06bb8d22d02f",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/c6a0daa8-38a9-4678-b4c8-77bb198f72f7/items",
+          "status": 422,
+          "at": "2026-11-05T09:16:14.382Z"
+        },
+        {
+          "id": "eb6e422e-3906-4e71-aa0b-1010838a7bc9",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/c6a0daa8-38a9-4678-b4c8-77bb198f72f7/items",
+          "status": 404,
+          "at": "2026-11-05T09:16:14.548Z"
+        },
+        {
+          "id": "2f5f7b98-8bcd-449b-8a10-4d2b14ea372a",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/c6a0daa8-38a9-4678-b4c8-77bb198f72f7/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:14.734Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) finds the stale items among the unchanged ones, the oldest touched first, as many as asked for",
+      "status": "passed",
+      "durationMs": 919,
+      "at": "2026-11-05T09:16:15.746Z",
+      "requests": [
+        {
+          "id": "7714fbc9-f6fb-43a3-9bae-40e648726c23",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:14.916Z"
+        },
+        {
+          "id": "8a142e4c-c0db-4ba3-a7be-83e84eff812e",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/c784577b-00d8-4eae-b911-e30e646125ce/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:15.059Z"
+        },
+        {
+          "id": "54fce7cf-5670-42fe-85c2-2002a5c1fb51",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/c784577b-00d8-4eae-b911-e30e646125ce/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:15.211Z"
+        },
+        {
+          "id": "62e28b40-4ea3-49c4-a4a7-f69fa310d3bf",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/c784577b-00d8-4eae-b911-e30e646125ce/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:15.375Z"
+        },
+        {
+          "id": "a3aa269a-deba-43a6-9266-33b05fb85940",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/c784577b-00d8-4eae-b911-e30e646125ce/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:15.639Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) does not keep the right to a model whose approval is gone: it neither indexes nor answers nor indexes again by itself",
+      "status": "passed",
+      "durationMs": 668,
+      "at": "2026-11-05T09:16:16.414Z",
+      "requests": [
+        {
+          "id": "bd97969d-1ee4-4527-a81a-ce3eff09e1ed",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:15.843Z"
+        },
+        {
+          "id": "926e11d7-c8fc-49cc-a39d-4d7b72b298f8",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/6bd4fe22-f0c5-4a0c-bf43-fdb1a01cdb14/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:16.001Z"
+        },
+        {
+          "id": "fb9c7660-9af2-4ca1-9214-3c28485f0977",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/6bd4fe22-f0c5-4a0c-bf43-fdb1a01cdb14/items",
+          "status": 422,
+          "at": "2026-11-05T09:16:16.260Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) is stopped by the emergency stop as the gateway is: a switch of the tenant, of the model or of the provider stops indexing, retrieval and the indexing again by itself",
+      "status": "passed",
+      "durationMs": 731,
+      "at": "2026-11-05T09:16:17.145Z",
+      "requests": [
+        {
+          "id": "97960a64-8cb1-41d5-8ad3-3ac4f96932a0",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:16.497Z"
+        },
+        {
+          "id": "c30922b6-2e8e-4a51-9f8b-32846ee5c279",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:16.673Z"
+        },
+        {
+          "id": "7df609ce-02a5-4162-8b95-a6064caf44b8",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/644ce719-7b62-4e50-8173-fb5ed3c1f812/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:16.833Z"
+        },
+        {
+          "id": "0c27150d-8da1-43df-af58-804189563a67",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/b48cdf0b-d29c-4398-9285-eb2576a06d17/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:16.863Z"
+        },
+        {
+          "id": "a1832685-b56f-41f2-9c62-21b95d4a06b9",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/644ce719-7b62-4e50-8173-fb5ed3c1f812/items",
+          "status": 503,
+          "at": "2026-11-05T09:16:16.900Z"
+        },
+        {
+          "id": "333f47a0-cc14-432d-887e-ec6a788e1516",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/b48cdf0b-d29c-4398-9285-eb2576a06d17/items",
+          "status": 503,
+          "at": "2026-11-05T09:16:17.122Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) does not use a model whose provider is not active",
+      "status": "passed",
+      "durationMs": 585,
+      "at": "2026-11-05T09:16:17.730Z",
+      "requests": [
+        {
+          "id": "32d2cd85-69d8-4dd3-9fb6-762a51aeeb86",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:17.224Z"
+        },
+        {
+          "id": "25cc7bf8-5ac9-4aac-86a0-00454ca12550",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/583b4f61-a81f-4654-9913-fcf2789d0c76/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:17.512Z"
+        },
+        {
+          "id": "8f00c540-7e26-4ce0-b123-a995afde0e06",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/583b4f61-a81f-4654-9913-fcf2789d0c76/items",
+          "status": 503,
+          "at": "2026-11-05T09:16:17.658Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) does not let items that cannot be indexed again hold the place of the ones that can: a failure sends the item to the back of the queue",
+      "status": "passed",
+      "durationMs": 920,
+      "at": "2026-11-05T09:16:18.650Z",
+      "requests": [
+        {
+          "id": "508f1922-93fc-461b-ad09-19016d6d9d52",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:17.824Z"
+        },
+        {
+          "id": "a961c49b-cf4d-44ac-bfdc-e390aa50019b",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/46525513-d097-4e7b-981b-fb630aad0cf3/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:18.260Z"
+        },
+        {
+          "id": "a37989d8-69eb-4db0-bba3-43416d16c9a9",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/46525513-d097-4e7b-981b-fb630aad0cf3/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:18.283Z"
+        },
+        {
+          "id": "dd669f88-cd48-4a34-80b4-f316efb834b1",
+          "method": "GET",
+          "path": "/ai-knowledge-collections/46525513-d097-4e7b-981b-fb630aad0cf3",
+          "status": 200,
+          "at": "2026-11-05T09:16:18.604Z"
+        },
+        {
+          "id": "e22fdda9-112c-45ae-a817-34c516272fbb",
+          "method": "GET",
+          "path": "/ai-knowledge-collections/46525513-d097-4e7b-981b-fb630aad0cf3",
+          "status": 200,
+          "at": "2026-11-05T09:16:18.618Z"
+        },
+        {
+          "id": "1b775789-56d5-4525-8fe6-a1f61564ea54",
+          "method": "GET",
+          "path": "/ai-knowledge-collections/46525513-d097-4e7b-981b-fb630aad0cf3",
+          "status": 200,
+          "at": "2026-11-05T09:16:18.635Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) takes away the stored texts it does not need: the ones an indexing replaced when it commits, the ones it made when it does not",
+      "status": "passed",
+      "durationMs": 504,
+      "at": "2026-11-05T09:16:19.154Z",
+      "requests": [
+        {
+          "id": "fc30498a-0e66-4a68-b2ff-ffd6ee4b7f1a",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:18.801Z"
+        },
+        {
+          "id": "a79881ca-0bcc-45fc-a7f8-4060b5bb5174",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/219d5060-0142-4020-ad51-71cc57182ab9/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:18.975Z"
+        },
+        {
+          "id": "ee107075-11f8-4ffe-899c-94fb2cd43f9e",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/219d5060-0142-4020-ad51-71cc57182ab9/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:19.005Z"
+        },
+        {
+          "id": "49c4e5f2-5989-4e4b-9d09-bfb6c20c5272",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/219d5060-0142-4020-ad51-71cc57182ab9/items",
+          "status": 409,
+          "at": "2026-11-05T09:16:19.126Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) asks the chunks again when an indexing took away the texts the query named, and gives up when they are gone for good",
+      "status": "passed",
+      "durationMs": 569,
+      "at": "2026-11-05T09:16:19.723Z",
+      "requests": [
+        {
+          "id": "9bf4093e-8dbf-4f60-ae87-36ef53088636",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:19.286Z"
+        },
+        {
+          "id": "ad688894-e7a1-405b-83d3-01d0b360a8c6",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/2381d7f0-ca83-4247-a452-11fcbc865034/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:19.511Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) makes a collection for an approved embedding model and the classification it takes; the code is the tenant’s once",
+      "status": "passed",
+      "durationMs": 259,
+      "at": "2026-11-05T09:16:19.982Z",
+      "requests": [
+        {
+          "id": "9fdba085-56c8-46dc-bf6c-63ec894db551",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:19.867Z"
+        },
+        {
+          "id": "5e237cbb-963d-4a22-8a91-699af15d8a30",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 409,
+          "at": "2026-11-05T09:16:19.891Z"
+        },
+        {
+          "id": "24666e6a-b9b7-4d6b-9ba6-a41bcd9f8a1c",
+          "method": "GET",
+          "path": "/ai-knowledge-collections/2ecf31b7-61bb-4b37-8bbd-243b3e4d9028",
+          "status": 200,
+          "at": "2026-11-05T09:16:19.944Z"
+        },
+        {
+          "id": "1981942d-2cb1-48ea-829c-057ee3f398fb",
+          "method": "GET",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:19.950Z"
+        },
+        {
+          "id": "d0ffa48b-2248-4d93-895e-0684684bf7ce",
+          "method": "GET",
+          "path": "/ai-knowledge-collections",
+          "status": 422,
+          "at": "2026-11-05T09:16:19.966Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) refuses a model that is not approved (MODEL_NOT_APPROVED), one that does not embed, one cleared for less than the collection takes, an unknown one, and a body that is not one",
+      "status": "passed",
+      "durationMs": 688,
+      "at": "2026-11-05T09:16:20.669Z",
+      "requests": [
+        {
+          "id": "87598bef-a7f5-4bea-836b-e8e9f1672e2a",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 422,
+          "at": "2026-11-05T09:16:20.085Z"
+        },
+        {
+          "id": "c560d47f-8e35-4647-ad6f-c445d92d15a5",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 422,
+          "at": "2026-11-05T09:16:20.245Z"
+        },
+        {
+          "id": "3c470740-8a62-48e6-a8ff-7c33871ee202",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 422,
+          "at": "2026-11-05T09:16:20.412Z"
+        },
+        {
+          "id": "1860b55f-c14c-4f18-8328-9736ef6bdfe9",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 404,
+          "at": "2026-11-05T09:16:20.431Z"
+        },
+        {
+          "id": "a06714d2-e613-46ad-ad26-839398d2bfac",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 422,
+          "at": "2026-11-05T09:16:20.616Z"
+        },
+        {
+          "id": "e2f0c680-6009-4782-b12f-080b7cc5202f",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 422,
+          "at": "2026-11-05T09:16:20.622Z"
+        },
+        {
+          "id": "b0677ee3-c474-40e4-8582-578444b2f765",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 422,
+          "at": "2026-11-05T09:16:20.638Z"
+        },
+        {
+          "id": "c625cc4e-2b05-4499-98e6-5b0b687592e5",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 422,
+          "at": "2026-11-05T09:16:20.654Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) indexes a clean document under its access list, and indexing it again replaces its chunks",
+      "status": "passed",
+      "durationMs": 712,
+      "at": "2026-11-05T09:16:21.382Z",
+      "requests": [
+        {
+          "id": "051ff097-fc42-4142-b3a7-79b2925bf031",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:20.814Z"
+        },
+        {
+          "id": "edb235c0-448e-407a-ad68-90647263454a",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/0c296acf-af20-4f4d-ada2-750c9be37dba/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:21.063Z"
+        },
+        {
+          "id": "97243acb-8cd0-47d4-9cf8-93219e282f5b",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/0c296acf-af20-4f4d-ada2-750c9be37dba/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:21.129Z"
+        },
+        {
+          "id": "8c4ed86d-2cd1-4788-9b22-152d948ab246",
+          "method": "GET",
+          "path": "/ai-knowledge-collections/0c296acf-af20-4f4d-ada2-750c9be37dba",
+          "status": 200,
+          "at": "2026-11-05T09:16:21.273Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) cuts a long document into chunks by page, and gives the chunks of a page their own numbers",
+      "status": "passed",
+      "durationMs": 1291,
+      "at": "2026-11-05T09:16:22.673Z",
+      "requests": [
+        {
+          "id": "c8a075b0-19ea-403d-b876-e8f46ddfd776",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:21.553Z"
+        },
+        {
+          "id": "c756f465-43df-4f6e-962f-90cc794892fe",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/3e2a21c2-b637-4c4b-bdc8-64ccee8649ad/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:22.576Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) takes only a document that was scanned clean and is not above the classification of the collection",
+      "status": "passed",
+      "durationMs": 1553,
+      "at": "2026-11-05T09:16:24.226Z",
+      "requests": [
+        {
+          "id": "4a355b0f-dfbe-4174-86a0-48e502b299f0",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:22.760Z"
+        },
+        {
+          "id": "2326524d-2594-43fb-95cf-d4532171fdf4",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/cef006cd-fb18-490b-bc54-ee464900a9f0/items",
+          "status": 409,
+          "at": "2026-11-05T09:16:22.902Z"
+        },
+        {
+          "id": "0dcecdcb-2103-48fe-b4f2-1be7e4b27432",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/cef006cd-fb18-490b-bc54-ee464900a9f0/items",
+          "status": 422,
+          "at": "2026-11-05T09:16:23.039Z"
+        },
+        {
+          "id": "00931de3-86a1-4f8e-918a-26b61bb20792",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/cef006cd-fb18-490b-bc54-ee464900a9f0/items",
+          "status": 422,
+          "at": "2026-11-05T09:16:23.192Z"
+        },
+        {
+          "id": "c5d23fc0-4f23-4029-9adf-abdd92e82573",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/cef006cd-fb18-490b-bc54-ee464900a9f0/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:23.400Z"
+        },
+        {
+          "id": "0f6f0841-3508-4a8e-948a-b30b565401db",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/cef006cd-fb18-490b-bc54-ee464900a9f0/items",
+          "status": 404,
+          "at": "2026-11-05T09:16:23.432Z"
+        },
+        {
+          "id": "4654e4a0-4116-4091-8634-e28d5811df06",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/642777f0-a9a9-4fb2-bea4-b860c5034ba4/items",
+          "status": 404,
+          "at": "2026-11-05T09:16:23.589Z"
+        },
+        {
+          "id": "765e8626-edff-4629-a4d4-3322480b2a87",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/cef006cd-fb18-490b-bc54-ee464900a9f0/items",
+          "status": 422,
+          "at": "2026-11-05T09:16:23.719Z"
+        },
+        {
+          "id": "78ae2843-9ef4-4753-a4f5-7ac84de6118e",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/cef006cd-fb18-490b-bc54-ee464900a9f0/items",
+          "status": 422,
+          "at": "2026-11-05T09:16:23.935Z"
+        },
+        {
+          "id": "3fd7094e-6e14-412d-8d2a-7d8b8b51478d",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/cef006cd-fb18-490b-bc54-ee464900a9f0/items",
+          "status": 422,
+          "at": "2026-11-05T09:16:24.192Z"
+        },
+        {
+          "id": "89df5f4a-eef2-41e9-a400-c6dfb8a17277",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/cef006cd-fb18-490b-bc54-ee464900a9f0/items",
+          "status": 422,
+          "at": "2026-11-05T09:16:24.218Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) answers with the chunks of the documents the asker may read, the tenant and the list before the distance; widening the list takes effect when the item is indexed again (UAT-AC467)",
+      "status": "passed",
+      "durationMs": 1029,
+      "at": "2026-11-05T09:16:25.256Z",
+      "requests": [
+        {
+          "id": "ad5ecd00-c07c-453a-81a9-90978a01acee",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:24.321Z"
+        },
+        {
+          "id": "c6220d14-0e73-4992-b42a-ac3e4fad66fa",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:24.452Z"
+        },
+        {
+          "id": "2c24565b-fafa-4f94-9ca7-5a30d51ecc20",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/f5f2cfce-da64-419d-a5ea-15c05e596a0a/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:24.827Z"
+        },
+        {
+          "id": "4f8bfe27-17a7-4a2b-ab9b-7059f302c0d4",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/f6977c14-d45b-4b17-b41c-0ce4ca16419d/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:24.874Z"
+        },
+        {
+          "id": "01ee5fd9-2ae6-4323-82d6-a6132230b3bc",
+          "method": "GET",
+          "path": "/ai-knowledge-collections/f5f2cfce-da64-419d-a5ea-15c05e596a0a",
+          "status": 200,
+          "at": "2026-11-05T09:16:25.045Z"
+        },
+        {
+          "id": "ad7d9ea3-34c1-48fc-a329-f977058f7bd9",
+          "method": "GET",
+          "path": "/ai-knowledge-collections/f5f2cfce-da64-419d-a5ea-15c05e596a0a",
+          "status": 200,
+          "at": "2026-11-05T09:16:25.055Z"
+        },
+        {
+          "id": "dc1f1959-af3e-455d-baad-7b8694c5782e",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/f5f2cfce-da64-419d-a5ea-15c05e596a0a/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:25.071Z"
+        },
+        {
+          "id": "7887a9a5-a639-49b8-adc4-8ee1456de127",
+          "method": "GET",
+          "path": "/ai-knowledge-collections/f5f2cfce-da64-419d-a5ea-15c05e596a0a",
+          "status": 200,
+          "at": "2026-11-05T09:16:25.113Z"
+        },
+        {
+          "id": "a0d836bb-905a-46fc-8efd-cd62d1dc536c",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/f5f2cfce-da64-419d-a5ea-15c05e596a0a/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:25.204Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) puts the tenant in front of the distance: the same text in two tenants is found in its own, and the query names the tenant",
+      "status": "passed",
+      "durationMs": 630,
+      "at": "2026-11-05T09:16:25.887Z",
+      "requests": [
+        {
+          "id": "e02271bc-065a-41e0-a63a-c4e99d707730",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:25.390Z"
+        },
+        {
+          "id": "7d78b366-76a5-4df8-9768-410e60caccae",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/35fa6d60-8238-4d14-9a70-444fd23c8ff8/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:25.537Z"
+        },
+        {
+          "id": "69198f70-c3d6-4f54-91a5-ff854ff95521",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:25.651Z"
+        },
+        {
+          "id": "ecfb4dae-0520-4517-b83f-3b107a797828",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/71316f5c-7731-4cf5-a92c-581adcef4218/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:25.826Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) ranks by similarity, returns at most the limit asked for, and narrows to the documents the caller allows (UAT-AC14)",
+      "status": "passed",
+      "durationMs": 733,
+      "at": "2026-11-05T09:16:26.620Z",
+      "requests": [
+        {
+          "id": "ddd9eed6-de89-4a1c-9c44-d83222314d20",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:26.048Z"
+        },
+        {
+          "id": "f05f4fdf-4f05-4306-992e-a88993c3fc03",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/fc12f6f4-b045-452f-bce5-b1483f4ae3b8/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:26.446Z"
+        },
+        {
+          "id": "d1f69e82-aeba-4d75-a7a3-3151270ad19f",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/fc12f6f4-b045-452f-bce5-b1483f4ae3b8/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:26.472Z"
+        },
+        {
+          "id": "5cdd9278-d683-4c40-a862-2cae6881918f",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/fc12f6f4-b045-452f-bce5-b1483f4ae3b8/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:26.502Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) indexes again, by itself, the items whose document carries another list now; the others are left",
+      "status": "passed",
+      "durationMs": 765,
+      "at": "2026-11-05T09:16:27.384Z",
+      "requests": [
+        {
+          "id": "b32f631a-0702-4e2a-a4ea-e3dfc011184c",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:26.722Z"
+        },
+        {
+          "id": "91d9538d-c640-4cc0-9718-1fe6431f69a8",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/0999e58b-7bde-4d21-81c4-a20da03c305d/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:26.986Z"
+        },
+        {
+          "id": "09c6a633-593b-4103-ac24-e11c580c0387",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/0999e58b-7bde-4d21-81c4-a20da03c305d/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:27.011Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) is for those who may: making and indexing need manage, reading needs read, all on the whole tenant; another tenant sees none of it",
+      "status": "passed",
+      "durationMs": 475,
+      "at": "2026-11-05T09:16:27.859Z",
+      "requests": [
+        {
+          "id": "f0817a0c-c7fb-4114-b8dc-7f1ad09d9f86",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:27.534Z"
+        },
+        {
+          "id": "e463c4c3-62e8-4054-93f9-09db1dad631c",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 403,
+          "at": "2026-11-05T09:16:27.712Z"
+        },
+        {
+          "id": "dcb26c5e-8a33-48d1-a6a0-dd33267893bb",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/52f60427-ef1b-420e-8955-27507afdde55/items",
+          "status": 403,
+          "at": "2026-11-05T09:16:27.730Z"
+        },
+        {
+          "id": "2d578845-36a2-4078-a006-3d5c7d42c1fb",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 403,
+          "at": "2026-11-05T09:16:27.737Z"
+        },
+        {
+          "id": "6fbb8dfc-c4e9-4ee2-88c4-b4cfc7849642",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/52f60427-ef1b-420e-8955-27507afdde55/items",
+          "status": 403,
+          "at": "2026-11-05T09:16:27.746Z"
+        },
+        {
+          "id": "c1a4a1e8-94d2-461a-8bee-06025616d903",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 403,
+          "at": "2026-11-05T09:16:27.760Z"
+        },
+        {
+          "id": "f2ec3311-486c-4203-9995-5b78c7cf6e89",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/52f60427-ef1b-420e-8955-27507afdde55/items",
+          "status": 403,
+          "at": "2026-11-05T09:16:27.782Z"
+        },
+        {
+          "id": "da36953a-84aa-446a-b2f1-3252df5afeb5",
+          "method": "GET",
+          "path": "/ai-knowledge-collections",
+          "status": 403,
+          "at": "2026-11-05T09:16:27.798Z"
+        },
+        {
+          "id": "39ecbe79-338b-4806-a95a-f4695ecb6c17",
+          "method": "GET",
+          "path": "/ai-knowledge-collections/52f60427-ef1b-420e-8955-27507afdde55",
+          "status": 403,
+          "at": "2026-11-05T09:16:27.801Z"
+        },
+        {
+          "id": "62f2645b-d8f2-4c10-903f-2f6533ebfa41",
+          "method": "GET",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:27.807Z"
+        },
+        {
+          "id": "3d00a733-fbc7-4166-ae82-4671531ade94",
+          "method": "GET",
+          "path": "/ai-knowledge-collections/52f60427-ef1b-420e-8955-27507afdde55",
+          "status": 404,
+          "at": "2026-11-05T09:16:27.823Z"
+        },
+        {
+          "id": "9ee3a9cf-d21b-4f96-a8ad-2bb57eadb65a",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/52f60427-ef1b-420e-8955-27507afdde55/items",
+          "status": 404,
+          "at": "2026-11-05T09:16:27.840Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-knowledge.test.ts",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) is kept for good: the table refuses to change what a collection was made with, to delete, and the chunks cannot point at another tenant’s item",
+      "status": "passed",
+      "durationMs": 540,
+      "at": "2026-11-05T09:16:28.400Z",
+      "requests": [
+        {
+          "id": "9fa6ed03-f3b9-498a-a431-faede599410c",
+          "method": "POST",
+          "path": "/ai-knowledge-collections",
+          "status": 200,
+          "at": "2026-11-05T09:16:27.954Z"
+        },
+        {
+          "id": "39b6fdf5-c508-4cd7-98f4-85a961f84796",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/089834fb-b6f5-4981-8f7c-13aa218b8cf9/items",
+          "status": 200,
+          "at": "2026-11-05T09:16:28.099Z"
+        },
+        {
+          "id": "bc8f3a8d-6277-4aed-a8dc-b19620ac3fe7",
+          "method": "POST",
+          "path": "/ai-knowledge-collections/089834fb-b6f5-4981-8f7c-13aa218b8cf9/items",
+          "status": 409,
+          "at": "2026-11-05T09:16:28.331Z"
+        }
+      ]
+    }
+  ]
+}

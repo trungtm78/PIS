@@ -1,0 +1,18 @@
+{
+  "id": "UAT-AC27",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/delivery-policy.test.ts",
+      "name": "the dispatcher honours consent, preferences and quiet hours (ST-NOT-003) AC-ST-NOT-003-3 (UAT-AC27): at 22:30 the ordinary message waits for 07:00 while the urgent one is sent and leaves an override audit row",
+      "status": "passed",
+      "durationMs": 618,
+      "at": "2026-11-05T09:23:35.125Z",
+      "requests": []
+    }
+  ]
+}

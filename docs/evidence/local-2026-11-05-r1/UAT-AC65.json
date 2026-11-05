@@ -1,0 +1,225 @@
+{
+  "id": "UAT-AC65",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/handover.test.ts",
+      "name": "the handover and its punch list over HTTP (ST-AST-001) reading (AC-ST-AST-001-2, UAT-AC65) AC-ST-AST-001-2, UAT-AC65: traces a handover, its items, assets, minutes and receiving unit, and shows each person what they may do",
+      "status": "passed",
+      "durationMs": 1820,
+      "at": "2026-11-05T09:17:41.248Z",
+      "requests": [
+        {
+          "id": "58e8e01b-f6fa-4cab-b221-d431780c62b0",
+          "method": "POST",
+          "path": "/handovers",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.871Z"
+        },
+        {
+          "id": "e84ac519-abd0-4d70-a0ac-20b4e5c615f4",
+          "method": "POST",
+          "path": "/handovers/ed5655f1-cda4-4094-b60f-2cd9016710fa/punch-items",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.896Z"
+        },
+        {
+          "id": "675a6c29-c689-4440-aa65-7a8d995b3f18",
+          "method": "POST",
+          "path": "/handovers/ed5655f1-cda4-4094-b60f-2cd9016710fa/punch-items",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.918Z"
+        },
+        {
+          "id": "151a21d7-f102-436f-a144-85fdf362e489",
+          "method": "POST",
+          "path": "/punch-items/30457a1a-f037-4485-a78d-65076392c2d3/fixed",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.986Z"
+        },
+        {
+          "id": "6f37ea46-8a18-4a20-9484-e844f3998d7f",
+          "method": "GET",
+          "path": "/handovers/ed5655f1-cda4-4094-b60f-2cd9016710fa/trace",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.060Z"
+        },
+        {
+          "id": "c124a72b-cf68-42ef-b5f3-6c60abb0242f",
+          "method": "GET",
+          "path": "/handovers/ed5655f1-cda4-4094-b60f-2cd9016710fa/trace",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.082Z"
+        },
+        {
+          "id": "1e6ebd08-a9da-4724-8a96-172927b0943a",
+          "method": "GET",
+          "path": "/handovers/ed5655f1-cda4-4094-b60f-2cd9016710fa/trace",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.108Z"
+        },
+        {
+          "id": "b93a0617-595a-4b87-b5f8-72b8cae22470",
+          "method": "GET",
+          "path": "/handovers/ed5655f1-cda4-4094-b60f-2cd9016710fa/trace",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.118Z"
+        },
+        {
+          "id": "f9c8474a-d39f-4244-bfb3-14630bcec773",
+          "method": "GET",
+          "path": "/handovers/ed5655f1-cda4-4094-b60f-2cd9016710fa/trace",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.150Z"
+        },
+        {
+          "id": "2f4bf3e8-9208-45ac-bba3-a6927ad23233",
+          "method": "GET",
+          "path": "/handovers/ed5655f1-cda4-4094-b60f-2cd9016710fa/trace",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.171Z"
+        },
+        {
+          "id": "d15c7dd9-2a2c-47b6-8ff7-139e33a9f22a",
+          "method": "GET",
+          "path": "/handovers/ed5655f1-cda4-4094-b60f-2cd9016710fa/trace",
+          "status": 404,
+          "at": "2026-11-05T09:17:41.188Z"
+        },
+        {
+          "id": "bb2a366c-4445-45b0-a579-bddb3b2d40d7",
+          "method": "GET",
+          "path": "/handovers/ed5655f1-cda4-4094-b60f-2cd9016710fa/trace",
+          "status": 404,
+          "at": "2026-11-05T09:17:41.203Z"
+        },
+        {
+          "id": "80e0ba20-eab1-4379-b10c-88c7ce7eb4e8",
+          "method": "GET",
+          "path": "/handovers/ed5655f1-cda4-4094-b60f-2cd9016710fa/trace",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.215Z"
+        },
+        {
+          "id": "ccf1802c-effd-44d4-b40b-fa8e7ff571b9",
+          "method": "GET",
+          "path": "/handovers/f90cd104-7347-4f2b-a114-546b0ce2071a/trace",
+          "status": 404,
+          "at": "2026-11-05T09:17:41.230Z"
+        },
+        {
+          "id": "75d424b6-1cb8-462a-96e9-33594c8b7542",
+          "method": "GET",
+          "path": "/resources/handover/ed5655f1-cda4-4094-b60f-2cd9016710fa",
+          "status": 404,
+          "at": "2026-11-05T09:17:41.238Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/handover.test.ts",
+      "name": "the handover and its punch list over HTTP (ST-AST-001) reading (AC-ST-AST-001-2, UAT-AC65) lists the handovers of the scope, the newest first and paged, with their counts",
+      "status": "passed",
+      "durationMs": 1216,
+      "at": "2026-11-05T09:17:42.463Z",
+      "requests": [
+        {
+          "id": "58a74f54-27c6-4658-9c9f-f796067cd697",
+          "method": "POST",
+          "path": "/handovers",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.272Z"
+        },
+        {
+          "id": "4aad8811-eaa7-441c-99ec-854f51053462",
+          "method": "POST",
+          "path": "/handovers/72795d45-6d9e-4c6c-9d09-6ef1ece1d625/punch-items",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.299Z"
+        },
+        {
+          "id": "fe392917-8edc-408e-a7a6-a31255bfb177",
+          "method": "POST",
+          "path": "/handovers",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.323Z"
+        },
+        {
+          "id": "c4e57949-268d-4dba-a9b0-2214e764af5f",
+          "method": "GET",
+          "path": "/resources/handover",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.347Z"
+        },
+        {
+          "id": "f2214956-fa9a-48d1-a267-085f7897d626",
+          "method": "GET",
+          "path": "/resources/handover",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.354Z"
+        },
+        {
+          "id": "483597be-f26c-45c1-99a0-398c3db591cf",
+          "method": "GET",
+          "path": "/resources/handover",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.366Z"
+        },
+        {
+          "id": "05c834ee-6bee-49cc-8f74-5dc5fecb1ce4",
+          "method": "GET",
+          "path": "/resources/handover",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.382Z"
+        },
+        {
+          "id": "307f6449-4dbb-4fea-9172-9ed63d80d755",
+          "method": "GET",
+          "path": "/resources/handover",
+          "status": 422,
+          "at": "2026-11-05T09:17:42.398Z"
+        },
+        {
+          "id": "279825c6-8964-47cb-8766-6f48af4632f2",
+          "method": "GET",
+          "path": "/resources/handover",
+          "status": 422,
+          "at": "2026-11-05T09:17:42.411Z"
+        },
+        {
+          "id": "e51415df-145b-4731-a551-38251c995a8e",
+          "method": "GET",
+          "path": "/resources/handover",
+          "status": 422,
+          "at": "2026-11-05T09:17:42.427Z"
+        },
+        {
+          "id": "08127e8c-4d64-496f-810d-d32f6be89ac2",
+          "method": "GET",
+          "path": "/resources/handover",
+          "status": 403,
+          "at": "2026-11-05T09:17:42.429Z"
+        },
+        {
+          "id": "065a583a-43cd-4807-8d6c-13ace32fc984",
+          "method": "GET",
+          "path": "/resources/handover",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.443Z"
+        },
+        {
+          "id": "2a47d0cf-3794-47ae-b108-a4c0ea55679f",
+          "method": "GET",
+          "path": "/resources/handover",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.450Z"
+        }
+      ]
+    }
+  ]
+}

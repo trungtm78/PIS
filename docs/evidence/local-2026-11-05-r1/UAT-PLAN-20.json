@@ -1,0 +1,75 @@
+{
+  "id": "UAT-PLAN-20",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/payment-form.test.ts",
+      "name": "the Treasury forms of a payment request over HTTP (ST-PAY-005) AC-ST-PAY-005-2, UAT-PLAN-20: refuses to send the file without a form of each of the four kinds, and with them records the day and the number that were entered, calling no one",
+      "status": "passed",
+      "durationMs": 2194,
+      "at": "2026-11-05T09:18:41.483Z",
+      "requests": [
+        {
+          "id": "1d25dbc4-0639-425e-af55-343eb7c83886",
+          "method": "POST",
+          "path": "/payment-requests/778282ad-fd73-4d92-923c-4865a3ae6f99/forms",
+          "status": 200,
+          "at": "2026-11-05T09:18:40.145Z"
+        },
+        {
+          "id": "c5eee1a6-26aa-40f5-8378-114f4dea8b79",
+          "method": "POST",
+          "path": "/payment-requests/778282ad-fd73-4d92-923c-4865a3ae6f99/send-treasury",
+          "status": 422,
+          "at": "2026-11-05T09:18:40.421Z"
+        },
+        {
+          "id": "62524d27-b35a-4fec-babf-0273a8118611",
+          "method": "POST",
+          "path": "/payment-requests/778282ad-fd73-4d92-923c-4865a3ae6f99/forms",
+          "status": 200,
+          "at": "2026-11-05T09:18:40.442Z"
+        },
+        {
+          "id": "5a09599b-889a-414c-a4b6-90a1b9f0cd28",
+          "method": "POST",
+          "path": "/payment-requests/778282ad-fd73-4d92-923c-4865a3ae6f99/send-treasury",
+          "status": 403,
+          "at": "2026-11-05T09:18:41.186Z"
+        },
+        {
+          "id": "47124965-ae18-40ea-90f2-d033dab7837b",
+          "method": "POST",
+          "path": "/payment-requests/778282ad-fd73-4d92-923c-4865a3ae6f99/send-treasury",
+          "status": 409,
+          "at": "2026-11-05T09:18:41.205Z"
+        },
+        {
+          "id": "cae5a8d7-856d-4338-827b-f7a91acee940",
+          "method": "POST",
+          "path": "/payment-requests/778282ad-fd73-4d92-923c-4865a3ae6f99/send-treasury",
+          "status": 200,
+          "at": "2026-11-05T09:18:41.226Z"
+        },
+        {
+          "id": "991e93ae-1c44-44f1-a3b3-4542c2f869b2",
+          "method": "POST",
+          "path": "/payment-requests/778282ad-fd73-4d92-923c-4865a3ae6f99/send-treasury",
+          "status": 409,
+          "at": "2026-11-05T09:18:41.447Z"
+        },
+        {
+          "id": "e2d71cf3-a9b4-447e-8575-51f65bf8e3c1",
+          "method": "POST",
+          "path": "/payment-requests/778282ad-fd73-4d92-923c-4865a3ae6f99/forms",
+          "status": 409,
+          "at": "2026-11-05T09:18:41.466Z"
+        }
+      ]
+    }
+  ]
+}

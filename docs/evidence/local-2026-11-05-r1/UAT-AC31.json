@@ -1,0 +1,61 @@
+{
+  "id": "UAT-AC31",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-queries.test.ts",
+      "name": "the queries of BI and the drill under them (ST-BI-004, BI F3, F4) a query over a snapshot AC-ST-BI-004-1: UAT-AC31 keeps the snapshot SV-10a through unit, funding source and project with the same total of 12,450,000,000 dong, and raises the banner because SV-10b came after",
+      "status": "passed",
+      "durationMs": 576,
+      "at": "2026-11-05T09:18:01.047Z",
+      "requests": [
+        {
+          "id": "10c94adb-e8b1-4370-8440-172a531d2734",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:18:00.569Z"
+        },
+        {
+          "id": "d87c35e5-32c9-4ebe-a157-45b4529563c2",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:18:00.702Z"
+        },
+        {
+          "id": "200efe5d-568b-4393-9a07-779fb62fdc9c",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:18:00.731Z"
+        },
+        {
+          "id": "b5873447-a47d-4341-b9d7-e977117d1d14",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:18:00.775Z"
+        },
+        {
+          "id": "fd5fb731-1043-4aff-b8ef-6a0b5d5691a5",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:18:00.796Z"
+        },
+        {
+          "id": "ffb6e1fd-0971-431c-9ce3-0c71df429114",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:18:00.845Z"
+        }
+      ]
+    }
+  ]
+}

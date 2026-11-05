@@ -1,0 +1,26 @@
+{
+  "id": "UAT-AC268",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/home/command-center.test.ts",
+      "name": "the command center over HTTP (ST-HOME-001) AC-ST-HOME-001-3 / UAT-AC268: shows no figure, with NO_DATA, for a project that has a plan and no Treasury data, never 0, and counts it as one project without data",
+      "status": "passed",
+      "durationMs": 223,
+      "at": "2026-11-05T09:22:59.564Z",
+      "requests": [
+        {
+          "id": "b7ba657a-ce25-43e7-8975-056f2e89a6bf",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-05T09:22:59.538Z"
+        }
+      ]
+    }
+  ]
+}

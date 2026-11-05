@@ -1,0 +1,427 @@
+{
+  "id": "UAT-AC155",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/subscriptions.test.ts",
+      "name": "subscriptions over HTTP (ST-SAS-008) previewPlanChange (UAT-AC155) charges the proration of an upgrade on day 46 of the period, in whole VND rounded down, and lists no quota violation",
+      "status": "passed",
+      "durationMs": 466,
+      "at": "2026-11-05T09:14:02.041Z",
+      "requests": [
+        {
+          "id": "a0ea01d7-af0b-4e8d-a2e0-2053e39d0b90",
+          "method": "POST",
+          "path": "/system/tenants/b21d2f3c-8760-49ca-817b-c2e16fd19853/subscriptions",
+          "status": 201,
+          "at": "2026-11-05T09:14:01.876Z"
+        },
+        {
+          "id": "4c1e4f18-b6de-42bd-a7bb-4deccc8d4028",
+          "method": "POST",
+          "path": "/system/subscriptions/7da8c33f-1c03-4bcf-8e97-e208b8097ab8/plan-change-previews",
+          "status": 200,
+          "at": "2026-11-05T09:14:01.892Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/subscriptions.test.ts",
+      "name": "subscriptions over HTTP (ST-SAS-008) previewPlanChange (UAT-AC155) charges nothing for a change at the next cycle, and says it takes effect the day after the period ends",
+      "status": "passed",
+      "durationMs": 404,
+      "at": "2026-11-05T09:14:02.445Z",
+      "requests": [
+        {
+          "id": "950ce698-be47-4fbc-9111-5358a6c46e04",
+          "method": "POST",
+          "path": "/system/tenants/f3dc053f-f762-46a9-a785-46e7d4404bdb/subscriptions",
+          "status": 201,
+          "at": "2026-11-05T09:14:02.367Z"
+        },
+        {
+          "id": "4ea54cc0-271c-4320-9085-62e1c4d04a24",
+          "method": "POST",
+          "path": "/system/subscriptions/9e0e3c9b-9581-4527-9ef0-b359902100de/plan-change-previews",
+          "status": 200,
+          "at": "2026-11-05T09:14:02.391Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/subscriptions.test.ts",
+      "name": "subscriptions over HTTP (ST-SAS-008) previewPlanChange (UAT-AC155) lists the seats of the tenant that the smaller plan no longer holds (AC-ST-SAS-008-2)",
+      "status": "passed",
+      "durationMs": 344,
+      "at": "2026-11-05T09:14:02.789Z",
+      "requests": [
+        {
+          "id": "601e89fb-1317-4c41-8437-6d428d3dd866",
+          "method": "POST",
+          "path": "/system/tenants/54c6c5f5-1f86-4b91-851b-25b79cba16c2/subscriptions",
+          "status": 201,
+          "at": "2026-11-05T09:14:02.755Z"
+        },
+        {
+          "id": "5c940c3d-488f-4f98-bf89-6360369aabc5",
+          "method": "POST",
+          "path": "/system/subscriptions/761d47ff-64aa-408a-a433-41bf7d8906b0/plan-change-previews",
+          "status": 200,
+          "at": "2026-11-05T09:14:02.774Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/subscriptions.test.ts",
+      "name": "subscriptions over HTTP (ST-SAS-008) previewPlanChange (UAT-AC155) refuses a downgrade now (422 on effective), the plan it is on, a draft plan (409 PLAN_NOT_PUBLISHED), and a subscription nobody has (404)",
+      "status": "passed",
+      "durationMs": 557,
+      "at": "2026-11-05T09:14:03.346Z",
+      "requests": [
+        {
+          "id": "1d453e81-c37b-4a5c-ad9d-5ed4e06a4bf6",
+          "method": "POST",
+          "path": "/system/tenants/4bd277f6-fd63-4fbd-ba4e-baebce48c4be/subscriptions",
+          "status": 201,
+          "at": "2026-11-05T09:14:03.269Z"
+        },
+        {
+          "id": "4383dddf-217f-49da-bea9-c35153c1bc98",
+          "method": "POST",
+          "path": "/system/subscriptions/fec46950-2849-411b-9d8c-fea28753cfad/plan-change-previews",
+          "status": 422,
+          "at": "2026-11-05T09:14:03.284Z"
+        },
+        {
+          "id": "3efe5608-7f98-49b8-a209-7499e88d04ed",
+          "method": "POST",
+          "path": "/system/subscriptions/fec46950-2849-411b-9d8c-fea28753cfad/plan-change-previews",
+          "status": 422,
+          "at": "2026-11-05T09:14:03.299Z"
+        },
+        {
+          "id": "fe10221e-e4ee-4047-886f-957f7fdb3446",
+          "method": "POST",
+          "path": "/system/subscriptions/fec46950-2849-411b-9d8c-fea28753cfad/plan-change-previews",
+          "status": 409,
+          "at": "2026-11-05T09:14:03.315Z"
+        },
+        {
+          "id": "836d3759-d0ea-4327-a538-2a3108aa58c7",
+          "method": "POST",
+          "path": "/system/subscriptions/847316f2-6601-4edb-9be3-2c24804e1631/plan-change-previews",
+          "status": 404,
+          "at": "2026-11-05T09:14:03.329Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/subscriptions.test.ts",
+      "name": "subscriptions over HTTP (ST-SAS-008) previewPlanChange (UAT-AC155) changes nothing: no plan change row, no entitlement version, no version bump",
+      "status": "passed",
+      "durationMs": 560,
+      "at": "2026-11-05T09:14:03.906Z",
+      "requests": [
+        {
+          "id": "4178c997-1df8-47e5-9d7f-da73e03e84f0",
+          "method": "POST",
+          "path": "/system/tenants/fdfeb2b5-8773-48f7-8795-34ec2efcf969/subscriptions",
+          "status": 201,
+          "at": "2026-11-05T09:14:03.660Z"
+        },
+        {
+          "id": "71a3f888-950b-4375-9a14-b4782f6880b5",
+          "method": "POST",
+          "path": "/system/subscriptions/829dfe6c-2ba3-4010-9e8e-81333fe7d391/plan-change-previews",
+          "status": 200,
+          "at": "2026-11-05T09:14:03.799Z"
+        },
+        {
+          "id": "2eae66c3-e78b-48bb-acb3-9c90353d4fc0",
+          "method": "GET",
+          "path": "/system/tenants/fdfeb2b5-8773-48f7-8795-34ec2efcf969/subscription",
+          "status": 200,
+          "at": "2026-11-05T09:14:03.890Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/subscriptions.test.ts",
+      "name": "subscriptions over HTTP (ST-SAS-008) changeSubscriptionPlan (UAT-AC155, UAT-AC156) applies an upgrade against its preview: 200, the plan moved, one more entitlement version, the proration kept (AC-ST-SAS-008-1)",
+      "status": "passed",
+      "durationMs": 543,
+      "at": "2026-11-05T09:14:04.449Z",
+      "requests": [
+        {
+          "id": "ff2a4db0-bcb1-4dca-87eb-1414c0891243",
+          "method": "POST",
+          "path": "/system/tenants/90b7952d-409d-4779-accf-741f43a85ec9/subscriptions",
+          "status": 201,
+          "at": "2026-11-05T09:14:04.209Z"
+        },
+        {
+          "id": "acdc1c6c-0bc0-4dde-aca0-41b4b12ccfc4",
+          "method": "POST",
+          "path": "/system/subscriptions/29923b20-e3f5-4bf4-a72d-fff7e5a13f38/plan-change-previews",
+          "status": 200,
+          "at": "2026-11-05T09:14:04.229Z"
+        },
+        {
+          "id": "a5b9b26e-7952-4985-a53e-93f1d6204e71",
+          "method": "POST",
+          "path": "/system/subscriptions/29923b20-e3f5-4bf4-a72d-fff7e5a13f38/plan-change",
+          "status": 200,
+          "at": "2026-11-05T09:14:04.283Z"
+        },
+        {
+          "id": "9989e4dd-e33f-43ec-87bc-0b1d522864f9",
+          "method": "GET",
+          "path": "/system/tenants/90b7952d-409d-4779-accf-741f43a85ec9/subscription",
+          "status": 200,
+          "at": "2026-11-05T09:14:04.390Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/subscriptions.test.ts",
+      "name": "subscriptions over HTTP (ST-SAS-008) changeSubscriptionPlan (UAT-AC155, UAT-AC156) answers 409 PREVIEW_STALE to a preview that no longer matches (an override changed the entitlements), then 200 on the preview made again (UAT-AC155)",
+      "status": "passed",
+      "durationMs": 563,
+      "at": "2026-11-05T09:14:05.012Z",
+      "requests": [
+        {
+          "id": "86703e5f-f9c3-42fb-ba20-21e0e8b0eee8",
+          "method": "POST",
+          "path": "/system/tenants/d2f3f868-012f-4634-95c5-d887fc7f36c2/subscriptions",
+          "status": 201,
+          "at": "2026-11-05T09:14:04.816Z"
+        },
+        {
+          "id": "e3f05d75-7591-4bae-b670-751013c171e0",
+          "method": "POST",
+          "path": "/system/subscriptions/f3870e59-4c39-4fad-8199-2b6f04c6a89b/plan-change-previews",
+          "status": 200,
+          "at": "2026-11-05T09:14:04.838Z"
+        },
+        {
+          "id": "a773658e-a898-40a5-bac7-4ccd8d702046",
+          "method": "POST",
+          "path": "/system/subscriptions/f3870e59-4c39-4fad-8199-2b6f04c6a89b/plan-change",
+          "status": 409,
+          "at": "2026-11-05T09:14:04.901Z"
+        },
+        {
+          "id": "229788cb-386c-415a-bfa5-34613cb2d3eb",
+          "method": "POST",
+          "path": "/system/subscriptions/f3870e59-4c39-4fad-8199-2b6f04c6a89b/plan-change-previews",
+          "status": 200,
+          "at": "2026-11-05T09:14:04.972Z"
+        },
+        {
+          "id": "f80a4ca5-cbb1-4e79-9c68-7fedd87a8b89",
+          "method": "POST",
+          "path": "/system/subscriptions/f3870e59-4c39-4fad-8199-2b6f04c6a89b/plan-change",
+          "status": 200,
+          "at": "2026-11-05T09:14:04.996Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/subscriptions.test.ts",
+      "name": "subscriptions over HTTP (ST-SAS-008) changeSubscriptionPlan (UAT-AC155, UAT-AC156) answers 428 without If-Match and 409 VERSION_CONFLICT with a stale one",
+      "status": "passed",
+      "durationMs": 452,
+      "at": "2026-11-05T09:14:05.464Z",
+      "requests": [
+        {
+          "id": "1153ac02-0725-4f5e-88fb-308c09fdeed2",
+          "method": "POST",
+          "path": "/system/tenants/de1166f5-abac-4c77-9a73-2ba706693d28/subscriptions",
+          "status": 201,
+          "at": "2026-11-05T09:14:05.365Z"
+        },
+        {
+          "id": "c1db34c0-58ca-4006-ae63-7ae82cb20c8c",
+          "method": "POST",
+          "path": "/system/subscriptions/56c5b86b-2d4b-4d9d-97a9-d94beca6b074/plan-change-previews",
+          "status": 200,
+          "at": "2026-11-05T09:14:05.377Z"
+        },
+        {
+          "id": "a10127df-01e4-4925-98bb-a7d4c00c5bb6",
+          "method": "POST",
+          "path": "/system/subscriptions/56c5b86b-2d4b-4d9d-97a9-d94beca6b074/plan-change",
+          "status": 428,
+          "at": "2026-11-05T09:14:05.395Z"
+        },
+        {
+          "id": "a6f37d4d-3837-4847-8a79-a1354433ff1d",
+          "method": "POST",
+          "path": "/system/subscriptions/56c5b86b-2d4b-4d9d-97a9-d94beca6b074/plan-change",
+          "status": 409,
+          "at": "2026-11-05T09:14:05.404Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/subscriptions.test.ts",
+      "name": "subscriptions over HTTP (ST-SAS-008) changeSubscriptionPlan (UAT-AC155, UAT-AC156) sets a downgrade at the next cycle, which the cycle job applies when the day comes; nobody is taken away and no seat is free afterwards (AC-ST-SAS-008-2, UAT-AC156)",
+      "status": "passed",
+      "durationMs": 719,
+      "at": "2026-11-05T09:14:06.183Z",
+      "requests": [
+        {
+          "id": "10211289-e024-4d2b-a111-27d0ce8d8ddf",
+          "method": "POST",
+          "path": "/system/tenants/5ab95d97-23db-4dd7-934c-10fe76122401/subscriptions",
+          "status": 201,
+          "at": "2026-11-05T09:14:05.909Z"
+        },
+        {
+          "id": "8aa2059c-897a-4580-882a-4c78213f1a4f",
+          "method": "POST",
+          "path": "/system/subscriptions/25bd1859-f81d-4771-9dd4-32fa3298b1a1/plan-change-previews",
+          "status": 200,
+          "at": "2026-11-05T09:14:05.924Z"
+        },
+        {
+          "id": "1968505c-472a-4b20-a50e-9e3cd05f4e66",
+          "method": "POST",
+          "path": "/system/subscriptions/25bd1859-f81d-4771-9dd4-32fa3298b1a1/plan-change",
+          "status": 200,
+          "at": "2026-11-05T09:14:05.938Z"
+        },
+        {
+          "id": "ed3970f6-ea11-4552-bb8b-55b8a418c669",
+          "method": "GET",
+          "path": "/system/tenants/5ab95d97-23db-4dd7-934c-10fe76122401/subscription",
+          "status": 200,
+          "at": "2026-11-05T09:14:05.991Z"
+        },
+        {
+          "id": "ed5269fe-f7a3-4d19-88c3-7d19b85cab25",
+          "method": "GET",
+          "path": "/me/usage",
+          "status": 200,
+          "at": "2026-11-05T09:14:06.103Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/subscriptions.test.ts",
+      "name": "subscriptions over HTTP (ST-SAS-008) changeSubscriptionPlan (UAT-AC155, UAT-AC156) refuses what the control plane alone may do to a tenant token, and to a role that does not manage billing",
+      "status": "passed",
+      "durationMs": 481,
+      "at": "2026-11-05T09:14:06.665Z",
+      "requests": [
+        {
+          "id": "46648da1-2e58-402b-9b8b-6c302dd1208f",
+          "method": "POST",
+          "path": "/system/tenants/cbff97c3-fe0c-44f7-8baf-4c4153a067e7/subscriptions",
+          "status": 201,
+          "at": "2026-11-05T09:14:06.571Z"
+        },
+        {
+          "id": "dd2f880b-f503-465c-a3c0-8986fd8f28c9",
+          "method": "POST",
+          "path": "/system/subscriptions/a9497c1c-f2eb-4083-aff9-e73dfa906411/plan-change-previews",
+          "status": 200,
+          "at": "2026-11-05T09:14:06.593Z"
+        },
+        {
+          "id": "3e15fea9-bc67-4f14-b38a-22737566e416",
+          "method": "POST",
+          "path": "/system/subscriptions/a9497c1c-f2eb-4083-aff9-e73dfa906411/plan-change",
+          "status": 403,
+          "at": "2026-11-05T09:14:06.603Z"
+        },
+        {
+          "id": "228283bb-ae1c-4791-bbe6-1c403845c581",
+          "method": "POST",
+          "path": "/system/subscriptions/a9497c1c-f2eb-4083-aff9-e73dfa906411/plan-change",
+          "status": 403,
+          "at": "2026-11-05T09:14:06.622Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/sas-subscription-flows.spec.ts",
+      "name": "previews an upgrade, applies it against the preview, and is refused a preview that went stale (UAT-AC155)",
+      "status": "passed",
+      "durationMs": 1560,
+      "at": "2026-11-05T08:55:33.348Z",
+      "requests": [
+        {
+          "id": "f4f2dc18-b3e8-43b5-bf4a-331c99c19a82",
+          "method": "GET",
+          "path": "/system/tenants",
+          "status": 200,
+          "at": "2026-11-05T08:55:34.131Z"
+        },
+        {
+          "id": "8a04bbb5-91d7-451e-8ec6-2470806c77c0",
+          "method": "GET",
+          "path": "/system/plans",
+          "status": 200,
+          "at": "2026-11-05T08:55:34.133Z"
+        },
+        {
+          "id": "dabb1e40-8997-409d-956c-e4e7e1acfccb",
+          "method": "GET",
+          "path": "/system/tenants/00000000-0000-4000-8000-00000000000b/subscription",
+          "status": 200,
+          "at": "2026-11-05T08:55:34.132Z"
+        },
+        {
+          "id": "53bee66b-ccf5-4315-8410-1b0bcdd6481a",
+          "method": "POST",
+          "path": "/system/subscriptions/2e8b0ebe-208c-40f9-aadc-462e2fbe641c/plan-change-previews",
+          "status": 200,
+          "at": "2026-11-05T08:55:34.263Z"
+        },
+        {
+          "id": "9eb8c16e-4726-4373-a0f5-0aa72da539b9",
+          "method": "POST",
+          "path": "/system/subscriptions/2e8b0ebe-208c-40f9-aadc-462e2fbe641c/plan-change",
+          "status": 409,
+          "at": "2026-11-05T08:55:34.443Z"
+        },
+        {
+          "id": "058592a3-8e83-41c8-bda3-7afe79d0c6fb",
+          "method": "POST",
+          "path": "/system/subscriptions/2e8b0ebe-208c-40f9-aadc-462e2fbe641c/plan-change-previews",
+          "status": 200,
+          "at": "2026-11-05T08:55:34.591Z"
+        },
+        {
+          "id": "ba5e7760-8af3-4d6c-969e-512ee1fee8ea",
+          "method": "POST",
+          "path": "/system/subscriptions/2e8b0ebe-208c-40f9-aadc-462e2fbe641c/plan-change",
+          "status": 200,
+          "at": "2026-11-05T08:55:34.677Z"
+        },
+        {
+          "id": "bd2a8f2a-b8a4-4f4f-8807-5a304f45e9c7",
+          "method": "GET",
+          "path": "/system/tenants/00000000-0000-4000-8000-00000000000b/subscription",
+          "status": 200,
+          "at": "2026-11-05T08:55:34.697Z"
+        }
+      ]
+    }
+  ]
+}

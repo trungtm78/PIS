@@ -1,0 +1,290 @@
+{
+  "id": "UAT-AC454",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/procurement-import.test.ts",
+      "name": "the milestones of a package and the file of the national bidding system (ST-BID-005) importProcurementFile (AC-ST-BID-005-1, UAT-AC454) AC-ST-BID-005-1, UAT-AC454: a dry run says rows_ok=2 rows_error=1 PACKAGE_NOT_FOUND and writes nothing; the apply writes 2 IMPORT milestones with IN_SYNC links; the same file again is 409 IMPORT_FILE_ALREADY_APPLIED; no connection leaves the machine",
+      "status": "passed",
+      "durationMs": 695,
+      "at": "2026-11-05T09:22:09.935Z",
+      "requests": [
+        {
+          "id": "66900180-b49c-4d66-ad52-d25fe5056728",
+          "method": "POST",
+          "path": "/procurement-imports",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.334Z"
+        },
+        {
+          "id": "37cf817f-92c3-45a7-830a-f8aa0f04004c",
+          "method": "POST",
+          "path": "/procurement-imports",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.446Z"
+        },
+        {
+          "id": "0a4b173a-70b0-467c-bbcd-b37a3387ee42",
+          "method": "GET",
+          "path": "/procurement-external-links",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.691Z"
+        },
+        {
+          "id": "9382e28c-dc10-48fc-9fe7-b6c2c35b0ff4",
+          "method": "POST",
+          "path": "/procurement-imports",
+          "status": 409,
+          "at": "2026-11-05T09:22:09.703Z"
+        },
+        {
+          "id": "1adbf7e7-4d5f-43e7-ad42-d960a4ea9045",
+          "method": "POST",
+          "path": "/procurement-imports",
+          "status": 200,
+          "at": "2026-11-05T09:22:09.719Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/procurement-import.test.ts",
+      "name": "the milestones of a package and the file of the national bidding system (ST-BID-005) importProcurementFile (AC-ST-BID-005-1, UAT-AC454) lets the planner of a unit tree dry-run the file for the packages of their units, turns the apply away with 403 SCOPE_DENIED, and shows the packages of other branches as not found",
+      "status": "passed",
+      "durationMs": 197,
+      "at": "2026-11-05T09:22:10.131Z",
+      "requests": [
+        {
+          "id": "b78c08d7-a03e-4754-ae2d-e97cbd07b281",
+          "method": "POST",
+          "path": "/procurement-imports",
+          "status": 200,
+          "at": "2026-11-05T09:22:10.027Z"
+        },
+        {
+          "id": "69629397-d90a-41c2-9567-9f15a86c0b65",
+          "method": "POST",
+          "path": "/procurement-imports",
+          "status": 403,
+          "at": "2026-11-05T09:22:10.047Z"
+        },
+        {
+          "id": "09f6a6d2-f7e8-4245-beef-7551fb12eb1d",
+          "method": "POST",
+          "path": "/procurement-imports",
+          "status": 403,
+          "at": "2026-11-05T09:22:10.108Z"
+        },
+        {
+          "id": "007cf7a3-ebc8-4030-9446-a5761157fb6e",
+          "method": "POST",
+          "path": "/procurement-imports",
+          "status": 403,
+          "at": "2026-11-05T09:22:10.116Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/procurement-import.test.ts",
+      "name": "the milestones of a package and the file of the national bidding system (ST-BID-005) importProcurementFile (AC-ST-BID-005-1, UAT-AC454) keeps a date the planner recorded and opens a difference with an owner; settling it by hand puts the link in step",
+      "status": "passed",
+      "durationMs": 190,
+      "at": "2026-11-05T09:22:10.322Z",
+      "requests": [
+        {
+          "id": "c47e6e15-b663-48f9-8957-048e339c84b1",
+          "method": "POST",
+          "path": "/procurement-packages/2ecef84d-bc6f-4957-a1fd-f804f2bbab3b/milestones",
+          "status": 200,
+          "at": "2026-11-05T09:22:10.175Z"
+        },
+        {
+          "id": "89854de6-7a6e-405a-a0ea-e7cafd51628a",
+          "method": "POST",
+          "path": "/procurement-imports",
+          "status": 200,
+          "at": "2026-11-05T09:22:10.204Z"
+        },
+        {
+          "id": "fcbfaf02-0b26-4fef-b06d-1451b2b2a90d",
+          "method": "GET",
+          "path": "/procurement-external-links",
+          "status": 200,
+          "at": "2026-11-05T09:22:10.229Z"
+        },
+        {
+          "id": "93c1e85d-d7a1-4af8-9450-7c0902229788",
+          "method": "POST",
+          "path": "/procurement-packages/2ecef84d-bc6f-4957-a1fd-f804f2bbab3b/milestones",
+          "status": 200,
+          "at": "2026-11-05T09:22:10.243Z"
+        },
+        {
+          "id": "d4b24119-326a-4532-a7af-866e1325af64",
+          "method": "GET",
+          "path": "/procurement-external-links",
+          "status": 200,
+          "at": "2026-11-05T09:22:10.305Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/procurement-import.test.ts",
+      "name": "the milestones of a package and the file of the national bidding system (ST-BID-005) importProcurementFile (AC-ST-BID-005-1, UAT-AC454) refuses what cannot be read before it writes anything: a hash that is not the file, another layout, a file without the columns and a file none of whose rows can be taken",
+      "status": "passed",
+      "durationMs": 305,
+      "at": "2026-11-05T09:22:10.627Z",
+      "requests": [
+        {
+          "id": "483ffc82-e758-4864-a965-00362bc090b9",
+          "method": "POST",
+          "path": "/procurement-imports",
+          "status": 422,
+          "at": "2026-11-05T09:22:10.461Z"
+        },
+        {
+          "id": "283dda18-9993-43cf-b64f-826d36e00389",
+          "method": "POST",
+          "path": "/procurement-imports",
+          "status": 422,
+          "at": "2026-11-05T09:22:10.488Z"
+        },
+        {
+          "id": "1b274410-63e9-4d7f-9573-8ed702396d49",
+          "method": "POST",
+          "path": "/procurement-imports",
+          "status": 422,
+          "at": "2026-11-05T09:22:10.506Z"
+        },
+        {
+          "id": "06795fa7-0f24-4a10-a8a0-449f14a14e99",
+          "method": "POST",
+          "path": "/procurement-imports",
+          "status": 422,
+          "at": "2026-11-05T09:22:10.530Z"
+        },
+        {
+          "id": "6ad65477-03b0-486a-8fc9-5f7c24061a92",
+          "method": "POST",
+          "path": "/procurement-imports",
+          "status": 404,
+          "at": "2026-11-05T09:22:10.612Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/bid-procurement-flows.spec.ts",
+      "name": "the planner uploads the file, reads the dry run, applies it once, and the links are in step; the same file again is told as loaded (AC-ST-BID-005-1, UAT-AC454, UI-BID-19)",
+      "status": "passed",
+      "durationMs": 2019,
+      "at": "2026-11-05T08:44:37.591Z",
+      "requests": [
+        {
+          "id": "089d45bb-d4cc-4bda-92e6-272eb449a46e",
+          "method": "GET",
+          "path": "/procurement-external-links",
+          "status": 200,
+          "at": "2026-11-05T08:44:38.281Z"
+        },
+        {
+          "id": "75229448-bdbd-409e-8ee7-c20d20f690a9",
+          "method": "GET",
+          "path": "/me/effective-access",
+          "status": 200,
+          "at": "2026-11-05T08:44:38.282Z"
+        },
+        {
+          "id": "f02ce2ee-dc17-43bb-9091-2c0e05baaacd",
+          "method": "POST",
+          "path": "/procurement-imports/files",
+          "status": 200,
+          "at": "2026-11-05T08:44:38.395Z"
+        },
+        {
+          "id": "50aa664e-8676-44b8-a0b8-0350198ca8e9",
+          "method": "POST",
+          "path": "/procurement-imports",
+          "status": 200,
+          "at": "2026-11-05T08:44:38.414Z"
+        },
+        {
+          "id": "c6b7a6d1-0982-4e42-9a22-59d8e48d97f4",
+          "method": "POST",
+          "path": "/procurement-imports",
+          "status": 200,
+          "at": "2026-11-05T08:44:38.607Z"
+        },
+        {
+          "id": "f6f182df-7515-44d6-9413-a301cd3cfba3",
+          "method": "GET",
+          "path": "/procurement-external-links",
+          "status": 200,
+          "at": "2026-11-05T08:44:38.649Z"
+        },
+        {
+          "id": "404290a2-ae82-4782-9635-aff0a8ba18b9",
+          "method": "GET",
+          "path": "/me/effective-access",
+          "status": 304,
+          "at": "2026-11-05T08:44:39.034Z"
+        },
+        {
+          "id": "56448230-7d9f-4dc9-8745-20fe859d9779",
+          "method": "GET",
+          "path": "/procurement-external-links",
+          "status": 200,
+          "at": "2026-11-05T08:44:39.033Z"
+        },
+        {
+          "id": "c6023e31-f34b-43b3-8ed6-6f306893757b",
+          "method": "GET",
+          "path": "/procurement-milestones",
+          "status": 200,
+          "at": "2026-11-05T08:44:39.204Z"
+        },
+        {
+          "id": "e6158498-045b-4bf4-866f-b21e4b51017e",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:39.203Z"
+        },
+        {
+          "id": "efdcb0af-c3ae-40e0-b272-4117e1b567f9",
+          "method": "GET",
+          "path": "/me/effective-access",
+          "status": 304,
+          "at": "2026-11-05T08:44:39.358Z"
+        },
+        {
+          "id": "0320331a-e2b5-494e-b00c-699777835541",
+          "method": "GET",
+          "path": "/procurement-external-links",
+          "status": 200,
+          "at": "2026-11-05T08:44:39.357Z"
+        },
+        {
+          "id": "a502b7b7-3fe4-4e3c-b87e-beff1aab7bed",
+          "method": "POST",
+          "path": "/procurement-imports/files",
+          "status": 200,
+          "at": "2026-11-05T08:44:39.475Z"
+        },
+        {
+          "id": "9e12012d-514d-473a-be07-84227a22ed7a",
+          "method": "POST",
+          "path": "/procurement-imports",
+          "status": 200,
+          "at": "2026-11-05T08:44:39.491Z"
+        }
+      ]
+    }
+  ]
+}

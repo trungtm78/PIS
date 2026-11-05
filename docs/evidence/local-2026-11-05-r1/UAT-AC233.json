@@ -1,0 +1,426 @@
+{
+  "id": "UAT-AC233",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/scenario.test.ts",
+      "name": "the simulation of an allocation (ST-CAP-013) UAT-AC233: a scenario is created, run and read without touching the ledger keeps the assumptions and the limits, and writes only the scenario: the ledger, the lines, the balances, the plans and the reservations are as they were",
+      "status": "passed",
+      "durationMs": 928,
+      "at": "2026-11-05T09:14:45.328Z",
+      "requests": [
+        {
+          "id": "2ce7d5e1-d97c-4a7f-85de-c882bd70b4a6",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:14:44.758Z"
+        },
+        {
+          "id": "db319847-81cb-4190-9147-3634d3a16e5d",
+          "method": "POST",
+          "path": "/capital-plans/4f374328-651d-4e3b-866b-2c47ee996967/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:14:44.795Z"
+        },
+        {
+          "id": "7bdcd8ab-eb96-4a7f-ac54-facdb90fede0",
+          "method": "POST",
+          "path": "/capital-plans/4f374328-651d-4e3b-866b-2c47ee996967/submit",
+          "status": 200,
+          "at": "2026-11-05T09:14:44.823Z"
+        },
+        {
+          "id": "2c570ecb-1d4b-404b-9d89-06d451904c73",
+          "method": "POST",
+          "path": "/capital-plans/4f374328-651d-4e3b-866b-2c47ee996967/decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:44.844Z"
+        },
+        {
+          "id": "675ae974-be27-44ae-9a50-917087e38d7f",
+          "method": "POST",
+          "path": "/plans/4f374328-651d-4e3b-866b-2c47ee996967/publish",
+          "status": 200,
+          "at": "2026-11-05T09:14:44.915Z"
+        },
+        {
+          "id": "540b2a54-2d45-409b-a413-e1ab91537348",
+          "method": "POST",
+          "path": "/allocation-scenarios",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.086Z"
+        },
+        {
+          "id": "98d8a5e5-ccd9-4606-92e5-58caa3fe527a",
+          "method": "POST",
+          "path": "/allocation-scenarios/a83f08c2-76eb-4090-9ec2-0a7f376c3564/run",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.160Z"
+        },
+        {
+          "id": "fd2e96b0-0df3-43c3-8173-b625b962acd1",
+          "method": "GET",
+          "path": "/allocation-scenarios",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.262Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/scenario.test.ts",
+      "name": "the simulation of an allocation (ST-CAP-013) UAT-AC233: a scenario is created, run and read without touching the ledger shows a project with everything the plan gives it, not only the lines the moves name",
+      "status": "passed",
+      "durationMs": 673,
+      "at": "2026-11-05T09:14:46.000Z",
+      "requests": [
+        {
+          "id": "db9289c1-0054-4b91-a76d-9176422cb1ba",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.635Z"
+        },
+        {
+          "id": "4a645ca8-266d-484b-b3ab-817b5764dd6c",
+          "method": "POST",
+          "path": "/capital-plans/5087b113-498a-4df6-9578-12dbfc87e424/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.651Z"
+        },
+        {
+          "id": "7e3cd181-287c-4b76-9f97-d244e35cd971",
+          "method": "POST",
+          "path": "/capital-plans/5087b113-498a-4df6-9578-12dbfc87e424/submit",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.677Z"
+        },
+        {
+          "id": "b47e51d4-7834-4d5d-8498-e402e83ab01f",
+          "method": "POST",
+          "path": "/capital-plans/5087b113-498a-4df6-9578-12dbfc87e424/decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.702Z"
+        },
+        {
+          "id": "fd77da9d-96f9-48ec-a623-ecbc9ef52059",
+          "method": "POST",
+          "path": "/plans/5087b113-498a-4df6-9578-12dbfc87e424/publish",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.756Z"
+        },
+        {
+          "id": "1e82f964-7aeb-47c6-9746-bae86f2abced",
+          "method": "POST",
+          "path": "/allocation-scenarios",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.929Z"
+        },
+        {
+          "id": "06caaf07-9841-4b5b-8c2d-b077e472fc58",
+          "method": "POST",
+          "path": "/allocation-scenarios/71ee8d74-6678-45b5-8abe-98698bc2bb35/run",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.940Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/scenario.test.ts",
+      "name": "the simulation of an allocation (ST-CAP-013) UAT-AC233: a scenario is created, run and read without touching the ledger can be run again until it is promoted: the result is that of the last run, and a stale version is 409 VERSION_CONFLICT",
+      "status": "passed",
+      "durationMs": 698,
+      "at": "2026-11-05T09:14:46.698Z",
+      "requests": [
+        {
+          "id": "d6f7023e-43e0-4305-9783-031c8aaed2c1",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.309Z"
+        },
+        {
+          "id": "24760482-8c8c-47f6-a6c6-00cf5e5003b1",
+          "method": "POST",
+          "path": "/capital-plans/cc7caf02-2b14-4eee-b297-92ff5dd29643/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.321Z"
+        },
+        {
+          "id": "d7a9a733-be1c-4217-b1a9-599fcd2dd4c1",
+          "method": "POST",
+          "path": "/capital-plans/cc7caf02-2b14-4eee-b297-92ff5dd29643/submit",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.343Z"
+        },
+        {
+          "id": "d87df24b-e5e8-4920-b944-58b05da0b9d6",
+          "method": "POST",
+          "path": "/capital-plans/cc7caf02-2b14-4eee-b297-92ff5dd29643/decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.358Z"
+        },
+        {
+          "id": "fb004b98-e426-4b71-8877-db8e540b6d21",
+          "method": "POST",
+          "path": "/plans/cc7caf02-2b14-4eee-b297-92ff5dd29643/publish",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.413Z"
+        },
+        {
+          "id": "ac2b4030-3b7d-4d81-adf6-0ed5acff0ed4",
+          "method": "POST",
+          "path": "/allocation-scenarios",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.545Z"
+        },
+        {
+          "id": "6e9e22ed-caab-4ef3-956f-c16866dc885a",
+          "method": "POST",
+          "path": "/allocation-scenarios/ec833f0d-5ca3-4aaf-ab8c-e6a8369a9799/run",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.559Z"
+        },
+        {
+          "id": "268abedd-b339-4329-8da2-7b0224a601a8",
+          "method": "POST",
+          "path": "/allocation-scenarios/ec833f0d-5ca3-4aaf-ab8c-e6a8369a9799/run",
+          "status": 409,
+          "at": "2026-11-05T09:14:46.618Z"
+        },
+        {
+          "id": "ae0d2e16-bf0d-4085-a3b0-ab5947e3a768",
+          "method": "POST",
+          "path": "/allocation-scenarios/ec833f0d-5ca3-4aaf-ab8c-e6a8369a9799/run",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.638Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/scenario.test.ts",
+      "name": "the simulation of an allocation (ST-CAP-013) UAT-AC233: a scenario is created, run and read without touching the ledger is 422 SCENARIO_CONSTRAINT_INFEASIBLE when a limit is broken, with each broken limit named and nothing kept: the scenario stays a draft and the ledger is as it was",
+      "status": "passed",
+      "durationMs": 863,
+      "at": "2026-11-05T09:14:47.561Z",
+      "requests": [
+        {
+          "id": "9fa6f3c5-41d2-4331-bdc2-6fcc97b2fa49",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.095Z"
+        },
+        {
+          "id": "eac002a2-96b9-47e0-8553-6fbe365e8504",
+          "method": "POST",
+          "path": "/capital-plans/ec3b43b5-a5e5-4d48-ae43-25bf85b2ac24/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.119Z"
+        },
+        {
+          "id": "a0d9f388-2fe1-4493-9248-b0fbafc05228",
+          "method": "POST",
+          "path": "/capital-plans/ec3b43b5-a5e5-4d48-ae43-25bf85b2ac24/submit",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.140Z"
+        },
+        {
+          "id": "0f4568e6-1e23-4cd2-83f2-f3d31f8ece4e",
+          "method": "POST",
+          "path": "/capital-plans/ec3b43b5-a5e5-4d48-ae43-25bf85b2ac24/decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.156Z"
+        },
+        {
+          "id": "31e21108-79c7-496b-9373-7a0950567414",
+          "method": "POST",
+          "path": "/plans/ec3b43b5-a5e5-4d48-ae43-25bf85b2ac24/publish",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.210Z"
+        },
+        {
+          "id": "3a8dc1fb-106e-41e3-b946-18ca840a5815",
+          "method": "POST",
+          "path": "/allocation-scenarios",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.381Z"
+        },
+        {
+          "id": "43f43885-67a7-49d3-a3e7-801ca5028f46",
+          "method": "POST",
+          "path": "/allocation-scenarios/330dc2ac-10b0-45fc-bbbe-d8e4a1dab30d/run",
+          "status": 422,
+          "at": "2026-11-05T09:14:47.405Z"
+        },
+        {
+          "id": "b3165b9b-840b-40a0-bb69-9c989d4bdb9c",
+          "method": "POST",
+          "path": "/allocation-scenarios",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.461Z"
+        },
+        {
+          "id": "2468e07e-dda2-4264-83ce-6984c6937d4d",
+          "method": "POST",
+          "path": "/allocation-scenarios/af912663-b150-409a-a945-95e373b40520/run",
+          "status": 422,
+          "at": "2026-11-05T09:14:47.472Z"
+        },
+        {
+          "id": "c9e25843-2f76-4690-982b-21603aed1582",
+          "method": "POST",
+          "path": "/allocation-scenarios",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.486Z"
+        },
+        {
+          "id": "375db452-1665-4466-82a4-c0da3c5c5a6e",
+          "method": "POST",
+          "path": "/allocation-scenarios/bb35f61d-d0fd-43d5-8e46-cdd203e07dc3/run",
+          "status": 422,
+          "at": "2026-11-05T09:14:47.503Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/scenario.test.ts",
+      "name": "the simulation of an allocation (ST-CAP-013) UAT-AC233: a scenario is created, run and read without touching the ledger keeps on a donor line at least what is reserved, committed and disbursed on it, as a proposal does",
+      "status": "passed",
+      "durationMs": 743,
+      "at": "2026-11-05T09:14:48.304Z",
+      "requests": [
+        {
+          "id": "7f3d0932-a81e-4f3d-b961-c819d1267a28",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.943Z"
+        },
+        {
+          "id": "bd3b122c-50f1-4e29-b406-0d816cd7ef43",
+          "method": "POST",
+          "path": "/capital-plans/cf96c26f-28d8-4fd5-acfa-0b06b4bd3cd6/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.964Z"
+        },
+        {
+          "id": "43396aa6-4e8b-4844-a0b0-38166af86362",
+          "method": "POST",
+          "path": "/capital-plans/cf96c26f-28d8-4fd5-acfa-0b06b4bd3cd6/submit",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.987Z"
+        },
+        {
+          "id": "39c68d4e-efe0-46b8-9c5b-0ae9468a28f2",
+          "method": "POST",
+          "path": "/capital-plans/cf96c26f-28d8-4fd5-acfa-0b06b4bd3cd6/decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.000Z"
+        },
+        {
+          "id": "878c2454-c4b6-4f4f-9d79-6d201e9224ca",
+          "method": "POST",
+          "path": "/plans/cf96c26f-28d8-4fd5-acfa-0b06b4bd3cd6/publish",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.063Z"
+        },
+        {
+          "id": "66d9377d-e71b-4058-8de7-d466780fffd4",
+          "method": "POST",
+          "path": "/allocation-scenarios",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.236Z"
+        },
+        {
+          "id": "150c9e83-8764-40f0-814c-3c96f585dc49",
+          "method": "POST",
+          "path": "/allocation-scenarios/41a5b759-7eae-469d-b548-b22f3e60ce76/run",
+          "status": 422,
+          "at": "2026-11-05T09:14:48.252Z"
+        },
+        {
+          "id": "ab6bd344-1794-4e08-9c05-0d2e1dd2d500",
+          "method": "POST",
+          "path": "/allocation-scenarios",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.268Z"
+        },
+        {
+          "id": "c0cd95c1-e5e6-4d5c-b564-49b64140a7d4",
+          "method": "POST",
+          "path": "/allocation-scenarios/ba8f57e8-0675-4601-af76-5b8079b6b695/run",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.286Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/scenario.test.ts",
+      "name": "the simulation of an allocation (ST-CAP-013) UAT-AC233: a scenario is created, run and read without touching the ledger judges a line that gives and receives by the difference",
+      "status": "passed",
+      "durationMs": 714,
+      "at": "2026-11-05T09:14:49.018Z",
+      "requests": [
+        {
+          "id": "1bc5615e-8681-420e-b783-7b54f0a060ec",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.650Z"
+        },
+        {
+          "id": "16e9f3d8-a5d1-4783-9149-d8761ac182b6",
+          "method": "POST",
+          "path": "/capital-plans/8785edd2-b570-4271-bb1c-3051ee3e5afb/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.670Z"
+        },
+        {
+          "id": "a0672a4f-bae9-4c2b-a182-ce850c61ae28",
+          "method": "POST",
+          "path": "/capital-plans/8785edd2-b570-4271-bb1c-3051ee3e5afb/submit",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.688Z"
+        },
+        {
+          "id": "58053622-30cd-4319-8819-ba535fcb5ad4",
+          "method": "POST",
+          "path": "/capital-plans/8785edd2-b570-4271-bb1c-3051ee3e5afb/decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.703Z"
+        },
+        {
+          "id": "d0ac3219-ca0e-4710-887a-0443037d9ba1",
+          "method": "POST",
+          "path": "/plans/8785edd2-b570-4271-bb1c-3051ee3e5afb/publish",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.758Z"
+        },
+        {
+          "id": "b0f7f59e-24e9-47b0-8ddc-768612a84020",
+          "method": "POST",
+          "path": "/allocation-scenarios",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.944Z"
+        },
+        {
+          "id": "15fba33f-c1de-4e5a-9a85-6d483d3ef5da",
+          "method": "POST",
+          "path": "/allocation-scenarios/6c1766b1-7400-45f4-a275-fa96939736f0/run",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.959Z"
+        }
+      ]
+    }
+  ]
+}

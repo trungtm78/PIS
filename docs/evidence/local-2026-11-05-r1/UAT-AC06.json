@@ -1,0 +1,47 @@
+{
+  "id": "UAT-AC06",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/home/command-center.test.ts",
+      "name": "the command center over HTTP (ST-HOME-001) AC-ST-HOME-001-2 / UAT-AC06: keeps the figures of the frozen snapshot until a newer one is frozen, whatever happens to the data after it",
+      "status": "passed",
+      "durationMs": 439,
+      "at": "2026-11-05T09:22:59.341Z",
+      "requests": [
+        {
+          "id": "d263429a-3dee-4252-a424-bdc3e5b5b6e3",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-05T09:22:59.031Z"
+        },
+        {
+          "id": "9413525b-15cb-4ef9-bd86-74abbc883093",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-05T09:22:59.251Z"
+        },
+        {
+          "id": "62dd3b89-e63a-4510-8381-6bf2bb705018",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-05T09:22:59.309Z"
+        },
+        {
+          "id": "c947de59-0007-4eb0-8490-f90c9cd94b3f",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-05T09:22:59.330Z"
+        }
+      ]
+    }
+  ]
+}

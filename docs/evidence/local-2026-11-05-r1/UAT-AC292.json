@@ -1,0 +1,814 @@
+{
+  "id": "UAT-AC292",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mne/mne-evaluations.test.ts",
+      "name": "the investment evaluation of a project over HTTP (ST-MNE-009, UAT-AC292, UAT-PLAN-74) is registered in the module of MNE",
+      "status": "passed",
+      "durationMs": 2,
+      "at": "2026-11-05T09:18:48.070Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mne/mne-evaluations.test.ts",
+      "name": "the investment evaluation of a project over HTTP (ST-MNE-009, UAT-AC292, UAT-PLAN-74) AC-ST-MNE-009-1, UAT-AC292: plans a midterm evaluation of a project in implementation, asks for the conclusion, refuses the planner who decides, and links the approved evaluation to the next overall report",
+      "status": "passed",
+      "durationMs": 1331,
+      "at": "2026-11-05T09:18:49.401Z",
+      "requests": [
+        {
+          "id": "9e50deb4-b413-4cfb-a4f9-854d36df7fb1",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:48.383Z"
+        },
+        {
+          "id": "187a6714-949c-4f67-b5d3-6298e92a408e",
+          "method": "POST",
+          "path": "/mne-evaluations/d3600bf2-4deb-4523-96b0-976f84b5c52e/submit",
+          "status": 400,
+          "at": "2026-11-05T09:18:48.617Z"
+        },
+        {
+          "id": "9d9a3c13-f996-444b-a9f5-1f1d59ce3848",
+          "method": "POST",
+          "path": "/mne-evaluations/d3600bf2-4deb-4523-96b0-976f84b5c52e/submit",
+          "status": 200,
+          "at": "2026-11-05T09:18:48.734Z"
+        },
+        {
+          "id": "303b91a6-4d6b-4224-acfd-4d4b9d014a61",
+          "method": "POST",
+          "path": "/mne-evaluations/d3600bf2-4deb-4523-96b0-976f84b5c52e/decision",
+          "status": 403,
+          "at": "2026-11-05T09:18:48.919Z"
+        },
+        {
+          "id": "7bc2e699-0603-4a71-9ef9-cf7b47c5c785",
+          "method": "POST",
+          "path": "/mne-evaluations/d3600bf2-4deb-4523-96b0-976f84b5c52e/decision",
+          "status": 403,
+          "at": "2026-11-05T09:18:48.982Z"
+        },
+        {
+          "id": "ce770888-c69c-4dbf-95fc-23db14601d45",
+          "method": "POST",
+          "path": "/mne-evaluations/d3600bf2-4deb-4523-96b0-976f84b5c52e/decision",
+          "status": 403,
+          "at": "2026-11-05T09:18:49.041Z"
+        },
+        {
+          "id": "e75fa2ca-44ec-4b9f-b7e6-5d9201e65f6e",
+          "method": "POST",
+          "path": "/mne-evaluations/d3600bf2-4deb-4523-96b0-976f84b5c52e/decision",
+          "status": 200,
+          "at": "2026-11-05T09:18:49.088Z"
+        },
+        {
+          "id": "49cdece2-e72d-4173-b92b-4dfc7625c86a",
+          "method": "POST",
+          "path": "/mne-evaluations/d3600bf2-4deb-4523-96b0-976f84b5c52e/decision",
+          "status": 409,
+          "at": "2026-11-05T09:18:49.329Z"
+        },
+        {
+          "id": "c8834eb1-b9cf-4fd5-8903-cb90a20fda5c",
+          "method": "POST",
+          "path": "/mne-evaluations/d3600bf2-4deb-4523-96b0-976f84b5c52e/submit",
+          "status": 409,
+          "at": "2026-11-05T09:18:49.379Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mne/mne-evaluations.test.ts",
+      "name": "the investment evaluation of a project over HTTP (ST-MNE-009, UAT-AC292, UAT-PLAN-74) UAT-PLAN-74: allows an ad hoc evaluation at every stage and the other kinds at their own, and refuses the rest with 409",
+      "status": "passed",
+      "durationMs": 962,
+      "at": "2026-11-05T09:18:50.362Z",
+      "requests": [
+        {
+          "id": "51081e4e-6309-4ef8-b385-13d0696f4f42",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:49.443Z"
+        },
+        {
+          "id": "30cb3ca1-3f30-40bf-8924-26f2175e8566",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:49.564Z"
+        },
+        {
+          "id": "534d7213-ac8f-4ddd-b888-24f1b3273162",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:49.620Z"
+        },
+        {
+          "id": "83f53e1e-7184-4b93-94d1-6918d8d55aef",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:49.688Z"
+        },
+        {
+          "id": "287432f0-298d-4350-b36c-c102c6fac2b9",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 409,
+          "at": "2026-11-05T09:18:49.744Z"
+        },
+        {
+          "id": "9681b5a6-9ac2-4d51-b1cf-c63db9d61663",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:49.810Z"
+        },
+        {
+          "id": "def6e471-a19e-4b4c-9439-7d122485697d",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:49.906Z"
+        },
+        {
+          "id": "7af68cc9-919f-4b67-9505-6edae6e25583",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:49.972Z"
+        },
+        {
+          "id": "9994da70-07b6-4fb3-9a23-11513cbe6253",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 409,
+          "at": "2026-11-05T09:18:50.036Z"
+        },
+        {
+          "id": "d250aaff-bdeb-4da9-9d0b-cd00882acfff",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 409,
+          "at": "2026-11-05T09:18:50.135Z"
+        },
+        {
+          "id": "77617179-51f1-40cb-8f28-edf0a1bd6b76",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:50.206Z"
+        },
+        {
+          "id": "30a97c0a-29c6-4eaf-bed3-8883f971e2c6",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 409,
+          "at": "2026-11-05T09:18:50.345Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mne/mne-evaluations.test.ts",
+      "name": "the investment evaluation of a project over HTTP (ST-MNE-009, UAT-AC292, UAT-PLAN-74) returns an evaluation with the reason, lets it be submitted again, and clears the decision for the next one",
+      "status": "passed",
+      "durationMs": 589,
+      "at": "2026-11-05T09:18:50.952Z",
+      "requests": [
+        {
+          "id": "cf198725-63cb-47e2-8c63-0e06fedb2a4c",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:50.412Z"
+        },
+        {
+          "id": "b5e06c18-19b6-4bd4-aaf0-c71aef0dc36e",
+          "method": "POST",
+          "path": "/mne-evaluations/adf2afc6-6e33-423f-95b6-fbc144b2a968/submit",
+          "status": 200,
+          "at": "2026-11-05T09:18:50.466Z"
+        },
+        {
+          "id": "26c9fd1a-796d-4c25-a9bf-8efc92130b10",
+          "method": "POST",
+          "path": "/mne-evaluations/adf2afc6-6e33-423f-95b6-fbc144b2a968/decision",
+          "status": 200,
+          "at": "2026-11-05T09:18:50.597Z"
+        },
+        {
+          "id": "9b38340c-85c0-43df-9e30-9c03cd3b6438",
+          "method": "POST",
+          "path": "/mne-evaluations/adf2afc6-6e33-423f-95b6-fbc144b2a968/submit",
+          "status": 200,
+          "at": "2026-11-05T09:18:50.743Z"
+        },
+        {
+          "id": "cf3902a1-c2b4-4e12-92fa-4d12a7cbf3f2",
+          "method": "POST",
+          "path": "/mne-evaluations/adf2afc6-6e33-423f-95b6-fbc144b2a968/decision",
+          "status": 403,
+          "at": "2026-11-05T09:18:50.881Z"
+        },
+        {
+          "id": "d837bd98-7ae7-40d7-be96-a92acf3081fe",
+          "method": "POST",
+          "path": "/mne-evaluations/adf2afc6-6e33-423f-95b6-fbc144b2a968/decision",
+          "status": 200,
+          "at": "2026-11-05T09:18:50.940Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mne/mne-evaluations.test.ts",
+      "name": "the investment evaluation of a project over HTTP (ST-MNE-009, UAT-AC292, UAT-PLAN-74) does not link a report that a concurrent step takes out of the workflow while the evaluation is decided",
+      "status": "passed",
+      "durationMs": 944,
+      "at": "2026-11-05T09:18:51.896Z",
+      "requests": [
+        {
+          "id": "5cdc41ee-fcc1-4c10-8acf-35ded0b1fd60",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:51.143Z"
+        },
+        {
+          "id": "9e1a3777-099b-4386-ae29-b97f20f1d31a",
+          "method": "POST",
+          "path": "/mne-evaluations/e988c197-2fdb-4425-b9a0-15cf970d6ab4/submit",
+          "status": 200,
+          "at": "2026-11-05T09:18:51.200Z"
+        },
+        {
+          "id": "23cfbb0f-6f19-44d0-9d04-0d8ac2cc0a48",
+          "method": "POST",
+          "path": "/mne-evaluations/e988c197-2fdb-4425-b9a0-15cf970d6ab4/decision",
+          "status": 200,
+          "at": "2026-11-05T09:18:51.373Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mne/mne-evaluations.test.ts",
+      "name": "the investment evaluation of a project over HTTP (ST-MNE-009, UAT-AC292, UAT-PLAN-74) links nothing when no overall report is being drawn up for the unit",
+      "status": "passed",
+      "durationMs": 297,
+      "at": "2026-11-05T09:18:52.194Z",
+      "requests": [
+        {
+          "id": "8c43e8f8-ab8c-4508-85d0-de56d45cf1cd",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:51.935Z"
+        },
+        {
+          "id": "4d23a4db-5fb9-4ce1-945f-a35f23049d15",
+          "method": "POST",
+          "path": "/mne-evaluations/a6e22204-af45-4349-965e-f292c14d202b/submit",
+          "status": 200,
+          "at": "2026-11-05T09:18:52.001Z"
+        },
+        {
+          "id": "982c234f-cb57-4b4c-a56c-1b76cbaa7121",
+          "method": "POST",
+          "path": "/mne-evaluations/a6e22204-af45-4349-965e-f292c14d202b/decision",
+          "status": 200,
+          "at": "2026-11-05T09:18:52.128Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mne/mne-evaluations.test.ts",
+      "name": "the investment evaluation of a project over HTTP (ST-MNE-009, UAT-AC292, UAT-PLAN-74) refuses a stale version, a state the move does not start from, bad values, a project outside the scope and a caller without the right",
+      "status": "passed",
+      "durationMs": 1920,
+      "at": "2026-11-05T09:18:54.113Z",
+      "requests": [
+        {
+          "id": "283e967f-9601-41d8-8771-397d17ec8c9a",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:52.235Z"
+        },
+        {
+          "id": "5571bd07-b28a-4f39-be1a-71c5806d9cef",
+          "method": "POST",
+          "path": "/mne-evaluations/f860bfce-5b7e-4692-b617-768da2ee3f99/submit",
+          "status": 409,
+          "at": "2026-11-05T09:18:52.244Z"
+        },
+        {
+          "id": "564f9abb-2952-4675-8254-5ea1b54755dc",
+          "method": "POST",
+          "path": "/mne-evaluations/f860bfce-5b7e-4692-b617-768da2ee3f99/decision",
+          "status": 409,
+          "at": "2026-11-05T09:18:52.324Z"
+        },
+        {
+          "id": "93c52f79-66e3-4923-aab8-d82b3429d909",
+          "method": "POST",
+          "path": "/mne-evaluations/f860bfce-5b7e-4692-b617-768da2ee3f99/submit",
+          "status": 422,
+          "at": "2026-11-05T09:18:52.452Z"
+        },
+        {
+          "id": "b2669cda-5a25-4b74-a70f-df8285704a49",
+          "method": "POST",
+          "path": "/mne-evaluations/f860bfce-5b7e-4692-b617-768da2ee3f99/submit",
+          "status": 422,
+          "at": "2026-11-05T09:18:52.503Z"
+        },
+        {
+          "id": "f9dc56d3-bdec-4b76-b1e7-7a79ff11d18b",
+          "method": "POST",
+          "path": "/mne-evaluations/f860bfce-5b7e-4692-b617-768da2ee3f99/submit",
+          "status": 422,
+          "at": "2026-11-05T09:18:52.618Z"
+        },
+        {
+          "id": "67dbe750-0ba8-439e-8b91-0306ad074f3a",
+          "method": "POST",
+          "path": "/mne-evaluations/f860bfce-5b7e-4692-b617-768da2ee3f99/submit",
+          "status": 400,
+          "at": "2026-11-05T09:18:52.662Z"
+        },
+        {
+          "id": "79253466-da96-4b07-bf0d-43f14031e3ff",
+          "method": "POST",
+          "path": "/mne-evaluations/f860bfce-5b7e-4692-b617-768da2ee3f99/submit",
+          "status": 422,
+          "at": "2026-11-05T09:18:52.777Z"
+        },
+        {
+          "id": "c1a9f0cd-61f0-422a-84d4-b5007c9f014c",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 422,
+          "at": "2026-11-05T09:18:52.914Z"
+        },
+        {
+          "id": "9812f81a-9341-4246-bb57-696d2d49ebeb",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 422,
+          "at": "2026-11-05T09:18:52.926Z"
+        },
+        {
+          "id": "a0ab1052-776c-4a82-840e-b46606975fa2",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 422,
+          "at": "2026-11-05T09:18:52.941Z"
+        },
+        {
+          "id": "cd27e273-aa58-45ac-8ed9-d4d530f345a7",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 422,
+          "at": "2026-11-05T09:18:52.957Z"
+        },
+        {
+          "id": "1591e700-c772-4c98-9d71-e5617b8d033b",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 422,
+          "at": "2026-11-05T09:18:52.972Z"
+        },
+        {
+          "id": "dc35dd1e-0c5a-43ef-a66b-b7831b3b4b7f",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 404,
+          "at": "2026-11-05T09:18:52.989Z"
+        },
+        {
+          "id": "06fb059c-6f1c-4b45-9ec2-2968e467ffae",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 403,
+          "at": "2026-11-05T09:18:53.008Z"
+        },
+        {
+          "id": "77d31bac-ac31-4079-a295-4c83abf3fbc8",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 403,
+          "at": "2026-11-05T09:18:53.025Z"
+        },
+        {
+          "id": "ff612ba8-b981-4320-9280-e8efb6aff628",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 403,
+          "at": "2026-11-05T09:18:53.038Z"
+        },
+        {
+          "id": "3376d5c2-d4f2-41bb-b257-755564151f0f",
+          "method": "POST",
+          "path": "/mne-evaluations/f860bfce-5b7e-4692-b617-768da2ee3f99/decision",
+          "status": 403,
+          "at": "2026-11-05T09:18:53.134Z"
+        },
+        {
+          "id": "f84c501b-0b38-4fdb-ab40-691554e34124",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:53.317Z"
+        },
+        {
+          "id": "5c4a19b5-2dc3-4a08-8767-d92f8c251220",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 404,
+          "at": "2026-11-05T09:18:53.474Z"
+        },
+        {
+          "id": "4ee0a0fe-06dc-424f-af4b-f0a184310983",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:53.690Z"
+        },
+        {
+          "id": "a0b32190-3104-4f49-9bbf-de0944843e2f",
+          "method": "POST",
+          "path": "/mne-evaluations/8b216e54-b410-455b-ab23-150194d6249b/submit",
+          "status": 200,
+          "at": "2026-11-05T09:18:53.954Z"
+        },
+        {
+          "id": "1457037d-0592-4e41-b6b6-83e1a38d92dd",
+          "method": "POST",
+          "path": "/mne-evaluations/1db41ff4-6316-49b1-82c8-09f3619fbb41/submit",
+          "status": 404,
+          "at": "2026-11-05T09:18:53.974Z"
+        },
+        {
+          "id": "9cb6eaa4-a73b-4750-9cdf-46c9f48f6520",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:54.028Z"
+        },
+        {
+          "id": "1a0bd1cb-5059-4f72-a56e-2e56849197cf",
+          "method": "POST",
+          "path": "/mne-evaluations/c06aded3-4559-4fed-8040-8ca21df0ef03/submit",
+          "status": 404,
+          "at": "2026-11-05T09:18:54.095Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mne/mne-evaluations.test.ts",
+      "name": "the investment evaluation of a project over HTTP (ST-MNE-009, UAT-AC292, UAT-PLAN-74) keeps the trail without the words of the evaluation and attaches a report document that exists",
+      "status": "passed",
+      "durationMs": 245,
+      "at": "2026-11-05T09:18:54.358Z",
+      "requests": [
+        {
+          "id": "716300b8-f199-4928-94c1-8c03726a400d",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:54.154Z"
+        },
+        {
+          "id": "87e2710c-5b6a-45f3-8e0e-1221b1c3e864",
+          "method": "POST",
+          "path": "/mne-evaluations/531a2dc5-b02c-4300-b2d0-0d3f9b2ba478/submit",
+          "status": 200,
+          "at": "2026-11-05T09:18:54.260Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mne/mne-evaluations.test.ts",
+      "name": "the investment evaluation of a project over HTTP (ST-MNE-009, UAT-AC292, UAT-PLAN-74) lists the evaluations of the reader, newest first, by project and status, with what the caller may do",
+      "status": "passed",
+      "durationMs": 440,
+      "at": "2026-11-05T09:18:54.798Z",
+      "requests": [
+        {
+          "id": "4510ef92-bc5e-4ab5-8944-faaaefbf81c0",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:54.402Z"
+        },
+        {
+          "id": "fdc9c4b4-a6c4-4d9d-9e7b-1ddc0f320bb5",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:54.422Z"
+        },
+        {
+          "id": "c9fc85ee-c2c0-4da9-82fc-cd31cd7c248f",
+          "method": "POST",
+          "path": "/mne-evaluations/38606cfb-fedb-4907-9351-7fe6555ba339/submit",
+          "status": 200,
+          "at": "2026-11-05T09:18:54.493Z"
+        },
+        {
+          "id": "260b5a45-e8fc-4b46-b927-6c395e453f38",
+          "method": "GET",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:54.518Z"
+        },
+        {
+          "id": "2caa04e8-ea6f-4869-8d47-f5df378be742",
+          "method": "GET",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:54.531Z"
+        },
+        {
+          "id": "420f8f2a-b7a2-4ad1-855c-ee75375ef0a7",
+          "method": "GET",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:54.544Z"
+        },
+        {
+          "id": "2f85f0e4-1b2a-439a-a964-3015e054d65f",
+          "method": "GET",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:54.551Z"
+        },
+        {
+          "id": "67f333bd-0c90-4b03-a93b-8d1fb219eb5a",
+          "method": "GET",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:54.561Z"
+        },
+        {
+          "id": "d5e23544-bd4b-4144-9d5a-a8a31b9cda51",
+          "method": "GET",
+          "path": "/mne-evaluations",
+          "status": 422,
+          "at": "2026-11-05T09:18:54.578Z"
+        },
+        {
+          "id": "2d6f29e5-3272-40e9-b11a-6658906b3698",
+          "method": "GET",
+          "path": "/mne-evaluations",
+          "status": 422,
+          "at": "2026-11-05T09:18:54.592Z"
+        },
+        {
+          "id": "d35cc452-39a7-4376-9c42-b83074b6637b",
+          "method": "GET",
+          "path": "/mne-evaluations",
+          "status": 403,
+          "at": "2026-11-05T09:18:54.605Z"
+        },
+        {
+          "id": "b24074ab-1358-40e6-a166-f82943ca687e",
+          "method": "GET",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:54.623Z"
+        },
+        {
+          "id": "377381c9-382b-4de5-96eb-0d50c3a4dc4a",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:54.754Z"
+        },
+        {
+          "id": "942bad16-2711-4eb3-b3c2-eddfef277635",
+          "method": "GET",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:54.770Z"
+        },
+        {
+          "id": "1ff54131-4057-4cf4-a084-8fb2fb9c5d5d",
+          "method": "GET",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:54.782Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mne/mne-evaluations.test.ts",
+      "name": "the investment evaluation of a project over HTTP (ST-MNE-009, UAT-AC292, UAT-PLAN-74) pages through evaluations created within the same millisecond without skipping or repeating one",
+      "status": "passed",
+      "durationMs": 117,
+      "at": "2026-11-05T09:18:54.916Z",
+      "requests": [
+        {
+          "id": "2a01fee1-96a1-4229-b0c4-9e8e3f05856b",
+          "method": "GET",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:54.883Z"
+        },
+        {
+          "id": "b8d13a13-96fa-4b13-a7f9-59accf5720c1",
+          "method": "GET",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:54.889Z"
+        },
+        {
+          "id": "444fdcb6-b5ad-4228-bbc6-126b43af8df0",
+          "method": "GET",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:54.911Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mne/mne-evaluations.test.ts",
+      "name": "the investment evaluation of a project over HTTP (ST-MNE-009, UAT-AC292, UAT-PLAN-74) lists the projects an evaluation can be made for by the right to read evaluations, by code, within the scope of the reader",
+      "status": "passed",
+      "durationMs": 328,
+      "at": "2026-11-05T09:18:55.244Z",
+      "requests": [
+        {
+          "id": "0599e0be-29b9-4865-b703-044fd606022d",
+          "method": "GET",
+          "path": "/mne-evaluations/projects",
+          "status": 200,
+          "at": "2026-11-05T09:18:54.997Z"
+        },
+        {
+          "id": "31d7bbdc-e443-4cbb-a73d-b3f32edf88c8",
+          "method": "GET",
+          "path": "/mne-evaluations/projects",
+          "status": 200,
+          "at": "2026-11-05T09:18:55.004Z"
+        },
+        {
+          "id": "8877cc99-a658-4fdd-a12f-e60c76435f4e",
+          "method": "GET",
+          "path": "/mne-evaluations/projects",
+          "status": 200,
+          "at": "2026-11-05T09:18:55.020Z"
+        },
+        {
+          "id": "6ef4f9a8-1639-4f9c-bcdd-df4f32182536",
+          "method": "GET",
+          "path": "/mne-evaluations/projects",
+          "status": 200,
+          "at": "2026-11-05T09:18:55.036Z"
+        },
+        {
+          "id": "57a5cf9b-0287-49c5-8112-3672d29bb500",
+          "method": "GET",
+          "path": "/mne-evaluations/projects",
+          "status": 200,
+          "at": "2026-11-05T09:18:55.053Z"
+        },
+        {
+          "id": "6847faac-6bc4-4d8e-86d2-4bd5f1c2a8d2",
+          "method": "GET",
+          "path": "/mne-evaluations/projects",
+          "status": 200,
+          "at": "2026-11-05T09:18:55.068Z"
+        },
+        {
+          "id": "d8b430e3-29e2-4237-ae53-f620b4bb4e98",
+          "method": "GET",
+          "path": "/mne-evaluations/projects",
+          "status": 200,
+          "at": "2026-11-05T09:18:55.071Z"
+        },
+        {
+          "id": "10fcba5c-cec6-4c55-bfb3-a29fd8d23e41",
+          "method": "GET",
+          "path": "/mne-evaluations/projects",
+          "status": 200,
+          "at": "2026-11-05T09:18:55.085Z"
+        },
+        {
+          "id": "55eca753-1daa-405b-ae5f-3c3202ace26a",
+          "method": "GET",
+          "path": "/mne-evaluations/projects",
+          "status": 200,
+          "at": "2026-11-05T09:18:55.100Z"
+        },
+        {
+          "id": "bba899c5-8696-4738-b7b2-bac1fd595644",
+          "method": "GET",
+          "path": "/mne-evaluations/projects",
+          "status": 200,
+          "at": "2026-11-05T09:18:55.115Z"
+        },
+        {
+          "id": "740f877e-fce5-45bc-a103-7e30fb158892",
+          "method": "GET",
+          "path": "/mne-evaluations/projects",
+          "status": 200,
+          "at": "2026-11-05T09:18:55.132Z"
+        },
+        {
+          "id": "01d17533-ba2d-4693-8d75-4a99fc4959ce",
+          "method": "GET",
+          "path": "/mne-evaluations/projects",
+          "status": 200,
+          "at": "2026-11-05T09:18:55.148Z"
+        },
+        {
+          "id": "972fd624-9bf3-4545-9298-babb92d797aa",
+          "method": "GET",
+          "path": "/mne-evaluations/projects",
+          "status": 200,
+          "at": "2026-11-05T09:18:55.164Z"
+        },
+        {
+          "id": "33026039-44f0-4512-a8fc-3ad293dbebd7",
+          "method": "GET",
+          "path": "/mne-evaluations/projects",
+          "status": 200,
+          "at": "2026-11-05T09:18:55.180Z"
+        },
+        {
+          "id": "ceccff8b-5749-4b7f-8b47-baa14b8d0057",
+          "method": "GET",
+          "path": "/mne-evaluations/projects",
+          "status": 200,
+          "at": "2026-11-05T09:18:55.202Z"
+        },
+        {
+          "id": "f245756e-29de-4a72-bd84-9a73571f209b",
+          "method": "GET",
+          "path": "/mne-evaluations/projects",
+          "status": 200,
+          "at": "2026-11-05T09:18:55.212Z"
+        },
+        {
+          "id": "944004e3-bbbd-4ace-8996-979f8aadfb10",
+          "method": "GET",
+          "path": "/mne-evaluations/projects",
+          "status": 403,
+          "at": "2026-11-05T09:18:55.228Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mne/mne-evaluations.test.ts",
+      "name": "the investment evaluation of a project over HTTP (ST-MNE-009, UAT-AC292, UAT-PLAN-74) keeps the database honest when the application is bypassed",
+      "status": "passed",
+      "durationMs": 794,
+      "at": "2026-11-05T09:18:56.037Z",
+      "requests": [
+        {
+          "id": "8500fb5a-4f41-4273-95c0-de90f63a1f04",
+          "method": "POST",
+          "path": "/mne-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:18:55.286Z"
+        },
+        {
+          "id": "04ddd93d-fe63-4dea-bddc-72408918730f",
+          "method": "POST",
+          "path": "/mne-evaluations/6d5fa97d-c9f9-4d65-83a0-82249e5f686c/submit",
+          "status": 200,
+          "at": "2026-11-05T09:18:55.342Z"
+        },
+        {
+          "id": "00cf9097-6c6b-4e28-ba93-6359c2b972f6",
+          "method": "POST",
+          "path": "/mne-evaluations/6d5fa97d-c9f9-4d65-83a0-82249e5f686c/decision",
+          "status": 200,
+          "at": "2026-11-05T09:18:55.834Z"
+        }
+      ]
+    }
+  ]
+}

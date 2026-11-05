@@ -1,0 +1,82 @@
+{
+  "id": "UAT-AC286",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mne/mne-reports.test.ts",
+      "name": "the periodic overall report API (ST-MNE-002, MNE F3, MNE-03) AC-ST-MNE-002-2: the form revision in force on the last day of the period UAT-AC286: gives YEAR-2026 revision 1 and H1-2027 revision 2 of the same code, and leaves a report alone when the revision is closed",
+      "status": "passed",
+      "durationMs": 420,
+      "at": "2026-11-05T09:18:46.701Z",
+      "requests": [
+        {
+          "id": "3e2d604f-70af-482e-b0e8-1152a880e2f3",
+          "method": "POST",
+          "path": "/mne-forms",
+          "status": 200,
+          "at": "2026-11-05T09:18:46.282Z"
+        },
+        {
+          "id": "4a34da36-c8ea-4fed-ad42-62887f851a85",
+          "method": "POST",
+          "path": "/mne-forms/2892ae1e-d56d-48ab-b057-228c31ab54dc/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:46.309Z"
+        },
+        {
+          "id": "37d44285-57f3-41f6-bfdf-395bec3391d4",
+          "method": "POST",
+          "path": "/mne-forms",
+          "status": 200,
+          "at": "2026-11-05T09:18:46.322Z"
+        },
+        {
+          "id": "21df1261-8c72-4c61-bda0-569e4df88ca5",
+          "method": "POST",
+          "path": "/mne-reports",
+          "status": 200,
+          "at": "2026-11-05T09:18:46.383Z"
+        },
+        {
+          "id": "d231fae6-0982-4807-bb5e-339743129f95",
+          "method": "POST",
+          "path": "/mne-forms/e1a55e15-1c7d-4ba1-b6f5-53847b5654ae/publish",
+          "status": 200,
+          "at": "2026-11-05T09:18:46.450Z"
+        },
+        {
+          "id": "213bbb56-643b-4401-b66e-ff75f6152029",
+          "method": "GET",
+          "path": "/mne-reports/86386740-29c0-4ee6-be36-072812e6b88d",
+          "status": 200,
+          "at": "2026-11-05T09:18:46.470Z"
+        },
+        {
+          "id": "08808f2b-744f-4de9-81f9-d3a6b3617ef4",
+          "method": "POST",
+          "path": "/mne-reports",
+          "status": 200,
+          "at": "2026-11-05T09:18:46.525Z"
+        },
+        {
+          "id": "56c93c3b-e98c-4982-8179-bd7faec06f42",
+          "method": "GET",
+          "path": "/mne-reports/21c2c63a-e3bd-4600-a9fb-2afe365e84c4",
+          "status": 200,
+          "at": "2026-11-05T09:18:46.552Z"
+        },
+        {
+          "id": "07d38079-f3a1-4d4a-aa8c-1067da262691",
+          "method": "GET",
+          "path": "/mne-reports/86386740-29c0-4ee6-be36-072812e6b88d",
+          "status": 200,
+          "at": "2026-11-05T09:18:46.561Z"
+        }
+      ]
+    }
+  ]
+}

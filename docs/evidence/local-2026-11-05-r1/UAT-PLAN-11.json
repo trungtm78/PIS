@@ -1,0 +1,432 @@
+{
+  "id": "UAT-PLAN-11",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/snapshot.test.ts",
+      "name": "the period snapshot over HTTP (ST-DIS-009) AC-ST-DIS-009-5 / UAT-PLAN-11: a snapshot of 1000 projects builds within 300 seconds, keeps every project, and serves the reads of the figures with a p95 of 2 seconds or less (the read replica itself is an environment check)",
+      "status": "passed",
+      "durationMs": 35241,
+      "at": "2026-11-05T09:11:13.025Z",
+      "requests": [
+        {
+          "id": "b4e4bb99-3ba9-4a39-bc6e-a99611c47d41",
+          "method": "POST",
+          "path": "/period-snapshots",
+          "status": 200,
+          "at": "2026-11-05T09:10:37.958Z"
+        },
+        {
+          "id": "7d4144a2-8d98-4869-adb9-43096458ffd3",
+          "method": "POST",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/freeze",
+          "status": 200,
+          "at": "2026-11-05T09:10:39.356Z"
+        },
+        {
+          "id": "0ab7fead-dfce-4906-b3ad-4078358074e7",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:39.901Z"
+        },
+        {
+          "id": "7987eee1-094c-4ec0-bc41-0ca7e231cc6c",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.648Z"
+        },
+        {
+          "id": "a99008e8-5504-4bce-8d25-cfd270d45be1",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.694Z"
+        },
+        {
+          "id": "396860c4-aeef-4226-9939-2ad0b3a9e662",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:41.475Z"
+        },
+        {
+          "id": "ed4d5778-3cf4-42d1-b571-291d7440352e",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:42.306Z"
+        },
+        {
+          "id": "040e1e4e-2fb1-418a-aa58-8523ab8bb3e4",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:43.131Z"
+        },
+        {
+          "id": "1f1c37b7-450c-418e-b1e0-c075d01618fa",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:43.985Z"
+        },
+        {
+          "id": "251d4575-747f-478f-b54b-a4a5370e5307",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:44.848Z"
+        },
+        {
+          "id": "e766c30a-d9b2-4abb-ad91-677dbc9cb4ff",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:45.747Z"
+        },
+        {
+          "id": "f67b583f-3edf-4b27-bc69-b2f02b95db0e",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.649Z"
+        },
+        {
+          "id": "8fbb3c0c-6399-4dd9-8d7d-44a7af03a875",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:47.597Z"
+        },
+        {
+          "id": "c98d140a-3809-4951-8804-b80d32b5b678",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:48.532Z"
+        },
+        {
+          "id": "5528b87a-b0fd-41a8-bed3-9338178f3747",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:49.502Z"
+        },
+        {
+          "id": "126e2023-8dce-43bc-837b-9515a025054e",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:50.494Z"
+        },
+        {
+          "id": "118e39aa-c652-4d74-8e70-d57857197b1c",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:51.481Z"
+        },
+        {
+          "id": "9a8c398f-ba3c-4999-acb4-2316a4219e4f",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:52.504Z"
+        },
+        {
+          "id": "f7d17237-b3ed-4ed5-ba90-525a442d036e",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:53.573Z"
+        },
+        {
+          "id": "53ce4dff-c032-4b54-ab51-0ab2e8573fc5",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:54.630Z"
+        },
+        {
+          "id": "531221da-a7a0-44e8-83db-a9edb3c895ad",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:55.680Z"
+        },
+        {
+          "id": "4d0a80cc-ae1a-4355-afbf-c1e747e34421",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:56.777Z"
+        },
+        {
+          "id": "91b57915-4dbe-482c-8399-ce0aec4c95a9",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:57.861Z"
+        },
+        {
+          "id": "98b7f2f5-cfda-48f5-8655-1972c64c7632",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:58.926Z"
+        },
+        {
+          "id": "351f0958-c5c4-47ec-91e3-70a361277b91",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:00.023Z"
+        },
+        {
+          "id": "2cc8b683-d478-4bad-8657-86d6cef4d279",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:01.118Z"
+        },
+        {
+          "id": "681f407a-fc6b-4511-9102-b10eed0cfc66",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:02.239Z"
+        },
+        {
+          "id": "4c3ebb8b-1244-4075-bef4-6f9b651d091b",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:03.336Z"
+        },
+        {
+          "id": "04b04c1e-de80-499e-9558-45ba9c3ab4b6",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:04.450Z"
+        },
+        {
+          "id": "ed3e1ee8-c89b-46ad-9cde-2249f1711387",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:05.572Z"
+        },
+        {
+          "id": "39a90969-bc59-44d0-a4e5-fd950cbf1a2d",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:06.752Z"
+        },
+        {
+          "id": "d3372c18-ae5a-42cf-a304-1b076cdf0924",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:07.894Z"
+        },
+        {
+          "id": "82b5f9fd-3e43-4766-8772-ee8842f7d35e",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:09.015Z"
+        },
+        {
+          "id": "c25a7117-f064-4f53-9d8d-c4faa026b117",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:10.180Z"
+        },
+        {
+          "id": "3d95d781-9adb-44ec-ae0c-63f84b7e2d60",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.439Z"
+        },
+        {
+          "id": "07cc38a8-fdb8-4205-a20b-d5374bba8a19",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.451Z"
+        },
+        {
+          "id": "7466a7c1-f02a-4558-825e-696b27b1d4c4",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.455Z"
+        },
+        {
+          "id": "68a60123-3276-4625-b7ba-3f8f81fded69",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.464Z"
+        },
+        {
+          "id": "1e65e8e0-e3d1-4629-9a4b-c6e42e52ca55",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.482Z"
+        },
+        {
+          "id": "7fd2ad01-e72e-4cbc-ba0f-5bdc3b46f224",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.497Z"
+        },
+        {
+          "id": "a323f54e-5b42-458e-9442-ac303b6fd147",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.513Z"
+        },
+        {
+          "id": "22db7429-79e6-4386-a1aa-3ec95cd9ba66",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.528Z"
+        },
+        {
+          "id": "f6e97306-c2ed-46a0-8398-91eeb9a04111",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.545Z"
+        },
+        {
+          "id": "9c421ceb-463d-4082-8ebb-95a5ec52869e",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.562Z"
+        },
+        {
+          "id": "aa73409d-8065-463c-92e7-5146281bb39a",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.577Z"
+        },
+        {
+          "id": "696858d8-4749-4087-863f-5f6f1e4e3203",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.594Z"
+        },
+        {
+          "id": "a6b8d01c-d732-477e-81d1-6ea4cfcc0058",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.609Z"
+        },
+        {
+          "id": "eeba05f2-d720-4cbf-8102-53e25b26edba",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.626Z"
+        },
+        {
+          "id": "e649b9e5-edb6-4657-911d-62cfafdb34c1",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.631Z"
+        },
+        {
+          "id": "c7eaacd9-99d3-491b-baa3-5193d6a6a334",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.641Z"
+        },
+        {
+          "id": "c76077b2-b350-41aa-81a3-c9b94a99e417",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.657Z"
+        },
+        {
+          "id": "c61050f7-0f23-469a-a37d-3a9cb18ac028",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.661Z"
+        },
+        {
+          "id": "ab1c5411-8bf3-45b4-8e62-baf67bfeb476",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.673Z"
+        },
+        {
+          "id": "4c91e2cf-6bfc-444f-a7d1-7c125e1468d2",
+          "method": "GET",
+          "path": "/period-snapshots/8c48df7b-06bf-4de9-9246-3914695f0954/lines",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.689Z"
+        },
+        {
+          "id": "a9e8d36e-17db-42c2-b06e-5871d23466a7",
+          "method": "GET",
+          "path": "/disbursement-rates",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.705Z"
+        },
+        {
+          "id": "e4958015-7a78-4bbc-a192-476727e47508",
+          "method": "GET",
+          "path": "/disbursement-rates",
+          "status": 200,
+          "at": "2026-11-05T09:11:11.970Z"
+        },
+        {
+          "id": "630a7855-f964-4295-b408-065a6f8edfdc",
+          "method": "GET",
+          "path": "/disbursement-rates",
+          "status": 200,
+          "at": "2026-11-05T09:11:12.240Z"
+        },
+        {
+          "id": "1b83d3f8-4176-4de6-b473-e05e045b47ec",
+          "method": "GET",
+          "path": "/disbursement-rates",
+          "status": 200,
+          "at": "2026-11-05T09:11:12.501Z"
+        },
+        {
+          "id": "7d2c6aa8-d5ba-45d0-a5f6-d6f165d5b007",
+          "method": "GET",
+          "path": "/disbursement-rates",
+          "status": 200,
+          "at": "2026-11-05T09:11:12.766Z"
+        }
+      ]
+    }
+  ]
+}

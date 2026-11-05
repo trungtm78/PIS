@@ -1,0 +1,166 @@
+{
+  "id": "UAT-AC464",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-gateway.test.ts",
+      "name": "the records of the gateway (ST-LLM-005, LLM-01, LLM-05) AC-ST-LLM-005-5: UAT-AC464 reads 50 of 1,000 requests as international and 30 as blocked for the month, and every international request is public",
+      "status": "passed",
+      "durationMs": 996,
+      "at": "2026-11-05T09:11:02.226Z",
+      "requests": [
+        {
+          "id": "d4f7dc3e-d61a-4713-98b1-a8ae0e851494",
+          "method": "POST",
+          "path": "/ai-classification-policies",
+          "status": 200,
+          "at": "2026-11-05T09:11:01.485Z"
+        },
+        {
+          "id": "846bc245-2717-4eb5-89ab-d67cdb2ac6de",
+          "method": "POST",
+          "path": "/ai-classification-policies/decf9ef5-eaa3-4ac5-a3b1-f283bca0a3b9/publish",
+          "status": 200,
+          "at": "2026-11-05T09:11:01.501Z"
+        },
+        {
+          "id": "25d04f61-bf82-499b-b86c-a7fa60cd1927",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:11:01.558Z"
+        },
+        {
+          "id": "f86813f9-4a1f-46a2-ba86-87dbec79db86",
+          "method": "POST",
+          "path": "/ai-providers/8dc03d02-493d-4658-8723-178601abe2a6/activation",
+          "status": 200,
+          "at": "2026-11-05T09:11:01.581Z"
+        },
+        {
+          "id": "c73fefca-48b9-479b-b832-e5b1f711d96a",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:11:01.589Z"
+        },
+        {
+          "id": "e2e36de1-68da-42e7-b096-31cf1f6be947",
+          "method": "POST",
+          "path": "/ai-models/f4656a3b-df7b-4f09-b676-b6b96bf8d45a/approval",
+          "status": 200,
+          "at": "2026-11-05T09:11:01.611Z"
+        },
+        {
+          "id": "cb7f3173-0e12-4818-8c5a-189354353eb9",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:11:01.628Z"
+        },
+        {
+          "id": "4e31cc7c-0bff-42dd-a423-e461b7e1920a",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:11:01.682Z"
+        },
+        {
+          "id": "397f81d0-31e5-49be-8592-8a087aa59a9f",
+          "method": "POST",
+          "path": "/ai-providers/c1f11050-aca2-4f38-8568-a35d06c5e594/activation",
+          "status": 200,
+          "at": "2026-11-05T09:11:01.691Z"
+        },
+        {
+          "id": "1ec87e95-aef5-4eb9-b760-7aa24cac1b65",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:11:01.706Z"
+        },
+        {
+          "id": "ae458252-1784-4282-8f83-857f8a113d50",
+          "method": "POST",
+          "path": "/ai-models/ee2f7ca7-f8de-45c9-8178-f4ad15de1560/approval",
+          "status": 200,
+          "at": "2026-11-05T09:11:01.723Z"
+        },
+        {
+          "id": "86d0d4b1-5d05-4b19-8aab-db527e66995a",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:11:01.738Z"
+        },
+        {
+          "id": "fe48c60d-6b6c-44e1-9662-cb9e7cee1801",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:11:01.756Z"
+        },
+        {
+          "id": "b5ab68bc-3731-4b45-bf7c-161e508939a1",
+          "method": "POST",
+          "path": "/ai-providers/37c7176b-d4a4-496f-8a80-d903b9351e84/activation",
+          "status": 200,
+          "at": "2026-11-05T09:11:01.770Z"
+        },
+        {
+          "id": "656fd942-d82f-45f1-b192-37c88d296328",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:11:01.787Z"
+        },
+        {
+          "id": "ee90a561-0f04-4834-ba47-4b07ad824570",
+          "method": "POST",
+          "path": "/ai-models/ddaf112e-59b3-4d34-9ce9-1e536e485546/approval",
+          "status": 200,
+          "at": "2026-11-05T09:11:01.802Z"
+        },
+        {
+          "id": "10f7c82e-cbea-4e73-be4a-6e269c0130e5",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:11:01.820Z"
+        },
+        {
+          "id": "4376cdf1-1c36-4010-9b80-53cefd559e22",
+          "method": "POST",
+          "path": "/ai-prompts",
+          "status": 200,
+          "at": "2026-11-05T09:11:01.835Z"
+        },
+        {
+          "id": "50df8a1f-afa3-4641-b183-18c55e222e72",
+          "method": "POST",
+          "path": "/ai-prompts/e34c9987-6e2b-431c-8b44-276c89470087/approval",
+          "status": 200,
+          "at": "2026-11-05T09:11:01.851Z"
+        },
+        {
+          "id": "2a683d7e-f7a2-4d6b-ad11-7b4f2c83091c",
+          "method": "GET",
+          "path": "/ai/requests",
+          "status": 200,
+          "at": "2026-11-05T09:11:02.143Z"
+        },
+        {
+          "id": "62f7ee33-5b4e-48c0-97c7-cca589212521",
+          "method": "GET",
+          "path": "/ai/requests",
+          "status": 200,
+          "at": "2026-11-05T09:11:02.154Z"
+        }
+      ]
+    }
+  ]
+}

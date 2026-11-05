@@ -1,0 +1,160 @@
+{
+  "id": "UAT-AC257",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report-export.test.ts",
+      "name": "the report export over HTTP (ST-DIS-016) AC-ST-DIS-016-3 / UAT-AC257: a PDF is made while the definitions are not signed, with the sign-off notice, and a signed snapshot carries no notice",
+      "status": "passed",
+      "durationMs": 738,
+      "at": "2026-11-05T09:22:40.208Z",
+      "requests": [
+        {
+          "id": "0209f347-f161-4447-90e2-65494b24d2ee",
+          "method": "POST",
+          "path": "/report-exports",
+          "status": 200,
+          "at": "2026-11-05T09:22:39.518Z"
+        },
+        {
+          "id": "4c55e6b5-ba39-49c0-9bbd-b1ad5a0dcc5f",
+          "method": "GET",
+          "path": "/report-exports/fb124601-9eda-4d51-88c9-93b73946daff/download",
+          "status": 200,
+          "at": "2026-11-05T09:22:40.008Z"
+        },
+        {
+          "id": "0ae1eed2-63bd-4358-b6ba-a8767c9a08dd",
+          "method": "GET",
+          "path": "/report-exports/fb124601-9eda-4d51-88c9-93b73946daff/file",
+          "status": 200,
+          "at": "2026-11-05T09:22:40.022Z"
+        },
+        {
+          "id": "9e6351ab-253f-4c32-8483-b462e090dacc",
+          "method": "POST",
+          "path": "/report-exports",
+          "status": 200,
+          "at": "2026-11-05T09:22:40.125Z"
+        },
+        {
+          "id": "2c6196a2-a4ef-4605-b662-706a76a4767f",
+          "method": "GET",
+          "path": "/report-exports/6c5f770e-58a7-4acf-8a05-386bdb8469a4/download",
+          "status": 200,
+          "at": "2026-11-05T09:22:40.140Z"
+        },
+        {
+          "id": "e532176a-d595-43df-b5b9-d64952066195",
+          "method": "GET",
+          "path": "/report-exports/6c5f770e-58a7-4acf-8a05-386bdb8469a4/file",
+          "status": 200,
+          "at": "2026-11-05T09:22:40.148Z"
+        },
+        {
+          "id": "4672f439-4581-4c4b-8152-ed451e2001f2",
+          "method": "POST",
+          "path": "/report-exports",
+          "status": 200,
+          "at": "2026-11-05T09:22:40.162Z"
+        },
+        {
+          "id": "11f739bb-9cf4-4227-9f8e-75aa678960e0",
+          "method": "GET",
+          "path": "/report-exports/809bff21-6d99-4364-8bf5-2184e22aa152/download",
+          "status": 200,
+          "at": "2026-11-05T09:22:40.187Z"
+        },
+        {
+          "id": "71b8132c-c78e-4cc3-9a3d-3c4a54570cdd",
+          "method": "GET",
+          "path": "/report-exports/809bff21-6d99-4364-8bf5-2184e22aa152/file",
+          "status": 200,
+          "at": "2026-11-05T09:22:40.197Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/export-pdf.test.ts",
+      "name": "the PDF of an export (ST-DIS-016) AC-ST-DIS-016-3 / UAT-AC257: carries in its footer that the definitions await the D03 sign-off, with the header of the file and the rows",
+      "status": "passed",
+      "durationMs": 475,
+      "at": "2026-11-05T09:22:47.875Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/definitions.test.ts",
+      "name": "the definitions of the disbursement metrics over HTTP (ST-DIS-011) AC-ST-DIS-011-1 / UAT-AC257: the definitions of the metrics (the period change, the year and project cumulatives, the two denominators) are in the glossary of the tenant awaiting the owner, and a snapshot says so",
+      "status": "passed",
+      "durationMs": 86,
+      "at": "2026-11-05T09:23:36.311Z",
+      "requests": [
+        {
+          "id": "82f15593-0b30-4b5e-893b-f9cfc798a447",
+          "method": "GET",
+          "path": "/glossary-terms",
+          "status": 200,
+          "at": "2026-11-05T09:23:36.226Z"
+        },
+        {
+          "id": "2c1fca39-6ecc-4e24-9ac2-bb1e964aeee4",
+          "method": "POST",
+          "path": "/period-snapshots",
+          "status": 200,
+          "at": "2026-11-05T09:23:36.240Z"
+        },
+        {
+          "id": "dd548c11-d018-40ff-9b43-96e89b87dd18",
+          "method": "GET",
+          "path": "/period-snapshots/969910a5-2c0b-4bc5-8d85-3b920bded585/lines",
+          "status": 200,
+          "at": "2026-11-05T09:23:36.286Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/definitions.test.ts",
+      "name": "the definitions of the disbursement metrics over HTTP (ST-DIS-011) AC-ST-DIS-011-1 / UAT-AC257: a person who does not own the domain cannot approve a term (403 SCOPE_DENIED) and the term stays in review; a reader cannot approve either",
+      "status": "passed",
+      "durationMs": 134,
+      "at": "2026-11-05T09:23:36.455Z",
+      "requests": [
+        {
+          "id": "5156fe8b-8e7e-4312-8911-4dd98f69a0de",
+          "method": "POST",
+          "path": "/glossary-terms/91da2112-bfdf-4f6c-bad2-a42907ec9b60/decision",
+          "status": 403,
+          "at": "2026-11-05T09:23:36.359Z"
+        },
+        {
+          "id": "4622c719-a79d-46da-a5e3-841932173597",
+          "method": "POST",
+          "path": "/glossary-terms/91da2112-bfdf-4f6c-bad2-a42907ec9b60/decision",
+          "status": 403,
+          "at": "2026-11-05T09:23:36.414Z"
+        },
+        {
+          "id": "0b5fe6ea-c8b6-43ea-8813-d9e8e8ad5415",
+          "method": "POST",
+          "path": "/period-snapshots",
+          "status": 200,
+          "at": "2026-11-05T09:23:36.432Z"
+        },
+        {
+          "id": "07f5ab10-7d5c-408e-a0dd-10e65488636c",
+          "method": "GET",
+          "path": "/period-snapshots/3ab2eb1e-d7d0-44dc-a60c-e1dca6bc33db/lines",
+          "status": 200,
+          "at": "2026-11-05T09:23:36.449Z"
+        }
+      ]
+    }
+  ]
+}

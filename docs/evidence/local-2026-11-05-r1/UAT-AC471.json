@@ -1,0 +1,78 @@
+{
+  "id": "UAT-AC471",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-publications.test.ts",
+      "name": "certification and publication approval (ST-BI-006, BI 3 F5) AC-ST-BI-006-2: UAT-AC471 refuses a metric whose rerun on the latest snapshot differs from what the snapshot stores, names the check that failed and makes no request",
+      "status": "passed",
+      "durationMs": 223,
+      "at": "2026-11-05T09:17:04.010Z",
+      "requests": [
+        {
+          "id": "fdc4c60b-565e-484c-b71a-929df3b5ae01",
+          "method": "POST",
+          "path": "/bi/metric-definitions",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.834Z"
+        },
+        {
+          "id": "1d7ab7a0-d0c8-4258-9a77-2a26704c1e4f",
+          "method": "POST",
+          "path": "/bi/publication-requests",
+          "status": 422,
+          "at": "2026-11-05T09:17:03.848Z"
+        },
+        {
+          "id": "328ddbfc-c25a-458e-8617-b4024525f422",
+          "method": "POST",
+          "path": "/bi/publication-requests",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.985Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-metrics.test.ts",
+      "name": "the registry of metrics (ST-BI-001, BI F1) the sync of the metrics of the platform AC-ST-BI-001-1: UAT-AC471 applies a bundle with its commit and the hash of its definition, takes the same bundle as NO_CHANGE, refuses a tenant that edits the metric, and refuses a changed denominator under the same code",
+      "status": "passed",
+      "durationMs": 443,
+      "at": "2026-11-05T09:19:47.685Z",
+      "requests": [
+        {
+          "id": "b761a8f7-2f80-43f4-a8a7-c068c645fe1a",
+          "method": "POST",
+          "path": "/bi/metric-registry-syncs",
+          "status": 200,
+          "at": "2026-11-05T09:19:47.293Z"
+        },
+        {
+          "id": "69fe1d86-bf7b-4f45-b640-aa0ad8476821",
+          "method": "POST",
+          "path": "/bi/metric-registry-syncs",
+          "status": 200,
+          "at": "2026-11-05T09:19:47.443Z"
+        },
+        {
+          "id": "48866fad-ec6d-4c02-a561-e9e9e7ffa943",
+          "method": "POST",
+          "path": "/bi/metric-definitions",
+          "status": 422,
+          "at": "2026-11-05T09:19:47.503Z"
+        },
+        {
+          "id": "3a583053-b5c3-4e74-a602-35424f194854",
+          "method": "POST",
+          "path": "/bi/metric-registry-syncs",
+          "status": 422,
+          "at": "2026-11-05T09:19:47.531Z"
+        }
+      ]
+    }
+  ]
+}

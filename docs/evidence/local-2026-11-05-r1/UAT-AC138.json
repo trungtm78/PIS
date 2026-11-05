@@ -1,0 +1,64 @@
+{
+  "id": "UAT-AC138",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/delivery-flow.test.ts",
+      "name": "the delivery engine in the real API process (ST-NOT-002) AC-ST-OMNI-004-2 UAT-AC138: a message event that failed because the account was not Active is replayed to PROCESSED once, and a second replay is 409 INBOX_STATE_INVALID",
+      "status": "passed",
+      "durationMs": 626,
+      "at": "2026-11-05T09:16:06.655Z",
+      "requests": [
+        {
+          "id": "d9afc1d2-53c2-4a5c-957e-1c618572a961",
+          "method": "POST",
+          "path": "/integration-inbox/ceaaf1b1-a8a6-4e14-a7c2-f83fd06d4aa1/replay",
+          "status": 202,
+          "at": "2026-11-05T09:16:06.414Z"
+        },
+        {
+          "id": "c0b8cfd2-fd59-45c2-b3a2-9c97ecd5227b",
+          "method": "POST",
+          "path": "/integration-inbox/ceaaf1b1-a8a6-4e14-a7c2-f83fd06d4aa1/replay",
+          "status": 409,
+          "at": "2026-11-05T09:16:06.631Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/integration-connectors.test.ts",
+      "name": "integration connectors and the replay of the inbox (ST-ADM-018, ADM-09, ADM-10) replayInboxEvent takes a failed event up again: the first replay ends with the event PROCESSED, the second is refused with 409 INBOX_STATE_INVALID (AC-ST-ADM-018-2, UAT-AC138)",
+      "status": "passed",
+      "durationMs": 143,
+      "at": "2026-11-05T09:23:11.935Z",
+      "requests": [
+        {
+          "id": "3370bbd5-1cb4-4b36-b42f-eafb0cdd733e",
+          "method": "POST",
+          "path": "/integration-inbox/96499667-132f-4909-ad8f-01277c8bc260/replay",
+          "status": 202,
+          "at": "2026-11-05T09:23:11.833Z"
+        },
+        {
+          "id": "e595790c-a853-4493-a957-68a3a8b71027",
+          "method": "POST",
+          "path": "/integration-inbox/96499667-132f-4909-ad8f-01277c8bc260/replay",
+          "status": 409,
+          "at": "2026-11-05T09:23:11.902Z"
+        },
+        {
+          "id": "17af6367-d456-4fad-b478-74d5aa57e44a",
+          "method": "POST",
+          "path": "/integration-inbox/96499667-132f-4909-ad8f-01277c8bc260/replay",
+          "status": 409,
+          "at": "2026-11-05T09:23:11.919Z"
+        }
+      ]
+    }
+  ]
+}

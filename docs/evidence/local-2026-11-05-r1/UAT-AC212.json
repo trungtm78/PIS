@@ -1,0 +1,276 @@
+{
+  "id": "UAT-AC212",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/explanation.test.ts",
+      "name": "the explanation requests (ST-PRJ-006) the life of a request (AC-ST-PRJ-006-1 / UAT-AC212) AC-ST-PRJ-006-1: EW-01 is open, the leader asks, it passes its due date and becomes OVERDUE, the person asked answers late and it is told late, they cannot conclude their own answer, and another person accepts it and the warning is RESOLVED",
+      "status": "passed",
+      "durationMs": 994,
+      "at": "2026-11-05T09:19:38.423Z",
+      "requests": [
+        {
+          "id": "c2588896-3c0d-4822-a48f-ad8f8ef560bf",
+          "method": "POST",
+          "path": "/explanation-requests",
+          "status": 200,
+          "at": "2026-11-05T09:19:37.529Z"
+        },
+        {
+          "id": "282a6988-73e5-4873-b698-dbb62146aabc",
+          "method": "POST",
+          "path": "/explanation-requests/31020545-67f2-4af2-88c3-c497dad77eaa/response",
+          "status": 200,
+          "at": "2026-11-05T09:19:37.954Z"
+        },
+        {
+          "id": "f2aeb85b-ed1b-493f-9ff6-82f49587d40b",
+          "method": "POST",
+          "path": "/explanation-requests/31020545-67f2-4af2-88c3-c497dad77eaa/decision",
+          "status": 403,
+          "at": "2026-11-05T09:19:38.062Z"
+        },
+        {
+          "id": "9372f52f-46c2-47b7-9eea-2d4bf60c2c72",
+          "method": "POST",
+          "path": "/explanation-requests/31020545-67f2-4af2-88c3-c497dad77eaa/decision",
+          "status": 403,
+          "at": "2026-11-05T09:19:38.090Z"
+        },
+        {
+          "id": "1bb43e3f-2bca-4cc4-a461-aa38172e8c6f",
+          "method": "POST",
+          "path": "/explanation-requests/31020545-67f2-4af2-88c3-c497dad77eaa/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:38.136Z"
+        },
+        {
+          "id": "496c0773-50d0-4aba-95bd-f1cd84afce94",
+          "method": "POST",
+          "path": "/explanation-requests/31020545-67f2-4af2-88c3-c497dad77eaa/response",
+          "status": 422,
+          "at": "2026-11-05T09:19:38.384Z"
+        },
+        {
+          "id": "d9e1aa77-3be0-4c82-a040-026e0fd1f0b7",
+          "method": "POST",
+          "path": "/explanation-requests/31020545-67f2-4af2-88c3-c497dad77eaa/decision",
+          "status": 409,
+          "at": "2026-11-05T09:19:38.406Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/explanation.test.ts",
+      "name": "the explanation requests (ST-PRJ-006) the life of a request (AC-ST-PRJ-006-1 / UAT-AC212) takes an answer in time as in time (not late), and only from the person who was asked, under the version they saw, once",
+      "status": "passed",
+      "durationMs": 190,
+      "at": "2026-11-05T09:19:38.613Z",
+      "requests": [
+        {
+          "id": "966ac7ff-ce6a-4767-8647-2d5470a0079d",
+          "method": "POST",
+          "path": "/explanation-requests",
+          "status": 200,
+          "at": "2026-11-05T09:19:38.464Z"
+        },
+        {
+          "id": "36dd42e2-5447-455a-ace7-5c8c6e9d0008",
+          "method": "POST",
+          "path": "/explanation-requests/6682b8c3-3278-4bff-9f49-4bc97051560d/response",
+          "status": 403,
+          "at": "2026-11-05T09:19:38.488Z"
+        },
+        {
+          "id": "da0cf95c-65ec-4cda-98b9-47d00555e55b",
+          "method": "POST",
+          "path": "/explanation-requests/6682b8c3-3278-4bff-9f49-4bc97051560d/response",
+          "status": 403,
+          "at": "2026-11-05T09:19:38.500Z"
+        },
+        {
+          "id": "6c9cb133-f56f-4281-8570-5347c8ac6cbf",
+          "method": "POST",
+          "path": "/explanation-requests/6682b8c3-3278-4bff-9f49-4bc97051560d/response",
+          "status": 409,
+          "at": "2026-11-05T09:19:38.514Z"
+        },
+        {
+          "id": "7b08b96d-a367-4ea9-9420-d086ba35dd2d",
+          "method": "POST",
+          "path": "/explanation-requests/6682b8c3-3278-4bff-9f49-4bc97051560d/response",
+          "status": 422,
+          "at": "2026-11-05T09:19:38.522Z"
+        },
+        {
+          "id": "b6266aee-3899-4dee-8acb-5cb0a49a0377",
+          "method": "POST",
+          "path": "/explanation-requests/6682b8c3-3278-4bff-9f49-4bc97051560d/response",
+          "status": 200,
+          "at": "2026-11-05T09:19:38.530Z"
+        },
+        {
+          "id": "e8d5ec96-0926-4635-a88b-f26223f0afaf",
+          "method": "POST",
+          "path": "/explanation-requests/6682b8c3-3278-4bff-9f49-4bc97051560d/response",
+          "status": 422,
+          "at": "2026-11-05T09:19:38.604Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/explanation.test.ts",
+      "name": "the explanation requests (ST-PRJ-006) the life of a request (AC-ST-PRJ-006-1 / UAT-AC212) returns an answer with a note and a new due date: the first date is kept, the answer may be given again, and a returned request that passes the new date becomes overdue too",
+      "status": "passed",
+      "durationMs": 556,
+      "at": "2026-11-05T09:19:39.169Z",
+      "requests": [
+        {
+          "id": "b79a4964-1e42-4fce-8297-6aa994f31720",
+          "method": "POST",
+          "path": "/explanation-requests",
+          "status": 200,
+          "at": "2026-11-05T09:19:38.725Z"
+        },
+        {
+          "id": "2f1637a8-b008-471b-9ed5-4c4679e0ce1f",
+          "method": "POST",
+          "path": "/explanation-requests/8a609085-124b-4ee2-8bd7-50d079fceb9f/decision",
+          "status": 409,
+          "at": "2026-11-05T09:19:38.784Z"
+        },
+        {
+          "id": "c63a0545-ddfc-4bad-b677-cbf57ae39e75",
+          "method": "POST",
+          "path": "/explanation-requests/8a609085-124b-4ee2-8bd7-50d079fceb9f/response",
+          "status": 200,
+          "at": "2026-11-05T09:19:38.804Z"
+        },
+        {
+          "id": "2dd1467c-386d-447a-81fb-29043055bee6",
+          "method": "POST",
+          "path": "/explanation-requests/8a609085-124b-4ee2-8bd7-50d079fceb9f/decision",
+          "status": 422,
+          "at": "2026-11-05T09:19:38.826Z"
+        },
+        {
+          "id": "ff089d4a-0a91-408b-9ff8-55a1eec3d7fe",
+          "method": "POST",
+          "path": "/explanation-requests/8a609085-124b-4ee2-8bd7-50d079fceb9f/decision",
+          "status": 422,
+          "at": "2026-11-05T09:19:38.836Z"
+        },
+        {
+          "id": "1500cf8d-41f9-4fab-8016-dfebda059482",
+          "method": "POST",
+          "path": "/explanation-requests/8a609085-124b-4ee2-8bd7-50d079fceb9f/decision",
+          "status": 422,
+          "at": "2026-11-05T09:19:38.845Z"
+        },
+        {
+          "id": "595ca0d9-3bb2-422a-a3f8-94342b564fb5",
+          "method": "POST",
+          "path": "/explanation-requests/8a609085-124b-4ee2-8bd7-50d079fceb9f/decision",
+          "status": 422,
+          "at": "2026-11-05T09:19:38.864Z"
+        },
+        {
+          "id": "37f2afe6-7785-4260-b690-9fa90a743ec2",
+          "method": "POST",
+          "path": "/explanation-requests/8a609085-124b-4ee2-8bd7-50d079fceb9f/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:38.867Z"
+        },
+        {
+          "id": "2726371d-2379-4860-81cb-cc21b75d7199",
+          "method": "POST",
+          "path": "/explanation-requests/8a609085-124b-4ee2-8bd7-50d079fceb9f/response",
+          "status": 200,
+          "at": "2026-11-05T09:19:38.925Z"
+        },
+        {
+          "id": "92431fc1-4760-4880-b6e5-ad37d59d50f2",
+          "method": "POST",
+          "path": "/explanation-requests",
+          "status": 200,
+          "at": "2026-11-05T09:19:39.033Z"
+        },
+        {
+          "id": "8cb18074-2d69-485d-8dd4-e1dd3360cc1c",
+          "method": "POST",
+          "path": "/explanation-requests/ec0f773b-a857-49bd-a5f8-beb19b0f7a0c/response",
+          "status": 200,
+          "at": "2026-11-05T09:19:39.047Z"
+        },
+        {
+          "id": "afef8024-8c8f-4bdd-b663-232380f3a4de",
+          "method": "POST",
+          "path": "/explanation-requests/ec0f773b-a857-49bd-a5f8-beb19b0f7a0c/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:39.062Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/explanation.test.ts",
+      "name": "the explanation requests (ST-PRJ-006) the life of a request (AC-ST-PRJ-006-1 / UAT-AC212) gives a returned request a date earlier than the first one when the reviewer wants it sooner: the first date is kept, the new one is the one in force",
+      "status": "passed",
+      "durationMs": 198,
+      "at": "2026-11-05T09:19:39.368Z",
+      "requests": [
+        {
+          "id": "0a088972-37bc-48ae-96cc-c580e0cf402c",
+          "method": "POST",
+          "path": "/explanation-requests",
+          "status": 200,
+          "at": "2026-11-05T09:19:39.209Z"
+        },
+        {
+          "id": "c436d1fb-661a-457a-87b6-17f74fa10099",
+          "method": "POST",
+          "path": "/explanation-requests/538cd5a4-6c2b-4bd8-9140-4e941ae25d53/response",
+          "status": 200,
+          "at": "2026-11-05T09:19:39.220Z"
+        },
+        {
+          "id": "2153aff8-251a-4073-aef5-06a481038ffc",
+          "method": "POST",
+          "path": "/explanation-requests/538cd5a4-6c2b-4bd8-9140-4e941ae25d53/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:39.237Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/explanation.test.ts",
+      "name": "the explanation requests (ST-PRJ-006) the life of a request (AC-ST-PRJ-006-1 / UAT-AC212) leaves a request that was answered alone when the job runs",
+      "status": "passed",
+      "durationMs": 160,
+      "at": "2026-11-05T09:19:39.528Z",
+      "requests": [
+        {
+          "id": "7099aff5-9424-4ad1-bc0a-6d3eaf3a4b96",
+          "method": "POST",
+          "path": "/explanation-requests",
+          "status": 200,
+          "at": "2026-11-05T09:19:39.409Z"
+        },
+        {
+          "id": "d014db21-377e-442b-a932-8a8c0eb96ac8",
+          "method": "POST",
+          "path": "/explanation-requests/bf3f7564-9631-4b21-8fbf-a7186a643cab/response",
+          "status": 200,
+          "at": "2026-11-05T09:19:39.430Z"
+        }
+      ]
+    }
+  ]
+}

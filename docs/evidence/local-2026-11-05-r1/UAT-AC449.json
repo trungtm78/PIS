@@ -1,0 +1,123 @@
+{
+  "id": "UAT-AC449",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/ocr.test.ts",
+      "name": "the OCR of the pages of a proposal and its review (ST-BID-008) AC-ST-BID-008-1 / UAT-AC449: a page under the threshold stops the financial analysis until the expert corrects it sends page 23 at 0.71 to review, holds the gate, and opens it when the expert corrects the page",
+      "status": "passed",
+      "durationMs": 415,
+      "at": "2026-11-05T09:19:04.765Z",
+      "requests": [
+        {
+          "id": "7dd117d8-69d8-4783-97ba-2c2035cabe2a",
+          "method": "POST",
+          "path": "/procurement-packages/be9929fc-f173-451b-949a-da118004a2b2/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:19:04.539Z"
+        },
+        {
+          "id": "4361aae9-cb68-4430-928a-272069f09763",
+          "method": "GET",
+          "path": "/proposals/473b3a7b-f6fc-49a7-9bbb-cfb256f98042/ocr-pages",
+          "status": 200,
+          "at": "2026-11-05T09:19:04.644Z"
+        },
+        {
+          "id": "cc48f75f-957b-40aa-ae91-a4c49ebac720",
+          "method": "POST",
+          "path": "/document-page-ocr/files",
+          "status": 200,
+          "at": "2026-11-05T09:19:04.667Z"
+        },
+        {
+          "id": "557cc010-0c18-479f-9227-ee46affd5d27",
+          "method": "POST",
+          "path": "/document-page-ocr/aedf34ae-86c3-4683-97ab-fe05ff58bb5a/review",
+          "status": 200,
+          "at": "2026-11-05T09:19:04.680Z"
+        },
+        {
+          "id": "4d01504d-2d37-4c59-be0c-93d917521dd0",
+          "method": "GET",
+          "path": "/proposals/473b3a7b-f6fc-49a7-9bbb-cfb256f98042/ocr-pages",
+          "status": 200,
+          "at": "2026-11-05T09:19:04.699Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/ocr.test.ts",
+      "name": "the OCR of the pages of a proposal and its review (ST-BID-008) AC-ST-BID-008-1 / UAT-AC449: a page under the threshold stops the financial analysis until the expert corrects it accepts a reading at the threshold and not one just under it, and sends a table whose total is wrong to review (BR-BID-06)",
+      "status": "passed",
+      "durationMs": 217,
+      "at": "2026-11-05T09:19:04.983Z",
+      "requests": [
+        {
+          "id": "f991c65b-2b1d-4bf7-acce-65ad298293f9",
+          "method": "POST",
+          "path": "/procurement-packages/b8b0fb92-f8e4-411d-ad32-c0642aa2de84/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:19:04.933Z"
+        },
+        {
+          "id": "809c2e61-d36c-4459-ac91-2d5397feeeec",
+          "method": "GET",
+          "path": "/proposals/8d35cf8b-bce1-423c-a67a-e9cb13d5d746/ocr-pages",
+          "status": 200,
+          "at": "2026-11-05T09:19:04.966Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/ocr.test.ts",
+      "name": "the OCR of the pages of a proposal and its review (ST-BID-008) AC-ST-BID-008-1 / UAT-AC449: a page under the threshold stops the financial analysis until the expert corrects it confirms a page as it was read, keeps the gate shut while another page waits, and opens it with the last review",
+      "status": "passed",
+      "durationMs": 286,
+      "at": "2026-11-05T09:19:05.269Z",
+      "requests": [
+        {
+          "id": "e15e271d-739d-4032-876b-3aa1f34ff372",
+          "method": "POST",
+          "path": "/procurement-packages/589d4d94-767f-489a-b8e9-19f30c240052/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:19:05.146Z"
+        },
+        {
+          "id": "6b555703-a0a0-4fab-93ab-76db4cee4f5f",
+          "method": "POST",
+          "path": "/document-page-ocr/8569dbc4-f25f-43de-ae78-c68e45fa14c5/review",
+          "status": 200,
+          "at": "2026-11-05T09:19:05.178Z"
+        },
+        {
+          "id": "9e4b10aa-aad9-45c5-a924-18e6777a444d",
+          "method": "GET",
+          "path": "/proposals/14cfe193-4b92-429b-a255-3ea77ac76ede/ocr-pages",
+          "status": 200,
+          "at": "2026-11-05T09:19:05.209Z"
+        },
+        {
+          "id": "2c3bd55e-d16d-4270-afc0-fc3abc49de8f",
+          "method": "POST",
+          "path": "/document-page-ocr/9bbdc52d-818f-48d4-bc02-8ea235f32c58/review",
+          "status": 200,
+          "at": "2026-11-05T09:19:05.236Z"
+        },
+        {
+          "id": "c10afbe8-a236-4d4f-bc86-c14d15d6e2d1",
+          "method": "GET",
+          "path": "/proposals/14cfe193-4b92-429b-a255-3ea77ac76ede/ocr-pages",
+          "status": 200,
+          "at": "2026-11-05T09:19:05.255Z"
+        }
+      ]
+    }
+  ]
+}

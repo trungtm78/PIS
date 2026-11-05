@@ -1,0 +1,113 @@
+{
+  "id": "UAT-AC358",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/diary.test.ts",
+      "name": "the electronic site diary over HTTP (ST-QMS-001) ST-QMS-002: two devices, the conflict between them, and the place AC-ST-QMS-002-2: UAT-AC358 delivers the same operation twice and creates one revision, for the first save, for an update and for a copy that was kept",
+      "status": "passed",
+      "durationMs": 1478,
+      "at": "2026-11-05T09:12:11.221Z",
+      "requests": [
+        {
+          "id": "0d810b5e-7f7b-45d2-9fe8-51262f427166",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 200,
+          "at": "2026-11-05T09:12:10.875Z"
+        },
+        {
+          "id": "5eaa78b7-3a4e-48f7-89d8-458ba9947a57",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 200,
+          "at": "2026-11-05T09:12:10.896Z"
+        },
+        {
+          "id": "18bc6cae-6995-4fef-98f0-03d0ff0f97f7",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 200,
+          "at": "2026-11-05T09:12:10.910Z"
+        },
+        {
+          "id": "78c06326-22e2-4a61-8517-ed527b3d9de7",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 200,
+          "at": "2026-11-05T09:12:10.927Z"
+        },
+        {
+          "id": "b5f6a89c-987a-408b-917c-213c5ebfda63",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 409,
+          "at": "2026-11-05T09:12:10.942Z"
+        },
+        {
+          "id": "025cfb53-d4e4-4cb4-9ab3-849e353f9f8b",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 409,
+          "at": "2026-11-05T09:12:10.959Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/sync/sync-batches.test.ts",
+      "name": "the commands a phone queued offline (ST-MOB-005, MOB-41) a batch AC-ST-MOB-005-3 UAT-AC358: five commands with one refused are answered one by one: the four good ones are accepted, the batch is not failed, and each leaves a receipt",
+      "status": "passed",
+      "durationMs": 840,
+      "at": "2026-11-05T09:21:12.112Z",
+      "requests": [
+        {
+          "id": "085703d0-4cfe-440c-8c5b-50ae0ee39d83",
+          "method": "POST",
+          "path": "/issues",
+          "status": 201,
+          "at": "2026-11-05T09:21:11.405Z"
+        },
+        {
+          "id": "085703d0-4cfe-440c-8c5b-50ae0ee39d83",
+          "method": "POST",
+          "path": "/issues",
+          "status": 201,
+          "at": "2026-11-05T09:21:11.441Z"
+        },
+        {
+          "id": "085703d0-4cfe-440c-8c5b-50ae0ee39d83",
+          "method": "POST",
+          "path": "/reports/00000000-0000-4000-8000-0000000000e1/submit",
+          "status": 422,
+          "at": "2026-11-05T09:21:11.479Z"
+        },
+        {
+          "id": "085703d0-4cfe-440c-8c5b-50ae0ee39d83",
+          "method": "POST",
+          "path": "/reports/00000000-0000-4000-8000-0000000000e2/submit",
+          "status": 201,
+          "at": "2026-11-05T09:21:11.502Z"
+        },
+        {
+          "id": "085703d0-4cfe-440c-8c5b-50ae0ee39d83",
+          "method": "POST",
+          "path": "/issues",
+          "status": 201,
+          "at": "2026-11-05T09:21:11.526Z"
+        },
+        {
+          "id": "085703d0-4cfe-440c-8c5b-50ae0ee39d83",
+          "method": "POST",
+          "path": "/sync/batches",
+          "status": 200,
+          "at": "2026-11-05T09:21:11.273Z"
+        }
+      ]
+    }
+  ]
+}

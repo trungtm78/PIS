@@ -1,0 +1,50 @@
+{
+  "id": "UAT-AC272",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/home/my-work.test.ts",
+      "name": "my work over HTTP (ST-HOME-004) AC-ST-HOME-004-1: UAT-AC272 gives the maker the 3 explanations (2 asked for, 1 late with the day it was first asked for), the late one first, and the way to PRJ-19",
+      "status": "passed",
+      "durationMs": 332,
+      "at": "2026-11-05T09:21:38.196Z",
+      "requests": [
+        {
+          "id": "daba00df-9d39-4a90-80ee-0db95aa643d3",
+          "method": "GET",
+          "path": "/home/my-work",
+          "status": 200,
+          "at": "2026-11-05T09:21:38.075Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/home/my-work.test.ts",
+      "name": "my work over HTTP (ST-HOME-004) AC-ST-HOME-004-2: UAT-AC272 gives a report that came back and an approval that waits, and never the work of another person",
+      "status": "passed",
+      "durationMs": 519,
+      "at": "2026-11-05T09:21:38.715Z",
+      "requests": [
+        {
+          "id": "0dc090bc-1d5d-44f0-b869-e4b82d356a66",
+          "method": "GET",
+          "path": "/home/my-work",
+          "status": 200,
+          "at": "2026-11-05T09:21:38.674Z"
+        },
+        {
+          "id": "ac948d16-045a-482e-be14-79f35b3d7ec7",
+          "method": "GET",
+          "path": "/home/my-work",
+          "status": 200,
+          "at": "2026-11-05T09:21:38.702Z"
+        }
+      ]
+    }
+  ]
+}

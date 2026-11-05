@@ -1,0 +1,253 @@
+{
+  "id": "UAT-AC63",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/acceptance.test.ts",
+      "name": "the acceptance of work over HTTP (ST-CTR-009) AC-ST-CTR-009-1, UAT-AC63: refuses measurements that are not approved by name, drafts the rest priced from the revision, and tells PAY nothing until it is approved",
+      "status": "passed",
+      "durationMs": 1603,
+      "at": "2026-11-05T09:13:30.457Z",
+      "requests": [
+        {
+          "id": "810c3dcc-b6d9-450e-8746-1a15638bf514",
+          "method": "POST",
+          "path": "/contracts/1c682bc8-3161-434d-b8a6-449efd8ef780/acceptances",
+          "status": 422,
+          "at": "2026-11-05T09:13:30.045Z"
+        },
+        {
+          "id": "fe03b216-b523-45ab-8f88-376958055328",
+          "method": "POST",
+          "path": "/contracts/1c682bc8-3161-434d-b8a6-449efd8ef780/acceptances",
+          "status": 422,
+          "at": "2026-11-05T09:13:30.082Z"
+        },
+        {
+          "id": "b81e2ad7-32e8-4a9c-a185-431132751d3b",
+          "method": "POST",
+          "path": "/contracts/1c682bc8-3161-434d-b8a6-449efd8ef780/acceptances",
+          "status": 200,
+          "at": "2026-11-05T09:13:30.094Z"
+        },
+        {
+          "id": "379e4ff4-e8e0-432e-8707-a49aec08ee1b",
+          "method": "POST",
+          "path": "/contracts/1c682bc8-3161-434d-b8a6-449efd8ef780/acceptances",
+          "status": 200,
+          "at": "2026-11-05T09:13:30.127Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/ctr-acceptance-flows.spec.ts",
+      "name": "the officer draws up and sends an acceptance, a leader approves it and payment is told once, and another person revokes it (UI-CTR-12, AC-ST-CTR-009-1, UAT-AC63, UAT-AC313)",
+      "status": "passed",
+      "durationMs": 2964,
+      "at": "2026-11-05T08:45:45.398Z",
+      "requests": [
+        {
+          "id": "32c55e24-778b-4e59-a3ef-920ad2a84154",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:46.039Z"
+        },
+        {
+          "id": "a30623a3-8d2b-43a2-b616-5bc51cadb5ec",
+          "method": "GET",
+          "path": "/resources/contract/01a52ebf-1e7b-4a0f-aaa4-3626f9559d69",
+          "status": 200,
+          "at": "2026-11-05T08:45:46.038Z"
+        },
+        {
+          "id": "7869097c-d607-4538-8ec9-c4df6aba9162",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 200,
+          "at": "2026-11-05T08:45:46.039Z"
+        },
+        {
+          "id": "d685b5a8-f99f-4553-972e-0efd4526f775",
+          "method": "POST",
+          "path": "/contracts/01a52ebf-1e7b-4a0f-aaa4-3626f9559d69/acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:45:46.467Z"
+        },
+        {
+          "id": "901f51d7-93c0-4979-976e-a8b4ac7b69f2",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:46.497Z"
+        },
+        {
+          "id": "4efdd2cf-0cd8-4fe1-ae45-61e0bfb8d4f8",
+          "method": "GET",
+          "path": "/resources/contract/01a52ebf-1e7b-4a0f-aaa4-3626f9559d69",
+          "status": 304,
+          "at": "2026-11-05T08:45:46.495Z"
+        },
+        {
+          "id": "526dfce0-d8c6-4f8e-8ab2-ae5155c3507b",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 200,
+          "at": "2026-11-05T08:45:46.496Z"
+        },
+        {
+          "id": "5d415c23-7c32-4910-b565-632c9ed4d29a",
+          "method": "POST",
+          "path": "/acceptances/e4ab0fb7-a552-4d1b-8aa7-1e228ea554f4/submit",
+          "status": 200,
+          "at": "2026-11-05T08:45:46.803Z"
+        },
+        {
+          "id": "9fa7c723-cf16-40d5-ad43-c0ff834203db",
+          "method": "GET",
+          "path": "/resources/contract/01a52ebf-1e7b-4a0f-aaa4-3626f9559d69",
+          "status": 304,
+          "at": "2026-11-05T08:45:46.821Z"
+        },
+        {
+          "id": "c6dc6b99-c167-4c9a-aaf8-b03c9d7b8f72",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:46.822Z"
+        },
+        {
+          "id": "f54a61dc-1a67-4d9e-b493-efa6180e6380",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 200,
+          "at": "2026-11-05T08:45:46.823Z"
+        },
+        {
+          "id": "49ecd1a1-024a-4b37-ba79-a797374aa8c6",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 403,
+          "at": "2026-11-05T08:45:47.112Z"
+        },
+        {
+          "id": "bd0b8f2c-5c03-4b90-8561-818920d067fc",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:47.111Z"
+        },
+        {
+          "id": "7b1388da-0306-45de-8e30-4b0e7c071c99",
+          "method": "GET",
+          "path": "/resources/contract/01a52ebf-1e7b-4a0f-aaa4-3626f9559d69",
+          "status": 304,
+          "at": "2026-11-05T08:45:47.110Z"
+        },
+        {
+          "id": "830339d6-8502-4bb8-aef5-e375440a1b03",
+          "method": "POST",
+          "path": "/acceptances/e4ab0fb7-a552-4d1b-8aa7-1e228ea554f4/decision",
+          "status": 200,
+          "at": "2026-11-05T08:45:47.316Z"
+        },
+        {
+          "id": "b4a958dd-5e96-4f92-b991-54636e9867b8",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 403,
+          "at": "2026-11-05T08:45:47.335Z"
+        },
+        {
+          "id": "67e1e28d-2f45-4d70-9091-7926492b088a",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:47.334Z"
+        },
+        {
+          "id": "84fe56e6-a06f-4814-88a9-580878a8ff26",
+          "method": "GET",
+          "path": "/resources/contract/01a52ebf-1e7b-4a0f-aaa4-3626f9559d69",
+          "status": 200,
+          "at": "2026-11-05T08:45:47.333Z"
+        },
+        {
+          "id": "e514ab1c-7604-443d-a87e-300d1d4f64e9",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:47.674Z"
+        },
+        {
+          "id": "19288c10-4e9f-4e31-9089-720b1bfea2af",
+          "method": "GET",
+          "path": "/resources/contract/01a52ebf-1e7b-4a0f-aaa4-3626f9559d69",
+          "status": 304,
+          "at": "2026-11-05T08:45:47.673Z"
+        },
+        {
+          "id": "cc1a4bec-b0dd-4d48-b059-bebdba2a5460",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 200,
+          "at": "2026-11-05T08:45:47.674Z"
+        },
+        {
+          "id": "73948f3f-6ef2-4c81-a260-11485b0cca62",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 403,
+          "at": "2026-11-05T08:45:47.884Z"
+        },
+        {
+          "id": "0e0bfc7e-5e58-430a-952c-94a238079a3e",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:47.882Z"
+        },
+        {
+          "id": "4482e6b7-1eb9-4d95-8422-1021686be009",
+          "method": "GET",
+          "path": "/resources/contract/01a52ebf-1e7b-4a0f-aaa4-3626f9559d69",
+          "status": 304,
+          "at": "2026-11-05T08:45:47.882Z"
+        },
+        {
+          "id": "1972cce1-0353-4fc9-a998-c120871287d2",
+          "method": "POST",
+          "path": "/acceptances/e4ab0fb7-a552-4d1b-8aa7-1e228ea554f4/revoke",
+          "status": 200,
+          "at": "2026-11-05T08:45:48.050Z"
+        },
+        {
+          "id": "79f2ec9e-fcff-47b4-9a4d-4746e1dd1e5a",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 403,
+          "at": "2026-11-05T08:45:48.070Z"
+        },
+        {
+          "id": "0f0ae2ca-1626-447a-b0e1-36ebb4d43a4e",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T08:45:48.070Z"
+        },
+        {
+          "id": "b52fffc4-c935-4af4-a1f2-ac32b91867d1",
+          "method": "GET",
+          "path": "/resources/contract/01a52ebf-1e7b-4a0f-aaa4-3626f9559d69",
+          "status": 200,
+          "at": "2026-11-05T08:45:48.069Z"
+        }
+      ]
+    }
+  ]
+}

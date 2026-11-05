@@ -1,0 +1,40 @@
+{
+  "id": "UAT-AC129",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/approval.test.ts",
+      "name": "the approval workflows over HTTP (ST-ADM-012) AC-ST-ADM-012-1, UAT-AC129: a maker who holds the task is refused with SELF_APPROVAL_DENIED, and the task is given to another eligible person",
+      "status": "passed",
+      "durationMs": 391,
+      "at": "2026-11-05T09:21:50.735Z",
+      "requests": [
+        {
+          "id": "af64ec48-7664-45b0-855f-6654959f787d",
+          "method": "POST",
+          "path": "/workflow-definitions",
+          "status": 200,
+          "at": "2026-11-05T09:21:50.344Z"
+        },
+        {
+          "id": "1c6c0d88-fb15-434d-8327-55ff793d53e1",
+          "method": "POST",
+          "path": "/workflow-definitions/5de6ca91-7864-4392-aa68-e9f085eb788c/publish",
+          "status": 200,
+          "at": "2026-11-05T09:21:50.357Z"
+        },
+        {
+          "id": "b84726c6-21d9-4ef8-b1b6-dda18e307906",
+          "method": "POST",
+          "path": "/approval-tasks/6dbc882e-26a2-456d-bf3e-33a00c4a4c33/decision",
+          "status": 403,
+          "at": "2026-11-05T09:21:50.499Z"
+        }
+      ]
+    }
+  ]
+}

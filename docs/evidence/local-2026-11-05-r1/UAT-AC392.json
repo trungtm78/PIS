@@ -1,0 +1,130 @@
+{
+  "id": "UAT-AC392",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/warranty.test.ts",
+      "name": "the warranty of a work over HTTP (ST-AST-003) closeWarrantyObligation (AC-ST-AST-003-2, UAT-AC392) AC-ST-AST-003-2, UAT-AC392: refuses while a claim is open, then closes it and announces the closure that lets the retention be released",
+      "status": "passed",
+      "durationMs": 1391,
+      "at": "2026-11-05T09:16:36.870Z",
+      "requests": [
+        {
+          "id": "34ca7506-ca08-4947-bb92-144e2ffa94ce",
+          "method": "POST",
+          "path": "/warranty-obligations",
+          "status": 200,
+          "at": "2026-11-05T09:16:36.328Z"
+        },
+        {
+          "id": "0df20799-70e1-4fa3-8367-5c1b046fa421",
+          "method": "POST",
+          "path": "/warranty-obligations/f962067c-b00a-4133-a3bd-e54194756ab2/close",
+          "status": 422,
+          "at": "2026-11-05T09:16:36.399Z"
+        },
+        {
+          "id": "08e4ada6-e596-493e-9c95-f9394b661d21",
+          "method": "POST",
+          "path": "/warranty-obligations/f962067c-b00a-4133-a3bd-e54194756ab2/close",
+          "status": 200,
+          "at": "2026-11-05T09:16:36.625Z"
+        },
+        {
+          "id": "b72b3864-18c5-48b0-ba5f-fb373f15760c",
+          "method": "POST",
+          "path": "/warranty-obligations/f962067c-b00a-4133-a3bd-e54194756ab2/close",
+          "status": 409,
+          "at": "2026-11-05T09:16:36.825Z"
+        },
+        {
+          "id": "8a82a3da-8798-44aa-abe4-22a0aa44df38",
+          "method": "GET",
+          "path": "/warranty-obligations",
+          "status": 200,
+          "at": "2026-11-05T09:16:36.847Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/warranty.test.ts",
+      "name": "the warranty of a work over HTTP (ST-AST-003) closeWarrantyObligation (AC-ST-AST-003-2, UAT-AC392) refuses to close before the last day",
+      "status": "passed",
+      "durationMs": 1014,
+      "at": "2026-11-05T09:16:37.883Z",
+      "requests": [
+        {
+          "id": "ffcc8f7f-d2f5-45ce-96e0-d62470774253",
+          "method": "POST",
+          "path": "/warranty-obligations",
+          "status": 200,
+          "at": "2026-11-05T09:16:37.749Z"
+        },
+        {
+          "id": "91e4bd38-bd46-40ea-9c74-ce0af8d580f0",
+          "method": "POST",
+          "path": "/warranty-obligations/e8f769de-1294-427a-9554-4ef57f619ff4/close",
+          "status": 422,
+          "at": "2026-11-05T09:16:37.781Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/warranty.test.ts",
+      "name": "the warranty of a work over HTTP (ST-AST-003) closeWarrantyObligation (AC-ST-AST-003-2, UAT-AC392) is for the people who hold the right over the contract or the receiving unit",
+      "status": "passed",
+      "durationMs": 1140,
+      "at": "2026-11-05T09:16:39.024Z",
+      "requests": [
+        {
+          "id": "aea75db1-8ab4-4326-bcdd-7b25d58efa82",
+          "method": "POST",
+          "path": "/warranty-obligations",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.878Z"
+        },
+        {
+          "id": "25c1fc55-e5cb-4a91-9940-ccd5eeb11701",
+          "method": "POST",
+          "path": "/warranty-obligations/e924d760-59d9-4708-82c3-cc68218a07c1/close",
+          "status": 403,
+          "at": "2026-11-05T09:16:38.894Z"
+        },
+        {
+          "id": "13ed1f57-a043-49f9-8e1b-b1a3e2202709",
+          "method": "POST",
+          "path": "/warranty-obligations/e924d760-59d9-4708-82c3-cc68218a07c1/close",
+          "status": 403,
+          "at": "2026-11-05T09:16:38.901Z"
+        },
+        {
+          "id": "0f7f281e-ee43-4974-9635-eb4a3d460237",
+          "method": "POST",
+          "path": "/warranty-obligations/e924d760-59d9-4708-82c3-cc68218a07c1/close",
+          "status": 404,
+          "at": "2026-11-05T09:16:38.916Z"
+        },
+        {
+          "id": "de16438f-c1d5-42bb-a334-f78070ded979",
+          "method": "POST",
+          "path": "/warranty-obligations/df8ac758-53f7-45e1-a7ae-164c3ad34f66/close",
+          "status": 404,
+          "at": "2026-11-05T09:16:38.943Z"
+        },
+        {
+          "id": "10ad1c63-5338-45bc-a618-08d986e688d0",
+          "method": "POST",
+          "path": "/warranty-obligations/e924d760-59d9-4708-82c3-cc68218a07c1/close",
+          "status": 422,
+          "at": "2026-11-05T09:16:38.959Z"
+        }
+      ]
+    }
+  ]
+}

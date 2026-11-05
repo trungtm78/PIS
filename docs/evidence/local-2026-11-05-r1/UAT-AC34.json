@@ -1,0 +1,68 @@
+{
+  "id": "UAT-AC34",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-queries.test.ts",
+      "name": "the queries of BI and the drill under them (ST-BI-004, BI F3, F4) the drill AC-ST-BI-004-1: UAT-AC34 refreshes a context onto the newest snapshot of the period with the old one as its parent, and keeps serving the old token until it expires",
+      "status": "passed",
+      "durationMs": 393,
+      "at": "2026-11-05T09:18:06.478Z",
+      "requests": [
+        {
+          "id": "73ea4fc5-2a2d-4df6-8c7f-12706dc26eea",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:18:06.167Z"
+        },
+        {
+          "id": "a55e4cd7-e7d0-465f-ab77-210712b77fae",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:18:06.192Z"
+        },
+        {
+          "id": "9a82ab7c-24c4-4858-85bf-bb47ca94b932",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:18:06.312Z"
+        },
+        {
+          "id": "26eaf3ba-6b48-4c93-bcfa-8e2bb4933156",
+          "method": "POST",
+          "path": "/bi/query-contexts/refresh",
+          "status": 200,
+          "at": "2026-11-05T09:18:06.348Z"
+        },
+        {
+          "id": "441ebc35-a63f-4bb3-8b37-14da71bf3320",
+          "method": "GET",
+          "path": "/bi/drill",
+          "status": 200,
+          "at": "2026-11-05T09:18:06.370Z"
+        },
+        {
+          "id": "0183482b-fd4d-4c1f-9c48-9285cf96f258",
+          "method": "GET",
+          "path": "/bi/drill",
+          "status": 200,
+          "at": "2026-11-05T09:18:06.401Z"
+        },
+        {
+          "id": "a660e3fe-bc84-42d7-a92f-f9db73e40010",
+          "method": "POST",
+          "path": "/bi/query-contexts/refresh",
+          "status": 400,
+          "at": "2026-11-05T09:18:06.416Z"
+        }
+      ]
+    }
+  ]
+}

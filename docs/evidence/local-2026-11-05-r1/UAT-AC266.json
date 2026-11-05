@@ -1,0 +1,85 @@
+{
+  "id": "UAT-AC266",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/home/drill.test.ts",
+      "name": "the drill of a figure over HTTP (ST-HOME-002) AC-ST-HOME-002-1 / UAT-AC266: goes from the tile to the units, the project, its cell and its sources, each step of the snapshot with its day and formula, and the children of money add up to the parent to the dong",
+      "status": "passed",
+      "durationMs": 542,
+      "at": "2026-11-05T09:19:50.980Z",
+      "requests": [
+        {
+          "id": "953b23bb-c9f8-4947-a1bf-c3ed26d95126",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-05T09:19:50.744Z"
+        },
+        {
+          "id": "1c774f58-8504-48f1-bd01-13b5a7c9f5c9",
+          "method": "GET",
+          "path": "/home/drill",
+          "status": 200,
+          "at": "2026-11-05T09:19:50.904Z"
+        },
+        {
+          "id": "8d8fb5d3-8f17-4747-a674-9a2181605e48",
+          "method": "GET",
+          "path": "/home/drill",
+          "status": 200,
+          "at": "2026-11-05T09:19:50.915Z"
+        },
+        {
+          "id": "0c5fc52c-caee-49df-81f1-9b1530a34ee3",
+          "method": "GET",
+          "path": "/home/drill",
+          "status": 200,
+          "at": "2026-11-05T09:19:50.932Z"
+        },
+        {
+          "id": "4e521217-715c-4ce8-b71a-9b0b2854a431",
+          "method": "GET",
+          "path": "/home/drill",
+          "status": 200,
+          "at": "2026-11-05T09:19:50.947Z"
+        },
+        {
+          "id": "dec9195c-877d-47ca-8835-3414439e7c70",
+          "method": "GET",
+          "path": "/home/drill",
+          "status": 200,
+          "at": "2026-11-05T09:19:50.969Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/home/command-center.test.ts",
+      "name": "the command center over HTTP (ST-HOME-001) AC-ST-HOME-001-1 / UAT-AC266: gives every tile its scope, as-of day, snapshot, unit and formula, with the two rates side by side over the same numerator",
+      "status": "passed",
+      "durationMs": 338,
+      "at": "2026-11-05T09:22:58.717Z",
+      "requests": [
+        {
+          "id": "ad0e4978-7672-4434-a8af-5587c693d250",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-05T09:22:58.568Z"
+        },
+        {
+          "id": "168778b8-35e4-4ffe-8e49-16688780fb95",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-05T09:22:58.707Z"
+        }
+      ]
+    }
+  ]
+}

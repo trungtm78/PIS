@@ -1,0 +1,933 @@
+{
+  "id": "UAT-AC362",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/material.test.ts",
+      "name": "the testing of materials over HTTP (ST-QMS-007, UAT-AC362) is registered in the module of QMS",
+      "status": "passed",
+      "durationMs": 1,
+      "at": "2026-11-05T09:14:03.215Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/material.test.ts",
+      "name": "the testing of materials over HTTP (ST-QMS-007, UAT-AC362) registerMaterialTest registers a sample against a contract being performed, with its audit row and its event, answering the same key once",
+      "status": "passed",
+      "durationMs": 798,
+      "at": "2026-11-05T09:14:04.014Z",
+      "requests": [
+        {
+          "id": "74aecf6f-d54a-42eb-82fe-c4463c39f7a7",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:03.797Z"
+        },
+        {
+          "id": "8f797986-4b6d-4fee-83f6-ca4a7a3034ac",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:03.835Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/material.test.ts",
+      "name": "the testing of materials over HTTP (ST-QMS-007, UAT-AC362) registerMaterialTest UAT-AC362: refuses a sample code used before in the contract, and takes it in another contract",
+      "status": "passed",
+      "durationMs": 1123,
+      "at": "2026-11-05T09:14:05.138Z",
+      "requests": [
+        {
+          "id": "35cce5f9-3e60-4e73-8354-5a6c3541804e",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:04.493Z"
+        },
+        {
+          "id": "0306d051-5a61-4aef-8ea5-5032ac90ed14",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 409,
+          "at": "2026-11-05T09:14:04.517Z"
+        },
+        {
+          "id": "4f70c8b0-7821-44c5-980e-b986e20b9028",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:05.123Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/material.test.ts",
+      "name": "the testing of materials over HTTP (ST-QMS-007, UAT-AC362) registerMaterialTest refuses a contract that is not being performed, a bill item of another contract, a day in the future and what is badly formed",
+      "status": "passed",
+      "durationMs": 1802,
+      "at": "2026-11-05T09:14:06.941Z",
+      "requests": [
+        {
+          "id": "43c4bf29-8972-4894-a701-970c8746cb11",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 409,
+          "at": "2026-11-05T09:14:05.691Z"
+        },
+        {
+          "id": "ec95d0ac-b987-41d5-a2e6-cc900b522fe5",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 422,
+          "at": "2026-11-05T09:14:06.850Z"
+        },
+        {
+          "id": "404369d6-b4e0-43a6-835d-f218338e8f04",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 422,
+          "at": "2026-11-05T09:14:06.865Z"
+        },
+        {
+          "id": "34b58b16-47fb-4ce8-9e11-b45866fb3083",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 422,
+          "at": "2026-11-05T09:14:06.875Z"
+        },
+        {
+          "id": "4061da0f-1568-4990-8b74-e396a22dc81a",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 422,
+          "at": "2026-11-05T09:14:06.893Z"
+        },
+        {
+          "id": "adaf9864-b08b-4c70-b9b1-08f148c88a20",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 422,
+          "at": "2026-11-05T09:14:06.909Z"
+        },
+        {
+          "id": "ec8a2c70-b7e2-4daf-9387-3683b3968804",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 400,
+          "at": "2026-11-05T09:14:06.921Z"
+        },
+        {
+          "id": "8ba7fb33-d751-401d-8247-0a9b40397f54",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 400,
+          "at": "2026-11-05T09:14:06.938Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/material.test.ts",
+      "name": "the testing of materials over HTTP (ST-QMS-007, UAT-AC362) recordMaterialTestResult (AC-ST-QMS-007-1, UAT-AC362) UAT-AC362: refuses a failed result with no report, then takes it with the report and raises one major non-conformance of the test",
+      "status": "passed",
+      "durationMs": 1094,
+      "at": "2026-11-05T09:14:08.034Z",
+      "requests": [
+        {
+          "id": "00126569-e14e-4ead-afd7-cb77ae25cf35",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:07.441Z"
+        },
+        {
+          "id": "cc1ff194-7061-437f-b6db-1b7b4f21f3f9",
+          "method": "POST",
+          "path": "/material-tests/8ed381ce-d3d4-4951-bd83-1baee38962b4/result",
+          "status": 400,
+          "at": "2026-11-05T09:14:07.456Z"
+        },
+        {
+          "id": "fba2a368-febb-4e46-9342-ffeef899b013",
+          "method": "POST",
+          "path": "/material-tests/8ed381ce-d3d4-4951-bd83-1baee38962b4/result",
+          "status": 200,
+          "at": "2026-11-05T09:14:07.548Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/material.test.ts",
+      "name": "the testing of materials over HTTP (ST-QMS-007, UAT-AC362) recordMaterialTestResult (AC-ST-QMS-007-1, UAT-AC362) UAT-AC362: a sample that passed raises no non-conformance",
+      "status": "passed",
+      "durationMs": 772,
+      "at": "2026-11-05T09:14:08.806Z",
+      "requests": [
+        {
+          "id": "80af5e60-2480-4b31-b57c-0b7a9a17a1fd",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:08.635Z"
+        },
+        {
+          "id": "d4ca485f-2792-44a6-842d-b1d93fc5eebd",
+          "method": "POST",
+          "path": "/material-tests/a107e026-7758-4665-a617-8368668883da/result",
+          "status": 200,
+          "at": "2026-11-05T09:14:08.652Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/material.test.ts",
+      "name": "the testing of materials over HTTP (ST-QMS-007, UAT-AC362) recordMaterialTestResult (AC-ST-QMS-007-1, UAT-AC362) records the result of a laboratory member who holds only the right to record, and leaves the non-conformance to the person who took the sample",
+      "status": "passed",
+      "durationMs": 1192,
+      "at": "2026-11-05T09:14:09.999Z",
+      "requests": [
+        {
+          "id": "c8c42a9f-dd71-4fb2-9827-229918e3a8e6",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:09.453Z"
+        },
+        {
+          "id": "27674a28-7db0-467a-be1a-19228de94c06",
+          "method": "POST",
+          "path": "/material-tests/01df8bd2-3244-4b53-987b-20a3806b7c17/result",
+          "status": 200,
+          "at": "2026-11-05T09:14:09.468Z"
+        },
+        {
+          "id": "09e08e71-1907-4a34-9c8d-f5078e55bfce",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:09.701Z"
+        },
+        {
+          "id": "8f82a91f-81e4-4ceb-ae34-aa4ef6f08b39",
+          "method": "POST",
+          "path": "/material-tests/c7d91718-a4e8-456b-b704-73eff227a6f3/result",
+          "status": 200,
+          "at": "2026-11-05T09:14:09.765Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/material.test.ts",
+      "name": "the testing of materials over HTTP (ST-QMS-007, UAT-AC362) recordMaterialTestResult (AC-ST-QMS-007-1, UAT-AC362) numbers the non-conformances of failed results recorded at the same time one after the other: the contract is locked",
+      "status": "passed",
+      "durationMs": 1455,
+      "at": "2026-11-05T09:14:11.455Z",
+      "requests": [
+        {
+          "id": "273bb77d-3bc7-40bf-be70-350a14b7fff1",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:11.000Z"
+        },
+        {
+          "id": "5da596db-8033-4860-b813-dfbbea294b74",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:11.001Z"
+        },
+        {
+          "id": "760299fd-18b9-45ad-887a-e5fd440be34a",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:11.001Z"
+        },
+        {
+          "id": "4ebae18b-bd48-4d90-8d0e-d8854182602c",
+          "method": "POST",
+          "path": "/material-tests/8de62b90-98d2-4528-b93e-06af5fe52f6c/result",
+          "status": 200,
+          "at": "2026-11-05T09:14:11.362Z"
+        },
+        {
+          "id": "917288d2-54e8-4a12-9a29-cf4d8be955c9",
+          "method": "POST",
+          "path": "/material-tests/397c460c-7824-4044-b2f0-a28e2034a566/result",
+          "status": 200,
+          "at": "2026-11-05T09:14:11.362Z"
+        },
+        {
+          "id": "34f37696-b5f0-49f2-92ed-69fddc730c82",
+          "method": "POST",
+          "path": "/material-tests/21b541ca-1a7f-47aa-b145-cc1c8ad8f57b/result",
+          "status": 200,
+          "at": "2026-11-05T09:14:11.362Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/material.test.ts",
+      "name": "the testing of materials over HTTP (ST-QMS-007, UAT-AC362) recordMaterialTestResult (AC-ST-QMS-007-1, UAT-AC362) does not wait for a manual non-conformance on the same test: the contract is locked before the test, in the order the manual one takes",
+      "status": "passed",
+      "durationMs": 525,
+      "at": "2026-11-05T09:14:11.980Z",
+      "requests": [
+        {
+          "id": "bf8a90df-0a6d-4076-acf8-7f6dd74d972b",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:11.933Z"
+        },
+        {
+          "id": "f9a9207d-1a04-4811-b4c4-eaa07be74342",
+          "method": "POST",
+          "path": "/nonconformances",
+          "status": 200,
+          "at": "2026-11-05T09:14:11.948Z"
+        },
+        {
+          "id": "a5cac150-8f0d-4dc9-a14f-e48ade2c0f2b",
+          "method": "POST",
+          "path": "/material-tests/3e3072d3-7ad9-4bb4-89a6-f369d3ee63a5/result",
+          "status": 200,
+          "at": "2026-11-05T09:14:11.948Z"
+        },
+        {
+          "id": "0e6976bf-68ad-40b5-b720-c9c007a4f5b9",
+          "method": "POST",
+          "path": "/material-tests/3e3072d3-7ad9-4bb4-89a6-f369d3ee63a5/result",
+          "status": 409,
+          "at": "2026-11-05T09:14:11.948Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/material.test.ts",
+      "name": "the testing of materials over HTTP (ST-QMS-007, UAT-AC362) recordMaterialTestResult (AC-ST-QMS-007-1, UAT-AC362) records the result once, at the version the caller saw, and says the status of a test that has it",
+      "status": "passed",
+      "durationMs": 695,
+      "at": "2026-11-05T09:14:12.674Z",
+      "requests": [
+        {
+          "id": "955f2b48-5261-4844-b9e0-1ea46f84a4da",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:12.524Z"
+        },
+        {
+          "id": "72bc7ab0-dfaf-402d-b757-b8385f3739d0",
+          "method": "POST",
+          "path": "/material-tests/37abd727-f152-44c3-b8cf-3d203ffa7d30/result",
+          "status": 409,
+          "at": "2026-11-05T09:14:12.539Z"
+        },
+        {
+          "id": "8f4fd7fa-32a6-42a7-b93f-ad06d2344038",
+          "method": "POST",
+          "path": "/material-tests/37abd727-f152-44c3-b8cf-3d203ffa7d30/result",
+          "status": 200,
+          "at": "2026-11-05T09:14:12.554Z"
+        },
+        {
+          "id": "48fb5824-e9ae-4272-8035-ad9b6d4b6a9e",
+          "method": "POST",
+          "path": "/material-tests/37abd727-f152-44c3-b8cf-3d203ffa7d30/result",
+          "status": 409,
+          "at": "2026-11-05T09:14:12.575Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/material.test.ts",
+      "name": "the testing of materials over HTTP (ST-QMS-007, UAT-AC362) recordMaterialTestResult (AC-ST-QMS-007-1, UAT-AC362) refuses a report that is not clean or not a file, a day before the sample or in the future, values that are not an object, and a contract that is no longer performed",
+      "status": "passed",
+      "durationMs": 1360,
+      "at": "2026-11-05T09:14:14.035Z",
+      "requests": [
+        {
+          "id": "71de412b-2a11-469d-addc-72c7f461ada4",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:13.204Z"
+        },
+        {
+          "id": "18825a2d-36fe-487f-a7a2-a0fc050b3c78",
+          "method": "POST",
+          "path": "/material-tests/eb15b6aa-d8ca-4a7f-8e8d-5bbc346938fe/result",
+          "status": 422,
+          "at": "2026-11-05T09:14:13.232Z"
+        },
+        {
+          "id": "0e2c26bf-5067-4bf4-aa78-372f8165e6cc",
+          "method": "POST",
+          "path": "/material-tests/eb15b6aa-d8ca-4a7f-8e8d-5bbc346938fe/result",
+          "status": 422,
+          "at": "2026-11-05T09:14:13.257Z"
+        },
+        {
+          "id": "82da2a53-ad77-489c-8689-e48ce4a7aaa8",
+          "method": "POST",
+          "path": "/material-tests/eb15b6aa-d8ca-4a7f-8e8d-5bbc346938fe/result",
+          "status": 422,
+          "at": "2026-11-05T09:14:13.275Z"
+        },
+        {
+          "id": "34f1162d-a534-4822-ad80-f7d9edf38ca7",
+          "method": "POST",
+          "path": "/material-tests/eb15b6aa-d8ca-4a7f-8e8d-5bbc346938fe/result",
+          "status": 422,
+          "at": "2026-11-05T09:14:13.288Z"
+        },
+        {
+          "id": "6ad000f3-cf94-4a47-b7b5-a70f25c62224",
+          "method": "POST",
+          "path": "/material-tests/eb15b6aa-d8ca-4a7f-8e8d-5bbc346938fe/result",
+          "status": 422,
+          "at": "2026-11-05T09:14:13.306Z"
+        },
+        {
+          "id": "394407d6-fa4d-42a1-a591-e4cad8420c89",
+          "method": "POST",
+          "path": "/material-tests/eb15b6aa-d8ca-4a7f-8e8d-5bbc346938fe/result",
+          "status": 422,
+          "at": "2026-11-05T09:14:13.316Z"
+        },
+        {
+          "id": "61150977-acc4-48b2-bfff-a42f15791fd6",
+          "method": "POST",
+          "path": "/material-tests/eb15b6aa-d8ca-4a7f-8e8d-5bbc346938fe/result",
+          "status": 422,
+          "at": "2026-11-05T09:14:13.331Z"
+        },
+        {
+          "id": "362c6920-dcf3-4b13-b2ab-8e909d4921cd",
+          "method": "POST",
+          "path": "/material-tests/eb15b6aa-d8ca-4a7f-8e8d-5bbc346938fe/result",
+          "status": 400,
+          "at": "2026-11-05T09:14:13.347Z"
+        },
+        {
+          "id": "62dd78ff-b1dc-480f-8754-47752bd5be60",
+          "method": "POST",
+          "path": "/material-tests/eb15b6aa-d8ca-4a7f-8e8d-5bbc346938fe/result",
+          "status": 400,
+          "at": "2026-11-05T09:14:13.363Z"
+        },
+        {
+          "id": "2bf6badc-d3d0-4505-984c-ddd05db005fc",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:13.903Z"
+        },
+        {
+          "id": "b1f0c4eb-c0c4-420e-baae-c41d0d2b5d3b",
+          "method": "POST",
+          "path": "/material-tests/867eb1d2-93e4-47b5-a0f2-9ebb85b72bc4/result",
+          "status": 409,
+          "at": "2026-11-05T09:14:13.970Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/material.test.ts",
+      "name": "the testing of materials over HTTP (ST-QMS-007, UAT-AC362) who may registers for the holders of the right over the contract: one who holds it over another branch only does not see the contract (the right to register is the right to read)",
+      "status": "passed",
+      "durationMs": 637,
+      "at": "2026-11-05T09:14:14.673Z",
+      "requests": [
+        {
+          "id": "29c71b0f-27a2-4b95-8610-836c03b28b22",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 403,
+          "at": "2026-11-05T09:14:14.567Z"
+        },
+        {
+          "id": "8e3e4b3d-14d2-40ae-b9d8-70d167281cdf",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 403,
+          "at": "2026-11-05T09:14:14.581Z"
+        },
+        {
+          "id": "d4a86fb3-dc2d-476d-ba71-1d46b11827c5",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 404,
+          "at": "2026-11-05T09:14:14.593Z"
+        },
+        {
+          "id": "267b7ae8-0d41-4481-ae7a-37d799037b57",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 404,
+          "at": "2026-11-05T09:14:14.615Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/material.test.ts",
+      "name": "the testing of materials over HTTP (ST-QMS-007, UAT-AC362) who may records for the holders of the right to record, over the contract only",
+      "status": "passed",
+      "durationMs": 697,
+      "at": "2026-11-05T09:14:15.370Z",
+      "requests": [
+        {
+          "id": "e3456c1f-5e16-4d0d-94eb-6a5f56fc559d",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:15.201Z"
+        },
+        {
+          "id": "2c701bdb-d1ee-414a-96b2-f0aacd4587d9",
+          "method": "POST",
+          "path": "/material-tests/d3b368b2-8d9c-4358-a4de-82dfc554b537/result",
+          "status": 403,
+          "at": "2026-11-05T09:14:15.224Z"
+        },
+        {
+          "id": "8dbab216-cb15-400b-86be-773165301e89",
+          "method": "POST",
+          "path": "/material-tests/d3b368b2-8d9c-4358-a4de-82dfc554b537/result",
+          "status": 403,
+          "at": "2026-11-05T09:14:15.234Z"
+        },
+        {
+          "id": "98df0495-1736-4efc-831d-82a4d9cc6310",
+          "method": "POST",
+          "path": "/material-tests/d3b368b2-8d9c-4358-a4de-82dfc554b537/result",
+          "status": 404,
+          "at": "2026-11-05T09:14:15.259Z"
+        },
+        {
+          "id": "8ca2e180-2a6e-48f8-b425-e109704e6291",
+          "method": "POST",
+          "path": "/material-tests/f2f68dd0-ce17-4857-867c-e1db041c1564/result",
+          "status": 404,
+          "at": "2026-11-05T09:14:15.271Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/material.test.ts",
+      "name": "the testing of materials over HTTP (ST-QMS-007, UAT-AC362) who may does not reach the contract or the test of another tenant",
+      "status": "passed",
+      "durationMs": 571,
+      "at": "2026-11-05T09:14:15.940Z",
+      "requests": [
+        {
+          "id": "9d5e8d9b-74c3-4e4e-9858-84caf09f9297",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:15.876Z"
+        },
+        {
+          "id": "7972f22a-ec38-49b2-ba31-5741f434b51b",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 404,
+          "at": "2026-11-05T09:14:15.893Z"
+        },
+        {
+          "id": "a3c72fe1-401d-48ab-8790-8e039ac49b21",
+          "method": "POST",
+          "path": "/material-tests/1708ffad-7f83-43e3-91c7-843aad1a5358/result",
+          "status": 404,
+          "at": "2026-11-05T09:14:15.902Z"
+        },
+        {
+          "id": "c372bdd8-8def-490f-855e-0c8b42f8245e",
+          "method": "GET",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:15.922Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/material.test.ts",
+      "name": "the testing of materials over HTTP (ST-QMS-007, UAT-AC362) listMaterialContracts (QMS-06) lists the contracts being performed that the caller can register on, by code, under the right to manage the tests",
+      "status": "passed",
+      "durationMs": 1938,
+      "at": "2026-11-05T09:14:17.879Z",
+      "requests": [
+        {
+          "id": "6eb31771-e589-4966-b31f-f53ac9979de3",
+          "method": "GET",
+          "path": "/material-tests/contracts",
+          "status": 200,
+          "at": "2026-11-05T09:14:17.625Z"
+        },
+        {
+          "id": "f7473ce0-5ab4-47fb-ba89-fa907494cf83",
+          "method": "GET",
+          "path": "/material-tests/contracts",
+          "status": 200,
+          "at": "2026-11-05T09:14:17.648Z"
+        },
+        {
+          "id": "282799f6-3179-4f97-ad5d-21f3174f5414",
+          "method": "GET",
+          "path": "/material-tests/contracts",
+          "status": 200,
+          "at": "2026-11-05T09:14:17.661Z"
+        },
+        {
+          "id": "d216d158-6f44-44e8-9c10-3dee5245dd82",
+          "method": "GET",
+          "path": "/material-tests/contracts",
+          "status": 200,
+          "at": "2026-11-05T09:14:17.677Z"
+        },
+        {
+          "id": "1c6fbbc5-e55c-4e33-ae42-fb0745e3ca98",
+          "method": "GET",
+          "path": "/material-tests/contracts",
+          "status": 200,
+          "at": "2026-11-05T09:14:17.693Z"
+        },
+        {
+          "id": "8ed2f7e4-4dba-46f7-88b0-bb9e259ead78",
+          "method": "GET",
+          "path": "/material-tests/contracts",
+          "status": 200,
+          "at": "2026-11-05T09:14:17.710Z"
+        },
+        {
+          "id": "2958407b-62f5-418f-8419-4bd2e61e7431",
+          "method": "GET",
+          "path": "/material-tests/contracts",
+          "status": 200,
+          "at": "2026-11-05T09:14:17.725Z"
+        },
+        {
+          "id": "8314e992-6fd8-4aee-9af1-07e461d6c99d",
+          "method": "GET",
+          "path": "/material-tests/contracts",
+          "status": 200,
+          "at": "2026-11-05T09:14:17.742Z"
+        },
+        {
+          "id": "8f257c3f-37b3-4f05-b26b-264c54e138b2",
+          "method": "GET",
+          "path": "/material-tests/contracts",
+          "status": 200,
+          "at": "2026-11-05T09:14:17.757Z"
+        },
+        {
+          "id": "f38f9c51-d711-4cbf-8374-2d8f1082f2af",
+          "method": "GET",
+          "path": "/material-tests/contracts",
+          "status": 200,
+          "at": "2026-11-05T09:14:17.774Z"
+        },
+        {
+          "id": "11478177-a493-4881-a03e-27cc5a0a423f",
+          "method": "GET",
+          "path": "/material-tests/contracts",
+          "status": 422,
+          "at": "2026-11-05T09:14:17.790Z"
+        },
+        {
+          "id": "0a75ba60-38d2-44de-8244-cd00c77eb20c",
+          "method": "GET",
+          "path": "/material-tests/contracts",
+          "status": 422,
+          "at": "2026-11-05T09:14:17.804Z"
+        },
+        {
+          "id": "5368215e-b2aa-44f7-8e03-edb011fd71b3",
+          "method": "GET",
+          "path": "/material-tests/contracts",
+          "status": 200,
+          "at": "2026-11-05T09:14:17.820Z"
+        },
+        {
+          "id": "a425129b-7a70-4328-b8b2-3a8f0ea6fafc",
+          "method": "GET",
+          "path": "/material-tests/contracts",
+          "status": 200,
+          "at": "2026-11-05T09:14:17.840Z"
+        },
+        {
+          "id": "df562302-6ffd-45cc-a899-080a2ae83a97",
+          "method": "GET",
+          "path": "/material-tests/contracts",
+          "status": 403,
+          "at": "2026-11-05T09:14:17.853Z"
+        },
+        {
+          "id": "7f8bb6ac-429a-4955-951c-6d9e4c73f558",
+          "method": "GET",
+          "path": "/material-tests/contracts",
+          "status": 403,
+          "at": "2026-11-05T09:14:17.868Z"
+        },
+        {
+          "id": "fcbaf7cc-d816-4b3f-8971-422124b2aaad",
+          "method": "GET",
+          "path": "/material-tests/contracts",
+          "status": 200,
+          "at": "2026-11-05T09:14:17.872Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/material.test.ts",
+      "name": "the testing of materials over HTTP (ST-QMS-007, UAT-AC362) listMaterialTests (QMS-06) lists the tests of a contract newest first with the result, the report and the non-conformance, a page at a time, and filters them",
+      "status": "passed",
+      "durationMs": 759,
+      "at": "2026-11-05T09:14:18.639Z",
+      "requests": [
+        {
+          "id": "12c891d8-6f2f-4230-ab74-bee7fce8fde6",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:18.394Z"
+        },
+        {
+          "id": "d8a4946c-dfc1-4cb2-8e28-6a82c7bb1a0a",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:18.424Z"
+        },
+        {
+          "id": "28416926-2b1a-40df-a425-63db28c912b7",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:18.451Z"
+        },
+        {
+          "id": "f9276569-afe3-44bc-a027-c70746abc1fd",
+          "method": "POST",
+          "path": "/material-tests/277318e7-e737-4613-908a-6ec2b5d6de23/result",
+          "status": 200,
+          "at": "2026-11-05T09:14:18.482Z"
+        },
+        {
+          "id": "cdca8191-12c1-4a25-b89c-867c5d9021ce",
+          "method": "POST",
+          "path": "/material-tests/b44b08d5-b13c-492b-888c-71b8f8186949/result",
+          "status": 200,
+          "at": "2026-11-05T09:14:18.507Z"
+        },
+        {
+          "id": "dfeeb32d-3480-4050-82d7-5afcb27c3ed6",
+          "method": "GET",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:18.518Z"
+        },
+        {
+          "id": "0d5ae457-2f74-4d8d-8427-783a3c79fd8b",
+          "method": "GET",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:18.527Z"
+        },
+        {
+          "id": "9b008229-73c2-4d0d-be07-6937ea7a678f",
+          "method": "GET",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:18.544Z"
+        },
+        {
+          "id": "76579b26-abae-41d2-b683-436442d2d8eb",
+          "method": "GET",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:18.559Z"
+        },
+        {
+          "id": "993734d9-61aa-4ccb-a83b-14391a760ad1",
+          "method": "GET",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:18.575Z"
+        },
+        {
+          "id": "1051de1d-ebaa-4243-a31c-9300329318b8",
+          "method": "GET",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:18.592Z"
+        },
+        {
+          "id": "17e9a379-5dd5-400f-b0e0-b61c1844cec1",
+          "method": "GET",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:18.606Z"
+        },
+        {
+          "id": "e8f1cf6f-4ae1-4a8f-b484-1b8453126c13",
+          "method": "GET",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:18.624Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/material.test.ts",
+      "name": "the testing of materials over HTTP (ST-QMS-007, UAT-AC362) listMaterialTests (QMS-06) shows nothing of a contract outside the scope, is for the holders of the right and refuses what is badly formed",
+      "status": "passed",
+      "durationMs": 693,
+      "at": "2026-11-05T09:14:19.331Z",
+      "requests": [
+        {
+          "id": "a91e0e0a-6403-4b9a-b686-e2fcb76d303d",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:19.145Z"
+        },
+        {
+          "id": "1214e8ba-3e0a-4d6d-bb37-5046ded74e75",
+          "method": "GET",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:19.170Z"
+        },
+        {
+          "id": "4d97ccaa-dfdb-436e-a723-8d3d8221df47",
+          "method": "GET",
+          "path": "/material-tests",
+          "status": 403,
+          "at": "2026-11-05T09:14:19.182Z"
+        },
+        {
+          "id": "e1a8226b-976a-4c34-92b2-1e78aa2c4b6e",
+          "method": "GET",
+          "path": "/material-tests",
+          "status": 403,
+          "at": "2026-11-05T09:14:19.196Z"
+        },
+        {
+          "id": "8121d9ca-16d2-4256-8d41-507b231c93c1",
+          "method": "GET",
+          "path": "/material-tests",
+          "status": 422,
+          "at": "2026-11-05T09:14:19.212Z"
+        },
+        {
+          "id": "73a2db96-eeb7-4d6b-8c8c-2e834b3983fe",
+          "method": "GET",
+          "path": "/material-tests",
+          "status": 422,
+          "at": "2026-11-05T09:14:19.228Z"
+        },
+        {
+          "id": "8218e720-5b5a-4e36-8ed3-d6edeebb7496",
+          "method": "GET",
+          "path": "/material-tests",
+          "status": 422,
+          "at": "2026-11-05T09:14:19.244Z"
+        },
+        {
+          "id": "d6567ffb-e80b-4f9e-9c00-086c673f92d9",
+          "method": "GET",
+          "path": "/material-tests",
+          "status": 422,
+          "at": "2026-11-05T09:14:19.260Z"
+        },
+        {
+          "id": "42978726-cb72-4ffc-a0a2-4c68bb90d035",
+          "method": "GET",
+          "path": "/material-tests",
+          "status": 422,
+          "at": "2026-11-05T09:14:19.275Z"
+        },
+        {
+          "id": "7c2488cc-3352-4a63-9142-1c945ef02822",
+          "method": "GET",
+          "path": "/material-tests",
+          "status": 422,
+          "at": "2026-11-05T09:14:19.293Z"
+        },
+        {
+          "id": "ad7804d5-f65d-448f-b420-03d1f7818333",
+          "method": "GET",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:19.308Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/material.test.ts",
+      "name": "the testing of materials over HTTP (ST-QMS-007, UAT-AC362) is kept by the database as well does not let what a test says change, its status skip a step, a result with no day or report be written, a failed result be left without its non-conformance, nor the result be written twice",
+      "status": "passed",
+      "durationMs": 1707,
+      "at": "2026-11-05T09:14:21.039Z",
+      "requests": [
+        {
+          "id": "6d38ba16-8bcc-41a0-84d7-16922131cadd",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:19.941Z"
+        },
+        {
+          "id": "b545fead-f785-4dc4-893a-0261d4f8af8e",
+          "method": "POST",
+          "path": "/material-tests/a8b4feed-d71f-474e-9f7d-09f50c9258ed/result",
+          "status": 200,
+          "at": "2026-11-05T09:14:20.576Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/material.test.ts",
+      "name": "the testing of materials over HTTP (ST-QMS-007, UAT-AC362) is kept by the database as well is never deleted by the application",
+      "status": "passed",
+      "durationMs": 667,
+      "at": "2026-11-05T09:14:21.705Z",
+      "requests": [
+        {
+          "id": "4802d52a-e537-41e2-b4a3-72897e63b189",
+          "method": "POST",
+          "path": "/material-tests",
+          "status": 200,
+          "at": "2026-11-05T09:14:21.585Z"
+        }
+      ]
+    }
+  ]
+}

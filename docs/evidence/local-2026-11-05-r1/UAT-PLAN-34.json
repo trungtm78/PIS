@@ -1,0 +1,131 @@
+{
+  "id": "UAT-PLAN-34",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/sync/sync-attachments.test.ts",
+      "name": "the attachments a phone uploads in chunks (ST-MOB-009, MOB-19) AC-ST-MOB-009-1 UAT-PLAN-34: a file of 12 MiB with the network cut at chunk 7 goes on from the chunk it stopped at, and the whole matches: UPLOADING, then CLEAN",
+      "status": "passed",
+      "durationMs": 1152,
+      "at": "2026-11-05T09:22:19.082Z",
+      "requests": [
+        {
+          "id": "b566eb76-7b60-4135-92f2-2929818b3a1a",
+          "method": "POST",
+          "path": "/sync/attachments",
+          "status": 200,
+          "at": "2026-11-05T09:22:17.947Z"
+        },
+        {
+          "id": "1cbe5dc7-15de-44e9-a7bd-989582c4d147",
+          "method": "PUT",
+          "path": "/sync/attachments/00f19cf8-403c-4387-b76c-879ed29733d3/chunks/3",
+          "status": 200,
+          "at": "2026-11-05T09:22:18.045Z"
+        },
+        {
+          "id": "93299c34-0c15-4e9e-84ee-9262274c0fd3",
+          "method": "PUT",
+          "path": "/sync/attachments/00f19cf8-403c-4387-b76c-879ed29733d3/chunks/0",
+          "status": 200,
+          "at": "2026-11-05T09:22:18.063Z"
+        },
+        {
+          "id": "8123ea96-2286-4d23-9a4b-84f5b9e7da81",
+          "method": "PUT",
+          "path": "/sync/attachments/00f19cf8-403c-4387-b76c-879ed29733d3/chunks/5",
+          "status": 200,
+          "at": "2026-11-05T09:22:18.088Z"
+        },
+        {
+          "id": "e8cfdbbc-bef8-497f-9b4c-a68ff57544d3",
+          "method": "PUT",
+          "path": "/sync/attachments/00f19cf8-403c-4387-b76c-879ed29733d3/chunks/1",
+          "status": 200,
+          "at": "2026-11-05T09:22:18.103Z"
+        },
+        {
+          "id": "cf7f677c-4fa3-4b46-98a8-1691d1fa9bfd",
+          "method": "PUT",
+          "path": "/sync/attachments/00f19cf8-403c-4387-b76c-879ed29733d3/chunks/4",
+          "status": 200,
+          "at": "2026-11-05T09:22:18.122Z"
+        },
+        {
+          "id": "50dd7157-a5ff-40b6-aff5-3887648f50c9",
+          "method": "PUT",
+          "path": "/sync/attachments/00f19cf8-403c-4387-b76c-879ed29733d3/chunks/2",
+          "status": 200,
+          "at": "2026-11-05T09:22:18.133Z"
+        },
+        {
+          "id": "d478e8e4-55b8-4b7e-b4a6-a91514d098ae",
+          "method": "GET",
+          "path": "/sync/attachments/00f19cf8-403c-4387-b76c-879ed29733d3",
+          "status": 200,
+          "at": "2026-11-05T09:22:18.154Z"
+        },
+        {
+          "id": "0eb2a6bc-dc61-4036-ae49-2dcab401469f",
+          "method": "PUT",
+          "path": "/sync/attachments/00f19cf8-403c-4387-b76c-879ed29733d3/chunks/6",
+          "status": 200,
+          "at": "2026-11-05T09:22:18.162Z"
+        },
+        {
+          "id": "4029eca2-7d9c-4360-81d2-8634178fe49b",
+          "method": "PUT",
+          "path": "/sync/attachments/00f19cf8-403c-4387-b76c-879ed29733d3/chunks/7",
+          "status": 200,
+          "at": "2026-11-05T09:22:18.177Z"
+        },
+        {
+          "id": "97284c85-93aa-4516-b068-ba4e7a7a7db1",
+          "method": "PUT",
+          "path": "/sync/attachments/00f19cf8-403c-4387-b76c-879ed29733d3/chunks/8",
+          "status": 200,
+          "at": "2026-11-05T09:22:18.196Z"
+        },
+        {
+          "id": "9e3acbdf-e42b-42fa-9c24-6338406def72",
+          "method": "PUT",
+          "path": "/sync/attachments/00f19cf8-403c-4387-b76c-879ed29733d3/chunks/9",
+          "status": 200,
+          "at": "2026-11-05T09:22:18.213Z"
+        },
+        {
+          "id": "35db7955-3474-4655-a39b-2e6fa82a0755",
+          "method": "PUT",
+          "path": "/sync/attachments/00f19cf8-403c-4387-b76c-879ed29733d3/chunks/10",
+          "status": 200,
+          "at": "2026-11-05T09:22:18.232Z"
+        },
+        {
+          "id": "17db1dd0-dbb2-48e9-bf05-10f5c5641e97",
+          "method": "PUT",
+          "path": "/sync/attachments/00f19cf8-403c-4387-b76c-879ed29733d3/chunks/11",
+          "status": 200,
+          "at": "2026-11-05T09:22:18.516Z"
+        },
+        {
+          "id": "f2fe2389-9ab2-4c2f-9d3e-e60ce77bbfe7",
+          "method": "GET",
+          "path": "/sync/attachments/00f19cf8-403c-4387-b76c-879ed29733d3",
+          "status": 200,
+          "at": "2026-11-05T09:22:18.531Z"
+        },
+        {
+          "id": "267f1840-3cd6-44d3-a1bb-bb5771f173fd",
+          "method": "POST",
+          "path": "/sync/attachments/00f19cf8-403c-4387-b76c-879ed29733d3/complete",
+          "status": 200,
+          "at": "2026-11-05T09:22:18.545Z"
+        }
+      ]
+    }
+  ]
+}

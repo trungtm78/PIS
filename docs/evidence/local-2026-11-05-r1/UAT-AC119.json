@@ -1,0 +1,2119 @@
+{
+  "id": "UAT-AC119",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/authz/revocation-lag.test.ts",
+      "name": "revocation lag through the real application (UAT-AC119, BR-IAM-13) refuses a token with the old scope_version right after each of 100 revocations, p95 well within 60 seconds",
+      "status": "passed",
+      "durationMs": 4679,
+      "at": "2026-11-05T09:17:42.447Z",
+      "requests": [
+        {
+          "id": "0a56becd-9244-4ba6-9f7d-166e329dfb53",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:37.767Z"
+        },
+        {
+          "id": "58d71ba2-f5dc-4cf5-9ebb-b37fce2d4ae0",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003e8/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:37.955Z"
+        },
+        {
+          "id": "1a2cae43-7d3d-482b-894c-051f8dff84bb",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:37.999Z"
+        },
+        {
+          "id": "d08608d1-9522-488f-a512-da52c2e744c4",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.018Z"
+        },
+        {
+          "id": "855d5574-b44c-4d41-b165-60cf40a5360f",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003e9/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.039Z"
+        },
+        {
+          "id": "ca9511f3-cb58-4bd4-a89a-65a8d7bc23ea",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.061Z"
+        },
+        {
+          "id": "48cfc94c-2ae6-427c-bb25-93f6b8819b49",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.067Z"
+        },
+        {
+          "id": "635d9275-deae-4b0e-8f07-57774ff3507b",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003ea/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.085Z"
+        },
+        {
+          "id": "b10d9b13-4933-4901-a5ec-bd054636eb47",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.108Z"
+        },
+        {
+          "id": "0ce0ec36-5901-45f4-8ae4-27513084a2ca",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.128Z"
+        },
+        {
+          "id": "c473869d-9cf0-467e-af6c-4fcb6005b8de",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003eb/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.149Z"
+        },
+        {
+          "id": "e70479c8-b829-4aac-9c48-440297f7163d",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.166Z"
+        },
+        {
+          "id": "1ae08df9-b721-463c-b4cb-d2c824be47d4",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.175Z"
+        },
+        {
+          "id": "980eb791-8d7f-436e-a2ed-b9deaaad865e",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003ec/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.196Z"
+        },
+        {
+          "id": "aefecc59-eb61-42b8-959d-4fa247f3bcf0",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.213Z"
+        },
+        {
+          "id": "8c58d575-a369-4612-ab17-a555c75e12b7",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.224Z"
+        },
+        {
+          "id": "d5775c17-7f8b-482b-bb17-4ffb5dade0e0",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003ed/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.244Z"
+        },
+        {
+          "id": "0efad931-ed57-484d-acf1-30e4b759902c",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.265Z"
+        },
+        {
+          "id": "abbe035d-90b8-41d8-8334-ca57fcd6cb11",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.272Z"
+        },
+        {
+          "id": "ac5d5bd3-52ff-4ad9-9ea8-09305e44e80a",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003ee/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.279Z"
+        },
+        {
+          "id": "846be64a-8207-41cd-9ee4-429b2b7c12ab",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.298Z"
+        },
+        {
+          "id": "1c969481-14a6-4c35-b6ae-9aa062c70b04",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.305Z"
+        },
+        {
+          "id": "19677735-12e3-48b9-8f8c-d2c8a89476c0",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003ef/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.323Z"
+        },
+        {
+          "id": "9fb68e03-cf47-4f7f-aa1c-fd47a202c527",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.345Z"
+        },
+        {
+          "id": "7be0ba67-4021-43a6-b9a1-790a8ac0cefa",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.352Z"
+        },
+        {
+          "id": "2dface95-a3dd-44d3-a6c3-9d9d13a1d268",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003f0/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.361Z"
+        },
+        {
+          "id": "d2360e50-65ea-4fa6-a1b9-3778abea4e6a",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.374Z"
+        },
+        {
+          "id": "7cd7be25-82bd-4ff8-b7f0-b99c3a0c5d92",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.384Z"
+        },
+        {
+          "id": "b94c1f6d-4691-4a03-86ab-31fd6347e618",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003f1/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.405Z"
+        },
+        {
+          "id": "2d660fcb-028d-4dde-8d1f-efd33849a9d3",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.423Z"
+        },
+        {
+          "id": "6c01aa65-4c99-442d-887d-7497e07a5570",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.426Z"
+        },
+        {
+          "id": "58b1536b-ef2d-4781-b03c-46d087f828e1",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003f2/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.435Z"
+        },
+        {
+          "id": "c44962c9-3473-4f37-a61c-99c769db8214",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.456Z"
+        },
+        {
+          "id": "9e80d59b-d12e-40f1-b95b-6295158bf8a9",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.463Z"
+        },
+        {
+          "id": "8b46869f-c4e9-4f3c-a7f6-f220147d9bb7",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003f3/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.486Z"
+        },
+        {
+          "id": "216bf29d-f6af-479f-b026-eccaf180f729",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.502Z"
+        },
+        {
+          "id": "77430f6a-2361-40c2-83bb-4247f7172b94",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.512Z"
+        },
+        {
+          "id": "5700bd34-9dd7-477b-b26c-d56db1295076",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003f4/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.531Z"
+        },
+        {
+          "id": "93226717-0276-4326-b879-a6594cccae92",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.551Z"
+        },
+        {
+          "id": "f0c1b373-3005-444f-bb20-acca73abb786",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.561Z"
+        },
+        {
+          "id": "7de3dc05-7e7e-4eb7-ac15-8ac9b28f1231",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003f5/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.578Z"
+        },
+        {
+          "id": "cdfe4993-db0b-4737-a8c0-db359b8a6bc2",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.597Z"
+        },
+        {
+          "id": "0a333181-2fbd-4dd7-b902-11c308d98bb7",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.608Z"
+        },
+        {
+          "id": "4ef31b46-ae72-488c-80b1-dab1d47f215a",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003f6/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.626Z"
+        },
+        {
+          "id": "85ecb8af-863a-489c-8b67-55033ccc0052",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.646Z"
+        },
+        {
+          "id": "f9b79fc4-2986-4c03-91e0-1e0d40809eb8",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.656Z"
+        },
+        {
+          "id": "3ce0707c-6cb6-4fbf-806b-85b260233233",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003f7/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.675Z"
+        },
+        {
+          "id": "ea3bcfd2-ae41-4380-9e64-a08c31d4755f",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.696Z"
+        },
+        {
+          "id": "49e55f55-9a74-4d87-98a8-e881efebfacb",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.704Z"
+        },
+        {
+          "id": "f28ef12f-5f71-41e8-9527-4b7d057e4f49",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003f8/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.723Z"
+        },
+        {
+          "id": "19648621-8fb9-4364-8ea1-39e4dc276df8",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.741Z"
+        },
+        {
+          "id": "ffe5d4fa-28e0-4061-b087-04196d79558a",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.752Z"
+        },
+        {
+          "id": "05769f9d-fefa-4c5e-9f81-e2ce9c3a18aa",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003f9/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.770Z"
+        },
+        {
+          "id": "fd70901c-254a-4016-a3ca-81aede7295d9",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.779Z"
+        },
+        {
+          "id": "f86bb5ce-5959-40bc-8711-bf485ea6fb2d",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.800Z"
+        },
+        {
+          "id": "73c7f63e-b5ac-492c-aabf-f26738f3c4c9",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003fa/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.806Z"
+        },
+        {
+          "id": "271e3904-f760-41d5-8daa-5ae211f7ca43",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.823Z"
+        },
+        {
+          "id": "6f1767df-b899-41dd-b60e-2e0c9b6ee37c",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.832Z"
+        },
+        {
+          "id": "99c3bdca-f392-44fa-afd0-316cb237ce97",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003fb/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.853Z"
+        },
+        {
+          "id": "f070cee3-c51e-48f5-8c31-5edb60da49dc",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.872Z"
+        },
+        {
+          "id": "e7ad9c9b-d9f2-4d3f-b54f-f92f795a21ba",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.881Z"
+        },
+        {
+          "id": "e397a98d-1535-432c-84e3-2d36389f3050",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003fc/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.900Z"
+        },
+        {
+          "id": "9217eb61-8b59-42c1-a7ba-1fc83dc61227",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.918Z"
+        },
+        {
+          "id": "a32e7642-cb50-4a26-9068-544dab15e71c",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.928Z"
+        },
+        {
+          "id": "14fe19ad-8025-4c45-a5a2-5fadcb3c1f10",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003fd/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.946Z"
+        },
+        {
+          "id": "71995ed8-3bdd-402d-9fd4-7bf4f0740f10",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.965Z"
+        },
+        {
+          "id": "82c07a9e-ade8-4a8d-94ca-7ff0b462d1ef",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.976Z"
+        },
+        {
+          "id": "91f94456-4aea-4312-b42c-b71c25e09c17",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003fe/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.985Z"
+        },
+        {
+          "id": "9d1bf00c-f685-4c56-a91f-4e4e1f44c23f",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:38.998Z"
+        },
+        {
+          "id": "2372b3d9-94df-40b7-b338-27f63df2a9b5",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.007Z"
+        },
+        {
+          "id": "f13d95c7-5125-40a3-9ed7-168baee82f93",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-0000000003ff/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.028Z"
+        },
+        {
+          "id": "fe006dc6-4f18-4009-9848-d889db69f202",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.044Z"
+        },
+        {
+          "id": "e049016b-ebe0-4d3a-948f-024518883ce2",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.055Z"
+        },
+        {
+          "id": "00cafb2a-449c-4168-9a26-36ee5d432d47",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000400/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.074Z"
+        },
+        {
+          "id": "da9f6982-2ad5-4f78-ac4a-350bec481e62",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.094Z"
+        },
+        {
+          "id": "4d54cdd0-20b1-4faa-8524-0b71dfd86f84",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.104Z"
+        },
+        {
+          "id": "71e0e557-a444-4f31-b6aa-6fc346559b83",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000401/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.123Z"
+        },
+        {
+          "id": "9f920462-80c4-46ec-b765-e27d8e0a2123",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.144Z"
+        },
+        {
+          "id": "9ba231bc-b391-4cd8-ab7e-6a2f335092a8",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.152Z"
+        },
+        {
+          "id": "9538fb2d-0f02-471a-b959-58f08e578bcd",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000402/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.170Z"
+        },
+        {
+          "id": "50b96915-e728-4ac5-8b44-41d407ab7b2d",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.192Z"
+        },
+        {
+          "id": "b4fece3e-386b-468f-8d5e-037fc9a70452",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.199Z"
+        },
+        {
+          "id": "068d67a9-daf6-4942-9d3f-1cc06e463ce7",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000403/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.220Z"
+        },
+        {
+          "id": "64d9ac74-2773-4e33-b636-b02ec2da5c14",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.238Z"
+        },
+        {
+          "id": "41bd2011-41ff-4d21-9bc6-e7b3c74d89a9",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.248Z"
+        },
+        {
+          "id": "303f69bf-54ee-469e-bd79-a524d53898d6",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000404/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.266Z"
+        },
+        {
+          "id": "eff2a31f-c801-43b9-b94f-f069d746f3db",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.286Z"
+        },
+        {
+          "id": "2eb36ade-eb3e-4b06-8f6a-e0bbd7a07ed1",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.296Z"
+        },
+        {
+          "id": "ebc771a7-06c6-451f-b3bf-0cca5c2747ef",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000405/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.315Z"
+        },
+        {
+          "id": "81c05bf1-68ef-4026-95e8-4023e5aa67a0",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.327Z"
+        },
+        {
+          "id": "c39ff740-3905-446c-b979-f59d9eef50ff",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.330Z"
+        },
+        {
+          "id": "c7efa98f-732b-41a5-8077-342bc0095cc4",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000406/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.347Z"
+        },
+        {
+          "id": "4b603fe0-93de-4711-af44-872643bd32b9",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.357Z"
+        },
+        {
+          "id": "1390393e-26e8-4172-af6d-acb3cb0a0b2b",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.376Z"
+        },
+        {
+          "id": "92462206-6510-47ca-84bc-c4097598355b",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000407/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.397Z"
+        },
+        {
+          "id": "69e3b8d4-8670-41d8-8daa-48f4fe897318",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.413Z"
+        },
+        {
+          "id": "f138fafa-3e86-4685-8b80-31748aa1343e",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.423Z"
+        },
+        {
+          "id": "810c5b63-7d9a-4e38-a35a-4e5fc76c9854",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000408/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.443Z"
+        },
+        {
+          "id": "9ffa3514-cf91-45e2-b05e-4d3f1ba8e439",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.461Z"
+        },
+        {
+          "id": "7c6184cc-295d-4bc8-a839-dfa5d359103e",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.463Z"
+        },
+        {
+          "id": "c5e39370-e582-4886-a8da-428b28242d8a",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000409/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.475Z"
+        },
+        {
+          "id": "b3592da8-9338-4274-aa4d-97b4da86e287",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.495Z"
+        },
+        {
+          "id": "d2589113-3dc2-4604-b26c-5f00f4ef8afb",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.498Z"
+        },
+        {
+          "id": "15e7fdc3-ce48-4b1d-8438-377b77c6f45c",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000040a/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.506Z"
+        },
+        {
+          "id": "ae179ad3-5ccc-4d81-a126-efc6703f5460",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.527Z"
+        },
+        {
+          "id": "c8c8687f-0175-45d1-96f9-fdcd54a140d0",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.536Z"
+        },
+        {
+          "id": "914c797b-32c8-4fb4-a6e3-b693ecd17d01",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000040b/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.556Z"
+        },
+        {
+          "id": "2d19f74d-a1f6-4f4e-9881-47ad606dee07",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.574Z"
+        },
+        {
+          "id": "a76babc5-d461-42bf-b110-20b50b873a8e",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.582Z"
+        },
+        {
+          "id": "314bfd56-db1d-4fe8-bd6a-aea9b44b9b5c",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000040c/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.602Z"
+        },
+        {
+          "id": "c6262a40-0fc1-4fa9-8f14-a1f541671a9f",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.619Z"
+        },
+        {
+          "id": "8aef97a2-1635-4d69-844c-d364ab712b4b",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.629Z"
+        },
+        {
+          "id": "5989814d-508d-4a2e-8102-5eb99f076b77",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000040d/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.649Z"
+        },
+        {
+          "id": "3076a42d-1115-4106-87bf-3af7016db595",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.667Z"
+        },
+        {
+          "id": "dad0eef7-5686-45a8-bc43-fe1c8b1cd5b4",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.677Z"
+        },
+        {
+          "id": "3b4a833a-ad2c-4d0c-b3a7-7fd631bb7d05",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000040e/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.698Z"
+        },
+        {
+          "id": "4b042cd2-15f9-4091-ac05-98f063630326",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.716Z"
+        },
+        {
+          "id": "fddb15cd-88dd-4a85-a066-7a66d6392041",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.726Z"
+        },
+        {
+          "id": "1c508a8a-baee-48f9-9bc3-1c1ee7548db2",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000040f/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.747Z"
+        },
+        {
+          "id": "875a4ab0-0e77-4380-9b9e-a0ec1bba45dd",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.764Z"
+        },
+        {
+          "id": "9df1e94c-58b0-405a-be93-815244d8652f",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.773Z"
+        },
+        {
+          "id": "a7952762-8793-4f7d-99f2-ca2b752fe4bb",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000410/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.796Z"
+        },
+        {
+          "id": "c075691d-6a67-4f00-aa31-530eace2beae",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.811Z"
+        },
+        {
+          "id": "27c6605a-f75e-4ac4-a1c6-a1030599aeb3",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.821Z"
+        },
+        {
+          "id": "454d2ab7-7dbd-47a0-9c64-d5191d21f3f2",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000411/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.842Z"
+        },
+        {
+          "id": "1142b353-1043-473b-b67a-78b64cdcf7fb",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.860Z"
+        },
+        {
+          "id": "6ac610c6-0ff7-4032-b434-a84ecec49028",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.870Z"
+        },
+        {
+          "id": "8bda1190-1252-4893-959b-daf8c0bda70d",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000412/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.878Z"
+        },
+        {
+          "id": "cb2e92f2-9281-427e-82c9-b3ace16ce558",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.892Z"
+        },
+        {
+          "id": "80156eb2-f7d5-43ee-a37f-a577e25f1aa7",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.902Z"
+        },
+        {
+          "id": "dd907e03-0e29-4d8c-83aa-da6a0f24399d",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000413/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.922Z"
+        },
+        {
+          "id": "a1319722-5c36-4f0f-81a9-3577a40eaf26",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.941Z"
+        },
+        {
+          "id": "0822efe6-3428-4982-8ef1-2380c0a2aae3",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.950Z"
+        },
+        {
+          "id": "e84c8b9f-234e-40e4-be04-2dffdf92f248",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000414/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.968Z"
+        },
+        {
+          "id": "b4d7c520-33ab-41e4-b6b3-28ed5286c54f",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:39.980Z"
+        },
+        {
+          "id": "d06498a0-d267-4c9e-b548-8c275dd3b4f6",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:39.997Z"
+        },
+        {
+          "id": "cd370848-2645-49f0-927e-0fe51b1e97ec",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000415/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.016Z"
+        },
+        {
+          "id": "2ac80eb5-ba11-4a42-afbe-57476834ca57",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.037Z"
+        },
+        {
+          "id": "ec40a9c8-c0b8-442a-b321-d35fedab78be",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.045Z"
+        },
+        {
+          "id": "5b1cdac1-f468-4b09-9ab1-7b72fbcd7e12",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000416/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.052Z"
+        },
+        {
+          "id": "e1318228-6149-4bd8-9dec-48cb1a1e42a4",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.072Z"
+        },
+        {
+          "id": "64d0be2f-6ea4-40af-99dd-d75696d3e60a",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.078Z"
+        },
+        {
+          "id": "3bf73ec0-46e0-4380-a824-198fb79f7c7d",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000417/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.083Z"
+        },
+        {
+          "id": "fbd03d53-b59c-496d-8011-d22c17286329",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.099Z"
+        },
+        {
+          "id": "e759e40d-6f46-498a-856b-ca0a6e291366",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.109Z"
+        },
+        {
+          "id": "9ee7366b-f04d-40b1-ab8b-a3588695be5d",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000418/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.128Z"
+        },
+        {
+          "id": "f07b329c-aa5e-4ebb-ae45-fbcff5f17acc",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.150Z"
+        },
+        {
+          "id": "0fea2738-ff83-46a7-88ad-16f731309a70",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.158Z"
+        },
+        {
+          "id": "1292fb74-8aaa-4881-a5de-f161e903564b",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000419/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.176Z"
+        },
+        {
+          "id": "934d1578-a91a-4796-b930-68fad7e12093",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.200Z"
+        },
+        {
+          "id": "dbb7c66c-e011-4935-ba1e-a614d090461b",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.206Z"
+        },
+        {
+          "id": "f9dd484b-e50b-4195-9901-2455c8ea88ea",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000041a/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.225Z"
+        },
+        {
+          "id": "00498278-59e7-449f-af4d-221d8c7d70b6",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.245Z"
+        },
+        {
+          "id": "955b8045-177b-4c06-a24e-8796f2b48698",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.255Z"
+        },
+        {
+          "id": "1bd0d4c9-458c-4b00-ba0b-293e7ccb13b4",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000041b/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.274Z"
+        },
+        {
+          "id": "66c7e722-6205-413e-8a8b-6316dc87bcdb",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.286Z"
+        },
+        {
+          "id": "9831e486-ba70-4e41-afea-e24bc94d742a",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.303Z"
+        },
+        {
+          "id": "0c94fc17-16e2-4fa3-936b-aa13092cfc1f",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000041c/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.321Z"
+        },
+        {
+          "id": "ee9f049b-e51e-4143-9817-6310f50f8d09",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.341Z"
+        },
+        {
+          "id": "af030a49-73ff-4ba5-b1fe-6dbe4717a5ba",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.350Z"
+        },
+        {
+          "id": "8dc8127d-f3e8-4cd8-830b-1302dbe4a49d",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000041d/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.368Z"
+        },
+        {
+          "id": "29862dcf-0b41-46e8-a969-57475511044e",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.387Z"
+        },
+        {
+          "id": "9550d06c-cf9a-4b98-a5e5-1fd0d4ea886b",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.397Z"
+        },
+        {
+          "id": "52765c8f-3176-4b1e-ab9f-f6fb8ce51369",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000041e/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.416Z"
+        },
+        {
+          "id": "40cda89c-172e-4b0d-aa3d-11583b5c9cee",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.435Z"
+        },
+        {
+          "id": "558c8d0e-c926-4692-9553-4b50a87afe1e",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.446Z"
+        },
+        {
+          "id": "423eb33f-1488-4342-bab9-69e2ce73dc3b",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000041f/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.464Z"
+        },
+        {
+          "id": "e4bd2d2e-e5cf-486e-995e-abdf244f4e9f",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.482Z"
+        },
+        {
+          "id": "1b8ea6a9-dd15-41c9-917a-5c57a6a01c5b",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.494Z"
+        },
+        {
+          "id": "6b5a8192-9f0b-4e01-82d4-d710240d2609",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000420/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.512Z"
+        },
+        {
+          "id": "149a791f-0eb1-492f-9b67-c0f97599b0cc",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.530Z"
+        },
+        {
+          "id": "283540fe-8adf-40e3-b679-4659b5f2e280",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.534Z"
+        },
+        {
+          "id": "011922b4-e575-4e8a-8b13-6ca3248c8934",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000421/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.541Z"
+        },
+        {
+          "id": "997cc4b6-a1c0-4492-a6db-7346e41da1b4",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.564Z"
+        },
+        {
+          "id": "c8cc96f3-10ee-44bd-b59a-6cfa6284c0eb",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.568Z"
+        },
+        {
+          "id": "1219593d-133d-4f57-bb65-0f77fe678ad7",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000422/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.575Z"
+        },
+        {
+          "id": "1eae29d8-42f9-42f6-8690-62f5f6b6d22d",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.596Z"
+        },
+        {
+          "id": "02707145-fad1-47f1-89a1-5e3ff2f52c48",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.606Z"
+        },
+        {
+          "id": "455cabc3-4d95-4fcd-b199-58f2216dcdda",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000423/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.625Z"
+        },
+        {
+          "id": "687af441-1914-4de9-ace9-c1530732effc",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.646Z"
+        },
+        {
+          "id": "d05a9b0c-7c23-48c2-9380-9a6857901c30",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.654Z"
+        },
+        {
+          "id": "88f7148b-6183-4020-b598-6bbc608766be",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000424/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.674Z"
+        },
+        {
+          "id": "c85eb2c0-c788-4e67-ae7c-bb72314c6663",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.694Z"
+        },
+        {
+          "id": "b04c0979-e139-4a32-8ebd-3d56220b72a7",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.697Z"
+        },
+        {
+          "id": "2a3ed585-570c-45c0-8bfd-85b9b05db655",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000425/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.705Z"
+        },
+        {
+          "id": "b58ad8b2-1a41-4b80-9a96-beb87fbd1f96",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.722Z"
+        },
+        {
+          "id": "52cb2cf2-45f5-4f02-8963-8b0aeb994af8",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.734Z"
+        },
+        {
+          "id": "cb3f8a27-345e-4303-ba82-7a39b0d8d297",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000426/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.739Z"
+        },
+        {
+          "id": "4e2ed724-ce45-4426-a0b7-7a68a5651505",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.748Z"
+        },
+        {
+          "id": "432e4584-251c-4971-82a5-72d8b763e2c1",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.767Z"
+        },
+        {
+          "id": "88c7f4ed-5182-4084-9616-9c4615b0f27b",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000427/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.786Z"
+        },
+        {
+          "id": "1a75bf36-f8e9-47db-850e-6c66b35a30b4",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.805Z"
+        },
+        {
+          "id": "15be5e81-1cf1-4476-a5fc-d058bc8d4817",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.814Z"
+        },
+        {
+          "id": "54477724-8bbf-4ae0-88fd-db0a57ed6e21",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000428/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.821Z"
+        },
+        {
+          "id": "2fae24ed-a1da-44c9-ab07-ee70a78f7ca0",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.836Z"
+        },
+        {
+          "id": "7599689b-223e-41f6-9a42-7e3affc39195",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.847Z"
+        },
+        {
+          "id": "59ef9d50-4dc6-42f5-9920-3672687af450",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000429/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.865Z"
+        },
+        {
+          "id": "5136e54c-3740-41d1-b649-21704bfed326",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.883Z"
+        },
+        {
+          "id": "9cac6728-bade-41fd-a79f-2b3734e0ccff",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.895Z"
+        },
+        {
+          "id": "125f571a-57af-4f5b-b9f7-8cc01bb2c26c",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000042a/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.913Z"
+        },
+        {
+          "id": "442a2e29-0dfa-4c9d-875d-784ec8aa2ed3",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.931Z"
+        },
+        {
+          "id": "953add7a-2c1f-417d-b074-51ed3a31e2bb",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.943Z"
+        },
+        {
+          "id": "dd7e9975-58f5-4c25-9391-28283295b89f",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000042b/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.962Z"
+        },
+        {
+          "id": "57196b08-8d2e-410a-9379-0708cdecd6a3",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:40.981Z"
+        },
+        {
+          "id": "4ef42ad1-bcca-4df1-9159-1694db06d19c",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:40.990Z"
+        },
+        {
+          "id": "7090e849-a822-495c-a2fc-5bb1475f0b7d",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000042c/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.008Z"
+        },
+        {
+          "id": "a68194bf-fcd5-4753-8b8c-293b7bba2c19",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.029Z"
+        },
+        {
+          "id": "d3ff1827-2a2e-4192-93a9-45e137d775d5",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.038Z"
+        },
+        {
+          "id": "e3c9d0a9-f5f8-44c1-9237-a60736ee9576",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000042d/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.059Z"
+        },
+        {
+          "id": "67dd9144-d3cc-43c9-9510-94465bc843b5",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.072Z"
+        },
+        {
+          "id": "a7d97a9f-58f5-4103-af79-36b265d123ea",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.087Z"
+        },
+        {
+          "id": "f1914a05-f2c6-43e5-854f-440a69416131",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000042e/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.106Z"
+        },
+        {
+          "id": "e06ad761-0493-479e-9dd6-9328fb0df40d",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.129Z"
+        },
+        {
+          "id": "50694b83-c8a1-4522-ad7c-8454bb833384",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.136Z"
+        },
+        {
+          "id": "308caf3b-b940-4d15-b506-9b9fd577612c",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000042f/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.156Z"
+        },
+        {
+          "id": "c0f9e6b7-42d5-4cf0-9ff9-9dddba8d0a1c",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.175Z"
+        },
+        {
+          "id": "994f6c01-db93-4dca-9720-871ceb7f1d6f",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.182Z"
+        },
+        {
+          "id": "6aecf346-ad44-4214-bb81-d751ef7df93c",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000430/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.202Z"
+        },
+        {
+          "id": "4c866440-ef0f-40f7-a850-443f4cf0db77",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.220Z"
+        },
+        {
+          "id": "29f195ea-92d7-4c93-b81d-3a3ac1e58d55",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.231Z"
+        },
+        {
+          "id": "3e22e054-fd07-4109-be4d-38b755f2d417",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000431/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.250Z"
+        },
+        {
+          "id": "12622912-2ebd-4f2a-bea6-c87ee36f4c9a",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.272Z"
+        },
+        {
+          "id": "16ae5559-daa5-4143-9a88-8e5ff7fdd6e7",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.277Z"
+        },
+        {
+          "id": "a691dc6a-8d39-490c-be37-37995d7075c6",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000432/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.301Z"
+        },
+        {
+          "id": "e4271900-0e1d-4e74-9b70-30cd5e1ddc54",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.312Z"
+        },
+        {
+          "id": "b5e93d6b-cdeb-4553-bd3c-347b4c0c7cf3",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.327Z"
+        },
+        {
+          "id": "7328ed91-756c-444f-877e-4f5c9236c87f",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000433/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.344Z"
+        },
+        {
+          "id": "d20a04d4-ec48-41b4-9e07-d7edeffd39ad",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.353Z"
+        },
+        {
+          "id": "74ae7b6b-8ce0-4e47-9e62-68a87e656aca",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.357Z"
+        },
+        {
+          "id": "b0261670-4699-4053-9514-be914a1054fb",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000434/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.382Z"
+        },
+        {
+          "id": "4a019e2c-eefb-432c-9012-3247941c3b6d",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.396Z"
+        },
+        {
+          "id": "c2c83e1c-bfde-43f0-ba84-0c73ad97a4da",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.406Z"
+        },
+        {
+          "id": "b964d444-69ea-403b-9666-0befbc0a8038",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000435/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.426Z"
+        },
+        {
+          "id": "c18e000b-0bff-4554-9b14-6e25cb147312",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.444Z"
+        },
+        {
+          "id": "99cf53f6-7f6a-44ae-b042-dee51e297c6a",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.447Z"
+        },
+        {
+          "id": "61ff5614-b34a-4e3d-8af7-c1edd1740b03",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000436/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.456Z"
+        },
+        {
+          "id": "478d6e83-f00b-4bbf-911c-133da9a2513f",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.475Z"
+        },
+        {
+          "id": "7717bad7-0ee0-4c03-a911-c156b15dd8c5",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.486Z"
+        },
+        {
+          "id": "244dbcb9-978d-4f17-ab9d-a7dc19ca6b1e",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000437/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.505Z"
+        },
+        {
+          "id": "7aa5be1f-1833-469d-af99-461173259ff7",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.522Z"
+        },
+        {
+          "id": "b91175bf-b5ce-4f30-9de1-c47872b628b3",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.534Z"
+        },
+        {
+          "id": "85be6e99-289d-4616-bf3d-de15174c20e6",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000438/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.553Z"
+        },
+        {
+          "id": "2c46f7c0-d72f-40dd-a106-f1d4b0e535a6",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.571Z"
+        },
+        {
+          "id": "f4cecd45-6532-4b24-86fd-c5f5e3b00a6f",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.582Z"
+        },
+        {
+          "id": "1ea1e37e-35e8-430b-a73f-386181d3dfd5",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000439/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.601Z"
+        },
+        {
+          "id": "bb047119-4f94-4d25-b9c6-4ea58ca26f0b",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.619Z"
+        },
+        {
+          "id": "def174fa-efdd-486f-8a2f-b16908011dc4",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.629Z"
+        },
+        {
+          "id": "3ef164ed-170b-479e-be89-a8937b5b3860",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000043a/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.650Z"
+        },
+        {
+          "id": "9b3f3f49-3862-47c5-b464-5cb032e880ee",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.667Z"
+        },
+        {
+          "id": "4fd983c9-88c8-4a3a-917e-730a0b207fdc",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.677Z"
+        },
+        {
+          "id": "60a18b1b-4b90-4c2a-8306-744f716b1257",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000043b/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.697Z"
+        },
+        {
+          "id": "14bab26f-4422-4eb6-bdbd-ce65ba1fced6",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.716Z"
+        },
+        {
+          "id": "00ffe4b3-cb5a-4fbe-967f-b70d5d0d512e",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.725Z"
+        },
+        {
+          "id": "0c93d3c8-e022-4660-baf5-bffa5dd82e2b",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000043c/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.746Z"
+        },
+        {
+          "id": "71eadde3-1a3c-4fe0-a2f8-ba4cb84aee39",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.763Z"
+        },
+        {
+          "id": "e5e13e6a-4f50-4368-b1ee-e8f19114cf5a",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.774Z"
+        },
+        {
+          "id": "e106188b-a1f9-4608-bf81-34485806d401",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000043d/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.780Z"
+        },
+        {
+          "id": "ff7cc685-21d0-49d0-b580-911b4db056a3",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.796Z"
+        },
+        {
+          "id": "bf116f58-a7c5-4552-a6a0-28cea9cbbcc3",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.805Z"
+        },
+        {
+          "id": "1469f4d9-09ea-446a-b97c-053a548ad24f",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000043e/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.825Z"
+        },
+        {
+          "id": "be1e3e9f-a4d1-4c56-8808-93aa778901f9",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.835Z"
+        },
+        {
+          "id": "69afd625-57c5-4395-b1b4-97e28122ef66",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.854Z"
+        },
+        {
+          "id": "7de8bd92-7f9a-46e2-abaa-6c3c40a4a27e",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000043f/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.872Z"
+        },
+        {
+          "id": "b227a954-610c-425c-a766-f038efc48409",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.890Z"
+        },
+        {
+          "id": "3cac9664-3726-4b60-9169-0fc07ea2cef3",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.902Z"
+        },
+        {
+          "id": "e4a333bc-1727-4cdd-88e7-807d89527830",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000440/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.921Z"
+        },
+        {
+          "id": "ff33fe56-6e56-4a06-8493-104ca846d1e9",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.939Z"
+        },
+        {
+          "id": "4c44e955-0cfa-487b-aa9b-d5db94f72d55",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.950Z"
+        },
+        {
+          "id": "b86c0099-eac8-42f9-be62-ef9cb5e22125",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000441/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.968Z"
+        },
+        {
+          "id": "6314b432-5966-434e-a3b5-df276ce5d704",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:41.989Z"
+        },
+        {
+          "id": "241dbd7e-e791-435d-a3ed-0575b6c3678d",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:41.997Z"
+        },
+        {
+          "id": "d4131467-1fab-42da-a8f1-7298c6bd65e5",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000442/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.017Z"
+        },
+        {
+          "id": "d9c96ea0-bdf7-4f40-ab27-c72d159f6e75",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:42.034Z"
+        },
+        {
+          "id": "0bbde80e-1682-4e56-b2c3-baf26a5bf00f",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.046Z"
+        },
+        {
+          "id": "7388b5e5-5df8-4bc3-8973-1e5ef9b3eb9b",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000443/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.064Z"
+        },
+        {
+          "id": "172cdf30-bf1d-463a-bfd8-7740c3f01c15",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:42.082Z"
+        },
+        {
+          "id": "195b4c58-eb43-467c-a000-aac3eb0a6a17",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.094Z"
+        },
+        {
+          "id": "5dd780cb-2a39-49db-86d2-497b12510158",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000444/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.112Z"
+        },
+        {
+          "id": "ba11e5b5-1f27-4612-a9b1-89a78e29d24f",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:42.132Z"
+        },
+        {
+          "id": "4e1533fc-253f-47ef-b990-62c0c866a10f",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.141Z"
+        },
+        {
+          "id": "2d8e7402-05a3-4a00-a57c-5dec49c28d10",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000445/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.160Z"
+        },
+        {
+          "id": "fcc299af-cd56-4e5f-a53b-56703f19a0c5",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:42.180Z"
+        },
+        {
+          "id": "0f81605a-1620-41c8-bdd7-cb23eb7fa01d",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.188Z"
+        },
+        {
+          "id": "95e95031-a514-4057-9daa-23bcf45148e6",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000446/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.193Z"
+        },
+        {
+          "id": "af9fcd26-75e6-4806-abd6-c38b80feff4c",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:42.212Z"
+        },
+        {
+          "id": "137d5164-eb1f-43f7-9a2c-1ea4238c0e4d",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.220Z"
+        },
+        {
+          "id": "9b315306-ed5c-460e-aa9b-d5c433d05118",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000447/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.239Z"
+        },
+        {
+          "id": "35535fb8-4953-4d15-8046-12f1ca7f9ba1",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:42.258Z"
+        },
+        {
+          "id": "5afe8ade-4ab6-419a-8cad-dddcdad9cd3f",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.267Z"
+        },
+        {
+          "id": "0b6891bf-86da-4816-b0e8-db1da6c6080b",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000448/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.287Z"
+        },
+        {
+          "id": "72ace143-9961-43fd-8e35-378c1f67f5ac",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:42.305Z"
+        },
+        {
+          "id": "9fc66e46-01cf-47e7-b5db-f4d2de78159a",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.316Z"
+        },
+        {
+          "id": "45d7490c-b8fb-4782-880d-6361d3f869b2",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-000000000449/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.322Z"
+        },
+        {
+          "id": "9dd7e70c-dda7-47af-b058-a1c26b81a93f",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:42.332Z"
+        },
+        {
+          "id": "58af2058-e343-4201-88a5-28a4d4a1a12a",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.348Z"
+        },
+        {
+          "id": "ff1359dc-5460-48c2-a387-4c4289f08f71",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000044a/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.366Z"
+        },
+        {
+          "id": "7667cb88-f9ec-4f73-b1d5-b86dd70e32ba",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:42.385Z"
+        },
+        {
+          "id": "e56ce5e7-92c1-4062-82c4-65c3df18c917",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.396Z"
+        },
+        {
+          "id": "d95b1049-5e03-4320-bed1-734d145aeba7",
+          "method": "POST",
+          "path": "/role-grants/00000000-0000-4000-0040-00000000044b/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:42.415Z"
+        },
+        {
+          "id": "09ea5c76-4bb5-42b3-9b72-2bd937b43031",
+          "method": "GET",
+          "path": "/resources/role_grant",
+          "status": 403,
+          "at": "2026-11-05T09:17:42.433Z"
+        }
+      ]
+    }
+  ]
+}

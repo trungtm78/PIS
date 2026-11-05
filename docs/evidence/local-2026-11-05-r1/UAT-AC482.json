@@ -1,0 +1,73 @@
+{
+  "id": "UAT-AC482",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-datasets.test.ts",
+      "name": "the versions of the datasets by period (ST-BI-002, BI F2) the build of a period AC-ST-BI-002-2: UAT-AC482 builds nothing new when the content is the same, however often it is asked, and keeps one frozen version per dataset and period",
+      "status": "passed",
+      "durationMs": 268,
+      "at": "2026-11-05T09:18:45.145Z",
+      "requests": [
+        {
+          "id": "d176dc07-5c32-4cc2-b9b8-b55f9988ad1e",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:18:44.967Z"
+        },
+        {
+          "id": "15395097-004e-49d8-aaa7-6163f396055b",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:18:44.993Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-datasets.test.ts",
+      "name": "the versions of the datasets by period (ST-BI-002, BI F2) the build of a period AC-ST-BI-002-2: UAT-AC482 answers 409 BUILD_ALREADY_RUNNING while a build of the same dataset and period is in progress, and builds the other periods",
+      "status": "passed",
+      "durationMs": 388,
+      "at": "2026-11-05T09:18:45.533Z",
+      "requests": [
+        {
+          "id": "8bf50351-c337-404a-ab3b-8f45c8a840fe",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 409,
+          "at": "2026-11-05T09:18:45.361Z"
+        },
+        {
+          "id": "5d6921b6-7773-4c31-8aa0-c143c4b0440e",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:18:45.385Z"
+        },
+        {
+          "id": "fe148f8d-db78-44ae-ab26-09214ce3aa76",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:18:45.460Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-datasets.test.ts",
+      "name": "the versions of the datasets by period (ST-BI-002, BI F2) the consumer of the events AC-ST-BI-002-2: UAT-AC482 builds one frozen version when the event of a snapshot is delivered twice and when two events name it, and supersedes the version of the snapshot that replaces it",
+      "status": "passed",
+      "durationMs": 519,
+      "at": "2026-11-05T09:18:48.510Z",
+      "requests": []
+    }
+  ]
+}

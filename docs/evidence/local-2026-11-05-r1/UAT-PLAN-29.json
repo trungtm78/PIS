@@ -1,0 +1,57 @@
+{
+  "id": "UAT-PLAN-29",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/inventory.test.ts",
+      "name": "the inventory of the assets of the affected households: counting at a price decision in force and the answer of the household (ST-LND-004) recordInventory AC-ST-LND-004-1, UAT-PLAN-29: counts a DRAFT at the price decision of the day of the survey, audits it and tells the world with ids and amounts only",
+      "status": "passed",
+      "durationMs": 246,
+      "at": "2026-11-05T09:22:33.588Z",
+      "requests": [
+        {
+          "id": "049c4e90-0ae7-41fb-a474-05e3da9934b0",
+          "method": "POST",
+          "path": "/land-inventory-records",
+          "status": 200,
+          "at": "2026-11-05T09:22:33.364Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/inventory.test.ts",
+      "name": "the inventory of the assets of the affected households: counting at a price decision in force and the answer of the household (ST-LND-004) confirmInventory AC-ST-LND-004-1, UAT-PLAN-29: is confirmed by someone other than the person who counted (403 SELF_APPROVAL_DENIED for the counter), and the household and the parcel are inventoried",
+      "status": "passed",
+      "durationMs": 324,
+      "at": "2026-11-05T09:22:34.582Z",
+      "requests": [
+        {
+          "id": "a8ab4ba1-4496-48fa-a266-51891e51debb",
+          "method": "POST",
+          "path": "/land-inventory-records",
+          "status": 200,
+          "at": "2026-11-05T09:22:34.269Z"
+        },
+        {
+          "id": "00f67f02-7f5c-44fb-877d-64a7e77f996d",
+          "method": "POST",
+          "path": "/land-inventory-records/3469958b-7d32-4898-a8e2-f9824758e207/confirm",
+          "status": 403,
+          "at": "2026-11-05T09:22:34.292Z"
+        },
+        {
+          "id": "077cf774-b66d-4626-a2ed-247a34484980",
+          "method": "POST",
+          "path": "/land-inventory-records/3469958b-7d32-4898-a8e2-f9824758e207/confirm",
+          "status": 200,
+          "at": "2026-11-05T09:22:34.355Z"
+        }
+      ]
+    }
+  ]
+}

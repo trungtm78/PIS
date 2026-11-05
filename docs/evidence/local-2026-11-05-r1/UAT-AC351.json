@@ -1,0 +1,214 @@
+{
+  "id": "UAT-AC351",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-issue-closure.test.ts",
+      "name": "requestIssueVerification, closeIssue, reopenIssue and extendIssueDeadline (ST-ISS-003) verification and closure (UAT-AC351) AC-ST-ISS-003-1: the handler cannot close what they worked; a different verifier closes it only with evidence, and the trail holds no notes",
+      "status": "passed",
+      "durationMs": 628,
+      "at": "2026-11-05T09:22:45.350Z",
+      "requests": [
+        {
+          "id": "47110171-0c81-41e6-95dc-35d11311d27c",
+          "method": "POST",
+          "path": "/issues",
+          "status": 200,
+          "at": "2026-11-05T09:22:44.724Z"
+        },
+        {
+          "id": "0896af08-7789-44cc-810e-8fe3d46195c8",
+          "method": "POST",
+          "path": "/issues/8fd25ffb-77a0-4bff-af96-c674e04493d6/assign",
+          "status": 200,
+          "at": "2026-11-05T09:22:44.834Z"
+        },
+        {
+          "id": "5a0be0ad-c3b6-4ade-8de2-8fe7fda8e6e6",
+          "method": "POST",
+          "path": "/issues/8fd25ffb-77a0-4bff-af96-c674e04493d6/start",
+          "status": 200,
+          "at": "2026-11-05T09:22:44.852Z"
+        },
+        {
+          "id": "160eb48d-c017-463e-b7b3-28a3fd5de77a",
+          "method": "POST",
+          "path": "/issues/8fd25ffb-77a0-4bff-af96-c674e04493d6/request-verification",
+          "status": 422,
+          "at": "2026-11-05T09:22:44.871Z"
+        },
+        {
+          "id": "d5e9f00c-efe8-410e-af22-464515f87999",
+          "method": "POST",
+          "path": "/issues/8fd25ffb-77a0-4bff-af96-c674e04493d6/request-verification",
+          "status": 422,
+          "at": "2026-11-05T09:22:44.886Z"
+        },
+        {
+          "id": "fdae4ebe-6e2b-4119-9294-430cf228f875",
+          "method": "POST",
+          "path": "/issues/8fd25ffb-77a0-4bff-af96-c674e04493d6/request-verification",
+          "status": 403,
+          "at": "2026-11-05T09:22:44.902Z"
+        },
+        {
+          "id": "6c762d18-7dca-4802-885f-c636392b3f2e",
+          "method": "POST",
+          "path": "/issues/8fd25ffb-77a0-4bff-af96-c674e04493d6/request-verification",
+          "status": 200,
+          "at": "2026-11-05T09:22:44.913Z"
+        },
+        {
+          "id": "091c2059-02d6-46fa-8c15-17a388b548b6",
+          "method": "POST",
+          "path": "/issues/8fd25ffb-77a0-4bff-af96-c674e04493d6/close",
+          "status": 403,
+          "at": "2026-11-05T09:22:44.937Z"
+        },
+        {
+          "id": "7d47e6fd-30bf-4da2-8320-3c8e7d0c1010",
+          "method": "POST",
+          "path": "/issues/8fd25ffb-77a0-4bff-af96-c674e04493d6/close",
+          "status": 403,
+          "at": "2026-11-05T09:22:44.989Z"
+        },
+        {
+          "id": "40ed1ab2-e59e-46b2-9e08-c63a6814c98a",
+          "method": "POST",
+          "path": "/issues/8fd25ffb-77a0-4bff-af96-c674e04493d6/close",
+          "status": 200,
+          "at": "2026-11-05T09:22:45.016Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-issue-closure.test.ts",
+      "name": "requestIssueVerification, closeIssue, reopenIssue and extendIssueDeadline (ST-ISS-003) verification and closure (UAT-AC351) AC-ST-ISS-003-3, AC-ST-CTR-013-2, UAT-AC397: the same close command sent again returns the first answer without a second audit row or event; the same key with another body is a conflict; a new key is an invalid state",
+      "status": "passed",
+      "durationMs": 278,
+      "at": "2026-11-05T09:22:45.629Z",
+      "requests": [
+        {
+          "id": "c63e44b1-548a-4a36-88c8-1ecb236d2b88",
+          "method": "POST",
+          "path": "/issues",
+          "status": 200,
+          "at": "2026-11-05T09:22:45.352Z"
+        },
+        {
+          "id": "0f28742a-4ef5-4e9b-a095-7f136d2089de",
+          "method": "POST",
+          "path": "/issues/a10d3971-8b6d-4411-83b5-55f42942a821/assign",
+          "status": 200,
+          "at": "2026-11-05T09:22:45.381Z"
+        },
+        {
+          "id": "492fa36c-ee8b-4f06-8b1f-0ada5508bfd5",
+          "method": "POST",
+          "path": "/issues/a10d3971-8b6d-4411-83b5-55f42942a821/start",
+          "status": 200,
+          "at": "2026-11-05T09:22:45.408Z"
+        },
+        {
+          "id": "063f1ac3-e2bc-4729-9dee-6e3263fa20ae",
+          "method": "POST",
+          "path": "/issues/a10d3971-8b6d-4411-83b5-55f42942a821/request-verification",
+          "status": 200,
+          "at": "2026-11-05T09:22:45.430Z"
+        },
+        {
+          "id": "3b09fc05-5ff6-4c77-9189-b32a076997df",
+          "method": "POST",
+          "path": "/issues/a10d3971-8b6d-4411-83b5-55f42942a821/close",
+          "status": 200,
+          "at": "2026-11-05T09:22:45.447Z"
+        },
+        {
+          "id": "a8a7c95a-483c-4596-86ae-0380a244f10e",
+          "method": "POST",
+          "path": "/issues/a10d3971-8b6d-4411-83b5-55f42942a821/close",
+          "status": 200,
+          "at": "2026-11-05T09:22:45.465Z"
+        },
+        {
+          "id": "c1821b25-5797-45e0-8170-083121111c9a",
+          "method": "POST",
+          "path": "/issues/a10d3971-8b6d-4411-83b5-55f42942a821/close",
+          "status": 409,
+          "at": "2026-11-05T09:22:45.474Z"
+        },
+        {
+          "id": "c964e338-de2c-4273-8779-ab1eefe9f092",
+          "method": "POST",
+          "path": "/issues/a10d3971-8b6d-4411-83b5-55f42942a821/close",
+          "status": 409,
+          "at": "2026-11-05T09:22:45.572Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-issue-closure.test.ts",
+      "name": "requestIssueVerification, closeIssue, reopenIssue and extendIssueDeadline (ST-ISS-003) verification and closure (UAT-AC351) lets the verifier give the result back with assignIssue and the reason, and shows the refusal in the timeline",
+      "status": "passed",
+      "durationMs": 158,
+      "at": "2026-11-05T09:22:45.786Z",
+      "requests": [
+        {
+          "id": "09582d2b-946e-467a-9f8e-aa962d99e122",
+          "method": "POST",
+          "path": "/issues",
+          "status": 200,
+          "at": "2026-11-05T09:22:45.631Z"
+        },
+        {
+          "id": "1f6a838c-9a09-4e70-9bad-1b8c7a50314d",
+          "method": "POST",
+          "path": "/issues/4c422898-3e52-40cb-8e65-bfeb412834ac/assign",
+          "status": 200,
+          "at": "2026-11-05T09:22:45.665Z"
+        },
+        {
+          "id": "e8d2b16f-0226-41ad-9a1f-c06b4146bc94",
+          "method": "POST",
+          "path": "/issues/4c422898-3e52-40cb-8e65-bfeb412834ac/start",
+          "status": 200,
+          "at": "2026-11-05T09:22:45.693Z"
+        },
+        {
+          "id": "deebb289-961d-4911-a8c6-2c165d72024f",
+          "method": "POST",
+          "path": "/issues/4c422898-3e52-40cb-8e65-bfeb412834ac/request-verification",
+          "status": 200,
+          "at": "2026-11-05T09:22:45.718Z"
+        },
+        {
+          "id": "97bf3efd-cac2-4700-9c88-229ab2b1ae83",
+          "method": "POST",
+          "path": "/issues/4c422898-3e52-40cb-8e65-bfeb412834ac/assign",
+          "status": 422,
+          "at": "2026-11-05T09:22:45.735Z"
+        },
+        {
+          "id": "2bd707af-4bcb-43d4-8e83-86c3b1c6a385",
+          "method": "POST",
+          "path": "/issues/4c422898-3e52-40cb-8e65-bfeb412834ac/assign",
+          "status": 200,
+          "at": "2026-11-05T09:22:45.748Z"
+        },
+        {
+          "id": "df1aa9ed-9691-45cc-a6b2-166d324934f1",
+          "method": "GET",
+          "path": "/resources/issue/4c422898-3e52-40cb-8e65-bfeb412834ac",
+          "status": 200,
+          "at": "2026-11-05T09:22:45.767Z"
+        }
+      ]
+    }
+  ]
+}

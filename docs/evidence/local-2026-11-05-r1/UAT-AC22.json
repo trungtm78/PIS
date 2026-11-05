@@ -1,0 +1,92 @@
+{
+  "id": "UAT-AC22",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/omni/conversation-messages.test.ts",
+      "name": "what an agent says in a conversation (ST-OMNI-005, OMNI-02, OMNI.md 3.3) the checks of a message to the person AC-ST-OMNI-005-3 UAT-AC22: with the consent for support withdrawn and the one for reminders kept, a message for support is 422 CONSENT_DENIED and one for a reminder is 202 with one adapter call",
+      "status": "passed",
+      "durationMs": 499,
+      "at": "2026-11-05T09:12:31.393Z",
+      "requests": [
+        {
+          "id": "09c511ef-a8a4-4d96-9b4e-55ea1d386a9b",
+          "method": "POST",
+          "path": "/conversations/fe145e06-1aa6-4cfd-a619-7c737ede904e/messages",
+          "status": 422,
+          "at": "2026-11-05T09:12:31.235Z"
+        },
+        {
+          "id": "80fce2ff-dbca-4bde-bfb0-6250c45015d1",
+          "method": "POST",
+          "path": "/conversations/fe145e06-1aa6-4cfd-a619-7c737ede904e/messages",
+          "status": 202,
+          "at": "2026-11-05T09:12:31.359Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/omni/contact-consents.test.ts",
+      "name": "the consent of a contact outside the tenant (ST-OMNI-003, OMNI-04, BR-NOT-07) AC-ST-OMNI-003-1 UAT-AC22: withdrawing the support consent of a contact with a support and a reminder consent ends that one with its moment, writes one audit row and one not.consent.changed.v1, and leaves the other",
+      "status": "passed",
+      "durationMs": 721,
+      "at": "2026-11-05T09:21:24.136Z",
+      "requests": [
+        {
+          "id": "f3631507-c263-42ed-a34d-e2c8cef21e01",
+          "method": "POST",
+          "path": "/contacts",
+          "status": 201,
+          "at": "2026-11-05T09:21:23.416Z"
+        },
+        {
+          "id": "b5d32016-4be3-4d20-87de-6f2299575091",
+          "method": "POST",
+          "path": "/contacts/d34d4022-939b-44c5-8968-58bdd4c710d9/identities",
+          "status": 201,
+          "at": "2026-11-05T09:21:23.496Z"
+        },
+        {
+          "id": "edc697bf-8afe-4374-bdf6-29f0b28b5d9d",
+          "method": "POST",
+          "path": "/contacts/d34d4022-939b-44c5-8968-58bdd4c710d9/identities/81982e47-c40e-4533-ad39-8f8552fac9ad/verify",
+          "status": 200,
+          "at": "2026-11-05T09:21:23.573Z"
+        },
+        {
+          "id": "c0f68090-3669-4bd7-b49b-84b039568c7b",
+          "method": "POST",
+          "path": "/contacts/d34d4022-939b-44c5-8968-58bdd4c710d9/consents",
+          "status": 201,
+          "at": "2026-11-05T09:21:23.592Z"
+        },
+        {
+          "id": "442522c4-f1e4-4d38-a187-37498eb2fc37",
+          "method": "POST",
+          "path": "/contacts/d34d4022-939b-44c5-8968-58bdd4c710d9/consents",
+          "status": 201,
+          "at": "2026-11-05T09:21:23.615Z"
+        },
+        {
+          "id": "f251a41b-f2d8-462d-b44d-a14881f5ed43",
+          "method": "POST",
+          "path": "/contact-consents/bd39f070-2387-4cc8-b1cd-45406f7c09c1/withdraw",
+          "status": 200,
+          "at": "2026-11-05T09:21:23.829Z"
+        },
+        {
+          "id": "76daedab-cd3c-4054-a0a7-643e3d0724b4",
+          "method": "POST",
+          "path": "/contacts/d34d4022-939b-44c5-8968-58bdd4c710d9/consents",
+          "status": 201,
+          "at": "2026-11-05T09:21:24.110Z"
+        }
+      ]
+    }
+  ]
+}

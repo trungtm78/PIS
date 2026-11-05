@@ -1,0 +1,675 @@
+{
+  "id": "UAT-AC453",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/report.test.ts",
+      "name": "the evaluation report and its sign-off over HTTP (ST-BID-012, BID-13) AC-ST-BID-012-1, UAT-AC453: from the unreviewed finding to the minutes DOC issued AC-ST-BID-012-1, UAT-AC453: answers 422 UNREVIEWED_FINDINGS first, a DRAFT after the review, ISSUE_REQUESTED after the third signature and ISSUED with report_document_id after doc.issued",
+      "status": "passed",
+      "durationMs": 3558,
+      "at": "2026-11-05T09:13:01.085Z",
+      "requests": [
+        {
+          "id": "1f68597f-7e4f-4f50-965d-590cee8a0221",
+          "method": "POST",
+          "path": "/procurement-packages/6fc90bdc-64b2-4d0e-8a70-84eeeaa1620f/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:12:57.572Z"
+        },
+        {
+          "id": "92cb4bb8-acd6-4aa6-a45a-66ad905b1c71",
+          "method": "POST",
+          "path": "/procurement-packages/6fc90bdc-64b2-4d0e-8a70-84eeeaa1620f/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:12:57.610Z"
+        },
+        {
+          "id": "3e39abf6-e5fd-461f-94e4-eddca7a9d038",
+          "method": "POST",
+          "path": "/procurement-packages/6fc90bdc-64b2-4d0e-8a70-84eeeaa1620f/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:12:57.622Z"
+        },
+        {
+          "id": "63c9801b-97fd-47e3-8fca-6f83b0ac7900",
+          "method": "POST",
+          "path": "/analysis-findings/6e682ad6-12be-48cc-88dd-fe604eda3ca0/review",
+          "status": 200,
+          "at": "2026-11-05T09:12:58.766Z"
+        },
+        {
+          "id": "3a7bd22b-afa3-4fb2-8ad5-7d5065616d1b",
+          "method": "POST",
+          "path": "/analysis-findings/29171d95-784d-4cd5-8831-b3218108a563/review",
+          "status": 200,
+          "at": "2026-11-05T09:12:58.807Z"
+        },
+        {
+          "id": "ec2eb959-5286-401a-8248-3b2d1d2a9a00",
+          "method": "POST",
+          "path": "/analysis-findings/e184eb32-dee2-4166-bb34-9f15a79ebeec/review",
+          "status": 200,
+          "at": "2026-11-05T09:12:58.842Z"
+        },
+        {
+          "id": "a22d3857-34d8-4099-8bfb-c6e9cff9e658",
+          "method": "POST",
+          "path": "/analysis-findings/7c3d243e-7fd4-4592-88c2-e4dca7d75dab/review",
+          "status": 200,
+          "at": "2026-11-05T09:12:58.882Z"
+        },
+        {
+          "id": "e687dc13-b737-4cd7-b752-28227692cb57",
+          "method": "POST",
+          "path": "/analysis-findings/caaf65a5-9d75-46ad-8fed-982b27deca91/review",
+          "status": 200,
+          "at": "2026-11-05T09:12:58.907Z"
+        },
+        {
+          "id": "abc64fb1-a416-4153-b447-7523e9582bd7",
+          "method": "POST",
+          "path": "/evaluation-reports",
+          "status": 422,
+          "at": "2026-11-05T09:12:58.938Z"
+        },
+        {
+          "id": "42fbe801-35bf-40ad-bee5-f05d95478263",
+          "method": "POST",
+          "path": "/analysis-findings/990d1f50-05d0-4d40-a1db-bb1e36e048ae/review",
+          "status": 200,
+          "at": "2026-11-05T09:12:59.029Z"
+        },
+        {
+          "id": "2ecae19f-1364-4882-a525-9a7b909b3896",
+          "method": "POST",
+          "path": "/evaluation-reports",
+          "status": 200,
+          "at": "2026-11-05T09:12:59.069Z"
+        },
+        {
+          "id": "f011e9b3-bb39-4063-aac4-19a2dfab5a1b",
+          "method": "POST",
+          "path": "/evaluation-reports",
+          "status": 200,
+          "at": "2026-11-05T09:12:59.102Z"
+        },
+        {
+          "id": "8a209617-affa-480c-95bd-c2dc39f0cb5d",
+          "method": "POST",
+          "path": "/evaluation-reports/a53792f5-3cc2-4895-ada4-d304839f9441/sign-off",
+          "status": 200,
+          "at": "2026-11-05T09:12:59.458Z"
+        },
+        {
+          "id": "b133186a-1801-4df7-9f11-ca1f00fd511d",
+          "method": "POST",
+          "path": "/evaluation-reports/a53792f5-3cc2-4895-ada4-d304839f9441/sign-off",
+          "status": 200,
+          "at": "2026-11-05T09:12:59.572Z"
+        },
+        {
+          "id": "2ab5da76-3ba0-4cb3-b38f-4b39f0aaae51",
+          "method": "POST",
+          "path": "/evaluation-reports/a53792f5-3cc2-4895-ada4-d304839f9441/sign-off",
+          "status": 200,
+          "at": "2026-11-05T09:12:59.737Z"
+        },
+        {
+          "id": "a4853272-4be6-402e-9685-5b8ae06ae071",
+          "method": "GET",
+          "path": "/evaluation-reports/a53792f5-3cc2-4895-ada4-d304839f9441",
+          "status": 200,
+          "at": "2026-11-05T09:13:00.335Z"
+        },
+        {
+          "id": "a8f71de7-7920-4833-a427-6fa5f5fc6d69",
+          "method": "GET",
+          "path": "/evaluation-reports/a53792f5-3cc2-4895-ada4-d304839f9441",
+          "status": 200,
+          "at": "2026-11-05T09:13:00.637Z"
+        },
+        {
+          "id": "0dca2a74-4652-4af5-94fa-0c13df599c35",
+          "method": "POST",
+          "path": "/analysis-findings/29171d95-784d-4cd5-8831-b3218108a563/review",
+          "status": 409,
+          "at": "2026-11-05T09:13:01.066Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/report.test.ts",
+      "name": "the evaluation report and its sign-off over HTTP (ST-BID-012, BID-13) AC-ST-BID-012-1, UAT-AC453: from the unreviewed finding to the minutes DOC issued refuses what the story names on the draft: the criteria of another version (422), a run that is not found (404), a conclusion that is too short (422) and a field nobody may write (400)",
+      "status": "passed",
+      "durationMs": 1266,
+      "at": "2026-11-05T09:13:02.351Z",
+      "requests": [
+        {
+          "id": "8667c987-2e13-44b2-8c1d-fc6de2323c85",
+          "method": "POST",
+          "path": "/procurement-packages/eaebf126-6b6f-41dd-8c5d-fedae8e0b0f2/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:13:01.128Z"
+        },
+        {
+          "id": "e21e5ec8-cacb-4b08-af89-3603fc9bfca0",
+          "method": "POST",
+          "path": "/procurement-packages/eaebf126-6b6f-41dd-8c5d-fedae8e0b0f2/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:13:01.146Z"
+        },
+        {
+          "id": "f7161628-4a9e-4b76-997f-6e5f1c241cc9",
+          "method": "POST",
+          "path": "/procurement-packages/eaebf126-6b6f-41dd-8c5d-fedae8e0b0f2/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:13:01.159Z"
+        },
+        {
+          "id": "4d3cfc92-1eb2-4c9d-8711-b3c354c1a07b",
+          "method": "POST",
+          "path": "/analysis-findings/145361a8-3c5c-4a5e-bde8-de9dd0d4fcc3/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:01.908Z"
+        },
+        {
+          "id": "2dcac7fe-dafe-4aff-88e3-6258093aebd7",
+          "method": "POST",
+          "path": "/analysis-findings/a17bf2ff-361d-44c6-bb5d-86f879e2076c/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:01.943Z"
+        },
+        {
+          "id": "1587cf43-dbbd-489b-9930-0bad5598bc2d",
+          "method": "POST",
+          "path": "/analysis-findings/dd3d6b5a-a4c3-450e-928e-c523cdc83b76/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:01.973Z"
+        },
+        {
+          "id": "1c8d7781-56ae-4e31-baa2-9843f02097ab",
+          "method": "POST",
+          "path": "/analysis-findings/9b3a86ab-187a-467a-877c-a8a4d734f238/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:02.006Z"
+        },
+        {
+          "id": "9c64466a-5ffa-4234-8e7a-f9e7334dd138",
+          "method": "POST",
+          "path": "/analysis-findings/10c30cf9-8790-407b-95a6-028208782554/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:02.037Z"
+        },
+        {
+          "id": "fec1e188-fd62-49a9-aba4-f09b9e045aa1",
+          "method": "POST",
+          "path": "/analysis-findings/24bac742-1eb5-4821-bb7d-bb29183061ac/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:02.069Z"
+        },
+        {
+          "id": "38d8f1e0-5e50-4ff3-a3c2-58fa96530214",
+          "method": "POST",
+          "path": "/evaluation-reports",
+          "status": 422,
+          "at": "2026-11-05T09:13:02.199Z"
+        },
+        {
+          "id": "1d7ef93c-d6fd-4813-a5df-26071374d000",
+          "method": "POST",
+          "path": "/evaluation-reports",
+          "status": 404,
+          "at": "2026-11-05T09:13:02.218Z"
+        },
+        {
+          "id": "40f7bc20-b5fb-41d9-a28d-e33b8ba6d0aa",
+          "method": "POST",
+          "path": "/evaluation-reports",
+          "status": 422,
+          "at": "2026-11-05T09:13:02.233Z"
+        },
+        {
+          "id": "0dc9cb4e-efb0-4067-bd50-61b73483dfe9",
+          "method": "POST",
+          "path": "/evaluation-reports",
+          "status": 422,
+          "at": "2026-11-05T09:13:02.245Z"
+        },
+        {
+          "id": "fa6041f0-a8ec-4f7f-913a-3eeeb736c0fa",
+          "method": "POST",
+          "path": "/evaluation-reports",
+          "status": 400,
+          "at": "2026-11-05T09:13:02.260Z"
+        },
+        {
+          "id": "1dcdc905-dac0-45d5-854c-57d73ece8751",
+          "method": "POST",
+          "path": "/evaluation-reports",
+          "status": 400,
+          "at": "2026-11-05T09:13:02.275Z"
+        },
+        {
+          "id": "ca0f1826-fdc0-4905-9b9f-f999f9f70a24",
+          "method": "POST",
+          "path": "/evaluation-reports",
+          "status": 400,
+          "at": "2026-11-05T09:13:02.291Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/report.test.ts",
+      "name": "the evaluation report and its sign-off over HTTP (ST-BID-012, BID-13) AC-ST-BID-012-1, UAT-AC453: from the unreviewed finding to the minutes DOC issued keeps the rights apart: the reader and the stranger neither make nor sign nor read a report, the member who has not declared is asked to, and another tenant finds nothing",
+      "status": "passed",
+      "durationMs": 1274,
+      "at": "2026-11-05T09:13:03.625Z",
+      "requests": [
+        {
+          "id": "21274999-d632-4e52-8b94-8623e1c62d0d",
+          "method": "POST",
+          "path": "/procurement-packages/b527aec4-88ca-4f17-9cc5-ab6093e2d85f/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:13:02.396Z"
+        },
+        {
+          "id": "ba3ee825-a221-4619-8910-b64eeda5f047",
+          "method": "POST",
+          "path": "/procurement-packages/b527aec4-88ca-4f17-9cc5-ab6093e2d85f/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:13:02.408Z"
+        },
+        {
+          "id": "f13402ec-99d9-42cb-aee1-067b258f587e",
+          "method": "POST",
+          "path": "/procurement-packages/b527aec4-88ca-4f17-9cc5-ab6093e2d85f/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:13:02.423Z"
+        },
+        {
+          "id": "2bd51bd5-3428-4491-9075-3a4f3ca86769",
+          "method": "POST",
+          "path": "/analysis-findings/58026a09-7c07-4d3c-a633-d0751e6bc929/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:03.229Z"
+        },
+        {
+          "id": "240d7ae0-a16d-4f19-9591-ce15f02245e3",
+          "method": "POST",
+          "path": "/analysis-findings/a9157245-d7ac-45b0-949c-aa87e1a33232/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:03.254Z"
+        },
+        {
+          "id": "15048b04-6b5d-4bd5-99ee-eade2be84041",
+          "method": "POST",
+          "path": "/analysis-findings/95ed8dc7-1b9d-44b5-8f80-4a87669652b9/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:03.288Z"
+        },
+        {
+          "id": "7e1c91f0-d904-464c-b2ec-c9146f8ffa6e",
+          "method": "POST",
+          "path": "/analysis-findings/a03541c1-de59-4b36-ad43-1e300d6960d7/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:03.322Z"
+        },
+        {
+          "id": "eebb1246-6d1c-4922-a44b-e0159bb159f8",
+          "method": "POST",
+          "path": "/analysis-findings/18c2b3ad-25c6-4bac-8310-7a78a207c545/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:03.348Z"
+        },
+        {
+          "id": "da48a8f9-1b8d-463a-aa4e-8614b2169ef7",
+          "method": "POST",
+          "path": "/analysis-findings/c4bbd97a-de16-41ac-b61c-931a4de6c3b0/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:03.380Z"
+        },
+        {
+          "id": "9823cb36-566f-41c6-aa9f-aabc15fa93d2",
+          "method": "POST",
+          "path": "/evaluation-reports",
+          "status": 403,
+          "at": "2026-11-05T09:13:03.419Z"
+        },
+        {
+          "id": "8c6d8434-bd3e-47e1-ad24-07739e205d11",
+          "method": "POST",
+          "path": "/evaluation-reports",
+          "status": 403,
+          "at": "2026-11-05T09:13:03.430Z"
+        },
+        {
+          "id": "933fda22-35b8-40de-b688-7631898696c2",
+          "method": "POST",
+          "path": "/evaluation-reports",
+          "status": 404,
+          "at": "2026-11-05T09:13:03.445Z"
+        },
+        {
+          "id": "6b3ece82-384b-4ecb-94c3-555c3c29a0cd",
+          "method": "POST",
+          "path": "/evaluation-reports",
+          "status": 200,
+          "at": "2026-11-05T09:13:03.463Z"
+        },
+        {
+          "id": "07a4535f-874c-4782-ae54-d4762ddadd5b",
+          "method": "POST",
+          "path": "/evaluation-reports/988e0889-7cbe-47b3-885b-dce14a2fb6ad/sign-off",
+          "status": 403,
+          "at": "2026-11-05T09:13:03.491Z"
+        },
+        {
+          "id": "ac37bc7b-33f6-4d92-88ad-a2598ec78b79",
+          "method": "GET",
+          "path": "/evaluation-reports/988e0889-7cbe-47b3-885b-dce14a2fb6ad",
+          "status": 403,
+          "at": "2026-11-05T09:13:03.507Z"
+        },
+        {
+          "id": "7c1a08c8-510e-49c3-929e-314dece3bee5",
+          "method": "GET",
+          "path": "/procurement-packages/b527aec4-88ca-4f17-9cc5-ab6093e2d85f/evaluation-reports",
+          "status": 403,
+          "at": "2026-11-05T09:13:03.522Z"
+        },
+        {
+          "id": "468fdf08-2a2a-4fdb-8001-e13fa2ed9642",
+          "method": "GET",
+          "path": "/evaluation-reports/988e0889-7cbe-47b3-885b-dce14a2fb6ad",
+          "status": 404,
+          "at": "2026-11-05T09:13:03.538Z"
+        },
+        {
+          "id": "00ef3b49-3916-41c9-8865-15d190b5ca67",
+          "method": "POST",
+          "path": "/evaluation-reports/988e0889-7cbe-47b3-885b-dce14a2fb6ad/sign-off",
+          "status": 404,
+          "at": "2026-11-05T09:13:03.544Z"
+        },
+        {
+          "id": "525640dc-47bb-41b5-9177-45849c501570",
+          "method": "POST",
+          "path": "/evaluation-reports/988e0889-7cbe-47b3-885b-dce14a2fb6ad/sign-off",
+          "status": 403,
+          "at": "2026-11-05T09:13:03.558Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/report.test.ts",
+      "name": "the evaluation report and its sign-off over HTTP (ST-BID-012, BID-13) AC-ST-BID-012-1, UAT-AC453: from the unreviewed finding to the minutes DOC issued refuses the sign-off in the order of the story: the declaration (403), the second signature (422), the version (409) and the state of the report (409)",
+      "status": "passed",
+      "durationMs": 1421,
+      "at": "2026-11-05T09:13:05.046Z",
+      "requests": [
+        {
+          "id": "93fbd3d5-df34-493e-97c6-6b3e8ee7db01",
+          "method": "POST",
+          "path": "/procurement-packages/74fda0c6-287d-4c4a-969f-a2235a35ade7/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:13:03.678Z"
+        },
+        {
+          "id": "5b535bee-e0e3-4085-a1c9-f2d7c245893f",
+          "method": "POST",
+          "path": "/procurement-packages/74fda0c6-287d-4c4a-969f-a2235a35ade7/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:13:03.691Z"
+        },
+        {
+          "id": "a302795b-86e9-45a0-b391-c31a7dfe67dd",
+          "method": "POST",
+          "path": "/analysis-findings/9e00d81c-50d0-4d3f-a90f-259ed6bd8022/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:04.620Z"
+        },
+        {
+          "id": "5531f186-e524-423d-ad1a-c653194bb50e",
+          "method": "POST",
+          "path": "/analysis-findings/53400295-3a4d-4cc2-96c6-a1b1a103a58b/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:04.662Z"
+        },
+        {
+          "id": "5dc4b95b-529e-4675-ba68-535cc4884ff1",
+          "method": "POST",
+          "path": "/analysis-findings/e1650e38-f3a7-438e-9da8-26db68c95818/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:04.690Z"
+        },
+        {
+          "id": "f5b4891a-dc31-401b-ba23-33145f17613d",
+          "method": "POST",
+          "path": "/analysis-findings/fb830b09-2546-4c25-902d-f76d5237e000/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:04.714Z"
+        },
+        {
+          "id": "e2af5e30-6986-406b-8698-36b1929399c3",
+          "method": "POST",
+          "path": "/analysis-findings/f48a84cf-dacf-462d-ae4e-1f97795365aa/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:04.740Z"
+        },
+        {
+          "id": "b16819b0-2660-4cb7-9497-da384ac39768",
+          "method": "POST",
+          "path": "/analysis-findings/beda5f75-dfa6-42fb-8fac-d8cf2acaf87e/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:04.771Z"
+        },
+        {
+          "id": "e2914a2d-9f9a-42ee-8e9d-efe2bc733337",
+          "method": "POST",
+          "path": "/evaluation-reports",
+          "status": 200,
+          "at": "2026-11-05T09:13:04.803Z"
+        },
+        {
+          "id": "797a49e1-d15b-41a0-8971-295ec8e0139e",
+          "method": "POST",
+          "path": "/evaluation-reports/7a622947-66ff-44c9-ab6e-23e52e535cf6/sign-off",
+          "status": 403,
+          "at": "2026-11-05T09:13:04.823Z"
+        },
+        {
+          "id": "2fce055b-950a-4b76-9c0c-82b048d712b5",
+          "method": "POST",
+          "path": "/procurement-packages/74fda0c6-287d-4c4a-969f-a2235a35ade7/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:13:04.839Z"
+        },
+        {
+          "id": "8758b7f0-e05f-45e1-8d75-18b50773d2f7",
+          "method": "POST",
+          "path": "/evaluation-reports/7a622947-66ff-44c9-ab6e-23e52e535cf6/sign-off",
+          "status": 200,
+          "at": "2026-11-05T09:13:04.854Z"
+        },
+        {
+          "id": "f8e073ad-070e-4d1e-b287-a9f24e16f302",
+          "method": "POST",
+          "path": "/evaluation-reports/7a622947-66ff-44c9-ab6e-23e52e535cf6/sign-off",
+          "status": 422,
+          "at": "2026-11-05T09:13:04.878Z"
+        },
+        {
+          "id": "232c1f30-d394-41ec-b2c1-b5fd85c68185",
+          "method": "POST",
+          "path": "/evaluation-reports/7a622947-66ff-44c9-ab6e-23e52e535cf6/sign-off",
+          "status": 409,
+          "at": "2026-11-05T09:13:04.904Z"
+        },
+        {
+          "id": "89fdae4d-ef76-4bd5-9b39-f319bf282503",
+          "method": "POST",
+          "path": "/evaluation-reports/7a622947-66ff-44c9-ab6e-23e52e535cf6/sign-off",
+          "status": 428,
+          "at": "2026-11-05T09:13:04.919Z"
+        },
+        {
+          "id": "60e2f508-7b99-4345-83ec-72fa4bf94976",
+          "method": "POST",
+          "path": "/evaluation-reports/7a622947-66ff-44c9-ab6e-23e52e535cf6/sign-off",
+          "status": 422,
+          "at": "2026-11-05T09:13:04.928Z"
+        },
+        {
+          "id": "b71d3f89-d9c2-4cf8-a731-d3dfdbc4bac3",
+          "method": "POST",
+          "path": "/evaluation-reports/7a622947-66ff-44c9-ab6e-23e52e535cf6/sign-off",
+          "status": 200,
+          "at": "2026-11-05T09:13:04.948Z"
+        },
+        {
+          "id": "8857a426-7701-4cb9-a2fe-04f5a86f686d",
+          "method": "POST",
+          "path": "/evaluation-reports/7a622947-66ff-44c9-ab6e-23e52e535cf6/sign-off",
+          "status": 200,
+          "at": "2026-11-05T09:13:04.977Z"
+        },
+        {
+          "id": "52cca42c-4759-44c7-b498-a74f1a010c72",
+          "method": "POST",
+          "path": "/evaluation-reports/7a622947-66ff-44c9-ab6e-23e52e535cf6/sign-off",
+          "status": 409,
+          "at": "2026-11-05T09:13:05.010Z"
+        },
+        {
+          "id": "4e7f8969-50d3-44fb-b85d-24e9208675f1",
+          "method": "POST",
+          "path": "/evaluation-reports/eb69b474-37b4-4e66-bec4-8cbedeb49497/sign-off",
+          "status": 404,
+          "at": "2026-11-05T09:13:05.030Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/report.test.ts",
+      "name": "the evaluation report and its sign-off over HTTP (ST-BID-012, BID-13) AC-ST-BID-012-1, UAT-AC453: from the unreviewed finding to the minutes DOC issued refuses 409 REPORT_OUT_OF_DATE a report whose decisions the experts took again, shows it as stale and signs a new report from what stands",
+      "status": "passed",
+      "durationMs": 1315,
+      "at": "2026-11-05T09:13:06.362Z",
+      "requests": [
+        {
+          "id": "95265827-6a20-426e-9b00-8a5e9a06ef59",
+          "method": "POST",
+          "path": "/procurement-packages/3b38d7a4-f58a-4bac-925f-63b9c53c28a3/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:13:05.094Z"
+        },
+        {
+          "id": "9a5a0007-0c1c-4f28-b5dc-12bf1511b0c4",
+          "method": "POST",
+          "path": "/procurement-packages/3b38d7a4-f58a-4bac-925f-63b9c53c28a3/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:13:05.111Z"
+        },
+        {
+          "id": "94b1253d-847a-4ee6-8d31-85c15f09c7cb",
+          "method": "POST",
+          "path": "/procurement-packages/3b38d7a4-f58a-4bac-925f-63b9c53c28a3/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:13:05.125Z"
+        },
+        {
+          "id": "a6197a28-192a-4e67-b7f7-2c3a75ac936b",
+          "method": "POST",
+          "path": "/analysis-findings/b2ad77ed-8068-4705-9115-cdf2136e31ad/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:06.007Z"
+        },
+        {
+          "id": "bb5cd3b9-d498-44a2-a015-127c7ce00bc5",
+          "method": "POST",
+          "path": "/analysis-findings/41ab7b1a-254a-4536-8a3d-5aeaaaefd12f/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:06.039Z"
+        },
+        {
+          "id": "ca715432-fb86-4dc9-aa75-c95c12a16df5",
+          "method": "POST",
+          "path": "/analysis-findings/5ef64d77-dccf-4bf6-b0eb-bd4d5f8fd978/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:06.068Z"
+        },
+        {
+          "id": "aa42c11b-b116-4c33-ba4a-b00002298708",
+          "method": "POST",
+          "path": "/analysis-findings/03105c1c-8fbc-4ae1-953b-cdb5e7f9424f/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:06.102Z"
+        },
+        {
+          "id": "981f22d0-99b1-4c0f-a903-df64e41838b8",
+          "method": "POST",
+          "path": "/analysis-findings/eb3586e2-468b-4287-bb9c-daf1ff5670a1/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:06.128Z"
+        },
+        {
+          "id": "fc8ce05a-99cc-4612-b93d-218752e26942",
+          "method": "POST",
+          "path": "/analysis-findings/6756ecd4-abc7-4cde-bcdf-ac79b97b0970/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:06.161Z"
+        },
+        {
+          "id": "89bd8842-b452-4d64-8ec6-f095f5bdf291",
+          "method": "POST",
+          "path": "/evaluation-reports",
+          "status": 200,
+          "at": "2026-11-05T09:13:06.193Z"
+        },
+        {
+          "id": "f9c5464a-d822-474b-b14e-57df058bafe6",
+          "method": "POST",
+          "path": "/analysis-findings/41ab7b1a-254a-4536-8a3d-5aeaaaefd12f/review",
+          "status": 200,
+          "at": "2026-11-05T09:13:06.224Z"
+        },
+        {
+          "id": "1d63408f-3f91-4191-b7ac-3f58f4c6e58f",
+          "method": "POST",
+          "path": "/evaluation-reports/65ba8c60-be2f-4872-b230-700b06cd8184/sign-off",
+          "status": 409,
+          "at": "2026-11-05T09:13:06.287Z"
+        },
+        {
+          "id": "0a686773-8f6c-4328-8f2b-3d76562f6bba",
+          "method": "GET",
+          "path": "/evaluation-reports/65ba8c60-be2f-4872-b230-700b06cd8184",
+          "status": 200,
+          "at": "2026-11-05T09:13:06.311Z"
+        },
+        {
+          "id": "4ac6d8d2-d83b-45fb-8c85-57f1d3f2a9e6",
+          "method": "POST",
+          "path": "/evaluation-reports",
+          "status": 200,
+          "at": "2026-11-05T09:13:06.325Z"
+        },
+        {
+          "id": "9bebd5a8-4dd7-4a61-aba0-674c0fa2c5d7",
+          "method": "GET",
+          "path": "/evaluation-reports/b6ea4a61-2fdb-4c30-81e0-e6b7ac081ff8",
+          "status": 200,
+          "at": "2026-11-05T09:13:06.352Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+{
+  "id": "UI-PRJ-14",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/prj-stage-flows.spec.ts",
+      "name": "the stage manager is told which guard is not met, then moves a project through start, suspension and resumption, and the database holds each move (AC-ST-PRJ-002-4, AC-ST-PRJ-002-2, UI-PRJ-14)",
+      "status": "passed",
+      "durationMs": 1785,
+      "at": "2026-11-05T08:50:46.418Z",
+      "requests": [
+        {
+          "id": "b29e7e72-1c81-40a7-b1ec-27eecfaf509e",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 200,
+          "at": "2026-11-05T08:50:47.448Z"
+        },
+        {
+          "id": "38c8cfcc-d780-417d-96c1-b0ac5c8798bf",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 200,
+          "at": "2026-11-05T08:50:47.445Z"
+        },
+        {
+          "id": "d7bc0741-3014-454d-98c9-bbc0d85ecac7",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 200,
+          "at": "2026-11-05T08:50:47.444Z"
+        },
+        {
+          "id": "67eb14a0-7146-4401-bd67-b0cd2ce14236",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 200,
+          "at": "2026-11-05T08:50:47.447Z"
+        },
+        {
+          "id": "bf48c3de-7562-45f0-9ee1-227e6f25db8f",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 200,
+          "at": "2026-11-05T08:50:47.446Z"
+        },
+        {
+          "id": "b89ab35c-f0a8-48a0-8e36-b6bc60d7f4bb",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 200,
+          "at": "2026-11-05T08:50:47.447Z"
+        },
+        {
+          "id": "3c98bdd1-d7b3-4c04-a79b-aa978146bcab",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 200,
+          "at": "2026-11-05T08:50:47.464Z"
+        },
+        {
+          "id": "a6b9a31a-4c3e-436b-81b1-6101add8b00b",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 200,
+          "at": "2026-11-05T08:50:47.465Z"
+        },
+        {
+          "id": "323eb3be-c18e-475c-bef8-a43572b38ee8",
+          "method": "GET",
+          "path": "/projects/31acb3fd-5ec0-404d-9387-8106b477675d/lifecycle",
+          "status": 200,
+          "at": "2026-11-05T08:50:47.626Z"
+        },
+        {
+          "id": "89d2496d-e9a4-4951-b924-eed0a63ef81b",
+          "method": "GET",
+          "path": "/projects/fdc97323-d935-4eb4-87d5-b6c2e12a3764/lifecycle",
+          "status": 200,
+          "at": "2026-11-05T08:50:47.886Z"
+        },
+        {
+          "id": "6e6571fb-17a0-4c68-8d9d-f3d2ee70d1eb",
+          "method": "POST",
+          "path": "/projects/fdc97323-d935-4eb4-87d5-b6c2e12a3764/implementation-start",
+          "status": 200,
+          "at": "2026-11-05T08:50:48.047Z"
+        },
+        {
+          "id": "cebb7f7a-1f8f-408b-b498-8cab20fe1be9",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 200,
+          "at": "2026-11-05T08:50:48.064Z"
+        },
+        {
+          "id": "058caaa9-79ee-44db-86f6-4365ce5bb8a8",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 200,
+          "at": "2026-11-05T08:50:48.066Z"
+        },
+        {
+          "id": "5ae56af8-350d-4615-a1b6-6568047e8edb",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 200,
+          "at": "2026-11-05T08:50:48.068Z"
+        },
+        {
+          "id": "6ff96482-bd91-4472-8763-9c6c82cda4cc",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 200,
+          "at": "2026-11-05T08:50:48.067Z"
+        },
+        {
+          "id": "877b2377-fefe-4eee-ab4b-de8d872c6fc3",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 200,
+          "at": "2026-11-05T08:50:48.068Z"
+        },
+        {
+          "id": "3fedbae0-387e-4a65-b195-b2f4ea4268a0",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 200,
+          "at": "2026-11-05T08:50:48.067Z"
+        },
+        {
+          "id": "5ca63f2c-9699-4aa9-a94a-23027a38169d",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 200,
+          "at": "2026-11-05T08:50:48.076Z"
+        },
+        {
+          "id": "87b42ab7-bcd9-4726-b99d-866993a25661",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 200,
+          "at": "2026-11-05T08:50:48.078Z"
+        },
+        {
+          "id": "a9bc4198-f4b9-4f0c-8c29-f8223882430e",
+          "method": "GET",
+          "path": "/projects/fdc97323-d935-4eb4-87d5-b6c2e12a3764/lifecycle",
+          "status": 200,
+          "at": "2026-11-05T08:50:48.079Z"
+        }
+      ]
+    }
+  ]
+}

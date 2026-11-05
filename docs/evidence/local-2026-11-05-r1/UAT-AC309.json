@@ -1,0 +1,343 @@
+{
+  "id": "UAT-AC309",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/retention.test.ts",
+      "name": "the release of the retention over HTTP (ST-CTR-010, AC-ST-CTR-010-1, AC-ST-CTR-010-2, UAT-AC309, UAT-AC397) is registered in the module of CTR",
+      "status": "passed",
+      "durationMs": 2,
+      "at": "2026-11-05T09:15:38.488Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/retention.test.ts",
+      "name": "the release of the retention over HTTP (ST-CTR-010, AC-ST-CTR-010-1, AC-ST-CTR-010-2, UAT-AC309, UAT-AC397) releaseRetention (AC-ST-CTR-010-1, UAT-AC309) AC-ST-CTR-010-1, UAT-AC309: refuses a caller without the right, then a warranty that is open, then more than is held, and releases B01 on the exact amount, leaving B02 held",
+      "status": "passed",
+      "durationMs": 2497,
+      "at": "2026-11-05T09:15:40.985Z",
+      "requests": [
+        {
+          "id": "5d8b8437-4650-4550-b6b4-33847e1df6d7",
+          "method": "POST",
+          "path": "/retention-holds/e7c87847-6120-458f-a0b8-b18e53a6238d/release",
+          "status": 403,
+          "at": "2026-11-05T09:15:40.195Z"
+        },
+        {
+          "id": "9c2e060d-0c4e-457b-b2a7-0433ee6212c0",
+          "method": "POST",
+          "path": "/retention-holds/e7c87847-6120-458f-a0b8-b18e53a6238d/release",
+          "status": 403,
+          "at": "2026-11-05T09:15:40.219Z"
+        },
+        {
+          "id": "582e8593-a20a-4f34-9ffc-e1b3744c2c4f",
+          "method": "POST",
+          "path": "/retention-holds/e7c87847-6120-458f-a0b8-b18e53a6238d/release",
+          "status": 422,
+          "at": "2026-11-05T09:15:40.226Z"
+        },
+        {
+          "id": "1aea7f57-d317-4bf0-8c73-49edc5a2946b",
+          "method": "POST",
+          "path": "/retention-holds/e7c87847-6120-458f-a0b8-b18e53a6238d/release",
+          "status": 422,
+          "at": "2026-11-05T09:15:40.356Z"
+        },
+        {
+          "id": "0138a16f-3fbc-4103-a93f-aeb1683bc7b8",
+          "method": "POST",
+          "path": "/retention-holds/e7c87847-6120-458f-a0b8-b18e53a6238d/release",
+          "status": 200,
+          "at": "2026-11-05T09:15:40.425Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/retention.test.ts",
+      "name": "the release of the retention over HTTP (ST-CTR-010, AC-ST-CTR-010-1, AC-ST-CTR-010-2, UAT-AC309, UAT-AC397) releaseRetention (AC-ST-CTR-010-1, UAT-AC309) AC-ST-CTR-010-2, AC-ST-CTR-013-2, UAT-AC397: answers the same key with the first body and writes nothing twice; a new key after the success has nothing left to release; the same key with another body is a conflict",
+      "status": "passed",
+      "durationMs": 2332,
+      "at": "2026-11-05T09:15:43.317Z",
+      "requests": [
+        {
+          "id": "6e3f64ec-8306-4034-8c0e-ec05d8598300",
+          "method": "POST",
+          "path": "/retention-holds/376083e8-841b-4064-8a35-9ecc8b079e06/release",
+          "status": 200,
+          "at": "2026-11-05T09:15:42.976Z"
+        },
+        {
+          "id": "c02ed21b-ec9d-4222-aeb1-207005381e4a",
+          "method": "POST",
+          "path": "/retention-holds/376083e8-841b-4064-8a35-9ecc8b079e06/release",
+          "status": 200,
+          "at": "2026-11-05T09:15:43.002Z"
+        },
+        {
+          "id": "e6099fbb-a9bb-4d61-9aae-c71308b84e5d",
+          "method": "POST",
+          "path": "/retention-holds/376083e8-841b-4064-8a35-9ecc8b079e06/release",
+          "status": 409,
+          "at": "2026-11-05T09:15:43.137Z"
+        },
+        {
+          "id": "9d4b41f3-e5de-4259-b1aa-44278132881e",
+          "method": "POST",
+          "path": "/retention-holds/376083e8-841b-4064-8a35-9ecc8b079e06/release",
+          "status": 422,
+          "at": "2026-11-05T09:15:43.154Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/retention.test.ts",
+      "name": "the release of the retention over HTTP (ST-CTR-010, AC-ST-CTR-010-1, AC-ST-CTR-010-2, UAT-AC309, UAT-AC397) releaseRetention (AC-ST-CTR-010-1, UAT-AC309) does not let whoever sent the payment release what was held from it, even holding the right",
+      "status": "passed",
+      "durationMs": 1334,
+      "at": "2026-11-05T09:15:44.651Z",
+      "requests": [
+        {
+          "id": "5b1cc49b-f875-4f26-8ba0-be1f47124628",
+          "method": "POST",
+          "path": "/retention-holds/20e7f7ed-5143-43f5-9d2e-085c728b5f3a/release",
+          "status": 403,
+          "at": "2026-11-05T09:15:44.548Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/retention.test.ts",
+      "name": "the release of the retention over HTTP (ST-CTR-010, AC-ST-CTR-010-1, AC-ST-CTR-010-2, UAT-AC309, UAT-AC397) releaseRetention (AC-ST-CTR-010-1, UAT-AC309) refuses a stale version, what is badly formed, a field it does not know and a hold outside the scope",
+      "status": "passed",
+      "durationMs": 1421,
+      "at": "2026-11-05T09:15:46.072Z",
+      "requests": [
+        {
+          "id": "2f47b901-05a8-4531-afd4-51446325c607",
+          "method": "POST",
+          "path": "/retention-holds/2660e359-52b2-4122-b99b-5814439594b6/release",
+          "status": 409,
+          "at": "2026-11-05T09:15:45.914Z"
+        },
+        {
+          "id": "4098073f-3345-4b10-b14e-8025f12fe097",
+          "method": "POST",
+          "path": "/retention-holds/2660e359-52b2-4122-b99b-5814439594b6/release",
+          "status": 422,
+          "at": "2026-11-05T09:15:45.933Z"
+        },
+        {
+          "id": "961d3fc0-ddb2-4342-ba68-dc0c4c5d58a9",
+          "method": "POST",
+          "path": "/retention-holds/2660e359-52b2-4122-b99b-5814439594b6/release",
+          "status": 422,
+          "at": "2026-11-05T09:15:45.945Z"
+        },
+        {
+          "id": "2d622dfd-603a-4709-a93c-fd324efd26d3",
+          "method": "POST",
+          "path": "/retention-holds/2660e359-52b2-4122-b99b-5814439594b6/release",
+          "status": 400,
+          "at": "2026-11-05T09:15:45.965Z"
+        },
+        {
+          "id": "ce346e4b-659d-43c1-b965-6b360d0f1948",
+          "method": "POST",
+          "path": "/retention-holds/2660e359-52b2-4122-b99b-5814439594b6/release",
+          "status": 400,
+          "at": "2026-11-05T09:15:45.976Z"
+        },
+        {
+          "id": "fee44df4-1abd-4489-958d-d99ca814e243",
+          "method": "POST",
+          "path": "/retention-holds/99302c0d-ab49-41fe-848d-9a2badb26543/release",
+          "status": 404,
+          "at": "2026-11-05T09:15:45.993Z"
+        },
+        {
+          "id": "c55e03b6-2950-4864-87e4-48b74748e599",
+          "method": "POST",
+          "path": "/retention-holds/2660e359-52b2-4122-b99b-5814439594b6/release",
+          "status": 404,
+          "at": "2026-11-05T09:15:46.013Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/retention.test.ts",
+      "name": "the release of the retention over HTTP (ST-CTR-010, AC-ST-CTR-010-1, AC-ST-CTR-010-2, UAT-AC309, UAT-AC397) listRetentionHolds lists the holds of the contract with the totals, the condition and what each person may do",
+      "status": "passed",
+      "durationMs": 1365,
+      "at": "2026-11-05T09:15:47.438Z",
+      "requests": [
+        {
+          "id": "3fd48c24-ea6c-4819-8f67-0ace572e6c5e",
+          "method": "GET",
+          "path": "/contracts/caa2d18a-36b1-42a5-81fe-7148f4888dda/retention-holds",
+          "status": 200,
+          "at": "2026-11-05T09:15:47.321Z"
+        },
+        {
+          "id": "e1f0127d-d462-44aa-84d0-9092fe0b7e2d",
+          "method": "GET",
+          "path": "/contracts/caa2d18a-36b1-42a5-81fe-7148f4888dda/retention-holds",
+          "status": 200,
+          "at": "2026-11-05T09:15:47.345Z"
+        },
+        {
+          "id": "28b3aead-a228-444e-bf61-8b15c7bb6eb1",
+          "method": "POST",
+          "path": "/retention-holds/18433ceb-6d60-4b6c-aa08-85a952d28d20/release",
+          "status": 200,
+          "at": "2026-11-05T09:15:47.400Z"
+        },
+        {
+          "id": "2eb1a935-1d91-4996-99fa-6e829ba2fd71",
+          "method": "GET",
+          "path": "/contracts/caa2d18a-36b1-42a5-81fe-7148f4888dda/retention-holds",
+          "status": 200,
+          "at": "2026-11-05T09:15:47.428Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/retention.test.ts",
+      "name": "the release of the retention over HTTP (ST-CTR-010, AC-ST-CTR-010-1, AC-ST-CTR-010-2, UAT-AC309, UAT-AC397) listRetentionHolds filters by status, pages with a cursor, and refuses a filter that is not one",
+      "status": "passed",
+      "durationMs": 1512,
+      "at": "2026-11-05T09:15:48.950Z",
+      "requests": [
+        {
+          "id": "4089e557-ea20-45ee-a805-750d888f5b55",
+          "method": "POST",
+          "path": "/retention-holds/82343c5d-1e2b-429d-9ff8-701c571bb36a/release",
+          "status": 200,
+          "at": "2026-11-05T09:15:48.823Z"
+        },
+        {
+          "id": "ba35af6b-cfca-402f-838b-0dd9ea8e0c28",
+          "method": "GET",
+          "path": "/contracts/5106262c-d039-47bb-a00f-6717b597c73f/retention-holds",
+          "status": 200,
+          "at": "2026-11-05T09:15:48.850Z"
+        },
+        {
+          "id": "d6d54afd-5a16-488a-839e-b27341411c70",
+          "method": "GET",
+          "path": "/contracts/5106262c-d039-47bb-a00f-6717b597c73f/retention-holds",
+          "status": 200,
+          "at": "2026-11-05T09:15:48.857Z"
+        },
+        {
+          "id": "9ff672db-63a8-4b28-9c17-8c08998a6f20",
+          "method": "GET",
+          "path": "/contracts/5106262c-d039-47bb-a00f-6717b597c73f/retention-holds",
+          "status": 200,
+          "at": "2026-11-05T09:15:48.874Z"
+        },
+        {
+          "id": "d77ba21c-fe25-497f-8608-e912abd45064",
+          "method": "GET",
+          "path": "/contracts/5106262c-d039-47bb-a00f-6717b597c73f/retention-holds",
+          "status": 200,
+          "at": "2026-11-05T09:15:48.890Z"
+        },
+        {
+          "id": "53efa1e5-ad55-4adb-ac5e-d2dc559aa293",
+          "method": "GET",
+          "path": "/contracts/5106262c-d039-47bb-a00f-6717b597c73f/retention-holds",
+          "status": 422,
+          "at": "2026-11-05T09:15:48.906Z"
+        },
+        {
+          "id": "330b70f3-2d93-423e-8196-7e01c98d9c73",
+          "method": "GET",
+          "path": "/contracts/5106262c-d039-47bb-a00f-6717b597c73f/retention-holds",
+          "status": 422,
+          "at": "2026-11-05T09:15:48.919Z"
+        },
+        {
+          "id": "dfd0b4b7-f645-421f-b452-215a41835025",
+          "method": "GET",
+          "path": "/contracts/5106262c-d039-47bb-a00f-6717b597c73f/retention-holds",
+          "status": 422,
+          "at": "2026-11-05T09:15:48.932Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/retention.test.ts",
+      "name": "the release of the retention over HTTP (ST-CTR-010, AC-ST-CTR-010-1, AC-ST-CTR-010-2, UAT-AC309, UAT-AC397) listRetentionHolds is for the staff who hold the right over the contract: not for a guest contractor, nor for whoever holds none, and not for a contract out of scope or in another tenant",
+      "status": "passed",
+      "durationMs": 1367,
+      "at": "2026-11-05T09:15:50.317Z",
+      "requests": [
+        {
+          "id": "9ee70013-d05c-4f93-865b-f74d2c835d1d",
+          "method": "GET",
+          "path": "/contracts/73668275-1b43-42bd-ae5e-5b47174c8a64/retention-holds",
+          "status": 403,
+          "at": "2026-11-05T09:15:50.246Z"
+        },
+        {
+          "id": "5d208797-1efd-476b-a2d0-01553528e8d6",
+          "method": "GET",
+          "path": "/contracts/73668275-1b43-42bd-ae5e-5b47174c8a64/retention-holds",
+          "status": 403,
+          "at": "2026-11-05T09:15:50.262Z"
+        },
+        {
+          "id": "e022d13d-e8e6-4ccf-acc9-4cb4d182ed5b",
+          "method": "GET",
+          "path": "/contracts/73668275-1b43-42bd-ae5e-5b47174c8a64/retention-holds",
+          "status": 404,
+          "at": "2026-11-05T09:15:50.276Z"
+        },
+        {
+          "id": "8e10955c-e86c-4472-a3ec-34dd795f0b78",
+          "method": "GET",
+          "path": "/contracts/f7522395-6057-4d09-a33a-e6dad7d94e07/retention-holds",
+          "status": 404,
+          "at": "2026-11-05T09:15:50.292Z"
+        },
+        {
+          "id": "dd36f2d1-921c-4488-9325-fc1479706b42",
+          "method": "GET",
+          "path": "/contracts/73668275-1b43-42bd-ae5e-5b47174c8a64/retention-holds",
+          "status": 404,
+          "at": "2026-11-05T09:15:50.310Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/retention.test.ts",
+      "name": "the release of the retention over HTTP (ST-CTR-010, AC-ST-CTR-010-1, AC-ST-CTR-010-2, UAT-AC309, UAT-AC397) another tenant (UAT-AC395) does not release the retention of the first tenant, whatever its rights in its own",
+      "status": "passed",
+      "durationMs": 1607,
+      "at": "2026-11-05T09:15:51.924Z",
+      "requests": [
+        {
+          "id": "9ffaa9b3-3825-46d3-87ae-4d54e1bd5059",
+          "method": "POST",
+          "path": "/retention-holds/50e6edb8-fb29-4749-8645-b27e5cf3842f/release",
+          "status": 404,
+          "at": "2026-11-05T09:15:51.859Z"
+        }
+      ]
+    }
+  ]
+}

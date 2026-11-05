@@ -1,0 +1,342 @@
+{
+  "id": "UAT-AC16",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/review.test.ts",
+      "name": "the review of the findings of an analysis by an expert and the comparison of proposals (ST-BID-010) AC-ST-BID-010-1, UAT-AC16: an expert changes a finding with a reason, and the award is not theirs to decide AC-ST-BID-010-1, UAT-AC16: refuses a short reason with 422 REASON_REQUIRED, records 4 to 2 with the decision of a person ACCEPTED_WITH_CHANGE, and refuses the decision on the award with 403 SCOPE_DENIED",
+      "status": "passed",
+      "durationMs": 1200,
+      "at": "2026-11-05T09:18:21.873Z",
+      "requests": [
+        {
+          "id": "cc0ff486-91e2-453e-8e4b-0b11ffb27424",
+          "method": "POST",
+          "path": "/procurement-packages/980dfa7c-223f-4111-9ff7-214731ee237c/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:18:20.720Z"
+        },
+        {
+          "id": "ab3407aa-dda5-4944-b299-920f0b7d1cfb",
+          "method": "POST",
+          "path": "/analysis-findings/14bf72da-effd-44b9-ae44-3095e8dfad64/review",
+          "status": 200,
+          "at": "2026-11-05T09:18:21.370Z"
+        },
+        {
+          "id": "b516798e-b698-4825-b0e5-c13f72effc33",
+          "method": "POST",
+          "path": "/analysis-findings/14bf72da-effd-44b9-ae44-3095e8dfad64/review",
+          "status": 422,
+          "at": "2026-11-05T09:18:21.416Z"
+        },
+        {
+          "id": "726e2f07-1856-4924-9c98-a354c8fc0d21",
+          "method": "POST",
+          "path": "/analysis-findings/14bf72da-effd-44b9-ae44-3095e8dfad64/review",
+          "status": 200,
+          "at": "2026-11-05T09:18:21.480Z"
+        },
+        {
+          "id": "04cbca57-a564-46d5-8f29-0a64dfac1817",
+          "method": "GET",
+          "path": "/analysis-runs/4b5b7a2c-c54a-4213-8de3-6bdb3f1c0015/findings",
+          "status": 200,
+          "at": "2026-11-05T09:18:21.624Z"
+        },
+        {
+          "id": "bca18cff-f236-453d-9586-e2b5955fcfe6",
+          "method": "POST",
+          "path": "/procurement-results/d6a4996c-173a-40d8-8c6b-035663ccc4c7/decision",
+          "status": 403,
+          "at": "2026-11-05T09:18:21.857Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/review.test.ts",
+      "name": "the review of the findings of an analysis by an expert and the comparison of proposals (ST-BID-010) AC-ST-BID-010-1, UAT-AC16: an expert changes a finding with a reason, and the award is not theirs to decide is a decision that can be sent again: the same key gives the same answer and one row, and the same key for another body is refused",
+      "status": "passed",
+      "durationMs": 1088,
+      "at": "2026-11-05T09:18:22.961Z",
+      "requests": [
+        {
+          "id": "baeb2393-3794-4e55-a6b1-21f974798655",
+          "method": "POST",
+          "path": "/procurement-packages/b6005d31-bcd5-4386-905f-9e52f73fa421/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:18:21.949Z"
+        },
+        {
+          "id": "299c69d7-0a02-4e8d-9feb-a5d056719495",
+          "method": "POST",
+          "path": "/analysis-findings/f3deadb2-f96c-44b7-9d6f-8fb519640f1e/review",
+          "status": 200,
+          "at": "2026-11-05T09:18:22.869Z"
+        },
+        {
+          "id": "7de962c2-0893-4fe1-bbd5-71258d80a2f3",
+          "method": "POST",
+          "path": "/analysis-findings/f3deadb2-f96c-44b7-9d6f-8fb519640f1e/review",
+          "status": 200,
+          "at": "2026-11-05T09:18:22.903Z"
+        },
+        {
+          "id": "60f427c3-3433-49ac-a166-53e449b969a2",
+          "method": "POST",
+          "path": "/analysis-findings/f3deadb2-f96c-44b7-9d6f-8fb519640f1e/review",
+          "status": 409,
+          "at": "2026-11-05T09:18:22.947Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/review.test.ts",
+      "name": "the review of the findings of an analysis by an expert and the comparison of proposals (ST-BID-010) AC-ST-BID-010-1, UAT-AC16: an expert changes a finding with a reason, and the award is not theirs to decide asks the version the expert saw, and the first of two experts who decide on the same version wins",
+      "status": "passed",
+      "durationMs": 943,
+      "at": "2026-11-05T09:18:23.904Z",
+      "requests": [
+        {
+          "id": "a49ad986-f92b-476c-99e4-ce797ad2ae70",
+          "method": "POST",
+          "path": "/procurement-packages/bfb9ddef-98e9-4438-b504-01ca3df004b2/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:18:23.026Z"
+        },
+        {
+          "id": "a4103ae5-0a0e-4014-8c28-0d8fb6d9d4ef",
+          "method": "POST",
+          "path": "/analysis-findings/fd7af910-0f48-48cf-a4e5-23dd25c085a3/review",
+          "status": 428,
+          "at": "2026-11-05T09:18:23.764Z"
+        },
+        {
+          "id": "6404bfa7-cb1f-441f-b7b6-b73157d637bb",
+          "method": "POST",
+          "path": "/analysis-findings/fd7af910-0f48-48cf-a4e5-23dd25c085a3/review",
+          "status": 200,
+          "at": "2026-11-05T09:18:23.775Z"
+        },
+        {
+          "id": "06500525-3cdc-4b9a-951d-fc6d23e75a42",
+          "method": "POST",
+          "path": "/analysis-findings/fd7af910-0f48-48cf-a4e5-23dd25c085a3/review",
+          "status": 409,
+          "at": "2026-11-05T09:18:23.826Z"
+        },
+        {
+          "id": "d6f0e3ae-1e7b-41c0-a73d-0917de909a35",
+          "method": "POST",
+          "path": "/analysis-findings/fd7af910-0f48-48cf-a4e5-23dd25c085a3/review",
+          "status": 403,
+          "at": "2026-11-05T09:18:23.845Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/review.test.ts",
+      "name": "the review of the findings of an analysis by an expert and the comparison of proposals (ST-BID-010) AC-ST-BID-010-1, UAT-AC16: an expert changes a finding with a reason, and the award is not theirs to decide refuses what is not a decision: a status that does not exist, a score off the scale or for a criterion that is met or not, fields that are not part of it, and a run that does not wait for the experts",
+      "status": "passed",
+      "durationMs": 1092,
+      "at": "2026-11-05T09:18:24.997Z",
+      "requests": [
+        {
+          "id": "02c9525f-0b14-4afa-9e0a-aa828d9cf79f",
+          "method": "POST",
+          "path": "/procurement-packages/32f72630-e746-4226-b5c5-69e38831a195/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:18:23.952Z"
+        },
+        {
+          "id": "0585adf7-7519-43fd-8baa-0e7eaeeae18e",
+          "method": "POST",
+          "path": "/analysis-findings/e33bb102-72c9-49c3-a7a9-74fe7abdf490/review",
+          "status": 422,
+          "at": "2026-11-05T09:18:24.427Z"
+        },
+        {
+          "id": "72b0fb8f-01ca-4e87-938e-4406b3708382",
+          "method": "POST",
+          "path": "/analysis-findings/e33bb102-72c9-49c3-a7a9-74fe7abdf490/review",
+          "status": 422,
+          "at": "2026-11-05T09:18:24.442Z"
+        },
+        {
+          "id": "68293e03-d007-421e-9027-120d7cc4cb13",
+          "method": "POST",
+          "path": "/analysis-findings/e33bb102-72c9-49c3-a7a9-74fe7abdf490/review",
+          "status": 422,
+          "at": "2026-11-05T09:18:24.466Z"
+        },
+        {
+          "id": "f4ac2ed7-d239-4558-ab04-3bfd42697ae0",
+          "method": "POST",
+          "path": "/analysis-findings/c0bfeecb-8e29-4d9e-a5d4-689fb2e1812f/review",
+          "status": 422,
+          "at": "2026-11-05T09:18:24.474Z"
+        },
+        {
+          "id": "d392de37-4e7d-4167-b445-d62313e34732",
+          "method": "POST",
+          "path": "/analysis-findings/e33bb102-72c9-49c3-a7a9-74fe7abdf490/review",
+          "status": 400,
+          "at": "2026-11-05T09:18:24.499Z"
+        },
+        {
+          "id": "59cdbfb4-b098-48db-ba50-f5974d935dd0",
+          "method": "POST",
+          "path": "/analysis-findings/e33bb102-72c9-49c3-a7a9-74fe7abdf490/review",
+          "status": 422,
+          "at": "2026-11-05T09:18:24.502Z"
+        },
+        {
+          "id": "90b0c719-a318-47f5-ab0c-b06fee7595d1",
+          "method": "POST",
+          "path": "/analysis-findings/792f5b4c-d671-4081-8a36-0acdea9a1aeb/review",
+          "status": 422,
+          "at": "2026-11-05T09:18:24.870Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/review.test.ts",
+      "name": "the review of the findings of an analysis by an expert and the comparison of proposals (ST-BID-010) AC-ST-BID-010-1, UAT-AC16: an expert changes a finding with a reason, and the award is not theirs to decide is the decision of a member of the evaluation team with the full view: not of someone without the permission, who owes the declaration, who is recused from the contractor, or of another tenant",
+      "status": "passed",
+      "durationMs": 735,
+      "at": "2026-11-05T09:18:25.732Z",
+      "requests": [
+        {
+          "id": "a944dc7a-4aee-4ca6-bfce-33c55aa7642e",
+          "method": "POST",
+          "path": "/procurement-packages/3af0b0de-e50d-46de-9994-07d539b0dc5d/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:18:25.046Z"
+        },
+        {
+          "id": "e9aa2b26-52b1-47ad-b4ed-875fd5cebfc0",
+          "method": "POST",
+          "path": "/analysis-findings/da4b8c8e-ec07-4eea-8856-fda50104de7b/review",
+          "status": 403,
+          "at": "2026-11-05T09:18:25.532Z"
+        },
+        {
+          "id": "de7e070e-0711-434f-a552-dbc87fc50edb",
+          "method": "POST",
+          "path": "/analysis-findings/da4b8c8e-ec07-4eea-8856-fda50104de7b/review",
+          "status": 403,
+          "at": "2026-11-05T09:18:25.548Z"
+        },
+        {
+          "id": "1ae568ff-a66b-4e40-a6c3-d72477c94ae2",
+          "method": "POST",
+          "path": "/procurement-packages/3af0b0de-e50d-46de-9994-07d539b0dc5d/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:18:25.569Z"
+        },
+        {
+          "id": "16df5155-cc46-4000-b0f6-103e9a0f3286",
+          "method": "POST",
+          "path": "/bid-conflict-declarations/3471f574-cfa9-48d2-9775-87f585fefdf1/decision",
+          "status": 200,
+          "at": "2026-11-05T09:18:25.584Z"
+        },
+        {
+          "id": "70313135-c409-4bab-89fb-8ac1df6de565",
+          "method": "POST",
+          "path": "/analysis-findings/da4b8c8e-ec07-4eea-8856-fda50104de7b/review",
+          "status": 404,
+          "at": "2026-11-05T09:18:25.602Z"
+        },
+        {
+          "id": "5d854ae1-134b-4df5-9c45-bddb12b43f63",
+          "method": "POST",
+          "path": "/analysis-findings/da4b8c8e-ec07-4eea-8856-fda50104de7b/review",
+          "status": 404,
+          "at": "2026-11-05T09:18:25.615Z"
+        },
+        {
+          "id": "051be004-0b25-4d48-ae33-197fa5fdb99c",
+          "method": "POST",
+          "path": "/analysis-findings/03318f97-30c1-4f22-806c-24a52db3fefd/review",
+          "status": 404,
+          "at": "2026-11-05T09:18:25.631Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/review.test.ts",
+      "name": "the review of the findings of an analysis by an expert and the comparison of proposals (ST-BID-010) AC-ST-BID-010-1, UAT-AC16: an expert changes a finding with a reason, and the award is not theirs to decide has no way to accept all the findings at once, and completes the run only with the decision on the last of them",
+      "status": "passed",
+      "durationMs": 749,
+      "at": "2026-11-05T09:18:26.481Z",
+      "requests": [
+        {
+          "id": "8376f0a0-4d33-4c25-9201-1405481f8ff8",
+          "method": "POST",
+          "path": "/procurement-packages/0e35f4bc-ab30-47ba-ac75-97be988560f1/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:18:25.774Z"
+        },
+        {
+          "id": "7a617026-19ab-4e2f-b437-4514de37d6d1",
+          "method": "POST",
+          "path": "/analysis-runs/0280d22c-427f-480b-87d6-5ed30ee679a4/review",
+          "status": 404,
+          "at": "2026-11-05T09:18:26.279Z"
+        },
+        {
+          "id": "ec84efb2-41cf-435c-83ff-e9c694f6d9c4",
+          "method": "POST",
+          "path": "/analysis-runs/0280d22c-427f-480b-87d6-5ed30ee679a4/accept-all",
+          "status": 404,
+          "at": "2026-11-05T09:18:26.297Z"
+        },
+        {
+          "id": "84088346-2a41-4685-b0d2-2fa9560ed3b8",
+          "method": "POST",
+          "path": "/analysis-findings/4cb352bc-7949-4959-9dba-5732dc658710/review",
+          "status": 200,
+          "at": "2026-11-05T09:18:26.312Z"
+        },
+        {
+          "id": "fcf1f074-d5b1-42fc-b198-8d6898447565",
+          "method": "POST",
+          "path": "/analysis-findings/3d85d80a-45be-4ee3-bd38-81aeb1ef0602/review",
+          "status": 200,
+          "at": "2026-11-05T09:18:26.354Z"
+        },
+        {
+          "id": "29bfd0c0-dd85-48ac-9092-70094c72934d",
+          "method": "POST",
+          "path": "/analysis-findings/3398eb6f-241b-4d52-9f51-5f66f27d0c6f/review",
+          "status": 200,
+          "at": "2026-11-05T09:18:26.388Z"
+        },
+        {
+          "id": "cef09f41-25a5-437a-ba47-6c71a3feb95e",
+          "method": "GET",
+          "path": "/resources/analysis_run/0280d22c-427f-480b-87d6-5ed30ee679a4",
+          "status": 200,
+          "at": "2026-11-05T09:18:26.454Z"
+        },
+        {
+          "id": "77e329ed-dabc-4d5f-9a58-051beef607ce",
+          "method": "GET",
+          "path": "/resources/analysis_finding/4cb352bc-7949-4959-9dba-5732dc658710",
+          "status": 200,
+          "at": "2026-11-05T09:18:26.464Z"
+        }
+      ]
+    }
+  ]
+}

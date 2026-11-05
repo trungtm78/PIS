@@ -1,0 +1,18 @@
+{
+  "id": "UAT-NFR-TENANCY-02",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/uat/isolation-api.uat.spec.ts",
+      "name": "TC-UAT-NFR-TENANCY-02: no table with a tenant lacks row-level security, and the application role sees and writes only its own tenant",
+      "status": "passed",
+      "durationMs": 372,
+      "at": "2026-11-05T08:56:00.579Z",
+      "requests": []
+    }
+  ]
+}

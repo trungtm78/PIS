@@ -1,0 +1,139 @@
+{
+  "id": "UAT-AC371",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pmt/permit-type.test.ts",
+      "name": "permit type commands (ST-PMT-001) publishPermitType rejects a version whose legal basis is absent with 422 LEGAL_BASIS_REQUIRED and stores nothing (UAT-AC371, AC-ST-PMT-001-1)",
+      "status": "passed",
+      "durationMs": 54,
+      "at": "2026-11-05T09:22:58.416Z",
+      "requests": [
+        {
+          "id": "2982db13-a83d-41b0-aea0-c45412ee41e3",
+          "method": "POST",
+          "path": "/permit-types",
+          "status": 422,
+          "at": "2026-11-05T09:22:58.364Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pmt/permit-type.test.ts",
+      "name": "permit type commands (ST-PMT-001) publishPermitType rejects a version whose legal basis is empty with 422 LEGAL_BASIS_REQUIRED and stores nothing (UAT-AC371, AC-ST-PMT-001-1)",
+      "status": "passed",
+      "durationMs": 47,
+      "at": "2026-11-05T09:22:58.464Z",
+      "requests": [
+        {
+          "id": "f8c1b47f-ca5b-47b4-8e75-c263b9063698",
+          "method": "POST",
+          "path": "/permit-types",
+          "status": 422,
+          "at": "2026-11-05T09:22:58.418Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pmt/permit-type.test.ts",
+      "name": "permit type commands (ST-PMT-001) publishPermitType rejects a version whose legal basis is blank with 422 LEGAL_BASIS_REQUIRED and stores nothing (UAT-AC371, AC-ST-PMT-001-1)",
+      "status": "passed",
+      "durationMs": 51,
+      "at": "2026-11-05T09:22:58.515Z",
+      "requests": [
+        {
+          "id": "90674537-be6c-40c9-b40f-9f803657aa66",
+          "method": "POST",
+          "path": "/permit-types",
+          "status": 422,
+          "at": "2026-11-05T09:22:58.466Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pmt/permit-type.test.ts",
+      "name": "permit type commands (ST-PMT-001) publishPermitType takes the next revision over from its first day, rejects overlapping periods and keeps what is in use unchanged (UAT-AC371, AC-ST-PMT-001-1)",
+      "status": "passed",
+      "durationMs": 272,
+      "at": "2026-11-05T09:22:58.787Z",
+      "requests": [
+        {
+          "id": "c6d523be-3691-40b5-8abc-c7adcbfe84a3",
+          "method": "POST",
+          "path": "/permit-types",
+          "status": 200,
+          "at": "2026-11-05T09:22:58.517Z"
+        },
+        {
+          "id": "5099ec68-b2fe-4ba7-b5f0-0d96c1a94fc4",
+          "method": "POST",
+          "path": "/permit-types",
+          "status": 200,
+          "at": "2026-11-05T09:22:58.584Z"
+        },
+        {
+          "id": "f7b7d03c-2272-4e58-ad5c-83f4acb4a53a",
+          "method": "POST",
+          "path": "/permit-types",
+          "status": 409,
+          "at": "2026-11-05T09:22:58.732Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pmt/permit-type.test.ts",
+      "name": "permit type commands (ST-PMT-001) retirePermitType ends a version on its last day and keeps the row and what is written under it (UAT-AC371, AC-ST-PMT-001-1)",
+      "status": "passed",
+      "durationMs": 343,
+      "at": "2026-11-05T09:22:59.563Z",
+      "requests": [
+        {
+          "id": "291588db-5786-4579-bae4-07ee49b9ba96",
+          "method": "POST",
+          "path": "/permit-types",
+          "status": 200,
+          "at": "2026-11-05T09:22:59.221Z"
+        },
+        {
+          "id": "12b48822-7b5c-400b-a311-c85eb91643d5",
+          "method": "POST",
+          "path": "/permit-types/a77e5481-dece-4403-a8bf-c71e46c9efb4/retire",
+          "status": 200,
+          "at": "2026-11-05T09:22:59.292Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pmt/permit-type.test.ts",
+      "name": "permit type commands (ST-PMT-001) retirePermitType refuses with 422 PERMIT_TYPE_IN_USE while a permit of the version is still on its way past the last day, and changes nothing (UAT-AC371, AC-ST-PMT-001-1)",
+      "status": "passed",
+      "durationMs": 153,
+      "at": "2026-11-05T09:22:59.716Z",
+      "requests": [
+        {
+          "id": "c0c31cab-8f46-405e-89ea-1ce2ceccd424",
+          "method": "POST",
+          "path": "/permit-types",
+          "status": 200,
+          "at": "2026-11-05T09:22:59.564Z"
+        },
+        {
+          "id": "4b2487b4-5e3e-4a48-9ae5-91672251c676",
+          "method": "POST",
+          "path": "/permit-types/1dfdbcaa-7643-473b-b501-3249c8d80ee8/retire",
+          "status": 422,
+          "at": "2026-11-05T09:22:59.654Z"
+        }
+      ]
+    }
+  ]
+}

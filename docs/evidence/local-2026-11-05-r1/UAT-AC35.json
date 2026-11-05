@@ -1,0 +1,162 @@
+{
+  "id": "UAT-AC35",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-shares.test.ts",
+      "name": "sharing a dashboard without data access (ST-BI-007, BI 3 F6) AC-ST-BI-007-1: UAT-AC35 shows the layout of D-2 to a staff member of one unit with their own figures and the label of their scope, and is 404 for them once the share is revoked",
+      "status": "passed",
+      "durationMs": 1013,
+      "at": "2026-11-05T09:19:13.128Z",
+      "requests": [
+        {
+          "id": "492ed17c-0da7-437a-9069-d1e8ead7e3be",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:19:12.171Z"
+        },
+        {
+          "id": "f66c0c04-bcf7-492a-9906-9d48811ff285",
+          "method": "GET",
+          "path": "/resources/metric_definition",
+          "status": 200,
+          "at": "2026-11-05T09:19:12.219Z"
+        },
+        {
+          "id": "a643d871-b4e3-4e80-be02-46f410c44354",
+          "method": "POST",
+          "path": "/bi/dashboards",
+          "status": 200,
+          "at": "2026-11-05T09:19:12.225Z"
+        },
+        {
+          "id": "921930d6-fbd2-4818-a2e4-7aaae062a3eb",
+          "method": "POST",
+          "path": "/bi/dashboards/67fe89d8-ed91-4d35-9be6-7d30e8be9ede/versions",
+          "status": 200,
+          "at": "2026-11-05T09:19:12.308Z"
+        },
+        {
+          "id": "d1fd890e-0deb-43f5-b52d-a7a2843f0371",
+          "method": "GET",
+          "path": "/bi/dashboards/67fe89d8-ed91-4d35-9be6-7d30e8be9ede",
+          "status": 404,
+          "at": "2026-11-05T09:19:12.334Z"
+        },
+        {
+          "id": "c8e0f8ac-ef7c-4af6-ab8d-c7abbd582434",
+          "method": "POST",
+          "path": "/bi/dashboards/67fe89d8-ed91-4d35-9be6-7d30e8be9ede/shares",
+          "status": 200,
+          "at": "2026-11-05T09:19:12.403Z"
+        },
+        {
+          "id": "293dfa18-0b4c-437d-aba4-e3487b2d4825",
+          "method": "GET",
+          "path": "/bi/dashboards/67fe89d8-ed91-4d35-9be6-7d30e8be9ede",
+          "status": 200,
+          "at": "2026-11-05T09:19:12.517Z"
+        },
+        {
+          "id": "15e55486-2a5f-498f-9ef4-8da9f3e37f4b",
+          "method": "GET",
+          "path": "/bi/dashboards",
+          "status": 200,
+          "at": "2026-11-05T09:19:12.530Z"
+        },
+        {
+          "id": "15ad914d-16d1-4441-b58a-002123ecd6d7",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:19:12.546Z"
+        },
+        {
+          "id": "a1c842ba-dd2b-49c2-8295-d0281dfd79c0",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:19:12.579Z"
+        },
+        {
+          "id": "936793bf-3330-4dae-97a9-0f8d5b438e4b",
+          "method": "POST",
+          "path": "/bi/dashboard-shares/215d8579-eadc-45c2-a46b-b5f0627d6b23/revocation",
+          "status": 200,
+          "at": "2026-11-05T09:19:12.604Z"
+        },
+        {
+          "id": "51fa1b60-34c9-4ab6-a07f-df198f35a3f6",
+          "method": "GET",
+          "path": "/bi/dashboards/67fe89d8-ed91-4d35-9be6-7d30e8be9ede",
+          "status": 404,
+          "at": "2026-11-05T09:19:12.637Z"
+        },
+        {
+          "id": "25800bcb-e74d-4a90-850e-80929b2fbbfe",
+          "method": "GET",
+          "path": "/bi/dashboards",
+          "status": 200,
+          "at": "2026-11-05T09:19:12.653Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-shares.test.ts",
+      "name": "sharing a dashboard without data access (ST-BI-007, BI 3 F6) AC-ST-BI-007-2: UAT-AC35 refuses a share to a person, a role or a unit of another tenant, and to none that exists",
+      "status": "passed",
+      "durationMs": 1075,
+      "at": "2026-11-05T09:19:14.204Z",
+      "requests": [
+        {
+          "id": "4d1272f8-e964-4a0e-9b63-f5469b2152a0",
+          "method": "POST",
+          "path": "/bi/dashboards",
+          "status": 200,
+          "at": "2026-11-05T09:19:13.128Z"
+        },
+        {
+          "id": "97812953-6078-498d-a77c-280aff25ae4e",
+          "method": "POST",
+          "path": "/bi/dashboards/2877d2fd-44f3-46e7-a4f0-8e8bffc0d259/versions",
+          "status": 200,
+          "at": "2026-11-05T09:19:13.284Z"
+        },
+        {
+          "id": "27014de7-77c9-47bd-a76f-c5e4837f2312",
+          "method": "POST",
+          "path": "/bi/dashboards/2877d2fd-44f3-46e7-a4f0-8e8bffc0d259/shares",
+          "status": 422,
+          "at": "2026-11-05T09:19:13.460Z"
+        },
+        {
+          "id": "1fbb478a-5cb4-4d32-b787-6cbb0d9cd492",
+          "method": "POST",
+          "path": "/bi/dashboards/2877d2fd-44f3-46e7-a4f0-8e8bffc0d259/shares",
+          "status": 422,
+          "at": "2026-11-05T09:19:13.558Z"
+        },
+        {
+          "id": "a2ec133e-6ca3-41b6-8f2e-b32a7a7d04f5",
+          "method": "POST",
+          "path": "/bi/dashboards/2877d2fd-44f3-46e7-a4f0-8e8bffc0d259/shares",
+          "status": 422,
+          "at": "2026-11-05T09:19:13.738Z"
+        },
+        {
+          "id": "dca2bbe0-82b1-4af9-9cc7-47cf63d4701b",
+          "method": "POST",
+          "path": "/bi/dashboards/2877d2fd-44f3-46e7-a4f0-8e8bffc0d259/shares",
+          "status": 422,
+          "at": "2026-11-05T09:19:13.948Z"
+        }
+      ]
+    }
+  ]
+}

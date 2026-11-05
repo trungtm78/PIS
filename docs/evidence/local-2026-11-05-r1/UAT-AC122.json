@@ -1,0 +1,47 @@
+{
+  "id": "UAT-AC122",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/session/self-service.test.ts",
+      "name": "the profile, the sessions and the devices of a person over HTTP (ST-IAM-006) AC-ST-IAM-006-2, UAT-AC122: reads the profile masked, then updates it: no If-Match is 428, a stale one is 409 with what the profile says now, the right one is 200",
+      "status": "passed",
+      "durationMs": 264,
+      "at": "2026-11-05T09:22:55.618Z",
+      "requests": [
+        {
+          "id": "ccb1b5aa-2a17-41ae-ba85-a9a44671287d",
+          "method": "GET",
+          "path": "/me/profile",
+          "status": 200,
+          "at": "2026-11-05T09:22:55.402Z"
+        },
+        {
+          "id": "40f9a7cd-17c4-4f00-a49d-677ec800fff8",
+          "method": "PUT",
+          "path": "/me/profile",
+          "status": 428,
+          "at": "2026-11-05T09:22:55.455Z"
+        },
+        {
+          "id": "e8bcebd3-bbc6-4afd-b0d0-6b4a6447d5d3",
+          "method": "PUT",
+          "path": "/me/profile",
+          "status": 409,
+          "at": "2026-11-05T09:22:55.479Z"
+        },
+        {
+          "id": "93abf1ab-e2f7-457e-8bc6-6a46d0e10f07",
+          "method": "PUT",
+          "path": "/me/profile",
+          "status": 200,
+          "at": "2026-11-05T09:22:55.554Z"
+        }
+      ]
+    }
+  ]
+}

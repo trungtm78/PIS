@@ -1,0 +1,68 @@
+{
+  "id": "UAT-AC400",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/overview.test.ts",
+      "name": "the overview of the documents over HTTP (ST-DOC-014) AC-ST-DOC-014-1: UAT-AC400 counts each queue over what the viewer may read, with the moment it was counted, and nothing of another unit or tenant",
+      "status": "passed",
+      "durationMs": 153,
+      "at": "2026-11-05T09:20:52.485Z",
+      "requests": [
+        {
+          "id": "6b38ff0b-9235-42ec-ab85-3ec592e0679e",
+          "method": "GET",
+          "path": "/document-overview",
+          "status": 200,
+          "at": "2026-11-05T09:20:52.334Z"
+        },
+        {
+          "id": "03900749-0939-4683-a183-17ef6b9b9400",
+          "method": "GET",
+          "path": "/document-overview",
+          "status": 200,
+          "at": "2026-11-05T09:20:52.391Z"
+        },
+        {
+          "id": "13b5b5b6-cf58-497d-9600-9065429c07a4",
+          "method": "GET",
+          "path": "/document-overview",
+          "status": 200,
+          "at": "2026-11-05T09:20:52.410Z"
+        },
+        {
+          "id": "5dcdce34-cd36-4e44-9aae-5035db288e60",
+          "method": "GET",
+          "path": "/document-overview",
+          "status": 200,
+          "at": "2026-11-05T09:20:52.425Z"
+        },
+        {
+          "id": "35e1c398-cf2f-46c8-8909-3da976a46655",
+          "method": "GET",
+          "path": "/document-overview",
+          "status": 403,
+          "at": "2026-11-05T09:20:52.439Z"
+        },
+        {
+          "id": "78d06498-e14d-4ebe-a040-df57d301391f",
+          "method": "GET",
+          "path": "/document-overview",
+          "status": 403,
+          "at": "2026-11-05T09:20:52.455Z"
+        },
+        {
+          "id": "4e96a02d-3d78-466a-8750-27371b4ae5c7",
+          "method": "GET",
+          "path": "/document-overview",
+          "status": 403,
+          "at": "2026-11-05T09:20:52.468Z"
+        }
+      ]
+    }
+  ]
+}

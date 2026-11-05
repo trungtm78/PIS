@@ -1,0 +1,127 @@
+{
+  "id": "UI-DIS-01",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) the reads AC-ST-DIS-003-4 / UI-DIS-01: lists the reports newest first with their totals, a page at a time, and carries the figures of the filter apart from the figures of the whole scope",
+      "status": "passed",
+      "durationMs": 131,
+      "at": "2026-11-05T09:16:03.114Z",
+      "requests": [
+        {
+          "id": "deca3ccf-5229-4c9c-a90d-d35d22073c47",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:03.023Z"
+        },
+        {
+          "id": "7ab989dd-3705-496d-8bd4-7ae17c80a709",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:03.039Z"
+        },
+        {
+          "id": "ef8f9035-9884-4d8f-b843-c7ae61447f4f",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:03.054Z"
+        },
+        {
+          "id": "3c111ae5-500f-4b5c-a549-ed67b160e39a",
+          "method": "GET",
+          "path": "/resources/report_revision",
+          "status": 200,
+          "at": "2026-11-05T09:16:03.069Z"
+        },
+        {
+          "id": "c2aad267-75aa-4107-b5c3-261fb3391722",
+          "method": "GET",
+          "path": "/resources/report_revision",
+          "status": 200,
+          "at": "2026-11-05T09:16:03.084Z"
+        },
+        {
+          "id": "7ff2b066-951e-4e88-93a8-e6595e9d68ee",
+          "method": "GET",
+          "path": "/resources/report_revision",
+          "status": 200,
+          "at": "2026-11-05T09:16:03.098Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/dis-report-flows.spec.ts",
+      "name": "a reader finds the report in the list with its figures and cannot change it or start another (AC-ST-DIS-003-4, UI-DIS-01)",
+      "status": "passed",
+      "durationMs": 616,
+      "at": "2026-11-05T08:46:42.344Z",
+      "requests": [
+        {
+          "id": "4e5417b9-487f-46c9-af63-8b5f047e110d",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:42.767Z"
+        },
+        {
+          "id": "21b9df7c-5393-4e14-ae36-264081096a52",
+          "method": "GET",
+          "path": "/resources/report_revision",
+          "status": 200,
+          "at": "2026-11-05T08:46:42.765Z"
+        },
+        {
+          "id": "7fa77685-a7e6-4d7b-9f46-70f0e58cd3f4",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:42.800Z"
+        },
+        {
+          "id": "9da9909c-f756-4b18-a2ae-9af1531e0086",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:46:42.767Z"
+        },
+        {
+          "id": "e34e87bc-0389-4477-b217-54f91fcac615",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:42.818Z"
+        },
+        {
+          "id": "311dd291-d44d-4c5c-8eca-d0db83d65d31",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:46:42.834Z"
+        },
+        {
+          "id": "e9bb6a57-77d2-4434-96d4-da9a511c7acc",
+          "method": "GET",
+          "path": "/resources/plan_version",
+          "status": 200,
+          "at": "2026-11-05T08:46:42.768Z"
+        },
+        {
+          "id": "9b72e0cd-c074-4ad1-b9c0-afc0e6eccb2f",
+          "method": "GET",
+          "path": "/reports/6ff2006d-bf63-4093-a4ca-0c714f80818f",
+          "status": 200,
+          "at": "2026-11-05T08:46:42.914Z"
+        }
+      ]
+    }
+  ]
+}

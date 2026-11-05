@@ -1,0 +1,61 @@
+{
+  "id": "UAT-AC163",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/billing.test.ts",
+      "name": "the billing run and the e-invoice over HTTP (ST-SAS-011) AC-ST-SAS-011-1 UAT-AC163: three subscriptions due and the billing run executed twice leave exactly three original invoices",
+      "status": "passed",
+      "durationMs": 989,
+      "at": "2026-11-05T09:19:55.099Z",
+      "requests": [
+        {
+          "id": "6de8c7c0-5f1d-4a02-bfd3-a69f76ca86be",
+          "method": "POST",
+          "path": "/system/tenants/2f0c7369-01a3-4fee-b24e-18fc575436e2/subscriptions",
+          "status": 201,
+          "at": "2026-11-05T09:19:54.389Z"
+        },
+        {
+          "id": "2ab3922c-f328-4500-a50a-fb7c018d0e8d",
+          "method": "POST",
+          "path": "/system/tenants/17623b46-df0a-4862-841e-bbb70f7c149f/subscriptions",
+          "status": 201,
+          "at": "2026-11-05T09:19:54.674Z"
+        },
+        {
+          "id": "bb69b42c-4295-420c-a2d0-b3920804c9f6",
+          "method": "POST",
+          "path": "/system/tenants/8d95333a-14aa-4067-bd8b-acb7f41fd199/subscriptions",
+          "status": 201,
+          "at": "2026-11-05T09:19:54.870Z"
+        },
+        {
+          "id": "16da9177-7b17-4ce8-b1a5-f8f0a135ffd1",
+          "method": "POST",
+          "path": "/system/billing-runs",
+          "status": 202,
+          "at": "2026-11-05T09:19:54.897Z"
+        },
+        {
+          "id": "b7c6b94c-eb36-424c-9982-42b67e8517d8",
+          "method": "POST",
+          "path": "/system/billing-runs",
+          "status": 202,
+          "at": "2026-11-05T09:19:54.977Z"
+        },
+        {
+          "id": "0e3e63a0-cbb4-4f93-bf5d-ab311449d88a",
+          "method": "GET",
+          "path": "/system/tenants/2f0c7369-01a3-4fee-b24e-18fc575436e2/invoices",
+          "status": 200,
+          "at": "2026-11-05T09:19:55.033Z"
+        }
+      ]
+    }
+  ]
+}

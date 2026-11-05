@@ -1,0 +1,33 @@
+{
+  "id": "UAT-AC198",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/omni/conversation-links.test.ts",
+      "name": "the links of a conversation and its conversion into an issue (ST-OMNI-007, OMNI-09, OMNI.md 3.4) the conversion into an issue AC-ST-OMNI-007-1 UAT-AC198: an agent scoped to the project P-01 is 403 SCOPE_DENIED for P-09, and for P-01 the issue is made and the conversation points to it",
+      "status": "passed",
+      "durationMs": 1013,
+      "at": "2026-11-05T09:19:48.275Z",
+      "requests": [
+        {
+          "id": "e182b869-fac4-41d1-b4f8-ed6771530da7",
+          "method": "POST",
+          "path": "/conversations/97e2bfd7-3449-4fde-9ae3-f5aff3fbd0a2/issues",
+          "status": 403,
+          "at": "2026-11-05T09:19:47.580Z"
+        },
+        {
+          "id": "a2fda333-93db-4336-b029-1811bdcb8660",
+          "method": "POST",
+          "path": "/conversations/97e2bfd7-3449-4fde-9ae3-f5aff3fbd0a2/issues",
+          "status": 201,
+          "at": "2026-11-05T09:19:48.036Z"
+        }
+      ]
+    }
+  ]
+}

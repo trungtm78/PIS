@@ -1,0 +1,40 @@
+{
+  "id": "UAT-PLAN-16",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/boq-import.test.ts",
+      "name": "importBoqLines and the reads of the BOQ (ST-CTR-002) importBoqLines from a file (AC-ST-CTR-002-3) rejects an executable renamed boq.xlsx before the parser runs, and a file with a virus signature, writing nothing (AC-ST-CTR-002-3, UAT-PLAN-16)",
+      "status": "passed",
+      "durationMs": 269,
+      "at": "2026-11-05T09:20:26.023Z",
+      "requests": [
+        {
+          "id": "2e64b340-a38b-4d79-a758-5cca7d1ef419",
+          "method": "POST",
+          "path": "/contracts",
+          "status": 200,
+          "at": "2026-11-05T09:20:25.754Z"
+        },
+        {
+          "id": "23f2a143-4846-43f3-b1b1-0cdb082a8ab8",
+          "method": "POST",
+          "path": "/contract-revisions/2987bd3a-d4bf-4694-90cc-97be04177a0b/boq-lines",
+          "status": 422,
+          "at": "2026-11-05T09:20:25.820Z"
+        },
+        {
+          "id": "4cce284a-779f-4988-860a-ed5f2be88c1e",
+          "method": "POST",
+          "path": "/contract-revisions/2987bd3a-d4bf-4694-90cc-97be04177a0b/boq-lines",
+          "status": 422,
+          "at": "2026-11-05T09:20:25.835Z"
+        }
+      ]
+    }
+  ]
+}

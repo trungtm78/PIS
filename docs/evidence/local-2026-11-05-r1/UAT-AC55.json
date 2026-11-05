@@ -1,0 +1,103 @@
+{
+  "id": "UAT-AC55",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-incident.test.ts",
+      "name": "quality incidents and exceptions over HTTP (ST-DGV-003) AC-ST-DGV-003-3: UAT-AC55 hides the values of the record of an exception from whoever may not see the dataset, and the incident with it",
+      "status": "passed",
+      "durationMs": 539,
+      "at": "2026-11-05T09:18:29.780Z",
+      "requests": [
+        {
+          "id": "a4c3cfdd-cd8f-4888-9d07-053cf18d0e8e",
+          "method": "POST",
+          "path": "/dgv/datasets",
+          "status": 200,
+          "at": "2026-11-05T09:18:29.241Z"
+        },
+        {
+          "id": "df2e3d52-cfa7-4066-b9fa-6c8dd1d30f69",
+          "method": "POST",
+          "path": "/dgv/quality-rules",
+          "status": 200,
+          "at": "2026-11-05T09:18:29.335Z"
+        },
+        {
+          "id": "dbd58661-d6c2-46f3-a338-4bfe72e82c5e",
+          "method": "POST",
+          "path": "/dgv/quality-rules/ae815e20-2ddd-462d-8519-4ac0cfea9638/approval",
+          "status": 200,
+          "at": "2026-11-05T09:18:29.352Z"
+        },
+        {
+          "id": "fb1c5565-b862-4de5-ad15-f2605403e182",
+          "method": "GET",
+          "path": "/resources/quality_exception/94fe3126-e9dd-40ac-ab92-e4c484d33c1a",
+          "status": 200,
+          "at": "2026-11-05T09:18:29.586Z"
+        },
+        {
+          "id": "ccc2496b-9d32-47b6-b807-c51d2d635048",
+          "method": "GET",
+          "path": "/resources/quality_exception",
+          "status": 200,
+          "at": "2026-11-05T09:18:29.605Z"
+        },
+        {
+          "id": "c102dce1-0535-4d83-941d-249ef0d2836a",
+          "method": "GET",
+          "path": "/resources/quality_exception/94fe3126-e9dd-40ac-ab92-e4c484d33c1a",
+          "status": 200,
+          "at": "2026-11-05T09:18:29.666Z"
+        },
+        {
+          "id": "b5e2e287-a390-4de6-b455-287acc936262",
+          "method": "GET",
+          "path": "/resources/quality_exception",
+          "status": 200,
+          "at": "2026-11-05T09:18:29.684Z"
+        },
+        {
+          "id": "bcca83a7-af09-4060-8741-59d3ba62c54f",
+          "method": "GET",
+          "path": "/resources/quality_exception/94fe3126-e9dd-40ac-ab92-e4c484d33c1a",
+          "status": 200,
+          "at": "2026-11-05T09:18:29.700Z"
+        },
+        {
+          "id": "b0bfd802-e085-42c8-966c-0d658337d010",
+          "method": "GET",
+          "path": "/resources/quality_incident/edad697a-2d77-4348-ac19-969327e97d29",
+          "status": 404,
+          "at": "2026-11-05T09:18:29.716Z"
+        },
+        {
+          "id": "28f931e5-5b1d-4e89-a52b-fef1b16ba610",
+          "method": "GET",
+          "path": "/resources/quality_incident",
+          "status": 200,
+          "at": "2026-11-05T09:18:29.734Z"
+        },
+        {
+          "id": "3ea5aa0d-ea9f-4bc8-a7b8-64f3700c85f7",
+          "method": "GET",
+          "path": "/resources/quality_incident",
+          "status": 200,
+          "at": "2026-11-05T09:18:29.751Z"
+        },
+        {
+          "id": "b0cfa470-e081-4282-806e-5c78a2f4e5da",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/edad697a-2d77-4348-ac19-969327e97d29/assignment",
+          "status": 403,
+          "at": "2026-11-05T09:18:29.767Z"
+        }
+      ]
+    }
+  ]
+}

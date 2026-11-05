@@ -1,0 +1,78 @@
+{
+  "id": "UAT-AC234",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/plan-publication.test.ts",
+      "name": "approval and publication of the capital plan over HTTP (ST-CAP-003) post_plans_id_publish cannot update or delete a ledger entry with the application role; a correction is a REVERSAL entry (AC-ST-CAP-003-3, UAT-AC234)",
+      "status": "passed",
+      "durationMs": 456,
+      "at": "2026-11-05T09:16:47.663Z",
+      "requests": [
+        {
+          "id": "1ff8c52c-05a0-43c0-a1fb-740914da0436",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:16:47.338Z"
+        },
+        {
+          "id": "46842141-1f33-4958-8044-103957a8fa6f",
+          "method": "POST",
+          "path": "/capital-plans/2a89ddb3-c5a4-42ed-b9c7-f6d8bb834bc1/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:16:47.353Z"
+        },
+        {
+          "id": "918b7064-03d5-44fd-a5ee-f8e1b9d56b17",
+          "method": "POST",
+          "path": "/capital-plans/2a89ddb3-c5a4-42ed-b9c7-f6d8bb834bc1/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:47.365Z"
+        },
+        {
+          "id": "e054e3dd-70ad-40b5-a668-31eb3cbc168b",
+          "method": "POST",
+          "path": "/capital-plans/2a89ddb3-c5a4-42ed-b9c7-f6d8bb834bc1/decision",
+          "status": 200,
+          "at": "2026-11-05T09:16:47.391Z"
+        },
+        {
+          "id": "122b1382-4528-43ed-aacd-c40c6dc540ad",
+          "method": "POST",
+          "path": "/plans/2a89ddb3-c5a4-42ed-b9c7-f6d8bb834bc1/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:47.513Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/appropriation.test.ts",
+      "name": "appropriation register commands and reads (ST-CAP-001) registerAppropriation and decideAppropriation audits both commands, posts the ledger and tells the other modules once an appropriation is published (UAT-AC234)",
+      "status": "passed",
+      "durationMs": 194,
+      "at": "2026-11-05T09:21:15.206Z",
+      "requests": [
+        {
+          "id": "8fa4de92-b6bd-4039-ab72-4e72f656920d",
+          "method": "POST",
+          "path": "/appropriations",
+          "status": 200,
+          "at": "2026-11-05T09:21:15.051Z"
+        },
+        {
+          "id": "bc1ae764-92a5-4f12-9955-206e568a4a64",
+          "method": "POST",
+          "path": "/appropriations/fe24ef27-d5f8-46c1-83a1-6182094d4b45/decision",
+          "status": 200,
+          "at": "2026-11-05T09:21:15.063Z"
+        }
+      ]
+    }
+  ]
+}

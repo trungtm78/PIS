@@ -1,0 +1,341 @@
+{
+  "id": "UAT-AC157",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/entitlement-overrides.test.ts",
+      "name": "entitlement overrides over HTTP (ST-SAS-009) decideEntitlementOverride (UAT-AC157, UAT-AC158) puts the override in force once a second administrator approves it: the entitlement gate denies the feature at once and the tenant gets a new version (AC-ST-SAS-009-1)",
+      "status": "passed",
+      "durationMs": 312,
+      "at": "2026-11-05T09:21:19.607Z",
+      "requests": [
+        {
+          "id": "926f2e73-1280-4eb5-ace9-c96697aecdb5",
+          "method": "POST",
+          "path": "/system/tenants/e49e48d2-6845-4207-8f54-62a9f6960c08/entitlement-overrides",
+          "status": 201,
+          "at": "2026-11-05T09:21:19.299Z"
+        },
+        {
+          "id": "311a723e-4336-4513-ad51-3efd236af65f",
+          "method": "POST",
+          "path": "/system/entitlement-overrides/c3a4992e-fc93-49c4-ad20-10479b1cca11/decision",
+          "status": 200,
+          "at": "2026-11-05T09:21:19.418Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/entitlement-overrides.test.ts",
+      "name": "entitlement overrides over HTTP (ST-SAS-009) decideEntitlementOverride (UAT-AC157, UAT-AC158) refuses the person who asked: 403 SELF_APPROVAL_DENIED, the request still waits and no version is recorded (AC-ST-SAS-009-2)",
+      "status": "passed",
+      "durationMs": 237,
+      "at": "2026-11-05T09:21:19.844Z",
+      "requests": [
+        {
+          "id": "241718d4-ba38-4527-8549-82c75f485f62",
+          "method": "POST",
+          "path": "/system/tenants/ad7e70df-af1a-4842-aa2d-5487625e42e0/entitlement-overrides",
+          "status": 201,
+          "at": "2026-11-05T09:21:19.612Z"
+        },
+        {
+          "id": "b7855dd6-85a2-45ac-9fd2-29e8d06038e1",
+          "method": "POST",
+          "path": "/system/entitlement-overrides/c848c605-ccb0-40f7-874e-03065f7c3771/decision",
+          "status": 403,
+          "at": "2026-11-05T09:21:19.669Z"
+        },
+        {
+          "id": "3359d81b-5820-4160-9698-b9f66420726a",
+          "method": "POST",
+          "path": "/system/entitlement-overrides/c848c605-ccb0-40f7-874e-03065f7c3771/decision",
+          "status": 403,
+          "at": "2026-11-05T09:21:19.695Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/entitlement-overrides.test.ts",
+      "name": "entitlement overrides over HTTP (ST-SAS-009) decideEntitlementOverride (UAT-AC157, UAT-AC158) holds the same rule in the database, whatever the application checked first: no approver who is the requester",
+      "status": "passed",
+      "durationMs": 104,
+      "at": "2026-11-05T09:21:19.948Z",
+      "requests": [
+        {
+          "id": "bfcd7c31-6daa-40ea-9140-dabd4c2a1294",
+          "method": "POST",
+          "path": "/system/tenants/16523b21-a41f-4693-bbe2-f83c7dd673da/entitlement-overrides",
+          "status": 201,
+          "at": "2026-11-05T09:21:19.850Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/entitlement-overrides.test.ts",
+      "name": "entitlement overrides over HTTP (ST-SAS-009) decideEntitlementOverride (UAT-AC157, UAT-AC158) turns a request down without telling the tenant anything",
+      "status": "passed",
+      "durationMs": 253,
+      "at": "2026-11-05T09:21:20.202Z",
+      "requests": [
+        {
+          "id": "a6e2140e-5a86-4882-bb50-bd53c4f3b721",
+          "method": "POST",
+          "path": "/system/tenants/7c2b1d57-ece9-4294-94d7-3a1c1248d7dc/entitlement-overrides",
+          "status": 201,
+          "at": "2026-11-05T09:21:19.954Z"
+        },
+        {
+          "id": "6d1367e7-bcf2-4269-bfae-1678d0a8d2d5",
+          "method": "POST",
+          "path": "/system/entitlement-overrides/b8c624e8-7b32-4d7d-8217-7b3c4aabd9a5/decision",
+          "status": 200,
+          "at": "2026-11-05T09:21:20.003Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/entitlement-overrides.test.ts",
+      "name": "entitlement overrides over HTTP (ST-SAS-009) decideEntitlementOverride (UAT-AC157, UAT-AC158) has no \"return for rework\": 422 for it, and a change of mind is a new request",
+      "status": "passed",
+      "durationMs": 106,
+      "at": "2026-11-05T09:21:20.308Z",
+      "requests": [
+        {
+          "id": "aa4471da-7c49-4a64-a351-f713b42fb126",
+          "method": "POST",
+          "path": "/system/tenants/9283c759-d951-424e-9ff4-b3161119c81b/entitlement-overrides",
+          "status": 201,
+          "at": "2026-11-05T09:21:20.209Z"
+        },
+        {
+          "id": "4e818474-a36d-48e3-a4db-161f6ebb0d27",
+          "method": "POST",
+          "path": "/system/entitlement-overrides/c261d425-f288-4237-9f0b-83114b17cfbe/decision",
+          "status": 422,
+          "at": "2026-11-05T09:21:20.217Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/entitlement-overrides.test.ts",
+      "name": "entitlement overrides over HTTP (ST-SAS-009) decideEntitlementOverride (UAT-AC157, UAT-AC158) answers 428 without If-Match, 409 VERSION_CONFLICT with a stale one, 409 STAGE_TRANSITION_DENIED for one already decided and 404 for none",
+      "status": "passed",
+      "durationMs": 86,
+      "at": "2026-11-05T09:21:20.395Z",
+      "requests": [
+        {
+          "id": "6fcb2b97-6548-4a2f-938f-af471a427d9e",
+          "method": "POST",
+          "path": "/system/tenants/710b8208-084c-4807-b08a-aed781f0e4db/entitlement-overrides",
+          "status": 201,
+          "at": "2026-11-05T09:21:20.314Z"
+        },
+        {
+          "id": "a9cd6892-1d48-4da1-aa42-af6b7776cb19",
+          "method": "POST",
+          "path": "/system/entitlement-overrides/c085ddc2-c670-4147-87ef-d8546dda1cc9/decision",
+          "status": 428,
+          "at": "2026-11-05T09:21:20.332Z"
+        },
+        {
+          "id": "afde3aa6-3a81-4c27-93d7-e0e6ea81a6e3",
+          "method": "POST",
+          "path": "/system/entitlement-overrides/c085ddc2-c670-4147-87ef-d8546dda1cc9/decision",
+          "status": 409,
+          "at": "2026-11-05T09:21:20.342Z"
+        },
+        {
+          "id": "015f809f-3188-4383-a3d6-b61448cdcbe8",
+          "method": "POST",
+          "path": "/system/entitlement-overrides/c085ddc2-c670-4147-87ef-d8546dda1cc9/decision",
+          "status": 200,
+          "at": "2026-11-05T09:21:20.349Z"
+        },
+        {
+          "id": "bae7e5d6-c8ae-4954-9e15-10ae614e471a",
+          "method": "POST",
+          "path": "/system/entitlement-overrides/c085ddc2-c670-4147-87ef-d8546dda1cc9/decision",
+          "status": 409,
+          "at": "2026-11-05T09:21:20.366Z"
+        },
+        {
+          "id": "876b8257-f3f4-47a8-bdc6-07f65d1a24ba",
+          "method": "POST",
+          "path": "/system/entitlement-overrides/ffb1435e-a1ad-4b5e-84a1-1e16e7c88490/decision",
+          "status": 404,
+          "at": "2026-11-05T09:21:20.379Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/entitlement-overrides.test.ts",
+      "name": "entitlement overrides over HTTP (ST-SAS-009) decideEntitlementOverride (UAT-AC157, UAT-AC158) refuses a request whose window ended while it waited: 422, it still waits",
+      "status": "passed",
+      "durationMs": 319,
+      "at": "2026-11-05T09:21:20.714Z",
+      "requests": [
+        {
+          "id": "2e585170-579d-47b6-ac12-1776c9fb2f91",
+          "method": "POST",
+          "path": "/system/tenants/3a258ca5-be1c-49fd-8a39-a2c881e1515d/entitlement-overrides",
+          "status": 201,
+          "at": "2026-11-05T09:21:20.403Z"
+        },
+        {
+          "id": "3410ceae-9a1f-435a-ab02-6312ba6304ea",
+          "method": "POST",
+          "path": "/system/entitlement-overrides/a21c4b81-9b04-4297-a00b-5804cfdbf633/decision",
+          "status": 422,
+          "at": "2026-11-05T09:21:20.660Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/sas-override-flows.spec.ts",
+      "name": "one administrator asks, a second one approves, the table shows the override as the source, and either may end it (UAT-AC157, UAT-AC158)",
+      "status": "passed",
+      "durationMs": 2042,
+      "at": "2026-11-05T08:55:25.266Z",
+      "requests": [
+        {
+          "id": "f5bad22e-08b3-4de1-8730-7b52f02765d2",
+          "method": "GET",
+          "path": "/system/tenants",
+          "status": 200,
+          "at": "2026-11-05T08:55:25.751Z"
+        },
+        {
+          "id": "12a24793-84ff-4995-9341-2fffae0bd0be",
+          "method": "GET",
+          "path": "/system/tenants/00000000-0000-4000-8000-00000000000a/entitlement-overrides",
+          "status": 200,
+          "at": "2026-11-05T08:55:25.750Z"
+        },
+        {
+          "id": "68c5a24c-6417-48be-98d4-a363502e5801",
+          "method": "GET",
+          "path": "/system/tenants/00000000-0000-4000-8000-00000000000a/entitlements",
+          "status": 200,
+          "at": "2026-11-05T08:55:25.752Z"
+        },
+        {
+          "id": "54c9b8eb-ac59-4b65-a134-d0984189310b",
+          "method": "POST",
+          "path": "/system/tenants/00000000-0000-4000-8000-00000000000a/entitlement-overrides",
+          "status": 201,
+          "at": "2026-11-05T08:55:25.945Z"
+        },
+        {
+          "id": "17f616de-e789-487a-903a-ebff902ff77b",
+          "method": "GET",
+          "path": "/system/tenants/00000000-0000-4000-8000-00000000000a/entitlement-overrides",
+          "status": 200,
+          "at": "2026-11-05T08:55:25.964Z"
+        },
+        {
+          "id": "d0c72e80-7750-4841-9886-d7a3cf323505",
+          "method": "GET",
+          "path": "/system/tenants/00000000-0000-4000-8000-00000000000a/entitlements",
+          "status": 304,
+          "at": "2026-11-05T08:55:25.965Z"
+        },
+        {
+          "id": "15db9017-eb9f-446a-b03b-4d824c2ec8b5",
+          "method": "GET",
+          "path": "/system/tenants",
+          "status": 200,
+          "at": "2026-11-05T08:55:26.457Z"
+        },
+        {
+          "id": "ee5fb710-1b64-4578-b9ea-1baeb366d0f3",
+          "method": "GET",
+          "path": "/system/tenants/00000000-0000-4000-8000-00000000000a/entitlement-overrides",
+          "status": 200,
+          "at": "2026-11-05T08:55:26.456Z"
+        },
+        {
+          "id": "3683e4f0-ff71-4ffc-a050-c51d3f41d7b4",
+          "method": "GET",
+          "path": "/system/tenants/00000000-0000-4000-8000-00000000000a/entitlements",
+          "status": 200,
+          "at": "2026-11-05T08:55:26.458Z"
+        },
+        {
+          "id": "a9782207-7290-4d29-8891-d9b7076c7dd2",
+          "method": "POST",
+          "path": "/system/entitlement-overrides/1a4a623c-9e35-4371-bcb8-1bd785c15b96/decision",
+          "status": 200,
+          "at": "2026-11-05T08:55:26.628Z"
+        },
+        {
+          "id": "1b8fc5b0-e565-433e-bcad-7c82091e04ed",
+          "method": "GET",
+          "path": "/system/tenants/00000000-0000-4000-8000-00000000000a/entitlement-overrides",
+          "status": 200,
+          "at": "2026-11-05T08:55:26.651Z"
+        },
+        {
+          "id": "34ef630b-ae07-4548-bcda-67c03c913412",
+          "method": "GET",
+          "path": "/system/tenants/00000000-0000-4000-8000-00000000000a/entitlements",
+          "status": 200,
+          "at": "2026-11-05T08:55:26.652Z"
+        },
+        {
+          "id": "3e412334-b0b1-4193-9448-a0bfe08911a3",
+          "method": "GET",
+          "path": "/system/tenants",
+          "status": 304,
+          "at": "2026-11-05T08:55:26.936Z"
+        },
+        {
+          "id": "3669bef8-bbd5-4e4b-a66e-f334f3ba1ce0",
+          "method": "GET",
+          "path": "/system/tenants/00000000-0000-4000-8000-00000000000a/entitlement-overrides",
+          "status": 200,
+          "at": "2026-11-05T08:55:26.935Z"
+        },
+        {
+          "id": "6aa033c8-c620-4dec-bd13-6a2ce7de9a76",
+          "method": "GET",
+          "path": "/system/tenants/00000000-0000-4000-8000-00000000000a/entitlements",
+          "status": 200,
+          "at": "2026-11-05T08:55:26.937Z"
+        },
+        {
+          "id": "82630875-948b-4847-a6c8-0074c4d95257",
+          "method": "POST",
+          "path": "/system/entitlement-overrides/1a4a623c-9e35-4371-bcb8-1bd785c15b96/revoke",
+          "status": 200,
+          "at": "2026-11-05T08:55:27.076Z"
+        },
+        {
+          "id": "39f5799b-6a63-42e7-8136-0a4b0fe8f2ba",
+          "method": "GET",
+          "path": "/system/tenants/00000000-0000-4000-8000-00000000000a/entitlement-overrides",
+          "status": 200,
+          "at": "2026-11-05T08:55:27.095Z"
+        },
+        {
+          "id": "f46191cc-be0e-4a03-a173-50d463e6ffab",
+          "method": "GET",
+          "path": "/system/tenants/00000000-0000-4000-8000-00000000000a/entitlements",
+          "status": 200,
+          "at": "2026-11-05T08:55:27.097Z"
+        }
+      ]
+    }
+  ]
+}

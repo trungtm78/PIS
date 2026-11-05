@@ -1,0 +1,103 @@
+{
+  "id": "UAT-AC262",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports_id_submit (ST-DIS-005) AC-ST-DIS-015-2 / UAT-AC262: a monthly report of September without the causes of its narrative is refused (422 VALIDATION_FAILED naming narrative.causes_text), and once they are written it is SUBMITTED and the monthly follow-up shows the narrative",
+      "status": "passed",
+      "durationMs": 604,
+      "at": "2026-11-05T09:16:11.863Z",
+      "requests": [
+        {
+          "id": "5ec2e937-fdaf-4e84-be3c-4b42493dbd79",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:11.389Z"
+        },
+        {
+          "id": "37ad3c23-0eba-4e3b-8107-056486a6d04f",
+          "method": "POST",
+          "path": "/reports/c10dd58e-b7c0-4a0a-bda4-f24e2c8a513f/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:11.404Z"
+        },
+        {
+          "id": "2d9a9978-067f-4377-9088-2915de995e9a",
+          "method": "POST",
+          "path": "/reports/c10dd58e-b7c0-4a0a-bda4-f24e2c8a513f/submit",
+          "status": 422,
+          "at": "2026-11-05T09:16:11.420Z"
+        },
+        {
+          "id": "86cbe649-c71f-4519-aa46-0dfbafb0c60c",
+          "method": "POST",
+          "path": "/reports/c10dd58e-b7c0-4a0a-bda4-f24e2c8a513f/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:11.505Z"
+        },
+        {
+          "id": "f5298c6d-e935-4818-ad06-fb9a7381ad32",
+          "method": "POST",
+          "path": "/reports/c10dd58e-b7c0-4a0a-bda4-f24e2c8a513f/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:11.534Z"
+        },
+        {
+          "id": "5dd57c7a-4e33-4fb7-8a38-a7f0085a0333",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:11.661Z"
+        },
+        {
+          "id": "be2c6116-d447-41cb-a36d-1b7223a187b8",
+          "method": "POST",
+          "path": "/reports/ee2bd974-e053-42fb-b28f-222641bdf941/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:11.679Z"
+        },
+        {
+          "id": "f724f1df-e064-48f8-97e6-24ddd59ad9f9",
+          "method": "POST",
+          "path": "/reports/ee2bd974-e053-42fb-b28f-222641bdf941/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:11.712Z"
+        },
+        {
+          "id": "ae982006-c825-44b1-bf81-ffbf4fa64876",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:11.788Z"
+        },
+        {
+          "id": "f5609f92-6d5b-424e-91d3-aa5ce480f56b",
+          "method": "POST",
+          "path": "/reports/b5e9732d-3228-4b0d-a1e6-da86f344cb6e/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:11.805Z"
+        },
+        {
+          "id": "83d75642-d4af-4f9a-92b9-8e20e54b5daf",
+          "method": "POST",
+          "path": "/reports/b5e9732d-3228-4b0d-a1e6-da86f344cb6e/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:11.820Z"
+        },
+        {
+          "id": "bb9a26be-59d6-4019-8735-54d9e9fa7db8",
+          "method": "GET",
+          "path": "/reporting-periods/19569923-7ab6-4a94-b1a8-a3f6ddf4daf9/submission-progress",
+          "status": 200,
+          "at": "2026-11-05T09:16:11.838Z"
+        }
+      ]
+    }
+  ]
+}

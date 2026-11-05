@@ -1,0 +1,47 @@
+{
+  "id": "UAT-NFR-OPERABILITY-05",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports_id_submit (ST-DIS-005) AC-ST-DIS-005-7 / UAT-NFR-OPERABILITY-05: leaves one logical event under one key for the consumers to take once: the relay and the inbox of the kernel make the redelivery harmless",
+      "status": "passed",
+      "durationMs": 214,
+      "at": "2026-11-05T09:16:11.258Z",
+      "requests": [
+        {
+          "id": "12eab681-b28e-4995-9776-46fa63fceefc",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:11.084Z"
+        },
+        {
+          "id": "858a76b3-4098-4bf2-b66a-dc44f1781af3",
+          "method": "POST",
+          "path": "/reports/31774e26-9325-4111-ba9e-08fbcb5f6a04/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:11.100Z"
+        },
+        {
+          "id": "c76f1e5c-1ea8-4d52-b236-ca7360e4ba06",
+          "method": "POST",
+          "path": "/reports/31774e26-9325-4111-ba9e-08fbcb5f6a04/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:11.124Z"
+        },
+        {
+          "id": "d8688a0d-1be5-470d-9920-5572781ba082",
+          "method": "POST",
+          "path": "/reports/31774e26-9325-4111-ba9e-08fbcb5f6a04/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:11.195Z"
+        }
+      ]
+    }
+  ]
+}

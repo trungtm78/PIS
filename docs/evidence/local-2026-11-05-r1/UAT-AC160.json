@@ -1,0 +1,148 @@
+{
+  "id": "UAT-AC160",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/licenses.test.ts",
+      "name": "license commands over HTTP (ST-SAS-003) renewLicense (ST-SAS-014) AC-ST-SAS-014-1, UAT-AC160: revision 2 supersedes revision 1, which becomes Superseded, and both signatures verify",
+      "status": "passed",
+      "durationMs": 374,
+      "at": "2026-11-05T09:16:01.165Z",
+      "requests": [
+        {
+          "id": "67895929-f2c7-4302-8829-ecd70de4a434",
+          "method": "POST",
+          "path": "/licenses",
+          "status": 201,
+          "at": "2026-11-05T09:16:00.836Z"
+        },
+        {
+          "id": "5c038b9c-bf93-4589-a512-29a8c1f5da3b",
+          "method": "POST",
+          "path": "/licenses/42dfad5f-cdd5-4436-8e38-5bb5dac3ffa4/renew",
+          "status": 200,
+          "at": "2026-11-05T09:16:00.850Z"
+        },
+        {
+          "id": "7909276e-0038-4695-8f47-a67b38f41760",
+          "method": "GET",
+          "path": "/system/licenses/42dfad5f-cdd5-4436-8e38-5bb5dac3ffa4",
+          "status": 200,
+          "at": "2026-11-05T09:16:00.867Z"
+        },
+        {
+          "id": "7344db20-0741-4fdd-9cf1-9557836746dd",
+          "method": "GET",
+          "path": "/system/licenses/79c43a21-865a-4ad9-9099-64769811aa69",
+          "status": 200,
+          "at": "2026-11-05T09:16:00.887Z"
+        },
+        {
+          "id": "1bc63add-6e2f-42b8-8f09-ab4750bcd928",
+          "method": "GET",
+          "path": "/system/tenants/85a4cf7b-033b-417f-829c-66b184e74de2/licenses",
+          "status": 200,
+          "at": "2026-11-05T09:16:01.141Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/license-flows.spec.ts",
+      "name": "a system administrator renews a license: revision 2 takes its place, revision 1 is kept as Superseded, both signatures verify and the history shows the chain (AC-ST-SAS-014-1, AC-ST-SAS-014-3, UAT-AC160, UI-SAS-14, UI-SAS-16)",
+      "status": "passed",
+      "durationMs": 1377,
+      "at": "2026-11-05T08:48:09.373Z",
+      "requests": [
+        {
+          "id": "cca47045-935d-4def-bdc8-d9aa5d569ae6",
+          "method": "GET",
+          "path": "/system/tenants",
+          "status": 200,
+          "at": "2026-11-05T08:48:09.820Z"
+        },
+        {
+          "id": "a445132e-0a1f-4ce0-9a96-d67ec09a9757",
+          "method": "GET",
+          "path": "/system/tenants/bd8636f8-9ba5-4433-9e05-8a9f02139910/entitlements",
+          "status": 200,
+          "at": "2026-11-05T08:48:09.819Z"
+        },
+        {
+          "id": "e5e88835-6497-43f5-8df7-072b99c3f62e",
+          "method": "GET",
+          "path": "/system/tenants",
+          "status": 304,
+          "at": "2026-11-05T08:48:09.861Z"
+        },
+        {
+          "id": "6462b52a-879d-4b2d-b81f-2f226898213b",
+          "method": "POST",
+          "path": "/licenses",
+          "status": 201,
+          "at": "2026-11-05T08:48:09.953Z"
+        },
+        {
+          "id": "9c92575c-23e6-4cf9-b15e-e93e94b96934",
+          "method": "GET",
+          "path": "/system/tenants/bd8636f8-9ba5-4433-9e05-8a9f02139910/entitlements",
+          "status": 200,
+          "at": "2026-11-05T08:48:09.968Z"
+        },
+        {
+          "id": "6ecaefaf-3b11-4900-8238-e1f4b792d185",
+          "method": "GET",
+          "path": "/system/tenants",
+          "status": 304,
+          "at": "2026-11-05T08:48:09.976Z"
+        },
+        {
+          "id": "e501a2fc-5dc9-4267-bb66-2e97af2f62f1",
+          "method": "GET",
+          "path": "/system/licenses/bb1221a8-47f1-45da-b7ad-93ed9e59fd1c",
+          "status": 200,
+          "at": "2026-11-05T08:48:10.202Z"
+        },
+        {
+          "id": "6478c2a9-d722-45b7-a620-35d8b706aa1d",
+          "method": "GET",
+          "path": "/system/licenses/bb1221a8-47f1-45da-b7ad-93ed9e59fd1c",
+          "status": 304,
+          "at": "2026-11-05T08:48:10.334Z"
+        },
+        {
+          "id": "aeaa0e32-66b1-41a6-8204-c9b69462eef1",
+          "method": "POST",
+          "path": "/licenses/bb1221a8-47f1-45da-b7ad-93ed9e59fd1c/renew",
+          "status": 200,
+          "at": "2026-11-05T08:48:10.500Z"
+        },
+        {
+          "id": "859b61b1-9534-4daa-b5e8-e23fdc59e070",
+          "method": "GET",
+          "path": "/system/licenses/bb1221a8-47f1-45da-b7ad-93ed9e59fd1c",
+          "status": 200,
+          "at": "2026-11-05T08:48:10.515Z"
+        },
+        {
+          "id": "c9ed27a2-1ba3-4cb4-9c4b-9128cbfa2f6f",
+          "method": "GET",
+          "path": "/system/tenants",
+          "status": 304,
+          "at": "2026-11-05T08:48:10.703Z"
+        },
+        {
+          "id": "75716397-1aeb-4deb-add2-5fabe9300bcf",
+          "method": "GET",
+          "path": "/system/tenants/bd8636f8-9ba5-4433-9e05-8a9f02139910/licenses",
+          "status": 200,
+          "at": "2026-11-05T08:48:10.705Z"
+        }
+      ]
+    }
+  ]
+}

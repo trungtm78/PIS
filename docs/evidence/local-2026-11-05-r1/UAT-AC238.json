@@ -1,0 +1,78 @@
+{
+  "id": "UAT-AC238",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/capital-plan.test.ts",
+      "name": "capital plan drafting commands and reads (ST-CAP-002) draftCapitalAllocation answers a repeated Idempotency-Key with the first result and the same key with another payload with 409 IDEMPOTENCY_CONFLICT (AC-ST-CAP-002-4, UAT-AC238)",
+      "status": "passed",
+      "durationMs": 372,
+      "at": "2026-11-05T09:18:11.494Z",
+      "requests": [
+        {
+          "id": "5cc51a3e-3c59-4e60-8f5e-4e7594c1b31d",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:18:11.121Z"
+        },
+        {
+          "id": "27178d98-9a0b-46bd-9686-c02d0e62cc4e",
+          "method": "POST",
+          "path": "/capital-plans/2aa7c339-02a6-4891-aa4d-6dc056921796/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:18:11.292Z"
+        },
+        {
+          "id": "e43bfcd7-405f-4fc0-8f0b-ddf3cda7455b",
+          "method": "POST",
+          "path": "/capital-plans/2aa7c339-02a6-4891-aa4d-6dc056921796/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:18:11.318Z"
+        },
+        {
+          "id": "d35ca3f0-6390-48ba-89b1-f68b7de1a03f",
+          "method": "POST",
+          "path": "/capital-plans/2aa7c339-02a6-4891-aa4d-6dc056921796/allocations",
+          "status": 409,
+          "at": "2026-11-05T09:18:11.386Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/appropriation.test.ts",
+      "name": "appropriation register commands and reads (ST-CAP-001) registerAppropriation and decideAppropriation answers a repeated key with the first result, and the same key with another payload with 409 IDEMPOTENCY_CONFLICT (UAT-AC238)",
+      "status": "passed",
+      "durationMs": 334,
+      "at": "2026-11-05T09:21:13.124Z",
+      "requests": [
+        {
+          "id": "664cf6c5-68c4-4073-9e93-6847c076716e",
+          "method": "POST",
+          "path": "/appropriations",
+          "status": 200,
+          "at": "2026-11-05T09:21:12.937Z"
+        },
+        {
+          "id": "a21c1607-a46e-46de-a1ec-763199ba3acd",
+          "method": "POST",
+          "path": "/appropriations",
+          "status": 200,
+          "at": "2026-11-05T09:21:12.951Z"
+        },
+        {
+          "id": "734aa37e-edee-4c16-8d59-977a4818bbc5",
+          "method": "POST",
+          "path": "/appropriations",
+          "status": 409,
+          "at": "2026-11-05T09:21:13.104Z"
+        }
+      ]
+    }
+  ]
+}

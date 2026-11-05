@@ -1,0 +1,68 @@
+{
+  "id": "UAT-NFR-TENANCY-05",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/sync/sync-attachments.test.ts",
+      "name": "the attachments a phone uploads in chunks (ST-MOB-009, MOB-19) AC-ST-MOB-009-3 UAT-NFR-TENANCY-05: a link of one tenant used for the key of another, and an expired link, are both refused, and the storage key is always under the tenant prefix",
+      "status": "passed",
+      "durationMs": 219,
+      "at": "2026-11-05T09:22:19.514Z",
+      "requests": [
+        {
+          "id": "d2442b0d-4277-497b-b3f6-6842c77589dd",
+          "method": "POST",
+          "path": "/sync/attachments",
+          "status": 200,
+          "at": "2026-11-05T09:22:19.297Z"
+        },
+        {
+          "id": "faa856d5-29c3-4f6b-89a0-f6285c2f6a9d",
+          "method": "PUT",
+          "path": "/sync/attachments/8d74fdff-041a-446a-9d93-0a3e3e62d985/chunks/0",
+          "status": 401,
+          "at": "2026-11-05T09:22:19.310Z"
+        },
+        {
+          "id": "b4b70147-5c1a-4c2b-b34b-bae0fd8ff7a9",
+          "method": "PUT",
+          "path": "/sync/attachments/8d74fdff-041a-446a-9d93-0a3e3e62d985/chunks/0",
+          "status": 401,
+          "at": "2026-11-05T09:22:19.322Z"
+        },
+        {
+          "id": "179c3aa8-83a5-4fc5-9b71-178008912290",
+          "method": "PUT",
+          "path": "/sync/attachments/8d74fdff-041a-446a-9d93-0a3e3e62d985/chunks/0",
+          "status": 401,
+          "at": "2026-11-05T09:22:19.336Z"
+        },
+        {
+          "id": "30bb13ac-9ccb-4bd6-9cb9-a8dfdde00b3c",
+          "method": "PUT",
+          "path": "/sync/attachments/8d74fdff-041a-446a-9d93-0a3e3e62d985/chunks/0",
+          "status": 401,
+          "at": "2026-11-05T09:22:19.353Z"
+        },
+        {
+          "id": "e263ca7f-39f7-4303-a49f-0c8f9721d5d4",
+          "method": "PUT",
+          "path": "/sync/attachments/8d74fdff-041a-446a-9d93-0a3e3e62d985/chunks/0",
+          "status": 401,
+          "at": "2026-11-05T09:22:19.409Z"
+        },
+        {
+          "id": "685c1697-0111-4c32-8907-7e820e3199f9",
+          "method": "PUT",
+          "path": "/sync/attachments/8d74fdff-041a-446a-9d93-0a3e3e62d985/chunks/0",
+          "status": 200,
+          "at": "2026-11-05T09:22:19.413Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1548 @@
+{
+  "id": "UAT-AC315",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-scorecard.test.ts",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) is registered in the module of CTR",
+      "status": "passed",
+      "durationMs": 2,
+      "at": "2026-11-05T09:19:52.409Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-scorecard.test.ts",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) the evaluation (AC-ST-CTR-014-1, UAT-AC315) AC-ST-CTR-014-1 UAT-AC315: weights 80/70/90/60/100 into 80.50 and GOOD, refuses the author as approver, and the leader approves",
+      "status": "passed",
+      "durationMs": 407,
+      "at": "2026-11-05T09:19:52.816Z",
+      "requests": [
+        {
+          "id": "54ef062f-c24a-42b6-b33c-173719817e38",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:19:52.410Z"
+        },
+        {
+          "id": "aa6db920-b775-4268-9ae8-710302f0993a",
+          "method": "POST",
+          "path": "/performance-evaluations/e0c326fe-f3ae-4999-9ea4-b65ea0404473/approve",
+          "status": 403,
+          "at": "2026-11-05T09:19:52.521Z"
+        },
+        {
+          "id": "dfec33e1-e794-448d-b704-c1ca0c65bce9",
+          "method": "POST",
+          "path": "/performance-evaluations/e0c326fe-f3ae-4999-9ea4-b65ea0404473/approve",
+          "status": 200,
+          "at": "2026-11-05T09:19:52.576Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-scorecard.test.ts",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) the evaluation (AC-ST-CTR-014-1, UAT-AC315) is 409 EVALUATION_DUPLICATE while one waits for the same kind and period, and a new revision once it is approved: approving it supersedes the first",
+      "status": "passed",
+      "durationMs": 517,
+      "at": "2026-11-05T09:19:53.333Z",
+      "requests": [
+        {
+          "id": "1a367870-cb86-4c4a-9b92-b5e1cfeffce8",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:19:52.816Z"
+        },
+        {
+          "id": "dcf33ea0-d4cb-4afe-9c93-24c7be1a57af",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 409,
+          "at": "2026-11-05T09:19:52.838Z"
+        },
+        {
+          "id": "216e5116-0e25-4607-b0ad-56e850a68fdb",
+          "method": "POST",
+          "path": "/performance-evaluations/3c9d9d74-eff1-457a-9f84-eb542fe7f58f/approve",
+          "status": 200,
+          "at": "2026-11-05T09:19:52.846Z"
+        },
+        {
+          "id": "04c3bd04-e38e-4bd0-841e-e69d6a8a5921",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:19:52.870Z"
+        },
+        {
+          "id": "d33c97aa-f265-44b9-8625-d09e45f62c94",
+          "method": "POST",
+          "path": "/performance-evaluations/e9b4f37f-b727-44d7-8437-77580fddcbfd/approve",
+          "status": 200,
+          "at": "2026-11-05T09:19:52.974Z"
+        },
+        {
+          "id": "2e3d3263-da3f-45cf-8c04-b5dd3248ca26",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:19:53.208Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-scorecard.test.ts",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) the evaluation (AC-ST-CTR-014-1, UAT-AC315) refuses an approval that is stale or of one that was approved already, and one by someone who may not approve",
+      "status": "passed",
+      "durationMs": 125,
+      "at": "2026-11-05T09:19:53.457Z",
+      "requests": [
+        {
+          "id": "01d170dc-8726-4339-acf0-fe00240cacb9",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:19:53.334Z"
+        },
+        {
+          "id": "9a508606-35d7-49b1-99cd-694f37ada8ba",
+          "method": "POST",
+          "path": "/performance-evaluations/6458eea6-b291-48d0-abc5-a83d3695399e/approve",
+          "status": 409,
+          "at": "2026-11-05T09:19:53.349Z"
+        },
+        {
+          "id": "c70e86ca-123f-40de-8580-2a82fecfccc4",
+          "method": "POST",
+          "path": "/performance-evaluations/6458eea6-b291-48d0-abc5-a83d3695399e/approve",
+          "status": 403,
+          "at": "2026-11-05T09:19:53.355Z"
+        },
+        {
+          "id": "51d19108-7c8e-4318-b5b4-e05469d008e2",
+          "method": "POST",
+          "path": "/performance-evaluations/6458eea6-b291-48d0-abc5-a83d3695399e/approve",
+          "status": 403,
+          "at": "2026-11-05T09:19:53.375Z"
+        },
+        {
+          "id": "36aa5e71-72fd-4550-ada6-2bc645996bd9",
+          "method": "POST",
+          "path": "/performance-evaluations/6458eea6-b291-48d0-abc5-a83d3695399e/approve",
+          "status": 422,
+          "at": "2026-11-05T09:19:53.392Z"
+        },
+        {
+          "id": "35a41790-afc8-4a9c-bd18-57cf17eff1b4",
+          "method": "POST",
+          "path": "/performance-evaluations/6458eea6-b291-48d0-abc5-a83d3695399e/approve",
+          "status": 200,
+          "at": "2026-11-05T09:19:53.409Z"
+        },
+        {
+          "id": "1756f612-a229-43cf-b73d-3565fe1bcde8",
+          "method": "POST",
+          "path": "/performance-evaluations/6458eea6-b291-48d0-abc5-a83d3695399e/approve",
+          "status": 409,
+          "at": "2026-11-05T09:19:53.431Z"
+        },
+        {
+          "id": "190c939a-5131-4f14-90c9-74fd2ab01b6c",
+          "method": "POST",
+          "path": "/performance-evaluations/52936c1e-dc8a-430b-93a0-4b696ca1e0eb/approve",
+          "status": 404,
+          "at": "2026-11-05T09:19:53.443Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-scorecard.test.ts",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) the evaluation (AC-ST-CTR-014-1, UAT-AC315) judges the kind of evaluation by the contract: a completion one on an active contract, and any one on a draft, are 409 CONTRACT_STATE_INVALID",
+      "status": "passed",
+      "durationMs": 493,
+      "at": "2026-11-05T09:19:53.951Z",
+      "requests": [
+        {
+          "id": "c6b12e5f-6051-4c91-a84c-e9f0cbaf6042",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 409,
+          "at": "2026-11-05T09:19:53.458Z"
+        },
+        {
+          "id": "c08e1fbe-9d7d-4087-8ef2-216b9c1b3586",
+          "method": "POST",
+          "path": "/contracts/5f1769cd-3451-41d6-9382-b7723f57690c/performance-evaluations",
+          "status": 409,
+          "at": "2026-11-05T09:19:53.734Z"
+        },
+        {
+          "id": "661a9126-a34f-4521-9f5c-381df91946ed",
+          "method": "POST",
+          "path": "/contracts/5f1769cd-3451-41d6-9382-b7723f57690c/violations",
+          "status": 409,
+          "at": "2026-11-05T09:19:53.744Z"
+        },
+        {
+          "id": "8bc2f5c8-420a-4bc5-992f-88378ccb024f",
+          "method": "POST",
+          "path": "/contracts/7a63fe1f-a876-4018-8505-554665e0af54/performance-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:19:53.927Z"
+        },
+        {
+          "id": "ccdf02bc-2391-4060-9aba-4e67dbda83e0",
+          "method": "POST",
+          "path": "/contracts/7a63fe1f-a876-4018-8505-554665e0af54/performance-evaluations",
+          "status": 409,
+          "at": "2026-11-05T09:19:53.939Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-scorecard.test.ts",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) the evaluation (AC-ST-CTR-014-1, UAT-AC315) refuses what is not an evaluation: scores out of the range, a kind it does not know, a period that is empty",
+      "status": "passed",
+      "durationMs": 108,
+      "at": "2026-11-05T09:19:54.059Z",
+      "requests": [
+        {
+          "id": "5996ecbe-4b59-41c5-9b0d-ecd7a3033660",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 422,
+          "at": "2026-11-05T09:19:53.951Z"
+        },
+        {
+          "id": "9b48d624-f8d2-447f-bf2b-f19d0bec03c4",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 422,
+          "at": "2026-11-05T09:19:53.966Z"
+        },
+        {
+          "id": "c3364c34-8fe8-4999-99de-03120c46de89",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 422,
+          "at": "2026-11-05T09:19:53.980Z"
+        },
+        {
+          "id": "c2272895-4caf-4421-85bc-c789b5eb84d4",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 422,
+          "at": "2026-11-05T09:19:53.994Z"
+        },
+        {
+          "id": "2766fcd0-88e8-44df-af7b-5ff52a9cf24b",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 422,
+          "at": "2026-11-05T09:19:54.011Z"
+        },
+        {
+          "id": "7328312f-f799-4164-aefd-d544e6ecf928",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 400,
+          "at": "2026-11-05T09:19:54.027Z"
+        },
+        {
+          "id": "635ce257-88fe-4fcd-9a1f-d4c31a745998",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 400,
+          "at": "2026-11-05T09:19:54.043Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-scorecard.test.ts",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) the evaluation (AC-ST-CTR-014-1, UAT-AC315) is the scope of the permission that decides: no right is 403, a contract that cannot be read is 404, and one that is read but not evaluated is 403 SCOPE_DENIED",
+      "status": "passed",
+      "durationMs": 101,
+      "at": "2026-11-05T09:19:54.160Z",
+      "requests": [
+        {
+          "id": "a5780f81-3908-4cdd-9eae-0c9143404466",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 403,
+          "at": "2026-11-05T09:19:54.060Z"
+        },
+        {
+          "id": "e84406a1-a6fe-4eef-b6c1-6100162849d2",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 403,
+          "at": "2026-11-05T09:19:54.076Z"
+        },
+        {
+          "id": "361e83f7-ea1a-43bc-a9f2-f5a4ad8d743a",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 404,
+          "at": "2026-11-05T09:19:54.079Z"
+        },
+        {
+          "id": "d8a48a35-106e-4553-a6d4-d779236c87c4",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 403,
+          "at": "2026-11-05T09:19:54.098Z"
+        },
+        {
+          "id": "21b6d088-220b-49e6-bbe0-91ad63321f66",
+          "method": "POST",
+          "path": "/contracts/38249a17-f930-479e-8c04-f8e49b03d8f5/performance-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:19:54.113Z"
+        },
+        {
+          "id": "f8a4450a-afec-4124-b402-6186b8887820",
+          "method": "POST",
+          "path": "/contracts/f30efd5a-ba30-4623-9a95-ea0b6c1dbd24/performance-evaluations",
+          "status": 404,
+          "at": "2026-11-05T09:19:54.130Z"
+        },
+        {
+          "id": "f86ab6fe-8223-4d48-83e0-25792b21d52b",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 404,
+          "at": "2026-11-05T09:19:54.144Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-scorecard.test.ts",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) the violation (AC-ST-CTR-014-2, UAT-PLAN-17) AC-ST-CTR-014-2 UAT-PLAN-17: a sanction is not confirmed without the document that decides it, and with it the violation is CONFIRMED and in the scorecard",
+      "status": "passed",
+      "durationMs": 503,
+      "at": "2026-11-05T09:19:54.663Z",
+      "requests": [
+        {
+          "id": "da7d337d-b789-44e3-8fa5-10a439eb9870",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/violations",
+          "status": 200,
+          "at": "2026-11-05T09:19:54.161Z"
+        },
+        {
+          "id": "993b20d8-993f-4693-8931-375e92268a72",
+          "method": "POST",
+          "path": "/violations/839a9457-e6fb-4be6-836a-6c36720be965/confirm",
+          "status": 422,
+          "at": "2026-11-05T09:19:54.181Z"
+        },
+        {
+          "id": "bd7caf4c-159f-4e09-b419-e6c2c8eeae5e",
+          "method": "POST",
+          "path": "/violations/839a9457-e6fb-4be6-836a-6c36720be965/confirm",
+          "status": 422,
+          "at": "2026-11-05T09:19:54.285Z"
+        },
+        {
+          "id": "6c11ecab-2d30-4419-87bd-ac6561aa436b",
+          "method": "POST",
+          "path": "/violations/839a9457-e6fb-4be6-836a-6c36720be965/confirm",
+          "status": 422,
+          "at": "2026-11-05T09:19:54.304Z"
+        },
+        {
+          "id": "7f580d91-9fbd-4889-a678-3fd9173cc4f2",
+          "method": "POST",
+          "path": "/violations/839a9457-e6fb-4be6-836a-6c36720be965/confirm",
+          "status": 200,
+          "at": "2026-11-05T09:19:54.362Z"
+        },
+        {
+          "id": "cf3f2fe9-1b0c-4783-b7d4-fc4d8a689dfa",
+          "method": "GET",
+          "path": "/contractors/decae494-9588-4c0f-853a-0a6230a1e6bf/scorecard",
+          "status": 200,
+          "at": "2026-11-05T09:19:54.427Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-scorecard.test.ts",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) the violation (AC-ST-CTR-014-2, UAT-PLAN-17) confirms a violation with no sanction without a document, once, and not by the one who recorded it",
+      "status": "passed",
+      "durationMs": 119,
+      "at": "2026-11-05T09:19:54.783Z",
+      "requests": [
+        {
+          "id": "14801ee3-7602-478b-bfc0-a56c64cb4047",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/violations",
+          "status": 200,
+          "at": "2026-11-05T09:19:54.664Z"
+        },
+        {
+          "id": "d1bd20b7-c887-4f68-92df-46af44a2b4d4",
+          "method": "POST",
+          "path": "/violations/eba78e64-3ff1-4057-b654-8b19ac1e922d/confirm",
+          "status": 403,
+          "at": "2026-11-05T09:19:54.687Z"
+        },
+        {
+          "id": "66561cfd-51ea-4da8-bb20-f10068d09c2e",
+          "method": "POST",
+          "path": "/violations/eba78e64-3ff1-4057-b654-8b19ac1e922d/confirm",
+          "status": 409,
+          "at": "2026-11-05T09:19:54.704Z"
+        },
+        {
+          "id": "e86fd90e-851c-4d75-9d41-9acb4da4a14c",
+          "method": "POST",
+          "path": "/violations/eba78e64-3ff1-4057-b654-8b19ac1e922d/confirm",
+          "status": 403,
+          "at": "2026-11-05T09:19:54.720Z"
+        },
+        {
+          "id": "403cea86-9905-4670-a237-f018a035f1cd",
+          "method": "POST",
+          "path": "/violations/eba78e64-3ff1-4057-b654-8b19ac1e922d/confirm",
+          "status": 200,
+          "at": "2026-11-05T09:19:54.731Z"
+        },
+        {
+          "id": "4750b976-83eb-4888-ac5a-827a624c0144",
+          "method": "POST",
+          "path": "/violations/eba78e64-3ff1-4057-b654-8b19ac1e922d/confirm",
+          "status": 409,
+          "at": "2026-11-05T09:19:54.755Z"
+        },
+        {
+          "id": "79bf54d5-44d7-4ba7-b10c-4b4a3db0d69f",
+          "method": "POST",
+          "path": "/violations/cac0b37f-85df-4314-9d37-aa23829f1864/confirm",
+          "status": 404,
+          "at": "2026-11-05T09:19:54.767Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-scorecard.test.ts",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) the violation (AC-ST-CTR-014-2, UAT-PLAN-17) takes the document that a violation was recorded with: a suggestion that a termination made rests on its document and is confirmed with it",
+      "status": "passed",
+      "durationMs": 140,
+      "at": "2026-11-05T09:19:54.923Z",
+      "requests": [
+        {
+          "id": "c8605560-d775-4398-8b3f-ac5c0e0ab1c1",
+          "method": "POST",
+          "path": "/violations/a40140aa-df0c-4c01-bc00-999fe1b149fd/confirm",
+          "status": 200,
+          "at": "2026-11-05T09:19:54.864Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-scorecard.test.ts",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) the violation (AC-ST-CTR-014-2, UAT-PLAN-17) refuses what is not a violation: a day to come, a kind it does not know, an evidence that is not clean, a source with no record",
+      "status": "passed",
+      "durationMs": 276,
+      "at": "2026-11-05T09:19:55.199Z",
+      "requests": [
+        {
+          "id": "e720b141-da98-4bae-9208-35b86a5828bc",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/violations",
+          "status": 422,
+          "at": "2026-11-05T09:19:54.965Z"
+        },
+        {
+          "id": "87f6e249-f59a-42ee-aedb-0ce79603385c",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/violations",
+          "status": 422,
+          "at": "2026-11-05T09:19:54.971Z"
+        },
+        {
+          "id": "6eacf26a-cd30-4fe3-a8e5-1e5c8977c996",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/violations",
+          "status": 422,
+          "at": "2026-11-05T09:19:54.984Z"
+        },
+        {
+          "id": "5a840243-71bc-4108-9da1-e47ffe694536",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/violations",
+          "status": 422,
+          "at": "2026-11-05T09:19:55.000Z"
+        },
+        {
+          "id": "80d86b5f-e765-42be-a2f5-35c4734f6c76",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/violations",
+          "status": 422,
+          "at": "2026-11-05T09:19:55.016Z"
+        },
+        {
+          "id": "b3126c7e-f405-40b7-8a49-96a60edc4c3d",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/violations",
+          "status": 422,
+          "at": "2026-11-05T09:19:55.033Z"
+        },
+        {
+          "id": "e72dc524-6c91-489b-8be1-59e3398d44ad",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/violations",
+          "status": 422,
+          "at": "2026-11-05T09:19:55.052Z"
+        },
+        {
+          "id": "1100c994-d626-4875-a35e-1c5f2908c618",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/violations",
+          "status": 422,
+          "at": "2026-11-05T09:19:55.069Z"
+        },
+        {
+          "id": "ff5fecad-30b3-4fe3-972c-5e12e1000fa6",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/violations",
+          "status": 200,
+          "at": "2026-11-05T09:19:55.129Z"
+        },
+        {
+          "id": "5e8d25f4-72cd-4c85-b814-2b10c00dba0b",
+          "method": "POST",
+          "path": "/violations/6fd1cc6e-5487-4e58-a905-dc8065cd9c24/confirm",
+          "status": 422,
+          "at": "2026-11-05T09:19:55.168Z"
+        },
+        {
+          "id": "98be109c-c957-4027-a92a-82ae431bdb34",
+          "method": "POST",
+          "path": "/violations/6fd1cc6e-5487-4e58-a905-dc8065cd9c24/confirm",
+          "status": 422,
+          "at": "2026-11-05T09:19:55.178Z"
+        },
+        {
+          "id": "7a126e9f-8123-42a6-b778-831baecf9776",
+          "method": "POST",
+          "path": "/violations/6fd1cc6e-5487-4e58-a905-dc8065cd9c24/confirm",
+          "status": 422,
+          "at": "2026-11-05T09:19:55.195Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-scorecard.test.ts",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) the violation (AC-ST-CTR-014-2, UAT-PLAN-17) is the scope that decides: no right is 403, a contract that cannot be read is 404, one that is read but not recorded on is 403 SCOPE_DENIED",
+      "status": "passed",
+      "durationMs": 117,
+      "at": "2026-11-05T09:19:55.316Z",
+      "requests": [
+        {
+          "id": "0c695413-fcda-4732-94b5-a4396566cbbe",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/violations",
+          "status": 403,
+          "at": "2026-11-05T09:19:55.199Z"
+        },
+        {
+          "id": "8c7705c6-b788-4bad-bcd7-1b76a8e9c4ef",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/violations",
+          "status": 403,
+          "at": "2026-11-05T09:19:55.209Z"
+        },
+        {
+          "id": "f8c551a7-3c4a-4fc7-a87a-0219c110e7cc",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/violations",
+          "status": 404,
+          "at": "2026-11-05T09:19:55.225Z"
+        },
+        {
+          "id": "505eb13d-3508-4b5e-8036-5754bc13991d",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/violations",
+          "status": 403,
+          "at": "2026-11-05T09:19:55.244Z"
+        },
+        {
+          "id": "70d511aa-4cd1-4df5-98bd-e6d244d3b42b",
+          "method": "POST",
+          "path": "/contracts/38249a17-f930-479e-8c04-f8e49b03d8f5/violations",
+          "status": 200,
+          "at": "2026-11-05T09:19:55.261Z"
+        },
+        {
+          "id": "f84b81ff-718b-43e4-94e8-a589f6ecd43d",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/violations",
+          "status": 200,
+          "at": "2026-11-05T09:19:55.281Z"
+        },
+        {
+          "id": "2f277266-e060-4c3e-b8a6-e96a7d1ff4f1",
+          "method": "POST",
+          "path": "/violations/ac9ed57e-5029-4fd5-b0dd-de53f8946327/confirm",
+          "status": 404,
+          "at": "2026-11-05T09:19:55.295Z"
+        },
+        {
+          "id": "3a7ff657-ae39-4449-bea0-c442b6ee904a",
+          "method": "POST",
+          "path": "/violations/ac9ed57e-5029-4fd5-b0dd-de53f8946327/confirm",
+          "status": 404,
+          "at": "2026-11-05T09:19:55.311Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-scorecard.test.ts",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) the scorecard (CTR-23) lists the contracts, the evaluations with their weights and the log, and what the caller may do on each",
+      "status": "passed",
+      "durationMs": 60,
+      "at": "2026-11-05T09:19:55.376Z",
+      "requests": [
+        {
+          "id": "d1487652-664f-4be9-90c8-9fd92f18ed31",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:19:55.317Z"
+        },
+        {
+          "id": "6f20ea53-65a2-424e-9a1a-8f77a4a357ab",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/violations",
+          "status": 200,
+          "at": "2026-11-05T09:19:55.326Z"
+        },
+        {
+          "id": "220c53d9-05b5-4b73-b064-ac374ef9ee66",
+          "method": "GET",
+          "path": "/contractors/decae494-9588-4c0f-853a-0a6230a1e6bf/scorecard",
+          "status": 200,
+          "at": "2026-11-05T09:19:55.342Z"
+        },
+        {
+          "id": "65860be0-1421-41d9-8857-a6c5623c3337",
+          "method": "GET",
+          "path": "/contractors/decae494-9588-4c0f-853a-0a6230a1e6bf/scorecard",
+          "status": 200,
+          "at": "2026-11-05T09:19:55.363Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-scorecard.test.ts",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) the scorecard (CTR-23) averages the approved evaluations that stand, to the hundredth, and counts the confirmed violations by severity",
+      "status": "passed",
+      "durationMs": 112,
+      "at": "2026-11-05T09:19:55.488Z",
+      "requests": [
+        {
+          "id": "73dd89e7-e87b-4758-840d-1a04d2fdc55f",
+          "method": "GET",
+          "path": "/contractors/decae494-9588-4c0f-853a-0a6230a1e6bf/scorecard",
+          "status": 200,
+          "at": "2026-11-05T09:19:55.475Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-scorecard.test.ts",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) the scorecard (CTR-23) counts the summary over everything in scope, not over the rows the lists hold: more than 500 approved evaluations are all in the count and the average",
+      "status": "passed",
+      "durationMs": 249,
+      "at": "2026-11-05T09:19:55.737Z",
+      "requests": [
+        {
+          "id": "aeb96c96-cf6f-4606-8e7b-99cc2f58196a",
+          "method": "GET",
+          "path": "/contractors/decae494-9588-4c0f-853a-0a6230a1e6bf/scorecard",
+          "status": 200,
+          "at": "2026-11-05T09:19:55.586Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-scorecard.test.ts",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) the scorecard (CTR-23) lists the contractors that hold a contract the caller reads, by the permission of the scorecard alone: one who reads over another project sees the contractors of that project, a guest and a stranger see none",
+      "status": "passed",
+      "durationMs": 49,
+      "at": "2026-11-05T09:19:55.786Z",
+      "requests": [
+        {
+          "id": "d4eed21c-3230-4797-814b-64aafd055d72",
+          "method": "GET",
+          "path": "/contractor-scorecards",
+          "status": 200,
+          "at": "2026-11-05T09:19:55.737Z"
+        },
+        {
+          "id": "fa189044-3cb1-4400-ae72-0223048e0cdc",
+          "method": "GET",
+          "path": "/contractor-scorecards",
+          "status": 200,
+          "at": "2026-11-05T09:19:55.754Z"
+        },
+        {
+          "id": "7c0fcbd2-b364-4fc8-b2e0-3f758efe6163",
+          "method": "GET",
+          "path": "/contractor-scorecards",
+          "status": 403,
+          "at": "2026-11-05T09:19:55.758Z"
+        },
+        {
+          "id": "1126386b-142a-41cd-ac30-8aaeef745148",
+          "method": "GET",
+          "path": "/contractor-scorecards",
+          "status": 403,
+          "at": "2026-11-05T09:19:55.772Z"
+        },
+        {
+          "id": "835c9b49-2e53-4799-b412-c00a44b99112",
+          "method": "GET",
+          "path": "/contractor-scorecards",
+          "status": 200,
+          "at": "2026-11-05T09:19:55.774Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-scorecard.test.ts",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) the scorecard (CTR-23) limits the evaluations by the day they were made and the violations by the day they happened",
+      "status": "passed",
+      "durationMs": 79,
+      "at": "2026-11-05T09:19:55.865Z",
+      "requests": [
+        {
+          "id": "2343a04d-da6b-4022-9c36-d08e848b1dc5",
+          "method": "GET",
+          "path": "/contractors/decae494-9588-4c0f-853a-0a6230a1e6bf/scorecard",
+          "status": 200,
+          "at": "2026-11-05T09:19:55.787Z"
+        },
+        {
+          "id": "b2a61490-97ed-444e-997f-99b4ab03ffa1",
+          "method": "GET",
+          "path": "/contractors/decae494-9588-4c0f-853a-0a6230a1e6bf/scorecard",
+          "status": 200,
+          "at": "2026-11-05T09:19:55.809Z"
+        },
+        {
+          "id": "d0f138a6-ddda-477d-b757-dc465684c05a",
+          "method": "GET",
+          "path": "/contractors/decae494-9588-4c0f-853a-0a6230a1e6bf/scorecard",
+          "status": 200,
+          "at": "2026-11-05T09:19:55.826Z"
+        },
+        {
+          "id": "ec40f41a-3fa4-4b4c-93c9-441c284aa71a",
+          "method": "GET",
+          "path": "/contractors/decae494-9588-4c0f-853a-0a6230a1e6bf/scorecard",
+          "status": 422,
+          "at": "2026-11-05T09:19:55.839Z"
+        },
+        {
+          "id": "a05725a7-d2da-425c-bbe5-8e8b16b7ccde",
+          "method": "GET",
+          "path": "/contractors/decae494-9588-4c0f-853a-0a6230a1e6bf/scorecard",
+          "status": 422,
+          "at": "2026-11-05T09:19:55.842Z"
+        },
+        {
+          "id": "24df6ab0-aa9e-4e6b-b7b1-e44fb5d9fd54",
+          "method": "GET",
+          "path": "/contractors/decae494-9588-4c0f-853a-0a6230a1e6bf/scorecard",
+          "status": 422,
+          "at": "2026-11-05T09:19:55.848Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-scorecard.test.ts",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) the scorecard (CTR-23) does not tell who a contractor is to one who reads none of its contracts: it is 404, and the name never leaves",
+      "status": "passed",
+      "durationMs": 182,
+      "at": "2026-11-05T09:19:56.047Z",
+      "requests": [
+        {
+          "id": "912f238e-c788-463a-9d74-c15ace29466a",
+          "method": "GET",
+          "path": "/contractors/fc4b1414-854f-45d2-85c1-4007ef1a0bfe/scorecard",
+          "status": 200,
+          "at": "2026-11-05T09:19:55.991Z"
+        },
+        {
+          "id": "66d86f8f-aa05-41af-895f-da0d91038e97",
+          "method": "GET",
+          "path": "/contractors/fc4b1414-854f-45d2-85c1-4007ef1a0bfe/scorecard",
+          "status": 404,
+          "at": "2026-11-05T09:19:56.017Z"
+        },
+        {
+          "id": "82432962-68d3-4c62-a95e-a2cdcad145fa",
+          "method": "GET",
+          "path": "/contractors/3618aaf7-3320-451f-a0de-2a019e7c23b0/scorecard",
+          "status": 404,
+          "at": "2026-11-05T09:19:56.031Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-scorecard.test.ts",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) the scorecard (CTR-23) shows only the contracts the caller reads, never to a guest contractor, to a stranger, or across tenants",
+      "status": "passed",
+      "durationMs": 100,
+      "at": "2026-11-05T09:19:56.147Z",
+      "requests": [
+        {
+          "id": "6f167a0d-3607-4374-b4d7-44f2c70092f3",
+          "method": "GET",
+          "path": "/contractors/decae494-9588-4c0f-853a-0a6230a1e6bf/scorecard",
+          "status": 403,
+          "at": "2026-11-05T09:19:56.047Z"
+        },
+        {
+          "id": "8e559ef5-dfbd-4cf3-85a3-1d79c8e59e61",
+          "method": "GET",
+          "path": "/contractors/decae494-9588-4c0f-853a-0a6230a1e6bf/scorecard",
+          "status": 403,
+          "at": "2026-11-05T09:19:56.056Z"
+        },
+        {
+          "id": "0de21486-5cd5-4a10-858e-c51f878ca1d2",
+          "method": "GET",
+          "path": "/contractors/decae494-9588-4c0f-853a-0a6230a1e6bf/scorecard",
+          "status": 200,
+          "at": "2026-11-05T09:19:56.073Z"
+        },
+        {
+          "id": "30fccd72-f585-4fb1-b849-cd0a6625672a",
+          "method": "GET",
+          "path": "/contractors/bb6beb4f-03e3-4e06-800c-3a9d584522b5/scorecard",
+          "status": 404,
+          "at": "2026-11-05T09:19:56.097Z"
+        },
+        {
+          "id": "60e53eb2-44c9-4043-b016-778a14ba8e8a",
+          "method": "GET",
+          "path": "/contractors/decae494-9588-4c0f-853a-0a6230a1e6bf/scorecard",
+          "status": 404,
+          "at": "2026-11-05T09:19:56.115Z"
+        },
+        {
+          "id": "e8a78c8c-398d-46dc-af3d-9f7819b7659c",
+          "method": "GET",
+          "path": "/contractors/decae494-9588-4c0f-853a-0a6230a1e6bf/scorecard",
+          "status": 200,
+          "at": "2026-11-05T09:19:56.126Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-scorecard.test.ts",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) what the table keeps does not let what an evaluation says or what a violation says change, and never deletes either",
+      "status": "passed",
+      "durationMs": 305,
+      "at": "2026-11-05T09:19:56.452Z",
+      "requests": [
+        {
+          "id": "5f1b5e80-d28d-4c26-8e67-469812f5b106",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/performance-evaluations",
+          "status": 200,
+          "at": "2026-11-05T09:19:56.147Z"
+        },
+        {
+          "id": "59dd780a-0c86-4352-906f-ef04dd751861",
+          "method": "POST",
+          "path": "/contracts/948f3fc5-6d82-4f8f-8136-6173202f153d/violations",
+          "status": 200,
+          "at": "2026-11-05T09:19:56.250Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-export.test.ts",
+      "name": "the export of the records of the contractors over HTTP (ST-CTR-015, AC-ST-CTR-015-1, AC-ST-CTR-015-2, UAT-AC315, UAT-PLAN-18) is registered in the module of CTR",
+      "status": "passed",
+      "durationMs": 2,
+      "at": "2026-11-05T09:21:04.736Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-export.test.ts",
+      "name": "the export of the records of the contractors over HTTP (ST-CTR-015, AC-ST-CTR-015-1, AC-ST-CTR-015-2, UAT-AC315, UAT-PLAN-18) AC-ST-CTR-015-1 UAT-AC315: a period with nothing in it is 422 EXPORT_EMPTY and makes no batch; the records are not exported before they are approved or confirmed",
+      "status": "passed",
+      "durationMs": 111,
+      "at": "2026-11-05T09:21:04.848Z",
+      "requests": [
+        {
+          "id": "f8d57562-e4ae-4ec6-9487-a97446105cd4",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 422,
+          "at": "2026-11-05T09:21:04.738Z"
+        },
+        {
+          "id": "e9b762fb-ff8f-460c-aedb-e98748f604ef",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 422,
+          "at": "2026-11-05T09:21:04.776Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-export.test.ts",
+      "name": "the export of the records of the contractors over HTTP (ST-CTR-015, AC-ST-CTR-015-1, AC-ST-CTR-015-2, UAT-AC315, UAT-PLAN-18) with an approved evaluation and a confirmed violation in the period AC-ST-CTR-015-1 UAT-AC315: the second run with the same parameters returns the same batch and the same hash, and only the approved and the confirmed rows are in the file",
+      "status": "passed",
+      "durationMs": 300,
+      "at": "2026-11-05T09:21:05.589Z",
+      "requests": [
+        {
+          "id": "a7de312f-0730-4f20-8f3c-48067c970e3f",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:05.289Z"
+        },
+        {
+          "id": "a9ef2130-e010-4f71-a471-d82b2c2a95a1",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:05.332Z"
+        },
+        {
+          "id": "36499b6a-4f1e-45e8-91b4-7d1c8076886b",
+          "method": "GET",
+          "path": "/contractor-exports/d502ed81-a5bd-41a1-9134-5686671db248/download",
+          "status": 200,
+          "at": "2026-11-05T09:21:05.440Z"
+        },
+        {
+          "id": "9b6d4816-3752-4762-b85e-d17b0826dc4c",
+          "method": "GET",
+          "path": "/contractor-exports/files/201732e3be15f7972a5d38754fa741f76bea26ee4a1579db3b30de6f0815b810",
+          "status": 200,
+          "at": "2026-11-05T09:21:05.448Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-export.test.ts",
+      "name": "the export of the records of the contractors over HTTP (ST-CTR-015, AC-ST-CTR-015-1, AC-ST-CTR-015-2, UAT-AC315, UAT-PLAN-18) with an approved evaluation and a confirmed violation in the period keeps the scopes and the formats apart: performance alone, violations alone and JSON are batches of their own, each with its own kind of row",
+      "status": "passed",
+      "durationMs": 124,
+      "at": "2026-11-05T09:21:05.714Z",
+      "requests": [
+        {
+          "id": "afce92fe-5f91-44fe-b19c-c6a13e0ced9c",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:05.590Z"
+        },
+        {
+          "id": "32ba85c1-d776-4e7d-a7a7-f7257737adf6",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:05.606Z"
+        },
+        {
+          "id": "ea8797f1-5258-448d-88fa-4691fb76808c",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:05.623Z"
+        },
+        {
+          "id": "ac4c80b0-b261-492d-a74d-050fe9a00a54",
+          "method": "GET",
+          "path": "/contractor-exports/5b59c1c4-b413-4a8c-9cff-798814356968/download",
+          "status": 200,
+          "at": "2026-11-05T09:21:05.640Z"
+        },
+        {
+          "id": "a5ccf3c0-6dac-4535-8186-1561653c7940",
+          "method": "GET",
+          "path": "/contractor-exports/files/a31d24b448fb4d30af66676d60af299d0af567064aa605b140a4913f3cec1c57",
+          "status": 200,
+          "at": "2026-11-05T09:21:05.663Z"
+        },
+        {
+          "id": "1f34b339-701e-4650-a2f1-e545e05f7af7",
+          "method": "GET",
+          "path": "/contractor-exports/e4a3caa9-8f4b-4530-968f-f20b3d69071e/download",
+          "status": 200,
+          "at": "2026-11-05T09:21:05.674Z"
+        },
+        {
+          "id": "fabfaac9-5efa-42ed-a145-d7f7df22fb28",
+          "method": "GET",
+          "path": "/contractor-exports/files/1a34e162e5cc1089067f050af509a1a94c97ce437d6305e348f195e84c420b89",
+          "status": 200,
+          "at": "2026-11-05T09:21:05.694Z"
+        },
+        {
+          "id": "2e467794-6ad5-44a5-957d-6c279c40fe8d",
+          "method": "GET",
+          "path": "/contractor-exports/5efb98a5-e5d8-4169-912b-9817146ea697/download",
+          "status": 200,
+          "at": "2026-11-05T09:21:05.706Z"
+        },
+        {
+          "id": "761de323-74d7-471f-95a8-84fe83153b99",
+          "method": "GET",
+          "path": "/contractor-exports/files/92922763f80130baa022f75a762888eb47373e585050a9cdeeb29f82ebcf6817",
+          "status": 200,
+          "at": "2026-11-05T09:21:05.712Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-export.test.ts",
+      "name": "the export of the records of the contractors over HTTP (ST-CTR-015, AC-ST-CTR-015-1, AC-ST-CTR-015-2, UAT-AC315, UAT-PLAN-18) with an approved evaluation and a confirmed violation in the period exports only the contracts the caller holds the permission over: one scoped to another project gets that project, a stranger none, and a period that is backwards or too long is refused",
+      "status": "passed",
+      "durationMs": 209,
+      "at": "2026-11-05T09:21:05.923Z",
+      "requests": [
+        {
+          "id": "9c103bd6-74b7-4bd2-92d5-27e789bd6d6c",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:05.715Z"
+        },
+        {
+          "id": "4a54767a-7a1d-48f0-835c-babf46c35387",
+          "method": "GET",
+          "path": "/contractor-exports/93925da4-5d0f-4c30-9ab9-3882bdb17469/download",
+          "status": 200,
+          "at": "2026-11-05T09:21:05.739Z"
+        },
+        {
+          "id": "52a6174c-4c0c-4a08-9899-af2f6ba93de8",
+          "method": "GET",
+          "path": "/contractor-exports/files/8f462a3fb320f92cb470129a27601161350d183a9c198bcd2c2fd8cafda1cdd5",
+          "status": 200,
+          "at": "2026-11-05T09:21:05.757Z"
+        },
+        {
+          "id": "b0095492-2a1f-409e-83a0-fabd337d30a1",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 403,
+          "at": "2026-11-05T09:21:05.809Z"
+        },
+        {
+          "id": "1257c2b3-3383-425d-9049-3d9ee1302b1e",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 422,
+          "at": "2026-11-05T09:21:05.822Z"
+        },
+        {
+          "id": "f524677a-bed5-4ba3-b850-1a76a2bf9b7a",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 422,
+          "at": "2026-11-05T09:21:05.836Z"
+        },
+        {
+          "id": "b0b24cce-9b74-480c-be2a-61012dd135fc",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 422,
+          "at": "2026-11-05T09:21:05.853Z"
+        },
+        {
+          "id": "d8b027ed-3540-42b2-b2c2-45f791c9be35",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 422,
+          "at": "2026-11-05T09:21:05.866Z"
+        },
+        {
+          "id": "664858fb-19dc-4438-857e-9ffb3a1f1f23",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 422,
+          "at": "2026-11-05T09:21:05.883Z"
+        },
+        {
+          "id": "4743c3bc-ba0e-4a38-aa23-98e9640e90f0",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 422,
+          "at": "2026-11-05T09:21:05.898Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-export.test.ts",
+      "name": "the export of the records of the contractors over HTTP (ST-CTR-015, AC-ST-CTR-015-1, AC-ST-CTR-015-2, UAT-AC315, UAT-PLAN-18) with an approved evaluation and a confirmed violation in the period hands a file to its maker and to whoever holds the permission over the whole tenant, never to a caller with a narrower scope, and not across tenants",
+      "status": "passed",
+      "durationMs": 183,
+      "at": "2026-11-05T09:21:06.106Z",
+      "requests": [
+        {
+          "id": "88448924-7f0a-4b04-926f-0e183118c4ce",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:05.924Z"
+        },
+        {
+          "id": "f2b3222f-90ec-473c-bd49-e25bcfe59851",
+          "method": "GET",
+          "path": "/contractor-exports/7a23cd2a-d058-454f-9202-1edfd8f1043e/download",
+          "status": 200,
+          "at": "2026-11-05T09:21:05.940Z"
+        },
+        {
+          "id": "a0c82f4e-edb3-4589-9922-be0e1a768002",
+          "method": "GET",
+          "path": "/contractor-exports/files/1a34e162e5cc1089067f050af509a1a94c97ce437d6305e348f195e84c420b89",
+          "status": 200,
+          "at": "2026-11-05T09:21:05.946Z"
+        },
+        {
+          "id": "7628f880-c695-49a7-96ce-d29308a76efb",
+          "method": "GET",
+          "path": "/contractor-exports/7a23cd2a-d058-454f-9202-1edfd8f1043e/download",
+          "status": 404,
+          "at": "2026-11-05T09:21:05.963Z"
+        },
+        {
+          "id": "8f55e710-0c8b-4b29-b0e2-2ee110df9a00",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:05.980Z"
+        },
+        {
+          "id": "05086a95-e83f-4e63-9766-a67644ca8658",
+          "method": "GET",
+          "path": "/contractor-exports/6ea9b33d-b5da-4aa3-8b91-126f0b746aba/download",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.008Z"
+        },
+        {
+          "id": "9dab75c2-bbc0-47db-b1e2-c7e846496979",
+          "method": "GET",
+          "path": "/contractor-exports/files/c15509ef8fee97fd99064e1273e5c05f4544e0855fd2dd09c36da3c7f98b56df",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.029Z"
+        },
+        {
+          "id": "b810de6a-dd27-4381-938f-8c8e8857ffb4",
+          "method": "GET",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.042Z"
+        },
+        {
+          "id": "5f1d04d8-7bcd-427b-84b9-1a887fe1a5dd",
+          "method": "GET",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.061Z"
+        },
+        {
+          "id": "6b42ebea-10ed-4a57-a709-1240be3f5724",
+          "method": "GET",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.066Z"
+        },
+        {
+          "id": "92090fcd-4924-4e73-b12f-abbda967a40a",
+          "method": "GET",
+          "path": "/contractor-exports/7a23cd2a-d058-454f-9202-1edfd8f1043e/download",
+          "status": 404,
+          "at": "2026-11-05T09:21:06.080Z"
+        },
+        {
+          "id": "84b9c1d8-d97a-40ff-bb95-7a31e51c4dfc",
+          "method": "GET",
+          "path": "/contractor-exports/77c57455-f686-4021-8531-3c9c4d623d45/download",
+          "status": 404,
+          "at": "2026-11-05T09:21:06.091Z"
+        },
+        {
+          "id": "30a9aa3f-db2b-490a-9b5d-747e2c9cb0ce",
+          "method": "GET",
+          "path": "/contractor-exports",
+          "status": 403,
+          "at": "2026-11-05T09:21:06.094Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-export.test.ts",
+      "name": "the export of the records of the contractors over HTTP (ST-CTR-015, AC-ST-CTR-015-1, AC-ST-CTR-015-2, UAT-AC315, UAT-PLAN-18) with an approved evaluation and a confirmed violation in the period gives the batch to everyone who asks for the same records, and writes a receipt only for one who may read the batch: a stranger of another project cannot mark it, a caller over the whole tenant can",
+      "status": "passed",
+      "durationMs": 260,
+      "at": "2026-11-05T09:21:06.365Z",
+      "requests": [
+        {
+          "id": "41e4374a-cf01-4707-95e1-89ae39a5da54",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.107Z"
+        },
+        {
+          "id": "81fa2fc1-5c87-44d1-81f8-af1a655f477c",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.133Z"
+        },
+        {
+          "id": "312f2163-02f9-4292-9dcf-65cfd65ab31d",
+          "method": "GET",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.147Z"
+        },
+        {
+          "id": "8cb702fb-155c-4662-865a-f0ce963eecf2",
+          "method": "GET",
+          "path": "/contractor-exports/060275d1-6674-4b87-ae8b-8cfbd22e23e4/download",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.157Z"
+        },
+        {
+          "id": "9832aea1-a6b7-4807-8aad-2609425e0c87",
+          "method": "GET",
+          "path": "/contractor-exports/files/1636c71290b58c8f627550cbcc463d05b6796e7de94c55dd593972c1a89a1735",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.176Z"
+        },
+        {
+          "id": "a6dbcc2e-486b-4eb1-9e54-7a45b6985597",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.186Z"
+        },
+        {
+          "id": "2f5c8db4-4438-4651-ba77-3a4ef9914ef7",
+          "method": "POST",
+          "path": "/contractor-exports/6377a798-81e6-4d29-b82b-20f716f870e1/mark-submitted",
+          "status": 404,
+          "at": "2026-11-05T09:21:06.215Z"
+        },
+        {
+          "id": "824bc8f9-3343-4b62-ad33-e548bc31c2b3",
+          "method": "POST",
+          "path": "/contractor-exports/060275d1-6674-4b87-ae8b-8cfbd22e23e4/mark-submitted",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.332Z"
+        },
+        {
+          "id": "7d844c77-ea71-440d-9abb-1c459ae616af",
+          "method": "POST",
+          "path": "/contractor-exports/6377a798-81e6-4d29-b82b-20f716f870e1/mark-submitted",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.356Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-export.test.ts",
+      "name": "the export of the records of the contractors over HTTP (ST-CTR-015, AC-ST-CTR-015-1, AC-ST-CTR-015-2, UAT-AC315, UAT-PLAN-18) with an approved evaluation and a confirmed violation in the period revalidates the scope each time: someone who asked for a file of the whole tenant and was narrowed since no longer lists, downloads or marks it",
+      "status": "passed",
+      "durationMs": 207,
+      "at": "2026-11-05T09:21:06.572Z",
+      "requests": [
+        {
+          "id": "b02e533e-9da2-47e8-b939-9b1bf65a1982",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.366Z"
+        },
+        {
+          "id": "4c653127-2c8e-44a5-8cc8-d76b4ff9813b",
+          "method": "GET",
+          "path": "/contractor-exports/611c48ea-2ddc-4d5a-8a88-47d158a66f14/download",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.391Z"
+        },
+        {
+          "id": "1163a91c-2a45-4c67-8492-85102eb53ddb",
+          "method": "GET",
+          "path": "/contractor-exports/files/1a34e162e5cc1089067f050af509a1a94c97ce437d6305e348f195e84c420b89",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.397Z"
+        },
+        {
+          "id": "676a33ca-508f-421f-9453-d00a8cd99e2b",
+          "method": "GET",
+          "path": "/contractor-exports/611c48ea-2ddc-4d5a-8a88-47d158a66f14/download",
+          "status": 404,
+          "at": "2026-11-05T09:21:06.444Z"
+        },
+        {
+          "id": "b92aeed1-d8c5-4b41-a759-f679ff02529c",
+          "method": "GET",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.461Z"
+        },
+        {
+          "id": "a06dfeeb-9ea5-48cf-a544-fbc94b9440c5",
+          "method": "POST",
+          "path": "/contractor-exports/611c48ea-2ddc-4d5a-8a88-47d158a66f14/mark-submitted",
+          "status": 404,
+          "at": "2026-11-05T09:21:06.476Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-export.test.ts",
+      "name": "the export of the records of the contractors over HTTP (ST-CTR-015, AC-ST-CTR-015-1, AC-ST-CTR-015-2, UAT-AC315, UAT-PLAN-18) with an approved evaluation and a confirmed violation in the period stores the file once, named by its hash: the same records asked for again, or by someone else, are one object and no copy is left",
+      "status": "passed",
+      "durationMs": 132,
+      "at": "2026-11-05T09:21:06.704Z",
+      "requests": [
+        {
+          "id": "f80a54bf-22fb-47ce-a2e8-7b5a6de0c0b7",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.573Z"
+        },
+        {
+          "id": "53128329-ab72-4da0-a69f-0605d9e00104",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.598Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-export.test.ts",
+      "name": "the export of the records of the contractors over HTTP (ST-CTR-015, AC-ST-CTR-015-1, AC-ST-CTR-015-2, UAT-AC315, UAT-PLAN-18) with an approved evaluation and a confirmed violation in the period serves the file for a signed link only: a link that was altered, or that names another file, is 401 SIGNATURE_INVALID",
+      "status": "passed",
+      "durationMs": 73,
+      "at": "2026-11-05T09:21:06.777Z",
+      "requests": [
+        {
+          "id": "549a3fc5-f35a-4aed-9be5-92e9fc7e3f25",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.705Z"
+        },
+        {
+          "id": "d687ac4d-2a6f-4399-8745-e039ac8c9537",
+          "method": "GET",
+          "path": "/contractor-exports/d502ed81-a5bd-41a1-9134-5686671db248/download",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.723Z"
+        },
+        {
+          "id": "7f5aa4f6-3e5b-4c84-93b9-bf80293a06cf",
+          "method": "GET",
+          "path": "/contractor-exports/files/201732e3be15f7972a5d38754fa741f76bea26ee4a1579db3b30de6f0815b810",
+          "status": 401,
+          "at": "2026-11-05T09:21:06.733Z"
+        },
+        {
+          "id": "2ec95a95-0bb6-40a0-bc70-73fc178a3193",
+          "method": "GET",
+          "path": "/contractor-exports/files/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "status": 401,
+          "at": "2026-11-05T09:21:06.734Z"
+        },
+        {
+          "id": "7b53dec9-22c9-48b1-a4fb-b6291e15d37b",
+          "method": "GET",
+          "path": "/contractor-exports/files/201732e3be15f7972a5d38754fa741f76bea26ee4a1579db3b30de6f0815b810",
+          "status": 401,
+          "at": "2026-11-05T09:21:06.745Z"
+        },
+        {
+          "id": "7a509f2b-75b8-436f-bf9d-bd4080292fcf",
+          "method": "GET",
+          "path": "/contractor-exports/files/201732e3be15f7972a5d38754fa741f76bea26ee4a1579db3b30de6f0815b810",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.761Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-export.test.ts",
+      "name": "the export of the records of the contractors over HTTP (ST-CTR-015, AC-ST-CTR-015-1, AC-ST-CTR-015-2, UAT-AC315, UAT-PLAN-18) with an approved evaluation and a confirmed violation in the period AC-ST-CTR-015-2 UAT-PLAN-18: writes down the receipt of a submission by hand once, and the list says the adapter is PROPOSED and its API MISSING",
+      "status": "passed",
+      "durationMs": 246,
+      "at": "2026-11-05T09:21:07.023Z",
+      "requests": [
+        {
+          "id": "ab576123-4520-4969-9d2d-4c1473ad4d93",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.778Z"
+        },
+        {
+          "id": "495b05c6-ca84-42df-b492-e893b979f82f",
+          "method": "POST",
+          "path": "/contractor-exports/d502ed81-a5bd-41a1-9134-5686671db248/mark-submitted",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.803Z"
+        },
+        {
+          "id": "3954891e-e2dc-44d3-bda3-4e88ee3a11e6",
+          "method": "POST",
+          "path": "/contractor-exports/d502ed81-a5bd-41a1-9134-5686671db248/mark-submitted",
+          "status": 409,
+          "at": "2026-11-05T09:21:06.857Z"
+        },
+        {
+          "id": "efedae0d-6791-4d5f-9b02-6d40ff2a9538",
+          "method": "GET",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:06.923Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-export.test.ts",
+      "name": "the export of the records of the contractors over HTTP (ST-CTR-015, AC-ST-CTR-015-1, AC-ST-CTR-015-2, UAT-AC315, UAT-PLAN-18) with an approved evaluation and a confirmed violation in the period refuses a receipt that is not one: none, one that is too long, a day to come; one for a batch that is not there or is another tenant's, or by one with no right",
+      "status": "passed",
+      "durationMs": 155,
+      "at": "2026-11-05T09:21:07.178Z",
+      "requests": [
+        {
+          "id": "aed680cd-01a5-4974-ac2a-f18c4346decb",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:07.024Z"
+        },
+        {
+          "id": "627d4924-494e-4d15-866b-433226c73165",
+          "method": "POST",
+          "path": "/contractor-exports/0c8fdb6d-6fb1-41f2-9ccb-96f88f0850f3/mark-submitted",
+          "status": 422,
+          "at": "2026-11-05T09:21:07.042Z"
+        },
+        {
+          "id": "f43929f0-f942-4ba7-a8b6-b0bdfa114fbb",
+          "method": "POST",
+          "path": "/contractor-exports/0c8fdb6d-6fb1-41f2-9ccb-96f88f0850f3/mark-submitted",
+          "status": 422,
+          "at": "2026-11-05T09:21:07.052Z"
+        },
+        {
+          "id": "b208aad3-c952-41ae-aa9a-39bb1e545cec",
+          "method": "POST",
+          "path": "/contractor-exports/0c8fdb6d-6fb1-41f2-9ccb-96f88f0850f3/mark-submitted",
+          "status": 422,
+          "at": "2026-11-05T09:21:07.069Z"
+        },
+        {
+          "id": "2a0c9a2a-a16c-4bc5-adfe-535a83aa0451",
+          "method": "POST",
+          "path": "/contractor-exports/0c8fdb6d-6fb1-41f2-9ccb-96f88f0850f3/mark-submitted",
+          "status": 422,
+          "at": "2026-11-05T09:21:07.085Z"
+        },
+        {
+          "id": "243e72e9-4728-47ff-b54a-c6273dd3ad46",
+          "method": "POST",
+          "path": "/contractor-exports/8a2b4867-ebd8-4ab9-9cbd-cae0692d3155/mark-submitted",
+          "status": 404,
+          "at": "2026-11-05T09:21:07.139Z"
+        },
+        {
+          "id": "97fec406-28d5-42ef-906f-15f7386ac6c2",
+          "method": "POST",
+          "path": "/contractor-exports/0c8fdb6d-6fb1-41f2-9ccb-96f88f0850f3/mark-submitted",
+          "status": 404,
+          "at": "2026-11-05T09:21:07.149Z"
+        },
+        {
+          "id": "01e4dcb7-5063-444f-bf1e-46cfd8dda91c",
+          "method": "POST",
+          "path": "/contractor-exports/0c8fdb6d-6fb1-41f2-9ccb-96f88f0850f3/mark-submitted",
+          "status": 403,
+          "at": "2026-11-05T09:21:07.165Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contractor-export.test.ts",
+      "name": "the export of the records of the contractors over HTTP (ST-CTR-015, AC-ST-CTR-015-1, AC-ST-CTR-015-2, UAT-AC315, UAT-PLAN-18) with an approved evaluation and a confirmed violation in the period does not let a batch change, or a receipt change, or either be deleted",
+      "status": "passed",
+      "durationMs": 224,
+      "at": "2026-11-05T09:21:07.403Z",
+      "requests": [
+        {
+          "id": "e45621d6-467d-40a5-8945-544f9e22f9a2",
+          "method": "POST",
+          "path": "/contractor-exports",
+          "status": 200,
+          "at": "2026-11-05T09:21:07.179Z"
+        },
+        {
+          "id": "13a04689-98c4-4f2a-aed1-f27d053759d8",
+          "method": "POST",
+          "path": "/contractor-exports/323b9c3c-c34b-4458-a944-02ef24d0d8f3/mark-submitted",
+          "status": 200,
+          "at": "2026-11-05T09:21:07.295Z"
+        }
+      ]
+    }
+  ]
+}

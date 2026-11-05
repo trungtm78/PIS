@@ -1,0 +1,512 @@
+{
+  "id": "TH04",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) the volumes, the registration for next month, the narrative and the files (ST-DIS-004) the files (AC-ST-DIS-004-4, TH04) takes a clean file through the upload door and shows what it kept, and leaves a trail of the hash and the size, never the name",
+      "status": "passed",
+      "durationMs": 67,
+      "at": "2026-11-05T09:16:06.061Z",
+      "requests": [
+        {
+          "id": "cce20e73-b2e5-49f6-8687-68690370e8aa",
+          "method": "POST",
+          "path": "/report-files",
+          "status": 200,
+          "at": "2026-11-05T09:16:05.995Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) the volumes, the registration for next month, the narrative and the files (ST-DIS-004) the files (AC-ST-DIS-004-4, TH04) refuses an infected file (422 FILE_NOT_CLEAN), a file that is not what it says (422 FILE_TYPE_NOT_ALLOWED) and one that is too large (413), and keeps none of them",
+      "status": "passed",
+      "durationMs": 156,
+      "at": "2026-11-05T09:16:06.218Z",
+      "requests": [
+        {
+          "id": "4dac4fa1-e273-4de2-b92a-05be2fecc81e",
+          "method": "POST",
+          "path": "/report-files",
+          "status": 422,
+          "at": "2026-11-05T09:16:06.062Z"
+        },
+        {
+          "id": "aebdb0da-2be1-4497-89c3-00411f60d7d1",
+          "method": "POST",
+          "path": "/report-files",
+          "status": 422,
+          "at": "2026-11-05T09:16:06.076Z"
+        },
+        {
+          "id": "20d03aa1-f21d-4a0c-b8d2-9c5a7d5d774b",
+          "method": "POST",
+          "path": "/report-files",
+          "status": 422,
+          "at": "2026-11-05T09:16:06.085Z"
+        },
+        {
+          "id": "7a8cff74-0245-4920-a9ae-a95bb91e1c0b",
+          "method": "POST",
+          "path": "/report-files",
+          "status": 413,
+          "at": "2026-11-05T09:16:06.101Z"
+        },
+        {
+          "id": "18a8b9fc-a61d-4c39-82b8-ef55cc70db1d",
+          "method": "POST",
+          "path": "/report-files",
+          "status": 400,
+          "at": "2026-11-05T09:16:06.206Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) the volumes, the registration for next month, the narrative and the files (ST-DIS-004) the files (AC-ST-DIS-004-4, TH04) is for the maker: a reader and a person with no right are refused (403)",
+      "status": "passed",
+      "durationMs": 33,
+      "at": "2026-11-05T09:16:06.250Z",
+      "requests": [
+        {
+          "id": "4bc7eeff-c0f1-4aa7-8a96-bf1427767b7f",
+          "method": "POST",
+          "path": "/report-files",
+          "status": 403,
+          "at": "2026-11-05T09:16:06.218Z"
+        },
+        {
+          "id": "0db67724-a5c9-4ad2-bbd9-5d47cd074783",
+          "method": "POST",
+          "path": "/report-files",
+          "status": 403,
+          "at": "2026-11-05T09:16:06.234Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) the volumes, the registration for next month, the narrative and the files (ST-DIS-004) the files (AC-ST-DIS-004-4, TH04) attaches the files a person names as the whole list, in order, and keeps them when a save does not name them",
+      "status": "passed",
+      "durationMs": 372,
+      "at": "2026-11-05T09:16:06.623Z",
+      "requests": [
+        {
+          "id": "2380879f-9b3a-481f-89b3-4304c8667564",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.296Z"
+        },
+        {
+          "id": "233d18de-cd0a-467e-a257-f46b360a347d",
+          "method": "POST",
+          "path": "/report-files",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.325Z"
+        },
+        {
+          "id": "7973801f-bf4f-4884-aff4-69f7ec15ffdc",
+          "method": "POST",
+          "path": "/report-files",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.337Z"
+        },
+        {
+          "id": "b89184ce-f70f-4b9c-80cd-6592f6306ad4",
+          "method": "POST",
+          "path": "/reports/c504f5df-39c0-4b58-95d7-18321cbf3f91/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.349Z"
+        },
+        {
+          "id": "fab51588-073b-474a-a924-4deb719cdfc0",
+          "method": "GET",
+          "path": "/reports/c504f5df-39c0-4b58-95d7-18321cbf3f91",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.379Z"
+        },
+        {
+          "id": "0eeb6131-04c4-4b6c-b2d9-a5284473c71d",
+          "method": "GET",
+          "path": "/reports/c504f5df-39c0-4b58-95d7-18321cbf3f91",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.400Z"
+        },
+        {
+          "id": "1d8f8951-abf5-4e81-8870-aaf77e19fcaf",
+          "method": "POST",
+          "path": "/reports/c504f5df-39c0-4b58-95d7-18321cbf3f91/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.417Z"
+        },
+        {
+          "id": "ad7839ce-8826-4d3c-87d3-2f94b9d2d6af",
+          "method": "GET",
+          "path": "/reports/c504f5df-39c0-4b58-95d7-18321cbf3f91",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.438Z"
+        },
+        {
+          "id": "0985829c-e96c-4f09-a0e1-f72c2bbbb270",
+          "method": "POST",
+          "path": "/reports/c504f5df-39c0-4b58-95d7-18321cbf3f91/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.463Z"
+        },
+        {
+          "id": "2c6c298f-4f6b-4342-8672-b08609717328",
+          "method": "GET",
+          "path": "/reports/c504f5df-39c0-4b58-95d7-18321cbf3f91",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.485Z"
+        },
+        {
+          "id": "12014296-90cb-440c-9399-947b568b57e8",
+          "method": "POST",
+          "path": "/reports/c504f5df-39c0-4b58-95d7-18321cbf3f91/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.566Z"
+        },
+        {
+          "id": "431a0e95-628d-4c8e-86ca-87c0d7e68d6e",
+          "method": "GET",
+          "path": "/reports/c504f5df-39c0-4b58-95d7-18321cbf3f91",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.596Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) the volumes, the registration for next month, the narrative and the files (ST-DIS-004) the files (AC-ST-DIS-004-4, TH04) does not link a file with another hash (422 HASH_MISMATCH), one that does not exist or belongs to another tenant (422), one that is infected (422 FILE_NOT_CLEAN) or not yet scanned (409 SCAN_PENDING)",
+      "status": "passed",
+      "durationMs": 233,
+      "at": "2026-11-05T09:16:06.855Z",
+      "requests": [
+        {
+          "id": "3c05a61a-a84e-416a-b434-6d6f0b4d3bf6",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.665Z"
+        },
+        {
+          "id": "82e38553-f9fa-49c2-8cd9-63b0dc601080",
+          "method": "POST",
+          "path": "/report-files",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.692Z"
+        },
+        {
+          "id": "859dcc1c-ff24-4d9d-b546-ad18cd9ce226",
+          "method": "POST",
+          "path": "/reports/6da05ad8-08a4-4b29-ba51-d9e37f6c10d0/revisions",
+          "status": 422,
+          "at": "2026-11-05T09:16:06.702Z"
+        },
+        {
+          "id": "5372f3be-964d-49c7-aebf-bac372edb9d8",
+          "method": "POST",
+          "path": "/reports/6da05ad8-08a4-4b29-ba51-d9e37f6c10d0/revisions",
+          "status": 422,
+          "at": "2026-11-05T09:16:06.719Z"
+        },
+        {
+          "id": "906f1926-b946-4956-8003-65f88e4dfb74",
+          "method": "POST",
+          "path": "/report-files",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.737Z"
+        },
+        {
+          "id": "89ff2bcd-1b72-4669-a01f-07cdd836f13b",
+          "method": "POST",
+          "path": "/reports/6da05ad8-08a4-4b29-ba51-d9e37f6c10d0/revisions",
+          "status": 422,
+          "at": "2026-11-05T09:16:06.752Z"
+        },
+        {
+          "id": "2a2375b1-176a-489d-b9bf-9cdfdc503abb",
+          "method": "POST",
+          "path": "/reports/6da05ad8-08a4-4b29-ba51-d9e37f6c10d0/revisions",
+          "status": 422,
+          "at": "2026-11-05T09:16:06.770Z"
+        },
+        {
+          "id": "0a43d085-88a1-40ef-a1aa-58c27cfc8935",
+          "method": "POST",
+          "path": "/reports/6da05ad8-08a4-4b29-ba51-d9e37f6c10d0/revisions",
+          "status": 409,
+          "at": "2026-11-05T09:16:06.783Z"
+        },
+        {
+          "id": "fb3e28a4-17fd-4b9e-af0c-891ae4df838c",
+          "method": "GET",
+          "path": "/reports/6da05ad8-08a4-4b29-ba51-d9e37f6c10d0",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.800Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) the volumes, the registration for next month, the narrative and the files (ST-DIS-004) the files (AC-ST-DIS-004-4, TH04) refuses a list of more than 20 files, a file named twice, a name that is a path and a hash that is not one, naming the field",
+      "status": "passed",
+      "durationMs": 145,
+      "at": "2026-11-05T09:16:07.000Z",
+      "requests": [
+        {
+          "id": "35ad9bca-67b4-402d-899a-f2548676f44a",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.902Z"
+        },
+        {
+          "id": "65afb536-5b57-4bee-a0db-fdac937ea37b",
+          "method": "POST",
+          "path": "/report-files",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.930Z"
+        },
+        {
+          "id": "4d0cfe35-7e48-4fb7-9023-50bfcaf11e13",
+          "method": "POST",
+          "path": "/reports/27f2e307-a256-43ba-ade5-90e6a2c1ffaf/revisions",
+          "status": 422,
+          "at": "2026-11-05T09:16:06.944Z"
+        },
+        {
+          "id": "305f288a-d7a4-4c3c-9f0a-bd9f2106b0e9",
+          "method": "POST",
+          "path": "/reports/27f2e307-a256-43ba-ade5-90e6a2c1ffaf/revisions",
+          "status": 422,
+          "at": "2026-11-05T09:16:06.953Z"
+        },
+        {
+          "id": "de7168f4-a267-42c0-8c77-87f4bb365e30",
+          "method": "POST",
+          "path": "/reports/27f2e307-a256-43ba-ade5-90e6a2c1ffaf/revisions",
+          "status": 422,
+          "at": "2026-11-05T09:16:06.972Z"
+        },
+        {
+          "id": "57c474b1-f1b4-4401-a2d2-18c88f15fa50",
+          "method": "POST",
+          "path": "/reports/27f2e307-a256-43ba-ade5-90e6a2c1ffaf/revisions",
+          "status": 422,
+          "at": "2026-11-05T09:16:06.987Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) the volumes, the registration for next month, the narrative and the files (ST-DIS-004) the files (AC-ST-DIS-004-4, TH04) answers a client operation sent again with the same volumes and files with the first report, and one with other volumes as a mistake of the client",
+      "status": "passed",
+      "durationMs": 135,
+      "at": "2026-11-05T09:16:07.136Z",
+      "requests": [
+        {
+          "id": "43ac8047-c1a8-46a1-8453-fea6ff218981",
+          "method": "POST",
+          "path": "/report-files",
+          "status": 200,
+          "at": "2026-11-05T09:16:07.044Z"
+        },
+        {
+          "id": "78c213e9-bd59-41b4-bac3-49419ff23091",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:07.059Z"
+        },
+        {
+          "id": "10e61fe0-7557-4727-b674-c8ab36f79b02",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:07.082Z"
+        },
+        {
+          "id": "52342632-a4a2-42e5-9abb-678531b1c107",
+          "method": "POST",
+          "path": "/reports",
+          "status": 409,
+          "at": "2026-11-05T09:16:07.101Z"
+        },
+        {
+          "id": "579b1536-a6a3-4e3d-8106-3c5b91cee17c",
+          "method": "GET",
+          "path": "/reports/4c489537-3e7d-4c8b-9496-ae405d1f580b",
+          "status": 200,
+          "at": "2026-11-05T09:16:07.109Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/theme.test.ts",
+      "name": "tenant themes over HTTP (ST-SAS-005) logo upload refuses an SVG renamed png, a 1.5 MB image, a renamed executable and a declared SVG, and keeps no asset (TH04) (AC-ST-SAS-005-4)",
+      "status": "passed",
+      "durationMs": 365,
+      "at": "2026-11-05T09:16:38.903Z",
+      "requests": [
+        {
+          "id": "5e35056e-f74c-4edb-a3a3-f1d7548f696a",
+          "method": "POST",
+          "path": "/system/tenants/a1c0c650-ad11-4b02-a1a4-1f5c171bbd34/theme/assets",
+          "status": 422,
+          "at": "2026-11-05T09:16:38.715Z"
+        },
+        {
+          "id": "56baa642-732f-41e5-9f04-0b7bbe724f13",
+          "method": "POST",
+          "path": "/system/tenants/a1c0c650-ad11-4b02-a1a4-1f5c171bbd34/theme/assets",
+          "status": 422,
+          "at": "2026-11-05T09:16:38.728Z"
+        },
+        {
+          "id": "d3887743-ef23-4b8a-a407-0b549e3cdfd4",
+          "method": "POST",
+          "path": "/system/tenants/a1c0c650-ad11-4b02-a1a4-1f5c171bbd34/theme/assets",
+          "status": 422,
+          "at": "2026-11-05T09:16:38.745Z"
+        },
+        {
+          "id": "e80f3271-f092-4785-b65e-dd6e587e1cb2",
+          "method": "POST",
+          "path": "/system/tenants/a1c0c650-ad11-4b02-a1a4-1f5c171bbd34/theme/assets",
+          "status": 422,
+          "at": "2026-11-05T09:16:38.761Z"
+        },
+        {
+          "id": "182b27b0-3f24-4fc7-a0fa-32090dc5f436",
+          "method": "POST",
+          "path": "/system/tenants/a1c0c650-ad11-4b02-a1a4-1f5c171bbd34/theme/assets",
+          "status": 422,
+          "at": "2026-11-05T09:16:38.775Z"
+        },
+        {
+          "id": "6a4ff016-f1ca-43d0-86e6-e93117d48b11",
+          "method": "POST",
+          "path": "/system/tenants/a1c0c650-ad11-4b02-a1a4-1f5c171bbd34/theme/assets",
+          "status": 413,
+          "at": "2026-11-05T09:16:38.792Z"
+        },
+        {
+          "id": "38e328e0-7413-4720-a7da-8efacee37105",
+          "method": "POST",
+          "path": "/system/tenants/a1c0c650-ad11-4b02-a1a4-1f5c171bbd34/theme/assets",
+          "status": 413,
+          "at": "2026-11-05T09:16:38.806Z"
+        },
+        {
+          "id": "d19c4830-b6bc-49ac-b7d8-890a245e3170",
+          "method": "POST",
+          "path": "/system/tenants/a1c0c650-ad11-4b02-a1a4-1f5c171bbd34/theme/assets",
+          "status": 422,
+          "at": "2026-11-05T09:16:38.815Z"
+        },
+        {
+          "id": "4dc0b430-2353-4f81-ba92-e160fc03d5a9",
+          "method": "POST",
+          "path": "/system/tenants/a1c0c650-ad11-4b02-a1a4-1f5c171bbd34/theme/assets",
+          "status": 200,
+          "at": "2026-11-05T09:16:38.874Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/dis-report-steps-flows.spec.ts",
+      "name": "the review tells the volume of 203.8% as a warning that does not block, writes the notes and attaches a clean file, and refuses an infected file and one that is not what it says (AC-ST-DIS-004-2, AC-ST-DIS-004-4, TH04)",
+      "status": "passed",
+      "durationMs": 1109,
+      "at": "2026-11-05T08:46:45.869Z",
+      "requests": [
+        {
+          "id": "55b8d3c4-604d-4dab-8478-1699f9414b61",
+          "method": "GET",
+          "path": "/reports/e4124cdb-4d18-489b-b3c7-75148108d982",
+          "status": 200,
+          "at": "2026-11-05T08:46:46.289Z"
+        },
+        {
+          "id": "a084d47f-7c56-4430-b7c4-a2ab2367fe23",
+          "method": "POST",
+          "path": "/reports/e4124cdb-4d18-489b-b3c7-75148108d982/revisions",
+          "status": 200,
+          "at": "2026-11-05T08:46:46.431Z"
+        },
+        {
+          "id": "21bbe161-957d-4284-acec-79ef8ff7c935",
+          "method": "GET",
+          "path": "/reports/e4124cdb-4d18-489b-b3c7-75148108d982",
+          "status": 200,
+          "at": "2026-11-05T08:46:46.452Z"
+        },
+        {
+          "id": "b9adf5ec-a6b2-4ad8-a5e9-c4f9216ea7dd",
+          "method": "POST",
+          "path": "/report-files",
+          "status": 200,
+          "at": "2026-11-05T08:46:46.570Z"
+        },
+        {
+          "id": "8de2eeaf-2936-47e1-bdd6-ade9cdb94fc3",
+          "method": "POST",
+          "path": "/reports/e4124cdb-4d18-489b-b3c7-75148108d982/revisions",
+          "status": 200,
+          "at": "2026-11-05T08:46:46.590Z"
+        },
+        {
+          "id": "1d1b2568-d146-41f6-b730-1366b15158d6",
+          "method": "GET",
+          "path": "/reports/e4124cdb-4d18-489b-b3c7-75148108d982",
+          "status": 200,
+          "at": "2026-11-05T08:46:46.607Z"
+        },
+        {
+          "id": "8ab8ad7b-75c7-4262-8b4c-998ad9a0c66f",
+          "method": "POST",
+          "path": "/report-files",
+          "status": 422,
+          "at": "2026-11-05T08:46:46.740Z"
+        },
+        {
+          "id": "4ab4f0d3-57f6-45be-83fb-ee7a8845ab2b",
+          "method": "POST",
+          "path": "/report-files",
+          "status": 422,
+          "at": "2026-11-05T08:46:46.781Z"
+        },
+        {
+          "id": "15c36afa-d0be-41c7-91cf-3c4e35493262",
+          "method": "POST",
+          "path": "/reports/e4124cdb-4d18-489b-b3c7-75148108d982/revisions",
+          "status": 200,
+          "at": "2026-11-05T08:46:46.891Z"
+        },
+        {
+          "id": "955a4382-7978-4396-84ab-156c03b9f2ec",
+          "method": "GET",
+          "path": "/reports/e4124cdb-4d18-489b-b3c7-75148108d982",
+          "status": 200,
+          "at": "2026-11-05T08:46:46.909Z"
+        }
+      ]
+    }
+  ]
+}

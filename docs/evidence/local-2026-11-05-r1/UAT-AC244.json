@@ -1,0 +1,63 @@
+{
+  "id": "UAT-AC244",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/snapshot.test.ts",
+      "name": "the period snapshot over HTTP (ST-DIS-009) buildPeriodSnapshot AC-ST-DIS-009-1 / UAT-AC244: builds the lines from the accepted report, the plan in force and the Treasury net of its refund, with the two rates and the formulas it was made with, and freezes nothing",
+      "status": "passed",
+      "durationMs": 290,
+      "at": "2026-11-05T09:10:28.044Z",
+      "requests": [
+        {
+          "id": "8b270cfb-146d-4918-907d-c475af02e16a",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:10:27.855Z"
+        },
+        {
+          "id": "ae7f0351-016c-461c-a70e-8b7935edf9e4",
+          "method": "POST",
+          "path": "/reports/3eb00110-0872-400a-9ffa-9b4016603afd/submit",
+          "status": 200,
+          "at": "2026-11-05T09:10:27.910Z"
+        },
+        {
+          "id": "7bdef55f-6813-4df7-9302-df1a71371a1c",
+          "method": "POST",
+          "path": "/reports/3eb00110-0872-400a-9ffa-9b4016603afd/decision",
+          "status": 200,
+          "at": "2026-11-05T09:10:27.938Z"
+        },
+        {
+          "id": "bd79641c-34e2-43d9-b0b5-dfda7e1fcb86",
+          "method": "POST",
+          "path": "/period-snapshots",
+          "status": 200,
+          "at": "2026-11-05T09:10:28.001Z"
+        },
+        {
+          "id": "8b86daa6-69a8-4da8-b596-2a7ba47152dd",
+          "method": "GET",
+          "path": "/period-snapshots/c106cb09-dfc9-427a-b293-f77d0d2c8ba7/lines",
+          "status": 200,
+          "at": "2026-11-05T09:10:28.032Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/golden.test.ts",
+      "name": "[CHỜ KÝ D03] golden fixtures FX-DIS-001..007 (ST-DIS-011) [CHỜ KÝ D03] FX-DIS-005 / UAT-AC244: the payment of the cutoff day counts and the one of the day after does not",
+      "status": "passed",
+      "durationMs": 1,
+      "at": "2026-11-05T09:24:00.405Z",
+      "requests": []
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "id": "SEC01",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/uat/isolation-api.uat.spec.ts",
+      "name": "TC-SEC01: tenant A reaching for the ids of tenant B through detail, search, export and file gets 403 or 404, no metadata, no count, no file, no side effect",
+      "status": "passed",
+      "durationMs": 17,
+      "at": "2026-11-05T08:56:00.556Z",
+      "requests": [
+        {
+          "id": "cd93c684-b37b-4d0e-a0c2-91c285f63479",
+          "method": "GET",
+          "path": "/search",
+          "status": 200,
+          "at": "2026-11-05T08:56:00.565Z"
+        },
+        {
+          "id": "8ca77ef6-dc08-4980-8c19-0365632d1be4",
+          "method": "GET",
+          "path": "/bi/exports",
+          "status": 200,
+          "at": "2026-11-05T08:56:00.570Z"
+        }
+      ]
+    }
+  ]
+}

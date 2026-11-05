@@ -1,0 +1,18 @@
+{
+  "id": "UAT-NFR-PRIVACY-02",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/push.test.ts",
+      "name": "the push channels (ST-NOT-007, NOT 9) a push to the devices of the recipient AC-ST-NOT-007-2, AC-ST-KERNEL-061-1 (payload clause) UAT-AC28, UAT-NFR-PRIVACY-02: the provider receives a neutral sentence and an opaque link, nothing of the event, and a figure in the event reaches no lock screen",
+      "status": "passed",
+      "durationMs": 193,
+      "at": "2026-11-05T09:21:39.068Z",
+      "requests": []
+    }
+  ]
+}

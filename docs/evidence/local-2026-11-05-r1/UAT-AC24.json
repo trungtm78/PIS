@@ -1,0 +1,47 @@
+{
+  "id": "UAT-AC24",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/omni/conversation-messages.test.ts",
+      "name": "what an agent says in a conversation (ST-OMNI-005, OMNI-02, OMNI.md 3.3) the checks of a message to the person AC-ST-OMNI-005-2 UAT-AC24: an account of another tenant is 422 CHANNEL_ACCOUNT_MISMATCH, a disabled account is 422 CHANNEL_UNVERIFIED, and the right account is 202 with one adapter call",
+      "status": "passed",
+      "durationMs": 1080,
+      "at": "2026-11-05T09:12:30.894Z",
+      "requests": [
+        {
+          "id": "541a8c75-e670-4835-89a3-94b244b1d2fa",
+          "method": "POST",
+          "path": "/conversations/c14d2d5c-e9be-4391-81f7-674cb9048e6a/messages",
+          "status": 422,
+          "at": "2026-11-05T09:12:30.095Z"
+        },
+        {
+          "id": "169f0527-dace-4236-addc-dc81e7abc54d",
+          "method": "POST",
+          "path": "/conversations/c14d2d5c-e9be-4391-81f7-674cb9048e6a/messages",
+          "status": 422,
+          "at": "2026-11-05T09:12:30.206Z"
+        },
+        {
+          "id": "2dd8c5b2-3058-4afc-be5a-6f11be033cd3",
+          "method": "POST",
+          "path": "/conversations/372c7abe-fe5d-47f8-b999-b6a952279c29/messages",
+          "status": 422,
+          "at": "2026-11-05T09:12:30.658Z"
+        },
+        {
+          "id": "87f06dbd-c8e7-4f5a-b064-9129707456df",
+          "method": "POST",
+          "path": "/conversations/c14d2d5c-e9be-4391-81f7-674cb9048e6a/messages",
+          "status": 202,
+          "at": "2026-11-05T09:12:30.756Z"
+        }
+      ]
+    }
+  ]
+}

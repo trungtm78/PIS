@@ -1,0 +1,117 @@
+{
+  "id": "UI-PAY-13",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/pay-flows.spec.ts",
+      "name": "the accountant imports a statement, reads what became of every row, and the same file again changes nothing (AC-ST-PAY-006-1, AC-ST-PAY-006-2, AC-ST-PAY-006-4, UI-PAY-13)",
+      "status": "passed",
+      "durationMs": 2370,
+      "at": "2026-11-05T08:49:39.763Z",
+      "requests": [
+        {
+          "id": "52a78064-ed31-4eed-8798-d12de5aa0b95",
+          "method": "GET",
+          "path": "/treasury-imports",
+          "status": 200,
+          "at": "2026-11-05T08:49:40.231Z"
+        },
+        {
+          "id": "91308cab-b961-4f9d-ad98-12446ccfabff",
+          "method": "POST",
+          "path": "/treasury-imports/files",
+          "status": 200,
+          "at": "2026-11-05T08:49:40.372Z"
+        },
+        {
+          "id": "82af94a2-f9f7-44ab-bd6a-f7122dc9fc9d",
+          "method": "POST",
+          "path": "/treasury-imports",
+          "status": 200,
+          "at": "2026-11-05T08:49:40.505Z"
+        },
+        {
+          "id": "0dd34d07-04f2-4207-b361-fcc434cbcc75",
+          "method": "GET",
+          "path": "/treasury-imports",
+          "status": 200,
+          "at": "2026-11-05T08:49:40.539Z"
+        },
+        {
+          "id": "62a04540-3001-452c-92fc-998df024f14e",
+          "method": "GET",
+          "path": "/treasury-imports/61a119b0-59ff-4b80-99eb-4894fa8cad0e",
+          "status": 200,
+          "at": "2026-11-05T08:49:40.563Z"
+        },
+        {
+          "id": "f640613e-e5ed-48d7-8d96-1d6e5fbca1b5",
+          "method": "POST",
+          "path": "/treasury-imports/files",
+          "status": 200,
+          "at": "2026-11-05T08:49:40.902Z"
+        },
+        {
+          "id": "75317b91-86df-46e0-9259-6104f58d77ba",
+          "method": "POST",
+          "path": "/treasury-imports",
+          "status": 200,
+          "at": "2026-11-05T08:49:40.987Z"
+        },
+        {
+          "id": "4307e325-0551-4faf-a50f-e18fea79f025",
+          "method": "GET",
+          "path": "/treasury-imports",
+          "status": 200,
+          "at": "2026-11-05T08:49:41.023Z"
+        },
+        {
+          "id": "f196f67f-9fe8-4140-a869-95f7c0e87e2d",
+          "method": "GET",
+          "path": "/treasury-imports/61a119b0-59ff-4b80-99eb-4894fa8cad0e",
+          "status": 200,
+          "at": "2026-11-05T08:49:41.024Z"
+        },
+        {
+          "id": "853f323c-de7f-47c9-bf10-c25bb1168e44",
+          "method": "GET",
+          "path": "/treasury-imports/ccdfcb76-3913-41b8-8679-d7a9878223e6",
+          "status": 200,
+          "at": "2026-11-05T08:49:41.048Z"
+        },
+        {
+          "id": "e595a26b-9832-41a8-99a6-83aab5877e11",
+          "method": "POST",
+          "path": "/treasury-imports/files",
+          "status": 200,
+          "at": "2026-11-05T08:49:41.878Z"
+        },
+        {
+          "id": "c3372acc-3e88-412b-bc53-968df2d2cb42",
+          "method": "POST",
+          "path": "/treasury-imports",
+          "status": 200,
+          "at": "2026-11-05T08:49:41.971Z"
+        },
+        {
+          "id": "77902150-c24f-4c86-ac4c-6175d18cfeee",
+          "method": "GET",
+          "path": "/treasury-imports",
+          "status": 200,
+          "at": "2026-11-05T08:49:41.987Z"
+        },
+        {
+          "id": "0b511bf5-ba23-49b9-8819-551ddd346362",
+          "method": "GET",
+          "path": "/treasury-imports/ccdfcb76-3913-41b8-8679-d7a9878223e6",
+          "status": 304,
+          "at": "2026-11-05T08:49:41.988Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "id": "UAT-AC299",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mne/mne-obligations.test.ts",
+      "name": "obligation rules and the filing calendar API (ST-MNE-001, MNE F1, F2) rules: maker and checker, effectivity UAT-AC299: a rule revision that takes over on 2027-01-01 gives the 2027 report its own deadline, 2026 keeps the first",
+      "status": "passed",
+      "durationMs": 231,
+      "at": "2026-11-05T09:20:06.944Z",
+      "requests": [
+        {
+          "id": "15c81946-5686-4771-aa5a-6c99469dff5b",
+          "method": "POST",
+          "path": "/mne-forms",
+          "status": 200,
+          "at": "2026-11-05T09:20:06.712Z"
+        },
+        {
+          "id": "b8ad6e4f-b35d-4724-9627-0863afb154dd",
+          "method": "POST",
+          "path": "/mne-forms/5ca5737e-99c0-4742-86d7-251af31f120e/publish",
+          "status": 200,
+          "at": "2026-11-05T09:20:06.728Z"
+        },
+        {
+          "id": "dba6d8c4-4200-484c-8c6d-b6d47dabd4d3",
+          "method": "POST",
+          "path": "/mne-obligation-rules",
+          "status": 200,
+          "at": "2026-11-05T09:20:06.746Z"
+        },
+        {
+          "id": "4e5841c4-b4d5-4109-aa0c-9971bbcdf1aa",
+          "method": "POST",
+          "path": "/mne-obligation-rules/44eaae27-c095-4b84-9be6-f58f0c61023b/publish",
+          "status": 200,
+          "at": "2026-11-05T09:20:06.760Z"
+        },
+        {
+          "id": "833eb31d-e6cb-4234-834f-3044262d2a15",
+          "method": "POST",
+          "path": "/mne-obligation-rules",
+          "status": 200,
+          "at": "2026-11-05T09:20:06.778Z"
+        },
+        {
+          "id": "54c00e08-9b2d-4384-b7ae-6923a1ecb27e",
+          "method": "POST",
+          "path": "/mne-obligation-rules/0e9e27cc-4091-43c5-95aa-51c97c3df7a2/publish",
+          "status": 200,
+          "at": "2026-11-05T09:20:06.790Z"
+        },
+        {
+          "id": "60c4e70e-03e9-41d3-9604-e2de2a79ab90",
+          "method": "POST",
+          "path": "/mne-obligations/generate",
+          "status": 200,
+          "at": "2026-11-05T09:20:06.810Z"
+        },
+        {
+          "id": "3f9470ae-ed8e-4127-9d18-b161a0be1071",
+          "method": "POST",
+          "path": "/mne-obligations/generate",
+          "status": 200,
+          "at": "2026-11-05T09:20:06.824Z"
+        },
+        {
+          "id": "ebf1f081-3275-4cf4-8f8a-4df0f43c5843",
+          "method": "GET",
+          "path": "/mne-obligations",
+          "status": 200,
+          "at": "2026-11-05T09:20:06.839Z"
+        }
+      ]
+    }
+  ]
+}

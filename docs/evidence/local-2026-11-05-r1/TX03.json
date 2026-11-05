@@ -1,0 +1,75 @@
+{
+  "id": "TX03",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/uat/money.uat.spec.ts",
+      "name": "TC-TX03: a send whose answer was lost is Unknown and is not sent again on its own; what the provider holds settles it without a second message, and a provider that never saw it gets a new send with a new key",
+      "status": "passed",
+      "durationMs": 9740,
+      "at": "2026-11-05T08:57:41.480Z",
+      "requests": [
+        {
+          "id": "79781e22-7ebb-4f09-83f0-e1714a92295b",
+          "method": "POST",
+          "path": "/me/consents",
+          "status": 201,
+          "at": "2026-11-05T08:57:41.638Z"
+        },
+        {
+          "id": "7fc4090e-31ca-4b6e-bcb7-d3b399c33ca0",
+          "method": "POST",
+          "path": "/__e2e/provider/email/script",
+          "status": 200,
+          "at": "2026-11-05T08:57:41.766Z"
+        },
+        {
+          "id": "45b9dd89-caea-4810-bb23-dde211e747d9",
+          "method": "POST",
+          "path": "/__e2e/provider/email/holds",
+          "status": 200,
+          "at": "2026-11-05T08:57:41.783Z"
+        },
+        {
+          "id": "cf0e89b0-5497-4ea0-a4db-605f87be3e18",
+          "method": "GET",
+          "path": "/__e2e/provider/email/requests",
+          "status": 200,
+          "at": "2026-11-05T08:57:42.774Z"
+        },
+        {
+          "id": "7201580b-3c18-4ef3-8bc3-34d45a7ec094",
+          "method": "POST",
+          "path": "/__e2e/provider/email/holds",
+          "status": 200,
+          "at": "2026-11-05T08:57:42.822Z"
+        },
+        {
+          "id": "97c5844e-9dda-4013-b247-5a83b54d0f29",
+          "method": "GET",
+          "path": "/__e2e/provider/email/requests",
+          "status": 200,
+          "at": "2026-11-05T08:57:45.823Z"
+        },
+        {
+          "id": "caf72996-b2d6-4938-9b18-e2b9753e33cc",
+          "method": "POST",
+          "path": "/__e2e/provider/email/script",
+          "status": 200,
+          "at": "2026-11-05T08:57:45.904Z"
+        },
+        {
+          "id": "488b7382-1310-414b-a156-3d882cbe7cc0",
+          "method": "GET",
+          "path": "/__e2e/provider/email/requests",
+          "status": 200,
+          "at": "2026-11-05T08:57:51.074Z"
+        }
+      ]
+    }
+  ]
+}

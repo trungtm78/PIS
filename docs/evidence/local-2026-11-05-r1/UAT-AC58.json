@@ -1,0 +1,298 @@
+{
+  "id": "UAT-AC58",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/retroactive-adjustment.test.ts",
+      "name": "the retroactive adjustment of a change order over HTTP (ST-CTR-016) approveRetroactiveAdjustment (AC-ST-CTR-016-1, UAT-AC58) AC-ST-CTR-016-1, UAT-AC58: answers 200, posts the adjustment on the ledger, leaves the acceptance as it was approved and records the decision and the affected acceptances",
+      "status": "passed",
+      "durationMs": 1004,
+      "at": "2026-11-05T09:19:11.366Z",
+      "requests": [
+        {
+          "id": "07452249-8a2f-45b9-ac10-aeed7209cf8a",
+          "method": "POST",
+          "path": "/change-requests/3d81bad9-842d-4a54-ac7d-9b8444a38fbd/retroactive-adjustment",
+          "status": 200,
+          "at": "2026-11-05T09:19:10.784Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/retroactive-adjustment.test.ts",
+      "name": "the retroactive adjustment of a change order over HTTP (ST-CTR-016) approveRetroactiveAdjustment (AC-ST-CTR-016-1, UAT-AC58) AC-ST-CTR-016-1: lets a price fall take the contract below the accepted total it had when the adjusted total fits: 200, the accepted total and the value follow, and the ledger reconciles",
+      "status": "passed",
+      "durationMs": 483,
+      "at": "2026-11-05T09:19:11.848Z",
+      "requests": [
+        {
+          "id": "b0ef1995-24b0-4664-9867-00089b4a3c4e",
+          "method": "POST",
+          "path": "/change-requests/ed70e63e-b682-4065-96c8-bff056a42b61/retroactive-adjustment",
+          "status": 200,
+          "at": "2026-11-05T09:19:11.621Z"
+        },
+        {
+          "id": "084e4f53-5484-445b-8ec0-2fcb4db3e68d",
+          "method": "GET",
+          "path": "/contracts/4b2a0714-1005-4343-97e0-0252326a6949/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:19:11.795Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/retroactive-adjustment.test.ts",
+      "name": "the retroactive adjustment of a change order over HTTP (ST-CTR-016) approveRetroactiveAdjustment (AC-ST-CTR-016-1, UAT-AC58) AC-ST-CTR-016-1: counts the adjustment of an earlier change order once: 1,000 then 1,050 then 1,100 million posts +50 million the second time",
+      "status": "passed",
+      "durationMs": 565,
+      "at": "2026-11-05T09:19:12.414Z",
+      "requests": [
+        {
+          "id": "1b5e8e40-3395-4175-b178-ae8b09293862",
+          "method": "POST",
+          "path": "/change-requests/0875e64d-0336-46fe-9925-7c82f586d051/retroactive-adjustment",
+          "status": 200,
+          "at": "2026-11-05T09:19:12.061Z"
+        },
+        {
+          "id": "9da506b5-96b1-4d05-98aa-fa6df18d0ac3",
+          "method": "POST",
+          "path": "/change-requests/3cf7e641-ed16-4651-8c41-66d6e9be50e4/retroactive-adjustment",
+          "status": 200,
+          "at": "2026-11-05T09:19:12.223Z"
+        },
+        {
+          "id": "3e86d6f1-7897-4d4b-b4d5-7721ea0dab7b",
+          "method": "GET",
+          "path": "/contracts/f974b217-c4d3-4a6a-bc22-d3372661a3fb/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:19:12.352Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/retroactive-adjustment.test.ts",
+      "name": "the retroactive adjustment of a change order over HTTP (ST-CTR-016) approveRetroactiveAdjustment (AC-ST-CTR-016-1, UAT-AC58) audits and tells the world with ids, days and amounts only: the change, the revision, the capital and the ledger",
+      "status": "passed",
+      "durationMs": 1744,
+      "at": "2026-11-05T09:19:14.158Z",
+      "requests": [
+        {
+          "id": "306c52a9-0c3d-4fcd-8b8c-d3ef7cbeeb0a",
+          "method": "POST",
+          "path": "/change-requests/e22b38ca-45c3-4d7a-8897-1b8b4f54546f/retroactive-adjustment",
+          "status": 200,
+          "at": "2026-11-05T09:19:12.805Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/retroactive-adjustment.test.ts",
+      "name": "the retroactive adjustment of a change order over HTTP (ST-CTR-016) approveRetroactiveAdjustment (AC-ST-CTR-016-1, UAT-AC58) answers the same request with the same key once, and a different request with the same key as a conflict",
+      "status": "passed",
+      "durationMs": 328,
+      "at": "2026-11-05T09:19:14.486Z",
+      "requests": [
+        {
+          "id": "30d06c42-98f4-42f0-8ab1-8d466a478e77",
+          "method": "POST",
+          "path": "/change-requests/c8f2594a-ddae-40ff-9053-6f59cdcab5a6/retroactive-adjustment",
+          "status": 200,
+          "at": "2026-11-05T09:19:14.341Z"
+        },
+        {
+          "id": "00810058-7bf8-4bda-9ce9-e8223e5d3fd4",
+          "method": "POST",
+          "path": "/change-requests/c8f2594a-ddae-40ff-9053-6f59cdcab5a6/retroactive-adjustment",
+          "status": 200,
+          "at": "2026-11-05T09:19:14.385Z"
+        },
+        {
+          "id": "2a827416-90c3-4b00-a36c-170e888cccfb",
+          "method": "POST",
+          "path": "/change-requests/c8f2594a-ddae-40ff-9053-6f59cdcab5a6/retroactive-adjustment",
+          "status": 409,
+          "at": "2026-11-05T09:19:14.432Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/retroactive-adjustment.test.ts",
+      "name": "the retroactive adjustment of a change order over HTTP (ST-CTR-016) approveRetroactiveAdjustment (AC-ST-CTR-016-1, UAT-AC58) needs the version of the request, and refuses another",
+      "status": "passed",
+      "durationMs": 310,
+      "at": "2026-11-05T09:19:14.796Z",
+      "requests": [
+        {
+          "id": "1b96c95e-9675-4726-8afc-b7db0a2bb57e",
+          "method": "POST",
+          "path": "/change-requests/ddbb181b-6e3d-45bd-838b-cf647e620b16/retroactive-adjustment",
+          "status": 428,
+          "at": "2026-11-05T09:19:14.684Z"
+        },
+        {
+          "id": "bae2b5c0-f8c9-402f-9cc7-c373fea1ec56",
+          "method": "POST",
+          "path": "/change-requests/ddbb181b-6e3d-45bd-838b-cf647e620b16/retroactive-adjustment",
+          "status": 409,
+          "at": "2026-11-05T09:19:14.697Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/retroactive-adjustment.test.ts",
+      "name": "the retroactive adjustment of a change order over HTTP (ST-CTR-016) approveRetroactiveAdjustment (AC-ST-CTR-016-1, UAT-AC58) refuses a second call: the change order is approved already",
+      "status": "passed",
+      "durationMs": 320,
+      "at": "2026-11-05T09:19:15.116Z",
+      "requests": [
+        {
+          "id": "cee19d9c-9fe6-4358-a3a9-7d5227da6203",
+          "method": "POST",
+          "path": "/change-requests/90c0c63a-d6e2-40bd-b7e7-1ef25633fc27/retroactive-adjustment",
+          "status": 200,
+          "at": "2026-11-05T09:19:14.964Z"
+        },
+        {
+          "id": "a6e4a1c8-f4ea-4862-85b4-98e7eb9e6ef2",
+          "method": "POST",
+          "path": "/change-requests/90c0c63a-d6e2-40bd-b7e7-1ef25633fc27/retroactive-adjustment",
+          "status": 409,
+          "at": "2026-11-05T09:19:15.026Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/retroactive-adjustment.test.ts",
+      "name": "the retroactive adjustment of a change order over HTTP (ST-CTR-016) approveRetroactiveAdjustment (AC-ST-CTR-016-1, UAT-AC58) AC-ST-CTR-016-1: is refused with 409 SETTLEMENT_ALREADY_APPROVED while a verified settlement has read the ledger, and writes nothing",
+      "status": "passed",
+      "durationMs": 521,
+      "at": "2026-11-05T09:19:15.637Z",
+      "requests": [
+        {
+          "id": "27e2d240-5fad-4983-a10c-23ed2b612258",
+          "method": "POST",
+          "path": "/change-requests/7cb8b9e0-4bc1-44de-9499-f0eb98ce42c3/retroactive-adjustment",
+          "status": 409,
+          "at": "2026-11-05T09:19:15.391Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/retroactive-adjustment.test.ts",
+      "name": "the retroactive adjustment of a change order over HTTP (ST-CTR-016) approveRetroactiveAdjustment (AC-ST-CTR-016-1, UAT-AC58) refuses whoever had a part in the chain or made the document (403 SELF_APPROVAL_DENIED), and whoever lacks the right in the scope",
+      "status": "passed",
+      "durationMs": 577,
+      "at": "2026-11-05T09:19:16.214Z",
+      "requests": [
+        {
+          "id": "f5c92079-1918-4a0f-b9b3-19e76d68554d",
+          "method": "POST",
+          "path": "/change-requests/cb679ae1-2fac-4124-9959-3dd7ae74e7b0/retroactive-adjustment",
+          "status": 403,
+          "at": "2026-11-05T09:19:15.913Z"
+        },
+        {
+          "id": "d9879144-06eb-41b3-97ba-ab7e3261b541",
+          "method": "GET",
+          "path": "/projects/4e069792-dd17-43fb-b20b-d13fe05c0e8b/change-chain",
+          "status": 200,
+          "at": "2026-11-05T09:19:15.935Z"
+        },
+        {
+          "id": "f52ed2ed-8c55-4406-baf0-3cc46ed38d09",
+          "method": "POST",
+          "path": "/change-requests/cb679ae1-2fac-4124-9959-3dd7ae74e7b0/retroactive-adjustment",
+          "status": 403,
+          "at": "2026-11-05T09:19:15.997Z"
+        },
+        {
+          "id": "afec9636-01de-464c-a484-78ab00f203aa",
+          "method": "POST",
+          "path": "/change-requests/cb679ae1-2fac-4124-9959-3dd7ae74e7b0/retroactive-adjustment",
+          "status": 403,
+          "at": "2026-11-05T09:19:16.007Z"
+        },
+        {
+          "id": "a020fa58-d950-40b7-a0b3-3169d39de5d6",
+          "method": "POST",
+          "path": "/change-requests/cb679ae1-2fac-4124-9959-3dd7ae74e7b0/retroactive-adjustment",
+          "status": 404,
+          "at": "2026-11-05T09:19:16.023Z"
+        },
+        {
+          "id": "fed0398b-316a-42d1-8fc9-cce8de53b3e6",
+          "method": "POST",
+          "path": "/change-requests/f99467d6-9214-4b16-8ec0-3ec5a0c25fde/retroactive-adjustment",
+          "status": 404,
+          "at": "2026-11-05T09:19:16.048Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/retroactive-adjustment.test.ts",
+      "name": "the retroactive adjustment of a change order over HTTP (ST-CTR-016) approveRetroactiveAdjustment (AC-ST-CTR-016-1, UAT-AC58) answers the refusals of the rules in their own codes, over HTTP",
+      "status": "passed",
+      "durationMs": 441,
+      "at": "2026-11-05T09:19:16.656Z",
+      "requests": [
+        {
+          "id": "bdde870e-cbbf-47a4-bba1-3714da5a5252",
+          "method": "POST",
+          "path": "/change-requests/a55c2191-023d-4217-bffe-2e00e01d8fa1/retroactive-adjustment",
+          "status": 422,
+          "at": "2026-11-05T09:19:16.391Z"
+        },
+        {
+          "id": "8fad6313-4b0f-4b0e-be81-1a24147238bf",
+          "method": "POST",
+          "path": "/change-requests/a55c2191-023d-4217-bffe-2e00e01d8fa1/retroactive-adjustment",
+          "status": 422,
+          "at": "2026-11-05T09:19:16.408Z"
+        },
+        {
+          "id": "40f014f9-0e71-4f44-af3d-0fcec9a44839",
+          "method": "POST",
+          "path": "/change-requests/a55c2191-023d-4217-bffe-2e00e01d8fa1/retroactive-adjustment",
+          "status": 422,
+          "at": "2026-11-05T09:19:16.427Z"
+        },
+        {
+          "id": "47903256-757f-49e1-8565-840fc7a8f843",
+          "method": "POST",
+          "path": "/change-requests/a55c2191-023d-4217-bffe-2e00e01d8fa1/retroactive-adjustment",
+          "status": 400,
+          "at": "2026-11-05T09:19:16.453Z"
+        },
+        {
+          "id": "6bdb7ce3-a74e-466b-8c0f-cb3820dc6edc",
+          "method": "POST",
+          "path": "/change-requests/a55c2191-023d-4217-bffe-2e00e01d8fa1/retroactive-adjustment",
+          "status": 400,
+          "at": "2026-11-05T09:19:16.467Z"
+        },
+        {
+          "id": "4c08eab5-4d4e-49d7-b882-584da57423ef",
+          "method": "POST",
+          "path": "/change-requests/a55c2191-023d-4217-bffe-2e00e01d8fa1/retroactive-adjustment",
+          "status": 422,
+          "at": "2026-11-05T09:19:16.484Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "id": "UAT-AC417",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/signed-documents.test.ts",
+      "name": "documents signed outside the system (ST-DOC-009) registerExternallySignedDocument enters a document numbered elsewhere in a mirrored register, refuses the number a second time and a tampered file, and announces the issue once (AC-ST-DOC-009-1, UAT-AC417)",
+      "status": "passed",
+      "durationMs": 1198,
+      "at": "2026-11-05T09:15:31.667Z",
+      "requests": [
+        {
+          "id": "cf1b332a-dc0f-4ac5-89f6-c70ba65be89f",
+          "method": "POST",
+          "path": "/document-number-registers",
+          "status": 200,
+          "at": "2026-11-05T09:15:30.469Z"
+        },
+        {
+          "id": "c899a051-2c78-4307-9ab5-ade8f778c7c6",
+          "method": "POST",
+          "path": "/outgoing-documents/external-registrations",
+          "status": 200,
+          "at": "2026-11-05T09:15:30.666Z"
+        },
+        {
+          "id": "75b9f282-a119-4517-a66e-86b24b6d651c",
+          "method": "POST",
+          "path": "/outgoing-documents/external-registrations",
+          "status": 409,
+          "at": "2026-11-05T09:15:31.077Z"
+        },
+        {
+          "id": "eaffbd96-2a56-4218-a354-f2a81506a678",
+          "method": "POST",
+          "path": "/outgoing-documents/external-registrations",
+          "status": 422,
+          "at": "2026-11-05T09:15:31.246Z"
+        },
+        {
+          "id": "a25cdffd-ec0d-4961-8eda-f58959573e22",
+          "method": "POST",
+          "path": "/outgoing-documents/external-registrations",
+          "status": 422,
+          "at": "2026-11-05T09:15:31.341Z"
+        },
+        {
+          "id": "46cdb244-da6b-4c45-825d-84ffc45ab0dc",
+          "method": "GET",
+          "path": "/documents/b07c4274-17d4-42e4-81b8-24f409135986/usability",
+          "status": 200,
+          "at": "2026-11-05T09:15:31.512Z"
+        },
+        {
+          "id": "9c36e3ed-e420-4641-9c08-1771d8f80279",
+          "method": "GET",
+          "path": "/document-number-registers/b62133d8-46c6-4789-bcd9-62373b2f61c4/entries",
+          "status": 200,
+          "at": "2026-11-05T09:15:31.522Z"
+        }
+      ]
+    }
+  ]
+}

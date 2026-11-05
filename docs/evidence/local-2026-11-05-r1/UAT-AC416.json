@@ -1,0 +1,36 @@
+{
+  "id": "UAT-AC416",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/layout-geometry.test.ts",
+      "name": "the seal over the signature of the leader in the PDF (BR-DOC-13, AC-ST-DOC-016-2, UAT-AC416) lays the seal over a third of the width of the leader signature, on its left, as the boxes of the profile say",
+      "status": "passed",
+      "durationMs": 360,
+      "at": "2026-11-05T09:23:57.903Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/layout-geometry.test.ts",
+      "name": "the seal over the signature of the leader in the PDF (BR-DOC-13, AC-ST-DOC-016-2, UAT-AC416) writes the moment of signing under the signature as ISO 8601 in the zone of Vietnam, inside the bytes the signature covers",
+      "status": "passed",
+      "durationMs": 269,
+      "at": "2026-11-05T09:23:58.172Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/layout-geometry.test.ts",
+      "name": "the seal over the signature of the leader in the PDF (BR-DOC-13, AC-ST-DOC-016-2, UAT-AC416) writes nothing under the signature when no line is asked for, and escapes the marks of a text that has parentheses",
+      "status": "passed",
+      "durationMs": 237,
+      "at": "2026-11-05T09:23:58.410Z",
+      "requests": []
+    }
+  ]
+}

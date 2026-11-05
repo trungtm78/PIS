@@ -1,0 +1,68 @@
+{
+  "id": "UAT-AC481",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-queries.test.ts",
+      "name": "the queries of BI and the drill under them (ST-BI-004, BI F3, F4) the drill AC-ST-BI-004-4: UAT-AC481 refuses a unit whose scope was revoked mid-session (403 SCOPE_DENIED, no name) and still serves the other unit on the same snapshot",
+      "status": "passed",
+      "durationMs": 388,
+      "at": "2026-11-05T09:18:05.954Z",
+      "requests": [
+        {
+          "id": "c6130365-6162-4aba-9a9f-60d556394532",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:18:05.654Z"
+        },
+        {
+          "id": "7b1fd450-6931-4f10-9737-8ff4d5ee5865",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:18:05.686Z"
+        },
+        {
+          "id": "40afae84-f615-46bb-b4f0-cc3423a6419c",
+          "method": "GET",
+          "path": "/bi/drill",
+          "status": 403,
+          "at": "2026-11-05T09:18:05.799Z"
+        },
+        {
+          "id": "aa0452ed-00de-40d1-adf6-478b6ef4ac5d",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 403,
+          "at": "2026-11-05T09:18:05.821Z"
+        },
+        {
+          "id": "196a1c8c-8e73-41b8-a07e-1e4ddf9045f7",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:18:05.837Z"
+        },
+        {
+          "id": "8cdb24eb-5a5e-4ac0-9604-2042470fcd83",
+          "method": "GET",
+          "path": "/bi/drill",
+          "status": 200,
+          "at": "2026-11-05T09:18:05.859Z"
+        },
+        {
+          "id": "1f22bf7c-01e0-4c03-92dd-61dfdd5f4aa1",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:18:05.925Z"
+        }
+      ]
+    }
+  ]
+}

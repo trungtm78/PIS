@@ -1,0 +1,190 @@
+{
+  "id": "UAT-AC433",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/aud/engagement.test.ts",
+      "name": "audit and inspection engagements over HTTP (ST-AUD-001, AUD-02, AUD-03) createAuditEngagement and startAuditEngagement AC-ST-AUD-001-1 / UAT-AC433: registers the engagement with two scope items, starts it ONGOING with an Active INSPECTION hold on the scope, and refuses a duplicate code",
+      "status": "passed",
+      "durationMs": 874,
+      "at": "2026-11-05T09:22:23.616Z",
+      "requests": [
+        {
+          "id": "069732ae-de10-447a-8bbd-2486690aba84",
+          "method": "POST",
+          "path": "/audit-engagements",
+          "status": 200,
+          "at": "2026-11-05T09:22:22.744Z"
+        },
+        {
+          "id": "ae96dfb7-26f3-4d5a-9e02-619612d1a41a",
+          "method": "GET",
+          "path": "/audit-engagements/7a27e0d3-7272-4525-9bcf-117b1683004b",
+          "status": 200,
+          "at": "2026-11-05T09:22:23.307Z"
+        },
+        {
+          "id": "d428a433-fcae-46cf-8844-c7e6b44cf21a",
+          "method": "POST",
+          "path": "/audit-engagements/7a27e0d3-7272-4525-9bcf-117b1683004b/start",
+          "status": 200,
+          "at": "2026-11-05T09:22:23.325Z"
+        },
+        {
+          "id": "d991d3a4-8367-4ea6-b84c-24d8d4ca1b0c",
+          "method": "GET",
+          "path": "/audit-engagements/7a27e0d3-7272-4525-9bcf-117b1683004b",
+          "status": 200,
+          "at": "2026-11-05T09:22:23.346Z"
+        },
+        {
+          "id": "cc3daa8a-bbbe-48bd-926e-e0c28a507d83",
+          "method": "POST",
+          "path": "/audit-engagements",
+          "status": 409,
+          "at": "2026-11-05T09:22:23.487Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/aud-engagement-flows.spec.ts",
+      "name": "the coordinator registers an engagement, starts it with a legal hold on its scope and ends the fieldwork (AC-ST-AUD-001-1, UAT-AC433, UI-AUD-02, UI-AUD-03)",
+      "status": "passed",
+      "durationMs": 1840,
+      "at": "2026-11-05T08:43:50.626Z",
+      "requests": [
+        {
+          "id": "88803b20-1da7-4a8f-8b94-4e926acf6663",
+          "method": "GET",
+          "path": "/audit-engagements",
+          "status": 200,
+          "at": "2026-11-05T08:43:51.126Z"
+        },
+        {
+          "id": "49ccbd0a-b887-4817-a96a-b8be296a11aa",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 403,
+          "at": "2026-11-05T08:43:51.233Z"
+        },
+        {
+          "id": "7a9ce770-d7d4-4a9f-a03b-0db23f5b45c4",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:43:51.232Z"
+        },
+        {
+          "id": "f3d0168a-910f-4a91-9d0a-ec53ad6bf57d",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 403,
+          "at": "2026-11-05T08:43:51.354Z"
+        },
+        {
+          "id": "e98c0468-792c-450f-9264-e711459e2b36",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:43:51.353Z"
+        },
+        {
+          "id": "7252400c-faa6-4101-948d-7796d632ffe1",
+          "method": "POST",
+          "path": "/audit-engagements",
+          "status": 200,
+          "at": "2026-11-05T08:43:51.483Z"
+        },
+        {
+          "id": "0bf24599-2bb3-4e12-9119-2f55cb431c90",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 403,
+          "at": "2026-11-05T08:43:51.505Z"
+        },
+        {
+          "id": "e21bd2ac-8132-4e7b-8340-097fc5c3c8ac",
+          "method": "GET",
+          "path": "/audit-engagements",
+          "status": 200,
+          "at": "2026-11-05T08:43:51.504Z"
+        },
+        {
+          "id": "9f51f71e-066e-4306-8c16-dbc37f594bfe",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:43:51.506Z"
+        },
+        {
+          "id": "762ade56-ec2b-4a8d-ba01-450a54830e5b",
+          "method": "GET",
+          "path": "/audit-engagements/eb06465c-0e72-4cee-82cf-84690d6c63e3",
+          "status": 200,
+          "at": "2026-11-05T08:43:51.563Z"
+        },
+        {
+          "id": "51733a2b-7be0-4c97-bcd7-e9571c02498d",
+          "method": "POST",
+          "path": "/audit-engagements/eb06465c-0e72-4cee-82cf-84690d6c63e3/start",
+          "status": 200,
+          "at": "2026-11-05T08:43:51.715Z"
+        },
+        {
+          "id": "c0c08484-0554-4f7d-bbb9-6e84dd18ba54",
+          "method": "GET",
+          "path": "/audit-engagements/eb06465c-0e72-4cee-82cf-84690d6c63e3",
+          "status": 200,
+          "at": "2026-11-05T08:43:51.735Z"
+        },
+        {
+          "id": "9a58988d-e060-44ff-aa48-f2a32ad4d473",
+          "method": "POST",
+          "path": "/audit-engagements/eb06465c-0e72-4cee-82cf-84690d6c63e3/fieldwork-end",
+          "status": 200,
+          "at": "2026-11-05T08:43:51.947Z"
+        },
+        {
+          "id": "08859024-e995-42ce-8d34-781f56d07b35",
+          "method": "GET",
+          "path": "/audit-engagements/eb06465c-0e72-4cee-82cf-84690d6c63e3",
+          "status": 200,
+          "at": "2026-11-05T08:43:51.961Z"
+        },
+        {
+          "id": "91b5d7d5-952f-476c-b219-3803f3534687",
+          "method": "GET",
+          "path": "/audit-engagements",
+          "status": 200,
+          "at": "2026-11-05T08:43:52.071Z"
+        },
+        {
+          "id": "9d4c8022-3209-4f66-a41a-45fec5cf4572",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 403,
+          "at": "2026-11-05T08:43:52.120Z"
+        },
+        {
+          "id": "07ecdc91-18c9-4a18-b76a-76bf3b48e8f0",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:43:52.118Z"
+        },
+        {
+          "id": "f55b8af5-9901-46a3-9777-b75d60236637",
+          "method": "POST",
+          "path": "/audit-engagements",
+          "status": 409,
+          "at": "2026-11-05T08:43:52.252Z"
+        }
+      ]
+    }
+  ]
+}

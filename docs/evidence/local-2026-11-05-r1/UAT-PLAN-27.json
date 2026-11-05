@@ -1,0 +1,435 @@
+{
+  "id": "UAT-PLAN-27",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/acceptance.test.ts",
+      "name": "the quality acceptance minutes over HTTP (ST-QMS-005) AC-ST-QMS-005-2, UAT-PLAN-27: revoking approved minutes emits the event once, and is refused while an approved acceptance holds them",
+      "status": "passed",
+      "durationMs": 1472,
+      "at": "2026-11-05T09:17:31.023Z",
+      "requests": [
+        {
+          "id": "f0222b14-2746-4599-a6be-d710eb668d7b",
+          "method": "POST",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T09:17:30.415Z"
+        },
+        {
+          "id": "b19f6f6c-025a-4739-bd7d-f81a3518e207",
+          "method": "POST",
+          "path": "/inspections/b7846676-27c4-41ce-bf93-26562a5d8a34/schedule",
+          "status": 200,
+          "at": "2026-11-05T09:17:30.432Z"
+        },
+        {
+          "id": "0753ea74-457c-4a9e-9a52-78e83b492835",
+          "method": "POST",
+          "path": "/inspections/b7846676-27c4-41ce-bf93-26562a5d8a34/result",
+          "status": 200,
+          "at": "2026-11-05T09:17:30.448Z"
+        },
+        {
+          "id": "96f15f63-89dc-4e9e-9766-0a38f8c14eb8",
+          "method": "POST",
+          "path": "/inspections/b7846676-27c4-41ce-bf93-26562a5d8a34/quality-acceptances",
+          "status": 200,
+          "at": "2026-11-05T09:17:30.463Z"
+        },
+        {
+          "id": "953857fc-1c5e-4cd0-a172-e0eb37e7b085",
+          "method": "POST",
+          "path": "/quality-acceptances/650d0004-088c-45e3-bbad-f38586e7ec9e/sign",
+          "status": 200,
+          "at": "2026-11-05T09:17:30.480Z"
+        },
+        {
+          "id": "7f02ba1d-75cc-42d4-af52-f0bed5726448",
+          "method": "POST",
+          "path": "/quality-acceptances/650d0004-088c-45e3-bbad-f38586e7ec9e/sign",
+          "status": 200,
+          "at": "2026-11-05T09:17:30.496Z"
+        },
+        {
+          "id": "72c4512b-420b-409d-ba3f-b2333a7f20c3",
+          "method": "POST",
+          "path": "/quality-acceptances/650d0004-088c-45e3-bbad-f38586e7ec9e/sign",
+          "status": 200,
+          "at": "2026-11-05T09:17:30.511Z"
+        },
+        {
+          "id": "cd391518-ed20-4577-8be2-5b61773fc444",
+          "method": "POST",
+          "path": "/quality-acceptances/650d0004-088c-45e3-bbad-f38586e7ec9e/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:30.527Z"
+        },
+        {
+          "id": "2a8299e0-7f71-40c2-ae72-9016247827bc",
+          "method": "POST",
+          "path": "/quality-acceptances/650d0004-088c-45e3-bbad-f38586e7ec9e/revoke",
+          "status": 403,
+          "at": "2026-11-05T09:17:30.545Z"
+        },
+        {
+          "id": "00880844-b1e3-46d7-bac2-741230879fd4",
+          "method": "POST",
+          "path": "/quality-acceptances/650d0004-088c-45e3-bbad-f38586e7ec9e/revoke",
+          "status": 422,
+          "at": "2026-11-05T09:17:30.553Z"
+        },
+        {
+          "id": "e9930279-30c8-4f17-ad6b-ef9475078d33",
+          "method": "POST",
+          "path": "/quality-acceptances/650d0004-088c-45e3-bbad-f38586e7ec9e/revoke",
+          "status": 409,
+          "at": "2026-11-05T09:17:30.614Z"
+        },
+        {
+          "id": "464d5e7b-7024-4427-916e-60664d385f85",
+          "method": "POST",
+          "path": "/quality-acceptances/650d0004-088c-45e3-bbad-f38586e7ec9e/revoke",
+          "status": 200,
+          "at": "2026-11-05T09:17:30.775Z"
+        },
+        {
+          "id": "df1fb1a9-8c07-4b13-a51a-dbee08e69b90",
+          "method": "POST",
+          "path": "/quality-acceptances/650d0004-088c-45e3-bbad-f38586e7ec9e/revoke",
+          "status": 409,
+          "at": "2026-11-05T09:17:30.978Z"
+        },
+        {
+          "id": "9018f1fc-49fb-4005-abb0-028102888185",
+          "method": "POST",
+          "path": "/inspections/b7846676-27c4-41ce-bf93-26562a5d8a34/quality-acceptances",
+          "status": 200,
+          "at": "2026-11-05T09:17:31.000Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/qms-acceptance-flows.spec.ts",
+      "name": "the supervisor drafts and signs, the contractor and the owner sign, the owner approves it once and revokes it with a reason (UI-QMS-05, AC-ST-QMS-005-1, AC-ST-QMS-005-2, UAT-AC360, UAT-PLAN-27)",
+      "status": "passed",
+      "durationMs": 3389,
+      "at": "2026-11-05T08:50:57.030Z",
+      "requests": [
+        {
+          "id": "93ba378a-590c-4666-8c56-5a730223ad93",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T08:50:57.674Z"
+        },
+        {
+          "id": "a93d7a72-3fac-4ce5-9feb-877c79fcd727",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:50:57.675Z"
+        },
+        {
+          "id": "149c8492-70d1-40c1-a095-de76fb5b7554",
+          "method": "GET",
+          "path": "/quality-acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:50:57.675Z"
+        },
+        {
+          "id": "32d091f4-d02d-4105-b408-889e44621e67",
+          "method": "GET",
+          "path": "/quality-acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:50:57.722Z"
+        },
+        {
+          "id": "c738518f-dae6-4552-a3fa-0a560ef53591",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:50:57.724Z"
+        },
+        {
+          "id": "687658b4-252c-4f7a-9400-2c5b53df3432",
+          "method": "POST",
+          "path": "/inspections/da332791-8365-4469-b627-7e7b13c9da38/quality-acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:50:58.011Z"
+        },
+        {
+          "id": "c019f2bf-0db2-4c6f-8dd6-7df739fb8e8b",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:50:58.034Z"
+        },
+        {
+          "id": "7e6b9071-69e3-4358-adc4-9205003c4f3d",
+          "method": "GET",
+          "path": "/quality-acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:50:58.033Z"
+        },
+        {
+          "id": "f9489160-ca49-41cb-a063-b4437a1246b7",
+          "method": "POST",
+          "path": "/quality-acceptances/a19fedd0-c8e7-4bc4-b073-d8d33bc83599/sign",
+          "status": 200,
+          "at": "2026-11-05T08:50:58.295Z"
+        },
+        {
+          "id": "1b8cc10f-e1e3-4248-b818-4d8ef15a5e1f",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:50:58.315Z"
+        },
+        {
+          "id": "ccd6e6a6-5467-427b-9448-1760221b7bf5",
+          "method": "GET",
+          "path": "/quality-acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:50:58.314Z"
+        },
+        {
+          "id": "732d794f-88ea-45a8-a641-b092b2c1b243",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 403,
+          "at": "2026-11-05T08:50:58.600Z"
+        },
+        {
+          "id": "a269e96c-cf45-4c72-ba58-c9fd36749cde",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T08:50:58.599Z"
+        },
+        {
+          "id": "23701fc3-fc97-4c5f-9b31-ef96a54172e0",
+          "method": "GET",
+          "path": "/quality-acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:50:58.599Z"
+        },
+        {
+          "id": "3890ba09-ab86-4675-8ff0-5573bb8e7fd1",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 403,
+          "at": "2026-11-05T08:50:58.616Z"
+        },
+        {
+          "id": "5d67363a-8b09-46f5-8999-306c1b8f7bcd",
+          "method": "GET",
+          "path": "/quality-acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:50:58.615Z"
+        },
+        {
+          "id": "907f6fc4-f806-4412-8b18-5394af2520ef",
+          "method": "POST",
+          "path": "/quality-acceptances/a19fedd0-c8e7-4bc4-b073-d8d33bc83599/sign",
+          "status": 200,
+          "at": "2026-11-05T08:50:58.711Z"
+        },
+        {
+          "id": "9da52e02-2bfe-427a-9ad8-dd0fe47737d5",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 403,
+          "at": "2026-11-05T08:50:58.728Z"
+        },
+        {
+          "id": "21fc9e91-3cc2-49c8-8959-bb193e087476",
+          "method": "GET",
+          "path": "/quality-acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:50:58.727Z"
+        },
+        {
+          "id": "e289288b-f790-41f1-a673-0d979693c95b",
+          "method": "POST",
+          "path": "/quality-acceptances/a19fedd0-c8e7-4bc4-b073-d8d33bc83599/decision",
+          "status": 422,
+          "at": "2026-11-05T08:50:58.896Z"
+        },
+        {
+          "id": "c301bd1d-1406-45fc-bfa3-3536fdfe8e39",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 403,
+          "at": "2026-11-05T08:50:59.167Z"
+        },
+        {
+          "id": "3786bf4d-cc29-448d-905f-b0067cfeb2e2",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T08:50:59.165Z"
+        },
+        {
+          "id": "76c74fcf-f20b-4f5a-8632-adb146805e6a",
+          "method": "GET",
+          "path": "/quality-acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:50:59.166Z"
+        },
+        {
+          "id": "cac36a8f-8b28-4d40-b91e-24a025e18380",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 403,
+          "at": "2026-11-05T08:50:59.184Z"
+        },
+        {
+          "id": "2bdf07de-8bda-443d-bf97-99a6b2dee01f",
+          "method": "GET",
+          "path": "/quality-acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:50:59.183Z"
+        },
+        {
+          "id": "2aec6fa0-e693-43ca-8b19-2efb0f322baa",
+          "method": "POST",
+          "path": "/quality-acceptances/a19fedd0-c8e7-4bc4-b073-d8d33bc83599/sign",
+          "status": 200,
+          "at": "2026-11-05T08:50:59.327Z"
+        },
+        {
+          "id": "e0bd6c38-1a23-4976-bb16-26ae3c2b1356",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 403,
+          "at": "2026-11-05T08:50:59.346Z"
+        },
+        {
+          "id": "eadacd3f-022e-4892-bec5-bfb107f4f460",
+          "method": "GET",
+          "path": "/quality-acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:50:59.344Z"
+        },
+        {
+          "id": "89155462-e3eb-4d23-a1e8-5bf04fc1043d",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T08:50:59.609Z"
+        },
+        {
+          "id": "0b264aac-faac-4fda-95f5-c09997bd53b7",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:50:59.610Z"
+        },
+        {
+          "id": "f3cb01d0-49ed-424f-b197-f305e4a55a4b",
+          "method": "GET",
+          "path": "/quality-acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:50:59.610Z"
+        },
+        {
+          "id": "8b031501-c12c-41f9-91f2-6debb05fd42a",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 200,
+          "at": "2026-11-05T08:50:59.623Z"
+        },
+        {
+          "id": "44b25fee-0187-4ecd-805e-66ec83be59d1",
+          "method": "GET",
+          "path": "/quality-acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:50:59.624Z"
+        },
+        {
+          "id": "18411f2f-d9c7-43c7-bb3e-d6000ee8b6b0",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 403,
+          "at": "2026-11-05T08:50:59.817Z"
+        },
+        {
+          "id": "633bb981-aa4a-4015-9448-23fdd7b3aa8b",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T08:50:59.816Z"
+        },
+        {
+          "id": "11766e7f-f451-4736-b1b3-8610dba727db",
+          "method": "GET",
+          "path": "/quality-acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:50:59.817Z"
+        },
+        {
+          "id": "a18c412d-bb0d-49b5-8493-10e0d8ae4905",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 403,
+          "at": "2026-11-05T08:50:59.830Z"
+        },
+        {
+          "id": "1a48363b-7c47-46d6-aa6a-4937fe5231ef",
+          "method": "GET",
+          "path": "/quality-acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:50:59.829Z"
+        },
+        {
+          "id": "1b689ebd-b769-486f-b1bc-2e622f592e76",
+          "method": "POST",
+          "path": "/quality-acceptances/a19fedd0-c8e7-4bc4-b073-d8d33bc83599/decision",
+          "status": 200,
+          "at": "2026-11-05T08:50:59.960Z"
+        },
+        {
+          "id": "1def2239-f237-40f5-bf46-9636f3f9edb5",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 403,
+          "at": "2026-11-05T08:50:59.978Z"
+        },
+        {
+          "id": "815dd94f-9ab4-41b7-be6a-be22f8c8600c",
+          "method": "GET",
+          "path": "/quality-acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:50:59.976Z"
+        },
+        {
+          "id": "2f456085-8a5a-490a-a2c5-7d1d9d1ec9c2",
+          "method": "POST",
+          "path": "/quality-acceptances/a19fedd0-c8e7-4bc4-b073-d8d33bc83599/revoke",
+          "status": 200,
+          "at": "2026-11-05T08:51:00.244Z"
+        },
+        {
+          "id": "666c5442-2d45-447e-bd7d-70414144698f",
+          "method": "GET",
+          "path": "/inspections",
+          "status": 403,
+          "at": "2026-11-05T08:51:00.260Z"
+        },
+        {
+          "id": "e3edbb15-1e5f-4fec-b388-964e293e06c2",
+          "method": "GET",
+          "path": "/quality-acceptances",
+          "status": 200,
+          "at": "2026-11-05T08:51:00.259Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,777 @@
+{
+  "id": "UAT-AC425",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/interop.test.ts",
+      "name": "document interoperability through the LGSP (ST-DOC-021) the job that sends goes QUEUED, SENT after attempt 5 and ACKED when the gateway answers 503 four times first, waiting longer each time (AC-ST-DOC-021-1, UAT-AC425)",
+      "status": "passed",
+      "durationMs": 1842,
+      "at": "2026-11-05T09:09:45.894Z",
+      "requests": [
+        {
+          "id": "6c179c00-a9e0-44d0-9564-de42e761af6a",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:09:44.184Z"
+        },
+        {
+          "id": "b91b385b-c03c-4407-98b5-553c3450b3ec",
+          "method": "POST",
+          "path": "/outgoing-documents/d26dcf06-b6fa-42d1-b989-b048e5cdd5cb/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:09:44.211Z"
+        },
+        {
+          "id": "2d34262f-44c7-447b-a96b-a7dd3418af38",
+          "method": "POST",
+          "path": "/outgoing-documents/d26dcf06-b6fa-42d1-b989-b048e5cdd5cb/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:09:44.224Z"
+        },
+        {
+          "id": "d2b9e562-4f82-4c61-ba99-3325bb5ff352",
+          "method": "POST",
+          "path": "/document-number-registers",
+          "status": 200,
+          "at": "2026-11-05T09:09:44.413Z"
+        },
+        {
+          "id": "c12e122f-f43a-416f-a4e0-2ec03a4b3d8e",
+          "method": "POST",
+          "path": "/outgoing-documents/d26dcf06-b6fa-42d1-b989-b048e5cdd5cb/leader-signing-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:09:44.421Z"
+        },
+        {
+          "id": "575abb88-5323-411b-a3eb-bcd1c7066c42",
+          "method": "POST",
+          "path": "/signing-sessions/7e51a7fd-f107-4992-9084-e0c4ae958daf/completion",
+          "status": 200,
+          "at": "2026-11-05T09:09:44.492Z"
+        },
+        {
+          "id": "e143462b-3f8c-43c7-b25f-e0c0a54e12f8",
+          "method": "POST",
+          "path": "/outgoing-documents/d26dcf06-b6fa-42d1-b989-b048e5cdd5cb/numbering",
+          "status": 200,
+          "at": "2026-11-05T09:09:44.553Z"
+        },
+        {
+          "id": "7dc77cb8-8465-477c-8d59-e964656912a6",
+          "method": "POST",
+          "path": "/outgoing-documents/d26dcf06-b6fa-42d1-b989-b048e5cdd5cb/organization-seal-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:09:44.666Z"
+        },
+        {
+          "id": "defaeb73-5e47-4589-99c3-ac918b536758",
+          "method": "POST",
+          "path": "/signing-sessions/1a688062-3f2f-431d-ab13-f8415781c3e6/completion",
+          "status": 200,
+          "at": "2026-11-05T09:09:44.748Z"
+        },
+        {
+          "id": "c83349b9-a04d-4084-bf50-1661276e5659",
+          "method": "POST",
+          "path": "/outgoing-documents/d26dcf06-b6fa-42d1-b989-b048e5cdd5cb/issuance",
+          "status": 200,
+          "at": "2026-11-05T09:09:44.918Z"
+        },
+        {
+          "id": "690860b5-15a2-45b9-ac96-2279140ae356",
+          "method": "POST",
+          "path": "/outgoing-documents/d26dcf06-b6fa-42d1-b989-b048e5cdd5cb/distributions",
+          "status": 200,
+          "at": "2026-11-05T09:09:45.023Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/interop.test.ts",
+      "name": "document interoperability through the LGSP (ST-DOC-021) the job that sends ends DEAD after 20 forced failures with an alert that has an owner, and the document is not reported as sent (AC-ST-DOC-021-1, UAT-AC425)",
+      "status": "passed",
+      "durationMs": 2893,
+      "at": "2026-11-05T09:09:48.788Z",
+      "requests": [
+        {
+          "id": "e437a380-b570-4676-aed4-0f0e48efd4cd",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:09:46.027Z"
+        },
+        {
+          "id": "50652801-40b5-42e6-a28e-83e8c547d8b4",
+          "method": "POST",
+          "path": "/outgoing-documents/be5bf5e1-9f4d-4d11-8d9b-292ac4dc64f7/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:09:46.043Z"
+        },
+        {
+          "id": "d411b4ef-7d6e-4768-84e7-98e9a02dc81d",
+          "method": "POST",
+          "path": "/outgoing-documents/be5bf5e1-9f4d-4d11-8d9b-292ac4dc64f7/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:09:46.057Z"
+        },
+        {
+          "id": "d5374a01-8fe8-49bd-b953-da1fcfb195ed",
+          "method": "POST",
+          "path": "/document-number-registers",
+          "status": 200,
+          "at": "2026-11-05T09:09:46.245Z"
+        },
+        {
+          "id": "38748395-523d-428c-b8fd-c460b48bc932",
+          "method": "POST",
+          "path": "/outgoing-documents/be5bf5e1-9f4d-4d11-8d9b-292ac4dc64f7/leader-signing-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:09:46.258Z"
+        },
+        {
+          "id": "5fb9514c-e3ca-4b65-960e-9f37822a4c3e",
+          "method": "POST",
+          "path": "/signing-sessions/0e008e87-5c39-45ac-a992-a30aab8ca4bc/completion",
+          "status": 200,
+          "at": "2026-11-05T09:09:46.333Z"
+        },
+        {
+          "id": "e294667e-7a12-4482-ad7d-249ec655c4ab",
+          "method": "POST",
+          "path": "/outgoing-documents/be5bf5e1-9f4d-4d11-8d9b-292ac4dc64f7/numbering",
+          "status": 200,
+          "at": "2026-11-05T09:09:46.400Z"
+        },
+        {
+          "id": "89365463-ff55-42c5-9bc5-a6240c6ada27",
+          "method": "POST",
+          "path": "/outgoing-documents/be5bf5e1-9f4d-4d11-8d9b-292ac4dc64f7/organization-seal-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:09:46.516Z"
+        },
+        {
+          "id": "a552840b-eb2e-4293-89de-22b775a37c26",
+          "method": "POST",
+          "path": "/signing-sessions/f78d7561-75da-4972-bfbb-3c6e759bee6a/completion",
+          "status": 200,
+          "at": "2026-11-05T09:09:46.596Z"
+        },
+        {
+          "id": "1f4287fa-b831-4e9a-bc5c-76cdaa078719",
+          "method": "POST",
+          "path": "/outgoing-documents/be5bf5e1-9f4d-4d11-8d9b-292ac4dc64f7/issuance",
+          "status": 200,
+          "at": "2026-11-05T09:09:46.751Z"
+        },
+        {
+          "id": "38773d1c-a96b-4e6e-a665-ddedbb33c51f",
+          "method": "POST",
+          "path": "/outgoing-documents/be5bf5e1-9f4d-4d11-8d9b-292ac4dc64f7/distributions",
+          "status": 200,
+          "at": "2026-11-05T09:09:46.859Z"
+        },
+        {
+          "id": "9611fa23-22dc-46a7-ab1a-fdeb6586719f",
+          "method": "POST",
+          "path": "/doc-interop-messages/6e229667-a50a-4266-ba07-febffb670e7f/retry",
+          "status": 200,
+          "at": "2026-11-05T09:09:48.463Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/interop.test.ts",
+      "name": "document interoperability through the LGSP (ST-DOC-021) the job that sends calls only a host on the allowlist of the tenant: any other address fails the message with EGRESS_NOT_ALLOWED and no call is made (AC-ST-DOC-021-2, UAT-AC425)",
+      "status": "passed",
+      "durationMs": 8119,
+      "at": "2026-11-05T09:09:56.906Z",
+      "requests": [
+        {
+          "id": "3c64880d-5d7f-4b9d-af10-5219666b1afc",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:09:49.017Z"
+        },
+        {
+          "id": "cda3febb-8b39-4c53-be52-2d1bc86f4528",
+          "method": "POST",
+          "path": "/outgoing-documents/b7eb21f3-3e4c-4127-aac1-ac4e8315468f/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:09:49.046Z"
+        },
+        {
+          "id": "03bfc646-adcb-4b84-981c-1559275217b1",
+          "method": "POST",
+          "path": "/outgoing-documents/b7eb21f3-3e4c-4127-aac1-ac4e8315468f/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:09:49.061Z"
+        },
+        {
+          "id": "a7370700-7f5f-4e46-a887-0f870d7a20e0",
+          "method": "POST",
+          "path": "/document-number-registers",
+          "status": 200,
+          "at": "2026-11-05T09:09:49.267Z"
+        },
+        {
+          "id": "1919ec4d-9d87-4ce4-b8eb-a3e75b01ab56",
+          "method": "POST",
+          "path": "/outgoing-documents/b7eb21f3-3e4c-4127-aac1-ac4e8315468f/leader-signing-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:09:49.279Z"
+        },
+        {
+          "id": "a2351322-a5be-459f-a798-1c1bc1daf5d2",
+          "method": "POST",
+          "path": "/signing-sessions/cba34cb3-cf5f-40d4-890a-905457ec2af2/completion",
+          "status": 200,
+          "at": "2026-11-05T09:09:49.338Z"
+        },
+        {
+          "id": "82732b16-67b9-4dc8-9887-a63ff4f66c8d",
+          "method": "POST",
+          "path": "/outgoing-documents/b7eb21f3-3e4c-4127-aac1-ac4e8315468f/numbering",
+          "status": 200,
+          "at": "2026-11-05T09:09:49.405Z"
+        },
+        {
+          "id": "f5d7866b-b6b8-4454-9d42-bf3660e39f2d",
+          "method": "POST",
+          "path": "/outgoing-documents/b7eb21f3-3e4c-4127-aac1-ac4e8315468f/organization-seal-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:09:49.513Z"
+        },
+        {
+          "id": "098ed040-73be-45f5-a0b2-a33891ccd901",
+          "method": "POST",
+          "path": "/signing-sessions/d6f2666b-6f6b-48f5-a573-1a770995de98/completion",
+          "status": 200,
+          "at": "2026-11-05T09:09:49.606Z"
+        },
+        {
+          "id": "8875db08-e14a-4821-8234-dde3ad2d3b6d",
+          "method": "POST",
+          "path": "/outgoing-documents/b7eb21f3-3e4c-4127-aac1-ac4e8315468f/issuance",
+          "status": 200,
+          "at": "2026-11-05T09:09:49.788Z"
+        },
+        {
+          "id": "4c631f1c-bca1-4499-9966-8727aaebe847",
+          "method": "POST",
+          "path": "/outgoing-documents/b7eb21f3-3e4c-4127-aac1-ac4e8315468f/distributions",
+          "status": 200,
+          "at": "2026-11-05T09:09:49.879Z"
+        },
+        {
+          "id": "9b1ca2fc-a3b1-4aec-bd3e-aae81ee4dac4",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:09:50.112Z"
+        },
+        {
+          "id": "1dc4a836-3433-46e4-89ee-71b7dc1e7824",
+          "method": "POST",
+          "path": "/outgoing-documents/8d410b5c-65c0-4462-aa68-3adab0b7c0e3/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:09:50.129Z"
+        },
+        {
+          "id": "a65bbb91-baed-4683-a1bb-7d440a1653a0",
+          "method": "POST",
+          "path": "/outgoing-documents/8d410b5c-65c0-4462-aa68-3adab0b7c0e3/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:09:50.147Z"
+        },
+        {
+          "id": "831df402-39e7-4c0c-8424-19bbbaa78174",
+          "method": "POST",
+          "path": "/document-number-registers",
+          "status": 200,
+          "at": "2026-11-05T09:09:50.351Z"
+        },
+        {
+          "id": "bd93eed3-c77c-46b6-b3a2-1287ae3a94e3",
+          "method": "POST",
+          "path": "/outgoing-documents/8d410b5c-65c0-4462-aa68-3adab0b7c0e3/leader-signing-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:09:50.364Z"
+        },
+        {
+          "id": "dd6cd0c6-dd1d-439c-a497-d88a263135bb",
+          "method": "POST",
+          "path": "/signing-sessions/1ea5c7c1-e2ee-4713-913b-50a3dba2ead6/completion",
+          "status": 200,
+          "at": "2026-11-05T09:09:50.503Z"
+        },
+        {
+          "id": "89d911a0-4be4-4b5c-8f22-cde68e55b38a",
+          "method": "POST",
+          "path": "/outgoing-documents/8d410b5c-65c0-4462-aa68-3adab0b7c0e3/numbering",
+          "status": 200,
+          "at": "2026-11-05T09:09:50.572Z"
+        },
+        {
+          "id": "5d0f256c-51c5-4438-88fd-0d86cbff892a",
+          "method": "POST",
+          "path": "/outgoing-documents/8d410b5c-65c0-4462-aa68-3adab0b7c0e3/organization-seal-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:09:50.686Z"
+        },
+        {
+          "id": "08133892-4155-448c-9fad-ddb037ff76ef",
+          "method": "POST",
+          "path": "/signing-sessions/1f41e65c-a2a2-46b4-8b3f-0ab488629c28/completion",
+          "status": 200,
+          "at": "2026-11-05T09:09:50.840Z"
+        },
+        {
+          "id": "9d1674c6-4919-4ccb-a43f-0bff983cb265",
+          "method": "POST",
+          "path": "/outgoing-documents/8d410b5c-65c0-4462-aa68-3adab0b7c0e3/issuance",
+          "status": 200,
+          "at": "2026-11-05T09:09:50.996Z"
+        },
+        {
+          "id": "b8c67c0b-78e7-4f5d-a770-8f43375356d0",
+          "method": "POST",
+          "path": "/outgoing-documents/8d410b5c-65c0-4462-aa68-3adab0b7c0e3/distributions",
+          "status": 200,
+          "at": "2026-11-05T09:09:51.106Z"
+        },
+        {
+          "id": "132e07fb-a175-45ec-bf18-4a29a4f23d82",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:09:51.446Z"
+        },
+        {
+          "id": "465ae199-0b77-43a7-8e4b-9076bc3fab08",
+          "method": "POST",
+          "path": "/outgoing-documents/9e3b7680-0840-4d65-b488-9912fef4ae91/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:09:51.473Z"
+        },
+        {
+          "id": "fabdcf0e-6689-4446-b005-5f77d478967e",
+          "method": "POST",
+          "path": "/outgoing-documents/9e3b7680-0840-4d65-b488-9912fef4ae91/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:09:51.493Z"
+        },
+        {
+          "id": "a0503feb-a3fa-45e4-b938-9c270898fc7c",
+          "method": "POST",
+          "path": "/document-number-registers",
+          "status": 200,
+          "at": "2026-11-05T09:09:51.713Z"
+        },
+        {
+          "id": "2b8a2840-7ca8-43a9-8ee8-b0082fdfcb65",
+          "method": "POST",
+          "path": "/outgoing-documents/9e3b7680-0840-4d65-b488-9912fef4ae91/leader-signing-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:09:51.724Z"
+        },
+        {
+          "id": "7f8fd17f-03e5-4811-b736-71d2634dcd02",
+          "method": "POST",
+          "path": "/signing-sessions/2528c51f-39b5-45b8-bc36-45733d9fadf1/completion",
+          "status": 200,
+          "at": "2026-11-05T09:09:51.869Z"
+        },
+        {
+          "id": "7bf2a4f3-921a-40d3-839d-d8954fcfb6e1",
+          "method": "POST",
+          "path": "/outgoing-documents/9e3b7680-0840-4d65-b488-9912fef4ae91/numbering",
+          "status": 200,
+          "at": "2026-11-05T09:09:51.945Z"
+        },
+        {
+          "id": "9502ab4b-0fe1-427d-b291-7c68a9bba93a",
+          "method": "POST",
+          "path": "/outgoing-documents/9e3b7680-0840-4d65-b488-9912fef4ae91/organization-seal-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:09:52.074Z"
+        },
+        {
+          "id": "f83265ac-6724-46b1-bf37-3347d55d3a6e",
+          "method": "POST",
+          "path": "/signing-sessions/1a576c19-915d-4335-8c60-d68760a1871d/completion",
+          "status": 200,
+          "at": "2026-11-05T09:09:52.157Z"
+        },
+        {
+          "id": "0bea2711-eb36-46f4-b59d-52605f08f20d",
+          "method": "POST",
+          "path": "/outgoing-documents/9e3b7680-0840-4d65-b488-9912fef4ae91/issuance",
+          "status": 200,
+          "at": "2026-11-05T09:09:52.307Z"
+        },
+        {
+          "id": "c19b8b2c-6956-4ee1-b42b-f1a533c864fd",
+          "method": "POST",
+          "path": "/outgoing-documents/9e3b7680-0840-4d65-b488-9912fef4ae91/distributions",
+          "status": 200,
+          "at": "2026-11-05T09:09:52.417Z"
+        },
+        {
+          "id": "fdd916ef-756c-41d9-8ca0-665a51ae7853",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:09:52.622Z"
+        },
+        {
+          "id": "920d389f-20c7-4c3e-9c52-1cf1ed3bfd3a",
+          "method": "POST",
+          "path": "/outgoing-documents/395613ec-b117-4295-9d04-18ab56e9be58/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:09:52.639Z"
+        },
+        {
+          "id": "57599cc7-e9ea-4df7-b1db-bbba12690557",
+          "method": "POST",
+          "path": "/outgoing-documents/395613ec-b117-4295-9d04-18ab56e9be58/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:09:52.658Z"
+        },
+        {
+          "id": "1a7dee40-2674-4e0c-b1f7-f7185daceff9",
+          "method": "POST",
+          "path": "/document-number-registers",
+          "status": 200,
+          "at": "2026-11-05T09:09:52.848Z"
+        },
+        {
+          "id": "ce7b62fa-06ad-455b-99dc-5ccc8f95737a",
+          "method": "POST",
+          "path": "/outgoing-documents/395613ec-b117-4295-9d04-18ab56e9be58/leader-signing-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:09:52.860Z"
+        },
+        {
+          "id": "25a17e9a-3981-444f-878e-1370ec964909",
+          "method": "POST",
+          "path": "/signing-sessions/56c8d795-d979-4ff0-974a-46b5abbe6a34/completion",
+          "status": 200,
+          "at": "2026-11-05T09:09:52.938Z"
+        },
+        {
+          "id": "b92352cc-ff5d-489e-a1d5-d3cb8314b571",
+          "method": "POST",
+          "path": "/outgoing-documents/395613ec-b117-4295-9d04-18ab56e9be58/numbering",
+          "status": 200,
+          "at": "2026-11-05T09:09:53.002Z"
+        },
+        {
+          "id": "0b2d9a50-4e4c-4fd0-8bed-c40813650fe4",
+          "method": "POST",
+          "path": "/outgoing-documents/395613ec-b117-4295-9d04-18ab56e9be58/organization-seal-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:09:53.113Z"
+        },
+        {
+          "id": "d3ddd0d2-c4c2-4aaa-9e82-8620e53813ce",
+          "method": "POST",
+          "path": "/signing-sessions/4315d5bb-2677-4d28-85d7-7ba29bc016fe/completion",
+          "status": 200,
+          "at": "2026-11-05T09:09:53.206Z"
+        },
+        {
+          "id": "74f274e4-1df4-4427-afa3-6eb5d9e0ebc5",
+          "method": "POST",
+          "path": "/outgoing-documents/395613ec-b117-4295-9d04-18ab56e9be58/issuance",
+          "status": 200,
+          "at": "2026-11-05T09:09:53.375Z"
+        },
+        {
+          "id": "cc17c4f9-b640-410e-86d1-407c5c7895c6",
+          "method": "POST",
+          "path": "/outgoing-documents/395613ec-b117-4295-9d04-18ab56e9be58/distributions",
+          "status": 200,
+          "at": "2026-11-05T09:09:53.470Z"
+        },
+        {
+          "id": "12d0821f-d9b2-46d1-b70e-07d3ce9105b6",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:09:53.683Z"
+        },
+        {
+          "id": "a17403b5-5842-4075-8dcc-667d89a98311",
+          "method": "POST",
+          "path": "/outgoing-documents/9c1efa01-a289-4954-aee7-9037d1457987/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:09:53.698Z"
+        },
+        {
+          "id": "eed72950-1ec0-43a9-a7cc-e88e80640eb4",
+          "method": "POST",
+          "path": "/outgoing-documents/9c1efa01-a289-4954-aee7-9037d1457987/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:09:53.712Z"
+        },
+        {
+          "id": "3d012a17-c4ae-4fc3-8e9e-8c9e528a9742",
+          "method": "POST",
+          "path": "/document-number-registers",
+          "status": 200,
+          "at": "2026-11-05T09:09:53.904Z"
+        },
+        {
+          "id": "093cb519-b7f1-493a-af14-74610a1b1607",
+          "method": "POST",
+          "path": "/outgoing-documents/9c1efa01-a289-4954-aee7-9037d1457987/leader-signing-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:09:53.916Z"
+        },
+        {
+          "id": "05bf3560-6bdb-43af-897d-9a9e4ef7ffef",
+          "method": "POST",
+          "path": "/signing-sessions/b9233e42-85d8-48c1-b3fd-59396b9e4227/completion",
+          "status": 200,
+          "at": "2026-11-05T09:09:54.051Z"
+        },
+        {
+          "id": "4d98c313-2038-475e-a2e1-36ae4e45e2d4",
+          "method": "POST",
+          "path": "/outgoing-documents/9c1efa01-a289-4954-aee7-9037d1457987/numbering",
+          "status": 200,
+          "at": "2026-11-05T09:09:54.106Z"
+        },
+        {
+          "id": "4376b067-7e6b-4029-96ad-02e87981a192",
+          "method": "POST",
+          "path": "/outgoing-documents/9c1efa01-a289-4954-aee7-9037d1457987/organization-seal-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:09:54.232Z"
+        },
+        {
+          "id": "b599c6b4-3895-4a84-91ac-1d08a90a3219",
+          "method": "POST",
+          "path": "/signing-sessions/df80c784-054c-4e88-84a9-20e070e443c2/completion",
+          "status": 200,
+          "at": "2026-11-05T09:09:54.305Z"
+        },
+        {
+          "id": "78cb3959-a011-41ed-914a-03e121f46f4c",
+          "method": "POST",
+          "path": "/outgoing-documents/9c1efa01-a289-4954-aee7-9037d1457987/issuance",
+          "status": 200,
+          "at": "2026-11-05T09:09:54.465Z"
+        },
+        {
+          "id": "1a40fad9-ea8f-4c2e-8d30-c8971592ebf2",
+          "method": "POST",
+          "path": "/outgoing-documents/9c1efa01-a289-4954-aee7-9037d1457987/distributions",
+          "status": 200,
+          "at": "2026-11-05T09:09:54.576Z"
+        },
+        {
+          "id": "1edb94b2-5ccf-4871-82d8-9ecb52f55e01",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:09:54.792Z"
+        },
+        {
+          "id": "8517899c-1992-40c5-b8da-cae279be70e0",
+          "method": "POST",
+          "path": "/outgoing-documents/04b85c47-2b1c-4f7d-8bc6-357c52727810/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:09:54.803Z"
+        },
+        {
+          "id": "19484edb-29c4-45a2-9776-f77b07cdb117",
+          "method": "POST",
+          "path": "/outgoing-documents/04b85c47-2b1c-4f7d-8bc6-357c52727810/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:09:54.832Z"
+        },
+        {
+          "id": "724cad4b-6ea9-437d-8237-d642e706959b",
+          "method": "POST",
+          "path": "/document-number-registers",
+          "status": 200,
+          "at": "2026-11-05T09:09:55.020Z"
+        },
+        {
+          "id": "09a29a57-fcd9-409d-ba6e-363b4605cea8",
+          "method": "POST",
+          "path": "/outgoing-documents/04b85c47-2b1c-4f7d-8bc6-357c52727810/leader-signing-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:09:55.034Z"
+        },
+        {
+          "id": "fa043136-3d76-4836-8f88-502f5dc1e75b",
+          "method": "POST",
+          "path": "/signing-sessions/0b26aa30-dbd3-494d-8f48-4ec8ba623ca1/completion",
+          "status": 200,
+          "at": "2026-11-05T09:09:55.102Z"
+        },
+        {
+          "id": "018def25-dd56-4c86-9002-3330eb17187a",
+          "method": "POST",
+          "path": "/outgoing-documents/04b85c47-2b1c-4f7d-8bc6-357c52727810/numbering",
+          "status": 200,
+          "at": "2026-11-05T09:09:55.162Z"
+        },
+        {
+          "id": "109571d8-b58e-4c26-b484-67b504c8be7a",
+          "method": "POST",
+          "path": "/outgoing-documents/04b85c47-2b1c-4f7d-8bc6-357c52727810/organization-seal-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:09:55.274Z"
+        },
+        {
+          "id": "f065498e-428f-4a24-99d2-a2c13309bb5e",
+          "method": "POST",
+          "path": "/signing-sessions/b6b436ca-d978-4c53-8858-e886d5ff50d2/completion",
+          "status": 200,
+          "at": "2026-11-05T09:09:55.410Z"
+        },
+        {
+          "id": "df753164-4c61-4ddc-a22b-60a44bca9322",
+          "method": "POST",
+          "path": "/outgoing-documents/04b85c47-2b1c-4f7d-8bc6-357c52727810/issuance",
+          "status": 200,
+          "at": "2026-11-05T09:09:55.578Z"
+        },
+        {
+          "id": "48299ee5-0239-412f-9e6f-a8769d86bdf7",
+          "method": "POST",
+          "path": "/outgoing-documents/04b85c47-2b1c-4f7d-8bc6-357c52727810/distributions",
+          "status": 200,
+          "at": "2026-11-05T09:09:55.675Z"
+        },
+        {
+          "id": "065fb735-2f10-4753-bc03-91d9f93b1ae4",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:09:55.952Z"
+        },
+        {
+          "id": "3642dc56-a889-46eb-8aa2-46d3de91f0ac",
+          "method": "POST",
+          "path": "/outgoing-documents/8cc83751-d2dd-46ad-93b9-fe2cbf1b8a63/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:09:55.980Z"
+        },
+        {
+          "id": "0fea271f-f8f5-410d-8f8d-940532b4d38e",
+          "method": "POST",
+          "path": "/outgoing-documents/8cc83751-d2dd-46ad-93b9-fe2cbf1b8a63/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:09:55.994Z"
+        },
+        {
+          "id": "b3b50c00-19e3-4ec7-a8cd-f75f3b3e4179",
+          "method": "POST",
+          "path": "/document-number-registers",
+          "status": 200,
+          "at": "2026-11-05T09:09:56.179Z"
+        },
+        {
+          "id": "cfe3ae8a-f98c-4713-9913-5a474b58dab7",
+          "method": "POST",
+          "path": "/outgoing-documents/8cc83751-d2dd-46ad-93b9-fe2cbf1b8a63/leader-signing-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:09:56.197Z"
+        },
+        {
+          "id": "c411e2db-049a-45e3-9add-65eee69df6b9",
+          "method": "POST",
+          "path": "/signing-sessions/03c3f9bc-da20-4a1e-b26f-a438ffee0b0c/completion",
+          "status": 200,
+          "at": "2026-11-05T09:09:56.262Z"
+        },
+        {
+          "id": "113e1d8b-55b2-4d03-90c6-e0d12550d129",
+          "method": "POST",
+          "path": "/outgoing-documents/8cc83751-d2dd-46ad-93b9-fe2cbf1b8a63/numbering",
+          "status": 200,
+          "at": "2026-11-05T09:09:56.323Z"
+        },
+        {
+          "id": "9ccbaec7-3ae9-44f3-ab5e-02f0ec524213",
+          "method": "POST",
+          "path": "/outgoing-documents/8cc83751-d2dd-46ad-93b9-fe2cbf1b8a63/organization-seal-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:09:56.430Z"
+        },
+        {
+          "id": "4782b489-a8db-4a0f-8a1c-6a3e281f03a2",
+          "method": "POST",
+          "path": "/signing-sessions/34e0720f-9bfc-467b-9d57-b1e5155ea777/completion",
+          "status": 200,
+          "at": "2026-11-05T09:09:56.514Z"
+        },
+        {
+          "id": "e7a22acb-59a7-4586-85fd-61e39931436b",
+          "method": "POST",
+          "path": "/outgoing-documents/8cc83751-d2dd-46ad-93b9-fe2cbf1b8a63/issuance",
+          "status": 200,
+          "at": "2026-11-05T09:09:56.669Z"
+        },
+        {
+          "id": "8ed33529-aac3-434d-957b-5583347fb561",
+          "method": "POST",
+          "path": "/outgoing-documents/8cc83751-d2dd-46ad-93b9-fe2cbf1b8a63/distributions",
+          "status": 200,
+          "at": "2026-11-05T09:09:56.772Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/interop.test.ts",
+      "name": "document interoperability through the LGSP (ST-DOC-021) the webhook that receives (receiveInteropMessage) makes one incoming letter when the same envelope is delivered twice, and the second delivery changes nothing (AC-ST-DOC-021-2, UAT-AC425)",
+      "status": "passed",
+      "durationMs": 989,
+      "at": "2026-11-05T09:10:29.460Z",
+      "requests": [
+        {
+          "id": "d1b5865a-344e-46dd-b366-d5ae9ad4541e",
+          "method": "POST",
+          "path": "/integrations/lgsp/inbound-messages",
+          "status": 200,
+          "at": "2026-11-05T09:10:28.687Z"
+        },
+        {
+          "id": "cd66727c-7e49-4238-b38b-7bed7bd84ee0",
+          "method": "POST",
+          "path": "/integrations/lgsp/inbound-messages",
+          "status": 409,
+          "at": "2026-11-05T09:10:29.071Z"
+        },
+        {
+          "id": "ac2a40e0-ffc3-481f-98e7-7e9e366793a3",
+          "method": "POST",
+          "path": "/integrations/lgsp/inbound-messages",
+          "status": 200,
+          "at": "2026-11-05T09:10:29.298Z"
+        },
+        {
+          "id": "d867f9ee-8ba6-4d57-934a-4f4f47c3bf73",
+          "method": "POST",
+          "path": "/integrations/lgsp/inbound-messages",
+          "status": 200,
+          "at": "2026-11-05T09:10:29.327Z"
+        }
+      ]
+    }
+  ]
+}

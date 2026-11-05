@@ -1,0 +1,54 @@
+{
+  "id": "UAT-AC399",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/payment-claim.test.ts",
+      "name": "sending, checking and returning a payment request over HTTP (ST-PAY-003) AC-ST-PAY-003-6, UAT-AC399: sends the request, takes the claim and puts it on the books; the same key answers the same, audited and told once",
+      "status": "passed",
+      "durationMs": 1025,
+      "at": "2026-11-05T09:18:24.428Z",
+      "requests": [
+        {
+          "id": "19fed938-b933-4fff-923e-0b2cbe164d4b",
+          "method": "POST",
+          "path": "/payment-requests",
+          "status": 200,
+          "at": "2026-11-05T09:18:23.888Z"
+        },
+        {
+          "id": "19d06553-986c-49ff-9f76-0ef37a04e015",
+          "method": "POST",
+          "path": "/payment-requests/6b3f548c-b96a-461d-9a54-912e4a3c05d0/documents",
+          "status": 200,
+          "at": "2026-11-05T09:18:23.992Z"
+        },
+        {
+          "id": "39d11cfe-2d35-40b2-a75a-e60470106f3a",
+          "method": "POST",
+          "path": "/payment-requests/6b3f548c-b96a-461d-9a54-912e4a3c05d0/submit",
+          "status": 200,
+          "at": "2026-11-05T09:18:24.070Z"
+        },
+        {
+          "id": "f6cee94b-3a02-4b52-8548-ffbe15d534f0",
+          "method": "POST",
+          "path": "/payment-requests/6b3f548c-b96a-461d-9a54-912e4a3c05d0/submit",
+          "status": 200,
+          "at": "2026-11-05T09:18:24.131Z"
+        },
+        {
+          "id": "88f5aeef-76d8-4876-a81e-065f9575e916",
+          "method": "POST",
+          "path": "/payment-requests/6b3f548c-b96a-461d-9a54-912e4a3c05d0/submit",
+          "status": 409,
+          "at": "2026-11-05T09:18:24.409Z"
+        }
+      ]
+    }
+  ]
+}

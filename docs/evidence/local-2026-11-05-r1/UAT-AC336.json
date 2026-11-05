@@ -1,0 +1,622 @@
+{
+  "id": "UAT-AC336",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/settlement.test.ts",
+      "name": "matching a Treasury transaction and working on a difference over HTTP (ST-PAY-007) giving an item to an owner and writing it off (UAT-AC336, AC-ST-PAY-007-3) gives the item to an owner with a day, tells ISS-facing consumers once, and refuses a day that is past, an owner who is not a member and a stale version",
+      "status": "passed",
+      "durationMs": 1492,
+      "at": "2026-11-05T09:14:07.578Z",
+      "requests": [
+        {
+          "id": "b679e5dd-28c4-432d-8a4a-f8010b8cbdcf",
+          "method": "POST",
+          "path": "/treasury-transactions/7c244d10-f478-4952-a656-9162c2bfd450/match",
+          "status": 422,
+          "at": "2026-11-05T09:14:07.216Z"
+        },
+        {
+          "id": "6872ecc5-dbe1-49f8-88dd-3cd3579bdd75",
+          "method": "POST",
+          "path": "/reconciliation-items/d6408c86-6408-4372-aa66-a3050f316ef1/assign",
+          "status": 200,
+          "at": "2026-11-05T09:14:07.278Z"
+        },
+        {
+          "id": "95aa2692-69c6-499a-840b-570961a7a3e3",
+          "method": "POST",
+          "path": "/reconciliation-items/d6408c86-6408-4372-aa66-a3050f316ef1/assign",
+          "status": 422,
+          "at": "2026-11-05T09:14:07.435Z"
+        },
+        {
+          "id": "49f78040-0197-47f2-8e68-038366b87e5d",
+          "method": "POST",
+          "path": "/reconciliation-items/d6408c86-6408-4372-aa66-a3050f316ef1/assign",
+          "status": 422,
+          "at": "2026-11-05T09:14:07.480Z"
+        },
+        {
+          "id": "77adf1d3-3ff1-4de7-aa0a-891fb388e0da",
+          "method": "POST",
+          "path": "/reconciliation-items/d6408c86-6408-4372-aa66-a3050f316ef1/assign",
+          "status": 409,
+          "at": "2026-11-05T09:14:07.508Z"
+        },
+        {
+          "id": "155c4104-5dbd-449b-866f-c0be4d38602f",
+          "method": "POST",
+          "path": "/reconciliation-items/d6408c86-6408-4372-aa66-a3050f316ef1/assign",
+          "status": 400,
+          "at": "2026-11-05T09:14:07.564Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/settlement.test.ts",
+      "name": "matching a Treasury transaction and working on a difference over HTTP (ST-PAY-007) giving an item to an owner and writing it off (UAT-AC336, AC-ST-PAY-007-3) writes the difference off only with the approving document and by someone other than its owner, and keeps the figures",
+      "status": "passed",
+      "durationMs": 1910,
+      "at": "2026-11-05T09:14:09.489Z",
+      "requests": [
+        {
+          "id": "0b235090-66af-4cc7-a984-9998fd71369e",
+          "method": "POST",
+          "path": "/treasury-transactions/a62de745-dca3-43af-897c-07db34fad4c5/match",
+          "status": 422,
+          "at": "2026-11-05T09:14:08.753Z"
+        },
+        {
+          "id": "26668d0f-cf01-4b07-94d9-99527fffa313",
+          "method": "POST",
+          "path": "/reconciliation-items/d44387ee-c924-45d8-9bdb-1c5f26ec45e6/assign",
+          "status": 200,
+          "at": "2026-11-05T09:14:08.905Z"
+        },
+        {
+          "id": "12f44c23-7b5c-4ca6-8986-5edaaf6c1004",
+          "method": "POST",
+          "path": "/reconciliation-items/d44387ee-c924-45d8-9bdb-1c5f26ec45e6/resolve",
+          "status": 422,
+          "at": "2026-11-05T09:14:09.018Z"
+        },
+        {
+          "id": "3c498ca5-41fe-4315-85a2-ac2105f96765",
+          "method": "POST",
+          "path": "/reconciliation-items/d44387ee-c924-45d8-9bdb-1c5f26ec45e6/resolve",
+          "status": 403,
+          "at": "2026-11-05T09:14:09.153Z"
+        },
+        {
+          "id": "d1531e1b-c662-4c49-8c26-daf0c8751d81",
+          "method": "POST",
+          "path": "/reconciliation-items/d44387ee-c924-45d8-9bdb-1c5f26ec45e6/resolve",
+          "status": 200,
+          "at": "2026-11-05T09:14:09.262Z"
+        },
+        {
+          "id": "a3645069-3990-43de-904a-d5a0a3618921",
+          "method": "GET",
+          "path": "/reconciliation-items/d44387ee-c924-45d8-9bdb-1c5f26ec45e6",
+          "status": 200,
+          "at": "2026-11-05T09:14:09.285Z"
+        },
+        {
+          "id": "6b307dd3-ec00-474d-990f-6215500c7285",
+          "method": "POST",
+          "path": "/reconciliation-items/d44387ee-c924-45d8-9bdb-1c5f26ec45e6/resolve",
+          "status": 409,
+          "at": "2026-11-05T09:14:09.402Z"
+        },
+        {
+          "id": "4904e90c-b445-433e-96c0-2dcd4b629628",
+          "method": "POST",
+          "path": "/reconciliation-items/d44387ee-c924-45d8-9bdb-1c5f26ec45e6/assign",
+          "status": 409,
+          "at": "2026-11-05T09:14:09.460Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-intake.test.ts",
+      "name": "the intake of automatic issues from the events of PMT, PAY, LND, CTR and AST (ST-ISS-005, ISS-11) AC-ST-PAY-007-3, UAT-AC336: an item of difference that is past its day opens one issue, the item keeps its identifier, and a second report of it changes nothing",
+      "status": "passed",
+      "durationMs": 284,
+      "at": "2026-11-05T09:21:07.194Z",
+      "requests": []
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/pay-payment-flows.spec.ts",
+      "name": "the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-2, UAT-AC335, UAT-AC12, UAT-AC336, UAT-AC331)",
+      "status": "passed",
+      "durationMs": 7864,
+      "at": "2026-11-05T09:28:36.229Z",
+      "requests": [
+        {
+          "id": "2676c29b-343e-4faf-a462-5ae2da097f6b",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T09:28:37.010Z"
+        },
+        {
+          "id": "a412e7a3-972e-41ac-84df-bb2dbc5c0ec8",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T09:28:37.011Z"
+        },
+        {
+          "id": "e0c7e754-7c98-4370-b26c-7ff621f3e38f",
+          "method": "GET",
+          "path": "/resources/allocation_line",
+          "status": 200,
+          "at": "2026-11-05T09:28:37.012Z"
+        },
+        {
+          "id": "a06b608f-b2eb-4327-aa14-871eb4455037",
+          "method": "POST",
+          "path": "/payment-requests",
+          "status": 200,
+          "at": "2026-11-05T09:28:37.163Z"
+        },
+        {
+          "id": "d3a3f0c0-4461-460a-86ec-e3f00c9aa2b9",
+          "method": "GET",
+          "path": "/resources/payment_request/7dbb289e-e867-4aec-99a2-d19b15362775",
+          "status": 200,
+          "at": "2026-11-05T09:28:37.248Z"
+        },
+        {
+          "id": "608381e0-013b-4716-9c09-669a52616242",
+          "method": "POST",
+          "path": "/payment-requests/7dbb289e-e867-4aec-99a2-d19b15362775/documents",
+          "status": 200,
+          "at": "2026-11-05T09:28:37.375Z"
+        },
+        {
+          "id": "4837f150-30df-4895-8d83-7a161308d2d4",
+          "method": "GET",
+          "path": "/resources/payment_request/7dbb289e-e867-4aec-99a2-d19b15362775",
+          "status": 200,
+          "at": "2026-11-05T09:28:37.393Z"
+        },
+        {
+          "id": "a4eacfb1-5766-4e7b-9913-2e6d8a23f500",
+          "method": "POST",
+          "path": "/payment-requests/7dbb289e-e867-4aec-99a2-d19b15362775/submit",
+          "status": 200,
+          "at": "2026-11-05T09:28:37.491Z"
+        },
+        {
+          "id": "ce6bd89f-85c7-423d-96f2-e0fb2b15532a",
+          "method": "GET",
+          "path": "/resources/payment_request/7dbb289e-e867-4aec-99a2-d19b15362775",
+          "status": 200,
+          "at": "2026-11-05T09:28:37.536Z"
+        },
+        {
+          "id": "cc03228c-792a-4cae-b777-8f90c9d97fd0",
+          "method": "GET",
+          "path": "/resources/payment_request/7dbb289e-e867-4aec-99a2-d19b15362775",
+          "status": 200,
+          "at": "2026-11-05T09:28:37.770Z"
+        },
+        {
+          "id": "3a8e6681-eee7-4d70-9036-fab0a47f0fef",
+          "method": "POST",
+          "path": "/payment-requests/7dbb289e-e867-4aec-99a2-d19b15362775/verify",
+          "status": 200,
+          "at": "2026-11-05T09:28:37.892Z"
+        },
+        {
+          "id": "99a8c81a-e5ce-427c-9a8f-b7ca88e2f609",
+          "method": "GET",
+          "path": "/resources/payment_request/7dbb289e-e867-4aec-99a2-d19b15362775",
+          "status": 200,
+          "at": "2026-11-05T09:28:37.907Z"
+        },
+        {
+          "id": "f3da15bf-a276-4608-a94e-98feda33981f",
+          "method": "GET",
+          "path": "/payment-requests/7dbb289e-e867-4aec-99a2-d19b15362775/forms",
+          "status": 200,
+          "at": "2026-11-05T09:28:38.035Z"
+        },
+        {
+          "id": "8f676365-557f-4689-80e3-c2d9dcbeeb55",
+          "method": "GET",
+          "path": "/resources/payment_request/7dbb289e-e867-4aec-99a2-d19b15362775",
+          "status": 200,
+          "at": "2026-11-05T09:28:38.034Z"
+        },
+        {
+          "id": "786b5495-f13c-4ed6-9bcd-0b406dbfb91c",
+          "method": "POST",
+          "path": "/payment-requests/7dbb289e-e867-4aec-99a2-d19b15362775/forms",
+          "status": 200,
+          "at": "2026-11-05T09:28:38.175Z"
+        },
+        {
+          "id": "918d346d-1aba-4d89-a1c8-54e28e6c6ad9",
+          "method": "GET",
+          "path": "/resources/payment_request/7dbb289e-e867-4aec-99a2-d19b15362775",
+          "status": 200,
+          "at": "2026-11-05T09:28:39.042Z"
+        },
+        {
+          "id": "e438d005-54da-47c9-ada8-58c30ea019f1",
+          "method": "GET",
+          "path": "/payment-requests/7dbb289e-e867-4aec-99a2-d19b15362775/forms",
+          "status": 200,
+          "at": "2026-11-05T09:28:39.043Z"
+        },
+        {
+          "id": "300fad78-0e94-43fb-927a-6342dbfac0fb",
+          "method": "POST",
+          "path": "/payment-requests/7dbb289e-e867-4aec-99a2-d19b15362775/send-treasury",
+          "status": 200,
+          "at": "2026-11-05T09:28:39.608Z"
+        },
+        {
+          "id": "eb32438a-d382-4876-804f-bb7ba64714a9",
+          "method": "GET",
+          "path": "/payment-requests/7dbb289e-e867-4aec-99a2-d19b15362775/forms",
+          "status": 304,
+          "at": "2026-11-05T09:28:39.634Z"
+        },
+        {
+          "id": "e484ea86-af32-462f-8a9b-6cbb57a39c1b",
+          "method": "GET",
+          "path": "/resources/payment_request/7dbb289e-e867-4aec-99a2-d19b15362775",
+          "status": 200,
+          "at": "2026-11-05T09:28:39.634Z"
+        },
+        {
+          "id": "420e2a50-b9a4-41a1-b7ed-ceb08f7f0730",
+          "method": "GET",
+          "path": "/resources/treasury_transaction",
+          "status": 200,
+          "at": "2026-11-05T09:28:40.069Z"
+        },
+        {
+          "id": "fc815e99-1129-44ab-9297-0fbabb81938b",
+          "method": "GET",
+          "path": "/resources/payment_request",
+          "status": 200,
+          "at": "2026-11-05T09:28:40.070Z"
+        },
+        {
+          "id": "72c0f221-15b2-4851-808a-f98855cebc2a",
+          "method": "GET",
+          "path": "/reconciliation-items",
+          "status": 200,
+          "at": "2026-11-05T09:28:40.068Z"
+        },
+        {
+          "id": "6f1bcb17-b3c4-46c0-b360-080ca4c1859e",
+          "method": "POST",
+          "path": "/treasury-transactions/e1461a4d-534d-482b-939e-d70feea067fb/match",
+          "status": 422,
+          "at": "2026-11-05T09:28:40.241Z"
+        },
+        {
+          "id": "1b2d8dd4-bddc-4bcd-8bd5-d16976825e60",
+          "method": "GET",
+          "path": "/resources/treasury_transaction",
+          "status": 200,
+          "at": "2026-11-05T09:28:40.264Z"
+        },
+        {
+          "id": "138b90b7-a4fd-4ae5-8fac-0772d80c5a67",
+          "method": "GET",
+          "path": "/resources/payment_request",
+          "status": 200,
+          "at": "2026-11-05T09:28:40.264Z"
+        },
+        {
+          "id": "7bdc6c2e-e225-4630-b104-e31d8d0c54ba",
+          "method": "GET",
+          "path": "/reconciliation-items",
+          "status": 200,
+          "at": "2026-11-05T09:28:40.263Z"
+        },
+        {
+          "id": "74a0af82-3960-4c1b-a32a-c2eae427e550",
+          "method": "GET",
+          "path": "/reconciliation-items/22171f80-d9de-4648-ad1b-6a42af87cc04",
+          "status": 200,
+          "at": "2026-11-05T09:28:40.408Z"
+        },
+        {
+          "id": "c7858402-ff6a-47bf-9aee-5f769f6d9b94",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 200,
+          "at": "2026-11-05T09:28:40.409Z"
+        },
+        {
+          "id": "0c050208-fd25-489d-ae33-6e241e779706",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 200,
+          "at": "2026-11-05T09:28:40.433Z"
+        },
+        {
+          "id": "c4daea54-fc25-47f3-9b78-77349fd616e9",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 200,
+          "at": "2026-11-05T09:28:40.451Z"
+        },
+        {
+          "id": "1e49e05c-6767-442f-a402-6005da5fe31c",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 200,
+          "at": "2026-11-05T09:28:40.467Z"
+        },
+        {
+          "id": "b3eb6f94-914c-4458-8240-9a3d56bf0c23",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 200,
+          "at": "2026-11-05T09:28:40.479Z"
+        },
+        {
+          "id": "e140d11a-a268-4871-bcbd-8a76fd55fc58",
+          "method": "POST",
+          "path": "/reconciliation-items/22171f80-d9de-4648-ad1b-6a42af87cc04/assign",
+          "status": 200,
+          "at": "2026-11-05T09:28:40.595Z"
+        },
+        {
+          "id": "4d49d12e-8adb-45a1-98b8-2793d411dfbb",
+          "method": "GET",
+          "path": "/reconciliation-items/22171f80-d9de-4648-ad1b-6a42af87cc04",
+          "status": 200,
+          "at": "2026-11-05T09:28:40.619Z"
+        },
+        {
+          "id": "b4bae0c2-5224-404f-a95d-8b8f0d9fbe26",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 304,
+          "at": "2026-11-05T09:28:40.620Z"
+        },
+        {
+          "id": "5d91d600-a9bc-4657-ba6b-944c41402094",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 304,
+          "at": "2026-11-05T09:28:40.641Z"
+        },
+        {
+          "id": "d61e4c1f-d2bd-4a17-92f7-8a0f491959ff",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 304,
+          "at": "2026-11-05T09:28:40.658Z"
+        },
+        {
+          "id": "b9a60147-90a1-4a9d-b9ca-9a77b7ec59b5",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 304,
+          "at": "2026-11-05T09:28:40.673Z"
+        },
+        {
+          "id": "cc2815c5-e6a3-40b6-8919-c02cf437e6e4",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 304,
+          "at": "2026-11-05T09:28:40.688Z"
+        },
+        {
+          "id": "9ad1cb82-3c44-495a-81b1-7d503ddd7ecf",
+          "method": "GET",
+          "path": "/reconciliation-items/22171f80-d9de-4648-ad1b-6a42af87cc04",
+          "status": 304,
+          "at": "2026-11-05T09:28:41.009Z"
+        },
+        {
+          "id": "c1d6490c-dec0-43ac-aced-eb3f3f9a312a",
+          "method": "POST",
+          "path": "/reconciliation-items/22171f80-d9de-4648-ad1b-6a42af87cc04/resolve",
+          "status": 200,
+          "at": "2026-11-05T09:28:41.141Z"
+        },
+        {
+          "id": "711fb1e2-df7a-4500-b4ec-2c362e9fc9e6",
+          "method": "GET",
+          "path": "/reconciliation-items/22171f80-d9de-4648-ad1b-6a42af87cc04",
+          "status": 200,
+          "at": "2026-11-05T09:28:41.164Z"
+        },
+        {
+          "id": "71d9e1b8-4721-479c-88e2-44da430a0906",
+          "method": "POST",
+          "path": "/reconciliation-items/22171f80-d9de-4648-ad1b-6a42af87cc04/resolve",
+          "status": 403,
+          "at": "2026-11-05T09:28:41.308Z"
+        },
+        {
+          "id": "19dde4a6-e556-40c5-979e-09acf3327667",
+          "method": "GET",
+          "path": "/reconciliation-items/22171f80-d9de-4648-ad1b-6a42af87cc04",
+          "status": 304,
+          "at": "2026-11-05T09:28:41.513Z"
+        },
+        {
+          "id": "e20ec708-539b-4c3e-95ac-fd052702f858",
+          "method": "POST",
+          "path": "/reconciliation-items/22171f80-d9de-4648-ad1b-6a42af87cc04/resolve",
+          "status": 200,
+          "at": "2026-11-05T09:28:41.658Z"
+        },
+        {
+          "id": "10c64ac8-973b-4a9e-acba-bd951b2c7400",
+          "method": "GET",
+          "path": "/reconciliation-items/22171f80-d9de-4648-ad1b-6a42af87cc04",
+          "status": 200,
+          "at": "2026-11-05T09:28:41.679Z"
+        },
+        {
+          "id": "19812c83-e314-42df-aec4-e6299f819160",
+          "method": "GET",
+          "path": "/resources/treasury_transaction",
+          "status": 200,
+          "at": "2026-11-05T09:28:41.930Z"
+        },
+        {
+          "id": "bf67972b-53f4-44d9-a851-9e57ef21c958",
+          "method": "GET",
+          "path": "/resources/payment_request",
+          "status": 200,
+          "at": "2026-11-05T09:28:41.930Z"
+        },
+        {
+          "id": "c15ce8f0-9c92-4d02-8a62-78f99062d1ce",
+          "method": "GET",
+          "path": "/reconciliation-items",
+          "status": 200,
+          "at": "2026-11-05T09:28:41.929Z"
+        },
+        {
+          "id": "8e19136e-0e2e-44e4-b36e-7676249194f7",
+          "method": "POST",
+          "path": "/treasury-transactions/6653fdfd-e790-42ee-9e20-3095c6dec4f5/match",
+          "status": 200,
+          "at": "2026-11-05T09:28:42.091Z"
+        },
+        {
+          "id": "efd5f94e-71bf-4649-8e7a-f2d95ec40eb3",
+          "method": "GET",
+          "path": "/resources/treasury_transaction",
+          "status": 200,
+          "at": "2026-11-05T09:28:42.124Z"
+        },
+        {
+          "id": "cddad9be-ffde-47c9-b75c-1a9a69f5db3c",
+          "method": "GET",
+          "path": "/resources/payment_request",
+          "status": 200,
+          "at": "2026-11-05T09:28:42.125Z"
+        },
+        {
+          "id": "3eeea241-504b-4230-9af6-3690854f84cb",
+          "method": "GET",
+          "path": "/reconciliation-items",
+          "status": 200,
+          "at": "2026-11-05T09:28:42.123Z"
+        },
+        {
+          "id": "464d2732-5762-4de6-acbd-7b5e54e8b304",
+          "method": "GET",
+          "path": "/treasury-tracking",
+          "status": 200,
+          "at": "2026-11-05T09:28:42.558Z"
+        },
+        {
+          "id": "98516f8c-7ef6-4df2-b666-f925892555e5",
+          "method": "GET",
+          "path": "/resources/treasury_transaction",
+          "status": 200,
+          "at": "2026-11-05T09:28:42.774Z"
+        },
+        {
+          "id": "0d73d9bb-181f-48bf-bf54-fb7f831d37d0",
+          "method": "GET",
+          "path": "/reconciliation-items",
+          "status": 200,
+          "at": "2026-11-05T09:28:42.773Z"
+        },
+        {
+          "id": "f64de145-31fa-403b-87b9-03f3c4bc2ae7",
+          "method": "GET",
+          "path": "/reconciliation-items/22171f80-d9de-4648-ad1b-6a42af87cc04",
+          "status": 304,
+          "at": "2026-11-05T09:28:42.876Z"
+        },
+        {
+          "id": "35c9f1cd-4c01-43ef-8ca7-70662a3c912c",
+          "method": "GET",
+          "path": "/resources/payment_request/7dbb289e-e867-4aec-99a2-d19b15362775",
+          "status": 200,
+          "at": "2026-11-05T09:28:43.021Z"
+        },
+        {
+          "id": "e32d5948-a414-4160-a962-fa2e7cf01bdf",
+          "method": "GET",
+          "path": "/resources/treasury_transaction",
+          "status": 200,
+          "at": "2026-11-05T09:28:43.163Z"
+        },
+        {
+          "id": "377a62ce-b988-4a85-ab89-fb259f282151",
+          "method": "GET",
+          "path": "/resources/payment_request/7dbb289e-e867-4aec-99a2-d19b15362775",
+          "status": 304,
+          "at": "2026-11-05T09:28:43.161Z"
+        },
+        {
+          "id": "47d8498d-149d-4301-bcf6-2085029cef88",
+          "method": "GET",
+          "path": "/contracts/2f07fff8-a25e-4d83-a42b-d6e674d6fdfd/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:28:43.162Z"
+        },
+        {
+          "id": "6b866211-e4a6-4626-8e2d-d17a75a7ea90",
+          "method": "POST",
+          "path": "/payment-requests/7dbb289e-e867-4aec-99a2-d19b15362775/reverse",
+          "status": 200,
+          "at": "2026-11-05T09:28:43.327Z"
+        },
+        {
+          "id": "5ba643bb-6dff-47bd-8877-215310a4ec5f",
+          "method": "GET",
+          "path": "/resources/treasury_transaction",
+          "status": 200,
+          "at": "2026-11-05T09:28:43.377Z"
+        },
+        {
+          "id": "fe0e5423-43c0-4a7a-9d85-1ea0ac3c4ba0",
+          "method": "GET",
+          "path": "/resources/payment_request/7dbb289e-e867-4aec-99a2-d19b15362775",
+          "status": 200,
+          "at": "2026-11-05T09:28:43.375Z"
+        },
+        {
+          "id": "5ade6b62-23e0-4852-9615-004c8bc2e61d",
+          "method": "GET",
+          "path": "/contracts/2f07fff8-a25e-4d83-a42b-d6e674d6fdfd/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:28:43.376Z"
+        },
+        {
+          "id": "c2a76806-c4a9-46f2-becd-156b46e3c3e6",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T09:28:43.823Z"
+        },
+        {
+          "id": "ff1fc4d3-e7b0-425f-af86-8be6c2d00419",
+          "method": "GET",
+          "path": "/payment-chain",
+          "status": 200,
+          "at": "2026-11-05T09:28:43.824Z"
+        }
+      ]
+    }
+  ]
+}

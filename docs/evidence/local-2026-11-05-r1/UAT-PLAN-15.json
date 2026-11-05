@@ -1,0 +1,40 @@
+{
+  "id": "UAT-PLAN-15",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/boq-import.test.ts",
+      "name": "importBoqLines and the reads of the BOQ (ST-CTR-002) importBoqLines from a file (AC-ST-CTR-002-3) imports a spreadsheet saved as XLSX the same way, and answers the first import for the same file (UAT-PLAN-15)",
+      "status": "passed",
+      "durationMs": 319,
+      "at": "2026-11-05T09:20:25.753Z",
+      "requests": [
+        {
+          "id": "f6d6d508-bca4-42da-9cfe-72b3a3c1cdca",
+          "method": "POST",
+          "path": "/contracts",
+          "status": 200,
+          "at": "2026-11-05T09:20:25.435Z"
+        },
+        {
+          "id": "b52c9149-97e5-4e1d-a80e-b3031fa676fd",
+          "method": "POST",
+          "path": "/contract-revisions/dfaf1225-8284-4848-9048-eab53d4e70f1/boq-lines",
+          "status": 200,
+          "at": "2026-11-05T09:20:25.508Z"
+        },
+        {
+          "id": "eaccbe26-4035-436c-a376-df83c4c2e8f9",
+          "method": "POST",
+          "path": "/contract-revisions/dfaf1225-8284-4848-9048-eab53d4e70f1/boq-lines",
+          "status": 200,
+          "at": "2026-11-05T09:20:25.530Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,137 @@
+{
+  "id": "UI-CTR-22",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/ctr-halt-flows.spec.ts",
+      "name": "the leader suspends an active contract on a decision document and resumes it with an extension that does not move the due date (UI-CTR-22, AC-ST-CTR-005-1, UAT-AC303)",
+      "status": "passed",
+      "durationMs": 1417,
+      "at": "2026-11-05T08:46:11.352Z",
+      "requests": [
+        {
+          "id": "6ee10ad5-c929-474e-8c68-be1bbd11f122",
+          "method": "GET",
+          "path": "/contracts/27ba242b-c32b-4a00-baaf-2ab2d631f1f1/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:11.943Z"
+        },
+        {
+          "id": "d24ea765-d431-4f85-b14b-3154c15c1d84",
+          "method": "POST",
+          "path": "/contracts/27ba242b-c32b-4a00-baaf-2ab2d631f1f1/suspend",
+          "status": 422,
+          "at": "2026-11-05T08:46:12.198Z"
+        },
+        {
+          "id": "876c6a7a-b4fd-4f04-9850-1d7f6e2aafac",
+          "method": "POST",
+          "path": "/contracts/27ba242b-c32b-4a00-baaf-2ab2d631f1f1/suspend",
+          "status": 200,
+          "at": "2026-11-05T08:46:12.313Z"
+        },
+        {
+          "id": "b7108d3d-c190-4b11-8ac2-54eccc30954f",
+          "method": "GET",
+          "path": "/contracts/27ba242b-c32b-4a00-baaf-2ab2d631f1f1/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:12.336Z"
+        },
+        {
+          "id": "865e7be8-0c86-47ff-81c2-f9964dc78388",
+          "method": "POST",
+          "path": "/contracts/27ba242b-c32b-4a00-baaf-2ab2d631f1f1/resume",
+          "status": 200,
+          "at": "2026-11-05T08:46:12.596Z"
+        },
+        {
+          "id": "e86bb241-8abb-4605-b519-37f39e3c60c2",
+          "method": "GET",
+          "path": "/contracts/27ba242b-c32b-4a00-baaf-2ab2d631f1f1/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:12.612Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/ctr-halt-flows.spec.ts",
+      "name": "the one who made the decision document may not approve the termination; the leader terminates it with the guarantee called and nothing is offered after (UI-CTR-22, AC-ST-CTR-005-2, UAT-AC304)",
+      "status": "passed",
+      "durationMs": 1404,
+      "at": "2026-11-05T08:46:12.777Z",
+      "requests": [
+        {
+          "id": "7b2240d5-1ae1-42c4-9fef-7763d74283ad",
+          "method": "GET",
+          "path": "/contracts/b81cb8dd-c3df-41b0-928b-0112be0eb1da/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:13.293Z"
+        },
+        {
+          "id": "3a046614-305d-40fd-a646-88e2dad66f61",
+          "method": "POST",
+          "path": "/contracts/b81cb8dd-c3df-41b0-928b-0112be0eb1da/terminate",
+          "status": 403,
+          "at": "2026-11-05T08:46:13.514Z"
+        },
+        {
+          "id": "3d14e598-741c-40c4-b962-e32d60d4c80b",
+          "method": "GET",
+          "path": "/contracts/b81cb8dd-c3df-41b0-928b-0112be0eb1da/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:13.761Z"
+        },
+        {
+          "id": "b8c9c557-0192-4b4e-a7d1-250b23ea25e9",
+          "method": "POST",
+          "path": "/contracts/b81cb8dd-c3df-41b0-928b-0112be0eb1da/terminate",
+          "status": 200,
+          "at": "2026-11-05T08:46:13.947Z"
+        },
+        {
+          "id": "39ff6993-f016-482b-b6de-0d3b5f2480b8",
+          "method": "GET",
+          "path": "/contracts/b81cb8dd-c3df-41b0-928b-0112be0eb1da/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:13.974Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/ctr-halt-flows.spec.ts",
+      "name": "the workspace of the contract leads to the screen, and a reader sees the contract and no command (UI-CTR-22)",
+      "status": "passed",
+      "durationMs": 877,
+      "at": "2026-11-05T08:46:14.188Z",
+      "requests": [
+        {
+          "id": "d51d9691-ef04-4eef-b3ce-8b7393ef244f",
+          "method": "GET",
+          "path": "/contracts/e763986b-12ac-4eea-a34c-7ff9632b0030/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:14.720Z"
+        },
+        {
+          "id": "35596d44-f4b9-4ee4-9d85-b1966682fc1e",
+          "method": "GET",
+          "path": "/contracts/e763986b-12ac-4eea-a34c-7ff9632b0030/summary",
+          "status": 304,
+          "at": "2026-11-05T08:46:14.836Z"
+        },
+        {
+          "id": "c6b04a7c-bdb3-4369-a354-22de145537ea",
+          "method": "GET",
+          "path": "/contracts/e763986b-12ac-4eea-a34c-7ff9632b0030/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:15.008Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,586 @@
+{
+  "id": "UAT-AC343",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/cumulative-ledger.test.ts",
+      "name": "the cumulative ledger over HTTP and the consumer of the acceptance events (ST-PAY-001) reading the ledger AC-ST-PAY-001-3, UAT-AC343: reads a ledger of thousands of rows within the budget, cold and warm, and the warm read comes from the cache",
+      "status": "passed",
+      "durationMs": 2018,
+      "at": "2026-11-05T09:20:17.801Z",
+      "requests": [
+        {
+          "id": "7672f597-282e-4afb-8a13-52592c017eb0",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.410Z"
+        },
+        {
+          "id": "ab772e67-a5a8-4bf1-a4d8-1f601d073006",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.427Z"
+        },
+        {
+          "id": "9575fc81-f08a-4604-8c12-03757e94d92a",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.442Z"
+        },
+        {
+          "id": "f571589c-f9f1-4e15-8603-60af94aa144e",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.458Z"
+        },
+        {
+          "id": "80915899-6086-41ac-9e39-91c79c100087",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.474Z"
+        },
+        {
+          "id": "65ec2fef-16c0-4c71-8bbb-005c0bbc46da",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.491Z"
+        },
+        {
+          "id": "7e074c8f-b96d-4746-b8b6-8473d04dc2eb",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.507Z"
+        },
+        {
+          "id": "8425f727-5d6c-4b08-86b3-eaecfff41ca8",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.519Z"
+        },
+        {
+          "id": "36fb4597-3c22-4190-ab75-4b3d89d052b2",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.538Z"
+        },
+        {
+          "id": "85ae8158-3098-4331-8582-84a6796fc403",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.555Z"
+        },
+        {
+          "id": "6183d768-ba19-4fe0-a7bf-3c2d8a298ac9",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.570Z"
+        },
+        {
+          "id": "04bc9a26-ec7a-4bd1-b26d-1823f46ab958",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.587Z"
+        },
+        {
+          "id": "47167a80-04bb-4f22-af02-c5a0cd00beed",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.603Z"
+        },
+        {
+          "id": "67626265-b47c-4021-89d3-2c8f5e72c054",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.620Z"
+        },
+        {
+          "id": "96e5b842-8e72-4e2b-9538-28f2ffbc6a98",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.633Z"
+        },
+        {
+          "id": "8893387f-e0e0-4c8a-bdaf-25f8f0aacbbc",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.651Z"
+        },
+        {
+          "id": "955edae4-dbc8-491b-a46a-582ecaa54a52",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.665Z"
+        },
+        {
+          "id": "0de0a17d-36d0-41b9-ac94-8d2ff55443bc",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.681Z"
+        },
+        {
+          "id": "95e096ab-fc5c-4aae-83ae-98bfdf89f85d",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.699Z"
+        },
+        {
+          "id": "9cb2067a-e84a-4795-b872-fbe93b176ed7",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.713Z"
+        },
+        {
+          "id": "f7388c9f-37f3-42da-85c6-57c9f46d0b73",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.729Z"
+        },
+        {
+          "id": "b08ad287-d9fa-42a4-97aa-10c811bb5753",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.739Z"
+        },
+        {
+          "id": "42c74210-05ef-4686-9837-5cf5bfee49bd",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.755Z"
+        },
+        {
+          "id": "7ee4b3dd-335a-4234-a640-71e8b4b6236e",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.760Z"
+        },
+        {
+          "id": "15391548-c246-4bf2-b1e9-26a9be97b71d",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.772Z"
+        },
+        {
+          "id": "2ff88f79-599d-411f-8b87-f5a184a93de7",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.800Z"
+        },
+        {
+          "id": "e8656637-11f5-42d4-9ea5-5edb9d5f3091",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.809Z"
+        },
+        {
+          "id": "92e55392-b38e-4af7-93d9-85b4bb40e685",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.817Z"
+        },
+        {
+          "id": "d43fc0e5-913a-466d-a0c5-f160977ba135",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.824Z"
+        },
+        {
+          "id": "8dbb45bc-1a2e-4e0c-b233-045d5aaddabc",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.832Z"
+        },
+        {
+          "id": "1c8f459a-d83d-4205-acbf-73d53bf6a5e8",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.080Z"
+        },
+        {
+          "id": "ebba8424-261a-4bd4-9aab-86905f456095",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.088Z"
+        },
+        {
+          "id": "ff966f82-7334-4730-802d-10a75adb2029",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.104Z"
+        },
+        {
+          "id": "99f72835-22ae-483a-9c34-dd5798ea579b",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.121Z"
+        },
+        {
+          "id": "8906d232-6468-4931-a4e8-55b57569942a",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.135Z"
+        },
+        {
+          "id": "a04d0b5f-f51d-414b-b983-6cda72e8baea",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.151Z"
+        },
+        {
+          "id": "67aed69a-60f2-4e17-9989-c07738c725be",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.169Z"
+        },
+        {
+          "id": "bfb49dbc-5808-4355-8d08-5afc8c29c377",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.175Z"
+        },
+        {
+          "id": "ac908b69-b2be-472f-bdb6-b432f88e97f5",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.180Z"
+        },
+        {
+          "id": "be0c06ce-1a91-4eb6-8cc1-077592254c58",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.185Z"
+        },
+        {
+          "id": "39e114d6-faea-44b1-a620-3730a0bdf1af",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.198Z"
+        },
+        {
+          "id": "e1d52b6c-008b-494a-9ddf-543f3c7c7750",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.214Z"
+        },
+        {
+          "id": "c7bcf8f1-fb19-46b7-a98a-a96a85878fa6",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.229Z"
+        },
+        {
+          "id": "bc96a19e-5075-4bf6-828c-ece651cbddef",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.245Z"
+        },
+        {
+          "id": "a5c0316e-3f65-4a75-b040-86d208c4560b",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.249Z"
+        },
+        {
+          "id": "800a7d3b-d9de-48bf-9491-777adc13e9ac",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.262Z"
+        },
+        {
+          "id": "2f8aff4f-b63f-4dfe-b1ab-e9a47a63e43e",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.278Z"
+        },
+        {
+          "id": "cff4ec25-f7d2-4a37-8122-b1b5f10c99d8",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.294Z"
+        },
+        {
+          "id": "404f385d-ed04-448d-9185-ae964dd7bc20",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.311Z"
+        },
+        {
+          "id": "7deebf64-f5a8-4cf6-ac6f-1a33b99d5392",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.326Z"
+        },
+        {
+          "id": "93eec75e-56c9-4e73-ba2c-57e8174c7e54",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.342Z"
+        },
+        {
+          "id": "174870ed-1ab6-4598-ae4e-b095020da311",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.347Z"
+        },
+        {
+          "id": "9d24a410-5598-447e-bb69-71a64846a6b7",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.359Z"
+        },
+        {
+          "id": "25bea7bd-3026-4802-9e10-07774ce1afd8",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.374Z"
+        },
+        {
+          "id": "07ca5188-886a-42a9-a507-ac7e48999180",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.392Z"
+        },
+        {
+          "id": "b59f5de8-4150-4de7-91f8-fc302bc36583",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.406Z"
+        },
+        {
+          "id": "2a1a463e-30e4-4f26-8645-2b7e7ffe272a",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.411Z"
+        },
+        {
+          "id": "a7f47ad4-52aa-454e-aded-95373ebdf782",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.422Z"
+        },
+        {
+          "id": "86e9b496-33c4-4738-b64e-a1a8861d15f5",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.439Z"
+        },
+        {
+          "id": "7a6364b0-bbf9-42a3-a875-57275c83d52e",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.454Z"
+        },
+        {
+          "id": "a5f62548-767d-4298-84a7-cd788f04aedf",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.471Z"
+        },
+        {
+          "id": "a520550c-4944-4309-8258-b8f28d3241a8",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.486Z"
+        },
+        {
+          "id": "5b4dfa10-46e6-45f3-94ce-ed2d3e444027",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.502Z"
+        },
+        {
+          "id": "6fa96f91-cf02-46c5-8538-486946d7cab6",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.518Z"
+        },
+        {
+          "id": "61f9c40c-df44-49fe-82ae-18219d9c66b5",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.534Z"
+        },
+        {
+          "id": "b667ffe2-1293-4786-a8ea-da698b70787d",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.550Z"
+        },
+        {
+          "id": "d62673da-4498-4980-92f1-7a4c662d3b38",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.566Z"
+        },
+        {
+          "id": "14b93372-1723-43d9-acd2-7394a40cc8e1",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.570Z"
+        },
+        {
+          "id": "81dbe70e-cdff-4154-9d28-26b4a29c2522",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.583Z"
+        },
+        {
+          "id": "278454f8-f261-4969-9f03-616039a9c4ca",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.598Z"
+        },
+        {
+          "id": "a2c98391-0838-471b-8e98-d3f17dea7d1e",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.615Z"
+        },
+        {
+          "id": "2ab2fd08-15b4-4a60-94d5-cd0c0e1c11f4",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.631Z"
+        },
+        {
+          "id": "341d93f5-8c2e-4679-a3ec-4e7e7b54b1fc",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.646Z"
+        },
+        {
+          "id": "27146e13-15d9-4177-83d3-70661486c47a",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.662Z"
+        },
+        {
+          "id": "ccbf8868-d9c4-4621-932c-6b611507d75b",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.678Z"
+        },
+        {
+          "id": "c23ae99f-1d4a-412c-83f7-05dd75339304",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.696Z"
+        },
+        {
+          "id": "389695d5-95a0-403b-9d1e-705f2ecca026",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.710Z"
+        },
+        {
+          "id": "d4d06a41-5b65-44bd-9fc6-8480d19d912a",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.726Z"
+        },
+        {
+          "id": "9a8c77cb-6240-4423-98b6-3f7a27db40c6",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.743Z"
+        },
+        {
+          "id": "03f65a53-e935-4972-86e7-331e1450cd50",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.760Z"
+        },
+        {
+          "id": "d59ca42a-1b24-4715-9c20-f53fce44dc07",
+          "method": "GET",
+          "path": "/contracts/3592e4c4-e7fe-4807-80d6-c26dc0a0a868/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:17.774Z"
+        }
+      ]
+    }
+  ]
+}

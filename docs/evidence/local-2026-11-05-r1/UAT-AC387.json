@@ -1,0 +1,447 @@
+{
+  "id": "UAT-AC387",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-intake.test.ts",
+      "name": "the intake of automatic issues from the events of PMT, PAY, LND, CTR and AST (ST-ISS-005, ISS-11) AC-ST-LND-010-1, UAT-AC387: a stage of land clearance that is late opens one issue, the stage keeps the issue that holds it up, and a second late event for it changes nothing",
+      "status": "passed",
+      "durationMs": 317,
+      "at": "2026-11-05T09:21:06.910Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/stage-progress.test.ts",
+      "name": "the progress of land clearance by stage, tracked from outside (ST-LND-010) reportLandStageProgress (AC-ST-LND-010-1, UAT-AC387) lets the project give a stage to the external centre, and the centre report on it with evidence: stored, audited and told with ids only",
+      "status": "passed",
+      "durationMs": 381,
+      "at": "2026-11-05T09:23:09.387Z",
+      "requests": [
+        {
+          "id": "f5f97816-8e15-4f22-807f-ef46f24228a8",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 403,
+          "at": "2026-11-05T09:23:09.115Z"
+        },
+        {
+          "id": "24220737-6c49-4cde-b28f-519c979c9d62",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 200,
+          "at": "2026-11-05T09:23:09.188Z"
+        },
+        {
+          "id": "c5a0b5b5-98ec-4978-8c5f-e879b2783355",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 200,
+          "at": "2026-11-05T09:23:09.211Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/stage-progress.test.ts",
+      "name": "the progress of land clearance by stage, tracked from outside (ST-LND-010) reportLandStageProgress (AC-ST-LND-010-1, UAT-AC387) answers a repeated request with the first answer and keeps one version",
+      "status": "passed",
+      "durationMs": 117,
+      "at": "2026-11-05T09:23:09.504Z",
+      "requests": [
+        {
+          "id": "3c1448c0-277d-4d91-97fe-8a5a56929eb1",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 200,
+          "at": "2026-11-05T09:23:09.430Z"
+        },
+        {
+          "id": "d613a901-d57e-4f1a-aab4-3ac0487bdbc4",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 200,
+          "at": "2026-11-05T09:23:09.448Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/stage-progress.test.ts",
+      "name": "the progress of land clearance by stage, tracked from outside (ST-LND-010) reportLandStageProgress (AC-ST-LND-010-1, UAT-AC387) takes a stage that is behind its planned end into LATE and asks ISS for one issue, once",
+      "status": "passed",
+      "durationMs": 159,
+      "at": "2026-11-05T09:23:09.663Z",
+      "requests": [
+        {
+          "id": "4b19fb6b-bf87-4757-8e5a-c5b705e38d6b",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 200,
+          "at": "2026-11-05T09:23:09.546Z"
+        },
+        {
+          "id": "5062bcca-b802-4d66-b4c4-88caa68e6414",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 200,
+          "at": "2026-11-05T09:23:09.600Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/stage-progress.test.ts",
+      "name": "the progress of land clearance by stage, tracked from outside (ST-LND-010) reportLandStageProgress (AC-ST-LND-010-1, UAT-AC387) does not take the report of a stage that LND counts itself: 422 NATIVE_STAGE_READONLY",
+      "status": "passed",
+      "durationMs": 67,
+      "at": "2026-11-05T09:23:09.730Z",
+      "requests": [
+        {
+          "id": "6045e2ad-5204-4473-916a-c5ac876e1d12",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 422,
+          "at": "2026-11-05T09:23:09.706Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/stage-progress.test.ts",
+      "name": "the progress of land clearance by stage, tracked from outside (ST-LND-010) reportLandStageProgress (AC-ST-LND-010-1, UAT-AC387) refuses more parcels done than the total with 422 PARCELS_DONE_EXCEEDS_TOTAL, and an unproven report",
+      "status": "passed",
+      "durationMs": 233,
+      "at": "2026-11-05T09:23:09.963Z",
+      "requests": [
+        {
+          "id": "bcf1276e-f355-4651-af95-c13a43e279cc",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 422,
+          "at": "2026-11-05T09:23:09.780Z"
+        },
+        {
+          "id": "e3c6f75a-e27f-413e-953d-552101086d7c",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 422,
+          "at": "2026-11-05T09:23:09.794Z"
+        },
+        {
+          "id": "e8e130a1-9244-40e0-b766-07d1dca75097",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 422,
+          "at": "2026-11-05T09:23:09.887Z"
+        },
+        {
+          "id": "fdf16700-146c-4ab9-b041-12286f33f665",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 422,
+          "at": "2026-11-05T09:23:09.910Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/stage-progress.test.ts",
+      "name": "the progress of land clearance by stage, tracked from outside (ST-LND-010) reportLandStageProgress (AC-ST-LND-010-1, UAT-AC387) turns away with 403 the caller who reaches neither the project nor the executing unit, and the unit that is not named",
+      "status": "passed",
+      "durationMs": 187,
+      "at": "2026-11-05T09:23:10.150Z",
+      "requests": [
+        {
+          "id": "028e7d9b-a4a9-4953-8ed9-69b2281175dd",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 403,
+          "at": "2026-11-05T09:23:10.008Z"
+        },
+        {
+          "id": "bc0a357b-bf98-4772-9e8c-56b13336625b",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 403,
+          "at": "2026-11-05T09:23:10.017Z"
+        },
+        {
+          "id": "67662504-d9b4-4fad-8457-815fde836e16",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 403,
+          "at": "2026-11-05T09:23:10.032Z"
+        },
+        {
+          "id": "efd515b2-ca88-47b6-a459-8f3a105e371e",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 200,
+          "at": "2026-11-05T09:23:10.048Z"
+        },
+        {
+          "id": "d700c724-fca2-4678-9433-5c813ace7121",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 403,
+          "at": "2026-11-05T09:23:10.078Z"
+        },
+        {
+          "id": "e819be56-0139-4b44-b03a-759bae656e4e",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 200,
+          "at": "2026-11-05T09:23:10.127Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/stage-progress.test.ts",
+      "name": "the progress of land clearance by stage, tracked from outside (ST-LND-010) reportLandStageProgress (AC-ST-LND-010-1, UAT-AC387) does not find a project of another tenant, nor one that does not exist",
+      "status": "passed",
+      "durationMs": 92,
+      "at": "2026-11-05T09:23:10.242Z",
+      "requests": [
+        {
+          "id": "e9c85355-f468-4a9a-bea0-56df961e2cc0",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 404,
+          "at": "2026-11-05T09:23:10.192Z"
+        },
+        {
+          "id": "c8366018-4d03-4ea3-9640-c08398ddfdef",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 404,
+          "at": "2026-11-05T09:23:10.209Z"
+        },
+        {
+          "id": "66368166-3707-40aa-97d1-aa1e97323c03",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 404,
+          "at": "2026-11-05T09:23:10.225Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/stage-progress.test.ts",
+      "name": "the progress of land clearance by stage, tracked from outside (ST-LND-010) reportLandStageProgress (AC-ST-LND-010-1, UAT-AC387) refuses a body with a member that is not in the contract, and a request with no key",
+      "status": "passed",
+      "durationMs": 138,
+      "at": "2026-11-05T09:23:10.381Z",
+      "requests": [
+        {
+          "id": "2192e3ea-b821-403d-aaf4-b82fed615b48",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 400,
+          "at": "2026-11-05T09:23:10.348Z"
+        },
+        {
+          "id": "a50a8768-dc19-4c1a-8069-e42757bf9410",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 400,
+          "at": "2026-11-05T09:23:10.366Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/stage-progress.test.ts",
+      "name": "the progress of land clearance by stage, tracked from outside (ST-LND-010) getLandProgress (LND-01, LND-11) counts the overview from the rows of LND: the sections, the parcels, the stages and the late ones equal the underlying rows (AC-ST-LND-010-1, UAT-AC387)",
+      "status": "passed",
+      "durationMs": 164,
+      "at": "2026-11-05T09:23:10.545Z",
+      "requests": [
+        {
+          "id": "715ba902-b959-4058-ba51-38e0d9bc0678",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 200,
+          "at": "2026-11-05T09:23:10.428Z"
+        },
+        {
+          "id": "0db87252-1b25-46e8-8938-449e3446820a",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 200,
+          "at": "2026-11-05T09:23:10.457Z"
+        },
+        {
+          "id": "146e2f2e-eb42-4434-9f73-29fbe69cbebf",
+          "method": "GET",
+          "path": "/projects/00000000-0000-4000-00b6-000000000001/land-progress",
+          "status": 200,
+          "at": "2026-11-05T09:23:10.472Z"
+        },
+        {
+          "id": "c7febd5a-2e5b-42ad-91a5-3a24a03d1547",
+          "method": "GET",
+          "path": "/projects/00000000-0000-4000-00b6-000000000001/land-progress",
+          "status": 200,
+          "at": "2026-11-05T09:23:10.532Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/lnd-progress-flows.spec.ts",
+      "name": "the officer reports the stage of the centre with evidence, the late stage shows on the overview with the centre, and the figures equal the rows (AC-ST-LND-010-1, UAT-AC387, UI-LND-11, UI-LND-01)",
+      "status": "passed",
+      "durationMs": 1642,
+      "at": "2026-11-05T08:48:21.091Z",
+      "requests": [
+        {
+          "id": "e6bd0aef-7bc6-43d1-a292-30f2c610b175",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 200,
+          "at": "2026-11-05T08:48:21.744Z"
+        },
+        {
+          "id": "ded8053a-5fdf-4d64-8b97-60bdd8902dce",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:21.744Z"
+        },
+        {
+          "id": "7deef160-84aa-491f-83b7-64422c1854b0",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:21.742Z"
+        },
+        {
+          "id": "98aa1af3-2e24-4d9a-aecb-a619eb6b76d7",
+          "method": "GET",
+          "path": "/projects/32537782-ef3e-4f3d-b795-f8ea7adfc056/land-progress",
+          "status": 200,
+          "at": "2026-11-05T08:48:21.743Z"
+        },
+        {
+          "id": "0599bbae-216a-45cd-b5fc-e983d7954065",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:21.791Z"
+        },
+        {
+          "id": "3cc47803-b850-431d-bc11-ee7a1c243d58",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.064Z"
+        },
+        {
+          "id": "b339f2c9-1d7e-4cfa-9118-53400a91e58e",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.082Z"
+        },
+        {
+          "id": "9779fc68-1cb2-4f52-8723-3c2f51ae9471",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 304,
+          "at": "2026-11-05T08:48:22.087Z"
+        },
+        {
+          "id": "29a63daa-4deb-4a20-b676-70a03d64ef28",
+          "method": "GET",
+          "path": "/projects/32537782-ef3e-4f3d-b795-f8ea7adfc056/land-progress",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.086Z"
+        },
+        {
+          "id": "6e472dc5-32ef-48c4-998f-4fe9f5ec6f6c",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.095Z"
+        },
+        {
+          "id": "642babf5-563e-475d-b4db-1cc16b35d1cb",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.088Z"
+        },
+        {
+          "id": "d92873b2-455b-4b4f-89be-9d4477b77fbb",
+          "method": "POST",
+          "path": "/land-stage-progress/report",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.281Z"
+        },
+        {
+          "id": "fd2a79b3-78ef-4b9d-86e5-83c209c824d3",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 304,
+          "at": "2026-11-05T08:48:22.304Z"
+        },
+        {
+          "id": "9ca37d73-238e-4e06-8857-e6a7aad3b0d2",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.303Z"
+        },
+        {
+          "id": "f504627d-5aae-4b29-8c15-12e3ae458905",
+          "method": "GET",
+          "path": "/projects/32537782-ef3e-4f3d-b795-f8ea7adfc056/land-progress",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.302Z"
+        },
+        {
+          "id": "05af5493-c1fd-46d8-9abf-42ea4298a71c",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.301Z"
+        },
+        {
+          "id": "683360d4-baf5-41b3-942b-e4b6bd445f2f",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.315Z"
+        },
+        {
+          "id": "fada2266-0d03-489a-bde9-912f377d66f6",
+          "method": "GET",
+          "path": "/projects/32537782-ef3e-4f3d-b795-f8ea7adfc056/land-progress",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.638Z"
+        },
+        {
+          "id": "21adc7e7-d6f9-46f6-b7ca-704412511a5a",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.637Z"
+        },
+        {
+          "id": "2a5c8bdb-ff6c-4e98-9492-bb3491b4b84f",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:22.651Z"
+        }
+      ]
+    }
+  ]
+}

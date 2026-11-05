@@ -1,0 +1,194 @@
+{
+  "id": "UAT-AC339",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/project-settlement.test.ts",
+      "name": "the settlement of a project over HTTP (ST-PAY-009) UAT-AC339: gives the deadline of the group of the project from the day of the submission, refuses a rule that is not in force, and keeps the deadline it gave",
+      "status": "passed",
+      "durationMs": 6133,
+      "at": "2026-11-05T09:15:10.341Z",
+      "requests": [
+        {
+          "id": "b5f3d176-f9bc-4f34-85ee-d30e752231be",
+          "method": "POST",
+          "path": "/settlements",
+          "status": 200,
+          "at": "2026-11-05T09:15:04.731Z"
+        },
+        {
+          "id": "dcafb441-b4fa-4990-a152-522c74250fd0",
+          "method": "POST",
+          "path": "/settlements/ef0d3dab-625c-4f92-a635-681b21ba624a/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:04.791Z"
+        },
+        {
+          "id": "d426113f-31ef-43d7-99c6-ebf2525600a6",
+          "method": "GET",
+          "path": "/resources/settlement_revision/ef0d3dab-625c-4f92-a635-681b21ba624a",
+          "status": 200,
+          "at": "2026-11-05T09:15:04.869Z"
+        },
+        {
+          "id": "bbec7584-5669-4011-8bbf-df72bb096c1c",
+          "method": "GET",
+          "path": "/resources/settlement_revision/ef0d3dab-625c-4f92-a635-681b21ba624a",
+          "status": 200,
+          "at": "2026-11-05T09:15:04.889Z"
+        },
+        {
+          "id": "fcbbd869-3abf-46a0-bf23-1faba44f4eb8",
+          "method": "POST",
+          "path": "/settlements",
+          "status": 200,
+          "at": "2026-11-05T09:15:05.425Z"
+        },
+        {
+          "id": "195532b3-dbac-4f95-97a0-02808ad072b5",
+          "method": "POST",
+          "path": "/settlements/18adab74-1aad-457f-9bf3-7c4a241dbc68/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:05.481Z"
+        },
+        {
+          "id": "e919c56b-7e60-464a-bc8e-b474621ce527",
+          "method": "GET",
+          "path": "/resources/settlement_revision/18adab74-1aad-457f-9bf3-7c4a241dbc68",
+          "status": 200,
+          "at": "2026-11-05T09:15:05.548Z"
+        },
+        {
+          "id": "8817065d-2df6-4a76-b592-57586cace6b2",
+          "method": "GET",
+          "path": "/resources/settlement_revision/18adab74-1aad-457f-9bf3-7c4a241dbc68",
+          "status": 200,
+          "at": "2026-11-05T09:15:05.561Z"
+        },
+        {
+          "id": "eab52a05-38bb-46c8-af0e-4aa2b5a689ab",
+          "method": "POST",
+          "path": "/settlements",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.144Z"
+        },
+        {
+          "id": "563c0958-c5c1-4d59-96d8-e7be4914815b",
+          "method": "POST",
+          "path": "/settlements/883f6c8b-9ea8-4744-8360-8421a919fdc9/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.208Z"
+        },
+        {
+          "id": "dba3bd9d-2e74-498e-aea6-2ad962bab0c3",
+          "method": "GET",
+          "path": "/resources/settlement_revision/883f6c8b-9ea8-4744-8360-8421a919fdc9",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.265Z"
+        },
+        {
+          "id": "2d9dca4d-53bb-44e2-987e-7ec272b3e946",
+          "method": "GET",
+          "path": "/resources/settlement_revision/883f6c8b-9ea8-4744-8360-8421a919fdc9",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.282Z"
+        },
+        {
+          "id": "e71e51c7-ed42-4b8f-9f82-3f39b905ace6",
+          "method": "POST",
+          "path": "/settlements",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.847Z"
+        },
+        {
+          "id": "4d4442d7-a9a0-41d4-b1aa-35e8f570509f",
+          "method": "POST",
+          "path": "/settlements/fd6beb59-538d-42a6-8b99-8bc5a2a59aaa/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.903Z"
+        },
+        {
+          "id": "791529ab-7dba-46db-b666-5b52e292fad9",
+          "method": "GET",
+          "path": "/resources/settlement_revision/fd6beb59-538d-42a6-8b99-8bc5a2a59aaa",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.968Z"
+        },
+        {
+          "id": "b3aad0bc-41b1-4c47-92ed-2f7560df351e",
+          "method": "GET",
+          "path": "/resources/settlement_revision/fd6beb59-538d-42a6-8b99-8bc5a2a59aaa",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.983Z"
+        },
+        {
+          "id": "220a0429-0bfc-4b46-8055-7eec681d5b8d",
+          "method": "POST",
+          "path": "/settlements",
+          "status": 200,
+          "at": "2026-11-05T09:15:07.574Z"
+        },
+        {
+          "id": "7965de10-bc1a-4c52-a095-77561673154c",
+          "method": "POST",
+          "path": "/settlements/60a48d85-0fef-46a2-9db7-92e6200e4664/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:07.642Z"
+        },
+        {
+          "id": "e05069c2-3418-4be5-862c-9c1c22eb8ea2",
+          "method": "POST",
+          "path": "/settlements",
+          "status": 200,
+          "at": "2026-11-05T09:15:08.459Z"
+        },
+        {
+          "id": "524d0e8f-4dbd-4260-a59c-3acd1b5ebb52",
+          "method": "POST",
+          "path": "/settlements/6d3646b6-89b4-472f-818b-e435530dab87/submit",
+          "status": 422,
+          "at": "2026-11-05T09:15:08.520Z"
+        },
+        {
+          "id": "71e36ce5-4ffd-4d7a-b201-e02a5144a5fd",
+          "method": "POST",
+          "path": "/settlements",
+          "status": 200,
+          "at": "2026-11-05T09:15:09.346Z"
+        },
+        {
+          "id": "bfb1415f-bf12-4062-83c5-653e27347c34",
+          "method": "POST",
+          "path": "/settlements/cfb4c796-6bbb-46fa-a574-684450da52b2/submit",
+          "status": 422,
+          "at": "2026-11-05T09:15:09.452Z"
+        },
+        {
+          "id": "da60ef4d-e602-40f2-8011-c2e181c45c5c",
+          "method": "POST",
+          "path": "/settlements",
+          "status": 200,
+          "at": "2026-11-05T09:15:10.160Z"
+        },
+        {
+          "id": "a12df72b-3a36-435c-b9cb-68ee0516922a",
+          "method": "POST",
+          "path": "/settlements/233da9e4-46e1-4c01-89c1-92bf1fef58d8/submit",
+          "status": 422,
+          "at": "2026-11-05T09:15:10.258Z"
+        },
+        {
+          "id": "a1f94999-9062-490c-83ec-752680726ec2",
+          "method": "POST",
+          "path": "/settlements/60a48d85-0fef-46a2-9db7-92e6200e4664/submit",
+          "status": 409,
+          "at": "2026-11-05T09:15:10.319Z"
+        }
+      ]
+    }
+  ]
+}

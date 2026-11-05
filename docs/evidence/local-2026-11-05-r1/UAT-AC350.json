@@ -1,0 +1,54 @@
+{
+  "id": "UAT-AC350",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-issue.test.ts",
+      "name": "createIssue, assignIssue, startIssue, commentIssue, transferIssueUnit and the issue reads (ST-ISS-002) assignIssue, startIssue, commentIssue and transferIssueUnit moves an issue overdue for days to another unit without moving its deadline or the days it has been overdue (AC-ST-ISS-002-1, UAT-AC350)",
+      "status": "passed",
+      "durationMs": 314,
+      "at": "2026-11-05T09:21:57.195Z",
+      "requests": [
+        {
+          "id": "8d05d850-9032-43b1-89b8-bff392806463",
+          "method": "POST",
+          "path": "/issues",
+          "status": 200,
+          "at": "2026-11-05T09:21:56.882Z"
+        },
+        {
+          "id": "e9c4d7d2-58f4-47ff-af9d-11d7494df322",
+          "method": "POST",
+          "path": "/issues/5efd4f0f-be23-43a6-8e34-a70b65044429/assign",
+          "status": 200,
+          "at": "2026-11-05T09:21:56.902Z"
+        },
+        {
+          "id": "7511c980-09a0-4441-847c-d4ba630a1066",
+          "method": "GET",
+          "path": "/resources/issue/5efd4f0f-be23-43a6-8e34-a70b65044429",
+          "status": 200,
+          "at": "2026-11-05T09:21:56.996Z"
+        },
+        {
+          "id": "e4ddf7cf-7279-4cff-a6ce-097238d6e741",
+          "method": "POST",
+          "path": "/issues/5efd4f0f-be23-43a6-8e34-a70b65044429/transfer",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.089Z"
+        },
+        {
+          "id": "747d1bae-339b-47c6-aa93-8e7718c521b2",
+          "method": "GET",
+          "path": "/resources/issue/5efd4f0f-be23-43a6-8e34-a70b65044429",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.179Z"
+        }
+      ]
+    }
+  ]
+}

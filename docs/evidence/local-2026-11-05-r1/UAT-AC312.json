@@ -1,0 +1,222 @@
+{
+  "id": "UAT-AC312",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/ctr-measurement-flows.spec.ts",
+      "name": "the supervisor records and sends a quantity, another person approves it, and the authority corrects it (UI-CTR-10, AC-ST-CTR-008-1, AC-ST-CTR-008-2, UAT-AC311, UAT-AC312)",
+      "status": "passed",
+      "durationMs": 3483,
+      "at": "2026-11-05T08:46:18.764Z",
+      "requests": [
+        {
+          "id": "3222c94d-b372-4479-9f46-2df26ded8e85",
+          "method": "GET",
+          "path": "/resources/contract/84216495-43e5-45a9-bd77-1503f342754f",
+          "status": 200,
+          "at": "2026-11-05T08:46:19.438Z"
+        },
+        {
+          "id": "412ce1fc-0f27-4cf5-a111-df9b0f50d71a",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 200,
+          "at": "2026-11-05T08:46:19.437Z"
+        },
+        {
+          "id": "2c646ee2-38fa-4702-92c4-e53505b73dbc",
+          "method": "GET",
+          "path": "/resources/boq_line",
+          "status": 200,
+          "at": "2026-11-05T08:46:19.438Z"
+        },
+        {
+          "id": "2203f643-dc43-4c28-bd1a-3ef8186547aa",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:19.598Z"
+        },
+        {
+          "id": "ab93d69c-592b-4b4e-891b-c56e28dadd29",
+          "method": "POST",
+          "path": "/contracts/84216495-43e5-45a9-bd77-1503f342754f/measurements",
+          "status": 200,
+          "at": "2026-11-05T08:46:19.846Z"
+        },
+        {
+          "id": "47930cee-fc4b-498c-a0fa-9087628d77f9",
+          "method": "GET",
+          "path": "/resources/contract/84216495-43e5-45a9-bd77-1503f342754f",
+          "status": 304,
+          "at": "2026-11-05T08:46:19.887Z"
+        },
+        {
+          "id": "0793ff24-6f7c-4e4e-9adf-d4acd7ec5621",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 200,
+          "at": "2026-11-05T08:46:19.889Z"
+        },
+        {
+          "id": "021aa3bb-dd59-4504-9ec5-76555ed80f3e",
+          "method": "GET",
+          "path": "/resources/boq_line",
+          "status": 200,
+          "at": "2026-11-05T08:46:19.889Z"
+        },
+        {
+          "id": "dc4e9f8e-2d13-4d95-9793-268f1c5158fb",
+          "method": "POST",
+          "path": "/contracts/84216495-43e5-45a9-bd77-1503f342754f/measurements",
+          "status": 422,
+          "at": "2026-11-05T08:46:20.197Z"
+        },
+        {
+          "id": "3fd3c94a-a76a-4884-873e-7ff1bd3bed43",
+          "method": "POST",
+          "path": "/measurements/9b2ddc3b-ffc4-4ca1-bbb5-971e00333c20/submit",
+          "status": 200,
+          "at": "2026-11-05T08:46:20.362Z"
+        },
+        {
+          "id": "63f085d2-ff76-4f9e-8247-ced810c1225e",
+          "method": "GET",
+          "path": "/resources/contract/84216495-43e5-45a9-bd77-1503f342754f",
+          "status": 304,
+          "at": "2026-11-05T08:46:20.406Z"
+        },
+        {
+          "id": "c55b7318-2008-4037-987a-11072d6df15c",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 200,
+          "at": "2026-11-05T08:46:20.407Z"
+        },
+        {
+          "id": "0e30ea6a-a5b9-4e09-a253-75cb06a7e760",
+          "method": "GET",
+          "path": "/resources/boq_line",
+          "status": 200,
+          "at": "2026-11-05T08:46:20.408Z"
+        },
+        {
+          "id": "d7130a62-78c7-4d3e-bc4f-66da4839f42d",
+          "method": "GET",
+          "path": "/resources/contract/84216495-43e5-45a9-bd77-1503f342754f",
+          "status": 304,
+          "at": "2026-11-05T08:46:20.861Z"
+        },
+        {
+          "id": "6a28d53a-0b8b-4b33-a23d-6845a8b72a0e",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 200,
+          "at": "2026-11-05T08:46:20.863Z"
+        },
+        {
+          "id": "8cfa97e7-e660-474f-bd6d-2f602b9ba44d",
+          "method": "GET",
+          "path": "/resources/boq_line",
+          "status": 200,
+          "at": "2026-11-05T08:46:20.862Z"
+        },
+        {
+          "id": "4922c758-7192-4743-8d27-705223eba730",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 403,
+          "at": "2026-11-05T08:46:21.008Z"
+        },
+        {
+          "id": "feea062e-64df-4121-b631-5a58a3f1e3b6",
+          "method": "POST",
+          "path": "/measurements/9b2ddc3b-ffc4-4ca1-bbb5-971e00333c20/decision",
+          "status": 200,
+          "at": "2026-11-05T08:46:21.264Z"
+        },
+        {
+          "id": "bbde63c0-cd38-4b01-a664-712725f75479",
+          "method": "GET",
+          "path": "/resources/contract/84216495-43e5-45a9-bd77-1503f342754f",
+          "status": 304,
+          "at": "2026-11-05T08:46:21.305Z"
+        },
+        {
+          "id": "37b2cb77-a95a-4a19-971c-c772e04ac101",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 200,
+          "at": "2026-11-05T08:46:21.307Z"
+        },
+        {
+          "id": "8c680886-adf4-48dc-8180-26438ca10618",
+          "method": "GET",
+          "path": "/resources/boq_line",
+          "status": 200,
+          "at": "2026-11-05T08:46:21.308Z"
+        },
+        {
+          "id": "ea6fad1f-0f68-4899-be0b-a4fbc44852a5",
+          "method": "POST",
+          "path": "/measurements/9b2ddc3b-ffc4-4ca1-bbb5-971e00333c20/correct",
+          "status": 200,
+          "at": "2026-11-05T08:46:21.630Z"
+        },
+        {
+          "id": "9645ac1d-4968-48d4-a65a-a1da79db81bc",
+          "method": "GET",
+          "path": "/resources/contract/84216495-43e5-45a9-bd77-1503f342754f",
+          "status": 304,
+          "at": "2026-11-05T08:46:21.670Z"
+        },
+        {
+          "id": "e7518353-0b9a-4555-8bc2-222abf8a5bca",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 200,
+          "at": "2026-11-05T08:46:21.672Z"
+        },
+        {
+          "id": "450952e4-179c-4626-947c-665043e449f1",
+          "method": "GET",
+          "path": "/resources/boq_line",
+          "status": 200,
+          "at": "2026-11-05T08:46:21.672Z"
+        },
+        {
+          "id": "a9f6b176-0ed0-426c-97c5-4693d948590e",
+          "method": "GET",
+          "path": "/resources/contract/84216495-43e5-45a9-bd77-1503f342754f",
+          "status": 304,
+          "at": "2026-11-05T08:46:21.995Z"
+        },
+        {
+          "id": "b1719718-3684-4985-9a55-171eea261ad7",
+          "method": "GET",
+          "path": "/resources/measurement",
+          "status": 200,
+          "at": "2026-11-05T08:46:21.997Z"
+        },
+        {
+          "id": "b2488ab3-fe8d-46dc-9dad-456640e0d109",
+          "method": "GET",
+          "path": "/resources/boq_line",
+          "status": 200,
+          "at": "2026-11-05T08:46:21.996Z"
+        },
+        {
+          "id": "27c0d8ab-2c86-452b-accc-0a5482e546ba",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:22.140Z"
+        }
+      ]
+    }
+  ]
+}

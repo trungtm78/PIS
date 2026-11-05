@@ -1,0 +1,54 @@
+{
+  "id": "UAT-AC116",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/delegation.test.ts",
+      "name": "the delegation of approval authority over HTTP (ST-ADM-014) AC-ST-ADM-014-1, UAT-AC116: a 7-day delegation lets the delegate approve with on_behalf_of recorded; the delegate cannot delegate it on (403 DELEGATION_CHAIN_DENIED); 91 days is 422",
+      "status": "passed",
+      "durationMs": 259,
+      "at": "2026-11-05T09:21:57.309Z",
+      "requests": [
+        {
+          "id": "41964519-3d4a-4f8b-8b9a-4f655cd14340",
+          "method": "POST",
+          "path": "/delegations",
+          "status": 201,
+          "at": "2026-11-05T09:21:57.051Z"
+        },
+        {
+          "id": "e96c8b6e-c4d8-465d-b75c-5a2c9f3e2ab1",
+          "method": "POST",
+          "path": "/approval-tasks/065ecc94-d994-4903-b558-f5d4d169794d/decision",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.168Z"
+        },
+        {
+          "id": "5f00fef3-6066-40f5-994d-867438459bcf",
+          "method": "POST",
+          "path": "/delegations",
+          "status": 403,
+          "at": "2026-11-05T09:21:57.251Z"
+        },
+        {
+          "id": "444779a0-015c-4507-82dd-261fceddec0b",
+          "method": "POST",
+          "path": "/delegations",
+          "status": 422,
+          "at": "2026-11-05T09:21:57.275Z"
+        },
+        {
+          "id": "c8bc1f8e-0439-455a-8349-198a148aaaf2",
+          "method": "POST",
+          "path": "/delegations",
+          "status": 201,
+          "at": "2026-11-05T09:21:57.288Z"
+        }
+      ]
+    }
+  ]
+}

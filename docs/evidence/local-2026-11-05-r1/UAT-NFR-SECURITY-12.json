@@ -1,0 +1,40 @@
+{
+  "id": "UAT-NFR-SECURITY-12",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/sync/sync-attachments.test.ts",
+      "name": "the attachments a phone uploads in chunks (ST-MOB-009, MOB-19) AC-ST-MOB-009-4 UAT-NFR-SECURITY-12: a script renamed to .jpg is refused when the upload is completed, by its bytes, and the chunks are dropped",
+      "status": "passed",
+      "durationMs": 92,
+      "at": "2026-11-05T09:22:19.606Z",
+      "requests": [
+        {
+          "id": "e6c78287-9916-4dda-9c59-d3ada2e3ca92",
+          "method": "POST",
+          "path": "/sync/attachments",
+          "status": 200,
+          "at": "2026-11-05T09:22:19.515Z"
+        },
+        {
+          "id": "f6d17a35-6c55-4751-8c37-c98d26e50228",
+          "method": "PUT",
+          "path": "/sync/attachments/d09e3d2d-6ab6-4e0f-bc1c-cfb710f9ac52/chunks/0",
+          "status": 200,
+          "at": "2026-11-05T09:22:19.539Z"
+        },
+        {
+          "id": "e8e260e0-5d11-45bf-b4d0-48b52ed6dd63",
+          "method": "POST",
+          "path": "/sync/attachments/d09e3d2d-6ab6-4e0f-bc1c-cfb710f9ac52/complete",
+          "status": 422,
+          "at": "2026-11-05T09:22:19.547Z"
+        }
+      ]
+    }
+  ]
+}

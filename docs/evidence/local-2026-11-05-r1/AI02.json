@@ -1,0 +1,40 @@
+{
+  "id": "AI02",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-finops.test.ts",
+      "name": "the reservation, the settlement and the reconciliation of a budget (ST-LLM-003, LLM F3) AC-ST-LLM-003-5: AI02 keeps a timed out request held, takes its late usage once, and never overspends by the race of two requests at the end of a budget",
+      "status": "passed",
+      "durationMs": 590,
+      "at": "2026-11-05T09:15:25.859Z",
+      "requests": [
+        {
+          "id": "ade96280-1841-431d-9e9f-45b6a822cf8b",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:15:25.551Z"
+        },
+        {
+          "id": "d11dd801-26b7-4a9e-ae6f-60a86b11305c",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:15:25.568Z"
+        },
+        {
+          "id": "01473705-d0e0-4ca1-9f1c-59717d7a1d40",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:15:25.620Z"
+        }
+      ]
+    }
+  ]
+}

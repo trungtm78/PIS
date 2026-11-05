@@ -1,0 +1,26 @@
+{
+  "id": "UAT-AC256",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/weekly-plan.test.ts",
+      "name": "the weekly plan against the Treasury actuals over HTTP (ST-DIS-014) AC-ST-DIS-014-1 / UAT-AC256: shows the commitments of 200 and 250 million against the Treasury actuals of 120 and 100 million, the differences -80 and -150 million, the plan not added to the disbursed, and the leader in charge",
+      "status": "passed",
+      "durationMs": 272,
+      "at": "2026-11-05T09:23:32.243Z",
+      "requests": [
+        {
+          "id": "623038c0-8612-46fa-a717-d40711f3b263",
+          "method": "GET",
+          "path": "/weekly-disbursement-plans",
+          "status": 200,
+          "at": "2026-11-05T09:23:32.177Z"
+        }
+      ]
+    }
+  ]
+}

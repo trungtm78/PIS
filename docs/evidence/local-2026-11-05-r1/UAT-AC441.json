@@ -1,0 +1,232 @@
+{
+  "id": "UAT-AC441",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/aud/recommendation.test.ts",
+      "name": "assignment, remediation, dispute and verification over HTTP (ST-AUD-003, AUD-06, AUD-07) disputing (AC-ST-AUD-003-3) AC-ST-AUD-003-3 / UAT-AC441: a financial recommendation of 400,000,000 with 300,000,000 recovered closes once the authority accepted the dispute; the decision without a document of the authority in force is 422 DECISION_DOCUMENT_NOT_EFFECTIVE",
+      "status": "passed",
+      "durationMs": 1016,
+      "at": "2026-11-05T09:17:26.286Z",
+      "requests": [
+        {
+          "id": "936cb9e8-fb0d-465b-9c6c-9fe353c831b2",
+          "method": "POST",
+          "path": "/audit-engagements",
+          "status": 200,
+          "at": "2026-11-05T09:17:25.270Z"
+        },
+        {
+          "id": "fe19e867-3ce1-4949-a5b4-ef9102316208",
+          "method": "POST",
+          "path": "/audit-engagements/52c06514-3c7d-4d14-9eca-e74ebcd50a5d/start",
+          "status": 200,
+          "at": "2026-11-05T09:17:25.298Z"
+        },
+        {
+          "id": "97781392-1639-4376-870b-a8b1c026a8c9",
+          "method": "POST",
+          "path": "/audit-engagements/52c06514-3c7d-4d14-9eca-e74ebcd50a5d/conclusions",
+          "status": 200,
+          "at": "2026-11-05T09:17:25.320Z"
+        },
+        {
+          "id": "69eb1fd6-eaa5-4d3a-b9ae-1a23a0154158",
+          "method": "POST",
+          "path": "/audit-conclusions/7e011ca8-cb7d-472c-8de4-1506e0eb89d0/recommendations",
+          "status": 200,
+          "at": "2026-11-05T09:17:25.336Z"
+        },
+        {
+          "id": "2e549033-a7a6-4367-bf44-78db7970bdef",
+          "method": "POST",
+          "path": "/audit-recommendations/50f66974-d2c6-40d1-905a-c3d6edc229b1/assignment",
+          "status": 200,
+          "at": "2026-11-05T09:17:25.410Z"
+        },
+        {
+          "id": "ec9fb25a-ff23-455e-9ec3-b76041b23e42",
+          "method": "POST",
+          "path": "/audit-recommendations/50f66974-d2c6-40d1-905a-c3d6edc229b1/actions",
+          "status": 200,
+          "at": "2026-11-05T09:17:25.498Z"
+        },
+        {
+          "id": "4232d938-901a-485e-8be9-d562092199fb",
+          "method": "POST",
+          "path": "/audit-recommendations/50f66974-d2c6-40d1-905a-c3d6edc229b1/dispute",
+          "status": 422,
+          "at": "2026-11-05T09:17:25.611Z"
+        },
+        {
+          "id": "e6605301-af93-4285-b98a-801ed6c5d0a0",
+          "method": "POST",
+          "path": "/audit-recommendations/50f66974-d2c6-40d1-905a-c3d6edc229b1/dispute",
+          "status": 422,
+          "at": "2026-11-05T09:17:25.674Z"
+        },
+        {
+          "id": "3ae3bcf7-3d18-4f56-be48-abc1d854c7b8",
+          "method": "POST",
+          "path": "/audit-recommendations/50f66974-d2c6-40d1-905a-c3d6edc229b1/dispute",
+          "status": 200,
+          "at": "2026-11-05T09:17:25.825Z"
+        },
+        {
+          "id": "44487520-8d6f-4568-84d1-3b7eb5d8c02e",
+          "method": "POST",
+          "path": "/audit-recommendations/50f66974-d2c6-40d1-905a-c3d6edc229b1/dispute-decision",
+          "status": 422,
+          "at": "2026-11-05T09:17:25.892Z"
+        },
+        {
+          "id": "2ddab58b-2943-42f8-9a15-f83774a564eb",
+          "method": "POST",
+          "path": "/audit-recommendations/50f66974-d2c6-40d1-905a-c3d6edc229b1/dispute-decision",
+          "status": 422,
+          "at": "2026-11-05T09:17:25.952Z"
+        },
+        {
+          "id": "8233c3e3-627e-4ceb-bcab-9a0484d7e43f",
+          "method": "POST",
+          "path": "/audit-recommendations/50f66974-d2c6-40d1-905a-c3d6edc229b1/dispute-decision",
+          "status": 422,
+          "at": "2026-11-05T09:17:26.014Z"
+        },
+        {
+          "id": "b6d05354-65b9-495d-bbb9-78c3952eeb76",
+          "method": "POST",
+          "path": "/audit-recommendations/50f66974-d2c6-40d1-905a-c3d6edc229b1/dispute-decision",
+          "status": 403,
+          "at": "2026-11-05T09:17:26.064Z"
+        },
+        {
+          "id": "6fdbed49-ec39-41c9-80b2-dc4c89c3396c",
+          "method": "POST",
+          "path": "/audit-recommendations/50f66974-d2c6-40d1-905a-c3d6edc229b1/dispute-decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:26.122Z"
+        },
+        {
+          "id": "1712179e-9c3f-43f9-a54b-0c0c5b0fb12b",
+          "method": "POST",
+          "path": "/audit-recommendations/50f66974-d2c6-40d1-905a-c3d6edc229b1/verification",
+          "status": 200,
+          "at": "2026-11-05T09:17:26.178Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/aud-remediation-flows.spec.ts",
+      "name": "the owner explains a financial recommendation recovered in part; the authority accepts the explanation and the verifier closes it on what was recovered (AC-ST-AUD-003-3, UAT-AC441)",
+      "status": "passed",
+      "durationMs": 1381,
+      "at": "2026-11-05T08:43:59.886Z",
+      "requests": [
+        {
+          "id": "c608097d-4b7c-45c9-ad36-34a74e8dec4e",
+          "method": "GET",
+          "path": "/audit-engagements",
+          "status": 200,
+          "at": "2026-11-05T08:44:00.439Z"
+        },
+        {
+          "id": "472d7697-06d3-489f-b075-aba13c800e67",
+          "method": "GET",
+          "path": "/audit-recommendations",
+          "status": 200,
+          "at": "2026-11-05T08:44:00.440Z"
+        },
+        {
+          "id": "2a820db2-d76d-450e-95ab-7cb0da49da57",
+          "method": "POST",
+          "path": "/audit-recommendations/f863e877-d216-4b6c-9345-6de537df17ef/dispute",
+          "status": 200,
+          "at": "2026-11-05T08:44:00.597Z"
+        },
+        {
+          "id": "4bbc9548-4c35-40f1-81b3-d26e5f365279",
+          "method": "GET",
+          "path": "/audit-engagements",
+          "status": 304,
+          "at": "2026-11-05T08:44:00.615Z"
+        },
+        {
+          "id": "0209851b-a3f4-4924-a0ed-b3a7ff2b5c7c",
+          "method": "GET",
+          "path": "/audit-recommendations",
+          "status": 200,
+          "at": "2026-11-05T08:44:00.615Z"
+        },
+        {
+          "id": "97d6d3f2-578e-40e6-af28-44ec6bca9036",
+          "method": "GET",
+          "path": "/audit-engagements",
+          "status": 304,
+          "at": "2026-11-05T08:44:00.849Z"
+        },
+        {
+          "id": "4f06b7b8-b8a5-4cbe-9fcb-4d7f35dff25e",
+          "method": "GET",
+          "path": "/audit-recommendations",
+          "status": 304,
+          "at": "2026-11-05T08:44:00.849Z"
+        },
+        {
+          "id": "44d217ad-e459-48b4-b292-904494a4f5fd",
+          "method": "POST",
+          "path": "/audit-recommendations/f863e877-d216-4b6c-9345-6de537df17ef/dispute-decision",
+          "status": 422,
+          "at": "2026-11-05T08:44:00.998Z"
+        },
+        {
+          "id": "bdd266e4-c1d9-47c7-965a-bfb53c4888b9",
+          "method": "POST",
+          "path": "/audit-recommendations/f863e877-d216-4b6c-9345-6de537df17ef/dispute-decision",
+          "status": 200,
+          "at": "2026-11-05T08:44:01.081Z"
+        },
+        {
+          "id": "090733b2-beec-4a1a-a92d-5b5ddcfd089b",
+          "method": "GET",
+          "path": "/audit-engagements",
+          "status": 304,
+          "at": "2026-11-05T08:44:01.098Z"
+        },
+        {
+          "id": "3c0333fc-df2d-4a56-a79e-ed0a4c076067",
+          "method": "GET",
+          "path": "/audit-recommendations",
+          "status": 200,
+          "at": "2026-11-05T08:44:01.096Z"
+        },
+        {
+          "id": "6e393b9c-cd0d-4bfb-8c1f-1366fec3f2a4",
+          "method": "POST",
+          "path": "/audit-recommendations/f863e877-d216-4b6c-9345-6de537df17ef/verification",
+          "status": 200,
+          "at": "2026-11-05T08:44:01.181Z"
+        },
+        {
+          "id": "ed057187-8d76-4506-8081-75b2940639d1",
+          "method": "GET",
+          "path": "/audit-engagements",
+          "status": 304,
+          "at": "2026-11-05T08:44:01.197Z"
+        },
+        {
+          "id": "610c0b11-a469-485d-a199-79210f17bd36",
+          "method": "GET",
+          "path": "/audit-recommendations",
+          "status": 200,
+          "at": "2026-11-05T08:44:01.196Z"
+        }
+      ]
+    }
+  ]
+}

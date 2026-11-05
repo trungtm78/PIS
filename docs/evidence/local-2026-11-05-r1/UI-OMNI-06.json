@@ -1,0 +1,61 @@
+{
+  "id": "UI-OMNI-06",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/omni/channel-accounts.test.ts",
+      "name": "the channel accounts (ST-OMNI-001, OMNI-05, OMNI-06) changing and closing (OMNI-06) AC-ST-OMNI-001-4 UI-OMNI-06: closes an account for good, with the audit row and the event, and a closed account is neither verified nor closed again",
+      "status": "passed",
+      "durationMs": 269,
+      "at": "2026-11-05T09:22:05.251Z",
+      "requests": [
+        {
+          "id": "2299d181-4c75-472f-8429-6e288b319fe8",
+          "method": "POST",
+          "path": "/channel-accounts",
+          "status": 201,
+          "at": "2026-11-05T09:22:04.983Z"
+        },
+        {
+          "id": "28163fa4-d655-4f2d-ad28-778b3db12f3e",
+          "method": "POST",
+          "path": "/channel-accounts/911403d1-43fe-4836-ac3b-9335707ea430/verify",
+          "status": 202,
+          "at": "2026-11-05T09:22:04.996Z"
+        },
+        {
+          "id": "2c570c88-df3b-4cf2-a45f-1562796a8fea",
+          "method": "POST",
+          "path": "/channel-accounts/911403d1-43fe-4836-ac3b-9335707ea430/disable",
+          "status": 200,
+          "at": "2026-11-05T09:22:05.109Z"
+        },
+        {
+          "id": "10fcbd46-f4a3-4c7a-8060-9617e4c9c187",
+          "method": "GET",
+          "path": "/resources/channel_account/911403d1-43fe-4836-ac3b-9335707ea430",
+          "status": 200,
+          "at": "2026-11-05T09:22:05.126Z"
+        },
+        {
+          "id": "9b7cd33e-a98f-475b-bd15-1c5423143db5",
+          "method": "POST",
+          "path": "/channel-accounts/911403d1-43fe-4836-ac3b-9335707ea430/verify",
+          "status": 409,
+          "at": "2026-11-05T09:22:05.224Z"
+        },
+        {
+          "id": "31e0b935-bcf7-49bd-984a-82a338705542",
+          "method": "POST",
+          "path": "/channel-accounts/911403d1-43fe-4836-ac3b-9335707ea430/disable",
+          "status": 409,
+          "at": "2026-11-05T09:22:05.235Z"
+        }
+      ]
+    }
+  ]
+}

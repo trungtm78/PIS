@@ -1,0 +1,162 @@
+{
+  "id": "UAT-NFR-OPERABILITY-04",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/reallocation.test.ts",
+      "name": "the reallocation of capital (ST-CAP-010) AC-ST-CAP-010-2 / UAT-NFR-OPERABILITY-04: the approval workflow of the proposal follows the version it started on, and the domain guard still checks the four-eyes keeps the instance on version 3 when version 4 is registered, while an instance started after it must be countersigned; the author is refused 403 SELF_APPROVAL_DENIED at both levels and the instance keeps waiting",
+      "status": "passed",
+      "durationMs": 2792,
+      "at": "2026-11-05T09:14:37.677Z",
+      "requests": [
+        {
+          "id": "a38cd305-78c2-4d29-9a01-cc9110d78d85",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:14:35.580Z"
+        },
+        {
+          "id": "9f20fac2-7318-4d7c-a8c9-9110db3f3f2c",
+          "method": "POST",
+          "path": "/capital-plans/310c3c9b-8dfe-4864-a710-04be2fba31cd/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:14:35.589Z"
+        },
+        {
+          "id": "b3790b53-02cc-495e-85f3-dbd0c45e5e25",
+          "method": "POST",
+          "path": "/capital-plans/310c3c9b-8dfe-4864-a710-04be2fba31cd/submit",
+          "status": 200,
+          "at": "2026-11-05T09:14:35.613Z"
+        },
+        {
+          "id": "c34962a2-1935-4bbd-a156-47eb3eda154f",
+          "method": "POST",
+          "path": "/capital-plans/310c3c9b-8dfe-4864-a710-04be2fba31cd/decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:35.641Z"
+        },
+        {
+          "id": "0f4d1307-71df-44d0-8ee2-59d81937ddf9",
+          "method": "POST",
+          "path": "/plans/310c3c9b-8dfe-4864-a710-04be2fba31cd/publish",
+          "status": 200,
+          "at": "2026-11-05T09:14:35.697Z"
+        },
+        {
+          "id": "632da1f9-0d83-484c-9b18-d933c874f154",
+          "method": "POST",
+          "path": "/reallocation-proposals",
+          "status": 200,
+          "at": "2026-11-05T09:14:35.850Z"
+        },
+        {
+          "id": "40b737d9-23a7-4325-8b46-aa03fdf703e3",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:14:36.273Z"
+        },
+        {
+          "id": "e7d0616f-f363-44be-937d-53162b002f13",
+          "method": "POST",
+          "path": "/capital-plans/a548527a-5067-46d9-9a80-f9969dddc73b/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:14:36.293Z"
+        },
+        {
+          "id": "0ea466bb-9829-466c-bc2f-06f67cbd0ee6",
+          "method": "POST",
+          "path": "/capital-plans/a548527a-5067-46d9-9a80-f9969dddc73b/submit",
+          "status": 200,
+          "at": "2026-11-05T09:14:36.313Z"
+        },
+        {
+          "id": "82dd9293-6957-4aba-9155-094ace757a13",
+          "method": "POST",
+          "path": "/capital-plans/a548527a-5067-46d9-9a80-f9969dddc73b/decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:36.324Z"
+        },
+        {
+          "id": "8930063d-4f4c-4c9b-90f5-a605c9d4dfdd",
+          "method": "POST",
+          "path": "/plans/a548527a-5067-46d9-9a80-f9969dddc73b/publish",
+          "status": 200,
+          "at": "2026-11-05T09:14:36.379Z"
+        },
+        {
+          "id": "ddb59e17-7162-4ee8-bf35-6bd75ab4ae89",
+          "method": "POST",
+          "path": "/reallocation-proposals",
+          "status": 200,
+          "at": "2026-11-05T09:14:36.520Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/reallocation.test.ts",
+      "name": "the reallocation of capital (ST-CAP-010) AC-ST-CAP-010-2 / UAT-NFR-OPERABILITY-04: the approval workflow of the proposal follows the version it started on, and the domain guard still checks the four-eyes runs every activity for the tenant and the person of the signed context and leaves the audit rows the commands leave; refuses a signal for another proposal, another tenant or a forged context, and a person without the right",
+      "status": "passed",
+      "durationMs": 1040,
+      "at": "2026-11-05T09:14:38.717Z",
+      "requests": [
+        {
+          "id": "dd710b6b-7537-4081-8f00-2a8c77afa99f",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:14:38.033Z"
+        },
+        {
+          "id": "f38352af-5fcb-476f-b778-907203b294ef",
+          "method": "POST",
+          "path": "/capital-plans/7fb133ba-308a-48b1-9856-50e653a5fc19/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:14:38.046Z"
+        },
+        {
+          "id": "4eed5ab3-e600-4e16-ad1f-b61e154584ee",
+          "method": "POST",
+          "path": "/capital-plans/7fb133ba-308a-48b1-9856-50e653a5fc19/submit",
+          "status": 200,
+          "at": "2026-11-05T09:14:38.065Z"
+        },
+        {
+          "id": "64a297f7-deaa-4c8c-b71b-9449f9d17312",
+          "method": "POST",
+          "path": "/capital-plans/7fb133ba-308a-48b1-9856-50e653a5fc19/decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:38.078Z"
+        },
+        {
+          "id": "dceb085d-0cae-4fc7-a659-002a59c8ee2c",
+          "method": "POST",
+          "path": "/plans/7fb133ba-308a-48b1-9856-50e653a5fc19/publish",
+          "status": 200,
+          "at": "2026-11-05T09:14:38.129Z"
+        },
+        {
+          "id": "7cca48f2-6365-45dc-992d-f480983bcbec",
+          "method": "POST",
+          "path": "/reallocation-proposals",
+          "status": 200,
+          "at": "2026-11-05T09:14:38.358Z"
+        },
+        {
+          "id": "a2eb3ab8-3e3d-479f-8845-401563967b7a",
+          "method": "POST",
+          "path": "/reallocation-proposals",
+          "status": 200,
+          "at": "2026-11-05T09:14:38.384Z"
+        }
+      ]
+    }
+  ]
+}

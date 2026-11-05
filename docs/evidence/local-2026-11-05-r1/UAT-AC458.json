@@ -1,0 +1,382 @@
+{
+  "id": "UAT-AC458",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-gateway.test.ts",
+      "name": "the classification and the route of a request (ST-LLM-005, LLM F1) AC-ST-LLM-005-1: UAT-AC458 gives a request the highest class of its sources and sends it only over the routes of that class: public may use any route that is on, internal and personal only the domestic and the self-hosted",
+      "status": "passed",
+      "durationMs": 1259,
+      "at": "2026-11-05T09:10:41.481Z",
+      "requests": [
+        {
+          "id": "e7dc1ce3-7a3d-43d9-a8a5-8ed1d918d9bc",
+          "method": "POST",
+          "path": "/ai-classification-policies",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.366Z"
+        },
+        {
+          "id": "cc8e3245-e4cf-46cc-8877-ff794bac3b83",
+          "method": "POST",
+          "path": "/ai-classification-policies/b750dba2-190a-40a5-bc7f-5261a8237afb/publish",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.447Z"
+        },
+        {
+          "id": "3b90e404-5fe3-4bc5-9c9b-c84675d554bf",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.501Z"
+        },
+        {
+          "id": "67b4ef01-14b7-47ae-8ce0-b95dd2911824",
+          "method": "POST",
+          "path": "/ai-providers/b5ddb66d-74f2-43b5-bbd4-54c55380fc40/activation",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.519Z"
+        },
+        {
+          "id": "319217d1-56e1-4aeb-a468-f88706d8dd1c",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.532Z"
+        },
+        {
+          "id": "fe803554-b538-442b-9000-ccf32033b0e1",
+          "method": "POST",
+          "path": "/ai-models/cc067646-ae44-4d09-9090-e40e441bc426/approval",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.549Z"
+        },
+        {
+          "id": "8af8cd5d-43cf-43bc-978b-6d89e188129d",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.571Z"
+        },
+        {
+          "id": "e2d5da80-24d1-448c-bc36-20335c51c29b",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.642Z"
+        },
+        {
+          "id": "0e1074c2-0414-47a0-8b61-1cd5b51ff391",
+          "method": "POST",
+          "path": "/ai-providers/1ecc0317-5c7e-46b5-b942-b4d4bbe2bd80/activation",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.659Z"
+        },
+        {
+          "id": "de088136-3717-455a-8f2d-1fdf97442b89",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.676Z"
+        },
+        {
+          "id": "989cd2d9-af01-4d7d-90b3-9fb994c24fb6",
+          "method": "POST",
+          "path": "/ai-models/45366575-6680-44ea-9bb2-4737404bfea7/approval",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.692Z"
+        },
+        {
+          "id": "294b7a42-7397-401f-a9f9-d541764343a3",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.701Z"
+        },
+        {
+          "id": "118dcc16-3941-427d-8792-3853fcd36c7c",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.726Z"
+        },
+        {
+          "id": "5ad54537-0307-45fe-94d4-da5698b7f55a",
+          "method": "POST",
+          "path": "/ai-providers/0f82b1bb-aabe-438e-b04f-bc1bca93fe49/activation",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.739Z"
+        },
+        {
+          "id": "32b3d3da-63a0-4b7e-9f5a-5345d087f359",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.756Z"
+        },
+        {
+          "id": "d5a69932-4d29-4dae-9422-a180dd8a6005",
+          "method": "POST",
+          "path": "/ai-models/5e684ba4-ef9b-4f3d-8ea7-1a55fb906268/approval",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.771Z"
+        },
+        {
+          "id": "0344b70e-baed-4e5b-806a-b0e3b7374b9b",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.791Z"
+        },
+        {
+          "id": "e7e73d9f-d880-4d05-9212-4eb9266ddf7d",
+          "method": "POST",
+          "path": "/ai-prompts",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.804Z"
+        },
+        {
+          "id": "93f4ddfa-4c59-4ad7-8736-3a24550b1cb3",
+          "method": "POST",
+          "path": "/ai-prompts/f640bcb8-41fb-40d2-b660-bb3f3417abc4/approval",
+          "status": 200,
+          "at": "2026-11-05T09:10:40.822Z"
+        },
+        {
+          "id": "97fa79f2-465e-4564-bcd2-445a6502ffcc",
+          "method": "POST",
+          "path": "/ai/requests",
+          "status": 202,
+          "at": "2026-11-05T09:10:40.960Z"
+        },
+        {
+          "id": "745965a4-ea0e-4e4e-aace-889182e97f3b",
+          "method": "POST",
+          "path": "/ai/requests",
+          "status": 202,
+          "at": "2026-11-05T09:10:41.131Z"
+        },
+        {
+          "id": "f6a79bd7-c179-48b6-840f-46c935e913b9",
+          "method": "POST",
+          "path": "/ai/requests",
+          "status": 202,
+          "at": "2026-11-05T09:10:41.402Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-gateway.test.ts",
+      "name": "the classification and the route of a request (ST-LLM-005, LLM F1) AC-ST-LLM-005-1: UAT-AC458 refuses important data when no self-hosted model is allowed (422 AI_ROUTE_NOT_ALLOWED, kept as a rejected request) and a class said by the caller (400 FIELD_NOT_ALLOWED)",
+      "status": "passed",
+      "durationMs": 938,
+      "at": "2026-11-05T09:10:42.419Z",
+      "requests": [
+        {
+          "id": "35b7dac3-7b10-40ff-87da-943e566cfa66",
+          "method": "POST",
+          "path": "/ai-classification-policies",
+          "status": 200,
+          "at": "2026-11-05T09:10:41.765Z"
+        },
+        {
+          "id": "455a1277-373b-461f-bbf4-e21a6affa4bd",
+          "method": "POST",
+          "path": "/ai-classification-policies/0306f009-a398-4e8d-8f77-3e137854eee8/publish",
+          "status": 200,
+          "at": "2026-11-05T09:10:41.780Z"
+        },
+        {
+          "id": "ea0d4a52-23d7-4069-9c16-def4ce8a40ac",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:10:41.838Z"
+        },
+        {
+          "id": "d1ffa4cb-79d1-44c3-b38f-96259ea566df",
+          "method": "POST",
+          "path": "/ai-providers/dc2ed55c-529d-456e-ae24-98e37ff5be98/activation",
+          "status": 200,
+          "at": "2026-11-05T09:10:41.856Z"
+        },
+        {
+          "id": "1b72a446-2010-4183-88d9-69d57f09be23",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:10:41.863Z"
+        },
+        {
+          "id": "2e975d5d-8030-474f-a75b-630f87e76609",
+          "method": "POST",
+          "path": "/ai-models/d04c8e5b-2a7b-41d9-9d28-d0f6c7b56ff5/approval",
+          "status": 200,
+          "at": "2026-11-05T09:10:41.874Z"
+        },
+        {
+          "id": "9eec2ec9-f8c5-454b-a082-049e1895cb5d",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:10:41.889Z"
+        },
+        {
+          "id": "abdc07c1-176f-4922-a081-dab49f26d1e0",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:10:41.906Z"
+        },
+        {
+          "id": "aaa65f20-3772-4723-84f2-db34bb238bbb",
+          "method": "POST",
+          "path": "/ai-providers/f51efbae-9e58-4c5c-b693-b965fce0ae69/activation",
+          "status": 200,
+          "at": "2026-11-05T09:10:41.923Z"
+        },
+        {
+          "id": "8ca5e7de-8902-4969-8d82-8685f97ec0f0",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:10:41.938Z"
+        },
+        {
+          "id": "167a1c95-f2bf-44bb-84d3-a6a2410ebd49",
+          "method": "POST",
+          "path": "/ai-models/5ece1030-20cb-4aa4-bb69-82908558b575/approval",
+          "status": 200,
+          "at": "2026-11-05T09:10:41.955Z"
+        },
+        {
+          "id": "ca29b2d6-ebb5-497a-9f61-140da6644f24",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:10:41.972Z"
+        },
+        {
+          "id": "a7baeff9-f25a-45a5-9e83-7a06eaf2941c",
+          "method": "POST",
+          "path": "/ai-prompts",
+          "status": 200,
+          "at": "2026-11-05T09:10:41.985Z"
+        },
+        {
+          "id": "bc32e4d7-4155-4a06-a418-4426cf09196a",
+          "method": "POST",
+          "path": "/ai-prompts/f0e9c1dd-2273-427a-a739-7659f0697951/approval",
+          "status": 200,
+          "at": "2026-11-05T09:10:42.002Z"
+        },
+        {
+          "id": "ba266ad4-6c6f-43d6-be11-9fe55224a59e",
+          "method": "POST",
+          "path": "/ai/requests",
+          "status": 422,
+          "at": "2026-11-05T09:10:42.138Z"
+        },
+        {
+          "id": "d1bd114d-88c5-4f8a-9d4a-537846deedff",
+          "method": "POST",
+          "path": "/ai/requests",
+          "status": 400,
+          "at": "2026-11-05T09:10:42.370Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-registry.test.ts",
+      "name": "the registry of providers and models and the classification policy (ST-LLM-001, LLM F2) the classification policy AC-ST-LLM-001-2: UAT-AC458 refuses to publish a draft that drops the line of important data or lets internal data go international, and publishes a compliant one so that exactly one stays PUBLISHED",
+      "status": "passed",
+      "durationMs": 425,
+      "at": "2026-11-05T09:20:43.671Z",
+      "requests": [
+        {
+          "id": "4d04098c-c371-40aa-a54c-0a97c6d9c6f2",
+          "method": "POST",
+          "path": "/ai-classification-policies",
+          "status": 200,
+          "at": "2026-11-05T09:20:43.299Z"
+        },
+        {
+          "id": "2669b6af-1b0f-4e4d-9244-7d4d5053131c",
+          "method": "POST",
+          "path": "/ai-classification-policies",
+          "status": 200,
+          "at": "2026-11-05T09:20:43.317Z"
+        },
+        {
+          "id": "16f29fb4-9330-49b7-b1ce-4c194c64140e",
+          "method": "POST",
+          "path": "/ai-classification-policies",
+          "status": 200,
+          "at": "2026-11-05T09:20:43.331Z"
+        },
+        {
+          "id": "48c861c2-2250-4afb-9a1c-b9592d6b6024",
+          "method": "POST",
+          "path": "/ai-classification-policies/2f67144a-0061-41e8-b6bb-4655c46e8865/publish",
+          "status": 422,
+          "at": "2026-11-05T09:20:43.347Z"
+        },
+        {
+          "id": "41db19c3-0ee5-4a16-889e-a97f07d02dec",
+          "method": "POST",
+          "path": "/ai-classification-policies/5e5254a3-66b9-47e6-a836-1adad074c304/publish",
+          "status": 422,
+          "at": "2026-11-05T09:20:43.353Z"
+        },
+        {
+          "id": "7c41c924-4443-4886-8f7f-76990d108c77",
+          "method": "POST",
+          "path": "/ai-classification-policies/4079519e-693b-4edd-9c17-5446fc16a37d/publish",
+          "status": 422,
+          "at": "2026-11-05T09:20:43.360Z"
+        },
+        {
+          "id": "cd8dc019-3651-42fe-ba0e-123b684223f7",
+          "method": "POST",
+          "path": "/ai-classification-policies",
+          "status": 200,
+          "at": "2026-11-05T09:20:43.419Z"
+        },
+        {
+          "id": "958f0c58-6488-42e6-999b-6e9b3d52792d",
+          "method": "POST",
+          "path": "/ai-classification-policies/26e2d23f-fba8-4746-9a78-6361ce13b76c/publish",
+          "status": 403,
+          "at": "2026-11-05T09:20:43.444Z"
+        },
+        {
+          "id": "de72ab86-b553-408f-ab27-cb0d13d259a3",
+          "method": "POST",
+          "path": "/ai-classification-policies/26e2d23f-fba8-4746-9a78-6361ce13b76c/publish",
+          "status": 200,
+          "at": "2026-11-05T09:20:43.455Z"
+        },
+        {
+          "id": "f690ba35-66c4-4122-9c62-2e461aa1a819",
+          "method": "POST",
+          "path": "/ai-classification-policies",
+          "status": 200,
+          "at": "2026-11-05T09:20:43.477Z"
+        },
+        {
+          "id": "9a1d1aa9-962c-41d1-bd65-cb836a8abcdb",
+          "method": "POST",
+          "path": "/ai-classification-policies/a967ab98-b32e-428b-b30e-986b8b5a4c32/publish",
+          "status": 200,
+          "at": "2026-11-05T09:20:43.495Z"
+        }
+      ]
+    }
+  ]
+}

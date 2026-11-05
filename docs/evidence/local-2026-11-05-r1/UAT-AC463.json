@@ -1,0 +1,92 @@
+{
+  "id": "UAT-AC463",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-eval.test.ts",
+      "name": "the prompts (ST-LLM-004, LLM-10, LLM BR-LLM-10) AC-ST-LLM-004-2: UAT-AC463 refuses the author as the approver, approves by another as the PRODUCTION revision, and then no longer edits it: 409 PROMPT_IMMUTABLE with the hash unchanged",
+      "status": "passed",
+      "durationMs": 645,
+      "at": "2026-11-05T09:16:33.932Z",
+      "requests": [
+        {
+          "id": "69647602-dce0-489a-9188-f2488692b97c",
+          "method": "POST",
+          "path": "/ai-prompts",
+          "status": 200,
+          "at": "2026-11-05T09:16:33.419Z"
+        },
+        {
+          "id": "e12dff4a-23a5-4c2e-b70e-1cdabd7265bb",
+          "method": "POST",
+          "path": "/ai-prompts/3b38955e-2ca3-4601-a624-ee41445d4c16/approval",
+          "status": 403,
+          "at": "2026-11-05T09:16:33.442Z"
+        },
+        {
+          "id": "f6062934-64b6-417c-9097-9df8230f4d97",
+          "method": "POST",
+          "path": "/ai-prompts/3b38955e-2ca3-4601-a624-ee41445d4c16/approval",
+          "status": 403,
+          "at": "2026-11-05T09:16:33.494Z"
+        },
+        {
+          "id": "1471a570-a8b1-40d9-bcda-e92ff656b352",
+          "method": "POST",
+          "path": "/ai-prompts/3b38955e-2ca3-4601-a624-ee41445d4c16/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:33.560Z"
+        },
+        {
+          "id": "4ce9e14c-fc41-45af-9bf6-22f0739c3c06",
+          "method": "PUT",
+          "path": "/ai-prompts/3b38955e-2ca3-4601-a624-ee41445d4c16",
+          "status": 409,
+          "at": "2026-11-05T09:16:33.628Z"
+        },
+        {
+          "id": "cb67a65d-fd88-44ad-86f3-ea264af79a41",
+          "method": "POST",
+          "path": "/ai-prompts",
+          "status": 200,
+          "at": "2026-11-05T09:16:33.782Z"
+        },
+        {
+          "id": "73c14c3d-1b77-4695-a0c1-30db5b9aaace",
+          "method": "POST",
+          "path": "/ai-prompts/188d6330-a91c-45a1-ac53-3ab31fd90aaf/approval",
+          "status": 200,
+          "at": "2026-11-05T09:16:33.794Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-eval.test.ts",
+      "name": "the prompts (ST-LLM-004, LLM-10, LLM BR-LLM-10) AC-ST-LLM-004-2: UAT-AC463 lets only the author change a draft, so that nobody approves text they changed themselves",
+      "status": "passed",
+      "durationMs": 169,
+      "at": "2026-11-05T09:16:34.101Z",
+      "requests": [
+        {
+          "id": "4dd82683-2f87-4e37-9aee-d71bdb329eb9",
+          "method": "POST",
+          "path": "/ai-prompts",
+          "status": 200,
+          "at": "2026-11-05T09:16:33.989Z"
+        },
+        {
+          "id": "53bae174-eab6-476b-ac21-ba472a99d3ca",
+          "method": "PUT",
+          "path": "/ai-prompts/b7eb72a2-7350-4166-bc48-66d2bb74997b",
+          "status": 403,
+          "at": "2026-11-05T09:16:34.041Z"
+        }
+      ]
+    }
+  ]
+}

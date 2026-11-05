@@ -1,0 +1,109 @@
+{
+  "id": "OPS01",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/tenant-restore.test.ts",
+      "name": "the restore of one tenant over HTTP (ST-SAS-019, SAS-21) AC-ST-SAS-019-2 OPS01: the drill measures rows, checksums and money totals against the backup, RPO and RTO against the targets, and leaves a record: the report, its sha256, the audit rows and the event",
+      "status": "passed",
+      "durationMs": 1247,
+      "at": "2026-11-05T09:17:45.357Z",
+      "requests": [
+        {
+          "id": "9ab510ab-a523-4260-a1ea-d13ee92805be",
+          "method": "POST",
+          "path": "/system/tenants/afa48ff0-1d13-466a-b08d-1bb0b4c18bb9/restore-requests",
+          "status": 201,
+          "at": "2026-11-05T09:17:44.291Z"
+        },
+        {
+          "id": "447dfa26-734f-4bb5-ae87-685cfdd5f265",
+          "method": "POST",
+          "path": "/system/restore-requests/97501c49-8b60-47f3-8fc2-2dfd7d596d7b/decision",
+          "status": 202,
+          "at": "2026-11-05T09:17:44.299Z"
+        },
+        {
+          "id": "efa03035-ec9f-40bb-9070-cdd5922dfe9d",
+          "method": "GET",
+          "path": "/system/tenants/afa48ff0-1d13-466a-b08d-1bb0b4c18bb9/restore-requests",
+          "status": 200,
+          "at": "2026-11-05T09:17:45.215Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/tenant-restore.test.ts",
+      "name": "the restore of one tenant over HTTP (ST-SAS-019, SAS-21) AC-ST-SAS-019-2 OPS01: a copy that differs from the backup (a missing row, another money total, a row of another tenant) is not Completed: it is Failed with the report that names each difference, and no event tells the platform it is done",
+      "status": "passed",
+      "durationMs": 1194,
+      "at": "2026-11-05T09:17:46.551Z",
+      "requests": [
+        {
+          "id": "d6f51fe5-3f46-4acd-adcf-a5124bd9d88f",
+          "method": "POST",
+          "path": "/system/tenants/6620d1be-7f06-4a56-9a20-fdda54263b33/restore-requests",
+          "status": 201,
+          "at": "2026-11-05T09:17:45.439Z"
+        },
+        {
+          "id": "2c51f5d4-80d7-437e-a257-906685f8e13b",
+          "method": "POST",
+          "path": "/system/restore-requests/31aaf898-f97c-4d3a-8a98-d08a4f954329/decision",
+          "status": 202,
+          "at": "2026-11-05T09:17:45.454Z"
+        },
+        {
+          "id": "a4064cf4-47d6-4148-a411-b23a564ef385",
+          "method": "GET",
+          "path": "/system/tenants/6620d1be-7f06-4a56-9a20-fdda54263b33/restore-requests",
+          "status": 200,
+          "at": "2026-11-05T09:17:46.439Z"
+        },
+        {
+          "id": "73e42ba8-63a1-42a2-a861-0be494baad4a",
+          "method": "POST",
+          "path": "/system/restore-requests/31aaf898-f97c-4d3a-8a98-d08a4f954329/decision",
+          "status": 409,
+          "at": "2026-11-05T09:17:46.539Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/tenant-restore.test.ts",
+      "name": "the restore of one tenant over HTTP (ST-SAS-019, SAS-21) AC-ST-SAS-019-2 OPS01: a copy that stops before the recovery point asked for measures RPO, and a miss of the target of 15 minutes is flagged without failing a copy that matches",
+      "status": "passed",
+      "durationMs": 1000,
+      "at": "2026-11-05T09:17:47.551Z",
+      "requests": [
+        {
+          "id": "0fc66513-f89a-48b7-ba7b-e2dbe9f4ae3f",
+          "method": "POST",
+          "path": "/system/tenants/af4f1654-fa28-4977-beee-39b32785b521/restore-requests",
+          "status": 201,
+          "at": "2026-11-05T09:17:46.554Z"
+        },
+        {
+          "id": "be766cb2-1c7c-4832-bfb8-dc7fce19bcae",
+          "method": "POST",
+          "path": "/system/restore-requests/343c9637-3d7f-4681-ae3d-ba2b27dc62eb/decision",
+          "status": 202,
+          "at": "2026-11-05T09:17:46.565Z"
+        },
+        {
+          "id": "7dd1d5b8-aa96-4581-a391-59c744f8fd2e",
+          "method": "GET",
+          "path": "/system/tenants/af4f1654-fa28-4977-beee-39b32785b521/restore-requests",
+          "status": 200,
+          "at": "2026-11-05T09:17:47.539Z"
+        }
+      ]
+    }
+  ]
+}

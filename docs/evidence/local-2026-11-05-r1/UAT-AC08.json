@@ -1,0 +1,131 @@
+{
+  "id": "UAT-AC08",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/capital-plan.test.ts",
+      "name": "capital plan drafting commands and reads (ST-CAP-002) draftCapitalAllocation lets exactly one of two planners who draft 800 million at the same moment win when 9 of 10 billion are taken, and tells the other what is available (AC-ST-CAP-002-1, UAT-AC08)",
+      "status": "passed",
+      "durationMs": 2764,
+      "at": "2026-11-05T09:18:16.198Z",
+      "requests": [
+        {
+          "id": "21c55fa7-176e-446d-9a21-31a305271e7a",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:18:13.527Z"
+        },
+        {
+          "id": "226e6b35-b3ba-4aae-8184-79b6334401b2",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:18:13.544Z"
+        },
+        {
+          "id": "3a586262-41c9-4c8d-a716-a508c06d2340",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:18:13.652Z"
+        },
+        {
+          "id": "64a80629-cdb4-412b-b70e-9305c94a2324",
+          "method": "POST",
+          "path": "/capital-plans/cceeff06-74f4-452b-ae68-1d2de466249d/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:18:13.713Z"
+        },
+        {
+          "id": "6e294bcd-4c77-473d-9d7e-b5572912e5bd",
+          "method": "POST",
+          "path": "/capital-plans/7657b456-0585-46dd-9349-7ed19fa33555/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:18:14.083Z"
+        },
+        {
+          "id": "b18c35ed-2cba-4fca-a6a5-9258e41d8455",
+          "method": "POST",
+          "path": "/capital-plans/204cea2c-21d9-4323-8a54-02cbba186fdf/allocations",
+          "status": 422,
+          "at": "2026-11-05T09:18:14.083Z"
+        },
+        {
+          "id": "9cbad295-7b95-426d-bddd-73c27b142355",
+          "method": "POST",
+          "path": "/capital-plans/7657b456-0585-46dd-9349-7ed19fa33555/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:18:14.457Z"
+        },
+        {
+          "id": "93724f97-044c-42fc-b064-228c1a3c6d64",
+          "method": "POST",
+          "path": "/capital-plans/204cea2c-21d9-4323-8a54-02cbba186fdf/allocations",
+          "status": 422,
+          "at": "2026-11-05T09:18:14.457Z"
+        },
+        {
+          "id": "53801040-00f8-47fb-a841-f1bb000fdf69",
+          "method": "POST",
+          "path": "/capital-plans/7657b456-0585-46dd-9349-7ed19fa33555/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:18:14.884Z"
+        },
+        {
+          "id": "f2e33d35-1fbe-4a40-9d0d-7c1397cd35ca",
+          "method": "POST",
+          "path": "/capital-plans/204cea2c-21d9-4323-8a54-02cbba186fdf/allocations",
+          "status": 422,
+          "at": "2026-11-05T09:18:14.885Z"
+        },
+        {
+          "id": "4c47702f-089c-4cf8-b97d-3f8e936a8eba",
+          "method": "POST",
+          "path": "/capital-plans/7657b456-0585-46dd-9349-7ed19fa33555/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:18:15.292Z"
+        },
+        {
+          "id": "429f7233-eb88-424c-9f96-1667677feeec",
+          "method": "POST",
+          "path": "/capital-plans/204cea2c-21d9-4323-8a54-02cbba186fdf/allocations",
+          "status": 422,
+          "at": "2026-11-05T09:18:15.292Z"
+        },
+        {
+          "id": "495983da-44cc-4758-b0d8-b29e8c04e4a5",
+          "method": "POST",
+          "path": "/capital-plans/7657b456-0585-46dd-9349-7ed19fa33555/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:18:15.739Z"
+        },
+        {
+          "id": "ebd67e52-c104-44f0-9933-cea5dd8ecf83",
+          "method": "POST",
+          "path": "/capital-plans/204cea2c-21d9-4323-8a54-02cbba186fdf/allocations",
+          "status": 422,
+          "at": "2026-11-05T09:18:15.739Z"
+        },
+        {
+          "id": "461abda3-91c3-4fda-98be-6df25239efc3",
+          "method": "POST",
+          "path": "/capital-plans/7657b456-0585-46dd-9349-7ed19fa33555/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:18:16.123Z"
+        },
+        {
+          "id": "b73d9ce4-829f-4501-92cd-c6e36c506f80",
+          "method": "POST",
+          "path": "/capital-plans/204cea2c-21d9-4323-8a54-02cbba186fdf/allocations",
+          "status": 422,
+          "at": "2026-11-05T09:18:16.123Z"
+        }
+      ]
+    }
+  ]
+}

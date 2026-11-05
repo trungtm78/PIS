@@ -1,0 +1,40 @@
+{
+  "id": "UAT-AC469",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-finops.test.ts",
+      "name": "the reservation, the settlement and the reconciliation of a budget (ST-LLM-003, LLM F3) AC-ST-LLM-003-6, AC-ST-KERNEL-046-3: UAT-AC469, UAT-NFR-AI-03 sends the event of the soft threshold once when a settlement crosses 80 percent, refuses a 250,000 estimate above 190,000, and asks for an approval when the budget does not stop",
+      "status": "passed",
+      "durationMs": 877,
+      "at": "2026-11-05T09:15:26.735Z",
+      "requests": [
+        {
+          "id": "f41c3ea8-607b-45a7-969c-75ebebcd22f4",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:15:26.089Z"
+        },
+        {
+          "id": "5ab6f545-4770-4e28-94eb-c8c941bf2979",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:15:26.106Z"
+        },
+        {
+          "id": "2871327d-f2e6-40e2-a262-4ca643a3d57a",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:15:26.160Z"
+        }
+      ]
+    }
+  ]
+}

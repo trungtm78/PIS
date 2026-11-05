@@ -1,0 +1,162 @@
+{
+  "id": "UAT-AC443",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/aud/engagement.test.ts",
+      "name": "audit and inspection engagements over HTTP (ST-AUD-001, AUD-02, AUD-03) endAuditFieldwork and cancelAuditEngagement AC-ST-AUD-001-3 / UAT-AC443: cancels a started engagement, releases its hold, and a start after the cancellation is 409 ENGAGEMENT_STATE_INVALID",
+      "status": "passed",
+      "durationMs": 284,
+      "at": "2026-11-05T09:22:25.722Z",
+      "requests": [
+        {
+          "id": "eaea2786-f097-4f33-9dfe-05262f09863c",
+          "method": "POST",
+          "path": "/audit-engagements",
+          "status": 200,
+          "at": "2026-11-05T09:22:25.439Z"
+        },
+        {
+          "id": "9e785eba-ed80-4fcc-a50f-1407d85215f0",
+          "method": "POST",
+          "path": "/audit-engagements/0e3df0c4-71a9-46c6-818f-6c7d9b21c8f9/start",
+          "status": 200,
+          "at": "2026-11-05T09:22:25.456Z"
+        },
+        {
+          "id": "98114894-7bae-447c-a9b8-490a63a15d2d",
+          "method": "POST",
+          "path": "/audit-engagements/0e3df0c4-71a9-46c6-818f-6c7d9b21c8f9/cancellation",
+          "status": 422,
+          "at": "2026-11-05T09:22:25.513Z"
+        },
+        {
+          "id": "ffff2097-5111-4750-a266-8ef27835d06d",
+          "method": "POST",
+          "path": "/audit-engagements/0e3df0c4-71a9-46c6-818f-6c7d9b21c8f9/cancellation",
+          "status": 200,
+          "at": "2026-11-05T09:22:25.534Z"
+        },
+        {
+          "id": "e1f20ccb-eefa-46f6-82cd-6e0eaed1c355",
+          "method": "GET",
+          "path": "/audit-engagements/0e3df0c4-71a9-46c6-818f-6c7d9b21c8f9",
+          "status": 200,
+          "at": "2026-11-05T09:22:25.551Z"
+        },
+        {
+          "id": "146e1155-7b8c-4106-88e4-75021234a0bc",
+          "method": "POST",
+          "path": "/audit-engagements/0e3df0c4-71a9-46c6-818f-6c7d9b21c8f9/start",
+          "status": 409,
+          "at": "2026-11-05T09:22:25.648Z"
+        },
+        {
+          "id": "d3a619c0-2bda-45b7-93dc-6cdb3b43b38b",
+          "method": "POST",
+          "path": "/audit-engagements/0e3df0c4-71a9-46c6-818f-6c7d9b21c8f9/cancellation",
+          "status": 409,
+          "at": "2026-11-05T09:22:25.658Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/aud-engagement-flows.spec.ts",
+      "name": "the coordinator cancels a started engagement with a reason, which releases its legal hold (AC-ST-AUD-001-3, UAT-AC443)",
+      "status": "passed",
+      "durationMs": 1192,
+      "at": "2026-11-05T08:43:52.472Z",
+      "requests": [
+        {
+          "id": "921ff634-d01d-47b3-9a8f-3fe06da16124",
+          "method": "GET",
+          "path": "/audit-engagements",
+          "status": 200,
+          "at": "2026-11-05T08:43:52.939Z"
+        },
+        {
+          "id": "e980031d-3c75-457d-ad4f-f40476433bff",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 403,
+          "at": "2026-11-05T08:43:53.049Z"
+        },
+        {
+          "id": "e4ad2247-a2d5-444f-975a-9837dc109b8f",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:43:53.048Z"
+        },
+        {
+          "id": "dd0cc692-585a-42f5-9b20-13c1ea485475",
+          "method": "POST",
+          "path": "/audit-engagements",
+          "status": 200,
+          "at": "2026-11-05T08:43:53.199Z"
+        },
+        {
+          "id": "65628624-ac2c-4e28-ac5c-5a84a28aec6b",
+          "method": "GET",
+          "path": "/resources/membership",
+          "status": 403,
+          "at": "2026-11-05T08:43:53.223Z"
+        },
+        {
+          "id": "c59dde70-d835-48f8-a01a-8aa19f770ab4",
+          "method": "GET",
+          "path": "/audit-engagements",
+          "status": 200,
+          "at": "2026-11-05T08:43:53.222Z"
+        },
+        {
+          "id": "3a35e1d7-4fd7-48a2-8cd2-d3914d9210f8",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:43:53.223Z"
+        },
+        {
+          "id": "f5401f8d-a171-4bad-ab8a-d3ba7d30ebfe",
+          "method": "GET",
+          "path": "/audit-engagements/f1f05511-4221-42ba-8920-7bc5db604c9c",
+          "status": 200,
+          "at": "2026-11-05T08:43:53.278Z"
+        },
+        {
+          "id": "3932ef33-e49e-435c-bbe7-f69e53898264",
+          "method": "POST",
+          "path": "/audit-engagements/f1f05511-4221-42ba-8920-7bc5db604c9c/start",
+          "status": 200,
+          "at": "2026-11-05T08:43:53.380Z"
+        },
+        {
+          "id": "52b37973-5a59-42f6-a922-db8866a2b8c6",
+          "method": "GET",
+          "path": "/audit-engagements/f1f05511-4221-42ba-8920-7bc5db604c9c",
+          "status": 200,
+          "at": "2026-11-05T08:43:53.394Z"
+        },
+        {
+          "id": "98efc951-81da-430d-8442-1eddf7390a3c",
+          "method": "POST",
+          "path": "/audit-engagements/f1f05511-4221-42ba-8920-7bc5db604c9c/cancellation",
+          "status": 200,
+          "at": "2026-11-05T08:43:53.549Z"
+        },
+        {
+          "id": "c70136c1-8ba3-4bf1-a136-997acf80cf63",
+          "method": "GET",
+          "path": "/audit-engagements/f1f05511-4221-42ba-8920-7bc5db604c9c",
+          "status": 200,
+          "at": "2026-11-05T08:43:53.564Z"
+        }
+      ]
+    }
+  ]
+}

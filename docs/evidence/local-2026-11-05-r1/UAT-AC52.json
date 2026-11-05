@@ -1,0 +1,54 @@
+{
+  "id": "UAT-AC52",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-lineage.test.ts",
+      "name": "the lineage graph with a check on each node (ST-DGV-006, DGV 3 F5, DGV-05) AC-ST-DGV-006-1: UAT-AC52 tells everything of the chain to the person who may read it, run and transform on each edge, and shows the others restricted nodes with no name, id or kind",
+      "status": "passed",
+      "durationMs": 129,
+      "at": "2026-11-05T09:22:03.076Z",
+      "requests": [
+        {
+          "id": "00c53282-9b25-4adb-a99e-ac3d7bcbbbdc",
+          "method": "GET",
+          "path": "/dgv/lineage",
+          "status": 200,
+          "at": "2026-11-05T09:22:02.947Z"
+        },
+        {
+          "id": "fabee252-0b24-42cb-a337-02ae1f6cc814",
+          "method": "GET",
+          "path": "/dgv/lineage",
+          "status": 200,
+          "at": "2026-11-05T09:22:02.981Z"
+        },
+        {
+          "id": "0d5d9442-acfb-4239-acf2-f077adfd4cad",
+          "method": "GET",
+          "path": "/dgv/lineage",
+          "status": 200,
+          "at": "2026-11-05T09:22:03.009Z"
+        },
+        {
+          "id": "b62b1945-4b4e-44fc-9205-0f1f3d321816",
+          "method": "GET",
+          "path": "/dgv/lineage",
+          "status": 200,
+          "at": "2026-11-05T09:22:03.038Z"
+        },
+        {
+          "id": "59894a8c-f32c-4408-8fce-d88f60f0971f",
+          "method": "GET",
+          "path": "/dgv/lineage",
+          "status": 200,
+          "at": "2026-11-05T09:22:03.063Z"
+        }
+      ]
+    }
+  ]
+}

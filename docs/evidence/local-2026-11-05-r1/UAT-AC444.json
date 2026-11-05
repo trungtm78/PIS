@@ -1,0 +1,18 @@
+{
+  "id": "UAT-AC444",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/aud/pay-recovery.consumer.test.ts",
+      "name": "the recoveries of PAY on the ledger of AUD (AC-ST-AUD-004-1, AC-ST-AUD-004-3) AC-ST-AUD-004-3 / UAT-AC444: a reversal of PAY delivered twice adds one negative line, recovered falls to 500,000,000, and the closed recommendation goes back to IN_PROGRESS with an alert",
+      "status": "passed",
+      "durationMs": 570,
+      "at": "2026-11-05T09:23:31.704Z",
+      "requests": []
+    }
+  ]
+}

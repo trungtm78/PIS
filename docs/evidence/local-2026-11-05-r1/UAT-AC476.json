@@ -1,0 +1,106 @@
+{
+  "id": "UAT-AC476",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-queries.test.ts",
+      "name": "the queries of BI and the drill under them (ST-BI-004, BI F3, F4) closed by default, and what a policy hides AC-ST-BI-003-2: UAT-AC476 refuses a query with a sql field (400 FIELD_NOT_ALLOWED) and a dimension the dataset does not offer (422 DIMENSION_NOT_IN_DATASET)",
+      "status": "passed",
+      "durationMs": 158,
+      "at": "2026-11-05T09:18:03.977Z",
+      "requests": [
+        {
+          "id": "2e18e359-aa6a-4b40-a727-79de7805dd54",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:18:03.906Z"
+        },
+        {
+          "id": "fb6cfc17-ac94-42bc-a9d7-630ec6fce5c3",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 400,
+          "at": "2026-11-05T09:18:03.928Z"
+        },
+        {
+          "id": "a5fe4c65-27bd-4555-885e-9eac2e278422",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 422,
+          "at": "2026-11-05T09:18:03.948Z"
+        },
+        {
+          "id": "f871887a-66f6-4118-9caf-9c357b24abe4",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 422,
+          "at": "2026-11-05T09:18:03.969Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-policies.test.ts",
+      "name": "the access policies of BI (ST-BI-003, BI BR-BI-05) drafting a policy AC-ST-BI-003-2: UAT-AC476 refuses a predicate outside the grammar (PREDICATE_NOT_ALLOWED), a field the dataset does not offer (DIMENSION_NOT_IN_DATASET), bad masks and a dataset that is not open",
+      "status": "passed",
+      "durationMs": 142,
+      "at": "2026-11-05T09:22:35.145Z",
+      "requests": [
+        {
+          "id": "db9fb6fe-878c-430e-9ee4-9719046dd74e",
+          "method": "POST",
+          "path": "/bi/access-policies",
+          "status": 422,
+          "at": "2026-11-05T09:22:35.043Z"
+        },
+        {
+          "id": "7e11bc48-09a0-403f-90a7-67f72e3cb08d",
+          "method": "POST",
+          "path": "/bi/access-policies",
+          "status": 422,
+          "at": "2026-11-05T09:22:35.054Z"
+        },
+        {
+          "id": "7a76366e-9824-49d8-ae8d-93c2ce40ec86",
+          "method": "POST",
+          "path": "/bi/access-policies",
+          "status": 422,
+          "at": "2026-11-05T09:22:35.070Z"
+        },
+        {
+          "id": "103a802f-df93-4404-9d13-6aa2598b01ba",
+          "method": "POST",
+          "path": "/bi/access-policies",
+          "status": 422,
+          "at": "2026-11-05T09:22:35.085Z"
+        },
+        {
+          "id": "353620f7-5543-4be9-bbd6-82745ddeb4ef",
+          "method": "POST",
+          "path": "/bi/access-policies",
+          "status": 422,
+          "at": "2026-11-05T09:22:35.101Z"
+        },
+        {
+          "id": "b2556089-3bcf-4ef5-8441-6e3a83587c7e",
+          "method": "POST",
+          "path": "/bi/access-policies",
+          "status": 400,
+          "at": "2026-11-05T09:22:35.117Z"
+        },
+        {
+          "id": "30790fd5-1bd5-4d65-bfab-c2d107636767",
+          "method": "GET",
+          "path": "/bi/access-policies",
+          "status": 200,
+          "at": "2026-11-05T09:22:35.130Z"
+        }
+      ]
+    }
+  ]
+}

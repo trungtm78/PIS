@@ -1,0 +1,191 @@
+{
+  "id": "UAT-PLAN-28",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) importLandParcels (AC-ST-LND-001-2, UAT-PLAN-28) AC-ST-LND-001-2: imports a parcel list once; the same file a second time creates nothing and answers ALREADY_IMPORTED",
+      "status": "passed",
+      "durationMs": 381,
+      "at": "2026-11-05T09:19:36.222Z",
+      "requests": [
+        {
+          "id": "2bf2ee38-5011-4be4-8416-b8d82ff36e7c",
+          "method": "POST",
+          "path": "/land-parcels/import",
+          "status": 200,
+          "at": "2026-11-05T09:19:35.848Z"
+        },
+        {
+          "id": "cc6ab9a7-5d4f-4009-8934-17969dcb71d1",
+          "method": "POST",
+          "path": "/land-parcels/import",
+          "status": 200,
+          "at": "2026-11-05T09:19:35.917Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) importLandParcels (AC-ST-LND-001-2, UAT-PLAN-28) answers a repeated request with the first answer, and two requests at once give one application",
+      "status": "passed",
+      "durationMs": 122,
+      "at": "2026-11-05T09:19:36.343Z",
+      "requests": [
+        {
+          "id": "62539a3d-6eda-4943-ac02-9b62dd29efa8",
+          "method": "POST",
+          "path": "/land-parcels/import",
+          "status": 200,
+          "at": "2026-11-05T09:19:36.227Z"
+        },
+        {
+          "id": "8c536872-1ecf-4597-9776-631a95203fb7",
+          "method": "POST",
+          "path": "/land-parcels/import",
+          "status": 200,
+          "at": "2026-11-05T09:19:36.227Z"
+        },
+        {
+          "id": "231ad89f-a56e-4098-88f6-91269f59acd8",
+          "method": "POST",
+          "path": "/land-parcels/import",
+          "status": 200,
+          "at": "2026-11-05T09:19:36.226Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) importLandParcels (AC-ST-LND-001-2, UAT-PLAN-28) AC-ST-LND-001-2: refuses a file that carries a column for an owner or a user of the land, and creates no parcel",
+      "status": "passed",
+      "durationMs": 108,
+      "at": "2026-11-05T09:19:36.451Z",
+      "requests": [
+        {
+          "id": "44fb6dc4-eb75-4d68-9c4a-404c3f477b47",
+          "method": "POST",
+          "path": "/land-parcels/import",
+          "status": 422,
+          "at": "2026-11-05T09:19:36.388Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) importLandParcels (AC-ST-LND-001-2, UAT-PLAN-28) reports the rows it could not take and takes the others, without ever showing the address of a refused row",
+      "status": "passed",
+      "durationMs": 68,
+      "at": "2026-11-05T09:19:36.520Z",
+      "requests": [
+        {
+          "id": "24e6c4bb-bbba-4482-8b80-e67a26781ffd",
+          "method": "POST",
+          "path": "/land-parcels/import",
+          "status": 200,
+          "at": "2026-11-05T09:19:36.456Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) importLandParcels (AC-ST-LND-001-2, UAT-PLAN-28) wants the hash that was recorded, a file that exists and a file that is clean",
+      "status": "passed",
+      "durationMs": 110,
+      "at": "2026-11-05T09:19:36.629Z",
+      "requests": [
+        {
+          "id": "73f6faab-2f64-4523-a82b-95fb783d24c4",
+          "method": "POST",
+          "path": "/land-parcels/import",
+          "status": 422,
+          "at": "2026-11-05T09:19:36.524Z"
+        },
+        {
+          "id": "0307f315-b90a-4cb0-adb1-9ec916beca28",
+          "method": "POST",
+          "path": "/land-parcels/import",
+          "status": 404,
+          "at": "2026-11-05T09:19:36.547Z"
+        },
+        {
+          "id": "ab15fc06-56b7-4d3a-9592-fcab18be6666",
+          "method": "POST",
+          "path": "/land-parcels/import",
+          "status": 422,
+          "at": "2026-11-05T09:19:36.570Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) importLandParcels (AC-ST-LND-001-2, UAT-PLAN-28) is for whoever holds land.manage over the whole project or the whole tenant: a unit tree is not enough, a grant on the project is",
+      "status": "passed",
+      "durationMs": 91,
+      "at": "2026-11-05T09:19:36.720Z",
+      "requests": [
+        {
+          "id": "2609a2ce-7e29-4330-826a-f6d4a39ce016",
+          "method": "POST",
+          "path": "/land-parcels/import",
+          "status": 403,
+          "at": "2026-11-05T09:19:36.633Z"
+        },
+        {
+          "id": "855375d6-f47b-4b3a-85c4-933c80e2628c",
+          "method": "POST",
+          "path": "/land-parcels/import",
+          "status": 200,
+          "at": "2026-11-05T09:19:36.684Z"
+        },
+        {
+          "id": "db750d3c-5f7d-4dcd-abc1-265aee1e0d42",
+          "method": "POST",
+          "path": "/land-parcels/import",
+          "status": 403,
+          "at": "2026-11-05T09:19:36.712Z"
+        },
+        {
+          "id": "817c4564-2edb-41d3-a96a-0b4ab0ae874d",
+          "method": "POST",
+          "path": "/land-parcels/import",
+          "status": 403,
+          "at": "2026-11-05T09:19:36.715Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/land-parcels.test.ts",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) importLandParcels (AC-ST-LND-001-2, UAT-PLAN-28) does not see a project of another tenant, and takes no field beyond the allowlist",
+      "status": "passed",
+      "durationMs": 31,
+      "at": "2026-11-05T09:19:36.752Z",
+      "requests": [
+        {
+          "id": "a41dea22-3471-4f50-85a9-8ec4b351458d",
+          "method": "POST",
+          "path": "/land-parcels/import",
+          "status": 404,
+          "at": "2026-11-05T09:19:36.724Z"
+        },
+        {
+          "id": "6530ee37-d9b1-4704-97aa-1a06fe2f01ef",
+          "method": "POST",
+          "path": "/land-parcels/import",
+          "status": 400,
+          "at": "2026-11-05T09:19:36.740Z"
+        }
+      ]
+    }
+  ]
+}

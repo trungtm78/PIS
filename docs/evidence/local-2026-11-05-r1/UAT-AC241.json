@@ -1,0 +1,18 @@
+{
+  "id": "UAT-AC241",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/golden.test.ts",
+      "name": "[CHỜ KÝ D03] golden fixtures FX-DIS-001..007 (ST-DIS-011) [CHỜ KÝ D03] FX-DIS-002 / UAT-AC241: the cumulative is that of the accepted report of the period (150 million), never the two periods added (250), and the change is 50 million",
+      "status": "passed",
+      "durationMs": 0,
+      "at": "2026-11-05T09:24:00.404Z",
+      "requests": []
+    }
+  ]
+}

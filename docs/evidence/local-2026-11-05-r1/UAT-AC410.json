@@ -1,0 +1,218 @@
+{
+  "id": "UAT-AC410",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/distributions.test.ts",
+      "name": "distributing an issued document and tracking the receipts (ST-DOC-010) sends to two recipients, moves the document to DELIVERED on the first receipt and to ACKNOWLEDGED on the last, and a resend adds no row (AC-ST-DOC-010-2, UAT-AC410)",
+      "status": "passed",
+      "durationMs": 1746,
+      "at": "2026-11-05T09:12:35.889Z",
+      "requests": [
+        {
+          "id": "4a3d2e76-ade9-4f9d-afa9-2254e5b8b28f",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:12:34.141Z"
+        },
+        {
+          "id": "a7dabc8a-9b1f-4ecd-b781-109b3c08046b",
+          "method": "POST",
+          "path": "/outgoing-documents/0a7ba9dc-1475-4a8f-baae-34f9f07485c3/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:12:34.191Z"
+        },
+        {
+          "id": "fc52acc8-baa0-4e04-b000-049063b4ab74",
+          "method": "POST",
+          "path": "/outgoing-documents/0a7ba9dc-1475-4a8f-baae-34f9f07485c3/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:12:34.219Z"
+        },
+        {
+          "id": "de1ff7c5-02a5-4373-afc6-a4ad3610cab7",
+          "method": "POST",
+          "path": "/document-number-registers",
+          "status": 200,
+          "at": "2026-11-05T09:12:34.552Z"
+        },
+        {
+          "id": "48f17fc6-0924-45c2-b1a7-50e9e0042bec",
+          "method": "POST",
+          "path": "/outgoing-documents/0a7ba9dc-1475-4a8f-baae-34f9f07485c3/leader-signing-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:12:34.570Z"
+        },
+        {
+          "id": "802ffde4-a7ec-42c7-825b-517b371de07b",
+          "method": "POST",
+          "path": "/signing-sessions/c055a30b-fcaf-4fc7-ba64-37f659faa017/completion",
+          "status": 200,
+          "at": "2026-11-05T09:12:34.649Z"
+        },
+        {
+          "id": "084045ff-1f69-4cb4-951c-dd74bfebf233",
+          "method": "POST",
+          "path": "/outgoing-documents/0a7ba9dc-1475-4a8f-baae-34f9f07485c3/numbering",
+          "status": 200,
+          "at": "2026-11-05T09:12:34.742Z"
+        },
+        {
+          "id": "2ab5f81c-675c-4e53-a393-93c9122dc369",
+          "method": "POST",
+          "path": "/outgoing-documents/0a7ba9dc-1475-4a8f-baae-34f9f07485c3/organization-seal-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:12:34.858Z"
+        },
+        {
+          "id": "a896b03f-8a06-4243-b1ad-496af4fceabb",
+          "method": "POST",
+          "path": "/signing-sessions/2405c0e7-6dd3-433f-8208-45a616c7e824/completion",
+          "status": 200,
+          "at": "2026-11-05T09:12:34.950Z"
+        },
+        {
+          "id": "59257a9b-1f56-468c-8dbd-bd80d6fd5ff8",
+          "method": "POST",
+          "path": "/outgoing-documents/0a7ba9dc-1475-4a8f-baae-34f9f07485c3/issuance",
+          "status": 200,
+          "at": "2026-11-05T09:12:35.114Z"
+        },
+        {
+          "id": "03ac3588-c60c-4720-944e-e9ead08200df",
+          "method": "POST",
+          "path": "/outgoing-documents/0a7ba9dc-1475-4a8f-baae-34f9f07485c3/distributions",
+          "status": 200,
+          "at": "2026-11-05T09:12:35.227Z"
+        },
+        {
+          "id": "fe7685d7-67ac-4ec1-8a3b-e0c26b831262",
+          "method": "POST",
+          "path": "/outgoing-documents/0a7ba9dc-1475-4a8f-baae-34f9f07485c3/distributions",
+          "status": 200,
+          "at": "2026-11-05T09:12:35.392Z"
+        },
+        {
+          "id": "39148a6a-b2a9-4cd5-9959-11dd34061d4b",
+          "method": "POST",
+          "path": "/document-distributions/5d6708b2-7c9f-4adc-a495-04d340871328/acknowledgement",
+          "status": 200,
+          "at": "2026-11-05T09:12:35.455Z"
+        },
+        {
+          "id": "e24ae347-3aa3-4871-85d5-7306d4242440",
+          "method": "POST",
+          "path": "/document-distributions/aeabb3cc-25c1-483a-973e-d338dfa167aa/acknowledgement",
+          "status": 200,
+          "at": "2026-11-05T09:12:35.649Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/issue-requests.test.ts",
+      "name": "issue requests and document references for source modules (ST-DOC-008) the chain from a source module to ISSUED keeps the module waiting until doc.issued.v1: draft, review, signature, number, seal and issue, with the event once (AC-ST-DOC-008-3, UAT-AC410)",
+      "status": "passed",
+      "durationMs": 1514,
+      "at": "2026-11-05T09:16:57.793Z",
+      "requests": [
+        {
+          "id": "6e2ceaed-f2d6-4bcc-ae65-6936f7edd2df",
+          "method": "POST",
+          "path": "/document-issue-requests",
+          "status": 200,
+          "at": "2026-11-05T09:16:56.279Z"
+        },
+        {
+          "id": "37596e8d-81c9-4ed8-9c31-84fdffd40380",
+          "method": "POST",
+          "path": "/outgoing-documents/0184d3e4-853d-4271-b856-6cfd4544128e/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:16:56.342Z"
+        },
+        {
+          "id": "5bcdbb09-04dc-4a66-91bf-9a22be9c014a",
+          "method": "POST",
+          "path": "/outgoing-documents/0184d3e4-853d-4271-b856-6cfd4544128e/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:16:56.365Z"
+        },
+        {
+          "id": "be522dc1-820a-49dc-a9b0-a454057c70a5",
+          "method": "POST",
+          "path": "/document-number-registers",
+          "status": 200,
+          "at": "2026-11-05T09:16:56.667Z"
+        },
+        {
+          "id": "d616d464-90e1-42db-bc5d-3cc62189994b",
+          "method": "POST",
+          "path": "/outgoing-documents/0184d3e4-853d-4271-b856-6cfd4544128e/leader-signing-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:16:56.677Z"
+        },
+        {
+          "id": "de208010-9c19-45f1-8278-a4a41c198d66",
+          "method": "POST",
+          "path": "/signing-sessions/1fdb4685-afab-47e1-9d7c-9a68f67b6f03/completion",
+          "status": 200,
+          "at": "2026-11-05T09:16:56.747Z"
+        },
+        {
+          "id": "b9915b49-87d2-45f1-a230-01fd329528c9",
+          "method": "POST",
+          "path": "/outgoing-documents/0184d3e4-853d-4271-b856-6cfd4544128e/numbering",
+          "status": 200,
+          "at": "2026-11-05T09:16:56.831Z"
+        },
+        {
+          "id": "dc7052bf-797e-4d0d-b53f-ee8dd3ef3133",
+          "method": "POST",
+          "path": "/outgoing-documents/0184d3e4-853d-4271-b856-6cfd4544128e/organization-seal-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:16:56.979Z"
+        },
+        {
+          "id": "9b27439f-f5f9-44af-9b51-5070899de4ea",
+          "method": "POST",
+          "path": "/signing-sessions/39335653-c9f4-4307-8ec6-35874e5f5eae/completion",
+          "status": 200,
+          "at": "2026-11-05T09:16:57.054Z"
+        },
+        {
+          "id": "ca0a123d-f7ed-460b-8579-8b9ab1b2db6f",
+          "method": "POST",
+          "path": "/outgoing-documents/0184d3e4-853d-4271-b856-6cfd4544128e/issuance",
+          "status": 200,
+          "at": "2026-11-05T09:16:57.337Z"
+        },
+        {
+          "id": "bbee5f11-f141-49f7-ae42-e71757a76041",
+          "method": "POST",
+          "path": "/outgoing-documents/0184d3e4-853d-4271-b856-6cfd4544128e/issuance",
+          "status": 409,
+          "at": "2026-11-05T09:16:57.700Z"
+        },
+        {
+          "id": "d720d33f-5f7b-44bb-a3a4-e4577f811281",
+          "method": "POST",
+          "path": "/document-issue-requests",
+          "status": 409,
+          "at": "2026-11-05T09:16:57.754Z"
+        },
+        {
+          "id": "79e51f33-f0ed-47b9-89a0-6b136214a934",
+          "method": "GET",
+          "path": "/documents/ed575987-a04b-4dcb-95d8-92e19c3ebd12/usability",
+          "status": 200,
+          "at": "2026-11-05T09:16:57.776Z"
+        }
+      ]
+    }
+  ]
+}

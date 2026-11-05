@@ -1,0 +1,54 @@
+{
+  "id": "DQ01",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report-decision.test.ts",
+      "name": "the decision on a weekly report and its corrections over HTTP (ST-DIS-006) the bulk import of weekly reports (ST-DIS-008) AC-ST-DIS-008-2 / DQ01: a project named twice, an amount that is not the total and a project that is not there go to the error report; the rows that are in order are counted apart; sending the same file again adds nothing",
+      "status": "passed",
+      "durationMs": 416,
+      "at": "2026-11-05T09:15:33.379Z",
+      "requests": [
+        {
+          "id": "9f383fd1-8c89-499a-b166-23e564ce562c",
+          "method": "POST",
+          "path": "/report-imports/files",
+          "status": 200,
+          "at": "2026-11-05T09:15:33.246Z"
+        },
+        {
+          "id": "a2cbed35-492a-4530-b975-b91a176b536b",
+          "method": "POST",
+          "path": "/report-imports",
+          "status": 200,
+          "at": "2026-11-05T09:15:33.269Z"
+        },
+        {
+          "id": "b6b5368c-d56e-4558-92ba-da4add25213c",
+          "method": "GET",
+          "path": "/report-imports/d36838bf-2313-400d-bca0-646cf5afed61",
+          "status": 200,
+          "at": "2026-11-05T09:15:33.283Z"
+        },
+        {
+          "id": "da4bc613-3135-413a-9d9e-f4e329980f6f",
+          "method": "POST",
+          "path": "/report-imports/d36838bf-2313-400d-bca0-646cf5afed61/apply",
+          "status": 422,
+          "at": "2026-11-05T09:15:33.295Z"
+        },
+        {
+          "id": "9fb92e74-b265-4ec1-a3e2-1da66ca3975f",
+          "method": "POST",
+          "path": "/report-imports",
+          "status": 200,
+          "at": "2026-11-05T09:15:33.311Z"
+        }
+      ]
+    }
+  ]
+}

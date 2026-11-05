@@ -1,0 +1,318 @@
+{
+  "id": "UAT-AC307",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/change-chain.test.ts",
+      "name": "the chain of changes over HTTP (ST-CTR-006) setChangeChainTiers (AC-ST-CTR-006-1, UAT-AC307) sets the tiers of a project until its first request, audits and tells the world, and refuses a number that is not 1, 2 or 3",
+      "status": "passed",
+      "durationMs": 877,
+      "at": "2026-11-05T09:11:22.152Z",
+      "requests": [
+        {
+          "id": "244438c6-d269-48f5-a5f7-930e000609c9",
+          "method": "POST",
+          "path": "/projects/f183f47f-949c-45e9-892d-bbbaf3f574e9/change-chain-config",
+          "status": 200,
+          "at": "2026-11-05T09:11:21.836Z"
+        },
+        {
+          "id": "dd17f0aa-1752-4d1a-a3eb-9949ebdde330",
+          "method": "POST",
+          "path": "/projects/f183f47f-949c-45e9-892d-bbbaf3f574e9/change-chain-config",
+          "status": 200,
+          "at": "2026-11-05T09:11:21.917Z"
+        },
+        {
+          "id": "4fab67eb-06d9-4ca8-be88-3e96fb72e30f",
+          "method": "POST",
+          "path": "/projects/f183f47f-949c-45e9-892d-bbbaf3f574e9/change-chain-config",
+          "status": 422,
+          "at": "2026-11-05T09:11:22.053Z"
+        },
+        {
+          "id": "3991ceab-8e65-4bf2-8c30-00cb99ba4cb1",
+          "method": "POST",
+          "path": "/projects/f183f47f-949c-45e9-892d-bbbaf3f574e9/change-chain-config",
+          "status": 422,
+          "at": "2026-11-05T09:11:22.072Z"
+        },
+        {
+          "id": "8d9f67e6-8625-417f-bad3-cc4ca37da456",
+          "method": "POST",
+          "path": "/projects/f183f47f-949c-45e9-892d-bbbaf3f574e9/change-chain-config",
+          "status": 400,
+          "at": "2026-11-05T09:11:22.075Z"
+        },
+        {
+          "id": "18189d7e-141b-472a-b550-69a21e3e7f79",
+          "method": "POST",
+          "path": "/projects/f183f47f-949c-45e9-892d-bbbaf3f574e9/change-chain-config",
+          "status": 400,
+          "at": "2026-11-05T09:11:22.087Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/change-chain.test.ts",
+      "name": "the chain of changes over HTTP (ST-CTR-006) setChangeChainTiers (AC-ST-CTR-006-1, UAT-AC307) locks with the first request: 409 CHANGE_TIERS_LOCKED afterwards, and PRJ-A-002 with one tier starts at the CO",
+      "status": "passed",
+      "durationMs": 1446,
+      "at": "2026-11-05T09:11:23.598Z",
+      "requests": [
+        {
+          "id": "b4db48ef-e1b0-4766-9c6c-f779c46cc3a4",
+          "method": "POST",
+          "path": "/projects/3a899455-4a7c-450c-b00f-a895bdf29199/change-chain-config",
+          "status": 200,
+          "at": "2026-11-05T09:11:22.772Z"
+        },
+        {
+          "id": "66c7c219-6a3d-4c42-bff4-1984e5f08445",
+          "method": "POST",
+          "path": "/contracts/a6f58a45-a7c7-4aa1-8bfe-1f27c5d1a87b/change-requests",
+          "status": 200,
+          "at": "2026-11-05T09:11:22.795Z"
+        },
+        {
+          "id": "da86e992-71a0-46c8-b477-f8288914f25b",
+          "method": "POST",
+          "path": "/projects/3a899455-4a7c-450c-b00f-a895bdf29199/change-chain-config",
+          "status": 409,
+          "at": "2026-11-05T09:11:22.860Z"
+        },
+        {
+          "id": "3e17e47f-2fd4-4542-b32f-fe98e183cddd",
+          "method": "POST",
+          "path": "/projects/f571ede3-e968-4ace-aafe-5b2c1e89d896/change-chain-config",
+          "status": 200,
+          "at": "2026-11-05T09:11:23.504Z"
+        },
+        {
+          "id": "2cc9127c-ca6d-45a9-8cbf-848c913cee0b",
+          "method": "POST",
+          "path": "/contracts/c6b0ed95-d912-481c-996d-aeee4b799053/change-requests",
+          "status": 422,
+          "at": "2026-11-05T09:11:23.514Z"
+        },
+        {
+          "id": "d443e9f4-ec10-466b-97d1-6b401693e6e0",
+          "method": "POST",
+          "path": "/contracts/c6b0ed95-d912-481c-996d-aeee4b799053/change-requests",
+          "status": 200,
+          "at": "2026-11-05T09:11:23.570Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/change-chain.test.ts",
+      "name": "the chain of changes over HTTP (ST-CTR-006) setChangeChainTiers (AC-ST-CTR-006-1, UAT-AC307) is for whoever holds the permission in the scope of the project",
+      "status": "passed",
+      "durationMs": 611,
+      "at": "2026-11-05T09:11:24.208Z",
+      "requests": [
+        {
+          "id": "ebfb8634-c38c-45c3-9b16-180dcfc35423",
+          "method": "POST",
+          "path": "/projects/d3558211-92a3-4619-9b48-03d2a5a66e1d/change-chain-config",
+          "status": 403,
+          "at": "2026-11-05T09:11:24.126Z"
+        },
+        {
+          "id": "c2caabd2-c3e2-4942-9f2d-d0803d53bb6a",
+          "method": "POST",
+          "path": "/projects/d3558211-92a3-4619-9b48-03d2a5a66e1d/change-chain-config",
+          "status": 403,
+          "at": "2026-11-05T09:11:24.134Z"
+        },
+        {
+          "id": "525210fa-1737-4457-9ab1-82f3992a3f77",
+          "method": "POST",
+          "path": "/projects/d3558211-92a3-4619-9b48-03d2a5a66e1d/change-chain-config",
+          "status": 403,
+          "at": "2026-11-05T09:11:24.149Z"
+        },
+        {
+          "id": "8fcbeb49-dc72-4635-98bc-280ba4460821",
+          "method": "POST",
+          "path": "/projects/17c4ba0e-f33d-4e6b-9f55-9920386aea55/change-chain-config",
+          "status": 404,
+          "at": "2026-11-05T09:11:24.154Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/ctr-change-flows.spec.ts",
+      "name": "the owner sets the tiers, the first request locks them, and a statement that bypasses the command is refused (UI-CTR-20, UI-CTR-07, AC-ST-CTR-006-1, UAT-AC307)",
+      "status": "passed",
+      "durationMs": 1669,
+      "at": "2026-11-05T08:45:50.982Z",
+      "requests": [
+        {
+          "id": "8b691a84-2085-4146-b90c-66034d92f633",
+          "method": "GET",
+          "path": "/projects/9e336674-c621-41b2-bc51-d755419889d4/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:51.464Z"
+        },
+        {
+          "id": "4fd0513d-4ec7-4330-a30b-ee62650d2fe6",
+          "method": "POST",
+          "path": "/projects/9e336674-c621-41b2-bc51-d755419889d4/change-chain-config",
+          "status": 200,
+          "at": "2026-11-05T08:45:51.633Z"
+        },
+        {
+          "id": "f1d370ad-20f5-4edb-9029-aaa2cdd1fb26",
+          "method": "GET",
+          "path": "/projects/9e336674-c621-41b2-bc51-d755419889d4/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:51.650Z"
+        },
+        {
+          "id": "d24dcee3-270b-4d28-a3a4-e149a702b508",
+          "method": "POST",
+          "path": "/projects/9e336674-c621-41b2-bc51-d755419889d4/change-chain-config",
+          "status": 200,
+          "at": "2026-11-05T08:45:51.783Z"
+        },
+        {
+          "id": "ab06d377-a06b-4c86-a578-79b34bc834a3",
+          "method": "GET",
+          "path": "/projects/9e336674-c621-41b2-bc51-d755419889d4/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:51.797Z"
+        },
+        {
+          "id": "0d50394d-681f-4b44-8dd7-31ebfd1c5698",
+          "method": "GET",
+          "path": "/resources/contract/2645cb32-6f5c-4d73-9f58-0b027c576dc5",
+          "status": 200,
+          "at": "2026-11-05T08:45:52.007Z"
+        },
+        {
+          "id": "8f2b6fab-5a6e-4264-8436-f0bb02bb6b9a",
+          "method": "GET",
+          "path": "/projects/9e336674-c621-41b2-bc51-d755419889d4/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:52.021Z"
+        },
+        {
+          "id": "15974efe-902a-422a-9bce-3ab1b45cd523",
+          "method": "POST",
+          "path": "/contracts/2645cb32-6f5c-4d73-9f58-0b027c576dc5/change-requests",
+          "status": 200,
+          "at": "2026-11-05T08:45:52.167Z"
+        },
+        {
+          "id": "82eb3f40-0838-4d15-bd1a-c5d38c0a7ffd",
+          "method": "GET",
+          "path": "/projects/9e336674-c621-41b2-bc51-d755419889d4/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:52.185Z"
+        },
+        {
+          "id": "015a51b3-f545-429c-b69a-b15d1a3546d4",
+          "method": "GET",
+          "path": "/resources/contract/2645cb32-6f5c-4d73-9f58-0b027c576dc5",
+          "status": 304,
+          "at": "2026-11-05T08:45:52.184Z"
+        },
+        {
+          "id": "314d8dc9-a6b4-48fb-8a72-99e478d94dc6",
+          "method": "GET",
+          "path": "/projects/9e336674-c621-41b2-bc51-d755419889d4/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:52.451Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/ctr-change-flows.spec.ts",
+      "name": "a project of one tier starts at the CO, and the form says where it starts (UI-CTR-07, AC-ST-CTR-006-1, UAT-AC307)",
+      "status": "passed",
+      "durationMs": 1179,
+      "at": "2026-11-05T08:45:52.657Z",
+      "requests": [
+        {
+          "id": "7b1ceb12-f39e-4863-ba03-4fe1bda9737f",
+          "method": "GET",
+          "path": "/resources/contract/53fe9e3d-152b-48e1-a4f4-3fdce7991aa7",
+          "status": 200,
+          "at": "2026-11-05T08:45:53.124Z"
+        },
+        {
+          "id": "e685e51a-24e0-4cc6-ac49-177b83423784",
+          "method": "GET",
+          "path": "/projects/f6bb9444-b680-49e6-ab48-54e34b22bb5f/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:53.171Z"
+        },
+        {
+          "id": "ab051025-4977-4c58-a1bc-ea09e97e92af",
+          "method": "GET",
+          "path": "/projects/f6bb9444-b680-49e6-ab48-54e34b22bb5f/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:53.361Z"
+        },
+        {
+          "id": "4396ca6a-05bc-4375-8875-bcd2f32d3c7e",
+          "method": "POST",
+          "path": "/projects/f6bb9444-b680-49e6-ab48-54e34b22bb5f/change-chain-config",
+          "status": 200,
+          "at": "2026-11-05T08:45:53.484Z"
+        },
+        {
+          "id": "2f41230b-7ad2-42ce-86f1-e3d485a5aebc",
+          "method": "GET",
+          "path": "/projects/f6bb9444-b680-49e6-ab48-54e34b22bb5f/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:53.499Z"
+        },
+        {
+          "id": "bc95e746-d583-4205-888f-e5d1c9ba9770",
+          "method": "GET",
+          "path": "/resources/contract/53fe9e3d-152b-48e1-a4f4-3fdce7991aa7",
+          "status": 304,
+          "at": "2026-11-05T08:45:53.642Z"
+        },
+        {
+          "id": "6cb13cd1-0fc8-4fee-a4ec-d3729753b69c",
+          "method": "GET",
+          "path": "/projects/f6bb9444-b680-49e6-ab48-54e34b22bb5f/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:53.670Z"
+        },
+        {
+          "id": "a11a9fa3-710d-4da3-bca0-df5e6204c822",
+          "method": "POST",
+          "path": "/contracts/53fe9e3d-152b-48e1-a4f4-3fdce7991aa7/change-requests",
+          "status": 200,
+          "at": "2026-11-05T08:45:53.752Z"
+        },
+        {
+          "id": "8c5f8894-936a-465a-8245-b406c14211e4",
+          "method": "GET",
+          "path": "/projects/f6bb9444-b680-49e6-ab48-54e34b22bb5f/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:53.769Z"
+        },
+        {
+          "id": "90606136-45ed-4f1a-a9b4-20a4ea4722c5",
+          "method": "GET",
+          "path": "/resources/contract/53fe9e3d-152b-48e1-a4f4-3fdce7991aa7",
+          "status": 304,
+          "at": "2026-11-05T08:45:53.768Z"
+        }
+      ]
+    }
+  ]
+}

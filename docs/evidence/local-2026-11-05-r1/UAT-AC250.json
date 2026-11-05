@@ -1,0 +1,61 @@
+{
+  "id": "UAT-AC250",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports_id_submit (ST-DIS-005) AC-ST-DIS-005-5 / UAT-AC250: refuses a cumulative that fell from 150 million to 120 million until it is explained (422), then hands it in with the warning and the change of -30 million",
+      "status": "passed",
+      "durationMs": 385,
+      "at": "2026-11-05T09:16:10.050Z",
+      "requests": [
+        {
+          "id": "26c888a2-b670-420a-99b2-738b30690ee4",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:09.704Z"
+        },
+        {
+          "id": "79e57fc2-60ee-44dc-810a-9d4a97d23ebd",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:09.812Z"
+        },
+        {
+          "id": "a1458017-bbfa-4460-a2e2-149fd7971db6",
+          "method": "POST",
+          "path": "/reports/1a14ba7e-50e9-4e37-8390-1e02714fdd4e/submit",
+          "status": 422,
+          "at": "2026-11-05T09:16:09.848Z"
+        },
+        {
+          "id": "01926c58-39a0-41bc-a186-81237ef8748b",
+          "method": "POST",
+          "path": "/reports/1a14ba7e-50e9-4e37-8390-1e02714fdd4e/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:09.904Z"
+        },
+        {
+          "id": "60940cdf-68e3-498c-89a3-30a3c23b736c",
+          "method": "POST",
+          "path": "/reports/1a14ba7e-50e9-4e37-8390-1e02714fdd4e/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:09.922Z"
+        },
+        {
+          "id": "7408bbeb-a78b-4408-b019-5169a13326d5",
+          "method": "GET",
+          "path": "/reports/1a14ba7e-50e9-4e37-8390-1e02714fdd4e",
+          "status": 200,
+          "at": "2026-11-05T09:16:09.986Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "id": "UAT-PLAN-58",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/wbs.test.ts",
+      "name": "the work breakdown and the milestones of a project (ST-PRJ-009, BR-PRJ-08, PRJ-05, PRJ-07) the milestones UAT-PLAN-58: a dependency that would form a loop is 409 DEPENDENCY_CYCLE and the dependencies stay as they were; others are saved, and can be cleared",
+      "status": "passed",
+      "durationMs": 383,
+      "at": "2026-11-05T09:21:48.776Z",
+      "requests": [
+        {
+          "id": "c837fe96-343c-4be5-82f3-361352834f69",
+          "method": "POST",
+          "path": "/projects",
+          "status": 200,
+          "at": "2026-11-05T09:21:48.393Z"
+        },
+        {
+          "id": "9b798ba2-9b32-437b-9a12-caef8ce136c2",
+          "method": "POST",
+          "path": "/projects/7193329c-6091-4e36-9e20-071d93fcdeb6/milestones",
+          "status": 200,
+          "at": "2026-11-05T09:21:48.451Z"
+        },
+        {
+          "id": "d754516d-af90-4ac0-a883-b3378f5d7564",
+          "method": "POST",
+          "path": "/projects/7193329c-6091-4e36-9e20-071d93fcdeb6/milestones",
+          "status": 200,
+          "at": "2026-11-05T09:21:48.472Z"
+        },
+        {
+          "id": "23721338-8bcb-4136-b062-d9a8f775181e",
+          "method": "POST",
+          "path": "/projects/7193329c-6091-4e36-9e20-071d93fcdeb6/milestones",
+          "status": 200,
+          "at": "2026-11-05T09:21:48.481Z"
+        },
+        {
+          "id": "56303fa1-f9cd-49a6-b2a3-8186ae00ac2e",
+          "method": "POST",
+          "path": "/project-milestones/3d3fe772-c634-46c5-b0bd-8272e8a61451/dependency",
+          "status": 409,
+          "at": "2026-11-05T09:21:48.504Z"
+        },
+        {
+          "id": "b6f31d47-2f42-4de0-bb62-ee1e59009cae",
+          "method": "POST",
+          "path": "/project-milestones/4da4ba3e-7d13-4f9d-b65f-51c6e3309d3a/dependency",
+          "status": 409,
+          "at": "2026-11-05T09:21:48.522Z"
+        },
+        {
+          "id": "93e56ef1-d677-4727-afde-23d21fa94c9b",
+          "method": "POST",
+          "path": "/project-milestones/2fa342a7-8ae6-4965-96a9-9108989863f0/dependency",
+          "status": 200,
+          "at": "2026-11-05T09:21:48.654Z"
+        },
+        {
+          "id": "bd76ef58-1c2f-41c9-b782-cef4081308e8",
+          "method": "POST",
+          "path": "/project-milestones/2fa342a7-8ae6-4965-96a9-9108989863f0/dependency",
+          "status": 200,
+          "at": "2026-11-05T09:21:48.702Z"
+        },
+        {
+          "id": "2c0e8dce-75c1-4595-afcc-2c2deb53b6b2",
+          "method": "GET",
+          "path": "/projects/7193329c-6091-4e36-9e20-071d93fcdeb6/milestones",
+          "status": 200,
+          "at": "2026-11-05T09:21:48.750Z"
+        },
+        {
+          "id": "55f23937-6d59-439e-9fe1-1c93a16c5711",
+          "method": "POST",
+          "path": "/project-milestones/2fa342a7-8ae6-4965-96a9-9108989863f0/dependency",
+          "status": 422,
+          "at": "2026-11-05T09:21:48.757Z"
+        }
+      ]
+    }
+  ]
+}

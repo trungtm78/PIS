@@ -1,0 +1,277 @@
+{
+  "id": "UAT-AC377",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/plan-posting.test.ts",
+      "name": "the posting of a plan to the households, the opinions on it and its approval (ST-LND-006) postCompensationPlan AC-ST-LND-006-1, UAT-AC377: posts a draft for the days of the rule, audits it and tells the world with ids and dates only",
+      "status": "passed",
+      "durationMs": 306,
+      "at": "2026-11-05T09:21:30.781Z",
+      "requests": [
+        {
+          "id": "a3101dbb-6d8f-443f-af49-d3457b6d791f",
+          "method": "POST",
+          "path": "/compensation-plans",
+          "status": 200,
+          "at": "2026-11-05T09:21:30.529Z"
+        },
+        {
+          "id": "58d5c519-1a9d-4cab-80f4-48eb1aa5ca3e",
+          "method": "POST",
+          "path": "/compensation-plans/bc11a2fb-3be3-49d2-a46c-42bca8845d6e/items",
+          "status": 200,
+          "at": "2026-11-05T09:21:30.566Z"
+        },
+        {
+          "id": "a1e06a48-b2b5-4ae7-8856-e7d94e9465aa",
+          "method": "POST",
+          "path": "/compensation-plans/bc11a2fb-3be3-49d2-a46c-42bca8845d6e/post",
+          "status": 200,
+          "at": "2026-11-05T09:21:30.589Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/plan-posting.test.ts",
+      "name": "the posting of a plan to the households, the opinions on it and its approval (ST-LND-006) closePlanPosting and approveCompensationPlan AC-ST-LND-006-1, UAT-AC377: refuses to close a posting before the days are over, closes it after, and approves only when every opinion is handled and by someone other than the drafter",
+      "status": "passed",
+      "durationMs": 1366,
+      "at": "2026-11-05T09:21:34.125Z",
+      "requests": [
+        {
+          "id": "97d8b994-501f-43a3-b6d6-f2799fdbc253",
+          "method": "POST",
+          "path": "/compensation-plans",
+          "status": 200,
+          "at": "2026-11-05T09:21:32.772Z"
+        },
+        {
+          "id": "7b4519a1-3921-4ff3-aaf0-3bdd03884fd7",
+          "method": "POST",
+          "path": "/compensation-plans/55dbef5d-200e-4479-a842-4f7ec32a7365/items",
+          "status": 200,
+          "at": "2026-11-05T09:21:32.795Z"
+        },
+        {
+          "id": "f84a67ad-3a92-4bb0-b27e-4762fd2b9449",
+          "method": "POST",
+          "path": "/compensation-plans/55dbef5d-200e-4479-a842-4f7ec32a7365/post",
+          "status": 200,
+          "at": "2026-11-05T09:21:32.816Z"
+        },
+        {
+          "id": "5976003e-f6c5-4f01-a155-c78c1cf14582",
+          "method": "POST",
+          "path": "/compensation-plans/55dbef5d-200e-4479-a842-4f7ec32a7365/close-posting",
+          "status": 422,
+          "at": "2026-11-05T09:21:32.832Z"
+        },
+        {
+          "id": "1b14fb52-5b41-49de-93bc-33f5113d4fa1",
+          "method": "POST",
+          "path": "/compensation-plans",
+          "status": 200,
+          "at": "2026-11-05T09:21:33.025Z"
+        },
+        {
+          "id": "6247ccf9-2744-4c22-974e-71892750d9e3",
+          "method": "POST",
+          "path": "/compensation-plans/55065641-97ce-4cfd-9f57-7c66bbf99ace/items",
+          "status": 200,
+          "at": "2026-11-05T09:21:33.037Z"
+        },
+        {
+          "id": "feb3aeb4-2112-458c-891e-f346b9d41004",
+          "method": "POST",
+          "path": "/compensation-plans/55065641-97ce-4cfd-9f57-7c66bbf99ace/feedback",
+          "status": 200,
+          "at": "2026-11-05T09:21:33.518Z"
+        },
+        {
+          "id": "13273581-0283-44f8-b3a3-4d5b9809cf03",
+          "method": "POST",
+          "path": "/compensation-plans/55065641-97ce-4cfd-9f57-7c66bbf99ace/feedback",
+          "status": 200,
+          "at": "2026-11-05T09:21:33.534Z"
+        },
+        {
+          "id": "3b4f2f6d-7900-475c-8b96-c5fcaed127fb",
+          "method": "POST",
+          "path": "/compensation-plans/55065641-97ce-4cfd-9f57-7c66bbf99ace/close-posting",
+          "status": 200,
+          "at": "2026-11-05T09:21:33.548Z"
+        },
+        {
+          "id": "6ef18aad-0c53-45f9-ac78-df299163b525",
+          "method": "POST",
+          "path": "/compensation-plans/55065641-97ce-4cfd-9f57-7c66bbf99ace/close-posting",
+          "status": 409,
+          "at": "2026-11-05T09:21:33.865Z"
+        },
+        {
+          "id": "1cab96f2-cbb9-4474-859e-31a3f217554a",
+          "method": "POST",
+          "path": "/compensation-plans/55065641-97ce-4cfd-9f57-7c66bbf99ace/approve",
+          "status": 422,
+          "at": "2026-11-05T09:21:33.884Z"
+        },
+        {
+          "id": "61288895-ea19-438c-8ef4-a94207b26962",
+          "method": "POST",
+          "path": "/compensation-plans/55065641-97ce-4cfd-9f57-7c66bbf99ace/feedback/f5bc38d5-763f-4610-aee6-f3fe03c80bb4/handle",
+          "status": 200,
+          "at": "2026-11-05T09:21:33.901Z"
+        },
+        {
+          "id": "903ed75a-1b75-46ab-a399-0bc7a99673ce",
+          "method": "POST",
+          "path": "/compensation-plans/55065641-97ce-4cfd-9f57-7c66bbf99ace/feedback/a8c8b389-e394-48f5-b49b-2ea59c964886/handle",
+          "status": 200,
+          "at": "2026-11-05T09:21:33.918Z"
+        },
+        {
+          "id": "a987fe75-3f31-4348-8203-d8b2ffeefcd6",
+          "method": "POST",
+          "path": "/compensation-plans/55065641-97ce-4cfd-9f57-7c66bbf99ace/approve",
+          "status": 200,
+          "at": "2026-11-05T09:21:33.934Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/plan-posting.test.ts",
+      "name": "the posting of a plan to the households, the opinions on it and its approval (ST-LND-006) closePlanPosting and approveCompensationPlan UAT-AC377 step 5: approves nothing that is not closed, and refuses the drafter, whoever may not approve, a decision that is missing or not clean and a day that has not come",
+      "status": "passed",
+      "durationMs": 485,
+      "at": "2026-11-05T09:21:34.610Z",
+      "requests": [
+        {
+          "id": "c3340cd9-befe-4595-9e7e-ed931557039a",
+          "method": "POST",
+          "path": "/compensation-plans",
+          "status": 200,
+          "at": "2026-11-05T09:21:34.143Z"
+        },
+        {
+          "id": "f7c89c3f-db09-478b-ada6-d18954778027",
+          "method": "POST",
+          "path": "/compensation-plans/31cc4cea-544e-4694-a4f3-dbcefe28e514/items",
+          "status": 200,
+          "at": "2026-11-05T09:21:34.161Z"
+        },
+        {
+          "id": "98fd0e16-c43d-4478-bdce-1a5f810a65b0",
+          "method": "POST",
+          "path": "/compensation-plans/31cc4cea-544e-4694-a4f3-dbcefe28e514/approve",
+          "status": 409,
+          "at": "2026-11-05T09:21:34.175Z"
+        },
+        {
+          "id": "0d9a3cf1-64f4-46c3-bee1-83abf602e498",
+          "method": "POST",
+          "path": "/compensation-plans/31cc4cea-544e-4694-a4f3-dbcefe28e514/approve",
+          "status": 409,
+          "at": "2026-11-05T09:21:34.364Z"
+        },
+        {
+          "id": "4bdb17e5-61cf-4fd2-ba0c-f0e25bfa86f3",
+          "method": "POST",
+          "path": "/compensation-plans/31cc4cea-544e-4694-a4f3-dbcefe28e514/close-posting",
+          "status": 200,
+          "at": "2026-11-05T09:21:34.380Z"
+        },
+        {
+          "id": "aab2a614-e321-44f2-9ef2-7669222c4974",
+          "method": "POST",
+          "path": "/compensation-plans/31cc4cea-544e-4694-a4f3-dbcefe28e514/approve",
+          "status": 403,
+          "at": "2026-11-05T09:21:34.401Z"
+        },
+        {
+          "id": "23358014-634e-45a2-bd23-0998c3f7fc73",
+          "method": "POST",
+          "path": "/compensation-plans/31cc4cea-544e-4694-a4f3-dbcefe28e514/approve",
+          "status": 422,
+          "at": "2026-11-05T09:21:34.412Z"
+        },
+        {
+          "id": "ed27b68b-0a39-4b91-ae47-c46db78674f1",
+          "method": "POST",
+          "path": "/compensation-plans/31cc4cea-544e-4694-a4f3-dbcefe28e514/approve",
+          "status": 422,
+          "at": "2026-11-05T09:21:34.423Z"
+        },
+        {
+          "id": "dc6500b3-9b87-4858-938f-464d57359bae",
+          "method": "POST",
+          "path": "/compensation-plans/31cc4cea-544e-4694-a4f3-dbcefe28e514/approve",
+          "status": 422,
+          "at": "2026-11-05T09:21:34.444Z"
+        },
+        {
+          "id": "4abd6f08-acc1-4ecb-849c-ad2c46701683",
+          "method": "POST",
+          "path": "/compensation-plans/31cc4cea-544e-4694-a4f3-dbcefe28e514/approve",
+          "status": 422,
+          "at": "2026-11-05T09:21:34.460Z"
+        },
+        {
+          "id": "0be4c84b-14cd-4ac8-9ee9-24539706764b",
+          "method": "POST",
+          "path": "/compensation-plans/31cc4cea-544e-4694-a4f3-dbcefe28e514/approve",
+          "status": 422,
+          "at": "2026-11-05T09:21:34.476Z"
+        },
+        {
+          "id": "33a1f336-730a-46e1-9053-031717d4cae6",
+          "method": "POST",
+          "path": "/compensation-plans/31cc4cea-544e-4694-a4f3-dbcefe28e514/approve",
+          "status": 409,
+          "at": "2026-11-05T09:21:34.482Z"
+        },
+        {
+          "id": "5a2e3626-6cec-476f-826b-55c5f5d97a8c",
+          "method": "POST",
+          "path": "/compensation-plans/31cc4cea-544e-4694-a4f3-dbcefe28e514/approve",
+          "status": 403,
+          "at": "2026-11-05T09:21:34.490Z"
+        },
+        {
+          "id": "ec7a0723-fac6-4ff7-bf28-942e0731879c",
+          "method": "POST",
+          "path": "/compensation-plans/31cc4cea-544e-4694-a4f3-dbcefe28e514/approve",
+          "status": 403,
+          "at": "2026-11-05T09:21:34.504Z"
+        },
+        {
+          "id": "11cd40c1-e246-47c8-a94b-cac0ab8b0576",
+          "method": "POST",
+          "path": "/compensation-plans/31cc4cea-544e-4694-a4f3-dbcefe28e514/approve",
+          "status": 403,
+          "at": "2026-11-05T09:21:34.519Z"
+        },
+        {
+          "id": "61ff685f-8def-400e-b95a-5ce7616ef769",
+          "method": "POST",
+          "path": "/compensation-plans/31cc4cea-544e-4694-a4f3-dbcefe28e514/approve",
+          "status": 404,
+          "at": "2026-11-05T09:21:34.536Z"
+        },
+        {
+          "id": "501d7b77-dd8f-414e-b16a-9af52483951d",
+          "method": "POST",
+          "path": "/compensation-plans/ee8bfec1-1ed3-40d9-9d18-9b82c30298af/approve",
+          "status": 404,
+          "at": "2026-11-05T09:21:34.553Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "id": "TH01",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/theme.test.ts",
+      "name": "tenant themes over HTTP (ST-SAS-005) the draft persists for this tenant only and leaves the published theme and the members alone (TH01) (AC-ST-SAS-005-1)",
+      "status": "passed",
+      "durationMs": 254,
+      "at": "2026-11-05T09:16:28.394Z",
+      "requests": [
+        {
+          "id": "4bf8cb40-3ede-4f81-ae4b-9277bb7aa3b3",
+          "method": "PUT",
+          "path": "/system/tenants/d08140ff-7632-460d-a0fa-efc170d5c1ff/theme/draft",
+          "status": 200,
+          "at": "2026-11-05T09:16:28.244Z"
+        },
+        {
+          "id": "8bac36ab-514d-45a8-a008-98101cec059c",
+          "method": "GET",
+          "path": "/system/tenants/d08140ff-7632-460d-a0fa-efc170d5c1ff/theme/draft",
+          "status": 200,
+          "at": "2026-11-05T09:16:28.273Z"
+        },
+        {
+          "id": "25bdd642-1f02-4d5c-8c80-1b654cd29bdb",
+          "method": "GET",
+          "path": "/system/tenants/708b5afc-1c98-4aaa-9058-8b4fe2c62a40/theme/draft",
+          "status": 200,
+          "at": "2026-11-05T09:16:28.279Z"
+        },
+        {
+          "id": "2840d671-4cf3-4c09-b272-62c53a9a9eb6",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-05T09:16:28.331Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/uat/isolation-web.uat.spec.ts",
+      "name": "TC-TH01: a theme draft is kept for its own tenant only, and the published theme and the other people do not change",
+      "status": "passed",
+      "durationMs": 2034,
+      "at": "2026-11-05T08:57:04.051Z",
+      "requests": [
+        {
+          "id": "3e6963fd-674d-4f91-9eda-525a211ffaad",
+          "method": "GET",
+          "path": "/system/tenants",
+          "status": 200,
+          "at": "2026-11-05T08:57:04.855Z"
+        },
+        {
+          "id": "42a9c508-ac16-41ef-91e6-b5de33250e67",
+          "method": "GET",
+          "path": "/system/tenants/68df4bfc-44a7-4d3a-bee3-df9149e909c9/theme/draft",
+          "status": 200,
+          "at": "2026-11-05T08:57:04.856Z"
+        },
+        {
+          "id": "861bcd19-c1e8-4aea-982a-a9d31f08c7e1",
+          "method": "GET",
+          "path": "/system/tenants/68df4bfc-44a7-4d3a-bee3-df9149e909c9/theme/versions",
+          "status": 200,
+          "at": "2026-11-05T08:57:04.857Z"
+        },
+        {
+          "id": "d9de9825-99ec-4458-aa3d-39bcc83a2dbd",
+          "method": "PUT",
+          "path": "/system/tenants/68df4bfc-44a7-4d3a-bee3-df9149e909c9/theme/draft",
+          "status": 200,
+          "at": "2026-11-05T08:57:05.024Z"
+        },
+        {
+          "id": "a51a569c-1ffc-41d3-979f-bb835555457f",
+          "method": "GET",
+          "path": "/system/tenants",
+          "status": 304,
+          "at": "2026-11-05T08:57:05.236Z"
+        },
+        {
+          "id": "e54ba447-32f4-4883-9976-e888a78dea18",
+          "method": "GET",
+          "path": "/system/tenants/68df4bfc-44a7-4d3a-bee3-df9149e909c9/theme/draft",
+          "status": 200,
+          "at": "2026-11-05T08:57:05.237Z"
+        },
+        {
+          "id": "aca6cab1-272b-4000-b7e6-23160ec23130",
+          "method": "GET",
+          "path": "/system/tenants/68df4bfc-44a7-4d3a-bee3-df9149e909c9/theme/versions",
+          "status": 304,
+          "at": "2026-11-05T08:57:05.238Z"
+        },
+        {
+          "id": "2e515b0c-f2ee-421f-8510-194e587e1e6c",
+          "method": "GET",
+          "path": "/system/tenants",
+          "status": 304,
+          "at": "2026-11-05T08:57:05.810Z"
+        },
+        {
+          "id": "88caac8f-66d4-4ca9-9b76-f87fc945ba4b",
+          "method": "GET",
+          "path": "/system/tenants/a43ef4a3-59b5-4d1c-9456-356da5f363a8/theme/versions",
+          "status": 200,
+          "at": "2026-11-05T08:57:05.812Z"
+        },
+        {
+          "id": "957b05c8-c8fa-4411-9c83-69de4e5b2a8d",
+          "method": "GET",
+          "path": "/system/tenants/a43ef4a3-59b5-4d1c-9456-356da5f363a8/theme/draft",
+          "status": 200,
+          "at": "2026-11-05T08:57:05.811Z"
+        },
+        {
+          "id": "d4693693-aaa9-420a-bc1c-21eb83933b21",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-05T08:57:05.994Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "id": "UAT-AC263",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/submission-progress.test.ts",
+      "name": "the submission progress board over HTTP (ST-DIS-015) AC-ST-DIS-015-1 / UAT-AC263: shows 10 that must report, 7 submitted (1 of them late), 2 drafts, 1 not started and 3 overdue after the deadline, and every number drills to its exact projects",
+      "status": "passed",
+      "durationMs": 244,
+      "at": "2026-11-05T09:23:28.052Z",
+      "requests": [
+        {
+          "id": "2b0e0e85-172b-4ead-a381-4cf29363a708",
+          "method": "GET",
+          "path": "/reporting-periods/00000000-0000-4000-00a6-0000000007d1/submission-progress",
+          "status": 200,
+          "at": "2026-11-05T09:23:27.909Z"
+        },
+        {
+          "id": "ae674732-4c77-4dcf-92d9-126243ea7b47",
+          "method": "GET",
+          "path": "/reporting-periods/00000000-0000-4000-00a6-0000000007d1/submission-progress",
+          "status": 200,
+          "at": "2026-11-05T09:23:27.977Z"
+        },
+        {
+          "id": "31654776-a2b0-40cb-a57c-93ec93883254",
+          "method": "GET",
+          "path": "/reporting-periods/00000000-0000-4000-00a6-0000000007d1/submission-progress",
+          "status": 200,
+          "at": "2026-11-05T09:23:27.984Z"
+        },
+        {
+          "id": "ff4fd970-7a8f-4015-8f18-2a3cd7ae9d2a",
+          "method": "GET",
+          "path": "/reporting-periods/00000000-0000-4000-00a6-0000000007d1/submission-progress",
+          "status": 200,
+          "at": "2026-11-05T09:23:27.993Z"
+        },
+        {
+          "id": "35efe96b-3bbe-4b46-99bf-b22d9913e139",
+          "method": "GET",
+          "path": "/reporting-periods/00000000-0000-4000-00a6-0000000007d1/submission-progress",
+          "status": 200,
+          "at": "2026-11-05T09:23:28.011Z"
+        },
+        {
+          "id": "33301cc5-21e5-45e9-a467-a0172a03c07a",
+          "method": "GET",
+          "path": "/reporting-periods/00000000-0000-4000-00a6-0000000007d1/submission-progress",
+          "status": 200,
+          "at": "2026-11-05T09:23:28.026Z"
+        },
+        {
+          "id": "1f6ff302-3eae-4986-90fa-ebabcb08ac63",
+          "method": "GET",
+          "path": "/reporting-periods/00000000-0000-4000-00a6-0000000007d1/submission-progress",
+          "status": 200,
+          "at": "2026-11-05T09:23:28.041Z"
+        },
+        {
+          "id": "174f15cf-a1b7-4d82-9d61-298085daf067",
+          "method": "GET",
+          "path": "/reporting-periods/00000000-0000-4000-00a6-0000000007d1/submission-progress",
+          "status": 200,
+          "at": "2026-11-05T09:23:28.046Z"
+        }
+      ]
+    }
+  ]
+}

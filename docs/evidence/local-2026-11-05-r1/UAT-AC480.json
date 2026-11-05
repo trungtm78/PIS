@@ -1,0 +1,33 @@
+{
+  "id": "UAT-AC480",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-queries.test.ts",
+      "name": "the queries of BI and the drill under them (ST-BI-004, BI F3, F4) a query over a snapshot AC-ST-BI-004-6: UAT-AC480 counts a project of two units in each of them and once in the total, and says the children do not add up and why",
+      "status": "passed",
+      "durationMs": 544,
+      "at": "2026-11-05T09:18:01.887Z",
+      "requests": [
+        {
+          "id": "c4d44f84-a6fb-4f34-9665-66f09610de89",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:18:01.833Z"
+        },
+        {
+          "id": "851c38bb-7a43-4a23-bcdb-56ca66204410",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:18:01.853Z"
+        }
+      ]
+    }
+  ]
+}

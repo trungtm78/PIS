@@ -1,0 +1,42 @@
+{
+  "id": "UAT-AC354",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-intake.test.ts",
+      "name": "the intake of automatic issues from the events of PMT, PAY, LND, CTR and AST (ST-ISS-005, ISS-11) UAT-AC354: a reader without the right to read households sees the issue of a land complaint but not its text; a permit issue is read whole",
+      "status": "passed",
+      "durationMs": 121,
+      "at": "2026-11-05T09:21:07.315Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-issue.test.ts",
+      "name": "createIssue, assignIssue, startIssue, commentIssue, transferIssueUnit and the issue reads (ST-ISS-002) the reads (AC-ST-ISS-002-3, UAT-PLAN-23) hides what a land complaint says from those who may not read the household (UAT-AC354)",
+      "status": "passed",
+      "durationMs": 38,
+      "at": "2026-11-05T09:21:57.905Z",
+      "requests": [
+        {
+          "id": "74802534-d30d-4bb9-9c52-5bf31bde1d2e",
+          "method": "GET",
+          "path": "/resources/issue/f3afaabd-2ef3-4d4e-adfd-177fde3dd61e",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.867Z"
+        },
+        {
+          "id": "31734ff4-40c6-4269-a605-7565fe82fae9",
+          "method": "GET",
+          "path": "/resources/issue/f3afaabd-2ef3-4d4e-adfd-177fde3dd61e",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.886Z"
+        }
+      ]
+    }
+  ]
+}

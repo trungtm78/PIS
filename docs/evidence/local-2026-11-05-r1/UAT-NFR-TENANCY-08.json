@@ -1,0 +1,45 @@
+{
+  "id": "UAT-NFR-TENANCY-08",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/plan-approval-workflow.test.ts",
+      "name": "the approval workflow of the capital plan (AC-ST-CAP-003-6, UAT-NFR-TENANCY-08) moves a plan from drafting to published, every activity under the signed context of its signal and the plan, audit, ledger and event written like the commands do",
+      "status": "passed",
+      "durationMs": 846,
+      "at": "2026-11-05T09:23:00.775Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/plan-approval-workflow.test.ts",
+      "name": "the approval workflow of the capital plan (AC-ST-CAP-003-6, UAT-NFR-TENANCY-08) does not find the instance of another tenant, refuses a context that does not verify, and runs no activity for either",
+      "status": "passed",
+      "durationMs": 273,
+      "at": "2026-11-05T09:23:01.049Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/plan-approval-workflow.test.ts",
+      "name": "the approval workflow of the capital plan (AC-ST-CAP-003-6, UAT-NFR-TENANCY-08) runs an instance started in another tenant only in that tenant: the plan of tenant A does not exist for it, and a signal for another plan is refused",
+      "status": "passed",
+      "durationMs": 705,
+      "at": "2026-11-05T09:23:01.754Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/plan-approval-workflow.test.ts",
+      "name": "the approval workflow of the capital plan (AC-ST-CAP-003-6, UAT-NFR-TENANCY-08) returns a plan to drafting and ends the instance when the plan is rejected",
+      "status": "passed",
+      "durationMs": 564,
+      "at": "2026-11-05T09:23:02.319Z",
+      "requests": []
+    }
+  ]
+}

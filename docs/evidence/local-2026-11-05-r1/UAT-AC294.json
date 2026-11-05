@@ -1,0 +1,159 @@
+{
+  "id": "UAT-AC294",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mne/mne-correction.test.ts",
+      "name": "the correction of an issued report (ST-MNE-007, MNE F3) AC-ST-MNE-007-1, UAT-AC294: refuses a correction without its reason, starts revision 2 as a draft that supersedes the filed revision 1, and supersedes it only when DOC issues the new one",
+      "status": "passed",
+      "durationMs": 1896,
+      "at": "2026-11-05T09:17:18.127Z",
+      "requests": [
+        {
+          "id": "530ee859-e080-484a-bfc2-eab8a3e9b437",
+          "method": "POST",
+          "path": "/mne-forms",
+          "status": 200,
+          "at": "2026-11-05T09:17:16.231Z"
+        },
+        {
+          "id": "374480b8-6b66-4f70-980d-dd9899da22c2",
+          "method": "POST",
+          "path": "/mne-forms/3339e625-d8f8-421a-aa10-d2addb110417/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:16.307Z"
+        },
+        {
+          "id": "d041af7f-3b11-4b5f-9dd5-0c64ddf6b5b6",
+          "method": "POST",
+          "path": "/mne-reports",
+          "status": 200,
+          "at": "2026-11-05T09:17:16.429Z"
+        },
+        {
+          "id": "53899bc2-a7c3-421e-bf78-20be526b35ed",
+          "method": "POST",
+          "path": "/mne-reports/5ad2ec75-a92d-4363-a5f0-787d7d0b01ca/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:17:16.467Z"
+        },
+        {
+          "id": "b0aa3709-a4bd-436e-aaeb-95618e6e1209",
+          "method": "POST",
+          "path": "/mne-reports/5ad2ec75-a92d-4363-a5f0-787d7d0b01ca/submit",
+          "status": 200,
+          "at": "2026-11-05T09:17:16.485Z"
+        },
+        {
+          "id": "b9f6618c-079f-4a7e-a750-75a3fdc00e54",
+          "method": "POST",
+          "path": "/mne-reports/5ad2ec75-a92d-4363-a5f0-787d7d0b01ca/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:16.545Z"
+        },
+        {
+          "id": "d9e854f0-8530-473a-a104-49f51b1ef929",
+          "method": "POST",
+          "path": "/mne-reports/5ad2ec75-a92d-4363-a5f0-787d7d0b01ca/issue-requests",
+          "status": 200,
+          "at": "2026-11-05T09:17:16.662Z"
+        },
+        {
+          "id": "1dfc6890-a7fd-4384-8b33-84f4a472ae56",
+          "method": "POST",
+          "path": "/mne-reports/5ad2ec75-a92d-4363-a5f0-787d7d0b01ca/export-packages",
+          "status": 200,
+          "at": "2026-11-05T09:17:16.773Z"
+        },
+        {
+          "id": "30278947-02c3-429b-847c-b7dc311c2e0d",
+          "method": "POST",
+          "path": "/mne-export-packages/287155e7-282c-4ba4-8700-8889cff99054/submission-receipt",
+          "status": 200,
+          "at": "2026-11-05T09:17:16.884Z"
+        },
+        {
+          "id": "6716519f-de85-42f7-9fd7-32d2b514043e",
+          "method": "POST",
+          "path": "/mne-reports/5ad2ec75-a92d-4363-a5f0-787d7d0b01ca/corrections",
+          "status": 422,
+          "at": "2026-11-05T09:17:16.989Z"
+        },
+        {
+          "id": "a3c48746-3b4b-466f-b184-29549dec05ea",
+          "method": "POST",
+          "path": "/mne-reports/5ad2ec75-a92d-4363-a5f0-787d7d0b01ca/corrections",
+          "status": 422,
+          "at": "2026-11-05T09:17:17.127Z"
+        },
+        {
+          "id": "6d8fcf0c-ed13-4b8b-87e4-be751714bdb5",
+          "method": "POST",
+          "path": "/mne-reports/5ad2ec75-a92d-4363-a5f0-787d7d0b01ca/corrections",
+          "status": 200,
+          "at": "2026-11-05T09:17:17.173Z"
+        },
+        {
+          "id": "66cdc21f-a4ac-49b9-9d51-177034fec473",
+          "method": "GET",
+          "path": "/mne-reports/9c407910-1842-44f1-94f4-f6f9b6220258",
+          "status": 200,
+          "at": "2026-11-05T09:17:17.233Z"
+        },
+        {
+          "id": "76617bc1-948d-4817-9737-9007cac28a98",
+          "method": "POST",
+          "path": "/mne-reports/9c407910-1842-44f1-94f4-f6f9b6220258/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:17:17.327Z"
+        },
+        {
+          "id": "dd5a3e74-6187-4e91-a283-62faf4a0a620",
+          "method": "POST",
+          "path": "/mne-reports/9c407910-1842-44f1-94f4-f6f9b6220258/submit",
+          "status": 200,
+          "at": "2026-11-05T09:17:17.348Z"
+        },
+        {
+          "id": "e120595d-36f1-4c26-ba39-d32b89930533",
+          "method": "POST",
+          "path": "/mne-reports/9c407910-1842-44f1-94f4-f6f9b6220258/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:17.456Z"
+        },
+        {
+          "id": "b3c50146-9e7c-4453-91ca-38b0bae41e69",
+          "method": "POST",
+          "path": "/mne-reports/9c407910-1842-44f1-94f4-f6f9b6220258/issue-requests",
+          "status": 200,
+          "at": "2026-11-05T09:17:17.566Z"
+        },
+        {
+          "id": "c4ebb9e3-323f-4f03-b88e-f0f636547e68",
+          "method": "GET",
+          "path": "/mne-reports/5ad2ec75-a92d-4363-a5f0-787d7d0b01ca",
+          "status": 200,
+          "at": "2026-11-05T09:17:17.761Z"
+        },
+        {
+          "id": "9b57c85f-5056-433f-8594-f296764a7125",
+          "method": "POST",
+          "path": "/mne-reports/9c407910-1842-44f1-94f4-f6f9b6220258/export-packages",
+          "status": 200,
+          "at": "2026-11-05T09:17:17.820Z"
+        },
+        {
+          "id": "09666cab-b4e5-415a-8928-b3104331ca68",
+          "method": "POST",
+          "path": "/mne-reports/5ad2ec75-a92d-4363-a5f0-787d7d0b01ca/export-packages",
+          "status": 409,
+          "at": "2026-11-05T09:17:17.960Z"
+        }
+      ]
+    }
+  ]
+}

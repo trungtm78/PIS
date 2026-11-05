@@ -1,0 +1,225 @@
+{
+  "id": "UI-CTR-19",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/ctr-change-flows.spec.ts",
+      "name": "the request is promoted from the change event to the PCO and the CO, and the CO is assessed with cost, schedule, scope and funding (UI-CTR-19, AC-ST-CTR-006-2, UAT-AC308)",
+      "status": "passed",
+      "durationMs": 2152,
+      "at": "2026-11-05T08:45:53.844Z",
+      "requests": [
+        {
+          "id": "89f4aa16-b5b9-4bb9-8005-021caeab6409",
+          "method": "GET",
+          "path": "/projects/6c1e6080-1b31-4c61-a2bf-0add56e1a221/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:54.380Z"
+        },
+        {
+          "id": "f48d1d80-3d41-4bf2-8bd5-ba19201ef289",
+          "method": "POST",
+          "path": "/projects/6c1e6080-1b31-4c61-a2bf-0add56e1a221/change-chain-config",
+          "status": 200,
+          "at": "2026-11-05T08:45:54.502Z"
+        },
+        {
+          "id": "731f0bd3-732f-4144-b4b5-c3ad0802dff2",
+          "method": "GET",
+          "path": "/projects/6c1e6080-1b31-4c61-a2bf-0add56e1a221/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:54.515Z"
+        },
+        {
+          "id": "e79e91b1-c3ea-4091-ba0b-6c114ca7c118",
+          "method": "GET",
+          "path": "/resources/contract/47028f11-6c04-4790-8e89-d2861d78f509",
+          "status": 200,
+          "at": "2026-11-05T08:45:54.714Z"
+        },
+        {
+          "id": "4f2a2c6c-d6bd-4b58-bba3-419a7776a41e",
+          "method": "GET",
+          "path": "/projects/6c1e6080-1b31-4c61-a2bf-0add56e1a221/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:54.727Z"
+        },
+        {
+          "id": "3d14eed7-9882-4d81-b044-50101c8a3873",
+          "method": "POST",
+          "path": "/contracts/47028f11-6c04-4790-8e89-d2861d78f509/change-requests",
+          "status": 200,
+          "at": "2026-11-05T08:45:54.834Z"
+        },
+        {
+          "id": "0c64e8cb-21dc-439e-81c6-baa8086628e9",
+          "method": "GET",
+          "path": "/projects/6c1e6080-1b31-4c61-a2bf-0add56e1a221/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:54.853Z"
+        },
+        {
+          "id": "4bfcfc3e-cbfd-4ab2-b20d-95a704d6f002",
+          "method": "GET",
+          "path": "/resources/contract/47028f11-6c04-4790-8e89-d2861d78f509",
+          "status": 304,
+          "at": "2026-11-05T08:45:54.852Z"
+        },
+        {
+          "id": "d5d33ade-729f-432f-9354-b924383d9cac",
+          "method": "GET",
+          "path": "/projects/6c1e6080-1b31-4c61-a2bf-0add56e1a221/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:55.068Z"
+        },
+        {
+          "id": "fc4202ef-2ff6-48d9-b090-dc5266397a23",
+          "method": "POST",
+          "path": "/change-requests/73c8977f-e428-4028-b2f5-ab220adfb016/promote",
+          "status": 200,
+          "at": "2026-11-05T08:45:55.267Z"
+        },
+        {
+          "id": "32a96970-2bcb-4113-9686-1ca88ce4dfdd",
+          "method": "GET",
+          "path": "/projects/6c1e6080-1b31-4c61-a2bf-0add56e1a221/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:55.285Z"
+        },
+        {
+          "id": "5fde83cd-02d6-4460-b3a7-0c2344f4a3b0",
+          "method": "POST",
+          "path": "/change-requests/44671575-6757-46e1-97e9-bc1c91aa6f25/promote",
+          "status": 200,
+          "at": "2026-11-05T08:45:55.415Z"
+        },
+        {
+          "id": "cd88365a-42d9-4aa7-94f3-4cb4011ccc31",
+          "method": "GET",
+          "path": "/projects/6c1e6080-1b31-4c61-a2bf-0add56e1a221/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:55.434Z"
+        },
+        {
+          "id": "59455e3d-d157-4acb-a54b-f123d9d8bd6e",
+          "method": "GET",
+          "path": "/projects/6c1e6080-1b31-4c61-a2bf-0add56e1a221/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:55.678Z"
+        },
+        {
+          "id": "23c743f8-9f6b-45c6-9d4e-87596582ed72",
+          "method": "POST",
+          "path": "/change-requests/8c03f0a5-f1d5-48fc-8aa4-af1d96f984f0/evaluate",
+          "status": 200,
+          "at": "2026-11-05T08:45:55.883Z"
+        },
+        {
+          "id": "fcf0c9fe-3ece-422d-9252-5eb714c93186",
+          "method": "GET",
+          "path": "/projects/6c1e6080-1b31-4c61-a2bf-0add56e1a221/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:55.898Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/ctr-change-flows.spec.ts",
+      "name": "a request is withdrawn with a reason, and a reader sees the board and no command (UI-CTR-19)",
+      "status": "passed",
+      "durationMs": 1558,
+      "at": "2026-11-05T08:45:56.005Z",
+      "requests": [
+        {
+          "id": "470f6788-695f-4dc7-a28e-2bb81358c243",
+          "method": "GET",
+          "path": "/projects/b2c6129f-77f3-48ac-a523-30d8c717cb15/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:56.478Z"
+        },
+        {
+          "id": "f8d2bc85-3573-4073-9b8a-6634b1abea49",
+          "method": "POST",
+          "path": "/projects/b2c6129f-77f3-48ac-a523-30d8c717cb15/change-chain-config",
+          "status": 200,
+          "at": "2026-11-05T08:45:56.601Z"
+        },
+        {
+          "id": "58490e4f-fb68-4b63-b50c-ced0a5ecd594",
+          "method": "GET",
+          "path": "/projects/b2c6129f-77f3-48ac-a523-30d8c717cb15/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:56.614Z"
+        },
+        {
+          "id": "beff5267-f9cc-4f84-b16d-216f974db872",
+          "method": "GET",
+          "path": "/resources/contract/991456b5-ce49-43c3-8355-ccace985c044",
+          "status": 200,
+          "at": "2026-11-05T08:45:56.813Z"
+        },
+        {
+          "id": "f91a06eb-fd16-4ad5-919e-be73eb4408b9",
+          "method": "GET",
+          "path": "/projects/b2c6129f-77f3-48ac-a523-30d8c717cb15/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:56.825Z"
+        },
+        {
+          "id": "5586d213-86d1-44a7-bfb8-a0be81ca16a5",
+          "method": "POST",
+          "path": "/contracts/991456b5-ce49-43c3-8355-ccace985c044/change-requests",
+          "status": 200,
+          "at": "2026-11-05T08:45:56.918Z"
+        },
+        {
+          "id": "0c305cc6-028e-47e9-a82a-525db4e36c20",
+          "method": "GET",
+          "path": "/projects/b2c6129f-77f3-48ac-a523-30d8c717cb15/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:56.937Z"
+        },
+        {
+          "id": "8eb509b7-8fae-4af8-a9b5-2d1cec8630be",
+          "method": "GET",
+          "path": "/resources/contract/991456b5-ce49-43c3-8355-ccace985c044",
+          "status": 304,
+          "at": "2026-11-05T08:45:56.937Z"
+        },
+        {
+          "id": "d5fe4889-175c-4dcb-8460-fff5ee61d7b2",
+          "method": "GET",
+          "path": "/projects/b2c6129f-77f3-48ac-a523-30d8c717cb15/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:57.143Z"
+        },
+        {
+          "id": "9644cdbd-f712-411d-a0b3-dc742f3d3a5d",
+          "method": "GET",
+          "path": "/projects/b2c6129f-77f3-48ac-a523-30d8c717cb15/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:57.341Z"
+        },
+        {
+          "id": "8f6a8ef0-75ce-4fd5-9090-f2216c70639c",
+          "method": "POST",
+          "path": "/change-requests/01547428-3fe6-4571-865d-3b6199a76c54/withdraw",
+          "status": 200,
+          "at": "2026-11-05T08:45:57.482Z"
+        },
+        {
+          "id": "ef486366-8fd4-4912-9a54-c08e93790418",
+          "method": "GET",
+          "path": "/projects/b2c6129f-77f3-48ac-a523-30d8c717cb15/change-chain",
+          "status": 200,
+          "at": "2026-11-05T08:45:57.497Z"
+        }
+      ]
+    }
+  ]
+}

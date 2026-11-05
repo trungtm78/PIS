@@ -1,0 +1,61 @@
+{
+  "id": "UAT-AC370",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pmt/permit-dossier.test.ts",
+      "name": "permit dossier commands (ST-PMT-002) renewPermit and revokePermit renews an issued permit by a replacement: the old one is SUPERSEDED, there is one current permit, and the renewal is audited and announced (UAT-AC370, AC-ST-PMT-002-1)",
+      "status": "passed",
+      "durationMs": 330,
+      "at": "2026-11-05T09:18:59.195Z",
+      "requests": [
+        {
+          "id": "bf7905cc-9f39-400a-91c8-b719ca98ce67",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-0094-000000000073/permit-dossiers",
+          "status": 200,
+          "at": "2026-11-05T09:18:58.906Z"
+        },
+        {
+          "id": "ad1c459f-3c22-405f-957f-4994f6ada2f3",
+          "method": "POST",
+          "path": "/permits/6f9d50bf-7263-419a-b5aa-349bd012dd45/milestones",
+          "status": 200,
+          "at": "2026-11-05T09:18:58.967Z"
+        },
+        {
+          "id": "dd000c21-d7b3-4258-ac4d-1d32a1888d8e",
+          "method": "POST",
+          "path": "/permits/6f9d50bf-7263-419a-b5aa-349bd012dd45/milestones",
+          "status": 200,
+          "at": "2026-11-05T09:18:58.991Z"
+        },
+        {
+          "id": "10ca1899-0ea6-4b31-96d7-842433977785",
+          "method": "POST",
+          "path": "/permits/6f9d50bf-7263-419a-b5aa-349bd012dd45/decision",
+          "status": 200,
+          "at": "2026-11-05T09:18:59.007Z"
+        },
+        {
+          "id": "3c972b68-69b5-408a-92c1-5d5e5e631162",
+          "method": "POST",
+          "path": "/permits/6f9d50bf-7263-419a-b5aa-349bd012dd45/renew",
+          "status": 200,
+          "at": "2026-11-05T09:18:59.025Z"
+        },
+        {
+          "id": "cd1cf88e-1c2a-4a89-8783-5b1840634d0c",
+          "method": "POST",
+          "path": "/permits/6f9d50bf-7263-419a-b5aa-349bd012dd45/renew",
+          "status": 409,
+          "at": "2026-11-05T09:18:59.181Z"
+        }
+      ]
+    }
+  ]
+}

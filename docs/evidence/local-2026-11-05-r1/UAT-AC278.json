@@ -1,0 +1,131 @@
+{
+  "id": "UAT-AC278",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mdm/master-succession.test.ts",
+      "name": "administrative succession commands and reads (ST-MDM-009) two provinces merged into one keeps the two provinces apart before the date and combines them after it, each tagged with its structure date (AC-ST-MDM-009-2, UAT-AC278)",
+      "status": "passed",
+      "durationMs": 659,
+      "at": "2026-11-05T09:19:29.465Z",
+      "requests": [
+        {
+          "id": "47de34e5-21ac-4e27-a9e3-9941a5306654",
+          "method": "POST",
+          "path": "/master-records",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.804Z"
+        },
+        {
+          "id": "7b56a097-0d86-4373-85a5-e0b57c44f0fb",
+          "method": "POST",
+          "path": "/master-change-requests/998d672d-a9c1-4354-85bb-f891fc222ecc/submit",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.864Z"
+        },
+        {
+          "id": "c4844e13-ebf6-4e4b-b144-b47a0f657226",
+          "method": "POST",
+          "path": "/master-change-requests/998d672d-a9c1-4354-85bb-f891fc222ecc/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.897Z"
+        },
+        {
+          "id": "50d79a01-9bc4-4d19-ad3d-8b6e47f6127e",
+          "method": "POST",
+          "path": "/master-records/8b7016f3-4a5e-4bc2-927f-f479bbd3eba5/publish",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.959Z"
+        },
+        {
+          "id": "0aaf8e8c-7d46-4738-a22f-e5b0529f1a0c",
+          "method": "POST",
+          "path": "/master-records",
+          "status": 200,
+          "at": "2026-11-05T09:19:28.986Z"
+        },
+        {
+          "id": "d962a181-f101-4ea0-9d2d-a24ce332a342",
+          "method": "POST",
+          "path": "/master-change-requests/ffd81c43-378d-47f0-82b4-a0d6d6c0e7c2/submit",
+          "status": 200,
+          "at": "2026-11-05T09:19:29.051Z"
+        },
+        {
+          "id": "f75f45ab-44d7-4c0c-9524-36a2d387e65b",
+          "method": "POST",
+          "path": "/master-change-requests/ffd81c43-378d-47f0-82b4-a0d6d6c0e7c2/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:29.072Z"
+        },
+        {
+          "id": "3426af40-47aa-4a23-b75d-8ecd56975b9d",
+          "method": "POST",
+          "path": "/master-records/a3df5ae2-40a8-4955-a0ff-a09bb8f7744d/publish",
+          "status": 200,
+          "at": "2026-11-05T09:19:29.207Z"
+        },
+        {
+          "id": "0720aec9-34aa-43f2-ab86-d088912a9f6d",
+          "method": "POST",
+          "path": "/master-successions",
+          "status": 200,
+          "at": "2026-11-05T09:19:29.227Z"
+        },
+        {
+          "id": "1f5e1ceb-d365-4dd5-a962-3576191a4432",
+          "method": "POST",
+          "path": "/master-change-requests/7cdb75a6-b4f9-4edb-ba9f-325130e53e0f/submit",
+          "status": 200,
+          "at": "2026-11-05T09:19:29.262Z"
+        },
+        {
+          "id": "b1c4fab6-b043-4fa0-96b0-24c23a23267c",
+          "method": "POST",
+          "path": "/master-change-requests/7cdb75a6-b4f9-4edb-ba9f-325130e53e0f/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:29.285Z"
+        },
+        {
+          "id": "c2acb0f5-417b-4ad5-864a-6e765588a827",
+          "method": "POST",
+          "path": "/master-records/a3df5ae2-40a8-4955-a0ff-a09bb8f7744d/publish",
+          "status": 200,
+          "at": "2026-11-05T09:19:29.343Z"
+        },
+        {
+          "id": "bd7bb51f-ae55-464b-8914-12256f78b86c",
+          "method": "GET",
+          "path": "/master-records/8b7016f3-4a5e-4bc2-927f-f479bbd3eba5/as-of",
+          "status": 200,
+          "at": "2026-11-05T09:19:29.395Z"
+        },
+        {
+          "id": "f5790928-837a-4a9b-b17d-d5bc3d889d19",
+          "method": "GET",
+          "path": "/master-records/a3df5ae2-40a8-4955-a0ff-a09bb8f7744d/as-of",
+          "status": 200,
+          "at": "2026-11-05T09:19:29.415Z"
+        },
+        {
+          "id": "2f5f4247-6f96-43de-adfd-8313a74c0a1b",
+          "method": "GET",
+          "path": "/master-records/8b7016f3-4a5e-4bc2-927f-f479bbd3eba5/as-of",
+          "status": 200,
+          "at": "2026-11-05T09:19:29.433Z"
+        },
+        {
+          "id": "d9b83676-ede6-4255-89f9-846b697c57a1",
+          "method": "GET",
+          "path": "/master-records/a3df5ae2-40a8-4955-a0ff-a09bb8f7744d/as-of",
+          "status": 200,
+          "at": "2026-11-05T09:19:29.447Z"
+        }
+      ]
+    }
+  ]
+}

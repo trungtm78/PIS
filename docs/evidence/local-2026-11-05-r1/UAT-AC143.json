@@ -1,0 +1,1141 @@
+{
+  "id": "UAT-AC143",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/migration-batch.test.ts",
+      "name": "conversion batches: register, dry run, apply and roll back (ST-ADM-020, ADM 3.10, BR-ADM-12, UAT-AC143, UAT-NFR-OPERABILITY-06) is registered in the module of ADM",
+      "status": "passed",
+      "durationMs": 1,
+      "at": "2026-11-05T09:21:19.538Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/migration-batch.test.ts",
+      "name": "conversion batches: register, dry run, apply and roll back (ST-ADM-020, ADM 3.10, BR-ADM-12, UAT-AC143, UAT-NFR-OPERABILITY-06) takes the file of a registrar through the upload of the module: stored and scanned, read as a table, and registered by the id it answers with",
+      "status": "passed",
+      "durationMs": 147,
+      "at": "2026-11-05T09:21:19.685Z",
+      "requests": [
+        {
+          "id": "ae2ee548-4b67-46a4-9daa-ce2765cd4d18",
+          "method": "POST",
+          "path": "/migration-batches/files",
+          "status": 200,
+          "at": "2026-11-05T09:21:19.539Z"
+        },
+        {
+          "id": "e26d6139-7f35-41fe-9cd5-b46aba54f130",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:19.615Z"
+        },
+        {
+          "id": "6ffdd5ab-71aa-4f22-9136-a2e3e745784d",
+          "method": "GET",
+          "path": "/migration-batches/09773156-d38f-4087-a445-d7949cd43651",
+          "status": 200,
+          "at": "2026-11-05T09:21:19.633Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/migration-batch.test.ts",
+      "name": "conversion batches: register, dry run, apply and roll back (ST-ADM-020, ADM 3.10, BR-ADM-12, UAT-AC143, UAT-NFR-OPERABILITY-06) refuses what is not a conversion file: a type that is not allowed, an infected file, a file that is not a table, a caller without the right",
+      "status": "passed",
+      "durationMs": 117,
+      "at": "2026-11-05T09:21:19.802Z",
+      "requests": [
+        {
+          "id": "f6ff9d6c-b38e-40fc-acea-bde46dc3720f",
+          "method": "POST",
+          "path": "/migration-batches/files",
+          "status": 422,
+          "at": "2026-11-05T09:21:19.686Z"
+        },
+        {
+          "id": "328fcd88-8073-4654-92bf-acc9400b7b70",
+          "method": "POST",
+          "path": "/migration-batches/files",
+          "status": 422,
+          "at": "2026-11-05T09:21:19.695Z"
+        },
+        {
+          "id": "9f849610-c0d1-43fa-af06-9dc21d9c4969",
+          "method": "POST",
+          "path": "/migration-batches/files",
+          "status": 422,
+          "at": "2026-11-05T09:21:19.710Z"
+        },
+        {
+          "id": "ea19c9df-a0c2-41e7-9c10-f79b937d0e6d",
+          "method": "POST",
+          "path": "/migration-batches/files",
+          "status": 422,
+          "at": "2026-11-05T09:21:19.725Z"
+        },
+        {
+          "id": "daff21a3-372f-450a-8d74-f837ea1c7c1c",
+          "method": "POST",
+          "path": "/migration-batches/files",
+          "status": 403,
+          "at": "2026-11-05T09:21:19.738Z"
+        },
+        {
+          "id": "fb181e32-2eea-4e4b-8913-30667c42ea27",
+          "method": "POST",
+          "path": "/migration-batches/files",
+          "status": 403,
+          "at": "2026-11-05T09:21:19.752Z"
+        },
+        {
+          "id": "766add4b-3a01-4f6a-9919-4ee601aa8336",
+          "method": "POST",
+          "path": "/migration-batches/files",
+          "status": 403,
+          "at": "2026-11-05T09:21:19.772Z"
+        },
+        {
+          "id": "4601f7bb-df69-483b-a3b1-5f9fff331a44",
+          "method": "POST",
+          "path": "/migration-batches/files",
+          "status": 403,
+          "at": "2026-11-05T09:21:19.792Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/migration-batch.test.ts",
+      "name": "conversion batches: register, dry run, apply and roll back (ST-ADM-020, ADM 3.10, BR-ADM-12, UAT-AC143, UAT-NFR-OPERABILITY-06) registers a 120-row file with 2 bad rows once, lists the errors of rows 17 and 42 in the dry run, writes nothing, and lets another approver apply it with the control totals matching (UAT-AC143)",
+      "status": "passed",
+      "durationMs": 656,
+      "at": "2026-11-05T09:21:20.458Z",
+      "requests": [
+        {
+          "id": "c59531e5-c0b3-4454-8891-820d52ee69c0",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:19.807Z"
+        },
+        {
+          "id": "78e60713-a9bd-493f-b1ec-86c2277bb626",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 409,
+          "at": "2026-11-05T09:21:19.828Z"
+        },
+        {
+          "id": "4bcc8742-3710-48f0-816c-2ab4cf239d18",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 409,
+          "at": "2026-11-05T09:21:19.891Z"
+        },
+        {
+          "id": "882a1fae-d03c-4ede-b9e3-52b73d75dfc0",
+          "method": "POST",
+          "path": "/migration-batches/94d3b708-d5e0-4b27-84d7-7f74cdf8a08e/dry-run",
+          "status": 202,
+          "at": "2026-11-05T09:21:19.899Z"
+        },
+        {
+          "id": "73c9bc49-c68a-4aa8-8c8e-de4e26eaaa1d",
+          "method": "GET",
+          "path": "/migration-batches/94d3b708-d5e0-4b27-84d7-7f74cdf8a08e",
+          "status": 200,
+          "at": "2026-11-05T09:21:19.930Z"
+        },
+        {
+          "id": "6ad45d01-69d8-4fcb-984f-d4743d012dd0",
+          "method": "POST",
+          "path": "/migration-batches/94d3b708-d5e0-4b27-84d7-7f74cdf8a08e/apply",
+          "status": 409,
+          "at": "2026-11-05T09:21:19.987Z"
+        },
+        {
+          "id": "71f8ac1c-bb75-453c-ba40-f3937fffcaec",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:20.000Z"
+        },
+        {
+          "id": "33a49d28-a141-427b-87a9-4813cac9be89",
+          "method": "POST",
+          "path": "/migration-batches/d827f1be-de86-46b0-b054-fa0496592a1f/dry-run",
+          "status": 202,
+          "at": "2026-11-05T09:21:20.014Z"
+        },
+        {
+          "id": "ba8beda6-1f49-40d6-99e1-0973bda5da39",
+          "method": "GET",
+          "path": "/migration-batches/d827f1be-de86-46b0-b054-fa0496592a1f",
+          "status": 200,
+          "at": "2026-11-05T09:21:20.040Z"
+        },
+        {
+          "id": "79d91c72-51f8-4401-a994-ba5e40e6c509",
+          "method": "POST",
+          "path": "/migration-batches/d827f1be-de86-46b0-b054-fa0496592a1f/apply",
+          "status": 403,
+          "at": "2026-11-05T09:21:20.121Z"
+        },
+        {
+          "id": "9554d27c-bb4a-4faa-9938-f02f624a6e9d",
+          "method": "POST",
+          "path": "/migration-batches/d827f1be-de86-46b0-b054-fa0496592a1f/apply",
+          "status": 409,
+          "at": "2026-11-05T09:21:20.138Z"
+        },
+        {
+          "id": "4451ed93-8ab5-47e2-9732-123b8554507b",
+          "method": "POST",
+          "path": "/migration-batches/d827f1be-de86-46b0-b054-fa0496592a1f/apply",
+          "status": 202,
+          "at": "2026-11-05T09:21:20.155Z"
+        },
+        {
+          "id": "d976c5d7-916d-4442-8f29-28ecf56701eb",
+          "method": "GET",
+          "path": "/migration-batches/d827f1be-de86-46b0-b054-fa0496592a1f",
+          "status": 200,
+          "at": "2026-11-05T09:21:20.225Z"
+        },
+        {
+          "id": "b7fb6006-be32-4e9f-85e3-8e5d45c87638",
+          "method": "POST",
+          "path": "/migration-batches/d827f1be-de86-46b0-b054-fa0496592a1f/apply",
+          "status": 409,
+          "at": "2026-11-05T09:21:20.427Z"
+        },
+        {
+          "id": "1439668e-31b1-4036-a757-a434affc4195",
+          "method": "POST",
+          "path": "/migration-batches/d827f1be-de86-46b0-b054-fa0496592a1f/dry-run",
+          "status": 409,
+          "at": "2026-11-05T09:21:20.443Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/migration-batch.test.ts",
+      "name": "conversion batches: register, dry run, apply and roll back (ST-ADM-020, ADM 3.10, BR-ADM-12, UAT-AC143, UAT-NFR-OPERABILITY-06) imports the same file twice with no new rows: the second pass finds the batch applied, and a lot that is written again does not double (UAT-NFR-OPERABILITY-06)",
+      "status": "passed",
+      "durationMs": 334,
+      "at": "2026-11-05T09:21:20.792Z",
+      "requests": [
+        {
+          "id": "7bfb9ef6-0bc3-4ffc-aaac-8c2b412f632e",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:20.461Z"
+        },
+        {
+          "id": "6a8bc87a-2592-4303-8a81-8ef83a2c597c",
+          "method": "POST",
+          "path": "/migration-batches/35076d08-6c21-426e-aedc-1dea1f4d746d/dry-run",
+          "status": 202,
+          "at": "2026-11-05T09:21:20.470Z"
+        },
+        {
+          "id": "2ce08bb7-caf2-4b3c-b53d-0bf6d6f2fa3d",
+          "method": "GET",
+          "path": "/migration-batches/35076d08-6c21-426e-aedc-1dea1f4d746d",
+          "status": 200,
+          "at": "2026-11-05T09:21:20.499Z"
+        },
+        {
+          "id": "b8c7be7b-726d-47d5-8186-01cbcfc443c7",
+          "method": "POST",
+          "path": "/migration-batches/35076d08-6c21-426e-aedc-1dea1f4d746d/apply",
+          "status": 202,
+          "at": "2026-11-05T09:21:20.506Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/migration-batch.test.ts",
+      "name": "conversion batches: register, dry run, apply and roll back (ST-ADM-020, ADM 3.10, BR-ADM-12, UAT-AC143, UAT-NFR-OPERABILITY-06) upserts by the business key across batches of one entity, and a later batch takes over the rows it names",
+      "status": "passed",
+      "durationMs": 268,
+      "at": "2026-11-05T09:21:21.060Z",
+      "requests": [
+        {
+          "id": "c1516ab0-5992-4aef-86b1-25aff7649fab",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:20.796Z"
+        },
+        {
+          "id": "89265c53-e40e-48e2-a4c3-1297efe05803",
+          "method": "POST",
+          "path": "/migration-batches/9732b2bd-bc43-404f-b86b-7e2dbb27fe7b/dry-run",
+          "status": 202,
+          "at": "2026-11-05T09:21:20.813Z"
+        },
+        {
+          "id": "e02822e9-3bff-4a56-825b-b70e40d99792",
+          "method": "GET",
+          "path": "/migration-batches/9732b2bd-bc43-404f-b86b-7e2dbb27fe7b",
+          "status": 200,
+          "at": "2026-11-05T09:21:20.834Z"
+        },
+        {
+          "id": "12247ead-e131-4a49-a524-035330eeb9b6",
+          "method": "POST",
+          "path": "/migration-batches/9732b2bd-bc43-404f-b86b-7e2dbb27fe7b/apply",
+          "status": 202,
+          "at": "2026-11-05T09:21:20.842Z"
+        },
+        {
+          "id": "180e8860-13d8-4ad7-80d9-e5152579ca15",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:20.871Z"
+        },
+        {
+          "id": "8b251c90-1fa1-4f78-9427-8ae2733c3dfe",
+          "method": "POST",
+          "path": "/migration-batches/0185c0df-6025-44a1-8d22-579e8b1d3a17/dry-run",
+          "status": 202,
+          "at": "2026-11-05T09:21:20.892Z"
+        },
+        {
+          "id": "c6da63e8-faf9-4428-bbf7-92adbeb5c524",
+          "method": "GET",
+          "path": "/migration-batches/0185c0df-6025-44a1-8d22-579e8b1d3a17",
+          "status": 200,
+          "at": "2026-11-05T09:21:20.904Z"
+        },
+        {
+          "id": "16917f1e-f6e7-4193-aee8-c4170032698a",
+          "method": "POST",
+          "path": "/migration-batches/0185c0df-6025-44a1-8d22-579e8b1d3a17/apply",
+          "status": 202,
+          "at": "2026-11-05T09:21:20.920Z"
+        },
+        {
+          "id": "4b639056-404b-4a4f-a885-afeaa152aa25",
+          "method": "GET",
+          "path": "/migration-batches/0185c0df-6025-44a1-8d22-579e8b1d3a17",
+          "status": 200,
+          "at": "2026-11-05T09:21:20.989Z"
+        },
+        {
+          "id": "bb5f0af1-1c74-4e1c-af32-79684aa8d583",
+          "method": "GET",
+          "path": "/migration-batches/9732b2bd-bc43-404f-b86b-7e2dbb27fe7b",
+          "status": 200,
+          "at": "2026-11-05T09:21:21.002Z"
+        },
+        {
+          "id": "2f08f4b2-839f-4b3e-ae17-8176890a42e3",
+          "method": "POST",
+          "path": "/migration-batches/9732b2bd-bc43-404f-b86b-7e2dbb27fe7b/rollback",
+          "status": 202,
+          "at": "2026-11-05T09:21:21.006Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/migration-batch.test.ts",
+      "name": "conversion batches: register, dry run, apply and roll back (ST-ADM-020, ADM 3.10, BR-ADM-12, UAT-AC143, UAT-NFR-OPERABILITY-06) stops a batch whose written rows do not add up to the file (Failed CONTROL_TOTALS_MISMATCH), and goes on from the rows it wrote when it is dry-run and applied again",
+      "status": "passed",
+      "durationMs": 244,
+      "at": "2026-11-05T09:21:21.304Z",
+      "requests": [
+        {
+          "id": "89bf633b-f4e1-44bc-93b4-08baba99fb2b",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:21.064Z"
+        },
+        {
+          "id": "2f1ba7af-a8b7-4c4a-b495-a86beaab9d60",
+          "method": "POST",
+          "path": "/migration-batches/7a2872f1-60fb-4325-8a68-1964a2867111/dry-run",
+          "status": 202,
+          "at": "2026-11-05T09:21:21.084Z"
+        },
+        {
+          "id": "17377c9c-2d40-44f5-9d88-b81a7030ead8",
+          "method": "GET",
+          "path": "/migration-batches/7a2872f1-60fb-4325-8a68-1964a2867111",
+          "status": 200,
+          "at": "2026-11-05T09:21:21.096Z"
+        },
+        {
+          "id": "db14ec21-2815-4ef2-80dc-1ebf3df49777",
+          "method": "POST",
+          "path": "/migration-batches/7a2872f1-60fb-4325-8a68-1964a2867111/apply",
+          "status": 202,
+          "at": "2026-11-05T09:21:21.113Z"
+        },
+        {
+          "id": "94e885fc-69e6-414c-9dcf-75c31e07da4b",
+          "method": "GET",
+          "path": "/migration-batches/7a2872f1-60fb-4325-8a68-1964a2867111",
+          "status": 200,
+          "at": "2026-11-05T09:21:21.225Z"
+        },
+        {
+          "id": "9c9d2905-0efc-49ce-a9de-f684821e1ded",
+          "method": "POST",
+          "path": "/migration-batches/7a2872f1-60fb-4325-8a68-1964a2867111/dry-run",
+          "status": 202,
+          "at": "2026-11-05T09:21:21.241Z"
+        },
+        {
+          "id": "e71858ff-a051-41a4-97db-1a7afe9cc54d",
+          "method": "GET",
+          "path": "/migration-batches/7a2872f1-60fb-4325-8a68-1964a2867111",
+          "status": 200,
+          "at": "2026-11-05T09:21:21.265Z"
+        },
+        {
+          "id": "ec7e0ac5-351f-4fb2-bbb2-7a145f90a060",
+          "method": "POST",
+          "path": "/migration-batches/7a2872f1-60fb-4325-8a68-1964a2867111/apply",
+          "status": 202,
+          "at": "2026-11-05T09:21:21.273Z"
+        },
+        {
+          "id": "ecff1fab-7162-4053-9736-dec3db8f6345",
+          "method": "GET",
+          "path": "/migration-batches/7a2872f1-60fb-4325-8a68-1964a2867111",
+          "status": 200,
+          "at": "2026-11-05T09:21:21.300Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/migration-batch.test.ts",
+      "name": "conversion batches: register, dry run, apply and roll back (ST-ADM-020, ADM 3.10, BR-ADM-12, UAT-AC143, UAT-NFR-OPERABILITY-06) stops a batch whose file cannot be read (Failed, DryRunFailed for a dry run) with the code, and the others go on",
+      "status": "passed",
+      "durationMs": 144,
+      "at": "2026-11-05T09:21:21.448Z",
+      "requests": [
+        {
+          "id": "a81c7d6c-663e-42bc-8315-573e8b84f888",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:21.308Z"
+        },
+        {
+          "id": "89edd801-b86a-49f6-8c48-31a21cc35c79",
+          "method": "POST",
+          "path": "/migration-batches/24220f85-d6d5-4bf6-b2e7-60784b77d0ef/dry-run",
+          "status": 202,
+          "at": "2026-11-05T09:21:21.368Z"
+        },
+        {
+          "id": "8b98a5c8-40c0-44e0-8161-4250de13b3f6",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:21.392Z"
+        },
+        {
+          "id": "b5da88d0-dfe6-4845-b0d9-e93be0fd7cc5",
+          "method": "POST",
+          "path": "/migration-batches/48b2795b-4db9-408b-8d29-ae02c0c4ef98/dry-run",
+          "status": 202,
+          "at": "2026-11-05T09:21:21.405Z"
+        },
+        {
+          "id": "47a9d349-3234-4315-8b35-09f7cb9c2efc",
+          "method": "GET",
+          "path": "/migration-batches/48b2795b-4db9-408b-8d29-ae02c0c4ef98",
+          "status": 200,
+          "at": "2026-11-05T09:21:21.425Z"
+        },
+        {
+          "id": "351baed6-eb7f-4565-849b-c4c016f3fc85",
+          "method": "GET",
+          "path": "/migration-batches/24220f85-d6d5-4bf6-b2e7-60784b77d0ef",
+          "status": 200,
+          "at": "2026-11-05T09:21:21.433Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/migration-batch.test.ts",
+      "name": "conversion batches: register, dry run, apply and roll back (ST-ADM-020, ADM 3.10, BR-ADM-12, UAT-AC143, UAT-NFR-OPERABILITY-06) checks the rows that refer to rows migrated before, and refuses to roll back a batch that others were built on (409 MIGRATION_DEPENDENTS_EXIST)",
+      "status": "passed",
+      "durationMs": 586,
+      "at": "2026-11-05T09:21:22.034Z",
+      "requests": [
+        {
+          "id": "5596aba9-ca3a-476e-ac15-fea3f061a174",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:21.451Z"
+        },
+        {
+          "id": "8ee7e52c-5d8d-4ac9-81ed-bc759b91a7e6",
+          "method": "POST",
+          "path": "/migration-batches/bc50ae0d-c169-4948-a19e-f756f3e886d9/dry-run",
+          "status": 202,
+          "at": "2026-11-05T09:21:21.467Z"
+        },
+        {
+          "id": "ab21350b-fa7f-4e6c-9383-a6401d3ff927",
+          "method": "GET",
+          "path": "/migration-batches/bc50ae0d-c169-4948-a19e-f756f3e886d9",
+          "status": 200,
+          "at": "2026-11-05T09:21:21.488Z"
+        },
+        {
+          "id": "36144fe3-6fc9-494c-bec2-dfac252645d5",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:21.499Z"
+        },
+        {
+          "id": "638f5573-3315-4583-a9ea-9af4dc3b1d84",
+          "method": "POST",
+          "path": "/migration-batches/1bcd4c38-5f85-47c0-aad4-9a6b6b4acdf1/dry-run",
+          "status": 202,
+          "at": "2026-11-05T09:21:21.517Z"
+        },
+        {
+          "id": "dd4735b6-eb04-4754-ac63-4bfe5fa4ed60",
+          "method": "GET",
+          "path": "/migration-batches/1bcd4c38-5f85-47c0-aad4-9a6b6b4acdf1",
+          "status": 200,
+          "at": "2026-11-05T09:21:21.531Z"
+        },
+        {
+          "id": "e5da314d-3b8f-4d44-b4fc-2b8888bf00db",
+          "method": "POST",
+          "path": "/migration-batches/bc50ae0d-c169-4948-a19e-f756f3e886d9/apply",
+          "status": 202,
+          "at": "2026-11-05T09:21:21.542Z"
+        },
+        {
+          "id": "afd67dd6-053b-4e9e-8232-6da4d7cdb823",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:21.579Z"
+        },
+        {
+          "id": "7c659220-cb44-4aa8-8819-6ec4d874f16d",
+          "method": "POST",
+          "path": "/migration-batches/14dc432c-d86c-41a7-b601-e838ed9b170d/dry-run",
+          "status": 202,
+          "at": "2026-11-05T09:21:21.598Z"
+        },
+        {
+          "id": "d9e0747c-b18e-4d45-b01b-5a6c1fdcebf3",
+          "method": "GET",
+          "path": "/migration-batches/14dc432c-d86c-41a7-b601-e838ed9b170d",
+          "status": 200,
+          "at": "2026-11-05T09:21:21.616Z"
+        },
+        {
+          "id": "d1419dd0-4797-4048-b157-5187dd16b7fa",
+          "method": "POST",
+          "path": "/migration-batches/14dc432c-d86c-41a7-b601-e838ed9b170d/apply",
+          "status": 202,
+          "at": "2026-11-05T09:21:21.623Z"
+        },
+        {
+          "id": "632b2b46-cced-4334-ac51-fd4762d7e5e1",
+          "method": "GET",
+          "path": "/migration-batches/bc50ae0d-c169-4948-a19e-f756f3e886d9",
+          "status": 200,
+          "at": "2026-11-05T09:21:21.640Z"
+        },
+        {
+          "id": "d32fd9cb-3ff6-46bb-b393-753d63705d76",
+          "method": "POST",
+          "path": "/migration-batches/bc50ae0d-c169-4948-a19e-f756f3e886d9/rollback",
+          "status": 409,
+          "at": "2026-11-05T09:21:21.654Z"
+        },
+        {
+          "id": "b0180538-b279-40fd-a484-51d168cc6e8f",
+          "method": "GET",
+          "path": "/migration-batches/bc50ae0d-c169-4948-a19e-f756f3e886d9",
+          "status": 200,
+          "at": "2026-11-05T09:21:21.674Z"
+        },
+        {
+          "id": "923bd375-2486-4150-b8db-eac053330d91",
+          "method": "GET",
+          "path": "/migration-batches/14dc432c-d86c-41a7-b601-e838ed9b170d",
+          "status": 200,
+          "at": "2026-11-05T09:21:21.686Z"
+        },
+        {
+          "id": "b727f4e4-78db-425f-95d0-b51f489568c2",
+          "method": "POST",
+          "path": "/migration-batches/14dc432c-d86c-41a7-b601-e838ed9b170d/rollback",
+          "status": 202,
+          "at": "2026-11-05T09:21:21.702Z"
+        },
+        {
+          "id": "33d7bd3b-c7a9-4245-a442-4150dcb9f3a6",
+          "method": "POST",
+          "path": "/migration-batches/bc50ae0d-c169-4948-a19e-f756f3e886d9/rollback",
+          "status": 202,
+          "at": "2026-11-05T09:21:21.722Z"
+        },
+        {
+          "id": "4f2c1ea1-4131-4843-b143-199d48afda8b",
+          "method": "GET",
+          "path": "/migration-batches/bc50ae0d-c169-4948-a19e-f756f3e886d9",
+          "status": 200,
+          "at": "2026-11-05T09:21:21.829Z"
+        },
+        {
+          "id": "8587094c-2831-4e18-9ed9-0e7f26e8cd62",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:21.996Z"
+        },
+        {
+          "id": "169d33ea-52e7-47da-8dcf-cb8e285442f6",
+          "method": "POST",
+          "path": "/migration-batches/ddb08620-6246-4c46-a086-2ca95fc865c5/dry-run",
+          "status": 202,
+          "at": "2026-11-05T09:21:22.007Z"
+        },
+        {
+          "id": "7ccc0de9-4f58-4aa0-9cb0-a1b17f842be2",
+          "method": "GET",
+          "path": "/migration-batches/ddb08620-6246-4c46-a086-2ca95fc865c5",
+          "status": 200,
+          "at": "2026-11-05T09:21:22.028Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/migration-batch.test.ts",
+      "name": "conversion batches: register, dry run, apply and roll back (ST-ADM-020, ADM 3.10, BR-ADM-12, UAT-AC143, UAT-NFR-OPERABILITY-06) asks the references again as the lots are written: a child whose parent was rolled back after its dry run is not written (Failed), and a rollback waits for the lot that holds its parents",
+      "status": "passed",
+      "durationMs": 301,
+      "at": "2026-11-05T09:21:22.335Z",
+      "requests": [
+        {
+          "id": "1dfb4644-2fd0-4f20-aa62-ec87aac1fe29",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:22.037Z"
+        },
+        {
+          "id": "d06908a2-6c03-41a8-b2ca-c1a9f34131c3",
+          "method": "POST",
+          "path": "/migration-batches/b8dce8d5-126b-4b80-8d06-782ae74d7791/dry-run",
+          "status": 202,
+          "at": "2026-11-05T09:21:22.054Z"
+        },
+        {
+          "id": "e6f83874-b6eb-496a-a977-b4413c6457cd",
+          "method": "GET",
+          "path": "/migration-batches/b8dce8d5-126b-4b80-8d06-782ae74d7791",
+          "status": 200,
+          "at": "2026-11-05T09:21:22.077Z"
+        },
+        {
+          "id": "bfbe1d0f-ea5d-40af-ad43-d3989ca040b3",
+          "method": "POST",
+          "path": "/migration-batches/b8dce8d5-126b-4b80-8d06-782ae74d7791/apply",
+          "status": 202,
+          "at": "2026-11-05T09:21:22.082Z"
+        },
+        {
+          "id": "5d505596-b85f-4085-a9a1-b9e3542013da",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:22.111Z"
+        },
+        {
+          "id": "dd1b346e-298c-489d-a883-33cadfb1c5ac",
+          "method": "POST",
+          "path": "/migration-batches/0ce0c45a-4c98-4242-b828-7404d84bf813/dry-run",
+          "status": 202,
+          "at": "2026-11-05T09:21:22.135Z"
+        },
+        {
+          "id": "ee0f44aa-5872-4586-bb74-b3e5c977ffd6",
+          "method": "GET",
+          "path": "/migration-batches/0ce0c45a-4c98-4242-b828-7404d84bf813",
+          "status": 200,
+          "at": "2026-11-05T09:21:22.153Z"
+        },
+        {
+          "id": "4358371f-81d8-4034-ad32-383a4052bc0a",
+          "method": "GET",
+          "path": "/migration-batches/b8dce8d5-126b-4b80-8d06-782ae74d7791",
+          "status": 200,
+          "at": "2026-11-05T09:21:22.162Z"
+        },
+        {
+          "id": "7441b59b-e499-4f2e-a26a-6d35743a89f9",
+          "method": "POST",
+          "path": "/migration-batches/b8dce8d5-126b-4b80-8d06-782ae74d7791/rollback",
+          "status": 202,
+          "at": "2026-11-05T09:21:22.167Z"
+        },
+        {
+          "id": "ae6ebd5a-f435-4419-af70-635e7b3a8307",
+          "method": "POST",
+          "path": "/migration-batches/0ce0c45a-4c98-4242-b828-7404d84bf813/apply",
+          "status": 202,
+          "at": "2026-11-05T09:21:22.182Z"
+        },
+        {
+          "id": "1f8daddf-bcae-4e6a-893d-9c450afcd6ff",
+          "method": "GET",
+          "path": "/migration-batches/0ce0c45a-4c98-4242-b828-7404d84bf813",
+          "status": 200,
+          "at": "2026-11-05T09:21:22.202Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/migration-batch.test.ts",
+      "name": "conversion batches: register, dry run, apply and roll back (ST-ADM-020, ADM 3.10, BR-ADM-12, UAT-AC143, UAT-NFR-OPERABILITY-06) holds the parents before it asks who depends on them: a lot of a child that finishes while a rollback waits is seen by the rollback (409 MIGRATION_DEPENDENTS_EXIST)",
+      "status": "passed",
+      "durationMs": 681,
+      "at": "2026-11-05T09:21:23.016Z",
+      "requests": [
+        {
+          "id": "984fbcdd-fcf7-4c55-81a7-90bf3db4b6ef",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:22.340Z"
+        },
+        {
+          "id": "9954e05f-efdd-4695-b0e9-04c99fdf701b",
+          "method": "POST",
+          "path": "/migration-batches/4cceb9ef-b8fc-407e-a606-926bf74f1ade/dry-run",
+          "status": 202,
+          "at": "2026-11-05T09:21:22.362Z"
+        },
+        {
+          "id": "7438f199-8d27-4e48-bdfc-4e6352d7e5f5",
+          "method": "GET",
+          "path": "/migration-batches/4cceb9ef-b8fc-407e-a606-926bf74f1ade",
+          "status": 200,
+          "at": "2026-11-05T09:21:22.378Z"
+        },
+        {
+          "id": "5a3a4186-be83-4b04-ad58-1ac62902a097",
+          "method": "POST",
+          "path": "/migration-batches/4cceb9ef-b8fc-407e-a606-926bf74f1ade/apply",
+          "status": 202,
+          "at": "2026-11-05T09:21:22.387Z"
+        },
+        {
+          "id": "b045de06-6a4c-46ee-8791-fda82c21ce01",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:22.420Z"
+        },
+        {
+          "id": "151db9b2-607c-4304-a33c-4b293164ba17",
+          "method": "POST",
+          "path": "/migration-batches/2bcd3b9f-ef92-47a4-b7c1-322e8e71368d/dry-run",
+          "status": 202,
+          "at": "2026-11-05T09:21:22.441Z"
+        },
+        {
+          "id": "41059562-4560-4a44-8c59-13c381a19bcc",
+          "method": "GET",
+          "path": "/migration-batches/2bcd3b9f-ef92-47a4-b7c1-322e8e71368d",
+          "status": 200,
+          "at": "2026-11-05T09:21:22.467Z"
+        },
+        {
+          "id": "26b2804d-af69-4373-a581-4ef7bd7994ea",
+          "method": "POST",
+          "path": "/migration-batches/2bcd3b9f-ef92-47a4-b7c1-322e8e71368d/apply",
+          "status": 202,
+          "at": "2026-11-05T09:21:22.484Z"
+        },
+        {
+          "id": "cba47dd7-c934-47c8-afd3-d0700131c632",
+          "method": "GET",
+          "path": "/migration-batches/4cceb9ef-b8fc-407e-a606-926bf74f1ade",
+          "status": 200,
+          "at": "2026-11-05T09:21:22.505Z"
+        },
+        {
+          "id": "0ddc9eb6-42f7-4b0f-96bb-907d4a5ec3a7",
+          "method": "GET",
+          "path": "/migration-batches/4cceb9ef-b8fc-407e-a606-926bf74f1ade",
+          "status": 200,
+          "at": "2026-11-05T09:21:22.961Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/migration-batch.test.ts",
+      "name": "conversion batches: register, dry run, apply and roll back (ST-ADM-020, ADM 3.10, BR-ADM-12, UAT-AC143, UAT-NFR-OPERABILITY-06) refuses what the state does not allow: a rollback of a batch that is not applied, a dry run while one runs, a reason that is too short, and a version that is not the one read",
+      "status": "passed",
+      "durationMs": 170,
+      "at": "2026-11-05T09:21:23.185Z",
+      "requests": [
+        {
+          "id": "abbb8be8-3a67-4d58-b614-a4c1bb80b931",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:23.021Z"
+        },
+        {
+          "id": "9a5cd071-bb04-46b2-aea7-df5de25b0c68",
+          "method": "POST",
+          "path": "/migration-batches/27e1993c-7361-4f93-b3dd-02c84ab70779/rollback",
+          "status": 409,
+          "at": "2026-11-05T09:21:23.035Z"
+        },
+        {
+          "id": "ef842aa0-71bf-4e67-ba9c-26eb48cd3e44",
+          "method": "POST",
+          "path": "/migration-batches/27e1993c-7361-4f93-b3dd-02c84ab70779/apply",
+          "status": 409,
+          "at": "2026-11-05T09:21:23.045Z"
+        },
+        {
+          "id": "d0abec2c-2bcd-4102-89ca-b9db63a0d63a",
+          "method": "POST",
+          "path": "/migration-batches/27e1993c-7361-4f93-b3dd-02c84ab70779/dry-run",
+          "status": 409,
+          "at": "2026-11-05T09:21:23.062Z"
+        },
+        {
+          "id": "bddf2d47-cb05-4f9c-9ed1-67dd43b2c3bb",
+          "method": "POST",
+          "path": "/migration-batches/27e1993c-7361-4f93-b3dd-02c84ab70779/dry-run",
+          "status": 202,
+          "at": "2026-11-05T09:21:23.079Z"
+        },
+        {
+          "id": "11b1ada1-13d6-4cd0-b832-376eb7375686",
+          "method": "POST",
+          "path": "/migration-batches/27e1993c-7361-4f93-b3dd-02c84ab70779/dry-run",
+          "status": 409,
+          "at": "2026-11-05T09:21:23.089Z"
+        },
+        {
+          "id": "665515e0-9040-4317-8d28-a49d4ee28340",
+          "method": "GET",
+          "path": "/migration-batches/27e1993c-7361-4f93-b3dd-02c84ab70779",
+          "status": 200,
+          "at": "2026-11-05T09:21:23.119Z"
+        },
+        {
+          "id": "09ca9616-5e8e-47e1-97f8-f5216336e209",
+          "method": "POST",
+          "path": "/migration-batches/27e1993c-7361-4f93-b3dd-02c84ab70779/apply",
+          "status": 202,
+          "at": "2026-11-05T09:21:23.139Z"
+        },
+        {
+          "id": "ba8dc239-0fe2-456b-9da5-84f963cfb524",
+          "method": "GET",
+          "path": "/migration-batches/27e1993c-7361-4f93-b3dd-02c84ab70779",
+          "status": 200,
+          "at": "2026-11-05T09:21:23.166Z"
+        },
+        {
+          "id": "03041a55-7b02-4f0d-a127-bb20f81d6085",
+          "method": "POST",
+          "path": "/migration-batches/27e1993c-7361-4f93-b3dd-02c84ab70779/rollback",
+          "status": 422,
+          "at": "2026-11-05T09:21:23.171Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/migration-batch.test.ts",
+      "name": "conversion batches: register, dry run, apply and roll back (ST-ADM-020, ADM 3.10, BR-ADM-12, UAT-AC143, UAT-NFR-OPERABILITY-06) refuses a registration that names no known mapping, no entity, no source, no file or a file that is not there (422, 404)",
+      "status": "passed",
+      "durationMs": 80,
+      "at": "2026-11-05T09:21:23.266Z",
+      "requests": [
+        {
+          "id": "776c5f5b-f1e4-44c6-bc29-168fccae1a87",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 422,
+          "at": "2026-11-05T09:21:23.189Z"
+        },
+        {
+          "id": "5f5f9aea-aadd-46de-875d-3727178dd88b",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 422,
+          "at": "2026-11-05T09:21:23.211Z"
+        },
+        {
+          "id": "97a9d39b-e933-4d58-a9c3-f4c7293ad838",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 422,
+          "at": "2026-11-05T09:21:23.225Z"
+        },
+        {
+          "id": "1cb902ab-c927-44f7-931a-60761b18b53a",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 404,
+          "at": "2026-11-05T09:21:23.236Z"
+        },
+        {
+          "id": "be6c3be2-40fa-4afd-9c59-00065db28b63",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 422,
+          "at": "2026-11-05T09:21:23.254Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/migration-batch.test.ts",
+      "name": "conversion batches: register, dry run, apply and roll back (ST-ADM-020, ADM 3.10, BR-ADM-12, UAT-AC143, UAT-NFR-OPERABILITY-06) is for those who may: registering and dry-running need manage, applying and rolling back need approve, reading needs read; all on the whole tenant",
+      "status": "passed",
+      "durationMs": 176,
+      "at": "2026-11-05T09:21:23.442Z",
+      "requests": [
+        {
+          "id": "e30e4540-712c-48a1-8a14-3586f2c9d7aa",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 403,
+          "at": "2026-11-05T09:21:23.269Z"
+        },
+        {
+          "id": "3156d13f-6dac-4790-a96f-22c93faba496",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 403,
+          "at": "2026-11-05T09:21:23.285Z"
+        },
+        {
+          "id": "15760ac2-3fab-42a5-83c9-d00ab35710d1",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 403,
+          "at": "2026-11-05T09:21:23.304Z"
+        },
+        {
+          "id": "c2e368f5-89e6-4c8a-8a21-51dfc87ba786",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 403,
+          "at": "2026-11-05T09:21:23.323Z"
+        },
+        {
+          "id": "6945fd90-f3a5-4e0c-9cd2-ecae91a9120d",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:23.333Z"
+        },
+        {
+          "id": "9a3bc022-6db4-4c5c-932b-306fc84c4b70",
+          "method": "POST",
+          "path": "/migration-batches/4be816d2-a475-4fd8-9f7d-2d911d6eb4ee/dry-run",
+          "status": 403,
+          "at": "2026-11-05T09:21:23.353Z"
+        },
+        {
+          "id": "085cc40a-9bd3-4d57-a7bf-5f668dbab1a6",
+          "method": "POST",
+          "path": "/migration-batches/4be816d2-a475-4fd8-9f7d-2d911d6eb4ee/apply",
+          "status": 403,
+          "at": "2026-11-05T09:21:23.363Z"
+        },
+        {
+          "id": "dd94e0b8-3310-4c28-8c6a-9b37078ed8b1",
+          "method": "POST",
+          "path": "/migration-batches/4be816d2-a475-4fd8-9f7d-2d911d6eb4ee/rollback",
+          "status": 403,
+          "at": "2026-11-05T09:21:23.379Z"
+        },
+        {
+          "id": "cd2fa845-4a06-42c8-b02a-74b3daf1f56b",
+          "method": "GET",
+          "path": "/migration-batches",
+          "status": 403,
+          "at": "2026-11-05T09:21:23.396Z"
+        },
+        {
+          "id": "12ad559b-cc05-422e-a2b6-98df630fe893",
+          "method": "GET",
+          "path": "/migration-batches",
+          "status": 403,
+          "at": "2026-11-05T09:21:23.410Z"
+        },
+        {
+          "id": "a3a9b82f-e047-49a9-9943-02333bc521de",
+          "method": "GET",
+          "path": "/migration-batches/4be816d2-a475-4fd8-9f7d-2d911d6eb4ee",
+          "status": 403,
+          "at": "2026-11-05T09:21:23.426Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/migration-batch.test.ts",
+      "name": "conversion batches: register, dry run, apply and roll back (ST-ADM-020, ADM 3.10, BR-ADM-12, UAT-AC143, UAT-NFR-OPERABILITY-06) lists the batches newest first, by state and entity, a page at a time; another tenant sees none of it",
+      "status": "passed",
+      "durationMs": 203,
+      "at": "2026-11-05T09:21:23.645Z",
+      "requests": [
+        {
+          "id": "809135fb-2ab7-46cf-94f3-1337d50190ba",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:23.445Z"
+        },
+        {
+          "id": "ea6ee4dd-8975-491a-8fc4-0601696ade9d",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:23.469Z"
+        },
+        {
+          "id": "4c1c714d-ef26-49e8-8d33-c64d953826e0",
+          "method": "GET",
+          "path": "/migration-batches",
+          "status": 200,
+          "at": "2026-11-05T09:21:23.487Z"
+        },
+        {
+          "id": "f1c678af-57a2-4321-b060-e2ca09d998c9",
+          "method": "GET",
+          "path": "/migration-batches",
+          "status": 200,
+          "at": "2026-11-05T09:21:23.511Z"
+        },
+        {
+          "id": "02124c5c-06cd-41a8-99ad-af48de5535d1",
+          "method": "GET",
+          "path": "/migration-batches",
+          "status": 200,
+          "at": "2026-11-05T09:21:23.525Z"
+        },
+        {
+          "id": "16b0564b-988d-4d37-b94a-2d8ff6fc191b",
+          "method": "GET",
+          "path": "/migration-batches",
+          "status": 422,
+          "at": "2026-11-05T09:21:23.540Z"
+        },
+        {
+          "id": "6b373122-570a-4e93-a3a2-fc9c403aa38a",
+          "method": "GET",
+          "path": "/migration-batches",
+          "status": 200,
+          "at": "2026-11-05T09:21:23.556Z"
+        },
+        {
+          "id": "99276bcb-8f0a-4953-b0b4-365e75cc5c55",
+          "method": "GET",
+          "path": "/migration-batches/560ddc7b-bbf8-4b72-8873-9c897dc04fd6",
+          "status": 404,
+          "at": "2026-11-05T09:21:23.575Z"
+        },
+        {
+          "id": "568e5948-7686-4d56-abb7-fa8639fe73d6",
+          "method": "POST",
+          "path": "/migration-batches/560ddc7b-bbf8-4b72-8873-9c897dc04fd6/dry-run",
+          "status": 404,
+          "at": "2026-11-05T09:21:23.587Z"
+        },
+        {
+          "id": "557ed2db-1095-4957-9131-977fbd9a18c6",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:23.616Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/migration-batch.test.ts",
+      "name": "conversion batches: register, dry run, apply and roll back (ST-ADM-020, ADM 3.10, BR-ADM-12, UAT-AC143, UAT-NFR-OPERABILITY-06) is kept for good: the table refuses to change what was registered, to skip a state, to delete, and the rows are marked, never deleted",
+      "status": "passed",
+      "durationMs": 210,
+      "at": "2026-11-05T09:21:23.855Z",
+      "requests": [
+        {
+          "id": "06ab0f79-9407-41d2-a2a2-3ff567b575ef",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:23.651Z"
+        },
+        {
+          "id": "fb2de6fd-c652-4a70-a22c-31dc07a9ece7",
+          "method": "POST",
+          "path": "/migration-batches",
+          "status": 201,
+          "at": "2026-11-05T09:21:23.690Z"
+        },
+        {
+          "id": "388db593-ea67-430b-ae34-40804a00cd7a",
+          "method": "POST",
+          "path": "/migration-batches/67490d92-e605-4c13-a7f6-10431fc943bb/dry-run",
+          "status": 202,
+          "at": "2026-11-05T09:21:23.709Z"
+        },
+        {
+          "id": "8148d621-9158-4aa3-b18d-3e41fc1f087c",
+          "method": "GET",
+          "path": "/migration-batches/67490d92-e605-4c13-a7f6-10431fc943bb",
+          "status": 200,
+          "at": "2026-11-05T09:21:23.746Z"
+        },
+        {
+          "id": "f442d1b2-5bf1-4746-b82a-e0a619c65a0e",
+          "method": "POST",
+          "path": "/migration-batches/67490d92-e605-4c13-a7f6-10431fc943bb/apply",
+          "status": 202,
+          "at": "2026-11-05T09:21:23.764Z"
+        }
+      ]
+    }
+  ]
+}

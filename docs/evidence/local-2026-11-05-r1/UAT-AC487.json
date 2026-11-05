@@ -1,0 +1,194 @@
+{
+  "id": "UAT-AC487",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-incident.test.ts",
+      "name": "quality incidents and exceptions over HTTP (ST-DGV-003) AC-ST-DGV-003-1: UAT-AC487 takes a HIGH incident from OPEN to CLOSED: no resolution without the cause, no verification by the handler, none before a rerun that passes, one event per step",
+      "status": "passed",
+      "durationMs": 1552,
+      "at": "2026-11-05T09:18:25.615Z",
+      "requests": [
+        {
+          "id": "fd4441ee-a18f-47af-b94e-d823d3664ee0",
+          "method": "POST",
+          "path": "/dgv/datasets",
+          "status": 200,
+          "at": "2026-11-05T09:18:24.063Z"
+        },
+        {
+          "id": "42a43482-0027-4610-8705-b5e187ff3182",
+          "method": "POST",
+          "path": "/dgv/quality-rules",
+          "status": 200,
+          "at": "2026-11-05T09:18:24.203Z"
+        },
+        {
+          "id": "29b03ea8-6fc5-4f6a-b76a-1c6eb66416f1",
+          "method": "POST",
+          "path": "/dgv/quality-rules/cc7f1076-61a5-47a8-b7e9-7b5b9f8bea55/approval",
+          "status": 200,
+          "at": "2026-11-05T09:18:24.232Z"
+        },
+        {
+          "id": "8e2c11ea-c1be-4847-b7c1-cd534c45191b",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/assignment",
+          "status": 422,
+          "at": "2026-11-05T09:18:24.452Z"
+        },
+        {
+          "id": "1d313299-64b2-4a0b-9589-a0267ce6f331",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/assignment",
+          "status": 422,
+          "at": "2026-11-05T09:18:24.469Z"
+        },
+        {
+          "id": "03dc94f7-9d70-4b24-b55c-6379ccf93f06",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/assignment",
+          "status": 422,
+          "at": "2026-11-05T09:18:24.499Z"
+        },
+        {
+          "id": "33086731-ec7d-4e3b-a4f0-d49169a11f79",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/assignment",
+          "status": 409,
+          "at": "2026-11-05T09:18:24.514Z"
+        },
+        {
+          "id": "81a30e0c-d383-478f-80da-98d004c68711",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/assignment",
+          "status": 200,
+          "at": "2026-11-05T09:18:24.580Z"
+        },
+        {
+          "id": "64d1b689-8f88-4413-886c-81fe1fa34558",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/transition",
+          "status": 409,
+          "at": "2026-11-05T09:18:24.600Z"
+        },
+        {
+          "id": "e20e4cde-8410-4e5b-9a4f-0a165c3bf126",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/transition",
+          "status": 409,
+          "at": "2026-11-05T09:18:24.627Z"
+        },
+        {
+          "id": "2f79851e-2921-4a7e-83b7-937940301a55",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/transition",
+          "status": 403,
+          "at": "2026-11-05T09:18:24.641Z"
+        },
+        {
+          "id": "a424d785-bbe3-4574-8f46-0074fe5c1cd0",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/transition",
+          "status": 409,
+          "at": "2026-11-05T09:18:24.657Z"
+        },
+        {
+          "id": "a6b54c69-1e29-45cb-b8f2-cc1a5b01c04f",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/transition",
+          "status": 200,
+          "at": "2026-11-05T09:18:24.674Z"
+        },
+        {
+          "id": "547305b3-7c14-4355-8147-cf4bc4f08894",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/transition",
+          "status": 200,
+          "at": "2026-11-05T09:18:24.693Z"
+        },
+        {
+          "id": "a0cfeca2-833d-46d4-b21a-16f11564ca9b",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/transition",
+          "status": 422,
+          "at": "2026-11-05T09:18:24.717Z"
+        },
+        {
+          "id": "57df4d6a-a9f1-480c-b293-b12b35d490da",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/transition",
+          "status": 422,
+          "at": "2026-11-05T09:18:24.738Z"
+        },
+        {
+          "id": "b818b954-eb11-4cd7-a501-d4b3460a658a",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/transition",
+          "status": 200,
+          "at": "2026-11-05T09:18:24.794Z"
+        },
+        {
+          "id": "f1344986-3f2d-48dd-8a9e-0418b4745734",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/verification",
+          "status": 403,
+          "at": "2026-11-05T09:18:24.818Z"
+        },
+        {
+          "id": "fcc8c028-a1a1-4a33-aa3c-bed2e8f7b4ca",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/verification",
+          "status": 422,
+          "at": "2026-11-05T09:18:24.834Z"
+        },
+        {
+          "id": "14e3aa82-0ed8-42ef-8b30-2ffd8d3b83bb",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/verification",
+          "status": 422,
+          "at": "2026-11-05T09:18:24.997Z"
+        },
+        {
+          "id": "e7fd1883-b2ab-4343-b452-97d656b151f2",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/verification",
+          "status": 422,
+          "at": "2026-11-05T09:18:25.194Z"
+        },
+        {
+          "id": "40ac05d0-27af-42d7-9bb2-46b9b5f3e747",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/verification",
+          "status": 200,
+          "at": "2026-11-05T09:18:25.306Z"
+        },
+        {
+          "id": "1443e504-98c2-480d-b52a-8a5722b5d282",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/transition",
+          "status": 409,
+          "at": "2026-11-05T09:18:25.562Z"
+        },
+        {
+          "id": "2e7c9b1e-ece6-494e-90f7-4a727d5fbc07",
+          "method": "POST",
+          "path": "/dgv/quality-incidents/c324e598-f24b-4a06-8e5c-284835e5dc01/assignment",
+          "status": 409,
+          "at": "2026-11-05T09:18:25.583Z"
+        },
+        {
+          "id": "64fa1299-dce5-40d2-a033-bc56ae753f75",
+          "method": "GET",
+          "path": "/resources/quality_incident/c324e598-f24b-4a06-8e5c-284835e5dc01",
+          "status": 200,
+          "at": "2026-11-05T09:18:25.603Z"
+        }
+      ]
+    }
+  ]
+}

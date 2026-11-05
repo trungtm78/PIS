@@ -1,0 +1,193 @@
+{
+  "id": "UAT-NFR-AVAILABILITY-04",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/delivery-flow.test.ts",
+      "name": "the delivery engine in the real API process (ST-NOT-002) AC-ST-KERNEL-073-1 (UAT-NFR-AVAILABILITY-04): a provider that fails every call does not touch the business commands: 20 of 20 succeed, every delivery waits for its retry, and the breaker of the account opens within 30 seconds and stops the calls",
+      "status": "passed",
+      "durationMs": 3176,
+      "at": "2026-11-05T09:16:01.753Z",
+      "requests": [
+        {
+          "id": "71c10541-beb2-4099-a2e2-7533c38742e4",
+          "method": "POST",
+          "path": "/org-units",
+          "status": 201,
+          "at": "2026-11-05T09:15:58.715Z"
+        },
+        {
+          "id": "58ea5a88-471e-4beb-be31-b6f301916800",
+          "method": "POST",
+          "path": "/org-units",
+          "status": 201,
+          "at": "2026-11-05T09:15:58.868Z"
+        },
+        {
+          "id": "c671aee7-8e51-4998-b4aa-a423bb348ccc",
+          "method": "POST",
+          "path": "/org-units",
+          "status": 201,
+          "at": "2026-11-05T09:15:58.893Z"
+        },
+        {
+          "id": "6def4121-1d96-454c-b4a3-19c2114eea2d",
+          "method": "POST",
+          "path": "/org-units",
+          "status": 201,
+          "at": "2026-11-05T09:15:58.911Z"
+        },
+        {
+          "id": "b75ad669-f5f2-42bc-b51a-07a26aea607e",
+          "method": "POST",
+          "path": "/org-units",
+          "status": 201,
+          "at": "2026-11-05T09:15:58.939Z"
+        },
+        {
+          "id": "174546df-b805-48a0-ad38-70d7aa895c21",
+          "method": "POST",
+          "path": "/org-units",
+          "status": 201,
+          "at": "2026-11-05T09:15:58.955Z"
+        },
+        {
+          "id": "298bc9dd-3e14-47ff-aaef-25a7b4b98835",
+          "method": "POST",
+          "path": "/org-units",
+          "status": 201,
+          "at": "2026-11-05T09:15:58.977Z"
+        },
+        {
+          "id": "c981e90b-40f0-4e3e-aa65-674c555ea8ea",
+          "method": "POST",
+          "path": "/org-units",
+          "status": 201,
+          "at": "2026-11-05T09:15:59.003Z"
+        },
+        {
+          "id": "4acb5042-07ba-480e-b0c7-93b348c6044d",
+          "method": "POST",
+          "path": "/org-units",
+          "status": 201,
+          "at": "2026-11-05T09:15:59.019Z"
+        },
+        {
+          "id": "60a8e0e4-be45-4bef-bc04-5d4e52a9f4b4",
+          "method": "POST",
+          "path": "/org-units",
+          "status": 201,
+          "at": "2026-11-05T09:15:59.035Z"
+        },
+        {
+          "id": "a5a98d71-c712-4a61-814b-276083ee3a6e",
+          "method": "POST",
+          "path": "/org-units",
+          "status": 201,
+          "at": "2026-11-05T09:15:59.051Z"
+        },
+        {
+          "id": "94c23d19-b93d-4d99-8271-27ebe66bee0b",
+          "method": "POST",
+          "path": "/org-units",
+          "status": 201,
+          "at": "2026-11-05T09:15:59.065Z"
+        },
+        {
+          "id": "9936a298-fd4c-4e06-b610-e345a0578c73",
+          "method": "POST",
+          "path": "/org-units",
+          "status": 201,
+          "at": "2026-11-05T09:15:59.081Z"
+        },
+        {
+          "id": "bb42c7b9-994d-489b-9bae-71876910bf6f",
+          "method": "POST",
+          "path": "/org-units",
+          "status": 201,
+          "at": "2026-11-05T09:15:59.098Z"
+        },
+        {
+          "id": "c6640b9c-e43f-4d76-9ac1-e6b5d9c18fff",
+          "method": "POST",
+          "path": "/org-units",
+          "status": 201,
+          "at": "2026-11-05T09:15:59.112Z"
+        },
+        {
+          "id": "ef518ded-d843-4efc-8c36-65d3183bd14f",
+          "method": "POST",
+          "path": "/org-units",
+          "status": 201,
+          "at": "2026-11-05T09:15:59.129Z"
+        },
+        {
+          "id": "85321b9b-8f9c-4138-bd30-c77beb63d7d0",
+          "method": "POST",
+          "path": "/org-units",
+          "status": 201,
+          "at": "2026-11-05T09:15:59.147Z"
+        },
+        {
+          "id": "55162783-dafd-48dd-806a-16a0837240fe",
+          "method": "POST",
+          "path": "/org-units",
+          "status": 201,
+          "at": "2026-11-05T09:15:59.159Z"
+        },
+        {
+          "id": "3bcdda67-2b86-4b8e-b75a-a8d850917616",
+          "method": "POST",
+          "path": "/org-units",
+          "status": 201,
+          "at": "2026-11-05T09:15:59.176Z"
+        },
+        {
+          "id": "d896a4e0-a49a-4ab6-addb-bd802b967a4c",
+          "method": "POST",
+          "path": "/org-units",
+          "status": 201,
+          "at": "2026-11-05T09:15:59.194Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/home/channel-health.test.ts",
+      "name": "the degraded channels for the banner of the home screen (ST-KERNEL-073) AC-ST-KERNEL-073-2 UAT-NFR-AVAILABILITY-04: with the breaker of a channel open, names the channel and the time of its latest successful delivery",
+      "status": "passed",
+      "durationMs": 359,
+      "at": "2026-11-05T09:23:18.690Z",
+      "requests": [
+        {
+          "id": "233e6c25-afe1-4df2-af5e-7cf635969ad9",
+          "method": "GET",
+          "path": "/home/channel-health",
+          "status": 200,
+          "at": "2026-11-05T09:23:18.540Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/home/channel-health.test.ts",
+      "name": "the degraded channels for the banner of the home screen (ST-KERNEL-073) AC-ST-KERNEL-073-2 UAT-NFR-AVAILABILITY-04: says nothing is degraded while every breaker is closed, and when there is no breaker row yet",
+      "status": "passed",
+      "durationMs": 178,
+      "at": "2026-11-05T09:23:18.868Z",
+      "requests": [
+        {
+          "id": "216fec17-4277-4319-bc88-a4d672186f76",
+          "method": "GET",
+          "path": "/home/channel-health",
+          "status": 200,
+          "at": "2026-11-05T09:23:18.852Z"
+        }
+      ]
+    }
+  ]
+}

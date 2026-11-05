@@ -1,0 +1,26 @@
+{
+  "id": "UI-PRJ-18",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/accountability-reads.test.ts",
+      "name": "the reads of the assignments and of the task forces (ST-PRJ-005, PRJ-17 and PRJ-18) the task forces (PRJ-18) UI-PRJ-18: lists the task forces whose unit is in the scope with the lead, the scope unit and the terms, the open ones first",
+      "status": "passed",
+      "durationMs": 18,
+      "at": "2026-11-05T09:23:27.438Z",
+      "requests": [
+        {
+          "id": "d0c1510a-0d76-4a9f-b9e5-87113304d26a",
+          "method": "GET",
+          "path": "/resources/task_force",
+          "status": 200,
+          "at": "2026-11-05T09:23:27.420Z"
+        }
+      ]
+    }
+  ]
+}

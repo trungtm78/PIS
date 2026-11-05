@@ -1,0 +1,120 @@
+{
+  "id": "UAT-AC367",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/diary.test.ts",
+      "name": "the electronic site diary over HTTP (ST-QMS-001) ST-QMS-002: two devices, the conflict between them, and the place AC-ST-QMS-002-3: UAT-AC367 does not keep a place without the consent to it, and keeps one with it",
+      "status": "passed",
+      "durationMs": 1062,
+      "at": "2026-11-05T09:12:17.263Z",
+      "requests": [
+        {
+          "id": "fd7b6cc9-359e-45c4-a83f-f4ed52595668",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 422,
+          "at": "2026-11-05T09:12:17.051Z"
+        },
+        {
+          "id": "0ec48f84-38a4-4b3a-a545-b10780166c1f",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 422,
+          "at": "2026-11-05T09:12:17.073Z"
+        },
+        {
+          "id": "2f01e3f9-a302-453b-ab81-a390a907f2c3",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 422,
+          "at": "2026-11-05T09:12:17.084Z"
+        },
+        {
+          "id": "6330ef0e-beb3-4c51-85bc-cc7c5222eacf",
+          "method": "POST",
+          "path": "/site-diaries",
+          "status": 200,
+          "at": "2026-11-05T09:12:17.141Z"
+        },
+        {
+          "id": "a7e7c9e7-a98d-4553-9fe6-2baf75811dcd",
+          "method": "POST",
+          "path": "/site-diaries/420e0c6e-bb54-4b13-9648-0b5aa7bdf07c/draft",
+          "status": 422,
+          "at": "2026-11-05T09:12:17.246Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/photo.test.ts",
+      "name": "the site photo register over HTTP (ST-QMS-003) AC-ST-QMS-003-2: UAT-AC367 keeps no place without the consent to it, the place inside the file included, and keeps one with it",
+      "status": "passed",
+      "durationMs": 629,
+      "at": "2026-11-05T09:20:49.042Z",
+      "requests": [
+        {
+          "id": "9698fee2-5735-42b6-ab36-1dbcdb229137",
+          "method": "POST",
+          "path": "/site-photos",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.418Z"
+        },
+        {
+          "id": "d1b80299-a135-4fca-8d08-4b198f20c68c",
+          "method": "GET",
+          "path": "/resources/site_photo/50df35d9-ca4f-42ce-9225-0af28e4ab9a7",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.484Z"
+        },
+        {
+          "id": "3eba613b-ad5a-4c63-80e7-cbaae179caf6",
+          "method": "GET",
+          "path": "/site-photos/50df35d9-ca4f-42ce-9225-0af28e4ab9a7/checks",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.493Z"
+        },
+        {
+          "id": "4a4c1ccd-43ad-4d75-95a0-f4ed952eedff",
+          "method": "POST",
+          "path": "/site-photos",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.598Z"
+        },
+        {
+          "id": "8eedd54e-53e4-4abd-91c7-de16f6c8248d",
+          "method": "GET",
+          "path": "/resources/site_photo/07604a5f-8838-4867-82e3-a463eb8cb5c9",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.651Z"
+        },
+        {
+          "id": "b1993153-1e46-4f66-8783-5b059f457c24",
+          "method": "GET",
+          "path": "/site-photos/07604a5f-8838-4867-82e3-a463eb8cb5c9/checks",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.670Z"
+        },
+        {
+          "id": "3dc45d98-57c0-4898-8975-0b529f5a55eb",
+          "method": "POST",
+          "path": "/site-photos",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.834Z"
+        },
+        {
+          "id": "60bf2637-80d6-413e-be69-ef5dadf7062f",
+          "method": "GET",
+          "path": "/resources/site_photo/16b2c809-74bf-4a5a-b340-fee3eb5b3b3f",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.937Z"
+        }
+      ]
+    }
+  ]
+}

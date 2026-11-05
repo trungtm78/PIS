@@ -1,0 +1,246 @@
+{
+  "id": "UAT-AC421",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/dossiers.test.ts",
+      "name": "dossiers over HTTP (ST-DOC-013) AC-ST-DOC-013-1: UAT-AC421 closes a dossier while no rule is confirmed, keeps it for ever provisionally, and names the blocker of a disposal; a confirmed rule gives the second dossier its class and its handover",
+      "status": "passed",
+      "durationMs": 848,
+      "at": "2026-11-05T09:14:25.238Z",
+      "requests": [
+        {
+          "id": "af10973e-6b45-44f7-a840-a315b4565f46",
+          "method": "POST",
+          "path": "/dossiers",
+          "status": 200,
+          "at": "2026-11-05T09:14:24.513Z"
+        },
+        {
+          "id": "94d51bdc-ec61-494b-bf01-ccbe274f66ea",
+          "method": "POST",
+          "path": "/dossiers/ab2220ac-14df-4820-9eb1-bca9f831e155/items",
+          "status": 200,
+          "at": "2026-11-05T09:14:24.552Z"
+        },
+        {
+          "id": "512464d0-ae2d-4248-8a75-81f57200a0e5",
+          "method": "POST",
+          "path": "/dossiers/ab2220ac-14df-4820-9eb1-bca9f831e155/items",
+          "status": 200,
+          "at": "2026-11-05T09:14:24.583Z"
+        },
+        {
+          "id": "38814c39-a7a0-40fc-bd64-66333b8b7f1d",
+          "method": "POST",
+          "path": "/dossiers/ab2220ac-14df-4820-9eb1-bca9f831e155/items",
+          "status": 200,
+          "at": "2026-11-05T09:14:24.606Z"
+        },
+        {
+          "id": "27e055bf-1d04-433e-8334-7aaaf82f2181",
+          "method": "POST",
+          "path": "/dossiers/ab2220ac-14df-4820-9eb1-bca9f831e155/items",
+          "status": 200,
+          "at": "2026-11-05T09:14:24.643Z"
+        },
+        {
+          "id": "34967d12-847e-4329-a1c9-e4d57aab3d80",
+          "method": "POST",
+          "path": "/dossiers/ab2220ac-14df-4820-9eb1-bca9f831e155/items",
+          "status": 200,
+          "at": "2026-11-05T09:14:24.669Z"
+        },
+        {
+          "id": "9a06c57a-a299-42a4-9bc5-18424ac82571",
+          "method": "POST",
+          "path": "/dossiers/ab2220ac-14df-4820-9eb1-bca9f831e155/items",
+          "status": 200,
+          "at": "2026-11-05T09:14:24.700Z"
+        },
+        {
+          "id": "897218ca-9ba4-4ece-932a-34859a2b4952",
+          "method": "POST",
+          "path": "/dossiers/ab2220ac-14df-4820-9eb1-bca9f831e155/closure",
+          "status": 200,
+          "at": "2026-11-05T09:14:24.732Z"
+        },
+        {
+          "id": "a8a40321-5db2-40e8-a2d4-f8a99c5589d0",
+          "method": "GET",
+          "path": "/dossiers/ab2220ac-14df-4820-9eb1-bca9f831e155",
+          "status": 200,
+          "at": "2026-11-05T09:14:24.801Z"
+        },
+        {
+          "id": "be3a8bd4-c408-4aa6-b1e8-375d17673a64",
+          "method": "POST",
+          "path": "/dossiers",
+          "status": 200,
+          "at": "2026-11-05T09:14:24.967Z"
+        },
+        {
+          "id": "e1986276-6dea-45cb-9358-96cf95901b20",
+          "method": "POST",
+          "path": "/dossiers/f91e581a-030d-4327-853a-f8c416dda7ee/items",
+          "status": 200,
+          "at": "2026-11-05T09:14:24.980Z"
+        },
+        {
+          "id": "423ffaf0-b587-4751-98ae-65d237d8de6f",
+          "method": "POST",
+          "path": "/dossiers/f91e581a-030d-4327-853a-f8c416dda7ee/closure",
+          "status": 200,
+          "at": "2026-11-05T09:14:24.999Z"
+        },
+        {
+          "id": "4902f73a-d068-4e44-89c9-0bcea2dea9b7",
+          "method": "GET",
+          "path": "/dossiers/f91e581a-030d-4327-853a-f8c416dda7ee",
+          "status": 200,
+          "at": "2026-11-05T09:14:25.053Z"
+        },
+        {
+          "id": "9bd470dd-0726-4875-8355-6149e68d9993",
+          "method": "GET",
+          "path": "/dossiers/f91e581a-030d-4327-853a-f8c416dda7ee",
+          "status": 200,
+          "at": "2026-11-05T09:14:25.189Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/dossiers.test.ts",
+      "name": "dossiers over HTTP (ST-DOC-013) AC-ST-DOC-017-2: UAT-AC421 refuses to propose a disposal of a provisional dossier, of one under a legal hold even when its retention is over, and of one not yet due; the proposer does not decide",
+      "status": "passed",
+      "durationMs": 642,
+      "at": "2026-11-05T09:14:30.427Z",
+      "requests": [
+        {
+          "id": "93521c5e-a815-4f90-8a0a-4bde004a6385",
+          "method": "POST",
+          "path": "/dossiers",
+          "status": 200,
+          "at": "2026-11-05T09:14:29.785Z"
+        },
+        {
+          "id": "9031b440-20e5-4915-9d97-393cf64ab1af",
+          "method": "POST",
+          "path": "/dossiers/b3df3acb-1447-4149-b198-6315fad073c1/items",
+          "status": 200,
+          "at": "2026-11-05T09:14:29.805Z"
+        },
+        {
+          "id": "97495cc4-9ae3-403d-a338-d7f83607862c",
+          "method": "POST",
+          "path": "/dossiers/b3df3acb-1447-4149-b198-6315fad073c1/closure",
+          "status": 200,
+          "at": "2026-11-05T09:14:29.823Z"
+        },
+        {
+          "id": "e1728dcb-dae6-437a-afd5-957b68df6eeb",
+          "method": "POST",
+          "path": "/dossiers",
+          "status": 200,
+          "at": "2026-11-05T09:14:29.880Z"
+        },
+        {
+          "id": "576676e2-1ef3-414a-b587-868b28ee0e43",
+          "method": "POST",
+          "path": "/dossiers/9c5a96d4-1dd2-406c-b40d-53b8830ba31b/items",
+          "status": 200,
+          "at": "2026-11-05T09:14:29.902Z"
+        },
+        {
+          "id": "9cc3a4ac-cd50-4ba7-a765-d69b0c3db487",
+          "method": "POST",
+          "path": "/dossiers/9c5a96d4-1dd2-406c-b40d-53b8830ba31b/closure",
+          "status": 200,
+          "at": "2026-11-05T09:14:29.922Z"
+        },
+        {
+          "id": "d28aecc1-14dd-47b9-827b-2d6de00acb7d",
+          "method": "POST",
+          "path": "/dossiers",
+          "status": 200,
+          "at": "2026-11-05T09:14:29.934Z"
+        },
+        {
+          "id": "381cb621-4e32-400b-badc-a01c9afe881e",
+          "method": "POST",
+          "path": "/dossiers/567da777-430e-43d7-b685-ef7c3e48a15f/disposal-proposals",
+          "status": 422,
+          "at": "2026-11-05T09:14:29.948Z"
+        },
+        {
+          "id": "3a3d1d88-cd15-4719-bf72-88f418f41b5e",
+          "method": "POST",
+          "path": "/dossiers/9c5a96d4-1dd2-406c-b40d-53b8830ba31b/disposal-proposals",
+          "status": 422,
+          "at": "2026-11-05T09:14:29.965Z"
+        },
+        {
+          "id": "898606ab-5a89-4fb7-87c7-547a5f581496",
+          "method": "POST",
+          "path": "/dossiers/b3df3acb-1447-4149-b198-6315fad073c1/disposal-proposals",
+          "status": 422,
+          "at": "2026-11-05T09:14:29.979Z"
+        },
+        {
+          "id": "d923e7e1-118e-497d-a9f4-0f90b10fcd92",
+          "method": "POST",
+          "path": "/dossiers/9c5a96d4-1dd2-406c-b40d-53b8830ba31b/disposal-proposals",
+          "status": 409,
+          "at": "2026-11-05T09:14:30.036Z"
+        },
+        {
+          "id": "f28efd4b-039c-41c0-be3c-93b93b7c135a",
+          "method": "GET",
+          "path": "/dossiers/9c5a96d4-1dd2-406c-b40d-53b8830ba31b",
+          "status": 200,
+          "at": "2026-11-05T09:14:30.059Z"
+        },
+        {
+          "id": "698dca91-0a4b-4a02-b8e2-b7dfdd2654c4",
+          "method": "POST",
+          "path": "/dossiers/9c5a96d4-1dd2-406c-b40d-53b8830ba31b/disposal-proposals",
+          "status": 200,
+          "at": "2026-11-05T09:14:30.150Z"
+        },
+        {
+          "id": "c9f38660-db2a-490f-bab6-6228b18eccf4",
+          "method": "GET",
+          "path": "/dossiers/9c5a96d4-1dd2-406c-b40d-53b8830ba31b",
+          "status": 200,
+          "at": "2026-11-05T09:14:30.295Z"
+        },
+        {
+          "id": "91b23d1b-d537-4b40-b6e3-67f5aa20b288",
+          "method": "POST",
+          "path": "/dossiers/9c5a96d4-1dd2-406c-b40d-53b8830ba31b/disposal-proposals",
+          "status": 409,
+          "at": "2026-11-05T09:14:30.301Z"
+        },
+        {
+          "id": "c7c92006-73be-43eb-9005-500204399246",
+          "method": "POST",
+          "path": "/dossiers/9c5a96d4-1dd2-406c-b40d-53b8830ba31b/disposal-decision",
+          "status": 403,
+          "at": "2026-11-05T09:14:30.316Z"
+        },
+        {
+          "id": "8c70c516-0799-468d-8adf-e8cfc720debe",
+          "method": "GET",
+          "path": "/dossiers/9c5a96d4-1dd2-406c-b40d-53b8830ba31b",
+          "status": 200,
+          "at": "2026-11-05T09:14:30.332Z"
+        }
+      ]
+    }
+  ]
+}

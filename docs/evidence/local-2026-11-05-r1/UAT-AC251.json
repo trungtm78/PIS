@@ -1,0 +1,75 @@
+{
+  "id": "UAT-AC251",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/snapshot.test.ts",
+      "name": "the period snapshot over HTTP (ST-DIS-009) freezePeriodSnapshot AC-ST-DIS-009-4 / UAT-AC251: freezes under the version shown with the hash, who and when, keeps one audit row and one snapshot.frozen.v1, and a second freeze is 409 SNAPSHOT_FROZEN",
+      "status": "passed",
+      "durationMs": 1101,
+      "at": "2026-11-05T09:10:31.679Z",
+      "requests": [
+        {
+          "id": "79ea0c73-4fbe-406b-b900-04dd071490b3",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:10:30.919Z"
+        },
+        {
+          "id": "07303345-8f66-4d85-9535-e16ba80966af",
+          "method": "POST",
+          "path": "/reports/826d3013-f167-485d-8c57-1ecbe0501c23/submit",
+          "status": 200,
+          "at": "2026-11-05T09:10:30.941Z"
+        },
+        {
+          "id": "3bc2191f-1971-4dbc-a853-2e59ad17813a",
+          "method": "POST",
+          "path": "/reports/826d3013-f167-485d-8c57-1ecbe0501c23/decision",
+          "status": 200,
+          "at": "2026-11-05T09:10:30.959Z"
+        },
+        {
+          "id": "00d24d83-3d7e-4ad2-8d32-ecfcbad09d5b",
+          "method": "POST",
+          "path": "/period-snapshots",
+          "status": 200,
+          "at": "2026-11-05T09:10:31.152Z"
+        },
+        {
+          "id": "1afe37ad-9e2b-4e1b-bc01-c706e5f83966",
+          "method": "POST",
+          "path": "/period-snapshots/b93c4cb5-70a1-4059-b439-85bc3264ba87/freeze",
+          "status": 428,
+          "at": "2026-11-05T09:10:31.186Z"
+        },
+        {
+          "id": "f90493d4-dde6-4475-b62a-d1d26a059f08",
+          "method": "POST",
+          "path": "/period-snapshots/b93c4cb5-70a1-4059-b439-85bc3264ba87/freeze",
+          "status": 409,
+          "at": "2026-11-05T09:10:31.203Z"
+        },
+        {
+          "id": "a4029290-5b3d-49bf-b963-b9a1168c1347",
+          "method": "POST",
+          "path": "/period-snapshots/b93c4cb5-70a1-4059-b439-85bc3264ba87/freeze",
+          "status": 200,
+          "at": "2026-11-05T09:10:31.222Z"
+        },
+        {
+          "id": "6e4a6cd8-95a8-4ba9-96a9-55847ba2ffdb",
+          "method": "POST",
+          "path": "/period-snapshots/b93c4cb5-70a1-4059-b439-85bc3264ba87/freeze",
+          "status": 409,
+          "at": "2026-11-05T09:10:31.376Z"
+        }
+      ]
+    }
+  ]
+}

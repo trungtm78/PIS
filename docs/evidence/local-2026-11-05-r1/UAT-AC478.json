@@ -1,0 +1,56 @@
+{
+  "id": "UAT-AC478",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-datasets.test.ts",
+      "name": "the versions of the datasets by period (ST-BI-002, BI F2) the build of a period AC-ST-BI-002-1, AC-ST-DGV-004-3: UAT-AC478, UAT-AC51 builds NOT_ASSESSED with no row excluded before DGV has run, then links the run with its 12 quarantined rows, supersedes the first and keeps it",
+      "status": "passed",
+      "durationMs": 331,
+      "at": "2026-11-05T09:18:44.877Z",
+      "requests": [
+        {
+          "id": "49d041b8-010e-4e84-abd9-a207482aa892",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:18:44.641Z"
+        },
+        {
+          "id": "e42dddb4-68fd-42b8-85e4-6f8fe039be00",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:18:44.793Z"
+        },
+        {
+          "id": "13b097e2-2e64-47d2-a729-43f2d5cc5cb7",
+          "method": "GET",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 200,
+          "at": "2026-11-05T09:18:44.815Z"
+        },
+        {
+          "id": "9d65d748-f267-4fba-89a2-374268ba2a2e",
+          "method": "GET",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 200,
+          "at": "2026-11-05T09:18:44.824Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-datasets.test.ts",
+      "name": "the versions of the datasets by period (ST-BI-002, BI F2) the consumer of the events AC-ST-BI-002-1: UAT-AC478 builds the version when a close snapshot freezes (creating the dataset of the tenant), and builds it again with the run linked when DGV completes one",
+      "status": "passed",
+      "durationMs": 410,
+      "at": "2026-11-05T09:18:47.990Z",
+      "requests": []
+    }
+  ]
+}

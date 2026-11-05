@@ -1,0 +1,68 @@
+{
+  "id": "UAT-NFR-SECURITY-05",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/capital-plan.test.ts",
+      "name": "capital plan drafting commands and reads (ST-CAP-002) draftCapitalAllocation lets only one of two planners who save with the same If-Match win and tells the other 409 VERSION_CONFLICT with a safe diff (AC-ST-CAP-002-6, UAT-NFR-SECURITY-05)",
+      "status": "passed",
+      "durationMs": 1319,
+      "at": "2026-11-05T09:18:13.434Z",
+      "requests": [
+        {
+          "id": "3e7c1715-c1b0-4c0c-b874-66c9126b099a",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:18:12.114Z"
+        },
+        {
+          "id": "13d72795-0912-4728-8d7b-23a03fda616a",
+          "method": "POST",
+          "path": "/capital-plans/3d4179af-cd1d-4706-9841-04b6047a862e/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:18:13.286Z"
+        },
+        {
+          "id": "dac4db65-beb0-4cfe-bd62-49941c50f455",
+          "method": "POST",
+          "path": "/capital-plans/3d4179af-cd1d-4706-9841-04b6047a862e/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:18:13.306Z"
+        },
+        {
+          "id": "b8c1e0d8-b8c9-41f5-a695-313915b52ee3",
+          "method": "POST",
+          "path": "/capital-plans/3d4179af-cd1d-4706-9841-04b6047a862e/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:18:13.334Z"
+        },
+        {
+          "id": "809784db-4aa9-4715-bd39-3c886f22c627",
+          "method": "POST",
+          "path": "/capital-plans/3d4179af-cd1d-4706-9841-04b6047a862e/allocations",
+          "status": 409,
+          "at": "2026-11-05T09:18:13.349Z"
+        },
+        {
+          "id": "d32cd118-27c2-48a7-8c52-25929caf0da7",
+          "method": "POST",
+          "path": "/capital-plans/3d4179af-cd1d-4706-9841-04b6047a862e/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:18:13.366Z"
+        },
+        {
+          "id": "b4f08303-4f46-4451-8dad-b6063a4bc58f",
+          "method": "POST",
+          "path": "/capital-plans/3d4179af-cd1d-4706-9841-04b6047a862e/allocations",
+          "status": 409,
+          "at": "2026-11-05T09:18:13.366Z"
+        }
+      ]
+    }
+  ]
+}

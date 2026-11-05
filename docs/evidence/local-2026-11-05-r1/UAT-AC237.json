@@ -1,0 +1,176 @@
+{
+  "id": "UAT-AC237",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/capital-plan.test.ts",
+      "name": "capital plan drafting commands and reads (ST-CAP-002) draftCapitalAllocation reads the lines of the projects in the scope of the reader and refuses to write a project outside the scope of the writer with 404 (AC-ST-CAP-002-5, UAT-AC237)",
+      "status": "passed",
+      "durationMs": 621,
+      "at": "2026-11-05T09:18:12.115Z",
+      "requests": [
+        {
+          "id": "ebbcaa7a-d66d-4eb3-a13b-a1d2d622aee4",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:18:11.493Z"
+        },
+        {
+          "id": "6f1d50a3-63b8-4249-9953-2a191989d3e7",
+          "method": "POST",
+          "path": "/capital-plans/9e8ec981-40ae-41af-b599-a2dc668afe39/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:18:11.932Z"
+        },
+        {
+          "id": "6573b69b-7fcc-454e-941c-3d170cc8ba66",
+          "method": "GET",
+          "path": "/capital-plans/9e8ec981-40ae-41af-b599-a2dc668afe39/lines",
+          "status": 200,
+          "at": "2026-11-05T09:18:11.960Z"
+        },
+        {
+          "id": "ebd1024d-f583-4bbe-8209-5149d5c04716",
+          "method": "GET",
+          "path": "/capital-plans/9e8ec981-40ae-41af-b599-a2dc668afe39/lines",
+          "status": 200,
+          "at": "2026-11-05T09:18:12.003Z"
+        },
+        {
+          "id": "66b78b07-b5d1-4038-84ab-15f4be38f15d",
+          "method": "POST",
+          "path": "/capital-plans/9e8ec981-40ae-41af-b599-a2dc668afe39/allocations",
+          "status": 404,
+          "at": "2026-11-05T09:18:12.038Z"
+        },
+        {
+          "id": "92693e33-9153-4fb9-bd40-3c13cdf1d57e",
+          "method": "POST",
+          "path": "/capital-plans/9e8ec981-40ae-41af-b599-a2dc668afe39/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:18:12.050Z"
+        },
+        {
+          "id": "5c5552d2-8a33-4a73-a7a6-80704bbf9d12",
+          "method": "GET",
+          "path": "/capital-plans/9e8ec981-40ae-41af-b599-a2dc668afe39/lines",
+          "status": 200,
+          "at": "2026-11-05T09:18:12.072Z"
+        },
+        {
+          "id": "d15f5f7d-25fc-483f-b7c3-27c114691644",
+          "method": "POST",
+          "path": "/capital-plans/9e8ec981-40ae-41af-b599-a2dc668afe39/allocations",
+          "status": 404,
+          "at": "2026-11-05T09:18:12.099Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/appropriation.test.ts",
+      "name": "appropriation register commands and reads (ST-CAP-001) registerAppropriation and decideAppropriation needs the permission of each command, the current version, and shows nothing of another tenant (UAT-AC237)",
+      "status": "passed",
+      "durationMs": 673,
+      "at": "2026-11-05T09:21:14.276Z",
+      "requests": [
+        {
+          "id": "d62ba9b8-ff2a-47a2-b72d-feca383d9c17",
+          "method": "POST",
+          "path": "/appropriations",
+          "status": 403,
+          "at": "2026-11-05T09:21:13.708Z"
+        },
+        {
+          "id": "3f4d6dc8-31d2-49be-8bdc-f312e41a7ea6",
+          "method": "POST",
+          "path": "/appropriations",
+          "status": 403,
+          "at": "2026-11-05T09:21:13.791Z"
+        },
+        {
+          "id": "81e9ad55-396e-46ca-9a7b-1dc9918dadbc",
+          "method": "POST",
+          "path": "/appropriations",
+          "status": 403,
+          "at": "2026-11-05T09:21:13.868Z"
+        },
+        {
+          "id": "3fd14239-3fad-464a-ae19-68646ba9ecd8",
+          "method": "POST",
+          "path": "/appropriations",
+          "status": 200,
+          "at": "2026-11-05T09:21:14.101Z"
+        },
+        {
+          "id": "0388d828-bf9b-4df3-87a0-8df2579d4bf5",
+          "method": "POST",
+          "path": "/appropriations/f2f6c753-0c39-43fc-aa87-64342ad7d1ca/decision",
+          "status": 403,
+          "at": "2026-11-05T09:21:14.119Z"
+        },
+        {
+          "id": "46e448d3-3003-42eb-8213-ea2f4e10ac0a",
+          "method": "POST",
+          "path": "/appropriations/f2f6c753-0c39-43fc-aa87-64342ad7d1ca/decision",
+          "status": 403,
+          "at": "2026-11-05T09:21:14.131Z"
+        },
+        {
+          "id": "2f70c0c4-1887-4d1c-8f5f-a6aa587ffcb0",
+          "method": "POST",
+          "path": "/appropriations/f2f6c753-0c39-43fc-aa87-64342ad7d1ca/decision",
+          "status": 409,
+          "at": "2026-11-05T09:21:14.147Z"
+        },
+        {
+          "id": "88972e94-2201-4848-995e-379c7cce2161",
+          "method": "POST",
+          "path": "/appropriations/906663de-b466-4efc-a469-c0e60c043c80/decision",
+          "status": 404,
+          "at": "2026-11-05T09:21:14.168Z"
+        },
+        {
+          "id": "b3b89c5c-ff73-42e1-b13f-3e8e3e19efc5",
+          "method": "POST",
+          "path": "/appropriations/f2f6c753-0c39-43fc-aa87-64342ad7d1ca/decision",
+          "status": 404,
+          "at": "2026-11-05T09:21:14.185Z"
+        },
+        {
+          "id": "62bbfc07-d792-4424-b8fa-885ac2448952",
+          "method": "POST",
+          "path": "/appropriations/f2f6c753-0c39-43fc-aa87-64342ad7d1ca/decision",
+          "status": 422,
+          "at": "2026-11-05T09:21:14.199Z"
+        },
+        {
+          "id": "ae3dcc2f-988a-4510-9ad3-8478f0557383",
+          "method": "POST",
+          "path": "/appropriations/f2f6c753-0c39-43fc-aa87-64342ad7d1ca/decision",
+          "status": 200,
+          "at": "2026-11-05T09:21:14.213Z"
+        },
+        {
+          "id": "f6bfd689-cfb1-472b-a80f-ab77de0ca8bb",
+          "method": "POST",
+          "path": "/appropriations/f2f6c753-0c39-43fc-aa87-64342ad7d1ca/decision",
+          "status": 409,
+          "at": "2026-11-05T09:21:14.234Z"
+        },
+        {
+          "id": "e844011d-c5c2-4ca4-8050-c4838f400f5f",
+          "method": "GET",
+          "path": "/appropriations",
+          "status": 200,
+          "at": "2026-11-05T09:21:14.270Z"
+        }
+      ]
+    }
+  ]
+}

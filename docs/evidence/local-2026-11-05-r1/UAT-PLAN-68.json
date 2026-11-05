@@ -1,0 +1,68 @@
+{
+  "id": "UAT-PLAN-68",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report-decision.test.ts",
+      "name": "the decision on a weekly report and its corrections over HTTP (ST-DIS-006) deleteDraftReport and restoreDraftReport AC-ST-DIS-007-2 / UAT-PLAN-68: after 30 days the restore is 422 RESTORE_WINDOW_EXPIRED and the draft stays deleted; on the last day it is restored",
+      "status": "passed",
+      "durationMs": 384,
+      "at": "2026-11-05T09:15:28.918Z",
+      "requests": [
+        {
+          "id": "d91bba34-9df2-427a-9267-d908b6271bb0",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:15:28.578Z"
+        },
+        {
+          "id": "bb0bc4bd-5039-41fe-b29b-bec8638f77df",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:15:28.715Z"
+        },
+        {
+          "id": "829eb810-fb33-4c92-a2a4-8a036b4d32c6",
+          "method": "POST",
+          "path": "/reports/15323af4-161c-45dd-a53d-fb2664548d22/draft-deletion",
+          "status": 200,
+          "at": "2026-11-05T09:15:28.734Z"
+        },
+        {
+          "id": "a41f602c-69cb-4676-99d2-fe061b8d0acb",
+          "method": "POST",
+          "path": "/reports/e5859b9e-a884-4732-9115-fa75131784d7/draft-deletion",
+          "status": 200,
+          "at": "2026-11-05T09:15:28.764Z"
+        },
+        {
+          "id": "6beabd88-57aa-4ec6-804d-6ceeb01b36c7",
+          "method": "POST",
+          "path": "/reports/e5859b9e-a884-4732-9115-fa75131784d7/draft-restore",
+          "status": 200,
+          "at": "2026-11-05T09:15:28.782Z"
+        },
+        {
+          "id": "eedd1e37-b17b-4477-a53f-788fead3855f",
+          "method": "POST",
+          "path": "/reports/15323af4-161c-45dd-a53d-fb2664548d22/draft-restore",
+          "status": 422,
+          "at": "2026-11-05T09:15:28.797Z"
+        },
+        {
+          "id": "0c0fc792-ee7d-4096-a47f-439d8322e569",
+          "method": "GET",
+          "path": "/reports/15323af4-161c-45dd-a53d-fb2664548d22",
+          "status": 200,
+          "at": "2026-11-05T09:15:28.903Z"
+        }
+      ]
+    }
+  ]
+}

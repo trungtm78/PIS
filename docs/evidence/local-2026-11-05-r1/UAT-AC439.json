@@ -1,0 +1,85 @@
+{
+  "id": "UAT-AC439",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/aud/recovery.test.ts",
+      "name": "the ledger of recoveries over HTTP (ST-AUD-004, AUD-08, AUD-01) linkAuditRecovery AC-ST-AUD-004-2 / UAT-AC439: 80,000,000 posted by two accountants at once on 400,000,000 with 300,000,000 recovered: exactly one is 409 RECOVERY_EXCEEDS_RECOMMENDATION with the figures",
+      "status": "passed",
+      "durationMs": 567,
+      "at": "2026-11-05T09:19:37.880Z",
+      "requests": [
+        {
+          "id": "5e285eca-9136-481c-a0b9-0152525f5229",
+          "method": "POST",
+          "path": "/audit-recommendations/a245af9c-e96d-475d-8b72-d606ed9b8972/recoveries",
+          "status": 200,
+          "at": "2026-11-05T09:19:37.649Z"
+        },
+        {
+          "id": "7f175a88-6c08-403a-861c-4424e6af7036",
+          "method": "POST",
+          "path": "/audit-recommendations/a245af9c-e96d-475d-8b72-d606ed9b8972/recoveries",
+          "status": 409,
+          "at": "2026-11-05T09:19:37.648Z"
+        },
+        {
+          "id": "fce35564-5412-4660-9b85-972fe41d6b8d",
+          "method": "POST",
+          "path": "/audit-recommendations/a245af9c-e96d-475d-8b72-d606ed9b8972/recoveries",
+          "status": 409,
+          "at": "2026-11-05T09:19:37.860Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/aud/recovery.test.ts",
+      "name": "the ledger of recoveries over HTTP (ST-AUD-004, AUD-08, AUD-01) reverseAuditRecovery AC-ST-AUD-004-2 / UAT-AC439: a reversal adds a line of -80,000,000 and deletes nothing, the same line is not reversed twice (409), and the money is free again",
+      "status": "passed",
+      "durationMs": 564,
+      "at": "2026-11-05T09:19:38.913Z",
+      "requests": [
+        {
+          "id": "d2f35b55-d487-4151-8412-9b3060a047c2",
+          "method": "POST",
+          "path": "/audit-recommendations/0bc81822-9187-43a5-ae97-82ca2ccef8fc/recoveries",
+          "status": 200,
+          "at": "2026-11-05T09:19:38.605Z"
+        },
+        {
+          "id": "3ee1effd-7466-42ed-b384-c5fe222e56d7",
+          "method": "POST",
+          "path": "/audit-recovery-links/481d671a-1463-4dbd-982b-f15e4e471d1c/reversal",
+          "status": 200,
+          "at": "2026-11-05T09:19:38.641Z"
+        },
+        {
+          "id": "078d2246-49ae-4e52-865a-61316308c372",
+          "method": "POST",
+          "path": "/audit-recovery-links/481d671a-1463-4dbd-982b-f15e4e471d1c/reversal",
+          "status": 409,
+          "at": "2026-11-05T09:19:38.771Z"
+        },
+        {
+          "id": "bd9ddd45-85d1-4704-ae5d-e00eff626432",
+          "method": "POST",
+          "path": "/audit-recovery-links/22405b93-f798-428b-942a-4e78f2a0ad28/reversal",
+          "status": 422,
+          "at": "2026-11-05T09:19:38.787Z"
+        },
+        {
+          "id": "d0f07dfd-1c40-4a96-bc77-be63f75d7736",
+          "method": "POST",
+          "path": "/audit-recommendations/0bc81822-9187-43a5-ae97-82ca2ccef8fc/recoveries",
+          "status": 200,
+          "at": "2026-11-05T09:19:38.849Z"
+        }
+      ]
+    }
+  ]
+}

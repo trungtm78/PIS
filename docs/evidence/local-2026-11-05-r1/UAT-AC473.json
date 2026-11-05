@@ -1,0 +1,133 @@
+{
+  "id": "UAT-AC473",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-queries.test.ts",
+      "name": "the queries of BI and the drill under them (ST-BI-004, BI F3, F4) closed by default, and what a policy hides AC-ST-BI-003-1: UAT-AC473 refuses (403 ACCESS_POLICY_MISSING) a reader no active policy covers, keeps the refusal as a record and gives it again to the same key",
+      "status": "passed",
+      "durationMs": 182,
+      "at": "2026-11-05T09:18:02.485Z",
+      "requests": [
+        {
+          "id": "19c058ae-26b4-4896-b418-9aef3aef2b14",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:18:02.387Z"
+        },
+        {
+          "id": "c54d2abf-b25b-4393-a493-b6bb6305a4e3",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 403,
+          "at": "2026-11-05T09:18:02.414Z"
+        },
+        {
+          "id": "7f9111d2-4e63-49e4-8bf0-6fa54606ed98",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 403,
+          "at": "2026-11-05T09:18:02.438Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-queries.test.ts",
+      "name": "the queries of BI and the drill under them (ST-BI-004, BI F3, F4) closed by default, and what a policy hides AC-ST-BI-003-1: UAT-AC473 answers only the rows a policy allows, and does not offer a dimension it hides",
+      "status": "passed",
+      "durationMs": 225,
+      "at": "2026-11-05T09:18:02.710Z",
+      "requests": [
+        {
+          "id": "b7b04fce-c685-42cd-8b75-d249798916e8",
+          "method": "POST",
+          "path": "/bi/datasets/00000000-0000-4000-8000-0000000000d1/versions",
+          "status": 202,
+          "at": "2026-11-05T09:18:02.575Z"
+        },
+        {
+          "id": "48a04faa-be07-4e04-a3ce-a32b0277b232",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:18:02.645Z"
+        },
+        {
+          "id": "6383ec8a-9ab1-4f1b-a34f-2b77c17bd23b",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 422,
+          "at": "2026-11-05T09:18:02.669Z"
+        },
+        {
+          "id": "857cdbe6-320a-4a3a-9c36-4a9134bafa86",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 422,
+          "at": "2026-11-05T09:18:02.692Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-policies.test.ts",
+      "name": "the access policies of BI (ST-BI-003, BI BR-BI-05) drafting a policy AC-ST-BI-003-1: UAT-AC473 drafts a policy that allows nothing until it is activated, with the revision of the dataset and grantee, and lists it",
+      "status": "passed",
+      "durationMs": 170,
+      "at": "2026-11-05T09:22:34.861Z",
+      "requests": [
+        {
+          "id": "06d08f82-38e9-4a12-8315-f7f78056f576",
+          "method": "POST",
+          "path": "/bi/access-policies",
+          "status": 200,
+          "at": "2026-11-05T09:22:34.740Z"
+        },
+        {
+          "id": "2b9d8036-c8de-48f2-85ee-5f1245da0890",
+          "method": "POST",
+          "path": "/bi/access-policies",
+          "status": 200,
+          "at": "2026-11-05T09:22:34.819Z"
+        },
+        {
+          "id": "a1b0457c-2c47-4b1e-b52a-a5da9db6618f",
+          "method": "GET",
+          "path": "/bi/access-policies",
+          "status": 200,
+          "at": "2026-11-05T09:22:34.830Z"
+        },
+        {
+          "id": "519a5556-da01-417a-bb2b-3969eeae2005",
+          "method": "GET",
+          "path": "/bi/access-policies",
+          "status": 200,
+          "at": "2026-11-05T09:22:34.846Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-policies.test.ts",
+      "name": "the access policies of BI (ST-BI-003, BI BR-BI-05) closed by default, and activation by someone else AC-ST-BI-003-1: UAT-AC473 refuses (403 ACCESS_POLICY_MISSING, never an empty set) until a policy is active, refuses the author activating it (SELF_APPROVAL_DENIED), and then applies it with account_no hidden",
+      "status": "passed",
+      "durationMs": 70,
+      "at": "2026-11-05T09:22:35.358Z",
+      "requests": [
+        {
+          "id": "5fb28506-9114-4f2b-894b-ce5d9729d353",
+          "method": "POST",
+          "path": "/bi/access-policies",
+          "status": 200,
+          "at": "2026-11-05T09:22:35.333Z"
+        }
+      ]
+    }
+  ]
+}

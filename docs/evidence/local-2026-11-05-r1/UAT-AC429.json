@@ -1,0 +1,85 @@
+{
+  "id": "UAT-AC429",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/incoming.test.ts",
+      "name": "incoming documents over HTTP (ST-DOC-011) AC-ST-DOC-011-3: UAT-AC429 takes in no letter that declares a level of state secret, creates nothing, and audits the refusal as DENIED",
+      "status": "passed",
+      "durationMs": 403,
+      "at": "2026-11-05T09:15:08.270Z",
+      "requests": [
+        {
+          "id": "cd67158a-acce-403b-a614-e3ba4f215180",
+          "method": "POST",
+          "path": "/incoming-documents",
+          "status": 422,
+          "at": "2026-11-05T09:15:07.968Z"
+        },
+        {
+          "id": "8521a11b-af8f-4288-8845-04a3a97275b1",
+          "method": "POST",
+          "path": "/incoming-documents",
+          "status": 422,
+          "at": "2026-11-05T09:15:08.035Z"
+        },
+        {
+          "id": "d2e1a951-8b2e-446f-bb20-085f208956b2",
+          "method": "POST",
+          "path": "/incoming-documents",
+          "status": 422,
+          "at": "2026-11-05T09:15:08.059Z"
+        },
+        {
+          "id": "0f008d04-fa83-47b1-b795-1e5f9508f0e7",
+          "method": "POST",
+          "path": "/incoming-documents",
+          "status": 200,
+          "at": "2026-11-05T09:15:08.241Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/outgoing-drafts.test.ts",
+      "name": "outgoing documents: compose, review and submit for signature (ST-DOC-007) createOutgoingDocument declares a state secret as not supported: no row, no file, a DENIED audit entry (AC-ST-DOC-007-4, UAT-AC429)",
+      "status": "passed",
+      "durationMs": 351,
+      "at": "2026-11-05T09:15:47.565Z",
+      "requests": [
+        {
+          "id": "947793c9-06da-4529-b36f-eb7a460780f7",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 422,
+          "at": "2026-11-05T09:15:47.313Z"
+        },
+        {
+          "id": "8c5f30fe-57bb-4c35-a1c1-1bfd296cf911",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 422,
+          "at": "2026-11-05T09:15:47.367Z"
+        },
+        {
+          "id": "ff676b8e-14a2-4ef2-862a-802be6f53546",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 422,
+          "at": "2026-11-05T09:15:47.388Z"
+        },
+        {
+          "id": "f4c17c60-8026-452e-9549-b798b7ee701e",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:15:47.535Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": "UAT-AC18",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-finops.test.ts",
+      "name": "the reservation, the settlement and the reconciliation of a budget (ST-LLM-003, LLM F3) AC-ST-LLM-003-1: UAT-AC18 lets exactly one of two concurrent 400,000 jobs through a limit of 1,000,000 with 300,000 settled, refuses a third of 350,000, settles the held one at 180,000 and keeps a timed out one pending",
+      "status": "passed",
+      "durationMs": 773,
+      "at": "2026-11-05T09:15:23.564Z",
+      "requests": [
+        {
+          "id": "7a7d93f5-2408-49f1-8f9b-4d2e0d3bb87f",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:15:23.135Z"
+        },
+        {
+          "id": "5837d259-7330-44db-9e76-229640cb6a60",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:15:23.180Z"
+        },
+        {
+          "id": "fe953322-85d4-49a6-a735-cf2c8e65b59b",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:15:23.233Z"
+        }
+      ]
+    }
+  ]
+}

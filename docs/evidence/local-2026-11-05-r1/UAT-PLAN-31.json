@@ -1,0 +1,645 @@
+{
+  "id": "UAT-PLAN-31",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/resettlement.test.ts",
+      "name": "the allocation of resettlement to the households (ST-LND-012, UAT-PLAN-31) is registered in the module of LND",
+      "status": "passed",
+      "durationMs": 1,
+      "at": "2026-11-05T09:17:13.251Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/resettlement.test.ts",
+      "name": "the allocation of resettlement to the households (ST-LND-012, UAT-PLAN-31) AC-ST-LND-012-1, UAT-PLAN-31: allocates a plot on an item of an approved plan, and refuses a second allocation of the plot",
+      "status": "passed",
+      "durationMs": 561,
+      "at": "2026-11-05T09:17:13.812Z",
+      "requests": [
+        {
+          "id": "8eb7b09d-4048-41dd-8338-2d2222642503",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.633Z"
+        },
+        {
+          "id": "b3dff961-b5c1-4445-a597-7682f5ae65b5",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 409,
+          "at": "2026-11-05T09:17:13.713Z"
+        },
+        {
+          "id": "b6b6e122-79c9-485f-ab2f-3c81272a0010",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:13.783Z"
+        },
+        {
+          "id": "239000e0-d55b-4bdf-a3fd-b6970a91ccee",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:13.800Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/resettlement.test.ts",
+      "name": "the allocation of resettlement to the households (ST-LND-012, UAT-PLAN-31) writes one audit row of personal data with ids only, and one event, and none for a refusal",
+      "status": "passed",
+      "durationMs": 359,
+      "at": "2026-11-05T09:17:14.172Z",
+      "requests": [
+        {
+          "id": "25b02b40-b59f-4551-9a48-76f98bd91873",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:14.048Z"
+        },
+        {
+          "id": "961c9366-e960-4b90-bfe1-63a5c892b051",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:14.074Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/resettlement.test.ts",
+      "name": "the allocation of resettlement to the households (ST-LND-012, UAT-PLAN-31) refuses a household that is not eligible, and says why: no plan item, an item of another household, a plan not approved, an item that is not resettlement, a kind of unit the item does not give",
+      "status": "passed",
+      "durationMs": 947,
+      "at": "2026-11-05T09:17:15.118Z",
+      "requests": [
+        {
+          "id": "a6256d19-921c-4151-9827-81b175e51a45",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:14.961Z"
+        },
+        {
+          "id": "7e5b3860-aae0-41b7-a958-7f76ee099d74",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:14.982Z"
+        },
+        {
+          "id": "a49875e4-5d41-44fc-9663-3c294bde389b",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:14.998Z"
+        },
+        {
+          "id": "7d6ec6e7-492f-4225-b9e0-5d2d5703d507",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:15.017Z"
+        },
+        {
+          "id": "d04003ee-a7d9-4496-bd6f-c642b7e6bf9a",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:15.031Z"
+        },
+        {
+          "id": "de5efe45-4398-43ed-918e-a6ef8edd866f",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:15.046Z"
+        },
+        {
+          "id": "e373c9e3-ed8c-4c01-a49a-8e58badb1886",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:15.059Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/resettlement.test.ts",
+      "name": "the allocation of resettlement to the households (ST-LND-012, UAT-PLAN-31) lets a house item give a house or a flat and not a plot",
+      "status": "passed",
+      "durationMs": 503,
+      "at": "2026-11-05T09:17:15.622Z",
+      "requests": [
+        {
+          "id": "082e8c54-1cdd-4741-8a4b-c309b353db92",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:15.374Z"
+        },
+        {
+          "id": "aa376442-d0bf-447d-8ba5-888358417a21",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:15.601Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/resettlement.test.ts",
+      "name": "the allocation of resettlement to the households (ST-LND-012, UAT-PLAN-31) wants what an allocation names (422 naming the field): a kind of the list, a code and a site within their length, an area above zero, a rank from one, and the unit of the household",
+      "status": "passed",
+      "durationMs": 392,
+      "at": "2026-11-05T09:17:16.014Z",
+      "requests": [
+        {
+          "id": "2d60233a-11ca-4a60-ab14-8ef60992348b",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:15.816Z"
+        },
+        {
+          "id": "0fb04f40-92d8-4973-9642-5e0877c2f5a5",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:15.823Z"
+        },
+        {
+          "id": "1f6933d8-49bf-499f-b95a-ec27f3d76d65",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:15.843Z"
+        },
+        {
+          "id": "30e7f802-9277-43b1-8ae0-5337d1ffe873",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:15.859Z"
+        },
+        {
+          "id": "68e0224b-d74c-4113-a7b7-eed06d3fd09c",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:15.870Z"
+        },
+        {
+          "id": "1e5bdeef-2ec5-4e98-a101-7fd4d175948d",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:15.890Z"
+        },
+        {
+          "id": "f78a3952-1001-4f0d-bc44-b84ae075eb4e",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:15.904Z"
+        },
+        {
+          "id": "b4e9d2b5-7233-4bd5-939a-e7310a939a5b",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:15.911Z"
+        },
+        {
+          "id": "2f890b36-61b5-4041-a5a4-5340e32309fe",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:15.920Z"
+        },
+        {
+          "id": "6e0af3a8-a0ca-4014-b2e1-cbeedbea1ddd",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:15.937Z"
+        },
+        {
+          "id": "672df65d-ce9a-4410-b7ca-d06880bbe591",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:15.956Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/resettlement.test.ts",
+      "name": "the allocation of resettlement to the households (ST-LND-012, UAT-PLAN-31) is limited to the units of the caller: a household of another unit is not found (404), and so is every household for a grant on the project alone; without the right it is 403",
+      "status": "passed",
+      "durationMs": 814,
+      "at": "2026-11-05T09:17:16.828Z",
+      "requests": [
+        {
+          "id": "0b9e19dc-1a7e-46f3-9e9a-a0fd79c4679a",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:16.433Z"
+        },
+        {
+          "id": "1f5271ee-5fae-4d0f-8759-1181e66770f7",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 404,
+          "at": "2026-11-05T09:17:16.456Z"
+        },
+        {
+          "id": "aef759c3-e0db-4057-b48e-2b0bf405b7a2",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 404,
+          "at": "2026-11-05T09:17:16.708Z"
+        },
+        {
+          "id": "4380e4ca-e3e5-42cc-9b84-665bb3315aaa",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 403,
+          "at": "2026-11-05T09:17:16.721Z"
+        },
+        {
+          "id": "fbb04e01-6713-4b62-9f12-25d9c6b55697",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 403,
+          "at": "2026-11-05T09:17:16.735Z"
+        },
+        {
+          "id": "eafe9e90-3c4a-475e-a907-222393635e6e",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 404,
+          "at": "2026-11-05T09:17:16.741Z"
+        },
+        {
+          "id": "19e02fd4-1586-419d-b9f2-653f0588cbd5",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:16.795Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/resettlement.test.ts",
+      "name": "the allocation of resettlement to the households (ST-LND-012, UAT-PLAN-31) serialises two allocations asked for at once: of one plot only one household takes it, of one item only one plot is given",
+      "status": "passed",
+      "durationMs": 795,
+      "at": "2026-11-05T09:17:17.623Z",
+      "requests": [
+        {
+          "id": "d15dda96-f2e0-4be5-ad28-f15d599743b8",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:17.268Z"
+        },
+        {
+          "id": "fdc4293e-1e15-4648-bf32-7efa8dec8f53",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 409,
+          "at": "2026-11-05T09:17:17.268Z"
+        },
+        {
+          "id": "cf685d56-372a-4a20-a538-af154fb0ec4c",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:17.598Z"
+        },
+        {
+          "id": "e910065a-565c-4686-8e9f-657feb012599",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:17.598Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/resettlement.test.ts",
+      "name": "the allocation of resettlement to the households (ST-LND-012, UAT-PLAN-31) lists the allocations of the project inside the units of the reader with the household masked, and the candidates that have no unit yet",
+      "status": "passed",
+      "durationMs": 819,
+      "at": "2026-11-05T09:17:18.443Z",
+      "requests": [
+        {
+          "id": "a11a906e-6264-42da-ad6e-862774efead3",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:18.299Z"
+        },
+        {
+          "id": "cd2ed6cc-2a43-4bb2-aa96-d85370a209b8",
+          "method": "GET",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:18.331Z"
+        },
+        {
+          "id": "e1d86082-3727-41d4-9791-4b0c75aa1dea",
+          "method": "GET",
+          "path": "/resettlement-allocations/candidates",
+          "status": 200,
+          "at": "2026-11-05T09:17:18.338Z"
+        },
+        {
+          "id": "c70d0246-fbcc-4a2b-b7df-f73842ef8b75",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:18.352Z"
+        },
+        {
+          "id": "6f945864-497e-412b-b627-557e752929cd",
+          "method": "GET",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:18.374Z"
+        },
+        {
+          "id": "cbd0ca0d-1bde-445a-89b7-e1b855f52840",
+          "method": "GET",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:18.382Z"
+        },
+        {
+          "id": "a4d70aef-ea05-4e43-8612-1cb97c140b94",
+          "method": "GET",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:18.396Z"
+        },
+        {
+          "id": "69bd9426-a122-47ab-aacd-a5caf6bff268",
+          "method": "GET",
+          "path": "/resettlement-allocations/candidates",
+          "status": 403,
+          "at": "2026-11-05T09:17:18.416Z"
+        },
+        {
+          "id": "ae1df972-08ee-475c-98d4-01c8a06b26df",
+          "method": "GET",
+          "path": "/resettlement-allocations",
+          "status": 403,
+          "at": "2026-11-05T09:17:18.427Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/resettlement.test.ts",
+      "name": "the allocation of resettlement to the households (ST-LND-012, UAT-PLAN-31) pages and filters the list, and refuses a query that is not one",
+      "status": "passed",
+      "durationMs": 832,
+      "at": "2026-11-05T09:17:19.275Z",
+      "requests": [
+        {
+          "id": "0570694f-0ffb-49d9-be9b-c48f9a1795dd",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:18.681Z"
+        },
+        {
+          "id": "eb972b3c-e15a-43f2-ba6a-6dc12d67824c",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:18.954Z"
+        },
+        {
+          "id": "c68efae2-adbb-476d-89e4-815ccb94802b",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:19.163Z"
+        },
+        {
+          "id": "48dd61cc-20f9-432b-baeb-97e5dd84d121",
+          "method": "GET",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:19.186Z"
+        },
+        {
+          "id": "900d23a1-0c0a-4f06-92a8-b0ab191d3abc",
+          "method": "GET",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:19.198Z"
+        },
+        {
+          "id": "81b4e09b-f7b3-4eb3-ab35-87ebe40c396a",
+          "method": "GET",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:19.213Z"
+        },
+        {
+          "id": "d93daabf-1892-40c5-872e-11940f8efb51",
+          "method": "GET",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:19.228Z"
+        },
+        {
+          "id": "0624065b-db47-4a8c-a183-2e435587c0b8",
+          "method": "GET",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:19.245Z"
+        },
+        {
+          "id": "59cd3dbe-e22c-473b-8455-ea43ec4d69a2",
+          "method": "GET",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:19.249Z"
+        },
+        {
+          "id": "30cc4712-91c2-49a5-9984-15f89e727fee",
+          "method": "GET",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:19.253Z"
+        },
+        {
+          "id": "c771d418-b14f-4b95-b7c4-5fc28636783c",
+          "method": "GET",
+          "path": "/resettlement-allocations/candidates",
+          "status": 422,
+          "at": "2026-11-05T09:17:19.259Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/resettlement.test.ts",
+      "name": "the allocation of resettlement to the households (ST-LND-012, UAT-PLAN-31) pages the candidates by household code instead of cutting them: every item that waits for a unit is reached",
+      "status": "passed",
+      "durationMs": 720,
+      "at": "2026-11-05T09:17:19.995Z",
+      "requests": [
+        {
+          "id": "1eb2bb57-fe5f-4661-981b-13405c206ac5",
+          "method": "GET",
+          "path": "/resettlement-allocations/candidates",
+          "status": 200,
+          "at": "2026-11-05T09:17:19.908Z"
+        },
+        {
+          "id": "680a417a-f201-414b-87ae-2fbcb9b7ea4c",
+          "method": "GET",
+          "path": "/resettlement-allocations/candidates",
+          "status": 200,
+          "at": "2026-11-05T09:17:19.919Z"
+        },
+        {
+          "id": "985ec811-ce25-43e5-bbfd-da724a692eff",
+          "method": "GET",
+          "path": "/resettlement-allocations/candidates",
+          "status": 200,
+          "at": "2026-11-05T09:17:19.935Z"
+        },
+        {
+          "id": "c1741642-2c74-46cc-b405-e92799e833ca",
+          "method": "GET",
+          "path": "/resettlement-allocations/candidates",
+          "status": 200,
+          "at": "2026-11-05T09:17:19.953Z"
+        },
+        {
+          "id": "e8d3fe1b-68ab-4296-afef-5e550c00f330",
+          "method": "GET",
+          "path": "/resettlement-allocations/candidates",
+          "status": 200,
+          "at": "2026-11-05T09:17:19.968Z"
+        },
+        {
+          "id": "6b62e96f-1733-4c2c-aba2-1967c7a07731",
+          "method": "GET",
+          "path": "/resettlement-allocations/candidates",
+          "status": 422,
+          "at": "2026-11-05T09:17:19.978Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/resettlement.test.ts",
+      "name": "the allocation of resettlement to the households (ST-LND-012, UAT-PLAN-31) follows what a household was given through the revisions of its plan: the copy of an item that was allocated is not offered again, and is refused",
+      "status": "passed",
+      "durationMs": 999,
+      "at": "2026-11-05T09:17:20.995Z",
+      "requests": [
+        {
+          "id": "376eccf8-ac1a-4b29-850e-d9c5eefa9e82",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:20.242Z"
+        },
+        {
+          "id": "b3781895-46cf-4672-8a7c-10f6d1a5f010",
+          "method": "GET",
+          "path": "/resettlement-allocations/candidates",
+          "status": 200,
+          "at": "2026-11-05T09:17:20.864Z"
+        },
+        {
+          "id": "72798917-fae2-4582-af31-871ce7f0a8af",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:20.879Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/resettlement.test.ts",
+      "name": "the allocation of resettlement to the households (ST-LND-012, UAT-PLAN-31) waits for the revision of a plan that is under way and then refuses the plan it made REVISED: the plan is locked with the item",
+      "status": "passed",
+      "durationMs": 2189,
+      "at": "2026-11-05T09:17:23.185Z",
+      "requests": [
+        {
+          "id": "2397568c-896d-44e7-9bdb-826e4c774bbe",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 422,
+          "at": "2026-11-05T09:17:21.616Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/resettlement.test.ts",
+      "name": "the allocation of resettlement to the households (ST-LND-012, UAT-PLAN-31) is kept by the database as well: one unit and one item are held once, what was allocated does not change, a final allocation stays, and nothing is deleted",
+      "status": "passed",
+      "durationMs": 1377,
+      "at": "2026-11-05T09:17:24.561Z",
+      "requests": [
+        {
+          "id": "6a2389ec-7f22-43e2-8214-5d143a7df9f6",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:23.412Z"
+        },
+        {
+          "id": "c2a91de6-d0fe-4d0b-a000-aed791062c3c",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:24.191Z"
+        },
+        {
+          "id": "20d5d03b-8600-4027-b6e7-c9a680976cdd",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:24.520Z"
+        },
+        {
+          "id": "e7c1f599-30bc-47be-ada2-a796b3d12131",
+          "method": "POST",
+          "path": "/resettlement-allocations",
+          "status": 200,
+          "at": "2026-11-05T09:17:24.543Z"
+        }
+      ]
+    }
+  ]
+}

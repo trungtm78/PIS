@@ -1,0 +1,75 @@
+{
+  "id": "UAT-AC420",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/incoming.test.ts",
+      "name": "incoming documents over HTTP (ST-DOC-011) AC-ST-DOC-011-2: UAT-AC420 marks a letter overdue once after its deadline, tells NOT how late it is, and lets the handler resolve it late with the lateness recorded",
+      "status": "passed",
+      "durationMs": 506,
+      "at": "2026-11-05T09:15:07.496Z",
+      "requests": [
+        {
+          "id": "86a50e47-9504-472f-b294-ef193566e635",
+          "method": "POST",
+          "path": "/incoming-documents",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.994Z"
+        },
+        {
+          "id": "af00caea-5f86-4927-8b69-804886879ae1",
+          "method": "POST",
+          "path": "/incoming-documents/a6530ce4-6446-4749-97d0-401c0360e943/registration",
+          "status": 200,
+          "at": "2026-11-05T09:15:07.022Z"
+        },
+        {
+          "id": "612bd41f-c747-4bbc-a836-98023d0545d6",
+          "method": "POST",
+          "path": "/incoming-documents/a6530ce4-6446-4749-97d0-401c0360e943/assignment",
+          "status": 200,
+          "at": "2026-11-05T09:15:07.035Z"
+        },
+        {
+          "id": "838640aa-36ea-47b4-b73b-64ef2d8fdb5f",
+          "method": "POST",
+          "path": "/incoming-documents/a6530ce4-6446-4749-97d0-401c0360e943/processing",
+          "status": 200,
+          "at": "2026-11-05T09:15:07.046Z"
+        },
+        {
+          "id": "5b47369b-936e-4d5e-a531-b2c9b65f1f93",
+          "method": "GET",
+          "path": "/incoming-documents/a6530ce4-6446-4749-97d0-401c0360e943",
+          "status": 200,
+          "at": "2026-11-05T09:15:07.265Z"
+        },
+        {
+          "id": "f626680c-9614-4d9c-8d9f-eb4095036094",
+          "method": "GET",
+          "path": "/incoming-documents",
+          "status": 200,
+          "at": "2026-11-05T09:15:07.290Z"
+        },
+        {
+          "id": "ed24a86d-4b58-4b79-b18c-f4dd3bae9673",
+          "method": "POST",
+          "path": "/incoming-documents/a6530ce4-6446-4749-97d0-401c0360e943/resolution",
+          "status": 200,
+          "at": "2026-11-05T09:15:07.349Z"
+        },
+        {
+          "id": "a57afc6a-5a52-42e7-a508-28c6b6e6590c",
+          "method": "GET",
+          "path": "/incoming-documents/a6530ce4-6446-4749-97d0-401c0360e943",
+          "status": 200,
+          "at": "2026-11-05T09:15:07.484Z"
+        }
+      ]
+    }
+  ]
+}

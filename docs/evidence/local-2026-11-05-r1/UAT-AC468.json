@@ -1,0 +1,187 @@
+{
+  "id": "UAT-AC468",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-gateway.test.ts",
+      "name": "the decisions of people about what an AI answered (ST-LLM-006, LLM F8, LLM-20) AC-ST-LLM-006-2: UAT-AC468 asks the command that uses an answer for a decision of a person: none is 422 AI_DECISION_REQUIRED, one about another answer 422 AI_OUTPUT_HASH_MISMATCH, then it succeeds and says what it did, once",
+      "status": "passed",
+      "durationMs": 1334,
+      "at": "2026-11-05T09:11:14.665Z",
+      "requests": [
+        {
+          "id": "aa57c5fd-af27-49ee-b510-9bf71eab7eec",
+          "method": "POST",
+          "path": "/ai-classification-policies",
+          "status": 200,
+          "at": "2026-11-05T09:11:13.653Z"
+        },
+        {
+          "id": "a2e55047-30a2-48d4-a571-ccaa8cb7a063",
+          "method": "POST",
+          "path": "/ai-classification-policies/15c90c4d-577c-4c46-8266-58c254a83dfa/publish",
+          "status": 200,
+          "at": "2026-11-05T09:11:13.675Z"
+        },
+        {
+          "id": "3a1ca612-5af4-43c9-94b3-035a6f14194c",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:11:13.738Z"
+        },
+        {
+          "id": "fdd16b20-9f6c-4e8c-b626-d62295867b9f",
+          "method": "POST",
+          "path": "/ai-providers/dd56ce93-8b5f-4663-a424-df4ef5505b2f/activation",
+          "status": 200,
+          "at": "2026-11-05T09:11:13.752Z"
+        },
+        {
+          "id": "4096e357-2d3f-4e09-94fe-fe9ed87f17e4",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:11:13.768Z"
+        },
+        {
+          "id": "e5cf8d27-1542-432d-a418-35828b264e4e",
+          "method": "POST",
+          "path": "/ai-models/090e548b-2da2-4fab-a259-d1a27514dc95/approval",
+          "status": 200,
+          "at": "2026-11-05T09:11:13.784Z"
+        },
+        {
+          "id": "817d3b1e-7c93-4e0a-abc0-fa863f049b4d",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:11:13.803Z"
+        },
+        {
+          "id": "7e505c20-a76e-4e45-bed5-7d56153f33f6",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:11:13.863Z"
+        },
+        {
+          "id": "1433e204-dcc1-4b09-985b-b82737b6669e",
+          "method": "POST",
+          "path": "/ai-providers/39d6cef5-a899-401f-9836-038e0b6c6f3e/activation",
+          "status": 200,
+          "at": "2026-11-05T09:11:13.881Z"
+        },
+        {
+          "id": "85bed62e-cea3-42f5-8e98-e1c3779812dc",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:11:13.896Z"
+        },
+        {
+          "id": "f45ab8d7-1743-46c6-aece-20fc172d1d15",
+          "method": "POST",
+          "path": "/ai-models/82c67071-32dc-459e-9d0b-cd163584c824/approval",
+          "status": 200,
+          "at": "2026-11-05T09:11:13.912Z"
+        },
+        {
+          "id": "adfb688a-65a7-4ae8-b0d5-6064ebc8d966",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:11:13.930Z"
+        },
+        {
+          "id": "ba830550-8f24-4a73-81a0-349b20e6fbbb",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:11:13.944Z"
+        },
+        {
+          "id": "d006ada5-7de4-4351-b6f4-3aeaaa7ba76a",
+          "method": "POST",
+          "path": "/ai-providers/df351ed8-fc40-4ef5-b68c-b2433978b1d1/activation",
+          "status": 200,
+          "at": "2026-11-05T09:11:13.959Z"
+        },
+        {
+          "id": "38adda7f-db5d-4dbd-a2f9-f9c0262d805e",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:11:13.978Z"
+        },
+        {
+          "id": "6c0efa89-569d-49f2-9b37-a2a8606bb70a",
+          "method": "POST",
+          "path": "/ai-models/ea1487b9-6050-4dbb-96fc-9a716b27f57f/approval",
+          "status": 200,
+          "at": "2026-11-05T09:11:13.993Z"
+        },
+        {
+          "id": "c8757de5-b3f8-41ab-a6fc-5d292a367b1d",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:11:14.008Z"
+        },
+        {
+          "id": "d660088b-4f4e-4528-993e-83452fd61f2b",
+          "method": "POST",
+          "path": "/ai-prompts",
+          "status": 200,
+          "at": "2026-11-05T09:11:14.027Z"
+        },
+        {
+          "id": "7416be04-95fd-45e5-ac15-1f4dfacd5060",
+          "method": "POST",
+          "path": "/ai-prompts/fc1abd16-387c-419a-87aa-cfd2fb311587/approval",
+          "status": 200,
+          "at": "2026-11-05T09:11:14.040Z"
+        },
+        {
+          "id": "5c23749d-5e03-4317-885f-1267744553ff",
+          "method": "POST",
+          "path": "/ai/requests",
+          "status": 202,
+          "at": "2026-11-05T09:11:14.185Z"
+        },
+        {
+          "id": "9b851d93-5dd4-42b8-ab2a-71de0db75bbd",
+          "method": "POST",
+          "path": "/ai-decisions",
+          "status": 422,
+          "at": "2026-11-05T09:11:14.257Z"
+        },
+        {
+          "id": "7194ef47-1987-46d9-8fc5-3620b3a50766",
+          "method": "POST",
+          "path": "/ai-decisions",
+          "status": 422,
+          "at": "2026-11-05T09:11:14.282Z"
+        },
+        {
+          "id": "bdfd984d-bc1d-4854-b794-86eabde62051",
+          "method": "POST",
+          "path": "/ai-decisions",
+          "status": 200,
+          "at": "2026-11-05T09:11:14.291Z"
+        },
+        {
+          "id": "2bdb0aa9-e0a2-4b9d-917c-00c95170e8b1",
+          "method": "POST",
+          "path": "/ai-decisions",
+          "status": 200,
+          "at": "2026-11-05T09:11:14.315Z"
+        }
+      ]
+    }
+  ]
+}

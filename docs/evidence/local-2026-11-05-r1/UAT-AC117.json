@@ -1,0 +1,33 @@
+{
+  "id": "UAT-AC117",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/delegation.test.ts",
+      "name": "the delegation of approval authority over HTTP (ST-ADM-014) AC-ST-ADM-014-2, UAT-AC117: a delegate who is the maker of the record is refused (403 SELF_APPROVAL_DENIED) and the task stays with the delegator",
+      "status": "passed",
+      "durationMs": 141,
+      "at": "2026-11-05T09:21:57.450Z",
+      "requests": [
+        {
+          "id": "2a1cb1eb-d9ee-43b6-bb72-9948fb3d6e8c",
+          "method": "POST",
+          "path": "/delegations",
+          "status": 201,
+          "at": "2026-11-05T09:21:57.310Z"
+        },
+        {
+          "id": "ec0a6cd1-73eb-499a-b174-7972b8fab01b",
+          "method": "POST",
+          "path": "/approval-tasks/dcaf4c10-945f-43a9-bbb6-e74bbdd9fba9/decision",
+          "status": 403,
+          "at": "2026-11-05T09:21:57.386Z"
+        }
+      ]
+    }
+  ]
+}

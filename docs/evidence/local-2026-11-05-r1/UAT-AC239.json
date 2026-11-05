@@ -1,0 +1,426 @@
+{
+  "id": "UAT-AC239",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/allocation-extension.test.ts",
+      "name": "the extension of the disbursement of capital over HTTP (ST-CAP-007) decideAllocationExtension (UAT-AC229, UAT-AC239) carries the capital over: a CARRYOVER line of the next year with its source year and last day, the plan year not increased, two ledger entries of one extension and the event (AC-ST-CAP-007-1)",
+      "status": "passed",
+      "durationMs": 1125,
+      "at": "2026-11-05T09:19:18.220Z",
+      "requests": [
+        {
+          "id": "98159307-952e-4dc1-886a-dcff28f2eacd",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:19:17.370Z"
+        },
+        {
+          "id": "a563178f-be1e-4a0b-a874-4b4805b27d41",
+          "method": "POST",
+          "path": "/capital-plans/0a4535d6-6059-4651-b989-cbcfeaf2c52e/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:19:17.395Z"
+        },
+        {
+          "id": "437bd644-bf04-4403-9cd9-81f881470a0a",
+          "method": "POST",
+          "path": "/capital-plans/0a4535d6-6059-4651-b989-cbcfeaf2c52e/submit",
+          "status": 200,
+          "at": "2026-11-05T09:19:17.412Z"
+        },
+        {
+          "id": "d597200a-e179-4efd-8952-a728e5308b31",
+          "method": "POST",
+          "path": "/capital-plans/0a4535d6-6059-4651-b989-cbcfeaf2c52e/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:17.431Z"
+        },
+        {
+          "id": "12b89fc2-1000-4890-bfd3-48fecacdf9b9",
+          "method": "POST",
+          "path": "/plans/0a4535d6-6059-4651-b989-cbcfeaf2c52e/publish",
+          "status": 200,
+          "at": "2026-11-05T09:19:17.488Z"
+        },
+        {
+          "id": "f3543223-c451-44bc-9a63-532cd3f3ff89",
+          "method": "POST",
+          "path": "/allocation-lines/deb2d342-aaed-4976-a9f7-a7bab87e9407/extensions",
+          "status": 200,
+          "at": "2026-11-05T09:19:17.611Z"
+        },
+        {
+          "id": "b12f351c-272b-4f7c-9644-f1b4d9eb85e7",
+          "method": "POST",
+          "path": "/allocation-extensions/aa4d2355-521f-4ccb-b762-b5cf855ab2d7/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:17.772Z"
+        },
+        {
+          "id": "7a34e21d-d6d9-44e2-8af3-a4efc6399e95",
+          "method": "GET",
+          "path": "/capital/availability",
+          "status": 200,
+          "at": "2026-11-05T09:19:18.044Z"
+        },
+        {
+          "id": "5ccc76ae-0651-466d-872f-5f90479c0487",
+          "method": "GET",
+          "path": "/capital/availability",
+          "status": 200,
+          "at": "2026-11-05T09:19:18.077Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/allocation-extension.test.ts",
+      "name": "the extension of the disbursement of capital over HTTP (ST-CAP-007) decideAllocationExtension (UAT-AC229, UAT-AC239) refuses the person who asked with 403 SELF_APPROVAL_DENIED, and a member without the right with 403",
+      "status": "passed",
+      "durationMs": 696,
+      "at": "2026-11-05T09:19:18.916Z",
+      "requests": [
+        {
+          "id": "a343d201-cd52-451d-bc56-9f2080656dd4",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:19:18.428Z"
+        },
+        {
+          "id": "d0f72202-5d9e-45f9-966f-ca1a5738dcf6",
+          "method": "POST",
+          "path": "/capital-plans/bd511803-13ed-4b5f-9504-dfb8984ec693/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:19:18.450Z"
+        },
+        {
+          "id": "62a062d4-8f67-4215-ae81-167057f390cf",
+          "method": "POST",
+          "path": "/capital-plans/bd511803-13ed-4b5f-9504-dfb8984ec693/submit",
+          "status": 200,
+          "at": "2026-11-05T09:19:18.476Z"
+        },
+        {
+          "id": "82b4ca0a-2fa6-4d34-8044-58f86f8586c1",
+          "method": "POST",
+          "path": "/capital-plans/bd511803-13ed-4b5f-9504-dfb8984ec693/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:18.500Z"
+        },
+        {
+          "id": "4b28c0c2-68c5-4631-b5a2-dc1ba91019a8",
+          "method": "POST",
+          "path": "/plans/bd511803-13ed-4b5f-9504-dfb8984ec693/publish",
+          "status": 200,
+          "at": "2026-11-05T09:19:18.553Z"
+        },
+        {
+          "id": "d8516492-be82-4726-8899-34034ede3c95",
+          "method": "POST",
+          "path": "/allocation-lines/97de9bb3-caf5-42c8-9b24-d1c2ab37f123/extensions",
+          "status": 200,
+          "at": "2026-11-05T09:19:18.670Z"
+        },
+        {
+          "id": "11981e94-cf36-45c2-8fa1-d33873f59b66",
+          "method": "POST",
+          "path": "/allocation-extensions/9e5dbf91-7847-4828-9333-215852b301a4/decision",
+          "status": 403,
+          "at": "2026-11-05T09:19:18.723Z"
+        },
+        {
+          "id": "15539222-727b-420f-bd80-d48fbdad90d0",
+          "method": "POST",
+          "path": "/allocation-extensions/9e5dbf91-7847-4828-9333-215852b301a4/decision",
+          "status": 403,
+          "at": "2026-11-05T09:19:18.808Z"
+        },
+        {
+          "id": "f3c706db-493b-4dfa-871f-b9f73faf3238",
+          "method": "POST",
+          "path": "/allocation-extensions/9e5dbf91-7847-4828-9333-215852b301a4/decision",
+          "status": 403,
+          "at": "2026-11-05T09:19:18.866Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/allocation-extension.test.ts",
+      "name": "the extension of the disbursement of capital over HTTP (ST-CAP-007) decideAllocationExtension (UAT-AC229, UAT-AC239) needs the document that allows it: 422 EXTENSION_DOCUMENT_REQUIRED, and the database refuses a carry-over line without its document (AC-ST-CAP-007-2)",
+      "status": "passed",
+      "durationMs": 561,
+      "at": "2026-11-05T09:19:19.477Z",
+      "requests": [
+        {
+          "id": "905437c3-d93f-4b0f-a165-09dc71afdbe4",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:19:19.094Z"
+        },
+        {
+          "id": "ab8f00e7-9c80-4d2a-8668-7d8364c6afe1",
+          "method": "POST",
+          "path": "/capital-plans/9d74d9cf-3f83-42c5-bfe0-d5383bcf0692/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:19:19.104Z"
+        },
+        {
+          "id": "b555df49-36a1-44b0-946f-1a2e2e4060b5",
+          "method": "POST",
+          "path": "/capital-plans/9d74d9cf-3f83-42c5-bfe0-d5383bcf0692/submit",
+          "status": 200,
+          "at": "2026-11-05T09:19:19.124Z"
+        },
+        {
+          "id": "c6e6b022-3e0f-459f-9aa3-e9c1cbb40968",
+          "method": "POST",
+          "path": "/capital-plans/9d74d9cf-3f83-42c5-bfe0-d5383bcf0692/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:19.141Z"
+        },
+        {
+          "id": "e28b84f0-3be7-482a-882e-2aa1cd665a71",
+          "method": "POST",
+          "path": "/plans/9d74d9cf-3f83-42c5-bfe0-d5383bcf0692/publish",
+          "status": 200,
+          "at": "2026-11-05T09:19:19.190Z"
+        },
+        {
+          "id": "b783bfe2-ea75-465f-b853-4cd43d935e8e",
+          "method": "POST",
+          "path": "/allocation-lines/5cd353c2-2efe-4d48-867e-56fd761dd10f/extensions",
+          "status": 200,
+          "at": "2026-11-05T09:19:19.345Z"
+        },
+        {
+          "id": "89eb528d-196e-4565-8973-43f20912de36",
+          "method": "POST",
+          "path": "/allocation-extensions/f95d2552-d945-4206-b180-0cb3c73e9a3a/decision",
+          "status": 422,
+          "at": "2026-11-05T09:19:19.364Z"
+        },
+        {
+          "id": "8eb6d0cc-24ee-4de3-9201-8906d390f8a1",
+          "method": "POST",
+          "path": "/allocation-extensions/f95d2552-d945-4206-b180-0cb3c73e9a3a/decision",
+          "status": 422,
+          "at": "2026-11-05T09:19:19.373Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/allocation-extension.test.ts",
+      "name": "the extension of the disbursement of capital over HTTP (ST-CAP-007) decideAllocationExtension (UAT-AC229, UAT-AC239) rejects with a reason, and answers 428 without If-Match, 409 VERSION_CONFLICT to a stale version and 409 STAGE_TRANSITION_DENIED to a request already decided",
+      "status": "passed",
+      "durationMs": 679,
+      "at": "2026-11-05T09:19:20.156Z",
+      "requests": [
+        {
+          "id": "5e363486-432e-461c-b747-90dff0ba8ef0",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:19:19.710Z"
+        },
+        {
+          "id": "8e32e67d-fb40-4a60-a6f0-32bdc0a193e0",
+          "method": "POST",
+          "path": "/capital-plans/593443e3-f1b6-4872-bc77-e4c539926a6d/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:19:19.726Z"
+        },
+        {
+          "id": "73f8f3b8-95b7-4a96-9e5e-7b3cd87b4e45",
+          "method": "POST",
+          "path": "/capital-plans/593443e3-f1b6-4872-bc77-e4c539926a6d/submit",
+          "status": 200,
+          "at": "2026-11-05T09:19:19.747Z"
+        },
+        {
+          "id": "eaadbc5d-d619-41fc-b83e-c05186496c80",
+          "method": "POST",
+          "path": "/capital-plans/593443e3-f1b6-4872-bc77-e4c539926a6d/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:19.761Z"
+        },
+        {
+          "id": "95458b58-0666-4ce0-bd83-e90605c04473",
+          "method": "POST",
+          "path": "/plans/593443e3-f1b6-4872-bc77-e4c539926a6d/publish",
+          "status": 200,
+          "at": "2026-11-05T09:19:19.815Z"
+        },
+        {
+          "id": "fd7147eb-a141-4232-aca4-5581a8b0c5a3",
+          "method": "POST",
+          "path": "/allocation-lines/c0e1f22d-4c3a-4ada-92bd-c411928c4a32/extensions",
+          "status": 200,
+          "at": "2026-11-05T09:19:19.991Z"
+        },
+        {
+          "id": "1c1bbb91-5271-4115-9705-d7517510e656",
+          "method": "POST",
+          "path": "/allocation-extensions/1cbaed0e-138a-4d42-814d-f8bf03ce4043/decision",
+          "status": 428,
+          "at": "2026-11-05T09:19:20.016Z"
+        },
+        {
+          "id": "58645e69-3b50-4a84-b8c3-3c34042882fd",
+          "method": "POST",
+          "path": "/allocation-extensions/1cbaed0e-138a-4d42-814d-f8bf03ce4043/decision",
+          "status": 409,
+          "at": "2026-11-05T09:19:20.024Z"
+        },
+        {
+          "id": "9ae5f2be-6803-4749-9c49-83e438e8e165",
+          "method": "POST",
+          "path": "/allocation-extensions/1cbaed0e-138a-4d42-814d-f8bf03ce4043/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:20.034Z"
+        },
+        {
+          "id": "054b04e1-3482-4df9-90a2-a647568bd159",
+          "method": "POST",
+          "path": "/allocation-extensions/1cbaed0e-138a-4d42-814d-f8bf03ce4043/decision",
+          "status": 409,
+          "at": "2026-11-05T09:19:20.046Z"
+        },
+        {
+          "id": "11789b8c-25fb-4ace-9294-d3bfe621158f",
+          "method": "POST",
+          "path": "/allocation-extensions/4817a372-cd28-4baa-bccc-5f97eb536e7f/decision",
+          "status": 404,
+          "at": "2026-11-05T09:19:20.144Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/allocation-extension.test.ts",
+      "name": "the extension of the disbursement of capital over HTTP (ST-CAP-007) decideAllocationExtension (UAT-AC229, UAT-AC239) does not decide the request of another tenant: 404",
+      "status": "passed",
+      "durationMs": 590,
+      "at": "2026-11-05T09:19:20.746Z",
+      "requests": [
+        {
+          "id": "f901d3fe-c6f0-4dff-a852-efdc8a0f2690",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:19:20.452Z"
+        },
+        {
+          "id": "7b0049ed-41f3-42d4-be22-6d091bec3170",
+          "method": "POST",
+          "path": "/capital-plans/23deaff4-4393-45fc-9e40-3af061a6dbff/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:19:20.476Z"
+        },
+        {
+          "id": "580e2e55-028f-4775-b2b4-af22edbc8a10",
+          "method": "POST",
+          "path": "/capital-plans/23deaff4-4393-45fc-9e40-3af061a6dbff/submit",
+          "status": 200,
+          "at": "2026-11-05T09:19:20.494Z"
+        },
+        {
+          "id": "f0970594-a0d4-465d-b809-f7534c01accf",
+          "method": "POST",
+          "path": "/capital-plans/23deaff4-4393-45fc-9e40-3af061a6dbff/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:20.512Z"
+        },
+        {
+          "id": "e327b5f5-f97c-40a2-9604-a2897c54b14d",
+          "method": "POST",
+          "path": "/plans/23deaff4-4393-45fc-9e40-3af061a6dbff/publish",
+          "status": 200,
+          "at": "2026-11-05T09:19:20.564Z"
+        },
+        {
+          "id": "dba1633b-79b8-42af-b7b1-d21a4e39abf5",
+          "method": "POST",
+          "path": "/allocation-lines/099a3b61-507c-4432-9035-97c1899f0906/extensions",
+          "status": 200,
+          "at": "2026-11-05T09:19:20.714Z"
+        },
+        {
+          "id": "6bd35271-5a11-4748-a829-8a90b6145d95",
+          "method": "POST",
+          "path": "/allocation-extensions/f8b36f8d-2383-468b-ab49-02a664e708b3/decision",
+          "status": 404,
+          "at": "2026-11-05T09:19:20.733Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/allocation-extension.test.ts",
+      "name": "the extension of the disbursement of capital over HTTP (ST-CAP-007) decideAllocationExtension (UAT-AC229, UAT-AC239) does not carry over what was committed since the request: 422 AMOUNT_EXCEEDS_UNDISBURSED and nothing is written",
+      "status": "passed",
+      "durationMs": 847,
+      "at": "2026-11-05T09:19:21.594Z",
+      "requests": [
+        {
+          "id": "9998b58a-3129-46ee-8ab5-2125345a7fa0",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:19:21.038Z"
+        },
+        {
+          "id": "80d4e8de-7174-4b0c-9a98-44fe2cc703f7",
+          "method": "POST",
+          "path": "/capital-plans/13b5e6f9-fd43-4b6c-a65a-32ddd1e667a7/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:19:21.057Z"
+        },
+        {
+          "id": "c88c467c-a672-4a57-a107-7b8c5b2fe4e8",
+          "method": "POST",
+          "path": "/capital-plans/13b5e6f9-fd43-4b6c-a65a-32ddd1e667a7/submit",
+          "status": 200,
+          "at": "2026-11-05T09:19:21.077Z"
+        },
+        {
+          "id": "31e121dc-2bbd-45c1-9452-a7f25ef6bd39",
+          "method": "POST",
+          "path": "/capital-plans/13b5e6f9-fd43-4b6c-a65a-32ddd1e667a7/decision",
+          "status": 200,
+          "at": "2026-11-05T09:19:21.091Z"
+        },
+        {
+          "id": "2f736c03-76de-4839-885d-82e0dcf6d0fb",
+          "method": "POST",
+          "path": "/plans/13b5e6f9-fd43-4b6c-a65a-32ddd1e667a7/publish",
+          "status": 200,
+          "at": "2026-11-05T09:19:21.145Z"
+        },
+        {
+          "id": "fe8d8327-d835-46e6-aab5-79527a137a99",
+          "method": "POST",
+          "path": "/allocation-lines/cb79ed5c-2c94-461a-8bba-8b1da760f724/extensions",
+          "status": 200,
+          "at": "2026-11-05T09:19:21.325Z"
+        },
+        {
+          "id": "defd0514-a77c-4548-8363-dd9efc6ab898",
+          "method": "POST",
+          "path": "/allocation-extensions/e27d34d9-2385-4d5e-9694-28531d3c834c/decision",
+          "status": 422,
+          "at": "2026-11-05T09:19:21.491Z"
+        }
+      ]
+    }
+  ]
+}

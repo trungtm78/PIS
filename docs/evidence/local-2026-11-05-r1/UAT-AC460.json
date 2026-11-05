@@ -1,0 +1,27 @@
+{
+  "id": "UAT-AC460",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-finops.test.ts",
+      "name": "the reservation, the settlement and the reconciliation of a budget (ST-LLM-003, LLM F3) AC-ST-LLM-003-2: UAT-AC460 holds one of 20 simultaneous 50,000 jobs against a unit with 80,000 available, refuses 19 naming the UNIT, and finishes without a deadlock",
+      "status": "passed",
+      "durationMs": 543,
+      "at": "2026-11-05T09:15:24.107Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-finops.test.ts",
+      "name": "the reservation, the settlement and the reconciliation of a budget (ST-LLM-003, LLM F3) AC-ST-LLM-003-2: UAT-AC460 serves requests that need the same counters in opposite orders without a deadlock, and holds none above the limit",
+      "status": "passed",
+      "durationMs": 488,
+      "at": "2026-11-05T09:15:24.595Z",
+      "requests": []
+    }
+  ]
+}

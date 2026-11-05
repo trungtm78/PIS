@@ -1,0 +1,61 @@
+{
+  "id": "UAT-AC111",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/adm/unit-reorganization.test.ts",
+      "name": "the reorganisation of organisation units over HTTP (ST-ADM-015) AC-ST-ADM-015-1, UAT-AC111: proposed, the proposer cannot approve (403 SELF_APPROVAL_DENIED); the owner approves (202), the job applies it: members and grants on the successor, old grants Expired, projects moved, names kept",
+      "status": "passed",
+      "durationMs": 1087,
+      "at": "2026-11-05T09:21:46.664Z",
+      "requests": [
+        {
+          "id": "cac837a7-53a2-4489-9fa2-19cba07f5694",
+          "method": "POST",
+          "path": "/unit-reorganizations",
+          "status": 201,
+          "at": "2026-11-05T09:21:45.578Z"
+        },
+        {
+          "id": "76f28a71-0a48-4e7e-b0cb-5017f95d6045",
+          "method": "POST",
+          "path": "/unit-reorganizations/f61e5a69-7d51-4aa2-a771-79e969b2151c/decision",
+          "status": 403,
+          "at": "2026-11-05T09:21:46.153Z"
+        },
+        {
+          "id": "518d509e-6bf3-4451-b7ce-c759b7ee4fc5",
+          "method": "POST",
+          "path": "/unit-reorganizations/f61e5a69-7d51-4aa2-a771-79e969b2151c/decision",
+          "status": 403,
+          "at": "2026-11-05T09:21:46.173Z"
+        },
+        {
+          "id": "994f6de1-1eba-4017-b6df-f1b911ae3661",
+          "method": "POST",
+          "path": "/unit-reorganizations/f61e5a69-7d51-4aa2-a771-79e969b2151c/decision",
+          "status": 403,
+          "at": "2026-11-05T09:21:46.187Z"
+        },
+        {
+          "id": "b4ce838b-3910-4f25-9671-71f349a663da",
+          "method": "POST",
+          "path": "/unit-reorganizations/f61e5a69-7d51-4aa2-a771-79e969b2151c/decision",
+          "status": 202,
+          "at": "2026-11-05T09:21:46.211Z"
+        },
+        {
+          "id": "f5cf179e-39aa-4c36-b907-759f963ce6e7",
+          "method": "GET",
+          "path": "/resources/unit_reorganization/f61e5a69-7d51-4aa2-a771-79e969b2151c",
+          "status": 200,
+          "at": "2026-11-05T09:21:46.653Z"
+        }
+      ]
+    }
+  ]
+}

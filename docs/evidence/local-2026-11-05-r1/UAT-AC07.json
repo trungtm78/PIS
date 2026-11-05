@@ -1,0 +1,92 @@
+{
+  "id": "UAT-AC07",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports_id_submit (ST-DIS-005) UAT-AC07: judges the lateness by the calendar of the period to the second: on time up to the deadline, late after it",
+      "status": "passed",
+      "durationMs": 483,
+      "at": "2026-11-05T09:16:08.398Z",
+      "requests": [
+        {
+          "id": "29775b0e-7903-48b9-8982-7118916db56f",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:07.956Z"
+        },
+        {
+          "id": "d7ae62ce-470d-4127-a9d8-bd19cd015094",
+          "method": "POST",
+          "path": "/reports/524c4d2b-fc88-488e-9613-7424d643f3c8/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:07.983Z"
+        },
+        {
+          "id": "1b007de5-d07d-49c3-bc18-190606b1409d",
+          "method": "POST",
+          "path": "/reports/524c4d2b-fc88-488e-9613-7424d643f3c8/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:08.000Z"
+        },
+        {
+          "id": "589e6b2c-35bb-4e76-9932-fa1cbbc8f1d8",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:08.072Z"
+        },
+        {
+          "id": "9bb44748-811f-41dc-af00-af09bac6a104",
+          "method": "POST",
+          "path": "/reports/db15f34a-7382-49be-a547-1c9b761d5f42/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:08.098Z"
+        },
+        {
+          "id": "0f6c298e-a7f9-472d-a857-5d1ce0f7a286",
+          "method": "POST",
+          "path": "/reports/db15f34a-7382-49be-a547-1c9b761d5f42/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:08.114Z"
+        },
+        {
+          "id": "a8b4f781-09b8-417c-af8e-4a57fdb641ee",
+          "method": "POST",
+          "path": "/reports/524c4d2b-fc88-488e-9613-7424d643f3c8/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:08.192Z"
+        },
+        {
+          "id": "1e1c5343-2427-4d8e-878c-2fb97de6a7b4",
+          "method": "POST",
+          "path": "/reports/db15f34a-7382-49be-a547-1c9b761d5f42/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:08.263Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/submission-progress.test.ts",
+      "name": "the submission progress board over HTTP (ST-DIS-015) AC-ST-DIS-015-3 / UAT-AC07: counts the lateness that was stored when the report came in (03:00:01 after a 03:00:00 deadline), and a report that came in on time is not late",
+      "status": "passed",
+      "durationMs": 160,
+      "at": "2026-11-05T09:23:28.316Z",
+      "requests": [
+        {
+          "id": "789f5d8e-0cb5-47f7-b271-314f740f1473",
+          "method": "GET",
+          "path": "/reporting-periods/00000000-0000-4000-00a6-0000000007d3/submission-progress",
+          "status": 200,
+          "at": "2026-11-05T09:23:28.305Z"
+        }
+      ]
+    }
+  ]
+}

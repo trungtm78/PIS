@@ -1,0 +1,529 @@
+{
+  "id": "UAT-PLAN-10",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/reservation.test.ts",
+      "name": "the earmark of capital over HTTP (ST-CAP-011, UAT-PLAN-10, UAT-AC227) is registered in the module of CAP",
+      "status": "passed",
+      "durationMs": 1,
+      "at": "2026-11-05T09:15:54.739Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/reservation.test.ts",
+      "name": "the earmark of capital over HTTP (ST-CAP-011, UAT-PLAN-10, UAT-AC227) AC-ST-CAP-011-1, UAT-PLAN-10: with 450 of 600 million used, 150 million asks for the acknowledgement of the warning, and then 60 million more is blocked above 100 percent",
+      "status": "passed",
+      "durationMs": 989,
+      "at": "2026-11-05T09:15:55.728Z",
+      "requests": [
+        {
+          "id": "bb68564f-88e3-4509-b84d-b4907e9f771b",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 422,
+          "at": "2026-11-05T09:15:55.267Z"
+        },
+        {
+          "id": "d2698682-836f-4812-8006-9c736f39e31e",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:15:55.388Z"
+        },
+        {
+          "id": "bac40901-0988-4ab5-aefa-fa8364f5a7d7",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 422,
+          "at": "2026-11-05T09:15:55.603Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/reservation.test.ts",
+      "name": "the earmark of capital over HTTP (ST-CAP-011, UAT-PLAN-10, UAT-AC227) writes one audit row and one event for a reservation, with the share, and none for a refusal",
+      "status": "passed",
+      "durationMs": 648,
+      "at": "2026-11-05T09:15:56.376Z",
+      "requests": [
+        {
+          "id": "aa1bab48-9ebb-4bba-82eb-921373cae2a7",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 422,
+          "at": "2026-11-05T09:15:56.197Z"
+        },
+        {
+          "id": "5d1d2b04-e303-48db-aac8-97c7658ccc58",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:15:56.227Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/reservation.test.ts",
+      "name": "the earmark of capital over HTTP (ST-CAP-011, UAT-PLAN-10, UAT-AC227) serialises two reservations made at once that together would overspend the line: one is made, the other is blocked",
+      "status": "passed",
+      "durationMs": 601,
+      "at": "2026-11-05T09:15:56.977Z",
+      "requests": [
+        {
+          "id": "014636f6-5a57-4ca8-8c0c-7293750a3c05",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:15:56.866Z"
+        },
+        {
+          "id": "6b494fc4-e471-4d07-8f3a-3e5ccf836217",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 422,
+          "at": "2026-11-05T09:15:56.866Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/reservation.test.ts",
+      "name": "the earmark of capital over HTTP (ST-CAP-011, UAT-PLAN-10, UAT-AC227) AC-ST-CAP-011-2, UAT-AC227: a reservation that runs out is expired once, however often the job runs: one RELEASE entry, the capital back, one event",
+      "status": "passed",
+      "durationMs": 892,
+      "at": "2026-11-05T09:15:57.869Z",
+      "requests": [
+        {
+          "id": "1d0a0474-b223-4651-bf80-d20a3316325f",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:15:57.475Z"
+        },
+        {
+          "id": "10e6a5f4-7e76-48a7-9cbc-5ef9ad3afe5a",
+          "method": "POST",
+          "path": "/fund-reservations/17d88b8b-4923-4483-9547-e036576c3405/release",
+          "status": 409,
+          "at": "2026-11-05T09:15:57.845Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/reservation.test.ts",
+      "name": "the earmark of capital over HTTP (ST-CAP-011, UAT-PLAN-10, UAT-AC227) drains a backlog of more than one batch of due reservations in the one pass",
+      "status": "passed",
+      "durationMs": 1823,
+      "at": "2026-11-05T09:15:59.692Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/reservation.test.ts",
+      "name": "the earmark of capital over HTTP (ST-CAP-011, UAT-PLAN-10, UAT-AC227) locks the balances of a whole batch of expiries together in the one lock order, so it holds none of them while it waits for another",
+      "status": "passed",
+      "durationMs": 2758,
+      "at": "2026-11-05T09:16:02.450Z",
+      "requests": [
+        {
+          "id": "5133d23d-fb64-4a26-a515-4b8ebcdc4d6e",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:16:00.716Z"
+        },
+        {
+          "id": "0cca0332-b65a-448c-81f6-33a1fbd9d7a3",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:16:00.749Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/reservation.test.ts",
+      "name": "the earmark of capital over HTTP (ST-CAP-011, UAT-PLAN-10, UAT-AC227) releases a reservation with a reason against the version read: the capital returns with one RELEASE entry, a second release is refused",
+      "status": "passed",
+      "durationMs": 1491,
+      "at": "2026-11-05T09:16:03.941Z",
+      "requests": [
+        {
+          "id": "2f2ccb04-0871-470e-864b-7bde7c132d55",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:16:02.987Z"
+        },
+        {
+          "id": "b4637784-bba5-4c01-a00c-d0e7f7911c16",
+          "method": "POST",
+          "path": "/fund-reservations/671697fd-4b09-46f3-aa7f-ec2b23cc60b9/release",
+          "status": 409,
+          "at": "2026-11-05T09:16:03.006Z"
+        },
+        {
+          "id": "0bc25c2a-d771-49f2-bb2a-912b98ce39bb",
+          "method": "POST",
+          "path": "/fund-reservations/671697fd-4b09-46f3-aa7f-ec2b23cc60b9/release",
+          "status": 422,
+          "at": "2026-11-05T09:16:03.016Z"
+        },
+        {
+          "id": "337c0584-1f18-4b4a-aa76-60c967587972",
+          "method": "POST",
+          "path": "/fund-reservations/671697fd-4b09-46f3-aa7f-ec2b23cc60b9/release",
+          "status": 200,
+          "at": "2026-11-05T09:16:03.027Z"
+        },
+        {
+          "id": "e66dd442-d8f4-4ad0-bf3a-a8e0fed58d04",
+          "method": "POST",
+          "path": "/fund-reservations/671697fd-4b09-46f3-aa7f-ec2b23cc60b9/release",
+          "status": 409,
+          "at": "2026-11-05T09:16:03.172Z"
+        },
+        {
+          "id": "acdb2027-9869-4aa1-962c-1d037fc66258",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:16:03.270Z"
+        },
+        {
+          "id": "d2fbfb9f-b565-40c5-8d5a-b57c7a3b90d4",
+          "method": "POST",
+          "path": "/fund-reservations/671697fd-4b09-46f3-aa7f-ec2b23cc60b9/release",
+          "status": 409,
+          "at": "2026-11-05T09:16:03.918Z"
+        },
+        {
+          "id": "194154cc-ca41-4da2-b401-29741a5761cd",
+          "method": "POST",
+          "path": "/fund-reservations/671697fd-4b09-46f3-aa7f-ec2b23cc60b9/release",
+          "status": 409,
+          "at": "2026-11-05T09:16:03.924Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/reservation.test.ts",
+      "name": "the earmark of capital over HTTP (ST-CAP-011, UAT-PLAN-10, UAT-AC227) wants what a reservation names: whole VND above zero, a purpose of the list, a reference that is a kind with an id, a last instant ahead and within a year (422 naming the field)",
+      "status": "passed",
+      "durationMs": 745,
+      "at": "2026-11-05T09:16:04.686Z",
+      "requests": [
+        {
+          "id": "d57a824f-2057-487e-ac3f-33dae1e75a29",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 422,
+          "at": "2026-11-05T09:16:04.501Z"
+        },
+        {
+          "id": "3b2055dd-0c4a-45ca-b2d5-adc6f8423596",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 422,
+          "at": "2026-11-05T09:16:04.512Z"
+        },
+        {
+          "id": "6fcebe7a-d158-4558-a166-42474d994c5d",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 422,
+          "at": "2026-11-05T09:16:04.526Z"
+        },
+        {
+          "id": "e355d7dd-55bf-4368-8cba-23180d8d29ac",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 422,
+          "at": "2026-11-05T09:16:04.542Z"
+        },
+        {
+          "id": "6d640a2f-a538-44c0-9369-3ff5951b5dfb",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 422,
+          "at": "2026-11-05T09:16:04.556Z"
+        },
+        {
+          "id": "ff11e143-32d2-4149-bb5a-f06c9e1da9c6",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 422,
+          "at": "2026-11-05T09:16:04.574Z"
+        },
+        {
+          "id": "e8ae7c98-ac0e-42d8-8dd4-0cf11352ad64",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 422,
+          "at": "2026-11-05T09:16:04.589Z"
+        },
+        {
+          "id": "597923aa-19d0-4009-a526-eb07d6d8b449",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 422,
+          "at": "2026-11-05T09:16:04.607Z"
+        },
+        {
+          "id": "bac9aaa7-26ed-403c-bceb-b170c0c0ef1a",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 422,
+          "at": "2026-11-05T09:16:04.622Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/reservation.test.ts",
+      "name": "the earmark of capital over HTTP (ST-CAP-011, UAT-PLAN-10, UAT-AC227) refuses a line that does not exist (404), a project out of the scope of the caller (404), and one the caller may see and not reserve for (403)",
+      "status": "passed",
+      "durationMs": 696,
+      "at": "2026-11-05T09:16:05.382Z",
+      "requests": [
+        {
+          "id": "0dfbe6aa-3479-4327-8349-85af13cd9a95",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 404,
+          "at": "2026-11-05T09:16:05.197Z"
+        },
+        {
+          "id": "51721ad8-20d3-4620-87a2-e0e6ff59919a",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 404,
+          "at": "2026-11-05T09:16:05.212Z"
+        },
+        {
+          "id": "1a1d533b-e4ad-4eea-8fc7-6bd7022d33c6",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 403,
+          "at": "2026-11-05T09:16:05.233Z"
+        },
+        {
+          "id": "5f071a97-4594-4cdb-983c-194034541404",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 403,
+          "at": "2026-11-05T09:16:05.244Z"
+        },
+        {
+          "id": "607cbb53-5844-44ac-99d1-c8630b0e19d7",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:16:05.259Z"
+        },
+        {
+          "id": "4a703a71-b472-4741-8505-ae4eca754420",
+          "method": "POST",
+          "path": "/fund-reservations/39d1050f-a423-4b58-9f8b-98b11ee08afd/release",
+          "status": 404,
+          "at": "2026-11-05T09:16:05.290Z"
+        },
+        {
+          "id": "8baf0cc0-e33f-44ac-ba69-e7e40f0040fa",
+          "method": "POST",
+          "path": "/fund-reservations/39d1050f-a423-4b58-9f8b-98b11ee08afd/release",
+          "status": 403,
+          "at": "2026-11-05T09:16:05.309Z"
+        },
+        {
+          "id": "ef820ab2-fec3-4c1e-9a80-ba8ba4b2fa4e",
+          "method": "POST",
+          "path": "/fund-reservations/59dc581d-c278-4c2c-a8e6-1065c2206177/release",
+          "status": 404,
+          "at": "2026-11-05T09:16:05.323Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/reservation.test.ts",
+      "name": "the earmark of capital over HTTP (ST-CAP-011, UAT-PLAN-10, UAT-AC227) lists the reservations the caller sees newest first, by status, line and project, a page at a time",
+      "status": "passed",
+      "durationMs": 773,
+      "at": "2026-11-05T09:16:06.155Z",
+      "requests": [
+        {
+          "id": "d5e8c01d-cd6d-4ac2-ae10-cbc8c5dd3b52",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:16:05.888Z"
+        },
+        {
+          "id": "6095a0b0-0d55-4a22-a1e0-f32970581c1b",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:16:05.913Z"
+        },
+        {
+          "id": "048d8436-bc24-43a6-9168-4a221280b295",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:16:05.944Z"
+        },
+        {
+          "id": "321e7071-4a64-4f49-8ba2-222e1f3e1e6e",
+          "method": "POST",
+          "path": "/fund-reservations/ac7fb681-ad83-4feb-b3e3-e366da65aa0d/release",
+          "status": 200,
+          "at": "2026-11-05T09:16:05.973Z"
+        },
+        {
+          "id": "379bd0c1-b46c-44f6-a6bb-29f471566db1",
+          "method": "GET",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.000Z"
+        },
+        {
+          "id": "4872c036-2d43-448a-b5c1-5b639617537f",
+          "method": "GET",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.011Z"
+        },
+        {
+          "id": "ced9e52a-34b4-48af-83d5-93252c5f9d00",
+          "method": "GET",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.026Z"
+        },
+        {
+          "id": "c946ac2a-ddad-4d35-861c-7dd190662dcd",
+          "method": "GET",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.043Z"
+        },
+        {
+          "id": "0e6daaed-a95f-4d37-aa67-3d14c873b8c2",
+          "method": "GET",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.059Z"
+        },
+        {
+          "id": "f72173fa-ac18-4aec-a6a9-acfa28050f18",
+          "method": "GET",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.077Z"
+        },
+        {
+          "id": "1610e48b-aaf5-46c0-bf1f-6d89f4d350f3",
+          "method": "GET",
+          "path": "/fund-reservations",
+          "status": 403,
+          "at": "2026-11-05T09:16:06.090Z"
+        },
+        {
+          "id": "f684e8dd-c39d-465a-8707-ba780c14bd25",
+          "method": "GET",
+          "path": "/fund-reservations",
+          "status": 422,
+          "at": "2026-11-05T09:16:06.111Z"
+        },
+        {
+          "id": "e514d825-750f-4a48-b902-4ee603f09b53",
+          "method": "GET",
+          "path": "/fund-reservations",
+          "status": 422,
+          "at": "2026-11-05T09:16:06.121Z"
+        },
+        {
+          "id": "e0825f5c-bfde-43ba-a427-89c4648f1b39",
+          "method": "GET",
+          "path": "/fund-reservations",
+          "status": 422,
+          "at": "2026-11-05T09:16:06.137Z"
+        },
+        {
+          "id": "54932a49-90b8-4270-8810-1f70be36e885",
+          "method": "GET",
+          "path": "/fund-reservations",
+          "status": 422,
+          "at": "2026-11-05T09:16:06.141Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/reservation.test.ts",
+      "name": "the earmark of capital over HTTP (ST-CAP-011, UAT-PLAN-10, UAT-AC227) keeps the balances equal to the ledger: the nightly check finds no drift after a reservation and a release, and finds the reserved column when it is tampered with",
+      "status": "passed",
+      "durationMs": 1024,
+      "at": "2026-11-05T09:16:07.179Z",
+      "requests": [
+        {
+          "id": "4796921c-63e3-40ee-a149-9957036af438",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.749Z"
+        },
+        {
+          "id": "a9e8f998-8eda-42dd-811b-e6fa906a4fbc",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.773Z"
+        },
+        {
+          "id": "b929cfea-a1e3-48ec-91f5-7f66c6ae65ba",
+          "method": "POST",
+          "path": "/fund-reservations/c630d93e-6f81-4ef9-961e-fe2f5c611de1/release",
+          "status": 200,
+          "at": "2026-11-05T09:16:06.805Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/reservation.test.ts",
+      "name": "the earmark of capital over HTTP (ST-CAP-011, UAT-PLAN-10, UAT-AC227) is kept by the database as well: what was reserved never changes, a closed reservation is final, and nothing is deleted",
+      "status": "passed",
+      "durationMs": 986,
+      "at": "2026-11-05T09:16:08.166Z",
+      "requests": [
+        {
+          "id": "9cd61e70-3c56-4abe-b19b-822290e8d142",
+          "method": "POST",
+          "path": "/fund-reservations",
+          "status": 200,
+          "at": "2026-11-05T09:16:07.779Z"
+        },
+        {
+          "id": "3c93092f-974a-4e07-b9ac-e735d42ac71a",
+          "method": "POST",
+          "path": "/fund-reservations/cb20303a-d617-464c-9dec-87c479e1cc1c/release",
+          "status": 200,
+          "at": "2026-11-05T09:16:08.063Z"
+        }
+      ]
+    }
+  ]
+}

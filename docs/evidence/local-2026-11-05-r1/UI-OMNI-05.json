@@ -1,0 +1,40 @@
+{
+  "id": "UI-OMNI-05",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/omni/channel-accounts.test.ts",
+      "name": "the channel accounts (ST-OMNI-001, OMNI-05, OMNI-06) connecting (OMNI-05) AC-ST-OMNI-001-2 UI-OMNI-05: connects an account as pending verification, and no answer, audit row or event holds a reference to a secret",
+      "status": "passed",
+      "durationMs": 284,
+      "at": "2026-11-05T09:22:01.947Z",
+      "requests": [
+        {
+          "id": "dede9fdf-6b98-4f3e-9bc5-6ac52eba5e46",
+          "method": "POST",
+          "path": "/channel-accounts",
+          "status": 201,
+          "at": "2026-11-05T09:22:01.664Z"
+        },
+        {
+          "id": "950e6da5-9ebb-4584-b51c-041e3274a345",
+          "method": "GET",
+          "path": "/resources/channel_account/79f03814-0c17-4e50-90b3-01bdf5e9eed3",
+          "status": 200,
+          "at": "2026-11-05T09:22:01.769Z"
+        },
+        {
+          "id": "ed9fdbc4-14d9-4da6-8bd4-281eae3a2426",
+          "method": "GET",
+          "path": "/resources/channel_account",
+          "status": 200,
+          "at": "2026-11-05T09:22:01.775Z"
+        }
+      ]
+    }
+  ]
+}

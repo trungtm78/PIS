@@ -1,0 +1,61 @@
+{
+  "id": "UAT-AC189",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/templates.test.ts",
+      "name": "the templates of the messages, their review and the test sends (ST-NOT-005, NOT-07, NOT-08) the test sends (NOT-08) AC-ST-NOT-005-3 UAT-AC189: refuses a recipient outside the list with 422 TEST_RECIPIENT_NOT_ALLOWED, then sends to one inside it with the [TEST] prefix, and nothing is counted",
+      "status": "passed",
+      "durationMs": 446,
+      "at": "2026-11-05T09:20:32.546Z",
+      "requests": [
+        {
+          "id": "b2c3efac-a8df-4312-a81d-20ca9cd7a816",
+          "method": "PUT",
+          "path": "/notification-test-recipients",
+          "status": 200,
+          "at": "2026-11-05T09:20:32.101Z"
+        },
+        {
+          "id": "539a50fe-7b40-40ac-a7b5-5d2dce6b1e5f",
+          "method": "POST",
+          "path": "/notification-templates",
+          "status": 201,
+          "at": "2026-11-05T09:20:32.114Z"
+        },
+        {
+          "id": "0a807f97-2b1c-45f5-be25-8444b1a33d5a",
+          "method": "POST",
+          "path": "/notification-templates/3236c373-31f0-4780-99d8-779eae73b160/submit",
+          "status": 202,
+          "at": "2026-11-05T09:20:32.131Z"
+        },
+        {
+          "id": "aa0a9ee3-ecd5-41e2-bc48-d72e0dc1b581",
+          "method": "POST",
+          "path": "/notification-templates/3236c373-31f0-4780-99d8-779eae73b160/decision",
+          "status": 200,
+          "at": "2026-11-05T09:20:32.146Z"
+        },
+        {
+          "id": "914789f5-5e5d-468a-8867-aeaec9c6dfd3",
+          "method": "POST",
+          "path": "/notification-templates/3236c373-31f0-4780-99d8-779eae73b160/test-sends",
+          "status": 422,
+          "at": "2026-11-05T09:20:32.165Z"
+        },
+        {
+          "id": "09e63c92-8869-4765-92d7-8ab4e03a7105",
+          "method": "POST",
+          "path": "/notification-templates/3236c373-31f0-4780-99d8-779eae73b160/test-sends",
+          "status": 202,
+          "at": "2026-11-05T09:20:32.328Z"
+        }
+      ]
+    }
+  ]
+}

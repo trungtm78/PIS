@@ -1,0 +1,82 @@
+{
+  "id": "UAT-AC190",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/campaigns.test.ts",
+      "name": "broadcast campaigns with preview and maker-checker (ST-NOT-009, NOT-09, NOT-10, NOT-16) AC-ST-NOT-009-2 UAT-AC190: a person who opts out between the preview and the submit makes the preview stale (409 PREVIEW_STALE) until it is made again, and the same holds between the submit and the decision",
+      "status": "passed",
+      "durationMs": 1083,
+      "at": "2026-11-05T09:13:39.658Z",
+      "requests": [
+        {
+          "id": "413a2b47-635a-4750-ad4b-35880db2f5c3",
+          "method": "POST",
+          "path": "/notification-campaigns",
+          "status": 201,
+          "at": "2026-11-05T09:13:38.576Z"
+        },
+        {
+          "id": "ff660708-3e6d-44ee-b484-09540c79fda4",
+          "method": "POST",
+          "path": "/notification-campaigns/8426312a-8ec5-4dc7-94cc-1a1eff6656b5/preview",
+          "status": 200,
+          "at": "2026-11-05T09:13:38.632Z"
+        },
+        {
+          "id": "e9644182-ca1b-4581-bec9-089d881944b1",
+          "method": "POST",
+          "path": "/notification-campaigns/8426312a-8ec5-4dc7-94cc-1a1eff6656b5/submit",
+          "status": 409,
+          "at": "2026-11-05T09:13:38.785Z"
+        },
+        {
+          "id": "59913a21-cf61-451e-abd2-1b67d1e33e34",
+          "method": "POST",
+          "path": "/notification-campaigns/8426312a-8ec5-4dc7-94cc-1a1eff6656b5/preview",
+          "status": 200,
+          "at": "2026-11-05T09:13:38.962Z"
+        },
+        {
+          "id": "cb7b4c60-4edb-4574-9ec0-d2f6a10c2d6c",
+          "method": "POST",
+          "path": "/notification-campaigns/8426312a-8ec5-4dc7-94cc-1a1eff6656b5/submit",
+          "status": 200,
+          "at": "2026-11-05T09:13:39.040Z"
+        },
+        {
+          "id": "e4e3798f-6566-484c-8f54-899c0f5255b0",
+          "method": "POST",
+          "path": "/notification-campaigns",
+          "status": 201,
+          "at": "2026-11-05T09:13:39.059Z"
+        },
+        {
+          "id": "b5c86239-769c-4815-abd2-3567fda3f9f6",
+          "method": "POST",
+          "path": "/notification-campaigns/4bf647c7-93e8-439c-8fd1-8a52cbcbba1d/preview",
+          "status": 200,
+          "at": "2026-11-05T09:13:39.167Z"
+        },
+        {
+          "id": "1e73f956-96ce-42e5-a1c9-90c53a3bf779",
+          "method": "POST",
+          "path": "/notification-campaigns/4bf647c7-93e8-439c-8fd1-8a52cbcbba1d/submit",
+          "status": 409,
+          "at": "2026-11-05T09:13:39.227Z"
+        },
+        {
+          "id": "3413ff66-c3f5-41f3-92a5-c3e4cd325338",
+          "method": "POST",
+          "path": "/notification-campaigns/8426312a-8ec5-4dc7-94cc-1a1eff6656b5/decision",
+          "status": 409,
+          "at": "2026-11-05T09:13:39.396Z"
+        }
+      ]
+    }
+  ]
+}

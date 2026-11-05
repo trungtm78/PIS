@@ -1,0 +1,54 @@
+{
+  "id": "UAT-NFR-SECURITY-10",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/uat/money.uat.spec.ts",
+      "name": "TC-UAT-NFR-SECURITY-10: a signed DELIVERED, then an older ACCEPTED, the same DELIVERED again and an unsigned READ leave the send DELIVERED, one history row for each state, and the unsigned one is 401",
+      "status": "passed",
+      "durationMs": 2974,
+      "at": "2026-11-05T08:57:32.624Z",
+      "requests": [
+        {
+          "id": "764602b7-2a99-4920-8d21-b097dce5395f",
+          "method": "POST",
+          "path": "/me/consents",
+          "status": 201,
+          "at": "2026-11-05T08:57:32.786Z"
+        },
+        {
+          "id": "4089f90c-33c0-466f-ad20-1ba117aadf24",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 200,
+          "at": "2026-11-05T08:57:34.993Z"
+        },
+        {
+          "id": "781eb35d-7ebe-49aa-a6bc-4e879f5cdb8f",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 200,
+          "at": "2026-11-05T08:57:35.103Z"
+        },
+        {
+          "id": "fbbe99e2-5d94-49a2-b44a-912962b2703c",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 200,
+          "at": "2026-11-05T08:57:35.231Z"
+        },
+        {
+          "id": "ba1c9e2a-40d5-42da-a743-1f41a5c5adc7",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 401,
+          "at": "2026-11-05T08:57:35.374Z"
+        }
+      ]
+    }
+  ]
+}

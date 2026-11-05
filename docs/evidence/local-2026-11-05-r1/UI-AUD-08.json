@@ -1,0 +1,141 @@
+{
+  "id": "UI-AUD-08",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/aud-recovery-flows.spec.ts",
+      "name": "an accountant records a remittance with its document, is refused more than what is left, and reverses a line with a reason that leaves a line against it (AC-ST-AUD-004-1, AC-ST-AUD-004-2, UI-AUD-08)",
+      "status": "passed",
+      "durationMs": 1412,
+      "at": "2026-11-05T08:43:55.222Z",
+      "requests": [
+        {
+          "id": "a35f5273-1777-46ba-8f73-66ecf6ccc972",
+          "method": "GET",
+          "path": "/audit-engagements",
+          "status": 200,
+          "at": "2026-11-05T08:43:55.826Z"
+        },
+        {
+          "id": "2f06ec1b-dc2c-471a-80a4-65839b7f1a6c",
+          "method": "GET",
+          "path": "/audit-engagements/3130d935-562d-44bc-a7f3-e999dcb3d1a1/recovery-summary",
+          "status": 200,
+          "at": "2026-11-05T08:43:55.827Z"
+        },
+        {
+          "id": "1e05d50f-2e62-4c37-b9e2-637f37f306e9",
+          "method": "GET",
+          "path": "/audit-engagements/3130d935-562d-44bc-a7f3-e999dcb3d1a1/recovery-links",
+          "status": 200,
+          "at": "2026-11-05T08:43:55.827Z"
+        },
+        {
+          "id": "6be1cb63-dc9c-49fc-84b5-7e8574324d1d",
+          "method": "POST",
+          "path": "/audit-recommendations/8b30ea67-541d-4424-8377-fbe78640151b/recoveries",
+          "status": 422,
+          "at": "2026-11-05T08:43:56.083Z"
+        },
+        {
+          "id": "ff26dcce-def0-4eed-a140-d71a58d7fef8",
+          "method": "POST",
+          "path": "/audit-recommendations/8b30ea67-541d-4424-8377-fbe78640151b/recoveries",
+          "status": 200,
+          "at": "2026-11-05T08:43:56.230Z"
+        },
+        {
+          "id": "0c30ef9c-7f24-43ed-a7a9-3fb5638664b8",
+          "method": "GET",
+          "path": "/audit-engagements",
+          "status": 304,
+          "at": "2026-11-05T08:43:56.253Z"
+        },
+        {
+          "id": "02afb5b4-17ef-4288-9178-e369abbcf86f",
+          "method": "GET",
+          "path": "/audit-engagements/3130d935-562d-44bc-a7f3-e999dcb3d1a1/recovery-summary",
+          "status": 200,
+          "at": "2026-11-05T08:43:56.251Z"
+        },
+        {
+          "id": "694fd328-72d1-480f-8cfe-ad6d17abe22a",
+          "method": "GET",
+          "path": "/audit-engagements/3130d935-562d-44bc-a7f3-e999dcb3d1a1/recovery-links",
+          "status": 200,
+          "at": "2026-11-05T08:43:56.252Z"
+        },
+        {
+          "id": "2cebec6e-a919-4af8-a4d1-0adc8f818339",
+          "method": "POST",
+          "path": "/audit-recovery-links/2dbee778-d5ea-423b-a1b9-4e91d2785481/reversal",
+          "status": 200,
+          "at": "2026-11-05T08:43:56.430Z"
+        },
+        {
+          "id": "f3146450-3c7f-4603-9f6d-270490cd6d5b",
+          "method": "GET",
+          "path": "/audit-engagements/3130d935-562d-44bc-a7f3-e999dcb3d1a1/recovery-summary",
+          "status": 200,
+          "at": "2026-11-05T08:43:56.449Z"
+        },
+        {
+          "id": "419f1e1a-afbe-4e35-9d8f-541702ba746c",
+          "method": "GET",
+          "path": "/audit-engagements",
+          "status": 304,
+          "at": "2026-11-05T08:43:56.450Z"
+        },
+        {
+          "id": "3f0db92e-d38c-40e0-9ccb-27d43605f853",
+          "method": "GET",
+          "path": "/audit-engagements/3130d935-562d-44bc-a7f3-e999dcb3d1a1/recovery-links",
+          "status": 200,
+          "at": "2026-11-05T08:43:56.450Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/aud-recovery-flows.spec.ts",
+      "name": "a reader sees the ledger, the rates with their numerators and denominators, and the overview, and has no button that records or reverses (UI-AUD-08, UI-AUD-01)",
+      "status": "passed",
+      "durationMs": 952,
+      "at": "2026-11-05T08:43:56.641Z",
+      "requests": [
+        {
+          "id": "74f0360b-d35d-45e2-8506-2d48c618dcf0",
+          "method": "GET",
+          "path": "/audit-engagements",
+          "status": 200,
+          "at": "2026-11-05T08:43:57.271Z"
+        },
+        {
+          "id": "ebbe7fb4-58bc-4812-a03a-f9c5121787d7",
+          "method": "GET",
+          "path": "/audit-engagements/990fc78c-6ff5-4c8d-816f-79892eb44eb0/recovery-links",
+          "status": 200,
+          "at": "2026-11-05T08:43:57.272Z"
+        },
+        {
+          "id": "7f11158c-dd59-4e8c-b250-89b269fa1758",
+          "method": "GET",
+          "path": "/audit-engagements/990fc78c-6ff5-4c8d-816f-79892eb44eb0/recovery-summary",
+          "status": 200,
+          "at": "2026-11-05T08:43:57.272Z"
+        },
+        {
+          "id": "6a016043-4785-41d5-aad7-839a7d5c2732",
+          "method": "GET",
+          "path": "/audit-overview",
+          "status": 200,
+          "at": "2026-11-05T08:43:57.534Z"
+        }
+      ]
+    }
+  ]
+}

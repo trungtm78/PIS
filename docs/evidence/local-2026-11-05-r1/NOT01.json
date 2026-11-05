@@ -1,0 +1,169 @@
+{
+  "id": "NOT01",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/delivery-flow.test.ts",
+      "name": "the delivery engine in the real API process (ST-NOT-002) AC-ST-NOT-002-4 (NOT01): provider receipts that are unsigned, stale, repeated or late are judged by the signature first and by the reducer after",
+      "status": "passed",
+      "durationMs": 1057,
+      "at": "2026-11-05T09:16:02.811Z",
+      "requests": [
+        {
+          "id": "5b6c3632-3a48-4427-b1fe-c0122f9f5337",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 401,
+          "at": "2026-11-05T09:16:02.384Z"
+        },
+        {
+          "id": "cadfa63d-0bf3-4860-8a4e-6e77b3df4c06",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 401,
+          "at": "2026-11-05T09:16:02.400Z"
+        },
+        {
+          "id": "7da3a434-d4ab-44f5-ac70-6a496758176c",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 401,
+          "at": "2026-11-05T09:16:02.413Z"
+        },
+        {
+          "id": "6a644edb-c21f-40eb-9280-4d9fa96a7495",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 404,
+          "at": "2026-11-05T09:16:02.460Z"
+        },
+        {
+          "id": "39416a02-491c-4b22-b693-7f6d61d32b0e",
+          "method": "POST",
+          "path": "/webhooks/channels/no-such-provider",
+          "status": 404,
+          "at": "2026-11-05T09:16:02.468Z"
+        },
+        {
+          "id": "3a0b96a8-cb8c-4062-8b8f-ba758c21d602",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 404,
+          "at": "2026-11-05T09:16:02.484Z"
+        },
+        {
+          "id": "6aa9562d-bd53-4c52-b029-fa9321ee24c8",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 200,
+          "at": "2026-11-05T09:16:02.499Z"
+        },
+        {
+          "id": "b689b2f5-d28e-4fcb-baa8-d88ab663e0dd",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 200,
+          "at": "2026-11-05T09:16:02.536Z"
+        },
+        {
+          "id": "a3f9e58f-f188-4429-af55-908dca720319",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 200,
+          "at": "2026-11-05T09:16:02.556Z"
+        },
+        {
+          "id": "a76d298d-5f63-4e0f-8d45-17619858bab6",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 200,
+          "at": "2026-11-05T09:16:02.566Z"
+        },
+        {
+          "id": "6d6967ba-5217-426b-8610-24702f574efd",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 200,
+          "at": "2026-11-05T09:16:02.580Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/uat/money.uat.spec.ts",
+      "name": "TC-NOT01: DELIVERED then ACCEPTED never moves the send back, a repeated READ is one event, and the retry of a send whose recipient withdrew the consent is suppressed and never reaches the provider",
+      "status": "passed",
+      "durationMs": 5871,
+      "at": "2026-11-05T08:57:35.604Z",
+      "requests": [
+        {
+          "id": "9676692d-1fb2-4b80-b80b-8ccc55f29368",
+          "method": "POST",
+          "path": "/me/consents",
+          "status": 201,
+          "at": "2026-11-05T08:57:35.822Z"
+        },
+        {
+          "id": "464dd25c-8f9d-4372-b18a-265f129ba44d",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 200,
+          "at": "2026-11-05T08:57:36.860Z"
+        },
+        {
+          "id": "ae77fa40-f9da-4859-84bb-394a538718dc",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 200,
+          "at": "2026-11-05T08:57:36.924Z"
+        },
+        {
+          "id": "0abed54c-aad7-45e8-a25b-dbd05d4caeae",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 200,
+          "at": "2026-11-05T08:57:37.020Z"
+        },
+        {
+          "id": "baf8f61f-bb0b-4f13-b12c-6c6921622245",
+          "method": "POST",
+          "path": "/webhooks/channels/smtp-relay",
+          "status": 200,
+          "at": "2026-11-05T08:57:37.034Z"
+        },
+        {
+          "id": "284478c8-c869-464b-9a99-13a8427d2195",
+          "method": "POST",
+          "path": "/__e2e/provider/email/script",
+          "status": 200,
+          "at": "2026-11-05T08:57:37.228Z"
+        },
+        {
+          "id": "47b52ceb-8b52-4f90-bb21-2a0306d57772",
+          "method": "POST",
+          "path": "/me/consents/7d5d3293-8b57-4a50-b2de-de140ec59acf/withdraw",
+          "status": 200,
+          "at": "2026-11-05T08:57:39.384Z"
+        },
+        {
+          "id": "3a6497e7-d4e2-4ecb-af9c-b26941ca7746",
+          "method": "GET",
+          "path": "/__e2e/provider/email/requests",
+          "status": 200,
+          "at": "2026-11-05T08:57:41.399Z"
+        },
+        {
+          "id": "da1b511a-723e-4300-a59f-d6a8796c724a",
+          "method": "GET",
+          "path": "/__e2e/provider/email/requests",
+          "status": 200,
+          "at": "2026-11-05T08:57:41.401Z"
+        }
+      ]
+    }
+  ]
+}

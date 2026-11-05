@@ -1,0 +1,226 @@
+{
+  "id": "UAT-AC364",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/diary-coverage.test.ts",
+      "name": "the coverage of the site diary of a contract over HTTP (ST-QMS-008, UAT-AC364) is registered in the module of QMS",
+      "status": "passed",
+      "durationMs": 1,
+      "at": "2026-11-05T09:16:11.643Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/diary-coverage.test.ts",
+      "name": "the coverage of the site diary of a contract over HTTP (ST-QMS-008, UAT-AC364) AC-ST-QMS-008-1, UAT-AC364: the 22 working days of June split into 15 signed, 3 DRAFT and 4 missing, the 2 days with a copy are counted apart, and a late signature shows its late days",
+      "status": "passed",
+      "durationMs": 3536,
+      "at": "2026-11-05T09:16:15.179Z",
+      "requests": [
+        {
+          "id": "b1735487-4b64-4a5f-ac54-ddebd0b9eb5e",
+          "method": "GET",
+          "path": "/contracts/8970c5f8-bad5-481e-b6d2-ac492a35897e/site-diaries/coverage",
+          "status": 200,
+          "at": "2026-11-05T09:16:15.137Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/diary-coverage.test.ts",
+      "name": "the coverage of the site diary of a contract over HTTP (ST-QMS-008, UAT-AC364) shows a diary signed afterwards on a missing day as signed and late, and one day fewer missing",
+      "status": "passed",
+      "durationMs": 2615,
+      "at": "2026-11-05T09:16:17.794Z",
+      "requests": [
+        {
+          "id": "31dbf78a-ddc5-421b-9f9b-9fb13553aabf",
+          "method": "GET",
+          "path": "/contracts/1e334370-3336-4d31-9a23-b0294d2a5442/site-diaries/coverage",
+          "status": 200,
+          "at": "2026-11-05T09:16:17.767Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/diary-coverage.test.ts",
+      "name": "the coverage of the site diary of a contract over HTTP (ST-QMS-008, UAT-AC364) keeps the diary that stands while its correction is still open: the correction takes its place when it is locked",
+      "status": "passed",
+      "durationMs": 923,
+      "at": "2026-11-05T09:16:18.717Z",
+      "requests": [
+        {
+          "id": "e98671b5-4ff1-4363-b35c-0761260d86e4",
+          "method": "GET",
+          "path": "/contracts/241c2ccb-cccd-461f-b4d8-41414c93e299/site-diaries/coverage",
+          "status": 200,
+          "at": "2026-11-05T09:16:18.593Z"
+        },
+        {
+          "id": "8d249c68-de55-4be2-9640-1197dba541e6",
+          "method": "GET",
+          "path": "/contracts/241c2ccb-cccd-461f-b4d8-41414c93e299/site-diaries/coverage",
+          "status": 200,
+          "at": "2026-11-05T09:16:18.698Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/diary-coverage.test.ts",
+      "name": "the coverage of the site diary of a contract over HTTP (ST-QMS-008, UAT-AC364) judges a signature years afterwards by the calendars of the years it spans, and not by the weekdays",
+      "status": "passed",
+      "durationMs": 797,
+      "at": "2026-11-05T09:16:19.514Z",
+      "requests": [
+        {
+          "id": "5385633b-6bd6-406f-8b59-d78c0665fbce",
+          "method": "GET",
+          "path": "/contracts/ae3001d2-dd4d-47ea-b21d-73dea087c538/site-diaries/coverage",
+          "status": 200,
+          "at": "2026-11-05T09:16:19.491Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/diary-coverage.test.ts",
+      "name": "the coverage of the site diary of a contract over HTTP (ST-QMS-008, UAT-AC364) counts a copy of a device that waits for the diary that was replaced by a correction",
+      "status": "passed",
+      "durationMs": 1051,
+      "at": "2026-11-05T09:16:20.565Z",
+      "requests": [
+        {
+          "id": "e24a7027-1a03-485a-a6df-591bbde9d956",
+          "method": "GET",
+          "path": "/contracts/d58f55d9-e1ae-4958-b8dc-06029a574f3b/site-diaries/coverage",
+          "status": 200,
+          "at": "2026-11-05T09:16:20.542Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/diary-coverage.test.ts",
+      "name": "the coverage of the site diary of a contract over HTTP (ST-QMS-008, UAT-AC364) counts the month up to today when no range is given, and nothing that lies ahead",
+      "status": "passed",
+      "durationMs": 843,
+      "at": "2026-11-05T09:16:21.407Z",
+      "requests": [
+        {
+          "id": "cac30389-aa2e-450b-8eb7-8eb48f02056e",
+          "method": "GET",
+          "path": "/contracts/66858ff3-0071-43aa-b231-ebf7ea99376f/site-diaries/coverage",
+          "status": 200,
+          "at": "2026-11-05T09:16:21.374Z"
+        },
+        {
+          "id": "dbd187bd-1f94-4d08-b2c8-1f74a87d2aa8",
+          "method": "GET",
+          "path": "/contracts/66858ff3-0071-43aa-b231-ebf7ea99376f/site-diaries/coverage",
+          "status": 200,
+          "at": "2026-11-05T09:16:21.397Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/diary-coverage.test.ts",
+      "name": "the coverage of the site diary of a contract over HTTP (ST-QMS-008, UAT-AC364) refuses a range that is not one (422 naming the field) and a year with no published calendar (422 CALENDAR_NOT_EFFECTIVE)",
+      "status": "passed",
+      "durationMs": 1446,
+      "at": "2026-11-05T09:16:22.853Z",
+      "requests": [
+        {
+          "id": "892dc2d0-e41e-40e9-bff2-97f7b2b555f6",
+          "method": "GET",
+          "path": "/contracts/b5b5d226-39f0-4f5a-b83b-61f43e40335e/site-diaries/coverage",
+          "status": 422,
+          "at": "2026-11-05T09:16:22.766Z"
+        },
+        {
+          "id": "6af3f45b-4200-4596-aa09-431c81fcda38",
+          "method": "GET",
+          "path": "/contracts/b5b5d226-39f0-4f5a-b83b-61f43e40335e/site-diaries/coverage",
+          "status": 422,
+          "at": "2026-11-05T09:16:22.782Z"
+        },
+        {
+          "id": "2935f7bc-c9e2-4c9f-b3ba-d16b6410e0a2",
+          "method": "GET",
+          "path": "/contracts/b5b5d226-39f0-4f5a-b83b-61f43e40335e/site-diaries/coverage",
+          "status": 422,
+          "at": "2026-11-05T09:16:22.797Z"
+        },
+        {
+          "id": "8ff53aab-9fa9-48f2-835b-19d974b49379",
+          "method": "GET",
+          "path": "/contracts/b5b5d226-39f0-4f5a-b83b-61f43e40335e/site-diaries/coverage",
+          "status": 422,
+          "at": "2026-11-05T09:16:22.813Z"
+        },
+        {
+          "id": "ac8fae4b-4d91-4c60-8ea8-4a6e096127fa",
+          "method": "GET",
+          "path": "/contracts/b5b5d226-39f0-4f5a-b83b-61f43e40335e/site-diaries/coverage",
+          "status": 422,
+          "at": "2026-11-05T09:16:22.829Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/diary-coverage.test.ts",
+      "name": "the coverage of the site diary of a contract over HTTP (ST-QMS-008, UAT-AC364) shows a contract only to those whose scope reaches it: the right is needed (403), a contract out of reach or unknown is 404",
+      "status": "passed",
+      "durationMs": 514,
+      "at": "2026-11-05T09:16:23.368Z",
+      "requests": [
+        {
+          "id": "4c11811a-8f82-4e31-89b2-47ad205cc89e",
+          "method": "GET",
+          "path": "/contracts/e8a60437-a765-4a80-a20e-361f31f3ebec/site-diaries/coverage",
+          "status": 403,
+          "at": "2026-11-05T09:16:23.315Z"
+        },
+        {
+          "id": "f94eb10d-fb94-4b6e-9168-1ecea433d293",
+          "method": "GET",
+          "path": "/contracts/e8a60437-a765-4a80-a20e-361f31f3ebec/site-diaries/coverage",
+          "status": 404,
+          "at": "2026-11-05T09:16:23.320Z"
+        },
+        {
+          "id": "b40710e9-30d4-4811-9b75-27cf5d7ac9ab",
+          "method": "GET",
+          "path": "/contracts/87647bd9-8ea2-44ca-a512-d7e408a27196/site-diaries/coverage",
+          "status": 404,
+          "at": "2026-11-05T09:16:23.340Z"
+        },
+        {
+          "id": "ce02c697-67be-448a-8781-036e0d5539d0",
+          "method": "GET",
+          "path": "/contracts/not-a-uuid/site-diaries/coverage",
+          "status": 422,
+          "at": "2026-11-05T09:16:23.352Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/diary-coverage.test.ts",
+      "name": "the coverage of the site diary of a contract over HTTP (ST-QMS-008, UAT-AC364) the morning count (the job diary-coverage) sets the gauge of the missing days of the month up to yesterday for the contracts in execution, and leaves a contract that is not in execution out",
+      "status": "passed",
+      "durationMs": 3307,
+      "at": "2026-11-05T09:16:26.675Z",
+      "requests": []
+    }
+  ]
+}

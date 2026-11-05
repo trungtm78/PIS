@@ -1,0 +1,103 @@
+{
+  "id": "UI-PRJ-09",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/prj-appraisal-flows.spec.ts",
+      "name": "a project is sent, scored by two appraisers and admitted to the project bank, and the database holds every step (AC-ST-PRJ-003-2, AC-ST-PRJ-003-1, AC-ST-PRJ-003-4, UI-PRJ-09, UI-PRJ-15, UI-PRJ-10)",
+      "status": "passed",
+      "durationMs": 2602,
+      "at": "2026-11-05T08:50:32.222Z",
+      "requests": [
+        {
+          "id": "0865a297-3216-450e-be42-c2cef2cb4938",
+          "method": "GET",
+          "path": "/resources/project/06244ddb-b91e-40dd-a31c-bce872a9be3b",
+          "status": 200,
+          "at": "2026-11-05T08:50:32.768Z"
+        },
+        {
+          "id": "68ad0de7-e804-4f48-a318-766fd06fa1b0",
+          "method": "POST",
+          "path": "/projects/06244ddb-b91e-40dd-a31c-bce872a9be3b/appraisal-submissions",
+          "status": 200,
+          "at": "2026-11-05T08:50:32.963Z"
+        },
+        {
+          "id": "213789b8-e708-4c37-a7d0-54c04c6db2fd",
+          "method": "GET",
+          "path": "/resources/project/06244ddb-b91e-40dd-a31c-bce872a9be3b",
+          "status": 200,
+          "at": "2026-11-05T08:50:32.980Z"
+        },
+        {
+          "id": "3b31222d-da32-4697-8a98-e0c2a7471760",
+          "method": "GET",
+          "path": "/projects/06244ddb-b91e-40dd-a31c-bce872a9be3b/lifecycle",
+          "status": 200,
+          "at": "2026-11-05T08:50:33.259Z"
+        },
+        {
+          "id": "789f1b66-36ad-4329-8c57-5c9cf7fca3ed",
+          "method": "POST",
+          "path": "/projects/06244ddb-b91e-40dd-a31c-bce872a9be3b/appraisals",
+          "status": 200,
+          "at": "2026-11-05T08:50:33.632Z"
+        },
+        {
+          "id": "4ee9025a-9cf6-4cd0-bf32-18b2a898bcb6",
+          "method": "GET",
+          "path": "/projects/06244ddb-b91e-40dd-a31c-bce872a9be3b/lifecycle",
+          "status": 200,
+          "at": "2026-11-05T08:50:33.650Z"
+        },
+        {
+          "id": "eeae321e-89c0-41ff-9b27-855231e44249",
+          "method": "GET",
+          "path": "/projects/06244ddb-b91e-40dd-a31c-bce872a9be3b/lifecycle",
+          "status": 200,
+          "at": "2026-11-05T08:50:33.791Z"
+        },
+        {
+          "id": "b63156d1-8781-44b8-b398-7d36140446db",
+          "method": "POST",
+          "path": "/projects/06244ddb-b91e-40dd-a31c-bce872a9be3b/appraisals",
+          "status": 200,
+          "at": "2026-11-05T08:50:34.048Z"
+        },
+        {
+          "id": "cb811b9c-003c-4cf3-899f-dd7ab84b64b3",
+          "method": "GET",
+          "path": "/projects/06244ddb-b91e-40dd-a31c-bce872a9be3b/lifecycle",
+          "status": 200,
+          "at": "2026-11-05T08:50:34.064Z"
+        },
+        {
+          "id": "849c69b2-7d60-4e41-8d01-72b2ae56dbfd",
+          "method": "GET",
+          "path": "/projects/06244ddb-b91e-40dd-a31c-bce872a9be3b/lifecycle",
+          "status": 200,
+          "at": "2026-11-05T08:50:34.287Z"
+        },
+        {
+          "id": "c4ca414a-047a-4270-9003-7a59205c6d2f",
+          "method": "POST",
+          "path": "/project-appraisals/3036ff93-a104-4c68-82a9-d28ead2ed747/decision",
+          "status": 200,
+          "at": "2026-11-05T08:50:34.546Z"
+        },
+        {
+          "id": "828457c4-a80b-4441-847b-ef46fbbc1400",
+          "method": "GET",
+          "path": "/projects/06244ddb-b91e-40dd-a31c-bce872a9be3b/lifecycle",
+          "status": 200,
+          "at": "2026-11-05T08:50:34.566Z"
+        }
+      ]
+    }
+  ]
+}

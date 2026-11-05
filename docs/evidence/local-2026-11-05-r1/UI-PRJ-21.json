@@ -1,0 +1,228 @@
+{
+  "id": "UI-PRJ-21",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/national-code.test.ts",
+      "name": "the national project code: assignment by hand, reconciliation file and block rule (ST-PRJ-004) what the screen of the reconciliation reads UI-PRJ-21: the register tells which projects have no national code (the list read), and the adapter of the file is PROPOSED in every answer",
+      "status": "passed",
+      "durationMs": 111,
+      "at": "2026-11-05T09:20:16.857Z",
+      "requests": [
+        {
+          "id": "fb76cdb6-a83f-497c-b5ef-2fd32c49263c",
+          "method": "POST",
+          "path": "/projects",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.746Z"
+        },
+        {
+          "id": "8a119473-4c80-4bfb-8881-0ff06ef623d1",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.799Z"
+        },
+        {
+          "id": "f710893d-8673-4388-b224-0a00037d74a7",
+          "method": "POST",
+          "path": "/project-national-code-imports",
+          "status": 200,
+          "at": "2026-11-05T09:20:16.832Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/prj-national-code-flows.spec.ts",
+      "name": "the officer assigns a code by hand, is refused a code of the wrong format or one that is held, and the database holds the code, the audit row and the event (AC-ST-PRJ-004-1, UI-PRJ-21)",
+      "status": "passed",
+      "durationMs": 1356,
+      "at": "2026-11-05T08:50:41.663Z",
+      "requests": [
+        {
+          "id": "04dfc0ff-6c40-4b54-9772-e4ee2c7a89fc",
+          "method": "GET",
+          "path": "/me/effective-access",
+          "status": 200,
+          "at": "2026-11-05T08:50:42.199Z"
+        },
+        {
+          "id": "73c7d4d9-f415-4aab-9ee7-44d76cb3a1fa",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:50:42.199Z"
+        },
+        {
+          "id": "7f3c4a56-2b7b-42b9-ae73-bac7ee48d15c",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:50:42.254Z"
+        },
+        {
+          "id": "ce6abe02-c4cc-49ef-8402-afc4c5392fcb",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:50:42.278Z"
+        },
+        {
+          "id": "8e4d51c7-c33a-4ae9-b203-10fbd358762f",
+          "method": "POST",
+          "path": "/projects/ac5fdb84-8c57-435f-a50e-1c46dd5203ab/national-code",
+          "status": 422,
+          "at": "2026-11-05T08:50:42.463Z"
+        },
+        {
+          "id": "bd3476f3-dce7-402d-9ee2-8e3252df94c0",
+          "method": "POST",
+          "path": "/projects/ac5fdb84-8c57-435f-a50e-1c46dd5203ab/national-code",
+          "status": 409,
+          "at": "2026-11-05T08:50:42.604Z"
+        },
+        {
+          "id": "74dff0ee-649b-473e-8fc7-6154a02097c0",
+          "method": "POST",
+          "path": "/projects/ac5fdb84-8c57-435f-a50e-1c46dd5203ab/national-code",
+          "status": 200,
+          "at": "2026-11-05T08:50:42.766Z"
+        },
+        {
+          "id": "32c9a19b-e2d0-4b5c-a723-c0ded4775443",
+          "method": "GET",
+          "path": "/me/effective-access",
+          "status": 304,
+          "at": "2026-11-05T08:50:42.784Z"
+        },
+        {
+          "id": "afc481bc-3d0d-431e-b21a-4c51470b711e",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:50:42.783Z"
+        },
+        {
+          "id": "ac24e612-ed66-4175-b09f-35f2520e6c26",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:50:42.795Z"
+        },
+        {
+          "id": "af64ae6a-81ea-4f45-a755-f8b41d2a1865",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:50:42.805Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/prj-national-code-flows.spec.ts",
+      "name": "the officer uploads the reconciliation file, reads the dry run row by row, applies it once, and the second apply is refused (AC-ST-PRJ-004-2, UI-PRJ-21)",
+      "status": "passed",
+      "durationMs": 1383,
+      "at": "2026-11-05T08:50:44.144Z",
+      "requests": [
+        {
+          "id": "7bd8dbbc-d190-4f9d-808e-278c04f3987e",
+          "method": "GET",
+          "path": "/me/effective-access",
+          "status": 200,
+          "at": "2026-11-05T08:50:44.757Z"
+        },
+        {
+          "id": "78788b76-3bf6-4792-af3b-9c34b40b4efe",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:50:44.756Z"
+        },
+        {
+          "id": "02b0faeb-7f0d-49af-a122-62427c18dab3",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:50:44.812Z"
+        },
+        {
+          "id": "6de5e5a3-62f8-40a3-8711-bb1ca5bbe47e",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:50:44.831Z"
+        },
+        {
+          "id": "1ad0c699-ef25-4890-972f-438054829393",
+          "method": "POST",
+          "path": "/project-national-code-imports/files",
+          "status": 200,
+          "at": "2026-11-05T08:50:44.897Z"
+        },
+        {
+          "id": "c3e5dfc8-c711-4e98-8120-68affee9dfa8",
+          "method": "POST",
+          "path": "/project-national-code-imports",
+          "status": 200,
+          "at": "2026-11-05T08:50:44.931Z"
+        },
+        {
+          "id": "4253fa43-49b3-4053-b8b8-12688f20173c",
+          "method": "POST",
+          "path": "/project-national-code-imports",
+          "status": 200,
+          "at": "2026-11-05T08:50:45.078Z"
+        },
+        {
+          "id": "3bbc2482-3fab-48b5-b977-41260a6edf2e",
+          "method": "GET",
+          "path": "/me/effective-access",
+          "status": 304,
+          "at": "2026-11-05T08:50:45.122Z"
+        },
+        {
+          "id": "1581d2d2-66a6-43cb-8dac-fa8352ac195b",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:50:45.121Z"
+        },
+        {
+          "id": "78ae9155-146a-4074-9cd9-bc9686c90145",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:50:45.131Z"
+        },
+        {
+          "id": "223db48b-1fb2-4e2b-b934-f2902922c3d9",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:50:45.142Z"
+        },
+        {
+          "id": "c5c4401d-176d-4751-af88-4451f2f4b0a2",
+          "method": "POST",
+          "path": "/project-national-code-imports/files",
+          "status": 200,
+          "at": "2026-11-05T08:50:45.446Z"
+        },
+        {
+          "id": "51c99e50-aa1b-443d-a158-baad4519e410",
+          "method": "POST",
+          "path": "/project-national-code-imports",
+          "status": 200,
+          "at": "2026-11-05T08:50:45.470Z"
+        }
+      ]
+    }
+  ]
+}

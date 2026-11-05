@@ -1,0 +1,290 @@
+{
+  "id": "UAT-AC322",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/payment-claim.test.ts",
+      "name": "sending, checking and returning a payment request over HTTP (ST-PAY-003) AC-ST-PAY-003-3, UAT-AC322: giving a request back releases the claim, the retention and the recovery with entries that reverse them, and it can be sent again",
+      "status": "passed",
+      "durationMs": 2180,
+      "at": "2026-11-05T09:18:31.229Z",
+      "requests": [
+        {
+          "id": "a7a8b76d-e54f-4d73-b10d-bf1a3384f7a8",
+          "method": "POST",
+          "path": "/payment-requests",
+          "status": 200,
+          "at": "2026-11-05T09:18:29.545Z"
+        },
+        {
+          "id": "13605d18-12f9-4d38-b2a6-4a446e4fa5ea",
+          "method": "POST",
+          "path": "/payment-requests/52da6db2-596a-4182-965b-99669e456486/documents",
+          "status": 200,
+          "at": "2026-11-05T09:18:29.611Z"
+        },
+        {
+          "id": "d0682f0f-5538-475b-a6c6-3195131c7447",
+          "method": "POST",
+          "path": "/payment-requests/52da6db2-596a-4182-965b-99669e456486/submit",
+          "status": 200,
+          "at": "2026-11-05T09:18:29.671Z"
+        },
+        {
+          "id": "798ed74f-8b87-4fce-9b96-c0b118b365f2",
+          "method": "POST",
+          "path": "/payment-requests/52da6db2-596a-4182-965b-99669e456486/return",
+          "status": 403,
+          "at": "2026-11-05T09:18:29.774Z"
+        },
+        {
+          "id": "c5d2d2a3-5908-40d9-a14b-e5c9773224b5",
+          "method": "POST",
+          "path": "/payment-requests/52da6db2-596a-4182-965b-99669e456486/return",
+          "status": 422,
+          "at": "2026-11-05T09:18:29.827Z"
+        },
+        {
+          "id": "d1125e9d-529c-44d8-8068-93388a3ed8f0",
+          "method": "POST",
+          "path": "/payment-requests/52da6db2-596a-4182-965b-99669e456486/return",
+          "status": 200,
+          "at": "2026-11-05T09:18:29.890Z"
+        },
+        {
+          "id": "e7cc13c3-d284-4e29-8214-d032d63e3a03",
+          "method": "POST",
+          "path": "/payment-requests/52da6db2-596a-4182-965b-99669e456486/return",
+          "status": 409,
+          "at": "2026-11-05T09:18:30.196Z"
+        },
+        {
+          "id": "7b6295ae-2921-49af-b74e-d760d452dead",
+          "method": "POST",
+          "path": "/payment-requests/52da6db2-596a-4182-965b-99669e456486/draft",
+          "status": 200,
+          "at": "2026-11-05T09:18:30.259Z"
+        },
+        {
+          "id": "6e4c4116-c70c-46de-bbbb-8a63c0b0d210",
+          "method": "POST",
+          "path": "/payment-requests/52da6db2-596a-4182-965b-99669e456486/submit",
+          "status": 200,
+          "at": "2026-11-05T09:18:30.351Z"
+        },
+        {
+          "id": "229ddec7-227d-4ff7-922f-69dbbae327ea",
+          "method": "POST",
+          "path": "/payment-requests/52da6db2-596a-4182-965b-99669e456486/verify",
+          "status": 200,
+          "at": "2026-11-05T09:18:30.479Z"
+        },
+        {
+          "id": "25a4f4ec-a90f-4d73-acef-48d953a18ab6",
+          "method": "POST",
+          "path": "/payment-requests/52da6db2-596a-4182-965b-99669e456486/return",
+          "status": 409,
+          "at": "2026-11-05T09:18:31.067Z"
+        },
+        {
+          "id": "17210f39-89f8-4930-8174-dbc459178ac3",
+          "method": "POST",
+          "path": "/payment-requests/52da6db2-596a-4182-965b-99669e456486/return",
+          "status": 200,
+          "at": "2026-11-05T09:18:31.116Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/cumulative-ledger.test.ts",
+      "name": "the cumulative ledger over HTTP and the consumer of the acceptance events (ST-PAY-001) the consumer of the acceptance events AC-ST-PAY-001-1, UAT-AC322: an approval delivered twice, and told again by another event, leaves exactly one entry for each line, worth the sum of the lines",
+      "status": "passed",
+      "durationMs": 668,
+      "at": "2026-11-05T09:20:11.321Z",
+      "requests": []
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/pay-payment-flows.spec.ts",
+      "name": "the accountant sends a request, another request for the same acceptance is turned away, the approver checks it and gives it back, and the ledger follows (UI-PAY-03, AC-ST-PAY-003-1, AC-ST-PAY-003-3, AC-ST-PAY-003-5, UAT-AC320, UAT-AC322, UAT-AC332)",
+      "status": "passed",
+      "durationMs": 3133,
+      "at": "2026-11-05T09:28:28.543Z",
+      "requests": [
+        {
+          "id": "48d6da7e-2405-4740-a25d-5737bdd8f3c1",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.092Z"
+        },
+        {
+          "id": "1cdd1290-ee2e-439c-97fd-452b702656ef",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.092Z"
+        },
+        {
+          "id": "4f928e6d-dc23-48b4-8baa-3ec94dece84f",
+          "method": "GET",
+          "path": "/resources/allocation_line",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.093Z"
+        },
+        {
+          "id": "731e2594-9f10-47ea-a37d-6df67c41daeb",
+          "method": "POST",
+          "path": "/payment-requests",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.231Z"
+        },
+        {
+          "id": "b34250b9-3ebf-4e9e-aed7-269403dba759",
+          "method": "GET",
+          "path": "/resources/payment_request/72003b73-753a-4c2e-8937-93533a6cbe31",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.317Z"
+        },
+        {
+          "id": "6571e39b-ed06-46b9-9a30-ca031acd5a00",
+          "method": "POST",
+          "path": "/payment-requests/72003b73-753a-4c2e-8937-93533a6cbe31/documents",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.426Z"
+        },
+        {
+          "id": "0a554154-9731-4aaf-bf80-69e68c81703d",
+          "method": "GET",
+          "path": "/resources/payment_request/72003b73-753a-4c2e-8937-93533a6cbe31",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.443Z"
+        },
+        {
+          "id": "ead367cf-55f4-439e-a9fc-49af78eb1b50",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.637Z"
+        },
+        {
+          "id": "54cbea99-febc-4928-bc04-7611320d6b48",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.638Z"
+        },
+        {
+          "id": "df6db28e-5193-4389-ac26-cb243915e80f",
+          "method": "GET",
+          "path": "/resources/allocation_line",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.639Z"
+        },
+        {
+          "id": "2fae9362-0da7-49bb-ba39-0894212553ff",
+          "method": "POST",
+          "path": "/payment-requests",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.745Z"
+        },
+        {
+          "id": "4c929450-b9a6-4795-911a-5e56996401c0",
+          "method": "GET",
+          "path": "/resources/payment_request/10dd4e9d-233f-4c78-8383-a68d9a6cc0e0",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.884Z"
+        },
+        {
+          "id": "a36eb894-37e5-4b26-8c2d-3bcdb181d68d",
+          "method": "POST",
+          "path": "/payment-requests/10dd4e9d-233f-4c78-8383-a68d9a6cc0e0/documents",
+          "status": 200,
+          "at": "2026-11-05T09:28:30.042Z"
+        },
+        {
+          "id": "800309ad-d7c3-4799-9735-d6de2488d6ae",
+          "method": "GET",
+          "path": "/resources/payment_request/10dd4e9d-233f-4c78-8383-a68d9a6cc0e0",
+          "status": 200,
+          "at": "2026-11-05T09:28:30.061Z"
+        },
+        {
+          "id": "79dbdb1b-5961-46dd-9c04-c8e473df8303",
+          "method": "GET",
+          "path": "/resources/payment_request/72003b73-753a-4c2e-8937-93533a6cbe31",
+          "status": 200,
+          "at": "2026-11-05T09:28:30.241Z"
+        },
+        {
+          "id": "0c6809bf-a9cb-4e18-97a8-c56580667f08",
+          "method": "POST",
+          "path": "/payment-requests/72003b73-753a-4c2e-8937-93533a6cbe31/submit",
+          "status": 200,
+          "at": "2026-11-05T09:28:30.375Z"
+        },
+        {
+          "id": "34659fe4-0859-4455-8533-0b31783d5fa6",
+          "method": "GET",
+          "path": "/resources/payment_request/72003b73-753a-4c2e-8937-93533a6cbe31",
+          "status": 200,
+          "at": "2026-11-05T09:28:30.431Z"
+        },
+        {
+          "id": "4c1e3322-c26e-4a79-8108-70b188da1781",
+          "method": "GET",
+          "path": "/resources/payment_request/10dd4e9d-233f-4c78-8383-a68d9a6cc0e0",
+          "status": 200,
+          "at": "2026-11-05T09:28:30.823Z"
+        },
+        {
+          "id": "78fa6cee-c1be-4db7-968e-96854cd2bf61",
+          "method": "POST",
+          "path": "/payment-requests/10dd4e9d-233f-4c78-8383-a68d9a6cc0e0/submit",
+          "status": 409,
+          "at": "2026-11-05T09:28:30.942Z"
+        },
+        {
+          "id": "d00288b6-ba83-4117-a925-6353989f1060",
+          "method": "GET",
+          "path": "/resources/payment_request/72003b73-753a-4c2e-8937-93533a6cbe31",
+          "status": 200,
+          "at": "2026-11-05T09:28:31.177Z"
+        },
+        {
+          "id": "14baf4df-ff24-4715-9b05-a56cb64ee5ce",
+          "method": "POST",
+          "path": "/payment-requests/72003b73-753a-4c2e-8937-93533a6cbe31/verify",
+          "status": 200,
+          "at": "2026-11-05T09:28:31.309Z"
+        },
+        {
+          "id": "052d01ba-ef0b-4e70-b8e8-581dd5870f23",
+          "method": "GET",
+          "path": "/resources/payment_request/72003b73-753a-4c2e-8937-93533a6cbe31",
+          "status": 200,
+          "at": "2026-11-05T09:28:31.328Z"
+        },
+        {
+          "id": "c810e9fd-d3b5-4bb7-81fb-b8f5d175f0ee",
+          "method": "POST",
+          "path": "/payment-requests/72003b73-753a-4c2e-8937-93533a6cbe31/return",
+          "status": 200,
+          "at": "2026-11-05T09:28:31.426Z"
+        },
+        {
+          "id": "5887b713-5ba2-4ad2-82ff-6ba17841ca02",
+          "method": "GET",
+          "path": "/resources/payment_request/72003b73-753a-4c2e-8937-93533a6cbe31",
+          "status": 200,
+          "at": "2026-11-05T09:28:31.464Z"
+        }
+      ]
+    }
+  ]
+}

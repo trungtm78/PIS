@@ -1,0 +1,68 @@
+{
+  "id": "UAT-AC215",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/plan-publication.test.ts",
+      "name": "approval and publication of the capital plan over HTTP (ST-CAP-003) post_plans_id_publish answers 409 OPEN_OBLIGATIONS_EXIST to the cancellation of a project whose balance, written by the publication, holds committed capital (AC-ST-CAP-003-5, UAT-AC215)",
+      "status": "passed",
+      "durationMs": 754,
+      "at": "2026-11-05T09:16:48.936Z",
+      "requests": [
+        {
+          "id": "5fa78a46-325e-4c4a-9f10-b061ad17f8a7",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:16:48.379Z"
+        },
+        {
+          "id": "24b18a35-abbf-4b7e-b58d-eca9cbdada5d",
+          "method": "POST",
+          "path": "/capital-plans/58a456c3-ec9e-4fde-b686-4a59280adfbb/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:16:48.393Z"
+        },
+        {
+          "id": "d5af2e6e-45b0-4829-8a44-bb689945f84c",
+          "method": "POST",
+          "path": "/capital-plans/58a456c3-ec9e-4fde-b686-4a59280adfbb/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:48.410Z"
+        },
+        {
+          "id": "ec04f381-bf1a-4eca-8a66-f9a7c88f7622",
+          "method": "POST",
+          "path": "/capital-plans/58a456c3-ec9e-4fde-b686-4a59280adfbb/decision",
+          "status": 200,
+          "at": "2026-11-05T09:16:48.426Z"
+        },
+        {
+          "id": "1aad80b9-d948-4c7e-a668-a66f5ee80480",
+          "method": "POST",
+          "path": "/plans/58a456c3-ec9e-4fde-b686-4a59280adfbb/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:48.478Z"
+        },
+        {
+          "id": "39983d7c-0864-425c-bd2d-ff1cc63e51c8",
+          "method": "POST",
+          "path": "/projects/d9448aeb-c7eb-4810-b446-fec915980d78/cancellation",
+          "status": 409,
+          "at": "2026-11-05T09:16:48.695Z"
+        },
+        {
+          "id": "5bbea6b2-9255-444c-a2db-f2a3d410ecfe",
+          "method": "POST",
+          "path": "/projects/d9448aeb-c7eb-4810-b446-fec915980d78/cancellation",
+          "status": 200,
+          "at": "2026-11-05T09:16:48.907Z"
+        }
+      ]
+    }
+  ]
+}

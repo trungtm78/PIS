@@ -1,0 +1,40 @@
+{
+  "id": "UAT-AC496",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-lineage.test.ts",
+      "name": "the lineage graph with a check on each node (ST-DGV-006, DGV 3 F5, DGV-05) AC-ST-DGV-006-3: UAT-AC496 is 404 for tenant B asking for a node of tenant A, and tenant B sees only its own graph",
+      "status": "passed",
+      "durationMs": 47,
+      "at": "2026-11-05T09:22:04.608Z",
+      "requests": [
+        {
+          "id": "e181e295-c3d6-4439-a9b1-d8bdf55251fc",
+          "method": "GET",
+          "path": "/dgv/lineage",
+          "status": 404,
+          "at": "2026-11-05T09:22:04.561Z"
+        },
+        {
+          "id": "9dd677e0-56de-491c-987d-cd870fcd83cb",
+          "method": "GET",
+          "path": "/dgv/lineage",
+          "status": 404,
+          "at": "2026-11-05T09:22:04.578Z"
+        },
+        {
+          "id": "07ac4e42-f9fc-4c01-ada1-fb48c6560b53",
+          "method": "GET",
+          "path": "/dgv/lineage",
+          "status": 404,
+          "at": "2026-11-05T09:22:04.594Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": "UAT-AC04",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/snapshot.test.ts",
+      "name": "the period snapshot over HTTP (ST-DIS-009) getDisbursementRates AC-ST-DIS-010-3 / UAT-AC04: a project with no plan says ZERO_DENOMINATOR (never 0% and never infinite), one with a plan and no Treasury payment says TREASURY_COVERAGE_NONE, and each is counted once by its reason",
+      "status": "passed",
+      "durationMs": 572,
+      "at": "2026-11-05T09:10:36.306Z",
+      "requests": [
+        {
+          "id": "471c8763-9ff1-45c3-8d7b-939e2593762d",
+          "method": "POST",
+          "path": "/period-snapshots",
+          "status": 200,
+          "at": "2026-11-05T09:10:36.184Z"
+        },
+        {
+          "id": "52286492-c91e-4cf9-a25f-1b148c840400",
+          "method": "POST",
+          "path": "/period-snapshots/7b00e0b2-d03b-4a77-854a-12b39c3a6ac3/freeze",
+          "status": 200,
+          "at": "2026-11-05T09:10:36.234Z"
+        },
+        {
+          "id": "3e000c1b-df38-4465-aba6-8fca3d0467e6",
+          "method": "GET",
+          "path": "/disbursement-rates",
+          "status": 200,
+          "at": "2026-11-05T09:10:36.271Z"
+        },
+        {
+          "id": "5a975d72-fefb-44f7-8ebf-5f80188b8cd0",
+          "method": "GET",
+          "path": "/disbursement-rates",
+          "status": 200,
+          "at": "2026-11-05T09:10:36.287Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/home/warnings-rankings.test.ts",
+      "name": "the warnings and the ranking of the command center over HTTP (ST-HOME-003) ranking (HOME-04) AC-ST-HOME-003-3, AC-ST-HOME-003-4: UAT-AC04 gives a table for each denominator apart, with the order, and the unit with a plan of nothing left out with its reason and no position",
+      "status": "passed",
+      "durationMs": 292,
+      "at": "2026-11-05T09:22:32.436Z",
+      "requests": [
+        {
+          "id": "f8f35e50-b246-4bd2-9ad9-91009042afe9",
+          "method": "GET",
+          "path": "/home/rankings",
+          "status": 200,
+          "at": "2026-11-05T09:22:32.419Z"
+        }
+      ]
+    }
+  ]
+}

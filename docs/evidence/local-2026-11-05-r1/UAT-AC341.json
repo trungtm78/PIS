@@ -1,0 +1,106 @@
+{
+  "id": "UAT-AC341",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/cumulative-ledger.test.ts",
+      "name": "the cumulative ledger over HTTP and the consumer of the acceptance events (ST-PAY-001) reading the ledger AC-ST-PAY-001-4, UAT-AC341: gives the staff with the right the balances, entries and totals; a guest of the contractor, a member without the right and a member of another branch get nothing",
+      "status": "passed",
+      "durationMs": 1253,
+      "at": "2026-11-05T09:20:14.454Z",
+      "requests": [
+        {
+          "id": "6e92f03d-e210-48fb-9ff0-7a09efbbc582",
+          "method": "GET",
+          "path": "/contracts/81c3da3a-7ab4-4809-a5cf-cf0b8c35547a/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T09:20:13.912Z"
+        },
+        {
+          "id": "c80ea761-2389-41df-9225-815aa27aba9f",
+          "method": "GET",
+          "path": "/contracts/81c3da3a-7ab4-4809-a5cf-cf0b8c35547a/cumulative-ledger",
+          "status": 403,
+          "at": "2026-11-05T09:20:13.929Z"
+        },
+        {
+          "id": "28832c23-c08c-4baf-9ca3-12fdf955277e",
+          "method": "GET",
+          "path": "/contracts/81c3da3a-7ab4-4809-a5cf-cf0b8c35547a/cumulative-ledger",
+          "status": 404,
+          "at": "2026-11-05T09:20:13.933Z"
+        },
+        {
+          "id": "f691c46a-c8b6-4756-bf3f-43587fe9bde8",
+          "method": "GET",
+          "path": "/contracts/81c3da3a-7ab4-4809-a5cf-cf0b8c35547a/cumulative-ledger",
+          "status": 403,
+          "at": "2026-11-05T09:20:14.385Z"
+        },
+        {
+          "id": "629b3301-bd4b-4e6f-a472-ad9ded1274ea",
+          "method": "GET",
+          "path": "/contracts/d848a7ba-0b61-416c-9616-9954bc9ea7b0/cumulative-ledger",
+          "status": 404,
+          "at": "2026-11-05T09:20:14.393Z"
+        },
+        {
+          "id": "f0b159f8-71cd-4f80-932a-e49b37644ce1",
+          "method": "GET",
+          "path": "/contracts/81c3da3a-7ab4-4809-a5cf-cf0b8c35547a/cumulative-ledger",
+          "status": 422,
+          "at": "2026-11-05T09:20:14.408Z"
+        },
+        {
+          "id": "57a7fd51-af1f-41e5-b85b-bd7da9af3b27",
+          "method": "GET",
+          "path": "/contracts/81c3da3a-7ab4-4809-a5cf-cf0b8c35547a/cumulative-ledger",
+          "status": 422,
+          "at": "2026-11-05T09:20:14.422Z"
+        },
+        {
+          "id": "34981ea1-8855-482c-981d-18e30cb95085",
+          "method": "GET",
+          "path": "/contracts/81c3da3a-7ab4-4809-a5cf-cf0b8c35547a/cumulative-ledger",
+          "status": 422,
+          "at": "2026-11-05T09:20:14.438Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/pay-ledger-flows.spec.ts",
+      "name": "the chief accountant reads the balances and their entries, narrows them to one item, and a person without the right is refused (UI-PAY-10, AC-ST-PAY-001-4, UAT-AC341)",
+      "status": "passed",
+      "durationMs": 1170,
+      "at": "2026-11-05T08:49:44.346Z",
+      "requests": [
+        {
+          "id": "cc0881c5-e80c-4291-9f0d-608f088669c0",
+          "method": "GET",
+          "path": "/contracts/e42076a3-7657-45a0-95e2-c73c5e3e2951/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T08:49:45.087Z"
+        },
+        {
+          "id": "51aba9bb-b54f-48d6-af42-a4ceb434dea3",
+          "method": "GET",
+          "path": "/contracts/e42076a3-7657-45a0-95e2-c73c5e3e2951/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T08:49:45.248Z"
+        },
+        {
+          "id": "0ad9c049-d6e5-4e61-b74c-72601d13ed14",
+          "method": "GET",
+          "path": "/contracts/e42076a3-7657-45a0-95e2-c73c5e3e2951/cumulative-ledger",
+          "status": 403,
+          "at": "2026-11-05T08:49:45.446Z"
+        }
+      ]
+    }
+  ]
+}

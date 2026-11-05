@@ -1,0 +1,54 @@
+{
+  "id": "UAT-AC506",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/sync/sync-attachments.test.ts",
+      "name": "the attachments a phone uploads in chunks (ST-MOB-009, MOB-19) AC-ST-MOB-009-2 UAT-AC506: an infected file is INFECTED with the reason, is not linked to a record, and a new upload is the way to try again",
+      "status": "passed",
+      "durationMs": 213,
+      "at": "2026-11-05T09:22:19.295Z",
+      "requests": [
+        {
+          "id": "bcd72659-181b-49c6-a07e-99f4e420b238",
+          "method": "POST",
+          "path": "/sync/attachments",
+          "status": 200,
+          "at": "2026-11-05T09:22:19.082Z"
+        },
+        {
+          "id": "ffd6880b-70ee-4f4b-b8d2-acb761552e5d",
+          "method": "PUT",
+          "path": "/sync/attachments/cd765859-58b3-45c3-984e-926f8c32a2d3/chunks/0",
+          "status": 200,
+          "at": "2026-11-05T09:22:19.107Z"
+        },
+        {
+          "id": "2ca697b2-e058-4d24-a3f9-ae97f4369547",
+          "method": "POST",
+          "path": "/sync/attachments/cd765859-58b3-45c3-984e-926f8c32a2d3/complete",
+          "status": 200,
+          "at": "2026-11-05T09:22:19.118Z"
+        },
+        {
+          "id": "b377ffa7-c16e-4c6b-8151-0f83d2eecb3d",
+          "method": "GET",
+          "path": "/sync/attachments/cd765859-58b3-45c3-984e-926f8c32a2d3",
+          "status": 200,
+          "at": "2026-11-05T09:22:19.181Z"
+        },
+        {
+          "id": "fef09a4c-7a3b-4384-84a6-028fda025751",
+          "method": "POST",
+          "path": "/sync/attachments/cd765859-58b3-45c3-984e-926f8c32a2d3/complete",
+          "status": 409,
+          "at": "2026-11-05T09:22:19.283Z"
+        }
+      ]
+    }
+  ]
+}

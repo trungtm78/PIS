@@ -1,0 +1,54 @@
+{
+  "id": "UAT-AC502",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/sync/sync-batches.test.ts",
+      "name": "the commands a phone queued offline (ST-MOB-005, MOB-41) a batch AC-ST-MOB-005-1 UAT-AC502: after the response was lost, the lookup by key says ACCEPTED, and sending the batch again carries nothing out a second time",
+      "status": "passed",
+      "durationMs": 128,
+      "at": "2026-11-05T09:21:12.674Z",
+      "requests": [
+        {
+          "id": "27530279-636d-4893-a2ba-58543afe0ded",
+          "method": "GET",
+          "path": "/sync/commands/queued-0010-5d876072-c806-44d1-a980-1949fdef5284",
+          "status": 200,
+          "at": "2026-11-05T09:21:12.547Z"
+        },
+        {
+          "id": "4ed86946-13f5-44c8-aad8-b18f77f31c1d",
+          "method": "POST",
+          "path": "/reports/00000000-0000-4000-8000-0000000000e2/submit",
+          "status": 201,
+          "at": "2026-11-05T09:21:12.574Z"
+        },
+        {
+          "id": "4ed86946-13f5-44c8-aad8-b18f77f31c1d",
+          "method": "POST",
+          "path": "/sync/batches",
+          "status": 200,
+          "at": "2026-11-05T09:21:12.565Z"
+        },
+        {
+          "id": "616c6b12-0321-4569-a566-04c6a54a6021",
+          "method": "GET",
+          "path": "/sync/commands/queued-0010-5d876072-c806-44d1-a980-1949fdef5284",
+          "status": 200,
+          "at": "2026-11-05T09:21:12.603Z"
+        },
+        {
+          "id": "64976ada-3702-480c-aadb-8c1df9453cb1",
+          "method": "POST",
+          "path": "/sync/batches",
+          "status": 200,
+          "at": "2026-11-05T09:21:12.613Z"
+        }
+      ]
+    }
+  ]
+}

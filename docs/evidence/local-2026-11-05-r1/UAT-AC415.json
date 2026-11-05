@@ -1,0 +1,331 @@
+{
+  "id": "UAT-AC415",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/layout-profiles.test.ts",
+      "name": "layout profile governance (ST-DOC-016) AC-ST-DOC-016-1 / UAT-AC415: the legal ranges of Appendix I drafts a revision of the default profile, with the values of BR-DOC-13, as revision 1 of its code, and shows it",
+      "status": "passed",
+      "durationMs": 53,
+      "at": "2026-11-05T09:21:25.868Z",
+      "requests": [
+        {
+          "id": "e046a2f7-354c-4d8a-8e4b-0f1c5dac67d8",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 200,
+          "at": "2026-11-05T09:21:25.815Z"
+        },
+        {
+          "id": "091cf79d-1bbf-42e1-ab68-aea59e5998eb",
+          "method": "GET",
+          "path": "/document-layout-profiles/f8766efe-a72b-4b9b-8187-f0a09dce84b1",
+          "status": 200,
+          "at": "2026-11-05T09:21:25.858Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/layout-profiles.test.ts",
+      "name": "layout profile governance (ST-DOC-016) AC-ST-DOC-016-1 / UAT-AC415: the legal ranges of Appendix I AC-ST-DOC-016-1: a margin of 18 mm is 422 LAYOUT_OUT_OF_LEGAL_RANGE and no revision is created",
+      "status": "passed",
+      "durationMs": 53,
+      "at": "2026-11-05T09:21:25.922Z",
+      "requests": [
+        {
+          "id": "ded3da91-51df-4796-914f-fcd42fafa369",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:25.868Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/layout-profiles.test.ts",
+      "name": "layout profile governance (ST-DOC-016) AC-ST-DOC-016-1 / UAT-AC415: the legal ranges of Appendix I refuses a margin on the left of 36 mm",
+      "status": "passed",
+      "durationMs": 65,
+      "at": "2026-11-05T09:21:25.987Z",
+      "requests": [
+        {
+          "id": "04af7fb4-8303-4968-9c5e-d41464ed1523",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:25.921Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/layout-profiles.test.ts",
+      "name": "layout profile governance (ST-DOC-016) AC-ST-DOC-016-1 / UAT-AC415: the legal ranges of Appendix I refuses a margin on the right of 14 mm",
+      "status": "passed",
+      "durationMs": 57,
+      "at": "2026-11-05T09:21:26.043Z",
+      "requests": [
+        {
+          "id": "b3c99ee7-8b4f-4b78-b769-a2e397f51667",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:25.987Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/layout-profiles.test.ts",
+      "name": "layout profile governance (ST-DOC-016) AC-ST-DOC-016-1 / UAT-AC415: the legal ranges of Appendix I refuses a body of 16 pt",
+      "status": "passed",
+      "durationMs": 46,
+      "at": "2026-11-05T09:21:26.090Z",
+      "requests": [
+        {
+          "id": "75a0600e-3c23-41a5-822c-4060732af5f3",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:26.043Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/layout-profiles.test.ts",
+      "name": "layout profile governance (ST-DOC-016) AC-ST-DOC-016-1 / UAT-AC415: the legal ranges of Appendix I refuses a national title of 14 pt",
+      "status": "passed",
+      "durationMs": 117,
+      "at": "2026-11-05T09:21:26.207Z",
+      "requests": [
+        {
+          "id": "a43efad0-ed2f-4904-a502-096eb4b8441a",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:26.090Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/layout-profiles.test.ts",
+      "name": "layout profile governance (ST-DOC-016) AC-ST-DOC-016-1 / UAT-AC415: the legal ranges of Appendix I refuses a seal that does not meet the signature",
+      "status": "passed",
+      "durationMs": 62,
+      "at": "2026-11-05T09:21:26.269Z",
+      "requests": [
+        {
+          "id": "83fc338f-23d7-43a0-b1cb-6ef65aba9194",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:26.207Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/layout-profiles.test.ts",
+      "name": "layout profile governance (ST-DOC-016) AC-ST-DOC-016-1 / UAT-AC415: the legal ranges of Appendix I refuses a seal that covers half of the signature",
+      "status": "passed",
+      "durationMs": 66,
+      "at": "2026-11-05T09:21:26.336Z",
+      "requests": [
+        {
+          "id": "b99abdf3-37c4-4fa2-874b-df5c332f3494",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:26.269Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/layout-profiles.test.ts",
+      "name": "layout profile governance (ST-DOC-016) AC-ST-DOC-016-1 / UAT-AC415: the legal ranges of Appendix I refuses a seal that is beside the signature, not over it",
+      "status": "passed",
+      "durationMs": 61,
+      "at": "2026-11-05T09:21:26.397Z",
+      "requests": [
+        {
+          "id": "53ecd7cb-acea-4cc4-bf55-f8ee0e0cfd5f",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:26.336Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/layout-profiles.test.ts",
+      "name": "layout profile governance (ST-DOC-016) AC-ST-DOC-016-1 / UAT-AC415: the legal ranges of Appendix I refuses both boxes of the signature moved off the page",
+      "status": "passed",
+      "durationMs": 62,
+      "at": "2026-11-05T09:21:26.459Z",
+      "requests": [
+        {
+          "id": "d55026bb-20cd-4443-88da-b17121ccd423",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:26.396Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/layout-profiles.test.ts",
+      "name": "layout profile governance (ST-DOC-016) AC-ST-DOC-016-1 / UAT-AC415: the legal ranges of Appendix I refuses a box of the number fields that is not on the page",
+      "status": "passed",
+      "durationMs": 49,
+      "at": "2026-11-05T09:21:26.509Z",
+      "requests": [
+        {
+          "id": "dbb6c595-69c8-408d-a822-a1dde5ee6806",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:26.459Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/layout-profiles.test.ts",
+      "name": "layout profile governance (ST-DOC-016) AC-ST-DOC-016-1 / UAT-AC415: the legal ranges of Appendix I refuses a seal that has no height",
+      "status": "passed",
+      "durationMs": 61,
+      "at": "2026-11-05T09:21:26.570Z",
+      "requests": [
+        {
+          "id": "353396d5-313c-43db-894d-e2ea0a34cc34",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:26.508Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/layout-profiles.test.ts",
+      "name": "layout profile governance (ST-DOC-016) AC-ST-DOC-016-1 / UAT-AC415: the legal ranges of Appendix I refuses a body that is not a profile (422 VALIDATION_FAILED), a legal basis that is blank (422 LEGAL_BASIS_REQUIRED) and a code or a day that is not one",
+      "status": "passed",
+      "durationMs": 134,
+      "at": "2026-11-05T09:21:26.703Z",
+      "requests": [
+        {
+          "id": "34e16f85-60ab-474d-a47b-c26b7eef6d12",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:26.569Z"
+        },
+        {
+          "id": "69ae0976-b694-4c39-94c8-8220c11e00c4",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:26.578Z"
+        },
+        {
+          "id": "ccd4eec6-2b77-4d54-a8be-2ac6a12abfdc",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:26.594Z"
+        },
+        {
+          "id": "77be4927-ba18-49b4-a742-7fb94cbb921d",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:26.610Z"
+        },
+        {
+          "id": "818e1251-afe3-4b69-999b-dcb41987a657",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:26.624Z"
+        },
+        {
+          "id": "cd73df29-f74a-447b-89dd-bd0d44e75a89",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:26.642Z"
+        },
+        {
+          "id": "d9ebb846-d3c2-43c6-9be4-d3cc22eb413d",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:26.655Z"
+        },
+        {
+          "id": "51541997-ddfb-4947-b145-49e080d766eb",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:26.674Z"
+        },
+        {
+          "id": "b3a7422e-36f0-4a6c-8c40-68e176cd9b41",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:26.678Z"
+        },
+        {
+          "id": "90642b36-0bc3-41e7-ac2e-5d1ad75d036c",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 422,
+          "at": "2026-11-05T09:21:26.688Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/layout-profiles.test.ts",
+      "name": "layout profile governance (ST-DOC-016) AC-ST-DOC-016-1 / UAT-AC415: the legal ranges of Appendix I numbers the revisions of a code one after the other",
+      "status": "passed",
+      "durationMs": 101,
+      "at": "2026-11-05T09:21:26.804Z",
+      "requests": [
+        {
+          "id": "b7b6877c-31bb-4ca8-958a-e8f9236061f7",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 200,
+          "at": "2026-11-05T09:21:26.703Z"
+        },
+        {
+          "id": "4d0409d9-7612-456b-9a43-3aafd45edb54",
+          "method": "POST",
+          "path": "/document-layout-profiles",
+          "status": 200,
+          "at": "2026-11-05T09:21:26.725Z"
+        },
+        {
+          "id": "5b927063-45e5-43a8-bdb4-88fd2d024ccb",
+          "method": "GET",
+          "path": "/document-layout-profiles/9c64c45e-8856-4764-81b3-9cd43c72e8f8",
+          "status": 200,
+          "at": "2026-11-05T09:21:26.740Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "id": "UAT-AC451",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/contractor-history.test.ts",
+      "name": "the history of a contractor for the evaluators (ST-BID-013, UAT-AC451, UAT-AC446) is registered in the module of BID",
+      "status": "passed",
+      "durationMs": 1,
+      "at": "2026-11-05T09:21:07.970Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/contractor-history.test.ts",
+      "name": "the history of a contractor for the evaluators (ST-BID-013, UAT-AC451, UAT-AC446) AC-ST-BID-013-1, UAT-AC451: only the approved scorecards that stand are history: CP-7 (83.00) is there, CP-8 (submitted), a draft and a replaced revision are not",
+      "status": "passed",
+      "durationMs": 1554,
+      "at": "2026-11-05T09:21:09.524Z",
+      "requests": [
+        {
+          "id": "11916a70-c513-409a-9917-a9a495f4fce8",
+          "method": "GET",
+          "path": "/contractors/c876e756-ab66-43db-8a31-0a5549a863de/history",
+          "status": 200,
+          "at": "2026-11-05T09:21:09.501Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/contractor-history.test.ts",
+      "name": "the history of a contractor for the evaluators (ST-BID-013, UAT-AC451, UAT-AC446) finds the approved scorecards however many newer ones are not: the list is cut after the approved ones are chosen, and the count is of all of them",
+      "status": "passed",
+      "durationMs": 678,
+      "at": "2026-11-05T09:21:10.202Z",
+      "requests": [
+        {
+          "id": "59358578-b5b2-4aae-968a-8eb5a50bb7c0",
+          "method": "GET",
+          "path": "/contractors/32363c26-5f75-472a-ada6-d70bf993db9b/history",
+          "status": 200,
+          "at": "2026-11-05T09:21:10.177Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/contractor-history.test.ts",
+      "name": "the history of a contractor for the evaluators (ST-BID-013, UAT-AC451, UAT-AC446) averages the approved scorecards and puts the latest approval first",
+      "status": "passed",
+      "durationMs": 785,
+      "at": "2026-11-05T09:21:10.987Z",
+      "requests": [
+        {
+          "id": "71d0fbd2-dd89-40e7-9e6d-621ab6279c68",
+          "method": "GET",
+          "path": "/contractors/8f93e81c-6df0-4d01-a6de-ad07d03fd68a/history",
+          "status": 200,
+          "at": "2026-11-05T09:21:10.969Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/contractor-history.test.ts",
+      "name": "the history of a contractor for the evaluators (ST-BID-013, UAT-AC451, UAT-AC446) shows no scorecard and no contract to someone who may not read the scorecards, but the restrictions all the same",
+      "status": "passed",
+      "durationMs": 959,
+      "at": "2026-11-05T09:21:11.945Z",
+      "requests": [
+        {
+          "id": "15883326-baa4-4ed1-aca0-e70556f11ea6",
+          "method": "GET",
+          "path": "/contractors/1b82e50b-b869-4a56-b775-6dec486d1da6/history",
+          "status": 200,
+          "at": "2026-11-05T09:21:11.930Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/contractor-history.test.ts",
+      "name": "the history of a contractor for the evaluators (ST-BID-013, UAT-AC451, UAT-AC446) AC-ST-BID-013-2, UAT-AC446: lists the restrictions with their source and validity, the one that applies today marked, and says so",
+      "status": "passed",
+      "durationMs": 559,
+      "at": "2026-11-05T09:21:12.505Z",
+      "requests": [
+        {
+          "id": "7956d9fc-e9f0-4ae1-971a-c379f2aea393",
+          "method": "GET",
+          "path": "/contractors/8df450b6-f4e8-40df-95e5-edd08e56fc3e/history",
+          "status": 200,
+          "at": "2026-11-05T09:21:12.473Z"
+        },
+        {
+          "id": "a4f64ba6-9221-454f-8dcc-f2a7389cb880",
+          "method": "GET",
+          "path": "/contractors/28f12242-4668-4da7-a9b3-5cb788563544/history",
+          "status": 200,
+          "at": "2026-11-05T09:21:12.493Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/contractor-history.test.ts",
+      "name": "the history of a contractor for the evaluators (ST-BID-013, UAT-AC451, UAT-AC446) leaves out the decision and the note of a restriction: they stay with the register of contractors",
+      "status": "passed",
+      "durationMs": 366,
+      "at": "2026-11-05T09:21:12.871Z",
+      "requests": [
+        {
+          "id": "48a8f399-245b-4881-a1d9-250c77776c88",
+          "method": "GET",
+          "path": "/contractors/7dc0835d-afeb-40b3-a5be-c2ab936b9199/history",
+          "status": 200,
+          "at": "2026-11-05T09:21:12.851Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/contractor-history.test.ts",
+      "name": "the history of a contractor for the evaluators (ST-BID-013, UAT-AC451, UAT-AC446) is closed to a guest contractor (403), to whoever lacks the right (403), and an unknown contractor is 404",
+      "status": "passed",
+      "durationMs": 59,
+      "at": "2026-11-05T09:21:12.930Z",
+      "requests": [
+        {
+          "id": "238ce622-2266-4734-9d8e-41718a3774f8",
+          "method": "GET",
+          "path": "/contractors/c876e756-ab66-43db-8a31-0a5549a863de/history",
+          "status": 403,
+          "at": "2026-11-05T09:21:12.872Z"
+        },
+        {
+          "id": "49d6227e-11b3-480b-95eb-2d7ee5cd2cdd",
+          "method": "GET",
+          "path": "/contractors/c876e756-ab66-43db-8a31-0a5549a863de/history",
+          "status": 403,
+          "at": "2026-11-05T09:21:12.885Z"
+        },
+        {
+          "id": "06b0a557-c204-4fff-b6ac-a70496bb04cb",
+          "method": "GET",
+          "path": "/contractors/3551b623-5016-498f-a742-5dc2387eed56/history",
+          "status": 404,
+          "at": "2026-11-05T09:21:12.899Z"
+        },
+        {
+          "id": "94e0c5d2-f7fa-4317-8ede-bf96e255288d",
+          "method": "GET",
+          "path": "/contractors/not-a-uuid/history",
+          "status": 422,
+          "at": "2026-11-05T09:21:12.915Z"
+        }
+      ]
+    }
+  ]
+}

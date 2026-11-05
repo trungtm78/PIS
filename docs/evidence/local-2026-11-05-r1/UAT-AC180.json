@@ -1,0 +1,33 @@
+{
+  "id": "UAT-AC180",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/delivery-commands.test.ts",
+      "name": "replay, cancel and the reads of the delivery attempts (ST-NOT-002, NOT-11, NOT-12, NOT-13) post_notifications_id_replay (NOT-13) AC-ST-NOT-002-5 (UAT-AC180): refuses 409 RECONCILE_REQUIRED while a send of unknown result is within its day, and sends nothing",
+      "status": "passed",
+      "durationMs": 385,
+      "at": "2026-11-05T09:21:47.616Z",
+      "requests": [
+        {
+          "id": "8c2ce935-de81-4c2c-839f-d9758925d650",
+          "method": "POST",
+          "path": "/notifications/f37e73d6-4752-41fb-92bc-c6ed3778c850/replay",
+          "status": 409,
+          "at": "2026-11-05T09:21:47.364Z"
+        },
+        {
+          "id": "b8e404c8-98dd-4325-9eab-183b5df3bb8b",
+          "method": "POST",
+          "path": "/notifications/d5a0a893-86a8-4465-b6f7-f6715318621d/replay",
+          "status": 202,
+          "at": "2026-11-05T09:21:47.595Z"
+        }
+      ]
+    }
+  ]
+}

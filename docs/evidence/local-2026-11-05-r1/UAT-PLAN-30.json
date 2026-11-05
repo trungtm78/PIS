@@ -1,0 +1,61 @@
+{
+  "id": "UAT-PLAN-30",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/plan.test.ts",
+      "name": "the plan of compensation, support and resettlement: drafting, composing it from confirmed inventory and revising it (ST-LND-005) revisePlan AC-ST-LND-005-2, UAT-PLAN-30: replaces a plan that was posted by a new revision, leaving the earlier one readable and marked as replaced",
+      "status": "passed",
+      "durationMs": 429,
+      "at": "2026-11-05T09:22:18.278Z",
+      "requests": [
+        {
+          "id": "8a8ac489-d366-4d31-91f5-583d634cbdb7",
+          "method": "POST",
+          "path": "/compensation-plans",
+          "status": 200,
+          "at": "2026-11-05T09:22:17.863Z"
+        },
+        {
+          "id": "c12b1c4e-f5fc-46e9-8e48-4623202b8f44",
+          "method": "POST",
+          "path": "/compensation-plans/b1015c69-7fa1-4bd2-b869-a1f513bad5be/items",
+          "status": 200,
+          "at": "2026-11-05T09:22:17.878Z"
+        },
+        {
+          "id": "b6c3ed1f-323d-457f-8431-e29fd8e1c58f",
+          "method": "POST",
+          "path": "/compensation-plans/b1015c69-7fa1-4bd2-b869-a1f513bad5be/revise",
+          "status": 200,
+          "at": "2026-11-05T09:22:17.943Z"
+        },
+        {
+          "id": "a1878071-1176-4687-93e6-8095f0c35e66",
+          "method": "GET",
+          "path": "/compensation-plans/b1015c69-7fa1-4bd2-b869-a1f513bad5be/items",
+          "status": 200,
+          "at": "2026-11-05T09:22:18.222Z"
+        },
+        {
+          "id": "07361e68-aad8-447f-941a-1c3db8bfc5bf",
+          "method": "GET",
+          "path": "/compensation-plans/4aef17b6-cfa2-4a0d-a31d-4bdc3fc80e2f/items",
+          "status": 200,
+          "at": "2026-11-05T09:22:18.244Z"
+        },
+        {
+          "id": "138f9112-563b-48f5-b0a8-c0e1614933d9",
+          "method": "POST",
+          "path": "/compensation-plans/4aef17b6-cfa2-4a0d-a31d-4bdc3fc80e2f/items",
+          "status": 200,
+          "at": "2026-11-05T09:22:18.262Z"
+        }
+      ]
+    }
+  ]
+}

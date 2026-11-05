@@ -1,0 +1,40 @@
+{
+  "id": "MOB02",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report-decision.test.ts",
+      "name": "the decision on a weekly report and its corrections over HTTP (ST-DIS-006) web and mobile file the same report, and a phone that replays its queue (ST-DIS-017) AC-ST-DIS-017-3 / MOB02: a command that was queued under one tenant and sent under another reaches nothing: the report is not found and is not changed",
+      "status": "passed",
+      "durationMs": 174,
+      "at": "2026-11-05T09:15:36.120Z",
+      "requests": [
+        {
+          "id": "b9040669-c45d-4731-83ec-1d926f5892fc",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:15:35.985Z"
+        },
+        {
+          "id": "1023fbee-0189-4795-a757-d261146ab299",
+          "method": "POST",
+          "path": "/reports/2212c5b6-45ab-4188-923f-ce19c9dcc9f1/revisions",
+          "status": 404,
+          "at": "2026-11-05T09:15:36.047Z"
+        },
+        {
+          "id": "d40c3791-2b48-4dfa-8946-40cd09c4c6dd",
+          "method": "POST",
+          "path": "/reports/2212c5b6-45ab-4188-923f-ce19c9dcc9f1/submit",
+          "status": 404,
+          "at": "2026-11-05T09:15:36.061Z"
+        }
+      ]
+    }
+  ]
+}

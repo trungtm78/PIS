@@ -1,0 +1,225 @@
+{
+  "id": "UAT-AC388",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/handover.test.ts",
+      "name": "the handover and its punch list over HTTP (ST-AST-001) the punch list and the decision (AC-ST-AST-001-1, UAT-AC388) AC-ST-AST-001-1, UAT-AC388: refuses to accept while a critical item is open and never waives it, then accepts once the contractor has put it right and somebody else verified it",
+      "status": "passed",
+      "durationMs": 3277,
+      "at": "2026-11-05T09:17:37.193Z",
+      "requests": [
+        {
+          "id": "4d3a87a5-4cc1-44f4-9c56-2d3d5dd31519",
+          "method": "POST",
+          "path": "/handovers",
+          "status": 200,
+          "at": "2026-11-05T09:17:36.218Z"
+        },
+        {
+          "id": "18299f21-bdfc-43f5-af1c-8db06a4f3fe8",
+          "method": "POST",
+          "path": "/handovers/527df91d-8d97-4ce6-b09a-341e245b433a/punch-items",
+          "status": 200,
+          "at": "2026-11-05T09:17:36.247Z"
+        },
+        {
+          "id": "bdf532b9-f898-487b-841a-643803d0e0dd",
+          "method": "POST",
+          "path": "/punch-items/2c1dd7e4-8423-491f-a439-52012e7b2e52/waive",
+          "status": 422,
+          "at": "2026-11-05T09:17:36.417Z"
+        },
+        {
+          "id": "b5b1111d-0875-49e2-951c-c7f5e2ad0456",
+          "method": "POST",
+          "path": "/handovers/527df91d-8d97-4ce6-b09a-341e245b433a/decision",
+          "status": 422,
+          "at": "2026-11-05T09:17:36.444Z"
+        },
+        {
+          "id": "12f6f65f-e1b8-4398-862a-ef632384b72f",
+          "method": "POST",
+          "path": "/handovers/527df91d-8d97-4ce6-b09a-341e245b433a/decision",
+          "status": 403,
+          "at": "2026-11-05T09:17:36.462Z"
+        },
+        {
+          "id": "82d68d59-2cae-4ab0-97dc-035fb39156ee",
+          "method": "POST",
+          "path": "/punch-items/2c1dd7e4-8423-491f-a439-52012e7b2e52/fixed",
+          "status": 422,
+          "at": "2026-11-05T09:17:36.476Z"
+        },
+        {
+          "id": "b9118cfa-1b0f-4b60-8ff0-8d5e27e0ef59",
+          "method": "POST",
+          "path": "/punch-items/2c1dd7e4-8423-491f-a439-52012e7b2e52/fixed",
+          "status": 404,
+          "at": "2026-11-05T09:17:36.497Z"
+        },
+        {
+          "id": "dc5d9641-f79a-457a-81a2-b271c7ceadec",
+          "method": "POST",
+          "path": "/punch-items/2c1dd7e4-8423-491f-a439-52012e7b2e52/fixed",
+          "status": 200,
+          "at": "2026-11-05T09:17:36.526Z"
+        },
+        {
+          "id": "12714989-d451-4ed7-b2a5-290e212a9415",
+          "method": "POST",
+          "path": "/punch-items/2c1dd7e4-8423-491f-a439-52012e7b2e52/verify",
+          "status": 403,
+          "at": "2026-11-05T09:17:36.639Z"
+        },
+        {
+          "id": "892bc109-1c49-41f4-8651-1aea479c3574",
+          "method": "POST",
+          "path": "/punch-items/2c1dd7e4-8423-491f-a439-52012e7b2e52/verify",
+          "status": 403,
+          "at": "2026-11-05T09:17:36.645Z"
+        },
+        {
+          "id": "2246fca4-2a23-4ce3-a988-8abafb28f259",
+          "method": "POST",
+          "path": "/punch-items/2c1dd7e4-8423-491f-a439-52012e7b2e52/verify",
+          "status": 200,
+          "at": "2026-11-05T09:17:36.649Z"
+        },
+        {
+          "id": "ebaf865c-a895-4256-830e-57a5651595b6",
+          "method": "POST",
+          "path": "/punch-items/2c1dd7e4-8423-491f-a439-52012e7b2e52/fixed",
+          "status": 200,
+          "at": "2026-11-05T09:17:36.703Z"
+        },
+        {
+          "id": "36608260-fbb7-4c68-bb79-a98ec7b106fd",
+          "method": "POST",
+          "path": "/punch-items/2c1dd7e4-8423-491f-a439-52012e7b2e52/verify",
+          "status": 200,
+          "at": "2026-11-05T09:17:36.720Z"
+        },
+        {
+          "id": "ab68e05d-0b40-4e65-95bc-1ea932c99643",
+          "method": "POST",
+          "path": "/handovers/527df91d-8d97-4ce6-b09a-341e245b433a/decision",
+          "status": 422,
+          "at": "2026-11-05T09:17:36.892Z"
+        },
+        {
+          "id": "1da6adbf-7101-4dd0-a670-9aedfa7f237c",
+          "method": "POST",
+          "path": "/handovers/527df91d-8d97-4ce6-b09a-341e245b433a/decision",
+          "status": 409,
+          "at": "2026-11-05T09:17:36.905Z"
+        },
+        {
+          "id": "ec6463e8-9f04-43c5-add4-5788b36d1d1a",
+          "method": "POST",
+          "path": "/handovers/527df91d-8d97-4ce6-b09a-341e245b433a/decision",
+          "status": 403,
+          "at": "2026-11-05T09:17:36.920Z"
+        },
+        {
+          "id": "0dedfd2f-e0da-4a42-8050-171c66dd1d4f",
+          "method": "POST",
+          "path": "/handovers/527df91d-8d97-4ce6-b09a-341e245b433a/decision",
+          "status": 404,
+          "at": "2026-11-05T09:17:36.932Z"
+        },
+        {
+          "id": "4c67399b-d40a-4282-ae3d-59f0aed056fb",
+          "method": "POST",
+          "path": "/handovers/527df91d-8d97-4ce6-b09a-341e245b433a/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:36.956Z"
+        },
+        {
+          "id": "538267bc-084b-41be-a9b6-a4c3e1bf4b5d",
+          "method": "POST",
+          "path": "/handovers/527df91d-8d97-4ce6-b09a-341e245b433a/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:36.968Z"
+        },
+        {
+          "id": "1e18a5e9-c2b6-4b1b-a6c1-e50922a7dfd6",
+          "method": "POST",
+          "path": "/handovers/527df91d-8d97-4ce6-b09a-341e245b433a/decision",
+          "status": 409,
+          "at": "2026-11-05T09:17:37.172Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/handover.test.ts",
+      "name": "the handover and its punch list over HTTP (ST-AST-001) the punch list and the decision (AC-ST-AST-001-1, UAT-AC388) waives an item that is not critical by somebody who did not put it on the list, and gives a handover back or rejects it without telling the other modules",
+      "status": "passed",
+      "durationMs": 1245,
+      "at": "2026-11-05T09:17:38.438Z",
+      "requests": [
+        {
+          "id": "7b73caaf-16f9-4dec-bf15-144f11e0ff94",
+          "method": "POST",
+          "path": "/handovers",
+          "status": 200,
+          "at": "2026-11-05T09:17:37.880Z"
+        },
+        {
+          "id": "b9bfd9e5-ce0f-4a64-86c7-91cd123941b4",
+          "method": "POST",
+          "path": "/handovers/76913107-8a62-4918-9ce5-21290efb91c5/punch-items",
+          "status": 200,
+          "at": "2026-11-05T09:17:37.910Z"
+        },
+        {
+          "id": "52d8efd1-49c2-4c20-97bf-2dbada0a4dd1",
+          "method": "POST",
+          "path": "/punch-items/43067dd3-b980-44c6-b477-73db72e0d983/waive",
+          "status": 403,
+          "at": "2026-11-05T09:17:37.988Z"
+        },
+        {
+          "id": "67f8b5d9-c109-47a3-8987-11b25adb463f",
+          "method": "POST",
+          "path": "/punch-items/43067dd3-b980-44c6-b477-73db72e0d983/waive",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.009Z"
+        },
+        {
+          "id": "0e0491cd-df29-4cd7-8b9c-7339c46ec657",
+          "method": "POST",
+          "path": "/punch-items/43067dd3-b980-44c6-b477-73db72e0d983/waive",
+          "status": 409,
+          "at": "2026-11-05T09:17:38.127Z"
+        },
+        {
+          "id": "3e782d8f-c69a-43bd-82c9-6ff97e03aed9",
+          "method": "POST",
+          "path": "/handovers/76913107-8a62-4918-9ce5-21290efb91c5/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.253Z"
+        },
+        {
+          "id": "e33af687-3e2b-41e0-a375-f15061c579bb",
+          "method": "POST",
+          "path": "/handovers/76913107-8a62-4918-9ce5-21290efb91c5/decision",
+          "status": 200,
+          "at": "2026-11-05T09:17:38.320Z"
+        },
+        {
+          "id": "1f3bd4c6-2d3e-4fa2-bdac-49343b35512b",
+          "method": "POST",
+          "path": "/handovers/76913107-8a62-4918-9ce5-21290efb91c5/punch-items",
+          "status": 409,
+          "at": "2026-11-05T09:17:38.426Z"
+        }
+      ]
+    }
+  ]
+}

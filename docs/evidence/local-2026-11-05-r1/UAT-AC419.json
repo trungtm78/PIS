@@ -1,0 +1,214 @@
+{
+  "id": "UAT-AC419",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/dossiers.test.ts",
+      "name": "dossiers over HTTP (ST-DOC-013) AC-ST-DOC-013-3: UAT-AC419 files a resolved incoming letter into an open dossier, once, and tells the chain",
+      "status": "passed",
+      "durationMs": 420,
+      "at": "2026-11-05T09:14:26.415Z",
+      "requests": [
+        {
+          "id": "b7c2471e-646c-48ba-8f8f-a2d1f7bce004",
+          "method": "POST",
+          "path": "/dossiers",
+          "status": 200,
+          "at": "2026-11-05T09:14:26.082Z"
+        },
+        {
+          "id": "aa2f916c-23b2-4514-8318-4c2d54d729fc",
+          "method": "POST",
+          "path": "/incoming-documents/dac52f60-1163-46df-99c2-a6fe68c521cb/filing",
+          "status": 200,
+          "at": "2026-11-05T09:14:26.097Z"
+        },
+        {
+          "id": "daddc5c8-1c39-4269-8923-c29e02204687",
+          "method": "GET",
+          "path": "/dossiers/8b1a04ed-ce6f-4589-a8de-0bc34dbd80c6",
+          "status": 200,
+          "at": "2026-11-05T09:14:26.354Z"
+        },
+        {
+          "id": "2ee47eed-9723-4d95-9ad4-72a91915a321",
+          "method": "POST",
+          "path": "/incoming-documents/dac52f60-1163-46df-99c2-a6fe68c521cb/filing",
+          "status": 409,
+          "at": "2026-11-05T09:14:26.369Z"
+        },
+        {
+          "id": "0a68c2fc-07de-494b-99ff-ac074bfdd31e",
+          "method": "POST",
+          "path": "/dossiers",
+          "status": 200,
+          "at": "2026-11-05T09:14:26.388Z"
+        },
+        {
+          "id": "0276b78b-c935-4931-8fb0-5bcb4b6e5387",
+          "method": "POST",
+          "path": "/dossiers/67e26c8f-57d4-4a1b-a745-e7aaa887dba5/items",
+          "status": 422,
+          "at": "2026-11-05T09:14:26.403Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/incoming.test.ts",
+      "name": "incoming documents over HTTP (ST-DOC-011) AC-ST-DOC-011-1: UAT-AC419 receives a letter, refuses the same letter again unless a reason is given, numbers it 10 in the register, and takes it by assignment, processing and resolution, with one event per step",
+      "status": "passed",
+      "durationMs": 1228,
+      "at": "2026-11-05T09:15:06.990Z",
+      "requests": [
+        {
+          "id": "ca9901fb-f912-44ff-ba7f-a49458e2e05e",
+          "method": "POST",
+          "path": "/incoming-documents",
+          "status": 200,
+          "at": "2026-11-05T09:15:05.771Z"
+        },
+        {
+          "id": "1fbe52b5-bfad-43e6-9459-f23c515eb8cb",
+          "method": "POST",
+          "path": "/incoming-documents",
+          "status": 409,
+          "at": "2026-11-05T09:15:05.827Z"
+        },
+        {
+          "id": "f6b9fbe6-2076-4604-8765-26e5e558776e",
+          "method": "POST",
+          "path": "/incoming-documents",
+          "status": 200,
+          "at": "2026-11-05T09:15:05.937Z"
+        },
+        {
+          "id": "c1ebb381-7c3f-4377-a0b5-53ff5852e9f7",
+          "method": "POST",
+          "path": "/incoming-documents",
+          "status": 422,
+          "at": "2026-11-05T09:15:06.001Z"
+        },
+        {
+          "id": "9856bf3e-688a-49d0-b41f-5b60af797469",
+          "method": "POST",
+          "path": "/incoming-documents/dbb641db-9d1f-430b-9521-1509c1c44fcf/registration",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.055Z"
+        },
+        {
+          "id": "b547249e-8d75-4dbd-b74d-42cbc2df1252",
+          "method": "POST",
+          "path": "/incoming-documents/dbb641db-9d1f-430b-9521-1509c1c44fcf/registration",
+          "status": 409,
+          "at": "2026-11-05T09:15:06.137Z"
+        },
+        {
+          "id": "63e1812f-492d-4782-9bc9-660a9a69e275",
+          "method": "POST",
+          "path": "/incoming-documents/dbb641db-9d1f-430b-9521-1509c1c44fcf/assignment",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.200Z"
+        },
+        {
+          "id": "1a6ff191-1b94-4c68-bc72-34cef1cbc585",
+          "method": "POST",
+          "path": "/incoming-documents/dbb641db-9d1f-430b-9521-1509c1c44fcf/processing",
+          "status": 403,
+          "at": "2026-11-05T09:15:06.233Z"
+        },
+        {
+          "id": "ea3552ed-2c3a-405d-9661-e85b73339f3b",
+          "method": "POST",
+          "path": "/incoming-documents/dbb641db-9d1f-430b-9521-1509c1c44fcf/processing",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.257Z"
+        },
+        {
+          "id": "a06f30d4-9ce3-4480-9f23-4bbc2d307218",
+          "method": "POST",
+          "path": "/incoming-documents/dbb641db-9d1f-430b-9521-1509c1c44fcf/resolution",
+          "status": 403,
+          "at": "2026-11-05T09:15:06.271Z"
+        },
+        {
+          "id": "3aa3d583-eca1-4219-89d4-0941405c0654",
+          "method": "POST",
+          "path": "/incoming-documents/dbb641db-9d1f-430b-9521-1509c1c44fcf/resolution",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.286Z"
+        },
+        {
+          "id": "bd64ac4e-0ca8-4bfa-bb2b-43652e72bc37",
+          "method": "POST",
+          "path": "/incoming-documents/dbb641db-9d1f-430b-9521-1509c1c44fcf/processing",
+          "status": 409,
+          "at": "2026-11-05T09:15:06.343Z"
+        },
+        {
+          "id": "2894ea45-cdf1-4939-ae64-96ed846b0ce1",
+          "method": "POST",
+          "path": "/incoming-documents/dbb641db-9d1f-430b-9521-1509c1c44fcf/assignment",
+          "status": 409,
+          "at": "2026-11-05T09:15:06.365Z"
+        },
+        {
+          "id": "4738dde1-44fd-4503-a6f8-2d75c39cfec9",
+          "method": "POST",
+          "path": "/incoming-documents/dbb641db-9d1f-430b-9521-1509c1c44fcf/rejection",
+          "status": 409,
+          "at": "2026-11-05T09:15:06.379Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/overview.test.ts",
+      "name": "the overview of the documents over HTTP (ST-DOC-014) AC-ST-DOC-014-2: UAT-AC419 counts the letters that are overdue now as the filter of the ledger does, and the templates that wait for their legal confirmation",
+      "status": "passed",
+      "durationMs": 960,
+      "at": "2026-11-05T09:20:53.445Z",
+      "requests": [
+        {
+          "id": "8ab44098-ba42-4e82-abd4-43d9ac59ee19",
+          "method": "GET",
+          "path": "/document-overview",
+          "status": 200,
+          "at": "2026-11-05T09:20:52.485Z"
+        },
+        {
+          "id": "3cd4f2b2-7b20-4d6e-aa3d-b7279c5e95e6",
+          "method": "GET",
+          "path": "/document-overview",
+          "status": 200,
+          "at": "2026-11-05T09:20:53.330Z"
+        },
+        {
+          "id": "4a4517dd-9f2a-4dd1-941d-56e0b15fd42c",
+          "method": "GET",
+          "path": "/incoming-documents",
+          "status": 200,
+          "at": "2026-11-05T09:20:53.391Z"
+        },
+        {
+          "id": "75aee78c-dfa7-4ffa-9260-b6cc498b1bda",
+          "method": "GET",
+          "path": "/document-overview",
+          "status": 200,
+          "at": "2026-11-05T09:20:53.418Z"
+        },
+        {
+          "id": "3e9f78d7-4390-4dbc-96ce-7a67bb1e993c",
+          "method": "GET",
+          "path": "/document-overview",
+          "status": 200,
+          "at": "2026-11-05T09:20:53.427Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,343 @@
+{
+  "id": "UAT-PLAN-65",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/scenario.test.ts",
+      "name": "the simulation of an allocation (ST-CAP-013) UAT-PLAN-65: promoted to a DRAFT reallocation proposal once it has been run is 409 SCENARIO_NOT_RUN before it has a result; after it, the proposal is a DRAFT with the moves as its lines and the scenario is PROMOTED, with nothing written to the ledger",
+      "status": "passed",
+      "durationMs": 1034,
+      "at": "2026-11-05T09:14:50.053Z",
+      "requests": [
+        {
+          "id": "88020db6-0cdb-4939-af97-0c81e8102e4b",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.372Z"
+        },
+        {
+          "id": "c5f1000a-49c7-4e7a-9e98-a104596fcc7e",
+          "method": "POST",
+          "path": "/capital-plans/9d9fddba-00dd-4130-87c0-5d3c84b2f324/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.388Z"
+        },
+        {
+          "id": "54d25e5a-3d90-4349-a3ad-fb118dc0e556",
+          "method": "POST",
+          "path": "/capital-plans/9d9fddba-00dd-4130-87c0-5d3c84b2f324/submit",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.411Z"
+        },
+        {
+          "id": "6089b322-d997-4656-b00c-f839acc01138",
+          "method": "POST",
+          "path": "/capital-plans/9d9fddba-00dd-4130-87c0-5d3c84b2f324/decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.423Z"
+        },
+        {
+          "id": "b4efc454-2dc8-4e7b-9f5a-af20392ae12e",
+          "method": "POST",
+          "path": "/plans/9d9fddba-00dd-4130-87c0-5d3c84b2f324/publish",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.479Z"
+        },
+        {
+          "id": "13356ac4-436a-4e2d-8495-04a9173fe51b",
+          "method": "POST",
+          "path": "/allocation-scenarios",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.596Z"
+        },
+        {
+          "id": "9beb5afe-557a-40cd-bb38-a99eb4a7f30a",
+          "method": "POST",
+          "path": "/allocation-scenarios/29c2754f-392c-4352-9221-3577fe24b3b5/promote",
+          "status": 409,
+          "at": "2026-11-05T09:14:49.613Z"
+        },
+        {
+          "id": "e4a1f18a-b039-49db-8d11-319c5f753e25",
+          "method": "POST",
+          "path": "/allocation-scenarios/29c2754f-392c-4352-9221-3577fe24b3b5/run",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.629Z"
+        },
+        {
+          "id": "154a23d0-d2e7-4d1a-9212-6572577c449c",
+          "method": "POST",
+          "path": "/allocation-scenarios/29c2754f-392c-4352-9221-3577fe24b3b5/promote",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.689Z"
+        },
+        {
+          "id": "39a5b38f-7782-45a9-82ca-b57479af5dae",
+          "method": "POST",
+          "path": "/allocation-scenarios/29c2754f-392c-4352-9221-3577fe24b3b5/promote",
+          "status": 409,
+          "at": "2026-11-05T09:14:49.962Z"
+        },
+        {
+          "id": "7121b998-0040-4fe5-918a-c572aaead61d",
+          "method": "POST",
+          "path": "/allocation-scenarios/29c2754f-392c-4352-9221-3577fe24b3b5/run",
+          "status": 409,
+          "at": "2026-11-05T09:14:49.981Z"
+        },
+        {
+          "id": "57898605-f2c4-4b03-a8f4-7bd5f832b2cd",
+          "method": "GET",
+          "path": "/allocation-scenarios",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.990Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/scenario.test.ts",
+      "name": "the simulation of an allocation (ST-CAP-013) UAT-PLAN-65: promoted to a DRAFT reallocation proposal once it has been run is judged again when it is promoted: a plan whose lines changed since the run makes it 422 SCENARIO_CONSTRAINT_INFEASIBLE and nothing is promoted",
+      "status": "passed",
+      "durationMs": 754,
+      "at": "2026-11-05T09:14:50.807Z",
+      "requests": [
+        {
+          "id": "8a732801-d61d-4ab1-b40b-77ddbf631876",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.363Z"
+        },
+        {
+          "id": "2cccf6ce-a530-4ca0-a1af-33c44ee1d70e",
+          "method": "POST",
+          "path": "/capital-plans/e99bb087-8e98-4602-902d-b1e8f360e603/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.382Z"
+        },
+        {
+          "id": "fbb4867b-becc-4416-ac0a-e7da1bad4bb7",
+          "method": "POST",
+          "path": "/capital-plans/e99bb087-8e98-4602-902d-b1e8f360e603/submit",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.401Z"
+        },
+        {
+          "id": "c5f3fe88-da8b-4184-8a1c-3997865ae859",
+          "method": "POST",
+          "path": "/capital-plans/e99bb087-8e98-4602-902d-b1e8f360e603/decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.417Z"
+        },
+        {
+          "id": "abaa7798-1686-4fd6-84a7-d30444e21157",
+          "method": "POST",
+          "path": "/plans/e99bb087-8e98-4602-902d-b1e8f360e603/publish",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.475Z"
+        },
+        {
+          "id": "16c69a6b-ba79-484f-b7aa-b4989d87c74d",
+          "method": "POST",
+          "path": "/allocation-scenarios",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.661Z"
+        },
+        {
+          "id": "5da5af9f-0015-4484-80e0-b1ce4371b7d5",
+          "method": "POST",
+          "path": "/allocation-scenarios/4b239f70-5df9-4a12-b5a3-7961db2d2c12/run",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.699Z"
+        },
+        {
+          "id": "48169a0b-9e79-4edf-955a-9ada381fcb04",
+          "method": "POST",
+          "path": "/allocation-scenarios/4b239f70-5df9-4a12-b5a3-7961db2d2c12/promote",
+          "status": 422,
+          "at": "2026-11-05T09:14:50.751Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/scenario.test.ts",
+      "name": "the simulation of an allocation (ST-CAP-013) UAT-PLAN-65: promoted to a DRAFT reallocation proposal once it has been run needs a frozen snapshot to rest on: none is 422 VALIDATION_FAILED, one that is not frozen is 422 SNAPSHOT_NOT_FROZEN",
+      "status": "passed",
+      "durationMs": 864,
+      "at": "2026-11-05T09:14:51.672Z",
+      "requests": [
+        {
+          "id": "ee21ab81-6330-40cf-bdce-39b509319894",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.190Z"
+        },
+        {
+          "id": "cb9d8ef2-b2d6-4840-a562-5118512a20d8",
+          "method": "POST",
+          "path": "/capital-plans/7c8248f2-6344-455a-b805-cc682aa20ce9/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.213Z"
+        },
+        {
+          "id": "53907132-1837-4777-a934-1eb83c9c625b",
+          "method": "POST",
+          "path": "/capital-plans/7c8248f2-6344-455a-b805-cc682aa20ce9/submit",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.234Z"
+        },
+        {
+          "id": "22182dbb-40e0-404d-b59c-4c14f1b55ae3",
+          "method": "POST",
+          "path": "/capital-plans/7c8248f2-6344-455a-b805-cc682aa20ce9/decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.248Z"
+        },
+        {
+          "id": "8d57f5d8-34e1-4c11-a0e5-ad076177823a",
+          "method": "POST",
+          "path": "/plans/7c8248f2-6344-455a-b805-cc682aa20ce9/publish",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.363Z"
+        },
+        {
+          "id": "37e263df-ddf1-490c-8d2c-6174915737b0",
+          "method": "POST",
+          "path": "/allocation-scenarios",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.478Z"
+        },
+        {
+          "id": "72de138a-c6b4-4057-a560-68e4a423c942",
+          "method": "POST",
+          "path": "/allocation-scenarios/161d2ecb-ea34-4dd0-9a04-269d0819b53b/run",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.503Z"
+        },
+        {
+          "id": "a0202a42-8020-4ea6-8b3d-06eb4df485fb",
+          "method": "POST",
+          "path": "/allocation-scenarios/161d2ecb-ea34-4dd0-9a04-269d0819b53b/promote",
+          "status": 422,
+          "at": "2026-11-05T09:14:51.518Z"
+        },
+        {
+          "id": "24652811-29e6-436c-94e8-670da9e816e8",
+          "method": "POST",
+          "path": "/allocation-scenarios",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.577Z"
+        },
+        {
+          "id": "73610692-1b6e-44a6-aa93-e5fd0f5228b5",
+          "method": "POST",
+          "path": "/allocation-scenarios/eb353c03-5484-47fc-ad50-1660f60fd616/run",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.597Z"
+        },
+        {
+          "id": "a84f5c2f-a506-434c-ba1b-aef842eab9e9",
+          "method": "POST",
+          "path": "/allocation-scenarios/eb353c03-5484-47fc-ad50-1660f60fd616/promote",
+          "status": 422,
+          "at": "2026-11-05T09:14:51.616Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/scenario.test.ts",
+      "name": "the simulation of an allocation (ST-CAP-013) UAT-PLAN-65: promoted to a DRAFT reallocation proposal once it has been run fits the code of the proposal in 50 characters whatever the code of the scenario, and a code taken by another proposal is 409 DUPLICATE_KEY",
+      "status": "passed",
+      "durationMs": 1328,
+      "at": "2026-11-05T09:14:53.000Z",
+      "requests": [
+        {
+          "id": "aaedade3-8cd5-4e66-aab0-aa27920d3c28",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.187Z"
+        },
+        {
+          "id": "71caf4a3-863a-4c51-aac1-388f3cdf4ba1",
+          "method": "POST",
+          "path": "/capital-plans/604614e3-7ad8-4244-af9f-8af32ac5a31f/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.196Z"
+        },
+        {
+          "id": "e534a2e0-bae8-485e-a86b-f215ec0c5e38",
+          "method": "POST",
+          "path": "/capital-plans/604614e3-7ad8-4244-af9f-8af32ac5a31f/submit",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.210Z"
+        },
+        {
+          "id": "8de5d7c8-41f7-4231-9259-ba6ba73abc42",
+          "method": "POST",
+          "path": "/capital-plans/604614e3-7ad8-4244-af9f-8af32ac5a31f/decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.223Z"
+        },
+        {
+          "id": "c43acfc9-6c2b-4f5e-9be2-f294967e2d8a",
+          "method": "POST",
+          "path": "/plans/604614e3-7ad8-4244-af9f-8af32ac5a31f/publish",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.525Z"
+        },
+        {
+          "id": "96933ac0-2c0f-466d-968d-c1aba98fd030",
+          "method": "POST",
+          "path": "/allocation-scenarios",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.717Z"
+        },
+        {
+          "id": "bd3c365d-c689-4d03-8770-e601aa2da9d2",
+          "method": "POST",
+          "path": "/allocation-scenarios/7a434730-08de-4d11-8830-fa30523c120e/run",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.729Z"
+        },
+        {
+          "id": "769dd654-9e92-409a-a902-74ea7c6c7c4d",
+          "method": "POST",
+          "path": "/allocation-scenarios/7a434730-08de-4d11-8830-fa30523c120e/promote",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.748Z"
+        },
+        {
+          "id": "a02828a9-201f-4455-9c19-228e93eec39f",
+          "method": "POST",
+          "path": "/allocation-scenarios",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.852Z"
+        },
+        {
+          "id": "1b0f6265-9bb6-4de9-b7c4-b88fb0222608",
+          "method": "POST",
+          "path": "/allocation-scenarios/52c53ff1-7cbb-433d-bd3c-d927f6aac118/run",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.873Z"
+        },
+        {
+          "id": "68c8b371-5781-4924-933d-a2efafedaa25",
+          "method": "POST",
+          "path": "/allocation-scenarios/52c53ff1-7cbb-433d-bd3c-d927f6aac118/promote",
+          "status": 409,
+          "at": "2026-11-05T09:14:52.934Z"
+        }
+      ]
+    }
+  ]
+}

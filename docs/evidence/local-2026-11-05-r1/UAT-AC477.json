@@ -1,0 +1,1747 @@
+{
+  "id": "UAT-AC477",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-query-performance.test.ts",
+      "name": "the performance of the queries over a tenant of 5,000 projects (ST-BI-009, UAT-AC477, NFR-PERFORMANCE-03) answers a province-wide query of 12 metrics in 2 seconds or less at the 95th percentile of 20 runs",
+      "status": "passed",
+      "durationMs": 11834,
+      "at": "2026-11-05T09:14:56.500Z",
+      "requests": [
+        {
+          "id": "61a930c0-679d-4d42-913e-4e0bede768d0",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:44.667Z"
+        },
+        {
+          "id": "5f090d76-ff2d-4c28-a141-94994399262d",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:44.749Z"
+        },
+        {
+          "id": "59dff582-ab1b-43c0-91cc-8a1e2c2b6be7",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:44.809Z"
+        },
+        {
+          "id": "d8f6dc95-bd6b-4534-bc5e-e69b8af0fe57",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:44.855Z"
+        },
+        {
+          "id": "0b232f79-b028-46f1-9c66-83c604db6ded",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:44.910Z"
+        },
+        {
+          "id": "d2ce5dd6-7bd5-45a7-ba6c-ba7edb9c16bf",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:44.969Z"
+        },
+        {
+          "id": "e7b02b19-c22c-4ee2-b7d9-95407fa5e12d",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.017Z"
+        },
+        {
+          "id": "34262574-f517-4e9b-b188-56d0ba3927b8",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.063Z"
+        },
+        {
+          "id": "b2e17ce4-b086-4693-987c-9e3e1ecc4113",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.111Z"
+        },
+        {
+          "id": "82dd981f-c864-4589-b9c3-36b3b3273b52",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.159Z"
+        },
+        {
+          "id": "77ed254a-f840-4ac7-92f4-483c8dc63693",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.209Z"
+        },
+        {
+          "id": "14d4e5b3-ed4e-4b18-947b-4ae8e8c29818",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.254Z"
+        },
+        {
+          "id": "dd7dc543-e9e4-459a-82ba-42137b84d64d",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.305Z"
+        },
+        {
+          "id": "24ad6205-78e1-4ad1-95a9-79a2de72dae0",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.352Z"
+        },
+        {
+          "id": "5619b0ab-7153-4c9c-84cc-8c10757866f4",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.402Z"
+        },
+        {
+          "id": "20324ac5-9ac1-4711-a741-22389790543b",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.464Z"
+        },
+        {
+          "id": "3817955f-51c0-4fd8-903d-329eda7c564c",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.510Z"
+        },
+        {
+          "id": "001233c5-969c-4963-beeb-d6f81aa1bf9e",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.557Z"
+        },
+        {
+          "id": "3758463e-6b2f-4a47-b262-b1c4118d8a03",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.600Z"
+        },
+        {
+          "id": "e3fb9c9a-850b-4cb4-a177-3379c273a3cc",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.655Z"
+        },
+        {
+          "id": "5c109021-2adb-4576-8df4-be78517ab4a8",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.702Z"
+        },
+        {
+          "id": "2d19e25a-05cd-4fad-b26f-9848ea35c25c",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.750Z"
+        },
+        {
+          "id": "1333bb54-382b-460c-b891-e9733f91d33e",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.796Z"
+        },
+        {
+          "id": "58cd9c11-d9f9-4644-8dbc-e35d0b3810cb",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.845Z"
+        },
+        {
+          "id": "c6621700-7a55-4b4a-9e6e-ba432932181f",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.892Z"
+        },
+        {
+          "id": "3f5910ef-0c67-4965-a32c-45399273225d",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.941Z"
+        },
+        {
+          "id": "16d62489-0b12-425a-bc23-507828b64a8c",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.993Z"
+        },
+        {
+          "id": "bddb64a6-ca31-478d-9700-479b2d9d5641",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.039Z"
+        },
+        {
+          "id": "dbbae673-f910-44e5-a282-9bbd1258cacf",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.088Z"
+        },
+        {
+          "id": "a1abd366-193c-4148-bebf-8c5f982a01e7",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.134Z"
+        },
+        {
+          "id": "73a4e77f-0553-4bc8-b35e-512c303f0056",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.182Z"
+        },
+        {
+          "id": "66875c5f-2cfa-47ab-a08f-17ca669e89ed",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.230Z"
+        },
+        {
+          "id": "05e82b7a-a1b3-4ad0-bece-c4b1e27b94ea",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.277Z"
+        },
+        {
+          "id": "6a483ad4-ec4e-48e6-9089-c50d94c3d326",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.325Z"
+        },
+        {
+          "id": "abaa62e6-deb0-4367-9250-31af487d336d",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.367Z"
+        },
+        {
+          "id": "aef4b23b-27ca-4e78-b650-47899257c21f",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.420Z"
+        },
+        {
+          "id": "961587f9-a556-4706-b07c-1224a6d59d18",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.476Z"
+        },
+        {
+          "id": "5e489169-7545-434c-80fe-523aa591a246",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.530Z"
+        },
+        {
+          "id": "9ce97d22-8d0f-4f6e-8356-7e7d4b3edf6c",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.578Z"
+        },
+        {
+          "id": "b1c8840f-08dc-41fb-99d0-400004a4220d",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.625Z"
+        },
+        {
+          "id": "8a72a438-c072-4c28-b3d4-27ae8e835c1a",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.673Z"
+        },
+        {
+          "id": "802cfc8e-761c-406b-af9f-bf3f8132b675",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.722Z"
+        },
+        {
+          "id": "dfe60dd6-509c-48fd-a19a-57238dad39e2",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.774Z"
+        },
+        {
+          "id": "75005bb2-55cb-4178-97e8-6f35910a457c",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.820Z"
+        },
+        {
+          "id": "2aaa924f-3b1d-425b-af18-1c1bb6985788",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.869Z"
+        },
+        {
+          "id": "2932b032-97a0-45a0-af31-9e219d751ced",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.917Z"
+        },
+        {
+          "id": "2c582ab4-eadb-47cf-a433-d0647c6279cf",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:46.964Z"
+        },
+        {
+          "id": "e753ed53-9d8d-42c2-8714-e83b94adb188",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.012Z"
+        },
+        {
+          "id": "19c9a49f-6109-442d-9866-bdb95e4b7648",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.059Z"
+        },
+        {
+          "id": "4ef1bf0f-805c-4cec-b56e-195300763462",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.106Z"
+        },
+        {
+          "id": "57e23e38-c75b-4cdb-bd35-56d3f3f81cfd",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.155Z"
+        },
+        {
+          "id": "e04cb07f-8c56-4555-8fd0-4387fbb8e615",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.203Z"
+        },
+        {
+          "id": "caac554d-dc47-4cd3-b505-784b20242214",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.249Z"
+        },
+        {
+          "id": "3bf458f4-f371-4cc8-9a53-117aa88a7ce2",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.302Z"
+        },
+        {
+          "id": "1d694e04-c73b-4d08-b1b8-0fcdf71d8d3d",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.361Z"
+        },
+        {
+          "id": "3fbccdc0-22f5-4326-b161-971e27be3a46",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.408Z"
+        },
+        {
+          "id": "e5ad0e62-8d0c-4f86-92b3-8c8012f27eb1",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.454Z"
+        },
+        {
+          "id": "9396856b-a0ef-4aca-8967-47e2cc487bcb",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.506Z"
+        },
+        {
+          "id": "824991ac-2c15-4e81-9ffa-19a709c95137",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.547Z"
+        },
+        {
+          "id": "37b44156-993f-4766-8c07-cc51d52579b7",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.599Z"
+        },
+        {
+          "id": "28b468f3-e656-4934-8beb-0d6b7f24ffdb",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.648Z"
+        },
+        {
+          "id": "e79580b3-8dd1-46fb-8148-6aefbe5f8313",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.696Z"
+        },
+        {
+          "id": "73812da7-b808-492a-a6f3-087cc836fa5c",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.743Z"
+        },
+        {
+          "id": "601a1185-15c7-4c31-956f-9a0d9c945ee7",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.792Z"
+        },
+        {
+          "id": "1acfb66e-3ba3-4853-aaf1-d92bc76520f6",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.839Z"
+        },
+        {
+          "id": "5b95ccfd-0940-49eb-95d3-fca10eb55a5e",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.890Z"
+        },
+        {
+          "id": "54a0b155-e44b-4602-9898-825133bbe5b2",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.937Z"
+        },
+        {
+          "id": "f4e0b2b6-9778-4023-a8ec-7f277aa39a8f",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:47.984Z"
+        },
+        {
+          "id": "e5ffcaef-481c-42c0-9262-3dd7301c24a8",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.036Z"
+        },
+        {
+          "id": "68258ee6-ed70-42b0-ad98-f03d030fde01",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.105Z"
+        },
+        {
+          "id": "b71c43d9-762c-457e-a02b-2931630f7a87",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.171Z"
+        },
+        {
+          "id": "7a04ae64-47d7-43f7-ab36-8c345e09e0f5",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.222Z"
+        },
+        {
+          "id": "d69dc04c-d339-45c2-82b8-c9d9cc402923",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.271Z"
+        },
+        {
+          "id": "dd020a2b-8332-4a74-b91a-6620af40b34e",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.320Z"
+        },
+        {
+          "id": "4eaab783-351a-438f-81e7-5f8aef87e308",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.367Z"
+        },
+        {
+          "id": "4bbb5d88-4918-4235-a537-459df504642f",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.414Z"
+        },
+        {
+          "id": "e3fa63dd-5f96-409a-b83e-47ba2a2fdcb6",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.465Z"
+        },
+        {
+          "id": "508ce7b4-cc9e-4119-9227-d9a1e093fbc3",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.511Z"
+        },
+        {
+          "id": "fe713355-88c8-4dd5-9472-7dc1e842d1cb",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.559Z"
+        },
+        {
+          "id": "375e08d0-1113-40d9-bd34-278d6e84a7b0",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.607Z"
+        },
+        {
+          "id": "cd16e493-8c5b-4b23-8fed-ae56f47c1e0c",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.656Z"
+        },
+        {
+          "id": "1bae543d-606b-4450-9a21-eba155d1a663",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.704Z"
+        },
+        {
+          "id": "715dc1f7-cf58-47d7-a519-e1982c5b65fb",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.751Z"
+        },
+        {
+          "id": "2b4db111-0351-41eb-8893-894f74a60487",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.806Z"
+        },
+        {
+          "id": "e86e319f-bcb9-48ed-98b9-cea7546724d6",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.862Z"
+        },
+        {
+          "id": "d7820b00-3208-4d0a-9aba-635f48b30dbd",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.911Z"
+        },
+        {
+          "id": "5cc23767-252a-4048-8de0-6e442f04059b",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:48.958Z"
+        },
+        {
+          "id": "9118fb11-0e7b-461f-a32a-7348bd1552ef",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.007Z"
+        },
+        {
+          "id": "e445283e-6be1-4096-bdf7-a88ddc8673cd",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.057Z"
+        },
+        {
+          "id": "6bb836fa-17c5-49b6-8151-1a6e425cb33e",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.102Z"
+        },
+        {
+          "id": "7f2ea34f-6332-4761-a622-8cb64914312a",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.152Z"
+        },
+        {
+          "id": "52a88e53-9e97-4e4b-b080-82b95d8051bc",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.200Z"
+        },
+        {
+          "id": "52ba58ac-a53a-4af8-8bbf-978bfa20df02",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.241Z"
+        },
+        {
+          "id": "e134119d-d8ab-4ac6-8a62-18afd50f53a0",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.295Z"
+        },
+        {
+          "id": "7ac36acd-a9f6-4c05-90a4-d78190f19199",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.341Z"
+        },
+        {
+          "id": "bfadd950-9945-4c46-9b5f-a0a7d10e348f",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.391Z"
+        },
+        {
+          "id": "3ab74e0d-3020-4233-bf7c-25617f22c015",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.438Z"
+        },
+        {
+          "id": "bf90ebb6-82fd-4b4a-8217-b7d3cc83358c",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.488Z"
+        },
+        {
+          "id": "e8f5790d-6190-404a-b15a-d15efc34eab5",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.534Z"
+        },
+        {
+          "id": "751dc38b-4f4b-46ca-b194-a3088591cdc6",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.582Z"
+        },
+        {
+          "id": "1ed1f9ae-5296-42f3-809e-d8df2385cfc1",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.631Z"
+        },
+        {
+          "id": "27c2f155-b258-45c0-9d41-6b8910bc477d",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.678Z"
+        },
+        {
+          "id": "c03dcce3-7062-42d0-b0d4-96e54f7ddb41",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.727Z"
+        },
+        {
+          "id": "1fb6618f-752d-4942-9fb3-965e3b52aefa",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.776Z"
+        },
+        {
+          "id": "3dc50143-501a-43d4-b008-9f2f00306a1b",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.821Z"
+        },
+        {
+          "id": "21e26f38-1058-4559-88bd-853821cd0cba",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.871Z"
+        },
+        {
+          "id": "8275065e-bcc9-48ac-bda7-a00bd1faa551",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.919Z"
+        },
+        {
+          "id": "080c1282-da70-4c01-8661-f329dca2216a",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:49.967Z"
+        },
+        {
+          "id": "a2e1f09e-bfae-48f0-b4c0-bc34e2e0a670",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.021Z"
+        },
+        {
+          "id": "001405cb-1519-4b27-9378-692bfe4a69f6",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.081Z"
+        },
+        {
+          "id": "cdfd31e9-371c-4ceb-8310-9d75cb2836ca",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.127Z"
+        },
+        {
+          "id": "17f0a5ca-b8b8-4f07-8219-f16a9358445f",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.177Z"
+        },
+        {
+          "id": "ac1553f1-626b-41a6-a57d-3955d6bfdf1f",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.222Z"
+        },
+        {
+          "id": "6a399be6-474e-4ac2-bc19-9a02ed765483",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.270Z"
+        },
+        {
+          "id": "f716797c-97a2-428a-bbb0-75ebd83b77a4",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.319Z"
+        },
+        {
+          "id": "bea6d02b-23e8-46bf-bc98-c2466293eac2",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.367Z"
+        },
+        {
+          "id": "df020488-b326-4241-ae20-68c1cc3276eb",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.414Z"
+        },
+        {
+          "id": "08bcc5b0-441b-4fcd-bab8-0cb5ae84fe7e",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.463Z"
+        },
+        {
+          "id": "853b862b-9953-4b74-8ee3-df553101fcd5",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.511Z"
+        },
+        {
+          "id": "dba541cd-970a-4612-99d8-f55110c8608b",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.560Z"
+        },
+        {
+          "id": "583a6a3d-7c90-4644-a805-1230e624c8e2",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.605Z"
+        },
+        {
+          "id": "b6ac01d8-a2a8-4862-8f89-f5cdbd6f40d8",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.653Z"
+        },
+        {
+          "id": "e6bc7392-ee32-4d5f-8199-236156a157c5",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.713Z"
+        },
+        {
+          "id": "6dff9c34-4d8f-4adf-98bc-c9af8076deb1",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.757Z"
+        },
+        {
+          "id": "8b5be98f-85ad-4d98-b765-0efcbedb2bd7",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.814Z"
+        },
+        {
+          "id": "52d06670-1834-4995-9aff-d1161852da39",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.864Z"
+        },
+        {
+          "id": "8f706d8c-ae65-40d5-b821-921bc8b5ef63",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.912Z"
+        },
+        {
+          "id": "bbf6316d-5575-44b5-a7f4-b027abe0dc5f",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:50.958Z"
+        },
+        {
+          "id": "7ba05c49-ee9a-4f73-8901-1f5b2cc0460b",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.007Z"
+        },
+        {
+          "id": "3b5c5d22-34db-402b-92fe-b8e74a5587b8",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.053Z"
+        },
+        {
+          "id": "cbc9e33a-e36c-4a78-a93d-152b6d093a7c",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.111Z"
+        },
+        {
+          "id": "dec9192d-1ed6-48c5-89bc-f1a2a57087e5",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.168Z"
+        },
+        {
+          "id": "a2703d37-a9f5-4601-a445-bd5cc852ce1b",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.216Z"
+        },
+        {
+          "id": "8e5a6db1-8d91-40ab-9b0b-8bf941938b19",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.262Z"
+        },
+        {
+          "id": "da0647c2-9723-448b-8a06-e1a78d5cfc2e",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.303Z"
+        },
+        {
+          "id": "3f9ff7b1-4feb-46c0-8477-3a894883bfa3",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.358Z"
+        },
+        {
+          "id": "ed193314-383f-460a-9af4-6604f6b23f05",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.406Z"
+        },
+        {
+          "id": "a026d038-2cf4-4986-a9b7-1228d9e8c680",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.454Z"
+        },
+        {
+          "id": "4d8be707-b1c4-4bcb-99df-0363a2a55308",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.503Z"
+        },
+        {
+          "id": "d17e42ea-a941-4574-9e20-57b02d47ad1e",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.550Z"
+        },
+        {
+          "id": "9e0bea39-17c2-4c26-bb76-7212ee9b8a37",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.598Z"
+        },
+        {
+          "id": "789b473b-c149-461c-906d-3837281bf083",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.649Z"
+        },
+        {
+          "id": "20aedce9-f906-416a-afa8-d58d68192d2a",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.695Z"
+        },
+        {
+          "id": "ace90c20-c19f-4325-9918-ce462e57833c",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.742Z"
+        },
+        {
+          "id": "aa661295-454d-4656-8110-d3d987a49bef",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.791Z"
+        },
+        {
+          "id": "37e27f58-957b-4ff5-80ad-cd887ec40cb9",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.838Z"
+        },
+        {
+          "id": "d9c2da77-9563-4a81-a287-d4b750c29a51",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.889Z"
+        },
+        {
+          "id": "352fa688-5eca-4407-88e9-d652f010041f",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.936Z"
+        },
+        {
+          "id": "66befc75-e4b5-460e-8678-bf41acb55f0a",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:51.986Z"
+        },
+        {
+          "id": "fe60abaa-5eff-4964-9355-be5dd973e9ec",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.033Z"
+        },
+        {
+          "id": "66b8bcf4-59d6-4042-b0f1-b29e2ac19b6a",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.081Z"
+        },
+        {
+          "id": "b8d6239e-47cc-454d-8c53-7d537fdb51c7",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.126Z"
+        },
+        {
+          "id": "c186ca8a-0b05-4f93-9862-5ab25507fa24",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.180Z"
+        },
+        {
+          "id": "1037ac6f-2ea6-4c11-a38e-ec571073ff09",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.223Z"
+        },
+        {
+          "id": "6fbf4c45-85e7-4c20-8328-3d1e5f12df47",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.272Z"
+        },
+        {
+          "id": "b4fa06ba-4d56-4ebd-88fc-409fa803ba68",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.317Z"
+        },
+        {
+          "id": "d7039abf-6f74-486e-bae8-54e9f4e948dc",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.366Z"
+        },
+        {
+          "id": "c2176188-ea5a-4b3c-b0b8-555290117fad",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.416Z"
+        },
+        {
+          "id": "7552996a-1690-4516-bebb-1e1566c8d1b5",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.462Z"
+        },
+        {
+          "id": "ec0d64c6-27d8-4ec4-85fe-b45d224ee35d",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.509Z"
+        },
+        {
+          "id": "47600b77-ec0c-4e2f-9873-277d0850899f",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.558Z"
+        },
+        {
+          "id": "b24a8d0e-a58b-4e7b-b9fa-80e785a8c609",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.611Z"
+        },
+        {
+          "id": "1a2aaa37-9775-4ae1-a3ad-44e35030c7f4",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.670Z"
+        },
+        {
+          "id": "dd04c0d8-2f9f-4981-8b36-a0d30b7591b9",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.717Z"
+        },
+        {
+          "id": "f08121b4-c011-4e96-b847-a96395440660",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.761Z"
+        },
+        {
+          "id": "59e9d684-1b14-441b-9a01-428e6e0c4dd2",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.811Z"
+        },
+        {
+          "id": "96b95fe3-863e-43db-964f-426a0a2c7fbb",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.858Z"
+        },
+        {
+          "id": "f862d1db-e7c6-47d9-b413-687ff070bb60",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.907Z"
+        },
+        {
+          "id": "77210008-c739-4c3e-8c1a-31c6834b87b7",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:52.957Z"
+        },
+        {
+          "id": "dd5f138d-0161-41b1-97de-0ce425d9a106",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.005Z"
+        },
+        {
+          "id": "f949e22d-493c-4ed3-8e40-3662bd390529",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.049Z"
+        },
+        {
+          "id": "3f8cb1a2-f4bc-47db-a4be-22e417a47d38",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.103Z"
+        },
+        {
+          "id": "ac6fb8c7-c2cc-4b47-baef-15f164d7533e",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.147Z"
+        },
+        {
+          "id": "842af014-4cf9-45fd-ac71-1709b0c66de6",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.196Z"
+        },
+        {
+          "id": "619c485b-0600-483d-85bc-49842e110e97",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.243Z"
+        },
+        {
+          "id": "9a20208b-d7a4-463c-a448-e18831afd335",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.291Z"
+        },
+        {
+          "id": "16fb6171-f89f-47e8-b39e-15d30f16ba4d",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.338Z"
+        },
+        {
+          "id": "8d5e4472-302e-4982-ae97-d3b59b80c0c6",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.386Z"
+        },
+        {
+          "id": "cb508fa7-0136-4850-b89f-fcf7733c8432",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.426Z"
+        },
+        {
+          "id": "b5b1625f-4962-4fce-a767-370d11f47396",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.482Z"
+        },
+        {
+          "id": "bb0d456f-4ef0-433a-96a5-c58d65fc2730",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.533Z"
+        },
+        {
+          "id": "40698930-d1b3-4c6f-8e12-8dd2f944630e",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.580Z"
+        },
+        {
+          "id": "ea444a14-23ef-4c5a-9a04-683716b815f8",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.623Z"
+        },
+        {
+          "id": "ac8a4af3-5ff3-44fb-92cf-8bf076e055d9",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.673Z"
+        },
+        {
+          "id": "cd97ea73-3659-4405-93bc-d2c0d01d293e",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.714Z"
+        },
+        {
+          "id": "9f695faf-8be9-4587-996a-b5f5b3fd6de8",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.773Z"
+        },
+        {
+          "id": "fee28397-caab-45af-a671-09687453c9ab",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.818Z"
+        },
+        {
+          "id": "db8444cc-1b81-4179-a9ef-3b0530e585a0",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.866Z"
+        },
+        {
+          "id": "94645420-5512-4828-848c-faad750f002a",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.914Z"
+        },
+        {
+          "id": "7755a3c2-afd8-4b4b-8e7c-975f6bb55e23",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:53.966Z"
+        },
+        {
+          "id": "7ec4e642-673e-4513-837f-ac1da5349f76",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:54.010Z"
+        },
+        {
+          "id": "b28f94d3-aaac-4ce9-afd3-c1844a54743b",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:54.059Z"
+        },
+        {
+          "id": "728b7a00-d681-4bc9-849c-1e9c50da61b2",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:54.106Z"
+        },
+        {
+          "id": "d0bfc97b-35ca-4f2e-a689-c8c731eae44a",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:54.155Z"
+        },
+        {
+          "id": "ec565c92-cda8-4c1a-a804-19b1997fb34c",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:54.205Z"
+        },
+        {
+          "id": "a993039e-2ba6-47ae-a8ee-a10bfdad923a",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:54.260Z"
+        },
+        {
+          "id": "928a8842-f7d9-4381-80bd-16ed21061185",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:54.320Z"
+        },
+        {
+          "id": "3d725b29-6f3d-4416-9cbf-214bc0c756c5",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:54.377Z"
+        },
+        {
+          "id": "81b6ab5d-3d4b-43bf-b793-a20c67446d04",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:54.423Z"
+        },
+        {
+          "id": "206d4ece-e479-4df2-84c0-3a137d507a01",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:54.476Z"
+        },
+        {
+          "id": "d0893012-65ea-4e30-9884-7457b3445856",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:54.535Z"
+        },
+        {
+          "id": "7b1504eb-2bed-4ab9-a32a-b2e7b6bd268e",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:54.582Z"
+        },
+        {
+          "id": "82eb4664-660a-4ced-8c32-b80b41a31704",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:54.630Z"
+        },
+        {
+          "id": "516005df-9a27-4abb-9666-a0392ce7f05e",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:54.680Z"
+        },
+        {
+          "id": "34d05d89-a311-4d9e-a741-7b3a884d5adf",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:54.725Z"
+        },
+        {
+          "id": "b3c5a386-d4ef-458e-8030-84e388582eff",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:54.766Z"
+        },
+        {
+          "id": "c580ce60-46fa-4af8-8754-2f35559885f4",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:54.823Z"
+        },
+        {
+          "id": "3918a2ce-160a-44a1-bbbc-609e68cf0a0f",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:54.872Z"
+        },
+        {
+          "id": "50b3a691-ccb9-428f-b82b-2a891b67acb5",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:54.921Z"
+        },
+        {
+          "id": "c63183de-f1f5-437d-99ab-488ef0ae40ba",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:54.966Z"
+        },
+        {
+          "id": "6c202510-6d5a-4d4d-9005-d7f1ea03e19f",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.014Z"
+        },
+        {
+          "id": "bb4ae54e-3310-4117-a67b-9d2ee734d6a8",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.066Z"
+        },
+        {
+          "id": "d7fc94bf-84e6-4917-bab1-5da5c1ff8dec",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.111Z"
+        },
+        {
+          "id": "f2609e80-b0c8-49e3-bbe9-8c816f39f57e",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.164Z"
+        },
+        {
+          "id": "bd14999d-6a20-4712-9e9f-2b764b56362c",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.211Z"
+        },
+        {
+          "id": "7af31c95-abdc-4e9f-943d-591d128f502c",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.258Z"
+        },
+        {
+          "id": "75716673-662d-446c-b23b-1717142c4587",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.306Z"
+        },
+        {
+          "id": "700d8d9e-166f-49d7-ba54-401a5db30c30",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.355Z"
+        },
+        {
+          "id": "044c1315-ab99-472a-adc9-60b22f93241d",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.410Z"
+        },
+        {
+          "id": "b499a7de-a13d-4ba8-a6af-fbb899905cb6",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.465Z"
+        },
+        {
+          "id": "e4b0c7d6-96ff-4638-86ed-9eb3eed96f1b",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.512Z"
+        },
+        {
+          "id": "fea5e96e-a2ae-496c-9781-10a814a052f1",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.560Z"
+        },
+        {
+          "id": "1c8fe146-1c2c-4cc4-9ccd-cf745258e889",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.607Z"
+        },
+        {
+          "id": "44d40d64-2e44-4bb9-ac56-50747130d537",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.651Z"
+        },
+        {
+          "id": "19781e5a-8e5b-4664-b6d3-fd63aa73a6b0",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.701Z"
+        },
+        {
+          "id": "19b47590-a449-437b-9cee-20e61fa06cb3",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.749Z"
+        },
+        {
+          "id": "099c487f-6efd-4368-af8c-55784ec6ccee",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.789Z"
+        },
+        {
+          "id": "756006c6-6532-4fd4-893b-d519088e4974",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.845Z"
+        },
+        {
+          "id": "f9e04eaf-2d70-4bf8-8987-20cebdba63bf",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.893Z"
+        },
+        {
+          "id": "423776b2-b021-4bcb-b69e-cc3a808aedbb",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.932Z"
+        },
+        {
+          "id": "3d9d13e1-19ea-4a3b-b812-c4175a678af0",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:55.988Z"
+        },
+        {
+          "id": "2dfa0ddc-6c40-4771-b98b-dd8642034ebe",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:56.036Z"
+        },
+        {
+          "id": "546e0164-3759-4d23-929b-fc0b17e8d9f0",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:56.084Z"
+        },
+        {
+          "id": "1bec88d0-75ee-4fd6-be45-efa783c28978",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:56.133Z"
+        },
+        {
+          "id": "a5751b77-cba7-4a67-a52e-1c332ecbff07",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:56.189Z"
+        },
+        {
+          "id": "827fca26-dafd-4aaf-aa99-9d74a00a89ef",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:56.246Z"
+        },
+        {
+          "id": "eb209500-d00a-485a-8902-e15631968bc5",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:56.299Z"
+        },
+        {
+          "id": "6aba054d-924f-40db-902b-df7aaad7b39d",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:56.359Z"
+        },
+        {
+          "id": "98525ffe-27dd-40f1-b7a8-928cf2e66fde",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:56.409Z"
+        },
+        {
+          "id": "f6581e2d-c3b7-4e44-a136-2b78c46c9036",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:56.454Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-query-performance.test.ts",
+      "name": "the performance of the queries over a tenant of 5,000 projects (ST-BI-009, UAT-AC477, NFR-PERFORMANCE-03) answers the same question again from the cache, much faster than it was first computed",
+      "status": "passed",
+      "durationMs": 64,
+      "at": "2026-11-05T09:14:56.565Z",
+      "requests": [
+        {
+          "id": "e76787ec-0208-4905-b2ff-083c8d60990d",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:56.501Z"
+        },
+        {
+          "id": "c8deef70-c875-4150-b42f-f51c57641e62",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 200,
+          "at": "2026-11-05T09:14:56.547Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bi/bi-query-performance.test.ts",
+      "name": "the performance of the queries over a tenant of 5,000 projects (ST-BI-009, UAT-AC477, NFR-PERFORMANCE-03) answers a heavy query 202 ASYNC_JOB, runs it as a job, and shows its duration and rows in the log without any value of the data (UAT-AC477)",
+      "status": "passed",
+      "durationMs": 78,
+      "at": "2026-11-05T09:14:56.643Z",
+      "requests": [
+        {
+          "id": "8ceb5a21-2b91-4bf4-b66f-54de4ba21d3e",
+          "method": "POST",
+          "path": "/dashboard-queries",
+          "status": 202,
+          "at": "2026-11-05T09:14:56.565Z"
+        },
+        {
+          "id": "417a1e3f-3e42-48e7-b566-9ea109d5c809",
+          "method": "GET",
+          "path": "/bi/query-runs",
+          "status": 200,
+          "at": "2026-11-05T09:14:56.631Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "id": "UAT-AC15",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/analysis.test.ts",
+      "name": "the AI analysis of a proposal with verified citations and classification routing (ST-BID-009) AC-ST-BID-009-3, UAT-AC15: a run is immutable; a new input is a new run AC-ST-BID-009-3, UAT-AC15: makes a new run that supersedes the old with another input hash, returns the old run for a repeat of its input, and never updates its findings",
+      "status": "passed",
+      "durationMs": 2346,
+      "at": "2026-11-05T09:11:38.983Z",
+      "requests": [
+        {
+          "id": "63e947c9-35d1-446d-8251-87e69543f87a",
+          "method": "POST",
+          "path": "/procurement-packages/ac770cd7-4bb3-4928-b1ee-ecb46f2c43c5/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:11:37.872Z"
+        },
+        {
+          "id": "f98cd696-2ce6-4b34-b895-45eb7de3a656",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 200,
+          "at": "2026-11-05T09:11:37.935Z"
+        },
+        {
+          "id": "a213e6cf-0931-454b-8222-5ba63a066aed",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 200,
+          "at": "2026-11-05T09:11:38.144Z"
+        },
+        {
+          "id": "9dfae85d-a250-4a20-809e-141e4bd1cce9",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 200,
+          "at": "2026-11-05T09:11:38.306Z"
+        },
+        {
+          "id": "bbf5e5c9-ebe6-4ae1-9079-6d7711e4a419",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 200,
+          "at": "2026-11-05T09:11:38.334Z"
+        },
+        {
+          "id": "e4bfbabb-f0c4-46e7-8c28-d7ed5ffa34f1",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 200,
+          "at": "2026-11-05T09:11:38.788Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/analysis.test.ts",
+      "name": "the AI analysis of a proposal with verified citations and classification routing (ST-BID-009) AC-ST-BID-009-3, UAT-AC15: a run is immutable; a new input is a new run answers a repeat with the stored answer for the same key and with the run that stands for another key, calling the model once",
+      "status": "passed",
+      "durationMs": 2175,
+      "at": "2026-11-05T09:11:41.158Z",
+      "requests": [
+        {
+          "id": "ee108ce9-f86f-43cc-990d-134f382d00b8",
+          "method": "POST",
+          "path": "/procurement-packages/0994cec5-4647-4135-ac17-183164fe77d3/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:11:40.922Z"
+        },
+        {
+          "id": "ce183203-d1f5-490e-9a2e-c3aefca78d38",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 200,
+          "at": "2026-11-05T09:11:40.982Z"
+        },
+        {
+          "id": "85c6318f-3707-4ae4-815d-b42a0cfee174",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 200,
+          "at": "2026-11-05T09:11:41.037Z"
+        },
+        {
+          "id": "ad68d8c1-e604-470c-b139-3c8eb7063e6d",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 200,
+          "at": "2026-11-05T09:11:41.050Z"
+        }
+      ]
+    }
+  ]
+}

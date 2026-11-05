@@ -1,0 +1,110 @@
+{
+  "id": "UAT-AC165",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/billing.test.ts",
+      "name": "the billing run and the e-invoice over HTTP (ST-SAS-011) the correction of an issued invoice (ST-SAS-013) AC-ST-SAS-013-1 UAT-AC165: an issued invoice of 365,000,000 VND adjusted by -36,500,000 becomes Adjusted and the receivable is 328,500,000; the second replacement is 409 EINVOICE_ALREADY_REPLACED",
+      "status": "passed",
+      "durationMs": 515,
+      "at": "2026-11-05T09:19:57.564Z",
+      "requests": [
+        {
+          "id": "e0041614-c160-4468-a3d3-5d72f5ce1b83",
+          "method": "POST",
+          "path": "/system/tenants/37797079-ddad-4e26-aeff-0231683cf1e4/subscriptions",
+          "status": 201,
+          "at": "2026-11-05T09:19:57.261Z"
+        },
+        {
+          "id": "8e429a77-181e-4041-a28a-3dce1873210a",
+          "method": "POST",
+          "path": "/system/billing-runs",
+          "status": 202,
+          "at": "2026-11-05T09:19:57.281Z"
+        },
+        {
+          "id": "3a74b466-a098-4af2-9d05-05b3707dd5a4",
+          "method": "GET",
+          "path": "/system/tenants/37797079-ddad-4e26-aeff-0231683cf1e4/invoices",
+          "status": 200,
+          "at": "2026-11-05T09:19:57.297Z"
+        },
+        {
+          "id": "b402de4f-b8a5-489b-a618-e9db7988221f",
+          "method": "POST",
+          "path": "/system/invoices/f0af49c0-8f54-4bc6-a2be-de2f21a2a48b/issue",
+          "status": 202,
+          "at": "2026-11-05T09:19:57.303Z"
+        },
+        {
+          "id": "888e718b-d454-422f-99d5-25db5e0b0be4",
+          "method": "POST",
+          "path": "/system/invoices/f0af49c0-8f54-4bc6-a2be-de2f21a2a48b/adjustments",
+          "status": 201,
+          "at": "2026-11-05T09:19:57.328Z"
+        },
+        {
+          "id": "ea7e5438-032a-4122-b08c-f3171b5b56eb",
+          "method": "GET",
+          "path": "/system/tenants/37797079-ddad-4e26-aeff-0231683cf1e4/invoices",
+          "status": 200,
+          "at": "2026-11-05T09:19:57.345Z"
+        },
+        {
+          "id": "66c4a288-73a2-4f76-8482-1d538560d098",
+          "method": "GET",
+          "path": "/system/tenants/37797079-ddad-4e26-aeff-0231683cf1e4/invoices",
+          "status": 200,
+          "at": "2026-11-05T09:19:57.357Z"
+        },
+        {
+          "id": "6be29496-0d44-423b-8697-da204eab51b4",
+          "method": "POST",
+          "path": "/system/invoices/c273a971-1af7-4379-8110-357753381516/issue",
+          "status": 202,
+          "at": "2026-11-05T09:19:57.372Z"
+        },
+        {
+          "id": "92e719ac-ba3d-44b0-8ab3-ef382ffc0c39",
+          "method": "GET",
+          "path": "/system/tenants/37797079-ddad-4e26-aeff-0231683cf1e4/invoices",
+          "status": 200,
+          "at": "2026-11-05T09:19:57.407Z"
+        },
+        {
+          "id": "14910c5b-95eb-4c24-941f-05dedc5b3464",
+          "method": "GET",
+          "path": "/system/tenants/37797079-ddad-4e26-aeff-0231683cf1e4/invoices",
+          "status": 200,
+          "at": "2026-11-05T09:19:57.422Z"
+        },
+        {
+          "id": "6e73ec6e-a651-4bfa-9401-518c9a31d78a",
+          "method": "GET",
+          "path": "/system/tenants/37797079-ddad-4e26-aeff-0231683cf1e4/invoices",
+          "status": 200,
+          "at": "2026-11-05T09:19:57.438Z"
+        },
+        {
+          "id": "add4a495-48f7-4f89-b6ba-0547d58a3d85",
+          "method": "POST",
+          "path": "/system/invoices/f0af49c0-8f54-4bc6-a2be-de2f21a2a48b/replacements",
+          "status": 201,
+          "at": "2026-11-05T09:19:57.455Z"
+        },
+        {
+          "id": "cfc90cc2-473f-4e43-a8ad-8bee131cbd27",
+          "method": "POST",
+          "path": "/system/invoices/f0af49c0-8f54-4bc6-a2be-de2f21a2a48b/replacements",
+          "status": 409,
+          "at": "2026-11-05T09:19:57.474Z"
+        }
+      ]
+    }
+  ]
+}

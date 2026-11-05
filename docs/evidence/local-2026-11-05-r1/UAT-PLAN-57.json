@@ -1,0 +1,75 @@
+{
+  "id": "UAT-PLAN-57",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/revision.test.ts",
+      "name": "the revisions of a project (ST-PRJ-008, PRJ 3.1 F6, PRJ-06) proposing (AC-ST-PRJ-008-2) AC-ST-PRJ-008-2, UAT-PLAN-57: another revision is 409 REVISION_PENDING_EXISTS while one waits, and may be proposed once it is decided; two at once are one 200 and one 409",
+      "status": "passed",
+      "durationMs": 331,
+      "at": "2026-11-05T09:18:59.202Z",
+      "requests": [
+        {
+          "id": "80c89c6b-0255-4e73-943d-fa95427f1886",
+          "method": "POST",
+          "path": "/projects",
+          "status": 200,
+          "at": "2026-11-05T09:18:58.872Z"
+        },
+        {
+          "id": "354205f6-57dc-4e62-abd3-7793a9903e3e",
+          "method": "POST",
+          "path": "/projects/f53aaa85-7111-4ec3-ab28-edb1d064fdda/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:18:58.937Z"
+        },
+        {
+          "id": "21bdc401-a6be-44e4-b9d0-6bf3bf57fc13",
+          "method": "POST",
+          "path": "/projects/f53aaa85-7111-4ec3-ab28-edb1d064fdda/revisions",
+          "status": 409,
+          "at": "2026-11-05T09:18:58.959Z"
+        },
+        {
+          "id": "8a17e5a6-18d2-4715-b608-de376321e971",
+          "method": "POST",
+          "path": "/project-revisions/7af16fc8-e628-4204-8998-43b0e26d81fc/decision",
+          "status": 200,
+          "at": "2026-11-05T09:18:58.973Z"
+        },
+        {
+          "id": "bf593610-f2e3-4963-b0ea-6fe733e73264",
+          "method": "POST",
+          "path": "/projects/f53aaa85-7111-4ec3-ab28-edb1d064fdda/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:18:58.993Z"
+        },
+        {
+          "id": "671250bf-21ad-421e-a822-fbee4ed080f9",
+          "method": "POST",
+          "path": "/projects",
+          "status": 200,
+          "at": "2026-11-05T09:18:59.010Z"
+        },
+        {
+          "id": "c1ce2b3f-7f73-4229-978f-7be14cd96263",
+          "method": "POST",
+          "path": "/projects/f7dfa63f-880d-4563-9102-34355d5c71d6/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:18:59.097Z"
+        },
+        {
+          "id": "965c76d2-7b84-4296-a559-ec106abfc8f4",
+          "method": "POST",
+          "path": "/projects/f7dfa63f-880d-4563-9102-34355d5c71d6/revisions",
+          "status": 409,
+          "at": "2026-11-05T09:18:59.097Z"
+        }
+      ]
+    }
+  ]
+}

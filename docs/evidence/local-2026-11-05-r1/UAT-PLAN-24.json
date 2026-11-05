@@ -1,0 +1,96 @@
+{
+  "id": "UAT-PLAN-24",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-escalation.test.ts",
+      "name": "escalateIssue, acceptIssueEscalation and listIssueSlaBreaches (ST-ISS-004) acceptIssueEscalation (UAT-AC352, UAT-PLAN-24) AC-ST-ISS-004-1: the job escalates to the unit and the task force once each; a member of the task force accepts and the issue goes back to work",
+      "status": "passed",
+      "durationMs": 555,
+      "at": "2026-11-05T09:23:06.885Z",
+      "requests": [
+        {
+          "id": "46c9fbbc-86ab-4d80-9fe8-cbc9e49fb8cb",
+          "method": "POST",
+          "path": "/issues",
+          "status": 200,
+          "at": "2026-11-05T09:23:06.332Z"
+        },
+        {
+          "id": "35bf563c-0459-48f6-82f2-b6ac4a2927a0",
+          "method": "POST",
+          "path": "/issues/f3258e8f-1712-45b9-8988-1bef0aa4e0cf/assign",
+          "status": 200,
+          "at": "2026-11-05T09:23:06.355Z"
+        },
+        {
+          "id": "14e68457-6c80-4c0f-9328-682bfd127d9a",
+          "method": "POST",
+          "path": "/issues/f3258e8f-1712-45b9-8988-1bef0aa4e0cf/start",
+          "status": 200,
+          "at": "2026-11-05T09:23:06.381Z"
+        },
+        {
+          "id": "4eb8e167-5565-4aff-803c-a6189f1e011a",
+          "method": "GET",
+          "path": "/resources/issue/f3258e8f-1712-45b9-8988-1bef0aa4e0cf",
+          "status": 200,
+          "at": "2026-11-05T09:23:06.472Z"
+        },
+        {
+          "id": "b4486a07-7457-446f-a7cc-f9b8b020b401",
+          "method": "POST",
+          "path": "/issue-escalations/bb260300-de20-49ff-ae45-e9bb98052eae/accept",
+          "status": 404,
+          "at": "2026-11-05T09:23:06.497Z"
+        },
+        {
+          "id": "02ab57c2-6e0e-4f12-beda-a8b3ff4de00b",
+          "method": "POST",
+          "path": "/issue-escalations/bb260300-de20-49ff-ae45-e9bb98052eae/accept",
+          "status": 403,
+          "at": "2026-11-05T09:23:06.513Z"
+        },
+        {
+          "id": "6e4a85db-fc6e-4e71-8b9a-2faea279df24",
+          "method": "POST",
+          "path": "/issue-escalations/bb260300-de20-49ff-ae45-e9bb98052eae/accept",
+          "status": 200,
+          "at": "2026-11-05T09:23:06.577Z"
+        },
+        {
+          "id": "b94f6dc5-7c8e-413a-b7b8-e517a99ed6fe",
+          "method": "POST",
+          "path": "/issue-escalations/bb260300-de20-49ff-ae45-e9bb98052eae/accept",
+          "status": 200,
+          "at": "2026-11-05T09:23:06.590Z"
+        },
+        {
+          "id": "a823898b-2ae9-43fd-8e09-a02f479c0438",
+          "method": "POST",
+          "path": "/issue-escalations/bb260300-de20-49ff-ae45-e9bb98052eae/accept",
+          "status": 409,
+          "at": "2026-11-05T09:23:06.599Z"
+        },
+        {
+          "id": "5222f333-abf8-4941-b642-44ae38a303ab",
+          "method": "POST",
+          "path": "/issue-escalations/473c7374-b024-4acb-88f9-9b328a6c3ae7/accept",
+          "status": 200,
+          "at": "2026-11-05T09:23:06.802Z"
+        },
+        {
+          "id": "dda9901e-0b8b-4675-8c71-d86062c7af4b",
+          "method": "POST",
+          "path": "/issue-escalations/3a7643db-9bcd-4a51-884e-8e1891a7d29d/accept",
+          "status": 404,
+          "at": "2026-11-05T09:23:06.873Z"
+        }
+      ]
+    }
+  ]
+}

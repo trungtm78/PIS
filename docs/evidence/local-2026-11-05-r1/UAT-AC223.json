@@ -1,0 +1,532 @@
+{
+  "id": "UAT-AC223",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/plan-publication.test.ts",
+      "name": "approval and publication of the capital plan over HTTP (ST-CAP-003) decideCapitalPlan and the four-eyes rule refuses the person who drafted the plan, whatever else they may do (403 SELF_APPROVAL_DENIED), then lets an approver approve it (AC-ST-CAP-003-1, UAT-AC223)",
+      "status": "passed",
+      "durationMs": 561,
+      "at": "2026-11-05T09:16:43.835Z",
+      "requests": [
+        {
+          "id": "c9a928dc-e3b4-40ab-a3c2-0364590b2920",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:16:43.407Z"
+        },
+        {
+          "id": "e155023d-db61-4015-ba8e-b76310ff9fbb",
+          "method": "POST",
+          "path": "/capital-plans/b6bf8284-1fb4-44a8-a645-efe006bead7a/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:16:43.426Z"
+        },
+        {
+          "id": "cd20b76e-eb05-4191-9dd0-65bc95d212f8",
+          "method": "POST",
+          "path": "/capital-plans/b6bf8284-1fb4-44a8-a645-efe006bead7a/decision",
+          "status": 403,
+          "at": "2026-11-05T09:16:43.446Z"
+        },
+        {
+          "id": "684c947e-cc8e-4b08-8247-5924da01d32f",
+          "method": "POST",
+          "path": "/capital-plans/b6bf8284-1fb4-44a8-a645-efe006bead7a/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:43.460Z"
+        },
+        {
+          "id": "5c726037-84d9-4bd9-a543-5ff163515610",
+          "method": "POST",
+          "path": "/capital-plans/b6bf8284-1fb4-44a8-a645-efe006bead7a/decision",
+          "status": 403,
+          "at": "2026-11-05T09:16:43.478Z"
+        },
+        {
+          "id": "73fb0ca8-199d-4fb8-81c2-cd9bf2f68cb4",
+          "method": "POST",
+          "path": "/capital-plans/b6bf8284-1fb4-44a8-a645-efe006bead7a/decision",
+          "status": 403,
+          "at": "2026-11-05T09:16:43.490Z"
+        },
+        {
+          "id": "d8cac363-b5d6-4aea-8fdd-baca5ac0a5c3",
+          "method": "POST",
+          "path": "/capital-plans/b6bf8284-1fb4-44a8-a645-efe006bead7a/decision",
+          "status": 403,
+          "at": "2026-11-05T09:16:43.507Z"
+        },
+        {
+          "id": "288e4511-cb13-4bb9-900c-db11e2e6b482",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:16:43.647Z"
+        },
+        {
+          "id": "0674bcff-a3e1-4ff6-9e8d-4534af3f35aa",
+          "method": "POST",
+          "path": "/capital-plans/8084d83a-4288-44e2-9309-722c6d6704e1/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:16:43.666Z"
+        },
+        {
+          "id": "20cefcf3-e727-4469-9d6a-941ad9b30a87",
+          "method": "POST",
+          "path": "/capital-plans/8084d83a-4288-44e2-9309-722c6d6704e1/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:43.689Z"
+        },
+        {
+          "id": "6b175215-5050-4be3-a7c4-0b51ad939838",
+          "method": "POST",
+          "path": "/capital-plans/8084d83a-4288-44e2-9309-722c6d6704e1/decision",
+          "status": 403,
+          "at": "2026-11-05T09:16:43.719Z"
+        },
+        {
+          "id": "33e44d73-f796-4e4c-a7ae-276e9aac6e48",
+          "method": "POST",
+          "path": "/capital-plans/b6bf8284-1fb4-44a8-a645-efe006bead7a/decision",
+          "status": 200,
+          "at": "2026-11-05T09:16:43.730Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/plan-publication.test.ts",
+      "name": "approval and publication of the capital plan over HTTP (ST-CAP-003) post_plans_id_publish publishes a revision with the decision document and supersedes the previous one: 403 SELF_APPROVAL_DENIED, 422 DECISION_REQUIRED, then PUBLISHED (AC-ST-CAP-003-1, UAT-AC223)",
+      "status": "passed",
+      "durationMs": 1015,
+      "at": "2026-11-05T09:16:45.759Z",
+      "requests": [
+        {
+          "id": "cf26425e-99ab-49f1-a276-ab4a2f43df93",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:16:44.918Z"
+        },
+        {
+          "id": "08397896-4439-4d1b-a4e2-1eb6f1f41ca7",
+          "method": "POST",
+          "path": "/capital-plans/3dae66e6-8474-4326-9c57-6f4baea8f0ec/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:16:44.930Z"
+        },
+        {
+          "id": "14ce12b6-9046-4bae-abe7-5ac7209a48a5",
+          "method": "POST",
+          "path": "/capital-plans/3dae66e6-8474-4326-9c57-6f4baea8f0ec/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:44.950Z"
+        },
+        {
+          "id": "4560c6f6-172a-49b0-a80f-4b05c68943df",
+          "method": "POST",
+          "path": "/capital-plans/3dae66e6-8474-4326-9c57-6f4baea8f0ec/decision",
+          "status": 200,
+          "at": "2026-11-05T09:16:44.966Z"
+        },
+        {
+          "id": "33a642a2-a746-4aa6-8e5e-9ee63526e96f",
+          "method": "POST",
+          "path": "/plans/3dae66e6-8474-4326-9c57-6f4baea8f0ec/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:45.033Z"
+        },
+        {
+          "id": "684a7c0a-90d8-4ea7-994f-66d2e6370866",
+          "method": "POST",
+          "path": "/capital-plans/4cd68353-8971-4a8f-96a2-8848512d4564/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:45.253Z"
+        },
+        {
+          "id": "11fb0b6c-ef4a-4458-a4bc-29807614c080",
+          "method": "POST",
+          "path": "/capital-plans/4cd68353-8971-4a8f-96a2-8848512d4564/decision",
+          "status": 403,
+          "at": "2026-11-05T09:16:45.267Z"
+        },
+        {
+          "id": "1e44018c-46ea-4286-a928-112a81c20bd1",
+          "method": "POST",
+          "path": "/capital-plans/4cd68353-8971-4a8f-96a2-8848512d4564/decision",
+          "status": 200,
+          "at": "2026-11-05T09:16:45.280Z"
+        },
+        {
+          "id": "78b0840b-32f2-4757-b337-1821ea079045",
+          "method": "POST",
+          "path": "/plans/4cd68353-8971-4a8f-96a2-8848512d4564/publish",
+          "status": 403,
+          "at": "2026-11-05T09:16:45.341Z"
+        },
+        {
+          "id": "93696f27-59b8-450c-b789-e6d989a1cef9",
+          "method": "POST",
+          "path": "/plans/4cd68353-8971-4a8f-96a2-8848512d4564/publish",
+          "status": 422,
+          "at": "2026-11-05T09:16:45.361Z"
+        },
+        {
+          "id": "f7b4f01b-a868-44dd-9d03-35736727b751",
+          "method": "POST",
+          "path": "/plans/4cd68353-8971-4a8f-96a2-8848512d4564/publish",
+          "status": 422,
+          "at": "2026-11-05T09:16:45.371Z"
+        },
+        {
+          "id": "5da4351b-3ce2-49e5-9f11-403b5f53f08b",
+          "method": "POST",
+          "path": "/plans/4cd68353-8971-4a8f-96a2-8848512d4564/publish",
+          "status": 422,
+          "at": "2026-11-05T09:16:45.434Z"
+        },
+        {
+          "id": "77c45b23-921e-490b-96f4-0b6c320ef43e",
+          "method": "POST",
+          "path": "/plans/4cd68353-8971-4a8f-96a2-8848512d4564/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:45.558Z"
+        },
+        {
+          "id": "9eba0fb4-99e1-4646-a069-f63772d53a95",
+          "method": "GET",
+          "path": "/resources/plan_version/4cd68353-8971-4a8f-96a2-8848512d4564",
+          "status": 200,
+          "at": "2026-11-05T09:16:45.685Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/plan-publication.test.ts",
+      "name": "approval and publication of the capital plan over HTTP (ST-CAP-003) post_plans_id_publish lets one of two parallel publications of a plan win and posts its entries once (UAT-AC223 race, runLoops)",
+      "status": "passed",
+      "durationMs": 4663,
+      "at": "2026-11-05T09:16:55.057Z",
+      "requests": [
+        {
+          "id": "78758a9d-9ec3-47dc-bbc8-d604e199e297",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:16:50.904Z"
+        },
+        {
+          "id": "16fcaa14-b49a-4af9-8f6b-0481e3d749d0",
+          "method": "POST",
+          "path": "/capital-plans/346932dc-8ca8-413a-a85b-bcafc3e4664d/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:16:50.913Z"
+        },
+        {
+          "id": "794712c7-f2c9-43e7-bc5f-53a035b69650",
+          "method": "POST",
+          "path": "/capital-plans/346932dc-8ca8-413a-a85b-bcafc3e4664d/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:50.934Z"
+        },
+        {
+          "id": "f6058b8c-2c86-4102-b133-35debef7cdbf",
+          "method": "POST",
+          "path": "/capital-plans/346932dc-8ca8-413a-a85b-bcafc3e4664d/decision",
+          "status": 200,
+          "at": "2026-11-05T09:16:50.945Z"
+        },
+        {
+          "id": "99cb2723-c291-4baf-b894-f9dba335cf75",
+          "method": "POST",
+          "path": "/plans/346932dc-8ca8-413a-a85b-bcafc3e4664d/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:51.065Z"
+        },
+        {
+          "id": "6e203286-3521-4252-a328-529a0219bc66",
+          "method": "POST",
+          "path": "/plans/346932dc-8ca8-413a-a85b-bcafc3e4664d/publish",
+          "status": 409,
+          "at": "2026-11-05T09:16:51.137Z"
+        },
+        {
+          "id": "c70cb311-1c63-455f-a6cb-234bab09fe26",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:16:52.120Z"
+        },
+        {
+          "id": "e3980bd0-48bb-4a9c-b92f-09a5278db337",
+          "method": "POST",
+          "path": "/capital-plans/9f6ef464-886d-4d4d-a00d-dae0c8c8a94d/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:16:52.135Z"
+        },
+        {
+          "id": "06c5fa21-bac4-4bb3-8022-4146cd677782",
+          "method": "POST",
+          "path": "/capital-plans/9f6ef464-886d-4d4d-a00d-dae0c8c8a94d/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:52.157Z"
+        },
+        {
+          "id": "c13ada3c-7982-4c54-b67d-22d3d4d1fd8c",
+          "method": "POST",
+          "path": "/capital-plans/9f6ef464-886d-4d4d-a00d-dae0c8c8a94d/decision",
+          "status": 200,
+          "at": "2026-11-05T09:16:52.187Z"
+        },
+        {
+          "id": "76d89546-4944-4057-b9fe-0c3865401ce7",
+          "method": "POST",
+          "path": "/plans/9f6ef464-886d-4d4d-a00d-dae0c8c8a94d/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:52.465Z"
+        },
+        {
+          "id": "b1855911-c056-4087-811f-0f317aca5b53",
+          "method": "POST",
+          "path": "/plans/9f6ef464-886d-4d4d-a00d-dae0c8c8a94d/publish",
+          "status": 409,
+          "at": "2026-11-05T09:16:52.478Z"
+        },
+        {
+          "id": "fde80dd9-f638-4257-8906-6f2438c63935",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:16:53.164Z"
+        },
+        {
+          "id": "57eb6fd4-2e8b-4662-ba8b-83bcdfa6f36f",
+          "method": "POST",
+          "path": "/capital-plans/cb04abbd-612c-4af5-ae98-42dd427b41cf/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:16:53.193Z"
+        },
+        {
+          "id": "66829be8-944a-4eaf-8157-68da70c2d4ee",
+          "method": "POST",
+          "path": "/capital-plans/cb04abbd-612c-4af5-ae98-42dd427b41cf/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:53.235Z"
+        },
+        {
+          "id": "301e3bfd-4480-4851-aadc-450631a0850f",
+          "method": "POST",
+          "path": "/capital-plans/cb04abbd-612c-4af5-ae98-42dd427b41cf/decision",
+          "status": 200,
+          "at": "2026-11-05T09:16:53.265Z"
+        },
+        {
+          "id": "85b39899-bede-40f4-a215-3b45275e8ef3",
+          "method": "POST",
+          "path": "/plans/cb04abbd-612c-4af5-ae98-42dd427b41cf/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:53.342Z"
+        },
+        {
+          "id": "40c20dd8-2630-4054-a084-345b603ab7cd",
+          "method": "POST",
+          "path": "/plans/cb04abbd-612c-4af5-ae98-42dd427b41cf/publish",
+          "status": 409,
+          "at": "2026-11-05T09:16:53.347Z"
+        },
+        {
+          "id": "862e4086-e9f2-4ef5-b2da-a8ce6ae0845f",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:16:53.748Z"
+        },
+        {
+          "id": "0ad2174e-5a65-4b9d-9e71-d96f02469641",
+          "method": "POST",
+          "path": "/capital-plans/938bdba2-3bb2-45d0-bf20-43ded734a336/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:16:53.768Z"
+        },
+        {
+          "id": "04ea427c-cbb5-49b6-bb11-396c36b8ce19",
+          "method": "POST",
+          "path": "/capital-plans/938bdba2-3bb2-45d0-bf20-43ded734a336/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:53.788Z"
+        },
+        {
+          "id": "d9d1b669-b7fe-474d-8a5e-5ee830b77453",
+          "method": "POST",
+          "path": "/capital-plans/938bdba2-3bb2-45d0-bf20-43ded734a336/decision",
+          "status": 200,
+          "at": "2026-11-05T09:16:53.802Z"
+        },
+        {
+          "id": "05ec6a6b-35fe-4c22-b162-704f4508d17c",
+          "method": "POST",
+          "path": "/plans/938bdba2-3bb2-45d0-bf20-43ded734a336/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:53.867Z"
+        },
+        {
+          "id": "6dc65495-43e0-423c-956e-9b211e438244",
+          "method": "POST",
+          "path": "/plans/938bdba2-3bb2-45d0-bf20-43ded734a336/publish",
+          "status": 409,
+          "at": "2026-11-05T09:16:53.879Z"
+        },
+        {
+          "id": "d86c520a-8c90-4e0f-a26c-a7be89d3b345",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:16:54.232Z"
+        },
+        {
+          "id": "23e54bcc-47c4-4dcb-ac9b-d45d9fcb59d0",
+          "method": "POST",
+          "path": "/capital-plans/8c4b0b3f-aaa8-46bd-a51b-ba9673b3b1d0/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:16:54.254Z"
+        },
+        {
+          "id": "631523fc-1d52-4395-b988-f4a35f214fdb",
+          "method": "POST",
+          "path": "/capital-plans/8c4b0b3f-aaa8-46bd-a51b-ba9673b3b1d0/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:54.270Z"
+        },
+        {
+          "id": "06850dee-e390-4602-b878-30e29c229385",
+          "method": "POST",
+          "path": "/capital-plans/8c4b0b3f-aaa8-46bd-a51b-ba9673b3b1d0/decision",
+          "status": 200,
+          "at": "2026-11-05T09:16:54.285Z"
+        },
+        {
+          "id": "a1514dac-da3c-454c-8608-1a70d2a1cbc4",
+          "method": "POST",
+          "path": "/plans/8c4b0b3f-aaa8-46bd-a51b-ba9673b3b1d0/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:54.395Z"
+        },
+        {
+          "id": "d9360cfe-ebe5-4ccc-9291-da8de61d0468",
+          "method": "POST",
+          "path": "/plans/8c4b0b3f-aaa8-46bd-a51b-ba9673b3b1d0/publish",
+          "status": 409,
+          "at": "2026-11-05T09:16:54.399Z"
+        },
+        {
+          "id": "c009609a-1797-4b4f-8ad7-507c7c298423",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:16:54.732Z"
+        },
+        {
+          "id": "e2ae6eae-6c24-49db-aa2a-f768b7593722",
+          "method": "POST",
+          "path": "/capital-plans/562472d1-601d-4d86-93a5-9c7931adc339/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:16:54.746Z"
+        },
+        {
+          "id": "36e625a8-fe0d-48c2-a0e4-be1685f53744",
+          "method": "POST",
+          "path": "/capital-plans/562472d1-601d-4d86-93a5-9c7931adc339/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:54.767Z"
+        },
+        {
+          "id": "842d57cc-a15b-4687-9fde-8b702c0ea989",
+          "method": "POST",
+          "path": "/capital-plans/562472d1-601d-4d86-93a5-9c7931adc339/decision",
+          "status": 200,
+          "at": "2026-11-05T09:16:54.781Z"
+        },
+        {
+          "id": "3838f859-5353-4aee-8917-85de61b70f08",
+          "method": "POST",
+          "path": "/plans/562472d1-601d-4d86-93a5-9c7931adc339/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:54.845Z"
+        },
+        {
+          "id": "2910057f-ce1c-469d-ad11-d68cb74fbd35",
+          "method": "POST",
+          "path": "/plans/562472d1-601d-4d86-93a5-9c7931adc339/publish",
+          "status": 409,
+          "at": "2026-11-05T09:16:54.854Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/appropriation.test.ts",
+      "name": "appropriation register commands and reads (ST-CAP-001) registerAppropriation and decideAppropriation never lets the planner decide on what they registered, and refuses a missing or unknown decision document (UAT-AC223)",
+      "status": "passed",
+      "durationMs": 817,
+      "at": "2026-11-05T09:21:12.790Z",
+      "requests": [
+        {
+          "id": "7e7daf2e-f219-4a5c-9744-52697f5c9ab4",
+          "method": "POST",
+          "path": "/appropriations",
+          "status": 200,
+          "at": "2026-11-05T09:21:12.109Z"
+        },
+        {
+          "id": "bb3981ab-f094-4ad6-bac8-9fd9df3b6390",
+          "method": "POST",
+          "path": "/appropriations/bae4de24-7133-4968-83b7-f2d8cfd4eca7/decision",
+          "status": 403,
+          "at": "2026-11-05T09:21:12.126Z"
+        },
+        {
+          "id": "32aec1e9-bf8b-4254-ac36-055a70d961a1",
+          "method": "POST",
+          "path": "/appropriations/bae4de24-7133-4968-83b7-f2d8cfd4eca7/decision",
+          "status": 403,
+          "at": "2026-11-05T09:21:12.138Z"
+        },
+        {
+          "id": "83ee311b-5179-47b1-8526-fc8931ccf062",
+          "method": "POST",
+          "path": "/appropriations/bae4de24-7133-4968-83b7-f2d8cfd4eca7/decision",
+          "status": 200,
+          "at": "2026-11-05T09:21:12.203Z"
+        },
+        {
+          "id": "2231ab3b-01c7-4459-b4e0-88e3bceb7b91",
+          "method": "POST",
+          "path": "/appropriations",
+          "status": 422,
+          "at": "2026-11-05T09:21:12.390Z"
+        },
+        {
+          "id": "dccae8fa-c8e2-4f05-ab92-bacf2fe93da9",
+          "method": "POST",
+          "path": "/appropriations",
+          "status": 422,
+          "at": "2026-11-05T09:21:12.490Z"
+        },
+        {
+          "id": "134c26f5-6392-4f45-93c1-e16d2b525f8e",
+          "method": "POST",
+          "path": "/appropriations",
+          "status": 422,
+          "at": "2026-11-05T09:21:12.772Z"
+        }
+      ]
+    }
+  ]
+}

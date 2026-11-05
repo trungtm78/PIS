@@ -1,0 +1,54 @@
+{
+  "id": "UAT-AC500",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/powersync-role.test.ts",
+      "name": "the replication role machvon_sync (ST-KERNEL-045) AC-ST-KERNEL-045-3 UAT-AC500: has REPLICATION, is neither a superuser nor able to bypass row-level security, and inherits nothing from another role",
+      "status": "passed",
+      "durationMs": 7,
+      "at": "2026-11-05T09:23:56.453Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/powersync-role.test.ts",
+      "name": "the replication role machvon_sync (ST-KERNEL-045) AC-ST-KERNEL-045-3 UAT-AC500: has SELECT on every table of the publication powersync and on no other table",
+      "status": "passed",
+      "durationMs": 8,
+      "at": "2026-11-05T09:23:56.462Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/powersync-role.test.ts",
+      "name": "the replication role machvon_sync (ST-KERNEL-045) AC-ST-KERNEL-045-3 UAT-AC500: holds no other privilege on any table, column, sequence, the schema or the database",
+      "status": "passed",
+      "durationMs": 18,
+      "at": "2026-11-05T09:23:56.479Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/powersync-role.test.ts",
+      "name": "the replication role machvon_sync (ST-KERNEL-045) AC-ST-KERNEL-045-3 UAT-AC500: publishes the tables of the sync contract and the scope table of the bucket parameters, and none of the tables that must not reach a phone",
+      "status": "passed",
+      "durationMs": 6,
+      "at": "2026-11-05T09:23:56.486Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/powersync-role.test.ts",
+      "name": "the replication role machvon_sync (ST-KERNEL-045) AC-ST-KERNEL-045-3 UAT-AC500: running the script again leaves the same privileges, and takes back a privilege that crept onto a table outside the publication",
+      "status": "passed",
+      "durationMs": 19,
+      "at": "2026-11-05T09:23:56.505Z",
+      "requests": []
+    }
+  ]
+}

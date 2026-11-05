@@ -1,0 +1,113 @@
+{
+  "id": "UAT-AC17",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/review.test.ts",
+      "name": "the review of the findings of an analysis by an expert and the comparison of proposals (ST-BID-010) AC-ST-BID-010-2, UAT-AC17: the proposals of a package on one version of the criteria AC-ST-BID-010-2, UAT-AC17: compares only the runs on CV-2, excludes the one on CV-1 as CRITERIA_VERSION_MISMATCH and lists the excluded attributes",
+      "status": "passed",
+      "durationMs": 1191,
+      "at": "2026-11-05T09:18:29.173Z",
+      "requests": [
+        {
+          "id": "0f3820ab-9f46-41c6-86aa-a52f0162ca72",
+          "method": "POST",
+          "path": "/procurement-packages/1c6ac862-3bfe-483c-9e25-baa726590414/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:18:28.026Z"
+        },
+        {
+          "id": "b15c8cce-ef6f-4e7e-9921-58fbc0ebfc41",
+          "method": "POST",
+          "path": "/analysis-findings/61f14f9d-971d-41ca-926e-3b6ff5bfa37e/review",
+          "status": 200,
+          "at": "2026-11-05T09:18:28.980Z"
+        },
+        {
+          "id": "8148f1e6-2fd6-43d1-be01-0fa9942de94a",
+          "method": "GET",
+          "path": "/procurement-packages/1c6ac862-3bfe-483c-9e25-baa726590414/proposal-comparison",
+          "status": 200,
+          "at": "2026-11-05T09:18:29.017Z"
+        },
+        {
+          "id": "9e1b1e0e-cf73-4aeb-857e-acf014065fa2",
+          "method": "GET",
+          "path": "/procurement-packages/1c6ac862-3bfe-483c-9e25-baa726590414/proposal-comparison",
+          "status": 200,
+          "at": "2026-11-05T09:18:29.040Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/review.test.ts",
+      "name": "the review of the findings of an analysis by an expert and the comparison of proposals (ST-BID-010) AC-ST-BID-010-2, UAT-AC17: the proposals of a package on one version of the criteria does not exist for someone without the permission or the project, is refused to someone who owes the declaration, and refuses a version of another package",
+      "status": "passed",
+      "durationMs": 691,
+      "at": "2026-11-05T09:18:29.865Z",
+      "requests": [
+        {
+          "id": "b6d364cc-1889-4bce-9a5a-e3bb0adaf03c",
+          "method": "POST",
+          "path": "/procurement-packages/1fed7b08-a60c-4507-a771-033a85d6ce4e/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:18:29.221Z"
+        },
+        {
+          "id": "e3840966-7b4c-49db-afc3-5e4b962b5c6a",
+          "method": "GET",
+          "path": "/procurement-packages/1fed7b08-a60c-4507-a771-033a85d6ce4e/proposal-comparison",
+          "status": 403,
+          "at": "2026-11-05T09:18:29.679Z"
+        },
+        {
+          "id": "08faebfe-3d03-477f-9f1c-2acbd88c06e1",
+          "method": "GET",
+          "path": "/procurement-packages/1fed7b08-a60c-4507-a771-033a85d6ce4e/proposal-comparison",
+          "status": 403,
+          "at": "2026-11-05T09:18:29.683Z"
+        },
+        {
+          "id": "4eae31b1-03a4-40ef-8e98-f8263097e5d8",
+          "method": "GET",
+          "path": "/procurement-packages/74a68695-2c81-46b6-a7a2-2651ad1697fe/proposal-comparison",
+          "status": 404,
+          "at": "2026-11-05T09:18:29.689Z"
+        },
+        {
+          "id": "1bd0a5de-f9f1-453b-9f6a-88f891bb9e63",
+          "method": "GET",
+          "path": "/procurement-packages/1fed7b08-a60c-4507-a771-033a85d6ce4e/proposal-comparison",
+          "status": 404,
+          "at": "2026-11-05T09:18:29.692Z"
+        },
+        {
+          "id": "66704d14-0113-48f2-9719-d52262f71b97",
+          "method": "GET",
+          "path": "/procurement-packages/1fed7b08-a60c-4507-a771-033a85d6ce4e/proposal-comparison",
+          "status": 422,
+          "at": "2026-11-05T09:18:29.700Z"
+        },
+        {
+          "id": "1fa41df3-1063-4311-9749-4578710b3f5f",
+          "method": "GET",
+          "path": "/procurement-packages/1fed7b08-a60c-4507-a771-033a85d6ce4e/proposal-comparison",
+          "status": 422,
+          "at": "2026-11-05T09:18:29.828Z"
+        },
+        {
+          "id": "5818e4bc-dc3c-47f4-84c6-c991b01e7061",
+          "method": "GET",
+          "path": "/procurement-packages/1fed7b08-a60c-4507-a771-033a85d6ce4e/proposal-comparison",
+          "status": 404,
+          "at": "2026-11-05T09:18:29.847Z"
+        }
+      ]
+    }
+  ]
+}

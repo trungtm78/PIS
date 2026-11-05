@@ -1,0 +1,293 @@
+{
+  "id": "UAT-PLAN-23",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-issue.test.ts",
+      "name": "createIssue, assignIssue, startIssue, commentIssue, transferIssueUnit and the issue reads (ST-ISS-002) the reads (AC-ST-ISS-002-3, UAT-PLAN-23) shows each caller only the issues in their scope",
+      "status": "passed",
+      "durationMs": 73,
+      "at": "2026-11-05T09:21:57.619Z",
+      "requests": [
+        {
+          "id": "2b8fd776-5816-45ba-bb32-346abb9b7db6",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.546Z"
+        },
+        {
+          "id": "766fc967-e97b-4c9d-84d8-72985901d357",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.565Z"
+        },
+        {
+          "id": "65b3da34-69f1-4f5a-b9d0-da8455ea9358",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.577Z"
+        },
+        {
+          "id": "cc538108-8143-45e5-80c9-2ae884130898",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.592Z"
+        },
+        {
+          "id": "c59ce4a2-61f8-43f1-9ccb-56ee0728bdf6",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 403,
+          "at": "2026-11-05T09:21:57.609Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-issue.test.ts",
+      "name": "createIssue, assignIssue, startIssue, commentIssue, transferIssueUnit and the issue reads (ST-ISS-002) the reads (AC-ST-ISS-002-3, UAT-PLAN-23) opens an issue inside the scope and answers 404 outside it, for a foreign tenant and for an id that does not exist",
+      "status": "passed",
+      "durationMs": 178,
+      "at": "2026-11-05T09:21:57.797Z",
+      "requests": [
+        {
+          "id": "cca96084-3a2d-441c-b785-8a89bf381cca",
+          "method": "GET",
+          "path": "/resources/issue/7ecf7fe8-4de6-40c3-8dda-22fde1f4765c",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.619Z"
+        },
+        {
+          "id": "4fcb86f5-f8a2-4bf2-a717-075a130c1f30",
+          "method": "GET",
+          "path": "/resources/issue/7deeba60-d771-4a34-b217-2a72a92637d9",
+          "status": 404,
+          "at": "2026-11-05T09:21:57.642Z"
+        },
+        {
+          "id": "22c8e7eb-275b-4aba-95d7-a4401c436a31",
+          "method": "GET",
+          "path": "/resources/issue/7ecf7fe8-4de6-40c3-8dda-22fde1f4765c",
+          "status": 404,
+          "at": "2026-11-05T09:21:57.656Z"
+        },
+        {
+          "id": "89e4be6a-6dc5-44ba-94cf-d4a8a6c4b0bf",
+          "method": "GET",
+          "path": "/resources/issue/7ecf7fe8-4de6-40c3-8dda-22fde1f4765c",
+          "status": 404,
+          "at": "2026-11-05T09:21:57.673Z"
+        },
+        {
+          "id": "2c3d8941-f19f-4647-b7b0-88f38d31c323",
+          "method": "GET",
+          "path": "/resources/issue/6f788fa9-1356-4db2-8e7f-6d63ab543b0a",
+          "status": 404,
+          "at": "2026-11-05T09:21:57.681Z"
+        },
+        {
+          "id": "fc8e0046-4574-4d90-967c-1844c783b08c",
+          "method": "GET",
+          "path": "/resources/issue/ba8ae6e3-e8a2-440b-b7f5-84b74a1e274e",
+          "status": 404,
+          "at": "2026-11-05T09:21:57.688Z"
+        },
+        {
+          "id": "66a32286-b8ab-4a2c-8256-9d89a08fc51c",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.707Z"
+        },
+        {
+          "id": "6bbfbc55-dcd6-4a0d-9107-0ae37f407744",
+          "method": "POST",
+          "path": "/issues/7ecf7fe8-4de6-40c3-8dda-22fde1f4765c/assign",
+          "status": 404,
+          "at": "2026-11-05T09:21:57.723Z"
+        },
+        {
+          "id": "347d8205-6d60-4113-95a7-22a99dd36d18",
+          "method": "POST",
+          "path": "/issues/7ecf7fe8-4de6-40c3-8dda-22fde1f4765c/start",
+          "status": 404,
+          "at": "2026-11-05T09:21:57.738Z"
+        },
+        {
+          "id": "1fb66d14-59f2-40d0-9d34-b064b11e67e1",
+          "method": "POST",
+          "path": "/issues/7ecf7fe8-4de6-40c3-8dda-22fde1f4765c/transfer",
+          "status": 404,
+          "at": "2026-11-05T09:21:57.749Z"
+        },
+        {
+          "id": "426c3523-e53e-47c9-a811-dfad86e20161",
+          "method": "POST",
+          "path": "/issues/7ecf7fe8-4de6-40c3-8dda-22fde1f4765c/comments",
+          "status": 404,
+          "at": "2026-11-05T09:21:57.771Z"
+        },
+        {
+          "id": "72038792-5dc8-4934-a9c3-203dae6b6ce2",
+          "method": "GET",
+          "path": "/resources/issue/not-a-uuid",
+          "status": 422,
+          "at": "2026-11-05T09:21:57.783Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-issue.test.ts",
+      "name": "createIssue, assignIssue, startIssue, commentIssue, transferIssueUnit and the issue reads (ST-ISS-002) the reads (AC-ST-ISS-002-3, UAT-PLAN-23) shows the staff the position with the warning for a low accuracy, and a guest contractor the work without the people or the place",
+      "status": "passed",
+      "durationMs": 70,
+      "at": "2026-11-05T09:21:57.867Z",
+      "requests": [
+        {
+          "id": "d04db126-58da-4496-baa8-ea55ee9dddf0",
+          "method": "GET",
+          "path": "/resources/issue/ba8ae6e3-e8a2-440b-b7f5-84b74a1e274e",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.797Z"
+        },
+        {
+          "id": "470667f4-e9e1-4a0f-ab7f-c465b897e5df",
+          "method": "GET",
+          "path": "/resources/issue/ba8ae6e3-e8a2-440b-b7f5-84b74a1e274e",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.822Z"
+        },
+        {
+          "id": "84026c98-b226-47df-8ae0-d0554830f840",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.842Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-issue.test.ts",
+      "name": "createIssue, assignIssue, startIssue, commentIssue, transferIssueUnit and the issue reads (ST-ISS-002) the reads (AC-ST-ISS-002-3, UAT-PLAN-23) hides what a land complaint says from those who may not read the household (UAT-AC354)",
+      "status": "passed",
+      "durationMs": 38,
+      "at": "2026-11-05T09:21:57.905Z",
+      "requests": [
+        {
+          "id": "74802534-d30d-4bb9-9c52-5bf31bde1d2e",
+          "method": "GET",
+          "path": "/resources/issue/f3afaabd-2ef3-4d4e-adfd-177fde3dd61e",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.867Z"
+        },
+        {
+          "id": "31734ff4-40c6-4269-a605-7565fe82fae9",
+          "method": "GET",
+          "path": "/resources/issue/f3afaabd-2ef3-4d4e-adfd-177fde3dd61e",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.886Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-issue.test.ts",
+      "name": "createIssue, assignIssue, startIssue, commentIssue, transferIssueUnit and the issue reads (ST-ISS-002) the reads (AC-ST-ISS-002-3, UAT-PLAN-23) pages the timeline of an issue with its cursor and refuses a malformed one",
+      "status": "passed",
+      "durationMs": 146,
+      "at": "2026-11-05T09:21:58.051Z",
+      "requests": [
+        {
+          "id": "745e0ee3-d540-4a1d-9bd5-8b7a025708aa",
+          "method": "POST",
+          "path": "/issues",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.906Z"
+        },
+        {
+          "id": "8a411d97-b6cb-4de8-8ef6-01f375f7e572",
+          "method": "POST",
+          "path": "/issues/a7fed69b-e30a-4cd7-aaf3-9094d3f14d3a/comments",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.937Z"
+        },
+        {
+          "id": "ed139dee-c3c2-4a20-b80f-51ab364f4f8e",
+          "method": "POST",
+          "path": "/issues/a7fed69b-e30a-4cd7-aaf3-9094d3f14d3a/comments",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.961Z"
+        },
+        {
+          "id": "634bfca3-cf2b-4357-be5e-73a7e3bc0f2d",
+          "method": "POST",
+          "path": "/issues/a7fed69b-e30a-4cd7-aaf3-9094d3f14d3a/comments",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.980Z"
+        },
+        {
+          "id": "af190322-992a-4b1b-bd78-d542a5179b03",
+          "method": "GET",
+          "path": "/resources/issue/a7fed69b-e30a-4cd7-aaf3-9094d3f14d3a",
+          "status": 200,
+          "at": "2026-11-05T09:21:57.995Z"
+        },
+        {
+          "id": "ffb84c57-c128-4a60-8d93-9d84c1a371f1",
+          "method": "GET",
+          "path": "/resources/issue/a7fed69b-e30a-4cd7-aaf3-9094d3f14d3a",
+          "status": 200,
+          "at": "2026-11-05T09:21:58.016Z"
+        },
+        {
+          "id": "c7ad8e2e-ece3-40f9-877b-a438faac5838",
+          "method": "GET",
+          "path": "/resources/issue/a7fed69b-e30a-4cd7-aaf3-9094d3f14d3a",
+          "status": 422,
+          "at": "2026-11-05T09:21:58.043Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-issue.test.ts",
+      "name": "createIssue, assignIssue, startIssue, commentIssue, transferIssueUnit and the issue reads (ST-ISS-002) the reads (AC-ST-ISS-002-3, UAT-PLAN-23) pages the list newest first and answers the page after the cursor",
+      "status": "passed",
+      "durationMs": 32,
+      "at": "2026-11-05T09:21:58.084Z",
+      "requests": [
+        {
+          "id": "3f00fdb9-0d36-4cb6-8cd8-45e2f3efef4e",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:21:58.052Z"
+        },
+        {
+          "id": "a354adbe-14bb-46e6-bf54-f137565a287a",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 200,
+          "at": "2026-11-05T09:21:58.061Z"
+        },
+        {
+          "id": "8a0a64ba-6982-4a47-a3c5-304e92a01665",
+          "method": "GET",
+          "path": "/resources/issue",
+          "status": 422,
+          "at": "2026-11-05T09:21:58.073Z"
+        }
+      ]
+    }
+  ]
+}

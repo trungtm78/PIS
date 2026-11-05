@@ -1,0 +1,40 @@
+{
+  "id": "UI-PAY-10",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/pay-ledger-flows.spec.ts",
+      "name": "the chief accountant reads the balances and their entries, narrows them to one item, and a person without the right is refused (UI-PAY-10, AC-ST-PAY-001-4, UAT-AC341)",
+      "status": "passed",
+      "durationMs": 1170,
+      "at": "2026-11-05T08:49:44.346Z",
+      "requests": [
+        {
+          "id": "cc0881c5-e80c-4291-9f0d-608f088669c0",
+          "method": "GET",
+          "path": "/contracts/e42076a3-7657-45a0-95e2-c73c5e3e2951/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T08:49:45.087Z"
+        },
+        {
+          "id": "51aba9bb-b54f-48d6-af42-a4ceb434dea3",
+          "method": "GET",
+          "path": "/contracts/e42076a3-7657-45a0-95e2-c73c5e3e2951/cumulative-ledger",
+          "status": 200,
+          "at": "2026-11-05T08:49:45.248Z"
+        },
+        {
+          "id": "0ad9c049-d6e5-4e61-b74c-72601d13ed14",
+          "method": "GET",
+          "path": "/contracts/e42076a3-7657-45a0-95e2-c73c5e3e2951/cumulative-ledger",
+          "status": 403,
+          "at": "2026-11-05T08:49:45.446Z"
+        }
+      ]
+    }
+  ]
+}

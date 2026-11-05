@@ -1,0 +1,68 @@
+{
+  "id": "UAT-AC37",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/billing.test.ts",
+      "name": "the billing run and the e-invoice over HTTP (ST-SAS-011) AC-ST-SAS-011-4 UAT-AC37: an overdue subscription is PastDue while the tenant and the license stay as they are, and a suspension is only proposed after thirty days",
+      "status": "passed",
+      "durationMs": 555,
+      "at": "2026-11-05T09:19:56.747Z",
+      "requests": [
+        {
+          "id": "442ed8fa-0fbe-449f-b463-37181353fb54",
+          "method": "POST",
+          "path": "/system/tenants/2a6071eb-3034-4071-b2f9-152b85d93329/subscriptions",
+          "status": 201,
+          "at": "2026-11-05T09:19:56.369Z"
+        },
+        {
+          "id": "1c2e8505-294d-4bc7-ad56-c326e662cbc7",
+          "method": "POST",
+          "path": "/system/billing-runs",
+          "status": 202,
+          "at": "2026-11-05T09:19:56.377Z"
+        },
+        {
+          "id": "71a5a3cd-0789-4903-ad4a-bd1a99f2a431",
+          "method": "GET",
+          "path": "/system/tenants/2a6071eb-3034-4071-b2f9-152b85d93329/invoices",
+          "status": 200,
+          "at": "2026-11-05T09:19:56.401Z"
+        },
+        {
+          "id": "249e3820-592d-4a8e-843b-be8933fea73e",
+          "method": "POST",
+          "path": "/system/invoices/53ea0f3d-a4f0-424b-952e-4e0d34a1b6fb/issue",
+          "status": 202,
+          "at": "2026-11-05T09:19:56.412Z"
+        },
+        {
+          "id": "8d04bac4-eb22-4891-a4d0-125b9d650ba7",
+          "method": "GET",
+          "path": "/system/tenants/2a6071eb-3034-4071-b2f9-152b85d93329/invoices",
+          "status": 200,
+          "at": "2026-11-05T09:19:56.424Z"
+        },
+        {
+          "id": "200bee01-32c4-45a3-b2ce-d9f0775a3238",
+          "method": "GET",
+          "path": "/system/tenants/2a6071eb-3034-4071-b2f9-152b85d93329/invoices",
+          "status": 200,
+          "at": "2026-11-05T09:19:56.503Z"
+        },
+        {
+          "id": "67d7171a-7d43-46c7-90bd-4735c38273b5",
+          "method": "GET",
+          "path": "/system/tenants/2a6071eb-3034-4071-b2f9-152b85d93329/invoices",
+          "status": 200,
+          "at": "2026-11-05T09:19:56.579Z"
+        }
+      ]
+    }
+  ]
+}

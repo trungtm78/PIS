@@ -1,0 +1,172 @@
+{
+  "id": "UI-BID-18",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/bid-result-flows.spec.ts",
+      "name": "the proposer submits the result at the price of the package or below, a person with the authority approves it, and the package is awarded (AC-ST-BID-006-1, UAT-AC455, UI-BID-18)",
+      "status": "passed",
+      "durationMs": 2083,
+      "at": "2026-11-05T08:44:47.801Z",
+      "requests": [
+        {
+          "id": "24c30b16-2b59-4ea1-9a80-570b27991e4e",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:48.743Z"
+        },
+        {
+          "id": "6fcb050a-0802-4a35-8fd1-dc5fd1f1ebaa",
+          "method": "GET",
+          "path": "/procurement-results",
+          "status": 200,
+          "at": "2026-11-05T08:44:48.790Z"
+        },
+        {
+          "id": "8908d826-4b63-480d-b4b4-fcf142f618d8",
+          "method": "GET",
+          "path": "/resources/contractor",
+          "status": 200,
+          "at": "2026-11-05T08:44:48.901Z"
+        },
+        {
+          "id": "046f9371-4d0b-447c-83ad-9ca88f05e8b6",
+          "method": "POST",
+          "path": "/procurement-results",
+          "status": 422,
+          "at": "2026-11-05T08:44:49.007Z"
+        },
+        {
+          "id": "c9f9d0fa-ad86-4706-83b4-e75156bf510f",
+          "method": "POST",
+          "path": "/procurement-results",
+          "status": 200,
+          "at": "2026-11-05T08:44:49.140Z"
+        },
+        {
+          "id": "e270f0c7-223a-4a30-8bfb-2c0ce5a00d4b",
+          "method": "GET",
+          "path": "/resources/contractor",
+          "status": 200,
+          "at": "2026-11-05T08:44:49.159Z"
+        },
+        {
+          "id": "82a91bdb-9eab-48b8-9704-38017490017a",
+          "method": "GET",
+          "path": "/procurement-results",
+          "status": 200,
+          "at": "2026-11-05T08:44:49.158Z"
+        },
+        {
+          "id": "9741b7ce-5a50-4e88-92ba-dfa29425e952",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:49.157Z"
+        },
+        {
+          "id": "0ea4a7df-21b6-4fa1-a6ac-77107f15ea6e",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:49.392Z"
+        },
+        {
+          "id": "c2a8d6b5-75b0-4809-8699-cebcf0b22165",
+          "method": "GET",
+          "path": "/procurement-results",
+          "status": 200,
+          "at": "2026-11-05T08:44:49.412Z"
+        },
+        {
+          "id": "f36d9dc3-9d31-49de-87a9-af8997118fb7",
+          "method": "POST",
+          "path": "/procurement-results/da2c8a60-24c8-4d30-8a6a-719ad3d3d8ac/decision",
+          "status": 200,
+          "at": "2026-11-05T08:44:49.626Z"
+        },
+        {
+          "id": "6005dda9-96cd-4ee9-bf12-e3730698b441",
+          "method": "GET",
+          "path": "/procurement-results",
+          "status": 200,
+          "at": "2026-11-05T08:44:49.650Z"
+        },
+        {
+          "id": "39b8457a-9544-4d93-834a-9c81eae921a5",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:49.649Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/bid-result-flows.spec.ts",
+      "name": "a winner under a restriction is refused (AC-ST-BID-006-2, UAT-AC446, UI-BID-18)",
+      "status": "passed",
+      "durationMs": 1007,
+      "at": "2026-11-05T08:44:49.891Z",
+      "requests": [
+        {
+          "id": "bb354876-2558-4354-81a9-09540a8a720e",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:50.576Z"
+        },
+        {
+          "id": "888bda3e-1d62-49c5-b745-fea58702c59d",
+          "method": "GET",
+          "path": "/procurement-results",
+          "status": 200,
+          "at": "2026-11-05T08:44:50.633Z"
+        },
+        {
+          "id": "a221609e-bbdb-4ae8-9297-c0fe6301ae8f",
+          "method": "GET",
+          "path": "/resources/contractor",
+          "status": 200,
+          "at": "2026-11-05T08:44:50.700Z"
+        },
+        {
+          "id": "f1dee14d-31ea-4158-8599-ef7772879d68",
+          "method": "POST",
+          "path": "/procurement-results",
+          "status": 422,
+          "at": "2026-11-05T08:44:50.774Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/bid-result-flows.spec.ts",
+      "name": "someone who only reads sees the results and no button (UI-BID-18)",
+      "status": "passed",
+      "durationMs": 870,
+      "at": "2026-11-05T08:44:50.905Z",
+      "requests": [
+        {
+          "id": "ec5d18b1-d9eb-464f-b255-bd44b84064d3",
+          "method": "GET",
+          "path": "/resources/procurement_package",
+          "status": 200,
+          "at": "2026-11-05T08:44:51.684Z"
+        },
+        {
+          "id": "43c781f0-0140-44c3-971a-9e3f38bd3fa6",
+          "method": "GET",
+          "path": "/procurement-results",
+          "status": 200,
+          "at": "2026-11-05T08:44:51.728Z"
+        }
+      ]
+    }
+  ]
+}

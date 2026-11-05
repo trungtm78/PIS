@@ -1,0 +1,470 @@
+{
+  "id": "UAT-AC340",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/settlement-form.test.ts",
+      "name": "the forms of a settlement over HTTP (ST-PAY-012, UAT-AC340) is registered in the module of PAY",
+      "status": "passed",
+      "durationMs": 1,
+      "at": "2026-11-05T09:15:01.866Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/settlement-form.test.ts",
+      "name": "the forms of a settlement over HTTP (ST-PAY-012, UAT-AC340) AC-ST-PAY-012-1, UAT-AC340: draws the forms of a completed project from the templates that are confirmed, keeps the proof of each, and refuses the one that waits for its confirmation",
+      "status": "passed",
+      "durationMs": 2948,
+      "at": "2026-11-05T09:15:04.815Z",
+      "requests": [
+        {
+          "id": "edbe6e5d-0207-4728-8cfb-017d95a71af4",
+          "method": "POST",
+          "path": "/settlements",
+          "status": 200,
+          "at": "2026-11-05T09:15:02.783Z"
+        },
+        {
+          "id": "7df307a4-70f4-4812-94d1-6cef6f0d9cb6",
+          "method": "POST",
+          "path": "/settlements/27d42ab7-b57c-483a-86cd-847d323b429e/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:02.865Z"
+        },
+        {
+          "id": "f0f01ad8-467e-42a6-a343-35226a8e7d3e",
+          "method": "POST",
+          "path": "/settlements/27d42ab7-b57c-483a-86cd-847d323b429e/verification",
+          "status": 200,
+          "at": "2026-11-05T09:15:02.992Z"
+        },
+        {
+          "id": "a09de0cb-9f4c-4f6f-930e-8c36cb03a1d7",
+          "method": "POST",
+          "path": "/settlements/27d42ab7-b57c-483a-86cd-847d323b429e/verification",
+          "status": 200,
+          "at": "2026-11-05T09:15:03.048Z"
+        },
+        {
+          "id": "d29d8d76-ba31-469e-9a0c-776e2dc4b9e2",
+          "method": "POST",
+          "path": "/settlements/27d42ab7-b57c-483a-86cd-847d323b429e/forms",
+          "status": 200,
+          "at": "2026-11-05T09:15:03.074Z"
+        },
+        {
+          "id": "0c70b225-f01b-41c5-b3e3-bd822dbbe760",
+          "method": "POST",
+          "path": "/settlements/27d42ab7-b57c-483a-86cd-847d323b429e/forms",
+          "status": 200,
+          "at": "2026-11-05T09:15:04.115Z"
+        },
+        {
+          "id": "b0dd1d03-de34-4961-be50-38fbfe5ecf88",
+          "method": "POST",
+          "path": "/settlements/27d42ab7-b57c-483a-86cd-847d323b429e/forms",
+          "status": 422,
+          "at": "2026-11-05T09:15:04.459Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/settlement-form.test.ts",
+      "name": "the forms of a settlement over HTTP (ST-PAY-012, UAT-AC340) drafts the decision although DOC holds other correspondence of the settlement, and only one decision",
+      "status": "passed",
+      "durationMs": 1749,
+      "at": "2026-11-05T09:15:06.564Z",
+      "requests": [
+        {
+          "id": "38e0e532-bfbb-4682-8461-f796f03e162d",
+          "method": "POST",
+          "path": "/settlements",
+          "status": 200,
+          "at": "2026-11-05T09:15:05.638Z"
+        },
+        {
+          "id": "ae943569-eb34-480e-b103-0c72479f9c3a",
+          "method": "POST",
+          "path": "/settlements/0acbdcee-fe68-4a8b-9598-beceeaf25fba/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:05.710Z"
+        },
+        {
+          "id": "af8344ff-b86f-49d1-a1c5-ee9ae416d27b",
+          "method": "POST",
+          "path": "/settlements/0acbdcee-fe68-4a8b-9598-beceeaf25fba/verification",
+          "status": 200,
+          "at": "2026-11-05T09:15:05.778Z"
+        },
+        {
+          "id": "c745c697-3f8b-418a-a04f-fb9e95151219",
+          "method": "POST",
+          "path": "/settlements/0acbdcee-fe68-4a8b-9598-beceeaf25fba/verification",
+          "status": 200,
+          "at": "2026-11-05T09:15:05.846Z"
+        },
+        {
+          "id": "b0f0045e-c7be-426f-8b6f-51c4beb68b82",
+          "method": "POST",
+          "path": "/settlements/0acbdcee-fe68-4a8b-9598-beceeaf25fba/forms",
+          "status": 200,
+          "at": "2026-11-05T09:15:05.993Z"
+        },
+        {
+          "id": "fa0e7901-b1c5-4ef3-9d4d-5be351af67a8",
+          "method": "POST",
+          "path": "/settlements/0acbdcee-fe68-4a8b-9598-beceeaf25fba/forms",
+          "status": 200,
+          "at": "2026-11-05T09:15:06.254Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/settlement-form.test.ts",
+      "name": "the forms of a settlement over HTTP (ST-PAY-012, UAT-AC340) draws a form again over the one that stood, which is superseded and kept, and lists the ones that stand first",
+      "status": "passed",
+      "durationMs": 1732,
+      "at": "2026-11-05T09:15:08.297Z",
+      "requests": [
+        {
+          "id": "49e1fa46-7ed6-4795-af36-08ff0b4e1d9f",
+          "method": "POST",
+          "path": "/settlements",
+          "status": 200,
+          "at": "2026-11-05T09:15:07.405Z"
+        },
+        {
+          "id": "1075d36e-3823-43e0-b439-1bafc99330ff",
+          "method": "POST",
+          "path": "/settlements/eba6f57b-93bd-4ae4-917c-6831dd3976f1/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:07.500Z"
+        },
+        {
+          "id": "69340385-8f17-472e-9411-bba1d13ce00f",
+          "method": "POST",
+          "path": "/settlements/eba6f57b-93bd-4ae4-917c-6831dd3976f1/verification",
+          "status": 200,
+          "at": "2026-11-05T09:15:07.562Z"
+        },
+        {
+          "id": "a0ea5160-d00f-4132-b72f-37ec101e1a0d",
+          "method": "POST",
+          "path": "/settlements/eba6f57b-93bd-4ae4-917c-6831dd3976f1/verification",
+          "status": 200,
+          "at": "2026-11-05T09:15:07.619Z"
+        },
+        {
+          "id": "94db70fa-59cc-4ef8-bec6-8007142f54cb",
+          "method": "POST",
+          "path": "/settlements/eba6f57b-93bd-4ae4-917c-6831dd3976f1/forms",
+          "status": 200,
+          "at": "2026-11-05T09:15:07.646Z"
+        },
+        {
+          "id": "df9beedc-910f-4c08-ab8d-1e5e52bba32b",
+          "method": "POST",
+          "path": "/settlements/eba6f57b-93bd-4ae4-917c-6831dd3976f1/forms",
+          "status": 200,
+          "at": "2026-11-05T09:15:07.875Z"
+        },
+        {
+          "id": "e27e665a-4e19-41e2-b88e-d661cd774ac1",
+          "method": "GET",
+          "path": "/settlements/eba6f57b-93bd-4ae4-917c-6831dd3976f1/forms",
+          "status": 200,
+          "at": "2026-11-05T09:15:08.225Z"
+        },
+        {
+          "id": "5631b0c7-d779-4b93-8584-db054fed2455",
+          "method": "GET",
+          "path": "/settlements/62c6eb35-90bb-4b2a-8259-c4be02936271/forms",
+          "status": 404,
+          "at": "2026-11-05T09:15:08.247Z"
+        },
+        {
+          "id": "892c8cf4-9813-4a6c-849b-9bbd4003c218",
+          "method": "GET",
+          "path": "/settlements/eba6f57b-93bd-4ae4-917c-6831dd3976f1/forms",
+          "status": 403,
+          "at": "2026-11-05T09:15:08.261Z"
+        },
+        {
+          "id": "fcbf7a84-157a-4394-86fe-d46161e81eb0",
+          "method": "GET",
+          "path": "/settlements/eba6f57b-93bd-4ae4-917c-6831dd3976f1/forms",
+          "status": 404,
+          "at": "2026-11-05T09:15:08.276Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/settlement-form.test.ts",
+      "name": "the forms of a settlement over HTTP (ST-PAY-012, UAT-AC340) draws the forms of a year only for a settlement of a year, and the forms of a project only for a project",
+      "status": "passed",
+      "durationMs": 2841,
+      "at": "2026-11-05T09:15:11.138Z",
+      "requests": [
+        {
+          "id": "53a9d1d2-ecb2-4912-9ce5-78e917bad0ef",
+          "method": "POST",
+          "path": "/settlements",
+          "status": 200,
+          "at": "2026-11-05T09:15:09.356Z"
+        },
+        {
+          "id": "da9919f8-ca50-49e6-9981-d3f030c8e4f7",
+          "method": "POST",
+          "path": "/settlements/c45ffe42-aa5b-4c7d-b202-e9f2db10bc39/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:09.418Z"
+        },
+        {
+          "id": "4c538667-1b5d-4865-a809-be9e9f984ebc",
+          "method": "POST",
+          "path": "/settlements/c45ffe42-aa5b-4c7d-b202-e9f2db10bc39/verification",
+          "status": 200,
+          "at": "2026-11-05T09:15:09.476Z"
+        },
+        {
+          "id": "f5e91cab-5877-4388-ad49-5d72d48730df",
+          "method": "POST",
+          "path": "/settlements/c45ffe42-aa5b-4c7d-b202-e9f2db10bc39/verification",
+          "status": 200,
+          "at": "2026-11-05T09:15:09.590Z"
+        },
+        {
+          "id": "7f5d4283-1bc2-41f3-83b0-9945579fad7e",
+          "method": "POST",
+          "path": "/settlements/c45ffe42-aa5b-4c7d-b202-e9f2db10bc39/forms",
+          "status": 422,
+          "at": "2026-11-05T09:15:09.612Z"
+        },
+        {
+          "id": "01bc726b-fb88-4a39-a59c-2cd9c81f0529",
+          "method": "POST",
+          "path": "/settlements/c45ffe42-aa5b-4c7d-b202-e9f2db10bc39/forms",
+          "status": 200,
+          "at": "2026-11-05T09:15:09.622Z"
+        },
+        {
+          "id": "40960131-8779-4979-aba2-d22826d892a7",
+          "method": "POST",
+          "path": "/settlements",
+          "status": 200,
+          "at": "2026-11-05T09:15:10.829Z"
+        },
+        {
+          "id": "6d8bf917-3321-43d4-a305-de3bb628af2b",
+          "method": "POST",
+          "path": "/settlements/2c81e885-0455-47ae-a674-bb0a45dce9b0/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:10.904Z"
+        },
+        {
+          "id": "88a0a177-429c-4c54-b79b-3876fd570a37",
+          "method": "POST",
+          "path": "/settlements/2c81e885-0455-47ae-a674-bb0a45dce9b0/verification",
+          "status": 200,
+          "at": "2026-11-05T09:15:11.018Z"
+        },
+        {
+          "id": "4f6ca6bf-dcca-41b1-b55f-f53c431d2e2d",
+          "method": "POST",
+          "path": "/settlements/2c81e885-0455-47ae-a674-bb0a45dce9b0/verification",
+          "status": 200,
+          "at": "2026-11-05T09:15:11.071Z"
+        },
+        {
+          "id": "14a1040a-90ed-4fa6-bb87-84ea08456404",
+          "method": "POST",
+          "path": "/settlements/2c81e885-0455-47ae-a674-bb0a45dce9b0/forms",
+          "status": 422,
+          "at": "2026-11-05T09:15:11.096Z"
+        },
+        {
+          "id": "5db0b081-7620-410f-b5ef-e6a80373bf39",
+          "method": "POST",
+          "path": "/settlements/2c81e885-0455-47ae-a674-bb0a45dce9b0/forms",
+          "status": 422,
+          "at": "2026-11-05T09:15:11.105Z"
+        },
+        {
+          "id": "a6cab63f-7556-4cc2-926e-844f9816799d",
+          "method": "POST",
+          "path": "/settlements/2c81e885-0455-47ae-a674-bb0a45dce9b0/forms",
+          "status": 422,
+          "at": "2026-11-05T09:15:11.118Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/settlement-form.test.ts",
+      "name": "the forms of a settlement over HTTP (ST-PAY-012, UAT-AC340) refuses a template out of force, a settlement that is not verified, a missing place and a caller without the right",
+      "status": "passed",
+      "durationMs": 2571,
+      "at": "2026-11-05T09:15:13.709Z",
+      "requests": [
+        {
+          "id": "9fcddc5d-9b50-4f42-a90c-d577a31f95a6",
+          "method": "POST",
+          "path": "/settlements",
+          "status": 200,
+          "at": "2026-11-05T09:15:12.443Z"
+        },
+        {
+          "id": "a28359a9-1a1c-4cfb-ac51-04a59d94d421",
+          "method": "POST",
+          "path": "/settlements/c727669d-a14f-4480-9113-b6b42658c113/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:12.510Z"
+        },
+        {
+          "id": "5f5c2f78-16a9-4d49-ba1b-138b4c556721",
+          "method": "POST",
+          "path": "/settlements/c727669d-a14f-4480-9113-b6b42658c113/verification",
+          "status": 200,
+          "at": "2026-11-05T09:15:12.678Z"
+        },
+        {
+          "id": "c838b4c2-d0a2-45e8-84e4-30f2c72a7f9a",
+          "method": "POST",
+          "path": "/settlements/c727669d-a14f-4480-9113-b6b42658c113/verification",
+          "status": 200,
+          "at": "2026-11-05T09:15:12.751Z"
+        },
+        {
+          "id": "23c874b2-40df-4e28-bd04-f58bb908a1d2",
+          "method": "POST",
+          "path": "/settlements/c727669d-a14f-4480-9113-b6b42658c113/forms",
+          "status": 422,
+          "at": "2026-11-05T09:15:12.771Z"
+        },
+        {
+          "id": "0b399c0f-1ed0-41e0-88d1-a535d12459e1",
+          "method": "POST",
+          "path": "/settlements/c727669d-a14f-4480-9113-b6b42658c113/forms",
+          "status": 422,
+          "at": "2026-11-05T09:15:12.824Z"
+        },
+        {
+          "id": "6899182e-2d8f-4fd6-87ce-0c94e95ec0b1",
+          "method": "POST",
+          "path": "/settlements/c727669d-a14f-4480-9113-b6b42658c113/forms",
+          "status": 403,
+          "at": "2026-11-05T09:15:12.844Z"
+        },
+        {
+          "id": "3f107773-6712-404f-b795-e5554d7741ed",
+          "method": "POST",
+          "path": "/settlements/c727669d-a14f-4480-9113-b6b42658c113/forms",
+          "status": 404,
+          "at": "2026-11-05T09:15:12.859Z"
+        },
+        {
+          "id": "daf79b63-fbeb-481f-b89b-9f53bd593061",
+          "method": "POST",
+          "path": "/settlements/eeae18a2-71bc-4f15-83b3-bce5b0d9478e/forms",
+          "status": 404,
+          "at": "2026-11-05T09:15:12.879Z"
+        },
+        {
+          "id": "6a16a3ac-e911-4af2-b524-48f8d9c63ed5",
+          "method": "POST",
+          "path": "/settlements",
+          "status": 200,
+          "at": "2026-11-05T09:15:13.679Z"
+        },
+        {
+          "id": "77a7aafe-d582-4cc9-ae7a-f8bfd620b80a",
+          "method": "POST",
+          "path": "/settlements/b24a637c-e1ea-402b-b569-23f8b28963b1/forms",
+          "status": 409,
+          "at": "2026-11-05T09:15:13.701Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/settlement-form.test.ts",
+      "name": "the forms of a settlement over HTTP (ST-PAY-012, UAT-AC340) keeps the database honest when the application is bypassed: a form of a settlement that is not verified, or with a code that is not one of the settlement, is refused",
+      "status": "passed",
+      "durationMs": 3041,
+      "at": "2026-11-05T09:15:16.750Z",
+      "requests": [
+        {
+          "id": "36e881d9-186a-44de-b980-d76237aebf89",
+          "method": "POST",
+          "path": "/settlements",
+          "status": 200,
+          "at": "2026-11-05T09:15:14.396Z"
+        },
+        {
+          "id": "5f29af9e-de2d-450c-95ca-289da7fd9be8",
+          "method": "POST",
+          "path": "/settlements",
+          "status": 200,
+          "at": "2026-11-05T09:15:15.424Z"
+        },
+        {
+          "id": "df3a78fc-0cfe-4bb3-a087-0ba787fd5a9b",
+          "method": "POST",
+          "path": "/settlements/c2cf6276-d4f4-4dbc-83fd-184b155c4b6a/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:15.543Z"
+        },
+        {
+          "id": "cb39361e-bfd8-4eb1-a1a0-7482ac37663e",
+          "method": "POST",
+          "path": "/settlements/c2cf6276-d4f4-4dbc-83fd-184b155c4b6a/verification",
+          "status": 200,
+          "at": "2026-11-05T09:15:15.623Z"
+        },
+        {
+          "id": "c6a90bde-614a-429e-92d7-b98bad7995ea",
+          "method": "POST",
+          "path": "/settlements/c2cf6276-d4f4-4dbc-83fd-184b155c4b6a/verification",
+          "status": 200,
+          "at": "2026-11-05T09:15:15.697Z"
+        },
+        {
+          "id": "5a5870b2-7495-4057-815c-ecdb6587aa79",
+          "method": "POST",
+          "path": "/settlements",
+          "status": 200,
+          "at": "2026-11-05T09:15:16.374Z"
+        },
+        {
+          "id": "f1414afe-8c10-43f7-bee6-3fec115c857b",
+          "method": "POST",
+          "path": "/settlements/c763e8fb-eb90-4aab-8fb3-0e9e445982b0/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:16.440Z"
+        },
+        {
+          "id": "e19f5505-b10c-42f3-a86c-6ca46e60b811",
+          "method": "POST",
+          "path": "/settlements/c763e8fb-eb90-4aab-8fb3-0e9e445982b0/verification",
+          "status": 200,
+          "at": "2026-11-05T09:15:16.574Z"
+        },
+        {
+          "id": "76a9bca7-3447-497f-bbb5-ee12c58c0d26",
+          "method": "POST",
+          "path": "/settlements/c763e8fb-eb90-4aab-8fb3-0e9e445982b0/verification",
+          "status": 200,
+          "at": "2026-11-05T09:15:16.632Z"
+        }
+      ]
+    }
+  ]
+}

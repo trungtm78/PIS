@@ -1,0 +1,664 @@
+{
+  "id": "UAT-AC427",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/recall.test.ts",
+      "name": "recalling an issued document and voiding a number (ST-DOC-012) voidOutgoingDocumentNumber (AC-ST-DOC-012-2, UAT-AC427) refuses the clerk who allocated the number and then voids it with a second person: allocation VOIDED, document CANCELLED, one event, the next number follows and the audit lists it as voided",
+      "status": "passed",
+      "durationMs": 2101,
+      "at": "2026-11-05T09:14:12.670Z",
+      "requests": [
+        {
+          "id": "0660064f-fc83-48d7-92b7-20dea704fc13",
+          "method": "POST",
+          "path": "/document-number-registers",
+          "status": 200,
+          "at": "2026-11-05T09:14:10.570Z"
+        },
+        {
+          "id": "9028d156-a11c-4b77-bb64-8f21a7cf13b0",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:14:10.584Z"
+        },
+        {
+          "id": "70003f98-6dea-4c2c-81fc-966f93096ffd",
+          "method": "POST",
+          "path": "/outgoing-documents/1b2da705-0088-4ae5-9fc9-debe95bfdd10/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:14:10.602Z"
+        },
+        {
+          "id": "30c6fdd5-5c8a-4e67-a495-b48f07924e35",
+          "method": "POST",
+          "path": "/outgoing-documents/1b2da705-0088-4ae5-9fc9-debe95bfdd10/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:10.620Z"
+        },
+        {
+          "id": "25cca044-0567-49c4-afa7-7f4a96c202e9",
+          "method": "POST",
+          "path": "/outgoing-documents/1b2da705-0088-4ae5-9fc9-debe95bfdd10/leader-signing-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:14:10.811Z"
+        },
+        {
+          "id": "adafca90-586c-4184-832a-51663e506701",
+          "method": "POST",
+          "path": "/signing-sessions/d58e0b6f-55b9-4f98-8481-490f71ff76fa/completion",
+          "status": 200,
+          "at": "2026-11-05T09:14:10.992Z"
+        },
+        {
+          "id": "9dd3b186-d653-4c7f-b124-8eb6f90dcb55",
+          "method": "POST",
+          "path": "/outgoing-documents/1b2da705-0088-4ae5-9fc9-debe95bfdd10/numbering",
+          "status": 200,
+          "at": "2026-11-05T09:14:11.065Z"
+        },
+        {
+          "id": "82dcabae-06ca-4f65-9085-403396b2bb6d",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:14:11.176Z"
+        },
+        {
+          "id": "6f9a74dd-a20e-43a1-acca-5a5d955678ea",
+          "method": "POST",
+          "path": "/outgoing-documents/ece53cef-7568-4452-98c2-27b490cff6a1/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:14:11.195Z"
+        },
+        {
+          "id": "0ce1177b-2ef2-417d-a36f-5644fd8bc3d1",
+          "method": "POST",
+          "path": "/outgoing-documents/ece53cef-7568-4452-98c2-27b490cff6a1/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:11.213Z"
+        },
+        {
+          "id": "67bceb2b-cc34-408c-af9b-fc67bc57506b",
+          "method": "POST",
+          "path": "/outgoing-documents/ece53cef-7568-4452-98c2-27b490cff6a1/leader-signing-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:14:11.402Z"
+        },
+        {
+          "id": "a5ea60fe-0def-4b11-b689-7123a5b110b4",
+          "method": "POST",
+          "path": "/signing-sessions/4db0483b-752b-4053-b0cb-c98d8850d04b/completion",
+          "status": 200,
+          "at": "2026-11-05T09:14:11.460Z"
+        },
+        {
+          "id": "2463f37b-73a2-40c0-80ef-aedb42c9ef2c",
+          "method": "POST",
+          "path": "/outgoing-documents/ece53cef-7568-4452-98c2-27b490cff6a1/numbering",
+          "status": 200,
+          "at": "2026-11-05T09:14:11.526Z"
+        },
+        {
+          "id": "56e616b8-a6fc-4f64-bb76-951cb79b0c05",
+          "method": "POST",
+          "path": "/outgoing-documents/ece53cef-7568-4452-98c2-27b490cff6a1/number-voiding",
+          "status": 403,
+          "at": "2026-11-05T09:14:11.739Z"
+        },
+        {
+          "id": "85a1e2cc-0e68-49be-a124-66b23ad7c9d9",
+          "method": "POST",
+          "path": "/outgoing-documents/ece53cef-7568-4452-98c2-27b490cff6a1/number-voiding",
+          "status": 403,
+          "at": "2026-11-05T09:14:11.755Z"
+        },
+        {
+          "id": "7e45cfdb-2048-4e6b-ab69-cb8a9ff80d3b",
+          "method": "POST",
+          "path": "/outgoing-documents/ece53cef-7568-4452-98c2-27b490cff6a1/number-voiding",
+          "status": 403,
+          "at": "2026-11-05T09:14:11.770Z"
+        },
+        {
+          "id": "eb1673be-af2e-4e18-b67c-a2480ba5d407",
+          "method": "POST",
+          "path": "/outgoing-documents/ece53cef-7568-4452-98c2-27b490cff6a1/number-voiding",
+          "status": 200,
+          "at": "2026-11-05T09:14:11.871Z"
+        },
+        {
+          "id": "3b9602cf-b5ef-44b9-a4f5-9f74caf8837a",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:14:12.143Z"
+        },
+        {
+          "id": "47b1e70e-d8a2-4143-a4ce-45485509a597",
+          "method": "POST",
+          "path": "/outgoing-documents/5762c97f-b397-472b-9ca7-058ea0bb9b6d/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:14:12.156Z"
+        },
+        {
+          "id": "4e2ec29d-7607-42fd-823a-18c8d7da372e",
+          "method": "POST",
+          "path": "/outgoing-documents/5762c97f-b397-472b-9ca7-058ea0bb9b6d/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:12.173Z"
+        },
+        {
+          "id": "fd1f5c00-9ed8-44e3-aa45-26355c38cb6a",
+          "method": "POST",
+          "path": "/outgoing-documents/5762c97f-b397-472b-9ca7-058ea0bb9b6d/leader-signing-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:14:12.362Z"
+        },
+        {
+          "id": "c8ce1b83-3b2d-4270-9fa1-7cf0fb1f8864",
+          "method": "POST",
+          "path": "/signing-sessions/312d3ed1-ea25-4095-8dea-41858433cd76/completion",
+          "status": 200,
+          "at": "2026-11-05T09:14:12.422Z"
+        },
+        {
+          "id": "7b51cdfe-b2e2-4039-ab5b-d87579481953",
+          "method": "POST",
+          "path": "/outgoing-documents/5762c97f-b397-472b-9ca7-058ea0bb9b6d/numbering",
+          "status": 200,
+          "at": "2026-11-05T09:14:12.490Z"
+        },
+        {
+          "id": "9eda542e-237a-43a6-b006-447bd367d409",
+          "method": "GET",
+          "path": "/document-number-registers/fc59fafa-46a9-4fa7-bc55-cc0c365ea993/entries",
+          "status": 200,
+          "at": "2026-11-05T09:14:12.644Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/recall.test.ts",
+      "name": "recalling an issued document and voiding a number (ST-DOC-012) voidOutgoingDocumentNumber (AC-ST-DOC-012-2, UAT-AC427) lets the clerk who allocated the number void it when a second person approves",
+      "status": "passed",
+      "durationMs": 544,
+      "at": "2026-11-05T09:14:13.214Z",
+      "requests": [
+        {
+          "id": "6f3f5b9b-aed4-4e49-8d71-0341e9495715",
+          "method": "POST",
+          "path": "/document-number-registers",
+          "status": 200,
+          "at": "2026-11-05T09:14:12.670Z"
+        },
+        {
+          "id": "086a44dc-595c-49c6-badb-d5d32ca005fd",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:14:12.681Z"
+        },
+        {
+          "id": "46bb5229-de0d-4e08-bf2e-82b8783ad15c",
+          "method": "POST",
+          "path": "/outgoing-documents/edf05606-089b-49da-b32c-e340fe99a57a/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:14:12.701Z"
+        },
+        {
+          "id": "f0a21041-ad14-466d-b9fd-bfe22953fc52",
+          "method": "POST",
+          "path": "/outgoing-documents/edf05606-089b-49da-b32c-e340fe99a57a/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:12.718Z"
+        },
+        {
+          "id": "cfebbb1d-1855-4ff5-b5ec-520724b6b24e",
+          "method": "POST",
+          "path": "/outgoing-documents/edf05606-089b-49da-b32c-e340fe99a57a/leader-signing-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:14:12.905Z"
+        },
+        {
+          "id": "dd3369b5-e2fe-4fc6-ac4d-b222ca3565e0",
+          "method": "POST",
+          "path": "/signing-sessions/80d90137-6b27-4661-96af-fd6b61a5e621/completion",
+          "status": 200,
+          "at": "2026-11-05T09:14:12.966Z"
+        },
+        {
+          "id": "27d3dbdf-91ba-482b-80fb-882e2191af21",
+          "method": "POST",
+          "path": "/outgoing-documents/edf05606-089b-49da-b32c-e340fe99a57a/numbering",
+          "status": 200,
+          "at": "2026-11-05T09:14:13.032Z"
+        },
+        {
+          "id": "7e6b639a-511a-4f5a-bff1-ed0d56731ba1",
+          "method": "POST",
+          "path": "/outgoing-documents/edf05606-089b-49da-b32c-e340fe99a57a/number-voiding",
+          "status": 200,
+          "at": "2026-11-05T09:14:13.142Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/recall.test.ts",
+      "name": "recalling an issued document and voiding a number (ST-DOC-012) voidOutgoingDocumentNumber (AC-ST-DOC-012-2, UAT-AC427) ends the seal session that is still open when the number is voided",
+      "status": "passed",
+      "durationMs": 664,
+      "at": "2026-11-05T09:14:13.878Z",
+      "requests": [
+        {
+          "id": "249a930c-3319-4c7f-a18a-897f93e4057b",
+          "method": "POST",
+          "path": "/document-number-registers",
+          "status": 200,
+          "at": "2026-11-05T09:14:13.214Z"
+        },
+        {
+          "id": "c98a164c-42bc-4fea-9650-117056d20b8c",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:14:13.226Z"
+        },
+        {
+          "id": "adcb916f-0381-4aa8-be42-4e0f2c9c3eef",
+          "method": "POST",
+          "path": "/outgoing-documents/398014df-4ab8-483c-b738-6d3930dfce34/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:14:13.242Z"
+        },
+        {
+          "id": "156b646b-f3f5-49af-b7c0-1bf5955bffa1",
+          "method": "POST",
+          "path": "/outgoing-documents/398014df-4ab8-483c-b738-6d3930dfce34/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:13.260Z"
+        },
+        {
+          "id": "66cc9407-8519-4ceb-b51b-1fb7b41b7beb",
+          "method": "POST",
+          "path": "/outgoing-documents/398014df-4ab8-483c-b738-6d3930dfce34/leader-signing-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:14:13.449Z"
+        },
+        {
+          "id": "3fb2c6a9-90b2-451a-9db5-fb3e2e609fb0",
+          "method": "POST",
+          "path": "/signing-sessions/8f8dab0a-c586-4d6c-922c-357ccdcf95c9/completion",
+          "status": 200,
+          "at": "2026-11-05T09:14:13.512Z"
+        },
+        {
+          "id": "d3f7c476-f33d-445f-8d38-a6e2537f2897",
+          "method": "POST",
+          "path": "/outgoing-documents/398014df-4ab8-483c-b738-6d3930dfce34/numbering",
+          "status": 200,
+          "at": "2026-11-05T09:14:13.580Z"
+        },
+        {
+          "id": "c8ac78aa-954b-422e-8a75-ba2d6abc82aa",
+          "method": "POST",
+          "path": "/outgoing-documents/398014df-4ab8-483c-b738-6d3930dfce34/organization-seal-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:14:13.738Z"
+        },
+        {
+          "id": "43ce006f-6a79-414d-a901-088c2c949f70",
+          "method": "POST",
+          "path": "/outgoing-documents/398014df-4ab8-483c-b738-6d3930dfce34/number-voiding",
+          "status": 200,
+          "at": "2026-11-05T09:14:13.821Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/recall.test.ts",
+      "name": "recalling an issued document and voiding a number (ST-DOC-012) voidOutgoingDocumentNumber (AC-ST-DOC-012-2, UAT-AC427) refuses an approver who may not void numbers over the unit of the document, and one who is not a member",
+      "status": "passed",
+      "durationMs": 684,
+      "at": "2026-11-05T09:14:14.562Z",
+      "requests": [
+        {
+          "id": "762fef1c-a8a9-4ee2-b2b8-ef2b3dcdcd64",
+          "method": "POST",
+          "path": "/document-number-registers",
+          "status": 200,
+          "at": "2026-11-05T09:14:13.878Z"
+        },
+        {
+          "id": "449d6a03-9a79-43f6-be9c-aee0045344f8",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:14:13.894Z"
+        },
+        {
+          "id": "224a7c26-a5d4-4611-aafc-4a4f58bbbf6e",
+          "method": "POST",
+          "path": "/outgoing-documents/6c930691-6bea-4296-b68d-bf85337ca58e/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:14:13.913Z"
+        },
+        {
+          "id": "9b0087c3-82f3-43a4-a3b3-2dfaebdc3cca",
+          "method": "POST",
+          "path": "/outgoing-documents/6c930691-6bea-4296-b68d-bf85337ca58e/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:13.934Z"
+        },
+        {
+          "id": "c3f0fb89-25f9-4261-81da-af538cc70132",
+          "method": "POST",
+          "path": "/outgoing-documents/6c930691-6bea-4296-b68d-bf85337ca58e/leader-signing-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:14:14.135Z"
+        },
+        {
+          "id": "62be4d76-8816-4006-91c5-15b65a665eaa",
+          "method": "POST",
+          "path": "/signing-sessions/6bcb458a-85ad-4d54-aa26-74e554700c05/completion",
+          "status": 200,
+          "at": "2026-11-05T09:14:14.202Z"
+        },
+        {
+          "id": "31627790-9ad7-4a53-a457-cec2c25aa89d",
+          "method": "POST",
+          "path": "/outgoing-documents/6c930691-6bea-4296-b68d-bf85337ca58e/numbering",
+          "status": 200,
+          "at": "2026-11-05T09:14:14.262Z"
+        },
+        {
+          "id": "078b2452-9c92-4cc6-a561-7e6463178814",
+          "method": "POST",
+          "path": "/outgoing-documents/6c930691-6bea-4296-b68d-bf85337ca58e/number-voiding",
+          "status": 422,
+          "at": "2026-11-05T09:14:14.372Z"
+        },
+        {
+          "id": "10a86f0f-6ce8-4bce-8052-cb94bb0651bb",
+          "method": "POST",
+          "path": "/outgoing-documents/6c930691-6bea-4296-b68d-bf85337ca58e/number-voiding",
+          "status": 422,
+          "at": "2026-11-05T09:14:14.395Z"
+        },
+        {
+          "id": "17854f9f-156c-4303-8ec7-a031ce43c3be",
+          "method": "POST",
+          "path": "/outgoing-documents/6c930691-6bea-4296-b68d-bf85337ca58e/number-voiding",
+          "status": 422,
+          "at": "2026-11-05T09:14:14.410Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/recall.test.ts",
+      "name": "recalling an issued document and voiding a number (ST-DOC-012) voidOutgoingDocumentNumber (AC-ST-DOC-012-2, UAT-AC427) voids the number of a sealed document, and refuses an issued one, a voided one, a short reason, a stale version and a missing right",
+      "status": "passed",
+      "durationMs": 1957,
+      "at": "2026-11-05T09:14:16.520Z",
+      "requests": [
+        {
+          "id": "1817eb90-36f1-44f7-990f-9f57dde97111",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:14:14.562Z"
+        },
+        {
+          "id": "3e9a0a6d-4eb1-45cb-8193-1ab6e69e21cf",
+          "method": "POST",
+          "path": "/outgoing-documents/16ce6da4-e3e4-442d-aae3-736040909b21/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:14:14.584Z"
+        },
+        {
+          "id": "df1335be-ecaf-4f19-96c7-ddf78609601e",
+          "method": "POST",
+          "path": "/outgoing-documents/16ce6da4-e3e4-442d-aae3-736040909b21/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:14.604Z"
+        },
+        {
+          "id": "1362ab89-6c49-4824-b2da-b67fbb9cba23",
+          "method": "POST",
+          "path": "/document-number-registers",
+          "status": 200,
+          "at": "2026-11-05T09:14:14.820Z"
+        },
+        {
+          "id": "55492746-02c8-4b04-ba93-1fc741824bac",
+          "method": "POST",
+          "path": "/outgoing-documents/16ce6da4-e3e4-442d-aae3-736040909b21/leader-signing-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:14:14.837Z"
+        },
+        {
+          "id": "79fb5ae8-c819-4b7a-aaaf-c92473400bca",
+          "method": "POST",
+          "path": "/signing-sessions/173e5fd7-1f9b-4a6f-9532-f7597e59cdfa/completion",
+          "status": 200,
+          "at": "2026-11-05T09:14:14.926Z"
+        },
+        {
+          "id": "ccd7514b-4ab0-4b05-9384-f83643ff82aa",
+          "method": "POST",
+          "path": "/outgoing-documents/16ce6da4-e3e4-442d-aae3-736040909b21/numbering",
+          "status": 200,
+          "at": "2026-11-05T09:14:15.003Z"
+        },
+        {
+          "id": "fb8b0141-0dfd-4ab4-b702-0ac6956aea06",
+          "method": "POST",
+          "path": "/outgoing-documents/16ce6da4-e3e4-442d-aae3-736040909b21/organization-seal-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:14:15.125Z"
+        },
+        {
+          "id": "ff97cc46-fcdd-4ca7-ae47-e4f63c48a37e",
+          "method": "POST",
+          "path": "/signing-sessions/d711da4d-3333-4095-b7ef-f040f4fb8648/completion",
+          "status": 200,
+          "at": "2026-11-05T09:14:15.207Z"
+        },
+        {
+          "id": "98f17b36-2ac9-4dc6-992c-13dbdb1165cc",
+          "method": "POST",
+          "path": "/outgoing-documents/16ce6da4-e3e4-442d-aae3-736040909b21/number-voiding",
+          "status": 409,
+          "at": "2026-11-05T09:14:15.384Z"
+        },
+        {
+          "id": "66d688b2-471d-4e76-b55c-9209e695a538",
+          "method": "POST",
+          "path": "/outgoing-documents/16ce6da4-e3e4-442d-aae3-736040909b21/number-voiding",
+          "status": 403,
+          "at": "2026-11-05T09:14:15.396Z"
+        },
+        {
+          "id": "2c0eb512-e194-4c55-bcb7-8ee011d1a749",
+          "method": "POST",
+          "path": "/outgoing-documents/16ce6da4-e3e4-442d-aae3-736040909b21/number-voiding",
+          "status": 422,
+          "at": "2026-11-05T09:14:15.400Z"
+        },
+        {
+          "id": "dc904795-0c95-4760-bfa3-5b362c9508b9",
+          "method": "POST",
+          "path": "/outgoing-documents/16ce6da4-e3e4-442d-aae3-736040909b21/number-voiding",
+          "status": 422,
+          "at": "2026-11-05T09:14:15.408Z"
+        },
+        {
+          "id": "8d07aae7-3da0-447f-b5fb-c8cb8fed4495",
+          "method": "POST",
+          "path": "/outgoing-documents/16ce6da4-e3e4-442d-aae3-736040909b21/number-voiding",
+          "status": 200,
+          "at": "2026-11-05T09:14:15.427Z"
+        },
+        {
+          "id": "5082d25e-75cb-4d1f-9bc4-cfc28ed4222e",
+          "method": "POST",
+          "path": "/outgoing-documents/16ce6da4-e3e4-442d-aae3-736040909b21/number-voiding",
+          "status": 409,
+          "at": "2026-11-05T09:14:15.493Z"
+        },
+        {
+          "id": "ec044a27-bc56-4a84-bf1e-8aeb58a7b1db",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:14:15.508Z"
+        },
+        {
+          "id": "8e8b0217-c1cb-4902-a1da-cbfad4969ee8",
+          "method": "POST",
+          "path": "/outgoing-documents/0d84c65b-6a2c-4cff-b401-1e3c140ddcd1/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:14:15.520Z"
+        },
+        {
+          "id": "83c145c6-4a85-41b4-bc1e-8b3d170be371",
+          "method": "POST",
+          "path": "/outgoing-documents/0d84c65b-6a2c-4cff-b401-1e3c140ddcd1/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:15.546Z"
+        },
+        {
+          "id": "656ca366-8980-4879-a28c-da76a847df19",
+          "method": "POST",
+          "path": "/document-number-registers",
+          "status": 200,
+          "at": "2026-11-05T09:14:15.734Z"
+        },
+        {
+          "id": "66adf043-e507-4ca3-a444-3b1c0b466517",
+          "method": "POST",
+          "path": "/outgoing-documents/0d84c65b-6a2c-4cff-b401-1e3c140ddcd1/leader-signing-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:14:15.749Z"
+        },
+        {
+          "id": "e07d2c3c-dced-40f9-8200-5d55dd45040a",
+          "method": "POST",
+          "path": "/signing-sessions/6011fa2d-6edc-4704-a989-631af9841594/completion",
+          "status": 200,
+          "at": "2026-11-05T09:14:15.866Z"
+        },
+        {
+          "id": "a41d621e-2d5d-4b52-8fdb-6103df833172",
+          "method": "POST",
+          "path": "/outgoing-documents/0d84c65b-6a2c-4cff-b401-1e3c140ddcd1/numbering",
+          "status": 200,
+          "at": "2026-11-05T09:14:15.924Z"
+        },
+        {
+          "id": "cd1e1005-fc0d-4ca4-af95-670214e1d006",
+          "method": "POST",
+          "path": "/outgoing-documents/0d84c65b-6a2c-4cff-b401-1e3c140ddcd1/organization-seal-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:14:16.034Z"
+        },
+        {
+          "id": "7716e675-3b00-4e02-b4ef-a97a9fcb3ba9",
+          "method": "POST",
+          "path": "/signing-sessions/eafc3ef6-ebeb-4e25-8bac-b41b378fed06/completion",
+          "status": 200,
+          "at": "2026-11-05T09:14:16.110Z"
+        },
+        {
+          "id": "3ed47373-a730-4219-8fcf-13e73a9e77e4",
+          "method": "POST",
+          "path": "/outgoing-documents/0d84c65b-6a2c-4cff-b401-1e3c140ddcd1/issuance",
+          "status": 200,
+          "at": "2026-11-05T09:14:16.315Z"
+        },
+        {
+          "id": "54d039b4-edf7-4c53-b28d-213abb9d63dd",
+          "method": "POST",
+          "path": "/outgoing-documents/0d84c65b-6a2c-4cff-b401-1e3c140ddcd1/number-voiding",
+          "status": 409,
+          "at": "2026-11-05T09:14:16.424Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/doc/recall.test.ts",
+      "name": "recalling an issued document and voiding a number (ST-DOC-012) voidOutgoingDocumentNumber (AC-ST-DOC-012-2, UAT-AC427) tells the source module that the document will not come, and ends the request it made",
+      "status": "passed",
+      "durationMs": 587,
+      "at": "2026-11-05T09:14:17.107Z",
+      "requests": [
+        {
+          "id": "ff8ff0a3-0458-4084-a6e4-770a0d00e1fd",
+          "method": "POST",
+          "path": "/document-number-registers",
+          "status": 200,
+          "at": "2026-11-05T09:14:16.520Z"
+        },
+        {
+          "id": "ac2d96fa-50dc-4dc6-b32a-a8cd0265dbe6",
+          "method": "POST",
+          "path": "/outgoing-documents",
+          "status": 200,
+          "at": "2026-11-05T09:14:16.529Z"
+        },
+        {
+          "id": "ea50e3ad-4351-4010-98b1-2ed4baa63c27",
+          "method": "POST",
+          "path": "/outgoing-documents/f6e2bd4c-a6ea-40fb-9074-defae5b54dcb/review-submission",
+          "status": 200,
+          "at": "2026-11-05T09:14:16.549Z"
+        },
+        {
+          "id": "7d56ede7-39d2-44ed-995b-ac0dddb9c05c",
+          "method": "POST",
+          "path": "/outgoing-documents/f6e2bd4c-a6ea-40fb-9074-defae5b54dcb/review-decision",
+          "status": 200,
+          "at": "2026-11-05T09:14:16.567Z"
+        },
+        {
+          "id": "84709cf7-4d9e-462c-866d-55515158ab91",
+          "method": "POST",
+          "path": "/outgoing-documents/f6e2bd4c-a6ea-40fb-9074-defae5b54dcb/leader-signing-sessions",
+          "status": 202,
+          "at": "2026-11-05T09:14:16.755Z"
+        },
+        {
+          "id": "565d7e69-b28a-45a3-8836-359defc5d96c",
+          "method": "POST",
+          "path": "/signing-sessions/3b62cb0e-2fd7-4c79-9a05-70f0671cf8d1/completion",
+          "status": 200,
+          "at": "2026-11-05T09:14:16.816Z"
+        },
+        {
+          "id": "9b258d28-685a-4ddb-ba33-ee5da9e99209",
+          "method": "POST",
+          "path": "/outgoing-documents/f6e2bd4c-a6ea-40fb-9074-defae5b54dcb/numbering",
+          "status": 200,
+          "at": "2026-11-05T09:14:16.882Z"
+        },
+        {
+          "id": "e83e2b82-dbda-4439-a99d-b6755ee2e1a1",
+          "method": "POST",
+          "path": "/outgoing-documents/f6e2bd4c-a6ea-40fb-9074-defae5b54dcb/number-voiding",
+          "status": 200,
+          "at": "2026-11-05T09:14:17.045Z"
+        }
+      ]
+    }
+  ]
+}

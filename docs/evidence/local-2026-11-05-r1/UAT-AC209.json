@@ -1,0 +1,33 @@
+{
+  "id": "UAT-AC209",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/prj/risk.test.ts",
+      "name": "the risks of a project (ST-PRJ-010, BR-PRJ-07, PRJ-16) registering a risk (AC-ST-PRJ-010-1) UAT-AC209: a risk of likelihood 4 and impact 5 scores 20, is critical, and is announced once as CRITICAL for the executive warnings",
+      "status": "passed",
+      "durationMs": 299,
+      "at": "2026-11-05T09:21:19.179Z",
+      "requests": [
+        {
+          "id": "5e10b3fb-5ff7-4e20-a81f-d98a00dad747",
+          "method": "POST",
+          "path": "/projects",
+          "status": 200,
+          "at": "2026-11-05T09:21:18.883Z"
+        },
+        {
+          "id": "e67a67e7-36a3-40f3-9911-cfa29d368d53",
+          "method": "POST",
+          "path": "/projects/a4a5a5f9-578d-451d-b260-6432051b2329/risks",
+          "status": 200,
+          "at": "2026-11-05T09:21:18.983Z"
+        }
+      ]
+    }
+  ]
+}

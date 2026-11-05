@@ -1,0 +1,235 @@
+{
+  "id": "UI-LND-10",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/lnd-handover-flows.spec.ts",
+      "name": "an officer hands a section over to the active contract in steps, and the share of the project follows the areas (AC-ST-LND-009-1, UAT-AC386, UI-LND-10)",
+      "status": "passed",
+      "durationMs": 1548,
+      "at": "2026-11-05T08:48:18.108Z",
+      "requests": [
+        {
+          "id": "21cb9bd3-4e6c-4b7c-9c0d-22e939cdaff1",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:18.905Z"
+        },
+        {
+          "id": "98367bbe-9a4d-44ac-9b1e-8a4e22c24392",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T08:48:18.906Z"
+        },
+        {
+          "id": "9a622da0-2652-435a-9145-4414cd672e5d",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:18.904Z"
+        },
+        {
+          "id": "41e32d1b-adc1-4f31-955d-203a30e47a4f",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:18.944Z"
+        },
+        {
+          "id": "21b45b5a-b918-411f-b453-4d21392b0343",
+          "method": "POST",
+          "path": "/land-sections/ba3f35a8-1ddb-499a-a5a9-1edee8a0529e/handover",
+          "status": 200,
+          "at": "2026-11-05T08:48:19.214Z"
+        },
+        {
+          "id": "eb7e20ee-cb5b-4306-9fe0-f9d0e1531046",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:19.231Z"
+        },
+        {
+          "id": "28a24e62-3785-4ffb-897b-f98e18a42d8a",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T08:48:19.232Z"
+        },
+        {
+          "id": "3cc3d428-ccca-4853-b440-bae3cad77747",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:19.229Z"
+        },
+        {
+          "id": "559f7eba-8a0c-4aa8-b0d9-d2d407be5103",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:19.243Z"
+        },
+        {
+          "id": "8671ec15-2fe2-4748-922d-a759269ad457",
+          "method": "POST",
+          "path": "/land-sections/ba3f35a8-1ddb-499a-a5a9-1edee8a0529e/handover",
+          "status": 200,
+          "at": "2026-11-05T08:48:19.347Z"
+        },
+        {
+          "id": "973005df-7766-4960-af8c-7ae7c342ed31",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:19.365Z"
+        },
+        {
+          "id": "508a1ea6-236b-44d4-9869-0018a9e350c9",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T08:48:19.365Z"
+        },
+        {
+          "id": "2ee7e418-5e74-442a-9c8d-47b53840b77c",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:19.363Z"
+        },
+        {
+          "id": "beddabb9-e018-4313-a98d-16a58120f21d",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:19.377Z"
+        },
+        {
+          "id": "b3d4e5d0-4eeb-4aa9-b5c7-8c27218875cb",
+          "method": "POST",
+          "path": "/land-sections/b4ba9c43-9d6d-4b20-be99-d2ad88d99df3/handover",
+          "status": 409,
+          "at": "2026-11-05T08:48:19.530Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/lnd-handover-flows.spec.ts",
+      "name": "someone who may only read sees the sections and no button (UI-LND-10)",
+      "status": "passed",
+      "durationMs": 651,
+      "at": "2026-11-05T08:48:19.663Z",
+      "requests": [
+        {
+          "id": "9e4064dd-406f-48e3-afe0-9f987198bde0",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 403,
+          "at": "2026-11-05T08:48:20.233Z"
+        },
+        {
+          "id": "07a7eacd-90d6-41fe-bc77-035487130cb5",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:20.232Z"
+        },
+        {
+          "id": "faa7dd61-3fa1-4e4b-bb1b-405212d9fb22",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:20.231Z"
+        },
+        {
+          "id": "ba8df000-3ae8-4596-bf0a-054063cc682d",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:20.277Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/lnd-handover-flows.spec.ts",
+      "name": "an officer who manages the land creates a section and names no contract yet; nothing can be handed over until one is named (UI-LND-10)",
+      "status": "passed",
+      "durationMs": 745,
+      "at": "2026-11-05T08:48:20.321Z",
+      "requests": [
+        {
+          "id": "59c2a11d-cdb2-4ffb-adc0-f4b923420760",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 403,
+          "at": "2026-11-05T08:48:20.844Z"
+        },
+        {
+          "id": "a0ce785a-3d0e-48a3-b418-a51a5b7d4cba",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:20.843Z"
+        },
+        {
+          "id": "eb36a760-57f2-497f-b769-5aeead38289b",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:20.842Z"
+        },
+        {
+          "id": "5351b3f9-b475-4795-a345-ca32668a58f9",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:20.885Z"
+        },
+        {
+          "id": "f425b730-9a70-433f-a045-2163934d5066",
+          "method": "POST",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:21.014Z"
+        },
+        {
+          "id": "1d8909d9-8a05-44f7-bf2d-b6a220d91324",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 403,
+          "at": "2026-11-05T08:48:21.034Z"
+        },
+        {
+          "id": "dc7cf86a-f94c-4182-beff-2a6e1eef29ba",
+          "method": "GET",
+          "path": "/land-sections",
+          "status": 200,
+          "at": "2026-11-05T08:48:21.034Z"
+        },
+        {
+          "id": "8ec507ea-d67c-490e-8e5e-0a83cdd4a0af",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:21.032Z"
+        },
+        {
+          "id": "814ce241-1fa7-445d-ad79-b859f9aa7e37",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:48:21.051Z"
+        }
+      ]
+    }
+  ]
+}

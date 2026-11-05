@@ -1,0 +1,82 @@
+{
+  "id": "UAT-AC151",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/placement-migration.test.ts",
+      "name": "the promotion of a tenant to a silo over HTTP (ST-SAS-018) AC-ST-SAS-018-2 UAT-AC151: a migration in CutoverFrozen that is aborted is RolledBack, and writes work again",
+      "status": "passed",
+      "durationMs": 1031,
+      "at": "2026-11-05T09:14:45.641Z",
+      "requests": [
+        {
+          "id": "1b6022f0-7ba6-42fc-8aa9-996a8cf69224",
+          "method": "POST",
+          "path": "/system/tenants/a9f2e639-b14b-475b-88ca-014941542740/placement-migrations",
+          "status": 202,
+          "at": "2026-11-05T09:14:44.770Z"
+        },
+        {
+          "id": "6dd36e52-1b09-4b5f-9f48-053da8a64882",
+          "method": "GET",
+          "path": "/system/placement-migrations/6454b761-0c7b-44e8-a9fb-020645fdc812",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.352Z"
+        },
+        {
+          "id": "7d24d22a-a11d-4799-8206-ce32bf9ff66c",
+          "method": "POST",
+          "path": "/system/placement-migrations/6454b761-0c7b-44e8-a9fb-020645fdc812/cutover",
+          "status": 202,
+          "at": "2026-11-05T09:14:45.369Z"
+        },
+        {
+          "id": "646e3244-8e38-4adf-8fb5-ef703b131757",
+          "method": "GET",
+          "path": "/system/placement-migrations/6454b761-0c7b-44e8-a9fb-020645fdc812",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.464Z"
+        },
+        {
+          "id": "b1cf27b4-8d40-4121-b59f-a1637f89284f",
+          "method": "POST",
+          "path": "/system/placement-migrations/6454b761-0c7b-44e8-a9fb-020645fdc812/abort",
+          "status": 202,
+          "at": "2026-11-05T09:14:45.473Z"
+        },
+        {
+          "id": "f730b82c-8dbb-4442-9b13-b2aee3a3474f",
+          "method": "GET",
+          "path": "/system/placement-migrations/6454b761-0c7b-44e8-a9fb-020645fdc812",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.492Z"
+        },
+        {
+          "id": "bf0f6bd1-056b-47d1-9b38-9ac2b867026f",
+          "method": "GET",
+          "path": "/system/placement-migrations/6454b761-0c7b-44e8-a9fb-020645fdc812",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.597Z"
+        },
+        {
+          "id": "fa0df672-ec2b-4093-aa89-65666b61d7fa",
+          "method": "GET",
+          "path": "/system/placement-migrations/6454b761-0c7b-44e8-a9fb-020645fdc812",
+          "status": 200,
+          "at": "2026-11-05T09:14:45.618Z"
+        },
+        {
+          "id": "0af4274b-5ff6-46ee-a21a-c77fac91d680",
+          "method": "POST",
+          "path": "/system/placement-migrations/6454b761-0c7b-44e8-a9fb-020645fdc812/abort",
+          "status": 409,
+          "at": "2026-11-05T09:14:45.632Z"
+        }
+      ]
+    }
+  ]
+}

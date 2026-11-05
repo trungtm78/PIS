@@ -1,0 +1,47 @@
+{
+  "id": "UAT-AC54",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-incident.test.ts",
+      "name": "quality incidents and exceptions over HTTP (ST-DGV-003) AC-ST-DGV-003-2: UAT-AC54 opens a new exception when a waiver ends, reopens the closed incident once, tells the handler, and a second run changes nothing",
+      "status": "passed",
+      "durationMs": 816,
+      "at": "2026-11-05T09:18:27.970Z",
+      "requests": [
+        {
+          "id": "5b131fc8-d42c-4009-96a2-78a384e3d833",
+          "method": "POST",
+          "path": "/dgv/datasets",
+          "status": 200,
+          "at": "2026-11-05T09:18:27.154Z"
+        },
+        {
+          "id": "2195804c-f992-4247-8857-9c127aede1a1",
+          "method": "POST",
+          "path": "/dgv/quality-rules",
+          "status": 200,
+          "at": "2026-11-05T09:18:27.218Z"
+        },
+        {
+          "id": "617195d5-b098-4656-b825-d7f30b29988c",
+          "method": "POST",
+          "path": "/dgv/quality-rules/549d4da4-3627-458b-8c36-3df6f0ccde8d/approval",
+          "status": 200,
+          "at": "2026-11-05T09:18:27.243Z"
+        },
+        {
+          "id": "bb6bd2d6-55f2-461c-9b16-501afaba95df",
+          "method": "POST",
+          "path": "/quality-exceptions/d55dfe28-f1a2-445e-bce5-0bc9862134b1/decision",
+          "status": 200,
+          "at": "2026-11-05T09:18:27.475Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "id": "UAT-AC26",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/workflows.test.ts",
+      "name": "the event catalogue and the notification workflows (ST-NOT-004, NOT-05, NOT-06) the notifications follow the workflow in force (AC-ST-NOT-004-2, UAT-AC26) writes new notifications from the revision published last, keeps the older ones on theirs, and still blocks a duplicate",
+      "status": "passed",
+      "durationMs": 631,
+      "at": "2026-11-05T09:23:01.371Z",
+      "requests": [
+        {
+          "id": "2e5401d6-7115-426e-b74f-d9a7ee0016a2",
+          "method": "POST",
+          "path": "/notification-workflows",
+          "status": 201,
+          "at": "2026-11-05T09:23:00.742Z"
+        },
+        {
+          "id": "9734f236-b483-4d95-9831-688e1b216b25",
+          "method": "POST",
+          "path": "/notification-workflows/0a9ae57a-fbb3-44eb-8a18-542202f6eabb/publish",
+          "status": 200,
+          "at": "2026-11-05T09:23:00.760Z"
+        },
+        {
+          "id": "686c592a-b6ab-4f91-b28b-90f5874fe13e",
+          "method": "POST",
+          "path": "/notification-workflows",
+          "status": 201,
+          "at": "2026-11-05T09:23:00.780Z"
+        },
+        {
+          "id": "35e5266b-b043-4154-9fb9-8df3ca397abb",
+          "method": "POST",
+          "path": "/notification-workflows/eb54c3c0-151b-43ed-a686-441df7187732/publish",
+          "status": 200,
+          "at": "2026-11-05T09:23:00.792Z"
+        },
+        {
+          "id": "506424a5-1c5f-4914-aa0e-49fba0436c6f",
+          "method": "POST",
+          "path": "/notification-workflows",
+          "status": 201,
+          "at": "2026-11-05T09:23:00.808Z"
+        },
+        {
+          "id": "90afa78f-d62b-462a-8ad5-ecc95dcf7d67",
+          "method": "POST",
+          "path": "/notification-workflows/a500b688-5aa9-4b82-8577-fdbd61267594/publish",
+          "status": 200,
+          "at": "2026-11-05T09:23:00.825Z"
+        },
+        {
+          "id": "50303542-8883-457d-b301-1af9482494c0",
+          "method": "POST",
+          "path": "/notification-workflows",
+          "status": 201,
+          "at": "2026-11-05T09:23:01.028Z"
+        },
+        {
+          "id": "fb657ba0-c825-4dcf-b010-04317fe79a8e",
+          "method": "POST",
+          "path": "/notification-workflows/63f277ac-11c0-42ba-b27d-cbf94c7ecda1/publish",
+          "status": 200,
+          "at": "2026-11-05T09:23:01.047Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "id": "UAT-AC219",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/plan-publication.test.ts",
+      "name": "approval and publication of the capital plan over HTTP (ST-CAP-003) post_plans_id_publish writes capital.plan_published.v1 once, and the project register moves the funded project of the pipeline to BUDGETED in the name of the system (AC-ST-CAP-003-4, UAT-AC219)",
+      "status": "passed",
+      "durationMs": 518,
+      "at": "2026-11-05T09:16:48.181Z",
+      "requests": [
+        {
+          "id": "1a515403-6c2f-40b0-ab77-f6ed5e5de363",
+          "method": "POST",
+          "path": "/capital-plans",
+          "status": 200,
+          "at": "2026-11-05T09:16:47.794Z"
+        },
+        {
+          "id": "a9cb814f-e4cb-4792-b28b-7f1db866cc1d",
+          "method": "POST",
+          "path": "/capital-plans/e6ae3a52-dbf5-4b55-b051-1435e1155391/allocations",
+          "status": 200,
+          "at": "2026-11-05T09:16:47.816Z"
+        },
+        {
+          "id": "4dc98d33-4514-4661-9eaf-d4fbfc1d3db5",
+          "method": "POST",
+          "path": "/capital-plans/e6ae3a52-dbf5-4b55-b051-1435e1155391/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:47.834Z"
+        },
+        {
+          "id": "11fec2c1-7bce-4b31-9521-5ef3b42eb578",
+          "method": "POST",
+          "path": "/capital-plans/e6ae3a52-dbf5-4b55-b051-1435e1155391/decision",
+          "status": 200,
+          "at": "2026-11-05T09:16:47.851Z"
+        },
+        {
+          "id": "01fd59ca-d21f-40f8-a8e7-5bda6ae6e385",
+          "method": "POST",
+          "path": "/plans/e6ae3a52-dbf5-4b55-b051-1435e1155391/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:47.910Z"
+        },
+        {
+          "id": "f3fa7cc2-3e84-4726-a1eb-c3c7d278d31c",
+          "method": "POST",
+          "path": "/plans/e6ae3a52-dbf5-4b55-b051-1435e1155391/publish",
+          "status": 200,
+          "at": "2026-11-05T09:16:47.935Z"
+        },
+        {
+          "id": "577ed37d-461b-4b21-b523-2842d4f42619",
+          "method": "POST",
+          "path": "/plans/e6ae3a52-dbf5-4b55-b051-1435e1155391/publish",
+          "status": 409,
+          "at": "2026-11-05T09:16:47.956Z"
+        }
+      ]
+    }
+  ]
+}

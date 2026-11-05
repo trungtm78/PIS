@@ -1,0 +1,159 @@
+{
+  "id": "UAT-AC465",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-gateway.test.ts",
+      "name": "what is kept and what is not (ST-LLM-005) AC-ST-LLM-005-3: UAT-AC465 keeps only the hash of the input and of the answer: a national id and a phone number that a model repeats are in no table, no audit row, no event and no log",
+      "status": "passed",
+      "durationMs": 1251,
+      "at": "2026-11-05T09:10:49.354Z",
+      "requests": [
+        {
+          "id": "4b4b86b6-22a6-4408-9c76-9f567ccce966",
+          "method": "POST",
+          "path": "/ai-classification-policies",
+          "status": 200,
+          "at": "2026-11-05T09:10:48.420Z"
+        },
+        {
+          "id": "36500d35-3043-4f97-9ebc-964addab6c74",
+          "method": "POST",
+          "path": "/ai-classification-policies/ca3797df-d28a-4ba6-b35b-59b3ec201202/publish",
+          "status": 200,
+          "at": "2026-11-05T09:10:48.441Z"
+        },
+        {
+          "id": "47469e17-ff01-408f-8db1-0fe2d38e2138",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:10:48.500Z"
+        },
+        {
+          "id": "835244b3-0a13-45f1-8c6c-53dbfc36e8ed",
+          "method": "POST",
+          "path": "/ai-providers/1c9464e3-967d-4686-9640-70e9ef0bf982/activation",
+          "status": 200,
+          "at": "2026-11-05T09:10:48.519Z"
+        },
+        {
+          "id": "7e6a1961-11c8-46ab-84ef-189ab1c31c92",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:10:48.535Z"
+        },
+        {
+          "id": "619ef22c-e5b7-4a0d-aacc-c653be629d0b",
+          "method": "POST",
+          "path": "/ai-models/f563fe1c-6814-44e9-84c7-6f33f8f3e062/approval",
+          "status": 200,
+          "at": "2026-11-05T09:10:48.551Z"
+        },
+        {
+          "id": "ceb768b9-7278-4648-bba2-d854a0379946",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:10:48.558Z"
+        },
+        {
+          "id": "8c7cb185-d95c-4a7f-b3d5-3f153fc765dd",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:10:48.609Z"
+        },
+        {
+          "id": "409f68e6-0998-4653-9f59-ff3523589e77",
+          "method": "POST",
+          "path": "/ai-providers/afc93e40-a254-4817-8827-2073b24020c6/activation",
+          "status": 200,
+          "at": "2026-11-05T09:10:48.631Z"
+        },
+        {
+          "id": "ec93b7a2-4b70-4717-8fd2-123331b2e07b",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:10:48.645Z"
+        },
+        {
+          "id": "c9fbefa4-f812-40b9-93eb-68de96f50ecc",
+          "method": "POST",
+          "path": "/ai-models/5ff8baba-0585-4d76-bce1-3879a6730e60/approval",
+          "status": 200,
+          "at": "2026-11-05T09:10:48.662Z"
+        },
+        {
+          "id": "eaee7228-4da4-430d-ad1f-3a2096cb0b2f",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:10:48.681Z"
+        },
+        {
+          "id": "1a00d50a-a85e-45f1-87cb-ef965aee294d",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:10:48.694Z"
+        },
+        {
+          "id": "ba677b86-a885-4f7a-9ffb-b2c4e35fbc30",
+          "method": "POST",
+          "path": "/ai-providers/2c27103e-6510-486d-bbd3-7fac9d6dd33a/activation",
+          "status": 200,
+          "at": "2026-11-05T09:10:48.709Z"
+        },
+        {
+          "id": "ca8ea727-00c3-4296-b7d4-57b2380270f2",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:10:48.717Z"
+        },
+        {
+          "id": "83ec9389-793f-4111-ba67-31fd5e7a8b21",
+          "method": "POST",
+          "path": "/ai-models/3b1748d6-f3a7-4ca4-a17f-67302fa24d39/approval",
+          "status": 200,
+          "at": "2026-11-05T09:10:48.724Z"
+        },
+        {
+          "id": "c59f6c01-7b1b-4468-aaf4-b355a9f89818",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:10:48.742Z"
+        },
+        {
+          "id": "e880090c-fd89-42d5-85f2-f75ec01f6952",
+          "method": "POST",
+          "path": "/ai-prompts",
+          "status": 200,
+          "at": "2026-11-05T09:10:48.758Z"
+        },
+        {
+          "id": "a7d058df-babe-4f79-bffe-f032b3e682f8",
+          "method": "POST",
+          "path": "/ai-prompts/7daaf72e-38a9-4d4f-8d77-760aec756b52/approval",
+          "status": 200,
+          "at": "2026-11-05T09:10:48.773Z"
+        },
+        {
+          "id": "39ca9b4d-7e15-4787-8778-b89029ab7341",
+          "method": "POST",
+          "path": "/ai/requests",
+          "status": 202,
+          "at": "2026-11-05T09:10:48.916Z"
+        }
+      ]
+    }
+  ]
+}

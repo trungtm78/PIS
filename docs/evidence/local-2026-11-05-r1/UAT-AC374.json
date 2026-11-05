@@ -1,0 +1,140 @@
+{
+  "id": "UAT-AC374",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pmt/permit-dossier.test.ts",
+      "name": "permit dossier commands (ST-PMT-002) addPermit does not reach the dossier of another tenant: 404 for the id of the other tenant and for one that does not exist, and no permit is created there (AC-ST-PMT-002-2, UAT-AC374)",
+      "status": "passed",
+      "durationMs": 65,
+      "at": "2026-11-05T09:18:56.396Z",
+      "requests": [
+        {
+          "id": "f53a4044-fa49-464a-879e-dbd441a33f46",
+          "method": "POST",
+          "path": "/permit-dossiers/00000000-0000-4000-0094-00000000005b/permits",
+          "status": 404,
+          "at": "2026-11-05T09:18:56.330Z"
+        },
+        {
+          "id": "696a148f-34a6-48c7-bebc-9b72c2faa670",
+          "method": "POST",
+          "path": "/permit-dossiers/806490c9-166a-410b-99df-4f918c93b859/permits",
+          "status": 404,
+          "at": "2026-11-05T09:18:56.338Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pmt/permit-dossier.test.ts",
+      "name": "permit dossier commands (ST-PMT-002) tenants stay apart (AC-ST-PMT-002-2, UAT-AC374) answers 404 RESOURCE_NOT_FOUND to every command that names a dossier or a permit of another tenant, and changes nothing there",
+      "status": "passed",
+      "durationMs": 312,
+      "at": "2026-11-05T09:19:02.810Z",
+      "requests": [
+        {
+          "id": "711cfa1d-faac-48d2-92cc-63d56ca3d7a8",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-0094-00000000005a/permit-dossiers",
+          "status": 404,
+          "at": "2026-11-05T09:19:02.498Z"
+        },
+        {
+          "id": "71e73f9f-ebe8-42e0-b8f1-f248bdf8e611",
+          "method": "POST",
+          "path": "/permit-dossiers/00000000-0000-4000-0094-00000000005b/permits",
+          "status": 404,
+          "at": "2026-11-05T09:19:02.519Z"
+        },
+        {
+          "id": "58712460-018e-4163-b5f3-754f9391b308",
+          "method": "POST",
+          "path": "/permits/00000000-0000-4000-0094-00000000005c/milestones",
+          "status": 404,
+          "at": "2026-11-05T09:19:02.532Z"
+        },
+        {
+          "id": "6f36f3d2-7fde-4c0e-91f1-a8ec85500b63",
+          "method": "POST",
+          "path": "/permits/00000000-0000-4000-0094-00000000005c/decision",
+          "status": 404,
+          "at": "2026-11-05T09:19:02.550Z"
+        },
+        {
+          "id": "bb62badd-979f-47f3-90c5-14ccad984712",
+          "method": "POST",
+          "path": "/permits/00000000-0000-4000-0094-00000000005c/renew",
+          "status": 404,
+          "at": "2026-11-05T09:19:02.557Z"
+        },
+        {
+          "id": "e012793c-88ec-47aa-b679-47b89af24056",
+          "method": "POST",
+          "path": "/permits/00000000-0000-4000-0094-00000000005c/revoke",
+          "status": 404,
+          "at": "2026-11-05T09:19:02.569Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pmt/permit-dossier.test.ts",
+      "name": "permit dossier commands (ST-PMT-002) tenants stay apart (AC-ST-PMT-002-2, UAT-AC374) lets the officer of the other tenant act on its own dossier with the same ids of types and documents",
+      "status": "passed",
+      "durationMs": 392,
+      "at": "2026-11-05T09:19:03.203Z",
+      "requests": [
+        {
+          "id": "fcda47d1-0ed1-49a9-97b1-97c92a110587",
+          "method": "POST",
+          "path": "/projects/00000000-0000-4000-0094-00000000007d/permit-dossiers",
+          "status": 200,
+          "at": "2026-11-05T09:19:03.140Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pmt/permit-dossier-reads.test.ts",
+      "name": "the reads of the permit dossier and the permit (ST-PMT-002, PMT-01 and PMT-02) get_resources_permit_dossier_id answers 404 for a dossier of another tenant, one outside the scope of the grant, and one that does not exist, alike (AC-ST-PMT-002-2, UAT-AC374)",
+      "status": "passed",
+      "durationMs": 64,
+      "at": "2026-11-05T09:23:39.544Z",
+      "requests": [
+        {
+          "id": "ed0a9fad-ff77-4f36-bb64-68feb66baeae",
+          "method": "GET",
+          "path": "/resources/permit_dossier/00000000-0000-4000-0095-00000000000d",
+          "status": 404,
+          "at": "2026-11-05T09:23:39.478Z"
+        },
+        {
+          "id": "0b04ea13-d64a-4b52-a9d3-fc8805e5e7c2",
+          "method": "GET",
+          "path": "/resources/permit_dossier/00000000-0000-4000-0095-00000000000c",
+          "status": 404,
+          "at": "2026-11-05T09:23:39.498Z"
+        },
+        {
+          "id": "5d7c6dfb-17d7-45a3-8515-77468d74140f",
+          "method": "GET",
+          "path": "/resources/permit_dossier/00000000-0000-4000-0095-000000000063",
+          "status": 404,
+          "at": "2026-11-05T09:23:39.517Z"
+        },
+        {
+          "id": "c70e5cd8-732d-4450-b07d-61ded918ced7",
+          "method": "GET",
+          "path": "/resources/permit_dossier/not-an-id",
+          "status": 422,
+          "at": "2026-11-05T09:23:39.531Z"
+        }
+      ]
+    }
+  ]
+}

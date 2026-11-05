@@ -1,0 +1,54 @@
+{
+  "id": "UAT-AC503",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/sync/sync-batches.test.ts",
+      "name": "the commands a phone queued offline (ST-MOB-005, MOB-41) a batch AC-ST-MOB-005-2 UAT-AC503: the same batch key with another body is 409 IDEMPOTENCY_CONFLICT and the first answer stands; the same command key with another command is refused, not carried out",
+      "status": "passed",
+      "durationMs": 181,
+      "at": "2026-11-05T09:21:12.855Z",
+      "requests": [
+        {
+          "id": "0598c76c-c215-443b-9210-6e1c89aee17b",
+          "method": "POST",
+          "path": "/issues",
+          "status": 201,
+          "at": "2026-11-05T09:21:12.692Z"
+        },
+        {
+          "id": "0598c76c-c215-443b-9210-6e1c89aee17b",
+          "method": "POST",
+          "path": "/sync/batches",
+          "status": 200,
+          "at": "2026-11-05T09:21:12.675Z"
+        },
+        {
+          "id": "08dfbff1-9a4e-4383-9e33-13dc4869fb94",
+          "method": "POST",
+          "path": "/sync/batches",
+          "status": 409,
+          "at": "2026-11-05T09:21:12.727Z"
+        },
+        {
+          "id": "952e7feb-293d-4c66-9ec3-21392a2ee64d",
+          "method": "POST",
+          "path": "/sync/batches",
+          "status": 200,
+          "at": "2026-11-05T09:21:12.733Z"
+        },
+        {
+          "id": "e79984ff-d817-4143-97a5-c3b8b8e249f2",
+          "method": "POST",
+          "path": "/sync/batches",
+          "status": 200,
+          "at": "2026-11-05T09:21:12.740Z"
+        }
+      ]
+    }
+  ]
+}

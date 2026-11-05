@@ -1,0 +1,126 @@
+{
+  "id": "NOT02",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/push.test.ts",
+      "name": "the push channels (ST-NOT-007, NOT 9) a push to the devices of the recipient AC-ST-NOT-007-3 NOT02: a push the provider accepted does not mark the notification read, and its link names the notification and nothing else",
+      "status": "passed",
+      "durationMs": 158,
+      "at": "2026-11-05T09:21:39.786Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/push.test.ts",
+      "name": "the push channels (ST-NOT-007, NOT 9) the silent push when entitlements or access change (UAT-NOT02) UAT-NOT02: a change of entitlements wakes every device of the tenant with a data message that has no text",
+      "status": "passed",
+      "durationMs": 157,
+      "at": "2026-11-05T09:21:42.033Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/push.test.ts",
+      "name": "the push channels (ST-NOT-007, NOT 9) the silent push when entitlements or access change (UAT-NOT02) UAT-NOT02: a change of access wakes the devices of the members it names only",
+      "status": "passed",
+      "durationMs": 135,
+      "at": "2026-11-05T09:21:42.167Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/push.test.ts",
+      "name": "the push channels (ST-NOT-007, NOT 9) the silent push when entitlements or access change (UAT-NOT02) a change of access that names one member as `membership_id` (the events of the tenant owner) wakes that member",
+      "status": "passed",
+      "durationMs": 47,
+      "at": "2026-11-05T09:21:42.215Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/push.test.ts",
+      "name": "the push channels (ST-NOT-007, NOT 9) the silent push when entitlements or access change (UAT-NOT02) ignores what is not for it: another event, a payload of another tenant, an access change naming nobody",
+      "status": "passed",
+      "durationMs": 77,
+      "at": "2026-11-05T09:21:42.293Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/push.test.ts",
+      "name": "the push channels (ST-NOT-007, NOT 9) the silent push when entitlements or access change (UAT-NOT02) revokes the device the provider no longer knows, and a failure of one provider does not stop the other",
+      "status": "passed",
+      "durationMs": 347,
+      "at": "2026-11-05T09:21:42.639Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/push.test.ts",
+      "name": "the push channels (ST-NOT-007, NOT 9) the silent push when entitlements or access change (UAT-NOT02) a provider that never answers does not hold the consumer: the call is given up and the other channel is still served",
+      "status": "passed",
+      "durationMs": 439,
+      "at": "2026-11-05T09:21:43.079Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/push.test.ts",
+      "name": "the push channels (ST-NOT-007, NOT 9) the silent push when entitlements or access change (UAT-NOT02) does not reach the devices of another tenant",
+      "status": "passed",
+      "durationMs": 143,
+      "at": "2026-11-05T09:21:43.222Z",
+      "requests": []
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/uat/isolation-web.uat.spec.ts",
+      "name": "TC-NOT02: the link of a notification of a record the person may not read does not mark it read and does not show the record",
+      "status": "passed",
+      "durationMs": 1546,
+      "at": "2026-11-05T08:57:06.780Z",
+      "requests": [
+        {
+          "id": "4d04d67a-3eff-4480-b417-5076d30c39f7",
+          "method": "GET",
+          "path": "/me/notifications",
+          "status": 200,
+          "at": "2026-11-05T08:57:07.539Z"
+        },
+        {
+          "id": "4e5195eb-4169-47bc-845c-7a6c66ddc61a",
+          "method": "POST",
+          "path": "/notifications/59ba7139-34cf-4910-93a1-cd47a18196a2/read",
+          "status": 200,
+          "at": "2026-11-05T08:57:07.558Z"
+        },
+        {
+          "id": "0397f490-f1a2-47bd-8249-969728067bb5",
+          "method": "GET",
+          "path": "/me/notifications",
+          "status": 200,
+          "at": "2026-11-05T08:57:07.579Z"
+        },
+        {
+          "id": "427716e3-4f71-4017-bfe7-a4fc75062aca",
+          "method": "GET",
+          "path": "/me/notifications",
+          "status": 200,
+          "at": "2026-11-05T08:57:07.851Z"
+        },
+        {
+          "id": "09984ec3-2ade-437d-8717-f1d1638bc04c",
+          "method": "GET",
+          "path": "/me/notifications",
+          "status": 304,
+          "at": "2026-11-05T08:57:08.015Z"
+        }
+      ]
+    }
+  ]
+}

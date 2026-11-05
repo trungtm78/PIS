@@ -1,0 +1,352 @@
+{
+  "id": "UAT-AC246",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/period-reopen.test.ts",
+      "name": "reopening of a locked period (ST-DIS-002, DIS-22) request, approval and window (AC-ST-DIS-002-1, UAT-AC246) refuses a short reason and a self-approval, then opens P-A-001 for 48 hours and closes it again after 49 (AC-ST-DIS-002-1)",
+      "status": "passed",
+      "durationMs": 478,
+      "at": "2026-11-05T09:21:59.961Z",
+      "requests": [
+        {
+          "id": "8b85a7d0-fd6e-4f8e-8316-70136562f6c5",
+          "method": "POST",
+          "path": "/reporting-periods/8757ab20-4fec-4b4b-a0d2-e7aa135e0b82/reopen-requests",
+          "status": 422,
+          "at": "2026-11-05T09:21:59.524Z"
+        },
+        {
+          "id": "4fd683f6-15e9-47f3-856d-19b226684da7",
+          "method": "POST",
+          "path": "/reporting-periods/8757ab20-4fec-4b4b-a0d2-e7aa135e0b82/reopen-requests",
+          "status": 200,
+          "at": "2026-11-05T09:21:59.581Z"
+        },
+        {
+          "id": "43fbd9ab-8ea8-4710-be66-8f7fe05e2feb",
+          "method": "POST",
+          "path": "/period-reopens/7c08e32e-70fe-4d9d-aaf8-6689d4678ac4/decision",
+          "status": 403,
+          "at": "2026-11-05T09:21:59.603Z"
+        },
+        {
+          "id": "2c158a5d-1a29-4c56-9d67-424abb3f654e",
+          "method": "POST",
+          "path": "/period-reopens/7c08e32e-70fe-4d9d-aaf8-6689d4678ac4/decision",
+          "status": 200,
+          "at": "2026-11-05T09:21:59.735Z"
+        },
+        {
+          "id": "cdff4485-6350-4cdd-a7ac-5fe65f6abdc9",
+          "method": "GET",
+          "path": "/resources/reporting_period/8757ab20-4fec-4b4b-a0d2-e7aa135e0b82",
+          "status": 200,
+          "at": "2026-11-05T09:21:59.807Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/period-reopen.test.ts",
+      "name": "reopening of a locked period (ST-DIS-002, DIS-22) request, approval and window (AC-ST-DIS-002-1, UAT-AC246) answers a retry with the same key with the first answer and writes once",
+      "status": "passed",
+      "durationMs": 177,
+      "at": "2026-11-05T09:22:00.138Z",
+      "requests": [
+        {
+          "id": "f33b056c-ea29-4fa2-9769-1b96e9d00677",
+          "method": "POST",
+          "path": "/reporting-periods/8757ab20-4fec-4b4b-a0d2-e7aa135e0b82/reopen-requests",
+          "status": 200,
+          "at": "2026-11-05T09:22:00.001Z"
+        },
+        {
+          "id": "71a17626-4947-48ca-99e5-a6f106101147",
+          "method": "POST",
+          "path": "/reporting-periods/8757ab20-4fec-4b4b-a0d2-e7aa135e0b82/reopen-requests",
+          "status": 200,
+          "at": "2026-11-05T09:22:00.025Z"
+        },
+        {
+          "id": "46297a94-fd03-4f94-9fbf-6399a358afce",
+          "method": "POST",
+          "path": "/period-reopens/fccb232f-657a-4abc-a028-584253989da0/decision",
+          "status": 200,
+          "at": "2026-11-05T09:22:00.078Z"
+        },
+        {
+          "id": "0731c17c-3a34-4fa8-8efd-5de4cad18cb7",
+          "method": "POST",
+          "path": "/period-reopens/fccb232f-657a-4abc-a028-584253989da0/decision",
+          "status": 200,
+          "at": "2026-11-05T09:22:00.089Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/period-reopen.test.ts",
+      "name": "reopening of a locked period (ST-DIS-002, DIS-22) request, approval and window (AC-ST-DIS-002-1, UAT-AC246) rejects with a reason: nothing opens, nothing is announced, and the request is closed for good",
+      "status": "passed",
+      "durationMs": 204,
+      "at": "2026-11-05T09:22:00.342Z",
+      "requests": [
+        {
+          "id": "0867c773-4b63-46ef-a752-5589701221d5",
+          "method": "POST",
+          "path": "/reporting-periods/8757ab20-4fec-4b4b-a0d2-e7aa135e0b82/reopen-requests",
+          "status": 200,
+          "at": "2026-11-05T09:22:00.179Z"
+        },
+        {
+          "id": "23136fb4-fe65-4e83-95e1-542531675425",
+          "method": "POST",
+          "path": "/period-reopens/8185a71e-2ce3-40bf-b41d-ae1d04bce7c9/decision",
+          "status": 200,
+          "at": "2026-11-05T09:22:00.199Z"
+        },
+        {
+          "id": "b42fe4a6-8b62-4949-bfcc-41e94a7c9ab9",
+          "method": "POST",
+          "path": "/period-reopens/8185a71e-2ce3-40bf-b41d-ae1d04bce7c9/decision",
+          "status": 409,
+          "at": "2026-11-05T09:22:00.328Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/period-reopen.test.ts",
+      "name": "reopening of a locked period (ST-DIS-002, DIS-22) request, approval and window (AC-ST-DIS-002-1, UAT-AC246) opens the whole period for a request for the whole period, made by someone with the whole tenant",
+      "status": "passed",
+      "durationMs": 90,
+      "at": "2026-11-05T09:22:00.432Z",
+      "requests": [
+        {
+          "id": "51936005-394f-4755-8179-fa72c9a1b7e5",
+          "method": "POST",
+          "path": "/reporting-periods/8757ab20-4fec-4b4b-a0d2-e7aa135e0b82/reopen-requests",
+          "status": 200,
+          "at": "2026-11-05T09:22:00.386Z"
+        },
+        {
+          "id": "e995ba39-800a-4822-ad78-e3fc5df24fe7",
+          "method": "POST",
+          "path": "/period-reopens/70ae5c3f-a429-464d-8e19-7074c948e73a/decision",
+          "status": 200,
+          "at": "2026-11-05T09:22:00.408Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/period-reopen.test.ts",
+      "name": "reopening of a locked period (ST-DIS-002, DIS-22) request, approval and window (AC-ST-DIS-002-1, UAT-AC246) lets one of two approvers at the same moment win and answers the other with a version conflict",
+      "status": "passed",
+      "durationMs": 182,
+      "at": "2026-11-05T09:22:00.614Z",
+      "requests": [
+        {
+          "id": "4e7d5a21-055f-4d20-ab8e-b901238f08f8",
+          "method": "POST",
+          "path": "/reporting-periods/8757ab20-4fec-4b4b-a0d2-e7aa135e0b82/reopen-requests",
+          "status": 200,
+          "at": "2026-11-05T09:22:00.542Z"
+        },
+        {
+          "id": "a476d08c-f756-4e08-990b-eaadd0cae834",
+          "method": "POST",
+          "path": "/period-reopens/3d64ea07-df17-4eb1-bfa4-9b199724dad8/decision",
+          "status": 200,
+          "at": "2026-11-05T09:22:00.568Z"
+        },
+        {
+          "id": "c94e1484-2c85-4b55-9cac-beee1a3a1a00",
+          "method": "POST",
+          "path": "/period-reopens/3d64ea07-df17-4eb1-bfa4-9b199724dad8/decision",
+          "status": 409,
+          "at": "2026-11-05T09:22:00.567Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/period-reopen.test.ts",
+      "name": "reopening of a locked period (ST-DIS-002, DIS-22) request, approval and window (AC-ST-DIS-002-1, UAT-AC246) counts a request, an approval and a rejection",
+      "status": "passed",
+      "durationMs": 127,
+      "at": "2026-11-05T09:22:00.742Z",
+      "requests": [
+        {
+          "id": "5e7c2049-d7ae-4285-a836-867c97c0c0b2",
+          "method": "POST",
+          "path": "/reporting-periods/8757ab20-4fec-4b4b-a0d2-e7aa135e0b82/reopen-requests",
+          "status": 200,
+          "at": "2026-11-05T09:22:00.654Z"
+        },
+        {
+          "id": "ff460f6a-3a6d-45f4-8530-66ce7ce22960",
+          "method": "POST",
+          "path": "/period-reopens/475a3608-1a1e-4a88-818e-8a358a322a24/decision",
+          "status": 200,
+          "at": "2026-11-05T09:22:00.691Z"
+        },
+        {
+          "id": "4e25b790-fc6b-4177-b306-b5db3fd715f5",
+          "method": "POST",
+          "path": "/reporting-periods/73070966-0619-49e8-b2c0-8cd33eb68560/reopen-requests",
+          "status": 200,
+          "at": "2026-11-05T09:22:00.712Z"
+        },
+        {
+          "id": "750114ec-928b-4c4b-a0a8-6fa351035570",
+          "method": "POST",
+          "path": "/period-reopens/87973caa-b774-4c8a-b8ab-78353b7742d0/decision",
+          "status": 200,
+          "at": "2026-11-05T09:22:00.721Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/dis-reopen-flows.spec.ts",
+      "name": "a requester asks for one project with a reason and a window, a different person approves 48 hours, and only that project is marked as reopened (AC-ST-DIS-002-1, UAT-AC246)",
+      "status": "passed",
+      "durationMs": 1473,
+      "at": "2026-11-05T08:46:34.330Z",
+      "requests": [
+        {
+          "id": "ebc178e3-07a6-47c3-accf-d512bc9e6c83",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:34.866Z"
+        },
+        {
+          "id": "fc0b6595-3500-4fd5-9a7c-3b147decd433",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:34.906Z"
+        },
+        {
+          "id": "5c56723f-681b-4625-b4ac-5f41864417f7",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:34.923Z"
+        },
+        {
+          "id": "8961a897-1185-499d-b9db-0d7a09aa8ef8",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:46:34.939Z"
+        },
+        {
+          "id": "bc584851-1805-4111-9079-d19559579f24",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:46:34.955Z"
+        },
+        {
+          "id": "4e1aa706-342e-4e5b-b66a-1ec49cfc39e9",
+          "method": "POST",
+          "path": "/reporting-periods/a6181072-eef6-4f87-b6dd-05ee401f05a0/reopen-requests",
+          "status": 200,
+          "at": "2026-11-05T08:46:35.245Z"
+        },
+        {
+          "id": "9eab2a31-8735-4677-846b-2e14e474fbf1",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:35.264Z"
+        },
+        {
+          "id": "1658c191-887b-4ff8-8024-0df64fac7e00",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:46:35.264Z"
+        },
+        {
+          "id": "1eec3cd2-fb34-4e82-bb56-830f9aeb536d",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:35.273Z"
+        },
+        {
+          "id": "b5c34bc6-5ddd-4722-924f-fb443f74173f",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:46:35.276Z"
+        },
+        {
+          "id": "4610e6d0-8917-4957-8f54-5580ffeb374a",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:35.283Z"
+        },
+        {
+          "id": "2da70221-9d94-471b-be6c-cab810352975",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:35.548Z"
+        },
+        {
+          "id": "e6ebb531-21b4-41c1-834f-294515ff3f5c",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:35.559Z"
+        },
+        {
+          "id": "f34b5eb9-ec72-463c-9963-43078cc66eff",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:35.568Z"
+        },
+        {
+          "id": "e6f0cda8-ef54-43f1-8e54-c57705923600",
+          "method": "POST",
+          "path": "/period-reopens/ce90ef55-172a-4d9b-904b-3c838704bf76/decision",
+          "status": 200,
+          "at": "2026-11-05T08:46:35.712Z"
+        },
+        {
+          "id": "d01f7b24-5c88-4c15-891f-146a6801edac",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:35.726Z"
+        },
+        {
+          "id": "ad615552-0509-4985-9313-c61911773f9d",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:35.732Z"
+        },
+        {
+          "id": "2ea00410-41cd-49c8-9e91-9c9065cc0075",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:35.739Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "id": "UAT-AC265",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/snapshot.test.ts",
+      "name": "the period snapshot over HTTP (ST-DIS-009) listPeriodSnapshotLines AC-ST-DIS-009-6 / UAT-AC265: a person of another tenant reads nothing: 404 for the snapshot of tenant A, as for one that does not exist",
+      "status": "passed",
+      "durationMs": 256,
+      "at": "2026-11-05T09:10:33.538Z",
+      "requests": [
+        {
+          "id": "e438005b-bb15-48d5-b981-db6de9bb2e23",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:10:33.371Z"
+        },
+        {
+          "id": "817a6579-8210-4af9-80f2-af1ca9a880cc",
+          "method": "POST",
+          "path": "/reports/08682d10-9a78-4b69-9c58-053d8ee33849/submit",
+          "status": 200,
+          "at": "2026-11-05T09:10:33.387Z"
+        },
+        {
+          "id": "d1e91f3f-d1e1-47a4-8366-8e2f38b53cc1",
+          "method": "POST",
+          "path": "/reports/08682d10-9a78-4b69-9c58-053d8ee33849/decision",
+          "status": 200,
+          "at": "2026-11-05T09:10:33.409Z"
+        },
+        {
+          "id": "86a4f150-0721-4454-83b1-5c39b5d9f2e6",
+          "method": "POST",
+          "path": "/period-snapshots",
+          "status": 200,
+          "at": "2026-11-05T09:10:33.482Z"
+        },
+        {
+          "id": "e8dca795-d117-4f8b-83cc-7290907b9c9f",
+          "method": "GET",
+          "path": "/period-snapshots/f668762a-52c3-4582-b737-d9269dd72d37/lines",
+          "status": 404,
+          "at": "2026-11-05T09:10:33.507Z"
+        },
+        {
+          "id": "9dceb85c-c0a9-46f8-8c77-bd298091860b",
+          "method": "GET",
+          "path": "/period-snapshots/9e52f897-0c61-42bd-ba9b-215af804ee1d/lines",
+          "status": 404,
+          "at": "2026-11-05T09:10:33.520Z"
+        },
+        {
+          "id": "8f39dbaf-225d-4436-a56e-eebb699a5051",
+          "method": "GET",
+          "path": "/period-snapshots",
+          "status": 200,
+          "at": "2026-11-05T09:10:33.523Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/snapshot.test.ts",
+      "name": "the period snapshot over HTTP (ST-DIS-009) getDisbursementRates AC-ST-DIS-010-5 / UAT-AC265: another tenant reads nothing of the snapshot of tenant A (404), and a tenant with no frozen snapshot has none to open on",
+      "status": "passed",
+      "durationMs": 480,
+      "at": "2026-11-05T09:10:37.752Z",
+      "requests": [
+        {
+          "id": "c880d2d7-bfad-49c3-b5c2-244228ca9755",
+          "method": "POST",
+          "path": "/period-snapshots",
+          "status": 200,
+          "at": "2026-11-05T09:10:37.629Z"
+        },
+        {
+          "id": "882a1930-3daf-426d-9203-efa904a38304",
+          "method": "POST",
+          "path": "/period-snapshots/f2c874d9-8544-424f-a5d9-36d395a9c5af/freeze",
+          "status": 200,
+          "at": "2026-11-05T09:10:37.675Z"
+        },
+        {
+          "id": "cd7f2f3c-10a9-460d-abd9-91ef246eb6e8",
+          "method": "GET",
+          "path": "/disbursement-rates",
+          "status": 404,
+          "at": "2026-11-05T09:10:37.701Z"
+        },
+        {
+          "id": "efc6823a-8e08-460b-bbe4-81e89b4e746c",
+          "method": "GET",
+          "path": "/disbursement-rates",
+          "status": 404,
+          "at": "2026-11-05T09:10:37.719Z"
+        },
+        {
+          "id": "b272257b-485e-4082-a8c7-07d61dd4b1f4",
+          "method": "GET",
+          "path": "/disbursement-rates",
+          "status": 404,
+          "at": "2026-11-05T09:10:37.736Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports_id_submit (ST-DIS-005) AC-ST-DIS-005-8 / UAT-AC265: is for the maker who acts on the project: a reader and a person with no right are 403, another branch and another tenant are 404 and learn nothing",
+      "status": "passed",
+      "durationMs": 336,
+      "at": "2026-11-05T09:16:11.045Z",
+      "requests": [
+        {
+          "id": "cd129f67-3d6e-4c51-9862-7ba50bd965d2",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:10.809Z"
+        },
+        {
+          "id": "67268364-8b3d-4378-aea6-a8a0074c4f97",
+          "method": "POST",
+          "path": "/reports/e3925ca8-3819-4244-9d4d-43ebd0d40912/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:10.836Z"
+        },
+        {
+          "id": "9147e0fc-784a-49c1-b1e6-2ebf0a9e2906",
+          "method": "POST",
+          "path": "/reports/e3925ca8-3819-4244-9d4d-43ebd0d40912/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:10.866Z"
+        },
+        {
+          "id": "30ea9887-e7f9-464b-9da8-c792e9ff9bbd",
+          "method": "POST",
+          "path": "/reports/e3925ca8-3819-4244-9d4d-43ebd0d40912/submit",
+          "status": 403,
+          "at": "2026-11-05T09:16:10.898Z"
+        },
+        {
+          "id": "7b82fd9c-1811-4865-b6ef-0381a154d4f0",
+          "method": "POST",
+          "path": "/reports/e3925ca8-3819-4244-9d4d-43ebd0d40912/submit",
+          "status": 403,
+          "at": "2026-11-05T09:16:10.916Z"
+        },
+        {
+          "id": "e4edeb75-a59c-48d0-94f4-0ec2d4bf0a21",
+          "method": "POST",
+          "path": "/reports/e3925ca8-3819-4244-9d4d-43ebd0d40912/submit",
+          "status": 404,
+          "at": "2026-11-05T09:16:10.932Z"
+        },
+        {
+          "id": "e8c47622-7de2-4d83-90aa-0ec854bb29fe",
+          "method": "POST",
+          "path": "/reports/e3925ca8-3819-4244-9d4d-43ebd0d40912/submit",
+          "status": 404,
+          "at": "2026-11-05T09:16:10.950Z"
+        },
+        {
+          "id": "40be38b1-82aa-4fd5-9a21-6a39100c428a",
+          "method": "POST",
+          "path": "/reports/447e2db1-da9f-4438-b768-d43bbd0d60e9/submit",
+          "status": 404,
+          "at": "2026-11-05T09:16:10.967Z"
+        },
+        {
+          "id": "3802cdc5-d472-41cb-9cd8-346d57467ee7",
+          "method": "GET",
+          "path": "/reports/e3925ca8-3819-4244-9d4d-43ebd0d40912",
+          "status": 404,
+          "at": "2026-11-05T09:16:10.984Z"
+        }
+      ]
+    }
+  ]
+}

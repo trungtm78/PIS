@@ -1,0 +1,75 @@
+{
+  "id": "UAT-NFR-SECURITY-04",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/uat/money.uat.spec.ts",
+      "name": "TC-UAT-NFR-SECURITY-04: the same Idempotency-Key and body answers the first answer again, another body is 409, no key is 400, and the report has one audit row and one event",
+      "status": "passed",
+      "durationMs": 1305,
+      "at": "2026-11-05T08:57:08.349Z",
+      "requests": [
+        {
+          "id": "4010293b-4b72-4d23-8fe7-39fd9e1fd732",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T08:57:08.620Z"
+        },
+        {
+          "id": "83c691d2-ea7f-4b9f-a0b3-4c46d1587601",
+          "method": "POST",
+          "path": "/reports/6a33def1-83ee-474a-b9a4-27ef650e743b/revisions",
+          "status": 200,
+          "at": "2026-11-05T08:57:08.645Z"
+        },
+        {
+          "id": "88e8695b-839c-47b5-aabb-70eb2d14c3cc",
+          "method": "POST",
+          "path": "/reports/6a33def1-83ee-474a-b9a4-27ef650e743b/revisions",
+          "status": 200,
+          "at": "2026-11-05T08:57:08.669Z"
+        },
+        {
+          "id": "2e4e2b0e-134d-4824-889e-412a3760233e",
+          "method": "POST",
+          "path": "/reports/6a33def1-83ee-474a-b9a4-27ef650e743b/revisions",
+          "status": 200,
+          "at": "2026-11-05T08:57:08.685Z"
+        },
+        {
+          "id": "b2551c27-cd34-4c3c-bb33-4893b07202f7",
+          "method": "POST",
+          "path": "/reports/6a33def1-83ee-474a-b9a4-27ef650e743b/submit",
+          "status": 200,
+          "at": "2026-11-05T08:57:08.893Z"
+        },
+        {
+          "id": "9714cb9a-5a8b-401e-8279-8810e8f740e0",
+          "method": "POST",
+          "path": "/reports/6a33def1-83ee-474a-b9a4-27ef650e743b/submit",
+          "status": 200,
+          "at": "2026-11-05T08:57:09.020Z"
+        },
+        {
+          "id": "50828257-4b97-4d25-8206-b809e4eb3b31",
+          "method": "POST",
+          "path": "/reports/6a33def1-83ee-474a-b9a4-27ef650e743b/submit",
+          "status": 409,
+          "at": "2026-11-05T08:57:09.202Z"
+        },
+        {
+          "id": "28c6f4e5-0712-451c-b31c-b3fa65b5667f",
+          "method": "POST",
+          "path": "/reports/6a33def1-83ee-474a-b9a4-27ef650e743b/submit",
+          "status": 400,
+          "at": "2026-11-05T08:57:09.341Z"
+        }
+      ]
+    }
+  ]
+}

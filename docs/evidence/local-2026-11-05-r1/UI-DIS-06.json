@@ -1,0 +1,54 @@
+{
+  "id": "UI-DIS-06",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) the volumes, the registration for next month, the narrative and the files (ST-DIS-004) AC-ST-DIS-004-2 / UI-DIS-06: tells every error and every warning at once: a volume of 203.8% of the capital allocated, a gap above 5% with the Treasury and no registration for next month are warnings and do not block; the missing volumes are an error",
+      "status": "passed",
+      "durationMs": 236,
+      "at": "2026-11-05T09:16:04.484Z",
+      "requests": [
+        {
+          "id": "0e58fccc-18da-404d-8600-4e41065d90f2",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:04.294Z"
+        },
+        {
+          "id": "8dca5109-45b6-44e0-b5ad-cdb2a37fc08c",
+          "method": "GET",
+          "path": "/reports/968f1d05-f901-4258-894d-6b32ede6357d",
+          "status": 200,
+          "at": "2026-11-05T09:16:04.409Z"
+        },
+        {
+          "id": "6a442c3a-d63e-4798-971d-b42d1cfb4246",
+          "method": "POST",
+          "path": "/reports/968f1d05-f901-4258-894d-6b32ede6357d/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:04.422Z"
+        },
+        {
+          "id": "f9965843-88ee-47d0-a650-c01b9bdc37d3",
+          "method": "GET",
+          "path": "/reports/968f1d05-f901-4258-894d-6b32ede6357d",
+          "status": 200,
+          "at": "2026-11-05T09:16:04.443Z"
+        },
+        {
+          "id": "ebe9d578-6686-42bc-b40a-2877335e3d71",
+          "method": "GET",
+          "path": "/reports/968f1d05-f901-4258-894d-6b32ede6357d",
+          "status": 200,
+          "at": "2026-11-05T09:16:04.468Z"
+        }
+      ]
+    }
+  ]
+}

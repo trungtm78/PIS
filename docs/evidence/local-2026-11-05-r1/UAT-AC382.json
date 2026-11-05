@@ -1,0 +1,95 @@
+{
+  "id": "UAT-AC382",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/plan.test.ts",
+      "name": "the plan of compensation, support and resettlement: drafting, composing it from confirmed inventory and revising it (ST-LND-005) addCompensationPlanItems AC-ST-LND-005-1, UAT-AC382: composes a plan from a confirmed record and a policy amount, keeps the price decision, and the plan totals are the sums of its items",
+      "status": "passed",
+      "durationMs": 251,
+      "at": "2026-11-05T09:22:17.024Z",
+      "requests": [
+        {
+          "id": "499902dd-def7-4483-bb60-1b51352ebe78",
+          "method": "POST",
+          "path": "/compensation-plans",
+          "status": 200,
+          "at": "2026-11-05T09:22:16.804Z"
+        },
+        {
+          "id": "734da75e-3494-49c9-b990-eb24bfb6fbba",
+          "method": "POST",
+          "path": "/compensation-plans/92f90677-fdaf-4a24-a88e-8194a1a504f8/items",
+          "status": 200,
+          "at": "2026-11-05T09:22:16.824Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/plan.test.ts",
+      "name": "the plan of compensation, support and resettlement: drafting, composing it from confirmed inventory and revising it (ST-LND-005) addCompensationPlanItems AC-ST-LND-005-1, UAT-AC382: refuses a record that is not confirmed (422 INVENTORY_NOT_CONFIRMED) and adds none of the items of the call",
+      "status": "passed",
+      "durationMs": 138,
+      "at": "2026-11-05T09:22:17.163Z",
+      "requests": [
+        {
+          "id": "14963f8a-0f69-46a2-a24c-3da57eb3f57e",
+          "method": "POST",
+          "path": "/compensation-plans",
+          "status": 200,
+          "at": "2026-11-05T09:22:17.047Z"
+        },
+        {
+          "id": "74aed620-2118-422e-b7c8-4c2394c1a956",
+          "method": "POST",
+          "path": "/compensation-plans/9a7ba043-334c-4c8b-9121-5bb08b9e48f5/items",
+          "status": 422,
+          "at": "2026-11-05T09:22:17.062Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/lnd/inventory.test.ts",
+      "name": "the inventory of the assets of the affected households: counting at a price decision in force and the answer of the household (ST-LND-004) recordInventory AC-ST-LND-004-2, UAT-AC382: refuses a price decision that was not in force on the day of the survey (422 PRICE_DECISION_NOT_EFFECTIVE)",
+      "status": "passed",
+      "durationMs": 117,
+      "at": "2026-11-05T09:22:33.788Z",
+      "requests": [
+        {
+          "id": "def4e95d-327c-4032-a777-4454c9e87745",
+          "method": "POST",
+          "path": "/land-inventory-records",
+          "status": 422,
+          "at": "2026-11-05T09:22:33.682Z"
+        },
+        {
+          "id": "40402f5a-579f-482c-9fc4-826b45aed756",
+          "method": "POST",
+          "path": "/land-inventory-records",
+          "status": 422,
+          "at": "2026-11-05T09:22:33.698Z"
+        },
+        {
+          "id": "206ec4b4-775b-4ade-86b1-c710824fcc13",
+          "method": "POST",
+          "path": "/land-inventory-records",
+          "status": 422,
+          "at": "2026-11-05T09:22:33.715Z"
+        },
+        {
+          "id": "5bb0b88f-8353-4c91-8a65-31dbf0f6d10f",
+          "method": "POST",
+          "path": "/land-inventory-records",
+          "status": 200,
+          "at": "2026-11-05T09:22:33.730Z"
+        }
+      ]
+    }
+  ]
+}

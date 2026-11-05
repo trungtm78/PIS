@@ -1,0 +1,253 @@
+{
+  "id": "UAT-AC337",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/payment-form.test.ts",
+      "name": "the Treasury forms of a payment request over HTTP (ST-PAY-005) AC-ST-PAY-005-1, UAT-AC337: draws a form from the template in force that is confirmed, keeps its proof, refuses a template that waits for its confirmation or is out of force, and a new form supersedes the old",
+      "status": "passed",
+      "durationMs": 1978,
+      "at": "2026-11-05T09:18:39.290Z",
+      "requests": [
+        {
+          "id": "768d1ecf-a0df-41e7-97b1-a3f1a3317dd5",
+          "method": "POST",
+          "path": "/payment-requests/dae14b4e-e7b8-4362-873c-27200352b664/forms",
+          "status": 200,
+          "at": "2026-11-05T09:18:38.061Z"
+        },
+        {
+          "id": "417c391e-3f59-4490-95c7-a640398345fb",
+          "method": "POST",
+          "path": "/payment-requests/dae14b4e-e7b8-4362-873c-27200352b664/forms",
+          "status": 422,
+          "at": "2026-11-05T09:18:38.485Z"
+        },
+        {
+          "id": "f55a9345-2e3e-4522-bd66-91e8edde0ee9",
+          "method": "POST",
+          "path": "/payment-requests/dae14b4e-e7b8-4362-873c-27200352b664/forms",
+          "status": 422,
+          "at": "2026-11-05T09:18:38.510Z"
+        },
+        {
+          "id": "f6c0bdfa-7c9d-4870-a4ac-a2459d371d01",
+          "method": "POST",
+          "path": "/payment-requests/dae14b4e-e7b8-4362-873c-27200352b664/forms",
+          "status": 422,
+          "at": "2026-11-05T09:18:38.520Z"
+        },
+        {
+          "id": "41389f56-9ce6-4986-aa34-1f86866eb400",
+          "method": "POST",
+          "path": "/payment-requests/dae14b4e-e7b8-4362-873c-27200352b664/forms",
+          "status": 422,
+          "at": "2026-11-05T09:18:38.537Z"
+        },
+        {
+          "id": "4000eb00-c7ac-4fe3-be42-bf5477d5d39f",
+          "method": "POST",
+          "path": "/payment-requests/dae14b4e-e7b8-4362-873c-27200352b664/forms",
+          "status": 200,
+          "at": "2026-11-05T09:18:38.856Z"
+        },
+        {
+          "id": "a6b353cb-850f-49be-9f18-ec2de3e5b6b2",
+          "method": "GET",
+          "path": "/payment-requests/dae14b4e-e7b8-4362-873c-27200352b664/forms",
+          "status": 200,
+          "at": "2026-11-05T09:18:39.266Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/pay-payment-flows.spec.ts",
+      "name": "the accountant draws the four Treasury forms of a checked request, follows it on the board and records the day and the number the file was sent (UI-PAY-04, UI-PAY-14, AC-ST-PAY-005-1, AC-ST-PAY-005-2, UAT-AC337)",
+      "status": "passed",
+      "durationMs": 4540,
+      "at": "2026-11-05T09:28:31.683Z",
+      "requests": [
+        {
+          "id": "91396406-eb19-44ad-a0f7-50c0ba25c5a6",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T09:28:32.560Z"
+        },
+        {
+          "id": "4a34fab5-4c56-4268-a059-ddcd9a9f13ac",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T09:28:32.560Z"
+        },
+        {
+          "id": "2b166b73-ee36-462d-99e5-ebe906a32a5b",
+          "method": "GET",
+          "path": "/resources/allocation_line",
+          "status": 200,
+          "at": "2026-11-05T09:28:32.561Z"
+        },
+        {
+          "id": "7feeb9d3-710c-409b-92f7-386dbcfda7fb",
+          "method": "POST",
+          "path": "/payment-requests",
+          "status": 200,
+          "at": "2026-11-05T09:28:32.697Z"
+        },
+        {
+          "id": "be82913b-e068-45fc-be9e-30dcc17fc21b",
+          "method": "GET",
+          "path": "/resources/payment_request/0489e58e-95ab-4ed0-be94-ef4b950bb5df",
+          "status": 200,
+          "at": "2026-11-05T09:28:32.783Z"
+        },
+        {
+          "id": "18ee6b47-63b8-4942-8b20-1fa5bd4a100a",
+          "method": "POST",
+          "path": "/payment-requests/0489e58e-95ab-4ed0-be94-ef4b950bb5df/documents",
+          "status": 200,
+          "at": "2026-11-05T09:28:32.893Z"
+        },
+        {
+          "id": "07c0749b-e295-477d-9ec9-982997ed520e",
+          "method": "GET",
+          "path": "/resources/payment_request/0489e58e-95ab-4ed0-be94-ef4b950bb5df",
+          "status": 200,
+          "at": "2026-11-05T09:28:32.911Z"
+        },
+        {
+          "id": "ab057d14-2e4a-4ac1-ac45-750ac9999391",
+          "method": "POST",
+          "path": "/payment-requests/0489e58e-95ab-4ed0-be94-ef4b950bb5df/submit",
+          "status": 200,
+          "at": "2026-11-05T09:28:33.009Z"
+        },
+        {
+          "id": "5b18eccb-ed80-445d-93b6-83a77d31cb39",
+          "method": "GET",
+          "path": "/resources/payment_request/0489e58e-95ab-4ed0-be94-ef4b950bb5df",
+          "status": 200,
+          "at": "2026-11-05T09:28:33.044Z"
+        },
+        {
+          "id": "efc16beb-64d3-41e6-89dc-9ab01a75e5b6",
+          "method": "GET",
+          "path": "/resources/payment_request/0489e58e-95ab-4ed0-be94-ef4b950bb5df",
+          "status": 200,
+          "at": "2026-11-05T09:28:33.297Z"
+        },
+        {
+          "id": "e73906b8-7347-4890-8c96-ca04ec4339af",
+          "method": "POST",
+          "path": "/payment-requests/0489e58e-95ab-4ed0-be94-ef4b950bb5df/verify",
+          "status": 200,
+          "at": "2026-11-05T09:28:33.426Z"
+        },
+        {
+          "id": "86519f21-ec2c-4773-a854-8b0708df98bd",
+          "method": "GET",
+          "path": "/resources/payment_request/0489e58e-95ab-4ed0-be94-ef4b950bb5df",
+          "status": 200,
+          "at": "2026-11-05T09:28:33.442Z"
+        },
+        {
+          "id": "f20689bd-3442-4d7f-be37-038517bf48d7",
+          "method": "GET",
+          "path": "/resources/payment_request",
+          "status": 200,
+          "at": "2026-11-05T09:28:33.571Z"
+        },
+        {
+          "id": "670825d5-23dc-45c5-ace0-c57a00b7d23c",
+          "method": "GET",
+          "path": "/payment-requests/0489e58e-95ab-4ed0-be94-ef4b950bb5df/forms",
+          "status": 200,
+          "at": "2026-11-05T09:28:33.702Z"
+        },
+        {
+          "id": "8150c0cd-64e7-499c-a674-fa074edc12bd",
+          "method": "GET",
+          "path": "/resources/payment_request/0489e58e-95ab-4ed0-be94-ef4b950bb5df",
+          "status": 200,
+          "at": "2026-11-05T09:28:33.701Z"
+        },
+        {
+          "id": "d0d5d790-fc34-4f5d-9f16-034bb9f7691c",
+          "method": "POST",
+          "path": "/payment-requests/0489e58e-95ab-4ed0-be94-ef4b950bb5df/forms",
+          "status": 200,
+          "at": "2026-11-05T09:28:33.809Z"
+        },
+        {
+          "id": "92454529-05ca-44c8-8ee6-aba3cdb576b8",
+          "method": "GET",
+          "path": "/payment-requests/0489e58e-95ab-4ed0-be94-ef4b950bb5df/forms",
+          "status": 200,
+          "at": "2026-11-05T09:28:34.752Z"
+        },
+        {
+          "id": "b1eb13b5-d7e1-4bc6-aa55-ffb1e5de5267",
+          "method": "GET",
+          "path": "/resources/payment_request/0489e58e-95ab-4ed0-be94-ef4b950bb5df",
+          "status": 200,
+          "at": "2026-11-05T09:28:34.751Z"
+        },
+        {
+          "id": "a23686e5-3990-4429-9a9f-6fc0e75fff33",
+          "method": "POST",
+          "path": "/payment-requests/0489e58e-95ab-4ed0-be94-ef4b950bb5df/forms",
+          "status": 200,
+          "at": "2026-11-05T09:28:35.326Z"
+        },
+        {
+          "id": "bd390b61-171b-4573-8ec2-16a5b844a447",
+          "method": "GET",
+          "path": "/payment-requests/0489e58e-95ab-4ed0-be94-ef4b950bb5df/forms",
+          "status": 200,
+          "at": "2026-11-05T09:28:35.574Z"
+        },
+        {
+          "id": "b09fc705-7de2-46ba-8c27-0c66a9bb7175",
+          "method": "GET",
+          "path": "/resources/payment_request/0489e58e-95ab-4ed0-be94-ef4b950bb5df",
+          "status": 304,
+          "at": "2026-11-05T09:28:35.573Z"
+        },
+        {
+          "id": "40f424fd-1673-4913-8534-0d19ef348bc1",
+          "method": "POST",
+          "path": "/payment-requests/0489e58e-95ab-4ed0-be94-ef4b950bb5df/send-treasury",
+          "status": 200,
+          "at": "2026-11-05T09:28:35.779Z"
+        },
+        {
+          "id": "8a5f7a4e-711b-4c4c-ae46-538a64c15880",
+          "method": "GET",
+          "path": "/payment-requests/0489e58e-95ab-4ed0-be94-ef4b950bb5df/forms",
+          "status": 304,
+          "at": "2026-11-05T09:28:35.801Z"
+        },
+        {
+          "id": "2420266a-9e33-40b8-9d5f-2943db5d1971",
+          "method": "GET",
+          "path": "/resources/payment_request/0489e58e-95ab-4ed0-be94-ef4b950bb5df",
+          "status": 200,
+          "at": "2026-11-05T09:28:35.800Z"
+        },
+        {
+          "id": "9dffb16a-6eb4-4524-968f-146cbe4e7423",
+          "method": "GET",
+          "path": "/resources/payment_request",
+          "status": 200,
+          "at": "2026-11-05T09:28:36.140Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,378 @@
+{
+  "id": "TX01",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/plan-published-event.test.ts",
+      "name": "capital.plan_published.v1: the producer and the consumer of the project register agree (AC-ST-PRJ-002-3) moves the projects that have a funded line in the published plan to BUDGETED once, in the name of the system, and leaves the others (AC-ST-CAP-002-3 chain, TX01)",
+      "status": "passed",
+      "durationMs": 820,
+      "at": "2026-11-05T09:23:19.760Z",
+      "requests": []
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/uat/money.uat.spec.ts",
+      "name": "TC-TX01: only one of two simultaneous allocations of the whole balance succeeds, the balance is 0, the other is refused as a conflict or insufficient and leaves no trace",
+      "status": "passed",
+      "durationMs": 1303,
+      "at": "2026-11-05T08:57:31.316Z",
+      "requests": [
+        {
+          "id": "94a7ad34-d86b-4b59-8d9e-dc632ee694c7",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:31.684Z"
+        },
+        {
+          "id": "7c72952f-e09e-400b-b034-40557958f086",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:31.685Z"
+        },
+        {
+          "id": "2d7bfe96-7e75-4fa8-add5-258306e0bb4d",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:31.716Z"
+        },
+        {
+          "id": "6948d9f7-5811-431f-bb2c-60d869ea1777",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:31.715Z"
+        },
+        {
+          "id": "da98e270-fd34-4cac-bd47-b6a01303dd96",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:31.747Z"
+        },
+        {
+          "id": "45be75be-5ca8-427d-97cd-fa46f009ae8d",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:31.748Z"
+        },
+        {
+          "id": "e0575d70-d771-4007-b172-2cbc24606556",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:31.779Z"
+        },
+        {
+          "id": "5f5ac566-dc20-4782-8835-7a8f0a994b4c",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:31.780Z"
+        },
+        {
+          "id": "01e6129e-9f1c-40be-8ffe-36ba2808ad22",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:31.813Z"
+        },
+        {
+          "id": "6ba4d630-d0ad-4ea3-864d-c6cf33b6d975",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:31.815Z"
+        },
+        {
+          "id": "0b9b6c15-ef02-465b-b3f2-2dcd7cf61841",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:31.842Z"
+        },
+        {
+          "id": "8991cb2c-472b-4bca-bfd6-ecfd6eb2c1c4",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:31.843Z"
+        },
+        {
+          "id": "7b75f106-7d5e-4bc2-9ab7-2ea2a35ba79b",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:31.875Z"
+        },
+        {
+          "id": "84506310-021e-4158-8e0f-9a3104640983",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:31.875Z"
+        },
+        {
+          "id": "71266cd6-6d9f-4073-8b99-c350ce75731e",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:31.891Z"
+        },
+        {
+          "id": "2629f157-1657-41bb-9bc4-9ecabd694241",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:31.891Z"
+        },
+        {
+          "id": "7870c877-2acb-4edd-b387-99afd5a3c827",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:31.907Z"
+        },
+        {
+          "id": "1a765b7c-c9f2-446f-9c79-0f66c7a81029",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:31.907Z"
+        },
+        {
+          "id": "239cbe2f-326f-4973-a70a-924bf33206e6",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:31.923Z"
+        },
+        {
+          "id": "99ad5ec9-7b15-491c-9096-879757ad34b3",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:31.923Z"
+        },
+        {
+          "id": "155db852-32c0-4634-b1f7-f15be8bc4875",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:31.939Z"
+        },
+        {
+          "id": "88cae680-2537-4a43-ab11-bdc847713d28",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:31.940Z"
+        },
+        {
+          "id": "f756297a-0e7b-4448-a792-f7dea5ae4bd7",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:31.971Z"
+        },
+        {
+          "id": "1a3e263c-db6f-452a-9a7b-0b32cc6eb400",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:31.971Z"
+        },
+        {
+          "id": "a9fdb3cc-d413-43f8-9ee4-5943cd297e61",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:31.987Z"
+        },
+        {
+          "id": "693568db-3602-4c78-b91d-e391f80f3845",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:31.987Z"
+        },
+        {
+          "id": "fb34c2ec-1581-4506-9eca-03ba7f6acc1b",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:31.999Z"
+        },
+        {
+          "id": "3228a473-fa13-44cd-ac27-21282607fd0f",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:32.000Z"
+        },
+        {
+          "id": "ebf3b86f-583e-4215-b4ed-19f8880264a9",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:32.019Z"
+        },
+        {
+          "id": "e801c218-11a6-407a-9569-a6474365df98",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:32.019Z"
+        },
+        {
+          "id": "22778bd8-3340-474f-b6e8-c51f811a93b9",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:32.035Z"
+        },
+        {
+          "id": "8df3e342-f75b-4615-ab12-e75fd387f3af",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:32.035Z"
+        },
+        {
+          "id": "f2f7d4cc-eaa2-40c2-8f08-c42a89ab9f1e",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:32.051Z"
+        },
+        {
+          "id": "0e5c03cc-2370-4047-81ad-d92acaf467c5",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:32.052Z"
+        },
+        {
+          "id": "f43e3cf1-f72c-4e36-9909-869cb090e2d9",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:32.067Z"
+        },
+        {
+          "id": "4a0f138a-9261-4933-bddc-5aafb121c59e",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:32.067Z"
+        },
+        {
+          "id": "6d037125-1ed6-4688-b773-b7a25f84fa96",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:32.098Z"
+        },
+        {
+          "id": "4ed65ded-5a5b-443f-8a4b-1f7f00afb24f",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:32.099Z"
+        },
+        {
+          "id": "d8d51f5e-7165-4a88-bd86-97ff834cb10c",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:32.114Z"
+        },
+        {
+          "id": "2fc5ffeb-fa72-4041-be64-93fd21b86e2f",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:32.115Z"
+        },
+        {
+          "id": "42e25b2f-4481-473b-b533-0fc18ceb66db",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:32.131Z"
+        },
+        {
+          "id": "fd7fe466-af22-45fd-b68c-30db8510a5a9",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:32.131Z"
+        },
+        {
+          "id": "b42f142e-a9a3-4d28-ba36-0063ca05cee7",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:32.147Z"
+        },
+        {
+          "id": "a5ab8ef0-a0f6-4435-950b-d2e0e6cd1996",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:32.147Z"
+        },
+        {
+          "id": "2a9ec9cd-a63c-4e3c-8db9-7a84c472f985",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:32.163Z"
+        },
+        {
+          "id": "c4a5fc0a-0748-4e47-a868-f5e5e2435e2b",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:32.163Z"
+        },
+        {
+          "id": "c2369638-90ec-441c-934b-f7f828890fe1",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:32.179Z"
+        },
+        {
+          "id": "98f223e3-e9c5-4e23-9e14-8a1dafdd5776",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:32.180Z"
+        },
+        {
+          "id": "72da7587-97d2-42ad-bc75-5948d997f139",
+          "method": "POST",
+          "path": "/capital-plans/b6d1fc41-99e4-432f-b0f3-ff7cfcf423f8/allocations",
+          "status": 200,
+          "at": "2026-11-05T08:57:32.259Z"
+        },
+        {
+          "id": "3566da31-a6c6-4991-bf7d-9280a06be791",
+          "method": "POST",
+          "path": "/capital-plans/90204066-8390-4330-9f27-8bcb91a910aa/allocations",
+          "status": 422,
+          "at": "2026-11-05T08:57:32.259Z"
+        }
+      ]
+    }
+  ]
+}

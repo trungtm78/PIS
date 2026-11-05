@@ -1,0 +1,61 @@
+{
+  "id": "UAT-AC125",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/support-access.test.ts",
+      "name": "controlled support access over HTTP (ST-SAS-015) AC-ST-SAS-015-3 UAT-AC125: an operator who holds only a ticket reads no tenant data: 403 SCOPE_DENIED",
+      "status": "passed",
+      "durationMs": 231,
+      "at": "2026-11-05T09:21:59.885Z",
+      "requests": [
+        {
+          "id": "402f3a50-7a9d-4dbd-857d-cd0aa62a2b24",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 403,
+          "at": "2026-11-05T09:21:59.751Z"
+        },
+        {
+          "id": "4ce622e1-67dd-46ba-857f-90e38f472863",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 403,
+          "at": "2026-11-05T09:21:59.763Z"
+        },
+        {
+          "id": "89853e6d-951f-4c81-8a8d-6eac39c9ab1a",
+          "method": "POST",
+          "path": "/support-access",
+          "status": 201,
+          "at": "2026-11-05T09:21:59.835Z"
+        },
+        {
+          "id": "9c80d3b6-7a0a-4dfe-aaa0-61ca7ebd1caf",
+          "method": "POST",
+          "path": "/support-access/b78b43a8-22d4-4510-b3a7-8f4cf1762c79/approve",
+          "status": 200,
+          "at": "2026-11-05T09:21:59.848Z"
+        },
+        {
+          "id": "82f63964-14b4-4dff-8eba-d0d3d1813eaa",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 403,
+          "at": "2026-11-05T09:21:59.866Z"
+        },
+        {
+          "id": "a57c9db8-a9b7-4755-b60a-b7c5bac18dbb",
+          "method": "GET",
+          "path": "/project-pipeline",
+          "status": 200,
+          "at": "2026-11-05T09:21:59.875Z"
+        }
+      ]
+    }
+  ]
+}

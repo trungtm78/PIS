@@ -1,0 +1,141 @@
+{
+  "id": "UAT-AC305",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contract-completion.test.ts",
+      "name": "the completion of a contract over HTTP (ST-CTR-011) completeContract (AC-ST-CTR-011-1, UAT-AC305) refuses while a serious non-conformance is open and while a measurement waits, then completes with its audit row and its event, and answers the same key once",
+      "status": "passed",
+      "durationMs": 1579,
+      "at": "2026-11-05T09:21:38.552Z",
+      "requests": [
+        {
+          "id": "31ab10ae-5352-4eca-acf4-94d61648b328",
+          "method": "POST",
+          "path": "/contracts/dc7ba86d-a515-438b-9b5a-643e449eb9fe/complete",
+          "status": 422,
+          "at": "2026-11-05T09:21:38.209Z"
+        },
+        {
+          "id": "50fa51bf-2932-4273-80c6-89dd4c744089",
+          "method": "POST",
+          "path": "/contracts/dc7ba86d-a515-438b-9b5a-643e449eb9fe/complete",
+          "status": 422,
+          "at": "2026-11-05T09:21:38.288Z"
+        },
+        {
+          "id": "38c6c35a-34fb-4db7-9181-375007305e0f",
+          "method": "POST",
+          "path": "/contracts/dc7ba86d-a515-438b-9b5a-643e449eb9fe/complete",
+          "status": 200,
+          "at": "2026-11-05T09:21:38.380Z"
+        },
+        {
+          "id": "7934d656-71b1-4916-9f9d-316474d85466",
+          "method": "POST",
+          "path": "/contracts/dc7ba86d-a515-438b-9b5a-643e449eb9fe/complete",
+          "status": 200,
+          "at": "2026-11-05T09:21:38.412Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ctr/contract-completion.test.ts",
+      "name": "the completion of a contract over HTTP (ST-CTR-011) completeContract (AC-ST-CTR-011-1, UAT-AC305) refuses what is badly formed, minutes that do not serve, a contract in another state, a stale version, and a caller without the right or outside its scope",
+      "status": "passed",
+      "durationMs": 1518,
+      "at": "2026-11-05T09:21:40.070Z",
+      "requests": [
+        {
+          "id": "afa46d3e-827e-4bb6-9400-92728dca4b73",
+          "method": "POST",
+          "path": "/contracts/3b0db24e-7261-429a-b7db-66a9fc23aff3/complete",
+          "status": 422,
+          "at": "2026-11-05T09:21:39.187Z"
+        },
+        {
+          "id": "e216dafa-4e08-4e40-938f-ed16a7d780ef",
+          "method": "POST",
+          "path": "/contracts/3b0db24e-7261-429a-b7db-66a9fc23aff3/complete",
+          "status": 422,
+          "at": "2026-11-05T09:21:39.207Z"
+        },
+        {
+          "id": "7e398f10-a449-444a-94ed-9123d8b1bcf2",
+          "method": "POST",
+          "path": "/contracts/3b0db24e-7261-429a-b7db-66a9fc23aff3/complete",
+          "status": 422,
+          "at": "2026-11-05T09:21:39.223Z"
+        },
+        {
+          "id": "c763e2e6-cbfa-4654-ba37-faffc7f3a010",
+          "method": "POST",
+          "path": "/contracts/3b0db24e-7261-429a-b7db-66a9fc23aff3/complete",
+          "status": 422,
+          "at": "2026-11-05T09:21:39.238Z"
+        },
+        {
+          "id": "8253868c-19c7-47fc-bd9f-60ee56da8d1c",
+          "method": "POST",
+          "path": "/contracts/3b0db24e-7261-429a-b7db-66a9fc23aff3/complete",
+          "status": 400,
+          "at": "2026-11-05T09:21:39.261Z"
+        },
+        {
+          "id": "e75dd2e5-3d4b-49bd-8261-69810c02f030",
+          "method": "POST",
+          "path": "/contracts/3b0db24e-7261-429a-b7db-66a9fc23aff3/complete",
+          "status": 422,
+          "at": "2026-11-05T09:21:39.264Z"
+        },
+        {
+          "id": "95f86087-3947-4a45-a64d-823837182041",
+          "method": "POST",
+          "path": "/contracts/3b0db24e-7261-429a-b7db-66a9fc23aff3/complete",
+          "status": 422,
+          "at": "2026-11-05T09:21:39.316Z"
+        },
+        {
+          "id": "a24c11ef-29ec-42a7-9ed0-ee79bc00824b",
+          "method": "POST",
+          "path": "/contracts/3b0db24e-7261-429a-b7db-66a9fc23aff3/complete",
+          "status": 409,
+          "at": "2026-11-05T09:21:39.339Z"
+        },
+        {
+          "id": "87882933-2cc5-4ce0-b76f-51359ce0d0c2",
+          "method": "POST",
+          "path": "/contracts/f4b99745-7bbb-4f29-9acb-58bf0a4da75a/complete",
+          "status": 409,
+          "at": "2026-11-05T09:21:39.961Z"
+        },
+        {
+          "id": "8675dc54-5a17-4249-9423-c5768f84f2ae",
+          "method": "POST",
+          "path": "/contracts/3b0db24e-7261-429a-b7db-66a9fc23aff3/complete",
+          "status": 403,
+          "at": "2026-11-05T09:21:39.977Z"
+        },
+        {
+          "id": "7d95d13c-e863-4c17-87a1-d64652ffa6c0",
+          "method": "POST",
+          "path": "/contracts/3b0db24e-7261-429a-b7db-66a9fc23aff3/complete",
+          "status": 403,
+          "at": "2026-11-05T09:21:39.989Z"
+        },
+        {
+          "id": "d7fc4af7-2366-48f0-b5db-8264188fc94b",
+          "method": "POST",
+          "path": "/contracts/3b0db24e-7261-429a-b7db-66a9fc23aff3/complete",
+          "status": 404,
+          "at": "2026-11-05T09:21:40.004Z"
+        }
+      ]
+    }
+  ]
+}

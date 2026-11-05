@@ -1,0 +1,68 @@
+{
+  "id": "UAT-AC490",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-glossary.test.ts",
+      "name": "the glossary bound to the datasets (ST-DGV-007, DGV 3.1, DGV-02) UAT-AC490: binding a revision that is IN_REVIEW is 422 GLOSSARY_TERM_NOT_PUBLISHED, binding the PUBLISHED one succeeds, and once the newer revision publishes the read warns of the deprecated binding and offers it",
+      "status": "passed",
+      "durationMs": 384,
+      "at": "2026-11-05T09:23:19.986Z",
+      "requests": [
+        {
+          "id": "e32f4aa5-05b5-413b-b2a5-74172223f0b3",
+          "method": "POST",
+          "path": "/dgv/datasets/c301b071-512a-42af-a488-bc7c48ba2dca/glossary-bindings",
+          "status": 422,
+          "at": "2026-11-05T09:23:19.604Z"
+        },
+        {
+          "id": "faf65ba1-ee1e-417b-b340-92c1482f4a3b",
+          "method": "POST",
+          "path": "/dgv/datasets/c301b071-512a-42af-a488-bc7c48ba2dca/glossary-bindings",
+          "status": 200,
+          "at": "2026-11-05T09:23:19.779Z"
+        },
+        {
+          "id": "05095bed-2bd7-49ce-8c91-7296846688ca",
+          "method": "GET",
+          "path": "/dgv/datasets/c301b071-512a-42af-a488-bc7c48ba2dca/glossary-bindings",
+          "status": 200,
+          "at": "2026-11-05T09:23:19.857Z"
+        },
+        {
+          "id": "eeb861ee-8940-4698-a2c0-66af34402334",
+          "method": "GET",
+          "path": "/dgv/datasets/c301b071-512a-42af-a488-bc7c48ba2dca/glossary-bindings",
+          "status": 200,
+          "at": "2026-11-05T09:23:19.922Z"
+        },
+        {
+          "id": "dcb9eece-dd1d-4826-a60f-852b87c26e40",
+          "method": "POST",
+          "path": "/dgv/datasets/c301b071-512a-42af-a488-bc7c48ba2dca/glossary-bindings",
+          "status": 422,
+          "at": "2026-11-05T09:23:19.939Z"
+        },
+        {
+          "id": "0fb1821f-e992-4b42-9b8b-1511c8c465b0",
+          "method": "POST",
+          "path": "/dgv/datasets/c301b071-512a-42af-a488-bc7c48ba2dca/glossary-bindings",
+          "status": 200,
+          "at": "2026-11-05T09:23:19.949Z"
+        },
+        {
+          "id": "6690d60f-64f9-4b3a-8334-5dbf6e656be2",
+          "method": "GET",
+          "path": "/dgv/datasets/c301b071-512a-42af-a488-bc7c48ba2dca/glossary-bindings",
+          "status": 200,
+          "at": "2026-11-05T09:23:19.974Z"
+        }
+      ]
+    }
+  ]
+}

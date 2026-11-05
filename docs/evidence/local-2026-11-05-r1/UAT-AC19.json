@@ -1,0 +1,328 @@
+{
+  "id": "UAT-AC19",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-gateway.test.ts",
+      "name": "the fallback of a request (ST-LLM-005) AC-ST-LLM-005-2: UAT-AC19 makes two attempts only for a confidential file whose domestic and self-hosted models fail, ends FAILED with AI_ROUTE_EXHAUSTED, calls no international model, and explains the class and the policy",
+      "status": "passed",
+      "durationMs": 938,
+      "at": "2026-11-05T09:10:46.959Z",
+      "requests": [
+        {
+          "id": "8bdc3060-3cf5-48c5-852c-0ebc11d0c94c",
+          "method": "POST",
+          "path": "/ai-classification-policies",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.271Z"
+        },
+        {
+          "id": "77488309-65c6-41a2-9e29-79a37f4d50e8",
+          "method": "POST",
+          "path": "/ai-classification-policies/fcdd8059-34c2-48a7-bbb2-bbab45caee73/publish",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.286Z"
+        },
+        {
+          "id": "54f31694-ef1a-4993-9189-52589ad7a6bd",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.338Z"
+        },
+        {
+          "id": "727e797e-c61a-4e7f-a002-83cad289b03e",
+          "method": "POST",
+          "path": "/ai-providers/e2879869-7268-41f9-b0eb-a671f96d9806/activation",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.363Z"
+        },
+        {
+          "id": "e0734f4b-f426-4e48-85e4-95fb0ffe9893",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.379Z"
+        },
+        {
+          "id": "c9b1a9d9-b50c-4266-b25b-c49b9514a24e",
+          "method": "POST",
+          "path": "/ai-models/4694184c-68cb-469e-b9c1-761151e7d3dd/approval",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.396Z"
+        },
+        {
+          "id": "dedeae26-ff92-4f1b-b146-8a06e14a6f1c",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.410Z"
+        },
+        {
+          "id": "3b6ba065-83a3-4589-9ddc-0f885c2ff837",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.467Z"
+        },
+        {
+          "id": "dde0c971-6360-4bbc-bd9e-0f09a8bc3686",
+          "method": "POST",
+          "path": "/ai-providers/9597943a-310a-41dd-bcbf-9de5505817ef/activation",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.491Z"
+        },
+        {
+          "id": "ff8ed229-4cf2-45cf-8527-ddc1918ecee0",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.506Z"
+        },
+        {
+          "id": "f6b0a094-20b7-4d7c-9be2-a276423a10ee",
+          "method": "POST",
+          "path": "/ai-models/b077be9c-f3ad-44c7-9867-7a186d001f34/approval",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.523Z"
+        },
+        {
+          "id": "9b4ffeab-e354-45b5-9fb0-f5fc6a6a6975",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.538Z"
+        },
+        {
+          "id": "c24d3883-3b8f-471f-8ca3-77a4e72563a4",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.549Z"
+        },
+        {
+          "id": "5be60b87-d3bc-48ba-9080-b6fedef51958",
+          "method": "POST",
+          "path": "/ai-providers/93a5f720-416e-4584-a324-82678d5de345/activation",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.571Z"
+        },
+        {
+          "id": "d141bfe7-da30-4a3f-85d8-7d4651edc67e",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.587Z"
+        },
+        {
+          "id": "3e4dd4fe-d9ff-4e35-a186-24f977f54f28",
+          "method": "POST",
+          "path": "/ai-models/036cea41-1e52-4030-9a19-c8a2c1ef6a79/approval",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.602Z"
+        },
+        {
+          "id": "919855b0-6620-4d07-a5b8-d48bf481c6e8",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.619Z"
+        },
+        {
+          "id": "a2b69a16-7ed6-42dc-a218-a0dff860b911",
+          "method": "POST",
+          "path": "/ai-prompts",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.637Z"
+        },
+        {
+          "id": "18d14687-86e6-41bc-97f3-25c490c12ffa",
+          "method": "POST",
+          "path": "/ai-prompts/5b7bfbcc-87df-46d1-be9f-a43ade88754a/approval",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.651Z"
+        },
+        {
+          "id": "dbd49ee3-2470-4de5-a6ff-062eb6d863cd",
+          "method": "POST",
+          "path": "/ai/requests",
+          "status": 202,
+          "at": "2026-11-05T09:10:46.843Z"
+        },
+        {
+          "id": "dd473145-6ee7-4fa0-bdf9-e81157713097",
+          "method": "GET",
+          "path": "/ai/requests/1f6f8a03-ffb0-4404-ba64-7e6bb131c182/route",
+          "status": 200,
+          "at": "2026-11-05T09:10:46.912Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/analysis.test.ts",
+      "name": "the AI analysis of a proposal with verified citations and classification routing (ST-BID-009) AC-ST-BID-009-1, UAT-AC19: a confidential proposal goes only domestic then self-hosted, never international AC-ST-BID-009-1, UAT-AC19: ends FAILED with AI_ROUTE_EXHAUSTED after the domestic and the self-hosted model both fail, and the route explanation shows CONFIDENTIAL and the policy version",
+      "status": "passed",
+      "durationMs": 1379,
+      "at": "2026-11-05T09:11:23.675Z",
+      "requests": [
+        {
+          "id": "e1ec45bf-149d-4180-afc3-f7e16b408d66",
+          "method": "POST",
+          "path": "/procurement-packages/1043ca74-f4d1-4e45-8a38-459344e538a4/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:11:23.272Z"
+        },
+        {
+          "id": "a3ecf2f0-7693-4438-b036-989502955d2d",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 200,
+          "at": "2026-11-05T09:11:23.346Z"
+        },
+        {
+          "id": "4b338949-8fc7-486b-843a-b68aea12ff16",
+          "method": "GET",
+          "path": "/resources/analysis_run/2198e09f-1c42-4206-a358-e1e399249279",
+          "status": 200,
+          "at": "2026-11-05T09:11:23.607Z"
+        },
+        {
+          "id": "8c9893e4-5764-4e34-86a1-e867b2dec4ca",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 200,
+          "at": "2026-11-05T09:11:23.626Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/analysis.test.ts",
+      "name": "the AI analysis of a proposal with verified citations and classification routing (ST-BID-009) AC-ST-BID-009-1, UAT-AC19: a confidential proposal goes only domestic then self-hosted, never international refuses the request with the route that the policy and the profile allow no model for, keeps it as a run refused by policy, and calls no model",
+      "status": "passed",
+      "durationMs": 1881,
+      "at": "2026-11-05T09:11:25.556Z",
+      "requests": [
+        {
+          "id": "f6129851-383f-454b-b5c4-3c79d5ec0d43",
+          "method": "POST",
+          "path": "/procurement-packages/6294e821-78f5-43c4-acaf-3993db521536/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:11:25.360Z"
+        },
+        {
+          "id": "cbe0f4a2-de16-43ce-92d7-ca97334d5f53",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 422,
+          "at": "2026-11-05T09:11:25.425Z"
+        },
+        {
+          "id": "817453bd-eb0c-4fba-a232-48bdd8701b1e",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 422,
+          "at": "2026-11-05T09:11:25.512Z"
+        },
+        {
+          "id": "055bc506-4f26-4743-b7ca-e9597a14a1f6",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 422,
+          "at": "2026-11-05T09:11:25.548Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/analysis.test.ts",
+      "name": "the AI analysis of a proposal with verified citations and classification routing (ST-BID-009) AC-ST-BID-009-1, UAT-AC19: a confidential proposal goes only domestic then self-hosted, never international serves the request by the profile the run was admitted against: a profile published while the pages are read is not used, and the run is not kept",
+      "status": "passed",
+      "durationMs": 1350,
+      "at": "2026-11-05T09:11:26.906Z",
+      "requests": [
+        {
+          "id": "1766fb32-0a29-4275-b12a-9593f53bc4ae",
+          "method": "POST",
+          "path": "/procurement-packages/74bb8a90-cfe5-4bce-9090-0992890f7e1d/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:11:26.572Z"
+        },
+        {
+          "id": "c8bf5af7-014f-4169-8772-acbb0dfd79fa",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 422,
+          "at": "2026-11-05T09:11:26.626Z"
+        },
+        {
+          "id": "d76d3ced-7ac6-4104-8b30-ff17eae994a1",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 200,
+          "at": "2026-11-05T09:11:26.852Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/analysis.test.ts",
+      "name": "the AI analysis of a proposal with verified citations and classification routing (ST-BID-009) AC-ST-BID-009-1, UAT-AC19: a confidential proposal goes only domestic then self-hosted, never international holds the budget of the project of the proposal: a project that has spent its budget refuses the run, and no model is called",
+      "status": "passed",
+      "durationMs": 1391,
+      "at": "2026-11-05T09:11:28.296Z",
+      "requests": [
+        {
+          "id": "5c611de8-a3b7-4671-bf76-f0dca29f23be",
+          "method": "POST",
+          "path": "/procurement-packages/2f7188a4-6163-4f3b-bc69-0a7248e3176c/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:11:27.991Z"
+        },
+        {
+          "id": "7d4493a8-3013-4dfd-9e4a-9936f015ac46",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 429,
+          "at": "2026-11-05T09:11:28.219Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/bid/analysis.test.ts",
+      "name": "the AI analysis of a proposal with verified citations and classification routing (ST-BID-009) AC-ST-BID-009-1, UAT-AC19: a confidential proposal goes only domestic then self-hosted, never international holds the run to the cost the person asked for: above it the run is refused by the budget and no model is called",
+      "status": "passed",
+      "durationMs": 1298,
+      "at": "2026-11-05T09:11:29.594Z",
+      "requests": [
+        {
+          "id": "7430eef6-f1fa-4685-865a-1bbf5ed54ef4",
+          "method": "POST",
+          "path": "/procurement-packages/e9e879fb-0f3e-4247-b020-81adebbd30fc/conflict-declarations",
+          "status": 200,
+          "at": "2026-11-05T09:11:29.371Z"
+        },
+        {
+          "id": "c1d1e269-b5d7-4211-aed0-4565c9d6d975",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 429,
+          "at": "2026-11-05T09:11:29.501Z"
+        },
+        {
+          "id": "e4a4cd4d-c8ea-43ce-977a-f343375b1806",
+          "method": "POST",
+          "path": "/analysis-runs",
+          "status": 422,
+          "at": "2026-11-05T09:11:29.586Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "id": "UAT-AC495",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-product.test.ts",
+      "name": "the certification of data products (ST-DGV-009, DGV 3.1 F9, DGV-18) UAT-AC495: the owner cannot certify (403), a run that failed is 422 QUALITY_NOT_PASSED, and after a run that passed the product is CERTIFIED with the day it runs out",
+      "status": "passed",
+      "durationMs": 432,
+      "at": "2026-11-05T09:17:17.171Z",
+      "requests": [
+        {
+          "id": "6f484756-f6b5-4529-a1dc-a1489181d4e6",
+          "method": "POST",
+          "path": "/dgv/data-products/66a3a229-7682-4581-b34d-3359ded8c16d/certification",
+          "status": 403,
+          "at": "2026-11-05T09:17:16.995Z"
+        },
+        {
+          "id": "fd567e2b-1eeb-4a2b-8290-b24ee14db586",
+          "method": "POST",
+          "path": "/dgv/data-products/66a3a229-7682-4581-b34d-3359ded8c16d/certification",
+          "status": 422,
+          "at": "2026-11-05T09:17:17.071Z"
+        },
+        {
+          "id": "0b857b12-db44-48d6-8dc7-2036bc95729c",
+          "method": "GET",
+          "path": "/dgv/data-products",
+          "status": 200,
+          "at": "2026-11-05T09:17:17.082Z"
+        },
+        {
+          "id": "d4607a74-6641-475e-9082-b5616b4d61e6",
+          "method": "POST",
+          "path": "/dgv/data-products/66a3a229-7682-4581-b34d-3359ded8c16d/certification",
+          "status": 200,
+          "at": "2026-11-05T09:17:17.136Z"
+        },
+        {
+          "id": "001872b9-ef55-4592-b92c-a81db07523a9",
+          "method": "GET",
+          "path": "/dgv/data-products",
+          "status": 200,
+          "at": "2026-11-05T09:17:17.163Z"
+        }
+      ]
+    }
+  ]
+}

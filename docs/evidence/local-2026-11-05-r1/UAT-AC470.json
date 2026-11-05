@@ -1,0 +1,40 @@
+{
+  "id": "UAT-AC470",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-finops.test.ts",
+      "name": "the reservation, the settlement and the reconciliation of a budget (ST-LLM-003, LLM F3) AC-ST-LLM-003-4: UAT-AC470 settles a provider request once: a second delivery, also one at the same moment, changes nothing and gives the first answer",
+      "status": "passed",
+      "durationMs": 672,
+      "at": "2026-11-05T09:15:25.268Z",
+      "requests": [
+        {
+          "id": "b47c20a1-ee7a-45d1-b394-23839d50b28e",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:15:24.748Z"
+        },
+        {
+          "id": "f02a3c54-edb5-40a9-a01d-b330367fdb0c",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:15:24.776Z"
+        },
+        {
+          "id": "e3f315a0-b6e0-432a-a5c9-876ab874c706",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:15:24.912Z"
+        }
+      ]
+    }
+  ]
+}

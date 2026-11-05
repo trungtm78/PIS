@@ -1,0 +1,47 @@
+{
+  "id": "UAT-AC252",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/warning.test.ts",
+      "name": "the early-warning rules and warnings over HTTP (ST-DIS-012) the evaluation after a snapshot is frozen AC-ST-DIS-012-1 / UAT-AC252: opens one warning for a slow project with its rule, severity, project and the figures seen and expected, tells it by an event, and the second snapshot updates it without a second warning or a second event",
+      "status": "passed",
+      "durationMs": 1564,
+      "at": "2026-11-05T09:20:04.050Z",
+      "requests": [
+        {
+          "id": "3c241986-3deb-4767-a629-aa7cbb2d527f",
+          "method": "POST",
+          "path": "/early-warning-rules",
+          "status": 200,
+          "at": "2026-11-05T09:20:02.571Z"
+        },
+        {
+          "id": "bb5048b9-00e9-4403-af06-ac7a038c4f8e",
+          "method": "POST",
+          "path": "/early-warning-rules/4ee4af2d-42e7-44c7-a569-7651d6571e47/publish",
+          "status": 200,
+          "at": "2026-11-05T09:20:02.586Z"
+        },
+        {
+          "id": "50bf3960-0051-489c-95f1-305d5070cea1",
+          "method": "GET",
+          "path": "/early-warnings",
+          "status": 200,
+          "at": "2026-11-05T09:20:03.475Z"
+        },
+        {
+          "id": "46691511-382d-4ea4-a57e-6c89989a79f2",
+          "method": "GET",
+          "path": "/early-warnings",
+          "status": 200,
+          "at": "2026-11-05T09:20:03.908Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "UAT-AC437",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/aud/recovery.test.ts",
+      "name": "the ledger of recoveries over HTTP (ST-AUD-004, AUD-08, AUD-01) linkAuditRecovery AC-ST-AUD-004-1 / UAT-AC437: 500,000,000 from PAY and 300,000,000 linked by hand make 800,000,000; the summary shows nothing left to recover and the rate with its numerator and denominator",
+      "status": "passed",
+      "durationMs": 543,
+      "at": "2026-11-05T09:19:35.353Z",
+      "requests": [
+        {
+          "id": "62fabb5d-c732-479c-b698-3cba7ec527df",
+          "method": "POST",
+          "path": "/audit-recommendations/31727364-e7f5-4a7b-9aa6-e9c17f059e05/recoveries",
+          "status": 200,
+          "at": "2026-11-05T09:19:35.130Z"
+        },
+        {
+          "id": "082bd4e3-1f7c-4eda-b896-3685bf7e23e8",
+          "method": "GET",
+          "path": "/audit-engagements/86c8e580-5cc9-433b-95e6-faf2d29e4fcc/recovery-summary",
+          "status": 200,
+          "at": "2026-11-05T09:19:35.253Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/aud/pay-recovery.consumer.test.ts",
+      "name": "the recoveries of PAY on the ledger of AUD (AC-ST-AUD-004-1, AC-ST-AUD-004-3) AC-ST-AUD-004-1 / UAT-AC437: a recovery of 500,000,000 delivered twice is linked once, a deduction of 300,000,000 makes 800,000,000, and the lines carry the events that made them",
+      "status": "passed",
+      "durationMs": 450,
+      "at": "2026-11-05T09:23:31.134Z",
+      "requests": []
+    }
+  ]
+}

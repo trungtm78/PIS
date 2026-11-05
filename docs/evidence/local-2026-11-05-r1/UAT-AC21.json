@@ -1,0 +1,379 @@
+{
+  "id": "UAT-AC21",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-gateway.test.ts",
+      "name": "the emergency stop of the gateway (ST-LLM-006, LLM F7, LLM-18) AC-ST-LLM-006-1: UAT-AC21 stops a profile at once: new requests are refused, what waited is cancelled, a request that was sent is cancelled when the provider can and otherwise has its answer thrown away, and the one who engaged cannot release it",
+      "status": "passed",
+      "durationMs": 3143,
+      "at": "2026-11-05T09:11:07.226Z",
+      "requests": [
+        {
+          "id": "01700e40-645c-4ad7-9693-b1b9049d3cd5",
+          "method": "POST",
+          "path": "/ai-classification-policies",
+          "status": 200,
+          "at": "2026-11-05T09:11:04.329Z"
+        },
+        {
+          "id": "b34d9523-dd2b-422a-bd97-8a78976ccb05",
+          "method": "POST",
+          "path": "/ai-classification-policies/08c577d4-48e8-40c1-85bc-b5fc95aa7e78/publish",
+          "status": 200,
+          "at": "2026-11-05T09:11:04.338Z"
+        },
+        {
+          "id": "532db296-baa3-43fd-ad43-780ce5eaf8b2",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:11:04.400Z"
+        },
+        {
+          "id": "d6f7de87-0648-41d0-a1da-87644d0948f1",
+          "method": "POST",
+          "path": "/ai-providers/7e56fbf6-eef0-4d86-aa57-80802ad02ffc/activation",
+          "status": 200,
+          "at": "2026-11-05T09:11:04.409Z"
+        },
+        {
+          "id": "70fae126-1154-4dcc-a006-d6a0fe6dccc0",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:11:04.423Z"
+        },
+        {
+          "id": "090b65b2-3ca9-4bc3-a222-ef843f3d1d77",
+          "method": "POST",
+          "path": "/ai-models/d62dde91-dee5-471c-ba06-f66413c85b91/approval",
+          "status": 200,
+          "at": "2026-11-05T09:11:04.440Z"
+        },
+        {
+          "id": "9c5a895b-451f-4662-aab4-109910e893cc",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:11:04.457Z"
+        },
+        {
+          "id": "888f634f-9205-4086-b9cc-c7dda580c6aa",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:11:04.544Z"
+        },
+        {
+          "id": "c38ebddd-88da-44d8-8c0e-7b5e1bfc1b42",
+          "method": "POST",
+          "path": "/ai-providers/289346d1-56f1-43a5-a354-d755a363e82d/activation",
+          "status": 200,
+          "at": "2026-11-05T09:11:04.567Z"
+        },
+        {
+          "id": "3f9e4017-6393-49f8-8168-21b67af9d572",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:11:04.584Z"
+        },
+        {
+          "id": "8c6aaa07-2e71-4687-a831-ae05dba7deef",
+          "method": "POST",
+          "path": "/ai-models/4a94035c-05f8-45b1-bda2-59d12b0a7e7f/approval",
+          "status": 200,
+          "at": "2026-11-05T09:11:04.600Z"
+        },
+        {
+          "id": "aa81a67b-46f7-47a1-bd9f-4e5e4a7a6743",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:11:04.615Z"
+        },
+        {
+          "id": "067ea490-b698-45c4-a97b-cabe2473ccc9",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:11:04.635Z"
+        },
+        {
+          "id": "a65aaab8-b2a1-476b-b9b0-ad1c69fcfb94",
+          "method": "POST",
+          "path": "/ai-providers/a4f02d36-dbd0-40e4-9170-2f6f6b6a74fa/activation",
+          "status": 200,
+          "at": "2026-11-05T09:11:04.646Z"
+        },
+        {
+          "id": "e20a7143-5f7f-4ecd-a29e-14549a41554b",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:11:04.662Z"
+        },
+        {
+          "id": "3de54310-1474-4193-ac6e-081ac0aab002",
+          "method": "POST",
+          "path": "/ai-models/5df06944-5743-431b-a5d8-a55903778f2d/approval",
+          "status": 200,
+          "at": "2026-11-05T09:11:04.680Z"
+        },
+        {
+          "id": "0f5e28bc-4021-4092-ab44-371798bd5f50",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:11:04.695Z"
+        },
+        {
+          "id": "533b0dda-58bc-4321-b758-9bc8e30f5ecc",
+          "method": "POST",
+          "path": "/ai-prompts",
+          "status": 200,
+          "at": "2026-11-05T09:11:04.711Z"
+        },
+        {
+          "id": "6ee6b9fe-7e43-4637-83ec-d3907a4b7069",
+          "method": "POST",
+          "path": "/ai-prompts/1418519f-c4a1-4ec1-9419-c512e41f6f1c/approval",
+          "status": 200,
+          "at": "2026-11-05T09:11:04.728Z"
+        },
+        {
+          "id": "7ec9b299-8c14-499b-921f-af3dc1276496",
+          "method": "POST",
+          "path": "/ai-kill-switches",
+          "status": 200,
+          "at": "2026-11-05T09:11:06.467Z"
+        },
+        {
+          "id": "eb168430-19b7-45dd-96b2-75f1b0050dd4",
+          "method": "POST",
+          "path": "/ai/requests",
+          "status": 503,
+          "at": "2026-11-05T09:11:06.696Z"
+        },
+        {
+          "id": "0573ba9b-facf-46db-a200-ae680d9b8d39",
+          "method": "POST",
+          "path": "/ai/requests",
+          "status": 422,
+          "at": "2026-11-05T09:11:06.899Z"
+        },
+        {
+          "id": "fc961b5a-6800-4e2c-b2be-7232d103cfc5",
+          "method": "POST",
+          "path": "/ai-kill-switches/ffc7d1e7-4bd6-4164-971a-c8514f28bb04/release",
+          "status": 403,
+          "at": "2026-11-05T09:11:06.916Z"
+        },
+        {
+          "id": "4f185d96-e000-42ec-b5ab-4559edc1c0c1",
+          "method": "POST",
+          "path": "/ai-kill-switches/ffc7d1e7-4bd6-4164-971a-c8514f28bb04/release",
+          "status": 409,
+          "at": "2026-11-05T09:11:06.931Z"
+        },
+        {
+          "id": "de986151-e4fb-4eeb-bfe7-5419f0f87169",
+          "method": "POST",
+          "path": "/ai-kill-switches/ffc7d1e7-4bd6-4164-971a-c8514f28bb04/release",
+          "status": 422,
+          "at": "2026-11-05T09:11:06.947Z"
+        },
+        {
+          "id": "2c3e555a-3340-4666-80d8-8d1fa6734e71",
+          "method": "POST",
+          "path": "/ai-kill-switches/ffc7d1e7-4bd6-4164-971a-c8514f28bb04/release",
+          "status": 200,
+          "at": "2026-11-05T09:11:06.961Z"
+        },
+        {
+          "id": "c47ee657-48d3-4b4e-b629-229bb2d1df5a",
+          "method": "POST",
+          "path": "/ai-kill-switches/ffc7d1e7-4bd6-4164-971a-c8514f28bb04/release",
+          "status": 409,
+          "at": "2026-11-05T09:11:06.981Z"
+        },
+        {
+          "id": "e421eeb6-7089-4aca-a345-979af764c312",
+          "method": "POST",
+          "path": "/ai/requests",
+          "status": 202,
+          "at": "2026-11-05T09:11:07.081Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-gateway.test.ts",
+      "name": "the emergency stop of the gateway (ST-LLM-006, LLM F7, LLM-18) AC-ST-LLM-006-1: UAT-AC21 throws away the answer of a request whose scope was stopped while a model was called, and the request is cancelled; what was paid for is settled",
+      "status": "passed",
+      "durationMs": 930,
+      "at": "2026-11-05T09:11:13.331Z",
+      "requests": [
+        {
+          "id": "e6091d80-bdaf-4d2d-b52c-8a2ff2549519",
+          "method": "POST",
+          "path": "/ai-classification-policies",
+          "status": 200,
+          "at": "2026-11-05T09:11:12.680Z"
+        },
+        {
+          "id": "62854122-67a9-4612-bf76-e03d72dbdb20",
+          "method": "POST",
+          "path": "/ai-classification-policies/eb3e077b-f455-47aa-9b25-bd431ea169c9/publish",
+          "status": 200,
+          "at": "2026-11-05T09:11:12.697Z"
+        },
+        {
+          "id": "9351dd3f-8388-4ad2-9b2c-aa1ee5250d44",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:11:12.756Z"
+        },
+        {
+          "id": "de427f43-c6d0-452d-a12f-19a030fe83ca",
+          "method": "POST",
+          "path": "/ai-providers/4261cb65-b036-4608-a05d-e3b8c5b57d9d/activation",
+          "status": 200,
+          "at": "2026-11-05T09:11:12.776Z"
+        },
+        {
+          "id": "2b632040-5eb9-47c9-928c-885732abd927",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:11:12.793Z"
+        },
+        {
+          "id": "48b3608f-647b-4272-ab0e-4724eea56976",
+          "method": "POST",
+          "path": "/ai-models/782d34b0-5d67-4060-8821-177833873446/approval",
+          "status": 200,
+          "at": "2026-11-05T09:11:12.811Z"
+        },
+        {
+          "id": "032a54b3-413f-40f4-8137-7ad3277cb16a",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:11:12.824Z"
+        },
+        {
+          "id": "d4d417ac-4913-40b1-9544-7948ede35108",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:11:12.879Z"
+        },
+        {
+          "id": "915526ae-fdd6-4f4a-bd03-290467c6b289",
+          "method": "POST",
+          "path": "/ai-providers/3b1cc4e0-7f01-4472-a983-ffd80c6046a9/activation",
+          "status": 200,
+          "at": "2026-11-05T09:11:12.889Z"
+        },
+        {
+          "id": "635acfc2-197e-4e59-ac5d-87f9f95ddeaa",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:11:12.905Z"
+        },
+        {
+          "id": "6b34e0c9-97d2-4fa5-897e-a01d234af075",
+          "method": "POST",
+          "path": "/ai-models/611b741c-3cf8-471a-b840-d930a58babbb/approval",
+          "status": 200,
+          "at": "2026-11-05T09:11:12.911Z"
+        },
+        {
+          "id": "95dfb281-5557-46a5-8408-6a18b733953a",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:11:12.921Z"
+        },
+        {
+          "id": "c247be62-8139-440f-9569-41ae9aaa111f",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:11:12.937Z"
+        },
+        {
+          "id": "5adc77a8-7626-49c0-9140-8c46b5f810f1",
+          "method": "POST",
+          "path": "/ai-providers/6dec0d9f-7816-4485-8136-61c73889e584/activation",
+          "status": 200,
+          "at": "2026-11-05T09:11:12.943Z"
+        },
+        {
+          "id": "0dbfa847-0983-4841-9bd5-1d5a369479a3",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:11:12.950Z"
+        },
+        {
+          "id": "620fca3a-4347-4922-9233-e8fed6e99b34",
+          "method": "POST",
+          "path": "/ai-models/aff8bc68-1813-4a2d-b5ad-2609004c8a98/approval",
+          "status": 200,
+          "at": "2026-11-05T09:11:12.969Z"
+        },
+        {
+          "id": "9afe16d0-25c2-4276-b85c-3b14f9a32d66",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:11:12.985Z"
+        },
+        {
+          "id": "6c19fbe8-7c7c-43cf-a4a4-14afa58b3ce7",
+          "method": "POST",
+          "path": "/ai-prompts",
+          "status": 200,
+          "at": "2026-11-05T09:11:13.004Z"
+        },
+        {
+          "id": "c1ea6e59-d97c-49c3-a7cf-b1ac6267230a",
+          "method": "POST",
+          "path": "/ai-prompts/6967484c-d43f-4d36-bd6b-b1d410fb358f/approval",
+          "status": 200,
+          "at": "2026-11-05T09:11:13.027Z"
+        },
+        {
+          "id": "7557f7d0-8291-4144-91f8-f585f9d7f0b9",
+          "method": "POST",
+          "path": "/ai-kill-switches",
+          "status": 200,
+          "at": "2026-11-05T09:11:13.202Z"
+        },
+        {
+          "id": "67dced2c-2981-4c85-a9e5-1c97979dfd63",
+          "method": "POST",
+          "path": "/ai-kill-switches/b3d6acac-0e14-4b22-96c3-8eb8d3af021f/release",
+          "status": 200,
+          "at": "2026-11-05T09:11:13.228Z"
+        },
+        {
+          "id": "883ce7d6-1f97-4252-9ffe-cf5a51734cdb",
+          "method": "POST",
+          "path": "/ai/requests",
+          "status": 202,
+          "at": "2026-11-05T09:11:13.169Z"
+        }
+      ]
+    }
+  ]
+}

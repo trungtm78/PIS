@@ -1,0 +1,56 @@
+{
+  "id": "UAT-AC242",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/snapshot.test.ts",
+      "name": "the period snapshot over HTTP (ST-DIS-009) getDisbursementRates AC-ST-DIS-010-2 / FX-DIS-003 / UAT-AC242: the rate of a unit is 140 over 1,000 million = 14%, the sum of the numerators over the sum of the denominators, and its two projects are 50% and 10%",
+      "status": "passed",
+      "durationMs": 545,
+      "at": "2026-11-05T09:10:35.733Z",
+      "requests": [
+        {
+          "id": "b9980474-0dd4-43e6-995d-f77d3adc6b0c",
+          "method": "POST",
+          "path": "/period-snapshots",
+          "status": 200,
+          "at": "2026-11-05T09:10:35.651Z"
+        },
+        {
+          "id": "40eea903-f6b8-44f0-81e4-13ceddbc4623",
+          "method": "POST",
+          "path": "/period-snapshots/c9bc1524-c71a-4afc-af4e-32d98e87c646/freeze",
+          "status": 200,
+          "at": "2026-11-05T09:10:35.689Z"
+        },
+        {
+          "id": "d0c18ac7-d2b1-4215-86e6-f926a26a56d5",
+          "method": "GET",
+          "path": "/disbursement-rates",
+          "status": 200,
+          "at": "2026-11-05T09:10:35.704Z"
+        },
+        {
+          "id": "2460a8c3-99e3-4b22-a82a-18e9e8c4f267",
+          "method": "GET",
+          "path": "/disbursement-rates",
+          "status": 200,
+          "at": "2026-11-05T09:10:35.716Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/golden.test.ts",
+      "name": "[CHỜ KÝ D03] golden fixtures FX-DIS-001..007 (ST-DIS-011) [CHỜ KÝ D03] FX-DIS-003 / UAT-AC242: the rate of the unit is the sum of the numerators over the sum of the denominators (14%) and each project has its own",
+      "status": "passed",
+      "durationMs": 1,
+      "at": "2026-11-05T09:24:00.404Z",
+      "requests": []
+    }
+  ]
+}

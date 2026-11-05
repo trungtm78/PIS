@@ -1,0 +1,82 @@
+{
+  "id": "UI-CTR-06",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/pay-advance-flows.spec.ts",
+      "name": "the accountant sees a late advance and a planned one, is refused a recovery above what is owed, records one with its evidence, cancels the planned advance and reads the schedule (UI-PAY-07, UI-CTR-06, AC-ST-PAY-004-3, AC-ST-PAY-004-4, UAT-AC61)",
+      "status": "passed",
+      "durationMs": 1672,
+      "at": "2026-11-05T08:49:37.280Z",
+      "requests": [
+        {
+          "id": "f679a5a3-9741-4c87-9924-83a24dd5de77",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T08:49:37.846Z"
+        },
+        {
+          "id": "2155c80b-75be-49f2-805f-5f168d4eb574",
+          "method": "GET",
+          "path": "/advances",
+          "status": 200,
+          "at": "2026-11-05T08:49:37.845Z"
+        },
+        {
+          "id": "f71b837f-708a-4fd4-b078-316b5faa3352",
+          "method": "POST",
+          "path": "/advances/bf64dcc4-82c4-45a4-bba1-b08012571c01/recoveries",
+          "status": 422,
+          "at": "2026-11-05T08:49:38.087Z"
+        },
+        {
+          "id": "5e58bd5b-cfd7-48e3-829a-49d6055273e0",
+          "method": "POST",
+          "path": "/advances/bf64dcc4-82c4-45a4-bba1-b08012571c01/recoveries",
+          "status": 200,
+          "at": "2026-11-05T08:49:38.238Z"
+        },
+        {
+          "id": "c7800638-23ed-4127-a0e4-db7c6db17769",
+          "method": "GET",
+          "path": "/advances",
+          "status": 200,
+          "at": "2026-11-05T08:49:38.266Z"
+        },
+        {
+          "id": "474d41e3-1850-4d89-90a1-cfb5bb2110c5",
+          "method": "POST",
+          "path": "/advances/ff6e22ae-1be6-489c-ab45-f1862bcbab1c/cancel",
+          "status": 200,
+          "at": "2026-11-05T08:49:38.654Z"
+        },
+        {
+          "id": "987d440e-5a84-45a6-b401-6c90f5f5f1f7",
+          "method": "GET",
+          "path": "/advances",
+          "status": 200,
+          "at": "2026-11-05T08:49:38.676Z"
+        },
+        {
+          "id": "7558f4e3-ae48-4fa3-84f4-63e7ca90082a",
+          "method": "GET",
+          "path": "/advances",
+          "status": 200,
+          "at": "2026-11-05T08:49:38.915Z"
+        },
+        {
+          "id": "98229957-a842-4031-bf58-cc7fd751a8e7",
+          "method": "GET",
+          "path": "/advances/bf64dcc4-82c4-45a4-bba1-b08012571c01/recovery-plan",
+          "status": 200,
+          "at": "2026-11-05T08:49:38.916Z"
+        }
+      ]
+    }
+  ]
+}

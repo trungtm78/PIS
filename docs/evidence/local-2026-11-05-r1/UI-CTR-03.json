@@ -1,0 +1,120 @@
+{
+  "id": "UI-CTR-03",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/ctr-lifecycle-flows.spec.ts",
+      "name": "the maker sends a draft to review; the reviewer gives it back with the reason, the maker sends it again and the reviewer signs it (UI-CTR-03, AC-ST-CTR-004-1, UAT-AC56)",
+      "status": "passed",
+      "durationMs": 2109,
+      "at": "2026-11-05T08:46:15.090Z",
+      "requests": [
+        {
+          "id": "dd0930f0-63a6-46f8-a059-23e3d046bcd9",
+          "method": "GET",
+          "path": "/contracts/4b98bca5-17cb-4e38-9e80-8b5f1815d8dc/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:15.602Z"
+        },
+        {
+          "id": "b9b5e9a0-8235-467e-8068-bd25c8e97277",
+          "method": "POST",
+          "path": "/contracts/4b98bca5-17cb-4e38-9e80-8b5f1815d8dc/submit-review",
+          "status": 200,
+          "at": "2026-11-05T08:46:15.797Z"
+        },
+        {
+          "id": "12dcc7c0-e2ab-484d-81ae-c39448f506b0",
+          "method": "GET",
+          "path": "/contracts/4b98bca5-17cb-4e38-9e80-8b5f1815d8dc/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:15.816Z"
+        },
+        {
+          "id": "5f149d86-3379-4e69-8616-afdd9cb07592",
+          "method": "GET",
+          "path": "/contracts/4b98bca5-17cb-4e38-9e80-8b5f1815d8dc/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:16.102Z"
+        },
+        {
+          "id": "c70ed324-cf59-49bc-9960-30d0ff04bacc",
+          "method": "POST",
+          "path": "/contracts/4b98bca5-17cb-4e38-9e80-8b5f1815d8dc/return",
+          "status": 200,
+          "at": "2026-11-05T08:46:16.297Z"
+        },
+        {
+          "id": "2459aa8e-ddab-4ba0-9bf4-b52484168073",
+          "method": "GET",
+          "path": "/contracts/4b98bca5-17cb-4e38-9e80-8b5f1815d8dc/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:16.311Z"
+        },
+        {
+          "id": "59c66791-b263-455e-9f64-fb698edcab60",
+          "method": "GET",
+          "path": "/contracts/4b98bca5-17cb-4e38-9e80-8b5f1815d8dc/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:16.532Z"
+        },
+        {
+          "id": "e304b60d-887b-4eac-9d77-17ad4836d261",
+          "method": "POST",
+          "path": "/contracts/4b98bca5-17cb-4e38-9e80-8b5f1815d8dc/submit-review",
+          "status": 200,
+          "at": "2026-11-05T08:46:16.663Z"
+        },
+        {
+          "id": "e50c2096-0316-478e-bee5-e0d68f3aa4be",
+          "method": "GET",
+          "path": "/contracts/4b98bca5-17cb-4e38-9e80-8b5f1815d8dc/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:16.682Z"
+        },
+        {
+          "id": "64cffc9c-bf09-4e2d-9c85-3497248e4ad6",
+          "method": "GET",
+          "path": "/contracts/4b98bca5-17cb-4e38-9e80-8b5f1815d8dc/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:16.879Z"
+        },
+        {
+          "id": "f64194e9-601c-40c1-93b8-9c2669682f21",
+          "method": "POST",
+          "path": "/contracts/4b98bca5-17cb-4e38-9e80-8b5f1815d8dc/sign",
+          "status": 200,
+          "at": "2026-11-05T08:46:17.063Z"
+        },
+        {
+          "id": "64381a23-d0b5-41fa-a964-91068aac426e",
+          "method": "GET",
+          "path": "/contracts/4b98bca5-17cb-4e38-9e80-8b5f1815d8dc/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:17.082Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/ctr-lifecycle-flows.spec.ts",
+      "name": "someone who may read the contract and nothing more sees the contract and no command (UI-CTR-03)",
+      "status": "passed",
+      "durationMs": 659,
+      "at": "2026-11-05T08:46:18.082Z",
+      "requests": [
+        {
+          "id": "7ffc5da8-b828-45f1-b8de-0c57c1c5a416",
+          "method": "GET",
+          "path": "/contracts/83527abb-e88f-4232-80d1-0893451e6a15/summary",
+          "status": 200,
+          "at": "2026-11-05T08:46:18.657Z"
+        }
+      ]
+    }
+  ]
+}

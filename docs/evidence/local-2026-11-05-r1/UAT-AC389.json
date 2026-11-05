@@ -1,0 +1,200 @@
+{
+  "id": "UAT-AC389",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/asset.test.ts",
+      "name": "the assets of a work over HTTP (ST-AST-002) registerAsset (AC-ST-AST-002-1, UAT-AC389) AC-ST-AST-002-1, UAT-AC389: registers an asset of an accepted handover with its audit row and its event, answers the same key once, and refuses a value above the contract and a code that is used",
+      "status": "passed",
+      "durationMs": 1714,
+      "at": "2026-11-05T09:16:17.079Z",
+      "requests": [
+        {
+          "id": "aeac2cda-2878-4234-82ca-e8c12c52710d",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 409,
+          "at": "2026-11-05T09:16:16.843Z"
+        },
+        {
+          "id": "ea30368d-7790-4fe8-ae43-afff2265fde3",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 200,
+          "at": "2026-11-05T09:16:16.870Z"
+        },
+        {
+          "id": "7b0d3ed6-c662-4e6a-a851-87b909a5ad57",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 200,
+          "at": "2026-11-05T09:16:16.890Z"
+        },
+        {
+          "id": "7df0c540-b236-401f-8eb0-625d8b213b0f",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 422,
+          "at": "2026-11-05T09:16:17.026Z"
+        },
+        {
+          "id": "1b13c695-208a-4ec5-a9c6-a0c73ae52bd2",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 409,
+          "at": "2026-11-05T09:16:17.046Z"
+        },
+        {
+          "id": "4e8a3927-91be-4bb8-a75b-53e8f8e9a5e7",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 200,
+          "at": "2026-11-05T09:16:17.063Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/asset.test.ts",
+      "name": "the assets of a work over HTTP (ST-AST-002) registerAsset (AC-ST-AST-002-1, UAT-AC389) refuses what is badly formed, an asset of a handover that does not exist, and a caller without the right or outside its scope",
+      "status": "passed",
+      "durationMs": 881,
+      "at": "2026-11-05T09:16:17.960Z",
+      "requests": [
+        {
+          "id": "c69c3a74-3e82-4dc0-99fc-1b2c3117dc28",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 422,
+          "at": "2026-11-05T09:16:17.775Z"
+        },
+        {
+          "id": "f45b9dc0-34a6-484e-859a-dde7f9106280",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 422,
+          "at": "2026-11-05T09:16:17.792Z"
+        },
+        {
+          "id": "e43453db-726f-4126-86be-7a03d6cd7abc",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 400,
+          "at": "2026-11-05T09:16:17.808Z"
+        },
+        {
+          "id": "9c6c66b1-3327-4a50-9a7d-eb6ebb783077",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 404,
+          "at": "2026-11-05T09:16:17.824Z"
+        },
+        {
+          "id": "7902bd9d-34be-4a32-a4a5-a59682491442",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 403,
+          "at": "2026-11-05T09:16:17.844Z"
+        },
+        {
+          "id": "f8caae57-af80-4a86-bb14-57fe4f6f0339",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 403,
+          "at": "2026-11-05T09:16:17.856Z"
+        },
+        {
+          "id": "cf46f5ce-afa7-4534-a651-1b62fb6d7575",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 403,
+          "at": "2026-11-05T09:16:17.861Z"
+        },
+        {
+          "id": "9339c250-ba69-4234-bd6a-bc9f7765d9fd",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 404,
+          "at": "2026-11-05T09:16:17.871Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/asset.test.ts",
+      "name": "the assets of a work over HTTP (ST-AST-002) transferAsset (AC-ST-AST-002-1, UAT-AC389) AC-ST-AST-002-1, UAT-AC389: lets the receiving unit transfer a registered asset with the dossier of the commissioning, and refuses the rest",
+      "status": "passed",
+      "durationMs": 1027,
+      "at": "2026-11-05T09:16:18.987Z",
+      "requests": [
+        {
+          "id": "e7334b26-01d2-44cc-b73d-61ab32055a0d",
+          "method": "POST",
+          "path": "/asset-records",
+          "status": 200,
+          "at": "2026-11-05T09:16:18.654Z"
+        },
+        {
+          "id": "d0cb2606-2f39-4df1-973d-15fdb420c85a",
+          "method": "POST",
+          "path": "/asset-records/5db9fc62-b78b-4c97-889a-2124aa7779bf/transfer",
+          "status": 422,
+          "at": "2026-11-05T09:16:18.673Z"
+        },
+        {
+          "id": "243ea632-cfe0-4e58-91bf-1a59cc87c3d4",
+          "method": "POST",
+          "path": "/asset-records/5db9fc62-b78b-4c97-889a-2124aa7779bf/transfer",
+          "status": 422,
+          "at": "2026-11-05T09:16:18.680Z"
+        },
+        {
+          "id": "dfd9cca3-a2e7-488b-84a0-976051423852",
+          "method": "POST",
+          "path": "/asset-records/5db9fc62-b78b-4c97-889a-2124aa7779bf/transfer",
+          "status": 409,
+          "at": "2026-11-05T09:16:18.704Z"
+        },
+        {
+          "id": "dbfe7831-e628-4264-a7c3-054b54ff102d",
+          "method": "POST",
+          "path": "/asset-records/5db9fc62-b78b-4c97-889a-2124aa7779bf/transfer",
+          "status": 403,
+          "at": "2026-11-05T09:16:18.717Z"
+        },
+        {
+          "id": "7323995f-b133-449c-8d2a-c5a8669f26a1",
+          "method": "POST",
+          "path": "/asset-records/5db9fc62-b78b-4c97-889a-2124aa7779bf/transfer",
+          "status": 403,
+          "at": "2026-11-05T09:16:18.727Z"
+        },
+        {
+          "id": "bfdd6f28-a8f9-4b70-9a7e-dbcd2cda4240",
+          "method": "POST",
+          "path": "/asset-records/5db9fc62-b78b-4c97-889a-2124aa7779bf/transfer",
+          "status": 403,
+          "at": "2026-11-05T09:16:18.742Z"
+        },
+        {
+          "id": "3cf6517f-9d21-4977-9c0a-75fcb06eca75",
+          "method": "POST",
+          "path": "/asset-records/5db9fc62-b78b-4c97-889a-2124aa7779bf/transfer",
+          "status": 200,
+          "at": "2026-11-05T09:16:18.816Z"
+        },
+        {
+          "id": "164b1517-2c6c-4197-8b87-3c094ee0061d",
+          "method": "POST",
+          "path": "/asset-records/5db9fc62-b78b-4c97-889a-2124aa7779bf/transfer",
+          "status": 409,
+          "at": "2026-11-05T09:16:18.965Z"
+        }
+      ]
+    }
+  ]
+}

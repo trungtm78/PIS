@@ -1,0 +1,957 @@
+{
+  "id": "UAT-AC391",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/claim.test.ts",
+      "name": "the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) is registered in the module of AST",
+      "status": "passed",
+      "durationMs": 1,
+      "at": "2026-11-05T09:13:00.061Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/claim.test.ts",
+      "name": "the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) fileWarrantyClaim (AC-ST-AST-004-1, UAT-AC390) UAT-AC390: takes a claim reported the day before the warranty ends and refuses one from that day on, with its audit row and its event, answering the same key once",
+      "status": "passed",
+      "durationMs": 1730,
+      "at": "2026-11-05T09:13:01.791Z",
+      "requests": [
+        {
+          "id": "034de3b1-4432-4f80-9fdf-05eb98c077f4",
+          "method": "POST",
+          "path": "/warranty-obligations/c6b87ac9-1e29-4fc8-ae4d-7fe3b143564a/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:01.451Z"
+        },
+        {
+          "id": "013f2dca-447e-40f4-90a5-d7ac8c4e316e",
+          "method": "POST",
+          "path": "/warranty-obligations/c6b87ac9-1e29-4fc8-ae4d-7fe3b143564a/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:01.497Z"
+        },
+        {
+          "id": "6d88d201-f90a-4e1d-b843-4c0312bb6adc",
+          "method": "POST",
+          "path": "/warranty-obligations/c6b87ac9-1e29-4fc8-ae4d-7fe3b143564a/claims",
+          "status": 422,
+          "at": "2026-11-05T09:13:01.587Z"
+        },
+        {
+          "id": "9671cfe6-e51f-4708-b101-ce70fd720ded",
+          "method": "POST",
+          "path": "/warranty-obligations/c6b87ac9-1e29-4fc8-ae4d-7fe3b143564a/claims",
+          "status": 422,
+          "at": "2026-11-05T09:13:01.613Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/claim.test.ts",
+      "name": "the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) fileWarrantyClaim (AC-ST-AST-004-1, UAT-AC390) counts the seven days across the end of a month and of a year",
+      "status": "passed",
+      "durationMs": 748,
+      "at": "2026-11-05T09:13:02.539Z",
+      "requests": [
+        {
+          "id": "9278bfd8-30d8-4795-b6be-3e2a97055e66",
+          "method": "POST",
+          "path": "/warranty-obligations/acc887b1-69c0-4097-8836-62f34e9e82ec/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:02.467Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/claim.test.ts",
+      "name": "the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) fileWarrantyClaim (AC-ST-AST-004-1, UAT-AC390) refuses a claim number used before in the obligation, a claim before the warranty began, a responder that is no party of the contract and a closed obligation",
+      "status": "passed",
+      "durationMs": 2381,
+      "at": "2026-11-05T09:13:04.920Z",
+      "requests": [
+        {
+          "id": "e00f812f-bacb-403e-a8c3-6eee320675ac",
+          "method": "POST",
+          "path": "/warranty-obligations/348b9769-c7db-4d5c-b058-0dcf86be4138/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:03.263Z"
+        },
+        {
+          "id": "5f2ed52a-13e6-45f1-abdf-9014fbf49fb8",
+          "method": "POST",
+          "path": "/warranty-obligations/348b9769-c7db-4d5c-b058-0dcf86be4138/claims",
+          "status": 409,
+          "at": "2026-11-05T09:13:03.279Z"
+        },
+        {
+          "id": "0e21ca93-8910-4a81-842f-2fed5e272639",
+          "method": "POST",
+          "path": "/warranty-obligations/ed973f1d-6c12-4390-95b6-2547c4618d9f/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:04.039Z"
+        },
+        {
+          "id": "b5d7c016-ca0a-431a-b6b0-8716afd51aa9",
+          "method": "POST",
+          "path": "/warranty-obligations/348b9769-c7db-4d5c-b058-0dcf86be4138/claims",
+          "status": 422,
+          "at": "2026-11-05T09:13:04.062Z"
+        },
+        {
+          "id": "3d72a386-1fd2-484d-878b-400a5cf7369b",
+          "method": "POST",
+          "path": "/warranty-obligations/348b9769-c7db-4d5c-b058-0dcf86be4138/claims",
+          "status": 422,
+          "at": "2026-11-05T09:13:04.119Z"
+        },
+        {
+          "id": "e180a1a0-bdcd-4e8d-bde3-f1d600b60dcf",
+          "method": "POST",
+          "path": "/warranty-obligations/585e1302-db61-49ad-89d7-030db53fa5f5/claims",
+          "status": 409,
+          "at": "2026-11-05T09:13:04.903Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/claim.test.ts",
+      "name": "the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) fileWarrantyClaim (AC-ST-AST-004-1, UAT-AC390) takes a photo or a file of the evidence only when it is clean, and refuses what is badly formed",
+      "status": "passed",
+      "durationMs": 858,
+      "at": "2026-11-05T09:13:05.778Z",
+      "requests": [
+        {
+          "id": "949132b0-413c-4d63-ae47-a69e176e8227",
+          "method": "POST",
+          "path": "/warranty-obligations/378b2a1a-3fe3-446a-82c9-3351ecf04387/claims",
+          "status": 422,
+          "at": "2026-11-05T09:13:05.631Z"
+        },
+        {
+          "id": "0148c3db-05e5-4e05-889f-a717f1efb91e",
+          "method": "POST",
+          "path": "/warranty-obligations/378b2a1a-3fe3-446a-82c9-3351ecf04387/claims",
+          "status": 422,
+          "at": "2026-11-05T09:13:05.658Z"
+        },
+        {
+          "id": "1d518cda-6318-4e68-9b16-71a0f4c865db",
+          "method": "POST",
+          "path": "/warranty-obligations/378b2a1a-3fe3-446a-82c9-3351ecf04387/claims",
+          "status": 422,
+          "at": "2026-11-05T09:13:05.673Z"
+        },
+        {
+          "id": "00d99842-3152-4fd7-be48-80e6f3f766c8",
+          "method": "POST",
+          "path": "/warranty-obligations/378b2a1a-3fe3-446a-82c9-3351ecf04387/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:05.692Z"
+        },
+        {
+          "id": "a2c48b9b-3c83-4544-aabd-b950d5913038",
+          "method": "POST",
+          "path": "/warranty-obligations/378b2a1a-3fe3-446a-82c9-3351ecf04387/claims",
+          "status": 422,
+          "at": "2026-11-05T09:13:05.707Z"
+        },
+        {
+          "id": "336c1e03-9bae-46c1-84e7-a40323a1e289",
+          "method": "POST",
+          "path": "/warranty-obligations/378b2a1a-3fe3-446a-82c9-3351ecf04387/claims",
+          "status": 422,
+          "at": "2026-11-05T09:13:05.719Z"
+        },
+        {
+          "id": "8e9ff1d1-3082-4e4d-afee-06781079e059",
+          "method": "POST",
+          "path": "/warranty-obligations/378b2a1a-3fe3-446a-82c9-3351ecf04387/claims",
+          "status": 422,
+          "at": "2026-11-05T09:13:05.730Z"
+        },
+        {
+          "id": "8a3322d4-a888-44dc-9961-eb75e8c3bd2b",
+          "method": "POST",
+          "path": "/warranty-obligations/378b2a1a-3fe3-446a-82c9-3351ecf04387/claims",
+          "status": 422,
+          "at": "2026-11-05T09:13:05.747Z"
+        },
+        {
+          "id": "d61c2347-0dd3-46e4-b970-90c924a606fe",
+          "method": "POST",
+          "path": "/warranty-obligations/378b2a1a-3fe3-446a-82c9-3351ecf04387/claims",
+          "status": 422,
+          "at": "2026-11-05T09:13:05.762Z"
+        },
+        {
+          "id": "bc98bdb5-9b6c-4b1e-809a-319266b79bd3",
+          "method": "POST",
+          "path": "/warranty-obligations/378b2a1a-3fe3-446a-82c9-3351ecf04387/claims",
+          "status": 400,
+          "at": "2026-11-05T09:13:05.764Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/claim.test.ts",
+      "name": "the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) the answer to a claim (AC-ST-AST-004-1, UAT-AC391) UAT-AC391: nobody answers by the day, the job flags the claim once for ISS; the contractor acknowledges, fixes with evidence, and somebody else verifies",
+      "status": "passed",
+      "durationMs": 1539,
+      "at": "2026-11-05T09:13:07.317Z",
+      "requests": [
+        {
+          "id": "75e19112-bcb5-4ef2-8a6c-0016591ac30d",
+          "method": "POST",
+          "path": "/warranty-obligations/c1ecf792-9d10-4e5e-9cfd-62006574077e/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:06.452Z"
+        },
+        {
+          "id": "77d1ed95-b8a7-47a8-993e-09096a86c10b",
+          "method": "POST",
+          "path": "/warranty-claims/34c7faf2-c30a-435f-83d2-8daa4fbcc7f1/acknowledge",
+          "status": 200,
+          "at": "2026-11-05T09:13:06.785Z"
+        },
+        {
+          "id": "84bcc5ab-5778-40b8-8768-12e3c30a2fc5",
+          "method": "POST",
+          "path": "/warranty-claims/34c7faf2-c30a-435f-83d2-8daa4fbcc7f1/fixed",
+          "status": 200,
+          "at": "2026-11-05T09:13:06.940Z"
+        },
+        {
+          "id": "a6e3e755-d9a0-47ad-9a69-f474183ad627",
+          "method": "POST",
+          "path": "/warranty-claims/34c7faf2-c30a-435f-83d2-8daa4fbcc7f1/verify",
+          "status": 403,
+          "at": "2026-11-05T09:13:07.064Z"
+        },
+        {
+          "id": "0a9e21cc-8828-4a89-8139-f7d150b8e4ae",
+          "method": "POST",
+          "path": "/warranty-claims/34c7faf2-c30a-435f-83d2-8daa4fbcc7f1/verify",
+          "status": 200,
+          "at": "2026-11-05T09:13:07.131Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/claim.test.ts",
+      "name": "the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) the answer to a claim (AC-ST-AST-004-1, UAT-AC391) disputes a repair, has it put right again, and verifies it the second time",
+      "status": "passed",
+      "durationMs": 1108,
+      "at": "2026-11-05T09:13:08.425Z",
+      "requests": [
+        {
+          "id": "317e174e-7d4f-467b-b9f6-ecc953a261a9",
+          "method": "POST",
+          "path": "/warranty-obligations/9674711a-5e40-4bde-831a-7be19ba4cfe9/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:08.021Z"
+        },
+        {
+          "id": "75ef2a10-0047-4f35-8d59-d1c7d9da1757",
+          "method": "POST",
+          "path": "/warranty-claims/7d38fdbb-bb3d-450e-b948-6c0a9ba365d9/acknowledge",
+          "status": 200,
+          "at": "2026-11-05T09:13:08.039Z"
+        },
+        {
+          "id": "15984a31-ece7-4026-bdd0-bae87931d4be",
+          "method": "POST",
+          "path": "/warranty-claims/7d38fdbb-bb3d-450e-b948-6c0a9ba365d9/fixed",
+          "status": 200,
+          "at": "2026-11-05T09:13:08.069Z"
+        },
+        {
+          "id": "4715f5f7-967c-4c58-820e-9588b049f2cd",
+          "method": "POST",
+          "path": "/warranty-claims/7d38fdbb-bb3d-450e-b948-6c0a9ba365d9/verify",
+          "status": 200,
+          "at": "2026-11-05T09:13:08.097Z"
+        },
+        {
+          "id": "5bb5ff9b-56ef-4962-8e35-419a9c35fe7e",
+          "method": "POST",
+          "path": "/warranty-claims/7d38fdbb-bb3d-450e-b948-6c0a9ba365d9/verify",
+          "status": 409,
+          "at": "2026-11-05T09:13:08.227Z"
+        },
+        {
+          "id": "4e16e952-0528-4a6d-8558-6b2a09817aa0",
+          "method": "POST",
+          "path": "/warranty-claims/7d38fdbb-bb3d-450e-b948-6c0a9ba365d9/fixed",
+          "status": 200,
+          "at": "2026-11-05T09:13:08.324Z"
+        },
+        {
+          "id": "b38d9934-2487-48e9-80b0-436ab38cb511",
+          "method": "POST",
+          "path": "/warranty-claims/7d38fdbb-bb3d-450e-b948-6c0a9ba365d9/verify",
+          "status": 200,
+          "at": "2026-11-05T09:13:08.347Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/claim.test.ts",
+      "name": "the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) the answer to a claim (AC-ST-AST-004-1, UAT-AC391) is told the status of a claim in the wrong state, a version that moved, and evidence that is missing or not clean",
+      "status": "passed",
+      "durationMs": 1428,
+      "at": "2026-11-05T09:13:09.854Z",
+      "requests": [
+        {
+          "id": "cbe60195-9b68-4ecc-acc4-355ad48814ba",
+          "method": "POST",
+          "path": "/warranty-obligations/7d4cdfa2-0d93-4477-9d1a-fb5a02035d4d/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:09.315Z"
+        },
+        {
+          "id": "89ce0cf9-d2e2-462d-9b2e-b343661f91f8",
+          "method": "POST",
+          "path": "/warranty-claims/2855ee41-8a12-4d7f-b7f0-b0065732a766/fixed",
+          "status": 409,
+          "at": "2026-11-05T09:13:09.345Z"
+        },
+        {
+          "id": "182befb4-1a88-48ac-ac6e-5dbc4ca0a652",
+          "method": "POST",
+          "path": "/warranty-claims/2855ee41-8a12-4d7f-b7f0-b0065732a766/verify",
+          "status": 409,
+          "at": "2026-11-05T09:13:09.372Z"
+        },
+        {
+          "id": "b1133544-7797-443d-92df-9a1537e5b339",
+          "method": "POST",
+          "path": "/warranty-claims/2855ee41-8a12-4d7f-b7f0-b0065732a766/acknowledge",
+          "status": 409,
+          "at": "2026-11-05T09:13:09.404Z"
+        },
+        {
+          "id": "00b9e407-9882-4a4f-8c18-88a87aabf4c9",
+          "method": "POST",
+          "path": "/warranty-claims/2855ee41-8a12-4d7f-b7f0-b0065732a766/acknowledge",
+          "status": 422,
+          "at": "2026-11-05T09:13:09.435Z"
+        },
+        {
+          "id": "da05da18-fa4b-4a9d-8319-8c6640e4522f",
+          "method": "POST",
+          "path": "/warranty-claims/2855ee41-8a12-4d7f-b7f0-b0065732a766/acknowledge",
+          "status": 200,
+          "at": "2026-11-05T09:13:09.468Z"
+        },
+        {
+          "id": "77ca25d0-a5db-4f7e-8dcf-be735dd4901d",
+          "method": "POST",
+          "path": "/warranty-claims/2855ee41-8a12-4d7f-b7f0-b0065732a766/acknowledge",
+          "status": 409,
+          "at": "2026-11-05T09:13:09.501Z"
+        },
+        {
+          "id": "5fe5ec55-094c-47c6-8a46-9d78507580b2",
+          "method": "POST",
+          "path": "/warranty-claims/2855ee41-8a12-4d7f-b7f0-b0065732a766/fixed",
+          "status": 422,
+          "at": "2026-11-05T09:13:09.530Z"
+        },
+        {
+          "id": "cb58eeef-8057-4a77-9fc4-ea72ec3bd83d",
+          "method": "POST",
+          "path": "/warranty-claims/2855ee41-8a12-4d7f-b7f0-b0065732a766/fixed",
+          "status": 422,
+          "at": "2026-11-05T09:13:09.562Z"
+        },
+        {
+          "id": "31497419-acfe-40d6-b0d0-fcf183e83c7f",
+          "method": "POST",
+          "path": "/warranty-claims/2855ee41-8a12-4d7f-b7f0-b0065732a766/fixed",
+          "status": 422,
+          "at": "2026-11-05T09:13:09.595Z"
+        },
+        {
+          "id": "f0d67f8d-3b7f-452d-9797-64e16026cb79",
+          "method": "POST",
+          "path": "/warranty-claims/2855ee41-8a12-4d7f-b7f0-b0065732a766/fixed",
+          "status": 422,
+          "at": "2026-11-05T09:13:09.626Z"
+        },
+        {
+          "id": "33bd69f5-1fb9-4172-b6e0-c99652e0d1a4",
+          "method": "POST",
+          "path": "/warranty-claims/2855ee41-8a12-4d7f-b7f0-b0065732a766/fixed",
+          "status": 422,
+          "at": "2026-11-05T09:13:09.658Z"
+        },
+        {
+          "id": "b7fa9958-e64e-4984-af99-be93cd083301",
+          "method": "POST",
+          "path": "/warranty-obligations/7d4cdfa2-0d93-4477-9d1a-fb5a02035d4d/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:09.712Z"
+        },
+        {
+          "id": "02df516f-f738-4e12-810c-ecf4d5c58e37",
+          "method": "POST",
+          "path": "/warranty-claims/0b5f9c44-9ebc-4f80-a1ad-e17883767735/acknowledge",
+          "status": 200,
+          "at": "2026-11-05T09:13:09.729Z"
+        },
+        {
+          "id": "987d6f3d-938b-4738-9458-68cf8af30614",
+          "method": "POST",
+          "path": "/warranty-claims/0b5f9c44-9ebc-4f80-a1ad-e17883767735/fixed",
+          "status": 200,
+          "at": "2026-11-05T09:13:09.755Z"
+        },
+        {
+          "id": "dc2dcd05-a558-49ec-b6e5-549913abc081",
+          "method": "POST",
+          "path": "/warranty-claims/0b5f9c44-9ebc-4f80-a1ad-e17883767735/verify",
+          "status": 422,
+          "at": "2026-11-05T09:13:09.790Z"
+        },
+        {
+          "id": "72e77748-6634-4180-aeb5-e32721140ab9",
+          "method": "POST",
+          "path": "/warranty-claims/0b5f9c44-9ebc-4f80-a1ad-e17883767735/verify",
+          "status": 422,
+          "at": "2026-11-05T09:13:09.799Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/claim.test.ts",
+      "name": "the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) the answer to a claim (AC-ST-AST-004-1, UAT-AC391) does not flag a claim that was answered, nor one on a day not yet past, and flags one claim of several",
+      "status": "passed",
+      "durationMs": 1407,
+      "at": "2026-11-05T09:13:11.262Z",
+      "requests": [
+        {
+          "id": "d9c4adc8-fe91-4819-b448-0c4797fb3475",
+          "method": "POST",
+          "path": "/warranty-obligations/d23fd5d2-501c-4172-ab53-9967002f4fa7/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:10.859Z"
+        },
+        {
+          "id": "19292034-a024-4bb1-88c4-294074b0d348",
+          "method": "POST",
+          "path": "/warranty-claims/357fa0c7-69c6-4f69-b6f3-a9e7393f88fd/acknowledge",
+          "status": 200,
+          "at": "2026-11-05T09:13:10.878Z"
+        },
+        {
+          "id": "068f5d82-5223-45ce-ab10-eed71baec6ce",
+          "method": "POST",
+          "path": "/warranty-obligations/d23fd5d2-501c-4172-ab53-9967002f4fa7/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:10.910Z"
+        },
+        {
+          "id": "ac36f897-bf88-4a00-a3ff-3fc5d8fb9576",
+          "method": "POST",
+          "path": "/warranty-obligations/d23fd5d2-501c-4172-ab53-9967002f4fa7/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:10.923Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/claim.test.ts",
+      "name": "the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) who may files for the holders of the right over the contract or the receiving unit: a project seen and not served is 403, one not seen is 404",
+      "status": "passed",
+      "durationMs": 1226,
+      "at": "2026-11-05T09:13:12.489Z",
+      "requests": [
+        {
+          "id": "f49e0b0a-dfb2-4868-b9f2-5fd29953598c",
+          "method": "POST",
+          "path": "/warranty-obligations/8e47eafa-5995-4e54-8f1f-9e57ada8fab7/claims",
+          "status": 403,
+          "at": "2026-11-05T09:13:12.260Z"
+        },
+        {
+          "id": "46bb4ce1-a675-4ccd-81ac-844169cd8693",
+          "method": "POST",
+          "path": "/warranty-obligations/8e47eafa-5995-4e54-8f1f-9e57ada8fab7/claims",
+          "status": 403,
+          "at": "2026-11-05T09:13:12.276Z"
+        },
+        {
+          "id": "981fd68b-9591-45c6-8f9f-d08f3840300b",
+          "method": "POST",
+          "path": "/warranty-obligations/8e47eafa-5995-4e54-8f1f-9e57ada8fab7/claims",
+          "status": 403,
+          "at": "2026-11-05T09:13:12.292Z"
+        },
+        {
+          "id": "8ba89be4-8782-4328-9d94-85a6c94cf082",
+          "method": "POST",
+          "path": "/warranty-obligations/8e47eafa-5995-4e54-8f1f-9e57ada8fab7/claims",
+          "status": 404,
+          "at": "2026-11-05T09:13:12.321Z"
+        },
+        {
+          "id": "e567f4c4-e4ee-4375-91b5-6191dda9e80f",
+          "method": "POST",
+          "path": "/warranty-obligations/9440d0f2-37ba-43c2-9a61-f162c2870e25/claims",
+          "status": 404,
+          "at": "2026-11-05T09:13:12.355Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/claim.test.ts",
+      "name": "the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) who may lets the contractor answer for its own claims only",
+      "status": "passed",
+      "durationMs": 1864,
+      "at": "2026-11-05T09:13:14.353Z",
+      "requests": [
+        {
+          "id": "d153c39e-0df1-489a-a8b3-f9e5f9186f54",
+          "method": "POST",
+          "path": "/warranty-obligations/af85f0fd-9f64-4094-bbaa-c92687164a3b/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:13.972Z"
+        },
+        {
+          "id": "8d349772-0733-48e9-b6ae-f84d9779e0f0",
+          "method": "POST",
+          "path": "/warranty-claims/ee5075e5-cb4d-4933-b430-39ff544fafda/acknowledge",
+          "status": 403,
+          "at": "2026-11-05T09:13:13.997Z"
+        },
+        {
+          "id": "4d1511aa-951e-4853-bd11-3ab15e9d4986",
+          "method": "POST",
+          "path": "/warranty-claims/ee5075e5-cb4d-4933-b430-39ff544fafda/acknowledge",
+          "status": 403,
+          "at": "2026-11-05T09:13:14.034Z"
+        },
+        {
+          "id": "6fe3a992-33c7-45e2-977c-a37c306c7015",
+          "method": "POST",
+          "path": "/warranty-claims/ee5075e5-cb4d-4933-b430-39ff544fafda/acknowledge",
+          "status": 403,
+          "at": "2026-11-05T09:13:14.051Z"
+        },
+        {
+          "id": "99cf7b88-1cdf-4236-b362-fec3e5c50c66",
+          "method": "POST",
+          "path": "/warranty-claims/ee5075e5-cb4d-4933-b430-39ff544fafda/acknowledge",
+          "status": 404,
+          "at": "2026-11-05T09:13:14.116Z"
+        },
+        {
+          "id": "3162889a-b3f4-4762-90af-1daade99b5cf",
+          "method": "POST",
+          "path": "/warranty-claims/cd20bd87-f22b-4ac8-b4d3-a70ad6fff089/acknowledge",
+          "status": 404,
+          "at": "2026-11-05T09:13:14.192Z"
+        },
+        {
+          "id": "30ce2ee1-5075-45d3-ac5d-fb8d14de8bd2",
+          "method": "POST",
+          "path": "/warranty-claims/ee5075e5-cb4d-4933-b430-39ff544fafda/acknowledge",
+          "status": 200,
+          "at": "2026-11-05T09:13:14.302Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/claim.test.ts",
+      "name": "the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) who may does not reach the claims of another tenant",
+      "status": "passed",
+      "durationMs": 814,
+      "at": "2026-11-05T09:13:15.167Z",
+      "requests": [
+        {
+          "id": "acd9ea3c-494f-418a-90be-26341f8ce1da",
+          "method": "POST",
+          "path": "/warranty-obligations/a22cf40f-b585-44af-b0a5-47fb4348051b/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:15.071Z"
+        },
+        {
+          "id": "ea6aa8e5-dd13-4385-91af-1ec81f7364d8",
+          "method": "POST",
+          "path": "/warranty-obligations/a22cf40f-b585-44af-b0a5-47fb4348051b/claims",
+          "status": 404,
+          "at": "2026-11-05T09:13:15.095Z"
+        },
+        {
+          "id": "7b3794fe-bde2-4843-b31a-862d5e3088ac",
+          "method": "POST",
+          "path": "/warranty-claims/31dbd0ea-2986-4ae2-ab5f-9f655ce0ca3a/acknowledge",
+          "status": 404,
+          "at": "2026-11-05T09:13:15.110Z"
+        },
+        {
+          "id": "cd5fffee-a408-4025-bc0d-63e8b76682d5",
+          "method": "GET",
+          "path": "/warranty-claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:15.136Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/claim.test.ts",
+      "name": "the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) the reads lists the claims of an obligation newest first with what the caller may do, the lateness of the answer and the issue, a page at a time, and filters them by status",
+      "status": "passed",
+      "durationMs": 1115,
+      "at": "2026-11-05T09:13:16.282Z",
+      "requests": [
+        {
+          "id": "4f468709-e0c6-435b-854d-fc3897a87df9",
+          "method": "POST",
+          "path": "/warranty-obligations/4187e689-6276-4537-afcf-7617a81bc18a/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:15.853Z"
+        },
+        {
+          "id": "2591ec14-6e73-4aa7-80c1-c1c84f3b0dd9",
+          "method": "POST",
+          "path": "/warranty-obligations/4187e689-6276-4537-afcf-7617a81bc18a/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:15.880Z"
+        },
+        {
+          "id": "354c999e-446b-4592-aa4e-cad493956c1f",
+          "method": "POST",
+          "path": "/warranty-claims/50a6ce86-cbef-4244-a40b-14f486b3cd67/acknowledge",
+          "status": 200,
+          "at": "2026-11-05T09:13:15.911Z"
+        },
+        {
+          "id": "d6a5600a-40ad-4a1b-bf93-30ff9ae0020a",
+          "method": "POST",
+          "path": "/warranty-claims/50a6ce86-cbef-4244-a40b-14f486b3cd67/fixed",
+          "status": 200,
+          "at": "2026-11-05T09:13:15.956Z"
+        },
+        {
+          "id": "be4a7029-d423-4fec-a358-a1227df7d611",
+          "method": "POST",
+          "path": "/warranty-obligations/4187e689-6276-4537-afcf-7617a81bc18a/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:16.004Z"
+        },
+        {
+          "id": "7efa16f6-e0df-4f20-8b34-8afcc9878895",
+          "method": "POST",
+          "path": "/warranty-claims/b87c168f-a210-4dc5-b325-0f719fdc581a/acknowledge",
+          "status": 200,
+          "at": "2026-11-05T09:13:16.020Z"
+        },
+        {
+          "id": "b3a540b7-2617-4de6-b593-45e3cdc13394",
+          "method": "GET",
+          "path": "/warranty-claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:16.066Z"
+        },
+        {
+          "id": "77552ae2-5b78-4789-b784-6a2eb5ccb69e",
+          "method": "GET",
+          "path": "/warranty-claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:16.097Z"
+        },
+        {
+          "id": "5c358d65-9405-4f07-98a1-d46186dce3da",
+          "method": "GET",
+          "path": "/warranty-claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:16.133Z"
+        },
+        {
+          "id": "35be0b8d-4319-4a8e-a3cd-708f2a5eb3aa",
+          "method": "GET",
+          "path": "/warranty-claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:16.157Z"
+        },
+        {
+          "id": "985cbe29-4af1-4b1e-be51-78611c1c8ffe",
+          "method": "GET",
+          "path": "/warranty-claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:16.191Z"
+        },
+        {
+          "id": "1caff283-9875-444e-9264-70bc178836f9",
+          "method": "GET",
+          "path": "/warranty-claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:16.221Z"
+        },
+        {
+          "id": "57c4b6db-5134-41c4-bbd9-a6706624c5af",
+          "method": "GET",
+          "path": "/warranty-claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:16.253Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/claim.test.ts",
+      "name": "the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) the reads shows nothing of a claim outside the scope, is for the holders of the right and refuses what is badly formed",
+      "status": "passed",
+      "durationMs": 1357,
+      "at": "2026-11-05T09:13:17.640Z",
+      "requests": [
+        {
+          "id": "9a18e98f-09f5-484a-ab60-1e0ff39322de",
+          "method": "POST",
+          "path": "/warranty-obligations/b6d26125-2de8-4c84-a842-7a09f20826a5/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:17.006Z"
+        },
+        {
+          "id": "da13be44-c585-427b-abe0-424a135d98e7",
+          "method": "GET",
+          "path": "/warranty-claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:17.030Z"
+        },
+        {
+          "id": "bf17b67a-182f-4caf-ab45-2e680bb5dfeb",
+          "method": "GET",
+          "path": "/warranty-claims",
+          "status": 403,
+          "at": "2026-11-05T09:13:17.050Z"
+        },
+        {
+          "id": "c93ba317-e22a-4774-b62b-648a4b5e03d7",
+          "method": "GET",
+          "path": "/warranty-claims",
+          "status": 422,
+          "at": "2026-11-05T09:13:17.053Z"
+        },
+        {
+          "id": "cabe2cb3-f9da-42ad-aff0-56ce7f3ea9b1",
+          "method": "GET",
+          "path": "/warranty-claims",
+          "status": 422,
+          "at": "2026-11-05T09:13:17.066Z"
+        },
+        {
+          "id": "aa37b6ac-478a-4c2a-8c9e-9427c5036ddf",
+          "method": "GET",
+          "path": "/warranty-claims",
+          "status": 422,
+          "at": "2026-11-05T09:13:17.084Z"
+        },
+        {
+          "id": "e47e21ac-59de-41ed-8506-9cbfa88c61c6",
+          "method": "GET",
+          "path": "/warranty-claims",
+          "status": 422,
+          "at": "2026-11-05T09:13:17.100Z"
+        },
+        {
+          "id": "234b0edd-37ef-4499-9da7-b8f22fbbdcd8",
+          "method": "GET",
+          "path": "/warranty-claims",
+          "status": 422,
+          "at": "2026-11-05T09:13:17.114Z"
+        },
+        {
+          "id": "3c32dbec-c051-4f81-a254-1f429fa35152",
+          "method": "GET",
+          "path": "/warranty-claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:17.130Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/claim.test.ts",
+      "name": "the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) the reads lists the warranties that end within the days asked, the soonest first, and not the ones that ended, are closed or are further off",
+      "status": "passed",
+      "durationMs": 5088,
+      "at": "2026-11-05T09:13:22.728Z",
+      "requests": [
+        {
+          "id": "d19f3ffa-e705-449d-ad21-96ee3a4b9ebb",
+          "method": "GET",
+          "path": "/warranty-obligations/expiring",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.488Z"
+        },
+        {
+          "id": "d679953d-fce3-48a2-8ec3-29e0c57a4b76",
+          "method": "GET",
+          "path": "/warranty-obligations/expiring",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.508Z"
+        },
+        {
+          "id": "53438433-eb20-419a-a226-4ce65d633159",
+          "method": "GET",
+          "path": "/warranty-obligations/expiring",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.523Z"
+        },
+        {
+          "id": "7da903bd-0d7b-427c-8c23-e875d72f6bca",
+          "method": "GET",
+          "path": "/warranty-obligations/expiring",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.554Z"
+        },
+        {
+          "id": "3b9f9eeb-1035-4962-a895-d36971351339",
+          "method": "GET",
+          "path": "/warranty-obligations/expiring",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.579Z"
+        },
+        {
+          "id": "e9ee774c-89dd-4714-acb1-74eab8efa802",
+          "method": "GET",
+          "path": "/warranty-obligations/expiring",
+          "status": 403,
+          "at": "2026-11-05T09:13:22.597Z"
+        },
+        {
+          "id": "70997d5e-1649-4f98-9761-f15185a3c161",
+          "method": "GET",
+          "path": "/warranty-obligations/expiring",
+          "status": 200,
+          "at": "2026-11-05T09:13:22.615Z"
+        },
+        {
+          "id": "e452dac9-e955-43db-8cb5-665c239750fd",
+          "method": "GET",
+          "path": "/warranty-obligations/expiring",
+          "status": 422,
+          "at": "2026-11-05T09:13:22.643Z"
+        },
+        {
+          "id": "9b389776-9a89-4012-a71a-5d3be4fde843",
+          "method": "GET",
+          "path": "/warranty-obligations/expiring",
+          "status": 422,
+          "at": "2026-11-05T09:13:22.648Z"
+        },
+        {
+          "id": "754ffe34-34a5-47d9-82ad-b8e620c4d30c",
+          "method": "GET",
+          "path": "/warranty-obligations/expiring",
+          "status": 422,
+          "at": "2026-11-05T09:13:22.664Z"
+        },
+        {
+          "id": "00f88c26-031e-49f3-8885-bf91c6e1e672",
+          "method": "GET",
+          "path": "/warranty-obligations/expiring",
+          "status": 422,
+          "at": "2026-11-05T09:13:22.680Z"
+        },
+        {
+          "id": "41c57438-5ee3-4159-8da5-c645ceedf418",
+          "method": "GET",
+          "path": "/warranty-obligations/expiring",
+          "status": 422,
+          "at": "2026-11-05T09:13:22.697Z"
+        },
+        {
+          "id": "772e8e1a-0fd8-4fde-aa27-99aa35997d70",
+          "method": "GET",
+          "path": "/warranty-obligations/expiring",
+          "status": 422,
+          "at": "2026-11-05T09:13:22.711Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/claim.test.ts",
+      "name": "the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) is kept by the database as well does not let what a claim says change, its status skip a step, what the answer records change, nor the verifier be the reporter or the contractor",
+      "status": "passed",
+      "durationMs": 1489,
+      "at": "2026-11-05T09:13:24.217Z",
+      "requests": [
+        {
+          "id": "21f42dd8-1a3d-4d68-bc3a-8dfd185f7981",
+          "method": "POST",
+          "path": "/warranty-obligations/45fac15b-ad85-4d02-89b1-de12104f9d5e/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:23.443Z"
+        },
+        {
+          "id": "fabdd603-76fb-4850-8b42-3395c5f5d335",
+          "method": "POST",
+          "path": "/warranty-claims/ec664424-4c7f-4cbc-8043-f42f39525a11/acknowledge",
+          "status": 200,
+          "at": "2026-11-05T09:13:23.471Z"
+        },
+        {
+          "id": "efdd1222-9488-4516-99c4-3d6aebc9b66c",
+          "method": "POST",
+          "path": "/warranty-claims/ec664424-4c7f-4cbc-8043-f42f39525a11/fixed",
+          "status": 200,
+          "at": "2026-11-05T09:13:23.573Z"
+        },
+        {
+          "id": "5720d2ca-62e6-46d1-b188-27e1656442bb",
+          "method": "POST",
+          "path": "/warranty-obligations/45fac15b-ad85-4d02-89b1-de12104f9d5e/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:23.991Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/ast/claim.test.ts",
+      "name": "the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) is kept by the database as well writes the issue opened for a late answer and the time it was escalated once, and is never deleted by the application",
+      "status": "passed",
+      "durationMs": 977,
+      "at": "2026-11-05T09:13:25.194Z",
+      "requests": [
+        {
+          "id": "b2116c01-53eb-44ee-907a-c0ea92f9c1a5",
+          "method": "POST",
+          "path": "/warranty-obligations/4ce635f6-c6b4-462e-9e15-6389a4b37bc5/claims",
+          "status": 200,
+          "at": "2026-11-05T09:13:24.954Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/iss/iss-intake.test.ts",
+      "name": "the intake of automatic issues from the events of PMT, PAY, LND, CTR and AST (ST-ISS-005, ISS-11) AC-ST-AST-004-1, UAT-AC391: a warranty claim nobody answered by its day opens one issue attributed to AST, the claim keeps it, and a second pass or a second event changes nothing",
+      "status": "passed",
+      "durationMs": 550,
+      "at": "2026-11-05T09:21:08.064Z",
+      "requests": []
+    }
+  ]
+}

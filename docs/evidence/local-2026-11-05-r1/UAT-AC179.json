@@ -1,0 +1,27 @@
+{
+  "id": "UAT-AC179",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/push.test.ts",
+      "name": "the push channels (ST-NOT-007, NOT 9) a push to the devices of the recipient AC-ST-NOT-007-1 UAT-AC179, AC-ST-MOB-031-1: the token of the owner device is one the provider no longer knows: it is revoked with its token and the next device in line, now the owner, is served in the same send",
+      "status": "passed",
+      "durationMs": 343,
+      "at": "2026-11-05T09:21:39.411Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/notifications/push.test.ts",
+      "name": "the push channels (ST-NOT-007, NOT 9) a push to the devices of the recipient AC-ST-NOT-007-1 UAT-AC179: when every device of the person is unknown to the provider the attempt fails for good, with the code of the provider",
+      "status": "passed",
+      "durationMs": 217,
+      "at": "2026-11-05T09:21:39.628Z",
+      "requests": []
+    }
+  ]
+}

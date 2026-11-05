@@ -1,0 +1,47 @@
+{
+  "id": "UAT-AC175",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/theme.test.ts",
+      "name": "tenant themes over HTTP (ST-SAS-005) review and publish answers VERSION_CONFLICT for a base version that is not the published one, and REVIEW_INVALID for the expired review (UAT-AC175, AC-ST-SAS-005-6)",
+      "status": "passed",
+      "durationMs": 221,
+      "at": "2026-11-05T09:16:30.437Z",
+      "requests": [
+        {
+          "id": "e9538379-4a3f-486e-84dd-ae48eb3c870d",
+          "method": "PUT",
+          "path": "/system/tenants/86e42a91-da6d-4447-9235-5e6afee01109/theme/draft",
+          "status": 200,
+          "at": "2026-11-05T09:16:30.337Z"
+        },
+        {
+          "id": "f1e4905c-c7a9-47aa-84ed-0353555c1314",
+          "method": "POST",
+          "path": "/system/tenants/86e42a91-da6d-4447-9235-5e6afee01109/theme/reviews",
+          "status": 409,
+          "at": "2026-11-05T09:16:30.352Z"
+        },
+        {
+          "id": "17d79e7e-2106-4546-90fc-4a4b1c607783",
+          "method": "POST",
+          "path": "/system/tenants/86e42a91-da6d-4447-9235-5e6afee01109/theme/reviews",
+          "status": 200,
+          "at": "2026-11-05T09:16:30.365Z"
+        },
+        {
+          "id": "74afbbbc-2372-4959-a54d-689e3ee9bd73",
+          "method": "POST",
+          "path": "/system/tenants/86e42a91-da6d-4447-9235-5e6afee01109/theme/publish",
+          "status": 409,
+          "at": "2026-11-05T09:16:30.382Z"
+        }
+      ]
+    }
+  ]
+}

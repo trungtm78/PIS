@@ -1,0 +1,18 @@
+{
+  "id": "UAT-PLAN-01",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/cap/payment-ledger-consumer.test.ts",
+      "name": "the consumer of the payment events on the capital ledger (ST-CAP-006) posts the sending, the payment and the reversal of one request, once each however often the events are delivered (UAT-PLAN-01)",
+      "status": "passed",
+      "durationMs": 1871,
+      "at": "2026-11-05T09:22:15.778Z",
+      "requests": []
+    }
+  ]
+}

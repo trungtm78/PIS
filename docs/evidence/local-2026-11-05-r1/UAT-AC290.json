@@ -1,0 +1,89 @@
+{
+  "id": "UAT-AC290",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/mne/mne-export.test.ts",
+      "name": "the export package and the receipt of the filing (ST-MNE-004, MNE-06) AC-ST-MNE-004-1: the packages and the receipt UAT-AC290: makes an XLSX and a PDF package labelled with the adapter, calls nothing outside, refuses a receipt without its reference, then files the report",
+      "status": "passed",
+      "durationMs": 1330,
+      "at": "2026-11-05T09:15:04.129Z",
+      "requests": [
+        {
+          "id": "e79128f5-4bb4-4c71-ad3c-445685668195",
+          "method": "POST",
+          "path": "/mne-forms",
+          "status": 200,
+          "at": "2026-11-05T09:15:02.843Z"
+        },
+        {
+          "id": "9b74a4b9-ee46-4839-8cb6-27344f2d06ed",
+          "method": "POST",
+          "path": "/mne-forms/fb71fb9d-4c33-406b-9921-315621cceb23/publish",
+          "status": 200,
+          "at": "2026-11-05T09:15:02.885Z"
+        },
+        {
+          "id": "fd569050-db19-42d7-a5f2-40ee0327087a",
+          "method": "POST",
+          "path": "/mne-reports",
+          "status": 200,
+          "at": "2026-11-05T09:15:03.015Z"
+        },
+        {
+          "id": "a2cc4f68-e573-44cf-9ae4-408b42e2ffa3",
+          "method": "POST",
+          "path": "/mne-reports/b426de4b-58de-4ec8-ac9f-c60bb6dd6d0a/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:15:03.050Z"
+        },
+        {
+          "id": "08a345bb-4c4e-400a-be43-f5067f7ef445",
+          "method": "POST",
+          "path": "/mne-reports/b426de4b-58de-4ec8-ac9f-c60bb6dd6d0a/submit",
+          "status": 200,
+          "at": "2026-11-05T09:15:03.074Z"
+        },
+        {
+          "id": "fc70d521-7458-44fc-95b9-fe5be9e47230",
+          "method": "POST",
+          "path": "/mne-reports/b426de4b-58de-4ec8-ac9f-c60bb6dd6d0a/decision",
+          "status": 200,
+          "at": "2026-11-05T09:15:03.146Z"
+        },
+        {
+          "id": "539c91bd-37db-4731-9fb2-7359b29c9ffe",
+          "method": "POST",
+          "path": "/mne-reports/b426de4b-58de-4ec8-ac9f-c60bb6dd6d0a/issue-requests",
+          "status": 200,
+          "at": "2026-11-05T09:15:03.238Z"
+        },
+        {
+          "id": "3264af99-31bf-4ced-aba5-d6ab6a008b97",
+          "method": "POST",
+          "path": "/mne-reports/b426de4b-58de-4ec8-ac9f-c60bb6dd6d0a/export-packages",
+          "status": 200,
+          "at": "2026-11-05T09:15:03.401Z"
+        },
+        {
+          "id": "c1f5c362-98db-436b-9ebe-b93365e8fea3",
+          "method": "POST",
+          "path": "/mne-export-packages/70538211-b8e2-4b46-b1a0-fc9b79dee2af/submission-receipt",
+          "status": 422,
+          "at": "2026-11-05T09:15:03.761Z"
+        },
+        {
+          "id": "4080c9b4-a5f4-47e1-be6a-252f52322f82",
+          "method": "POST",
+          "path": "/mne-export-packages/662ab9c3-afae-4a18-9a5a-7cff89035e14/submission-receipt",
+          "status": 200,
+          "at": "2026-11-05T09:15:03.896Z"
+        }
+      ]
+    }
+  ]
+}

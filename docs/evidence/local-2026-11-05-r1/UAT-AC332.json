@@ -1,0 +1,288 @@
+{
+  "id": "UAT-AC332",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/pay/payment-claim.test.ts",
+      "name": "sending, checking and returning a payment request over HTTP (ST-PAY-003) AC-ST-PAY-003-5, UAT-AC332: the one who drew a request up or sent it does not check it; another with the right does, and the checking is audited",
+      "status": "passed",
+      "durationMs": 1845,
+      "at": "2026-11-05T09:18:29.049Z",
+      "requests": [
+        {
+          "id": "b19264a3-a644-490e-9bc8-fe24fee6a83a",
+          "method": "POST",
+          "path": "/payment-requests",
+          "status": 200,
+          "at": "2026-11-05T09:18:27.630Z"
+        },
+        {
+          "id": "50a98ec8-9de5-4fec-8b23-a2722c09c161",
+          "method": "POST",
+          "path": "/payment-requests/335bc212-a8d0-445d-8d61-0af60a3cef08/documents",
+          "status": 200,
+          "at": "2026-11-05T09:18:27.769Z"
+        },
+        {
+          "id": "52dce55a-fffe-41b8-8bab-9a6a5f6f6d45",
+          "method": "POST",
+          "path": "/payment-requests/335bc212-a8d0-445d-8d61-0af60a3cef08/submit",
+          "status": 200,
+          "at": "2026-11-05T09:18:27.829Z"
+        },
+        {
+          "id": "b067c467-acc4-4d10-b0c0-280c538b3083",
+          "method": "POST",
+          "path": "/payment-requests/335bc212-a8d0-445d-8d61-0af60a3cef08/verify",
+          "status": 403,
+          "at": "2026-11-05T09:18:27.927Z"
+        },
+        {
+          "id": "7b1e0e13-87cb-4b24-bf0c-b3daa74f3449",
+          "method": "POST",
+          "path": "/payment-requests",
+          "status": 200,
+          "at": "2026-11-05T09:18:28.363Z"
+        },
+        {
+          "id": "990ee660-d1dc-4a2e-a57a-1dbd2c2d86c8",
+          "method": "POST",
+          "path": "/payment-requests/42bc6077-2931-47a4-926c-2d1d683ee108/documents",
+          "status": 200,
+          "at": "2026-11-05T09:18:28.484Z"
+        },
+        {
+          "id": "84299c84-35ba-4d97-aa09-f4d30d1d6e2d",
+          "method": "POST",
+          "path": "/payment-requests/42bc6077-2931-47a4-926c-2d1d683ee108/submit",
+          "status": 200,
+          "at": "2026-11-05T09:18:28.547Z"
+        },
+        {
+          "id": "bcc4f80d-125a-4d6f-9e25-82d3fe30b7a6",
+          "method": "POST",
+          "path": "/payment-requests/42bc6077-2931-47a4-926c-2d1d683ee108/verify",
+          "status": 403,
+          "at": "2026-11-05T09:18:28.639Z"
+        },
+        {
+          "id": "ef0cbd59-c6b7-465a-9a1a-4a9d109a0738",
+          "method": "POST",
+          "path": "/payment-requests/42bc6077-2931-47a4-926c-2d1d683ee108/verify",
+          "status": 403,
+          "at": "2026-11-05T09:18:28.700Z"
+        },
+        {
+          "id": "5c6985de-9908-46d1-8d01-320f72988819",
+          "method": "POST",
+          "path": "/payment-requests/42bc6077-2931-47a4-926c-2d1d683ee108/verify",
+          "status": 200,
+          "at": "2026-11-05T09:18:28.798Z"
+        },
+        {
+          "id": "74104cc4-c151-41b4-8a8a-b5eba346dd81",
+          "method": "POST",
+          "path": "/payment-requests/335bc212-a8d0-445d-8d61-0af60a3cef08/verify",
+          "status": 200,
+          "at": "2026-11-05T09:18:28.865Z"
+        },
+        {
+          "id": "fd616caf-e4cf-4d03-ab8e-ddfea2b7142e",
+          "method": "POST",
+          "path": "/payment-requests/335bc212-a8d0-445d-8d61-0af60a3cef08/verify",
+          "status": 409,
+          "at": "2026-11-05T09:18:29.011Z"
+        },
+        {
+          "id": "4ae91fd8-11e6-496c-8d51-f6a0fcfc465f",
+          "method": "GET",
+          "path": "/resources/payment_request/335bc212-a8d0-445d-8d61-0af60a3cef08",
+          "status": 200,
+          "at": "2026-11-05T09:18:29.032Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/pay-payment-flows.spec.ts",
+      "name": "the accountant sends a request, another request for the same acceptance is turned away, the approver checks it and gives it back, and the ledger follows (UI-PAY-03, AC-ST-PAY-003-1, AC-ST-PAY-003-3, AC-ST-PAY-003-5, UAT-AC320, UAT-AC322, UAT-AC332)",
+      "status": "passed",
+      "durationMs": 3133,
+      "at": "2026-11-05T09:28:28.543Z",
+      "requests": [
+        {
+          "id": "48d6da7e-2405-4740-a25d-5737bdd8f3c1",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.092Z"
+        },
+        {
+          "id": "1cdd1290-ee2e-439c-97fd-452b702656ef",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.092Z"
+        },
+        {
+          "id": "4f928e6d-dc23-48b4-8baa-3ec94dece84f",
+          "method": "GET",
+          "path": "/resources/allocation_line",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.093Z"
+        },
+        {
+          "id": "731e2594-9f10-47ea-a37d-6df67c41daeb",
+          "method": "POST",
+          "path": "/payment-requests",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.231Z"
+        },
+        {
+          "id": "b34250b9-3ebf-4e9e-aed7-269403dba759",
+          "method": "GET",
+          "path": "/resources/payment_request/72003b73-753a-4c2e-8937-93533a6cbe31",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.317Z"
+        },
+        {
+          "id": "6571e39b-ed06-46b9-9a30-ca031acd5a00",
+          "method": "POST",
+          "path": "/payment-requests/72003b73-753a-4c2e-8937-93533a6cbe31/documents",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.426Z"
+        },
+        {
+          "id": "0a554154-9731-4aaf-bf80-69e68c81703d",
+          "method": "GET",
+          "path": "/resources/payment_request/72003b73-753a-4c2e-8937-93533a6cbe31",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.443Z"
+        },
+        {
+          "id": "ead367cf-55f4-439e-a9fc-49af78eb1b50",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.637Z"
+        },
+        {
+          "id": "54cbea99-febc-4928-bc04-7611320d6b48",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.638Z"
+        },
+        {
+          "id": "df6db28e-5193-4389-ac26-cb243915e80f",
+          "method": "GET",
+          "path": "/resources/allocation_line",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.639Z"
+        },
+        {
+          "id": "2fae9362-0da7-49bb-ba39-0894212553ff",
+          "method": "POST",
+          "path": "/payment-requests",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.745Z"
+        },
+        {
+          "id": "4c929450-b9a6-4795-911a-5e56996401c0",
+          "method": "GET",
+          "path": "/resources/payment_request/10dd4e9d-233f-4c78-8383-a68d9a6cc0e0",
+          "status": 200,
+          "at": "2026-11-05T09:28:29.884Z"
+        },
+        {
+          "id": "a36eb894-37e5-4b26-8c2d-3bcdb181d68d",
+          "method": "POST",
+          "path": "/payment-requests/10dd4e9d-233f-4c78-8383-a68d9a6cc0e0/documents",
+          "status": 200,
+          "at": "2026-11-05T09:28:30.042Z"
+        },
+        {
+          "id": "800309ad-d7c3-4799-9735-d6de2488d6ae",
+          "method": "GET",
+          "path": "/resources/payment_request/10dd4e9d-233f-4c78-8383-a68d9a6cc0e0",
+          "status": 200,
+          "at": "2026-11-05T09:28:30.061Z"
+        },
+        {
+          "id": "79dbdb1b-5961-46dd-9c04-c8e473df8303",
+          "method": "GET",
+          "path": "/resources/payment_request/72003b73-753a-4c2e-8937-93533a6cbe31",
+          "status": 200,
+          "at": "2026-11-05T09:28:30.241Z"
+        },
+        {
+          "id": "0c6809bf-a9cb-4e18-97a8-c56580667f08",
+          "method": "POST",
+          "path": "/payment-requests/72003b73-753a-4c2e-8937-93533a6cbe31/submit",
+          "status": 200,
+          "at": "2026-11-05T09:28:30.375Z"
+        },
+        {
+          "id": "34659fe4-0859-4455-8533-0b31783d5fa6",
+          "method": "GET",
+          "path": "/resources/payment_request/72003b73-753a-4c2e-8937-93533a6cbe31",
+          "status": 200,
+          "at": "2026-11-05T09:28:30.431Z"
+        },
+        {
+          "id": "4c1e3322-c26e-4a79-8108-70b188da1781",
+          "method": "GET",
+          "path": "/resources/payment_request/10dd4e9d-233f-4c78-8383-a68d9a6cc0e0",
+          "status": 200,
+          "at": "2026-11-05T09:28:30.823Z"
+        },
+        {
+          "id": "78fa6cee-c1be-4db7-968e-96854cd2bf61",
+          "method": "POST",
+          "path": "/payment-requests/10dd4e9d-233f-4c78-8383-a68d9a6cc0e0/submit",
+          "status": 409,
+          "at": "2026-11-05T09:28:30.942Z"
+        },
+        {
+          "id": "d00288b6-ba83-4117-a925-6353989f1060",
+          "method": "GET",
+          "path": "/resources/payment_request/72003b73-753a-4c2e-8937-93533a6cbe31",
+          "status": 200,
+          "at": "2026-11-05T09:28:31.177Z"
+        },
+        {
+          "id": "14baf4df-ff24-4715-9b05-a56cb64ee5ce",
+          "method": "POST",
+          "path": "/payment-requests/72003b73-753a-4c2e-8937-93533a6cbe31/verify",
+          "status": 200,
+          "at": "2026-11-05T09:28:31.309Z"
+        },
+        {
+          "id": "052d01ba-ef0b-4e70-b8e8-581dd5870f23",
+          "method": "GET",
+          "path": "/resources/payment_request/72003b73-753a-4c2e-8937-93533a6cbe31",
+          "status": 200,
+          "at": "2026-11-05T09:28:31.328Z"
+        },
+        {
+          "id": "c810e9fd-d3b5-4bb7-81fb-b8f5d175f0ee",
+          "method": "POST",
+          "path": "/payment-requests/72003b73-753a-4c2e-8937-93533a6cbe31/return",
+          "status": 200,
+          "at": "2026-11-05T09:28:31.426Z"
+        },
+        {
+          "id": "5887b713-5ba2-4ad2-82ff-6ba17841ca02",
+          "method": "GET",
+          "path": "/resources/payment_request/72003b73-753a-4c2e-8937-93533a6cbe31",
+          "status": 200,
+          "at": "2026-11-05T09:28:31.464Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "id": "UAT-PLAN-67",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports AC-ST-DIS-003-3 / UAT-PLAN-67: a second draft of the project in the period is 409 DRAFT_EXISTS with the first, and no second draft is written",
+      "status": "passed",
+      "durationMs": 391,
+      "at": "2026-11-05T09:15:59.559Z",
+      "requests": [
+        {
+          "id": "994e5c7c-da34-402b-b910-3e9a21d151ea",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:15:59.211Z"
+        },
+        {
+          "id": "84aafe3c-8fb2-431d-bb2d-4989927318b7",
+          "method": "POST",
+          "path": "/reports",
+          "status": 409,
+          "at": "2026-11-05T09:15:59.232Z"
+        },
+        {
+          "id": "e49adf7c-f2cf-4756-be74-5539fd5aff70",
+          "method": "POST",
+          "path": "/reports",
+          "status": 409,
+          "at": "2026-11-05T09:15:59.542Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/dis-report-flows.spec.ts",
+      "name": "a second draft of the same project and week is refused, with a way to the first (AC-ST-DIS-003-3, UAT-PLAN-67)",
+      "status": "passed",
+      "durationMs": 635,
+      "at": "2026-11-05T08:46:41.701Z",
+      "requests": [
+        {
+          "id": "40db0399-a106-4790-856c-815874999f43",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:42.108Z"
+        },
+        {
+          "id": "fd65607c-6b74-43f2-8b8a-d3be05e6a6c6",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:46:42.109Z"
+        },
+        {
+          "id": "42f0b53b-0347-4521-86f1-f640c3928118",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:42.148Z"
+        },
+        {
+          "id": "f859fe60-50a1-4715-8d7a-e3af0da797b5",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-05T08:46:42.149Z"
+        },
+        {
+          "id": "5adf4b6e-f349-4549-9413-58c779cd1947",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-05T08:46:42.163Z"
+        },
+        {
+          "id": "bfd8aafb-ab87-440d-8468-c3593b459a6c",
+          "method": "POST",
+          "path": "/reports",
+          "status": 409,
+          "at": "2026-11-05T08:46:42.247Z"
+        }
+      ]
+    }
+  ]
+}

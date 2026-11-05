@@ -1,0 +1,239 @@
+{
+  "id": "UI-PAY-01",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/pay-payment-flows.spec.ts",
+      "name": "the accountant draws a request up, gives it an invoice, meets a duplicate invoice, an approver lets it through, and the valuation shows how the amount is made up (UI-PAY-01, UI-PAY-02, UI-PAY-03, UI-CTR-13, AC-ST-PAY-002-1, AC-ST-PAY-002-4, UAT-AC323, UAT-AC60)",
+      "status": "passed",
+      "durationMs": 3654,
+      "at": "2026-11-05T09:28:23.090Z",
+      "requests": [
+        {
+          "id": "a227d787-637c-4337-a80a-46224e41cb77",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T09:28:24.356Z"
+        },
+        {
+          "id": "1e563bf4-3291-4560-94a4-94aca0892be5",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T09:28:24.361Z"
+        },
+        {
+          "id": "f086c6cd-4ede-4f5a-8da4-8ee981f1dd31",
+          "method": "GET",
+          "path": "/resources/allocation_line",
+          "status": 200,
+          "at": "2026-11-05T09:28:24.364Z"
+        },
+        {
+          "id": "0d37a530-aea1-4c93-85cd-d86ed4219cf9",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T09:28:24.652Z"
+        },
+        {
+          "id": "f28bf3b7-6aa8-4aef-956f-60747e550e1b",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T09:28:24.652Z"
+        },
+        {
+          "id": "20aeb3a3-b3c4-49da-aab3-ba53c9aff340",
+          "method": "GET",
+          "path": "/resources/allocation_line",
+          "status": 200,
+          "at": "2026-11-05T09:28:24.653Z"
+        },
+        {
+          "id": "7344517c-3d27-483b-ab0b-b52f3706af05",
+          "method": "POST",
+          "path": "/payment-requests",
+          "status": 200,
+          "at": "2026-11-05T09:28:24.799Z"
+        },
+        {
+          "id": "08bb90cf-651d-4029-8326-beaa67f9a8fa",
+          "method": "GET",
+          "path": "/resources/payment_request/75e4f1a3-213c-4c9e-bfbf-437ecda6ef2e",
+          "status": 200,
+          "at": "2026-11-05T09:28:25.167Z"
+        },
+        {
+          "id": "9c39f31d-9b2b-4d88-b183-b60a5158ff82",
+          "method": "POST",
+          "path": "/payment-requests/75e4f1a3-213c-4c9e-bfbf-437ecda6ef2e/documents",
+          "status": 200,
+          "at": "2026-11-05T09:28:25.313Z"
+        },
+        {
+          "id": "f7575c6d-d1ae-4de8-908e-5a74041f843b",
+          "method": "GET",
+          "path": "/resources/payment_request/75e4f1a3-213c-4c9e-bfbf-437ecda6ef2e",
+          "status": 200,
+          "at": "2026-11-05T09:28:25.333Z"
+        },
+        {
+          "id": "c0397f69-74f3-4e46-bf93-4ff5e2e08abd",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T09:28:25.518Z"
+        },
+        {
+          "id": "df602d7a-1d7f-4ca4-a11f-4cc0fd64fa93",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T09:28:25.519Z"
+        },
+        {
+          "id": "1ecd6185-eefe-4ec1-9e3a-430ac08b34c2",
+          "method": "GET",
+          "path": "/resources/allocation_line",
+          "status": 200,
+          "at": "2026-11-05T09:28:25.519Z"
+        },
+        {
+          "id": "771eab7b-541c-41d2-b6d3-d19dc468d9d2",
+          "method": "POST",
+          "path": "/payment-requests",
+          "status": 200,
+          "at": "2026-11-05T09:28:25.647Z"
+        },
+        {
+          "id": "f5356a01-faae-4452-8747-ed740f94bebf",
+          "method": "GET",
+          "path": "/resources/payment_request/c01c3761-ae8b-406b-b1b4-cc73ac9a0fba",
+          "status": 200,
+          "at": "2026-11-05T09:28:25.782Z"
+        },
+        {
+          "id": "ecf1d514-290a-407d-8730-60569bc94a8c",
+          "method": "POST",
+          "path": "/payment-requests/c01c3761-ae8b-406b-b1b4-cc73ac9a0fba/documents",
+          "status": 409,
+          "at": "2026-11-05T09:28:25.910Z"
+        },
+        {
+          "id": "261b32c7-324a-4976-a4a7-952a83437e39",
+          "method": "GET",
+          "path": "/resources/payment_request/c01c3761-ae8b-406b-b1b4-cc73ac9a0fba",
+          "status": 200,
+          "at": "2026-11-05T09:28:26.177Z"
+        },
+        {
+          "id": "a997959c-d1ad-424a-9685-5452372ded9b",
+          "method": "POST",
+          "path": "/payment-requests/c01c3761-ae8b-406b-b1b4-cc73ac9a0fba/documents",
+          "status": 200,
+          "at": "2026-11-05T09:28:26.362Z"
+        },
+        {
+          "id": "cd8a227c-4fd8-4fe4-9fe6-c99d43717b47",
+          "method": "GET",
+          "path": "/resources/payment_request/c01c3761-ae8b-406b-b1b4-cc73ac9a0fba",
+          "status": 200,
+          "at": "2026-11-05T09:28:26.387Z"
+        },
+        {
+          "id": "1c75d2f1-1f14-4062-b8f3-3aa151ef813d",
+          "method": "GET",
+          "path": "/resources/payment_request/75e4f1a3-213c-4c9e-bfbf-437ecda6ef2e",
+          "status": 200,
+          "at": "2026-11-05T09:28:26.653Z"
+        }
+      ]
+    },
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/pay-payment-flows.spec.ts",
+      "name": "a reader sees the requests and their detail and no command; a person without the right to draw up is told so (UI-PAY-01)",
+      "status": "passed",
+      "durationMs": 1247,
+      "at": "2026-11-05T09:28:27.288Z",
+      "requests": [
+        {
+          "id": "feaf9287-2756-4014-8dad-c47b415920f4",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 200,
+          "at": "2026-11-05T09:28:27.856Z"
+        },
+        {
+          "id": "1dc3c289-22ee-484c-b4c2-2ca4073a8307",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 200,
+          "at": "2026-11-05T09:28:27.856Z"
+        },
+        {
+          "id": "9fcdd4ed-21f9-4bcb-ba84-109546f1f378",
+          "method": "GET",
+          "path": "/resources/allocation_line",
+          "status": 200,
+          "at": "2026-11-05T09:28:27.857Z"
+        },
+        {
+          "id": "85b0eacd-2768-4a5c-a0f2-fdee796eb800",
+          "method": "POST",
+          "path": "/payment-requests",
+          "status": 200,
+          "at": "2026-11-05T09:28:27.998Z"
+        },
+        {
+          "id": "fc86c894-5a46-41ff-b0b5-232117fc6cdc",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 403,
+          "at": "2026-11-05T09:28:28.235Z"
+        },
+        {
+          "id": "9f4a99be-e47d-4de0-a2fd-a3c14a92c658",
+          "method": "GET",
+          "path": "/resources/payment_request",
+          "status": 200,
+          "at": "2026-11-05T09:28:28.234Z"
+        },
+        {
+          "id": "823549f7-fe38-4fe2-af18-abb636451eac",
+          "method": "GET",
+          "path": "/resources/payment_request/67f4526b-8445-4618-87b6-0b97be0def4e",
+          "status": 200,
+          "at": "2026-11-05T09:28:28.359Z"
+        },
+        {
+          "id": "cdb54b9d-b99a-4fc2-ac3f-77e211b33d60",
+          "method": "GET",
+          "path": "/resources/contract",
+          "status": 403,
+          "at": "2026-11-05T09:28:28.511Z"
+        },
+        {
+          "id": "a3a20ad7-6c92-4c15-8971-139e31a18471",
+          "method": "GET",
+          "path": "/resources/allocation_line",
+          "status": 403,
+          "at": "2026-11-05T09:28:28.512Z"
+        },
+        {
+          "id": "ab8f7c40-43e2-4134-8960-fb62fd2f2a1b",
+          "method": "GET",
+          "path": "/resources/acceptance",
+          "status": 403,
+          "at": "2026-11-05T09:28:28.512Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,720 @@
+{
+  "id": "UAT-AC462",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-reconcile.test.ts",
+      "name": "the reconciliation of the invoice of a provider with the attempts (ST-LLM-008, LLM.md F3, UAT-AC462) is registered in the module of LLM",
+      "status": "passed",
+      "durationMs": 62,
+      "at": "2026-11-05T09:17:47.764Z",
+      "requests": []
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-reconcile.test.ts",
+      "name": "the reconciliation of the invoice of a provider with the attempts (ST-LLM-008, LLM.md F3, UAT-AC462) UAT-AC462: a variance of 60,000 that lists the 3 attempts waiting for usage and edits no cost, then RECONCILED within the tolerance once the late usage of 52,000 arrived, with the 3 reservations settled",
+      "status": "passed",
+      "durationMs": 2475,
+      "at": "2026-11-05T09:17:50.239Z",
+      "requests": [
+        {
+          "id": "ff48c6e8-e46f-4037-8141-9e6ad09ddcd3",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:17:47.817Z"
+        },
+        {
+          "id": "4bd348e4-b719-4d7f-b73c-202f888421fd",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:47.895Z"
+        },
+        {
+          "id": "1bc62cea-5dcd-4c12-abae-b7aaf0d08683",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:17:47.949Z"
+        },
+        {
+          "id": "6148d88e-d88e-4a69-84b0-e85313c68fee",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:48.989Z"
+        },
+        {
+          "id": "307f477e-7e78-4b76-9e6a-e9db91a3a7df",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:49.589Z"
+        },
+        {
+          "id": "c5f8fa54-6551-4485-8fb8-67a7bde12e91",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:50.080Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-reconcile.test.ts",
+      "name": "the reconciliation of the invoice of a provider with the attempts (ST-LLM-008, LLM.md F3, UAT-AC462) keeps a variance that has not enough late usage as a variance, with the attempts that still wait, and the owner of the first run",
+      "status": "passed",
+      "durationMs": 427,
+      "at": "2026-11-05T09:17:50.666Z",
+      "requests": [
+        {
+          "id": "18d94c60-1515-433d-a33e-1bbe6ef722a5",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:17:50.395Z"
+        },
+        {
+          "id": "c0cad317-8686-474f-897f-aeb911ed1b85",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:50.416Z"
+        },
+        {
+          "id": "d041cd5d-fe23-49af-92d6-3db39264cb7e",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:17:50.476Z"
+        },
+        {
+          "id": "8484e745-a1a8-4ea3-a394-eec725c30084",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:50.621Z"
+        },
+        {
+          "id": "674449f5-1cf7-418c-a18c-47ea49a5af75",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:50.643Z"
+        },
+        {
+          "id": "49d3e366-cd3c-41e5-8f0d-52066c4059ad",
+          "method": "GET",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:50.655Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-reconcile.test.ts",
+      "name": "the reconciliation of the invoice of a provider with the attempts (ST-LLM-008, LLM.md F3, UAT-AC462) judges the tolerance exactly: 0.5 percent of the invoice is inside it, one cent more is not, above and below the attempts",
+      "status": "passed",
+      "durationMs": 455,
+      "at": "2026-11-05T09:17:51.121Z",
+      "requests": [
+        {
+          "id": "ea0bd891-2e13-4362-8b41-de2cf0dfdd76",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:17:50.721Z"
+        },
+        {
+          "id": "a4702847-915f-486a-b6b7-0f3959893bc6",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:50.728Z"
+        },
+        {
+          "id": "6a4847db-2418-4784-a726-2a237cb838c9",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:17:50.773Z"
+        },
+        {
+          "id": "0ff5f1ed-a832-4fda-9296-7881b4608c6c",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:17:50.798Z"
+        },
+        {
+          "id": "05006a6f-8295-4e17-8464-b4d80140d64f",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:50.805Z"
+        },
+        {
+          "id": "f1705a23-b0a0-4334-a285-fe95606bdd02",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:17:50.867Z"
+        },
+        {
+          "id": "cfac9591-0856-4c69-ba4e-9a9fb8fe3f71",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:51.030Z"
+        },
+        {
+          "id": "c71ffa58-8787-4e7a-81b4-e1fa316d6966",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:51.053Z"
+        },
+        {
+          "id": "284cc6d1-22eb-44c9-ac66-646d56bd9b06",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:51.069Z"
+        },
+        {
+          "id": "6cb8f0db-165d-4b80-b4a8-7530110a4705",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:51.077Z"
+        },
+        {
+          "id": "47bd83a5-c193-451c-a542-fd67b767298f",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:51.104Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-reconcile.test.ts",
+      "name": "the reconciliation of the invoice of a provider with the attempts (ST-LLM-008, LLM.md F3, UAT-AC462) refuses a period that is not over (409 RECONCILE_PERIOD_OPEN), a currency that is not the attempts’ (422 CURRENCY_MISMATCH), an invoice of no provider, and figures that are not figures",
+      "status": "passed",
+      "durationMs": 400,
+      "at": "2026-11-05T09:17:51.521Z",
+      "requests": [
+        {
+          "id": "ceed59db-4915-4aba-8aab-b114f97c69d8",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:17:51.178Z"
+        },
+        {
+          "id": "255b291b-dddf-4941-8c2c-4173a9c7a5c4",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:51.194Z"
+        },
+        {
+          "id": "1642b06f-2d7a-44f1-86da-f91c955e0476",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:17:51.239Z"
+        },
+        {
+          "id": "b51efc8c-3a5a-4afd-b5ee-ba3e1b324677",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 409,
+          "at": "2026-11-05T09:17:51.331Z"
+        },
+        {
+          "id": "dd092fcd-7351-4f4f-8845-e4b9e6963e5c",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 409,
+          "at": "2026-11-05T09:17:51.353Z"
+        },
+        {
+          "id": "c5c3bef3-f654-4bae-85ae-5c9f499b568f",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 422,
+          "at": "2026-11-05T09:17:51.368Z"
+        },
+        {
+          "id": "a1793d23-e8b3-466a-8e72-6da74ffc0d96",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 422,
+          "at": "2026-11-05T09:17:51.387Z"
+        },
+        {
+          "id": "9eb673fc-6429-4ed6-9445-cb1b5a2e65fb",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 422,
+          "at": "2026-11-05T09:17:51.391Z"
+        },
+        {
+          "id": "d5b5f5fb-7104-410f-bae7-78c9c48fb79f",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 422,
+          "at": "2026-11-05T09:17:51.398Z"
+        },
+        {
+          "id": "26b6d864-1ad7-454e-9bed-6f354a4e39e8",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 422,
+          "at": "2026-11-05T09:17:51.414Z"
+        },
+        {
+          "id": "42745cea-93f7-4357-af42-ca1263462611",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 422,
+          "at": "2026-11-05T09:17:51.431Z"
+        },
+        {
+          "id": "e65c5e83-2da0-4eec-a7ae-f93bc9f23b34",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 422,
+          "at": "2026-11-05T09:17:51.436Z"
+        },
+        {
+          "id": "ad1e993c-3c51-4067-88b5-f6f66d5630cf",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 422,
+          "at": "2026-11-05T09:17:51.447Z"
+        },
+        {
+          "id": "4f15be4d-7626-44cb-a93e-616e43f1d022",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 422,
+          "at": "2026-11-05T09:17:51.461Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-reconcile.test.ts",
+      "name": "the reconciliation of the invoice of a provider with the attempts (ST-LLM-008, LLM.md F3, UAT-AC462) keeps an invoice to the figures it was first reconciled with (409 DUPLICATE_KEY), and takes the longest provider code the reference begins with",
+      "status": "passed",
+      "durationMs": 536,
+      "at": "2026-11-05T09:17:52.057Z",
+      "requests": [
+        {
+          "id": "1f8cdb42-6237-44bf-8541-8ba4b57344e6",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:17:51.575Z"
+        },
+        {
+          "id": "79cb4f7e-37c7-4236-9ba5-b375b43c522d",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:51.595Z"
+        },
+        {
+          "id": "17b0408e-2638-41a0-9b2c-2136b0905e10",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:17:51.677Z"
+        },
+        {
+          "id": "11feaed6-c257-4949-95d9-74def6138ea8",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:17:51.690Z"
+        },
+        {
+          "id": "339898b6-806f-4494-a7c2-b63477de1cfa",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:51.706Z"
+        },
+        {
+          "id": "e7a8b85a-692d-4897-b774-a6a46ec7e81b",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:17:51.760Z"
+        },
+        {
+          "id": "ffc0e74e-2ba4-4685-8115-a74ca7e7e6f0",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:51.901Z"
+        },
+        {
+          "id": "11f6545c-8e33-47e3-8d93-351af27efc2d",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 409,
+          "at": "2026-11-05T09:17:51.916Z"
+        },
+        {
+          "id": "98b48b63-12e6-4c20-890f-fcf644c64616",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 409,
+          "at": "2026-11-05T09:17:51.928Z"
+        },
+        {
+          "id": "9de74447-0cfe-43d7-adbf-56fbb41387e5",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:51.933Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-reconcile.test.ts",
+      "name": "the reconciliation of the invoice of a provider with the attempts (ST-LLM-008, LLM.md F3, UAT-AC462) counts the attempts of the provider in the period, by the day of Vietnam: the ones before it, after it and of another provider are not in the sum",
+      "status": "passed",
+      "durationMs": 867,
+      "at": "2026-11-05T09:17:52.924Z",
+      "requests": [
+        {
+          "id": "2a1a15dc-cd03-4813-9801-bd631a1239c4",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:17:52.112Z"
+        },
+        {
+          "id": "f76e79b7-3038-467a-96cf-2e5a1e58935c",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:52.122Z"
+        },
+        {
+          "id": "9fedc96e-5769-48be-9b78-4c492f460296",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:17:52.241Z"
+        },
+        {
+          "id": "57113dd9-b470-4908-b3f4-34f8403897e5",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:17:52.251Z"
+        },
+        {
+          "id": "a4d325bd-cdfd-4b6d-be98-7b9654c5c9a8",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:52.265Z"
+        },
+        {
+          "id": "cb3e36d8-91b3-497a-a27c-e0670d00ef38",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:17:52.320Z"
+        },
+        {
+          "id": "7e7aef89-578b-4094-a078-ce51cce0eb1a",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:52.795Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-reconcile.test.ts",
+      "name": "the reconciliation of the invoice of a provider with the attempts (ST-LLM-008, LLM.md F3, UAT-AC462) counts the late usage of an attempt in the period of that attempt only: the invoice of the next period does not count it again nor take its reference",
+      "status": "passed",
+      "durationMs": 548,
+      "at": "2026-11-05T09:17:53.471Z",
+      "requests": [
+        {
+          "id": "1a2159f9-9bf4-4267-be73-a0ffaabc222d",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:17:52.983Z"
+        },
+        {
+          "id": "3362f11c-f6c1-4b31-af93-31e034dad87a",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:53.004Z"
+        },
+        {
+          "id": "b305b426-99f8-4e0e-8cb2-1c968a241c05",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:17:53.127Z"
+        },
+        {
+          "id": "f6ce6e5c-39bb-42e3-8521-9035a753029d",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:53.268Z"
+        },
+        {
+          "id": "50896aa5-9a35-45bb-9aea-179608d12fa4",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:53.294Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-reconcile.test.ts",
+      "name": "the reconciliation of the invoice of a provider with the attempts (ST-LLM-008, LLM.md F3, UAT-AC462) is for the finance of the whole tenant: reading and running need llm.finops, no grant on a subtree reaches it, and another tenant sees none of it",
+      "status": "passed",
+      "durationMs": 456,
+      "at": "2026-11-05T09:17:53.928Z",
+      "requests": [
+        {
+          "id": "76641d25-3606-4c59-84db-3c54ccc181f0",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:17:53.528Z"
+        },
+        {
+          "id": "adcf05da-c290-461e-aeee-171666ff11ee",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:53.551Z"
+        },
+        {
+          "id": "45051d26-a0f0-4e4f-a80e-5a84ef4987b9",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:17:53.622Z"
+        },
+        {
+          "id": "febe0fe9-42eb-4c71-abb7-d21452b98107",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 403,
+          "at": "2026-11-05T09:17:53.777Z"
+        },
+        {
+          "id": "4b4be2e3-37ea-46dd-aaaa-6dc491de2ffe",
+          "method": "GET",
+          "path": "/ai-invoices/reconciliations",
+          "status": 403,
+          "at": "2026-11-05T09:17:53.785Z"
+        },
+        {
+          "id": "bd976d8b-c322-4277-84f7-e6e04b60d09b",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 403,
+          "at": "2026-11-05T09:17:53.797Z"
+        },
+        {
+          "id": "028a38ef-c23c-4856-9a0e-f5b2b5918433",
+          "method": "GET",
+          "path": "/ai-invoices/reconciliations",
+          "status": 403,
+          "at": "2026-11-05T09:17:53.801Z"
+        },
+        {
+          "id": "693d775e-fe5e-416b-82f4-143a333064df",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 403,
+          "at": "2026-11-05T09:17:53.813Z"
+        },
+        {
+          "id": "1b46e48a-faf6-4717-8774-e45376fbbb69",
+          "method": "GET",
+          "path": "/ai-invoices/reconciliations",
+          "status": 403,
+          "at": "2026-11-05T09:17:53.832Z"
+        },
+        {
+          "id": "625f1240-63fa-40b0-9720-93b2e7a7ef1b",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:53.846Z"
+        },
+        {
+          "id": "d8c8252f-a609-4c34-9090-06e34c90f509",
+          "method": "GET",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:53.868Z"
+        },
+        {
+          "id": "3c902c6c-6b3a-4611-a967-8033315f5d30",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 403,
+          "at": "2026-11-05T09:17:53.880Z"
+        },
+        {
+          "id": "8e6bdf4c-a003-4d7e-b89b-f7ff0638779f",
+          "method": "GET",
+          "path": "/ai-invoices/reconciliations",
+          "status": 422,
+          "at": "2026-11-05T09:17:53.894Z"
+        },
+        {
+          "id": "ad521cb4-dfbc-4c40-8880-d6e8ef2b8103",
+          "method": "GET",
+          "path": "/ai-invoices/reconciliations",
+          "status": 422,
+          "at": "2026-11-05T09:17:53.910Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-reconcile.test.ts",
+      "name": "the reconciliation of the invoice of a provider with the attempts (ST-LLM-008, LLM.md F3, UAT-AC462) lists the reconciliations newest first, a page at a time",
+      "status": "passed",
+      "durationMs": 527,
+      "at": "2026-11-05T09:17:54.455Z",
+      "requests": [
+        {
+          "id": "1a024873-86d3-498b-84d3-cfcc88fa984c",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:17:54.037Z"
+        },
+        {
+          "id": "33a72024-2927-4ac6-a0d2-a61ebc735ce2",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:54.057Z"
+        },
+        {
+          "id": "d6fbbb75-5c92-4ae7-8f2d-26028ab6c922",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:17:54.229Z"
+        },
+        {
+          "id": "b956adc8-5e72-42b6-b9e6-34ad9b9dfb8e",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:54.377Z"
+        },
+        {
+          "id": "1bfbb8f3-8452-4570-8dbc-04fadf6241af",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:54.395Z"
+        },
+        {
+          "id": "e7dfc813-26c3-451a-a87a-787933d1a4a9",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:54.414Z"
+        },
+        {
+          "id": "a2f4a981-435e-43ed-996a-19923b093ac8",
+          "method": "GET",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:54.427Z"
+        },
+        {
+          "id": "fa1ef38d-2c68-4772-b708-652415c2db3a",
+          "method": "GET",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:54.439Z"
+        },
+        {
+          "id": "4d4d992d-f0ee-419f-892d-7577bde87a7e",
+          "method": "GET",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:54.442Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/llm/llm-reconcile.test.ts",
+      "name": "the reconciliation of the invoice of a provider with the attempts (ST-LLM-008, LLM.md F3, UAT-AC462) is kept for good: the table refuses to change what the invoice said, to edit the figures of an attempt, to undo a reconciled invoice or to delete one",
+      "status": "passed",
+      "durationMs": 224,
+      "at": "2026-11-05T09:17:54.679Z",
+      "requests": [
+        {
+          "id": "647de51a-0a31-4ffd-a856-c65ff6cc5d88",
+          "method": "POST",
+          "path": "/ai-providers",
+          "status": 200,
+          "at": "2026-11-05T09:17:54.512Z"
+        },
+        {
+          "id": "5fa9ff94-2107-4295-996e-5c5c17c47216",
+          "method": "POST",
+          "path": "/ai-models",
+          "status": 200,
+          "at": "2026-11-05T09:17:54.523Z"
+        },
+        {
+          "id": "4978cda9-dc64-4a38-8914-e2e22c0202d9",
+          "method": "POST",
+          "path": "/ai-pricing-versions",
+          "status": 200,
+          "at": "2026-11-05T09:17:54.578Z"
+        },
+        {
+          "id": "15b270bf-3dbc-4b16-8a3b-048c8a8b6086",
+          "method": "POST",
+          "path": "/ai-invoices/reconciliations",
+          "status": 200,
+          "at": "2026-11-05T09:17:54.644Z"
+        }
+      ]
+    }
+  ]
+}

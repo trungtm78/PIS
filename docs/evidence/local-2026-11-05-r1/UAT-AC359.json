@@ -1,0 +1,110 @@
+{
+  "id": "UAT-AC359",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/qms/photo.test.ts",
+      "name": "the site photo register over HTTP (ST-QMS-003) AC-ST-QMS-003-1: UAT-AC359 registers photos with matching, old, out of zone, inexact, stripped and repeated EXIF as review flags, never as rejections, and the same operation again as the photo it made",
+      "status": "passed",
+      "durationMs": 803,
+      "at": "2026-11-05T09:20:48.413Z",
+      "requests": [
+        {
+          "id": "08ad348e-b2c6-42c3-a515-c6db7880a079",
+          "method": "POST",
+          "path": "/site-photos",
+          "status": 200,
+          "at": "2026-11-05T09:20:47.632Z"
+        },
+        {
+          "id": "50fd2a30-0f38-43d6-8861-c5e4cad9fa89",
+          "method": "POST",
+          "path": "/site-photos",
+          "status": 200,
+          "at": "2026-11-05T09:20:47.717Z"
+        },
+        {
+          "id": "8e0c7822-e600-4fbe-a043-31a7e2266b2f",
+          "method": "POST",
+          "path": "/site-photos",
+          "status": 200,
+          "at": "2026-11-05T09:20:47.775Z"
+        },
+        {
+          "id": "3c2a6c0a-8296-4b33-8487-c9f285b8589c",
+          "method": "POST",
+          "path": "/site-photos",
+          "status": 200,
+          "at": "2026-11-05T09:20:47.853Z"
+        },
+        {
+          "id": "27a19ece-30d6-41b1-a8c6-b90836ada842",
+          "method": "POST",
+          "path": "/site-photos",
+          "status": 200,
+          "at": "2026-11-05T09:20:47.934Z"
+        },
+        {
+          "id": "263f3c3e-bca0-47d2-a936-73e449a8c382",
+          "method": "POST",
+          "path": "/site-photos",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.008Z"
+        },
+        {
+          "id": "413b0ece-b670-429d-9ae5-df39d7c5fb01",
+          "method": "POST",
+          "path": "/site-photos",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.139Z"
+        },
+        {
+          "id": "d1a5b3b4-27db-4b27-9f99-583a96dcd4c0",
+          "method": "POST",
+          "path": "/site-photos",
+          "status": 422,
+          "at": "2026-11-05T09:20:48.294Z"
+        },
+        {
+          "id": "d75d0f85-086e-4e2f-ba92-6666b8ee33a8",
+          "method": "POST",
+          "path": "/site-photos",
+          "status": 422,
+          "at": "2026-11-05T09:20:48.302Z"
+        },
+        {
+          "id": "44439852-3f54-400d-b8fe-a1ea898bde27",
+          "method": "GET",
+          "path": "/site-photos/17137ad9-6a0c-4fc4-9454-d5bfa392e67d/checks",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.348Z"
+        },
+        {
+          "id": "3ff568af-6475-4e6b-8d05-9b400d2dd0e4",
+          "method": "GET",
+          "path": "/site-photos/b93e8d1a-17f8-4273-90e9-05b1016d560f/checks",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.367Z"
+        },
+        {
+          "id": "5b6a3745-2328-423e-909c-a059d5d7fa0c",
+          "method": "GET",
+          "path": "/site-photos/a93a53cb-f0a8-422e-8871-0aeece88c7fa/checks",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.381Z"
+        },
+        {
+          "id": "a5aa0c78-7279-42c3-8dc9-d89aae0091fc",
+          "method": "GET",
+          "path": "/resources/site_photo/b93e8d1a-17f8-4273-90e9-05b1016d560f",
+          "status": 200,
+          "at": "2026-11-05T09:20:48.397Z"
+        }
+      ]
+    }
+  ]
+}

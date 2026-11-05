@@ -1,0 +1,410 @@
+{
+  "id": "UAT-AC493",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) refuses weights of the pillars that add up to 90 (422 RUBRIC_WEIGHTS_INVALID), then is drafted, published by somebody else, and supersedes the version before it",
+      "status": "passed",
+      "durationMs": 494,
+      "at": "2026-11-05T09:17:03.142Z",
+      "requests": [
+        {
+          "id": "360441ac-85d3-4aa7-9fa7-014a21f74089",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 422,
+          "at": "2026-11-05T09:17:02.649Z"
+        },
+        {
+          "id": "4e32d124-1e08-483a-96d4-55c7d70b3c09",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:02.826Z"
+        },
+        {
+          "id": "ec9125a9-fb98-4e0e-aa03-d3b7cc17412f",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:02.855Z"
+        },
+        {
+          "id": "5654254b-a1de-4e7a-baac-6540ee1286a7",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/f2656492-6bcd-4191-9d5d-5cee35b27a45/publish",
+          "status": 403,
+          "at": "2026-11-05T09:17:02.880Z"
+        },
+        {
+          "id": "202b4dd3-cb00-4276-8216-af360f72df2f",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/9bb1f587-f689-423f-bec7-732275a0fc7f/publish",
+          "status": 409,
+          "at": "2026-11-05T09:17:02.904Z"
+        },
+        {
+          "id": "340ff119-7b60-4077-a14c-7af011c2888a",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/9bb1f587-f689-423f-bec7-732275a0fc7f/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:02.921Z"
+        },
+        {
+          "id": "bd6d5e99-0205-4d4e-8626-6b83117d05bd",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/9bb1f587-f689-423f-bec7-732275a0fc7f/publish",
+          "status": 409,
+          "at": "2026-11-05T09:17:02.938Z"
+        },
+        {
+          "id": "6805770a-700e-4b2d-9d34-d7b382c510d2",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:02.949Z"
+        },
+        {
+          "id": "02482e77-7f06-400c-90ff-3e33458ab0f4",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:02.969Z"
+        },
+        {
+          "id": "ad0e225c-c7d4-41a6-bbe4-8133123bc408",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/0b62c0ab-e3a6-48d5-a9eb-4a45e5049a20/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:02.986Z"
+        },
+        {
+          "id": "1ccb5df4-b06a-4ce5-b002-5771a041e592",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.001Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) refuses a draft with a code with a bad shape",
+      "status": "passed",
+      "durationMs": 14,
+      "at": "2026-11-05T09:17:03.157Z",
+      "requests": [
+        {
+          "id": "7f2f9f7f-9fff-4ef3-90ca-01e9711f209b",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 422,
+          "at": "2026-11-05T09:17:03.142Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) refuses a draft with seven pillars",
+      "status": "passed",
+      "durationMs": 15,
+      "at": "2026-11-05T09:17:03.172Z",
+      "requests": [
+        {
+          "id": "5926d07b-b749-4e8f-a5d7-dfd0677cd48a",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 422,
+          "at": "2026-11-05T09:17:03.157Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) refuses a draft with a share of coverage that is none",
+      "status": "passed",
+      "durationMs": 6,
+      "at": "2026-11-05T09:17:03.178Z",
+      "requests": [
+        {
+          "id": "db8f8dac-4599-46e7-92c5-31b435a0ac17",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 422,
+          "at": "2026-11-05T09:17:03.171Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) refuses a draft with days of evidence that are none",
+      "status": "passed",
+      "durationMs": 10,
+      "at": "2026-11-05T09:17:03.188Z",
+      "requests": [
+        {
+          "id": "bfabcf57-49ae-46b4-9c31-d2897f8927f9",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 422,
+          "at": "2026-11-05T09:17:03.177Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) refuses a draft with a pillar with two criteria",
+      "status": "passed",
+      "durationMs": 17,
+      "at": "2026-11-05T09:17:03.205Z",
+      "requests": [
+        {
+          "id": "08b1c92a-8f05-42dc-b50f-be387ae7d1b1",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 422,
+          "at": "2026-11-05T09:17:03.188Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) is drafted and published only by those who may, over the whole tenant",
+      "status": "passed",
+      "durationMs": 124,
+      "at": "2026-11-05T09:17:03.329Z",
+      "requests": [
+        {
+          "id": "40a89d1f-3e87-48a1-ad96-52234538eaba",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 403,
+          "at": "2026-11-05T09:17:03.205Z"
+        },
+        {
+          "id": "d8698471-266c-408f-b3a6-bb9940f8c898",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 403,
+          "at": "2026-11-05T09:17:03.219Z"
+        },
+        {
+          "id": "3d97da13-df60-467d-a93a-ce3fa7899ec4",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 403,
+          "at": "2026-11-05T09:17:03.234Z"
+        },
+        {
+          "id": "910616d8-f9f4-4029-8b07-edd96ee27d8d",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.254Z"
+        },
+        {
+          "id": "eadc8eb2-d67d-4032-91ac-2f7bf35a84ae",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/d0b4f9b6-5cf9-4a1d-b983-fd5019379dbf/publish",
+          "status": 403,
+          "at": "2026-11-05T09:17:03.278Z"
+        },
+        {
+          "id": "d07f86c7-dd0c-44e8-97cf-e822825b0ba6",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/d0b4f9b6-5cf9-4a1d-b983-fd5019379dbf/publish",
+          "status": 403,
+          "at": "2026-11-05T09:17:03.283Z"
+        },
+        {
+          "id": "ad4a993c-81ad-4885-9b1b-996d570ace63",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 403,
+          "at": "2026-11-05T09:17:03.298Z"
+        },
+        {
+          "id": "91ba57e4-a83c-4966-938f-1ceafd12be69",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 403,
+          "at": "2026-11-05T09:17:03.312Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) publishes two drafts of one rubric one after the other: the second waits for the first and replaces it",
+      "status": "passed",
+      "durationMs": 481,
+      "at": "2026-11-05T09:17:03.810Z",
+      "requests": [
+        {
+          "id": "c496ed51-0fd1-4ee5-91e2-8803f04745ec",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.329Z"
+        },
+        {
+          "id": "18eab6cc-c9c4-40c4-9487-5464d52ac9fb",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.351Z"
+        },
+        {
+          "id": "bd7a7ab2-2ab5-4ec4-9556-14d9b5114ce0",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/cddbb97a-205d-4587-8b51-06fce6552fda/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.368Z"
+        },
+        {
+          "id": "a50bff57-eea1-4926-a68a-97210e6add71",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/cc85eee5-a2b1-4198-88b8-bf4deeda7686/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.368Z"
+        },
+        {
+          "id": "4af0f441-b725-4408-ad9c-9f8efb5c8728",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.797Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) is never changed or deleted once written, and the database refuses the same of anything else",
+      "status": "passed",
+      "durationMs": 68,
+      "at": "2026-11-05T09:17:03.878Z",
+      "requests": [
+        {
+          "id": "41562f49-59c0-4838-9f7d-1f98e3bf1792",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.810Z"
+        },
+        {
+          "id": "5975323a-d6ac-41b6-873a-90291738c1e3",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics/2c7a5854-2e7c-41bb-88cf-cd02eceab064/publish",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.830Z"
+        },
+        {
+          "id": "a14319c3-2922-42b1-b912-232f918e9e8c",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.853Z"
+        }
+      ]
+    },
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dgv/dgv-maturity.test.ts",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) lists the rubrics newest first, by code and by state, a page at a time",
+      "status": "passed",
+      "durationMs": 183,
+      "at": "2026-11-05T09:17:04.062Z",
+      "requests": [
+        {
+          "id": "75c9e234-5fa5-4fd4-a059-31e37452868e",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.878Z"
+        },
+        {
+          "id": "9ae1852c-ecf6-469d-a50a-bf9f74fd8c24",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.894Z"
+        },
+        {
+          "id": "48f7b78e-91b2-4b38-82f4-546f5c1a2b6f",
+          "method": "POST",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.915Z"
+        },
+        {
+          "id": "6d2fd820-89e0-47b9-b5e1-e02dc1380b44",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.940Z"
+        },
+        {
+          "id": "0ef6b6ae-4a76-4681-8507-75dd249c5633",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.950Z"
+        },
+        {
+          "id": "899469ae-8222-40d7-92d4-762b95e9f721",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.968Z"
+        },
+        {
+          "id": "398a5f53-7820-48c3-93c3-232ff704f8f6",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 200,
+          "at": "2026-11-05T09:17:03.983Z"
+        },
+        {
+          "id": "ad95d372-fb4d-4915-8da5-6c3e3e757c18",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.000Z"
+        },
+        {
+          "id": "0b3f0093-0785-41b8-b8bf-93637438ae86",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.013Z"
+        },
+        {
+          "id": "49df5875-1070-4047-9b48-1a5813d57fef",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.029Z"
+        },
+        {
+          "id": "5f757295-c257-4250-885d-8562aa49be3f",
+          "method": "GET",
+          "path": "/dgv/maturity-rubrics",
+          "status": 422,
+          "at": "2026-11-05T09:17:04.046Z"
+        }
+      ]
+    }
+  ]
+}

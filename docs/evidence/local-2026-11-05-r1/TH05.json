@@ -1,0 +1,33 @@
+{
+  "id": "TH05",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/uat/isolation-web.uat.spec.ts",
+      "name": "TC-TH05: the tenant gets its own theme and version, and a change of theme loses neither the breadcrumb, the form nor the place in the menu",
+      "status": "passed",
+      "durationMs": 681,
+      "at": "2026-11-05T08:57:06.091Z",
+      "requests": [
+        {
+          "id": "58d319fe-00a2-4841-b256-33c47be26e1b",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 200,
+          "at": "2026-11-05T08:57:06.516Z"
+        },
+        {
+          "id": "07bcd33f-2176-4615-b495-27fda45cca82",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 200,
+          "at": "2026-11-05T08:57:06.675Z"
+        }
+      ]
+    }
+  ]
+}

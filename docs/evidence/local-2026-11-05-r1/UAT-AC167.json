@@ -1,0 +1,138 @@
+{
+  "id": "UAT-AC167",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/payments.test.ts",
+      "name": "the payment and e-invoice webhooks and the reconciliation over HTTP (ST-SAS-012) AC-ST-SAS-012-2 UAT-AC167: an Unmatched payment matched with an invoice of another amount is 422 AMOUNT_MISMATCH, and with the right invoice it is Matched",
+      "status": "passed",
+      "durationMs": 603,
+      "at": "2026-11-05T09:20:33.651Z",
+      "requests": [
+        {
+          "id": "bbb14401-838a-4dff-a5a3-5682e317afa3",
+          "method": "POST",
+          "path": "/system/tenants/16bbedc1-910c-447b-90bb-637d512e7bec/subscriptions",
+          "status": 201,
+          "at": "2026-11-05T09:20:33.177Z"
+        },
+        {
+          "id": "d15d9e8c-d845-4d02-830c-4b46c8935f1d",
+          "method": "POST",
+          "path": "/system/billing-runs",
+          "status": 202,
+          "at": "2026-11-05T09:20:33.193Z"
+        },
+        {
+          "id": "ddb29a49-7222-4b38-949c-2267f78a80b2",
+          "method": "GET",
+          "path": "/system/tenants/16bbedc1-910c-447b-90bb-637d512e7bec/invoices",
+          "status": 200,
+          "at": "2026-11-05T09:20:33.212Z"
+        },
+        {
+          "id": "af4f4a8f-c3c5-4df0-9929-ed9e5a14e1bc",
+          "method": "POST",
+          "path": "/system/invoices/b477ba35-c299-4338-a50f-353cdff464b0/issue",
+          "status": 202,
+          "at": "2026-11-05T09:20:33.219Z"
+        },
+        {
+          "id": "6fcb1af6-d7fb-407b-939a-5bdf295f5bd5",
+          "method": "POST",
+          "path": "/system/tenants/d9b159ff-7e82-45ed-a8d1-ea5499857c6e/subscriptions",
+          "status": 201,
+          "at": "2026-11-05T09:20:33.416Z"
+        },
+        {
+          "id": "de02d030-4264-428b-8333-33b5fe53a58c",
+          "method": "POST",
+          "path": "/system/billing-runs",
+          "status": 202,
+          "at": "2026-11-05T09:20:33.431Z"
+        },
+        {
+          "id": "375709e2-567c-4884-85ca-725c72f12afd",
+          "method": "GET",
+          "path": "/system/tenants/d9b159ff-7e82-45ed-a8d1-ea5499857c6e/invoices",
+          "status": 200,
+          "at": "2026-11-05T09:20:33.445Z"
+        },
+        {
+          "id": "8a7ee8d0-4db3-4916-a44a-6ecb7f8b5461",
+          "method": "POST",
+          "path": "/system/invoices/a996f3cc-a2c1-49e3-8c5c-2a5c5adfd0cb/issue",
+          "status": 202,
+          "at": "2026-11-05T09:20:33.458Z"
+        },
+        {
+          "id": "7892522d-24b0-4b3c-91b8-640f41c9fcaf",
+          "method": "POST",
+          "path": "/webhooks/payments/mock-bank",
+          "status": 200,
+          "at": "2026-11-05T09:20:33.480Z"
+        },
+        {
+          "id": "c3308634-4828-4050-9e7b-5ed5da9224c2",
+          "method": "GET",
+          "path": "/system/payments",
+          "status": 200,
+          "at": "2026-11-05T09:20:33.491Z"
+        },
+        {
+          "id": "20094160-32c3-4873-ab36-41b492a752c7",
+          "method": "POST",
+          "path": "/system/payments/5de6ffa8-4484-40f3-b6c6-f94db17f00f5/match",
+          "status": 422,
+          "at": "2026-11-05T09:20:33.495Z"
+        },
+        {
+          "id": "c5abf678-453a-41aa-ab01-6981a8367245",
+          "method": "GET",
+          "path": "/system/tenants/16bbedc1-910c-447b-90bb-637d512e7bec/invoices",
+          "status": 200,
+          "at": "2026-11-05T09:20:33.508Z"
+        },
+        {
+          "id": "bf2dd6f0-5fde-4b6a-9e11-ce532460eaf1",
+          "method": "POST",
+          "path": "/system/payments/5de6ffa8-4484-40f3-b6c6-f94db17f00f5/match",
+          "status": 428,
+          "at": "2026-11-05T09:20:33.523Z"
+        },
+        {
+          "id": "99de7ccc-b776-4fef-9a67-d24d4627c05d",
+          "method": "POST",
+          "path": "/system/payments/5de6ffa8-4484-40f3-b6c6-f94db17f00f5/match",
+          "status": 409,
+          "at": "2026-11-05T09:20:33.534Z"
+        },
+        {
+          "id": "ade6516b-2058-407c-9b4b-50767f595962",
+          "method": "POST",
+          "path": "/system/payments/5de6ffa8-4484-40f3-b6c6-f94db17f00f5/match",
+          "status": 200,
+          "at": "2026-11-05T09:20:33.553Z"
+        },
+        {
+          "id": "5efd516c-aeb4-4745-a385-a32cc45538c6",
+          "method": "GET",
+          "path": "/system/tenants/d9b159ff-7e82-45ed-a8d1-ea5499857c6e/invoices",
+          "status": 200,
+          "at": "2026-11-05T09:20:33.577Z"
+        },
+        {
+          "id": "43c9de0b-253b-4f2c-af44-caf1cad5e77b",
+          "method": "POST",
+          "path": "/system/payments/5de6ffa8-4484-40f3-b6c6-f94db17f00f5/match",
+          "status": 404,
+          "at": "2026-11-05T09:20:33.586Z"
+        }
+      ]
+    }
+  ]
+}

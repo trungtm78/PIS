@@ -1,0 +1,68 @@
+{
+  "id": "UAT-NFR-TENANCY-06",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "playwright",
+      "file": "apps/web/e2e/uat/isolation-api.uat.spec.ts",
+      "name": "TC-UAT-NFR-TENANCY-06: a scheduled export generated after the grant over Ban Y was revoked holds the five projects of Sở X only, none of Ban Y, and its audit row names a new scope hash",
+      "status": "passed",
+      "durationMs": 61498,
+      "at": "2026-11-05T08:56:02.317Z",
+      "requests": [
+        {
+          "id": "c5ba8c47-cba3-4afa-a68e-4ffda5f8ff0e",
+          "method": "POST",
+          "path": "/bi/datasets/c4605dd1-df5a-4a79-af37-2b9ee9d2a5ee/versions",
+          "status": 202,
+          "at": "2026-11-05T08:56:02.447Z"
+        },
+        {
+          "id": "7cd5da9b-82b2-428b-9626-93188e306096",
+          "method": "POST",
+          "path": "/bi/exports",
+          "status": 200,
+          "at": "2026-11-05T08:56:02.500Z"
+        },
+        {
+          "id": "529fb66b-61ce-41d2-9f3f-e0cb7f574ca0",
+          "method": "POST",
+          "path": "/bi/export-schedules",
+          "status": 200,
+          "at": "2026-11-05T08:56:02.599Z"
+        },
+        {
+          "id": "00ddff5c-9271-4e57-8a3f-0131d3a14e37",
+          "method": "POST",
+          "path": "/role-grants/5c28ee6e-13fb-424c-baaa-abc035566936/revoke",
+          "status": 200,
+          "at": "2026-11-05T08:56:02.645Z"
+        },
+        {
+          "id": "440ebdf1-c117-472c-83ac-3d2945d4236e",
+          "method": "GET",
+          "path": "/bi/exports/d2a66e7e-66a8-40f5-b4a0-2b15132afaf5",
+          "status": 200,
+          "at": "2026-11-05T08:57:03.191Z"
+        },
+        {
+          "id": "23cf8cfc-5cf1-4f64-9b13-b56fd6d01a0b",
+          "method": "GET",
+          "path": "/bi/exports/d2a66e7e-66a8-40f5-b4a0-2b15132afaf5/file",
+          "status": 200,
+          "at": "2026-11-05T08:57:03.202Z"
+        },
+        {
+          "id": "ae2cb13e-68d1-47a0-8331-097637be1279",
+          "method": "POST",
+          "path": "/bi/exports",
+          "status": 200,
+          "at": "2026-11-05T08:57:03.280Z"
+        }
+      ]
+    }
+  ]
+}

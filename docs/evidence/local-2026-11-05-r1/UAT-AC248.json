@@ -1,0 +1,54 @@
+{
+  "id": "UAT-AC248",
+  "result": "PASS",
+  "at": "2026-11-05T09:32:32.500Z",
+  "build": "5347154f932e9d1fa89c40aad646ce47f6f5f173+dirty",
+  "run": "local-2026-11-05-r1",
+  "tests": [
+    {
+      "suite": "jest",
+      "file": "apps/api/test/dis/report.test.ts",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports_id_submit (ST-DIS-005) AC-ST-DIS-005-3 / UAT-AC248: of two makers at version 3 at once, one hands in (version 4) and the other is 409 VERSION_CONFLICT naming the version that won; one event",
+      "status": "passed",
+      "durationMs": 295,
+      "at": "2026-11-05T09:16:09.222Z",
+      "requests": [
+        {
+          "id": "db3a7f58-cb94-4de9-afb3-28d49af86f56",
+          "method": "POST",
+          "path": "/reports",
+          "status": 200,
+          "at": "2026-11-05T09:16:08.976Z"
+        },
+        {
+          "id": "c7ea768c-3805-4478-aae1-fd53676415cd",
+          "method": "POST",
+          "path": "/reports/7aa0e10d-8bcc-4ebc-b849-ada1c91ce37d/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:09.004Z"
+        },
+        {
+          "id": "1a00babf-8bb1-4ac6-8e53-a969177adea9",
+          "method": "POST",
+          "path": "/reports/7aa0e10d-8bcc-4ebc-b849-ada1c91ce37d/revisions",
+          "status": 200,
+          "at": "2026-11-05T09:16:09.040Z"
+        },
+        {
+          "id": "c85f61a9-3baa-4f0d-9a50-f36e930c653b",
+          "method": "POST",
+          "path": "/reports/7aa0e10d-8bcc-4ebc-b849-ada1c91ce37d/submit",
+          "status": 200,
+          "at": "2026-11-05T09:16:09.067Z"
+        },
+        {
+          "id": "d50fb24e-ae65-4ce3-8a49-628185d73e01",
+          "method": "POST",
+          "path": "/reports/7aa0e10d-8bcc-4ebc-b849-ada1c91ce37d/submit",
+          "status": 409,
+          "at": "2026-11-05T09:16:09.067Z"
+        }
+      ]
+    }
+  ]
+}
