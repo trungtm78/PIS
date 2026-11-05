@@ -9,8 +9,10 @@ import { membershipOf, sql, stackInfo } from '../support/stack.ts';
  * (the submission of a weekly report: the same key and body answers again without a second audit row or outbox event, the same key with another body is refused, a retry after a
  * timeout finds the first answer) and the allocation of the whole balance of an appropriation by two planners at the same moment (one wins, the balance never goes below zero).
  *
- * The cases TC-UAT-NFR-SECURITY-10, TC-TX03 and TC-NOT01 (the order and the duplication of the receipts of a provider) are not in this file: the stack has nothing that could take a
- * receipt (see not-executed.money.json).
+ * The cases TC-UAT-NFR-SECURITY-10, TC-NOT01 and TC-TX03 (the receipts of a provider and the send whose answer was lost) run against the mock e-mail provider of the stack (`smtp-relay`, an in-memory
+ * adapter registered in the stack only) and its Active account of tenant B: the delivery job of the stack sends what is queued there, the callbacks are signed with the test secret that the
+ * stack writes to its info, and the provider is driven through `/__e2e/provider/email/*` (apps/api/test/e2e-stack/serve.stack.ts). The design names a mock Zalo; the product has no Zalo adapter, and
+ * the callback reducer (BR-NOT-06) and the inbox are the same for every provider, so the e-mail relay stands in for it.
  *
  * The tests call the API directly with the development token of the stack (the format the web session signs with), because a command is a request and not a screen.
  */
@@ -25,6 +27,8 @@ interface Reply {
 }
 
 interface CallOptions {
+  /** The bearer token to send instead of the one of the fixture user (a member of another tenant, or one the test made). */
+  token?: string;
   /** The Idempotency-Key: a fresh one by default, `null` sends none. */
   key?: string | null;
   /** The version the caller read, sent as If-Match. */
@@ -32,15 +36,17 @@ interface CallOptions {
   body?: unknown;
 }
 
-function tokenOf(user: string): string {
+function tokenFor(tenantId: string, membershipId: string, scopeVersion = 1): string {
   const key = process.env.E2E_SESSION_KEY;
   if (key === undefined || key === '') throw new Error('E2E_SESSION_KEY is not set');
-  const payload = Buffer.from(JSON.stringify({ tenantId: TENANT_A, membershipId: membershipOf(user), scopeVersion: 1, exp: Math.floor(Date.now() / 1000) + 300 }), 'utf8').toString('base64url');
+  const payload = Buffer.from(JSON.stringify({ tenantId, membershipId, scopeVersion, exp: Math.floor(Date.now() / 1000) + 300 }), 'utf8').toString('base64url');
   return `${payload}.${createHmac('sha256', Buffer.from(key, 'base64')).update(payload).digest('base64url')}`;
 }
 
+const tokenOf = (user: string): string => tokenFor(TENANT_A, membershipOf(user));
+
 function headersOf(user: string, options: CallOptions): Record<string, string> {
-  const headers: Record<string, string> = { authorization: `Bearer ${tokenOf(user)}`, 'content-type': 'application/json' };
+  const headers: Record<string, string> = { authorization: `Bearer ${options.token ?? tokenOf(user)}`, 'content-type': 'application/json' };
   if (options.key !== null) headers['idempotency-key'] = options.key ?? `uat-${randomUUID()}`;
   if (options.ifMatch !== undefined) headers['if-match'] = `"${options.ifMatch}"`;
   return headers;
@@ -493,5 +499,298 @@ test.describe('J-MONEY-01 two allocations of the whole balance', () => {
     expect.soft(refused.filter((outcome) => outcome.code === 'APPROPRIATION_EXCEEDED' && outcome.availableVnd !== '0')).toEqual([]);
     // Nothing happened to another tenant.
     expect.soft(await otherTenantAudit()).toBe(tenantBBefore);
+  });
+});
+
+// ---- the receipts of a provider and the send whose answer was lost (tenant B, the mock e-mail provider of the stack) --------------
+
+const TENANT_B = stackInfo().tenants.B;
+const provider = (): ReturnType<typeof stackInfo>['provider'] => stackInfo().provider;
+const POLL = { timeout: 45_000, intervals: [250, 500, 1_000] };
+
+interface ProviderReply {
+  status: number;
+  json: Record<string, unknown>;
+}
+
+interface ProviderRequest {
+  idempotencyKey: string;
+  accountId: string;
+  to: string;
+  subject: string | undefined;
+}
+
+/** The requests the provider received (the stack keeps them in memory) whose idempotency key starts with the given text. */
+async function providerRequests(idempotencyKeyPrefix: string): Promise<ProviderRequest[]> {
+  const response = await fetch(`${API()}/__e2e/provider/email/requests`);
+  const body = (await response.json()) as { items: ProviderRequest[] };
+  return body.items.filter((item) => item.idempotencyKey.startsWith(idempotencyKeyPrefix));
+}
+
+async function providerPost(path: string, body: unknown): Promise<Record<string, unknown>> {
+  const response = await fetch(`${API()}/__e2e/provider/email/${path}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+  expect(response.status, `the stack accepts ${path}`).toBe(200);
+  return (await response.json()) as Record<string, unknown>;
+}
+
+interface ReceiptOptions {
+  /** Sent without a signature. */
+  unsigned?: boolean;
+  /** When the provider says the event happened. */
+  at?: Date;
+}
+
+/** A delivery receipt of the provider as its adapter reads it, signed the way the registry says (hex HMAC-SHA256 of `<timestamp>.<raw body>`). */
+async function receipt(eventId: string, message: string, status: 'ACCEPTED' | 'DELIVERED' | 'READ', options: ReceiptOptions = {}): Promise<ProviderReply> {
+  const raw = JSON.stringify({ id: eventId, account: provider().externalAccountId, message, status, type: 'delivery.status', at: (options.at ?? new Date()).toISOString() });
+  const timestamp = Math.floor(Date.now() / 1000);
+  const headers: Record<string, string> = { 'content-type': 'application/json', 'x-timestamp': String(timestamp) };
+  if (options.unsigned !== true) headers['x-signature'] = createHmac('sha256', provider().webhookSecret).update(`${timestamp}.${raw}`).digest('hex');
+  const response = await fetch(`${API()}/webhooks/channels/${provider().name}`, { method: 'POST', headers, body: raw });
+  return { status: response.status, json: (await response.json()) as Record<string, unknown> };
+}
+
+interface AttemptRow {
+  id: string;
+  attempt_no: number;
+  status: string;
+  error_code: string | null;
+  provider_message_id: string | null;
+  next_retry_at: string | null;
+}
+
+const attemptsOf = (notificationId: string): Promise<AttemptRow[]> =>
+  sql<AttemptRow>('select id, attempt_no, status, error_code, provider_message_id, next_retry_at::text as next_retry_at from machvon.delivery_attempt where notification_id = $1 order by attempt_no', [notificationId]);
+
+const attemptStatuses = async (notificationId: string): Promise<Array<[number, string, string | null]>> =>
+  (await attemptsOf(notificationId)).map((attempt): [number, string, string | null] => [attempt.attempt_no, attempt.status, attempt.error_code]);
+
+const notificationStatus = async (notificationId: string): Promise<string | undefined> =>
+  (await sql<{ status: string }>('select status from machvon.notification_instance where id = $1', [notificationId]))[0]?.status;
+
+/** The path of an attempt through the states of the provider, as its history keeps it. */
+const historyOf = async (attemptId: string): Promise<string[]> =>
+  (
+    await sql<{ to_status: string; cause: string }>(
+      `select h.to_status, h.cause from machvon.provider_status_history h join machvon.provider_status_item i on i.id = h.item_id where i.subject_id = $1 order by h.item_version`,
+      [attemptId],
+    )
+  ).map((row) => `${row.to_status}/${row.cause}`);
+
+const inboxOf = (eventId: string): Promise<Array<{ status: string; provider_event_type: string | null }>> =>
+  sql('select status, provider_event_type from machvon.integration_event_inbox where provider = $1 and event_key = $2', [provider().name, eventId]);
+
+const webhookAudits = async (): Promise<number> =>
+  countOf("select count(*)::int as n from machvon.audit_event where tenant_id = $1 and action = 'channel.webhook_received' and resource_id = $2", [TENANT_B, provider().channelAccountId]);
+
+/** What tenant A holds in the queue of the notification screens: the delivery job of the stack does not visit it, so this is the same before and after. */
+const queueOfTenantA = (): Promise<Array<{ id: string; status: string; attempt_no: number }>> =>
+  sql('select id, status, attempt_no from machvon.delivery_attempt where tenant_id = $1 order by id', [TENANT_A]);
+
+interface Recipient {
+  membershipId: string;
+  token: string;
+  consentId: string;
+  consentVersion: number;
+}
+
+/** A person of tenant B with an e-mail address, who has given the consent that an e-mail of the operations asks for (through the API, as the person does). */
+async function seedRecipient(): Promise<Recipient> {
+  const membershipId = randomUUID();
+  await sql("insert into machvon.user_account (id, idp_subject, email_normalized, display_name, status) values ($1, $2, $3, 'UAT recipient', 'Active')", [membershipId, `uat-not-${membershipId}`, `${membershipId}@example.test`]);
+  await sql("insert into machvon.membership (tenant_id, id, user_id, organization_id, status, valid_from) values ($1, $2, $2, $3, 'Active', now() - interval '1 day')", [TENANT_B, membershipId, stackInfo().units.B['LC-HQ']]);
+  await sql(
+    `insert into machvon.role_grant (tenant_id, id, membership_id, role_id, scope_json, effective_from, scope_kind, scope_ref_ids, status, granted_by, grant_reason)
+     values ($1, gen_random_uuid(), $2, $3, '{"kind":"TENANT","ref_ids":[]}'::jsonb, '2026-01-01T00:00:00Z', 'TENANT', '{}'::uuid[], 'Active', $4, 'uat fixture')`,
+    [TENANT_B, membershipId, provider().recipientRoleId, membershipOf('owner')],
+  );
+  const [scope] = await sql<{ v: string }>('select scope_version::text as v from machvon.membership where id = $1', [membershipId]);
+  const token = tokenFor(TENANT_B, membershipId, Number(scope?.v ?? '1'));
+  const granted = await call('owner', 'POST', '/me/consents', { token, body: { channel: 'EMAIL', purpose: 'OPERATIONAL', consent_text_version: 'v1', capture_method: 'IN_APP', evidence_reference: 'uat:in-app' } });
+  expect(granted.status, 'the person gives the consent').toBe(201);
+  return { membershipId, token, consentId: String(granted.json.resource_id), consentVersion: Number(granted.json.resource_version) };
+}
+
+interface QueuedSend {
+  notificationId: string;
+  /** The idempotency key the delivery engine gives the send of an attempt (`<notification>:<channel>:<attempt>`, NOT.md section 3.1 step 6). */
+  key: (attemptNo: number) => string;
+}
+
+/** A notification of the recipient with one e-mail send waiting in the queue, as the engine plans it after an event; the delivery job of the stack takes it up. */
+async function queueSend(recipient: string, notificationId: string = randomUUID()): Promise<QueuedSend> {
+  await sql(
+    `insert into machvon.notification_instance
+       (tenant_id, id, event_id, workflow_version_id, recipient_id, purpose, dedupe_key, expires_at, status, source_event_type, event_version, priority, channel_plan)
+     values ($1, $2, gen_random_uuid(), $3, $4, 'OPERATIONAL', $5, now() + interval '30 days', 'Queued', 'e2e.provider', 1, 'NORMAL', '{EMAIL}'::text[])`,
+    [TENANT_B, notificationId, provider().workflowVersionId, recipient, `n1:${randomUUID().replaceAll('-', '')}${randomUUID().replaceAll('-', '')}`],
+  );
+  await sql(
+    `insert into machvon.delivery_attempt (tenant_id, id, notification_id, channel_account_id, attempt_no, status, cost, channel, template_version_id)
+     values ($1, gen_random_uuid(), $2, $3, 1, 'Queued', 0, 'EMAIL', $4)`,
+    [TENANT_B, notificationId, provider().channelAccountId, provider().templateVersionId],
+  );
+  return { notificationId, key: (attemptNo) => `${notificationId}:EMAIL:${attemptNo}` };
+}
+
+/** The send goes out in the delivery job of the stack and the provider accepts it: the attempt is ProviderAccepted with the id the provider gave it. */
+async function sendAccepted(recipient: string): Promise<{ notificationId: string; attemptId: string; message: string }> {
+  const sent = await queueSend(recipient);
+  await expect.poll(async () => (await attemptsOf(sent.notificationId))[0]?.status, POLL).toBe('ProviderAccepted');
+  const [attempt] = await attemptsOf(sent.notificationId);
+  expect(attempt?.provider_message_id, 'the provider named the message').toMatch(/^mem-smtp-relay-/);
+  return { notificationId: sent.notificationId, attemptId: attempt?.id ?? '', message: attempt?.provider_message_id ?? '' };
+}
+
+/**
+ * A send whose answer is lost: the provider holds the message for the key of the first attempt and cannot tell its state yet, and the call of the first send fails after the request left. The notification is
+ * written last, so the delivery job finds the script and the message of the provider already in place.
+ */
+async function queueSendWithLostAnswer(recipient: string): Promise<QueuedSend & { providerMessageId: string }> {
+  const notificationId = randomUUID();
+  await providerPost('script', { results: ['THROW'] });
+  const held = await providerPost('holds', { idempotency_key: `${notificationId}:EMAIL:1`, status: 'SENDING' });
+  const queued = await queueSend(recipient, notificationId);
+  return { ...queued, providerMessageId: String(held.provider_message_id) };
+}
+
+test.describe('J-MONEY-01 the receipts of a provider and the send whose answer was lost', () => {
+  test('TC-UAT-NFR-SECURITY-10: a signed DELIVERED, then an older ACCEPTED, the same DELIVERED again and an unsigned READ leave the send DELIVERED, one history row for each state, and the unsigned one is 401', { tag: ['@P0', '@S1', '@money'] }, async () => {
+    test.setTimeout(120_000);
+    const recipient = await seedRecipient();
+    const queueBefore = await queueOfTenantA();
+    const sent = await sendAccepted(recipient.membershipId);
+    expect((await attemptsOf(sent.notificationId))[0]).toMatchObject({ attempt_no: 1, status: 'ProviderAccepted' });
+    expect(await historyOf(sent.attemptId)).toEqual(['SENDING/CREATED', 'ACCEPTED/RESPONSE']);
+    const auditBefore = await webhookAudits();
+    const deliveredAt = new Date();
+
+    // Step 1: DELIVERED with a good signature.
+    const deliveredEvent = `e-delivered-${randomUUID()}`;
+    const delivered = await receipt(deliveredEvent, sent.message, 'DELIVERED', { at: deliveredAt });
+    expect([delivered.status, delivered.json]).toEqual([200, { received: true, duplicate: false }]);
+    expect((await attemptsOf(sent.notificationId))[0]?.status).toBe('Delivered');
+    const afterDelivered = await historyOf(sent.attemptId);
+    expect(afterDelivered).toEqual(['SENDING/CREATED', 'ACCEPTED/RESPONSE', 'DELIVERED/CALLBACK']);
+
+    // Step 2: ACCEPTED that the provider dated before the DELIVERED: the receipt is taken in (200) and stored in the inbox, and it changes nothing (BR-NOT-06: a rank lower than the one reached is skipped).
+    const lateEvent = `e-accepted-${randomUUID()}`;
+    const late = await receipt(lateEvent, sent.message, 'ACCEPTED', { at: new Date(deliveredAt.getTime() - 60_000) });
+    expect([late.status, late.json]).toEqual([200, { received: true, duplicate: false }]);
+    expect((await attemptsOf(sent.notificationId))[0]?.status).toBe('Delivered');
+    expect(await historyOf(sent.attemptId)).toEqual(afterDelivered);
+    // The log of the skipped receipt is its inbox record: it was received and processed, and no state followed from it (the metric out_of_order_callbacks of NOT.md section 4 is not readable from the stack).
+    expect(await inboxOf(lateEvent)).toEqual([{ status: 'PROCESSED', provider_event_type: 'delivery.status' }]);
+
+    // Step 3: the same DELIVERED event again (the same event id): a duplicate, no second inbox row, no new history row.
+    const again = await receipt(deliveredEvent, sent.message, 'DELIVERED', { at: deliveredAt });
+    expect([again.status, again.json]).toEqual([200, { received: true, duplicate: true }]);
+    expect(await inboxOf(deliveredEvent)).toHaveLength(1);
+    expect(await historyOf(sent.attemptId)).toEqual(afterDelivered);
+
+    // Step 4: READ without a signature: 401, nothing stored, the state is not touched.
+    const readEvent = `e-read-${randomUUID()}`;
+    const unsigned = await receipt(readEvent, sent.message, 'READ', { unsigned: true });
+    expect([unsigned.status, unsigned.json.code]).toEqual([401, 'SIGNATURE_INVALID']);
+    expect(await inboxOf(readEvent)).toEqual([]);
+    expect((await attemptsOf(sent.notificationId))[0]?.status).toBe('Delivered');
+    expect(await historyOf(sent.attemptId)).toEqual(afterDelivered);
+
+    // The final state is the design's (db_assert), the trail has one row for each receipt that was taken in and none for the duplicate or the unsigned one, and tenant A's queue is as it was.
+    expect((await sql<{ status: string }>('select status from machvon.delivery_attempt where id = $1', [sent.attemptId]))[0]?.status).toBe('Delivered');
+    expect((await webhookAudits()) - auditBefore).toBe(2);
+    expect(await queueOfTenantA()).toEqual(queueBefore);
+  });
+
+  test('TC-NOT01: DELIVERED then ACCEPTED never moves the send back, a repeated READ is one event, and the retry of a send whose recipient withdrew the consent is suppressed and never reaches the provider', { tag: ['@P0', '@S1', '@money'] }, async () => {
+    test.setTimeout(180_000);
+    const recipient = await seedRecipient();
+    const queueBefore = await queueOfTenantA();
+
+    // Part 1: the receipts. DELIVERED, then ACCEPTED (late), then READ twice with the same event id.
+    const sent = await sendAccepted(recipient.membershipId);
+    const delivered = await receipt(`e-delivered-${randomUUID()}`, sent.message, 'DELIVERED');
+    expect([delivered.status, delivered.json]).toEqual([200, { received: true, duplicate: false }]);
+    expect((await attemptsOf(sent.notificationId))[0]?.status).toBe('Delivered');
+    const late = await receipt(`e-accepted-${randomUUID()}`, sent.message, 'ACCEPTED');
+    expect([late.status, late.json]).toEqual([200, { received: true, duplicate: false }]);
+    // The status did not go back to ProviderAccepted, and the history does not name it again.
+    expect((await attemptsOf(sent.notificationId))[0]?.status).toBe('Delivered');
+    expect(await historyOf(sent.attemptId)).toEqual(['SENDING/CREATED', 'ACCEPTED/RESPONSE', 'DELIVERED/CALLBACK']);
+    const readEvent = `e-read-${randomUUID()}`;
+    const read = await receipt(readEvent, sent.message, 'READ');
+    const readAgain = await receipt(readEvent, sent.message, 'READ');
+    expect([read.status, read.json]).toEqual([200, { received: true, duplicate: false }]);
+    expect([readAgain.status, readAgain.json]).toEqual([200, { received: true, duplicate: true }]);
+    expect(await inboxOf(readEvent)).toHaveLength(1);
+    // READ is a step up (BR-NOT-06: Read 5 > Delivered 4), taken once: one history row, and the send is Read.
+    expect(await historyOf(sent.attemptId)).toEqual(['SENDING/CREATED', 'ACCEPTED/RESPONSE', 'DELIVERED/CALLBACK', 'READ/CALLBACK']);
+    expect((await attemptsOf(sent.notificationId))[0]?.status).toBe('Read');
+
+    // Part 2: the opt-out before the retry. The first send of another notification fails with a 503 (retried on the schedule of BR-NOT-03), the recipient withdraws the consent through the API, and the retry
+    // falls due: it is Suppressed for the withdrawn consent and the provider is never asked a second time.
+    await providerPost('script', { results: [{ kind: 'FAILED', failureClass: 'RETRYABLE', errorCode: 'HTTP_503' }] });
+    const retried = await queueSend(recipient.membershipId);
+    await expect.poll(() => attemptStatuses(retried.notificationId), POLL).toEqual([
+      [1, 'Failed', 'HTTP_503'],
+      [2, 'Queued', null],
+    ]);
+    const [waiting] = (await attemptsOf(retried.notificationId)).filter((attempt) => attempt.attempt_no === 2);
+    expect(waiting?.next_retry_at, 'the retry waits for its time').not.toBeNull();
+    const withdrawn = await call('owner', 'POST', `/me/consents/${recipient.consentId}/withdraw`, { token: recipient.token, ifMatch: recipient.consentVersion, body: { reason: 'The person does not want e-mail any more' } });
+    expect([withdrawn.status, withdrawn.json.status]).toEqual([200, 'Withdrawn']);
+    // The wait of the schedule (30 seconds) is brought forward: what is tested is the order of the two events, the withdrawal before the retry.
+    await sql("update machvon.delivery_attempt set next_retry_at = now() where notification_id = $1 and attempt_no = 2 and status = 'Queued'", [retried.notificationId]);
+    await expect.poll(async () => (await attemptsOf(retried.notificationId)).find((attempt) => attempt.attempt_no === 2)?.status, POLL).toBe('Suppressed');
+    const suppressed = (await attemptsOf(retried.notificationId)).find((attempt) => attempt.attempt_no === 2);
+    expect(suppressed).toMatchObject({ status: 'Suppressed', error_code: 'CONSENT_WITHDRAWN', next_retry_at: null });
+    // The provider saw the first send only, and the notification did not end as delivered.
+    expect((await providerRequests(retried.key(1))).length).toBe(1);
+    expect(await providerRequests(retried.key(2))).toEqual([]);
+    expect(await notificationStatus(retried.notificationId)).not.toBe('Delivered');
+    expect(await queueOfTenantA()).toEqual(queueBefore);
+  });
+
+  test('TC-TX03: a send whose answer was lost is Unknown and is not sent again on its own; what the provider holds settles it without a second message, and a provider that never saw it gets a new send with a new key', { tag: ['@P0', '@S1', '@money'] }, async () => {
+    test.setTimeout(180_000);
+    const recipient = await seedRecipient();
+    const queueBefore = await queueOfTenantA();
+    const auditBefore = await countOf('select count(*)::int as n from machvon.audit_event where tenant_id = $1', [TENANT_A]);
+    const outboxBefore = await countOf('select count(*)::int as n from machvon.outbox_event where tenant_id = $1', [TENANT_A]);
+
+    // Part 1: the worker takes the send up, the provider takes the message, and the answer never reaches the worker (the call fails after the request left). The stack cannot kill its own process at a chosen
+    // point: this is the state a crash leaves, a send whose answer the worker did not record.
+    const first = await queueSendWithLostAnswer(recipient.membershipId);
+    await expect.poll(async () => (await attemptsOf(first.notificationId))[0]?.status, POLL).toBe('Unknown');
+    expect((await attemptsOf(first.notificationId))[0]).toMatchObject({ attempt_no: 1, status: 'Unknown', error_code: 'ADAPTER_ERROR' });
+    // The send is not made again on its own: the provider has had the one request, the attempt is still the first, nothing is queued behind it.
+    expect((await providerRequests(first.notificationId)).map((request) => request.idempotencyKey)).toEqual([first.key(1)]);
+    expect((await attemptsOf(first.notificationId)).map((attempt) => attempt.attempt_no)).toEqual([1]);
+    // The provider can tell now: the message is its own and accepted. The reconcile job asks, the send is ProviderAccepted with the id the provider holds, and no second message is made.
+    await providerPost('holds', { idempotency_key: first.key(1), status: 'ACCEPTED' });
+    await expect.poll(async () => (await attemptsOf(first.notificationId))[0]?.status, POLL).toBe('ProviderAccepted');
+    expect((await attemptsOf(first.notificationId))[0]?.provider_message_id).toBe(first.providerMessageId);
+    expect((await providerRequests(first.notificationId)).length).toBe(1);
+    expect((await attemptsOf(first.notificationId)).map((attempt) => attempt.attempt_no)).toEqual([1]);
+    expect(await notificationStatus(first.notificationId)).not.toBe('Failed');
+
+    // Part 2: the provider never saw the request. The reconcile job learns that (NOT_FOUND), the first attempt is Failed and a second one is queued under a new key, which the provider takes.
+    await providerPost('script', { results: ['THROW'] });
+    const second = await queueSend(recipient.membershipId);
+    await expect.poll(() => attemptStatuses(second.notificationId), POLL).toEqual([
+      [1, 'Failed', 'NOT_FOUND_AT_PROVIDER'],
+      [2, 'Queued', null],
+    ]);
+    // The second send waits for its time on the schedule of BR-NOT-03 (30 seconds); the wait is brought forward.
+    await sql("update machvon.delivery_attempt set next_retry_at = now() where notification_id = $1 and attempt_no = 2 and status = 'Queued'", [second.notificationId]);
+    await expect.poll(async () => (await attemptsOf(second.notificationId)).find((attempt) => attempt.attempt_no === 2)?.status, POLL).toBe('ProviderAccepted');
+    // The provider was asked twice, each time with the key of the attempt: no key was used for two messages, and the uncertain first attempt never became a delivery.
+    expect((await providerRequests(second.notificationId)).map((request) => request.idempotencyKey)).toEqual([second.key(1), second.key(2)]);
+    expect((await attemptsOf(second.notificationId))[0]).toMatchObject({ attempt_no: 1, status: 'Failed' });
+
+    // Nothing happened to another tenant: the queue of tenant A and its audit and outbox are as they were.
+    expect(await queueOfTenantA()).toEqual(queueBefore);
+    expect(await countOf('select count(*)::int as n from machvon.audit_event where tenant_id = $1', [TENANT_A])).toBe(auditBefore);
+    expect(await countOf('select count(*)::int as n from machvon.outbox_event where tenant_id = $1', [TENANT_A])).toBe(outboxBefore);
   });
 });

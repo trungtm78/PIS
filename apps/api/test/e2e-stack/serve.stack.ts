@@ -1,8 +1,9 @@
 import { generateKeyPairSync, randomBytes } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import type { AddressInfo } from 'node:net';
-import { dirname, resolve } from 'node:path';
-import { Controller, Get, Inject, Injectable, Module, Query } from '@nestjs/common';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
+import { Body, Controller, Get, HttpCode, Inject, Injectable, Module, Post, Query } from '@nestjs/common';
 import type { CanActivate, ExecutionContext, INestApplication } from '@nestjs/common';
 import { APP_GUARD, ModuleRef, Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
@@ -26,7 +27,7 @@ import {
   DisRankingStore,
   DisSnapshotStore,
 } from '@machvon/db';
-import type { ThemeConfig } from '@machvon/db';
+import type { DeliveryEngine, ThemeConfig } from '@machvon/db';
 import { startMigratedTestDatabase } from '@machvon/db/src/migrated-test-database';
 import type { TestDatabase } from '@machvon/db/src/test-database';
 import { DomainError, METRIC_SET_VERSION, STANDARD_FEATURES, buildLines, loadErrorRegistry, verifyTenantContext } from '@machvon/kernel';
@@ -43,6 +44,15 @@ import { DatabaseTenantRuntime, TENANT_RUNTIME } from '../../src/session/tenant-
 import { UserSessionDenyList } from '../../src/session/user-session-deny-list';
 import { MockProvisioningPorts } from '../../src/provisioning/mock-ports';
 import { createProvisioningConsumer } from '../../src/provisioning/provisioning-wiring';
+import { CHANNEL_ADAPTERS } from '../../src/notifications/delivery/channel-adapters';
+import type { ChannelAdapterRegistry, InMemoryChannelAdapter, ScriptedSend } from '../../src/notifications/delivery/channel-adapters';
+import { DeliveryDispatcher } from '../../src/notifications/delivery/dispatcher';
+import { DELIVERY_ENGINE } from '../../src/notifications/delivery/tokens';
+import { defaultChannelAdapters } from '../../src/notifications/delivery/wiring';
+import { PUSH_TOKEN_VAULT } from '../../src/notifications/devices/push-vault';
+import type { PushTokenVault } from '../../src/notifications/devices/push-vault';
+import { PermissionResourceAccess } from '../../src/notifications/resource-access-port';
+import { FileService } from '../../src/modules/files';
 import { DOCUMENT_FILE_PORT } from '../../src/modules/doc/file-port';
 import { DOC_REVOCATION, DOC_SIGNING_PORT, DOC_TRUST_STORE } from '../../src/modules/doc/tokens';
 import { seedOutgoingDocuments } from './outgoing-seed';
@@ -1092,6 +1102,52 @@ function deliveryFixtures(tenantId: string): Array<[string, unknown[]]> {
   return statements;
 }
 
+/**
+ * The channel provider of the UAT of the notification center (money area): the e-mail account of the mock relay (`smtp-relay`, an in-memory adapter that
+ * is registered in this stack only) that tenant B holds, the template and the workflow its sends name. The delivery job of this stack visits tenant B only
+ * (see `DELIVERY_TENANTS`), so the notifications that tenant A shows its screens (`deliveryFixtures`) stay as they are planted. The webhook of the provider
+ * is signed with a test secret that this process draws at start and writes to the stack info; the account names it through `webhook_secret_ref`, which the
+ * environment of this process resolves (EnvironmentWebhookSecrets). No real credential is involved.
+ */
+const PROVIDER_EXTERNAL_ACCOUNT = 'uat-relay';
+const PROVIDER_WEBHOOK_REF = 'secret://e2e/uat-relay-webhook';
+const PROVIDER_WEBHOOK_ENV = 'MACHVON_SECRET_E2E_UAT_RELAY_WEBHOOK';
+const PROVIDER_KEY_ID = 'k1';
+const providerIds = {
+  workflow: fixtureId(0xea, 1),
+  account: fixtureId(0xea, 2),
+  template: fixtureId(0xea, 3),
+  recipientRole: fixtureId(0xea, 4),
+};
+
+function providerFixtures(tenantId: string): Array<[string, unknown[]]> {
+  return [
+    // The person who receives the mail and gives or withdraws their own consent holds the right of the notification center for their own inbox (a grant of this role is made by the test).
+    [
+      "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, 'E2E_UAT_RECIPIENT', 'E2E_UAT_RECIPIENT', $3, 5, 'Active', $4)",
+      [tenantId, providerIds.recipientRole, ['notification.self'], ACTOR],
+    ],
+    [
+      `insert into machvon.workflow_version (tenant_id, id, business_type, revision, definition_json, status, kind, event_type, created_by, definition_hash)
+       values ($1, $2, 'NOTIFICATION', 1, $3::jsonb, 'Published', 'NOTIFICATION', 'e2e.provider', $4, repeat('f', 64))`,
+      [tenantId, providerIds.workflow, JSON.stringify({ channels: [{ channel: 'EMAIL', templateCode: 'uat.mail' }] }), ACTOR],
+    ],
+    [
+      `insert into machvon.channel_account (tenant_id, id, channel, external_account_id, credential_secret_ref, capability_version, status, verified_at, webhook_secret_ref)
+       values ($1, $2, 'EMAIL', $3, 'secret://e2e/uat-relay', 'v1', 'Active', now(), $4)`,
+      [tenantId, providerIds.account, PROVIDER_EXTERNAL_ACCOUNT, PROVIDER_WEBHOOK_REF],
+    ],
+    [
+      `insert into machvon.notification_template_version (tenant_id, id, code, channel, locale, revision, content_ast, variable_schema, status, content_hash, created_by)
+       values ($1, $2, 'uat.mail', 'EMAIL', 'vi-VN', 1, '{"subject":"UAT","body":"UAT"}'::jsonb, '{}'::jsonb, 'Active', repeat('d', 64), $3)`,
+      [tenantId, providerIds.template, ACTOR],
+    ],
+  ];
+}
+
+/** The tenants whose notifications the delivery job of this stack sends: tenant A keeps the queue the notification screens plant and read (`deliveryFixtures`), so the job does not touch it. */
+const deliveryTenants = new Set<string>([fixtures.tenants.B]);
+
 async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name: TenantName): Promise<void> {
   const tenantId = fixtures.tenants[name];
   await tenants.withTenant({ tenantId, membershipId: ACTOR, scopeVersion: 1 }, (tx) => seedSystemRoles(tx, ACTOR));
@@ -1121,6 +1177,7 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
       [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],
     ]);
   }
+  if (name === 'B') statements.push(...providerFixtures(tenantId));
   if (name === 'A') statements.push(...issueFixtures(tenantId), ...investmentFixtures(tenantId), ...governanceFixtures(tenantId), ...deliveryFixtures(tenantId), ...docDraftFixtures(tenantId));
   // The units that owe the reports of the investors in the monitoring calendar (MNE-01): the Office and the Project Management Board of the Department.
   if (name === 'A') statements.push(["update machvon.organization_unit set is_investor = true where tenant_id = $1 and code = any($2::text[])", [tenantId, ['CB-SKHDT-VP', 'CB-SKHDT-QLDA']]]);
@@ -1537,6 +1594,60 @@ class DevMailboxController {
   }
 }
 
+/** What a test may script for the mock provider: the answer of the next send, a lost answer (the call fails after the provider may have taken the message) or an accepted send. */
+function isScriptedSend(value: unknown): value is ScriptedSend {
+  if (value === 'THROW') return true;
+  if (typeof value !== 'object' || value === null) return false;
+  const { kind, failureClass, errorCode, providerMessageId } = value as Record<string, unknown>;
+  if (kind === 'ACCEPTED') return typeof providerMessageId === 'string';
+  if (kind === 'FAILED') return (failureClass === 'RETRYABLE' || failureClass === 'PERMANENT') && typeof errorCode === 'string';
+  if (kind === 'UNKNOWN') return typeof errorCode === 'string';
+  return false;
+}
+
+/**
+ * The controls of the mock e-mail provider of this stack (`smtp-relay`, an in-memory adapter): what it was asked, the answers of its next sends and what it holds for an idempotency key
+ * (what it would answer if the delivery job asked about a send whose result was lost). They exist only in this stack: the application has no such route, and a real provider is not driven this way.
+ */
+@Controller('__e2e/provider')
+class E2eProviderController {
+  constructor(@Inject(ModuleRef) private readonly modules: ModuleRef) {}
+
+  private email(): InMemoryChannelAdapter {
+    const adapter = this.modules.get<ChannelAdapterRegistry>(CHANNEL_ADAPTERS, { strict: false }).forChannel('EMAIL');
+    if (adapter === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    return adapter as InMemoryChannelAdapter;
+  }
+
+  /** Every request the provider received, in order, including the repeats of an idempotency key (the address is the one of the tenant user directory of the recipient). */
+  @Get('email/requests')
+  @Public()
+  requests(): { items: InMemoryChannelAdapter['requests'] } {
+    return { items: [...this.email().requests] };
+  }
+
+  /** The answers of the next sends, one for each, then the adapter accepts. `"THROW"` is a call that fails after the request may have left (the send becomes Unknown). */
+  @Post('email/script')
+  @HttpCode(200)
+  @Public()
+  script(@Body() body: { results?: unknown }): { queued: number } {
+    const results = body.results;
+    if (!Array.isArray(results) || !results.every(isScriptedSend)) throw new DomainError('INVALID_REQUEST', 400);
+    this.email().enqueue(...(results as ScriptedSend[]));
+    return { queued: results.length };
+  }
+
+  /** The provider holds a message for an idempotency key with the status it would report when asked (ACCEPTED, DELIVERED, FAILED, SENDING for "cannot tell yet"). */
+  @Post('email/holds')
+  @HttpCode(200)
+  @Public()
+  holds(@Body() body: { idempotency_key?: unknown; status?: unknown }): { provider_message_id: string } {
+    const statuses = ['SENDING', 'ACCEPTED', 'DELIVERED', 'READ', 'FAILED'];
+    if (typeof body.idempotency_key !== 'string' || body.idempotency_key === '' || typeof body.status !== 'string' || !statuses.includes(body.status)) throw new DomainError('INVALID_REQUEST', 400);
+    return { provider_message_id: this.email().holds(body.idempotency_key, body.status as Parameters<InMemoryChannelAdapter['holds']>[1]) };
+  }
+}
+
 @Controller('__e2e')
 class HealthController {
   @Get('health')
@@ -1561,6 +1672,13 @@ export interface StackInfo {
   idpIssuer: string;
   /** Outgoing documents of tenant A: the two the visual cases read and the one the signing flow changes. */
   documents: OutgoingSeed['documents'];
+  /**
+   * The e-mail provider the stack mocks for the notification center: `smtp-relay`, whose adapter is in memory, and the Active account of tenant B that
+   * receives its callbacks. A callback is `POST /webhooks/channels/<provider>` with `x-timestamp` and `x-signature` = hex HMAC-SHA256 of `<timestamp>.<raw body>`
+   * under `webhookSecret`, a body `{id, account, message, status, type, at}`. The delivery job sends the queued sends of tenant B within seconds and its reconcile job asks the provider about the
+   * ones whose result was lost. The adapter is driven through the routes of `E2eProviderController` (`/__e2e/provider/...`).
+   */
+  provider: { name: string; channel: 'EMAIL'; tenant: 'B'; externalAccountId: string; channelAccountId: string; templateVersionId: string; workflowVersionId: string; recipientRoleId: string; webhookKeyId: string; webhookSecret: string };
 }
 
 function unitIds(name: TenantName): Record<string, string> {
@@ -1591,6 +1709,7 @@ describe('e2e API stack', () => {
     const lockPool = new Pool({ connectionString: database.urlFor('machvon_outbox_relay'), max: 6 });
     lockPool.on('error', () => undefined);
     let workers: RunningWorkers | undefined;
+    let objectRoot: string | undefined;
     let app: INestApplication | undefined;
     let idp: E2eIdentityProvider | undefined;
     try {
@@ -1662,6 +1781,13 @@ describe('e2e API stack', () => {
       const authOptions: AuthGuardOptions = { verifier, denyList, controlAudience: CONTROL_AUDIENCE };
       // The master key of the personal data of the households lives in this process only: a new one for every run of the stack, written nowhere.
       process.env.FIELD_ENCRYPTION_KEYS = `1:${randomBytes(32).toString('base64')}`;
+      // The notification center sends through a mock e-mail provider here (the application registers none where its environment is not named, as in this process). Only that adapter registry is
+      // given the environment `test`: every other part of the application keeps reading the environment as it is. The webhook secret of the provider is a test secret of this run, written
+      // nowhere but the stack info; the objects (the files the API serves, the bodies of the callbacks, the BI exports) are kept in a folder of this run.
+      objectRoot = mkdtempSync(join(tmpdir(), 'machvon-e2e-objects-'));
+      process.env.MACHVON_OBJECT_ROOT = objectRoot;
+      const providerSecret = randomBytes(24).toString('hex');
+      process.env[PROVIDER_WEBHOOK_ENV] = `${PROVIDER_KEY_ID}:${providerSecret}`;
       const moduleRef = await Test.createTestingModule({
         imports: [
           {
@@ -1676,7 +1802,7 @@ describe('e2e API stack', () => {
                 licenses: { store: licenseStore, keys: licenseKeys },
                 tenantState: { runtime: tenantRuntime, entitlementCache, authzCache },
               })],
-            controllers: [HealthController, DevMailboxController],
+            controllers: [HealthController, DevMailboxController, E2eProviderController],
             providers: [
               { provide: SIGNING_KEY, useValue: key },
               { provide: TENANT_RUNTIME, useValue: tenantRuntime },
@@ -1688,6 +1814,8 @@ describe('e2e API stack', () => {
           },
         ],
       })
+        .overrideProvider(CHANNEL_ADAPTERS)
+        .useValue(defaultChannelAdapters('test'))
         .overrideProvider(DOCUMENT_FILE_PORT)
         .useValue(outgoing.files)
         .overrideProvider(DOC_SIGNING_PORT)
@@ -1698,7 +1826,8 @@ describe('e2e API stack', () => {
         .overrideProvider(DOC_REVOCATION)
         .useValue({ check: async () => ({ status: 'GOOD' as const }) })
         .compile();
-      app = moduleRef.createNestApplication();
+      // The raw body is what the provider signs: the webhook controllers verify the signature on it.
+      app = moduleRef.createNestApplication({ rawBody: true });
       // A UAT run (scripts/uat-run.mjs) keeps a line for each request the browser tests make.
       if (process.env.UAT_JOURNAL !== undefined && process.env.UAT_JOURNAL !== '') app.use(requestJournal(process.env.UAT_JOURNAL));
       await app.listen(port, '127.0.0.1');
@@ -1726,13 +1855,71 @@ describe('e2e API stack', () => {
         delay: () => Promise.resolve(),
       });
       const consumers = createOutboxConsumers({ tenants, control, access, entitlementCache, authzCache, tenantRuntime, security, provisioning });
+      // The delivery job: the dispatcher of the application over the registry of this stack, the same engine the controllers use. It sends the queued sends of the tenants of `deliveryTenants` only.
+      const dispatcher = new DeliveryDispatcher(
+        {
+          database: tenants,
+          engine: moduleRef.get<DeliveryEngine>(DELIVERY_ENGINE, { strict: false }),
+          adapters: moduleRef.get<ChannelAdapterRegistry>(CHANNEL_ADAPTERS, { strict: false }),
+          loadAccess: (ctx) => access.load(ctx),
+          resourceAccess: new PermissionResourceAccess(),
+          alerts,
+          pushTokens: moduleRef.get<PushTokenVault>(PUSH_TOKEN_VAULT, { strict: false }),
+        },
+        'test',
+      );
+      const notificationDelivery = {
+        dispatchDue: async (ctx: Parameters<DeliveryDispatcher['dispatchDue']>[0]): Promise<unknown> => (deliveryTenants.has(ctx.tenantId) ? dispatcher.dispatchDue(ctx) : undefined),
+        reconcile: async (ctx: Parameters<DeliveryDispatcher['reconcile']>[0]): Promise<unknown> => (deliveryTenants.has(ctx.tenantId) ? dispatcher.reconcile(ctx) : undefined),
+      };
       workers = startWorkers(
-        { tenants, control, relayPool, lockPool, signingKey, alerts, publish: createOutboxPublisher(consumers), accessCache: authzCache },
-        // The job that closes and locks the periods by the calendar runs once a day here: the period flows of DIS-14 move a period by hand and must not race it.
-        { intervalSeconds: { 'issue-sla': 2, 'outbox-relay': 1, 'dis-period-autoclose': 86_400, 'dgv-quality-run': 2 } },
+        {
+          tenants,
+          control,
+          relayPool,
+          lockPool,
+          signingKey,
+          alerts,
+          publish: createOutboxPublisher(consumers),
+          accessCache: authzCache,
+          // The object store the API serves its files from: the export files of BI are written to it (the schedule runner and the expiry of the exports register only with it).
+          exportFiles: moduleRef.get(FileService, { strict: false }),
+          notificationDelivery,
+        },
+        {
+          intervalSeconds: {
+            // The job that closes and locks the periods by the calendar runs once a day here: the period flows of DIS-14 move a period by hand and must not race it.
+            'issue-sla': 2,
+            'outbox-relay': 1,
+            'dis-period-autoclose': 86_400,
+            'dgv-quality-run': 2,
+            // The sends that are due go out within seconds, and a send whose result was lost is asked about at its provider soon after (the application does both every 5 seconds and 5 minutes).
+            'notification-dispatch': 2,
+            'notification-reconcile': 3,
+            // The schedules of BI exports are run within seconds of their time (the application runs the job once a minute).
+            'bi-export-schedule-runner': 2,
+            // The object store registers three more jobs with it (the conversion of ADM, the knowledge index of LLM, the export of the data of a tenant): the flows of those screens move their rows by hand, so they stay a day apart.
+            'adm-migration': 86_400,
+            'llm-knowledge-reindex': 86_400,
+            'tenant-export': 86_400,
+          },
+        },
       );
       const listening = (app.getHttpServer().address() as AddressInfo).port;
-      const info: StackInfo = { apiPort: listening, adminUrl: database.adminUrl, tenants: fixtures.tenants, planVersionId: STANDARD_PLAN, units: { A: unitIds('A'), B: unitIds('B'), C: unitIds('C') }, idpIssuer: idp.issuer, documents: outgoing.documents };
+      const info: StackInfo = { apiPort: listening, adminUrl: database.adminUrl, tenants: fixtures.tenants, planVersionId: STANDARD_PLAN, units: { A: unitIds('A'), B: unitIds('B'), C: unitIds('C') }, idpIssuer: idp.issuer, documents: outgoing.documents,
+        provider: {
+          name: 'smtp-relay',
+          channel: 'EMAIL',
+          tenant: 'B',
+          externalAccountId: PROVIDER_EXTERNAL_ACCOUNT,
+          channelAccountId: providerIds.account,
+          templateVersionId: providerIds.template,
+          recipientRoleId: providerIds.recipientRole,
+          workflowVersionId: providerIds.workflow,
+          webhookKeyId: PROVIDER_KEY_ID,
+          webhookSecret: providerSecret,
+        },
+      };
       writeFileSync(infoPath, JSON.stringify(info, null, 2));
       await pollUntil(() => existsSync(stopPath), 500);
     } finally {
@@ -1742,6 +1929,7 @@ describe('e2e API stack', () => {
       await idp?.stop();
       await Promise.all([pool.end(), controlPool.end(), relayPool.end(), lockPool.end()]);
       await database.stop();
+      if (objectRoot !== undefined) rmSync(objectRoot, { recursive: true, force: true });
       rmSync(`${infoPath}.pid`, { force: true });
     }
   }, 24 * 60 * 60 * 1000);

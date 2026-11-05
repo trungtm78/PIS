@@ -17,6 +17,11 @@ export interface StackInfo {
   idpIssuer: string;
   /** Outgoing documents of tenant A: two the visual cases read (one waits for the leader, one for a number) and one the signing flow changes. */
   documents: { visualSubmitted: string; flowSubmitted: string; visualSigned: string };
+  /**
+   * The mock e-mail provider of the notification center (apps/api/test/e2e-stack/serve.stack.ts): the Active account of tenant B that its callbacks name, and the test secret they are signed with
+   * (hex HMAC-SHA256 of `<x-timestamp>.<raw body>`, sent as `x-signature`). The adapter is driven through `/__e2e/provider/email/{requests,script,holds}` on the API port.
+   */
+  provider: { name: string; channel: 'EMAIL'; tenant: 'B'; externalAccountId: string; channelAccountId: string; templateVersionId: string; workflowVersionId: string; recipientRoleId: string; webhookKeyId: string; webhookSecret: string };
 }
 
 export function stackInfo(): StackInfo {

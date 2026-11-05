@@ -1,17 +1,1 @@
-[
-  {
-    "tc_id": "TC-UAT-NFR-SECURITY-10",
-    "reason": "The e2e stack cannot take a receipt of a provider. It starts with MACHVON_ENVIRONMENT unset, which the product reads as production, so defaultChannelAdapters (apps/api/src/notifications/delivery/wiring.ts) registers no channel adapter at all and POST /webhooks/channels/<provider> answers 404 CHANNEL_ACCOUNT_UNKNOWN for every provider; the signing keys of a channel account are read from the environment of the API process (EnvironmentWebhookSecrets, MACHVON_SECRET_*), which the stack does not set, so no callback can be signed so that it verifies; and there is no Zalo mock adapter in the product (the mocks are smtp-relay, mock-fcm, mock-apns and the SMS adapter). A signed DELIVERED then a late ACCEPTED then a duplicate event id then an unsigned READ cannot be sent to the real API, so no part of the case is proved here.",
-    "needs": "A stack started with MACHVON_ENVIRONMENT=test (or staging) and with a MACHVON_SECRET_<ref> variable for the webhook_secret_ref of a seeded Active channel_account (apps/api/test/e2e-stack/serve.stack.ts and the webServer env of apps/web/playwright.config.ts), a delivery_attempt of that account in the state ACCEPTED with a provider_message_id, and a provider adapter whose callbacks the tests may sign (the in-memory e-mail adapter smtp-relay is the one that exists; the case names a Zalo mock that the product does not have)."
-  },
-  {
-    "tc_id": "TC-TX03",
-    "reason": "The case is a worker that crashes after the provider accepted the message and before the acknowledgement was stored, then the retry and the reconciliation of the uncertain send by the provider capability. The delivery engine, its job and the channel adapter that would take the send are not run by the e2e stack (the stack seeds delivery_attempt rows by SQL and says that the delivery job is not run; no channel adapter is registered because MACHVON_ENVIRONMENT is unset), and a crash of a worker at a chosen point cannot be made from outside the process. Planted rows would only show what the test planted, so nothing of the case is proved here (the unit tests in apps/api/test/notifications/delivery-flow.test.ts prove it in-process, not against this stack).",
-    "needs": "A stack that runs the delivery job with a registered mock channel adapter (MACHVON_ENVIRONMENT=test) and a way to stop the worker between the answer of the provider and the write of the acknowledgement (a fault-injection hook, or a provider mock that holds the answer until the process is killed), and to read back what the provider holds (adapter.lookup) for the reconciliation."
-  },
-  {
-    "tc_id": "TC-NOT01",
-    "reason": "The case needs a signed Delivered webhook followed by an Accepted one, a duplicate Read, and an opt-out of the recipient before a retry that must be suppressed. The webhook cannot be received by the stack (no channel adapter and no signing key in its environment, see TC-UAT-NFR-SECURITY-10), and the retry of a send is made by the delivery job, which the stack does not run, so neither the receipts nor the suppression of the retry can be shown against the real API.",
-    "needs": "The same stack as TC-UAT-NFR-SECURITY-10 (MACHVON_ENVIRONMENT=test, a signing key in the environment of the API process, a seeded Active channel account), plus the delivery job running so that a retry is attempted and the consent of the recipient (not-consent) can be withdrawn before it."
-  }
-]
+[]

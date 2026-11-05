@@ -762,4 +762,68 @@ test.describe('tenant isolation: the API and the database', () => {
       test.info().annotations.push(...kept.map((description) => ({ type: 'left-behind', description })));
     }
   });
+
+  test('TC-UAT-NFR-TENANCY-06: a scheduled export generated after the grant over Ban Y was revoked holds the five projects of Sở X only, none of Ban Y, and its audit row names a new scope hash', { tag: ['@P0', '@S1', '@isolation-api'] }, async ({ request }) => {
+    test.setTimeout(420_000);
+    const world = await seedBiWorld(request);
+    try {
+      const hashOf = async (job: string, action: string): Promise<string | undefined> =>
+        (await sql<{ safe_diff: { scope_hash?: string } }>('select safe_diff from machvon.audit_event where resource_id = $1 and action = $2', [job, action]))[0]?.safe_diff.scope_hash;
+
+      // The scope of the leader before the change: an export asked now holds the eight projects of both units, and its audit row names the scope it was made under.
+      const wide = await call(request, await leaderToken(world), 'post', '/bi/exports', { body: exportBody(world) });
+      expect(wide.status).toBe(200);
+      expect(json(wide).row_count).toBe(8);
+      const wideHash = await hashOf(String(json(wide).resource_id), 'bi.export_request');
+      expect(wideHash).toMatch(/^[0-9a-f]{16,}$/);
+
+      // Step 1: the leader makes a schedule of the export, daily (the job of the stack runs every two seconds and the schedule is due at the next minute but one, Vietnamese time: the time the job generates the file is after the revocation below).
+      const due = new Date(Date.now() + 75_000);
+      const vietnamese = new Date(due.getTime() + 7 * 3_600_000);
+      const cron = `${vietnamese.getUTCMinutes()} ${vietnamese.getUTCHours()} * * *`;
+      const schedule = await call(request, await leaderToken(world), 'post', '/bi/export-schedules', {
+        body: { query_spec: { metric_version_id: world.metric, dimensions: ['project'], as_of_period: world.period }, cron, format: 'CSV', recipients: [world.leader] },
+      });
+      expect(schedule.status).toBe(200);
+      const scheduleId = String(json(schedule).resource_id);
+      const [stored] = await sql<{ owner_user_id: string; status: string; last_run_at: string | null }>('select owner_user_id, status, last_run_at::text as last_run_at from machvon.bi_export_schedule where id = $1', [scheduleId]);
+      expect(stored).toEqual({ owner_user_id: world.leader, status: 'ACTIVE', last_run_at: null });
+
+      // Step 2: the Tenant Admin revokes the grant over Ban Y before the schedule's time has come.
+      const revoked = await call(request, tokenOf(tenantA(), membershipOf('owner')), 'post', `/role-grants/${world.grantY}/revoke`, { body: { reason: 'The leader leaves Ban Y' }, versioned: true });
+      expect(revoked.status).toBe(200);
+      expect((await sql('select 1 from machvon.bi_export_job where schedule_id = $1', [scheduleId])).length, 'no job was made before the time of the schedule').toBe(0);
+
+      // Step 3: the job of the schedules runs (the worker of the stack, at the time of the schedule) and makes the file for the leader under the scope the leader has now.
+      await expect
+        .poll(async () => (await sql<{ status: string }>('select status from machvon.bi_export_job where schedule_id = $1', [scheduleId]))[0]?.status, { timeout: 180_000, intervals: [1_000, 2_000] })
+        .toBeDefined();
+      const jobs = await sql<{ id: string; status: string; row_count: number | null; subject_user_id: string; scope_hash: string | null }>(
+        'select id, status, row_count, subject_user_id, scope_hash from machvon.bi_export_job where schedule_id = $1',
+        [scheduleId],
+      );
+      expect(jobs).toHaveLength(1);
+      const job = jobs[0];
+      expect(job).toMatchObject({ status: 'READY', subject_user_id: world.leader, row_count: 5 });
+
+      // Step 4: the file holds the five projects of Sở X and none of Ban Y.
+      const file = await fileOf(request, await leaderToken(world), job?.id ?? '');
+      expect(file.status).toBe(200);
+      expect(idsIn(file.text, world.projectsX).sort()).toEqual([...world.projectsX].sort());
+      expect(idsIn(file.text, world.projectsY)).toEqual([]);
+      expect(file.text).not.toContain('Ban Y');
+
+      // The audit of the job names the scope it was made under, and it is not the scope of the export made before the revocation; it is the scope an export asked now is made under.
+      const jobHash = await hashOf(job?.id ?? '', 'bi.export_scheduled');
+      expect(jobHash).toMatch(/^[0-9a-f]{16,}$/);
+      expect(jobHash).not.toBe(wideHash);
+      expect(job?.scope_hash).toBe(jobHash);
+      const now = await call(request, await leaderToken(world), 'post', '/bi/exports', { body: exportBody(world) });
+      expect(json(now).row_count).toBe(5);
+      expect(await hashOf(String(json(now).resource_id), 'bi.export_request')).toBe(jobHash);
+    } finally {
+      const kept = await removeBiWorld(world);
+      test.info().annotations.push(...kept.map((description) => ({ type: 'left-behind', description })));
+    }
+  });
 });
