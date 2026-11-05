@@ -358,3 +358,20 @@ test('a command that writes more than a megabyte (the whole output of the produc
   assert.equal(result.status, 0);
   assert.equal(result.stdout.length, size);
 });
+
+test('a failed product command names the lines that say what failed, so that the gate alone tells which test it was', () => {
+  const root = productWorkspace();
+  const output = ['PASS test/a.test.ts', ...Array.from({ length: 300 }, (_, n) => `  noise ${n}`), 'FAIL test/b.test.ts', '  ● the cap of a channel › holds one', 'npm error code 1'].join('\n');
+  const { run } = fakeRunner({ 'npm test --workspaces': { status: 1, stdout: output, stderr: '' } });
+  const stage = runVerification({ root, base: 'b', run, config: {} }).stages.find((s) => s.name === 'product-tests');
+  assert.deepEqual(stage.findings.map((f) => f.params.detail), ['FAIL test/b.test.ts\n  ● the cap of a channel › holds one\nnpm error code 1']);
+});
+
+test('the detail of a failed product command is capped to the last forty lines that say something failed', () => {
+  const root = productWorkspace();
+  const output = Array.from({ length: 100 }, (_, n) => `FAIL test/${n}.test.ts`).join('\n');
+  const { run } = fakeRunner({ 'npm run lint': { status: 1, stdout: output, stderr: '' } });
+  const detail = runVerification({ root, base: 'b', run, config: {} }).stages.find((s) => s.name === 'product-tests').findings[0].params.detail.split('\n');
+  assert.equal(detail.length, 40);
+  assert.equal(detail.at(-1), 'FAIL test/99.test.ts');
+});

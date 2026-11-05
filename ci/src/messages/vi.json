@@ -41,7 +41,7 @@
   "stage.sql-verify": "Schema tham chiếu chạy được trên PostgreSQL với RLS theo tenant",
   "stage.product-tests": "Workspace sản phẩm: test, lint và quy tắc kiến trúc",
   "stage.mobile-tests": "Các gói mobile (token, API client): test Flutter (bỏ qua khi không có Flutter)",
-  "finding.productCommandFailed": "Cổng sản phẩm không đạt: {command}",
+  "finding.productCommandFailed": "Cổng sản phẩm không đạt: {command}\n{detail}",
   "review.baseMissing": "Thiếu mốc so sánh: truyền --base <ref> hoặc đặt REVIEW_BASE",
   "review.labelsInvalid": "PR_LABELS phải là mảng JSON chứa tên các nhãn",
   "review.diffFailed": "git diff --name-only {base}...HEAD thất bại; cần lấy commit gốc (fetch-depth 0)",

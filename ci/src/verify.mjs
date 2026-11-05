@@ -56,6 +56,17 @@ function commandStage(name, result, { required = true } = {}) {
   return { name, status: required ? 'fail' : 'reported', findings: [], output: `${result.stdout}\n${result.stderr}`.trim() };
 }
 
+// The lines of the output of a command that say something failed (a test, an error), the last forty: the report is read in a terminal, and the whole output is far too long.
+const FAILURE_LINE = /\bFAIL\b|●|\bError\b|\berror\b|Jest: /;
+const DETAIL_LINES = 40;
+export function failureLines(output) {
+  return output
+    .split(/\r?\n/)
+    .filter((line) => FAILURE_LINE.test(line))
+    .slice(-DETAIL_LINES)
+    .join('\n');
+}
+
 // Runs the product workspace gates. Before the first product package exists there is nothing to
 // run, which is reported as skipped (earns no credit) rather than as a pass.
 function productTestsStage(run, root, { required = true } = {}) {
@@ -65,7 +76,7 @@ function productTestsStage(run, root, { required = true } = {}) {
     const result = run(command, args, { cwd: root });
     if (result.status !== 0) failures.push({ line: [command, ...args].join(' '), output: `${result.stdout}\n${result.stderr}`.trim() });
   }
-  const findings = failures.map((item) => finding('PRODUCT_COMMAND_FAILED', { command: item.line }));
+  const findings = failures.map((item) => finding('PRODUCT_COMMAND_FAILED', { command: item.line, detail: failureLines(item.output) }));
   const result = stage('product-tests', findings, { required });
   return { ...result, output: failures.map((item) => item.output).join('\n') };
 }

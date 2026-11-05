@@ -41,7 +41,7 @@
   "stage.sql-verify": "Reference schema executes on PostgreSQL with tenant row-level security",
   "stage.product-tests": "Product workspaces: tests, lint and architecture rules",
   "stage.mobile-tests": "Mobile packages (tokens, API client): Flutter tests (skipped without Flutter)",
-  "finding.productCommandFailed": "Product gate failed: {command}",
+  "finding.productCommandFailed": "Product gate failed: {command}\n{detail}",
   "review.baseMissing": "No comparison base: pass --base <ref> or set REVIEW_BASE",
   "review.labelsInvalid": "PR_LABELS must hold a JSON array of label names",
   "review.diffFailed": "git diff --name-only {base}...HEAD failed; fetch the base commit (fetch-depth 0)",
