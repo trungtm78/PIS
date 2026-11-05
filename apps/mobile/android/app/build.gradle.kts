@@ -9,7 +9,8 @@ plugins {
 
 android {
     namespace = "vn.machvon.machvon_mobile"
-    compileSdk = flutter.compileSdkVersion
+    // permission_handler_android needs the Android APIs of 37; the Flutter default is lower.
+    compileSdk = maxOf(flutter.compileSdkVersion, 37)
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
