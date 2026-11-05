@@ -1,0 +1,2109 @@
+{
+  "feature": "adm",
+  "generated_at": "2026-11-05T07:53:18.039Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/adm/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UI-ADM-01",
+      "title": "Cây tổ chức (ADM-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-01",
+      "oracle_source": "Claim → FR-ADM-01; kỳ vọng nguyên văn của ca thiết kế UI-ADM-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-01",
+      "catches_bug": "Màn hình Cây tổ chức (ADM-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ADM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ADM-01\n1. Mở route bằng menu và deep link; kiểm tên trường: Đơn vị, Cấp cha, Ngày hiệu lực, Đơn vị kế thừa\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ADM-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UI-ADM-02",
+      "title": "Người dùng và mời thành viên (ADM-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-02",
+      "oracle_source": "Claim → FR-ADM-02; kỳ vọng nguyên văn của ca thiết kế UI-ADM-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-02",
+      "catches_bug": "Màn hình Người dùng và mời thành viên (ADM-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ADM-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ADM-02\n1. Mở route bằng menu và deep link; kiểm tên trường: Tài khoản, Vai trò, Đơn vị, Trạng thái\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ADM-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UI-ADM-03",
+      "title": "Vai trò và quyền (ADM-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-03",
+      "oracle_source": "Claim → FR-ADM-03; kỳ vọng nguyên văn của ca thiết kế UI-ADM-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-03",
+      "catches_bug": "Màn hình Vai trò và quyền (ADM-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ADM-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ADM-03\n1. Mở route bằng menu và deep link; kiểm tên trường: Tài nguyên, Hành động, Phạm vi, Điều kiện\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ADM-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UI-ADM-04",
+      "title": "Ủy quyền có thời hạn (ADM-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-04",
+      "oracle_source": "Claim → FR-ADM-04; kỳ vọng nguyên văn của ca thiết kế UI-ADM-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-04",
+      "catches_bug": "Màn hình Ủy quyền có thời hạn (ADM-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ADM-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ADM-04\n1. Mở route bằng menu và deep link; kiểm tên trường: Người giao, Người nhận, Phạm vi, Từ ngày, Đến ngày\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ADM-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UI-ADM-05",
+      "title": "Danh mục dùng chung (ADM-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-05",
+      "oracle_source": "Claim → FR-ADM-05; kỳ vọng nguyên văn của ca thiết kế UI-ADM-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-05",
+      "catches_bug": "Màn hình Danh mục dùng chung (ADM-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ADM-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ADM-05\n1. Mở route bằng menu và deep link; kiểm tên trường: Loại, Mã, Tên, Hiệu lực\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ADM-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UI-ADM-06",
+      "title": "Dựng quy trình phê duyệt (ADM-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-06",
+      "oracle_source": "Claim → FR-ADM-06; kỳ vọng nguyên văn của ca thiết kế UI-ADM-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-06",
+      "catches_bug": "Màn hình Dựng quy trình phê duyệt (ADM-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ADM-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ADM-06\n1. Mở route bằng menu và deep link; kiểm tên trường: Trạng thái, Chuyển bước, Vai trò, SLA\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ADM-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UI-ADM-07",
+      "title": "Lịch công tác và ngày nghỉ (ADM-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-07",
+      "oracle_source": "Claim → FR-ADM-07; kỳ vọng nguyên văn của ca thiết kế UI-ADM-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-07",
+      "catches_bug": "Màn hình Lịch công tác và ngày nghỉ (ADM-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ADM-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ADM-07\n1. Mở route bằng menu và deep link; kiểm tên trường: Ngày nghỉ, Giờ làm việc, Hạn mặc định\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ADM-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UI-ADM-08",
+      "title": "Chữ ký số (ADM-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-08",
+      "oracle_source": "Claim → FR-ADM-08; kỳ vọng nguyên văn của ca thiết kế UI-ADM-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-08",
+      "catches_bug": "Màn hình Chữ ký số (ADM-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ADM-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ADM-08\n1. Mở route bằng menu và deep link; kiểm tên trường: Nhà cung cấp, Chứng thư, Hiệu lực, Người ký\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ADM-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UI-ADM-09",
+      "title": "Tích hợp và ánh xạ (ADM-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-09",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-09",
+      "oracle_source": "Claim → FR-ADM-09; kỳ vọng nguyên văn của ca thiết kế UI-ADM-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-09",
+      "catches_bug": "Màn hình Tích hợp và ánh xạ (ADM-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ADM-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ADM-09\n1. Mở route bằng menu và deep link; kiểm tên trường: Hệ thống, Endpoint, Mapping, Credential reference\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ADM-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UI-ADM-10",
+      "title": "Giám sát đồng bộ (ADM-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-10",
+      "oracle_source": "Claim → FR-ADM-10; kỳ vọng nguyên văn của ca thiết kế UI-ADM-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-10",
+      "catches_bug": "Màn hình Giám sát đồng bộ (ADM-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ADM-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ADM-10\n1. Mở route bằng menu và deep link; kiểm tên trường: Job, Offset, Lỗi, Độ trễ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ADM-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UI-ADM-11",
+      "title": "Nhật ký kiểm toán (ADM-11): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "auditor",
+      "journey_ref": "J-FR-ADM-11",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-11",
+      "oracle_source": "Claim → FR-ADM-11; kỳ vọng nguyên văn của ca thiết kế UI-ADM-11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-11",
+      "catches_bug": "Màn hình Nhật ký kiểm toán (ADM-11) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ADM-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "auditor",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ADM-11\n1. Mở route bằng menu và deep link; kiểm tên trường: Chủ thể, Hành động, Đối tượng, Thời điểm\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ADM-11",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UI-ADM-12",
+      "title": "Chính sách lưu trữ (ADM-12): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-12",
+      "oracle_source": "Claim → FR-ADM-12; kỳ vọng nguyên văn của ca thiết kế UI-ADM-12 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-12",
+      "catches_bug": "Màn hình Chính sách lưu trữ (ADM-12) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ADM-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ADM-12\n1. Mở route bằng menu và deep link; kiểm tên trường: Loại dữ liệu, Thời hạn, Legal hold, Xóa\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ADM-12",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UI-ADM-13",
+      "title": "Nhập chuyển đổi dữ liệu (ADM-13): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-13",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-13",
+      "oracle_source": "Claim → FR-ADM-13; kỳ vọng nguyên văn của ca thiết kế UI-ADM-13 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-13",
+      "catches_bug": "Màn hình Nhập chuyển đổi dữ liệu (ADM-13) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ADM-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ADM-13\n1. Mở route bằng menu và deep link; kiểm tên trường: Nguồn cũ, Mapping, Đối soát, Batch\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ADM-13",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UI-ADM-14",
+      "title": "Cấu hình an toàn (ADM-14): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-14",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-14",
+      "oracle_source": "Claim → FR-ADM-14; kỳ vọng nguyên văn của ca thiết kế UI-ADM-14 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-14",
+      "catches_bug": "Màn hình Cấu hình an toàn (ADM-14) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ADM-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ADM-14\n1. Mở route bằng menu và deep link; kiểm tên trường: MFA, Phiên, IP, Phân loại dữ liệu\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: RBAC kết hợp ABAC; quản trị kỹ thuật không tự có quyền đọc hồ sơ\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ADM-14",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC103",
+      "title": "Bước 1: 403 ROLE_ESCALATION_DENIED (rank 90 ≥ 90), không có role_grant mới, audit DENIED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-03",
+      "oracle_source": "Claim → IAM.md BR-IAM-05; kỳ vọng nguyên văn của ca thiết kế UAT-AC103 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Vai trò và quyền\": Bước 1: 403 ROLE_ESCALATION_DENIED (rank 90 ≥ 90), không có role_grant mới, audit DENIED. Bước 2: 201, role_grant Active, granted_by u.admin, outbox iam.access.",
+      "coverage_ids": [
+        "COV-FR-ADM-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.admin rank 90 (TENANT_ADMIN, scope TENANT); u.spec chưa có vai trò quản trị.\n1. u.admin gọi POST /role-grants {membership u.spec, role TENANT_ADMIN, scope_kind TENANT, reason \"Bổ sung quản trị viên\"} (k-103-1)\n2. u.admin gọi cùng lệnh với role UNIT_ADMIN (rank 70), scope UNIT_SUBTREE [A-BQLGT] (k-103-2)",
+      "expected": "Bước 1: 403 ROLE_ESCALATION_DENIED (rank 90 ≥ 90), không có role_grant mới, audit DENIED. Bước 2: 201, role_grant Active, granted_by u.admin, outbox iam.access.changed.v1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "ADM-03",
+      "tags": [
+        "security"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC104",
+      "title": "403 SELF_GRANT_DENIED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-03",
+      "oracle_source": "Claim → IAM.md BR-IAM-05; kỳ vọng nguyên văn của ca thiết kế UAT-AC104 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Vai trò và quyền\": 403 SELF_GRANT_DENIED; không có grant mới; audit outcome DENIED action role_grant.created.",
+      "coverage_ids": [
+        "COV-FR-ADM-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT).\n1. u.unitadmin gọi POST /role-grants cho chính membership của mình role LEADER (60) scope [A-BQLGT] (k-104-1)",
+      "expected": "403 SELF_GRANT_DENIED; không có grant mới; audit outcome DENIED action role_grant.created.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "ADM-03",
+      "tags": [
+        "security"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC105",
+      "title": "Bước 1: 403 SCOPE_OUT_OF_GRANTOR_RANGE",
+      "type": "RED",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-03",
+      "oracle_source": "Claim → IAM.md BR-IAM-05; kỳ vọng nguyên văn của ca thiết kế UAT-AC105 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Vai trò và quyền\": Bước 1: 403 SCOPE_OUT_OF_GRANTOR_RANGE. Bước 2: 201.",
+      "coverage_ids": [
+        "COV-FR-ADM-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.unitadmin chỉ quản trị subtree A-BQLGT; A-STC là nhánh khác.\n1. u.unitadmin gán SPECIALIST cho u.maker scope UNIT_SUBTREE [A-STC] (k-105-1)\n2. u.unitadmin gán SPECIALIST scope [A-BQLGT/Phòng Kỹ thuật] (k-105-2)",
+      "expected": "Bước 1: 403 SCOPE_OUT_OF_GRANTOR_RANGE. Bước 2: 201.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "ADM-03",
+      "tags": [
+        "security"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC106",
+      "title": "Bước 1: 422 SYSTEM_PERMISSION_NOT_GRANTABLE (đồng thời DB CHECK chặn)",
+      "type": "RED",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-03",
+      "oracle_source": "Claim → IAM.md BR-IAM-06; kỳ vọng nguyên văn của ca thiết kế UAT-AC106 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Vai trò và quyền\": Bước 1: 422 SYSTEM_PERMISSION_NOT_GRANTABLE (đồng thời DB CHECK chặn). Bước 2: 403 ROLE_ESCALATION_DENIED. Bước 3: 400 INVALID_REQUEST (rank > 89).",
+      "coverage_ids": [
+        "COV-FR-ADM-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.admin không giữ quyền ai.publish.\n1. u.admin POST /roles {code \"THEME_EDITOR\", permissions [\"system.theme.manage\"], rank 50} (k-106-1)\n2. u.admin POST /roles {code \"AI_PUB\", permissions [\"ai.publish\"], rank 50} (k-106-2)\n3. u.admin POST /roles {code \"VIEWER_X\", permissions [\"report.read\"], rank 95} (k-106-3)",
+      "expected": "Bước 1: 422 SYSTEM_PERMISSION_NOT_GRANTABLE (đồng thời DB CHECK chặn). Bước 2: 403 ROLE_ESCALATION_DENIED. Bước 3: 400 INVALID_REQUEST (rank > 89).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "ADM-03",
+      "tags": [
+        "security"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC107",
+      "title": "P-01: 200",
+      "type": "RED",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-01",
+      "oracle_source": "Claim → IAM.md BR-IAM-04; kỳ vọng nguyên văn của ca thiết kế UAT-AC107 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-01, FR-IAM-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Cây tổ chức\": P-01: 200. P-02: 404. effective-access liệt kê grant SPECIALIST với scope_ref_ids [A-BQLGT] và path tương ứng.",
+      "coverage_ids": [
+        "COV-FR-ADM-01",
+        "COV-FR-IAM-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.spec có SPECIALIST scope UNIT_SUBTREE [A-BQLGT]; dự án P-01 owner_unit A-BQLGT/Phòng Kỹ thuật; P-02 owner_unit A-STC.\n1. u.spec GET /resources/project/P-01\n2. u.spec GET /resources/project/P-02\n3. u.spec GET /me/effective-access",
+      "expected": "P-01: 200. P-02: 404. effective-access liệt kê grant SPECIALIST với scope_ref_ids [A-BQLGT] và path tương ứng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "ADM-01",
+      "tags": [
+        "security"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC108",
+      "title": "HD-001: 200",
+      "type": "RED",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-17",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-17",
+      "oracle_source": "Claim → IAM.md BR-IAM-08; kỳ vọng nguyên văn của ca thiết kế UAT-AC108 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-17",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thành viên khách – nhà thầu\": HD-001: 200. HD-002: 404. Danh sách dự án chỉ có P-01 (trường tiền kế hoạch vốn bị che). Bước 4: 422 GUEST_SCOPE_INVALID.",
+      "coverage_ids": [
+        "COV-FR-ADM-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Nhà thầu NT-01 có hai hợp đồng HD-001 (dự án P-01) và HD-002 (dự án P-03); u.guest chỉ được mời vào HD-001.\n1. u.guest GET /resources/contract/HD-001\n2. u.guest GET /resources/contract/HD-002\n3. u.guest GET /resources/project (danh sách)\n4. u.admin POST /role-grants cho u.guest role GUEST_CONTRACTOR scope UNIT_SUBTREE [A-BQLGT] (k-108-1)",
+      "expected": "HD-001: 200. HD-002: 404. Danh sách dự án chỉ có P-01 (trường tiền kế hoạch vốn bị che). Bước 4: 422 GUEST_SCOPE_INVALID.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "ADM-17",
+      "tags": [
+        "security"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC109",
+      "title": "Consumer IAM đặt role_grant Expired với revoke_reason \"CONTRACT_CLOSED\"",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-17",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-17",
+      "oracle_source": "Claim → IAM.md BR-IAM-08; kỳ vọng nguyên văn của ca thiết kế UAT-AC109 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-17",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thành viên khách – nhà thầu\": Consumer IAM đặt role_grant Expired với revoke_reason \"CONTRACT_CLOSED\"; membership chuyển Ended nếu không còn grant; bước 2: 401/403; bucket mobile rỗng ở lần ",
+      "coverage_ids": [
+        "COV-FR-ADM-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.guest có grant CONTRACT [HD-001]; CTR phát contract.closed cho HD-001.\n1. Phát sự kiện contract.closed.v1 (HD-001)\n2. Sau 60 giây u.guest gọi GET /resources/contract/HD-001",
+      "expected": "Consumer IAM đặt role_grant Expired với revoke_reason \"CONTRACT_CLOSED\"; membership chuyển Ended nếu không còn grant; bước 2: 401/403; bucket mobile rỗng ở lần sync kế.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "ADM-17",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC110",
+      "title": "Bước 1: 422 UNIT_CYCLE",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-01",
+      "oracle_source": "Claim → IAM.md BR-IAM-09; kỳ vọng nguyên văn của ca thiết kế UAT-AC110 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Cây tổ chức\": Bước 1: 422 UNIT_CYCLE. Bước 2: 422 UNIT_DEPTH_EXCEEDED. Bước 3: 409 UNIT_CODE_TAKEN. Không có thay đổi path nào.",
+      "coverage_ids": [
+        "COV-FR-ADM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Cây A-ROOT → A-BQLGT → A-BQLGT/PKT; độ sâu tối đa 8.\n1. u.admin POST /org-units/A-BQLGT/move {new_parent_id A-BQLGT/PKT, effective_from 2026-11-01} (k-110-1, If-Match \"1\")\n2. Tạo chuỗi 8 cấp rồi tạo đơn vị cấp 9 (k-110-2)\n3. Tạo đơn vị mã \"A-STC\" trùng mã đang Active (k-110-3)",
+      "expected": "Bước 1: 422 UNIT_CYCLE. Bước 2: 422 UNIT_DEPTH_EXCEEDED. Bước 3: 409 UNIT_CODE_TAKEN. Không có thay đổi path nào.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "ADM-01",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC111",
+      "title": "Bước 2: 403 SELF_APPROVAL_DENIED",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-16",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-16",
+      "oracle_source": "Claim → IAM.md BR-IAM-10; kỳ vọng nguyên văn của ca thiết kế UAT-AC111 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-16, FR-ADM-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sắp xếp lại đơn vị\": Bước 2: 403 SELF_APPROVAL_DENIED. Bước 3: 202; saga Applied: A-SKHDT status Superseded, valid_until 2025-03-01, successor_id A-STC; 3 membership organization_id",
+      "coverage_ids": [
+        "COV-FR-ADM-16",
+        "COV-FR-ADM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. A-SKHDT có 3 membership, 5 role_grant, 4 dự án; báo cáo 2024 R-2024-07 ghi đơn vị \"Sở Kế hoạch và Đầu tư\". Căn cứ: NĐ 45/2025/NĐ-CP [CXN-ORG-01].\n1. u.admin POST /unit-reorganizations {kind MERGE, effective_from 2025-03-01, predecessor [A-SKHDT], successors [A-STC], legal_basis_ref \"QĐ 512/QĐ-UBND 2025\", mapping default_successor A-STC} (k-111-1)\n2. u.admin POST /unit-reorganizations/{id}/decision approve (k-111-2)\n3. u.owner POST decision approve (k-111-3)\n4. Chờ saga Applied; đọc đơn vị, grant, dự án, báo cáo cũ",
+      "expected": "Bước 2: 403 SELF_APPROVAL_DENIED. Bước 3: 202; saga Applied: A-SKHDT status Superseded, valid_until 2025-03-01, successor_id A-STC; 3 membership organization_id = A-STC; 5 grant mới trên A-STC có reorganization_id, 5 grant cũ Expired; 4 dự án owner_unit A-STC qua command PRJ; R-2024-07 vẫn hiển thị \"Sở Kế hoạch và Đầu tư\" (as-of).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "E2E",
+      "screen_id": "ADM-01",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC112",
+      "title": "Bước 1: 422 REORG_MAPPING_INCOMPLETE với errors[0]",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-16",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-16",
+      "oracle_source": "Claim → IAM.md BR-IAM-10; kỳ vọng nguyên văn của ca thiết kế UAT-AC112 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-16",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sắp xếp lại đơn vị\": Bước 1: 422 REORG_MAPPING_INCOMPLETE với errors[0].field \"mapping.projects\" và mã dự án còn thiếu. Bước 2: 201 Draft; organization_unit_succession có 2 dòng (HB",
+      "coverage_ids": [
+        "COV-FR-ADM-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. A-HUYEN-HB có 6 dự án; chia về A-XA-AP và A-XA-BM từ 2025-07-01 (chính quyền 2 cấp, Luật 72/2025/QH15 [CXN-ORG-02]).\n1. u.admin POST /unit-reorganizations {kind SPLIT, predecessor [A-HUYEN-HB], successors [A-XA-AP, A-XA-BM], mapping.projects chỉ có 5/6 dự án} (k-112-1)\n2. Gửi lại đủ 6 dự án (k-112-2)",
+      "expected": "Bước 1: 422 REORG_MAPPING_INCOMPLETE với errors[0].field \"mapping.projects\" và mã dự án còn thiếu. Bước 2: 201 Draft; organization_unit_succession có 2 dòng (HB→AP, HB→BM).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "ADM-16",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC113",
+      "title": "Bước 1: 403 SELF_ACTION_DENIED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-02",
+      "oracle_source": "Claim → IAM.md BR-IAM-07; kỳ vọng nguyên văn của ca thiết kế UAT-AC113 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Người dùng và mời thành viên\": Bước 1: 403 SELF_ACTION_DENIED. Bước 2: 403 SCOPE_DENIED. Bước 3: 200 membership Suspended, outbox iam.access.changed.v1. Bước 4: cả 2 phiên 401 SESSION_EXPIRED",
+      "coverage_ids": [
+        "COV-FR-ADM-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.unitadmin (70) quản lý A-BQLGT; u.leader (60) và u.maker (30) thuộc A-BQLGT; u.maker có 2 phiên đang mở.\n1. u.unitadmin POST /memberships/<chính mình>/suspend (k-113-1)\n2. u.leader (không có iam.member.manage) suspend u.maker (k-113-2)\n3. u.unitadmin suspend u.maker {reason \"Tạm dừng do điều chuyển công tác\"} (k-113-3)\n4. Sau 60 giây u.maker gọi API bằng 2 phiên",
+      "expected": "Bước 1: 403 SELF_ACTION_DENIED. Bước 2: 403 SCOPE_DENIED. Bước 3: 200 membership Suspended, outbox iam.access.changed.v1. Bước 4: cả 2 phiên 401 SESSION_EXPIRED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "ADM-02",
+      "tags": [
+        "security"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC114",
+      "title": "Bước 1: 403 QUOTA_EXCEEDED (feature seats, used 3, limit 3)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-02",
+      "oracle_source": "Claim → SAS.md BR-SAS-09; kỳ vọng nguyên văn của ca thiết kế UAT-AC114 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-02, FR-SAS-11",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Người dùng và mời thành viên\": Bước 1: 403 QUOTA_EXCEEDED (feature seats, used 3, limit 3). Bước 2: 201 (khách đếm meter guest_seats riêng). Bước 3: 201.",
+      "coverage_ids": [
+        "COV-FR-ADM-02",
+        "COV-FR-SAS-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Entitlement seats = 3; tenant A có 3 membership STAFF Active.\n1. u.admin POST /memberships/invitations cho người thứ 4 (k-114-1)\n2. u.admin POST /guest-memberships cho nhà thầu NT-01 HD-001 (k-114-2)\n3. Kết thúc 1 membership rồi mời lại (k-114-3)",
+      "expected": "Bước 1: 403 QUOTA_EXCEEDED (feature seats, used 3, limit 3). Bước 2: 201 (khách đếm meter guest_seats riêng). Bước 3: 201.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "ADM-02",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC115",
+      "title": "Bước 1: 403 INVITATION_EMAIL_MISMATCH, lời mời vẫn Pending",
+      "type": "RED",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-02",
+      "oracle_source": "Claim → IAM.md §3.3; kỳ vọng nguyên văn của ca thiết kế UAT-AC115 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Người dùng và mời thành viên\": Bước 1: 403 INVITATION_EMAIL_MISMATCH, lời mời vẫn Pending. Bước 2: 409 INVITATION_EXPIRED, lời mời Expired, membership Expired.",
+      "coverage_ids": [
+        "COV-FR-ADM-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Lời mời INV-1 cho moi@minhha.gov.vn tạo lúc 2026-10-01T00:00Z (hạn 7 ngày).\n1. Đăng nhập bằng khac@minhha.gov.vn và gọi POST /memberships/invitations/INV-1/accept với token đúng lúc 2026-10-02 (k-115-1)\n2. Đăng nhập đúng email, chấp nhận lúc 2026-10-09 (k-115-2)",
+      "expected": "Bước 1: 403 INVITATION_EMAIL_MISMATCH, lời mời vẫn Pending. Bước 2: 409 INVITATION_EXPIRED, lời mời Expired, membership Expired.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "ADM-02",
+      "tags": [
+        "security"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC116",
+      "title": "Bước 1: 201 Active",
+      "type": "RED",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-04",
+      "oracle_source": "Claim → ADM.md BR-ADM-06; kỳ vọng nguyên văn của ca thiết kế UAT-AC116 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ủy quyền có thời hạn\": Bước 1: 201 Active. Bước 2: 200, approval_task decided_by u.spec, on_behalf_of_id u.leader, delegation_id; audit ghi \"thay mặt\". Bước 3: 403 DELEGATION_CHAIN_DE",
+      "coverage_ids": [
+        "COV-FR-ADM-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.leader có approval.decide scope [A-BQLGT]; u.spec chưa có; hồ sơ thanh toán PR-16 do u.maker lập, task chờ u.leader.\n1. u.leader POST /delegations {delegate u.spec, permissions [\"approval.decide\"], scope UNIT_SUBTREE [A-BQLGT], valid 7 ngày, reason \"Đi công tác nước ngoài\"} (k-116-1)\n2. u.spec POST /approval-tasks/{PR-16 task}/decision approve (k-116-2, If-Match)\n3. u.spec POST /delegations ủy quyền tiếp cho u.maker (k-116-3)\n4. u.leader tạo ủy quyền 91 ngày (k-116-4)",
+      "expected": "Bước 1: 201 Active. Bước 2: 200, approval_task decided_by u.spec, on_behalf_of_id u.leader, delegation_id; audit ghi \"thay mặt\". Bước 3: 403 DELEGATION_CHAIN_DENIED. Bước 4: 422 DELEGATION_INVALID.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "ADM-04",
+      "tags": [
+        "security"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC117",
+      "title": "403 SELF_APPROVAL_DENIED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-04",
+      "oracle_source": "Claim → ADM.md BR-ADM-02; kỳ vọng nguyên văn của ca thiết kế UAT-AC117 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-04, FR-ADM-18",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ủy quyền có thời hạn\": 403 SELF_APPROVAL_DENIED; task vẫn Pending; không có signal tới Temporal.",
+      "coverage_ids": [
+        "COV-FR-ADM-04",
+        "COV-FR-ADM-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.spec được ủy quyền approval.decide; hồ sơ PR-17 do chính u.spec lập; task giao u.leader, ủy quyền sang u.spec.\n1. u.spec POST /approval-tasks/{PR-17 task}/decision approve (k-117-1)",
+      "expected": "403 SELF_APPROVAL_DENIED; task vẫn Pending; không có signal tới Temporal.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "ADM-04",
+      "tags": [
+        "security"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC118",
+      "title": "Bước 1: 403 SELF_ACTION_DENIED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-02",
+      "oracle_source": "Claim → IAM.md BR-IAM-07; kỳ vọng nguyên văn của ca thiết kế UAT-AC118 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Người dùng và mời thành viên\": Bước 1: 403 SELF_ACTION_DENIED. Bước 2: 403 ROLE_ESCALATION_DENIED (rank 99 > 90). Nếu System Admin gọi qua control plane thu hồi owner cuối: 409 LAST_TENANT_OW",
+      "coverage_ids": [
+        "COV-FR-ADM-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A chỉ có 1 TENANT_OWNER là u.owner.\n1. u.owner POST /memberships/<u.owner>/end (k-118-1)\n2. u.admin POST /role-grants/<grant owner>/revoke (k-118-2)",
+      "expected": "Bước 1: 403 SELF_ACTION_DENIED. Bước 2: 403 ROLE_ESCALATION_DENIED (rank 99 > 90). Nếu System Admin gọi qua control plane thu hồi owner cuối: 409 LAST_TENANT_OWNER.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "ADM-02",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC126",
+      "title": "PR-a: 1 task required_role LEADER_BQLGT",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-15",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-15",
+      "oracle_source": "Claim → ADM.md BR-ADM-03; kỳ vọng nguyên văn của ca thiết kế UAT-AC126 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-15, FR-ADM-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ma trận thẩm quyền phê duyệt\": PR-a: 1 task required_role LEADER_BQLGT. PR-b: 1 task LEADER_STC. PR-c: task cấp 1 LEADER_UBND; sau khi người thứ nhất duyệt, task cấp 2 giao người khác (requir",
+      "coverage_ids": [
+        "COV-FR-ADM-15",
+        "COV-FR-ADM-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. DoA v1 Published cho PAYMENT_REQUEST, unit A-BQLGT include_subtree: [0, 5.000.000.000) → LEADER_BQLGT 1 cấp; [5.000.000.000, 20.000.000.000) → LEADER_STC 1 cấp; [20.000.000.000, ∞) → LEADER_UBND 2 cấp distinct.\n1. u.maker submit PR-a amount_vnd \"4999999999\"\n2. submit PR-b amount_vnd \"5000000000\"\n3. submit PR-c amount_vnd \"25000000000\"\n4. Đọc workflow_instance.doa_matrix_version_id và approval_task",
+      "expected": "PR-a: 1 task required_role LEADER_BQLGT. PR-b: 1 task LEADER_STC. PR-c: task cấp 1 LEADER_UBND; sau khi người thứ nhất duyệt, task cấp 2 giao người khác (requires_distinct_approvers); cả 3 instance ghim DoA v1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "ADM-06",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC127",
+      "title": "Bước 1: 422 DOA_MATRIX_INVALID errors[]",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-15",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-15",
+      "oracle_source": "Claim → ADM.md BR-ADM-04; kỳ vọng nguyên văn của ca thiết kế UAT-AC127 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-15",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ma trận thẩm quyền phê duyệt\": Bước 1: 422 DOA_MATRIX_INVALID errors[].field \"rules[1].amount_min_vnd\" code GAP. Bước 2: 422 DOA_MATRIX_INVALID code OVERLAP (EXCLUDE constraint cũng chặn). Bư",
+      "coverage_ids": [
+        "COV-FR-ADM-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Bản nháp DoA v2 do u.admin lập.\n1. PUT rules có khoảng trống [5.000.000.000, 6.000.000.000) rồi submit (k-127-1)\n2. PUT rules chồng lấn [0, 6e9) và [5e9, 20e9) cùng unit (k-127-2)\n3. Sửa đúng, submit, u.admin tự decision approve (k-127-3)\n4. u.owner decision approve (k-127-4)",
+      "expected": "Bước 1: 422 DOA_MATRIX_INVALID errors[].field \"rules[1].amount_min_vnd\" code GAP. Bước 2: 422 DOA_MATRIX_INVALID code OVERLAP (EXCLUDE constraint cũng chặn). Bước 3: 403 SELF_APPROVAL_DENIED. Bước 4: v2 Published, v1 Superseded; outbox adm.doa_matrix.published.v1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "ADM-15",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC128",
+      "title": "422 DOA_RULE_NOT_FOUND trả về command gốc",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-15",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-15",
+      "oracle_source": "Claim → ADM.md BR-ADM-03; kỳ vọng nguyên văn của ca thiết kế UAT-AC128 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-15",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ma trận thẩm quyền phê duyệt\": 422 DOA_RULE_NOT_FOUND trả về command gốc; không tạo workflow_instance; HOME cảnh báo cấu hình thiếu cho Tenant Admin.",
+      "coverage_ids": [
+        "COV-FR-ADM-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. DoA không có quy tắc cho CONTRACT_CHANGE tại A-XA-AP.\n1. Phân hệ CTR gọi startApproval document_type CONTRACT_CHANGE unit A-XA-AP amount 1.000.000.000",
+      "expected": "422 DOA_RULE_NOT_FOUND trả về command gốc; không tạo workflow_instance; HOME cảnh báo cấu hình thiếu cho Tenant Admin.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "ADM-15",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC129",
+      "title": "403 SELF_APPROVAL_DENIED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-06",
+      "oracle_source": "Claim → ADM.md BR-ADM-02; kỳ vọng nguyên văn của ca thiết kế UAT-AC129 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-06, FR-ADM-18",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Dựng quy trình phê duyệt\": 403 SELF_APPROVAL_DENIED; resolver lần chạy kế tiếp loại u.maker và giao task cho người LEADER_BQLGT khác; audit outcome DENIED.",
+      "coverage_ids": [
+        "COV-FR-ADM-06",
+        "COV-FR-ADM-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.maker vừa có INVESTOR_OFFICER vừa được gán LEADER_BQLGT; tự lập PR-29 và hệ thống resolve đúng u.maker làm người duyệt.\n1. u.maker POST /approval-tasks/{task PR-29}/decision approve (k-129-1)",
+      "expected": "403 SELF_APPROVAL_DENIED; resolver lần chạy kế tiếp loại u.maker và giao task cho người LEADER_BQLGT khác; audit outcome DENIED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "ADM-06",
+      "tags": [
+        "security"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC130",
+      "title": "Đúng 1 phản hồi 200",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-18",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-18",
+      "oracle_source": "Claim → ADM.md §3 đồng thời; kỳ vọng nguyên văn của ca thiết kế UAT-AC130 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-18",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Theo dõi quy trình phê duyệt\": Đúng 1 phản hồi 200; phản hồi còn lại 409 TASK_ALREADY_DECIDED hoặc VERSION_CONFLICT; Temporal nhận 1 signal TaskDecided; 1 audit approval.decided.",
+      "coverage_ids": [
+        "COV-FR-ADM-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Task T-30 Pending giao cho nhóm 2 người cùng đủ thẩm quyền (min_approvals 1).\n1. Hai người gửi đồng thời POST /approval-tasks/T-30/decision approve với key khác nhau (k-130-a, k-130-b) và cùng If-Match \"1\"",
+      "expected": "Đúng 1 phản hồi 200; phản hồi còn lại 409 TASK_ALREADY_DECIDED hoặc VERSION_CONFLICT; Temporal nhận 1 signal TaskDecided; 1 audit approval.decided.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "ADM-18",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC131",
+      "title": "Lần 2: 200 cùng body và header Idempotency-Replayed: true",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "auditor",
+      "journey_ref": "J-FR-ADM-18",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-18",
+      "oracle_source": "Claim → Platform BR-PLT-02; kỳ vọng nguyên văn của ca thiết kế UAT-AC131 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-18, FR-ADM-11",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Theo dõi quy trình phê duyệt\": Lần 2: 200 cùng body và header Idempotency-Replayed: true. Lần 3: 409 IDEMPOTENCY_CONFLICT. Lần 4: 409 IDEMPOTENCY_IN_PROGRESS với Retry-After. Tổng: 1 audit, 1",
+      "coverage_ids": [
+        "COV-FR-ADM-18",
+        "COV-FR-ADM-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "auditor",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Task T-31 Pending của u.leader.\n1. Gửi decision approve key k-131-1\n2. Gửi lại y hệt key k-131-1\n3. Gửi key k-131-1 với decision reject\n4. Gửi key k-131-1 đồng thời 2 lần khi lần đầu chưa commit (giả lập độ trễ 2 giây)",
+      "expected": "Lần 2: 200 cùng body và header Idempotency-Replayed: true. Lần 3: 409 IDEMPOTENCY_CONFLICT. Lần 4: 409 IDEMPOTENCY_IN_PROGRESS với Retry-After. Tổng: 1 audit, 1 outbox adm.approval_task.decided.v1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "ADM-11",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC132",
+      "title": "I-1 đi đúng 2 bước của v3 (workflow_version_id v3 không đổi)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-06",
+      "oracle_source": "Claim → ADM.md BR-ADM-05; kỳ vọng nguyên văn của ca thiết kế UAT-AC132 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Dựng quy trình phê duyệt\": I-1 đi đúng 2 bước của v3 (workflow_version_id v3 không đổi); I-2 ghim v4 và có 3 bước; v3 Superseded nhưng còn tham chiếu được.",
+      "coverage_ids": [
+        "COV-FR-ADM-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Quy trình REPORT_ACCEPT v3 (2 bước); instance I-1 đang ở bước 1.\n1. Công bố v4 (3 bước) bởi người khác tác giả\n2. Hoàn tất I-1\n3. Khởi tạo instance I-2",
+      "expected": "I-1 đi đúng 2 bước của v3 (workflow_version_id v3 không đổi); I-2 ghim v4 và có 3 bước; v3 Superseded nhưng còn tham chiếu được.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "ADM-06",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC133",
+      "title": "Domain trả 409 trạng thái không hợp lệ",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-06",
+      "oracle_source": "Claim → ADM.md BR-ADM-07; kỳ vọng nguyên văn của ca thiết kế UAT-AC133 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-06, FR-ADM-18",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Dựng quy trình phê duyệt\": Domain trả 409 trạng thái không hợp lệ; instance Completed outcome GUARD_REJECTED; R-33 vẫn Withdrawn; cảnh báo vận hành 1 lần; retry cùng key không đổi kết quả",
+      "coverage_ids": [
+        "COV-FR-ADM-06",
+        "COV-FR-ADM-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Instance I-33 cho report R-33; R-33 bị maker rút (Withdrawn) trong khi task cuối đang chờ.\n1. Người duyệt approve task cuối\n2. Workflow gọi command acceptReport với key wf:I-33:final:1",
+      "expected": "Domain trả 409 trạng thái không hợp lệ; instance Completed outcome GUARD_REJECTED; R-33 vẫn Withdrawn; cảnh báo vận hành 1 lần; retry cùng key không đổi kết quả.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "ADM-06",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC134",
+      "title": "due_at = 2026-05-04T15:00:00+07:00 (2 giờ ngày 29/4 + 6 giờ ngày 4/5)",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-07",
+      "oracle_source": "Claim → ADM.md BR-ADM-08; kỳ vọng nguyên văn của ca thiết kế UAT-AC134 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-07, FR-ADM-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Lịch công tác và ngày nghỉ\": due_at = 2026-05-04T15:00:00+07:00 (2 giờ ngày 29/4 + 6 giờ ngày 4/5); nhắc ở 80% (2026-05-04T13:24+07:00), chuyển cấp ở 100% theo escalate_to.",
+      "coverage_ids": [
+        "COV-FR-ADM-07",
+        "COV-FR-ADM-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Lịch VN-STD 2026 Published: giờ làm 08:00–12:00, 13:00–17:00 thứ 2–6; nghỉ 2026-04-30, 2026-05-01; bước có sla_working_hours 8.\n1. Tạo task lúc 2026-04-29T15:00:00+07:00\n2. Đọc approval_task.due_at; chạy timer Temporal tới 80% và 100%",
+      "expected": "due_at = 2026-05-04T15:00:00+07:00 (2 giờ ngày 29/4 + 6 giờ ngày 4/5); nhắc ở 80% (2026-05-04T13:24+07:00), chuyển cấp ở 100% theo escalate_to.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "ADM-06",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC135",
+      "title": "Bước 1: 422 CALENDAR_INVALID field holidays[0]",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-07",
+      "oracle_source": "Claim → ADM.md §5; kỳ vọng nguyên văn của ca thiết kế UAT-AC135 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Lịch công tác và ngày nghỉ\": Bước 1: 422 CALENDAR_INVALID field holidays[0].date. Bước 2: Published; task tạo sau thời điểm công bố dùng lịch mới, task cũ giữ due_at.",
+      "coverage_ids": [
+        "COV-FR-ADM-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Bản nháp lịch 2027.\n1. POST /work-calendars year 2027 với holidays có ngày 2026-12-31 (k-135-1)\n2. Gửi đúng, publish (k-135-2)",
+      "expected": "Bước 1: 422 CALENDAR_INVALID field holidays[0].date. Bước 2: Published; task tạo sau thời điểm công bố dùng lịch mới, task cũ giữ due_at.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "ADM-07",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC136",
+      "title": "Bước 1: 422 CERTIFICATE_EXPIRED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-08",
+      "oracle_source": "Claim → ADM.md §3.7; kỳ vọng nguyên văn của ca thiết kế UAT-AC136 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-08",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chữ ký số\": Bước 1: 422 CERTIFICATE_EXPIRED. Bước 2: 422 CERTIFICATE_INVALID, không lưu nội dung, log không chứa chuỗi khóa. Bước 3: 201; bước 4: 409 CERTIFICATE_DUPLICATE ",
+      "coverage_ids": [
+        "COV-FR-ADM-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tệp PEM chứng thư hết hạn 2025-12-31 và tệp chứa \"BEGIN PRIVATE KEY\".\n1. POST /signing-certificates với chứng thư hết hạn (k-136-1)\n2. POST với tệp chứa khóa riêng (k-136-2)\n3. POST chứng thư hợp lệ hai lần (k-136-3, k-136-4)",
+      "expected": "Bước 1: 422 CERTIFICATE_EXPIRED. Bước 2: 422 CERTIFICATE_INVALID, không lưu nội dung, log không chứa chuỗi khóa. Bước 3: 201; bước 4: 409 CERTIFICATE_DUPLICATE (fingerprint).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "ADM-08",
+      "tags": [
+        "security"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC137",
+      "title": "Bước 1: 422 CONNECTOR_NOT_ACTIVATABLE",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-09",
+      "oracle_source": "Claim → ADM.md BR-ADM-10; kỳ vọng nguyên văn của ca thiết kế UAT-AC137 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tích hợp và ánh xạ\": Bước 1: 422 CONNECTOR_NOT_ACTIVATABLE. Bước 2: 200 Active với nhãn MOCK hiển thị đỏ trên ADM-09; production từ chối MOCK.",
+      "coverage_ids": [
+        "COV-FR-ADM-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Connector \"kbnn-statement-import\" adapter_status PROPOSED.\n1. PUT /integration-connectors/{id} status Active (k-137-1)\n2. Đổi adapter_status MOCK ở môi trường test rồi Active (k-137-2)",
+      "expected": "Bước 1: 422 CONNECTOR_NOT_ACTIVATABLE. Bước 2: 200 Active với nhãn MOCK hiển thị đỏ trên ADM-09; production từ chối MOCK.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "ADM-09",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC138",
+      "title": "Bước 1: 202 → PROCESSED, tác dụng nghiệp vụ áp dụng 1 lần",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-10",
+      "oracle_source": "Claim → ADM.md §3.8; kỳ vọng nguyên văn của ca thiết kế UAT-AC138 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-10, FR-OMNI-11",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Giám sát đồng bộ\": Bước 1: 202 → PROCESSED, tác dụng nghiệp vụ áp dụng 1 lần. Bước 2: 409 INBOX_STATE_INVALID.",
+      "coverage_ids": [
+        "COV-FR-ADM-10",
+        "COV-FR-OMNI-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Inbox event IE-38 FAILED (lỗi tạm thời đã khắc phục).\n1. POST /integration-inbox/IE-38/replay (k-138-1)\n2. Gọi lại sau khi PROCESSED (k-138-2)",
+      "expected": "Bước 1: 202 → PROCESSED, tác dụng nghiệp vụ áp dụng 1 lần. Bước 2: 409 INBOX_STATE_INVALID.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "ADM-10",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC139",
+      "title": "Bước 1: lỗi permission denied/trigger reject",
+      "type": "RED",
+      "platform": "web",
+      "persona": "auditor",
+      "journey_ref": "J-FR-ADM-11",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-11",
+      "oracle_source": "Claim → Platform BR-PLT-01; kỳ vọng nguyên văn của ca thiết kế UAT-AC139 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-11",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nhật ký kiểm toán\": Bước 1: lỗi permission denied/trigger reject. Bước 3: phát hiện seal mismatch ở đúng seal chứa seq bị sửa; cảnh báo P1 tới Security Admin; ADM-11 hiển thị \"chuỗ",
+      "coverage_ids": [
+        "COV-FR-ADM-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "auditor",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Role runtime machvon_app; 1000 audit_event của tenant A đã seal.\n1. Dùng role runtime chạy UPDATE audit_event SET reason='x' WHERE ...\n2. Dùng migration owner sửa safe_diff 1 dòng (giả lập can thiệp)\n3. Chạy job verifyAuditSeals",
+      "expected": "Bước 1: lỗi permission denied/trigger reject. Bước 3: phát hiện seal mismatch ở đúng seal chứa seq bị sửa; cảnh báo P1 tới Security Admin; ADM-11 hiển thị \"chuỗi kiểm toán bị phá vỡ\" cho khoảng seq.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "ADM-11",
+      "tags": [
+        "security"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC140",
+      "title": "403 SCOPE_DENIED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "auditor",
+      "journey_ref": "J-FR-ADM-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-11",
+      "oracle_source": "Claim → Platform BR-PLT-01; kỳ vọng nguyên văn của ca thiết kế UAT-AC140 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-11",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nhật ký kiểm toán\": 403 SCOPE_DENIED; audit_event outcome DENIED, actor u.guest, action role_grant.created, ghi ở transaction riêng (tồn tại dù lệnh thất bại).",
+      "coverage_ids": [
+        "COV-FR-ADM-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "auditor",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.guest không có iam.role.grant.\n1. u.guest POST /role-grants (k-140-1)\n2. Đọc audit_event mới nhất",
+      "expected": "403 SCOPE_DENIED; audit_event outcome DENIED, actor u.guest, action role_grant.created, ghi ở transaction riêng (tồn tại dù lệnh thất bại).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "ADM-11",
+      "tags": [
+        "security"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC141",
+      "title": "Lần 1: hồ sơ P-01 bị bỏ qua, lý do LEGAL_HOLD_ACTIVE",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-12",
+      "oracle_source": "Claim → Platform BR-PLT-04; kỳ vọng nguyên văn của ca thiết kế UAT-AC141 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-12",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chính sách lưu trữ\": Lần 1: hồ sơ P-01 bị bỏ qua, lý do LEGAL_HOLD_ACTIVE. Bước 2: 403 SELF_APPROVAL_DENIED. Bước 3: Released. Lần 2: hồ sơ vào danh sách chờ hội đồng xác định hủy (",
+      "coverage_ids": [
+        "COV-FR-ADM-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Legal hold LH-41 (AUDIT, authority \"Kết luận Thanh tra số 12/KL-TTT\") trên dự án P-01 do u.owner đặt; chính sách hồ sơ P-01 đã đến hạn REVIEW_FOR_DESTRUCTION.\n1. Chạy job retention\n2. u.owner POST /legal-holds/LH-41/release (k-141-1)\n3. u.admin release với reason \"Đã có kết luận khắc phục\" (k-141-2)\n4. Chạy lại job retention",
+      "expected": "Lần 1: hồ sơ P-01 bị bỏ qua, lý do LEGAL_HOLD_ACTIVE. Bước 2: 403 SELF_APPROVAL_DENIED. Bước 3: Released. Lần 2: hồ sơ vào danh sách chờ hội đồng xác định hủy (không tự xóa).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "ADM-12",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC142",
+      "title": "Bước 1: 422 RETENTION_POLICY_INVALID (lớp nghiệp vụ chỉ REVIEW_FOR_DESTRUCTION/ARCHIVE_TRANSFER)",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-12",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-12",
+      "oracle_source": "Claim → ADM.md BR-ADM-11; kỳ vọng nguyên văn của ca thiết kế UAT-AC142 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-12",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chính sách lưu trữ\": Bước 1: 422 RETENTION_POLICY_INVALID (lớp nghiệp vụ chỉ REVIEW_FOR_DESTRUCTION/ARCHIVE_TRANSFER). Bước 2: 422 RETENTION_POLICY_INVALID.",
+      "coverage_ids": [
+        "COV-FR-ADM-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Lớp hồ sơ \"project_dossier\" (nghiệp vụ).\n1. POST /retention-policies end_action AUTO_PURGE_TECHNICAL cho project_dossier (k-142-1)\n2. POST retention_basis PERMANENT với retention_years 10 (k-142-2)",
+      "expected": "Bước 1: 422 RETENTION_POLICY_INVALID (lớp nghiệp vụ chỉ REVIEW_FOR_DESTRUCTION/ARCHIVE_TRANSFER). Bước 2: 422 RETENTION_POLICY_INVALID.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "ADM-12",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC143",
+      "title": "Bước 1b: 409 MIGRATION_FILE_ALREADY_REGISTERED",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-13",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-13",
+      "oracle_source": "Claim → ADM.md BR-ADM-12; kỳ vọng nguyên văn của ca thiết kế UAT-AC143 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-13",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nhập chuyển đổi dữ liệu\": Bước 1b: 409 MIGRATION_FILE_ALREADY_REGISTERED. Dry-run: DryRunFailed, error_count 2 với dòng 17 FK_NOT_FOUND và 42 DUPLICATE_KEY, 0 dòng ghi thật. Apply: 409 M",
+      "coverage_ids": [
+        "COV-FR-ADM-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tệp legacy_projects.csv (sha256 9f2c…, 120 dòng, tổng vốn 12.345.000.000 VND) với dòng 17 sai FK đơn vị và dòng 42 trùng mã.\n1. u.admin register (k-143-1) rồi register lại cùng tệp (k-143-2)\n2. dry-run (k-143-3)\n3. apply khi DryRunFailed (k-143-4)\n4. Sửa tệp, register, dry-run; u.admin apply (k-143-5); u.owner apply (k-143-6)",
+      "expected": "Bước 1b: 409 MIGRATION_FILE_ALREADY_REGISTERED. Dry-run: DryRunFailed, error_count 2 với dòng 17 FK_NOT_FOUND và 42 DUPLICATE_KEY, 0 dòng ghi thật. Apply: 409 MIGRATION_STATE_INVALID. Bước 5: 403 SELF_APPROVAL_DENIED. Bước 6: Applied, control_totals {rows:120, amount_vnd:\"12345000000\"} khớp nguồn.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "E2E",
+      "screen_id": "ADM-13",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-AC144",
+      "title": "Bước 1: 403 SELF_APPROVAL_DENIED",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-14",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-14",
+      "oracle_source": "Claim → ADM.md §3.9; kỳ vọng nguyên văn của ca thiết kế UAT-AC144 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Cấu hình an toàn\": Bước 1: 403 SELF_APPROVAL_DENIED. Bước 2: Published, Keycloak required action được đồng bộ; bước 3: u.leader bị yêu cầu MFA.",
+      "coverage_ids": [
+        "COV-FR-ADM-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. security_policy v1: MFA cho TENANT_ADMIN; bản nháp v2 thêm LEADER do u.admin lập.\n1. u.admin publish v2 (k-144-1)\n2. u.owner publish v2 (k-144-2)\n3. u.leader đăng nhập mới",
+      "expected": "Bước 1: 403 SELF_APPROVAL_DENIED. Bước 2: Published, Keycloak required action được đồng bộ; bước 3: u.leader bị yêu cầu MFA.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "ADM-14",
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UI-ADM-15",
+      "title": "Ma trận thẩm quyền phê duyệt (ADM-15): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-15",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-15",
+      "oracle_source": "Claim → FR-ADM-15; kỳ vọng nguyên văn của ca thiết kế UI-ADM-15 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-15",
+      "catches_bug": "Màn hình Ma trận thẩm quyền phê duyệt (ADM-15) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ADM-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1; route ADM-15; dữ liệu có/không bản ghi; người dùng đủ quyền (TENANT_ADMIN / UNIT_ADMIN (cấu hình trong subtree)) và người dùng thiếu quyền\n1. Mở ADM-15 \"Ma trận thẩm quyền phê duyệt\" từ menu và deep link; kiểm nhãn trường: Loại hồ sơ, Đơn vị áp dụng, Gồm đơn vị con, Từ (VND), Đến (VND), Vai trò duyệt, Số cấp duyệt, Hiệu lực, Căn cứ\n2. Thực hiện thao tác chính bằng createDoaMatrixDraft, updateDoaMatrixDraft, submitDoaMatrix, decideDoaMatrix; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền\n3. Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của policy; bàn phím, 390px, quay lại giữ ngữ cảnh",
+      "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (DOA_MATRIX_INVALID (GAP/OVERLAP), SELF_APPROVAL_DENIED) với correlation_id; không mất dữ liệu nhập khi 409",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ADM-15",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UI-ADM-16",
+      "title": "Sắp xếp lại đơn vị (ADM-16): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-16",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-16",
+      "oracle_source": "Claim → FR-ADM-16; kỳ vọng nguyên văn của ca thiết kế UI-ADM-16 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-16",
+      "catches_bug": "Màn hình Sắp xếp lại đơn vị (ADM-16) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ADM-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1; route ADM-16; dữ liệu có/không bản ghi; người dùng đủ quyền (TENANT_ADMIN / UNIT_ADMIN (cấu hình trong subtree)) và người dùng thiếu quyền\n1. Mở ADM-16 \"Sắp xếp lại đơn vị\" từ menu và deep link; kiểm nhãn trường: Loại (sáp nhập/chia/chuyển/giải thể), Đơn vị cũ, Đơn vị kế thừa, Ngày hiệu lực, Căn cứ, Ánh xạ thành viên, Ánh xạ dự án, Kết quả áp dụng\n2. Thực hiện thao tác chính bằng proposeUnitReorganization, decideUnitReorganization; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền\n3. Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của workflow; bàn phím, 390px, quay lại giữ ngữ cảnh",
+      "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (REORG_MAPPING_INCOMPLETE, SELF_APPROVAL_DENIED) với correlation_id; không mất dữ liệu nhập khi 409",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ADM-16",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UI-ADM-17",
+      "title": "Thành viên khách – nhà thầu (ADM-17): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-17",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-17",
+      "oracle_source": "Claim → FR-ADM-17; kỳ vọng nguyên văn của ca thiết kế UI-ADM-17 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-17",
+      "catches_bug": "Màn hình Thành viên khách – nhà thầu (ADM-17) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ADM-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1; route ADM-17; dữ liệu có/không bản ghi; người dùng đủ quyền (TENANT_ADMIN / UNIT_ADMIN (cấu hình trong subtree)) và người dùng thiếu quyền\n1. Mở ADM-17 \"Thành viên khách – nhà thầu\" từ menu và deep link; kiểm nhãn trường: Nhà thầu, Email, Hợp đồng, Vai trò khách, Hiệu lực đến, Trạng thái\n2. Thực hiện thao tác chính bằng inviteGuestContractor, endMembership; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền\n3. Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của list; bàn phím, 390px, quay lại giữ ngữ cảnh",
+      "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (GUEST_SCOPE_INVALID, CONTRACT_NOT_ACTIVE, QUOTA_EXCEEDED) với correlation_id; không mất dữ liệu nhập khi 409",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ADM-17",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UI-ADM-18",
+      "title": "Theo dõi quy trình phê duyệt (ADM-18): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-ADM-18",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-18",
+      "oracle_source": "Claim → FR-ADM-18; kỳ vọng nguyên văn của ca thiết kế UI-ADM-18 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-18",
+      "catches_bug": "Màn hình Theo dõi quy trình phê duyệt (ADM-18) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ADM-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1; route ADM-18; dữ liệu có/không bản ghi; người dùng đủ quyền (TENANT_ADMIN / UNIT_ADMIN (cấu hình trong subtree)) và người dùng thiếu quyền\n1. Mở ADM-18 \"Theo dõi quy trình phê duyệt\" từ menu và deep link; kiểm nhãn trường: Hồ sơ, Loại, Số tiền, Bước hiện tại, Người xử lý, Hạn SLA, Phiên bản quy trình, Trạng thái\n2. Thực hiện thao tác chính bằng cancelWorkflowInstance, reassignApprovalTask, decideApprovalTask; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền\n3. Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của table; bàn phím, 390px, quay lại giữ ngữ cảnh",
+      "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (APPROVER_NOT_AUTHORIZED, TASK_ALREADY_DECIDED) với correlation_id; không mất dữ liệu nhập khi 409",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ADM-18",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-12",
+      "title": "The UI and both API responses show only the payload hash, size and error class",
+      "type": "RED",
+      "platform": "api",
+      "persona": "nguoi-dung-adm",
+      "journey_ref": "J-FR-ADM-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-10",
+      "oracle_source": "Claim → ADM.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-12 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Giám sát đồng bộ\": The UI and both API responses show only the payload hash, size and error class; the raw payload is never returned; an access attempt by a viewer returns 403.",
+      "coverage_ids": [
+        "COV-FR-ADM-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-adm",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Connector sync monitor has events in DEAD state whose raw payload contains an identity number.\n1. Open the sync monitor\n2. Open a DEAD event\n3. Call the event API as a viewer and as an administrator",
+      "expected": "The UI and both API responses show only the payload hash, size and error class; the raw payload is never returned; an access attempt by a viewer returns 403.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "tags": [
+        "security"
+      ],
+      "module": "ADM"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-45",
+      "title": "422 WORKFLOW_DEFINITION_INVALID with a JSON path for each defect ($",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-adm",
+      "journey_ref": "J-FR-ADM-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-06",
+      "oracle_source": "Claim → ADM.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-45 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ADM-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Dựng quy trình phê duyệt\": 422 WORKFLOW_DEFINITION_INVALID with a JSON path for each defect ($.steps[2].next and $.nodes); the stored definition stays unchanged.",
+      "coverage_ids": [
+        "COV-FR-ADM-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-adm",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Workflow designer with a definition missing the END node and a transition pointing at an unknown step.\n1. Save the invalid definition\n2. Read the error body",
+      "expected": "422 WORKFLOW_DEFINITION_INVALID with a JSON path for each defect ($.steps[2].next and $.nodes); the stored definition stays unchanged.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "module": "ADM"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 21,
+    "M2": 0,
+    "M3": 0,
+    "M4": 80,
+    "max": 80,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 21,
+    "covered": 21,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

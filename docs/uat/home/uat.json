@@ -1,0 +1,746 @@
+{
+  "feature": "home",
+  "generated_at": "2026-11-05T07:53:18.054Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/home/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UI-HOME-01",
+      "title": "Tổng quan điều hành (HOME-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-HOME-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HOME-01",
+      "oracle_source": "Claim → FR-HOME-01; kỳ vọng nguyên văn của ca thiết kế UI-HOME-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-HOME-01",
+      "catches_bug": "Màn hình Tổng quan điều hành (HOME-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-HOME-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route HOME-01\n1. Mở route bằng menu và deep link; kiểm tên trường: Năm, Đơn vị, Nguồn vốn\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Theo dõi vốn, việc và rủi ro theo phạm vi quyền\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "HOME-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "HOME"
+    },
+    {
+      "tc_id": "TC-UI-HOME-02",
+      "title": "Việc của tôi (HOME-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-HOME-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HOME-02",
+      "oracle_source": "Claim → FR-HOME-02; kỳ vọng nguyên văn của ca thiết kế UI-HOME-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-HOME-02",
+      "catches_bug": "Màn hình Việc của tôi (HOME-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-HOME-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route HOME-02\n1. Mở route bằng menu và deep link; kiểm tên trường: Ưu tiên, Hạn xử lý, Người giao\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Theo dõi vốn, việc và rủi ro theo phạm vi quyền\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "HOME-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "HOME"
+    },
+    {
+      "tc_id": "TC-UI-HOME-03",
+      "title": "Cảnh báo sớm (HOME-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-HOME-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HOME-03",
+      "oracle_source": "Claim → FR-HOME-03; kỳ vọng nguyên văn của ca thiết kế UI-HOME-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-HOME-03",
+      "catches_bug": "Màn hình Cảnh báo sớm (HOME-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-HOME-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route HOME-03\n1. Mở route bằng menu và deep link; kiểm tên trường: Quy tắc, Mức độ, Dự án\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Theo dõi vốn, việc và rủi ro theo phạm vi quyền\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "HOME-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "HOME"
+    },
+    {
+      "tc_id": "TC-UI-HOME-04",
+      "title": "Xếp hạng giải ngân (HOME-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-HOME-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HOME-04",
+      "oracle_source": "Claim → FR-HOME-04; kỳ vọng nguyên văn của ca thiết kế UI-HOME-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-HOME-04",
+      "catches_bug": "Màn hình Xếp hạng giải ngân (HOME-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-HOME-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route HOME-04\n1. Mở route bằng menu và deep link; kiểm tên trường: Nhóm so sánh, Kỳ, Mẫu số\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Theo dõi vốn, việc và rủi ro theo phạm vi quyền\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "HOME-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "HOME"
+    },
+    {
+      "tc_id": "TC-UI-HOME-05",
+      "title": "Bản đồ dự án (HOME-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-HOME-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HOME-05",
+      "oracle_source": "Claim → FR-HOME-05; kỳ vọng nguyên văn của ca thiết kế UI-HOME-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-HOME-05",
+      "catches_bug": "Màn hình Bản đồ dự án (HOME-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-HOME-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route HOME-05\n1. Mở route bằng menu và deep link; kiểm tên trường: Địa bàn, Lĩnh vực, Trạng thái\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Theo dõi vốn, việc và rủi ro theo phạm vi quyền\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "HOME-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "HOME"
+    },
+    {
+      "tc_id": "TC-UI-HOME-06",
+      "title": "Hồ sơ cảnh báo (HOME-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-HOME-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HOME-06",
+      "oracle_source": "Claim → FR-HOME-06; kỳ vọng nguyên văn của ca thiết kế UI-HOME-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-HOME-06",
+      "catches_bug": "Màn hình Hồ sơ cảnh báo (HOME-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-HOME-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route HOME-06\n1. Mở route bằng menu và deep link; kiểm tên trường: Nguyên nhân, Bằng chứng, Người phụ trách\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Theo dõi vốn, việc và rủi ro theo phạm vi quyền\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "HOME-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "HOME"
+    },
+    {
+      "tc_id": "TC-UI-HOME-07",
+      "title": "Cơ cấu các nguồn vốn (HOME-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-HOME-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HOME-07",
+      "oracle_source": "Claim → FR-HOME-07; kỳ vọng nguyên văn của ca thiết kế UI-HOME-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-HOME-07",
+      "catches_bug": "Màn hình Cơ cấu các nguồn vốn (HOME-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-HOME-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route HOME-07\n1. Mở route bằng menu và deep link; kiểm tên trường: Vốn Thủ tướng giao, Vốn kéo dài, Vốn hỗ trợ, Vốn tăng thu NSTW\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Theo dõi vốn, việc và rủi ro theo phạm vi quyền\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "HOME-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "HOME"
+    },
+    {
+      "tc_id": "TC-UI-HOME-08",
+      "title": "Chi tiết nguồn và phạm vi tính (HOME-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-HOME-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HOME-08",
+      "oracle_source": "Claim → FR-HOME-08; kỳ vọng nguyên văn của ca thiết kế UI-HOME-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-HOME-08",
+      "catches_bug": "Màn hình Chi tiết nguồn và phạm vi tính (HOME-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-HOME-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route HOME-08\n1. Mở route bằng menu và deep link; kiểm tên trường: Nguồn, Thời điểm chốt, Dự án, Giá trị, Quan hệ bao hàm\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Theo dõi vốn, việc và rủi ro theo phạm vi quyền\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "HOME-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "HOME"
+    },
+    {
+      "tc_id": "TC-UAT-AC254",
+      "title": "U-BQL2 hạng 1 (bằng tỷ lệ, disbursed lớn hơn), U-BQL1 hạng 2",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-HOME-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HOME-04",
+      "oracle_source": "Claim → 05_modules/HOME.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC254 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-HOME-04, FR-DIS-21",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Xếp hạng giải ngân\": U-BQL2 hạng 1 (bằng tỷ lệ, disbursed lớn hơn), U-BQL1 hạng 2; U-BQL3 rank=null excluded_reason=\"PLAN_BELOW_MIN_THRESHOLD\"; đổi mẫu số PM_ASSIGNED hiện bảng xếp ",
+      "coverage_ids": [
+        "COV-FR-HOME-04",
+        "COV-FR-DIS-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-DIS-007: nhóm \"Ban QLDA\": U-BQL1 48%/plan 1.25 tỷ/disb 600tr; U-BQL2 48%/plan 2.5 tỷ/disb 1.2 tỷ; U-BQL3 plan 0.5 tỷ (< ngưỡng 1 tỷ); denominator TOTAL_INCL_LOCAL.\n1. Freeze snapshot → disbursement_ranking\n2. Mở HOME-04",
+      "expected": "U-BQL2 hạng 1 (bằng tỷ lệ, disbursed lớn hơn), U-BQL1 hạng 2; U-BQL3 rank=null excluded_reason=\"PLAN_BELOW_MIN_THRESHOLD\"; đổi mẫu số PM_ASSIGNED hiện bảng xếp hạng thứ hai, không trộn.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "HOME-04",
+      "module": "HOME"
+    },
+    {
+      "tc_id": "TC-UAT-AC266",
+      "title": "Mỗi ô hiện scope, as_of=2026-10-02, snapshot S-40, công thức",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-HOME-09",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HOME-09",
+      "oracle_source": "Claim → 05_modules/HOME.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC266 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-HOME-09, FR-HOME-10, FR-HOME-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Trung tâm điều hành giải ngân\": Mỗi ô hiện scope, as_of=2026-10-02, snapshot S-40, công thức; HOME-10 hiện tử số/mẫu số; tổng các con khớp tổng cha tới đồng; mỗi bước giữ snapshot S-40 (không ",
+      "coverage_ids": [
+        "COV-FR-HOME-09",
+        "COV-FR-HOME-10",
+        "COV-FR-HOME-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Snapshot S-40 FROZEN; A-leader scope toàn tenant.\n1. Mở HOME-09; bấm ô \"Tỷ lệ theo KH gồm giao thêm\"\n2. Drill đơn vị U-BQL1 → dự án P-A-001 → report revision → giao dịch Kho bạc",
+      "expected": "Mỗi ô hiện scope, as_of=2026-10-02, snapshot S-40, công thức; HOME-10 hiện tử số/mẫu số; tổng các con khớp tổng cha tới đồng; mỗi bước giữ snapshot S-40 (không nhảy số mới).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "E2E",
+      "screen_id": "HOME-01",
+      "module": "HOME"
+    },
+    {
+      "tc_id": "TC-UAT-AC267",
+      "title": "403 SCOPE_DENIED tại đích drill",
+      "type": "RED",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-HOME-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HOME-10",
+      "oracle_source": "Claim → 05_modules/HOME.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC267 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-HOME-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ngữ cảnh số liệu và truy nguồn\": 403 SCOPE_DENIED tại đích drill; trang hiển thị trạng thái \"Không còn quyền xem\" không lộ tên dự án; tổng trang hiện tại có nhãn \"cần làm mới\".",
+      "coverage_ids": [
+        "COV-FR-HOME-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: A-leader mở HOME-09 (scope U-BQL1, U-BQL2).\n1. Admin thu hồi scope U-BQL2 của A-leader\n2. A-leader drill U-BQL2 từ trang đang mở",
+      "expected": "403 SCOPE_DENIED tại đích drill; trang hiển thị trạng thái \"Không còn quyền xem\" không lộ tên dự án; tổng trang hiện tại có nhãn \"cần làm mới\".",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HOME-10",
+      "tags": [
+        "security"
+      ],
+      "module": "HOME"
+    },
+    {
+      "tc_id": "TC-UAT-AC268",
+      "title": "Giá trị đã giải ngân hiện \"Chưa có dữ liệu\" (null + rate_null_reason NO_DATA), không phải 0",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-HOME-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HOME-01",
+      "oracle_source": "Claim → 05_modules/HOME.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC268 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-HOME-01, FR-HOME-08",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tổng quan điều hành\": Giá trị đã giải ngân hiện \"Chưa có dữ liệu\" (null + rate_null_reason NO_DATA), không phải 0; tổng đơn vị ghi \"1 dự án chưa có dữ liệu\".",
+      "coverage_ids": [
+        "COV-FR-HOME-01",
+        "COV-FR-HOME-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-009 có kế hoạch nhưng không có report và treasury_coverage NONE.\n1. Mở HOME-01 và HOME-08 lọc P-A-009",
+      "expected": "Giá trị đã giải ngân hiện \"Chưa có dữ liệu\" (null + rate_null_reason NO_DATA), không phải 0; tổng đơn vị ghi \"1 dự án chưa có dữ liệu\".",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "HOME-01",
+      "module": "HOME"
+    },
+    {
+      "tc_id": "TC-UAT-AC269",
+      "title": "Thẻ NSTW 500 tỷ, dòng \"trong đó CTMTQG 40 tỷ\"",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-HOME-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HOME-07",
+      "oracle_source": "Claim → 05_modules/HOME.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC269 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-HOME-07, FR-HOME-08",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Cơ cấu các nguồn vốn\": Thẻ NSTW 500 tỷ, dòng \"trong đó CTMTQG 40 tỷ\"; tổng các thẻ không cộng 40 tỷ; HOME-08 cột \"Quan hệ bao hàm\" = \"Tập con của NSTW\".",
+      "coverage_ids": [
+        "COV-FR-HOME-07",
+        "COV-FR-HOME-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Appropriation CTMTQG 40 tỷ là tập con của NSTW 500 tỷ.\n1. Mở HOME-07 và HOME-08",
+      "expected": "Thẻ NSTW 500 tỷ, dòng \"trong đó CTMTQG 40 tỷ\"; tổng các thẻ không cộng 40 tỷ; HOME-08 cột \"Quan hệ bao hàm\" = \"Tập con của NSTW\".",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "HOME-07",
+      "module": "HOME"
+    },
+    {
+      "tc_id": "TC-UAT-AC270",
+      "title": "Trang tải bình thường",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-HOME-01",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HOME-01",
+      "oracle_source": "Claim → 05_modules/HOME.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC270 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-HOME-01, FR-HOME-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tổng quan điều hành\": Trang tải bình thường; badge chất lượng hiện \"Chưa đánh giá chất lượng (DGV R2)\" thay vì lỗi; freshness dùng as_of của snapshot.",
+      "coverage_ids": [
+        "COV-FR-HOME-01",
+        "COV-FR-HOME-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: DGV chưa triển khai (R1); không có quality_run.\n1. Mở HOME-01 và HOME-09",
+      "expected": "Trang tải bình thường; badge chất lượng hiện \"Chưa đánh giá chất lượng (DGV R2)\" thay vì lỗi; freshness dùng as_of của snapshot.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "HOME-01",
+      "module": "HOME"
+    },
+    {
+      "tc_id": "TC-UAT-AC271",
+      "title": "Hiện nguyên nhân (giá trị quan sát/ngưỡng), bằng chứng (snapshot line), người phụ trách, liên kết giải trình và lịch sử ",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-HOME-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HOME-06",
+      "oracle_source": "Claim → 05_modules/HOME.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC271 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-HOME-06, FR-HOME-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hồ sơ cảnh báo\": Hiện nguyên nhân (giá trị quan sát/ngưỡng), bằng chứng (snapshot line), người phụ trách, liên kết giải trình và lịch sử trạng thái.",
+      "coverage_ids": [
+        "COV-FR-HOME-06",
+        "COV-FR-HOME-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Warning EW-01 P-A-002 có explanation ACCEPTED.\n1. Mở HOME-06 của warning",
+      "expected": "Hiện nguyên nhân (giá trị quan sát/ngưỡng), bằng chứng (snapshot line), người phụ trách, liên kết giải trình và lịch sử trạng thái.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "HOME-03",
+      "module": "HOME"
+    },
+    {
+      "tc_id": "TC-UAT-AC272",
+      "title": "Thẻ \"Giải trình\" hiện 3 việc, việc OVERDUE ở cột Quá hạn với hạn gốc",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-HOME-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HOME-02",
+      "oracle_source": "Claim → 05_modules/HOME.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC272 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-HOME-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Việc của tôi\": Thẻ \"Giải trình\" hiện 3 việc, việc OVERDUE ở cột Quá hạn với hạn gốc; mở việc dẫn tới PRJ-19.",
+      "coverage_ids": [
+        "COV-FR-HOME-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: A-maker có 2 explanation_request REQUESTED, 1 OVERDUE.\n1. Mở HOME-02",
+      "expected": "Thẻ \"Giải trình\" hiện 3 việc, việc OVERDUE ở cột Quá hạn với hạn gốc; mở việc dẫn tới PRJ-19.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "HOME-02",
+      "module": "HOME"
+    },
+    {
+      "tc_id": "TC-UI-HOME-09",
+      "title": "Trung tâm điều hành giải ngân (HOME-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-HOME-09",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HOME-09",
+      "oracle_source": "Claim → FR-HOME-09; kỳ vọng nguyên văn của ca thiết kế UI-HOME-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-HOME-09",
+      "catches_bug": "Màn hình Trung tâm điều hành giải ngân (HOME-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-HOME-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Trung tâm điều hành giải ngân; user có quyền và user chỉ đọc; route HOME-09\n1. Mở HOME-09 từ menu và deep link; kiểm nhãn trường: Hai tỷ lệ, Xếp hạng đơn vị, Cảnh báo mở, Giải trình quá hạn, Đề xuất điều chuyển, Thời điểm số liệu\n2. Thực hiện thao tác chính theo quy tắc: Mọi ô số mang scope, as_of, snapshot, công thức; drill giữ ngữ cảnh và kiểm lại quyền ở đích\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên HOME-09",
+      "expected": "Trung tâm điều hành giải ngân: hiển thị đúng 6 trường, áp quy tắc \"Mọi ô số mang scope, as_of, snapshot, công thức; drill giữ ngữ cảnh và kiểm lại quyền ở đích\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "HOME-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "HOME"
+    },
+    {
+      "tc_id": "TC-UI-HOME-10",
+      "title": "Ngữ cảnh số liệu và truy nguồn (HOME-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-HOME-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HOME-10",
+      "oracle_source": "Claim → FR-HOME-10; kỳ vọng nguyên văn của ca thiết kế UI-HOME-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-HOME-10",
+      "catches_bug": "Màn hình Ngữ cảnh số liệu và truy nguồn (HOME-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-HOME-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Ngữ cảnh số liệu và truy nguồn; user có quyền và user chỉ đọc; route HOME-10\n1. Mở HOME-10 từ menu và deep link; kiểm nhãn trường: Phạm vi, as_of/Snapshot, Công thức, Tử số, Mẫu số, Loại trừ, Bản ghi nguồn\n2. Thực hiện thao tác chính theo quy tắc: Tử số/mẫu số trả riêng; tổng con khớp tổng cha hoặc nêu lý do không cộng được; thiếu dữ liệu không thành 0\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên HOME-10",
+      "expected": "Ngữ cảnh số liệu và truy nguồn: hiển thị đúng 7 trường, áp quy tắc \"Tử số/mẫu số trả riêng; tổng con khớp tổng cha hoặc nêu lý do không cộng được; thiếu dữ liệu không thành 0\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "HOME-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "HOME"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-72",
+      "title": "Step 1: 409 SNAPSHOT_EXPIRED",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-home",
+      "journey_ref": "J-FR-HOME-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HOME-10",
+      "oracle_source": "Claim → HOME.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-72 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-HOME-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ngữ cảnh số liệu và truy nguồn\": Step 1: 409 SNAPSHOT_EXPIRED; the client requests a new token for snapshot SV-10a (the same snapshot id) and step 3 returns figures of SV-10a, not of a newer sn",
+      "coverage_ids": [
+        "COV-FR-HOME-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-home",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: HOME-10 drawer open on snapshot SV-10a with a drill token whose 30-minute lifetime has elapsed.\n1. Request the next drill with the expired token\n2. Let the client refresh the token\n3. Repeat the drill",
+      "expected": "Step 1: 409 SNAPSHOT_EXPIRED; the client requests a new token for snapshot SV-10a (the same snapshot id) and step 3 returns figures of SV-10a, not of a newer snapshot.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "module": "HOME"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 11,
+    "M2": 0,
+    "M3": 0,
+    "M4": 25,
+    "max": 25,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 11,
+    "covered": 11,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

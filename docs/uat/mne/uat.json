@@ -1,0 +1,1029 @@
+{
+  "feature": "mne",
+  "generated_at": "2026-11-05T07:53:18.062Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/mne/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UAT-AC285",
+      "title": "Mỗi chủ đầu tư 2 nghĩa vụ: H1-2026 hạn 2026-07-10, YEAR-2026 hạn 2027-02-10",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-01",
+      "oracle_source": "Claim → 05_modules/MNE.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC285 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Lịch nghĩa vụ báo cáo giám sát\": Mỗi chủ đầu tư 2 nghĩa vụ: H1-2026 hạn 2026-07-10, YEAR-2026 hạn 2027-02-10; nguồn hạn hiển thị legal_basis và nhãn [CXN-10].",
+      "coverage_ids": [
+        "COV-FR-MNE-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Obligation rule OVERALL_SEMIANNUAL: due_rule {month:7, day:10}, OVERALL_ANNUAL {month:2, day:10, year_offset:1} [CXN-10]; 3 chủ đầu tư.\n1. POST /mne-obligations/generate {report_year:2026}\n2. Mở MNE-01",
+      "expected": "Mỗi chủ đầu tư 2 nghĩa vụ: H1-2026 hạn 2026-07-10, YEAR-2026 hạn 2027-02-10; nguồn hạn hiển thị legal_basis và nhãn [CXN-10].",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "MNE-01",
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UAT-AC286",
+      "title": "YEAR-2026 dùng r1",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-02",
+      "oracle_source": "Claim → 05_modules/MNE.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC286 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh mục mẫu biểu giám sát\": YEAR-2026 dùng r1; H1-2027 dùng r2; retire r1 không đổi báo cáo đã phát hành.",
+      "coverage_ids": [
+        "COV-FR-MNE-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Form TT44-M02 r1 hiệu lực 2026-01-01..2026-12-31, r2 từ 2027-01-01.\n1. Tạo báo cáo YEAR-2026 (cuối kỳ 2026-12-31)\n2. Tạo báo cáo H1-2027",
+      "expected": "YEAR-2026 dùng r1; H1-2027 dùng r2; retire r1 không đổi báo cáo đã phát hành.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "MNE-02",
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UAT-AC287",
+      "title": "Lần 1: 422 SNAPSHOT_REQUIRED",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-03",
+      "oracle_source": "Claim → 05_modules/MNE.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC287 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Lập báo cáo giám sát tổng thể định kỳ\": Lần 1: 422 SNAPSHOT_REQUIRED; lần 2: payload điền sẵn 1250000000000 / 600000000000 và hai tỷ lệ 60%/48%; sửa tay ô tài chính: 422 FIELD_SOURCE_LOCKED (chỉ thuyế",
+      "coverage_ids": [
+        "COV-FR-MNE-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Snapshot S-H1 (2026-06-30) FROZEN: tổng plan_total 1250 tỷ, disbursed 600 tỷ.\n1. POST /mne-reports {form:TT44-M02, period_label:\"H1\", report_year:2026, scope_unit_id:U-SOTC} không snapshot\n2. Gửi với snapshot_id S-H1\n3. Sửa tay payload.disbursed_vnd",
+      "expected": "Lần 1: 422 SNAPSHOT_REQUIRED; lần 2: payload điền sẵn 1250000000000 / 600000000000 và hai tỷ lệ 60%/48%; sửa tay ô tài chính: 422 FIELD_SOURCE_LOCKED (chỉ thuyết minh được sửa).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "MNE-03",
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UAT-AC288",
+      "title": "Có 1 mne_report DRAFT PROJECT_START cho P-A-001 hạn 2026-04-01",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-04",
+      "oracle_source": "Claim → 05_modules/MNE.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC288 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Báo cáo giám sát theo dự án\": Có 1 mne_report DRAFT PROJECT_START cho P-A-001 hạn 2026-04-01; sự kiện lặp không tạo trùng.",
+      "coverage_ids": [
+        "COV-FR-MNE-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-001 chuyển IMPLEMENTATION (sự kiện khởi công) ngày 2026-03-02; rule PROJECT_START frequency EVENT due +30 ngày [CXN-10].\n1. Consumer project.stage_changed tạo nghĩa vụ\n2. Mở MNE-04",
+      "expected": "Có 1 mne_report DRAFT PROJECT_START cho P-A-001 hạn 2026-04-01; sự kiện lặp không tạo trùng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "MNE-04",
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UAT-AC289",
+      "title": "Tự duyệt 403",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-05",
+      "oracle_source": "Claim → 05_modules/MNE.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC289 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Rà soát, phê duyệt và phát hành\": Tự duyệt 403; APPROVED; issue-request → ISSUING, outbox mne.report.issue_requested có template_code, payload_sha256; chỉ sau doc.issued status=ISSUED và doc_doc",
+      "coverage_ids": [
+        "COV-FR-MNE-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Báo cáo MR-1 IN_REVIEW do A-maker lập; template DOC \"MNE-TT44-M02\" tồn tại.\n1. A-maker approve\n2. A-approver approve\n3. POST /mne-reports/{MR-1}/issue-requests\n4. Giả lập DOC phát doc.issued cho document liên kết",
+      "expected": "Tự duyệt 403; APPROVED; issue-request → ISSUING, outbox mne.report.issue_requested có template_code, payload_sha256; chỉ sau doc.issued status=ISSUED và doc_document_id set.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "MNE-05",
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UAT-AC290",
+      "title": "2 package GENERATED có file_sha256",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-06",
+      "oracle_source": "Claim → 05_modules/MNE.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC290 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Xuất tệp và xác nhận nộp Hệ thống TTQG\": 2 package GENERATED có file_sha256; không có HTTP call ra hệ thống ngoài (kiểm log egress); thiếu số tiếp nhận: 422 RECEIPT_REQUIRED; đủ: SUBMISSION_CONFIRMED, ",
+      "coverage_ids": [
+        "COV-FR-MNE-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: MR-1 ISSUED; connector NATIONAL_PIM_FILE adapter_status PROPOSED.\n1. POST /mne-reports/{MR-1}/export-packages {target_system:\"NATIONAL_PIM_SYSTEM\", formats:[\"XLSX\",\"PDF\"]}\n2. POST /mne-export-packages/{id}/submission-receipt không receipt_reference\n3. Gửi với receipt_reference \"TN-2026-000123\" và file biên nhận",
+      "expected": "2 package GENERATED có file_sha256; không có HTTP call ra hệ thống ngoài (kiểm log egress); thiếu số tiếp nhận: 422 RECEIPT_REQUIRED; đủ: SUBMISSION_CONFIRMED, MR-1 SUBMITTED_EXTERNAL.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "MNE-06",
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UAT-AC291",
+      "title": "Báo cáo nhanh có hai tỷ lệ bằng đúng DIS-19 (60",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-07",
+      "oracle_source": "Claim → 05_modules/MNE.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC291 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Báo cáo nhanh tuần\": Báo cáo nhanh có hai tỷ lệ bằng đúng DIS-19 (60.0000/48.0000 với FX-DIS-004) và danh sách dự án chậm từ EW-01; hạn theo rule WEEKLY.",
+      "coverage_ids": [
+        "COV-FR-MNE-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Snapshot tuần S-W40 FROZEN; form CV3665-WEEKLY [CXN-11].\n1. POST /mne-reports {form:CV3665-WEEKLY, period_id:W2026-40, snapshot_id:S-W40}\n2. So sánh với DIS-19",
+      "expected": "Báo cáo nhanh có hai tỷ lệ bằng đúng DIS-19 (60.0000/48.0000 với FX-DIS-004) và danh sách dự án chậm từ EW-01; hạn theo rule WEEKLY.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "MNE-07",
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UAT-AC292",
+      "title": "422 VALIDATION_FAILED field conclusion",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-08",
+      "oracle_source": "Claim → 05_modules/MNE.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC292 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-08",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đánh giá đầu tư\": 422 VALIDATION_FAILED field conclusion; SUBMITTED; tự approve 403; APPROVED và gắn vào báo cáo tổng thể kỳ kế tiếp.",
+      "coverage_ids": [
+        "COV-FR-MNE-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-001 IMPLEMENTATION; đánh giá MIDTERM PLANNED.\n1. Submit đánh giá không conclusion\n2. Submit có conclusion PARTIALLY_SATISFACTORY, completed_date\n3. Người lập tự approve; A-approver approve",
+      "expected": "422 VALIDATION_FAILED field conclusion; SUBMITTED; tự approve 403; APPROVED và gắn vào báo cáo tổng thể kỳ kế tiếp.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "MNE-08",
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UAT-AC293",
+      "title": "U1 đúng hạn, U2 trễ 2 ngày, U3 trễ 5 ngày (tính đến hiện tại)",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-09",
+      "oracle_source": "Claim → 05_modules/MNE.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC293 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tiến độ nộp báo cáo giám sát\": U1 đúng hạn, U2 trễ 2 ngày, U3 trễ 5 ngày (tính đến hiện tại); is_late của U2=true.",
+      "coverage_ids": [
+        "COV-FR-MNE-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: 3 đơn vị: U1 SUBMITTED_EXTERNAL 2026-07-09, U2 2026-07-12, U3 chưa nộp; hôm nay 2026-07-15.\n1. Mở MNE-09",
+      "expected": "U1 đúng hạn, U2 trễ 2 ngày, U3 trễ 5 ngày (tính đến hiện tại); is_late của U2=true.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "MNE-09",
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UAT-AC294",
+      "title": "422 CORRECTION_REASON_REQUIRED",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-10",
+      "oracle_source": "Claim → 05_modules/MNE.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC294 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Lịch sử phiên bản và đính chính báo cáo\": 422 CORRECTION_REASON_REQUIRED; rev2 DRAFT supersedes rev1; sau phát hành rev1 SUPERSEDED (vẫn tải được), package mới hash khác; MNE-10 hiện khác biệt.",
+      "coverage_ids": [
+        "COV-FR-MNE-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: MR-1 rev1 SUBMITTED_EXTERNAL.\n1. POST /mne-reports/{MR-1}/corrections không reason\n2. Với reason \"Đính chính số liệu dự án P-A-006\"\n3. Phát hành và xuất lại",
+      "expected": "422 CORRECTION_REASON_REQUIRED; rev2 DRAFT supersedes rev1; sau phát hành rev1 SUPERSEDED (vẫn tải được), package mới hash khác; MNE-10 hiện khác biệt.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "MNE-10",
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UAT-AC295",
+      "title": "Cả hai 404 RESOURCE_NOT_FOUND",
+      "type": "RED",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-03",
+      "oracle_source": "Claim → 05_modules/MNE.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC295 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Lập báo cáo giám sát tổng thể định kỳ\": Cả hai 404 RESOURCE_NOT_FOUND.",
+      "coverage_ids": [
+        "COV-FR-MNE-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: MR-1 thuộc TNT-A.\n1. B-maker GET /mne-reports/{MR-1}\n2. B-maker POST /mne-reports/{MR-1}/export-packages",
+      "expected": "Cả hai 404 RESOURCE_NOT_FOUND.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "MNE-03",
+      "tags": [
+        "security"
+      ],
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UAT-AC296",
+      "title": "422 FORM_NOT_EFFECTIVE với effective_from của phiên bản gần nhất",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-02",
+      "oracle_source": "Claim → 05_modules/MNE.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC296 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh mục mẫu biểu giám sát\": 422 FORM_NOT_EFFECTIVE với effective_from của phiên bản gần nhất.",
+      "coverage_ids": [
+        "COV-FR-MNE-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Không có phiên bản form TT44-M05 hiệu lực năm 2025.\n1. Tạo báo cáo TT44-M05 năm 2025",
+      "expected": "422 FORM_NOT_EFFECTIVE với effective_from của phiên bản gần nhất.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "MNE-02",
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UAT-AC297",
+      "title": "Lần 2 trả cùng package",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-06",
+      "oracle_source": "Claim → 05_modules/MNE.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC297 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Xuất tệp và xác nhận nộp Hệ thống TTQG\": Lần 2 trả cùng package; lần 3 trả package hiện có (unique theo file_sha256), không tạo bản trùng.",
+      "coverage_ids": [
+        "COV-FR-MNE-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: MR-1 ISSUED.\n1. Gửi export 2 lần cùng key\n2. Gửi lần 3 key mới cùng định dạng (nội dung không đổi)",
+      "expected": "Lần 2 trả cùng package; lần 3 trả package hiện có (unique theo file_sha256), không tạo bản trùng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "MNE-06",
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UAT-AC298",
+      "title": "422 DOC_TEMPLATE_MISSING",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-05",
+      "oracle_source": "Claim → 05_modules/MNE.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC298 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Rà soát, phê duyệt và phát hành\": 422 DOC_TEMPLATE_MISSING; báo cáo giữ APPROVED; cảnh báo cấu hình tới quản trị mẫu biểu.",
+      "coverage_ids": [
+        "COV-FR-MNE-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Form có doc_template_code \"MNE-X\" chưa tồn tại ở DOC.\n1. POST /mne-reports/{id}/issue-requests",
+      "expected": "422 DOC_TEMPLATE_MISSING; báo cáo giữ APPROVED; cảnh báo cấu hình tới quản trị mẫu biểu.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "MNE-05",
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UAT-AC299",
+      "title": "Báo cáo gắn obligation r2 (hiệu lực tại kỳ) → không trễ",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-09",
+      "oracle_source": "Claim → 05_modules/MNE.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC299 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-09, FR-MNE-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tiến độ nộp báo cáo giám sát\": Báo cáo gắn obligation r2 (hiệu lực tại kỳ) → không trễ; nếu kỳ thuộc r1 thì trễ 2 ngày; nhãn hiện phiên bản nghĩa vụ đã dùng.",
+      "coverage_ids": [
+        "COV-FR-MNE-09",
+        "COV-FR-MNE-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Obligation r1 hạn 10/7; r2 (từ 2026-06-01) đổi hạn 15/7 [CXN-10].\n1. Nộp H1-2026 ngày 2026-07-12\n2. Mở MNE-09",
+      "expected": "Báo cáo gắn obligation r2 (hiệu lực tại kỳ) → không trễ; nếu kỳ thuộc r1 thì trễ 2 ngày; nhãn hiện phiên bản nghĩa vụ đã dùng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "MNE-01",
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UI-MNE-01",
+      "title": "Lịch nghĩa vụ báo cáo giám sát (MNE-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-01",
+      "oracle_source": "Claim → FR-MNE-01; kỳ vọng nguyên văn của ca thiết kế UI-MNE-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-01",
+      "catches_bug": "Màn hình Lịch nghĩa vụ báo cáo giám sát (MNE-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MNE-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Lịch nghĩa vụ báo cáo giám sát; user có quyền và user chỉ đọc; route MNE-01\n1. Mở MNE-01 từ menu và deep link; kiểm nhãn trường: Mẫu biểu, Cấp báo cáo, Kỳ, Hạn nộp, Nơi nhận, Căn cứ\n2. Thực hiện thao tác chính theo quy tắc: Nghĩa vụ là dữ liệu có legal_basis + hiệu lực; hạn tính từ due_rule của phiên bản hiệu lực tại kỳ [CXN-10]\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên MNE-01",
+      "expected": "Lịch nghĩa vụ báo cáo giám sát: hiển thị đúng 6 trường, áp quy tắc \"Nghĩa vụ là dữ liệu có legal_basis + hiệu lực; hạn tính từ due_rule của phiên bản hiệu lực tại kỳ [CXN-10]\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MNE-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UI-MNE-02",
+      "title": "Danh mục mẫu biểu giám sát (MNE-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-02",
+      "oracle_source": "Claim → FR-MNE-02; kỳ vọng nguyên văn của ca thiết kế UI-MNE-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-02",
+      "catches_bug": "Màn hình Danh mục mẫu biểu giám sát (MNE-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MNE-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Danh mục mẫu biểu giám sát; user có quyền và user chỉ đọc; route MNE-02\n1. Mở MNE-02 từ menu và deep link; kiểm nhãn trường: Mã mẫu, Tên, Căn cứ, Hiệu lực, Mẫu DOC, Định dạng xuất\n2. Thực hiện thao tác chính theo quy tắc: Mẫu biểu là dữ liệu có phiên bản; báo cáo dùng phiên bản hiệu lực tại ngày cuối kỳ; mã mẫu 02–10 chờ xác nhận [CXN-10]\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên MNE-02",
+      "expected": "Danh mục mẫu biểu giám sát: hiển thị đúng 6 trường, áp quy tắc \"Mẫu biểu là dữ liệu có phiên bản; báo cáo dùng phiên bản hiệu lực tại ngày cuối kỳ; mã mẫu 02–10 chờ xác nhận [CXN-10]\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MNE-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UI-MNE-03",
+      "title": "Lập báo cáo giám sát tổng thể định kỳ (MNE-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-03",
+      "oracle_source": "Claim → FR-MNE-03; kỳ vọng nguyên văn của ca thiết kế UI-MNE-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-03",
+      "catches_bug": "Màn hình Lập báo cáo giám sát tổng thể định kỳ (MNE-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MNE-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Lập báo cáo giám sát tổng thể định kỳ; user có quyền và user chỉ đọc; route MNE-03\n1. Mở MNE-03 từ menu và deep link; kiểm nhãn trường: Kỳ (6 tháng/năm), Phạm vi, Snapshot, Mẫu biểu, Số liệu tự động, Thuyết minh\n2. Thực hiện thao tác chính theo quy tắc: Số liệu lấy từ PeriodSnapshot FROZEN; không nhập tay chỉ tiêu tài chính đã có nguồn; thuyết minh bắt buộc\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên MNE-03",
+      "expected": "Lập báo cáo giám sát tổng thể định kỳ: hiển thị đúng 6 trường, áp quy tắc \"Số liệu lấy từ PeriodSnapshot FROZEN; không nhập tay chỉ tiêu tài chính đã có nguồn; thuyết minh bắt buộc\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MNE-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UI-MNE-04",
+      "title": "Báo cáo giám sát theo dự án (MNE-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-04",
+      "oracle_source": "Claim → FR-MNE-04; kỳ vọng nguyên văn của ca thiết kế UI-MNE-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-04",
+      "catches_bug": "Màn hình Báo cáo giám sát theo dự án (MNE-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MNE-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Báo cáo giám sát theo dự án; user có quyền và user chỉ đọc; route MNE-04\n1. Mở MNE-04 từ menu và deep link; kiểm nhãn trường: Dự án, Loại báo cáo, Mốc, Số liệu, Kiến nghị\n2. Thực hiện thao tác chính theo quy tắc: Sự kiện khởi công/điều chỉnh/hoàn thành của PRJ tạo nghĩa vụ báo cáo dự án theo quy tắc EVENT\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên MNE-04",
+      "expected": "Báo cáo giám sát theo dự án: hiển thị đúng 5 trường, áp quy tắc \"Sự kiện khởi công/điều chỉnh/hoàn thành của PRJ tạo nghĩa vụ báo cáo dự án theo quy tắc EVENT\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MNE-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UI-MNE-05",
+      "title": "Rà soát, phê duyệt và phát hành (MNE-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-05",
+      "oracle_source": "Claim → FR-MNE-05; kỳ vọng nguyên văn của ca thiết kế UI-MNE-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-05",
+      "catches_bug": "Màn hình Rà soát, phê duyệt và phát hành (MNE-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MNE-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Rà soát, phê duyệt và phát hành; user có quyền và user chỉ đọc; route MNE-05\n1. Mở MNE-05 từ menu và deep link; kiểm nhãn trường: Phiên bản, Người lập, Người duyệt, Văn bản DOC, Trạng thái ký\n2. Thực hiện thao tác chính theo quy tắc: Người duyệt khác người lập; phát hành qua DOC (soạn→ký→cấp số→phát hành); MNE chỉ ISSUED khi DOC phát sự kiện ISSUED\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên MNE-05",
+      "expected": "Rà soát, phê duyệt và phát hành: hiển thị đúng 5 trường, áp quy tắc \"Người duyệt khác người lập; phát hành qua DOC (soạn→ký→cấp số→phát hành); MNE chỉ ISSUED khi DOC phát sự kiện ISSUED\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MNE-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UI-MNE-06",
+      "title": "Xuất tệp và xác nhận nộp Hệ thống TTQG (MNE-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-06",
+      "oracle_source": "Claim → FR-MNE-06; kỳ vọng nguyên văn của ca thiết kế UI-MNE-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-06",
+      "catches_bug": "Màn hình Xuất tệp và xác nhận nộp Hệ thống TTQG (MNE-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MNE-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Xuất tệp và xác nhận nộp Hệ thống TTQG; user có quyền và user chỉ đọc; route MNE-06\n1. Mở MNE-06 từ menu và deep link; kiểm nhãn trường: Định dạng, Hash tệp, Trạng thái adapter, Số tiếp nhận, Thời điểm nộp\n2. Thực hiện thao tác chính theo quy tắc: Không gọi API hệ thống quốc gia; xuất tệp theo mẫu, người dùng nộp và ghi số tiếp nhận; adapter_status PROPOSED/MOCK hiển thị rõ\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên MNE-06",
+      "expected": "Xuất tệp và xác nhận nộp Hệ thống TTQG: hiển thị đúng 5 trường, áp quy tắc \"Không gọi API hệ thống quốc gia; xuất tệp theo mẫu, người dùng nộp và ghi số tiếp nhận; adapter_status PROPOSED/MOCK hiển thị rõ\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MNE-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UI-MNE-07",
+      "title": "Báo cáo nhanh tuần (MNE-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-07",
+      "oracle_source": "Claim → FR-MNE-07; kỳ vọng nguyên văn của ca thiết kế UI-MNE-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-07",
+      "catches_bug": "Màn hình Báo cáo nhanh tuần (MNE-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MNE-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Báo cáo nhanh tuần; user có quyền và user chỉ đọc; route MNE-07\n1. Mở MNE-07 từ menu và deep link; kiểm nhãn trường: Tuần, Hai tỷ lệ, Đơn vị, Dự án chậm, Kiến nghị\n2. Thực hiện thao tác chính theo quy tắc: Sinh từ snapshot tuần FROZEN theo CV 3665/BTC-PTHT (2026) [CXN-11]; cùng tử số/mẫu số với DIS-19\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên MNE-07",
+      "expected": "Báo cáo nhanh tuần: hiển thị đúng 5 trường, áp quy tắc \"Sinh từ snapshot tuần FROZEN theo CV 3665/BTC-PTHT (2026) [CXN-11]; cùng tử số/mẫu số với DIS-19\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MNE-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UI-MNE-08",
+      "title": "Đánh giá đầu tư (MNE-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-08",
+      "oracle_source": "Claim → FR-MNE-08; kỳ vọng nguyên văn của ca thiết kế UI-MNE-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-08",
+      "catches_bug": "Màn hình Đánh giá đầu tư (MNE-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MNE-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Đánh giá đầu tư; user có quyền và user chỉ đọc; route MNE-08\n1. Mở MNE-08 từ menu và deep link; kiểm nhãn trường: Dự án, Loại đánh giá, Đơn vị đánh giá, Phát hiện, Kết luận, Kiến nghị\n2. Thực hiện thao tác chính theo quy tắc: Đánh giá ban đầu/giữa kỳ/kết thúc/tác động/đột xuất; nộp cần kết luận và ngày hoàn thành; người duyệt khác người lập\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên MNE-08",
+      "expected": "Đánh giá đầu tư: hiển thị đúng 6 trường, áp quy tắc \"Đánh giá ban đầu/giữa kỳ/kết thúc/tác động/đột xuất; nộp cần kết luận và ngày hoàn thành; người duyệt khác người lập\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MNE-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UI-MNE-09",
+      "title": "Tiến độ nộp báo cáo giám sát (MNE-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-09",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-09",
+      "oracle_source": "Claim → FR-MNE-09; kỳ vọng nguyên văn của ca thiết kế UI-MNE-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-09",
+      "catches_bug": "Màn hình Tiến độ nộp báo cáo giám sát (MNE-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MNE-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Tiến độ nộp báo cáo giám sát; user có quyền và user chỉ đọc; route MNE-09\n1. Mở MNE-09 từ menu và deep link; kiểm nhãn trường: Đơn vị, Mẫu biểu, Hạn, Trạng thái, Trễ\n2. Thực hiện thao tác chính theo quy tắc: Trễ = thời điểm SUBMITTED_EXTERNAL (hoặc hiện tại nếu chưa nộp) > hạn theo phiên bản nghĩa vụ; không tính trễ cho nghĩa vụ đã hết hiệu lực\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên MNE-09",
+      "expected": "Tiến độ nộp báo cáo giám sát: hiển thị đúng 5 trường, áp quy tắc \"Trễ = thời điểm SUBMITTED_EXTERNAL (hoặc hiện tại nếu chưa nộp) > hạn theo phiên bản nghĩa vụ; không tính trễ cho nghĩa vụ đã hết hiệu lực\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MNE-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UI-MNE-10",
+      "title": "Lịch sử phiên bản và đính chính báo cáo (MNE-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MNE-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-10",
+      "oracle_source": "Claim → FR-MNE-10; kỳ vọng nguyên văn của ca thiết kế UI-MNE-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-10",
+      "catches_bug": "Màn hình Lịch sử phiên bản và đính chính báo cáo (MNE-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MNE-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Lịch sử phiên bản và đính chính báo cáo; user có quyền và user chỉ đọc; route MNE-10\n1. Mở MNE-10 từ menu và deep link; kiểm nhãn trường: Phiên bản, Lý do đính chính, Khác biệt, Người duyệt\n2. Thực hiện thao tác chính theo quy tắc: Báo cáo đã phát hành bất biến; đính chính tạo revision mới có lý do, phát hành lại qua DOC, bản cũ SUPERSEDED\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên MNE-10",
+      "expected": "Lịch sử phiên bản và đính chính báo cáo: hiển thị đúng 4 trường, áp quy tắc \"Báo cáo đã phát hành bất biến; đính chính tạo revision mới có lý do, phát hành lại qua DOC, bản cũ SUPERSEDED\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MNE-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-73",
+      "title": "Step 1: 403 SELF_APPROVAL_DENIED",
+      "type": "RED",
+      "platform": "api",
+      "persona": "nguoi-dung-mne",
+      "journey_ref": "J-FR-MNE-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-02",
+      "oracle_source": "Claim → MNE.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-73 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh mục mẫu biểu giám sát\": Step 1: 403 SELF_APPROVAL_DENIED; step 2: 409 FORM_RANGE_OVERLAP; step 3: 422 DOC_TEMPLATE_MISSING; none of the three revisions is PUBLISHED.",
+      "coverage_ids": [
+        "COV-FR-MNE-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mne",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Form revision F-2 authored by user A; revision F-3 whose range overlaps F-2; revision F-4 without a DOC template.\n1. User A publishes F-2\n2. Publish F-3\n3. Publish F-4",
+      "expected": "Step 1: 403 SELF_APPROVAL_DENIED; step 2: 409 FORM_RANGE_OVERLAP; step 3: 422 DOC_TEMPLATE_MISSING; none of the three revisions is PUBLISHED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "tags": [
+        "security"
+      ],
+      "module": "MNE"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-74",
+      "title": "AD_HOC: 200 planned",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-mne",
+      "journey_ref": "J-FR-MNE-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MNE-08",
+      "oracle_source": "Claim → MNE.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-74 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MNE-08",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đánh giá đầu tư\": AD_HOC: 200 planned; FINAL on IMPLEMENTATION: 409 STAGE_TRANSITION_DENIED and no FINAL evaluation row.",
+      "coverage_ids": [
+        "COV-FR-MNE-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mne",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Project P-A-001 in stage IMPLEMENTATION.\n1. planMneEvaluation kind AD_HOC\n2. planMneEvaluation kind FINAL",
+      "expected": "AD_HOC: 200 planned; FINAL on IMPLEMENTATION: 409 STAGE_TRANSITION_DENIED and no FINAL evaluation row.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "MNE"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 10,
+    "M2": 0,
+    "M3": 0,
+    "M4": 80,
+    "max": 80,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 10,
+    "covered": 10,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

@@ -1,0 +1,558 @@
+{
+  "feature": "pmt",
+  "generated_at": "2026-11-05T07:53:18.071Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/pmt/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UAT-AC368",
+      "title": "Bước 1: gate START_CONSTRUCTION BLOCKED, blocking_permits=[GPXD], lý do \"chưa có giấy phép\"",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chuyen-vien-phap-ly-du-an",
+      "journey_ref": "J-FR-PMT-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PMT-04",
+      "oracle_source": "Claim → Thiết kế M1 PMT.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC368 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PMT-04, FR-PMT-01, FR-PMT-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Quy tắc cổng chặn mốc\": Bước 1: gate START_CONSTRUCTION BLOCKED, blocking_permits=[GPXD], lý do \"chưa có giấy phép\". Bước 2: PASSED. Bước 3: BLOCKED (giấy phép hết hạn 2026-12-31). PRJ",
+      "coverage_ids": [
+        "COV-FR-PMT-04",
+        "COV-FR-PMT-01",
+        "COV-FR-PMT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-phap-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Rule cổng GR-1: gate START_CONSTRUCTION, permit_type GPXD, requirement VALID_OR_EXEMPT, hiệu lực 2026-01-01, legal_basis fixture \"Luật Xây dựng 135/2025 [CXN-EXE-02]\"; dossier PD-A-001 cho PRJ-A-001 chưa có giấy phép; as_of 2026-08-01.\nĐầu vào: evaluatePermitGates; ghi GPXD ISSUED valid_until 2026-12-31; as_of 2027-01-02; declarePermitExemption cho dự án khác PRJ-A-002.\n1. evaluatePermitGates as_of 2026-08-01 khi chưa có giấy phép.\n2. recordPermitDecision GPXD ISSUED (permit_no GP-0001, valid 2026-07-01..2026-12-31); đánh giá lại.\n3. Đánh giá as_of 2027-01-02.\n4. PRJ-A-002: declarePermitExemption với exemption_basis và quyết định; đánh giá.",
+      "expected": "Bước 1: gate START_CONSTRUCTION BLOCKED, blocking_permits=[GPXD], lý do \"chưa có giấy phép\". Bước 2: PASSED. Bước 3: BLOCKED (giấy phép hết hạn 2026-12-31). PRJ-A-002: PASSED với basis EXEMPTED. Kết quả luôn kèm rule revision và legal_basis đã dùng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "PMT-01",
+      "module": "PMT"
+    },
+    {
+      "tc_id": "TC-UAT-AC369",
+      "title": "Bước 1: cả bốn trả 422 PERMIT_GATE_BLOCKED (details: gate_code, permit_type GPXD)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chuyen-vien-phap-ly-du-an",
+      "journey_ref": "J-FR-PMT-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PMT-04",
+      "oracle_source": "Claim → Thiết kế M1 PMT.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC369 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PMT-04, FR-PMT-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Quy tắc cổng chặn mốc\": Bước 1: cả bốn trả 422 PERMIT_GATE_BLOCKED (details: gate_code, permit_type GPXD). Bước 3: recordMeasurement 200 (waiver ACTIVE), audit ghi waiver id. Bước 4: w",
+      "coverage_ids": [
+        "COV-FR-PMT-04",
+        "COV-FR-PMT-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-phap-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). PRJ-A-001 gate START_CONSTRUCTION BLOCKED (chưa có GPXD); HD-A-001 construction ACTIVE; milestone PRJ \"START_CONSTRUCTION\" PLANNED.\nĐầu vào: recordMeasurement; saveSiteDiaryDraft; requestInspection; PRJ completeMilestone START_CONSTRUCTION; sau đó cấp waiver 30 ngày.\n1. Gọi bốn lệnh khi cổng BLOCKED.\n2. u.lanhdao cấp grantPermitGateWaiver valid_until +30 ngày kèm văn bản.\n3. Gọi lại recordMeasurement.\n4. Chờ waiver hết hạn (đồng hồ giả lập) và gọi lại.",
+      "expected": "Bước 1: cả bốn trả 422 PERMIT_GATE_BLOCKED (details: gate_code, permit_type GPXD). Bước 3: recordMeasurement 200 (waiver ACTIVE), audit ghi waiver id. Bước 4: waiver EXPIRED theo job, lệnh bị chặn lại.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "PMT-04",
+      "module": "PMT"
+    },
+    {
+      "tc_id": "TC-UAT-AC370",
+      "title": "Thông báo gửi đúng 4 lần (T-60, T-30, T-15, T-0), alert_level_sent tăng 1→4, chạy lại không gửi trùng",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chuyen-vien-phap-ly-du-an",
+      "journey_ref": "J-FR-PMT-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PMT-05",
+      "oracle_source": "Claim → Thiết kế M1 PMT.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC370 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PMT-05, FR-PMT-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Cảnh báo hết hạn giấy phép\": Thông báo gửi đúng 4 lần (T-60, T-30, T-15, T-0), alert_level_sent tăng 1→4, chạy lại không gửi trùng. 2027-01-01: status EXPIRED và tự tạo 1 vướng mắc ISS. ren",
+      "coverage_ids": [
+        "COV-FR-PMT-05",
+        "COV-FR-PMT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-phap-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Permit PMT-A-001 GPXD ISSUED valid_until 2026-12-31; người phụ trách u.cv.hd; ngưỡng cảnh báo 60/30/15/0 ngày.\nĐầu vào: Chạy job với đồng hồ 2026-11-01, 2026-12-01, 2026-12-16, 2026-12-31, 2027-01-01; renewPermit.\n1. Chạy job các ngày giả lập; đọc alert_level_sent và thông báo.\n2. Chạy lại job cùng ngày.\n3. Chạy 2027-01-01 và đọc status.\n4. renewPermit với new_permit_no GP-0002 valid_until 2027-12-31.",
+      "expected": "Thông báo gửi đúng 4 lần (T-60, T-30, T-15, T-0), alert_level_sent tăng 1→4, chạy lại không gửi trùng. 2027-01-01: status EXPIRED và tự tạo 1 vướng mắc ISS. renewPermit: PMT-A-001 SUPERSEDED, bản mới ISSUED GP-0002; unique permit_current_uq chỉ có 1 ISSUED; không bản nào tự thay đổi valid_until.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "PMT-02",
+      "module": "PMT"
+    },
+    {
+      "tc_id": "TC-UAT-AC371",
+      "title": "Bước 1: 422 LEGAL_BASIS_REQUIRED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chuyen-vien-phap-ly-du-an",
+      "journey_ref": "J-FR-PMT-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PMT-03",
+      "oracle_source": "Claim → Thiết kế M1 PMT.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC371 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PMT-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh mục loại giấy phép\": Bước 1: 422 LEGAL_BASIS_REQUIRED. Bước 2: 200; permit đang có giữ permit_type_id rev1 (không đổi). Bước 3: 409 PERMIT_TYPE_OVERLAP. Bước 4: 422 PERMIT_TYPE_IN_U",
+      "coverage_ids": [
+        "COV-FR-PMT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-phap-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). permit_type GPXD rev1 PUBLISHED hiệu lực 2026-01-01; dossier PD-A-001 đã dùng rev1.\nĐầu vào: publishPermitType rev2 không legal_basis; có legal_basis hiệu lực 2027-01-01; hiệu lực chồng lấn; retirePermitType khi đang dùng.\n1. Xuất bản rev2 thiếu legal_basis.\n2. Xuất bản rev2 hiệu lực 2027-01-01 với legal_basis.\n3. Xuất bản rev3 hiệu lực 2026-06-01 (chồng lấn).\n4. retirePermitType rev1 effective_until 2026-12-31 khi còn dossier mở.",
+      "expected": "Bước 1: 422 LEGAL_BASIS_REQUIRED. Bước 2: 200; permit đang có giữ permit_type_id rev1 (không đổi). Bước 3: 409 PERMIT_TYPE_OVERLAP. Bước 4: 422 PERMIT_TYPE_IN_USE nếu còn permit PLANNED/IN_APPRAISAL dùng rev1 sau ngày đó; nếu không có thì 200.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "PMT-03",
+      "module": "PMT"
+    },
+    {
+      "tc_id": "TC-UAT-AC372",
+      "title": "Bước 1: CHECK permit_exempt_chk/422 DECISION_DOCUMENT_REQUIRED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chuyen-vien-phap-ly-du-an",
+      "journey_ref": "J-FR-PMT-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PMT-06",
+      "oracle_source": "Claim → Thiết kế M1 PMT.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC372 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PMT-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Miễn giấy phép và miễn trừ cổng\": Bước 1: CHECK permit_exempt_chk/422 DECISION_DOCUMENT_REQUIRED. Bước 2: 403 SELF_APPROVAL_DENIED. Bước 3: EXEMPTED, exemption_basis lưu; cổng VALID_OR_EXEMPT đạ",
+      "coverage_ids": [
+        "COV-FR-PMT-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-phap-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). permit PMT-A-010 loại GPXD (exemption_allowed=true) PLANNED; PMT-A-011 loại GPMT/ĐTM (exemption_allowed=false) PLANNED; u.cv.hd đề xuất.\nĐầu vào: declarePermitExemption PMT-A-010 không văn bản; bởi người đề xuất; bởi u.lanhdao; PMT-A-011.\n1. Gọi thiếu exemption_decision_document_version_id.\n2. u.cv.hd tự duyệt.\n3. u.lanhdao duyệt đủ căn cứ.\n4. Gọi cho PMT-A-011.",
+      "expected": "Bước 1: CHECK permit_exempt_chk/422 DECISION_DOCUMENT_REQUIRED. Bước 2: 403 SELF_APPROVAL_DENIED. Bước 3: EXEMPTED, exemption_basis lưu; cổng VALID_OR_EXEMPT đạt. PMT-A-011: 422 EXEMPTION_NOT_ALLOWED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "PMT-06",
+      "module": "PMT"
+    },
+    {
+      "tc_id": "TC-UAT-AC373",
+      "title": "Bước 1: 422 WAIVER_TOO_LONG",
+      "type": "RED",
+      "platform": "web",
+      "persona": "chuyen-vien-phap-ly-du-an",
+      "journey_ref": "J-FR-PMT-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PMT-06",
+      "oracle_source": "Claim → Thiết kế M1 PMT.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC373 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PMT-06, FR-PMT-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Miễn giấy phép và miễn trừ cổng\": Bước 1: 422 WAIVER_TOO_LONG. Bước 2: 403 SELF_APPROVAL_DENIED (CHECK permit_gate_waiver_maker_chk). Bước 3: ACTIVE, cổng PASSED_WITH_WAIVER hiển thị waiver id v",
+      "coverage_ids": [
+        "COV-FR-PMT-06",
+        "COV-FR-PMT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-phap-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Rule waiver tối đa 90 ngày [GIẢ ĐỊNH]; u.cv.hd tạo đề xuất; u.lanhdao có permit.gate.waive.\nĐầu vào: grantPermitGateWaiver valid_until sau 120 ngày; bởi người đề xuất; hợp lệ 60 ngày; revoke.\n1. Cấp waiver 120 ngày.\n2. Người đề xuất tự cấp.\n3. u.lanhdao cấp 60 ngày.\n4. revokePermitGateWaiver rồi đánh giá cổng.",
+      "expected": "Bước 1: 422 WAIVER_TOO_LONG. Bước 2: 403 SELF_APPROVAL_DENIED (CHECK permit_gate_waiver_maker_chk). Bước 3: ACTIVE, cổng PASSED_WITH_WAIVER hiển thị waiver id và hạn. Bước 4: REVOKED, cổng BLOCKED lại ngay.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PMT-04",
+      "tags": [
+        "security"
+      ],
+      "module": "PMT"
+    },
+    {
+      "tc_id": "TC-UAT-AC374",
+      "title": "Hai endpoint: 404 RESOURCE_NOT_FOUND",
+      "type": "RED",
+      "platform": "web",
+      "persona": "chuyen-vien-phap-ly-du-an",
+      "journey_ref": "J-FR-PMT-01",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PMT-01",
+      "oracle_source": "Claim → Thiết kế M1 PMT.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC374 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PMT-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hồ sơ pháp lý dự án\": Hai endpoint: 404 RESOURCE_NOT_FOUND; SQL không tenant: 0 dòng; không tạo permit ở TNT-B.",
+      "coverage_ids": [
+        "COV-FR-PMT-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-phap-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Dossier PD-B-001 của TNT-B; u.cv.hd thuộc TNT-A.\nĐầu vào: GET /projects/{PRJ-B-001}/permit-gates; POST /permit-dossiers/{PD-B-001}/permits; SQL không đặt tenant.\n1. Gọi hai endpoint với id TNT-B.\n2. SELECT count(*) trên permit, permit_dossier khi chưa đặt app.tenant_id.",
+      "expected": "Hai endpoint: 404 RESOURCE_NOT_FOUND; SQL không tenant: 0 dòng; không tạo permit ở TNT-B.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PMT-01",
+      "tags": [
+        "security"
+      ],
+      "module": "PMT"
+    },
+    {
+      "tc_id": "TC-UAT-AC375",
+      "title": "Bước 1: 409 PERMIT_ALREADY_CURRENT (unique permit_current_uq)",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chuyen-vien-phap-ly-du-an",
+      "journey_ref": "J-FR-PMT-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PMT-02",
+      "oracle_source": "Claim → Thiết kế M1 PMT.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC375 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PMT-02, FR-PMT-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi tiết giấy phép và mốc xử lý\": Bước 1: 409 PERMIT_ALREADY_CURRENT (unique permit_current_uq). Bước 2: 200 (số chỉ duy nhất theo loại). Bước 3: 409 PERMIT_NO_DUPLICATE (unique permit_type_no_u",
+      "coverage_ids": [
+        "COV-FR-PMT-02",
+        "COV-FR-PMT-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-phap-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Dossier PD-A-001 đã có GPXD ISSUED số GP-0001; loại PCCC chưa có.\nĐầu vào: addPermit GPXD lần 2 ISSUED; recordPermitDecision số GP-0001 cho PCCC; cho cùng loại GPXD ở dossier khác.\n1. recordPermitDecision tạo GPXD thứ hai ISSUED trong cùng dossier.\n2. Ghi số GP-0001 cho loại PCCC (loại khác).\n3. Ghi số GP-0001 cho GPXD của dossier khác trong tenant.",
+      "expected": "Bước 1: 409 PERMIT_ALREADY_CURRENT (unique permit_current_uq). Bước 2: 200 (số chỉ duy nhất theo loại). Bước 3: 409 PERMIT_NO_DUPLICATE (unique permit_type_no_uq).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "PMT-01",
+      "module": "PMT"
+    },
+    {
+      "tc_id": "TC-UI-PMT-01",
+      "title": "Hồ sơ pháp lý dự án (PMT-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-phap-ly-du-an",
+      "journey_ref": "J-FR-PMT-01",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PMT-01",
+      "oracle_source": "Claim → FR-PMT-01; kỳ vọng nguyên văn của ca thiết kế UI-PMT-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PMT-01",
+      "catches_bug": "Màn hình Hồ sơ pháp lý dự án (PMT-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PMT-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-phap-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Hồ sơ pháp lý dự án\"; user có quyền và user chỉ đọc; route PMT-01\n1. Mở PMT-01 từ menu và deep link; kiểm nhãn trường: Dự án, Giấy phép bắt buộc, Đã cấp, Sắp hết hạn, Cổng bị chặn, Phụ trách\n2. Thực hiện thao tác chính theo quy tắc: Danh mục bắt buộc sinh theo loại giấy phép áp dụng; mục [CXN] chưa xác nhận có cờ cảnh báo; thao tác dùng command createPermitDossier, addPermit, evaluatePermitGates\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PMT-01",
+      "expected": "Hồ sơ pháp lý dự án: hiển thị đúng 6 trường; áp quy tắc \"Danh mục bắt buộc sinh theo loại giấy phép áp dụng; mục [CXN] chưa xác nhận có cờ cảnh báo\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PMT-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PMT"
+    },
+    {
+      "tc_id": "TC-UI-PMT-02",
+      "title": "Chi tiết giấy phép và mốc xử lý (PMT-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-phap-ly-du-an",
+      "journey_ref": "J-FR-PMT-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PMT-02",
+      "oracle_source": "Claim → FR-PMT-02; kỳ vọng nguyên văn của ca thiết kế UI-PMT-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PMT-02",
+      "catches_bug": "Màn hình Chi tiết giấy phép và mốc xử lý (PMT-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PMT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-phap-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Chi tiết giấy phép và mốc xử lý\"; user có quyền và user chỉ đọc; route PMT-02\n1. Mở PMT-02 từ menu và deep link; kiểm nhãn trường: Giấy phép, Số, Cơ quan, Mốc xử lý, Hiệu lực, Bản quét\n2. Thực hiện thao tác chính theo quy tắc: Một giấy phép hiện hành mỗi loại; cấp lại tạo bản mới thay thế; thao tác dùng command recordPermitMilestone, recordPermitDecision, renewPermit\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PMT-02",
+      "expected": "Chi tiết giấy phép và mốc xử lý: hiển thị đúng 6 trường; áp quy tắc \"Một giấy phép hiện hành mỗi loại; cấp lại tạo bản mới thay thế\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PMT-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PMT"
+    },
+    {
+      "tc_id": "TC-UI-PMT-03",
+      "title": "Danh mục loại giấy phép (PMT-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-phap-ly-du-an",
+      "journey_ref": "J-FR-PMT-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PMT-03",
+      "oracle_source": "Claim → FR-PMT-03; kỳ vọng nguyên văn của ca thiết kế UI-PMT-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PMT-03",
+      "catches_bug": "Màn hình Danh mục loại giấy phép (PMT-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PMT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-phap-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Danh mục loại giấy phép\"; user có quyền và user chỉ đọc; route PMT-03\n1. Mở PMT-03 từ menu và deep link; kiểm nhãn trường: Mã, Tên, Nhóm, Căn cứ pháp lý, Hiệu lực, Điều kiện áp dụng, Được miễn\n2. Thực hiện thao tác chính theo quy tắc: Dữ liệu có legal_basis và hiệu lực; không sửa bản đang dùng; thao tác dùng command publishPermitType, retirePermitType\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PMT-03",
+      "expected": "Danh mục loại giấy phép: hiển thị đúng 7 trường; áp quy tắc \"Dữ liệu có legal_basis và hiệu lực; không sửa bản đang dùng\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PMT-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PMT"
+    },
+    {
+      "tc_id": "TC-UI-PMT-04",
+      "title": "Quy tắc cổng chặn mốc (PMT-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-phap-ly-du-an",
+      "journey_ref": "J-FR-PMT-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PMT-04",
+      "oracle_source": "Claim → FR-PMT-04; kỳ vọng nguyên văn của ca thiết kế UI-PMT-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PMT-04",
+      "catches_bug": "Màn hình Quy tắc cổng chặn mốc (PMT-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PMT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-phap-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Quy tắc cổng chặn mốc\"; user có quyền và user chỉ đọc; route PMT-04\n1. Mở PMT-04 từ menu và deep link; kiểm nhãn trường: Cổng, Mốc PRJ bị chặn, Loại giấy phép, Yêu cầu, Điều kiện áp dụng, Hiệu lực\n2. Thực hiện thao tác chính theo quy tắc: Cổng đánh giá theo quy tắc hiệu lực tại ngày; miễn trừ có thời hạn và văn bản; thao tác dùng command publishPermitGateRule, retirePermitGateRule, evaluatePermitGates\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PMT-04",
+      "expected": "Quy tắc cổng chặn mốc: hiển thị đúng 6 trường; áp quy tắc \"Cổng đánh giá theo quy tắc hiệu lực tại ngày; miễn trừ có thời hạn và văn bản\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PMT-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PMT"
+    },
+    {
+      "tc_id": "TC-UI-PMT-05",
+      "title": "Cảnh báo hết hạn giấy phép (PMT-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-phap-ly-du-an",
+      "journey_ref": "J-FR-PMT-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PMT-05",
+      "oracle_source": "Claim → FR-PMT-05; kỳ vọng nguyên văn của ca thiết kế UI-PMT-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PMT-05",
+      "catches_bug": "Màn hình Cảnh báo hết hạn giấy phép (PMT-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PMT-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-phap-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Cảnh báo hết hạn giấy phép\"; user có quyền và user chỉ đọc; route PMT-05\n1. Mở PMT-05 từ menu và deep link; kiểm nhãn trường: Giấy phép, Dự án, Hết hạn, Còn lại (ngày), Mức cảnh báo, Phụ trách\n2. Thực hiện thao tác chính theo quy tắc: Cảnh báo 60/30/15/0 ngày khử trùng; hết hạn tự tạo vướng mắc; không tự gia hạn; thao tác dùng command listExpiringPermits\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PMT-05",
+      "expected": "Cảnh báo hết hạn giấy phép: hiển thị đúng 6 trường; áp quy tắc \"Cảnh báo 60/30/15/0 ngày khử trùng; hết hạn tự tạo vướng mắc; không tự gia hạn\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PMT-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PMT"
+    },
+    {
+      "tc_id": "TC-UI-PMT-06",
+      "title": "Miễn giấy phép và miễn trừ cổng (PMT-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-phap-ly-du-an",
+      "journey_ref": "J-FR-PMT-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PMT-06",
+      "oracle_source": "Claim → FR-PMT-06; kỳ vọng nguyên văn của ca thiết kế UI-PMT-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PMT-06",
+      "catches_bug": "Màn hình Miễn giấy phép và miễn trừ cổng (PMT-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PMT-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-phap-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Miễn giấy phép và miễn trừ cổng\"; user có quyền và user chỉ đọc; route PMT-06\n1. Mở PMT-06 từ menu và deep link; kiểm nhãn trường: Giấy phép, Căn cứ miễn, Văn bản, Người duyệt, Miễn trừ cổng đến ngày\n2. Thực hiện thao tác chính theo quy tắc: Người duyệt khác người đề xuất; miễn trừ tối đa theo rule; thao tác dùng command declarePermitExemption, grantPermitGateWaiver, revokePermitGateWaiver\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PMT-06",
+      "expected": "Miễn giấy phép và miễn trừ cổng: hiển thị đúng 5 trường; áp quy tắc \"Người duyệt khác người đề xuất; miễn trừ tối đa theo rule\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PMT-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PMT"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 6,
+    "M2": 0,
+    "M3": 0,
+    "M4": 50,
+    "max": 50,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 6,
+    "covered": 6,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

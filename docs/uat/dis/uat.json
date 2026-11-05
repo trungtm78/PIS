@@ -1,0 +1,2593 @@
+{
+  "feature": "dis",
+  "generated_at": "2026-11-05T07:53:18.051Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/dis/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UAT-AC01",
+      "title": "Lần 1: 200, status=SUBMITTED, resource_version=4, submitted_at = giờ server, payload_hash 64 hex",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-06",
+      "oracle_source": "Claim → FRD AC01; kỳ vọng nguyên văn của ca thiết kế UAT-AC01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-06, FR-DIS-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Rà soát và gửi báo cáo\": Lần 1: 200, status=SUBMITTED, resource_version=4, submitted_at = giờ server, payload_hash 64 hex; đúng 1 audit action=report.submit và 1 outbox event_type=repor",
+      "coverage_ids": [
+        "COV-FR-DIS-06",
+        "COV-FR-DIS-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-DIS-001; tenant TNT-A; A-maker có report.submit trên P-A-001; kỳ W2026-40 OPEN; plan_version PV-A-001-2026r1 PUBLISHED; nháp R1 version=3 với 6 ô nguồn 100/200/30/70/0/20 triệu, CTMTQG 40 triệu ở CURRENT_YEAR/CENTRAL.\n1. A-maker gọi POST /reports/{R1}/submit với Idempotency-Key k-ac01-0000000001 và If-Match \"3\"\n2. Đọc GET /resources/report_revision/{R1}, bảng audit_event và outbox_event lọc resource_id=R1\n3. Gửi lại đúng request cùng key k-ac01-0000000001",
+      "expected": "Lần 1: 200, status=SUBMITTED, resource_version=4, submitted_at = giờ server, payload_hash 64 hex; đúng 1 audit action=report.submit và 1 outbox event_type=report.submitted (payload_version=1). Lần 2: trả lại cùng operation_id, không thêm audit/outbox.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIS-06",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC02",
+      "title": "422 VALIDATION_FAILED, errors[0] = {field:\"funding_lines[CURRENT_YEAR,CENTRAL]",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-04",
+      "oracle_source": "Claim → FRD AC02; kỳ vọng nguyên văn của ca thiết kế UAT-AC02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nhập giải ngân theo nguồn\": 422 VALIDATION_FAILED, errors[0] = {field:\"funding_lines[CURRENT_YEAR,CENTRAL].ctmtqg_subset_vnd\", code:\"SUBSET_EXCEEDS_PARENT\"}; R2 vẫn DRAFT version 1; giá tr",
+      "coverage_ids": [
+        "COV-FR-DIS-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-DIS-006; nháp R2 của P-A-002 kỳ W2026-40: CURRENT_YEAR/CENTRAL disbursed_cumulative_vnd=100000000, ctmtqg_subset_vnd=120000000.\n1. A-maker gửi POST /reports/{R2}/submit (key k-ac02-0000000001, If-Match \"1\")\n2. Mở lại DIS-04 cho R2",
+      "expected": "422 VALIDATION_FAILED, errors[0] = {field:\"funding_lines[CURRENT_YEAR,CENTRAL].ctmtqg_subset_vnd\", code:\"SUBSET_EXCEEDS_PARENT\"}; R2 vẫn DRAFT version 1; giá trị 120000000 còn nguyên trên DIS-04, ô lỗi được đánh dấu.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIS-04",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC03",
+      "title": "409 PERIOD_LOCKED, retryable=false",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-06",
+      "oracle_source": "Claim → FRD AC03; kỳ vọng nguyên văn của ca thiết kế UAT-AC03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-06, FR-DIS-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Rà soát và gửi báo cáo\": 409 PERIOD_LOCKED, retryable=false; số revision không phải DRAFT = 0; không có outbox report.submitted; UI hiển thị \"Kỳ đã khóa sổ lúc 30/09/2026 10:00\" và nút ",
+      "coverage_ids": [
+        "COV-FR-DIS-06",
+        "COV-FR-DIS-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Kỳ W2026-39 status=LOCKED, locked_at=2026-09-30T03:00:00Z; nháp R3 của P-A-003 thuộc W2026-39; không có period_reopen APPROVED.\n1. A-maker gửi POST /reports/{R3}/submit (key k-ac03-0000000001, If-Match \"1\")\n2. Đếm report_revision của P-A-003/W2026-39 có status ≠ DRAFT",
+      "expected": "409 PERIOD_LOCKED, retryable=false; số revision không phải DRAFT = 0; không có outbox report.submitted; UI hiển thị \"Kỳ đã khóa sổ lúc 30/09/2026 10:00\" và nút \"Đề nghị mở lại kỳ\" (DIS-22) nếu có quyền period.reopen.request.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIS-06",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC04",
+      "title": "API trả rate_pm_pct=null, rate_total_pct=null, rate_null_reason=\"ZERO_DENOMINATOR\"",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-DIS-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-12",
+      "oracle_source": "Claim → FRD AC04; kỳ vọng nguyên văn của ca thiết kế UAT-AC04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-12, FR-DIS-19, FR-HOME-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tổng hợp theo chủ đầu tư\": API trả rate_pm_pct=null, rate_total_pct=null, rate_null_reason=\"ZERO_DENOMINATOR\"; UI hiện \"Chưa có cơ sở tính\" (không \"0%\", không \"Infinity\", không \"NaN\"); tỷ",
+      "coverage_ids": [
+        "COV-FR-DIS-12",
+        "COV-FR-DIS-19",
+        "COV-FR-HOME-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Snapshot S-ZERO FROZEN: P-A-004 có plan_pm_assigned_vnd=0, plan_local_added_vnd=0, disbursed_treasury_vnd=5000000; P-A-005 không có đăng ký tháng (registered_month_vnd=NULL).\n1. Mở DIS-12 và DIS-19 với snapshot S-ZERO\n2. Gọi GET /disbursement-rates?snapshot_id=S-ZERO&project_id=P-A-004\n3. Mở HOME-04 nhóm so sánh \"Ban QLDA\"",
+      "expected": "API trả rate_pm_pct=null, rate_total_pct=null, rate_null_reason=\"ZERO_DENOMINATOR\"; UI hiện \"Chưa có cơ sở tính\" (không \"0%\", không \"Infinity\", không \"NaN\"); tỷ lệ đạt đăng ký của P-A-005 hiện \"Chưa có đăng ký\"; HOME-04 loại P-A-004 khỏi xếp hạng với lý do \"Mẫu số bằng 0\".",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "HOME-04",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC05",
+      "title": "Lần A-maker: 403 SELF_APPROVAL_DENIED, R5 vẫn SUBMITTED, audit ghi denied attempt (không đổi dữ liệu)",
+      "type": "RED",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-07",
+      "oracle_source": "Claim → FRD AC05; kỳ vọng nguyên văn của ca thiết kế UAT-AC05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi tiết báo cáo\": Lần A-maker: 403 SELF_APPROVAL_DENIED, R5 vẫn SUBMITTED, audit ghi denied attempt (không đổi dữ liệu). Lần A-reviewer: 200, status=ACCEPTED, accepted_by=A-revie",
+      "coverage_ids": [
+        "COV-FR-DIS-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A bật maker_checker cho report; A-maker vừa gửi R5 (SUBMITTED) và cũng có quyền report.review.\n1. A-maker gọi POST /reports/{R5}/decision {decision:\"approve\", reason:\"tự duyệt thử\", evidence_ids:[]} (key k-ac05-0000000001, If-Match \"2\")\n2. A-reviewer gọi cùng lệnh với key khác",
+      "expected": "Lần A-maker: 403 SELF_APPROVAL_DENIED, R5 vẫn SUBMITTED, audit ghi denied attempt (không đổi dữ liệu). Lần A-reviewer: 200, status=ACCEPTED, accepted_by=A-reviewer ≠ submitted_by.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIS-07",
+      "tags": [
+        "security"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC06",
+      "title": "Correction tạo rev2 DRAFT→SUBMITTED, rev1 vẫn ACCEPTED/is_current",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-DIS-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-08",
+      "oracle_source": "Claim → FRD AC06; kỳ vọng nguyên văn của ca thiết kế UAT-AC06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-08, FR-DIS-11, FR-HOME-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sửa và bổ sung báo cáo\": Correction tạo rev2 DRAFT→SUBMITTED, rev1 vẫn ACCEPTED/is_current; HOME-01 và S-40a vẫn 420000000 trước khi rev2 được accept; sau accept: rev1 SUPERSEDED, rev2 ",
+      "coverage_ids": [
+        "COV-FR-DIS-08",
+        "COV-FR-DIS-11",
+        "COV-FR-HOME-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: R6 rev1 ACCEPTED (P-A-006, W2026-40, tổng 420000000); snapshot S-40a FROZEN chứa 420000000.\n1. A-maker gọi POST /reports/{R6}/corrections {amendment_reason:\"Kho bạc hoàn trả 20 triệu\", lines:[CURRENT_YEAR/LOCAL=180000000]} (key k-ac06-0000000001)\n2. Đọc HOME-01 và GET /disbursement-rates?snapshot_id=S-40a\n3. A-reviewer accept rev2; build + freeze snapshot S-40b; đọc lại HOME-01",
+      "expected": "Correction tạo rev2 DRAFT→SUBMITTED, rev1 vẫn ACCEPTED/is_current; HOME-01 và S-40a vẫn 420000000 trước khi rev2 được accept; sau accept: rev1 SUPERSEDED, rev2 is_current, S-40b = 400000000, S-40a không đổi (FROZEN); DIS-11 so sánh rev1/rev2 hiện chênh lệch -20000000 ở CURRENT_YEAR/LOCAL.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "HOME-01",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC07",
+      "title": "R7 SUBMITTED với is_late=true (so theo calendar_version=2 gắn với kỳ), R7b is_late=false",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-14",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-14",
+      "oracle_source": "Claim → FRD AC07; kỳ vọng nguyên văn của ca thiết kế UAT-AC07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-14, FR-DIS-15",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Lịch kỳ và khóa sổ\": R7 SUBMITTED với is_late=true (so theo calendar_version=2 gắn với kỳ), R7b is_late=false; DIS-15 đếm \"Quá hạn\" = 1 cho đơn vị của P-A-007; cảnh báo EW-02 không ",
+      "coverage_ids": [
+        "COV-FR-DIS-14",
+        "COV-FR-DIS-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Lịch DEFAULT calendar_version=2: W2026-40 deadline_at=2026-10-02T03:00:00Z (10:00 giờ VN); calendar_version=1 cũ có deadline 2026-10-03T03:00:00Z; kỳ đã chuyển SOFT_CLOSED.\n1. A-maker gửi R7 lúc 2026-10-02T03:00:01Z (giả lập clock)\n2. A-maker2 gửi R7b của P-A-008 lúc 2026-10-02T02:59:59Z\n3. Mở DIS-15",
+      "expected": "R7 SUBMITTED với is_late=true (so theo calendar_version=2 gắn với kỳ), R7b is_late=false; DIS-15 đếm \"Quá hạn\" = 1 cho đơn vị của P-A-007; cảnh báo EW-02 không mở cho P-A-008.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIS-14",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-01",
+      "title": "Danh sách báo cáo tuần (DIS-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-01",
+      "oracle_source": "Claim → FR-DIS-01; kỳ vọng nguyên văn của ca thiết kế UI-DIS-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-01",
+      "catches_bug": "Màn hình Danh sách báo cáo tuần (DIS-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DIS-01\n1. Mở route bằng menu và deep link; kiểm tên trường: Năm, Tuần báo cáo, Kế hoạch năm, Dự án\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-02",
+      "title": "Chọn kỳ và dự án (DIS-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-02",
+      "oracle_source": "Claim → FR-DIS-02; kỳ vọng nguyên văn của ca thiết kế UI-DIS-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-02",
+      "catches_bug": "Màn hình Chọn kỳ và dự án (DIS-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DIS-02\n1. Mở route bằng menu và deep link; kiểm tên trường: Năm, Tuần báo cáo, Kế hoạch năm, Dự án\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-03",
+      "title": "Nhập khối lượng (DIS-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-03",
+      "oracle_source": "Claim → FR-DIS-03; kỳ vọng nguyên văn của ca thiết kế UI-DIS-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-03",
+      "catches_bug": "Màn hình Nhập khối lượng (DIS-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DIS-03\n1. Mở route bằng menu và deep link; kiểm tên trường: Khối lượng thi công, Khối lượng nghiệm thu, Đã gửi KBNN, Hồ sơ đang hoàn thiện\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-04",
+      "title": "Nhập giải ngân theo nguồn (DIS-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-04",
+      "oracle_source": "Claim → FR-DIS-04; kỳ vọng nguyên văn của ca thiết kế UI-DIS-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-04",
+      "catches_bug": "Màn hình Nhập giải ngân theo nguồn (DIS-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DIS-04\n1. Mở route bằng menu và deep link; kiểm tên trường: Vốn năm NSTW, Vốn năm NSĐP, Kéo dài NSTW, Kéo dài NSĐP, Vốn khác NSTW, Vốn khác NSĐP, Trong đó CTMTQG\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-05",
+      "title": "Đăng ký tháng sau (DIS-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-05",
+      "oracle_source": "Claim → FR-DIS-05; kỳ vọng nguyên văn của ca thiết kế UI-DIS-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-05",
+      "catches_bug": "Màn hình Đăng ký tháng sau (DIS-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DIS-05\n1. Mở route bằng menu và deep link; kiểm tên trường: Tháng, Vốn năm, Vốn kéo dài, Vốn khác, Trong đó CTMTQG\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-06",
+      "title": "Rà soát và gửi báo cáo (DIS-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-06",
+      "oracle_source": "Claim → FR-DIS-06; kỳ vọng nguyên văn của ca thiết kế UI-DIS-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-06",
+      "catches_bug": "Màn hình Rà soát và gửi báo cáo (DIS-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DIS-06\n1. Mở route bằng menu và deep link; kiểm tên trường: Cảnh báo, Chênh lệch, Tệp đính kèm, Ghi chú\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-07",
+      "title": "Chi tiết báo cáo (DIS-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-07",
+      "oracle_source": "Claim → FR-DIS-07; kỳ vọng nguyên văn của ca thiết kế UI-DIS-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-07",
+      "catches_bug": "Màn hình Chi tiết báo cáo (DIS-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DIS-07\n1. Mở route bằng menu và deep link; kiểm tên trường: Phiên bản, Trạng thái, Nguồn số liệu, Thời điểm\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-08",
+      "title": "Sửa và bổ sung báo cáo (DIS-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-08",
+      "oracle_source": "Claim → FR-DIS-08; kỳ vọng nguyên văn của ca thiết kế UI-DIS-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-08",
+      "catches_bug": "Màn hình Sửa và bổ sung báo cáo (DIS-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DIS-08\n1. Mở route bằng menu và deep link; kiểm tên trường: Phiên bản trước, Lý do sửa, Giá trị mới\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-09",
+      "title": "Xác nhận xóa nháp (DIS-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-09",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-09",
+      "oracle_source": "Claim → FR-DIS-09; kỳ vọng nguyên văn của ca thiết kế UI-DIS-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-09",
+      "catches_bug": "Màn hình Xác nhận xóa nháp (DIS-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DIS-09\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã báo cáo, Kỳ, Lý do\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-10",
+      "title": "Nhập dữ liệu hàng loạt (DIS-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-10",
+      "oracle_source": "Claim → FR-DIS-10; kỳ vọng nguyên văn của ca thiết kế UI-DIS-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-10",
+      "catches_bug": "Màn hình Nhập dữ liệu hàng loạt (DIS-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DIS-10\n1. Mở route bằng menu và deep link; kiểm tên trường: Tệp, Ánh xạ cột, Dòng lỗi\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-11",
+      "title": "Lịch sử và so sánh (DIS-11): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-11",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-11",
+      "oracle_source": "Claim → FR-DIS-11; kỳ vọng nguyên văn của ca thiết kế UI-DIS-11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-11",
+      "catches_bug": "Màn hình Lịch sử và so sánh (DIS-11) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DIS-11\n1. Mở route bằng menu và deep link; kiểm tên trường: Phiên bản A, Phiên bản B, Người sửa\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-11",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-12",
+      "title": "Tổng hợp theo chủ đầu tư (DIS-12): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-12",
+      "oracle_source": "Claim → FR-DIS-12; kỳ vọng nguyên văn của ca thiết kế UI-DIS-12 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-12",
+      "catches_bug": "Màn hình Tổng hợp theo chủ đầu tư (DIS-12) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DIS-12\n1. Mở route bằng menu và deep link; kiểm tên trường: Đơn vị, Tổng kế hoạch, Lũy kế, Tỷ lệ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-12",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-13",
+      "title": "Báo cáo thuyết minh tháng (DIS-13): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-13",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-13",
+      "oracle_source": "Claim → FR-DIS-13; kỳ vọng nguyên văn của ca thiết kế UI-DIS-13 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-13",
+      "catches_bug": "Màn hình Báo cáo thuyết minh tháng (DIS-13) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DIS-13\n1. Mở route bằng menu và deep link; kiểm tên trường: Tháng, Kết quả, Nguyên nhân, Giải pháp\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-13",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-14",
+      "title": "Lịch kỳ và khóa sổ (DIS-14): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-14",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-14",
+      "oracle_source": "Claim → FR-DIS-14; kỳ vọng nguyên văn của ca thiết kế UI-DIS-14 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-14",
+      "catches_bug": "Màn hình Lịch kỳ và khóa sổ (DIS-14) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DIS-14\n1. Mở route bằng menu và deep link; kiểm tên trường: Kỳ, Bắt đầu, Kết thúc, Hạn nộp, Khóa sổ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-14",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-15",
+      "title": "Tiến độ nộp báo cáo (DIS-15): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-15",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-15",
+      "oracle_source": "Claim → FR-DIS-15; kỳ vọng nguyên văn của ca thiết kế UI-DIS-15 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-15",
+      "catches_bug": "Màn hình Tiến độ nộp báo cáo (DIS-15) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DIS-15\n1. Mở route bằng menu và deep link; kiểm tên trường: Đơn vị, Dự án phải báo cáo, Đã gửi, Nháp, Chưa lập, Quá hạn\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-15",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-16",
+      "title": "Bảng số liệu đầy đủ và cấu hình cột (DIS-16): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-16",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-16",
+      "oracle_source": "Claim → FR-DIS-16; kỳ vọng nguyên văn của ca thiết kế UI-DIS-16 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-16",
+      "catches_bug": "Màn hình Bảng số liệu đầy đủ và cấu hình cột (DIS-16) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DIS-16\n1. Mở route bằng menu và deep link; kiểm tên trường: Dự án, Vốn giao, Khối lượng, Nghiệm thu, Đã gửi KBNN, Lũy kế, Đăng ký\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-16",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-17",
+      "title": "Xem trước xuất báo cáo (DIS-17): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-17",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-17",
+      "oracle_source": "Claim → FR-DIS-17; kỳ vọng nguyên văn của ca thiết kế UI-DIS-17 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-17",
+      "catches_bug": "Màn hình Xem trước xuất báo cáo (DIS-17) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DIS-17\n1. Mở route bằng menu và deep link; kiểm tên trường: Phạm vi, Kỳ, Snapshot, Đơn vị tính, Cột, Định dạng\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-17",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-18",
+      "title": "Lưu nháp thành công (DIS-18): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-18",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-18",
+      "oracle_source": "Claim → FR-DIS-18; kỳ vọng nguyên văn của ca thiết kế UI-DIS-18 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-18",
+      "catches_bug": "Màn hình Lưu nháp thành công (DIS-18) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DIS-18\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã nháp, Kỳ, Dự án, Tiếp tục nhập\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giữ đủ các nhóm dữ liệu PDF; lũy kế là snapshot không cộng giữa các tuần\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-18",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC240",
+      "title": "Tổng lũy kế = 420000000 VND (không 460000000)",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-04",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC240 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-04, FR-DIS-16",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nhập giải ngân theo nguồn\": Tổng lũy kế = 420000000 VND (không 460000000); DIS-16 cột \"Trong đó CTMTQG\" = 40000000 hiển thị riêng; JSON tiền dạng chuỗi \"420000000\".",
+      "coverage_ids": [
+        "COV-FR-DIS-04",
+        "COV-FR-DIS-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-DIS-001: 6 ô 100/200/30/70/0/20 triệu; CTMTQG 40 triệu tại CURRENT_YEAR/CENTRAL.\n1. Nhập 6 ô trên DIS-04 và lưu nháp\n2. Mở DIS-16 và GET /reports/{id}",
+      "expected": "Tổng lũy kế = 420000000 VND (không 460000000); DIS-16 cột \"Trong đó CTMTQG\" = 40000000 hiển thị riêng; JSON tiền dạng chuỗi \"420000000\".",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "DIS-04",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC241",
+      "title": "Lũy kế cuối W40 = 150000000 (không 250000000)",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-12",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC241 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-12",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tổng hợp theo chủ đầu tư\": Lũy kế cuối W40 = 150000000 (không 250000000); period_delta_vnd = 50000000.",
+      "coverage_ids": [
+        "COV-FR-DIS-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-DIS-002: P-A-001 W39 ACCEPTED lũy kế 100000000; W40 ACCEPTED lũy kế 150000000.\n1. Build snapshot kỳ W40\n2. Đọc DIS-12 dòng P-A-001",
+      "expected": "Lũy kế cuối W40 = 150000000 (không 250000000); period_delta_vnd = 50000000.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "DIS-12",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC242",
+      "title": "Tỷ lệ U-BQL1 = 140/1000 = 14",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-DIS-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-12",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC242 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-12, FR-HOME-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tổng hợp theo chủ đầu tư\": Tỷ lệ U-BQL1 = 140/1000 = 14.0000% (không trung bình 30%); HOME-10 hiện tử số 140, mẫu số 1000.",
+      "coverage_ids": [
+        "COV-FR-DIS-12",
+        "COV-FR-HOME-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-DIS-003: dự án 1 = 50/100, dự án 2 = 90/900 (đơn vị triệu) cùng U-BQL1.\n1. Build snapshot; đọc tỷ lệ U-BQL1 trên DIS-12 và HOME-04",
+      "expected": "Tỷ lệ U-BQL1 = 140/1000 = 14.0000% (không trung bình 30%); HOME-10 hiện tử số 140, mẫu số 1000.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "HOME-04",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC243",
+      "title": "rate_pm_pct = 60",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-19",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-19",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC243 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-19",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hai tỷ lệ giải ngân song song\": rate_pm_pct = 60.0000, rate_total_pct = 48.0000 (cùng tử số 600000000); hai cột hiển thị cạnh nhau với nhãn \"Theo KH TTg giao\" / \"Theo KH gồm phần địa phương gi",
+      "coverage_ids": [
+        "COV-FR-DIS-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-DIS-004: U-BQL1 plan_pm_assigned 1000000000, plan_local_added 250000000, disbursed_treasury 600000000.\n1. GET /disbursement-rates?snapshot_id=S&unit_id=U-BQL1\n2. Mở DIS-19",
+      "expected": "rate_pm_pct = 60.0000, rate_total_pct = 48.0000 (cùng tử số 600000000); hai cột hiển thị cạnh nhau với nhãn \"Theo KH TTg giao\" / \"Theo KH gồm phần địa phương giao thêm\"; định nghĩa gắn [CXN-03], badge \"CHỜ KÝ D03\".",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "DIS-19",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC244",
+      "title": "disbursed_treasury_vnd = 500000000 (T1 tính theo ngày Kho bạc thanh toán, T2 bị loại dù đã nhập trước khi build)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-19",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-19",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC244 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-19, FR-DIS-21",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hai tỷ lệ giải ngân song song\": disbursed_treasury_vnd = 500000000 (T1 tính theo ngày Kho bạc thanh toán, T2 bị loại dù đã nhập trước khi build); [CXN-03] hiển thị trên DIS-21.",
+      "coverage_ids": [
+        "COV-FR-DIS-19",
+        "COV-FR-DIS-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-DIS-005: treasury_transaction T1 500000000 treasury_paid_on 2026-09-30 (nhập file ngày 2026-10-02); T2 300000000 paid_on 2026-10-01; snapshot cutoff 2026-09-30.\n1. POST /period-snapshots {period_id:2026-09, treasury_cutoff_date:\"2026-09-30\"}\n2. Đọc dòng P-A-001",
+      "expected": "disbursed_treasury_vnd = 500000000 (T1 tính theo ngày Kho bạc thanh toán, T2 bị loại dù đã nhập trước khi build); [CXN-03] hiển thị trên DIS-21.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "DIS-19",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC245",
+      "title": "SOFT_CLOSED: submit 200 với is_late=true",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-14",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-14",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC245 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Lịch kỳ và khóa sổ\": SOFT_CLOSED: submit 200 với is_late=true; LOCK: status=LOCKED, locked_at set (CHECK reporting_period_lock_chk); submit sau khóa: 409 PERIOD_LOCKED; GET period t",
+      "coverage_ids": [
+        "COV-FR-DIS-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: W2026-40 OPEN deadline 2026-10-02T03:00Z.\n1. A-planner POST /reporting-periods/{W40}/soft-close lúc 2026-10-02T03:05Z\n2. A-maker submit R-late\n3. POST /reporting-periods/{W40}/lock\n4. A-maker submit R-late2",
+      "expected": "SOFT_CLOSED: submit 200 với is_late=true; LOCK: status=LOCKED, locked_at set (CHECK reporting_period_lock_chk); submit sau khóa: 409 PERIOD_LOCKED; GET period trả status, không còn giá trị \"Closed\".",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIS-14",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC246",
+      "title": "Lý do ngắn: 422 REOPEN_REASON_REQUIRED (min 20 ký tự)",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-22",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-22",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC246 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-22",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Mở lại kỳ có lý do\": Lý do ngắn: 422 REOPEN_REASON_REQUIRED (min 20 ký tự); tự duyệt 403; sau duyệt: P-A-001 submit 200, P-A-002 409 PERIOD_LOCKED; sau hết hạn: reopen EXPIRED, P-A-",
+      "coverage_ids": [
+        "COV-FR-DIS-22"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: W2026-39 LOCKED; P-A-001, P-A-002 có nháp.\n1. A-maker POST /reporting-periods/{W39}/reopen-requests {scope_kind:\"PROJECTS\", project_ids:[P-A-001], reason:\"sai\"}\n2. Gửi lại reason \"Kho bạc trả lại chứng từ do sai mã nguồn\"\n3. A-maker tự duyệt; A-approver duyệt window 48h\n4. Submit P-A-001 và P-A-002\n5. Clock +49h, submit P-A-001",
+      "expected": "Lý do ngắn: 422 REOPEN_REASON_REQUIRED (min 20 ký tự); tự duyệt 403; sau duyệt: P-A-001 submit 200, P-A-002 409 PERIOD_LOCKED; sau hết hạn: reopen EXPIRED, P-A-001 409 PERIOD_LOCKED; audit lưu requested_by/approved_by/window.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIS-22",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC247",
+      "title": "Bước 1: 409 REVISION_IMMUTABLE",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-08",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC247 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-08, FR-DIS-11",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sửa và bổ sung báo cáo\": Bước 1: 409 REVISION_IMMUTABLE; return → RETURNED; tạo rev2 DRAFT (supersedes_id=rev1); submit thiếu lý do: 422 CORRECTION_REASON_REQUIRED; đủ: rev2 SUBMITTED, ",
+      "coverage_ids": [
+        "COV-FR-DIS-08",
+        "COV-FR-DIS-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: R10 rev1 SUBMITTED.\n1. POST /reports/{R10}/revisions (sửa ô nguồn trên bản đã gửi)\n2. A-reviewer return với reason \"Thiếu chứng từ\", items [\"DIS-04 NSĐP\"]\n3. POST /reports/{R10}/revisions; submit rev2 không amendment_reason\n4. Submit có amendment_reason",
+      "expected": "Bước 1: 409 REVISION_IMMUTABLE; return → RETURNED; tạo rev2 DRAFT (supersedes_id=rev1); submit thiếu lý do: 422 CORRECTION_REASON_REQUIRED; đủ: rev2 SUBMITTED, rev1 giữ payload_hash cũ.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIS-08",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC248",
+      "title": "Đúng 1 response 200 (version 8)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-06",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC248 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Rà soát và gửi báo cáo\": Đúng 1 response 200 (version 8); response kia 409 VERSION_CONFLICT với current_version=8; chỉ 1 outbox report.submitted.",
+      "coverage_ids": [
+        "COV-FR-DIS-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Nháp R11 version 7; A-maker và A-maker2 cùng mở.\n1. Hai client đồng thời POST /reports/{R11}/submit, cùng If-Match \"7\", key khác nhau",
+      "expected": "Đúng 1 response 200 (version 8); response kia 409 VERSION_CONFLICT với current_version=8; chỉ 1 outbox report.submitted.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "DIS-06",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC249",
+      "title": "Chỉ 1 revision SUBMITTED",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-06",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC249 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-06, FR-DIS-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Rà soát và gửi báo cáo\": Chỉ 1 revision SUBMITTED; replay trả cùng kết quả; payload khác: 409 IDEMPOTENCY_CONFLICT; unique report_revision_client_op_uq không bị vi phạm.",
+      "coverage_ids": [
+        "COV-FR-DIS-06",
+        "COV-FR-DIS-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Mobile offline: A-maker gửi R12 qua hàng đợi với client_operation_id C-12 và key k-249-0000000001.\n1. Mạng chập chờn: gửi lần 1 timeout ở client\n2. Client replay cùng key và client_operation_id\n3. Replay cùng key nhưng payload khác",
+      "expected": "Chỉ 1 revision SUBMITTED; replay trả cùng kết quả; payload khác: 409 IDEMPOTENCY_CONFLICT; unique report_revision_client_op_uq không bị vi phạm.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "DIS-03",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC250",
+      "title": "Lần 1: 422 NEGATIVE_DELTA_EXPLANATION_REQUIRED field funding_lines[CURRENT_YEAR,CENTRAL]",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-04",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC250 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-04, FR-DIS-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nhập giải ngân theo nguồn\": Lần 1: 422 NEGATIVE_DELTA_EXPLANATION_REQUIRED field funding_lines[CURRENT_YEAR,CENTRAL]; lần 2: 200 SUBMITTED với warning NEGATIVE_DELTA, period_delta_vnd = −3",
+      "coverage_ids": [
+        "COV-FR-DIS-04",
+        "COV-FR-DIS-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-001 W39 ACCEPTED lũy kế CURRENT_YEAR/CENTRAL 150000000.\n1. Nhập W40 ô này = 120000000, submit không giải thích\n2. Submit kèm negative_delta_explanation \"Kho bạc thu hồi tạm ứng 30 triệu\"",
+      "expected": "Lần 1: 422 NEGATIVE_DELTA_EXPLANATION_REQUIRED field funding_lines[CURRENT_YEAR,CENTRAL]; lần 2: 200 SUBMITTED với warning NEGATIVE_DELTA, period_delta_vnd = −30000000 (không ép 0).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIS-04",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC251",
+      "title": "S-40a vẫn H1 và số cũ",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-21",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-21",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC251 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-21",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chốt và đóng băng số liệu kỳ\": S-40a vẫn H1 và số cũ; snapshot mới S-40b FROZEN supersedes S-40a (S-40a SUPERSEDED); freeze lại S-40a: 409 SNAPSHOT_FROZEN; HOME chọn S-40b mặc định, cho phép ",
+      "coverage_ids": [
+        "COV-FR-DIS-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: S-40a FROZEN payload_sha256=H1.\n1. Accept correction làm đổi P-A-006\n2. GET /period-snapshots/{S-40a}\n3. POST /period-snapshots (rebuild) rồi /freeze\n4. Thử POST /period-snapshots/{S-40a}/freeze lại",
+      "expected": "S-40a vẫn H1 và số cũ; snapshot mới S-40b FROZEN supersedes S-40a (S-40a SUPERSEDED); freeze lại S-40a: 409 SNAPSHOT_FROZEN; HOME chọn S-40b mặc định, cho phép xem S-40a có nhãn \"đã thay thế\".",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIS-21",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC252",
+      "title": "Đúng 1 early_warning OPEN dedupe_key \"EW-01|P-A-002|2026\" (lần 2 cập nhật observed_json, không tạo bản mới)",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-DIS-20",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-20",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC252 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-20, FR-HOME-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Quy tắc cảnh báo sớm\": Đúng 1 early_warning OPEN dedupe_key \"EW-01|P-A-002|2026\" (lần 2 cập nhật observed_json, không tạo bản mới); HOME-03 hiện quy tắc, mức độ, dự án, giá trị quan s",
+      "coverage_ids": [
+        "COV-FR-DIS-20",
+        "COV-FR-HOME-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Rule EW-01 PUBLISHED: rate_total < expected_curve − 10 điểm %, severity WARNING; P-A-002 rate 20% so với kỳ vọng 45%.\n1. Build + freeze snapshot S1 → job warnings\n2. Build + freeze snapshot S2 (P-A-002 vẫn 22%)\n3. Mở HOME-03",
+      "expected": "Đúng 1 early_warning OPEN dedupe_key \"EW-01|P-A-002|2026\" (lần 2 cập nhật observed_json, không tạo bản mới); HOME-03 hiện quy tắc, mức độ, dự án, giá trị quan sát 22% và kỳ vọng 45%.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "HOME-03",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC253",
+      "title": "Warning EW-02 CRITICAL cho P-A-009",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-20",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-20",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC253 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-20, FR-DIS-15, FR-PRJ-19",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Quy tắc cảnh báo sớm\": Warning EW-02 CRITICAL cho P-A-009; tự tạo explanation_request REQUESTED tới lãnh đạo phụ trách/đầu mối dự án, due_at theo threshold_json.days=3; DIS-15 đếm \"Ch",
+      "coverage_ids": [
+        "COV-FR-DIS-20",
+        "COV-FR-DIS-15",
+        "COV-FR-PRJ-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Rule EW-02 (MISSING report sau deadline, auto_explanation=true); P-A-009 chưa gửi W40.\n1. Clock qua deadline; job warnings chạy\n2. Mở DIS-15 và PRJ-19 của A-maker",
+      "expected": "Warning EW-02 CRITICAL cho P-A-009; tự tạo explanation_request REQUESTED tới lãnh đạo phụ trách/đầu mối dự án, due_at theo threshold_json.days=3; DIS-15 đếm \"Chưa lập\" 1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIS-15",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC255",
+      "title": "forecast_eac_vnd = 650000000",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-23",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-23",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC255 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-23",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Dự báo dòng tiền và ước cuối năm (EAC)\": forecast_eac_vnd = 650000000; gap = −350000000; phương pháp \"DISBURSED_PLUS_SCHEDULE\"; dự án xuất hiện trong danh sách ứng viên điều chuyển của CAP-19 (EAC < 80",
+      "coverage_ids": [
+        "COV-FR-DIS-23"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-002: disbursed_treasury 400000000; FORECAST tháng 11=100000000, 12=150000000; plan_total 1000000000.\n1. Mở DIS-23\n2. GET /disbursement-forecasts?project_id=P-A-002",
+      "expected": "forecast_eac_vnd = 650000000; gap = −350000000; phương pháp \"DISBURSED_PLUS_SCHEDULE\"; dự án xuất hiện trong danh sách ứng viên điều chuyển của CAP-19 (EAC < 80% kế hoạch).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "DIS-23",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC256",
+      "title": "Chênh lệch −80000000 và −150000000",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-24",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-24",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC256 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-24",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kế hoạch giải ngân tuần theo dự án\": Chênh lệch −80000000 và −150000000; hai tuần âm liên tiếp sinh cảnh báo EW-09 cho lãnh đạo phụ trách hiện hành; kế hoạch tuần không được tính vào đã giải ngân.",
+      "coverage_ids": [
+        "COV-FR-DIS-24"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-001 WEEKLY_COMMITMENT tuần 40 = 200000000, tuần 41 = 250000000; Kho bạc trả tuần 40 = 120000000, tuần 41 = 100000000.\n1. Mở DIS-24 sau freeze tuần 41",
+      "expected": "Chênh lệch −80000000 và −150000000; hai tuần âm liên tiếp sinh cảnh báo EW-09 cho lãnh đạo phụ trách hiện hành; kế hoạch tuần không được tính vào đã giải ngân.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIS-24",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC257",
+      "title": "DIS-25 hiện 3 định nghĩa với badge \"CHỜ KÝ (D03)\" và fixture FX-DIS-001",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-25",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-25",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC257 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-25",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Định nghĩa chỉ tiêu kỳ/YTD/lũy kế và bộ số golden\": DIS-25 hiện 3 định nghĩa với badge \"CHỜ KÝ (D03)\" và fixture FX-DIS-001..007; snapshot definition_status=PROPOSED_PENDING_SIGNOFF; PDF có chân trang \"Định nghĩa",
+      "coverage_ids": [
+        "COV-FR-DIS-25"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: metric definitions DISB_YTD/PERIOD_DELTA/PTD status PROPOSED_PENDING_SIGNOFF (D03 OPEN).\n1. Mở DIS-25\n2. Xuất DIS-17 PDF snapshot S-40\n3. Người không có vai trò Chủ nghiệp vụ vốn gọi POST /glossary-terms/{GIAI_NGAN_YTD}/decision {decision:\"approve\"}",
+      "expected": "DIS-25 hiện 3 định nghĩa với badge \"CHỜ KÝ (D03)\" và fixture FX-DIS-001..007; snapshot definition_status=PROPOSED_PENDING_SIGNOFF; PDF có chân trang \"Định nghĩa chỉ tiêu chờ ký D03\"; ký duyệt: 403 SCOPE_DENIED (chỉ owner Chủ nghiệp vụ vốn được duyệt thuật ngữ domain DISBURSEMENT).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIS-25",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC258",
+      "title": "Dry-run: status DRY_RUN, error_rows=2 (row 5 PROJECT_NOT_FOUND, row 9 SUBSET_EXCEEDS_PARENT)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-10",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC258 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nhập dữ liệu hàng loạt\": Dry-run: status DRY_RUN, error_rows=2 (row 5 PROJECT_NOT_FOUND, row 9 SUBSET_EXCEEDS_PARENT); apply lần 1: 422 IMPORT_HAS_ERRORS; apply tệp sửa: 20 nháp source_",
+      "coverage_ids": [
+        "COV-FR-DIS-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tệp weekly_w40.xlsx 20 dòng (sha256=…58), dòng 5 project_code không tồn tại, dòng 9 CTMTQG > nguồn.\n1. POST /report-imports (dry-run)\n2. POST /report-imports/{id}/apply\n3. Sửa tệp, upload (sha mới), apply\n4. Apply lại tệp đã apply",
+      "expected": "Dry-run: status DRY_RUN, error_rows=2 (row 5 PROJECT_NOT_FOUND, row 9 SUBSET_EXCEEDS_PARENT); apply lần 1: 422 IMPORT_HAS_ERRORS; apply tệp sửa: 20 nháp source_kind=IMPORT; apply lại: 409 IMPORT_FILE_ALREADY_APPLIED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "DIS-10",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC259",
+      "title": "Xóa mềm: deleted_at set, hộp thoại DIS-09 nêu mã, kỳ, dự án",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-09",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC259 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-09, FR-DIS-18",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Xác nhận xóa nháp\": Xóa mềm: deleted_at set, hộp thoại DIS-09 nêu mã, kỳ, dự án; khôi phục trong retention: deleted_at=null; R14: 409 REPORT_NOT_EDITABLE.",
+      "coverage_ids": [
+        "COV-FR-DIS-09",
+        "COV-FR-DIS-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Nháp R13 (P-A-003, W40); R14 SUBMITTED.\n1. POST /reports/{R13}/draft-deletion {reason:\"Tạo nhầm dự án\"}\n2. POST /reports/{R13}/draft-restore\n3. POST /reports/{R14}/draft-deletion",
+      "expected": "Xóa mềm: deleted_at set, hộp thoại DIS-09 nêu mã, kỳ, dự án; khôi phục trong retention: deleted_at=null; R14: 409 REPORT_NOT_EDITABLE.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIS-09",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC260",
+      "title": "Lần 1: 422 VALIDATION_FAILED field return_items",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-07",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC260 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-07, FR-DIS-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi tiết báo cáo\": Lần 1: 422 VALIDATION_FAILED field return_items; lần 2: RETURNED, A-maker nhận thông báo kèm mục cần bổ sung và hạn.",
+      "coverage_ids": [
+        "COV-FR-DIS-07",
+        "COV-FR-DIS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: R15 SUBMITTED.\n1. A-reviewer POST /reports/{R15}/decision {decision:\"return\", reason:\"Thiếu bảng kê\", evidence_ids:[]} không có return_items\n2. Gửi lại với return_items [\"Đính kèm bảng kê Kho bạc\"], due_at +2 ngày",
+      "expected": "Lần 1: 422 VALIDATION_FAILED field return_items; lần 2: RETURNED, A-maker nhận thông báo kèm mục cần bổ sung và hạn.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIS-02",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC261",
+      "title": "Tệp có header phạm vi, kỳ, snapshot id, đơn vị tính (VND), thời điểm tạo, definition_status",
+      "type": "RED",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-17",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-17",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC261 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-17",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Xem trước xuất báo cáo\": Tệp có header phạm vi, kỳ, snapshot id, đơn vị tính (VND), thời điểm tạo, definition_status; tải sau thu hồi: 403 SCOPE_DENIED (kiểm quyền lại lúc tải).",
+      "coverage_ids": [
+        "COV-FR-DIS-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: A-maker scope U-BQL1; snapshot S-40.\n1. POST /report-exports {snapshot_id:S-40, format:\"XLSX\", columns:[…]}\n2. Thu hồi scope U-BQL1 của A-maker; tải link",
+      "expected": "Tệp có header phạm vi, kỳ, snapshot id, đơn vị tính (VND), thời điểm tạo, definition_status; tải sau thu hồi: 403 SCOPE_DENIED (kiểm quyền lại lúc tải).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIS-17",
+      "tags": [
+        "security"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC262",
+      "title": "Lần 1: 422 VALIDATION_FAILED field narrative",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-13",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-13",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC262 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-13, FR-PRJ-13",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Báo cáo thuyết minh tháng\": Lần 1: 422 VALIDATION_FAILED field narrative.causes_text; lần 2: SUBMITTED, PRJ-13 hiện thuyết minh tháng 9 của P-A-001.",
+      "coverage_ids": [
+        "COV-FR-DIS-13",
+        "COV-FR-PRJ-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Kỳ M2026-09 OPEN; P-A-001.\n1. POST /reports {report_type:\"MONTHLY\", period_id:M2026-09, narrative:{results_text:\"…\", causes_text:\"\", solutions_text:\"…\"}}\n2. Bổ sung causes_text và submit",
+      "expected": "Lần 1: 422 VALIDATION_FAILED field narrative.causes_text; lần 2: SUBMITTED, PRJ-13 hiện thuyết minh tháng 9 của P-A-001.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIS-13",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC263",
+      "title": "Hàng U-BQL1: Phải báo cáo 10, Đã gửi 7 (gồm 1 trễ), Nháp 2, Chưa lập 1, Quá hạn 3 (2 nháp + 1 chưa lập) ",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-15",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-15",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC263 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-15",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tiến độ nộp báo cáo\": Hàng U-BQL1: Phải báo cáo 10, Đã gửi 7 (gồm 1 trễ), Nháp 2, Chưa lập 1, Quá hạn 3 (2 nháp + 1 chưa lập) ; drill mỗi số mở đúng danh sách dự án.",
+      "coverage_ids": [
+        "COV-FR-DIS-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: U-BQL1 có 10 dự án phải báo cáo W40: 6 SUBMITTED/ACCEPTED, 2 DRAFT, 1 chưa lập, 1 gửi trễ.\n1. Mở DIS-15 lúc sau deadline",
+      "expected": "Hàng U-BQL1: Phải báo cáo 10, Đã gửi 7 (gồm 1 trễ), Nháp 2, Chưa lập 1, Quá hạn 3 (2 nháp + 1 chưa lập) ; drill mỗi số mở đúng danh sách dự án.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIS-15",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC264",
+      "title": "Hai báo cáo SUBMITTED có cùng cấu trúc payload (payload_hash khác do dữ liệu khác), tổng 420000000",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-01",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC264 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-01, FR-DIS-03, FR-DIS-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh sách báo cáo tuần\": Hai báo cáo SUBMITTED có cùng cấu trúc payload (payload_hash khác do dữ liệu khác), tổng 420000000; đăng ký tháng sau lưu next_month_registered_vnd và tạo disbu",
+      "coverage_ids": [
+        "COV-FR-DIS-01",
+        "COV-FR-DIS-03",
+        "COV-FR-DIS-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Flow web DIS-01→07 và mobile MOB-13→21 cùng dữ liệu FX-DIS-001.\n1. Web: DIS-01 lọc 2026/W40 → DIS-02 chọn P-A-001 → DIS-03 khối lượng → DIS-04 nguồn → DIS-05 đăng ký tháng sau 300000000 → DIS-06 gửi\n2. Mobile: lặp lại với P-A-002",
+      "expected": "Hai báo cáo SUBMITTED có cùng cấu trúc payload (payload_hash khác do dữ liệu khác), tổng 420000000; đăng ký tháng sau lưu next_month_registered_vnd và tạo disbursement_schedule_line REGISTERED tháng 11.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "E2E",
+      "screen_id": "DIS-01",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-AC265",
+      "title": "Cả ba 404 RESOURCE_NOT_FOUND",
+      "type": "RED",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-07",
+      "oracle_source": "Claim → 05_modules/DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC265 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-07, FR-DIS-21",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi tiết báo cáo\": Cả ba 404 RESOURCE_NOT_FOUND; token drill của tenant khác bị từ chối do chữ ký/tenant mismatch, không trả tên dự án.",
+      "coverage_ids": [
+        "COV-FR-DIS-07",
+        "COV-FR-DIS-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: R1 thuộc TNT-A; B-maker tenant TNT-B.\n1. B-maker GET /reports/{R1}\n2. B-maker GET /period-snapshots/{S-40}/lines\n3. B-maker GET /home/drill?context_token=<token của TNT-A>",
+      "expected": "Cả ba 404 RESOURCE_NOT_FOUND; token drill của tenant khác bị từ chối do chữ ký/tenant mismatch, không trả tên dự án.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIS-07",
+      "tags": [
+        "security"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-19",
+      "title": "Hai tỷ lệ giải ngân song song (DIS-19): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-19",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-19",
+      "oracle_source": "Claim → FR-DIS-19; kỳ vọng nguyên văn của ca thiết kế UI-DIS-19 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-19",
+      "catches_bug": "Màn hình Hai tỷ lệ giải ngân song song (DIS-19) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Hai tỷ lệ giải ngân song song; user có quyền và user chỉ đọc; route DIS-19\n1. Mở DIS-19 từ menu và deep link; kiểm nhãn trường: Phạm vi, KH TTg giao, KH địa phương giao thêm, Đã giải ngân (ngày Kho bạc), Tỷ lệ theo KH TTg giao, Tỷ lệ theo KH gồm giao thêm, Độ phủ Kho bạc\n2. Thực hiện thao tác chính theo quy tắc: Luôn hiển thị song song hai tỷ lệ cùng tử số; tử số tính theo ngày Kho bạc thanh toán; mẫu số 0 → null + lý do [CXN-03]\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIS-19",
+      "expected": "Hai tỷ lệ giải ngân song song: hiển thị đúng 7 trường, áp quy tắc \"Luôn hiển thị song song hai tỷ lệ cùng tử số; tử số tính theo ngày Kho bạc thanh toán; mẫu số 0 → null + lý do [CXN-03]\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-19",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-20",
+      "title": "Quy tắc cảnh báo sớm (DIS-20): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-20",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-20",
+      "oracle_source": "Claim → FR-DIS-20; kỳ vọng nguyên văn của ca thiết kế UI-DIS-20 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-20",
+      "catches_bug": "Màn hình Quy tắc cảnh báo sớm (DIS-20) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-20"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Quy tắc cảnh báo sớm; user có quyền và user chỉ đọc; route DIS-20\n1. Mở DIS-20 từ menu và deep link; kiểm nhãn trường: Mã quy tắc, Chỉ tiêu, Ngưỡng, Mức độ, Căn cứ, Hiệu lực\n2. Thực hiện thao tác chính theo quy tắc: Quy tắc là dữ liệu có phiên bản, legal_basis và hiệu lực; người duyệt khác người soạn; cảnh báo dedupe theo rule+đối tượng+kỳ\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIS-20",
+      "expected": "Quy tắc cảnh báo sớm: hiển thị đúng 6 trường, áp quy tắc \"Quy tắc là dữ liệu có phiên bản, legal_basis và hiệu lực; người duyệt khác người soạn; cảnh báo dedupe theo rule+đối tượng+kỳ\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-20",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-21",
+      "title": "Chốt và đóng băng số liệu kỳ (DIS-21): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-21",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-21",
+      "oracle_source": "Claim → FR-DIS-21; kỳ vọng nguyên văn của ca thiết kế UI-DIS-21 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-21",
+      "catches_bug": "Màn hình Chốt và đóng băng số liệu kỳ (DIS-21) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Chốt và đóng băng số liệu kỳ; user có quyền và user chỉ đọc; route DIS-21\n1. Mở DIS-21 từ menu và deep link; kiểm nhãn trường: Kỳ, Thời điểm chốt, Ngày chốt Kho bạc, Trạng thái snapshot, Định nghĩa (chờ ký/đã ký), Số dòng\n2. Thực hiện thao tác chính theo quy tắc: Snapshot FROZEN bất biến; sửa sau chốt tạo snapshot mới supersede; mọi số HOME/MNE đọc từ snapshot có as_of\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIS-21",
+      "expected": "Chốt và đóng băng số liệu kỳ: hiển thị đúng 6 trường, áp quy tắc \"Snapshot FROZEN bất biến; sửa sau chốt tạo snapshot mới supersede; mọi số HOME/MNE đọc từ snapshot có as_of\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-21",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-22",
+      "title": "Mở lại kỳ có lý do (DIS-22): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-22",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-22",
+      "oracle_source": "Claim → FR-DIS-22; kỳ vọng nguyên văn của ca thiết kế UI-DIS-22 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-22",
+      "catches_bug": "Màn hình Mở lại kỳ có lý do (DIS-22) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-22"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Mở lại kỳ có lý do; user có quyền và user chỉ đọc; route DIS-22\n1. Mở DIS-22 từ menu và deep link; kiểm nhãn trường: Kỳ, Phạm vi dự án, Lý do, Thời hạn mở, Người duyệt\n2. Thực hiện thao tác chính theo quy tắc: Mở lại cần lý do ≥20 ký tự, phạm vi, thời hạn và người duyệt khác người đề nghị; hết hạn tự khóa lại\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIS-22",
+      "expected": "Mở lại kỳ có lý do: hiển thị đúng 5 trường, áp quy tắc \"Mở lại cần lý do ≥20 ký tự, phạm vi, thời hạn và người duyệt khác người đề nghị; hết hạn tự khóa lại\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-22",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-23",
+      "title": "Dự báo dòng tiền và ước cuối năm (EAC) (DIS-23): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-23",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-23",
+      "oracle_source": "Claim → FR-DIS-23; kỳ vọng nguyên văn của ca thiết kế UI-DIS-23 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-23",
+      "catches_bug": "Màn hình Dự báo dòng tiền và ước cuối năm (EAC) (DIS-23) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-23"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Dự báo dòng tiền và ước cuối năm (EAC); user có quyền và user chỉ đọc; route DIS-23\n1. Mở DIS-23 từ menu và deep link; kiểm nhãn trường: Dự án/đơn vị, Đã giải ngân, Dự báo theo tháng, Ước cuối năm, Chênh lệch so kế hoạch, Phương pháp\n2. Thực hiện thao tác chính theo quy tắc: EAC = đã giải ngân theo ngày Kho bạc + Σ dự báo các tháng còn lại hiện hành; nêu phương pháp và giả định\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIS-23",
+      "expected": "Dự báo dòng tiền và ước cuối năm (EAC): hiển thị đúng 6 trường, áp quy tắc \"EAC = đã giải ngân theo ngày Kho bạc + Σ dự báo các tháng còn lại hiện hành; nêu phương pháp và giả định\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-23",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-24",
+      "title": "Kế hoạch giải ngân tuần theo dự án (DIS-24): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-24",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-24",
+      "oracle_source": "Claim → FR-DIS-24; kỳ vọng nguyên văn của ca thiết kế UI-DIS-24 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-24",
+      "catches_bug": "Màn hình Kế hoạch giải ngân tuần theo dự án (DIS-24) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-24"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Kế hoạch giải ngân tuần theo dự án; user có quyền và user chỉ đọc; route DIS-24\n1. Mở DIS-24 từ menu và deep link; kiểm nhãn trường: Tuần, Dự án, Kế hoạch tuần, Thực hiện, Chênh lệch, Lãnh đạo phụ trách\n2. Thực hiện thao tác chính theo quy tắc: Kế hoạch tuần là cam kết, không phải actual; chênh lệch âm hai tuần liên tiếp sinh cảnh báo EW-09 [CXN-33]\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIS-24",
+      "expected": "Kế hoạch giải ngân tuần theo dự án: hiển thị đúng 6 trường, áp quy tắc \"Kế hoạch tuần là cam kết, không phải actual; chênh lệch âm hai tuần liên tiếp sinh cảnh báo EW-09 [CXN-33]\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-24",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UI-DIS-25",
+      "title": "Định nghĩa chỉ tiêu kỳ/YTD/lũy kế và bộ số golden (DIS-25): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-DIS-25",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-25",
+      "oracle_source": "Claim → FR-DIS-25; kỳ vọng nguyên văn của ca thiết kế UI-DIS-25 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-25",
+      "catches_bug": "Màn hình Định nghĩa chỉ tiêu kỳ/YTD/lũy kế và bộ số golden (DIS-25) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIS-25"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Định nghĩa chỉ tiêu kỳ/YTD/lũy kế và bộ số golden; user có quyền và user chỉ đọc; route DIS-25\n1. Mở DIS-25 từ menu và deep link; kiểm nhãn trường: Chỉ tiêu, Công thức, Basis, Trạng thái ký (CHỜ KÝ D03), Fixture golden\n2. Thực hiện thao tác chính theo quy tắc: Định nghĩa đề xuất ở trạng thái CHỜ KÝ; snapshot và tệp xuất ghi definition_status; chỉ Chủ nghiệp vụ vốn ký\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIS-25",
+      "expected": "Định nghĩa chỉ tiêu kỳ/YTD/lũy kế và bộ số golden: hiển thị đúng 5 trường, áp quy tắc \"Định nghĩa đề xuất ở trạng thái CHỜ KÝ; snapshot và tệp xuất ghi definition_status; chỉ Chủ nghiệp vụ vốn ký\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIS-25",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-04",
+      "title": "Snapshot definition_status = SIGNED",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-dis",
+      "journey_ref": "J-FR-DIS-25",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-25",
+      "oracle_source": "Claim → DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-25",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Định nghĩa chỉ tiêu kỳ/YTD/lũy kế và bộ số golden\": Snapshot definition_status = SIGNED; DIS-25 shows each term with signer and date; with one term unpublished the status stays PROPOSED_PENDING_SIGNOFF.",
+      "coverage_ids": [
+        "COV-FR-DIS-25"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-dis",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: All required DISBURSEMENT glossary terms PUBLISHED by the business owner.\n1. Build a new period snapshot\n2. Open DIS-25",
+      "expected": "Snapshot definition_status = SIGNED; DIS-25 shows each term with signer and date; with one term unpublished the status stays PROPOSED_PENDING_SIGNOFF.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-05",
+      "title": "All seven fixtures pass: 420 million, 150 million, 14 percent, 60 percent and 48 percent, 500 million cutoff, 422 on inv",
+      "type": "DECISION",
+      "platform": "api",
+      "persona": "nguoi-dung-dis",
+      "journey_ref": "J-FR-DIS-19",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-19",
+      "oracle_source": "Claim → DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-19",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hai tỷ lệ giải ngân song song\": All seven fixtures pass: 420 million, 150 million, 14 percent, 60 percent and 48 percent, 500 million cutoff, 422 on invalid input, ranking order; the job fails",
+      "coverage_ids": [
+        "COV-FR-DIS-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-dis",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Signed expected numbers replace the proposals in fixtures FX-DIS-001..007.\n1. Run the golden suite in CI as a gating job",
+      "expected": "All seven fixtures pass: 420 million, 150 million, 14 percent, 60 percent and 48 percent, 500 million cutoff, 422 on invalid input, ranking order; the job fails the build if any differs by 1 VND.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-06",
+      "title": "Every compared figure matches within the signed tolerance or carries a classified difference (definition, timing, data e",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "nguoi-dung-dis",
+      "journey_ref": "J-FR-DIS-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-01",
+      "oracle_source": "Claim → DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh sách báo cáo tuần\": Every compared figure matches within the signed tolerance or carries a classified difference (definition, timing, data error) with an owner; 0 unexplained money",
+      "coverage_ids": [
+        "COV-FR-DIS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-dis",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Two reporting periods run in parallel with the legacy process on the pilot tenant.\n1. File weekly reports on web and mobile\n2. Compare totals with the legacy workbook per project\n3. List open defects",
+      "expected": "Every compared figure matches within the signed tolerance or carries a classified difference (definition, timing, data error) with an owner; 0 unexplained money differences; 0 open P0 or P1 defects.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-07",
+      "title": "Report lists each difference as definition, timing or data error with an owner",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "nguoi-dung-dis",
+      "journey_ref": "J-FR-DIS-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-04",
+      "oracle_source": "Claim → DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nhập giải ngân theo nguồn\": Report lists each difference as definition, timing or data error with an owner; unexplained money differences at exit = 0.",
+      "coverage_ids": [
+        "COV-FR-DIS-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-dis",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Pilot tenant with 10 or more users and the legacy system over two reporting periods.\n1. Compute per-project differences between the systems for both periods\n2. Classify each difference",
+      "expected": "Report lists each difference as definition, timing or data error with an owner; unexplained money differences at exit = 0.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-08",
+      "title": "SUS mean >= 80 and >= 90 percent of core tasks completed without assistance, measured by observers not self-report",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-dis",
+      "journey_ref": "J-FR-DIS-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-06",
+      "oracle_source": "Claim → FRD; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Rà soát và gửi báo cáo\": SUS mean >= 80 and >= 90 percent of core tasks completed without assistance, measured by observers not self-report.",
+      "coverage_ids": [
+        "COV-FR-DIS-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-dis",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Pilot users perform the core task list (file report, approve, drill, export) with observers.\n1. Run moderated sessions\n2. Count unaided completions\n3. Score the SUS questionnaire",
+      "expected": "SUS mean >= 80 and >= 90 percent of core tasks completed without assistance, measured by observers not self-report.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-09",
+      "title": "Open P0 and P1 defects = 0",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "nguoi-dung-dis",
+      "journey_ref": "J-FR-DIS-19",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-19",
+      "oracle_source": "Claim → DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-19",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hai tỷ lệ giải ngân song song\": Open P0 and P1 defects = 0; every pilot figure matches the source within the signed tolerance.",
+      "coverage_ids": [
+        "COV-FR-DIS-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-dis",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Pilot exit review with the defect list and the figure comparison.\n1. Review the defect list\n2. Compare pilot figures with the source",
+      "expected": "Open P0 and P1 defects = 0; every pilot figure matches the source within the signed tolerance.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-66",
+      "title": "The manager sees close and lock actions",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-dis",
+      "journey_ref": "J-FR-DIS-14",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-14",
+      "oracle_source": "Claim → DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-66 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Lịch kỳ và khóa sổ\": The manager sees close and lock actions; the maker sees 0 actions; each period shows its status as text (Open, SoftClosed, Locked) next to the colour.",
+      "coverage_ids": [
+        "COV-FR-DIS-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-dis",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Reporting period 2026-W40 in status Open; period 2026-W38 SoftClosed; 2026-W36 Locked; users: period manager and maker.\n1. Open DIS-14 as the period manager\n2. Open DIS-14 as the maker\n3. Read the action list and the status labels per period",
+      "expected": "The manager sees close and lock actions; the maker sees 0 actions; each period shows its status as text (Open, SoftClosed, Locked) next to the colour.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-67",
+      "title": "409 DRAFT_EXISTS with the id of D-1 in the body",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-dis",
+      "journey_ref": "J-FR-DIS-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-02",
+      "oracle_source": "Claim → DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-67 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chọn kỳ và dự án\": 409 DRAFT_EXISTS with the id of D-1 in the body; the draft count stays 1.",
+      "coverage_ids": [
+        "COV-FR-DIS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-dis",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Draft report D-1 exists for project P-A-001 and period 2026-W40.\n1. post_reports for the same project and period\n2. Count drafts",
+      "expected": "409 DRAFT_EXISTS with the id of D-1 in the body; the draft count stays 1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-68",
+      "title": "D-1: 422 RESTORE_WINDOW_EXPIRED",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-dis",
+      "journey_ref": "J-FR-DIS-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-09",
+      "oracle_source": "Claim → DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-68 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Xác nhận xóa nháp\": D-1: 422 RESTORE_WINDOW_EXPIRED; D-2 without permission: 403 after re-checking the present permission; D-2 with permission: 200 and deleted_at is null.",
+      "coverage_ids": [
+        "COV-FR-DIS-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-dis",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Draft deleted 31 days ago (D-1) and a draft deleted yesterday (D-2); user without the restore permission now.\n1. restoreDraftReport D-1\n2. restoreDraftReport D-2 as the user without permission\n3. restoreDraftReport D-2 as a permitted user",
+      "expected": "D-1: 422 RESTORE_WINDOW_EXPIRED; D-2 without permission: 403 after re-checking the present permission; D-2 with permission: 200 and deleted_at is null.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-69",
+      "title": "Before signing, definition_status is PROPOSED_PENDING_SIGNOFF and the badge reads CHO KY",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-dis",
+      "journey_ref": "J-FR-DIS-21",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-21",
+      "oracle_source": "Claim → DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-69 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-21",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chốt và đóng băng số liệu kỳ\": Before signing, definition_status is PROPOSED_PENDING_SIGNOFF and the badge reads CHO KY; after D03 is signed, new snapshots no longer carry PROPOSED_PENDING_SI",
+      "coverage_ids": [
+        "COV-FR-DIS-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-dis",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Metric definition D03 proposed and not signed; snapshot SV-10a.\n1. Read the snapshot metadata\n2. Open the DIS-21 snapshot list\n3. Sign D03 and read the snapshot again",
+      "expected": "Before signing, definition_status is PROPOSED_PENDING_SIGNOFF and the badge reads CHO KY; after D03 is signed, new snapshots no longer carry PROPOSED_PENDING_SIGNOFF and the badge CHO KY is gone.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-70",
+      "title": "Step 1: 403 SELF_APPROVAL_DENIED",
+      "type": "RED",
+      "platform": "api",
+      "persona": "nguoi-dung-dis",
+      "journey_ref": "J-FR-DIS-20",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-20",
+      "oracle_source": "Claim → DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-70 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-20",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Quy tắc cảnh báo sớm\": Step 1: 403 SELF_APPROVAL_DENIED; step 2: the edit creates version 2 and version 1 stays unmodified; step 3: 422 METRIC_UNKNOWN.",
+      "coverage_ids": [
+        "COV-FR-DIS-20"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-dis",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Warning rule WR-1 created by user A; PUBLISHED rule WR-2.\n1. User A publishes WR-1\n2. Edit the PUBLISHED rule WR-2\n3. Save a rule with metric \"X_UNKNOWN\"",
+      "expected": "Step 1: 403 SELF_APPROVAL_DENIED; step 2: the edit creates version 2 and version 1 stays unmodified; step 3: 422 METRIC_UNKNOWN.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "tags": [
+        "security"
+      ],
+      "module": "DIS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-71",
+      "title": "422 SNAPSHOT_NOT_FROZEN and no export row exists",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-dis",
+      "journey_ref": "J-FR-DIS-17",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-17",
+      "oracle_source": "Claim → DIS.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-71 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DIS-17",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Xem trước xuất báo cáo\": 422 SNAPSHOT_NOT_FROZEN and no export row exists.",
+      "coverage_ids": [
+        "COV-FR-DIS-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-dis",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Snapshot SV-10c in status BUILDING (not FROZEN).\n1. createReportExport from SV-10c\n2. Read the export table",
+      "expected": "422 SNAPSHOT_NOT_FROZEN and no export row exists.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "DIS"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 30,
+    "M2": 0,
+    "M3": 0,
+    "M4": 120,
+    "max": 120,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 30,
+    "covered": 30,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

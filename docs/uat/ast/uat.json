@@ -1,0 +1,591 @@
+{
+  "feature": "ast",
+  "generated_at": "2026-11-05T07:53:18.042Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/ast/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UAT-AC388",
+      "title": "Bước 1: 422 CRITICAL_CANNOT_BE_WAIVED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-AST-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AST-02",
+      "oracle_source": "Claim → Thiết kế M1 AST.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC388 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AST-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Biên bản bàn giao và tồn tại\": Bước 1: 422 CRITICAL_CANNOT_BE_WAIVED. Bước 2: 422 OPEN_CRITICAL_PUNCH. Bước 3 thiếu bằng chứng: 422 EVIDENCE_REQUIRED. Bước 4: nhà thầu 403 SELF_APPROVAL_DENIE",
+      "coverage_ids": [
+        "COV-FR-AST-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). HO-A-002 PUNCH_PENDING: P1 CRITICAL OPEN, P2 MAJOR OPEN; open_critical_punch_count=1; hồ sơ hoàn công đã nộp.\nĐầu vào: waivePunchItem P1; approve; verify P1 bởi nhà thầu; markPunchItemFixed P1 thiếu bằng chứng; đủ; verify bởi giám sát; UPDATE trực tiếp status=ACCEPTED.\n1. waivePunchItem P1.\n2. decision approve khi count=1.\n3. markPunchItemFixed P1 thiếu bằng chứng, rồi kèm ảnh geotag.\n4. Nhà thầu tự verify; giám sát verify.\n5. UPDATE handover SET status='ACCEPTED' khi count=1 bằng SQL.",
+      "expected": "Bước 1: 422 CRITICAL_CANNOT_BE_WAIVED. Bước 2: 422 OPEN_CRITICAL_PUNCH. Bước 3 thiếu bằng chứng: 422 EVIDENCE_REQUIRED. Bước 4: nhà thầu 403 SELF_APPROVAL_DENIED, giám sát: VERIFIED và count→0. Bước 5: lỗi CHECK handover_accepted_chk khi count>0. Sau khi count=0: approve thành công.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "AST-02",
+      "module": "AST"
+    },
+    {
+      "tc_id": "TC-UAT-AC389",
+      "title": "Bước 1: 409 HANDOVER_STATE_INVALID",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-AST-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AST-03",
+      "oracle_source": "Claim → Thiết kế M1 AST.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC389 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AST-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hồ sơ tài sản\": Bước 1: 409 HANDOVER_STATE_INVALID. Bước 2: 422 VALUE_EXCEEDS_CONTRACT (tổng tài sản 10.000.000.001 > 10.000.000.000). Bước 3: 200 REGISTERED, tổng = giá trị hợ",
+      "coverage_ids": [
+        "COV-FR-AST-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). HO-A-003 PUNCH_PENDING; HD-A-001 giá trị 10.000.000.000; tài sản đã đăng ký 5.000.000.000.\nĐầu vào: registerAsset khi handover chưa ACCEPTED; sau khi ACCEPTED với value 5.000.000.001; 5.000.000.000; trùng asset_code.\n1. registerAsset khi bàn giao chưa ACCEPTED.\n2. registerAsset 5.000.000.001 sau khi ACCEPTED.\n3. registerAsset 5.000.000.000.\n4. registerAsset trùng AS-001.\n5. transferAsset thiếu commissioning document.",
+      "expected": "Bước 1: 409 HANDOVER_STATE_INVALID. Bước 2: 422 VALUE_EXCEEDS_CONTRACT (tổng tài sản 10.000.000.001 > 10.000.000.000). Bước 3: 200 REGISTERED, tổng = giá trị hợp đồng. Bước 4: 409 ASSET_CODE_DUPLICATE. Bước 5: 422 (CHECK/DTO); transferAsset đủ hồ sơ: TRANSFERRED với transferred_on.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "AST-03",
+      "module": "AST"
+    },
+    {
+      "tc_id": "TC-UAT-AC390",
+      "title": "6 tháng: 422 WARRANTY_PERIOD_BELOW_MINIMUM (tối thiểu 12)",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-AST-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AST-04",
+      "oracle_source": "Claim → Thiết kế M1 AST.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC390 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AST-04, FR-AST-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Bảo hành và giữ lại\": 6 tháng: 422 WARRANTY_PERIOD_BELOW_MINIMUM (tối thiểu 12). 12 tháng: ACTIVE, ends_on = 2027-09-01 (starts_on + 12 tháng). Claim 2027-08-31: 200; claim 2027-09-0",
+      "coverage_ids": [
+        "COV-FR-AST-04",
+        "COV-FR-AST-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Rule AST.WARRANTY fixture RULE-WAR-FIX-1 (không phải quy định, CXN-EXE-04 chưa xác nhận): công trình cấp I/đặc biệt tối thiểu 24 tháng, còn lại 12 tháng; HO-A-001 ACCEPTED; HD-A-001 công trình cấp II.\nĐầu vào: createWarrantyObligation period_months=6; 12; sau đó fileWarrantyClaim ngày trong và sau hạn.\n1. Tạo nghĩa vụ 6 tháng starts_on=2026-09-01.\n2. Tạo 12 tháng.\n3. Đọc ends_on.\n4. fileWarrantyClaim reported_on=2027-08-31 và 2027-09-02.",
+      "expected": "6 tháng: 422 WARRANTY_PERIOD_BELOW_MINIMUM (tối thiểu 12). 12 tháng: ACTIVE, ends_on = 2027-09-01 (starts_on + 12 tháng). Claim 2027-08-31: 200; claim 2027-09-02: 422 WARRANTY_EXPIRED. rule_version_id lưu RULE-WAR-FIX-1 và hiển thị cảnh báo chưa xác nhận.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "AST-04",
+      "module": "AST"
+    },
+    {
+      "tc_id": "TC-UAT-AC391",
+      "title": "Job: tạo 1 vướng mắc ISS (source_module=AST) và gán issue_id, chạy lại không tạo trùng",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-AST-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AST-05",
+      "oracle_source": "Claim → Thiết kế M1 AST.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC391 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AST-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Yêu cầu bảo hành\": Job: tạo 1 vướng mắc ISS (source_module=AST) và gán issue_id, chạy lại không tạo trùng. acknowledge: ACKNOWLEDGED. Fix: FIXED với fixed_on. Người báo cáo verify",
+      "coverage_ids": [
+        "COV-FR-AST-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). WO-A-001 ACTIVE; claim WC-001 reported_on 2027-01-10, response_due_on 2027-01-17, nhà thầu NT-A-01.\nĐầu vào: acknowledgeWarrantyClaim; job quá hạn 2027-01-18; recordWarrantyFix; verifyWarrantyClaim bởi người báo cáo và bởi người khác.\n1. Chạy job 2027-01-18 khi chưa phản hồi; đọc issue_id.\n2. u.nt acknowledge với committed_fix_on.\n3. recordWarrantyFix kèm ảnh.\n4. Người báo cáo verify; u.cv.hd verify.",
+      "expected": "Job: tạo 1 vướng mắc ISS (source_module=AST) và gán issue_id, chạy lại không tạo trùng. acknowledge: ACKNOWLEDGED. Fix: FIXED với fixed_on. Người báo cáo verify: 403 SELF_APPROVAL_DENIED; u.cv.hd: VERIFIED, cost_borne_by lưu; CHECK warranty_claim_verify_chk thỏa.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "AST-05",
+      "module": "AST"
+    },
+    {
+      "tc_id": "TC-UAT-AC392",
+      "title": "Job: obligation EXPIRED",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chuyen-vien-hop-dong",
+      "journey_ref": "J-FR-AST-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AST-04",
+      "oracle_source": "Claim → Thiết kế M1 AST.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC392 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AST-04, FR-CTR-21",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Bảo hành và giữ lại\": Job: obligation EXPIRED. Close khi claim mở: 422 OPEN_WARRANTY_CLAIMS. Sau khi đóng claim: CLOSED, phát ast.warranty.closed.v1; CTR cho phép releaseRetention (đ",
+      "coverage_ids": [
+        "COV-FR-AST-04",
+        "COV-FR-CTR-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-hop-dong",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). WO-A-001 hết hạn 2027-09-01, retention_hold B01 100.000.000 và B02 50.000.000 điều kiện WARRANTY_END; bảo lãnh bảo hành BL-W-001 ACTIVE; claim WC-002 OPEN.\nĐầu vào: closeWarrantyObligation ngày 2027-09-02 khi WC-002 mở; sau khi WC-002 CLOSED; releaseRetention và releaseGuarantee.\n1. Chạy job hết hạn 2027-09-02; đọc status.\n2. closeWarrantyObligation khi WC-002 mở.\n3. Đóng WC-002; closeWarrantyObligation.\n4. releaseRetention B01, B02 và releaseGuarantee BL-W-001.",
+      "expected": "Job: obligation EXPIRED. Close khi claim mở: 422 OPEN_WARRANTY_CLAIMS. Sau khi đóng claim: CLOSED, phát ast.warranty.closed.v1; CTR cho phép releaseRetention (điều kiện WARRANTY_END thỏa) tổng 150.000.000 và releaseGuarantee BL-W-001 (có bằng chứng). Trước khi obligation CLOSED: releaseRetention trả 422 RELEASE_CONDITION_NOT_MET.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "CTR-21",
+      "module": "AST"
+    },
+    {
+      "tc_id": "TC-UAT-AC393",
+      "title": "AS-001: 422 ASSET_NOT_TRANSFERRED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-AST-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AST-06",
+      "oracle_source": "Claim → Thiết kế M1 AST.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC393 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AST-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Liên kết vận hành bảo trì\": AS-001: 422 ASSET_NOT_TRANSFERRED. AS-002: 200 LINKED. Lần 2: 409 do unique om_link_asset_uq (chỉ một liên kết hoạt động). external_asset_id lưu dạng nhập tay, ",
+      "coverage_ids": [
+        "COV-FR-AST-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). AS-001 REGISTERED chưa chuyển giao; AS-002 TRANSFERRED; không có adapter hệ thống tài sản ngoài (MISSING).\nĐầu vào: linkOmPlan cho AS-001 và AS-002; liên kết lần hai cho AS-002; transferAsset với external_asset_id.\n1. linkOmPlan AS-001.\n2. linkOmPlan AS-002 operator_unit_id=SOGT-A maintenance_cycle_months=6 next_maintenance_due=2027-03-01.\n3. linkOmPlan AS-002 lần 2.\n4. transferAsset AS-001 với external_asset_id=\"TS-2027-009\".",
+      "expected": "AS-001: 422 ASSET_NOT_TRANSFERRED. AS-002: 200 LINKED. Lần 2: 409 do unique om_link_asset_uq (chỉ một liên kết hoạt động). external_asset_id lưu dạng nhập tay, hiển thị nhãn \"nhập tay — không đồng bộ\".",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "AST-06",
+      "module": "AST"
+    },
+    {
+      "tc_id": "TC-UAT-AC394",
+      "title": "Trigger lần 2: 409 TRIGGER_DUPLICATE (unique evaluation_trigger_uq)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-AST-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AST-07",
+      "oracle_source": "Claim → Thiết kế M1 AST.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC394 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AST-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kích hoạt đánh giá sau đầu tư\": Trigger lần 2: 409 TRIGGER_DUPLICATE (unique evaluation_trigger_uq). Job 01-14: vẫn SCHEDULED; 01-15: FIRED, fired_at, outbox ast.evaluation.due.v1 (project_id,",
+      "coverage_ids": [
+        "COV-FR-AST-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). HO-A-001 ACCEPTED ngày 2027-01-15; MNE có mne_evaluation ME-001 chờ gắn.\nĐầu vào: scheduleEvaluationTrigger POST_HANDOVER_12M due_on 2028-01-15; lần hai; job 2028-01-15; acknowledgeEvaluationTrigger.\n1. Đặt trigger; đặt lần hai cùng loại và handover.\n2. Chạy job ngày 2028-01-14 và 2028-01-15; đọc outbox.\n3. MNE acknowledge với mne_evaluation_id=ME-001.\n4. Chạy lại job.",
+      "expected": "Trigger lần 2: 409 TRIGGER_DUPLICATE (unique evaluation_trigger_uq). Job 01-14: vẫn SCHEDULED; 01-15: FIRED, fired_at, outbox ast.evaluation.due.v1 (project_id, trigger_kind, handover_id). Acknowledge: ACKNOWLEDGED, mne_evaluation_id=ME-001. Job lại: không phát sự kiện thứ hai.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "AST-07",
+      "module": "AST"
+    },
+    {
+      "tc_id": "TC-UAT-AC395",
+      "title": "Ba endpoint: 404 RESOURCE_NOT_FOUND",
+      "type": "RED",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-AST-01",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AST-01",
+      "oracle_source": "Claim → Thiết kế M1 AST.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC395 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AST-01, FR-AST-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh sách bàn giao\": Ba endpoint: 404 RESOURCE_NOT_FOUND; không thay đổi dữ liệu TNT-B; SQL không tenant trả 0 dòng.",
+      "coverage_ids": [
+        "COV-FR-AST-01",
+        "COV-FR-AST-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Tài sản AS-B-001 và bảo hành WO-B-001 thuộc TNT-B.\nĐầu vào: GET /handovers/{HO-B-001}/trace; POST /asset-records/{AS-B-001}/transfer; POST /warranty-obligations/{WO-B-001}/claims bởi token TNT-A.\n1. Gọi ba endpoint với id TNT-B.\n2. SQL count trên asset_record, warranty_claim khi chưa đặt app.tenant_id.",
+      "expected": "Ba endpoint: 404 RESOURCE_NOT_FOUND; không thay đổi dữ liệu TNT-B; SQL không tenant trả 0 dòng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "AST-01",
+      "tags": [
+        "security"
+      ],
+      "module": "AST"
+    },
+    {
+      "tc_id": "TC-UI-AST-01",
+      "title": "Danh sách bàn giao (AST-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-AST-01",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AST-01",
+      "oracle_source": "Claim → FR-AST-01; kỳ vọng nguyên văn của ca thiết kế UI-AST-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AST-01",
+      "catches_bug": "Màn hình Danh sách bàn giao (AST-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-AST-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Danh sách bàn giao\"; user có quyền và user chỉ đọc; route AST-01\n1. Mở AST-01 từ menu và deep link; kiểm nhãn trường: Số bàn giao, Hợp đồng, Loại, Đơn vị nhận, Tồn tại trọng yếu, Trạng thái\n2. Thực hiện thao tác chính theo quy tắc: Hiển thị số tồn tại trọng yếu chưa đóng; thao tác dùng command createHandover\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AST-01",
+      "expected": "Danh sách bàn giao: hiển thị đúng 6 trường; áp quy tắc \"Hiển thị số tồn tại trọng yếu chưa đóng\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "AST-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "AST"
+    },
+    {
+      "tc_id": "TC-UI-AST-02",
+      "title": "Biên bản bàn giao và tồn tại (AST-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-AST-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AST-02",
+      "oracle_source": "Claim → FR-AST-02; kỳ vọng nguyên văn của ca thiết kế UI-AST-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AST-02",
+      "catches_bug": "Màn hình Biên bản bàn giao và tồn tại (AST-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-AST-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Biên bản bàn giao và tồn tại\"; user có quyền và user chỉ đọc; route AST-02\n1. Mở AST-02 từ menu và deep link; kiểm nhãn trường: Tồn tại, Mức độ, Nhà thầu xử lý, Hạn, Bằng chứng, Xác nhận, Quyết định nhận\n2. Thực hiện thao tác chính theo quy tắc: Không nhận khi còn tồn tại CRITICAL; CRITICAL không được miễn; người xác nhận khác nhà thầu; thao tác dùng command addPunchItem, markPunchItemFixed, verifyPunchItem\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AST-02",
+      "expected": "Biên bản bàn giao và tồn tại: hiển thị đúng 7 trường; áp quy tắc \"Không nhận khi còn tồn tại CRITICAL; CRITICAL không được miễn; người xác nhận khác nhà thầu\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "AST-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "AST"
+    },
+    {
+      "tc_id": "TC-UI-AST-03",
+      "title": "Hồ sơ tài sản (AST-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-AST-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AST-03",
+      "oracle_source": "Claim → FR-AST-03; kỳ vọng nguyên văn của ca thiết kế UI-AST-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AST-03",
+      "catches_bug": "Màn hình Hồ sơ tài sản (AST-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-AST-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Hồ sơ tài sản\"; user có quyền và user chỉ đọc; route AST-03\n1. Mở AST-03 từ menu và deep link; kiểm nhãn trường: Mã tài sản, Tên, Nhóm, Nguồn hình thành, Giá trị ghi nhận, Đơn vị tiếp nhận, Mã tài sản ngoài\n2. Thực hiện thao tác chính theo quy tắc: Tổng giá trị tài sản không vượt giá trị hợp đồng; mã ngoài nhập tay (adapter MISSING); thao tác dùng command registerAsset, transferAsset\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AST-03",
+      "expected": "Hồ sơ tài sản: hiển thị đúng 7 trường; áp quy tắc \"Tổng giá trị tài sản không vượt giá trị hợp đồng; mã ngoài nhập tay (adapter MISSING)\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "AST-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "AST"
+    },
+    {
+      "tc_id": "TC-UI-AST-04",
+      "title": "Bảo hành và giữ lại (AST-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-AST-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AST-04",
+      "oracle_source": "Claim → FR-AST-04; kỳ vọng nguyên văn của ca thiết kế UI-AST-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AST-04",
+      "catches_bug": "Màn hình Bảo hành và giữ lại (AST-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-AST-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Bảo hành và giữ lại\"; user có quyền và user chỉ đọc; route AST-04\n1. Mở AST-04 từ menu và deep link; kiểm nhãn trường: Nghĩa vụ bảo hành, Phạm vi, Bắt đầu – kết thúc, Bảo lãnh bảo hành, Giữ lại, Trạng thái\n2. Thực hiện thao tác chính theo quy tắc: Thời hạn tối thiểu theo rule [CXN-EXE-04]; hết hạn và hết yêu cầu mở mới đóng và cho giải tỏa; thao tác dùng command createWarrantyObligation, closeWarrantyObligation, listExpiringWarranties\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AST-04",
+      "expected": "Bảo hành và giữ lại: hiển thị đúng 6 trường; áp quy tắc \"Thời hạn tối thiểu theo rule [CXN-EXE-04]; hết hạn và hết yêu cầu mở mới đóng và cho giải tỏa\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "AST-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "AST"
+    },
+    {
+      "tc_id": "TC-UI-AST-05",
+      "title": "Yêu cầu bảo hành (AST-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-AST-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AST-05",
+      "oracle_source": "Claim → FR-AST-05; kỳ vọng nguyên văn của ca thiết kế UI-AST-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AST-05",
+      "catches_bug": "Màn hình Yêu cầu bảo hành (AST-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-AST-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Yêu cầu bảo hành\"; user có quyền và user chỉ đọc; route AST-05\n1. Mở AST-05 từ menu và deep link; kiểm nhãn trường: Yêu cầu, Mức độ, Nhà thầu, Hạn phản hồi, Bằng chứng, Trạng thái, Chi phí chịu\n2. Thực hiện thao tác chính theo quy tắc: Quá hạn phản hồi tạo vướng mắc; xác nhận độc lập; thao tác dùng command fileWarrantyClaim, acknowledgeWarrantyClaim, recordWarrantyFix\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AST-05",
+      "expected": "Yêu cầu bảo hành: hiển thị đúng 7 trường; áp quy tắc \"Quá hạn phản hồi tạo vướng mắc; xác nhận độc lập\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "AST-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "AST"
+    },
+    {
+      "tc_id": "TC-UI-AST-06",
+      "title": "Liên kết vận hành bảo trì (AST-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-AST-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AST-06",
+      "oracle_source": "Claim → FR-AST-06; kỳ vọng nguyên văn của ca thiết kế UI-AST-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AST-06",
+      "catches_bug": "Màn hình Liên kết vận hành bảo trì (AST-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-AST-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Liên kết vận hành bảo trì\"; user có quyền và user chỉ đọc; route AST-06\n1. Mở AST-06 từ menu và deep link; kiểm nhãn trường: Tài sản, Đơn vị vận hành, Kế hoạch O&M, Hợp đồng O&M, Chu kỳ bảo trì, Hạn bảo trì kế\n2. Thực hiện thao tác chính theo quy tắc: Chỉ liên kết tài sản đã chuyển giao; thao tác dùng command linkOmPlan\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AST-06",
+      "expected": "Liên kết vận hành bảo trì: hiển thị đúng 6 trường; áp quy tắc \"Chỉ liên kết tài sản đã chuyển giao\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "AST-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "AST"
+    },
+    {
+      "tc_id": "TC-UI-AST-07",
+      "title": "Kích hoạt đánh giá sau đầu tư (AST-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-AST-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AST-07",
+      "oracle_source": "Claim → FR-AST-07; kỳ vọng nguyên văn của ca thiết kế UI-AST-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AST-07",
+      "catches_bug": "Màn hình Kích hoạt đánh giá sau đầu tư (AST-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-AST-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Kích hoạt đánh giá sau đầu tư\"; user có quyền và user chỉ đọc; route AST-07\n1. Mở AST-07 từ menu và deep link; kiểm nhãn trường: Dự án, Loại kích hoạt, Bàn giao nguồn, Ngày đến hạn, Trạng thái, Đánh giá MNE\n2. Thực hiện thao tác chính theo quy tắc: Chỉ đặt kích hoạt; việc đánh giá do MNE thực hiện; thao tác dùng command scheduleEvaluationTrigger, acknowledgeEvaluationTrigger\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AST-07",
+      "expected": "Kích hoạt đánh giá sau đầu tư: hiển thị đúng 6 trường; áp quy tắc \"Chỉ đặt kích hoạt; việc đánh giá do MNE thực hiện\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "AST-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "AST"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 8,
+    "M2": 0,
+    "M3": 0,
+    "M4": 50,
+    "max": 50,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 8,
+    "covered": 8,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

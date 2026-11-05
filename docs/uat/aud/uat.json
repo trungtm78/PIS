@@ -1,0 +1,901 @@
+{
+  "feature": "aud",
+  "generated_at": "2026-11-05T07:53:18.043Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/aud/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UI-AUD-01",
+      "title": "Tổng quan thanh tra, kiểm toán (AUD-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "dau-moi-thanh-tra-kiem-toan",
+      "journey_ref": "J-FR-AUD-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-01",
+      "oracle_source": "Claim → FR-AUD-01; kỳ vọng nguyên văn của ca thiết kế UI-AUD-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-01",
+      "catches_bug": "Màn hình Tổng quan thanh tra, kiểm toán (AUD-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-AUD-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dau-moi-thanh-tra-kiem-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Tổng quan thanh tra, kiểm toán\"; user có quyền và user chỉ đọc; route AUD-01\n1. Mở AUD-01 từ menu và deep link; kiểm nhãn trường: Cuộc đang diễn ra, Kiến nghị mở, Kiến nghị quá hạn, Tiền kiến nghị, Đã thu hồi, Tỷ lệ hoàn thành (tử/mẫu)\n2. Thực hiện thao tác chính theo quy tắc: Tỷ lệ = Σ đã thu hồi / Σ kiến nghị tài chính trong scope, hiển thị tử và mẫu; quá hạn bằng chữ + số ngày\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AUD-01",
+      "expected": "Tổng quan thanh tra, kiểm toán: hiển thị đúng 6 trường, áp quy tắc \"Tỷ lệ = Σ đã thu hồi / Σ kiến nghị tài chính trong scope, hiển thị tử và mẫu; quá hạn bằng chữ + số ngày\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "AUD-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UI-AUD-02",
+      "title": "Danh sách cuộc thanh tra, kiểm toán (AUD-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "dau-moi-thanh-tra-kiem-toan",
+      "journey_ref": "J-FR-AUD-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-02",
+      "oracle_source": "Claim → FR-AUD-02; kỳ vọng nguyên văn của ca thiết kế UI-AUD-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-02",
+      "catches_bug": "Màn hình Danh sách cuộc thanh tra, kiểm toán (AUD-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-AUD-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dau-moi-thanh-tra-kiem-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Danh sách cuộc thanh tra, kiểm toán\"; user có quyền và user chỉ đọc; route AUD-02\n1. Mở AUD-02 từ menu và deep link; kiểm nhãn trường: Mã cuộc, Loại, Cơ quan tiến hành, Thời kỳ, Trạng thái, Đầu mối, Legal hold\n2. Thực hiện thao tác chính theo quy tắc: Chỉ thấy cuộc có phạm vi giao với scope của mình; dữ liệu CONFIDENTIAL\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AUD-02",
+      "expected": "Danh sách cuộc thanh tra, kiểm toán: hiển thị đúng 7 trường, áp quy tắc \"Chỉ thấy cuộc có phạm vi giao với scope của mình; dữ liệu CONFIDENTIAL\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "AUD-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UI-AUD-03",
+      "title": "Hồ sơ cuộc thanh tra, kiểm toán (AUD-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "dau-moi-thanh-tra-kiem-toan",
+      "journey_ref": "J-FR-AUD-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-03",
+      "oracle_source": "Claim → FR-AUD-03; kỳ vọng nguyên văn của ca thiết kế UI-AUD-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-03",
+      "catches_bug": "Màn hình Hồ sơ cuộc thanh tra, kiểm toán (AUD-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-AUD-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dau-moi-thanh-tra-kiem-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Hồ sơ cuộc thanh tra, kiểm toán\"; user có quyền và user chỉ đọc; route AUD-03\n1. Mở AUD-03 từ menu và deep link; kiểm nhãn trường: Quyết định, Phạm vi (đơn vị/dự án/hợp đồng), Thời kỳ, Mốc, Legal hold, Tài liệu làm việc\n2. Thực hiện thao tác chính theo quy tắc: Bắt đầu cuộc đặt legal hold trên phạm vi; quyết định phải là văn bản EFFECTIVE ở DOC\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AUD-03",
+      "expected": "Hồ sơ cuộc thanh tra, kiểm toán: hiển thị đúng 6 trường, áp quy tắc \"Bắt đầu cuộc đặt legal hold trên phạm vi; quyết định phải là văn bản EFFECTIVE ở DOC\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "AUD-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UI-AUD-04",
+      "title": "Tiếp nhận kết luận, báo cáo kiểm toán (AUD-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "dau-moi-thanh-tra-kiem-toan",
+      "journey_ref": "J-FR-AUD-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-04",
+      "oracle_source": "Claim → FR-AUD-04; kỳ vọng nguyên văn của ca thiết kế UI-AUD-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-04",
+      "catches_bug": "Màn hình Tiếp nhận kết luận, báo cáo kiểm toán (AUD-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-AUD-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dau-moi-thanh-tra-kiem-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Tiếp nhận kết luận, báo cáo kiểm toán\"; user có quyền và user chỉ đọc; route AUD-04\n1. Mở AUD-04 từ menu và deep link; kiểm nhãn trường: Loại kết luận, Văn bản kết luận (DOC), Ngày ban hành/nhận, Hạn thực hiện, Hạn báo cáo, Tổng kiến nghị tài chính, Công khai\n2. Thực hiện thao tác chính theo quy tắc: Kết luận sửa đổi tạo revision mới; Σ kiến nghị tài chính phải bằng tổng ghi trong kết luận\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AUD-04",
+      "expected": "Tiếp nhận kết luận, báo cáo kiểm toán: hiển thị đúng 7 trường, áp quy tắc \"Kết luận sửa đổi tạo revision mới; Σ kiến nghị tài chính phải bằng tổng ghi trong kết luận\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "AUD-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UI-AUD-05",
+      "title": "Phát hiện (AUD-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "dau-moi-thanh-tra-kiem-toan",
+      "journey_ref": "J-FR-AUD-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-05",
+      "oracle_source": "Claim → FR-AUD-05; kỳ vọng nguyên văn của ca thiết kế UI-AUD-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-05",
+      "catches_bug": "Màn hình Phát hiện (AUD-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-AUD-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dau-moi-thanh-tra-kiem-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Phát hiện\"; user có quyền và user chỉ đọc; route AUD-05\n1. Mở AUD-05 từ menu và deep link; kiểm nhãn trường: Mã phát hiện, Nhóm, Dự án/hợp đồng, Đơn vị, Số tiền, Mức độ, Căn cứ bị vi phạm\n2. Thực hiện thao tác chính theo quy tắc: Dự án/hợp đồng phải cùng tenant và trong phạm vi cuộc\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AUD-05",
+      "expected": "Phát hiện: hiển thị đúng 7 trường, áp quy tắc \"Dự án/hợp đồng phải cùng tenant và trong phạm vi cuộc\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "AUD-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UI-AUD-06",
+      "title": "Kiến nghị và phân công (AUD-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "dau-moi",
+      "journey_ref": "J-FR-AUD-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-06",
+      "oracle_source": "Claim → FR-AUD-06; kỳ vọng nguyên văn của ca thiết kế UI-AUD-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-06",
+      "catches_bug": "Màn hình Kiến nghị và phân công (AUD-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-AUD-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dau-moi",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Kiến nghị và phân công\"; user có quyền và user chỉ đọc; route AUD-06\n1. Mở AUD-06 từ menu và deep link; kiểm nhãn trường: Mã kiến nghị, Loại, Số tiền, Owner, Hạn, Trạng thái, Vướng mắc liên kết\n2. Thực hiện thao tác chính theo quy tắc: Kiến nghị tài chính bắt buộc số tiền; owner trong scope người giao; hạn không sau hạn kết luận trừ khi có lý do\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AUD-06",
+      "expected": "Kiến nghị và phân công: hiển thị đúng 7 trường, áp quy tắc \"Kiến nghị tài chính bắt buộc số tiền; owner trong scope người giao; hạn không sau hạn kết luận trừ khi có lý do\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "AUD-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UI-AUD-07",
+      "title": "Theo dõi thực hiện kiến nghị (AUD-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "dau-moi-thanh-tra-kiem-toan",
+      "journey_ref": "J-FR-AUD-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-07",
+      "oracle_source": "Claim → FR-AUD-07; kỳ vọng nguyên văn của ca thiết kế UI-AUD-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-07",
+      "catches_bug": "Màn hình Theo dõi thực hiện kiến nghị (AUD-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-AUD-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dau-moi-thanh-tra-kiem-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Theo dõi thực hiện kiến nghị\"; user có quyền và user chỉ đọc; route AUD-07\n1. Mở AUD-07 từ menu và deep link; kiểm nhãn trường: Cột trạng thái, Thẻ kiến nghị, Hạn và số ngày trễ, Hành động khắc phục, Bằng chứng\n2. Thực hiện thao tác chính theo quy tắc: Kéo-thả không đổi trạng thái; chuyển qua nút command có guard; người kiểm tra khác người báo hoàn thành\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AUD-07",
+      "expected": "Theo dõi thực hiện kiến nghị: hiển thị đúng 5 trường, áp quy tắc \"Kéo-thả không đổi trạng thái; chuyển qua nút command có guard; người kiểm tra khác người báo hoàn thành\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "AUD-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UI-AUD-08",
+      "title": "Thu hồi tài chính và đối chiếu PAY (AUD-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-AUD-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-08",
+      "oracle_source": "Claim → FR-AUD-08; kỳ vọng nguyên văn của ca thiết kế UI-AUD-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-08",
+      "catches_bug": "Màn hình Thu hồi tài chính và đối chiếu PAY (AUD-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-AUD-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Thu hồi tài chính và đối chiếu PAY\"; user có quyền và user chỉ đọc; route AUD-08\n1. Mở AUD-08 từ menu và deep link; kiểm nhãn trường: Kiến nghị, Nguồn (PAY/Kho bạc/thủ công), Số tiền, Ngày, Lũy kế, Còn lại, Đảo\n2. Thực hiện thao tác chính theo quy tắc: Σ thu hồi ≤ số kiến nghị (khóa hàng); một khoản PAY chỉ gắn một lần; sửa sai bằng dòng đảo\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AUD-08",
+      "expected": "Thu hồi tài chính và đối chiếu PAY: hiển thị đúng 7 trường, áp quy tắc \"Σ thu hồi ≤ số kiến nghị (khóa hàng); một khoản PAY chỉ gắn một lần; sửa sai bằng dòng đảo\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "AUD-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UI-AUD-09",
+      "title": "Bằng chứng khắc phục (AUD-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "owner-kien-nghi",
+      "journey_ref": "J-FR-AUD-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-09",
+      "oracle_source": "Claim → FR-AUD-09; kỳ vọng nguyên văn của ca thiết kế UI-AUD-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-09",
+      "catches_bug": "Màn hình Bằng chứng khắc phục (AUD-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-AUD-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "owner-kien-nghi",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Bằng chứng khắc phục\"; user có quyền và user chỉ đọc; route AUD-09\n1. Mở AUD-09 từ menu và deep link; kiểm nhãn trường: Đối tượng, Tài liệu (DOC), Ghi chú, Người gắn, Thời điểm\n2. Thực hiện thao tác chính theo quy tắc: Chỉ gắn văn bản EFFECTIVE hoặc tệp ATTACHMENT đã quét sạch; xem theo quyền tài liệu\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AUD-09",
+      "expected": "Bằng chứng khắc phục: hiển thị đúng 5 trường, áp quy tắc \"Chỉ gắn văn bản EFFECTIVE hoặc tệp ATTACHMENT đã quét sạch; xem theo quyền tài liệu\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "AUD-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UI-AUD-10",
+      "title": "Báo cáo kết quả thực hiện kiến nghị (AUD-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "dau-moi",
+      "journey_ref": "J-FR-AUD-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-10",
+      "oracle_source": "Claim → FR-AUD-10; kỳ vọng nguyên văn của ca thiết kế UI-AUD-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-10",
+      "catches_bug": "Màn hình Báo cáo kết quả thực hiện kiến nghị (AUD-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-AUD-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dau-moi",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Báo cáo kết quả thực hiện kiến nghị\"; user có quyền và user chỉ đọc; route AUD-10\n1. Mở AUD-10 từ menu và deep link; kiểm nhãn trường: As-of, Số liệu tổng hợp, Băm payload, Trạng thái DOC, Người duyệt\n2. Thực hiện thao tác chính theo quy tắc: Số liệu chốt as-of và băm; phát hành qua DOC (mẫu AUD-BC-KET-QUA-THUC-HIEN-KIEN-NGHI); chỉ ISSUED khi nhận doc.issued\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AUD-10",
+      "expected": "Báo cáo kết quả thực hiện kiến nghị: hiển thị đúng 5 trường, áp quy tắc \"Số liệu chốt as-of và băm; phát hành qua DOC (mẫu AUD-BC-KET-QUA-THUC-HIEN-KIEN-NGHI); chỉ ISSUED khi nhận doc.issued\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "AUD-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UI-AUD-11",
+      "title": "Cảnh báo quá hạn và leo thang (AUD-11): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-AUD-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-11",
+      "oracle_source": "Claim → FR-AUD-11; kỳ vọng nguyên văn của ca thiết kế UI-AUD-11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-11",
+      "catches_bug": "Màn hình Cảnh báo quá hạn và leo thang (AUD-11) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-AUD-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Cảnh báo quá hạn và leo thang\"; user có quyền và user chỉ đọc; route AUD-11\n1. Mở AUD-11 từ menu và deep link; kiểm nhãn trường: Kiến nghị, Owner, Hạn, Số ngày trễ, Mức leo thang, Đã thông báo\n2. Thực hiện thao tác chính theo quy tắc: Nhắc 7/3/1 ngày trước hạn; quá hạn leo thang lên lãnh đạo đơn vị owner qua NOT\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AUD-11",
+      "expected": "Cảnh báo quá hạn và leo thang: hiển thị đúng 6 trường, áp quy tắc \"Nhắc 7/3/1 ngày trước hạn; quá hạn leo thang lên lãnh đạo đơn vị owner qua NOT\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "AUD-11",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UAT-AC433",
+      "title": "Bước 1: 200 PLANNED, 2 audit_scope_item",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "dau-moi-thanh-tra-kiem-toan",
+      "journey_ref": "J-FR-AUD-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-03",
+      "oracle_source": "Claim → 05_modules/AUD.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC433 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-03, FR-AUD-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hồ sơ cuộc thanh tra, kiểm toán\": Bước 1: 200 PLANNED, 2 audit_scope_item; bước 2: ONGOING, legal_hold_id khác null, ADM legal_hold hold_kind=INSPECTION Active trên P-A-001/C-01; bước 3: 409 LEG",
+      "coverage_ids": [
+        "COV-FR-AUD-03",
+        "COV-FR-AUD-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dau-moi-thanh-tra-kiem-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: TNT-A; văn bản QĐ thanh tra QĐ-TT-01 đã đăng ký ở DOC (EFFECTIVE); dự án P-A-001 và hợp đồng C-01 thuộc TNT-A; A-coord có aud.engagement.manage.\n1. POST /audit-engagements {engagement_code:\"TT-2026-01\", engagement_type:\"ADMINISTRATIVE_INSPECTION\", authority_kind:\"PROVINCIAL_INSPECTORATE\", decision_document_id:QĐ-TT-01, period_from:\"2024-01-01\", period_to:\"2025-12-31\", scope:[{PROJECT:P-A-001},{CONTRACT:C-01}]}\n2. POST /audit-engagements/{id}/start {started_on:\"2026-10-22\", place_legal_hold:true}\n3. Thử POST /dossiers/{hồ sơ P-A-001}/disposal-proposals\n4. Tạo cuộc khác cùng mã TT-2026-01",
+      "expected": "Bước 1: 200 PLANNED, 2 audit_scope_item; bước 2: ONGOING, legal_hold_id khác null, ADM legal_hold hold_kind=INSPECTION Active trên P-A-001/C-01; bước 3: 409 LEGAL_HOLD_ACTIVE; bước 4: 409 ENGAGEMENT_CODE_DUPLICATE.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "AUD-03",
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UAT-AC434",
+      "title": "Cuộc → FOLLOW_UP",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "dau-moi-thanh-tra-kiem-toan",
+      "journey_ref": "J-FR-AUD-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-04",
+      "oracle_source": "Claim → 05_modules/AUD.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC434 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-04, FR-AUD-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tiếp nhận kết luận, báo cáo kiểm toán\": Cuộc → FOLLOW_UP; conclusion RECEIVED revision 1; R1/R2/R3 OPEN; Σ tài chính = 1.200.000.000 ≠ 1.250.000.000 nên AUD-04 hiển thị cảnh báo \"lệch 50.000.000\"; R4 ",
+      "coverage_ids": [
+        "COV-FR-AUD-04",
+        "COV-FR-AUD-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dau-moi-thanh-tra-kiem-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Cuộc TT-2026-01 AWAITING_CONCLUSION; kết luận KL-01 (văn bản đến DOC) ghi tổng kiến nghị tài chính 1.250.000.000 VND.\n1. POST /audit-engagements/{id}/conclusions {conclusion_kind:\"INSPECTION_CONCLUSION\", conclusion_document_id:KL-01, issued_on:\"2026-11-05\", received_on:\"2026-11-06\", total_financial_vnd:\"1250000000\", report_due_on:\"2027-01-05\"}\n2. POST findings F1 (FINANCIAL, P-A-001, 800000000) và F2 (PROCEDURE)\n3. POST recommendations R1 FINANCIAL_RECOVERY 800000000 (F1), R2 FINANCIAL_ADJUSTMENT 400000000, rồi R3 PROCESS_CORRECTION\n4. Kiểm tổng: tạo thêm R4 FINANCIAL_RECOVERY 100000000",
+      "expected": "Cuộc → FOLLOW_UP; conclusion RECEIVED revision 1; R1/R2/R3 OPEN; Σ tài chính = 1.200.000.000 ≠ 1.250.000.000 nên AUD-04 hiển thị cảnh báo \"lệch 50.000.000\"; R4 làm Σ = 1.300.000.000 > tổng kết luận → 422 FINANCIAL_TOTAL_MISMATCH; R1 không có amount → 422 AMOUNT_REQUIRED khi thử.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "AUD-04",
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UAT-AC435",
+      "title": "Bước 1: 200 ASSIGNED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "dau-moi",
+      "journey_ref": "J-FR-AUD-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-06",
+      "oracle_source": "Claim → 05_modules/AUD.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC435 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kiến nghị và phân công\": Bước 1: 200 ASSIGNED; bước 2: 422 OWNER_OUT_OF_SCOPE; bước 3: 404 (không lộ đơn vị tenant khác); bước 4: 422 DUE_AFTER_CONCLUSION_DEADLINE.",
+      "coverage_ids": [
+        "COV-FR-AUD-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dau-moi",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: R1 OPEN; A-coord có scope U-STC và con; U-BQL9 thuộc tenant nhưng ngoài scope; U-X thuộc TNT-B.\n1. POST /audit-recommendations/{R1}/assignment {owner_unit_id:U-BQL1, owner_user_id:A-owner, due_on:\"2026-12-31\"}\n2. Gán cho U-BQL9\n3. Gán cho U-X\n4. Gán due_on 2027-02-01 (sau hạn thực hiện kết luận 2027-01-05)",
+      "expected": "Bước 1: 200 ASSIGNED; bước 2: 422 OWNER_OUT_OF_SCOPE; bước 3: 404 (không lộ đơn vị tenant khác); bước 4: 422 DUE_AFTER_CONCLUSION_DEADLINE.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "AUD-06",
+      "tags": [
+        "security"
+      ],
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UAT-AC436",
+      "title": "IN_PROGRESS sau bước 1",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "dau-moi-thanh-tra-kiem-toan",
+      "journey_ref": "J-FR-AUD-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-07",
+      "oracle_source": "Claim → 05_modules/AUD.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC436 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-07, FR-AUD-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Theo dõi thực hiện kiến nghị\": IN_PROGRESS sau bước 1; thiếu evidence: 422 EVIDENCE_REQUIRED, có evidence: DONE; PENDING_VERIFICATION; tự đóng: 403 SELF_APPROVAL_DENIED; A-verifier: CLOSED, v",
+      "coverage_ids": [
+        "COV-FR-AUD-07",
+        "COV-FR-AUD-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dau-moi-thanh-tra-kiem-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: R3 (PROCESS_CORRECTION) ASSIGNED cho A-owner; văn bản quy trình mới QĐ-QT-07 EFFECTIVE ở DOC; A-verifier có aud.recommendation.verify.\n1. A-owner POST /audit-recommendations/{R3}/actions {action_code:\"A1\", planned_on:\"2026-11-30\"}\n2. POST /audit-remediation-actions/{A1}/completion không kèm evidence, rồi kèm evidence QĐ-QT-07\n3. A-owner POST verification-request\n4. A-owner tự POST /verification {decision:CLOSE}\n5. A-verifier POST /verification {decision:CLOSE, closure_basis_document_id:QĐ-QT-07}",
+      "expected": "IN_PROGRESS sau bước 1; thiếu evidence: 422 EVIDENCE_REQUIRED, có evidence: DONE; PENDING_VERIFICATION; tự đóng: 403 SELF_APPROVAL_DENIED; A-verifier: CLOSED, verified_by=A-verifier, sự kiện aud.recommendation.closed.v1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "E2E",
+      "screen_id": "AUD-07",
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UAT-AC437",
+      "title": "Sau bước 1: recovered_vnd=500",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "dau-moi-thanh-tra-kiem-toan",
+      "journey_ref": "J-FR-AUD-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-08",
+      "oracle_source": "Claim → 05_modules/AUD.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC437 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-08, FR-AUD-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thu hồi tài chính và đối chiếu PAY\": Sau bước 1: recovered_vnd=500.000.000; bước 2: bỏ qua (inbox, unique source_event_id), vẫn 500.000.000; bước 3: recovered_vnd=800.000.000; summary: amount 800.0",
+      "coverage_ids": [
+        "COV-FR-AUD-08",
+        "COV-FR-AUD-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dau-moi-thanh-tra-kiem-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: R1 FINANCIAL_RECOVERY amount 800.000.000 ASSIGNED; PAY có khoản thu hồi PR-1 = 500.000.000 và PR-2 = 300.000.000 nộp NSNN.\n1. Consumer nhận pay.recovery.recorded.v1 {recovery_id:PR-1, audit_recommendation_id:R1, amount_vnd:\"500000000\"}\n2. Nhận lại cùng sự kiện (event_id trùng)\n3. POST /audit-recommendations/{R1}/recoveries {source_kind:PAY_RECOVERY, source_id:PR-2, amount_vnd:\"300000000\"}\n4. GET /audit-engagements/{id}/recovery-summary",
+      "expected": "Sau bước 1: recovered_vnd=500.000.000; bước 2: bỏ qua (inbox, unique source_event_id), vẫn 500.000.000; bước 3: recovered_vnd=800.000.000; summary: amount 800.000.000 (chỉ R1 trong ví dụ), recovered 800.000.000, remaining 0, completion_rate \"1.0000\" với tử=800000000, mẫu=800000000.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "AUD-01",
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UAT-AC438",
+      "title": "Nhắc trước hạn 7/3/1 ngày (3 sự kiện aud",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "dau-moi-thanh-tra-kiem-toan",
+      "journey_ref": "J-FR-AUD-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-11",
+      "oracle_source": "Claim → 05_modules/AUD.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC438 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-11, FR-AUD-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Cảnh báo quá hạn và leo thang\": Nhắc trước hạn 7/3/1 ngày (3 sự kiện aud.recommendation.due_soon.v1); ngày 2027-01-02: is_overdue=true, nhãn \"Quá hạn 2 ngày (hạn 31/12/2026)\", leo thang tới A-",
+      "coverage_ids": [
+        "COV-FR-AUD-11",
+        "COV-FR-AUD-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dau-moi-thanh-tra-kiem-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: R2 ASSIGNED hạn 2026-12-31 cho U-BQL1 (lãnh đạo A-lead-BQL1); job aud.recommendation-overdue chạy 06:00 hằng ngày.\n1. Chạy job các ngày 2026-12-24, 12-28, 12-30\n2. Chạy job ngày 2027-01-02\n3. Mở AUD-07 và AUD-11",
+      "expected": "Nhắc trước hạn 7/3/1 ngày (3 sự kiện aud.recommendation.due_soon.v1); ngày 2027-01-02: is_overdue=true, nhãn \"Quá hạn 2 ngày (hạn 31/12/2026)\", leo thang tới A-lead-BQL1; job chạy lại cùng ngày không phát trùng (dedupe key rec+ngày).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "AUD-07",
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UAT-AC439",
+      "title": "Một lệnh 200 (recovered 380",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-AUD-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-08",
+      "oracle_source": "Claim → 05_modules/AUD.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC439 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-08",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thu hồi tài chính và đối chiếu PAY\": Một lệnh 200 (recovered 380.000.000), lệnh còn lại 409 RECOVERY_EXCEEDS_RECOMMENDATION (380 + 80 > 400); đảo tạo dòng âm -80.000.000, recovered 300.000.000; ghi",
+      "coverage_ids": [
+        "COV-FR-AUD-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: R2 FINANCIAL_ADJUSTMENT amount 400.000.000, recovered 300.000.000; hai kế toán ghi đồng thời 2 khoản giảm trừ PD-1 = 80.000.000 và PD-2 = 80.000.000 (khóa khác nhau).\n1. Đồng thời POST /audit-recommendations/{R2}/recoveries cho PD-1 và PD-2\n2. POST /audit-recovery-links/{PD-1 link}/reversal {reason:\"Nhập nhầm chứng từ\"}\n3. Ghi lại PD-2",
+      "expected": "Một lệnh 200 (recovered 380.000.000), lệnh còn lại 409 RECOVERY_EXCEEDS_RECOMMENDATION (380 + 80 > 400); đảo tạo dòng âm -80.000.000, recovered 300.000.000; ghi lại PD-2 thành công 380.000.000; không có dòng nào bị xóa; CHECK recovery_chk không bao giờ vi phạm.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "concurrency",
+      "screen_id": "AUD-08",
+      "tags": [
+        "concurrency"
+      ],
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UAT-AC440",
+      "title": "Báo cáo ISSUE_REQUESTED với totals_json {closed:2, in_progress:1, amount:1200000000, recovered:1100000000} và payload_sh",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "dau-moi",
+      "journey_ref": "J-FR-AUD-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-10",
+      "oracle_source": "Claim → 05_modules/AUD.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC440 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Báo cáo kết quả thực hiện kiến nghị\": Báo cáo ISSUE_REQUESTED với totals_json {closed:2, in_progress:1, amount:1200000000, recovered:1100000000} và payload_sha256; sau doc.issued: ISSUED, report_doc",
+      "coverage_ids": [
+        "COV-FR-AUD-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dau-moi",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Cuộc TT-2026-01 FOLLOW_UP; mẫu DOC AUD-BC-KET-QUA-THUC-HIEN-KIEN-NGHI PUBLISHED (chờ xác nhận, watermark); R1 CLOSED, R2 IN_PROGRESS, R3 CLOSED.\n1. POST /audit-engagements/{id}/follow-up-reports {conclusion_id:KL-01, as_of_date:\"2027-01-04\"}\n2. DOC phát doc.issued.v1 với source_ref \"AUD:audit_follow_up_report:<id>:r1\"\n3. POST /audit-engagements/{id}/closure",
+      "expected": "Báo cáo ISSUE_REQUESTED với totals_json {closed:2, in_progress:1, amount:1200000000, recovered:1100000000} và payload_sha256; sau doc.issued: ISSUED, report_document_id set; đóng cuộc: 409 OPEN_RECOMMENDATIONS_REMAIN (R2 còn mở).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "AUD-10",
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UAT-AC441",
+      "title": "DISPUTED rồi trở lại IN_PROGRESS khi bị bác",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "dau-moi",
+      "journey_ref": "J-FR-AUD-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-06",
+      "oracle_source": "Claim → 05_modules/AUD.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC441 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-06, FR-AUD-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kiến nghị và phân công\": DISPUTED rồi trở lại IN_PROGRESS khi bị bác; khi được chấp nhận: dispute_outcome=ACCEPTED_BY_AUTHORITY và đóng được dù recovered 300.000.000 < 400.000.000 (CHEC",
+      "coverage_ids": [
+        "COV-FR-AUD-06",
+        "COV-FR-AUD-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dau-moi",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: R2 IN_PROGRESS; đơn vị gửi giải trình GT-01 (DOC) đề nghị miễn giảm trừ 100.000.000.\n1. POST /audit-recommendations/{R2}/dispute {dispute_reason:\"Khối lượng đã được nghiệm thu bổ sung theo phụ lục 03\", dispute_document_id:GT-01}\n2. POST /dispute-decision {outcome:REJECTED_BY_AUTHORITY, authority_document_id:CV-TT-05}\n3. Lặp lại với outcome ACCEPTED_BY_AUTHORITY rồi verification CLOSE khi recovered 300.000.000 < 400.000.000",
+      "expected": "DISPUTED rồi trở lại IN_PROGRESS khi bị bác; khi được chấp nhận: dispute_outcome=ACCEPTED_BY_AUTHORITY và đóng được dù recovered 300.000.000 < 400.000.000 (CHECK fin_close_chk cho phép); không có văn bản cơ quan → 422 DECISION_DOCUMENT_NOT_EFFECTIVE.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "AUD-06",
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UAT-AC442",
+      "title": "B-coord: 404",
+      "type": "RED",
+      "platform": "web",
+      "persona": "dau-moi-thanh-tra-kiem-toan",
+      "journey_ref": "J-FR-AUD-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-02",
+      "oracle_source": "Claim → 05_modules/AUD.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC442 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-02, FR-AUD-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh sách cuộc thanh tra, kiểm toán\": B-coord: 404; A-viewer: 404 với chi tiết cuộc; danh sách kiến nghị trả 0 dòng của TT-2026-01; truy vấn không đặt app.tenant_id trả 0 dòng.",
+      "coverage_ids": [
+        "COV-FR-AUD-02",
+        "COV-FR-AUD-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dau-moi-thanh-tra-kiem-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Cuộc TT-2026-01 thuộc TNT-A (CONFIDENTIAL); B-coord thuộc TNT-B; A-viewer thuộc TNT-A nhưng scope U-BQL9 không giao phạm vi cuộc.\n1. B-coord GET /audit-engagements/{id} và /recovery-summary\n2. A-viewer GET /audit-engagements/{id}\n3. A-viewer GET /audit-recommendations?overdue=true",
+      "expected": "B-coord: 404; A-viewer: 404 với chi tiết cuộc; danh sách kiến nghị trả 0 dòng của TT-2026-01; truy vấn không đặt app.tenant_id trả 0 dòng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security (cách ly tenant)",
+      "screen_id": "AUD-02",
+      "tags": [
+        "security"
+      ],
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UAT-AC443",
+      "title": "409 ENGAGEMENT_STATE_INVALID cho hai lệnh đầu",
+      "type": "DECISION",
+      "platform": "api",
+      "persona": "nguoi-dung-aud",
+      "journey_ref": "J-FR-AUD-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-03",
+      "oracle_source": "Claim → 05_modules/AUD.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC443 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-03, FR-AUD-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hồ sơ cuộc thanh tra, kiểm toán\": 409 ENGAGEMENT_STATE_INVALID cho hai lệnh đầu; hủy: CANCELLED, legal hold (nếu có) nhả; start sau hủy: 409 ENGAGEMENT_STATE_INVALID.",
+      "coverage_ids": [
+        "COV-FR-AUD-03",
+        "COV-FR-AUD-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-aud",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Cuộc PLANNED; kết luận chưa có.\n1. POST /audit-engagements/{id}/conclusions khi PLANNED\n2. POST /closure khi PLANNED\n3. Hủy cuộc PLANNED với lý do rồi start",
+      "expected": "409 ENGAGEMENT_STATE_INVALID cho hai lệnh đầu; hủy: CANCELLED, legal hold (nếu có) nhả; start sau hủy: 409 ENGAGEMENT_STATE_INVALID.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "domain (negative)",
+      "module": "AUD"
+    },
+    {
+      "tc_id": "TC-UAT-AC444",
+      "title": "Một dòng đảo -300",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-aud",
+      "journey_ref": "J-FR-AUD-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-AUD-08",
+      "oracle_source": "Claim → 05_modules/AUD.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC444 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-AUD-08",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thu hồi tài chính và đối chiếu PAY\": Một dòng đảo -300.000.000 (reversal_of_id = link PR-2), recovered_vnd=500.000.000; sự kiện lặp bị bỏ qua; R1 tự mở lại IN_PROGRESS với audit \"reopened_by_revers",
+      "coverage_ids": [
+        "COV-FR-AUD-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-aud",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: R1 recovered 800.000.000 = amount; PAY phát pay.recovery.reversed.v1 cho PR-2 (300.000.000) do chứng từ bị hủy ở Kho bạc.\n1. Consumer nhận pay.recovery.reversed.v1 {recovery_id:PR-2}\n2. Nhận lại sự kiện\n3. Xem R1 (đã CLOSED trước đó)",
+      "expected": "Một dòng đảo -300.000.000 (reversal_of_id = link PR-2), recovered_vnd=500.000.000; sự kiện lặp bị bỏ qua; R1 tự mở lại IN_PROGRESS với audit \"reopened_by_reversal\" và cảnh báo cho đầu mối.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration (idempotency)",
+      "tags": [
+        "concurrency"
+      ],
+      "module": "AUD"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 11,
+    "M2": 0,
+    "M3": 0,
+    "M4": 80,
+    "max": 80,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 11,
+    "covered": 11,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

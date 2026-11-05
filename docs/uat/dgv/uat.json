@@ -1,0 +1,1578 @@
+{
+  "feature": "dgv",
+  "generated_at": "2026-11-05T07:53:18.050Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/dgv/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UAT-AC50",
+      "title": "compatibility=BREAKING",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-13",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-13",
+      "oracle_source": "Claim → FRD AC50; kỳ vọng nguyên văn của ca thiết kế UAT-AC50 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-13, FR-DGV-19",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Data contract và schema\": compatibility=BREAKING; publish lần 1: 409 CONSUMER_APPROVAL_PENDING (liệt kê MNE-07); lần 2: 422 MIGRATION_WINDOW_REQUIRED; lần 3: data_contract_version r4 bất",
+      "coverage_ids": [
+        "COV-FR-DGV-13",
+        "COV-FR-DGV-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dataset DS-DISB hợp đồng r3 PUBLISHED có 3 consumer: BI_DATASET DS-DISB-BI, MODULE HOME, EXPORT MNE-07; r4 đổi kiểu cột amount từ numeric(24,0) sang numeric(24,2) và đổi tên cột unit_code → org_unit_code.\n1. POST /dgv/dataset-contracts r4 → compatibility tính ra\n2. BI và HOME APPROVED, MNE-07 còn PENDING; POST publish\n3. MNE-07 APPROVED; publish không có migration_window_until\n4. Publish với migration_window_until 2026-12-31",
+      "expected": "compatibility=BREAKING; publish lần 1: 409 CONSUMER_APPROVAL_PENDING (liệt kê MNE-07); lần 2: 422 MIGRATION_WINDOW_REQUIRED; lần 3: data_contract_version r4 bất biến với odcs_sha256, r3 vẫn phục vụ tới 2026-12-31 (dual-run); thêm cột tùy chọn ở r5: BACKWARD_COMPATIBLE, không cần chấp thuận.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DGV-13",
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UAT-AC51",
+      "title": "quality_rule_result R-FK: evaluated 1",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-14",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-14",
+      "oracle_source": "Claim → FRD AC51; kỳ vọng nguyên văn của ca thiết kế UAT-AC51 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-14, FR-BI-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Pipeline và mapping\": quality_rule_result R-FK: evaluated 1.000, failed 12, quarantined 12, result FAIL; bi_dataset_version.excluded_quarantine_rows=12; tổng GIAI_NGAN certified khôn",
+      "coverage_ids": [
+        "COV-FR-DGV-14",
+        "COV-FR-BI-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Lô nhập báo cáo tuần 1.000 dòng; quy tắc R-FK (INTEGRITY, QUARANTINE): 12 dòng có project_id không tồn tại; chỉ tiêu GIAI_NGAN CERTIFIED.\n1. Chạy kiểm chất lượng trên snapshot\n2. Dựng bi_dataset_version kỳ\n3. Mở dashboard và DGV-14",
+      "expected": "quality_rule_result R-FK: evaluated 1.000, failed 12, quarantined 12, result FAIL; bi_dataset_version.excluded_quarantine_rows=12; tổng GIAI_NGAN certified không gồm 12 dòng; dashboard hiển thị \"12 dòng bị loại (quarantine)\" với link tới DGV-14; 12 quality_exception OPEN có owner.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DGV-14",
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UAT-AC52",
+      "title": "A-ana: chuỗi DASHBOARD_VERSION D-1 → METRIC_VERSION M-RATE r2 → DATASET_VERSION SV-10b → TABLE period_snapshot_line → RE",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-05",
+      "oracle_source": "Claim → FRD AC52; kỳ vọng nguyên văn của ca thiết kế UAT-AC52 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-05, FR-BI-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Lineage toàn hệ thống\": A-ana: chuỗi DASHBOARD_VERSION D-1 → METRIC_VERSION M-RATE r2 → DATASET_VERSION SV-10b → TABLE period_snapshot_line → RECORD RR-55 → IMPORT_BATCH IB-7, mỗi cạnh",
+      "coverage_ids": [
+        "COV-FR-DGV-05",
+        "COV-FR-BI-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Ô \"Tỷ lệ giải ngân U-STC\" trên dashboard D-1 (metric M-RATE r2, snapshot SV-10b) bắt nguồn từ report_revision RR-55 (DIS) qua lô nhập IB-7 và transform \"snapshot_builder@1.4\".\n1. GET /dgv/lineage?node_kind=METRIC_VERSION&ref_id=M-RATE-r2&direction=upstream&depth=6 bởi A-ana (có quyền U-STC)\n2. Lặp lại bởi A-staff (không quyền U-STC)",
+      "expected": "A-ana: chuỗi DASHBOARD_VERSION D-1 → METRIC_VERSION M-RATE r2 → DATASET_VERSION SV-10b → TABLE period_snapshot_line → RECORD RR-55 → IMPORT_BATCH IB-7, mỗi cạnh có run_id và transform_version; A-staff: các nút RECORD/IMPORT_BATCH của U-STC hiển thị \"nút bị hạn chế\" không tên, không id.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DGV-05",
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UAT-AC53",
+      "title": "Lần 1: coverage = 14/22 = 63,64% < 70% → overall_state=NOT_COMPUTED, overall_level=null, not_assessed_count=8, trụ cột k",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-16",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-16",
+      "oracle_source": "Claim → FRD AC53; kỳ vọng nguyên văn của ca thiết kế UAT-AC53 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-16, FR-DGV-21",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đánh giá trưởng thành dữ liệu\": Lần 1: coverage = 14/22 = 63,64% < 70% → overall_state=NOT_COMPUTED, overall_level=null, not_assessed_count=8, trụ cột không có tiêu chí nào ASSESSED hiển thị N",
+      "coverage_ids": [
+        "COV-FR-DGV-16",
+        "COV-FR-DGV-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Rubric RB-1 r1 (8 trụ cột × 3 tiêu chí, trọng số đều, min_coverage 70%); kỳ 2026-H2: 14 tiêu chí ASSESSED (mức 2–4, đã review), 8 NOT_ASSESSED (thiếu bằng chứng), 2 NOT_APPLICABLE có lý do.\n1. GET /dgv/maturity-assessments/{id}/score\n2. Ghi bằng chứng cho 3 tiêu chí nữa (ASSESSED, review chấp nhận)\n3. GET score lại\n4. Thử ghi level=1 với assessment_state NOT_ASSESSED",
+      "expected": "Lần 1: coverage = 14/22 = 63,64% < 70% → overall_state=NOT_COMPUTED, overall_level=null, not_assessed_count=8, trụ cột không có tiêu chí nào ASSESSED hiển thị NOT_ASSESSED (không 0, không 1); lần 2: coverage 17/22 = 77,27% → COMPUTED, overall_level = trung bình có trọng số chỉ trên 17 tiêu chí ASSESSED; ghi level với NOT_ASSESSED: 422 (CHECK state_level_chk).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DGV-16",
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UAT-AC54",
+      "title": "QE-1 → OPEN với reopened_from_id lưu lịch sử waiver cũ",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-dgv",
+      "journey_ref": "J-FR-DGV-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-08",
+      "oracle_source": "Claim → FRD AC54; kỳ vọng nguyên văn của ca thiết kế UAT-AC54 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-08, FR-DGV-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sự cố dữ liệu\": QE-1 → OPEN với reopened_from_id lưu lịch sử waiver cũ; QI-3 REOPENED (reopened_count=1), quality_incident_event REOPENED, thông báo assignee; audit ghi actor=s",
+      "coverage_ids": [
+        "COV-FR-DGV-08",
+        "COV-FR-DGV-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-dgv",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: quality_exception QE-1 WAIVED với waiver_expires_at 2026-11-30 23:59 +07:00, liên kết incident QI-3 CLOSED; policy mở lại khi hết hạn.\n1. Chạy job dgv.waiver-expiry lúc 2026-12-01 00:05\n2. Đọc QE-1, QI-3 và audit\n3. Chạy job lần nữa",
+      "expected": "QE-1 → OPEN với reopened_from_id lưu lịch sử waiver cũ; QI-3 REOPENED (reopened_count=1), quality_incident_event REOPENED, thông báo assignee; audit ghi actor=system, lý do \"waiver_expired\"; chạy lại không mở lần hai; waive không sửa số liệu gốc.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UAT-AC55",
+      "title": "Catalog: 0 kết quả và total không đếm dataset ẩn",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-04",
+      "oracle_source": "Claim → FRD AC55; kỳ vọng nguyên văn của ca thiết kế UAT-AC55 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-04, FR-DGV-05, FR-DGV-15",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Data catalogue\": Catalog: 0 kết quả và total không đếm dataset ẩn; lineage: nút \"bị hạn chế\"; quality_exception: record_reference/evidence bị mask (CCCD hiển thị ***2345); xuất:",
+      "coverage_ids": [
+        "COV-FR-DGV-04",
+        "COV-FR-DGV-05",
+        "COV-FR-DGV-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dataset DS-LND-HOUSEHOLD (PERSONAL) chỉ cấp cho vai trò LND; A-ana không có quyền; quality_exception của dataset chứa record_reference số CCCD.\n1. A-ana GET /dgv/catalog?q=household\n2. A-ana GET /dgv/lineage chứa nút dataset đó\n3. A-ana GET /resources/quality_exception?…\n4. A-ana xuất danh sách ngoại lệ từ DGV-08",
+      "expected": "Catalog: 0 kết quả và total không đếm dataset ẩn; lineage: nút \"bị hạn chế\"; quality_exception: record_reference/evidence bị mask (CCCD hiển thị ***2345); xuất: không có dòng của dataset PERSONAL.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DGV-04",
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-01",
+      "title": "Điều hành chất lượng dữ liệu (DGV-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-01",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-01",
+      "oracle_source": "Claim → FR-DGV-01; kỳ vọng nguyên văn của ca thiết kế UI-DGV-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-01",
+      "catches_bug": "Màn hình Điều hành chất lượng dữ liệu (DGV-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DGV-01\n1. Mở route bằng menu và deep link; kiểm tên trường: Domain, Chất lượng, Độ mới, Sự cố\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-02",
+      "title": "Business glossary (DGV-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-02",
+      "oracle_source": "Claim → FR-DGV-02; kỳ vọng nguyên văn của ca thiết kế UI-DGV-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-02",
+      "catches_bug": "Màn hình Business glossary (DGV-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DGV-02\n1. Mở route bằng menu và deep link; kiểm tên trường: Thuật ngữ, Định nghĩa, Owner, Phiên bản\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-03",
+      "title": "Chủ sở hữu và steward (DGV-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-03",
+      "oracle_source": "Claim → FR-DGV-03; kỳ vọng nguyên văn của ca thiết kế UI-DGV-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-03",
+      "catches_bug": "Màn hình Chủ sở hữu và steward (DGV-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DGV-03\n1. Mở route bằng menu và deep link; kiểm tên trường: Domain, Owner, Steward, SLA\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-04",
+      "title": "Data catalogue (DGV-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-04",
+      "oracle_source": "Claim → FR-DGV-04; kỳ vọng nguyên văn của ca thiết kế UI-DGV-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-04",
+      "catches_bug": "Màn hình Data catalogue (DGV-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DGV-04\n1. Mở route bằng menu và deep link; kiểm tên trường: Dataset, Grain, Nguồn, Classification, Độ mới\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-05",
+      "title": "Lineage toàn hệ thống (DGV-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-05",
+      "oracle_source": "Claim → FR-DGV-05; kỳ vọng nguyên văn của ca thiết kế UI-DGV-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-05",
+      "catches_bug": "Màn hình Lineage toàn hệ thống (DGV-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DGV-05\n1. Mở route bằng menu và deep link; kiểm tên trường: Chỉ tiêu, Transform, Dataset, Bản ghi nguồn\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-06",
+      "title": "Quy tắc chất lượng (DGV-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-06",
+      "oracle_source": "Claim → FR-DGV-06; kỳ vọng nguyên văn của ca thiết kế UI-DGV-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-06",
+      "catches_bug": "Màn hình Quy tắc chất lượng (DGV-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DGV-06\n1. Mở route bằng menu và deep link; kiểm tên trường: Dataset, Trường, Loại kiểm tra, Ngưỡng, Hành động\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-07",
+      "title": "Profiling và điểm chất lượng (DGV-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-07",
+      "oracle_source": "Claim → FR-DGV-07; kỳ vọng nguyên văn của ca thiết kế UI-DGV-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-07",
+      "catches_bug": "Màn hình Profiling và điểm chất lượng (DGV-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DGV-07\n1. Mở route bằng menu và deep link; kiểm tên trường: Completeness, Uniqueness, Validity, Consistency, Timeliness\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-08",
+      "title": "Sự cố dữ liệu (DGV-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-08",
+      "oracle_source": "Claim → FR-DGV-08; kỳ vọng nguyên văn của ca thiết kế UI-DGV-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-08",
+      "catches_bug": "Màn hình Sự cố dữ liệu (DGV-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DGV-08\n1. Mở route bằng menu và deep link; kiểm tên trường: Domain, Mức độ, Owner, Hạn\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-09",
+      "title": "Đối soát và số kiểm soát (DGV-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-09",
+      "oracle_source": "Claim → FR-DGV-09; kỳ vọng nguyên văn của ca thiết kế UI-DGV-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-09",
+      "catches_bug": "Màn hình Đối soát và số kiểm soát (DGV-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DGV-09\n1. Mở route bằng menu và deep link; kiểm tên trường: Nguồn A, Nguồn B, Số dòng, Tổng tiền, Sai lệch\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-10",
+      "title": "Quản trị dữ liệu trùng (DGV-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-10",
+      "oracle_source": "Claim → FR-DGV-10; kỳ vọng nguyên văn của ca thiết kế UI-DGV-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-10",
+      "catches_bug": "Màn hình Quản trị dữ liệu trùng (DGV-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DGV-10\n1. Mở route bằng menu và deep link; kiểm tên trường: Ứng viên, Độ tương đồng, Golden record, Tác động\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-11",
+      "title": "Lưu trữ và legal hold (DGV-11): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-11",
+      "oracle_source": "Claim → FR-DGV-11; kỳ vọng nguyên văn của ca thiết kế UI-DGV-11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-11",
+      "catches_bug": "Màn hình Lưu trữ và legal hold (DGV-11) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DGV-11\n1. Mở route bằng menu và deep link; kiểm tên trường: Loại dữ liệu, Retention, Legal hold, Xóa\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-11",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-12",
+      "title": "Duyệt sửa dữ liệu trọng yếu (DGV-12): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-12",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-12",
+      "oracle_source": "Claim → FR-DGV-12; kỳ vọng nguyên văn của ca thiết kế UI-DGV-12 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-12",
+      "catches_bug": "Màn hình Duyệt sửa dữ liệu trọng yếu (DGV-12) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DGV-12\n1. Mở route bằng menu và deep link; kiểm tên trường: Trước, Sau, Căn cứ, Người duyệt\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-12",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-13",
+      "title": "Data contract và schema (DGV-13): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-13",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-13",
+      "oracle_source": "Claim → FR-DGV-13; kỳ vọng nguyên văn của ca thiết kế UI-DGV-13 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-13",
+      "catches_bug": "Màn hình Data contract và schema (DGV-13) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DGV-13\n1. Mở route bằng menu và deep link; kiểm tên trường: Producer, Consumer, Schema, Version, Compatibility\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-13",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-14",
+      "title": "Pipeline và mapping (DGV-14): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-14",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-14",
+      "oracle_source": "Claim → FR-DGV-14; kỳ vọng nguyên văn của ca thiết kế UI-DGV-14 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-14",
+      "catches_bug": "Màn hình Pipeline và mapping (DGV-14) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DGV-14\n1. Mở route bằng menu và deep link; kiểm tên trường: Nguồn, Mapping, Validation, Quarantine, Publish\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-14",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-15",
+      "title": "Phân loại và quyền dữ liệu (DGV-15): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-15",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-15",
+      "oracle_source": "Claim → FR-DGV-15; kỳ vọng nguyên văn của ca thiết kế UI-DGV-15 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-15",
+      "catches_bug": "Màn hình Phân loại và quyền dữ liệu (DGV-15) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DGV-15\n1. Mở route bằng menu và deep link; kiểm tên trường: Classification, PII, Row policy, Column policy\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-15",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-16",
+      "title": "Đánh giá trưởng thành dữ liệu (DGV-16): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-16",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-16",
+      "oracle_source": "Claim → FR-DGV-16; kỳ vọng nguyên văn của ca thiết kế UI-DGV-16 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-16",
+      "catches_bug": "Màn hình Đánh giá trưởng thành dữ liệu (DGV-16) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DGV-16\n1. Mở route bằng menu và deep link; kiểm tên trường: Trụ cột, Mức hiện tại, Bằng chứng, Mục tiêu\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-16",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-17",
+      "title": "Lộ trình trưởng thành (DGV-17): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-17",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-17",
+      "oracle_source": "Claim → FR-DGV-17; kỳ vọng nguyên văn của ca thiết kế UI-DGV-17 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-17",
+      "catches_bug": "Màn hình Lộ trình trưởng thành (DGV-17) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DGV-17\n1. Mở route bằng menu và deep link; kiểm tên trường: Mốc, Owner, Tiêu chí thoát, Bằng chứng\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-17",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-18",
+      "title": "Data product và chứng nhận (DGV-18): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-18",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-18",
+      "oracle_source": "Claim → FR-DGV-18; kỳ vọng nguyên văn của ca thiết kế UI-DGV-18 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-18",
+      "catches_bug": "Màn hình Data product và chứng nhận (DGV-18) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route DGV-18\n1. Mở route bằng menu và deep link; kiểm tên trường: Báo cáo vốn, Actual Kho bạc, Hồ sơ AI, Usage SaaS\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-18",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-19",
+      "title": "Chấp thuận thay đổi hợp đồng dữ liệu (DGV-19): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "owner-consumer",
+      "journey_ref": "J-FR-DGV-19",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-19",
+      "oracle_source": "Claim → FR-DGV-19; kỳ vọng nguyên văn của ca thiết kế UI-DGV-19 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-19",
+      "catches_bug": "Màn hình Chấp thuận thay đổi hợp đồng dữ liệu (DGV-19) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "owner-consumer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Chấp thuận thay đổi hợp đồng dữ liệu\"; user có quyền và user chỉ đọc; route DGV-19\n1. Mở DGV-19 từ menu và deep link; kiểm nhãn trường: Hợp đồng, Mức tương thích, Consumer, Quyết định, Cửa sổ dual-run, Diff schema\n2. Thực hiện thao tác chính theo quy tắc: BREAKING chỉ phát hành khi mọi consumer APPROVED và có cửa sổ dual-run\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DGV-19",
+      "expected": "Chấp thuận thay đổi hợp đồng dữ liệu: hiển thị đúng 6 trường, áp quy tắc \"BREAKING chỉ phát hành khi mọi consumer APPROVED và có cửa sổ dual-run\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-19",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-20",
+      "title": "Mapping trường nguồn (D04) (DGV-20): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-DGV-20",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-20",
+      "oracle_source": "Claim → FR-DGV-20; kỳ vọng nguyên văn của ca thiết kế UI-DGV-20 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-20",
+      "catches_bug": "Màn hình Mapping trường nguồn (D04) (DGV-20) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-20"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Mapping trường nguồn (D04)\"; user có quyền và user chỉ đọc; route DGV-20\n1. Mở DGV-20 từ menu và deep link; kiểm nhãn trường: Dataset, Hệ thống nguồn, Trường nguồn, Trường đích, Biến đổi, Đơn vị, Trạng thái\n2. Thực hiện thao tác chính theo quy tắc: Data owner xác nhận (khác người đề xuất); chỉ mapping CONFIRMED được pipeline dùng\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DGV-20",
+      "expected": "Mapping trường nguồn (D04): hiển thị đúng 7 trường, áp quy tắc \"Data owner xác nhận (khác người đề xuất); chỉ mapping CONFIRMED được pipeline dùng\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-20",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UI-DGV-21",
+      "title": "Rubric trưởng thành dữ liệu (DGV-21): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-21",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-21",
+      "oracle_source": "Claim → FR-DGV-21; kỳ vọng nguyên văn của ca thiết kế UI-DGV-21 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-21",
+      "catches_bug": "Màn hình Rubric trưởng thành dữ liệu (DGV-21) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DGV-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Rubric trưởng thành dữ liệu\"; user có quyền và user chỉ đọc; route DGV-21\n1. Mở DGV-21 từ menu và deep link; kiểm nhãn trường: Trụ cột, Tiêu chí, Mô tả mức 1–5, Trọng số, Ánh xạ DCAM/DMM, Coverage tối thiểu, Hạn bằng chứng\n2. Thực hiện thao tác chính theo quy tắc: Rubric riêng tham chiếu DCAM/DMM, không tuyên bố chứng nhận; người công bố khác người soạn\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DGV-21",
+      "expected": "Rubric trưởng thành dữ liệu: hiển thị đúng 7 trường, áp quy tắc \"Rubric riêng tham chiếu DCAM/DMM, không tuyên bố chứng nhận; người công bố khác người soạn\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DGV-21",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UAT-AC483",
+      "title": "422 OWNER_STEWARD_SAME",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-03",
+      "oracle_source": "Claim → 05_modules/DGV.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC483 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-03, FR-DGV-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chủ sở hữu và steward\": 422 OWNER_STEWARD_SAME; 200 DRAFT; 409 DATASET_CODE_DUPLICATE.",
+      "coverage_ids": [
+        "COV-FR-DGV-03",
+        "COV-FR-DGV-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Đăng ký dataset trọng yếu DS-TREASURY với owner = steward = A-data.\n1. POST /dgv/datasets {is_critical:true, owner_user_id:A-data, steward_user_id:A-data}\n2. Đăng ký với steward A-steward\n3. Đăng ký trùng mã",
+      "expected": "422 OWNER_STEWARD_SAME; 200 DRAFT; 409 DATASET_CODE_DUPLICATE.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "DGV-03",
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UAT-AC484",
+      "title": "403 SELF_APPROVAL_DENIED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-06",
+      "oracle_source": "Claim → 05_modules/DGV.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC484 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Quy tắc chất lượng\": 403 SELF_APPROVAL_DENIED; APPROVED; 422 EXPRESSION_NOT_ALLOWED.",
+      "coverage_ids": [
+        "COV-FR-DGV-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Quy tắc R-COMPLETE (COMPLETENESS, ngưỡng ≥ 99,5%, HARD_BLOCK) do A-steward soạn.\n1. A-steward tự duyệt\n2. A-owner duyệt\n3. Tạo quy tắc có node raw_sql",
+      "expected": "403 SELF_APPROVAL_DENIED; APPROVED; 422 EXPRESSION_NOT_ALLOWED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "DGV-06",
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UAT-AC485",
+      "title": "score tính theo trọng số ≈ 95 nhưng hard_fail=true và overall_result=FAILED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-07",
+      "oracle_source": "Claim → 05_modules/DGV.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC485 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-07, FR-DGV-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Profiling và điểm chất lượng\": score tính theo trọng số ≈ 95 nhưng hard_fail=true và overall_result=FAILED; huy hiệu FAILED; incident CRITICAL mở với SLA 4 giờ; bi_dataset_version kỳ đó không",
+      "coverage_ids": [
+        "COV-FR-DGV-07",
+        "COV-FR-DGV-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Snapshot có 10 quy tắc: 9 PASS điểm cao; 1 quy tắc INTEGRITY phát hiện 1 dòng tham chiếu project của tenant khác (cross-tenant ref).\n1. POST /dgv/quality-runs\n2. GET /dgv/datasets/{id}/quality-scorecard",
+      "expected": "score tính theo trọng số ≈ 95 nhưng hard_fail=true và overall_result=FAILED; huy hiệu FAILED; incident CRITICAL mở với SLA 4 giờ; bi_dataset_version kỳ đó không được dùng cho chỉ tiêu certified.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "DGV-07",
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UAT-AC486",
+      "title": "DS-AI-USAGE: huy hiệu NOT_ASSESSED \"Chưa đánh giá\", điểm null (không 0, không đạt)",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-01",
+      "oracle_source": "Claim → 05_modules/DGV.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC486 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Điều hành chất lượng dữ liệu\": DS-AI-USAGE: huy hiệu NOT_ASSESSED \"Chưa đánh giá\", điểm null (không 0, không đạt); DS-DISB: STALE \"Dữ liệu cũ 2 ngày (SLO 1 ngày)\"; tổng điều hành không tính D",
+      "coverage_ids": [
+        "COV-FR-DGV-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dataset DS-AI-USAGE ACTIVE chưa có quality_run nào; DS-DISB có run 2 ngày trước với freshness_slo 1 ngày.\n1. Mở DGV-01\n2. GET scorecard hai dataset",
+      "expected": "DS-AI-USAGE: huy hiệu NOT_ASSESSED \"Chưa đánh giá\", điểm null (không 0, không đạt); DS-DISB: STALE \"Dữ liệu cũ 2 ngày (SLO 1 ngày)\"; tổng điều hành không tính DS-AI-USAGE vào trung bình.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DGV-01",
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UAT-AC487",
+      "title": "Thiếu nguyên nhân: 422 ROOT_CAUSE_REQUIRED",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-08",
+      "oracle_source": "Claim → 05_modules/DGV.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC487 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-08",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sự cố dữ liệu\": Thiếu nguyên nhân: 422 ROOT_CAUSE_REQUIRED; tự verify: 403 SELF_APPROVAL_DENIED; run lại FAIL: 422 RERUN_NOT_PASSED; sau PASS: CLOSED, verified_by=A-steward; mỗ",
+      "coverage_ids": [
+        "COV-FR-DGV-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Run QR-9 FAIL quy tắc R-UNIQ (UNIQUENESS) trên DS-PAYMENT → incident QI-9 HIGH, SLA 24 giờ; A-steward triage; A-eng xử lý.\n1. assignQualityIncident {assignee:A-eng, due_at:+24h}\n2. A-eng transition ACKNOWLEDGED → IN_PROGRESS → RESOLVED_PENDING_VERIFICATION thiếu root_cause rồi có\n3. A-eng tự verify; A-steward verify CLOSE khi run lại vẫn FAIL; run lại PASS rồi CLOSE",
+      "expected": "Thiếu nguyên nhân: 422 ROOT_CAUSE_REQUIRED; tự verify: 403 SELF_APPROVAL_DENIED; run lại FAIL: 422 RERUN_NOT_PASSED; sau PASS: CLOSED, verified_by=A-steward; mỗi bước có quality_incident_event; quá hạn trước khi resolve phát dgv.incident.sla_breached.v1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "E2E",
+      "screen_id": "DGV-08",
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UAT-AC488",
+      "title": "result=DIFFERENT, chênh 3 dòng và 250",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-09",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-09",
+      "oracle_source": "Claim → 05_modules/DGV.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC488 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đối soát và số kiểm soát\": result=DIFFERENT, chênh 3 dòng và 250.000.000; differences phân loại (ví dụ 2 missing, 1 timing) — không tự lấy bên lớn; incident mở cho owner A-acct; hai bên g",
+      "coverage_ids": [
+        "COV-FR-DGV-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Kỳ 2026-10: PAY treasury_transaction confirmed 1.250 dòng, tổng 98.450.000.000; DIS report accepted 1.247 dòng, tổng 98.200.000.000; dung sai 0.\n1. POST /dgv/reconciliations {recon_code:\"PAY_vs_DIS\", as_of_period:\"2026-10\", basis:\"VND, ngày Kho bạc thanh toán\", tolerance_vnd:\"0\"}\n2. Đọc differences_json",
+      "expected": "result=DIFFERENT, chênh 3 dòng và 250.000.000; differences phân loại (ví dụ 2 missing, 1 timing) — không tự lấy bên lớn; incident mở cho owner A-acct; hai bên giữ nguyên số (không cộng trộn nguồn).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "DGV-09",
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UAT-AC489",
+      "title": "Một quality_run cho snapshot",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-dgv",
+      "journey_ref": "J-FR-DGV-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-07",
+      "oracle_source": "Claim → 05_modules/DGV.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC489 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-07, FR-DGV-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Profiling và điểm chất lượng\": Một quality_run cho snapshot; cạnh lineage không trùng (unique from,to,transform_version); 409 RUN_ALREADY_RUNNING.",
+      "coverage_ids": [
+        "COV-FR-DGV-07",
+        "COV-FR-DGV-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-dgv",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: snapshot.frozen.v1 đến hai lần; pipeline gửi lại cùng lô lineage.\n1. Consumer nhận hai lần\n2. POST /dgv/lineage-batches hai lần cùng nội dung\n3. POST /dgv/quality-runs khi run đang RUNNING",
+      "expected": "Một quality_run cho snapshot; cạnh lineage không trùng (unique from,to,transform_version); 409 RUN_ALREADY_RUNNING.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration (idempotency)",
+      "tags": [
+        "concurrency"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UAT-AC490",
+      "title": "422 GLOSSARY_TERM_NOT_PUBLISHED",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-02",
+      "oracle_source": "Claim → 05_modules/DGV.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC490 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Business glossary\": 422 GLOSSARY_TERM_NOT_PUBLISHED; bind r1 thành công; sau publish r2: DGV-02 cảnh báo binding trỏ thuật ngữ DEPRECATED và đề xuất bind r2; DGV không có bảng thuậ",
+      "coverage_ids": [
+        "COV-FR-DGV-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Thuật ngữ MDM \"GIAI_NGAN_LUY_KE\" r2 IN_REVIEW, r1 PUBLISHED.\n1. bindGlossaryTermToDataset với r2\n2. Bind với r1\n3. MDM publish r2 (r1 DEPRECATED)",
+      "expected": "422 GLOSSARY_TERM_NOT_PUBLISHED; bind r1 thành công; sau publish r2: DGV-02 cảnh báo binding trỏ thuật ngữ DEPRECATED và đề xuất bind r2; DGV không có bảng thuật ngữ riêng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "DGV-02",
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UAT-AC491",
+      "title": "403 SELF_APPROVAL_DENIED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-20",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-20",
+      "oracle_source": "Claim → 05_modules/DGV.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC491 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-20, FR-DGV-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Mapping trường nguồn (D04)\": 403 SELF_APPROVAL_DENIED; CONFIRMED; lô trước confirm bị quarantine với lý do MAPPING_NOT_CONFIRMED, lô sau dùng mapping với quy đổi ×1.000.000 về VND nguyên.",
+      "coverage_ids": [
+        "COV-FR-DGV-20",
+        "COV-FR-DGV-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Mapping \"BC_TUAN.so_tien\" → \"funding_snapshot_line.amount_vnd\" đơn vị \"triệu đồng\" do A-steward đề xuất.\n1. A-steward tự confirm\n2. A-owner confirm\n3. Pipeline nhập lô trước và sau confirm",
+      "expected": "403 SELF_APPROVAL_DENIED; CONFIRMED; lô trước confirm bị quarantine với lý do MAPPING_NOT_CONFIRMED, lô sau dùng mapping với quy đổi ×1.000.000 về VND nguyên.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "DGV-14",
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UAT-AC492",
+      "title": "422 EVIDENCE_REQUIRED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-16",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-16",
+      "oracle_source": "Claim → 05_modules/DGV.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC492 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-16",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đánh giá trưởng thành dữ liệu\": 422 EVIDENCE_REQUIRED; 422 EVIDENCE_EXPIRED (tiêu chí giữ NOT_ASSESSED); 403 SELF_APPROVAL_DENIED; publish bởi assessor: 403 SELF_APPROVAL_DENIED.",
+      "coverage_ids": [
+        "COV-FR-DGV-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Kỳ đánh giá A-1: assessor A-as, reviewer A-rv; tiêu chí QUAL-2 có bằng chứng hết hạn (evidence_expires_on 2026-06-30) từ kỳ trước.\n1. A-as ghi QUAL-2 ASSESSED mức 4 không evidence_refs\n2. Ghi với bằng chứng cũ hết hạn\n3. A-as tự review bằng chứng hợp lệ\n4. Publish (baseline POST /maturity-assessments/{id}/publish) bởi A-as",
+      "expected": "422 EVIDENCE_REQUIRED; 422 EVIDENCE_EXPIRED (tiêu chí giữ NOT_ASSESSED); 403 SELF_APPROVAL_DENIED; publish bởi assessor: 403 SELF_APPROVAL_DENIED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DGV-16",
+      "tags": [
+        "security"
+      ],
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UAT-AC493",
+      "title": "422 RUBRIC_WEIGHTS_INVALID",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-21",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-21",
+      "oracle_source": "Claim → 05_modules/DGV.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC493 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-21",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Rubric trưởng thành dữ liệu\": 422 RUBRIC_WEIGHTS_INVALID; 403 SELF_APPROVAL_DENIED; PUBLISHED; framework_refs chỉ là ánh xạ tham chiếu (UI ghi \"không phải chứng nhận DCAM/DMM\").",
+      "coverage_ids": [
+        "COV-FR-DGV-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Rubric RB-2 nháp với Σ trọng số trụ cột 90.\n1. createMaturityRubricVersion\n2. Sửa Σ = 100 và publish bởi người soạn\n3. Publish bởi người khác",
+      "expected": "422 RUBRIC_WEIGHTS_INVALID; 403 SELF_APPROVAL_DENIED; PUBLISHED; framework_refs chỉ là ánh xạ tham chiếu (UI ghi \"không phải chứng nhận DCAM/DMM\").",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "DGV-21",
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UAT-AC494",
+      "title": "Không ACHIEVED khi thiếu achieved_assessment_id (CHECK)",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-17",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-17",
+      "oracle_source": "Claim → 05_modules/DGV.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC494 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-17",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Lộ trình trưởng thành\": Không ACHIEVED khi thiếu achieved_assessment_id (CHECK); 2,7 < 3 không ACHIEVED; sau hạn: MISSED, thông báo owner.",
+      "coverage_ids": [
+        "COV-FR-DGV-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Mốc MS-1: trụ cột QUALITY mục tiêu mức 3 hạn 2026-12-31.\n1. Đánh dấu ACHIEVED không có assessment\n2. Kỳ đánh giá công bố QUALITY = 2,7\n3. Qua hạn job chạy",
+      "expected": "Không ACHIEVED khi thiếu achieved_assessment_id (CHECK); 2,7 < 3 không ACHIEVED; sau hạn: MISSED, thông báo owner.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DGV-17",
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UAT-AC495",
+      "title": "403 SELF_APPROVAL_DENIED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-DGV-18",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-18",
+      "oracle_source": "Claim → 05_modules/DGV.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC495 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-18",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Data product và chứng nhận\": 403 SELF_APPROVAL_DENIED; 422 QUALITY_NOT_PASSED; CERTIFIED với certification_expires_on; hết hạn → PROVISIONAL tự động và BI hiển thị huy hiệu tương ứng.",
+      "coverage_ids": [
+        "COV-FR-DGV-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Data product \"Actual Kho bạc\" gồm DS-TREASURY (hợp đồng r2 PUBLISHED, run gần nhất FAILED).\n1. Owner tự certify\n2. Người khác certify\n3. Sau run PASSED certify với hạn 2027-06-30",
+      "expected": "403 SELF_APPROVAL_DENIED; 422 QUALITY_NOT_PASSED; CERTIFIED với certification_expires_on; hết hạn → PROVISIONAL tự động và BI hiển thị huy hiệu tương ứng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "DGV-18",
+      "module": "DGV"
+    },
+    {
+      "tc_id": "TC-UAT-AC496",
+      "title": "Chỉ thấy DS-DISB của TNT-B",
+      "type": "RED",
+      "platform": "api",
+      "persona": "nguoi-dung-dgv",
+      "journey_ref": "J-FR-DGV-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DGV-04",
+      "oracle_source": "Claim → 05_modules/DGV.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC496 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DGV-04, FR-DGV-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Data catalogue\": Chỉ thấy DS-DISB của TNT-B; 404 với node TNT-A; lineage batch: 422 LINEAGE_NODE_INVALID (FK composite tenant chặn), không tạo cạnh.",
+      "coverage_ids": [
+        "COV-FR-DGV-04",
+        "COV-FR-DGV-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-dgv",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: TNT-A và TNT-B cùng có dataset mã DS-DISB; B-data biết UUID lineage node của TNT-A.\n1. B-data GET /dgv/catalog?q=DS-DISB\n2. B-data GET /dgv/lineage?ref_id=<node TNT-A>\n3. B-data POST /dgv/lineage-batches có cạnh trỏ node TNT-A",
+      "expected": "Chỉ thấy DS-DISB của TNT-B; 404 với node TNT-A; lineage batch: 422 LINEAGE_NODE_INVALID (FK composite tenant chặn), không tạo cạnh.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security (cách ly tenant)",
+      "tags": [
+        "security"
+      ],
+      "module": "DGV"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 22,
+    "M2": 0,
+    "M3": 0,
+    "M4": 80,
+    "max": 80,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 22,
+    "covered": 22,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

@@ -1,0 +1,3447 @@
+{
+  "feature": "mob",
+  "generated_at": "2026-11-05T07:53:18.063Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/mob/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UI-MOB-01",
+      "title": "Chào mừng và nhận diện tenant (MOB-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-01",
+      "oracle_source": "Claim → FR-MOB-01; kỳ vọng nguyên văn của ca thiết kế UI-MOB-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-01",
+      "catches_bug": "Màn hình Chào mừng và nhận diện tenant (MOB-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-01\n1. Mở route bằng menu và deep link; kiểm tên trường: Tenant, Logo, Tên miền\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-02",
+      "title": "Đăng nhập SSO (MOB-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-02",
+      "oracle_source": "Claim → FR-MOB-02; kỳ vọng nguyên văn của ca thiết kế UI-MOB-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-02",
+      "catches_bug": "Màn hình Đăng nhập SSO (MOB-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-02\n1. Mở route bằng menu và deep link; kiểm tên trường: Tài khoản, SSO\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-03",
+      "title": "Xác thực MFA (MOB-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-03",
+      "oracle_source": "Claim → FR-MOB-03; kỳ vọng nguyên văn của ca thiết kế UI-MOB-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-03",
+      "catches_bug": "Màn hình Xác thực MFA (MOB-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-03\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã xác thực\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-04",
+      "title": "Chọn đơn vị và vai trò (MOB-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-04",
+      "oracle_source": "Claim → FR-MOB-04; kỳ vọng nguyên văn của ca thiết kế UI-MOB-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-04",
+      "catches_bug": "Màn hình Chọn đơn vị và vai trò (MOB-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-04\n1. Mở route bằng menu và deep link; kiểm tên trường: Đơn vị, Vai trò\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-05",
+      "title": "Xin quyền thông báo (MOB-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-05",
+      "oracle_source": "Claim → FR-MOB-05; kỳ vọng nguyên văn của ca thiết kế UI-MOB-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-05",
+      "catches_bug": "Màn hình Xin quyền thông báo (MOB-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-05\n1. Mở route bằng menu và deep link; kiểm tên trường: Push, Lợi ích, Để sau\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-06",
+      "title": "Xin quyền camera và vị trí (MOB-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-06",
+      "oracle_source": "Claim → FR-MOB-06; kỳ vọng nguyên văn của ca thiết kế UI-MOB-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-06",
+      "catches_bug": "Màn hình Xin quyền camera và vị trí (MOB-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-06\n1. Mở route bằng menu và deep link; kiểm tên trường: Camera, Vị trí khi dùng, Để sau\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-07",
+      "title": "Trang chủ lãnh đạo (MOB-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-07",
+      "oracle_source": "Claim → FR-MOB-07; kỳ vọng nguyên văn của ca thiết kế UI-MOB-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-07",
+      "catches_bug": "Màn hình Trang chủ lãnh đạo (MOB-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-07\n1. Mở route bằng menu và deep link; kiểm tên trường: Kỳ, Tỷ lệ, Việc chờ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-08",
+      "title": "Trang chủ cán bộ (MOB-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-08",
+      "oracle_source": "Claim → FR-MOB-08; kỳ vọng nguyên văn của ca thiết kế UI-MOB-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-08",
+      "catches_bug": "Màn hình Trang chủ cán bộ (MOB-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-08\n1. Mở route bằng menu và deep link; kiểm tên trường: Hạn nộp, Bản nháp, Việc giao\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-09",
+      "title": "Danh sách dự án (MOB-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-09",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-09",
+      "oracle_source": "Claim → FR-MOB-09; kỳ vọng nguyên văn của ca thiết kế UI-MOB-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-09",
+      "catches_bug": "Màn hình Danh sách dự án (MOB-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-09\n1. Mở route bằng menu và deep link; kiểm tên trường: Tìm kiếm, Trạng thái, Địa bàn\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-10",
+      "title": "Chi tiết dự án (MOB-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-10",
+      "oracle_source": "Claim → FR-MOB-10; kỳ vọng nguyên văn của ca thiết kế UI-MOB-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-10",
+      "catches_bug": "Màn hình Chi tiết dự án (MOB-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-10\n1. Mở route bằng menu và deep link; kiểm tên trường: Vốn, Tiến độ, Rủi ro\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-11",
+      "title": "Bản đồ hiện trường (MOB-11): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-11",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-11",
+      "oracle_source": "Claim → FR-MOB-11; kỳ vọng nguyên văn của ca thiết kế UI-MOB-11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-11",
+      "catches_bug": "Màn hình Bản đồ hiện trường (MOB-11) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-11\n1. Mở route bằng menu và deep link; kiểm tên trường: Vị trí, Dự án, Bộ lọc\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-11",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-12",
+      "title": "Kế hoạch vốn (MOB-12): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-12",
+      "oracle_source": "Claim → FR-MOB-12; kỳ vọng nguyên văn của ca thiết kế UI-MOB-12 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-12",
+      "catches_bug": "Màn hình Kế hoạch vốn (MOB-12) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-12\n1. Mở route bằng menu và deep link; kiểm tên trường: Nguồn, Được giao, Giải ngân\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-12",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-13",
+      "title": "Chọn kỳ báo cáo (MOB-13): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-13",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-13",
+      "oracle_source": "Claim → FR-MOB-13; kỳ vọng nguyên văn của ca thiết kế UI-MOB-13 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-13",
+      "catches_bug": "Màn hình Chọn kỳ báo cáo (MOB-13) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-13\n1. Mở route bằng menu và deep link; kiểm tên trường: Kỳ, Dự án, Kế hoạch\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-13",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-14",
+      "title": "Nhập khối lượng (MOB-14): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-14",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-14",
+      "oracle_source": "Claim → FR-MOB-14; kỳ vọng nguyên văn của ca thiết kế UI-MOB-14 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-14",
+      "catches_bug": "Màn hình Nhập khối lượng (MOB-14) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-14\n1. Mở route bằng menu và deep link; kiểm tên trường: Thi công, Nghiệm thu, Gửi Kho bạc, Hoàn thiện\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-14",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-15",
+      "title": "Nhập vốn năm (MOB-15): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-15",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-15",
+      "oracle_source": "Claim → FR-MOB-15; kỳ vọng nguyên văn của ca thiết kế UI-MOB-15 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-15",
+      "catches_bug": "Màn hình Nhập vốn năm (MOB-15) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-15\n1. Mở route bằng menu và deep link; kiểm tên trường: NSTW, NSĐP, Trong đó CTMTQG\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-15",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-16",
+      "title": "Nhập vốn kéo dài (MOB-16): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-16",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-16",
+      "oracle_source": "Claim → FR-MOB-16; kỳ vọng nguyên văn của ca thiết kế UI-MOB-16 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-16",
+      "catches_bug": "Màn hình Nhập vốn kéo dài (MOB-16) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-16\n1. Mở route bằng menu và deep link; kiểm tên trường: NSTW, NSĐP, Trong đó CTMTQG\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-16",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-17",
+      "title": "Nhập vốn khác (MOB-17): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-17",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-17",
+      "oracle_source": "Claim → FR-MOB-17; kỳ vọng nguyên văn của ca thiết kế UI-MOB-17 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-17",
+      "catches_bug": "Màn hình Nhập vốn khác (MOB-17) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-17\n1. Mở route bằng menu và deep link; kiểm tên trường: NSTW, NSĐP\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-17",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-18",
+      "title": "Đăng ký tháng sau (MOB-18): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-18",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-18",
+      "oracle_source": "Claim → FR-MOB-18; kỳ vọng nguyên văn của ca thiết kế UI-MOB-18 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-18",
+      "catches_bug": "Màn hình Đăng ký tháng sau (MOB-18) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-18\n1. Mở route bằng menu và deep link; kiểm tên trường: Tháng, Nguồn, Giá trị\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-18",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-19",
+      "title": "Đính kèm chứng từ (MOB-19): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-19",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-19",
+      "oracle_source": "Claim → FR-MOB-19; kỳ vọng nguyên văn của ca thiết kế UI-MOB-19 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-19",
+      "catches_bug": "Màn hình Đính kèm chứng từ (MOB-19) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-19\n1. Mở route bằng menu và deep link; kiểm tên trường: Camera, Thư viện, Tệp\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-19",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-20",
+      "title": "Rà soát báo cáo (MOB-20): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-20",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-20",
+      "oracle_source": "Claim → FR-MOB-20; kỳ vọng nguyên văn của ca thiết kế UI-MOB-20 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-20",
+      "catches_bug": "Màn hình Rà soát báo cáo (MOB-20) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-20"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-20\n1. Mở route bằng menu và deep link; kiểm tên trường: Giá trị, Cảnh báo, Kỳ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-20",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-21",
+      "title": "Gửi báo cáo thành công (MOB-21): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-21",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-21",
+      "oracle_source": "Claim → FR-MOB-21; kỳ vọng nguyên văn của ca thiết kế UI-MOB-21 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-21",
+      "catches_bug": "Màn hình Gửi báo cáo thành công (MOB-21) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-21\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã báo cáo, Trạng thái, Tiếp theo\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-21",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-22",
+      "title": "Danh sách nháp (MOB-22): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-22",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-22",
+      "oracle_source": "Claim → FR-MOB-22; kỳ vọng nguyên văn của ca thiết kế UI-MOB-22 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-22",
+      "catches_bug": "Màn hình Danh sách nháp (MOB-22) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-22"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-22\n1. Mở route bằng menu và deep link; kiểm tên trường: Dự án, Kỳ, Lần lưu\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-22",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-23",
+      "title": "Danh sách phê duyệt (MOB-23): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-23",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-23",
+      "oracle_source": "Claim → FR-MOB-23; kỳ vọng nguyên văn của ca thiết kế UI-MOB-23 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-23",
+      "catches_bug": "Màn hình Danh sách phê duyệt (MOB-23) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-23"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-23\n1. Mở route bằng menu và deep link; kiểm tên trường: Loại hồ sơ, SLA, Đơn vị\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-23",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-24",
+      "title": "Chi tiết phê duyệt (MOB-24): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-24",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-24",
+      "oracle_source": "Claim → FR-MOB-24; kỳ vọng nguyên văn của ca thiết kế UI-MOB-24 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-24",
+      "catches_bug": "Màn hình Chi tiết phê duyệt (MOB-24) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-24"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-24\n1. Mở route bằng menu và deep link; kiểm tên trường: Nội dung, So sánh, Bằng chứng\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-24",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-25",
+      "title": "Xác nhận phê duyệt và ký (MOB-25): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-25",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-25",
+      "oracle_source": "Claim → FR-MOB-25; kỳ vọng nguyên văn của ca thiết kế UI-MOB-25 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-25",
+      "catches_bug": "Màn hình Xác nhận phê duyệt và ký (MOB-25) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-25"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-25\n1. Mở route bằng menu và deep link; kiểm tên trường: Ý kiến, Xác thực lại, Ký số\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-25",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-26",
+      "title": "Trả lại bổ sung (MOB-26): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-26",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-26",
+      "oracle_source": "Claim → FR-MOB-26; kỳ vọng nguyên văn của ca thiết kế UI-MOB-26 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-26",
+      "catches_bug": "Màn hình Trả lại bổ sung (MOB-26) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-26"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-26\n1. Mở route bằng menu và deep link; kiểm tên trường: Lý do, Mục cần sửa, Hạn\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-26",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-27",
+      "title": "Theo dõi thanh toán (MOB-27): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-27",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-27",
+      "oracle_source": "Claim → FR-MOB-27; kỳ vọng nguyên văn của ca thiết kế UI-MOB-27 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-27",
+      "catches_bug": "Màn hình Theo dõi thanh toán (MOB-27) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-27"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-27\n1. Mở route bằng menu và deep link; kiểm tên trường: Hồ sơ, Kho bạc, Phản hồi\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-27",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-28",
+      "title": "Ghi nhận vướng mắc (MOB-28): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-28",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-28",
+      "oracle_source": "Claim → FR-MOB-28; kỳ vọng nguyên văn của ca thiết kế UI-MOB-28 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-28",
+      "catches_bug": "Màn hình Ghi nhận vướng mắc (MOB-28) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-28"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-28\n1. Mở route bằng menu và deep link; kiểm tên trường: Dự án, Nhóm, Mô tả, Mức độ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-28",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-29",
+      "title": "Chụp ảnh và chú thích (MOB-29): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-29",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-29",
+      "oracle_source": "Claim → FR-MOB-29; kỳ vọng nguyên văn của ca thiết kế UI-MOB-29 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-29",
+      "catches_bug": "Màn hình Chụp ảnh và chú thích (MOB-29) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-29"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-29\n1. Mở route bằng menu và deep link; kiểm tên trường: Ảnh, Chú thích, Thời gian\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-29",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-30",
+      "title": "Định vị và kiểm tra hiện trường (MOB-30): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-30",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-30",
+      "oracle_source": "Claim → FR-MOB-30; kỳ vọng nguyên văn của ca thiết kế UI-MOB-30 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-30",
+      "catches_bug": "Màn hình Định vị và kiểm tra hiện trường (MOB-30) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-30"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-30\n1. Mở route bằng menu và deep link; kiểm tên trường: Vị trí, Độ chính xác, Checklist\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-30",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-31",
+      "title": "Chi tiết vướng mắc (MOB-31): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-31",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-31",
+      "oracle_source": "Claim → FR-MOB-31; kỳ vọng nguyên văn của ca thiết kế UI-MOB-31 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-31",
+      "catches_bug": "Màn hình Chi tiết vướng mắc (MOB-31) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-31"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-31\n1. Mở route bằng menu và deep link; kiểm tên trường: Trao đổi, Người xử lý, Hạn\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-31",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-32",
+      "title": "Hộp thông báo (MOB-32): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-32",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-32",
+      "oracle_source": "Claim → FR-MOB-32; kỳ vọng nguyên văn của ca thiết kế UI-MOB-32 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-32",
+      "catches_bug": "Màn hình Hộp thông báo (MOB-32) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-32"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-32\n1. Mở route bằng menu và deep link; kiểm tên trường: Chưa đọc, Ưu tiên, Loại\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-32",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-33",
+      "title": "Chi tiết thông báo (MOB-33): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-33",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-33",
+      "oracle_source": "Claim → FR-MOB-33; kỳ vọng nguyên văn của ca thiết kế UI-MOB-33 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-33",
+      "catches_bug": "Màn hình Chi tiết thông báo (MOB-33) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-33"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-33\n1. Mở route bằng menu và deep link; kiểm tên trường: Nội dung, Hồ sơ, Xác nhận\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-33",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-34",
+      "title": "Cài đặt thông báo (MOB-34): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-34",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-34",
+      "oracle_source": "Claim → FR-MOB-34; kỳ vọng nguyên văn của ca thiết kế UI-MOB-34 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-34",
+      "catches_bug": "Màn hình Cài đặt thông báo (MOB-34) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-34"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-34\n1. Mở route bằng menu và deep link; kiểm tên trường: Push, Email, Zalo, WhatsApp, Giờ yên lặng\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-34",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-35",
+      "title": "Hộp hội thoại (MOB-35): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-35",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-35",
+      "oracle_source": "Claim → FR-MOB-35; kỳ vọng nguyên văn của ca thiết kế UI-MOB-35 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-35",
+      "catches_bug": "Màn hình Hộp hội thoại (MOB-35) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-35"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-35\n1. Mở route bằng menu và deep link; kiểm tên trường: Kênh, Dự án, Người phụ trách\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-35",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-36",
+      "title": "Trao đổi theo hồ sơ (MOB-36): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-36",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-36",
+      "oracle_source": "Claim → FR-MOB-36; kỳ vọng nguyên văn của ca thiết kế UI-MOB-36 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-36",
+      "catches_bug": "Màn hình Trao đổi theo hồ sơ (MOB-36) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-36"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-36\n1. Mở route bằng menu và deep link; kiểm tên trường: Nội dung, Tệp, Ghi chú nội bộ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-36",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-37",
+      "title": "AI hỏi đáp có nguồn (MOB-37): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-37",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-37",
+      "oracle_source": "Claim → FR-MOB-37; kỳ vọng nguyên văn của ca thiết kế UI-MOB-37 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-37",
+      "catches_bug": "Màn hình AI hỏi đáp có nguồn (MOB-37) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-37"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-37\n1. Mở route bằng menu và deep link; kiểm tên trường: Câu hỏi, Phạm vi, Nguồn\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-37",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-38",
+      "title": "Tóm tắt phân tích nhà thầu (MOB-38): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-38",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-38",
+      "oracle_source": "Claim → FR-MOB-38; kỳ vọng nguyên văn của ca thiết kế UI-MOB-38 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-38",
+      "catches_bug": "Màn hình Tóm tắt phân tích nhà thầu (MOB-38) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-38"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-38\n1. Mở route bằng menu và deep link; kiểm tên trường: Đề án, Tiêu chí, Nhận xét\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-38",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-39",
+      "title": "Xem dẫn chứng gốc (MOB-39): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-39",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-39",
+      "oracle_source": "Claim → FR-MOB-39; kỳ vọng nguyên văn của ca thiết kế UI-MOB-39 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-39",
+      "catches_bug": "Màn hình Xem dẫn chứng gốc (MOB-39) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-39"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-39\n1. Mở route bằng menu và deep link; kiểm tên trường: Tệp, Trang, Đoạn trích\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-39",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-40",
+      "title": "Dashboard BI cá nhân (MOB-40): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-40",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-40",
+      "oracle_source": "Claim → FR-MOB-40; kỳ vọng nguyên văn của ca thiết kế UI-MOB-40 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-40",
+      "catches_bug": "Màn hình Dashboard BI cá nhân (MOB-40) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-40"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-40\n1. Mở route bằng menu và deep link; kiểm tên trường: Dashboard, Bộ lọc, Thời điểm\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-40",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-41",
+      "title": "Danh sách đồng bộ (MOB-41): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-41",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-41",
+      "oracle_source": "Claim → FR-MOB-41; kỳ vọng nguyên văn của ca thiết kế UI-MOB-41 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-41",
+      "catches_bug": "Màn hình Danh sách đồng bộ (MOB-41) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-41"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-41\n1. Mở route bằng menu và deep link; kiểm tên trường: Bản nháp, Hàng đợi, Trạng thái\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-41",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-42",
+      "title": "Xử lý xung đột (MOB-42): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-42",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-42",
+      "oracle_source": "Claim → FR-MOB-42; kỳ vọng nguyên văn của ca thiết kế UI-MOB-42 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-42",
+      "catches_bug": "Màn hình Xử lý xung đột (MOB-42) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-42"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-42\n1. Mở route bằng menu và deep link; kiểm tên trường: Bản máy, Bản server, Khác biệt\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-42",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-43",
+      "title": "Mất kết nối (MOB-43): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-43",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-43",
+      "oracle_source": "Claim → FR-MOB-43; kỳ vọng nguyên văn của ca thiết kế UI-MOB-43 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-43",
+      "catches_bug": "Màn hình Mất kết nối (MOB-43) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-43"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-43\n1. Mở route bằng menu và deep link; kiểm tên trường: Lần đồng bộ cuối, Tác vụ khả dụng\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-43",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-44",
+      "title": "Hết phiên (MOB-44): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-44",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-44",
+      "oracle_source": "Claim → FR-MOB-44; kỳ vọng nguyên văn của ca thiết kế UI-MOB-44 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-44",
+      "catches_bug": "Màn hình Hết phiên (MOB-44) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-44"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-44\n1. Mở route bằng menu và deep link; kiểm tên trường: Đăng nhập lại, Nháp an toàn\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-44",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-45",
+      "title": "Không đủ quyền (MOB-45): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-45",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-45",
+      "oracle_source": "Claim → FR-MOB-45; kỳ vọng nguyên văn của ca thiết kế UI-MOB-45 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-45",
+      "catches_bug": "Màn hình Không đủ quyền (MOB-45) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-45"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-45\n1. Mở route bằng menu và deep link; kiểm tên trường: Hành động, Liên hệ quản trị\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-45",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-46",
+      "title": "License hết hạn (MOB-46): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-46",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-46",
+      "oracle_source": "Claim → FR-MOB-46; kỳ vọng nguyên văn của ca thiết kế UI-MOB-46 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-46",
+      "catches_bug": "Màn hình License hết hạn (MOB-46) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-46"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-46\n1. Mở route bằng menu và deep link; kiểm tên trường: Trạng thái, Chỉ đọc, Liên hệ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-46",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-47",
+      "title": "Tài khoản và sinh trắc học (MOB-47): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-47",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-47",
+      "oracle_source": "Claim → FR-MOB-47; kỳ vọng nguyên văn của ca thiết kế UI-MOB-47 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-47",
+      "catches_bug": "Màn hình Tài khoản và sinh trắc học (MOB-47) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-47"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-47\n1. Mở route bằng menu và deep link; kiểm tên trường: Thiết bị, Sinh trắc, Ngôn ngữ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-47",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-48",
+      "title": "Đổi tenant (MOB-48): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-48",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-48",
+      "oracle_source": "Claim → FR-MOB-48; kỳ vọng nguyên văn của ca thiết kế UI-MOB-48 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-48",
+      "catches_bug": "Màn hình Đổi tenant (MOB-48) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-48"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-48\n1. Mở route bằng menu và deep link; kiểm tên trường: Tenant, Vai trò, Xóa cache\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-48",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-49",
+      "title": "Thiết bị và đăng xuất (MOB-49): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-49",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-49",
+      "oracle_source": "Claim → FR-MOB-49; kỳ vọng nguyên văn của ca thiết kế UI-MOB-49 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-49",
+      "catches_bug": "Màn hình Thiết bị và đăng xuất (MOB-49) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-49"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-49\n1. Mở route bằng menu và deep link; kiểm tên trường: Phiên, Thu hồi token, Xóa dữ liệu cục bộ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-49",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-50",
+      "title": "Trợ giúp và phản hồi (MOB-50): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-50",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-50",
+      "oracle_source": "Claim → FR-MOB-50; kỳ vọng nguyên văn của ca thiết kế UI-MOB-50 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-50",
+      "catches_bug": "Màn hình Trợ giúp và phản hồi (MOB-50) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-50"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-50\n1. Mở route bằng menu và deep link; kiểm tên trường: Chủ đề, Mô tả, Ảnh lỗi\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-50",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-51",
+      "title": "Tìm kiếm trên điện thoại (MOB-51): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-51",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-51",
+      "oracle_source": "Claim → FR-MOB-51; kỳ vọng nguyên văn của ca thiết kế UI-MOB-51 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-51",
+      "catches_bug": "Màn hình Tìm kiếm trên điện thoại (MOB-51) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-51"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-51\n1. Mở route bằng menu và deep link; kiểm tên trường: Từ khóa, Loại, Kỳ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-51",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-52",
+      "title": "Trống không có dữ liệu (MOB-52): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-52",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-52",
+      "oracle_source": "Claim → FR-MOB-52; kỳ vọng nguyên văn của ca thiết kế UI-MOB-52 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-52",
+      "catches_bug": "Màn hình Trống không có dữ liệu (MOB-52) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-52"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-52\n1. Mở route bằng menu và deep link; kiểm tên trường: Bộ lọc, Hướng dẫn\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-52",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-53",
+      "title": "Lỗi dịch vụ và thử lại (MOB-53): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-53",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-53",
+      "oracle_source": "Claim → FR-MOB-53; kỳ vọng nguyên văn của ca thiết kế UI-MOB-53 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-53",
+      "catches_bug": "Màn hình Lỗi dịch vụ và thử lại (MOB-53) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-53"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-53\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã lỗi, Thử lại, Hỗ trợ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-53",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-54",
+      "title": "Bảo trì và cập nhật bắt buộc (MOB-54): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-54",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-54",
+      "oracle_source": "Claim → FR-MOB-54; kỳ vọng nguyên văn của ca thiết kế UI-MOB-54 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-54",
+      "catches_bug": "Màn hình Bảo trì và cập nhật bắt buộc (MOB-54) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-54"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-54\n1. Mở route bằng menu và deep link; kiểm tên trường: Phiên bản, Thời gian, Hướng dẫn\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-54",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-55",
+      "title": "Thuyết minh tháng (MOB-55): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-55",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-55",
+      "oracle_source": "Claim → FR-MOB-55; kỳ vọng nguyên văn của ca thiết kế UI-MOB-55 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-55",
+      "catches_bug": "Màn hình Thuyết minh tháng (MOB-55) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-55"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-55\n1. Mở route bằng menu và deep link; kiểm tên trường: Tháng, Kết quả, Nguyên nhân, Giải pháp\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-55",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-56",
+      "title": "Ước giải ngân cuối kỳ (MOB-56): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-56",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-56",
+      "oracle_source": "Claim → FR-MOB-56; kỳ vọng nguyên văn của ca thiết kế UI-MOB-56 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-56",
+      "catches_bug": "Màn hình Ước giải ngân cuối kỳ (MOB-56) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-56"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-56\n1. Mở route bằng menu và deep link; kiểm tên trường: Tháng, Nguồn, Ước thực hiện, Giả định\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-56",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-57",
+      "title": "Dự án chưa nộp báo cáo (MOB-57): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-57",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-57",
+      "oracle_source": "Claim → FR-MOB-57; kỳ vọng nguyên văn của ca thiết kế UI-MOB-57 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-57",
+      "catches_bug": "Màn hình Dự án chưa nộp báo cáo (MOB-57) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-57"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-57\n1. Mở route bằng menu và deep link; kiểm tên trường: Dự án, Kỳ, Hạn, Người phụ trách\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-57",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-58",
+      "title": "Cơ cấu nguồn vốn (MOB-58): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-58",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-58",
+      "oracle_source": "Claim → FR-MOB-58; kỳ vọng nguyên văn của ca thiết kế UI-MOB-58 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-58",
+      "catches_bug": "Màn hình Cơ cấu nguồn vốn (MOB-58) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-58"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-58\n1. Mở route bằng menu và deep link; kiểm tên trường: Vốn năm, Kéo dài, Hỗ trợ, Tăng thu\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-58",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-59",
+      "title": "Vướng mắc theo tuần (MOB-59): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-59",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-59",
+      "oracle_source": "Claim → FR-MOB-59; kỳ vọng nguyên văn của ca thiết kế UI-MOB-59 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-59",
+      "catches_bug": "Màn hình Vướng mắc theo tuần (MOB-59) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-59"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-59\n1. Mở route bằng menu và deep link; kiểm tên trường: Tuần, Nhóm, Tồn, Đã xử lý\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-59",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-60",
+      "title": "Đối soát Kho bạc trên điện thoại (MOB-60): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "theo-vai-tro-dang-chon",
+      "journey_ref": "J-FR-MOB-60",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-60",
+      "oracle_source": "Claim → FR-MOB-60; kỳ vọng nguyên văn của ca thiết kế UI-MOB-60 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-60",
+      "catches_bug": "Màn hình Đối soát Kho bạc trên điện thoại (MOB-60) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-60"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "theo-vai-tro-dang-chon",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-60\n1. Mở route bằng menu và deep link; kiểm tên trường: Dự án, Số báo cáo, Số xác nhận, Sai lệch\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-60",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-61",
+      "title": "Hợp đồng và mốc hiện trường (MOB-61): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-MOB-61",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-61",
+      "oracle_source": "Claim → FR-MOB-61; kỳ vọng nguyên văn của ca thiết kế UI-MOB-61 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-61",
+      "catches_bug": "Màn hình Hợp đồng và mốc hiện trường (MOB-61) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-61"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-61\n1. Mở route bằng menu và deep link; kiểm tên trường: Hợp đồng, Mốc, Trạng thái\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Offline chỉ lưu nháp, có kiểm trùng và conflict khi sync. Nghiệm thu/phê duyệt/ký cần online, đúng version và thẩm quyền; vị trí/ảnh theo consent và policy.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-61",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-62",
+      "title": "Nhật ký công trường trên điện thoại (MOB-62): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-MOB-62",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-62",
+      "oracle_source": "Claim → FR-MOB-62; kỳ vọng nguyên văn của ca thiết kế UI-MOB-62 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-62",
+      "catches_bug": "Màn hình Nhật ký công trường trên điện thoại (MOB-62) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-62"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-62\n1. Mở route bằng menu và deep link; kiểm tên trường: Ngày, Hạng mục, Nội dung, Ảnh\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Offline chỉ lưu nháp, có kiểm trùng và conflict khi sync. Nghiệm thu/phê duyệt/ký cần online, đúng version và thẩm quyền; vị trí/ảnh theo consent và policy.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-62",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-63",
+      "title": "Ghi nhận khối lượng và bằng chứng (MOB-63): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-MOB-63",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-63",
+      "oracle_source": "Claim → FR-MOB-63; kỳ vọng nguyên văn của ca thiết kế UI-MOB-63 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-63",
+      "catches_bug": "Màn hình Ghi nhận khối lượng và bằng chứng (MOB-63) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-63"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-63\n1. Mở route bằng menu và deep link; kiểm tên trường: BOQ, Khối lượng, Ảnh, Ghi chú\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Offline chỉ lưu nháp, có kiểm trùng và conflict khi sync. Nghiệm thu/phê duyệt/ký cần online, đúng version và thẩm quyền; vị trí/ảnh theo consent và policy.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-63",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-64",
+      "title": "Kiểm tra chất lượng hiện trường (MOB-64): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-MOB-64",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-64",
+      "oracle_source": "Claim → FR-MOB-64; kỳ vọng nguyên văn của ca thiết kế UI-MOB-64 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-64",
+      "catches_bug": "Màn hình Kiểm tra chất lượng hiện trường (MOB-64) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-64"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-64\n1. Mở route bằng menu và deep link; kiểm tên trường: Hạng mục, Checklist, Không phù hợp, Ảnh\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Offline chỉ lưu nháp, có kiểm trùng và conflict khi sync. Nghiệm thu/phê duyệt/ký cần online, đúng version và thẩm quyền; vị trí/ảnh theo consent và policy.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-64",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-65",
+      "title": "Duyệt nghiệm thu trên điện thoại (MOB-65): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-MOB-65",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-65",
+      "oracle_source": "Claim → FR-MOB-65; kỳ vọng nguyên văn của ca thiết kế UI-MOB-65 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-65",
+      "catches_bug": "Màn hình Duyệt nghiệm thu trên điện thoại (MOB-65) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-65"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-65\n1. Mở route bằng menu và deep link; kiểm tên trường: Biên bản, Khối lượng, Bằng chứng, Ý kiến\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Offline chỉ lưu nháp, có kiểm trùng và conflict khi sync. Nghiệm thu/phê duyệt/ký cần online, đúng version và thẩm quyền; vị trí/ảnh theo consent và policy.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-65",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-66",
+      "title": "Bàn giao và bảo hành trên điện thoại (MOB-66): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-MOB-66",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-66",
+      "oracle_source": "Claim → FR-MOB-66; kỳ vọng nguyên văn của ca thiết kế UI-MOB-66 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-66",
+      "catches_bug": "Màn hình Bàn giao và bảo hành trên điện thoại (MOB-66) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-66"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-66\n1. Mở route bằng menu và deep link; kiểm tên trường: Hạng mục, Tồn tại, Bảo hành, Đơn vị nhận\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Offline chỉ lưu nháp, có kiểm trùng và conflict khi sync. Nghiệm thu/phê duyệt/ký cần online, đúng version và thẩm quyền; vị trí/ảnh theo consent và policy.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-66",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-67",
+      "title": "Văn bản chờ ký (MOB-67): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "lanh-dao",
+      "journey_ref": "J-FR-MOB-67",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-67",
+      "oracle_source": "Claim → Screen MOB-67; kỳ vọng nguyên văn của ca thiết kế UI-MOB-67 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-67",
+      "catches_bug": "Màn hình Văn bản chờ ký (MOB-67) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-67"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: TNT-A; người dùng có quyền xem MOB-67; dữ liệu synthetic theo fixture\n1. Mở màn hình trên thiết bị 390×844 và 360×800\n2. Kiểm 7 trạng thái chuẩn cộng offline và quyền camera/push bị từ chối\n3. Kiểm vùng chạm ≥44 pt/48 dp, dynamic type 200% và trình đọc màn hình",
+      "expected": "MOB-67 hiển thị đúng quyền, trạng thái và theo mockup; không có dữ liệu ngoài phạm vi",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-67",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UI-MOB-68",
+      "title": "Nhiệm vụ GPMB hiện trường (MOB-68): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "can-bo-gpmb",
+      "journey_ref": "J-FR-MOB-68",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-68",
+      "oracle_source": "Claim → Screen MOB-68; kỳ vọng nguyên văn của ca thiết kế UI-MOB-68 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-68",
+      "catches_bug": "Màn hình Nhiệm vụ GPMB hiện trường (MOB-68) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MOB-68"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "can-bo-gpmb",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: TNT-A; người dùng có quyền xem MOB-68; dữ liệu synthetic theo fixture\n1. Mở màn hình trên thiết bị 390×844 và 360×800\n2. Kiểm 7 trạng thái chuẩn cộng offline và quyền camera/push bị từ chối\n3. Kiểm vùng chạm ≥44 pt/48 dp, dynamic type 200% và trình đọc màn hình",
+      "expected": "MOB-68 hiển thị đúng quyền, trạng thái và theo mockup; không có dữ liệu ngoài phạm vi",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MOB-68",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UAT-AC500",
+      "title": "Chỉ có dòng tenant TNT-A thuộc scope của A-maker (cây đơn vị U-BQL1)",
+      "type": "RED",
+      "platform": "api",
+      "persona": "nguoi-dung-mob",
+      "journey_ref": "J-FR-MOB-09",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-09",
+      "oracle_source": "Claim → 05_modules/MOB.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC500 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-09, FR-MOB-41",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh sách dự án\": Chỉ có dòng tenant TNT-A thuộc scope của A-maker (cây đơn vị U-BQL1); 0 dòng tenant TNT-B; không bucket nào tham chiếu tenant khác.",
+      "coverage_ids": [
+        "COV-FR-MOB-09",
+        "COV-FR-MOB-41"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mob",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: TNT-A và TNT-B, mỗi tenant có 20 dự án synthetic; A-maker thuộc TNT-A, một thiết bị mới đã đăng ký.\n1. Đăng nhập A-maker, chờ đồng bộ đầu tiên hoàn tất\n2. Đọc toàn bộ SQLite cục bộ của thiết bị\n3. Đếm dòng theo tenant_id",
+      "expected": "Chỉ có dòng tenant TNT-A thuộc scope của A-maker (cây đơn vị U-BQL1); 0 dòng tenant TNT-B; không bucket nào tham chiếu tenant khác.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "tags": [
+        "security"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UAT-AC501",
+      "title": "Lần đồng bộ kế tiếp trả bucket rỗng",
+      "type": "RED",
+      "platform": "api",
+      "persona": "nguoi-dung-mob",
+      "journey_ref": "J-FR-MOB-41",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-41",
+      "oracle_source": "Claim → 05_modules/MOB.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC501 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-41, FR-MOB-45",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh sách đồng bộ\": Lần đồng bộ kế tiếp trả bucket rỗng; DB cục bộ xóa dữ liệu dự án; người dùng thấy màn đăng nhập lại; audit ghi sự kiện thu hồi.",
+      "coverage_ids": [
+        "COV-FR-MOB-41",
+        "COV-FR-MOB-45"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mob",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: TNT-A; A-maker có membership M1 với scope U-BQL1; thiết bị đã đồng bộ 20 dự án.\n1. Tắt mạng thiết bị\n2. Quản trị thu hồi membership M1 (command IAM end membership)\n3. Bật mạng và đợi lần đồng bộ kế tiếp",
+      "expected": "Lần đồng bộ kế tiếp trả bucket rỗng; DB cục bộ xóa dữ liệu dự án; người dùng thấy màn đăng nhập lại; audit ghi sự kiện thu hồi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "tags": [
+        "security"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UAT-AC502",
+      "title": "MOB-41 hiện \"Chưa xác định kết quả\"",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "nguoi-dung-mob",
+      "journey_ref": "J-FR-MOB-20",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-20",
+      "oracle_source": "Claim → 05_modules/MOB.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC502 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-20, FR-MOB-41",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Rà soát báo cáo\": MOB-41 hiện \"Chưa xác định kết quả\"; sau khi nối lại trạng thái ACCEPTED; server có đúng 1 report_revision; không lệnh thứ hai được tạo.",
+      "coverage_ids": [
+        "COV-FR-MOB-20",
+        "COV-FR-MOB-41"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mob",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: TNT-A; báo cáo tuần nháp D-001 của dự án DA-2026-002 đã nhập đủ; mạng ổn định.\n1. Nhấn Gửi tại MOB-20 và ngắt mạng ngay sau khi gửi, trước phản hồi\n2. Quan sát MOB-41\n3. Bật mạng lại và đợi tra trạng thái",
+      "expected": "MOB-41 hiện \"Chưa xác định kết quả\"; sau khi nối lại trạng thái ACCEPTED; server có đúng 1 report_revision; không lệnh thứ hai được tạo.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UAT-AC503",
+      "title": "Lần 1 trả cùng kết quả cũ (không tạo bản ghi mới)",
+      "type": "DECISION",
+      "platform": "api",
+      "persona": "nguoi-dung-mob",
+      "journey_ref": "J-FR-MOB-20",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-20",
+      "oracle_source": "Claim → 05_modules/MOB.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC503 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-20",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Rà soát báo cáo\": Lần 1 trả cùng kết quả cũ (không tạo bản ghi mới); lần 2 trả 409 IDEMPOTENCY_CONFLICT.",
+      "coverage_ids": [
+        "COV-FR-MOB-20"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mob",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: TNT-A; lệnh nộp báo cáo với key k-503-000000001 đã ACCEPTED.\n1. Gửi lại cùng key với nội dung giống hệt\n2. Gửi lại cùng key với total_investment khác",
+      "expected": "Lần 1 trả cùng kết quả cũ (không tạo bản ghi mới); lần 2 trả 409 IDEMPOTENCY_CONFLICT.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UAT-AC504",
+      "title": "Server trả 409 DRAFT_VERSION_CONFLICT",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "nguoi-dung-mob",
+      "journey_ref": "J-FR-MOB-42",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-42",
+      "oracle_source": "Claim → 05_modules/MOB.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC504 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-42",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Xử lý xung đột\": Server trả 409 DRAFT_VERSION_CONFLICT; MOB-42 hiển thị bản máy 130.000.000, bản server 120.000.000 và chênh lệch; không giá trị nào tự động được ghi.",
+      "coverage_ids": [
+        "COV-FR-MOB-42"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mob",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: TNT-A; nháp báo cáo D-002 có vốn năm 100.000.000 VND tồn tại trên hai thiết bị.\n1. Thiết bị 1 sửa vốn năm thành 120.000.000 và đồng bộ\n2. Thiết bị 2 offline sửa thành 130.000.000 rồi nối lại",
+      "expected": "Server trả 409 DRAFT_VERSION_CONFLICT; MOB-42 hiển thị bản máy 130.000.000, bản server 120.000.000 và chênh lệch; không giá trị nào tự động được ghi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UAT-AC505",
+      "title": "Cảnh báo nêu số nháp",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "nguoi-dung-mob",
+      "journey_ref": "J-FR-MOB-48",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-48",
+      "oracle_source": "Claim → 05_modules/MOB.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC505 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-48",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đổi tenant\": Cảnh báo nêu số nháp; sau đổi vùng lưu trữ TNT-A bị xóa hoặc giữ theo lựa chọn bảo mật; không lệnh nào được gửi bằng tenant TNT-B.",
+      "coverage_ids": [
+        "COV-FR-MOB-48"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mob",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Người dùng có membership ở TNT-A và TNT-B; có 1 nháp chưa gửi ở TNT-A.\n1. Đổi tenant tại MOB-48 và đọc cảnh báo mất nháp\n2. Xác nhận đổi\n3. Thử gửi hàng đợi cũ",
+      "expected": "Cảnh báo nêu số nháp; sau đổi vùng lưu trữ TNT-A bị xóa hoặc giữ theo lựa chọn bảo mật; không lệnh nào được gửi bằng tenant TNT-B.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UAT-AC506",
+      "title": "sync_attachment",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-mob",
+      "journey_ref": "J-FR-MOB-19",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-19",
+      "oracle_source": "Claim → 05_modules/MOB.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC506 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-19",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đính kèm chứng từ\": sync_attachment.status = INFECTED; tệp không liên kết vào báo cáo; người dùng thấy lý do và có thể thay tệp.",
+      "coverage_ids": [
+        "COV-FR-MOB-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mob",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: TNT-A; tệp kiểm thử EICAR đã chuẩn bị.\n1. Tải tệp EICAR qua MOB-19\n2. Hoàn tất tải lên và chờ quét",
+      "expected": "sync_attachment.status = INFECTED; tệp không liên kết vào báo cáo; người dùng thấy lý do và có thể thay tệp.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UAT-AC507",
+      "title": "Server trả 422 PERIOD_LOCKED",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "nguoi-dung-mob",
+      "journey_ref": "J-FR-MOB-20",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-20",
+      "oracle_source": "Claim → 05_modules/MOB.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC507 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-20, FR-MOB-41",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Rà soát báo cáo\": Server trả 422 PERIOD_LOCKED; nháp được giữ nguyên trên thiết bị; hướng dẫn xin mở lại kỳ hiển thị.",
+      "coverage_ids": [
+        "COV-FR-MOB-20",
+        "COV-FR-MOB-41"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mob",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: TNT-A; kỳ P-2026-W43 Open; nháp báo cáo D-003 trên thiết bị offline.\n1. Văn thư khóa kỳ P-2026-W43 trên web\n2. Thiết bị nối lại và cố gửi báo cáo",
+      "expected": "Server trả 422 PERIOD_LOCKED; nháp được giữ nguyên trên thiết bị; hướng dẫn xin mở lại kỳ hiển thị.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-32",
+      "title": "The API returns 403 SCOPE_DENIED",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "nguoi-dung-mob",
+      "journey_ref": "J-FR-MOB-45",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-45",
+      "oracle_source": "Claim → MOB.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-32 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-45",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Không đủ quyền\": The API returns 403 SCOPE_DENIED; MOB-45 shows the reason text and no title, number or amount of R-77.",
+      "coverage_ids": [
+        "COV-FR-MOB-45"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mob",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Mobile user with scope U-BQL1; protected record R-77 owned by U-BQL2.\n1. Open R-77 through a push deep link\n2. Read the screen and the response body",
+      "expected": "The API returns 403 SCOPE_DENIED; MOB-45 shows the reason text and no title, number or amount of R-77.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-33",
+      "title": "The unlock releases the stored credential only",
+      "type": "RED",
+      "platform": "api",
+      "persona": "nguoi-dung-mob",
+      "journey_ref": "J-FR-MOB-47",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-47",
+      "oracle_source": "Claim → MOB.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-33 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-47",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tài khoản và sinh trắc học\": The unlock releases the stored credential only; the approve call carries no biometric result as a signature and is refused with 403 MFA_REQUIRED until the user ",
+      "coverage_ids": [
+        "COV-FR-MOB-47"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mob",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Biometric unlock enabled; a pending approval task T-1 that needs a signature.\n1. Resume the app and unlock by biometrics\n2. Try to approve T-1 using only the biometric result\n3. Read the request sent",
+      "expected": "The unlock releases the stored credential only; the approve call carries no biometric result as a signature and is refused with 403 MFA_REQUIRED until the user signs in with the second factor.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "tags": [
+        "security"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-34",
+      "title": "Chunks 1 to 6 are not re-sent (6 chunk requests only once each)",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "nguoi-dung-mob",
+      "journey_ref": "J-FR-MOB-19",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-19",
+      "oracle_source": "Claim → MOB.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-34 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-19",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đính kèm chứng từ\": Chunks 1 to 6 are not re-sent (6 chunk requests only once each); the completed file SHA-256 equals the local hash; the status moves UPLOADING, SCANNING, CLEAN i",
+      "coverage_ids": [
+        "COV-FR-MOB-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mob",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: 12 MB file split in 8 chunks; the network is cut after chunk 6 is acknowledged.\n1. Start the upload and cut the network at chunk 7\n2. Restore the network and resume\n3. Read the upload log and the attachment status",
+      "expected": "Chunks 1 to 6 are not re-sent (6 chunk requests only once each); the completed file SHA-256 equals the local hash; the status moves UPLOADING, SCANNING, CLEAN in that order.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-35",
+      "title": "MOB-21 shows revision 1, the submission time from the server (unchanged by the device clock) and status SUBMITTED",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "nguoi-dung-mob",
+      "journey_ref": "J-FR-MOB-21",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-21",
+      "oracle_source": "Claim → MOB.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-35 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-21",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Gửi báo cáo thành công\": MOB-21 shows revision 1, the submission time from the server (unchanged by the device clock) and status SUBMITTED; no figure field is editable.",
+      "coverage_ids": [
+        "COV-FR-MOB-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mob",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Weekly report D-001 submitted from MOB-20 and accepted as revision 1.\n1. Open MOB-21\n2. Try to edit a submitted figure\n3. Change the device clock by 1 hour and reopen",
+      "expected": "MOB-21 shows revision 1, the submission time from the server (unchanged by the device clock) and status SUBMITTED; no figure field is editable.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-36",
+      "title": "On both screens the decision button is disabled with a visible explanation",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "nguoi-dung-mob",
+      "journey_ref": "J-FR-MOB-24",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-24",
+      "oracle_source": "Claim → MOB.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-36 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-24, FR-MOB-65",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi tiết phê duyệt\": On both screens the decision button is disabled with a visible explanation; the offline queue holds 0 approval commands; after reconnecting the server has no de",
+      "coverage_ids": [
+        "COV-FR-MOB-24",
+        "COV-FR-MOB-65"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mob",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Approval task T-1 and a legal task T-2 visible on the device; the device is offline.\n1. Open MOB-24 for T-1 offline\n2. Open MOB-65 for T-2 offline\n3. Tap the decision button and inspect the offline queue\n4. Reconnect and inspect the server",
+      "expected": "On both screens the decision button is disabled with a visible explanation; the offline queue holds 0 approval commands; after reconnecting the server has no decision recorded for T-1 or T-2.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-37",
+      "title": "Exactly 1 issue exists for C-1 and its id is the same on both responses",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "nguoi-dung-mob",
+      "journey_ref": "J-FR-MOB-31",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-31",
+      "oracle_source": "Claim → MOB.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-37 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-31",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi tiết vướng mắc\": Exactly 1 issue exists for C-1 and its id is the same on both responses; MOB-31 shows its status and the SLA due time computed by the server.",
+      "coverage_ids": [
+        "COV-FR-MOB-31"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mob",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Obstacle created offline with client_operation_id C-1; connectivity returns with a flaky first response.\n1. Reconnect and let the queue send C-1\n2. Drop the first response so the app retries C-1\n3. Open MOB-31",
+      "expected": "Exactly 1 issue exists for C-1 and its id is the same on both responses; MOB-31 shows its status and the SLA due time computed by the server.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-38",
+      "title": "The JPEG is compressed to at most 10 MB before upload and the original is kept per retention",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "nguoi-dung-mob",
+      "journey_ref": "J-FR-MOB-29",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-29",
+      "oracle_source": "Claim → MOB.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-38 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-29",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chụp ảnh và chú thích\": The JPEG is compressed to at most 10 MB before upload and the original is kept per retention; the .exe is refused with a reason message and no upload request is",
+      "coverage_ids": [
+        "COV-FR-MOB-29"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mob",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: A 14 MB JPEG and a .exe file; upload limit 10 MB for images; retention policy requires keeping originals.\n1. Annotate the 14 MB JPEG\n2. Annotate the .exe file\n3. Read the upload request and the stored objects",
+      "expected": "The JPEG is compressed to at most 10 MB before upload and the original is kept per retention; the .exe is refused with a reason message and no upload request is sent.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-39",
+      "title": "The API returns 404 RESOURCE_NOT_FOUND without revealing that K-1 exists",
+      "type": "RED",
+      "platform": "api",
+      "persona": "nguoi-dung-mob",
+      "journey_ref": "J-FR-MOB-68",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-68",
+      "oracle_source": "Claim → MOB.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-39 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-68",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nhiệm vụ GPMB hiện trường\": The API returns 404 RESOURCE_NOT_FOUND without revealing that K-1 exists; MOB-68 shows the not-found state.",
+      "coverage_ids": [
+        "COV-FR-MOB-68"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mob",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Task K-1 assigned to officer X; officer Y of another unit; both in tenant TNT-A.\n1. Y opens K-1 on MOB-68\n2. Read the response body",
+      "expected": "The API returns 404 RESOURCE_NOT_FOUND without revealing that K-1 exists; MOB-68 shows the not-found state.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "tags": [
+        "security"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-40",
+      "title": "The timeline shows the status SENT_TREASURY, the amount 2100000000 as an integer VND without decimals and the time from ",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-mob",
+      "journey_ref": "J-FR-MOB-27",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-27",
+      "oracle_source": "Claim → MOB.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-40 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-27",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Theo dõi thanh toán\": The timeline shows the status SENT_TREASURY, the amount 2100000000 as an integer VND without decimals and the time from the server, not from the device clock.",
+      "coverage_ids": [
+        "COV-FR-MOB-27"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mob",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Payment request PR-A-001 in the chain with net 2,100,000,000 VND, status SENT_TREASURY, last event time 2026-10-05T09:00:00Z.\n1. Open MOB-27 for PR-A-001\n2. Read the timeline entries and the API response",
+      "expected": "The timeline shows the status SENT_TREASURY, the amount 2100000000 as an integer VND without decimals and the time from the server, not from the device clock.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-41",
+      "title": "The result list contains R-1 only",
+      "type": "RED",
+      "platform": "api",
+      "persona": "nguoi-dung-mob",
+      "journey_ref": "J-FR-MOB-51",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-51",
+      "oracle_source": "Claim → MOB.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-41 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-51",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tìm kiếm trên điện thoại\": The result list contains R-1 only; opening R-2 by id returns 404 and the response and log contain no field of R-2.",
+      "coverage_ids": [
+        "COV-FR-MOB-51"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mob",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: User with scope U-BQL1; records R-1 in U-BQL1 and R-2 in U-BQL2 both matching the query \"cầu\".\n1. Search \"cầu\" on MOB-51\n2. Open R-2 by id",
+      "expected": "The result list contains R-1 only; opening R-2 by id returns 404 and the response and log contain no field of R-2.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "tags": [
+        "security"
+      ],
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-42",
+      "title": "F-1 carries the state \"needs verification\"",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "nguoi-dung-mob",
+      "journey_ref": "J-FR-MOB-38",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-38",
+      "oracle_source": "Claim → MOB.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-42 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-38",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tóm tắt phân tích nhà thầu\": F-1 carries the state \"needs verification\"; no swipe or push action approves it and no approval command is sent.",
+      "coverage_ids": [
+        "COV-FR-MOB-38"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mob",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: AI finding F-1 awaiting verification with a cited source.\n1. Open MOB-38 for F-1\n2. Swipe the row in both directions and long-press it\n3. Read the available actions and the push payload",
+      "expected": "F-1 carries the state \"needs verification\"; no swipe or push action approves it and no approval command is sent.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "module": "MOB"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-43",
+      "title": "The first user sees the cited passage after a permission re-check (1 check logged)",
+      "type": "RED",
+      "platform": "api",
+      "persona": "nguoi-dung-mob",
+      "journey_ref": "J-FR-MOB-39",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MOB-39",
+      "oracle_source": "Claim → MOB.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-43 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MOB-39",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Xem dẫn chứng gốc\": The first user sees the cited passage after a permission re-check (1 check logged); the revoked user gets 404 and no passage text.",
+      "coverage_ids": [
+        "COV-FR-MOB-39"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mob",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Finding F-1 cites passage P-1 of document D-1; the user can read D-1; a second user lost access to D-1.\n1. The first user opens the source link on MOB-39\n2. The second user opens the same link",
+      "expected": "The first user sees the cited passage after a permission re-check (1 check logged); the revoked user gets 404 and no passage text.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "tags": [
+        "security"
+      ],
+      "module": "MOB"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 68,
+    "M2": 0,
+    "M3": 0,
+    "M4": 50,
+    "max": 68,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 68,
+    "covered": 68,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

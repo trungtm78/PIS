@@ -1,0 +1,3014 @@
+{
+  "feature": "sas",
+  "generated_at": "2026-11-05T07:53:18.075Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/sas/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UAT-AC36",
+      "title": "Lần 1: 200 {received:true, duplicate:false}",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-10",
+      "oracle_source": "Claim → FRD AC36; kỳ vọng nguyên văn của ca thiết kế UAT-AC36 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hóa đơn và đối soát\": Lần 1: 200 {received:true, duplicate:false}. Lần 2–4: 200 {duplicate:true}. Có đúng 1 inbox row (tenant A, pgmock, event_key PG-889), 1 billing_payment amount 3",
+      "coverage_ids": [
+        "COV-FR-SAS-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Hóa đơn INV-A-2026Q4 (tenant A) Issued total 365000000 VND; cổng thanh toán mock ký HMAC; payload txn_ref \"PG-889\" amount 365000000 memo \"INV-A-2026Q4\".\n1. Gửi POST /webhooks/payments/pgmock với chữ ký hợp lệ (lần 1)\n2. Gửi lại đúng payload và chữ ký (lần 2) trong 3 giây\n3. Gửi đồng thời lần 3 và lần 4 từ hai worker\n4. Đọc integration_event_inbox, billing_payment, trạng thái invoice",
+      "expected": "Lần 1: 200 {received:true, duplicate:false}. Lần 2–4: 200 {duplicate:true}. Có đúng 1 inbox row (tenant A, pgmock, event_key PG-889), 1 billing_payment amount 365000000 Matched, invoice Paid; 1 audit billing.payment_matched; không có payment thứ hai do UNIQUE(provider, provider_txn_ref).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "SAS-10",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC37",
+      "title": "Bước 1: subscription PastDue, past_due_since 2026-12-01, 1 notification nhắc Tenant Owner",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-09",
+      "oracle_source": "Claim → FRD AC37; kỳ vọng nguyên văn của ca thiết kế UAT-AC37 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-09, FR-SAS-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thuê bao và kỳ thanh toán\": Bước 1: subscription PastDue, past_due_since 2026-12-01, 1 notification nhắc Tenant Owner; tenant vẫn Active. Bước 2: cảnh báo SAS-09 \"đề xuất tạm ngừng\" cho Sy",
+      "coverage_ids": [
+        "COV-FR-SAS-09",
+        "COV-FR-SAS-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A subscription ANNUAL, hóa đơn INV-A-2026Q4 due_at 2026-11-30 chưa thanh toán; chính sách past-due 30 ngày [GIẢ ĐỊNH].\n1. Đặt đồng hồ 2026-12-01T00:00:00+07:00 và chạy job billing\n2. Đặt đồng hồ 2026-12-31 và chạy job billing\n3. u.maker tạo báo cáo nháp và đọc danh sách dự án\n4. Đếm bản ghi project/report_revision trước và sau",
+      "expected": "Bước 1: subscription PastDue, past_due_since 2026-12-01, 1 notification nhắc Tenant Owner; tenant vẫn Active. Bước 2: cảnh báo SAS-09 \"đề xuất tạm ngừng\" cho System Admin, không tự đổi trạng thái tenant. Bước 3: 200. Bước 4: số bản ghi không đổi; không có job xóa nào chạy.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "UAT",
+      "screen_id": "SAS-03",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC38",
+      "title": "Bước 1: 403 SCOPE_DENIED, audit DENIED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "tat-ca-nguoi-dung",
+      "journey_ref": "J-FR-SAS-19",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-19",
+      "oracle_source": "Claim → FRD AC38; kỳ vọng nguyên văn của ca thiết kế UAT-AC38 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-19, FR-IAM-08",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hỗ trợ truy cập có kiểm soát\": Bước 1: 403 SCOPE_DENIED, audit DENIED. Bước 3: grant Active, expires_at = starts_at + 120 phút, thông báo tới Tenant Admin. Bước 4: đọc 200 với audit impersona",
+      "coverage_ids": [
+        "COV-FR-SAS-19",
+        "COV-FR-IAM-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tat-ca-nguoi-dung",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Ticket TK-38 của tenant A; op.sup có role SupportOperator; u.owner là TENANT_OWNER.\n1. op.sup gọi GET dữ liệu dự án P-01 của A khi chưa có grant\n2. op.sup gọi POST /support-access {tenant_id A, ticket_reference \"TK-38\", scope modules [\"PRJ\"], access_mode READ_ONLY, duration_minutes 120} (k-ac38-1)\n3. u.owner gọi POST /support-access/{id}/approve decision approve starts_at now (k-ac38-2, If-Match \"1\")\n4. op.sup đọc P-01; thử PUT sửa P-01; đặt đồng hồ +121 phút rồi đọc lại",
+      "expected": "Bước 1: 403 SCOPE_DENIED, audit DENIED. Bước 3: grant Active, expires_at = starts_at + 120 phút, thông báo tới Tenant Admin. Bước 4: đọc 200 với audit impersonator_id = op.sup; ghi 403 SUPPORT_GRANT_INVALID (READ_ONLY); sau hạn 403 và grant Expired.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "IAM-08",
+      "tags": [
+        "security"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC39",
+      "title": "Manifest có schema_version, row_counts {project:40, report_revision:520, ",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-SAS-17",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-17",
+      "oracle_source": "Claim → FRD AC39; kỳ vọng nguyên văn của ca thiết kế UAT-AC39 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-17, FR-ADM-12",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Xuất dữ liệu và kết thúc dịch vụ\": Manifest có schema_version, row_counts {project:40, report_revision:520, ...}, file_count = 75 + số tệp dữ liệu, sha256 khớp 100%; link TTL 72 giờ. Archive thàn",
+      "coverage_ids": [
+        "COV-FR-SAS-17",
+        "COV-FR-ADM-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A có 12 bảng nghiệp vụ dữ liệu synthetic (project 40 dòng, report_revision 520, document_version 75 tệp 310 MB); legal hold LH-01 trên dự án P-01.\n1. u.owner gọi POST /tenants/A/export {scope FULL, reason \"Kết thúc hợp đồng 2026\"} (k-ac39-1, If-Match \"<tenant version>\")\n2. Chờ job Ready; tải manifest.json và toàn bộ tệp\n3. Tính sha256 từng tệp và so với manifest; đếm dòng\n4. System Admin startTenantOffboarding rồi archiveTenant sau khi export Delivered",
+      "expected": "Manifest có schema_version, row_counts {project:40, report_revision:520, ...}, file_count = 75 + số tệp dữ liệu, sha256 khớp 100%; link TTL 72 giờ. Archive thành công nhưng job purge bỏ qua toàn bộ P-01 (LEGAL_HOLD_ACTIVE); dữ liệu P-01 còn nguyên.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "ADM-12",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC40",
+      "title": "Kết quả lần lượt: Issued (không hiệu lực), Active, Active, Grace, Grace, Expired",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-13",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-13",
+      "oracle_source": "Claim → FRD AC40; kỳ vọng nguyên văn của ca thiết kế UAT-AC40 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-13",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi tiết license\": Kết quả lần lượt: Issued (không hiệu lực), Active, Active, Grace, Grace, Expired. Đồng hồ client không ảnh hưởng; mỗi chuyển trạng thái phát đúng 1 sas.license.",
+      "coverage_ids": [
+        "COV-FR-SAS-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. License L-A rev1: valid_from 2026-01-01T00:00:00Z, valid_until 2027-01-01T00:00:00Z, grace_until 2027-01-31T00:00:00Z; job trạng thái license chạy mỗi phút.\n1. Đánh giá entitlement tại 2025-12-31T23:59:59.999Z, 2026-01-01T00:00:00Z, 2026-12-31T23:59:59.999Z, 2027-01-01T00:00:00Z, 2027-01-30T23:59:59.999Z, 2027-01-31T00:00:00Z\n2. Gửi kèm header Date của client lệch +3 ngày ở mỗi lần",
+      "expected": "Kết quả lần lượt: Issued (không hiệu lực), Active, Active, Grace, Grace, Expired. Đồng hồ client không ảnh hưởng; mỗi chuyển trạng thái phát đúng 1 sas.license.* event và 1 sas.entitlement.changed.v1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "SAS-13",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC41",
+      "title": "Bước 1: 200",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-13",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-13",
+      "oracle_source": "Claim → FRD AC41; kỳ vọng nguyên văn của ca thiết kế UAT-AC41 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-13, FR-SAS-25",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi tiết license\": Bước 1: 200. Bước 2: 403 ENTITLEMENT_DENIED errors[0].code LICENSE_GRACE. Bước 3: cả hai 403 ENTITLEMENT_DENIED. Bước 4: 202. GET /me/entitlements trả mode READ",
+      "coverage_ids": [
+        "COV-FR-SAS-13",
+        "COV-FR-SAS-25"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Gói STANDARD có plan_feature: reporting ALLOW, export ALLOW, ai.analysis DENY, notification.campaign DENY, member.invite DENY khi grace; license L-A đang Grace.\n1. u.maker gọi POST /reports/R-41/submit (k-ac41-1)\n2. u.spec gọi POST /analysis-runs (k-ac41-2)\n3. u.admin gọi POST /notification-campaigns (k-ac41-3) và POST /memberships/invitations (k-ac41-4)\n4. u.owner gọi POST /tenants/A/export (k-ac41-5)",
+      "expected": "Bước 1: 200. Bước 2: 403 ENTITLEMENT_DENIED errors[0].code LICENSE_GRACE. Bước 3: cả hai 403 ENTITLEMENT_DENIED. Bước 4: 202. GET /me/entitlements trả mode READ_ONLY/DENIED tương ứng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "SAS-13",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC42",
+      "title": "Đọc 200",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-13",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-13",
+      "oracle_source": "Claim → FRD AC42; kỳ vọng nguyên văn của ca thiết kế UAT-AC42 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-13",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi tiết license\": Đọc 200; submit 403 ENTITLEMENT_DENIED (LICENSE_EXPIRED); export 202; số bản ghi không đổi; không có job purge nào được lập lịch.",
+      "coverage_ids": [
+        "COV-FR-SAS-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. License L-A Expired; plan_feature expired_behavior: reporting READ_ONLY, export EXPORT_ONLY.\n1. u.maker gọi GET /resources/report_revision và POST /reports/R-42/submit (k-ac42-1)\n2. u.owner gọi POST /tenants/A/export (k-ac42-2)\n3. Đếm bản ghi trước/sau và kiểm job purge",
+      "expected": "Đọc 200; submit 403 ENTITLEMENT_DENIED (LICENSE_EXPIRED); export 202; số bản ghi không đổi; không có job purge nào được lập lịch.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "SAS-13",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC43",
+      "title": "Bước 1, 2: 403 SCOPE_DENIED (audience không phải control plane), license không đổi, audit outcome DENIED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "tenant-admin-unit-admin",
+      "journey_ref": "J-FR-SAS-14",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-14",
+      "oracle_source": "Claim → FRD AC43; kỳ vọng nguyên văn của ca thiết kế UAT-AC43 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-14, FR-ADM-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Gia hạn và thay đổi license\": Bước 1, 2: 403 SCOPE_DENIED (audience không phải control plane), license không đổi, audit outcome DENIED. Bước 3: 422 SYSTEM_PERMISSION_NOT_GRANTABLE. Chỉ còn r",
+      "coverage_ids": [
+        "COV-FR-SAS-14",
+        "COV-FR-ADM-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tenant-admin-unit-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.admin (TENANT_ADMIN) và u.owner (TENANT_OWNER) của tenant A có token audience tenant-plane; license L-A rev1 Active.\n1. u.admin gọi POST /licenses/L-A/renew {valid_until +1 năm} (k-ac43-1, If-Match \"1\")\n2. u.owner gọi cùng lệnh (k-ac43-2)\n3. u.admin tạo vai trò tùy biến chứa system.license.manage qua POST /roles (k-ac43-3)\n4. Đọc license_revision và audit_event",
+      "expected": "Bước 1, 2: 403 SCOPE_DENIED (audience không phải control plane), license không đổi, audit outcome DENIED. Bước 3: 422 SYSTEM_PERMISSION_NOT_GRANTABLE. Chỉ còn rev1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "ADM-03",
+      "tags": [
+        "security"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC44",
+      "title": "license Revoked",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-15",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-15",
+      "oracle_source": "Claim → FRD AC44; kỳ vọng nguyên văn của ca thiết kế UAT-AC44 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-15",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tạm khóa và thu hồi license\": license Revoked; 1 audit license.revoked với reason; 1 outbox sas.license.revoked.v1 + 1 sas.entitlement.changed.v1; key ent:{A} bị xóa; cả 3 phiên và mobile nh",
+      "coverage_ids": [
+        "COV-FR-SAS-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A có 3 phiên web đang mở (SSE) và 1 thiết bị mobile; cache entitlement Redis TTL 60 giây; license L-A Active.\n1. sa.root gọi POST /licenses/L-A/revoke {reason \"Vi phạm điều khoản sử dụng hợp đồng\"} (k-ac44-1, If-Match \"2\")\n2. Ghi thời điểm commit T0; đo thời điểm mỗi phiên nhận sự kiện entitlements.changed và lần đầu nhận 403\n3. Đọc audit_event, outbox_event, notification_instance cho Tenant Owner",
+      "expected": "license Revoked; 1 audit license.revoked với reason; 1 outbox sas.license.revoked.v1 + 1 sas.entitlement.changed.v1; key ent:{A} bị xóa; cả 3 phiên và mobile nhận sự kiện và lệnh ghi bị 403 ENTITLEMENT_DENIED trước T0+60s (p95 đo được ghi vào bằng chứng); Tenant Owner nhận 1 thông báo.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "SAS-15",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-SEC02",
+      "title": "403 cho mọi lệnh",
+      "type": "RED",
+      "platform": "web",
+      "persona": "system-admin-cau-hinh",
+      "journey_ref": "J-NFR-SECURITY-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-SECURITY-02",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế SEC02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-SECURITY-02, NFR-SECURITY-01, FR-SAS-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Control plane System Admin tách biệt\": 403 cho mọi lệnh; current_version, draft, asset không đổi",
+      "coverage_ids": [
+        "COV-NFR-SECURITY-02",
+        "COV-NFR-SECURITY-01",
+        "COV-FR-SAS-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin-cau-hinh",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Tenant Admin gọi PUT draft/POST asset/review/publish theme trực tiếp\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "403 cho mọi lệnh; current_version, draft, asset không đổi",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
+      "design_type": "integration/security/UAT",
+      "screen_id": "SAS-04",
+      "tags": [
+        "security"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-SEC03",
+      "title": "403",
+      "type": "RED",
+      "platform": "web",
+      "persona": "system-admin-cau-hinh",
+      "journey_ref": "J-NFR-SECURITY-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-SECURITY-02",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế SEC03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-SECURITY-02, FR-SAS-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Control plane System Admin tách biệt\": 403; review không thể bypass quyền hiện tại",
+      "coverage_ids": [
+        "COV-NFR-SECURITY-02",
+        "COV-FR-SAS-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin-cau-hinh",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. System Admin bị thu hồi quyền sau review rồi publish\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "403; review không thể bypass quyền hiện tại",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
+      "design_type": "integration/security/UAT",
+      "screen_id": "SAS-04",
+      "tags": [
+        "security"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-SEC04",
+      "title": "Từ chối",
+      "type": "RED",
+      "platform": "web",
+      "persona": "system-admin-cau-hinh",
+      "journey_ref": "J-NFR-SECURITY-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-SECURITY-02",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế SEC04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-SECURITY-02, FR-SAS-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Control plane System Admin tách biệt\": Từ chối; không tạo version mới",
+      "coverage_ids": [
+        "COV-NFR-SECURITY-02",
+        "COV-FR-SAS-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin-cau-hinh",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Dùng review token khác tenant/actor hoặc hết hạn/đã dùng\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "Từ chối; không tạo version mới",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
+      "design_type": "integration/security/UAT",
+      "screen_id": "SAS-04",
+      "tags": [
+        "security"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-TH01",
+      "title": "Nháp persist đúng tenant",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "quan-tri-tenant-a",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-04",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế TH01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-04, NFR-TENANCY-01 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Bản nháp giao diện lưu sai tenant hoặc làm đổi bản đã công bố và người dùng khác",
+      "coverage_ids": [
+        "COV-FR-SAS-04",
+        "COV-NFR-TENANCY-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-tenant-a",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Sửa tên/màu/logo, lưu nháp, reload, mở preview web/mobile\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "Nháp persist đúng tenant; published và người dùng khác không đổi",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
+      "design_type": "integration/security/UAT",
+      "screen_id": "SAS-04",
+      "tags": [
+        "security"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-TH02",
+      "title": "Hủy không đổi",
+      "type": "RED",
+      "platform": "web",
+      "persona": "system-admin-cau-hinh",
+      "journey_ref": "J-FR-SAS-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-04",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế TH02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-04, NFR-SECURITY-11",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Theme & thương hiệu tenant\": Hủy không đổi; publish tạo v2; restore tạo v3 từ v1 và giữ v2",
+      "coverage_ids": [
+        "COV-FR-SAS-04",
+        "COV-NFR-SECURITY-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin-cau-hinh",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Review → hủy; review → xác nhận; chọn v1 → review → restore\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "Hủy không đổi; publish tạo v2; restore tạo v3 từ v1 và giữ v2",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
+      "design_type": "integration/security/UAT",
+      "screen_id": "SAS-04",
+      "tags": [
+        "security"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-TH03",
+      "title": "Người thứ hai nhận409",
+      "type": "RED",
+      "platform": "web",
+      "persona": "system-admin-cau-hinh",
+      "journey_ref": "J-FR-SAS-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-04",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế TH03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-04, NFR-SECURITY-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Theme & thương hiệu tenant\": Người thứ hai nhận409; phải review lại; không lost update",
+      "coverage_ids": [
+        "COV-FR-SAS-04",
+        "COV-NFR-SECURITY-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin-cau-hinh",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Hai System Admin review cùng base; người thứ nhất publish trước\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "Người thứ hai nhận409; phải review lại; không lost update",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
+      "design_type": "integration/security/UAT",
+      "screen_id": "SAS-04",
+      "tags": [
+        "security"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-TH04",
+      "title": "422/413",
+      "type": "RED",
+      "platform": "web",
+      "persona": "system-admin-cau-hinh",
+      "journey_ref": "J-FR-SAS-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-04",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế TH04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-04, NFR-SECURITY-12",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Theme & thương hiệu tenant\": 422/413; không tài sản công khai hoặc published mới",
+      "coverage_ids": [
+        "COV-FR-SAS-04",
+        "COV-NFR-SECURITY-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin-cau-hinh",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Ảnh giả MIME/SVG/quá1MB, màu saiHEX hoặc contrast<4.5\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "422/413; không tài sản công khai hoặc published mới",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
+      "design_type": "integration/security/UAT",
+      "screen_id": "SAS-04",
+      "tags": [
+        "security"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-TH05",
+      "title": "Đúng theme/version tenant",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chuyen-vien-tinh-a",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-04",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế TH05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-04, NFR-TENANCY-03 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Đổi theme của tenant làm mất breadcrumb, form đang nhập hoặc vị trí menu, hoặc áp theme của tenant khác",
+      "coverage_ids": [
+        "COV-FR-SAS-04",
+        "COV-NFR-TENANCY-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-tinh-a",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Dựng lại menu, route back, reload và đổi thiết bị sau publish\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "Đúng theme/version tenant; không mất breadcrumb, form hoặc vị trí menu",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
+      "design_type": "integration/security/UAT",
+      "screen_id": "SAS-04",
+      "tags": [
+        "security"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-LIC01",
+      "title": "Hiệu lực đúng [from,until)",
+      "type": "RED",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-13",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-13",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế LIC01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-13, FR-SAS-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi tiết license\": Hiệu lực đúng [from,until); grace theo entitlement; client clock không quyết định",
+      "coverage_ids": [
+        "COV-FR-SAS-13",
+        "COV-FR-SAS-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Kiểm ở valid_from-1ms,valid_from,valid_until-1ms,valid_until\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "Hiệu lực đúng [from,until); grace theo entitlement; client clock không quyết định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
+      "design_type": "integration/security/UAT",
+      "screen_id": "SAS-13",
+      "tags": [
+        "security"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-OPS01",
+      "title": "Checksum/file reference/totals khớp",
+      "type": "RECOVERY",
+      "platform": "api",
+      "persona": "van-hanh-ha-tang",
+      "journey_ref": "J-RESTORE-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-AVAILABILITY-02",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế OPS01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-AVAILABILITY-02, NFR-AVAILABILITY-03, FR-SAS-21 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Diễn tập khôi phục không đo được RPO/RTO hoặc checksum, tổng và tham chiếu tệp không khớp",
+      "coverage_ids": [
+        "COV-NFR-AVAILABILITY-02",
+        "COV-NFR-AVAILABILITY-03",
+        "COV-FR-SAS-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-hanh-ha-tang",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Restore DB và object ở recovery point được chọn\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "Checksum/file reference/totals khớp; đo RPO/RTO; có biên bản drill",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
+      "design_type": "integration/security/UAT",
+      "screen_id": "SAS-21",
+      "tags": [
+        "security"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-01",
+      "title": "Danh sách tenant (SAS-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-01",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-01",
+      "oracle_source": "Claim → FR-SAS-01; kỳ vọng nguyên văn của ca thiết kế UI-SAS-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-01",
+      "catches_bug": "Màn hình Danh sách tenant (SAS-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-01\n1. Mở route bằng menu và deep link; kiểm tên trường: Tenant ID, Gói, Vùng, Trạng thái\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-02",
+      "title": "Khởi tạo tenant (SAS-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-02",
+      "oracle_source": "Claim → FR-SAS-02; kỳ vọng nguyên văn của ca thiết kế UI-SAS-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-02",
+      "catches_bug": "Màn hình Khởi tạo tenant (SAS-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-02\n1. Mở route bằng menu và deep link; kiểm tên trường: Tên, Owner, Vùng dữ liệu, Mô hình cách ly, Gói\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-03",
+      "title": "Chi tiết tenant (SAS-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-03",
+      "oracle_source": "Claim → FR-SAS-03; kỳ vọng nguyên văn của ca thiết kế UI-SAS-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-03",
+      "catches_bug": "Màn hình Chi tiết tenant (SAS-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-03\n1. Mở route bằng menu và deep link; kiểm tên trường: Đơn vị, Usage, License, Tích hợp, Sức khỏe\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-04",
+      "title": "Theme & thương hiệu tenant (SAS-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin-cau-hinh",
+      "journey_ref": "J-FR-SAS-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-04",
+      "oracle_source": "Claim → FR-SAS-04; kỳ vọng nguyên văn của ca thiết kế UI-SAS-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-04",
+      "catches_bug": "Màn hình Theme & thương hiệu tenant (SAS-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin-cau-hinh",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-04\n1. Mở route bằng menu và deep link; kiểm tên trường: Tenant, Logo, Tên hệ thống, Header, Footer, Địa chỉ, Email, Điện thoại, Màu chủ đạo, Màu menu, Màu tiêu đề, Review thay đổi, Lịch sử & khôi phục\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ System Admin được lưu nháp, áp dụng hoặc khôi phục theme cho tenant. Tenant Admin chỉ xem bản công bố. Review và xác nhận bắt buộc; kiểm tương phản và phiên bản trước khi ghi.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-05",
+      "title": "Tên miền và xác minh (SAS-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-05",
+      "oracle_source": "Claim → FR-SAS-05; kỳ vọng nguyên văn của ca thiết kế UI-SAS-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-05",
+      "catches_bug": "Màn hình Tên miền và xác minh (SAS-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-05\n1. Mở route bằng menu và deep link; kiểm tên trường: Domain, TXT verification, TLS, Trạng thái\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-06",
+      "title": "Gói sản phẩm và tính năng (SAS-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-06",
+      "oracle_source": "Claim → FR-SAS-06; kỳ vọng nguyên văn của ca thiết kế UI-SAS-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-06",
+      "catches_bug": "Màn hình Gói sản phẩm và tính năng (SAS-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-06\n1. Mở route bằng menu và deep link; kiểm tên trường: Gói, Module, Quota, Giá, Chu kỳ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-07",
+      "title": "Đăng ký và dùng thử (SAS-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-07",
+      "oracle_source": "Claim → FR-SAS-07; kỳ vọng nguyên văn của ca thiết kế UI-SAS-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-07",
+      "catches_bug": "Màn hình Đăng ký và dùng thử (SAS-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-07\n1. Mở route bằng menu và deep link; kiểm tên trường: Gói, Số ghế, Ngày bắt đầu, Điều khoản\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-08",
+      "title": "Nâng hạ gói (SAS-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-08",
+      "oracle_source": "Claim → FR-SAS-08; kỳ vọng nguyên văn của ca thiết kế UI-SAS-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-08",
+      "catches_bug": "Màn hình Nâng hạ gói (SAS-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-08\n1. Mở route bằng menu và deep link; kiểm tên trường: Gói hiện tại, Gói mới, Hiệu lực, Tính phí\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-09",
+      "title": "Thuê bao và kỳ thanh toán (SAS-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-09",
+      "oracle_source": "Claim → FR-SAS-09; kỳ vọng nguyên văn của ca thiết kế UI-SAS-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-09",
+      "catches_bug": "Màn hình Thuê bao và kỳ thanh toán (SAS-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-09\n1. Mở route bằng menu và deep link; kiểm tên trường: Subscription, Chu kỳ, Gia hạn, Trạng thái\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-10",
+      "title": "Hóa đơn và đối soát (SAS-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-10",
+      "oracle_source": "Claim → FR-SAS-10; kỳ vọng nguyên văn của ca thiết kế UI-SAS-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-10",
+      "catches_bug": "Màn hình Hóa đơn và đối soát (SAS-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-10\n1. Mở route bằng menu và deep link; kiểm tên trường: Kỳ, Usage, Thuế, Tổng, Thanh toán\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-11",
+      "title": "Đo mức sử dụng (SAS-11): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-11",
+      "oracle_source": "Claim → FR-SAS-11; kỳ vọng nguyên văn của ca thiết kế UI-SAS-11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-11",
+      "catches_bug": "Màn hình Đo mức sử dụng (SAS-11) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-11\n1. Mở route bằng menu và deep link; kiểm tên trường: Seats, Storage, AI, Messages, BI queries\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-11",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-12",
+      "title": "Cấp license (SAS-12): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-12",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-12",
+      "oracle_source": "Claim → FR-SAS-12; kỳ vọng nguyên văn của ca thiết kế UI-SAS-12 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-12",
+      "catches_bug": "Màn hình Cấp license (SAS-12) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-12\n1. Mở route bằng menu và deep link; kiểm tên trường: Tenant, Gói quyền, Số ghế, Hiệu lực, Hết hạn, Grace period\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-12",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-13",
+      "title": "Chi tiết license (SAS-13): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-13",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-13",
+      "oracle_source": "Claim → FR-SAS-13; kỳ vọng nguyên văn của ca thiết kế UI-SAS-13 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-13",
+      "catches_bug": "Màn hình Chi tiết license (SAS-13) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-13\n1. Mở route bằng menu và deep link; kiểm tên trường: License ID, Serial, Entitlements, Trạng thái, Chữ ký\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-13",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-14",
+      "title": "Gia hạn và thay đổi license (SAS-14): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-14",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-14",
+      "oracle_source": "Claim → FR-SAS-14; kỳ vọng nguyên văn của ca thiết kế UI-SAS-14 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-14",
+      "catches_bug": "Màn hình Gia hạn và thay đổi license (SAS-14) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-14\n1. Mở route bằng menu và deep link; kiểm tên trường: Hạn cũ, Hạn mới, Quyền thay đổi, Lý do\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-14",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-15",
+      "title": "Tạm khóa và thu hồi license (SAS-15): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-15",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-15",
+      "oracle_source": "Claim → FR-SAS-15; kỳ vọng nguyên văn của ca thiết kế UI-SAS-15 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-15",
+      "catches_bug": "Màn hình Tạm khóa và thu hồi license (SAS-15) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-15\n1. Mở route bằng menu và deep link; kiểm tên trường: Phạm vi, Ngày hiệu lực, Lý do, Phương án dữ liệu\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-15",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-16",
+      "title": "Lịch sử license (SAS-16): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-16",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-16",
+      "oracle_source": "Claim → FR-SAS-16; kỳ vọng nguyên văn của ca thiết kế UI-SAS-16 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-16",
+      "catches_bug": "Màn hình Lịch sử license (SAS-16) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-16\n1. Mở route bằng menu và deep link; kiểm tên trường: Người cấp, Sự kiện, Trước, Sau\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-16",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-17",
+      "title": "Xuất dữ liệu và kết thúc dịch vụ (SAS-17): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-17",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-17",
+      "oracle_source": "Claim → FR-SAS-17; kỳ vọng nguyên văn của ca thiết kế UI-SAS-17 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-17",
+      "catches_bug": "Màn hình Xuất dữ liệu và kết thúc dịch vụ (SAS-17) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-17\n1. Mở route bằng menu và deep link; kiểm tên trường: Phạm vi, Bản xuất, Hạn tải, Thời hạn xóa\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-17",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-18",
+      "title": "Sức khỏe toàn nền tảng (SAS-18): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-18",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-18",
+      "oracle_source": "Claim → FR-SAS-18; kỳ vọng nguyên văn của ca thiết kế UI-SAS-18 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-18",
+      "catches_bug": "Màn hình Sức khỏe toàn nền tảng (SAS-18) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-18\n1. Mở route bằng menu và deep link; kiểm tên trường: Tenant, SLO, Sự cố, Năng lực\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-18",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-19",
+      "title": "Hỗ trợ truy cập có kiểm soát (SAS-19): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "support-operator-de-nghi",
+      "journey_ref": "J-FR-SAS-19",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-19",
+      "oracle_source": "Claim → FR-SAS-19; kỳ vọng nguyên văn của ca thiết kế UI-SAS-19 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-19",
+      "catches_bug": "Màn hình Hỗ trợ truy cập có kiểm soát (SAS-19) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "support-operator-de-nghi",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-19\n1. Mở route bằng menu và deep link; kiểm tên trường: Tenant đồng ý, Ticket, Phạm vi, Thời hạn\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-19",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-20",
+      "title": "Cờ tính năng và phát hành (SAS-20): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-20",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-20",
+      "oracle_source": "Claim → FR-SAS-20; kỳ vọng nguyên văn của ca thiết kế UI-SAS-20 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-20",
+      "catches_bug": "Màn hình Cờ tính năng và phát hành (SAS-20) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-20"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-20\n1. Mở route bằng menu và deep link; kiểm tên trường: Tenant, Cohort, Phiên bản, Rollback\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-20",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-21",
+      "title": "Sao lưu và khôi phục tenant (SAS-21): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-21",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-21",
+      "oracle_source": "Claim → FR-SAS-21; kỳ vọng nguyên văn của ca thiết kế UI-SAS-21 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-21",
+      "catches_bug": "Màn hình Sao lưu và khôi phục tenant (SAS-21) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route SAS-21\n1. Mở route bằng menu và deep link; kiểm tên trường: Điểm khôi phục, Phạm vi, Môi trường thử, Người duyệt\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tenant là ranh giới cách ly; đơn vị nội bộ không phải tenant\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-21",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC145",
+      "title": "202 status Requested",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-02",
+      "oracle_source": "Claim → SAS.md §3.1; kỳ vọng nguyên văn của ca thiết kế UAT-AC145 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-02, FR-SAS-22",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Khởi tạo tenant\": 202 status Requested; sau saga: tenant Active; tenant_provisioning_run Succeeded với 11 bước DONE; 1 Keycloak organization; DNS minhha.machvon.vn; prefix storag",
+      "coverage_ids": [
+        "COV-FR-SAS-02",
+        "COV-FR-SAS-22"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Control plane sạch; plan STANDARD v1 Published; placement POOL-VN-N1 Active; IdP, DNS, storage là mock có đếm.\n1. sa.root POST /system/tenants {code \"minh-ha\", name \"UBND tỉnh Minh Hà\", governing_body_type PROVINCE, administrative_code \"99\", region vn-north, isolation_mode POOL, plan STANDARD v1, root_unit_name \"UBND tỉnh Minh Hà\", initial_owner_email owner@minhha.gov.vn, platform_subdomain \"minhha\"} (k-145-1)\n2. Theo dõi GET /system/tenants/{id} tới khi Active\n3. Đọc dữ liệu được tạo",
+      "expected": "202 status Requested; sau saga: tenant Active; tenant_provisioning_run Succeeded với 11 bước DONE; 1 Keycloak organization; DNS minhha.machvon.vn; prefix storage <tenant_id>/; entitlement_version 1; license PILOT Issued; 12 role_definition hệ thống; organization_unit gốc GOVERNING_BODY; tenant_theme_version 1 + pointer; lời mời owner gửi 1 lần; audit tenant.requested và tenant.activated.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "E2E",
+      "screen_id": "SAS-02",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC146",
+      "title": "Run 1 Failed tại DNS_SUBDOMAIN error_code PROVIDER_UNAVAILABLE sau 3 lần thử",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-22",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-22",
+      "oracle_source": "Claim → SAS.md BR-SAS-02; kỳ vọng nguyên văn của ca thiết kế UAT-AC146 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-22, FR-SAS-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tiến trình khởi tạo tenant\": Run 1 Failed tại DNS_SUBDOMAIN error_code PROVIDER_UNAVAILABLE sau 3 lần thử; tenant Failed. Retry: run attempt 2 bắt đầu tại DNS_SUBDOMAIN; IDP_ORG và các bước",
+      "coverage_ids": [
+        "COV-FR-SAS-22",
+        "COV-FR-SAS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. DNS mock trả 503 ba lần liên tiếp cho bước DNS_SUBDOMAIN.\n1. Khởi tạo tenant \"lam-son\" (k-146-1)\n2. Chờ run Failed; đọc SAS-22\n3. Khôi phục DNS, POST /system/tenants/{id}/provisioning/retry (k-146-2, If-Match)",
+      "expected": "Run 1 Failed tại DNS_SUBDOMAIN error_code PROVIDER_UNAVAILABLE sau 3 lần thử; tenant Failed. Retry: run attempt 2 bắt đầu tại DNS_SUBDOMAIN; IDP_ORG và các bước trước không chạy lại (IdP mock vẫn 1 organization); tenant Active.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "SAS-02",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC147",
+      "title": "Lần 1: 202 cùng tenant_id (replay)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-02",
+      "oracle_source": "Claim → SAS.md BR-SAS-01; kỳ vọng nguyên văn của ca thiết kế UAT-AC147 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Khởi tạo tenant\": Lần 1: 202 cùng tenant_id (replay). Lần 2: 409 TENANT_CODE_TAKEN; chỉ có 1 tenant và 1 Temporal workflow.",
+      "coverage_ids": [
+        "COV-FR-SAS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant \"minh-ha\" đã được yêu cầu bằng key k-147-1.\n1. Gửi lại cùng body với k-147-1\n2. Gửi cùng code \"minh-ha\" với key k-147-2",
+      "expected": "Lần 1: 202 cùng tenant_id (replay). Lần 2: 409 TENANT_CODE_TAKEN; chỉ có 1 tenant và 1 Temporal workflow.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "SAS-02",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC148",
+      "title": "Cả ba: 409 TENANT_STATE_INVALID với detail \"Active\"",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-03",
+      "oracle_source": "Claim → SAS.md §4; kỳ vọng nguyên văn của ca thiết kế UAT-AC148 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi tiết tenant\": Cả ba: 409 TENANT_STATE_INVALID với detail \"Active\"; không có audit SUCCESS.",
+      "coverage_ids": [
+        "COV-FR-SAS-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A Active.\n1. POST /system/tenants/A/resume (k-148-1)\n2. POST /system/tenants/A/archive (k-148-2)\n3. POST /system/tenants/A/provisioning/retry (k-148-3)",
+      "expected": "Cả ba: 409 TENANT_STATE_INVALID với detail \"Active\"; không có audit SUCCESS.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "SAS-03",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC149",
+      "title": "Suspended + EntitlementChanged ≤60s",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-03",
+      "oracle_source": "Claim → SAS.md BR-SAS-04; kỳ vọng nguyên văn của ca thiết kế UAT-AC149 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi tiết tenant\": Suspended + EntitlementChanged ≤60s; GET 200; submit 403 TENANT_SUSPENDED; export 202; resume → Active, ghi lại được; mỗi chuyển trạng thái 1 audit có lý do.",
+      "coverage_ids": [
+        "COV-FR-SAS-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A Active với 2 phiên người dùng.\n1. sa.root POST /system/tenants/A/suspend {reason_code SECURITY_INCIDENT, access_policy READ_ONLY_EXPORT, reason \"Nghi lộ thông tin đăng nhập quản trị\"} (k-149-1)\n2. u.maker GET dự án; POST /reports/R-49/submit\n3. u.owner POST /tenants/A/export\n4. sa.root resume",
+      "expected": "Suspended + EntitlementChanged ≤60s; GET 200; submit 403 TENANT_SUSPENDED; export 202; resume → Active, ghi lại được; mỗi chuyển trạng thái 1 audit có lý do.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "SAS-03",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC150",
+      "title": "Bước 2: 422 MIGRATION_VERIFICATION_FAILED, trạng thái Verifying, routing cũ",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-23",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-23",
+      "oracle_source": "Claim → SAS.md BR-SAS-05; kỳ vọng nguyên văn của ca thiết kế UAT-AC150 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-23",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nâng cấp cách ly silo\": Bước 2: 422 MIGRATION_VERIFICATION_FAILED, trạng thái Verifying, routing cũ. Bước 3: 403 SELF_APPROVAL_DENIED. Bước 4: CutoverFrozen → Switched → Completed; lện",
+      "coverage_ids": [
+        "COV-FR-SAS-23"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A POOL trên POOL-VN-N1; placement SILO-A-01 Active; dữ liệu A 2,1 GB.\n1. sa.root POST /system/tenants/A/placement-migrations {to SILO-A-01, write_freeze_max_minutes 30} (k-150-1)\n2. Giả lập lệch 1 dòng report_revision ở đích rồi sa.two approve cutover (k-150-2)\n3. Sửa lệch, verify lại; sa.root approve (k-150-3)\n4. sa.two approve (k-150-4); đo thời gian đóng băng ghi",
+      "expected": "Bước 2: 422 MIGRATION_VERIFICATION_FAILED, trạng thái Verifying, routing cũ. Bước 3: 403 SELF_APPROVAL_DENIED. Bước 4: CutoverFrozen → Switched → Completed; lệnh ghi trong cửa sổ trả 503 retryable; đóng băng ≤ 30 phút; tenant.isolation_mode SILO, placement_id SILO-A-01; row count và tổng numeric(24,0) các bảng tiền khớp 100%.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "E2E",
+      "screen_id": "SAS-23",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC151",
+      "title": "RolledBack",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-23",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-23",
+      "oracle_source": "Claim → SAS.md §4; kỳ vọng nguyên văn của ca thiết kế UAT-AC151 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-23",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nâng cấp cách ly silo\": RolledBack; routing về POOL; write_frozen_until NULL; row count tenant không đổi; ghi mới 200.",
+      "coverage_ids": [
+        "COV-FR-SAS-23"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Migration M-51 ở CutoverFrozen.\n1. sa.two POST /system/placement-migrations/M-51/abort (k-151-1)\n2. Ghi dữ liệu mới và đọc",
+      "expected": "RolledBack; routing về POOL; write_frozen_until NULL; row count tenant không đổi; ghi mới 200.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "SAS-23",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC152",
+      "title": "Bước 1: 201 trả txt_record_value một lần",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-05",
+      "oracle_source": "Claim → SAS.md BR-SAS-06; kỳ vọng nguyên văn của ca thiết kế UAT-AC152 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tên miền và xác minh\": Bước 1: 201 trả txt_record_value một lần. Bước 2: 422 DOMAIN_UNVERIFIED. Bước 3: Verified, TLS Issued. Bước 4: 409 DOMAIN_TAKEN. Bước 5: 409 DOMAIN_TAKEN trong ",
+      "coverage_ids": [
+        "COV-FR-SAS-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A, DNS mock.\n1. POST /system/tenants/A/domains {hostname \"dautu.minhha.gov.vn\", kind CUSTOM} (k-152-1)\n2. verify khi chưa có TXT (k-152-2)\n3. Thêm TXT, verify (k-152-3)\n4. Tenant B thêm cùng hostname (k-152-4)\n5. Gỡ domain của A rồi B thêm lại ngay (k-152-5)",
+      "expected": "Bước 1: 201 trả txt_record_value một lần. Bước 2: 422 DOMAIN_UNVERIFIED. Bước 3: Verified, TLS Issued. Bước 4: 409 DOMAIN_TAKEN. Bước 5: 409 DOMAIN_TAKEN trong 90 ngày giữ chỗ.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "SAS-05",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC153",
+      "title": "Không vào được dữ liệu B: 403 TENANT_SELECTION_INVALID",
+      "type": "RED",
+      "platform": "web",
+      "persona": "tat-ca-nguoi-dung",
+      "journey_ref": "J-FR-SAS-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-05",
+      "oracle_source": "Claim → SAS.md BR-SAS-06; kỳ vọng nguyên văn của ca thiết kế UAT-AC153 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-05, FR-IAM-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tên miền và xác minh\": Không vào được dữ liệu B: 403 TENANT_SELECTION_INVALID; IAM-04 chỉ liệt kê tenant A; không lộ tên đơn vị của B.",
+      "coverage_ids": [
+        "COV-FR-SAS-05",
+        "COV-FR-IAM-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "tat-ca-nguoi-dung",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.spec chỉ có membership ở A; tenant B có domain đã xác minh b.machvon.vn.\n1. u.spec mở https://b.machvon.vn và đăng nhập\n2. Gọi POST /me/session/tenant-selection {tenant B}",
+      "expected": "Không vào được dữ liệu B: 403 TENANT_SELECTION_INVALID; IAM-04 chỉ liệt kê tenant A; không lộ tên đơn vị của B.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "IAM-04",
+      "tags": [
+        "security"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC154",
+      "title": "Bước 1: 409 PLAN_VERSION_IMMUTABLE",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-06",
+      "oracle_source": "Claim → SAS.md BR-SAS-07; kỳ vọng nguyên văn của ca thiết kế UAT-AC154 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Gói sản phẩm và tính năng\": Bước 1: 409 PLAN_VERSION_IMMUTABLE. Bước 2: 201 revision 2 Draft; subscription hiện tại vẫn trỏ revision 1.",
+      "coverage_ids": [
+        "COV-FR-SAS-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Plan \"standard\" revision 1 Published.\n1. POST /system/plans/{v1}/publish lần nữa (k-154-1)\n2. POST /system/plans {plan_code \"standard\"} tạo revision 2 (k-154-2)",
+      "expected": "Bước 1: 409 PLAN_VERSION_IMMUTABLE. Bước 2: 201 revision 2 Draft; subscription hiện tại vẫn trỏ revision 1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "SAS-06",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC155",
+      "title": "Preview proration_vnd \"320000000\" = (730",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-08",
+      "oracle_source": "Claim → SAS.md BR-SAS-08; kỳ vọng nguyên văn của ca thiết kế UAT-AC155 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-08",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nâng hạ gói\": Preview proration_vnd \"320000000\" = (730.000.000 − 365.000.000) × 320/365, làm tròn xuống tới đồng. Bước 2: 409 PREVIEW_STALE. Bước 3: 200; entitlement_version ",
+      "coverage_ids": [
+        "COV-FR-SAS-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Subscription ANNUAL STANDARD 365.000.000 VND/năm, kỳ 2026-01-01..2026-12-31; ENTERPRISE 730.000.000 VND/năm; hôm nay 2026-02-15 (đã dùng 45 ngày).\n1. POST /system/subscriptions/{id}/plan-change-previews {ENTERPRISE, NOW} (k-155-1)\n2. Tạo override bất kỳ cho tenant (thay đổi entitlement) rồi apply với preview_hash cũ (k-155-2)\n3. Preview lại và apply (k-155-3)",
+      "expected": "Preview proration_vnd \"320000000\" = (730.000.000 − 365.000.000) × 320/365, làm tròn xuống tới đồng. Bước 2: 409 PREVIEW_STALE. Bước 3: 200; entitlement_version tăng 1; hóa đơn nháp dòng ADJUSTMENT 320.000.000.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "SAS-08",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC156",
+      "title": "Preview quota_violations [{feature_code seats, used 120, new_limit 100}]",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-08",
+      "oracle_source": "Claim → SAS.md BR-SAS-09; kỳ vọng nguyên văn của ca thiết kế UAT-AC156 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-08, FR-SAS-11",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nâng hạ gói\": Preview quota_violations [{feature_code seats, used 120, new_limit 100}]; sau hiệu lực: mời 403 QUOTA_EXCEEDED, 120 người vẫn dùng bình thường; không xóa dữ liệ",
+      "coverage_ids": [
+        "COV-FR-SAS-08",
+        "COV-FR-SAS-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant dùng 120 seats; gói mới seats 100.\n1. Preview hạ gói NEXT_CYCLE\n2. Apply NEXT_CYCLE; chuyển đồng hồ qua kỳ mới\n3. Mời thêm thành viên; 120 người hiện có đăng nhập",
+      "expected": "Preview quota_violations [{feature_code seats, used 120, new_limit 100}]; sau hiệu lực: mời 403 QUOTA_EXCEEDED, 120 người vẫn dùng bình thường; không xóa dữ liệu.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "SAS-08",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC157",
+      "title": "Phiên nhận entitlements",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-25",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-25",
+      "oracle_source": "Claim → SAS.md BR-SAS-10; kỳ vọng nguyên văn của ca thiết kế UAT-AC157 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-25",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Quyền lợi hiệu lực và ghi đè\": Phiên nhận entitlements.changed với entitlements_hash mới trước T0+60s; analysis-runs 403 ENTITLEMENT_DENIED; entitlement_version cause OVERRIDE.",
+      "coverage_ids": [
+        "COV-FR-SAS-25"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A ai.analysis enabled; 2 phiên web đang mở.\n1. sa.root request override {feature ai.analysis, enabled false, 30 ngày, reason \"Tạm dừng do vượt ngân sách AI\"} (k-157-1)\n2. sa.two decision approve (k-157-2); T0 = commit\n3. u.spec POST /analysis-runs sau khi phiên nhận sự kiện",
+      "expected": "Phiên nhận entitlements.changed với entitlements_hash mới trước T0+60s; analysis-runs 403 ENTITLEMENT_DENIED; entitlement_version cause OVERRIDE.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "SAS-25",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC158",
+      "title": "403 SELF_APPROVAL_DENIED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-25",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-25",
+      "oracle_source": "Claim → SAS.md BR-SAS-10; kỳ vọng nguyên văn của ca thiết kế UAT-AC158 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-25",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Quyền lợi hiệu lực và ghi đè\": 403 SELF_APPROVAL_DENIED; override vẫn PendingApproval; DB CHECK approved_by <> requested_by.",
+      "coverage_ids": [
+        "COV-FR-SAS-25"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Override OV-58 PendingApproval do sa.root đề nghị.\n1. sa.root POST /system/entitlement-overrides/OV-58/decision approve (k-158-1)",
+      "expected": "403 SELF_APPROVAL_DENIED; override vẫn PendingApproval; DB CHECK approved_by <> requested_by.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "SAS-25",
+      "tags": [
+        "security"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC159",
+      "title": "Bước 1: 422 LICENSE_RANGE_INVALID",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-12",
+      "oracle_source": "Claim → SAS.md BR-SAS-11; kỳ vọng nguyên văn của ca thiết kế UAT-AC159 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-12",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Cấp license\": Bước 1: 422 LICENSE_RANGE_INVALID. Bước 2: 422 LICENSE_TENANT_MISMATCH. Bước 3: 400 INVALID_REQUEST field seats.",
+      "coverage_ids": [
+        "COV-FR-SAS-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. entitlement_version EV-B1 thuộc tenant B.\n1. POST /licenses {tenant A, valid_from 2027-01-01, valid_until 2027-01-01} (k-159-1)\n2. POST /licenses {tenant A, entitlement_version_id EV-B1} (k-159-2)\n3. POST /licenses {seats 0} (k-159-3)",
+      "expected": "Bước 1: 422 LICENSE_RANGE_INVALID. Bước 2: 422 LICENSE_TENANT_MISMATCH. Bước 3: 400 INVALID_REQUEST field seats.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "SAS-12",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC160",
+      "title": "rev2 Issued, revision 2, supersedes_id rev1, signed_claims xác minh được bằng public key k-2026-01",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-14",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-14",
+      "oracle_source": "Claim → SAS.md BR-SAS-12; kỳ vọng nguyên văn của ca thiết kế UAT-AC160 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-14, FR-SAS-16",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Gia hạn và thay đổi license\": rev2 Issued, revision 2, supersedes_id rev1, signed_claims xác minh được bằng public key k-2026-01; rev1 status Superseded, các trường còn lại không đổi; SAS-16",
+      "coverage_ids": [
+        "COV-FR-SAS-14",
+        "COV-FR-SAS-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. License L-A rev1 Active, key_id k-2026-01.\n1. sa.root POST /licenses/L-A/renew {valid_until 2028-01-01, grace_until 2028-01-31, reason \"Gia hạn hợp đồng năm 2027\"} (k-160-1, If-Match \"1\")\n2. Đọc rev1, rev2 và SAS-16",
+      "expected": "rev2 Issued, revision 2, supersedes_id rev1, signed_claims xác minh được bằng public key k-2026-01; rev1 status Superseded, các trường còn lại không đổi; SAS-16 có 2 sự kiện.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "SAS-14",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC161",
+      "title": "Verify thất bại",
+      "type": "RED",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-13",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-13",
+      "oracle_source": "Claim → SAS.md BR-SAS-12; kỳ vọng nguyên văn của ca thiết kế UAT-AC161 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-13",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi tiết license\": Verify thất bại; server bỏ qua claims client, dùng entitlement server (seats 100); log cảnh báo không chứa claims.",
+      "coverage_ids": [
+        "COV-FR-SAS-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Bản license PRIVATE đã ký; client mobile gửi lại license claims tự sửa seats 999.\n1. Verify chữ ký bản đã sửa bằng public key\n2. Gọi API kèm header license tự sửa",
+      "expected": "Verify thất bại; server bỏ qua claims client, dùng entitlement server (seats 100); log cảnh báo không chứa claims.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "SAS-13",
+      "tags": [
+        "security"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC162",
+      "title": "Suspended: submit 403 ENTITLEMENT_DENIED reason LICENSE_SUSPENDED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-15",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-15",
+      "oracle_source": "Claim → SAS.md §4 license; kỳ vọng nguyên văn của ca thiết kế UAT-AC162 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-15",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tạm khóa và thu hồi license\": Suspended: submit 403 ENTITLEMENT_DENIED reason LICENSE_SUSPENDED; reinstate → Active; sau revoke, reinstate 409 LICENSE_STATE_INVALID.",
+      "coverage_ids": [
+        "COV-FR-SAS-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. License L-A Active.\n1. suspend (k-162-1) rồi u.maker submit báo cáo\n2. reinstate (k-162-2)\n3. revoke (k-162-3) rồi reinstate (k-162-4)",
+      "expected": "Suspended: submit 403 ENTITLEMENT_DENIED reason LICENSE_SUSPENDED; reinstate → Active; sau revoke, reinstate 409 LICENSE_STATE_INVALID.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "SAS-15",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC163",
+      "title": "Mỗi subscription có đúng 1 invoice Draft cho kỳ",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-09",
+      "oracle_source": "Claim → SAS.md BR-SAS-13; kỳ vọng nguyên văn của ca thiết kế UAT-AC163 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-09, FR-SAS-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thuê bao và kỳ thanh toán\": Mỗi subscription có đúng 1 invoice Draft cho kỳ; lần 2 không tạo thêm (khóa subscription×kỳ), trả danh sách invoice đã có.",
+      "coverage_ids": [
+        "COV-FR-SAS-09",
+        "COV-FR-SAS-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. 3 subscription Active kỳ 2026-Q4.\n1. POST /system/billing-runs {2026-10-01..2026-12-31} (k-163-1)\n2. Chạy lại với key khác (k-163-2)",
+      "expected": "Mỗi subscription có đúng 1 invoice Draft cho kỳ; lần 2 không tạo thêm (khóa subscription×kỳ), trả danh sách invoice đã có.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "SAS-09",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC164",
+      "title": "Issued: einvoice_series C26TMV, einvoice_number 0000123, tax_authority_code có giá trị",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-10",
+      "oracle_source": "Claim → SAS.md BR-SAS-14; kỳ vọng nguyên văn của ca thiết kế UAT-AC164 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hóa đơn và đối soát\": Issued: einvoice_series C26TMV, einvoice_number 0000123, tax_authority_code có giá trị; lần 2: 409 EINVOICE_STATE_INVALID; không có operation hủy hóa đơn nào.",
+      "coverage_ids": [
+        "COV-FR-SAS-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Invoice INV-64 Draft 365.000.000 VND NOT_SUBJECT; adapter e-invoice MOCK trả số 0000123, ký hiệu C26TMV, mã CQT.\n1. POST /system/invoices/INV-64/issue (k-164-1)\n2. Gọi lại issue (k-164-2)\n3. Tìm endpoint hủy hóa đơn trong OpenAPI",
+      "expected": "Issued: einvoice_series C26TMV, einvoice_number 0000123, tax_authority_code có giá trị; lần 2: 409 EINVOICE_STATE_INVALID; không có operation hủy hóa đơn nào.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "SAS-10",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC165",
+      "title": "Hóa đơn ADJUSTMENT total -36",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-24",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-24",
+      "oracle_source": "Claim → SAS.md BR-SAS-14; kỳ vọng nguyên văn của ca thiết kế UAT-AC165 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-24",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hóa đơn điều chỉnh/thay thế\": Hóa đơn ADJUSTMENT total -36.500.000, related_invoice_id INV-64; INV-64 Adjusted; số phải thu còn 328.500.000; replacement lần 1: 201, lần 2: 409 EINVOICE_ALREA",
+      "coverage_ids": [
+        "COV-FR-SAS-24"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. INV-64 Issued 365.000.000 VND; thỏa thuận giảm 10% do chậm bàn giao.\n1. POST /system/invoices/INV-64/adjustments {lines [{\"Điều chỉnh giảm 10%\", amount_vnd \"-36500000\", NOT_SUBJECT}], reason, agreement \"BB-ĐC-01\"} (k-165-1)\n2. Issue hóa đơn điều chỉnh\n3. POST /replacements hai lần (k-165-2, k-165-3)",
+      "expected": "Hóa đơn ADJUSTMENT total -36.500.000, related_invoice_id INV-64; INV-64 Adjusted; số phải thu còn 328.500.000; replacement lần 1: 201, lần 2: 409 EINVOICE_ALREADY_REPLACED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "SAS-24",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC166",
+      "title": "Trạng thái PendingIssue trong retry rồi Issued",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-10",
+      "oracle_source": "Claim → SAS.md §9; kỳ vọng nguyên văn của ca thiết kế UAT-AC166 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hóa đơn và đối soát\": Trạng thái PendingIssue trong retry rồi Issued; provider mock chỉ có 1 hóa đơn với provider_ref = invoice.id; không cấp hai số.",
+      "coverage_ids": [
+        "COV-FR-SAS-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Adapter e-invoice trả 503 hai lần rồi thành công; provider hỗ trợ khóa tham chiếu = invoice.id.\n1. issueEInvoice (k-166-1)\n2. Đếm số hóa đơn bên provider mock",
+      "expected": "Trạng thái PendingIssue trong retry rồi Issued; provider mock chỉ có 1 hóa đơn với provider_ref = invoice.id; không cấp hai số.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "SAS-10",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC167",
+      "title": "Bước 1: 422 AMOUNT_MISMATCH",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-10",
+      "oracle_source": "Claim → SAS.md §3.6; kỳ vọng nguyên văn của ca thiết kế UAT-AC167 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hóa đơn và đối soát\": Bước 1: 422 AMOUNT_MISMATCH; bước 2: Matched, INV-68 Paid, audit có matched_by.",
+      "coverage_ids": [
+        "COV-FR-SAS-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Khoản chuyển khoản 365.000.000 memo không có mã hóa đơn → Unmatched; hóa đơn INV-67 còn phải thu 328.500.000.\n1. POST /system/payments/{p}/match {invoice INV-67} (k-167-1)\n2. Ghép với INV-68 đúng số 365.000.000 (k-167-2)",
+      "expected": "Bước 1: 422 AMOUNT_MISMATCH; bước 2: Matched, INV-68 Paid, audit có matched_by.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "SAS-10",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC168",
+      "title": "1 usage_meter_event",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-11",
+      "oracle_source": "Claim → SAS.md BR-SAS-15; kỳ vọng nguyên văn của ca thiết kế UAT-AC168 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-11",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đo mức sử dụng\": 1 usage_meter_event; usage_counter = 101 (không phải 102); lần 2 trả 200 với id cũ.",
+      "coverage_ids": [
+        "COV-FR-SAS-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Meter notification.zns; usage_counter tháng 10 = 100.\n1. POST /internal/usage-events {meter notification.zns, external_event_key \"da-1001\", quantity \"1\"} (k-168-1)\n2. Gửi lại cùng external_event_key với key khác (k-168-2)",
+      "expected": "1 usage_meter_event; usage_counter = 101 (không phải 102); lần 2 trả 200 với id cũ.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "SAS-11",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC169",
+      "title": "Bước 1: 400 INVALID_REQUEST (tối đa 480)",
+      "type": "RED",
+      "platform": "web",
+      "persona": "support-operator-de-nghi",
+      "journey_ref": "J-FR-SAS-19",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-19",
+      "oracle_source": "Claim → SAS.md BR-SAS-16; kỳ vọng nguyên văn của ca thiết kế UAT-AC169 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-19",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hỗ trợ truy cập có kiểm soát\": Bước 1: 400 INVALID_REQUEST (tối đa 480). Bước 2: grant Approved nhưng chưa Active cho ghi (thiếu second_approver) — ghi 403. Bước 3: Active READ_WRITE; mọi ghi",
+      "coverage_ids": [
+        "COV-FR-SAS-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "support-operator-de-nghi",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Ticket TK-69.\n1. op.sup request duration_minutes 600 (k-169-1)\n2. Request READ_WRITE 60 phút; u.owner approve không có người duyệt thứ hai (k-169-2)\n3. u.admin duyệt thứ hai (k-169-3)",
+      "expected": "Bước 1: 400 INVALID_REQUEST (tối đa 480). Bước 2: grant Approved nhưng chưa Active cho ghi (thiếu second_approver) — ghi 403. Bước 3: Active READ_WRITE; mọi ghi có impersonator_id.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "SAS-19",
+      "tags": [
+        "security"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC170",
+      "title": "Bước 1: 200",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-20",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-20",
+      "oracle_source": "Claim → SAS.md §3.8; kỳ vọng nguyên văn của ca thiết kế UAT-AC170 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-20",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Cờ tính năng và phát hành\": Bước 1: 200; A thấy tính năng, B không. Bước 2: 409 VERSION_CONFLICT.",
+      "coverage_ids": [
+        "COV-FR-SAS-20"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Cờ \"bi.drill.v2\" Off; tenant A thuộc cohort \"pilot\".\n1. PUT /system/feature-flags/bi.drill.v2 {status Rollout, tenant_cohorts [\"pilot\"]} If-Match \"3\" (k-170-1)\n2. Lặp lại với If-Match \"3\" (k-170-2)",
+      "expected": "Bước 1: 200; A thấy tính năng, B không. Bước 2: 409 VERSION_CONFLICT.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "SAS-20",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC171",
+      "title": "Sandbox Completed, báo cáo xác minh: row count + tổng tiền khớp snapshot",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-21",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-21",
+      "oracle_source": "Claim → SAS.md §3.9; kỳ vọng nguyên văn của ca thiết kế UAT-AC171 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-21",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sao lưu và khôi phục tenant\": Sandbox Completed, báo cáo xác minh: row count + tổng tiền khớp snapshot; IN_PLACE: 409 TENANT_STATE_INVALID.",
+      "coverage_ids": [
+        "COV-FR-SAS-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A Active; recovery point 2026-10-21T02:00Z.\n1. sa.root request restore {SANDBOX} (k-171-1); sa.two approve (k-171-2)\n2. Request IN_PLACE và approve khi tenant Active (k-171-3)",
+      "expected": "Sandbox Completed, báo cáo xác minh: row count + tổng tiền khớp snapshot; IN_PLACE: 409 TENANT_STATE_INVALID.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "SAS-21",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC172",
+      "title": "Bước 1: 409 EXPORT_NOT_CONFIRMED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-17",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-17",
+      "oracle_source": "Claim → SAS.md §3.7; kỳ vọng nguyên văn của ca thiết kế UAT-AC172 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-17",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Xuất dữ liệu và kết thúc dịch vụ\": Bước 1: 409 EXPORT_NOT_CONFIRMED. Bước 2: Archived; dữ liệu dưới legal hold không vào danh sách purge.",
+      "coverage_ids": [
+        "COV-FR-SAS-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A Offboarding từ 2026-10-01, export_window_days 90, chưa có export Delivered.\n1. archiveTenant ngày 2026-10-20 (k-172-1)\n2. Hoàn tất export Delivered; archive (k-172-2)",
+      "expected": "Bước 1: 409 EXPORT_NOT_CONFIRMED. Bước 2: Archived; dữ liệu dưới legal hold không vào danh sách purge.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "SAS-17",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC173",
+      "title": "Hiển thị license_propagation_lag p95, outbox oldest age, inbox FAILED count theo tenant code",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-18",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-18",
+      "oracle_source": "Claim → SAS.md §9; kỳ vọng nguyên văn của ca thiết kế UAT-AC173 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-18",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sức khỏe toàn nền tảng\": Hiển thị license_propagation_lag p95, outbox oldest age, inbox FAILED count theo tenant code; không có tên dự án/số tiền.",
+      "coverage_ids": [
+        "COV-FR-SAS-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. op.ops (Platform Operator).\n1. Mở SAS-18\n2. Tìm bất kỳ tên dự án/số tiền nghiệp vụ nào trên trang",
+      "expected": "Hiển thị license_propagation_lag p95, outbox oldest age, inbox FAILED count theo tenant code; không có tên dự án/số tiền.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "UAT",
+      "screen_id": "SAS-18",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC174",
+      "title": "GET 200 có governing_body_type",
+      "type": "RED",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-01",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-01",
+      "oracle_source": "Claim → SAS.md §2; kỳ vọng nguyên văn của ca thiết kế UAT-AC174 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh sách tenant\": GET 200 có governing_body_type; POST 403 SCOPE_DENIED.",
+      "coverage_ids": [
+        "COV-FR-SAS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. op.ops chỉ có system.tenant.read.\n1. op.ops GET /system/tenants\n2. op.ops POST /system/tenants (k-174-1)",
+      "expected": "GET 200 có governing_body_type; POST 403 SCOPE_DENIED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "SAS-01",
+      "tags": [
+        "security"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-AC175",
+      "title": "Bước 1: 409 code REVIEW_INVALID (không bao giờ REVIEW_STALE)",
+      "type": "RED",
+      "platform": "web",
+      "persona": "system-admin-cau-hinh",
+      "journey_ref": "J-FR-SAS-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-04",
+      "oracle_source": "Claim → SAS.md BR-SAS-17; kỳ vọng nguyên văn của ca thiết kế UAT-AC175 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Theme & thương hiệu tenant\": Bước 1: 409 code REVIEW_INVALID (không bao giờ REVIEW_STALE). Bước 2: 409 VERSION_CONFLICT; pointer vẫn v5; không tạo version.",
+      "coverage_ids": [
+        "COV-FR-SAS-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin-cau-hinh",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Theme tenant A current version 4; review R1 tạo lúc 10:00 (hạn 15 phút).\n1. sa.root publish với R1 lúc 10:16 (k-175-1)\n2. sa.root tạo review R2 base 4; sa.two publish v5 trước; sa.root publish R2 (k-175-2)",
+      "expected": "Bước 1: 409 code REVIEW_INVALID (không bao giờ REVIEW_STALE). Bước 2: 409 VERSION_CONFLICT; pointer vẫn v5; không tạo version.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "SAS-04",
+      "tags": [
+        "security"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-22",
+      "title": "Tiến trình khởi tạo tenant (SAS-22): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-22",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-22",
+      "oracle_source": "Claim → FR-SAS-22; kỳ vọng nguyên văn của ca thiết kế UI-SAS-22 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-22",
+      "catches_bug": "Màn hình Tiến trình khởi tạo tenant (SAS-22) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-22"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1; route SAS-22; dữ liệu có/không bản ghi; người dùng đủ quyền (System Admin (control plane)) và người dùng thiếu quyền\n1. Mở SAS-22 \"Tiến trình khởi tạo tenant\" từ menu và deep link; kiểm nhãn trường: Bước, Trạng thái bước, Số lần thử, Mã lỗi, Bù trừ\n2. Thực hiện thao tác chính bằng retryTenantProvisioning; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền\n3. Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của timeline; bàn phím, 390px, quay lại giữ ngữ cảnh",
+      "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (TENANT_STATE_INVALID; bước FAILED hiển thị error_code) với correlation_id; không mất dữ liệu nhập khi 409",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-22",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-23",
+      "title": "Nâng cấp cách ly silo (SAS-23): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-23",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-23",
+      "oracle_source": "Claim → FR-SAS-23; kỳ vọng nguyên văn của ca thiết kế UI-SAS-23 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-23",
+      "catches_bug": "Màn hình Nâng cấp cách ly silo (SAS-23) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-23"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1; route SAS-23; dữ liệu có/không bản ghi; người dùng đủ quyền (System Admin (control plane)) và người dùng thiếu quyền\n1. Mở SAS-23 \"Nâng cấp cách ly silo\" từ menu và deep link; kiểm nhãn trường: Placement đích, Cửa sổ đóng băng ghi, Kết quả đối chiếu, Người duyệt cutover, Trạng thái\n2. Thực hiện thao tác chính bằng startSiloPromotion, approvePlacementCutover, abortPlacementMigration; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền\n3. Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của workflow; bàn phím, 390px, quay lại giữ ngữ cảnh",
+      "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (MIGRATION_VERIFICATION_FAILED, SELF_APPROVAL_DENIED) với correlation_id; không mất dữ liệu nhập khi 409",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-23",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-24",
+      "title": "Hóa đơn điều chỉnh/thay thế (SAS-24): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-24",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-24",
+      "oracle_source": "Claim → FR-SAS-24; kỳ vọng nguyên văn của ca thiết kế UI-SAS-24 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-24",
+      "catches_bug": "Màn hình Hóa đơn điều chỉnh/thay thế (SAS-24) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-24"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1; route SAS-24; dữ liệu có/không bản ghi; người dùng đủ quyền (System Admin, Billing Operator (control plane)) và người dùng thiếu quyền\n1. Mở SAS-24 \"Hóa đơn điều chỉnh/thay thế\" từ menu và deep link; kiểm nhãn trường: Hóa đơn gốc, Loại xử lý, Lý do, Văn bản thỏa thuận, Dòng điều chỉnh, Tổng sau điều chỉnh\n2. Thực hiện thao tác chính bằng createAdjustmentInvoice, createReplacementInvoice, issueEInvoice; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền\n3. Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của form; bàn phím, 390px, quay lại giữ ngữ cảnh",
+      "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (EINVOICE_ADJUSTMENT_INVALID, EINVOICE_ALREADY_REPLACED) với correlation_id; không mất dữ liệu nhập khi 409",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-24",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UI-SAS-25",
+      "title": "Quyền lợi hiệu lực và ghi đè (SAS-25): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "system-admin",
+      "journey_ref": "J-FR-SAS-25",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-25",
+      "oracle_source": "Claim → FR-SAS-25; kỳ vọng nguyên văn của ca thiết kế UI-SAS-25 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-25",
+      "catches_bug": "Màn hình Quyền lợi hiệu lực và ghi đè (SAS-25) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-25"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "system-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1; route SAS-25; dữ liệu có/không bản ghi; người dùng đủ quyền (System Admin, Billing Operator (control plane)) và người dùng thiếu quyền\n1. Mở SAS-25 \"Quyền lợi hiệu lực và ghi đè\" từ menu và deep link; kiểm nhãn trường: Tính năng, Nguồn (gói/ghi đè), Hạn mức, Đã dùng, Chế độ khi grace, Hiệu lực ghi đè, Người duyệt\n2. Thực hiện thao tác chính bằng requestEntitlementOverride, decideEntitlementOverride, revokeEntitlementOverride; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền\n3. Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của table; bàn phím, 390px, quay lại giữ ngữ cảnh",
+      "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (SELF_APPROVAL_DENIED, FEATURE_UNKNOWN) với correlation_id; không mất dữ liệu nhập khi 409",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "SAS-25",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-14",
+      "title": "UAT-PLAN-14 (undefined): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "api",
+      "persona": "nguoi-dung-sas",
+      "journey_ref": "J-FR-SAS-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-04",
+      "oracle_source": "Claim → 06_UI_UX_Design_System.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-14 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-04",
+      "catches_bug": "Màn hình undefined (undefined) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-SAS-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-sas",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Prototype shell with workspace navigation data from navigation_architecture.json (406 web routes, 72 mobile routes).\n1. Open every web route at 1440 px and 390 px\n2. Check the sidebar group, breadcrumb and active item\n3. Resize between 1134 px and 390 px",
+      "expected": "All 406 web routes render inside the single-sidebar shell with sidebar, breadcrumb and active item; no console error; no horizontal overflow at 1440 px; the mobile bottom navigation shows only on the 72 mobile routes.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-46",
+      "title": "sas",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-sas",
+      "journey_ref": "J-FR-SAS-25",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-25",
+      "oracle_source": "Claim → SAS.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-46 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-25",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Quyền lợi hiệu lực và ghi đè\": sas.entitlement.changed.v1 is written in the same transaction as version 2 (same txid); ent:TNT-A is cleared; /me/entitlements returns the new hash and clients ",
+      "coverage_ids": [
+        "COV-FR-SAS-25"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-sas",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A on plan P1 (entitlement version 1) with cache key ent:TNT-A warm.\n1. Change the plan so entitlement version 2 is created and commit\n2. Read the outbox row and the transaction id\n3. Read the cache key ent:TNT-A\n4. GET /me/entitlements",
+      "expected": "sas.entitlement.changed.v1 is written in the same transaction as version 2 (same txid); ent:TNT-A is cleared; /me/entitlements returns the new hash and clients that held the old hash detect the change.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-47",
+      "title": "The timeline lists steps 1 to 5 with their state, 2 attempts and the error code on step 3",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-sas",
+      "journey_ref": "J-FR-SAS-22",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-22",
+      "oracle_source": "Claim → SAS.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-47 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-22",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tiến trình khởi tạo tenant\": The timeline lists steps 1 to 5 with their state, 2 attempts and the error code on step 3; the rerun resumes at step 3 only (steps 1 and 2 are not repeated).",
+      "coverage_ids": [
+        "COV-FR-SAS-22"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-sas",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Provisioning run PR-9 failed at step 3 of 5 after 2 attempts with error code PROVISION_STEP_FAILED.\n1. Open the SAS-22 timeline for PR-9\n2. Click \"rerun from failed step\"\n3. Read the run",
+      "expected": "The timeline lists steps 1 to 5 with their state, 2 attempts and the error code on step 3; the rerun resumes at step 3 only (steps 1 and 2 are not repeated).",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "module": "SAS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-48",
+      "title": "The row shows the issue number INV-2026-0007, the code TAX-8812 and the match result MATCHED",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-sas",
+      "journey_ref": "J-FR-SAS-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-10",
+      "oracle_source": "Claim → SAS.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-48 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hóa đơn và đối soát\": The row shows the issue number INV-2026-0007, the code TAX-8812 and the match result MATCHED; an unmatched line shows UNMATCHED with the difference in VND.",
+      "coverage_ids": [
+        "COV-FR-SAS-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-sas",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Invoice INV-2026-0007 issued with tax-authority code TAX-8812 and a bank line that matches it.\n1. Open SAS-10\n2. Read the row and the reconciliation result",
+      "expected": "The row shows the issue number INV-2026-0007, the code TAX-8812 and the match result MATCHED; an unmatched line shows UNMATCHED with the difference in VND.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "module": "SAS"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 38,
+    "M2": 0,
+    "M3": 0,
+    "M4": 120,
+    "max": 120,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 38,
+    "covered": 38,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

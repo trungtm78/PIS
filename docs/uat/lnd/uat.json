@@ -1,0 +1,1117 @@
+{
+  "feature": "lnd",
+  "generated_at": "2026-11-05T07:53:18.058Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/lnd/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UAT-AC376",
+      "title": "LP-A-001: days_applied=90, due_on=2026-09-29",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-02",
+      "oracle_source": "Claim → Thiết kế M1 LND.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC376 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-02, FR-LND-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thửa đất và ranh giới\": LP-A-001: days_applied=90, due_on=2026-09-29; LP-A-002: days_applied=180, due_on=2026-12-28 (notice_days_applied lưu 90/180). Quyết định 2026-09-28: lỗi CHECK l",
+      "coverage_ids": [
+        "COV-FR-LND-02",
+        "COV-FR-LND-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Rule LND.TIMERS fixture RULE-LND-FIX-1 (không phải văn bản pháp luật, trạng thái CXN-12 chưa xác nhận): NOTICE_AGRICULTURAL_90 = 90 ngày, NOTICE_NON_AGRICULTURAL_180 = 180 ngày; thửa LP-A-001 land_use_group AGRICULTURAL, LP-A-002 NON_AGRICULTURAL_RESIDENTIAL; chưa có thông báo.\nĐầu vào: recordRecoveryNotice notice_on=2026-07-01 cho cả hai; ghi recovery_decision_on=2026-09-28 và 2026-09-29 cho LP-A-001; 2026-12-27 và 2026-12-28 cho LP-A-002 (UPDATE trực tiếp để kiểm CHECK).\n1. Ghi thông báo cho LP-A-001 và LP-A-002; đọc land_deadline.\n2. Cập nhật recovery_decision_on LP-A-001 = 2026-09-28 rồi 2026-09-29.\n3. Cập nhật LP-A-002 = 2026-12-27 rồi 2026-12-28.\n4. Đổi rule sang bản chưa bật và ghi thông báo cho LP-A-003.",
+      "expected": "LP-A-001: days_applied=90, due_on=2026-09-29; LP-A-002: days_applied=180, due_on=2026-12-28 (notice_days_applied lưu 90/180). Quyết định 2026-09-28: lỗi CHECK land_parcel_notice_chk / 422 NOTICE_PERIOD_NOT_ELAPSED; 2026-09-29: chấp nhận, land_deadline SATISFIED. LP-A-002 2026-12-27 bị chặn, 2026-12-28 chấp nhận. Rule chưa bật: 422 TIMER_RULE_UNCONFIRMED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "LND-02",
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UAT-AC377",
+      "title": "posting_ends_on ≥ 2026-08-31",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-05",
+      "oracle_source": "Claim → Thiết kế M1 LND.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC377 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-05, FR-LND-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Phương án bồi thường, hỗ trợ, tái định cư\": posting_ends_on ≥ 2026-08-31; hạn PLAN_POSTING_30 due_on=2026-08-31. 08-30: 422 POSTING_PERIOD_NOT_ELAPSED. 08-31: POSTING_CLOSED. Duyệt khi còn ý kiến: 422 UNR",
+      "coverage_ids": [
+        "COV-FR-LND-05",
+        "COV-FR-LND-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Phương án CP-A-001 DRAFT, 12 khoản đều dựa trên kiểm đếm CONFIRMED; rule PLAN_POSTING_30 = 30 ngày (RULE-LND-FIX-1); có 2 ý kiến chưa xử lý.\nĐầu vào: postCompensationPlan posting_started_on=2026-08-01; closePlanPosting ngày 2026-08-30 và 2026-08-31; approveCompensationPlan khi còn ý kiến chưa xử lý và khi đã xử lý.\n1. Niêm yết 2026-08-01; đọc posting_ends_on và land_deadline PLAN_POSTING_30.\n2. closePlanPosting với đồng hồ 2026-08-30.\n3. closePlanPosting 2026-08-31.\n4. approveCompensationPlan khi 2 ý kiến chưa xử lý; xử lý xong rồi duyệt kèm QĐ.\n5. Thử approve ngay sau khi tạo một plan khác chưa qua niêm yết.",
+      "expected": "posting_ends_on ≥ 2026-08-31; hạn PLAN_POSTING_30 due_on=2026-08-31. 08-30: 422 POSTING_PERIOD_NOT_ELAPSED. 08-31: POSTING_CLOSED. Duyệt khi còn ý kiến: 422 UNRESOLVED_FEEDBACK. Duyệt sau xử lý: APPROVED, approved_on ≥ posting_ends_on (CHECK compensation_plan_approved_chk). Plan chưa niêm yết: 422 PLAN_STATE_INVALID.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "LND-05",
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UAT-AC378",
+      "title": "10-03: cảnh báo T-7 gửi 1 lần",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-07",
+      "oracle_source": "Claim → Thiết kế M1 LND.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC378 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi trả bồi thường\": 10-03: cảnh báo T-7 gửi 1 lần. HH-A-001: PAID đúng hạn, land_deadline PAYMENT_30 SATISFIED. 10-11: PAYMENT_30 BREACHED, ISS vướng mắc tạo 1 lần; HH-A-002 không ",
+      "coverage_ids": [
+        "COV-FR-LND-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). CP-A-001 APPROVED approved_on=2026-09-10, payment_due_on=2026-10-10; 3 khoản compensation_payment PENDING (HH-A-001 450.000.000, HH-A-002 300.000.000, HH-A-003 120.000.000); voucher đã quét.\nĐầu vào: Job cảnh báo 2026-10-03 và 2026-10-11; confirmCompensationPayment HH-A-001 ngày 2026-10-10; HH-A-002 ngày 2026-10-11 không lý do và có lý do; HH-A-003 depositCompensationPayment.\n1. Chạy job 2026-10-03; đọc land_deadline.alert_level_sent.\n2. Xác nhận HH-A-001 ngày 2026-10-10.\n3. Chạy job 2026-10-11; xác nhận HH-A-002 ngày 2026-10-11 không lý do, rồi có lý do.\n4. Gửi tiền HH-A-003 thiếu lý do, rồi đủ.",
+      "expected": "10-03: cảnh báo T-7 gửi 1 lần. HH-A-001: PAID đúng hạn, land_deadline PAYMENT_30 SATISFIED. 10-11: PAYMENT_30 BREACHED, ISS vướng mắc tạo 1 lần; HH-A-002 không lý do: 422 PAYMENT_LATE_REASON_REQUIRED; có lý do: PAID và ghi nhận trễ 1 ngày. HH-A-003 thiếu lý do: 422; đủ: DEPOSITED với deposit_reason, voucher, paid_on (CHECK compensation_payment_deposit_chk). Tổng PAID+DEPOSITED = 870.000.000 ≤ grand_total của plan.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "LND-07",
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UAT-AC379",
+      "title": "DB: national_id_enc là bytea (không chứa chuỗi 079000000001), national_id_hash là HMAC-SHA-256 64 hex",
+      "type": "RED",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-03",
+      "oracle_source": "Claim → Thiết kế M1 LND.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC379 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-03, FR-LND-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hộ bị ảnh hưởng\": DB: national_id_enc là bytea (không chứa chuỗi 079000000001), national_id_hash là HMAC-SHA-256 64 hex. u.xa thấy hộ với CCCD che \"•••••••0001\" (giải mã chỉ khi ",
+      "coverage_ids": [
+        "COV-FR-LND-03",
+        "COV-FR-LND-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Hộ HH-A-001 (chủ hộ giả \"Nguyễn Văn A\", CCCD giả 079000000001, điện thoại giả 0900000001) thuộc owner_unit_id=UBND-XA-A1; u.xa thuộc UBND-XA-A1 (scope UNIT_TREE) có land.household.read và lnd.pii.read; u.ttqd thuộc TTQD-A có land.household.read nhưng scope không gồm UBND-XA-A1; u.audit chỉ đọc cả tenant không có lnd.pii.read.\nĐầu vào: registerAffectedHousehold; GET /affected-households bởi u.xa, u.ttqd, u.audit; truy vấn SQL với app.scope_units khác nhau; xuất Excel danh sách.\n1. Đăng ký hộ; đọc cột national_id_enc, national_id_hash trong DB.\n2. u.xa, u.ttqd, u.audit GET danh sách.\n3. SQL với app.scope_units=<UBND-XA-A1>, =<TTQD-A>, =\"*\" và không đặt.\n4. Xuất danh sách bởi u.audit; grep audit/log tìm 079000000001 và 0900000001.",
+      "expected": "DB: national_id_enc là bytea (không chứa chuỗi 079000000001), national_id_hash là HMAC-SHA-256 64 hex. u.xa thấy hộ với CCCD che \"•••••••0001\" (giải mã chỉ khi lnd.pii.read, có audit đọc); u.ttqd: 0 dòng (RESTRICTIVE scope_units_guard); u.audit: thấy hộ nhưng CCCD/điện thoại che hoàn toàn. SQL: scope UBND-XA-A1 → 1 dòng, TTQD-A → 0, \"*\" → 1, không đặt → 0 (fail-closed). File xuất che CCCD; không có chuỗi CCCD/điện thoại trong audit_entry, log ứng dụng, outbox.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "LND-03",
+      "tags": [
+        "security"
+      ],
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UAT-AC380",
+      "title": "Bước 1: 422 CONSENT_REQUIRED (CHECK affected_household_consent_chk nếu bỏ qua ứng dụng)",
+      "type": "RED",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-03",
+      "oracle_source": "Claim → Thiết kế M1 LND.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC380 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-03, FR-LND-13",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hộ bị ảnh hưởng\": Bước 1: 422 CONSENT_REQUIRED (CHECK affected_household_consent_chk nếu bỏ qua ứng dụng). Bước 3: 422 LEGAL_BASIS_REQUIRED. Bước 4: 422 VALIDATION_FAILED. Bước 2",
+      "coverage_ids": [
+        "COV-FR-LND-03",
+        "COV-FR-LND-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). ConsentRecord CR-001 hợp lệ cho mục đích GPMB; hộ mới HH-A-010.\nĐầu vào: registerAffectedHousehold với legal_basis=CONSENT không consent_record_id; với CR-001; legal_basis=PUBLIC_TASK_LAND_LAW không legal_basis_ref; bỏ retention_until.\n1. Đăng ký với CONSENT thiếu consent_record_id.\n2. Đăng ký với CONSENT và CR-001.\n3. Đăng ký PUBLIC_TASK_LAND_LAW thiếu legal_basis_ref.\n4. Đăng ký thiếu retention_until.\n5. Đọc affected_household.",
+      "expected": "Bước 1: 422 CONSENT_REQUIRED (CHECK affected_household_consent_chk nếu bỏ qua ứng dụng). Bước 3: 422 LEGAL_BASIS_REQUIRED. Bước 4: 422 VALIDATION_FAILED. Bước 2: 200, legal_basis=CONSENT, consent_record_id=CR-001, retention_until ≠ NULL. Mọi hộ trong DB có legal_basis, legal_basis_ref, retention_until.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "LND-03",
+      "tags": [
+        "security"
+      ],
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UAT-AC381",
+      "title": "Bước 1: 409 RETENTION_LEGAL_HOLD (còn chứng từ chi trả)",
+      "type": "RED",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-13",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-13",
+      "oracle_source": "Claim → Thiết kế M1 LND.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC381 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-13",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Yêu cầu của chủ thể dữ liệu\": Bước 1: 409 RETENTION_LEGAL_HOLD (còn chứng từ chi trả). Bước 2: 200, các trường không bắt buộc (điện thoại, địa chỉ) bị xóa/che, head_name và mã hộ giữ vì nghĩ",
+      "coverage_ids": [
+        "COV-FR-LND-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). HH-A-001 có compensation_payment PAID (chứng từ phải giữ); HH-A-011 chưa có chi trả; dpo thực hiện.\nĐầu vào: handleHouseholdDataRequest request_kind=ERASE cho HH-A-001 và HH-A-011; ACCESS; WITHDRAW_CONSENT.\n1. ERASE HH-A-001 outcome=FULFILLED.\n2. ERASE HH-A-001 outcome=PARTIAL kèm lý do.\n3. ERASE HH-A-011 outcome=FULFILLED.\n4. ACCESS HH-A-001 với requester_verified=false.",
+      "expected": "Bước 1: 409 RETENTION_LEGAL_HOLD (còn chứng từ chi trả). Bước 2: 200, các trường không bắt buộc (điện thoại, địa chỉ) bị xóa/che, head_name và mã hộ giữ vì nghĩa vụ lưu trữ; dsr_open=false sau xử lý, lý do lưu. Bước 3: xóa thành công (national_id_enc, phone_enc = NULL), bản ghi giữ lại dạng ẩn danh. Bước 4: 422 REQUESTER_NOT_VERIFIED. Mọi bước có audit nhưng không chứa dữ liệu cá nhân.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "LND-13",
+      "tags": [
+        "security"
+      ],
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UAT-AC382",
+      "title": "INV-001: 200 amount 360",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-04",
+      "oracle_source": "Claim → Thiết kế M1 LND.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC382 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-04, FR-LND-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kiểm đếm\": INV-001: 200 amount 360.000.000 = 80 × 4.500.000. INV-002/INV-003: 422 INVENTORY_NOT_CONFIRMED. recordInventory: 422 PRICE_DECISION_NOT_EFFECTIVE. postCompensat",
+      "coverage_ids": [
+        "COV-FR-LND-04",
+        "COV-FR-LND-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Kiểm đếm INV-001 (nhà cấp 4, 80 m2 × 4.500.000 = 360.000.000) CONFIRMED; INV-002 DISPUTED; INV-003 DRAFT; quyết định giá QD-GIA-2024 hết hiệu lực 2026-06-30, QD-GIA-2026 hiệu lực từ 2026-07-01.\nĐầu vào: addCompensationPlanItems với INV-001, INV-002, INV-003; recordInventory dùng price_decision_ref=QD-GIA-2024 ngày 2026-07-15; postCompensationPlan khi còn INV-002 tranh chấp.\n1. Thêm khoản dựa INV-001.\n2. Thêm khoản dựa INV-002 và INV-003.\n3. recordInventory ngày khảo sát 2026-07-15 với QD-GIA-2024.\n4. postCompensationPlan khi INV-002 vẫn DISPUTED.",
+      "expected": "INV-001: 200 amount 360.000.000 = 80 × 4.500.000. INV-002/INV-003: 422 INVENTORY_NOT_CONFIRMED. recordInventory: 422 PRICE_DECISION_NOT_EFFECTIVE. postCompensationPlan: 422 INVENTORY_NOT_CONFIRMED cho các hộ còn tranh chấp (hoặc phải loại hộ khỏi phương án).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "LND-04",
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UAT-AC383",
+      "title": "Sau hai khoản: recovered_vnd = 750",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-LND-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-07",
+      "oracle_source": "Claim → Thiết kế M1 LND.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC383 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-07, FR-PAY-12",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi trả bồi thường\": Sau hai khoản: recovered_vnd = 750.000.000, outstanding = 250.000.000, trạng thái RECOVERING; mỗi khoản tạo 1 advance_ledger_entry RECOVER. Khoản 580.000.000: 4",
+      "coverage_ids": [
+        "COV-FR-LND-07",
+        "COV-FR-PAY-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). ADV-G-001 GPMB 1.000.000.000 chi 2026-07-01 (recovery_deadline 2026-07-31); CP-A-001 PAYING; chi trả HH-A-001 450.000.000 và HH-A-002 300.000.000.\nĐầu vào: confirmCompensationPayment HH-A-001 với advance_id=ADV-G-001; HH-A-002 với advance_id; HH-A-003 580.000.000 vượt phần còn lại của tạm ứng.\n1. Xác nhận HH-A-001 (450.000.000) gắn ADV-G-001.\n2. Xác nhận HH-A-002 (300.000.000).\n3. Xác nhận chi 580.000.000 gắn ADV-G-001.\n4. Đọc contract_advance và advance_ledger_entry.",
+      "expected": "Sau hai khoản: recovered_vnd = 750.000.000, outstanding = 250.000.000, trạng thái RECOVERING; mỗi khoản tạo 1 advance_ledger_entry RECOVER. Khoản 580.000.000: 422 ADVANCE_RECOVERY_EXCEEDED (chỉ còn 250.000.000), chi trả không bị đánh dấu PAID. Ngày 2026-08-01 outstanding 250.000.000 → quá hạn (xem UAT-AC328).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "PAY-12",
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UAT-AC384",
+      "title": "due_on = 2026-10-15",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-LND-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-08",
+      "oracle_source": "Claim → Thiết kế M1 LND.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC384 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-08, FR-ISS-11",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Khiếu nại\": due_on = 2026-10-15; tạo issue source_module=LND với title chỉ có mã LC-A-xxx và nhóm \"Giá bồi thường\", description không chứa họ tên/nội dung khiếu nại. Giải q",
+      "coverage_ids": [
+        "COV-FR-LND-08",
+        "COV-FR-ISS-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Hộ HH-A-001; rule hạn giải quyết khiếu nại fixture 30 ngày (CXN-12 chưa xác nhận).\nĐầu vào: fileLandComplaint filed_on=2026-09-15 subject=PRICE; resolveLandComplaint RESOLVED_ACCEPTED không văn bản; có văn bản.\n1. Nộp khiếu nại; đọc due_on, issue_id.\n2. Đọc issue (title, description).\n3. Giải quyết thiếu văn bản.\n4. Giải quyết có resolution_document_version_id.",
+      "expected": "due_on = 2026-10-15; tạo issue source_module=LND với title chỉ có mã LC-A-xxx và nhóm \"Giá bồi thường\", description không chứa họ tên/nội dung khiếu nại. Giải quyết thiếu văn bản: 422 DECISION_DOCUMENT_REQUIRED (CHECK land_complaint_resolved_chk). Có văn bản: RESOLVED_ACCEPTED, issue liên kết được đóng theo quy trình ISS (cần xác nhận độc lập).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "ISS-11",
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UAT-AC385",
+      "title": "Bước 1: 422 PAYMENT_NOT_OFFERED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-09",
+      "oracle_source": "Claim → Thiết kế M1 LND.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC385 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Cưỡng chế\": Bước 1: 422 PAYMENT_NOT_OFFERED. Bước 2: 200 PERSUASION. Bước 3: 422 DECISION_DOCUMENT_REQUIRED (CHECK land_enforcement_exec_chk). Bước 4: người lập 403 SELF_AP",
+      "coverage_ids": [
+        "COV-FR-LND-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Thửa LP-A-005 hộ HH-A-005 đã có QĐ thu hồi; đã vận động 2 lần; chưa giao tiền/gửi tiền; rule điều kiện cưỡng chế fixture (CXN-12).\nĐầu vào: startEnforcement; advanceEnforcement tới EXECUTING không quyết định; sau khi có quyết định và đã gửi tiền; bởi chính người lập.\n1. startEnforcement khi chưa giao/gửi tiền.\n2. Gửi tiền theo quy định (depositCompensationPayment) rồi startEnforcement.\n3. advanceEnforcement EXECUTING thiếu quyết định.\n4. Có QĐ cưỡng chế và planned_on; chính người lập chuyển bước; u.lanhdao chuyển bước.",
+      "expected": "Bước 1: 422 PAYMENT_NOT_OFFERED. Bước 2: 200 PERSUASION. Bước 3: 422 DECISION_DOCUMENT_REQUIRED (CHECK land_enforcement_exec_chk). Bước 4: người lập 403 SELF_APPROVAL_DENIED; u.lanhdao: EXECUTING; parcel.status chuyển ENFORCEMENT; mỗi bước ghi audit và land_stage_progress.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "LND-09",
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UAT-AC386",
+      "title": "18",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-10",
+      "oracle_source": "Claim → Thiết kế M1 LND.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC386 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-10, FR-LND-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Bàn giao mặt bằng theo đoạn/km\": 18.000: status PARTIAL, handed_area_m2 18.000. 30.000: HANDED_OVER, handed_over_on lưu. 30.001: 422 HANDED_AREA_EXCEEDS_REQUIRED (CHECK land_section_area_chk). ",
+      "coverage_ids": [
+        "COV-FR-LND-10",
+        "COV-FR-LND-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Đoạn SEC-01 km0+000–km3+000 required_area_m2 30.000, gắn HD-A-001 ACTIVE; SEC-02 km3–km6 required 28.000 gắn HD-A-004 (SIGNED).\nĐầu vào: recordSectionHandover SEC-01 handed 18.000; 30.000; 30.001; SEC-02 handed 10.000.\n1. Bàn giao SEC-01 18.000 m2.\n2. Bàn giao SEC-01 đến 30.000 m2.\n3. Bàn giao SEC-01 30.001 m2.\n4. Bàn giao SEC-02 10.000 m2.",
+      "expected": "18.000: status PARTIAL, handed_area_m2 18.000. 30.000: HANDED_OVER, handed_over_on lưu. 30.001: 422 HANDED_AREA_EXCEEDS_REQUIRED (CHECK land_section_area_chk). SEC-02: 409 CONTRACT_STATE_INVALID (HD-A-004 chưa ACTIVE). LND-01 hiển thị tỷ lệ bàn giao toàn dự án = (30.000 / 58.000) = 51,72%.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "LND-01",
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UAT-AC387",
+      "title": "progress_pct = 37,50 (cột sinh)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-11",
+      "oracle_source": "Claim → Thiết kế M1 LND.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC387 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-11, FR-LND-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Theo dõi tiến độ khi Trung tâm quỹ đất thực hiện\": progress_pct = 37,50 (cột sinh). 121/120: 422 PARCELS_DONE_EXCEEDS_TOTAL (CHECK land_stage_progress_done_chk). NATIVE: 422 NATIVE_STAGE_READONLY. 2026-09-02: IN",
+      "coverage_ids": [
+        "COV-FR-LND-11",
+        "COV-FR-LND-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Phương án CP-A-001 do TTQD-A thực hiện (executor_kind LAND_FUND_CENTRE); stage INVENTORY mode TRACKED_EXTERNAL planned_end 2026-08-31; stage PLAN_DRAFT mode NATIVE.\nĐầu vào: reportLandStageProgress INVENTORY parcels_total=120 parcels_done=45; parcels_done=121; NATIVE stage; đồng hồ 2026-09-02.\n1. Báo cáo INVENTORY 45/120.\n2. Báo cáo 121/120.\n3. Thử báo cáo thủ công cho stage PLAN_DRAFT (NATIVE).\n4. Chạy job trễ hạn ngày 2026-09-02; đọc land_stage_progress và issue.",
+      "expected": "progress_pct = 37,50 (cột sinh). 121/120: 422 PARCELS_DONE_EXCEEDS_TOTAL (CHECK land_stage_progress_done_chk). NATIVE: 422 NATIVE_STAGE_READONLY. 2026-09-02: INVENTORY trễ hạn → status LATE, tạo blocker_issue_id (ISS) 1 lần; LND-01 hiển thị giai đoạn trễ và đơn vị thực hiện TTQD-A. Báo cáo kèm evidence_document_version_id được lưu và kiểm quyền người báo cáo.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "LND-01",
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UI-LND-01",
+      "title": "Tổng quan GPMB theo dự án (LND-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-01",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-01",
+      "oracle_source": "Claim → FR-LND-01; kỳ vọng nguyên văn của ca thiết kế UI-LND-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-01",
+      "catches_bug": "Màn hình Tổng quan GPMB theo dự án (LND-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-LND-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Tổng quan GPMB theo dự án\"; user có quyền và user chỉ đọc; route LND-01\n1. Mở LND-01 từ menu và deep link; kiểm nhãn trường: Số thửa, Số hộ, Đã niêm yết, Đã chi trả, Diện tích đã bàn giao, Giai đoạn trễ, Đơn vị thực hiện\n2. Thực hiện thao tác chính theo quy tắc: Số liệu theo snapshot; tiến độ hiển thị kể cả khi Trung tâm quỹ đất thực hiện; thao tác dùng command getLandProgress\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên LND-01",
+      "expected": "Tổng quan GPMB theo dự án: hiển thị đúng 7 trường; áp quy tắc \"Số liệu theo snapshot; tiến độ hiển thị kể cả khi Trung tâm quỹ đất thực hiện\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "LND-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UI-LND-02",
+      "title": "Thửa đất và ranh giới (LND-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-02",
+      "oracle_source": "Claim → FR-LND-02; kỳ vọng nguyên văn của ca thiết kế UI-LND-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-02",
+      "catches_bug": "Màn hình Thửa đất và ranh giới (LND-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-LND-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Thửa đất và ranh giới\"; user có quyền và user chỉ đọc; route LND-02\n1. Mở LND-02 từ menu và deep link; kiểm nhãn trường: Thửa, Địa bàn, Nhóm đất, Diện tích, Diện tích thu hồi, Thông báo thu hồi, Trạng thái\n2. Thực hiện thao tác chính theo quy tắc: Không hiển thị chủ sử dụng; nhóm đất quyết định bộ đếm 90/180 ngày; thao tác dùng command createLandParcel, importLandParcels, recordRecoveryNotice\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên LND-02",
+      "expected": "Thửa đất và ranh giới: hiển thị đúng 7 trường; áp quy tắc \"Không hiển thị chủ sử dụng; nhóm đất quyết định bộ đếm 90/180 ngày\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "LND-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UI-LND-03",
+      "title": "Hộ bị ảnh hưởng (LND-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-03",
+      "oracle_source": "Claim → FR-LND-03; kỳ vọng nguyên văn của ca thiết kế UI-LND-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-03",
+      "catches_bug": "Màn hình Hộ bị ảnh hưởng (LND-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-LND-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Hộ bị ảnh hưởng\"; user có quyền và user chỉ đọc; route LND-03\n1. Mở LND-03 từ menu và deep link; kiểm nhãn trường: Mã hộ, Chủ hộ, CCCD (che), Thửa, Căn cứ xử lý dữ liệu, Trạng thái\n2. Thực hiện thao tác chính theo quy tắc: Dữ liệu PERSONAL: mã hóa, che khi hiển thị, giới hạn theo đơn vị; cần căn cứ xử lý và thời hạn lưu; thao tác dùng command registerAffectedHousehold, linkHouseholdParcel, listAffectedHouseholds\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên LND-03",
+      "expected": "Hộ bị ảnh hưởng: hiển thị đúng 6 trường; áp quy tắc \"Dữ liệu PERSONAL: mã hóa, che khi hiển thị, giới hạn theo đơn vị; cần căn cứ xử lý và thời hạn lưu\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "LND-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UI-LND-04",
+      "title": "Kiểm đếm (LND-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-04",
+      "oracle_source": "Claim → FR-LND-04; kỳ vọng nguyên văn của ca thiết kế UI-LND-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-04",
+      "catches_bug": "Màn hình Kiểm đếm (LND-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-LND-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Kiểm đếm\"; user có quyền và user chỉ đọc; route LND-04\n1. Mở LND-04 từ menu và deep link; kiểm nhãn trường: Hộ, Thửa, Loại tài sản, Số lượng, Đơn giá (quyết định giá), Thành tiền, Hộ xác nhận\n2. Thực hiện thao tác chính theo quy tắc: Đơn giá phải theo quyết định giá còn hiệu lực; hộ phản đối chuyển DISPUTED; thao tác dùng command recordInventory, confirmInventory\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên LND-04",
+      "expected": "Kiểm đếm: hiển thị đúng 7 trường; áp quy tắc \"Đơn giá phải theo quyết định giá còn hiệu lực; hộ phản đối chuyển DISPUTED\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "LND-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UI-LND-05",
+      "title": "Phương án bồi thường, hỗ trợ, tái định cư (LND-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-05",
+      "oracle_source": "Claim → FR-LND-05; kỳ vọng nguyên văn của ca thiết kế UI-LND-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-05",
+      "catches_bug": "Màn hình Phương án bồi thường, hỗ trợ, tái định cư (LND-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-LND-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Phương án bồi thường, hỗ trợ, tái định cư\"; user có quyền và user chỉ đọc; route LND-05\n1. Mở LND-05 từ menu và deep link; kiểm nhãn trường: Phương án, Đơn vị thực hiện, Tổng bồi thường, Tổng hỗ trợ, Tổng tái định cư, Tổng cộng, Quyết định\n2. Thực hiện thao tác chính theo quy tắc: Chỉ dựa trên kiểm đếm đã xác nhận; duyệt sau niêm yết đủ ngày và xử lý ý kiến; duyệt khác người lập; thao tác dùng command draftCompensationPlan, addCompensationPlanItems, approveCompensationPlan\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên LND-05",
+      "expected": "Phương án bồi thường, hỗ trợ, tái định cư: hiển thị đúng 7 trường; áp quy tắc \"Chỉ dựa trên kiểm đếm đã xác nhận; duyệt sau niêm yết đủ ngày và xử lý ý kiến; duyệt khác người lập\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "LND-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UI-LND-06",
+      "title": "Niêm yết 30 ngày và ý kiến (LND-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-06",
+      "oracle_source": "Claim → FR-LND-06; kỳ vọng nguyên văn của ca thiết kế UI-LND-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-06",
+      "catches_bug": "Màn hình Niêm yết 30 ngày và ý kiến (LND-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-LND-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Niêm yết 30 ngày và ý kiến\"; user có quyền và user chỉ đọc; route LND-06\n1. Mở LND-06 từ menu và deep link; kiểm nhãn trường: Phương án, Bắt đầu niêm yết, Kết thúc tối thiểu, Ý kiến, Đã xử lý, Mốc còn lại\n2. Thực hiện thao tác chính theo quy tắc: Bộ đếm theo rule hiệu lực; không đóng niêm yết sớm; thao tác dùng command postCompensationPlan, recordPlanFeedback, closePlanPosting\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên LND-06",
+      "expected": "Niêm yết 30 ngày và ý kiến: hiển thị đúng 6 trường; áp quy tắc \"Bộ đếm theo rule hiệu lực; không đóng niêm yết sớm\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "LND-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UI-LND-07",
+      "title": "Chi trả bồi thường (LND-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-07",
+      "oracle_source": "Claim → FR-LND-07; kỳ vọng nguyên văn của ca thiết kế UI-LND-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-07",
+      "catches_bug": "Màn hình Chi trả bồi thường (LND-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-LND-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Chi trả bồi thường\"; user có quyền và user chỉ đọc; route LND-07\n1. Mở LND-07 từ menu và deep link; kiểm nhãn trường: Hộ, Số tiền, Hạn chi trả, Ngày chi, Phương thức, Chứng từ, Tạm ứng GPMB liên quan\n2. Thực hiện thao tác chính theo quy tắc: Chi trong 30 ngày kể từ phê duyệt; trễ phải có lý do; gửi tiền khi hộ không nhận; thao tác dùng command scheduleCompensationPayments, confirmCompensationPayment, depositCompensationPayment\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên LND-07",
+      "expected": "Chi trả bồi thường: hiển thị đúng 7 trường; áp quy tắc \"Chi trong 30 ngày kể từ phê duyệt; trễ phải có lý do; gửi tiền khi hộ không nhận\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "LND-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UI-LND-08",
+      "title": "Khiếu nại (LND-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-08",
+      "oracle_source": "Claim → FR-LND-08; kỳ vọng nguyên văn của ca thiết kế UI-LND-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-08",
+      "catches_bug": "Màn hình Khiếu nại (LND-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-LND-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Khiếu nại\"; user có quyền và user chỉ đọc; route LND-08\n1. Mở LND-08 từ menu và deep link; kiểm nhãn trường: Mã, Hộ, Nội dung (PERSONAL), Hạn giải quyết, Trạng thái, Vướng mắc liên kết\n2. Thực hiện thao tác chính theo quy tắc: Vướng mắc ISS chỉ chứa mã, không chứa nội dung khiếu nại; thao tác dùng command fileLandComplaint, resolveLandComplaint\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên LND-08",
+      "expected": "Khiếu nại: hiển thị đúng 6 trường; áp quy tắc \"Vướng mắc ISS chỉ chứa mã, không chứa nội dung khiếu nại\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "LND-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UI-LND-09",
+      "title": "Cưỡng chế (LND-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-09",
+      "oracle_source": "Claim → FR-LND-09; kỳ vọng nguyên văn của ca thiết kế UI-LND-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-09",
+      "catches_bug": "Màn hình Cưỡng chế (LND-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-LND-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Cưỡng chế\"; user có quyền và user chỉ đọc; route LND-09\n1. Mở LND-09 từ menu và deep link; kiểm nhãn trường: Thửa, Bước, Cơ quan, Quyết định, Ngày dự kiến, Ngày thực hiện\n2. Thực hiện thao tác chính theo quy tắc: Cần điều kiện tiên quyết và quyết định cho bước thực hiện; người chuyển bước khác người lập; thao tác dùng command startEnforcement, advanceEnforcement\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên LND-09",
+      "expected": "Cưỡng chế: hiển thị đúng 6 trường; áp quy tắc \"Cần điều kiện tiên quyết và quyết định cho bước thực hiện; người chuyển bước khác người lập\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "LND-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UI-LND-10",
+      "title": "Bàn giao mặt bằng theo đoạn/km (LND-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-10",
+      "oracle_source": "Claim → FR-LND-10; kỳ vọng nguyên văn của ca thiết kế UI-LND-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-10",
+      "catches_bug": "Màn hình Bàn giao mặt bằng theo đoạn/km (LND-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-LND-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Bàn giao mặt bằng theo đoạn/km\"; user có quyền và user chỉ đọc; route LND-10\n1. Mở LND-10 từ menu và deep link; kiểm nhãn trường: Đoạn, Từ km – đến km, Diện tích cần, Đã bàn giao, Hợp đồng nhận, Hạn mục tiêu, Trạng thái\n2. Thực hiện thao tác chính theo quy tắc: Chỉ bàn giao cho hợp đồng ACTIVE; không vượt diện tích cần; thao tác dùng command createLandSection, recordSectionHandover\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên LND-10",
+      "expected": "Bàn giao mặt bằng theo đoạn/km: hiển thị đúng 7 trường; áp quy tắc \"Chỉ bàn giao cho hợp đồng ACTIVE; không vượt diện tích cần\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "LND-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UI-LND-11",
+      "title": "Theo dõi tiến độ khi Trung tâm quỹ đất thực hiện (LND-11): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-11",
+      "oracle_source": "Claim → FR-LND-11; kỳ vọng nguyên văn của ca thiết kế UI-LND-11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-11",
+      "catches_bug": "Màn hình Theo dõi tiến độ khi Trung tâm quỹ đất thực hiện (LND-11) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-LND-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Theo dõi tiến độ khi Trung tâm quỹ đất thực hiện\"; user có quyền và user chỉ đọc; route LND-11\n1. Mở LND-11 từ menu và deep link; kiểm nhãn trường: Giai đoạn, Đơn vị thực hiện, Chế độ (tự thực hiện / theo dõi ngoài), Số thửa xong / tổng, Tiến độ %, Hạn, Trạng thái\n2. Thực hiện thao tác chính theo quy tắc: Chế độ theo dõi ngoài nhận báo cáo có bằng chứng; trễ hạn tạo vướng mắc; thao tác dùng command reportLandStageProgress, listUpcomingLandDeadlines\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên LND-11",
+      "expected": "Theo dõi tiến độ khi Trung tâm quỹ đất thực hiện: hiển thị đúng 7 trường; áp quy tắc \"Chế độ theo dõi ngoài nhận báo cáo có bằng chứng; trễ hạn tạo vướng mắc\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "LND-11",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UI-LND-12",
+      "title": "Tái định cư (LND-12): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-12",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-12",
+      "oracle_source": "Claim → FR-LND-12; kỳ vọng nguyên văn của ca thiết kế UI-LND-12 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-12",
+      "catches_bug": "Màn hình Tái định cư (LND-12) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-LND-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Tái định cư\"; user có quyền và user chỉ đọc; route LND-12\n1. Mở LND-12 từ menu và deep link; kiểm nhãn trường: Hộ, Loại, Mã lô/căn, Khu tái định cư, Thứ tự ưu tiên, Ngày bàn giao\n2. Thực hiện thao tác chính theo quy tắc: Một lô/căn chỉ gán cho một hộ tại một thời điểm; thao tác dùng command allocateResettlement\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên LND-12",
+      "expected": "Tái định cư: hiển thị đúng 6 trường; áp quy tắc \"Một lô/căn chỉ gán cho một hộ tại một thời điểm\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "LND-12",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UI-LND-13",
+      "title": "Yêu cầu của chủ thể dữ liệu (LND-13): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+      "journey_ref": "J-FR-LND-13",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-13",
+      "oracle_source": "Claim → FR-LND-13; kỳ vọng nguyên văn của ca thiết kế UI-LND-13 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-13",
+      "catches_bug": "Màn hình Yêu cầu của chủ thể dữ liệu (LND-13) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-LND-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-gpmb-trung-tam-phat-trien-quy-dat",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Yêu cầu của chủ thể dữ liệu\"; user có quyền và user chỉ đọc; route LND-13\n1. Mở LND-13 từ menu và deep link; kiểm nhãn trường: Hộ, Loại yêu cầu, Đã xác minh người yêu cầu, Kết quả, Lý do\n2. Thực hiện thao tác chính theo quy tắc: Không xóa dữ liệu đang là chứng từ chi trả; ghi lý do từ chối một phần; thao tác dùng command handleHouseholdDataRequest\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên LND-13",
+      "expected": "Yêu cầu của chủ thể dữ liệu: hiển thị đúng 5 trường; áp quy tắc \"Không xóa dữ liệu đang là chứng từ chi trả; ghi lý do từ chối một phần\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "LND-13",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-28",
+      "title": "land_parcel count stays 40 after the second import",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-lnd",
+      "journey_ref": "J-FR-LND-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-02",
+      "oracle_source": "Claim → LND.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-28 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thửa đất và ranh giới\": land_parcel count stays 40 after the second import; no parcel row has an owner or user identity column populated (such columns do not exist in the table).",
+      "coverage_ids": [
+        "COV-FR-LND-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-lnd",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Parcel list file parcels-a.csv with 40 parcels; tenant TNT-A.\n1. Import parcels-a.csv\n2. Import the same file again\n3. Count land_parcel rows and read the columns of one parcel",
+      "expected": "land_parcel count stays 40 after the second import; no parcel row has an owner or user identity column populated (such columns do not exist in the table).",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-29",
+      "title": "After step 1 the record is DRAFT",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-lnd",
+      "journey_ref": "J-FR-LND-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-04",
+      "oracle_source": "Claim → LND.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-29 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kiểm đếm\": After step 1 the record is DRAFT; step 2: 403 SELF_APPROVAL_DENIED; step 3: 200 CONFIRMED; the record stores price_decision_version of QD-GIA-2024.",
+      "coverage_ids": [
+        "COV-FR-LND-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-lnd",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Parcel LP-A-001 linked to household H-1; price decision QD-GIA-2024 in force on the survey date; officers O1 and O2.\n1. O1 records the inventory\n2. O1 tries to confirm it\n3. O2 confirms it\n4. Read the record",
+      "expected": "After step 1 the record is DRAFT; step 2: 403 SELF_APPROVAL_DENIED; step 3: 200 CONFIRMED; the record stores price_decision_version of QD-GIA-2024.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-30",
+      "title": "Version 2 exists in DRAFT",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-lnd",
+      "journey_ref": "J-FR-LND-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-05",
+      "oracle_source": "Claim → LND.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-30 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Phương án bồi thường, hỗ trợ, tái định cư\": Version 2 exists in DRAFT; version 1 is still readable with its original figures and its status; one current version per plan.",
+      "coverage_ids": [
+        "COV-FR-LND-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-lnd",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Compensation plan CP-A-001 version 1 APPROVED.\n1. revisePlan on CP-A-001\n2. Read versions 1 and 2",
+      "expected": "Version 2 exists in DRAFT; version 1 is still readable with its original figures and its status; one current version per plan.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "LND"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-31",
+      "title": "Steps 1 and 2 are refused with 422 and no allocation row is added",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-lnd",
+      "journey_ref": "J-FR-LND-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-LND-12",
+      "oracle_source": "Claim → LND.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-31 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-LND-12",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tái định cư\": Steps 1 and 2 are refused with 422 and no allocation row is added; the viewer sees the household name masked.",
+      "coverage_ids": [
+        "COV-FR-LND-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-lnd",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Approved plan CP-A-001 with item PI-1 for plot P-77, already allocated to household H-1; household H-2 without a plan item.\n1. Allocate P-77 a second time to H-2\n2. Allocate plot P-78 to H-2 without an approved plan item\n3. List the allocation as a viewer without the PII permission",
+      "expected": "Steps 1 and 2 are refused with 422 and no allocation row is added; the viewer sees the household name masked.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "LND"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 15,
+    "M2": 0,
+    "M3": 0,
+    "M4": 80,
+    "max": 80,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 15,
+    "covered": 15,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

@@ -1,0 +1,2294 @@
+{
+  "feature": "ctr",
+  "generated_at": "2026-11-05T07:53:18.048Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/ctr/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UAT-AC56",
+      "title": "chuyên gia có conflict bị chặn hoặc cần quyết định xử lý được ghi audit",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-02",
+      "oracle_source": "Claim → FRD AC56; kỳ vọng nguyên văn của ca thiết kế UAT-AC56 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Soạn và ký kết hợp đồng\": chuyên gia có conflict bị chặn hoặc cần quyết định xử lý được ghi audit. Cụ thể: Bước 1 và 2: 409 CONFLICT_OF_INTEREST_BLOCKED, trạng thái vẫn DRAFT/IN_REVIEW, ",
+      "coverage_ids": [
+        "COV-FR-CTR-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). u.tham.dinh có khai báo xung đột lợi ích với NT-A-01 (conflict_declaration CD-001, hiệu lực 2026-01-01..2026-12-31, từ BID); u.lanhdao không có xung đột; HD-A-020 DRAFT của NT-A-01 đã kiểm giá trần.\nĐầu vào: submitContractForReview bởi u.tham.dinh; recordContractSigning với conflict_decision_ref rỗng rồi có giá trị; chuyển người duyệt sang u.lanhdao.\n1. u.tham.dinh gọi submitContractForReview HD-A-020.\n2. u.tham.dinh gọi recordContractSigning không conflict_decision_ref.\n3. u.lanhdao ghi quyết định xử lý \"QD-XL-001: người có xung đột không tham gia thẩm định\" rồi gọi recordContractSigning với conflict_decision_ref=QD-XL-001.\n4. Đọc audit_entry của HD-A-020.",
+      "expected": "chuyên gia có conflict bị chặn hoặc cần quyết định xử lý được ghi audit. Cụ thể: Bước 1 và 2: 409 CONFLICT_OF_INTEREST_BLOCKED, trạng thái vẫn DRAFT/IN_REVIEW, không đổi dữ liệu. Bước 3: 200 SIGNED (người ký không xung đột); conflict_decision_ref lưu cùng bản ghi. Audit có cả hai lần bị chặn với actor, nhà thầu, mã khai báo CD-001.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CTR-02",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC57",
+      "title": "giá vượt trần hoặc kế hoạch chưa duyệt bị chặn theo rule đã chốt",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-02",
+      "oracle_source": "Claim → FRD AC57; kỳ vọng nguyên văn của ca thiết kế UAT-AC57 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Soạn và ký kết hợp đồng\": giá vượt trần hoặc kế hoạch chưa duyệt bị chặn theo rule đã chốt. Cụ thể: Bước 1: 422 CONTRACT_VALUE_EXCEEDS_CEILING, details ceiling_vnd=10200000000. Bước 2: 2",
+      "coverage_ids": [
+        "COV-FR-CTR-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Gói thầu PKG-A-020 giá gói 10.200.000.000 (budget_vnd); kế hoạch vốn APPROVED cho PRJ-A-001; gói PKG-A-021 thuộc PRJ-A-002 chưa có plan_version APPROVED.\nĐầu vào: createContract contract_value_vnd=10300000000 cho PKG-A-020; 10200000000 cho PKG-A-020; 5000000000 cho PKG-A-021.\n1. createContract với giá trị 10.300.000.000.\n2. createContract với giá trị 10.200.000.000 (bằng giá gói).\n3. createContract cho PKG-A-021.\n4. Đọc hợp đồng đã tạo.",
+      "expected": "giá vượt trần hoặc kế hoạch chưa duyệt bị chặn theo rule đã chốt. Cụ thể: Bước 1: 422 CONTRACT_VALUE_EXCEEDS_CEILING, details ceiling_vnd=10200000000. Bước 2: 200 DRAFT, contract_value_vnd=10.200.000.000, estimate_ceiling_vnd=10.200.000.000. Bước 3: 422 CAPITAL_PLAN_NOT_APPROVED. Không hợp đồng nào được tạo ở bước 1 và 3.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CTR-02",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC58",
+      "title": "phụ lục chưa hiệu lực không đổi BOQ thanh toán",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-08",
+      "oracle_source": "Claim → FRD AC58; kỳ vọng nguyên văn của ca thiết kế UAT-AC58 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-08, FR-CTR-19, FR-CTR-26",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"So sánh và duyệt phụ lục\": phụ lục chưa hiệu lực không đổi BOQ thanh toán; hồi tố cần quy trình điều chỉnh riêng. Cụ thể: Nghiệm thu ngày 07-25: unit_price_snapshot 2.000.000, amount 1.00",
+      "coverage_ids": [
+        "COV-FR-CTR-08",
+        "COV-FR-CTR-19",
+        "COV-FR-CTR-26"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). CO-A-001 (tầng CO) được duyệt ngày 2026-07-20: B02 đơn giá 2.000.000 → 2.100.000, effective_on 2026-08-01, approved_delta_vnd +250.000.000; phiên bản rev2 PENDING_EFFECTIVE; CO-A-002 có effective_on 2026-06-01 (trước ngày duyệt) không đặt cờ retroactive.\nĐầu vào: Ghi khối lượng và nghiệm thu B02 ngày 2026-07-25 (500 m3); chạy job hiệu lực ngày 2026-08-01; duyệt CO-A-002; gọi approveRetroactiveAdjustment.\n1. Tạo nghiệm thu ngày 2026-07-25 cho B02 500 m3; đọc unit_price_snapshot và amount_vnd.\n2. Chạy job hiệu lực ngày 2026-08-01; đọc contract_revision và contract.contract_value_vnd.\n3. Tạo nghiệm thu ngày 2026-08-02 cho B02 100 m3.\n4. Duyệt CO-A-002 (effective_on 2026-06-01).\n5. Gọi approveRetroactiveAdjustment cho CO-A-002 kèm quyết định.",
+      "expected": "phụ lục chưa hiệu lực không đổi BOQ thanh toán; hồi tố cần quy trình điều chỉnh riêng. Cụ thể: Nghiệm thu ngày 07-25: unit_price_snapshot 2.000.000, amount 1.000.000.000 (theo rev1). Job 08-01: rev2 EFFECTIVE, rev1 SUPERSEDED, contract_value_vnd tăng 250.000.000 (10.250.000.000). Nghiệm thu 08-02: unit_price_snapshot 2.100.000, amount 210.000.000. Duyệt CO-A-002: 422 RETROACTIVE_NOT_ALLOWED. approveRetroactiveAdjustment: 200, tạo bút toán điều chỉnh, KHÔNG sửa acceptance_line/amount đã duyệt, ghi decision_document và danh sách nghiệm thu bị ảnh hưởng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CTR-08",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC59",
+      "title": "bảo lãnh sắp hết hạn có notification, không tự đánh dấu gia hạn",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-05",
+      "oracle_source": "Claim → FRD AC59; kỳ vọng nguyên văn của ca thiết kế UAT-AC59 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Bảo lãnh và bảo hiểm\": bảo lãnh sắp hết hạn có notification, không tự đánh dấu gia hạn. Cụ thể: Thông báo gửi đúng 3 lần với last_alert_days = 30, 15, 7; chạy lại cùng ngày không tạo ",
+      "coverage_ids": [
+        "COV-FR-CTR-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Bảo lãnh tạm ứng BL-A-001 ACTIVE, expires_at 2026-12-01 23:59 (giờ VN); ADV-A-001 còn outstanding 1.250.000.000; người nhận u.ketoan, u.cv.hd.\nĐầu vào: Chạy job guarantee-expiry với đồng hồ giả lập 2026-11-01, 2026-11-16, 2026-11-24, 2026-12-02.\n1. Chạy job 2026-11-01 (còn 30 ngày); đọc last_alert_days và notification.\n2. Chạy 2026-11-16 (15) và 2026-11-24 (7).\n3. Chạy lại 2026-11-24 lần hai.\n4. Chạy 2026-12-02; đọc guarantee.status và thử requestAdvance mới.",
+      "expected": "bảo lãnh sắp hết hạn có notification, không tự đánh dấu gia hạn. Cụ thể: Thông báo gửi đúng 3 lần với last_alert_days = 30, 15, 7; chạy lại cùng ngày không tạo thông báo trùng. Trạng thái giữ ACTIVE cho đến hết hạn, expires_at không bị đổi. 2026-12-02: status EXPIRED, tự tạo 1 vướng mắc ISS (outstanding > 0 mà bảo lãnh hết hạn), requestAdvance trả 422 ADVANCE_GUARANTEE_REQUIRED. Chỉ extendGuarantee bằng bản mới mới tạo bảo lãnh thay thế.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CTR-05",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC60",
+      "title": "duplicate invoice/measurement/payment reference phát hiện trong tenant và hợp đồng",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-CTR-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-10",
+      "oracle_source": "Claim → FRD AC60; kỳ vọng nguyên văn của ca thiết kế UAT-AC60 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-10, FR-PAY-02, FR-PAY-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ghi nhận khối lượng thực hiện\": duplicate invoice/measurement/payment reference phát hiện trong tenant và hợp đồng; override có căn cứ. Cụ thể: Bước 1: 409 INVOICE_DUPLICATE. Bước 2: 409 MEASU",
+      "coverage_ids": [
+        "COV-FR-CTR-10",
+        "COV-FR-PAY-02",
+        "COV-FR-PAY-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). PR-A-001 có chứng từ hóa đơn invoice_no=HD-0001234 (2026-07-01); measurement M-A-010 có reference_no=KL-2026-06-B01; PR-A-001 có request_no=DNTT-001; u.cv.hd có quyền payment.document.attach; u.ktt có quyền duyệt ngoại lệ trùng.\nĐầu vào: Đính kèm HD-0001234 vào PR-A-003 cùng hợp đồng; ghi measurement mới reference_no=KL-2026-06-B01; tạo payment request request_no=DNTT-001; lặp lại với duplicate_override_reason.\n1. attachPaymentDocument PR-A-003 với invoice_no=HD-0001234 không override.\n2. recordMeasurement với reference_no=KL-2026-06-B01 cùng hợp đồng HD-A-001.\n3. createPaymentRequest với request_no=DNTT-001 cùng HD-A-001.\n4. attachPaymentDocument lần nữa kèm duplicate_override_reason=\"Hóa đơn điều chỉnh theo thông báo 12/TB\" bởi u.ktt; đọc payment_document và audit.\n5. Đính kèm hóa đơn HD-0001234 cho hợp đồng HD-A-009 (hợp đồng khác).",
+      "expected": "duplicate invoice/measurement/payment reference phát hiện trong tenant và hợp đồng; override có căn cứ. Cụ thể: Bước 1: 409 INVOICE_DUPLICATE. Bước 2: 409 MEASUREMENT_REFERENCE_DUPLICATE. Bước 3: 409 PAYMENT_REFERENCE_DUPLICATE (không có override cho số hồ sơ thanh toán). Bước 4: 200, payment_document có duplicate_override_reason và duplicate_override_by=u.ktt, audit ghi lý do; bước 5: 200 kèm cảnh báo cấp tenant DUPLICATE_INVOICE_OTHER_CONTRACT (không chặn).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PAY-02",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC61",
+      "title": "tổng lũy kế thu hồi tạm ứng không vượt gốc tạm ứng sau điều chỉnh hợp lệ",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-CTR-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-06",
+      "oracle_source": "Claim → FRD AC61; kỳ vọng nguyên văn của ca thiết kế UAT-AC61 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-06, FR-PAY-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tạm ứng và lịch thu hồi\": tổng lũy kế thu hồi tạm ứng không vượt gốc tạm ứng sau điều chỉnh hợp lệ. Cụ thể: Bước 1: 422 ADVANCE_RECOVERY_EXCEEDED (vượt 50.000.000), không có bút toán. Bư",
+      "coverage_ids": [
+        "COV-FR-CTR-06",
+        "COV-FR-PAY-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). ADV-A-001 gốc 2.000.000.000 đã PAID; đã thu hồi 750.000.000 (PR-A-001); còn lại 1.250.000.000; ngưỡng thu hồi 80% chưa đạt.\nĐầu vào: recordAdvanceRecovery amount_vnd=1300000000; sau đó 1250000000; sau đó reversal một phần.\n1. Gọi recordAdvanceRecovery 1.300.000.000 basis=REFUND.\n2. Gọi recordAdvanceRecovery 1.250.000.000.\n3. Đọc contract_advance (paid, recovered, outstanding) và contract.advance_recovered_vnd.\n4. Thử UPDATE trực tiếp contract_advance SET recovered_vnd = 2000000001 bằng role machvon_app.",
+      "expected": "tổng lũy kế thu hồi tạm ứng không vượt gốc tạm ứng sau điều chỉnh hợp lệ. Cụ thể: Bước 1: 422 ADVANCE_RECOVERY_EXCEEDED (vượt 50.000.000), không có bút toán. Bước 2: 200, recovered_vnd = 2.000.000.000, outstanding = 0, status FULLY_RECOVERED, contract.advance_recovered_vnd = 2.000.000.000 = advance_paid_vnd. Bước 4: lỗi CHECK contract_advance_amounts_chk (recovered ≤ paid), dòng không đổi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PAY-07",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC63",
+      "title": "measurement chưa duyệt không được dùng cho nghiệm thu/payment certified",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-10",
+      "oracle_source": "Claim → FRD AC63; kỳ vọng nguyên văn của ca thiết kế UAT-AC63 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-10, FR-CTR-12",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ghi nhận khối lượng thực hiện\": measurement chưa duyệt không được dùng cho nghiệm thu/payment certified. Cụ thể: Bước 1 và 2: 422 MEASUREMENT_NOT_APPROVED (liệt kê id M-A-020, M-A-022). Bước 3",
+      "coverage_ids": [
+        "COV-FR-CTR-10",
+        "COV-FR-CTR-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). M-A-020 SUBMITTED (B01, 1.000 m3), M-A-021 APPROVED (B02, 200 m3), M-A-022 DRAFT.\nĐầu vào: createAcceptance với measurement_ids [M-A-020]; [M-A-021, M-A-022]; [M-A-021]; createPaymentRequest từ acceptance DRAFT.\n1. createAcceptance [M-A-020].\n2. createAcceptance [M-A-021, M-A-022].\n3. createAcceptance [M-A-021] rồi tạo đề nghị thanh toán khi acceptance còn DRAFT.\n4. Duyệt acceptance rồi tạo đề nghị lại.",
+      "expected": "measurement chưa duyệt không được dùng cho nghiệm thu/payment certified. Cụ thể: Bước 1 và 2: 422 MEASUREMENT_NOT_APPROVED (liệt kê id M-A-020, M-A-022). Bước 3: acceptance tạo được (DRAFT); createPaymentRequest trả 422 ACCEPTANCE_NOT_APPROVED. Bước 4 sau khi duyệt: tạo được đề nghị; amount_vnd acceptance = 200 × 2.000.000 = 400.000.000.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CTR-10",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC64",
+      "title": "số net không cân với các cấu phần thì chặn gửi",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-CTR-13",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-13",
+      "oracle_source": "Claim → FRD AC64; kỳ vọng nguyên văn của ca thiết kế UAT-AC64 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-13, FR-PAY-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Bảng xác định giá trị thanh toán\": số net không cân với các cấu phần thì chặn gửi; rounding dùng quy tắc currency/contract version. Cụ thể: Bước 1: 422 PAYMENT_NET_MISMATCH, trạng thái vẫn DRAFT,",
+      "coverage_ids": [
+        "COV-FR-CTR-13",
+        "COV-FR-PAY-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). PR-A-001 DRAFT: gross 3.000.000.000, thu hồi tạm ứng 750.000.000, giữ lại 150.000.000, điều chỉnh thuế 0, net 2.100.000.000; dòng BOQ B09 của HD-A-003 có quantity 3, unit_price 1234,5 với rounding_rule HALF_UP; dòng B10 cùng số liệu rounding_rule DOWN.\nĐầu vào: submit với expected_net_vnd=2100000001; sau đó expected_net_vnd=2100000000; chèn trực tiếp payment_request net sai; tính amount_vnd cho B09/B10.\n1. POST submit với expected_gross_vnd=3000000000, expected_net_vnd=2100000001.\n2. POST submit với expected_net_vnd=2100000000.\n3. INSERT trực tiếp payment_request với gross=100, advance_recovery=10, retention=5, tax_adjustment=0, net=86 bằng role machvon_app.\n4. Tạo BOQ B09 và B10 rồi đọc amount_vnd.",
+      "expected": "số net không cân với các cấu phần thì chặn gửi; rounding dùng quy tắc currency/contract version. Cụ thể: Bước 1: 422 PAYMENT_NET_MISMATCH, trạng thái vẫn DRAFT, không bút toán sổ. Bước 2: 200 SUBMITTED. Bước 3: lỗi CHECK payment_request_net_chk (net phải = 85). B09: amount_vnd = 3.704 (3703,5 làm tròn lên); B10: 3.703; rule làm tròn lưu cùng dòng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PAY-02",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC65",
+      "title": "bàn giao phải truy được tồn tại, tài sản, biên bản và đơn vị nhận",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-15",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-15",
+      "oracle_source": "Claim → FRD AC65; kỳ vọng nguyên văn của ca thiết kế UAT-AC65 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-15, FR-AST-02, FR-AST-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hoàn thành và bàn giao\": bàn giao phải truy được tồn tại, tài sản, biên bản và đơn vị nhận. Cụ thể: Trace trả đủ: 3 punch item với trạng thái, 2 tài sản (tổng 5.000.000.000), biên bản D",
+      "coverage_ids": [
+        "COV-FR-CTR-15",
+        "COV-FR-AST-02",
+        "COV-FR-AST-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). HO-A-001 cho HD-A-001: biên bản BB-BG-001 (document_version DV-901), đơn vị nhận SOGT-A, 3 punch item (P1 CRITICAL OPEN, P2 MAJOR FIXED, P3 MINOR WAIVED), 2 tài sản AS-001 (3.200.000.000), AS-002 (1.800.000.000).\nĐầu vào: getHandoverTrace; post_handovers_id_decision approve khi P1 còn OPEN; sau khi P1 VERIFIED.\n1. Gọi getHandoverTrace HO-A-001.\n2. Duyệt bàn giao khi P1 CRITICAL còn OPEN.\n3. Verify P1 (người khác nhà thầu), xác nhận P2; duyệt lại.\n4. Đọc handover.open_critical_punch_count và asset_record.",
+      "expected": "bàn giao phải truy được tồn tại, tài sản, biên bản và đơn vị nhận. Cụ thể: Trace trả đủ: 3 punch item với trạng thái, 2 tài sản (tổng 5.000.000.000), biên bản DV-901, đơn vị nhận SOGT-A, hợp đồng HD-A-001. Duyệt khi còn CRITICAL: 422 OPEN_CRITICAL_PUNCH. Sau P1 VERIFIED, P2 VERIFIED: bàn giao ACCEPTED, open_critical_punch_count=0, accepted_by lưu; P3 giữ WAIVED với lý do và người duyệt. Tổng tài sản không vượt giá trị hợp đồng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CTR-15",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC66",
+      "title": "close khi còn công nợ/tạm ứng cần exception approval, không tự coi bằng zero",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-17",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-17",
+      "oracle_source": "Claim → FRD AC66; kỳ vọng nguyên văn của ca thiết kế UAT-AC66 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-17, FR-PAY-15",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Quyết toán hợp đồng và dự án\": close khi còn công nợ/tạm ứng cần exception approval, không tự coi bằng zero. Cụ thể: Bước 1: 422 SETTLEMENT_HAS_OUTSTANDING (outstanding 150.000.000), không tự",
+      "coverage_ids": [
+        "COV-FR-CTR-17",
+        "COV-FR-PAY-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). SR-A-001 (PROJECT, nhóm B) ở VERIFIED: settled 9.850.000.000, outstanding_vnd 150.000.000, unrecovered_advance_vnd 0; QĐ phê duyệt DOC-QD-001 đã có; u.lanhdao có quyền settlement.exception.approve; u.ktt là người lập.\nĐầu vào: closeSettlement không ngoại lệ; approveSettlementException bởi chính người lập; bởi u.lanhdao; closeSettlement lại.\n1. POST /settlements/{SR-A-001}/close với decision_document_version_id=DOC-QD-001.\n2. POST exception-approval bởi u.ktt (người lập) với reason.\n3. POST exception-approval bởi u.lanhdao với reason=\"Công nợ chờ bảo lãnh bảo hành theo biên bản 05/BB\" và approval_document_version_id.\n4. POST close lần 2; đọc settlement_revision và hợp đồng.",
+      "expected": "close khi còn công nợ/tạm ứng cần exception approval, không tự coi bằng zero. Cụ thể: Bước 1: 422 SETTLEMENT_HAS_OUTSTANDING (outstanding 150.000.000), không tự coi bằng 0. Bước 2: 403 SELF_APPROVAL_DENIED. Bước 3: 200, lưu exception_reason, exception_approved_by=u.lanhdao. Bước 4: 200, status CLOSED, outstanding_vnd vẫn 150.000.000 (không bị ghi đè), ràng buộc settlement_revision_close_chk thỏa nhờ ngoại lệ.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CTR-17",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-01",
+      "title": "Danh mục hợp đồng (CTR-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-01",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-01",
+      "oracle_source": "Claim → FR-CTR-01; kỳ vọng nguyên văn của ca thiết kế UI-CTR-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-01",
+      "catches_bug": "Màn hình Danh mục hợp đồng (CTR-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CTR-01\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã hợp đồng, Dự án, Nhà thầu, Giá trị, Hiệu lực\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-02",
+      "title": "Soạn và ký kết hợp đồng (CTR-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-02",
+      "oracle_source": "Claim → FR-CTR-02; kỳ vọng nguyên văn của ca thiết kế UI-CTR-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-02",
+      "catches_bug": "Màn hình Soạn và ký kết hợp đồng (CTR-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CTR-02\n1. Mở route bằng menu và deep link; kiểm tên trường: Gói thầu, Nhà thầu, Loại hợp đồng, Giá trị, Ngày ký, Hiệu lực\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-03",
+      "title": "Không gian thực hiện hợp đồng (CTR-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-03",
+      "oracle_source": "Claim → FR-CTR-03; kỳ vọng nguyên văn của ca thiết kế UI-CTR-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-03",
+      "catches_bug": "Màn hình Không gian thực hiện hợp đồng (CTR-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CTR-03\n1. Mở route bằng menu và deep link; kiểm tên trường: Hợp đồng, Giá trị gốc, Phụ lục, Đã nghiệm thu, Đã thanh toán\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-04",
+      "title": "BOQ và mốc thanh toán (CTR-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-04",
+      "oracle_source": "Claim → FR-CTR-04; kỳ vọng nguyên văn của ca thiết kế UI-CTR-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-04",
+      "catches_bug": "Màn hình BOQ và mốc thanh toán (CTR-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CTR-04\n1. Mở route bằng menu và deep link; kiểm tên trường: Hạng mục, Đơn vị tính, Khối lượng, Đơn giá, Thành tiền, Mốc\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-05",
+      "title": "Bảo lãnh và bảo hiểm (CTR-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-05",
+      "oracle_source": "Claim → FR-CTR-05; kỳ vọng nguyên văn của ca thiết kế UI-CTR-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-05",
+      "catches_bug": "Màn hình Bảo lãnh và bảo hiểm (CTR-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CTR-05\n1. Mở route bằng menu và deep link; kiểm tên trường: Loại bảo lãnh, Đơn vị phát hành, Giá trị, Hết hạn, Giải tỏa\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-06",
+      "title": "Tạm ứng và lịch thu hồi (CTR-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-06",
+      "oracle_source": "Claim → FR-CTR-06; kỳ vọng nguyên văn của ca thiết kế UI-CTR-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-06",
+      "catches_bug": "Màn hình Tạm ứng và lịch thu hồi (CTR-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CTR-06\n1. Mở route bằng menu và deep link; kiểm tên trường: Hợp đồng, Giá trị tạm ứng, Đã thu hồi, Còn phải thu, Hạn\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-07",
+      "title": "Yêu cầu thay đổi và phát sinh (CTR-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-07",
+      "oracle_source": "Claim → FR-CTR-07; kỳ vọng nguyên văn của ca thiết kế UI-CTR-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-07",
+      "catches_bug": "Màn hình Yêu cầu thay đổi và phát sinh (CTR-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CTR-07\n1. Mở route bằng menu và deep link; kiểm tên trường: Hợp đồng, Nội dung, Khối lượng, Chi phí, Ảnh hưởng tiến độ, Căn cứ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-08",
+      "title": "So sánh và duyệt phụ lục (CTR-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-08",
+      "oracle_source": "Claim → FR-CTR-08; kỳ vọng nguyên văn của ca thiết kế UI-CTR-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-08",
+      "catches_bug": "Màn hình So sánh và duyệt phụ lục (CTR-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CTR-08\n1. Mở route bằng menu và deep link; kiểm tên trường: Phiên bản hợp đồng, Giá trị, Phạm vi, Mốc hoàn thành, Tác động vốn\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-09",
+      "title": "Nhật ký công trường (CTR-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-09",
+      "oracle_source": "Claim → FR-CTR-09; kỳ vọng nguyên văn của ca thiết kế UI-CTR-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-09",
+      "catches_bug": "Màn hình Nhật ký công trường (CTR-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CTR-09\n1. Mở route bằng menu và deep link; kiểm tên trường: Ngày, Dự án, Hạng mục, Nhân lực, Thiết bị, Sự kiện\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-10",
+      "title": "Ghi nhận khối lượng thực hiện (CTR-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-10",
+      "oracle_source": "Claim → FR-CTR-10; kỳ vọng nguyên văn của ca thiết kế UI-CTR-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-10",
+      "catches_bug": "Màn hình Ghi nhận khối lượng thực hiện (CTR-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CTR-10\n1. Mở route bằng menu và deep link; kiểm tên trường: Hợp đồng, Hạng mục BOQ, Kỳ, Khối lượng lũy kế, Bằng chứng\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-11",
+      "title": "Kiểm tra chất lượng và NCR (CTR-11): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-11",
+      "oracle_source": "Claim → FR-CTR-11; kỳ vọng nguyên văn của ca thiết kế UI-CTR-11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-11",
+      "catches_bug": "Màn hình Kiểm tra chất lượng và NCR (CTR-11) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CTR-11\n1. Mở route bằng menu và deep link; kiểm tên trường: Hạng mục, Tiêu chuẩn, Kết quả, Không phù hợp, Biện pháp, Hạn khắc phục\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-11",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-12",
+      "title": "Nghiệm thu khối lượng (CTR-12): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-12",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-12",
+      "oracle_source": "Claim → FR-CTR-12; kỳ vọng nguyên văn của ca thiết kế UI-CTR-12 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-12",
+      "catches_bug": "Màn hình Nghiệm thu khối lượng (CTR-12) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CTR-12\n1. Mở route bằng menu và deep link; kiểm tên trường: Hợp đồng, Khối lượng kỳ, Lũy kế, Biên bản, Người ký\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-12",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-13",
+      "title": "Bảng xác định giá trị thanh toán (CTR-13): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-13",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-13",
+      "oracle_source": "Claim → FR-CTR-13; kỳ vọng nguyên văn của ca thiết kế UI-CTR-13 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-13",
+      "catches_bug": "Màn hình Bảng xác định giá trị thanh toán (CTR-13) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CTR-13\n1. Mở route bằng menu và deep link; kiểm tên trường: Khối lượng nghiệm thu, Đơn giá hiệu lực, Thu hồi tạm ứng, Giữ lại, Thuế, Đề nghị thanh toán\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-13",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-14",
+      "title": "Chậm tiến độ và yêu cầu bồi hoàn (CTR-14): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-14",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-14",
+      "oracle_source": "Claim → FR-CTR-14; kỳ vọng nguyên văn của ca thiết kế UI-CTR-14 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-14",
+      "catches_bug": "Màn hình Chậm tiến độ và yêu cầu bồi hoàn (CTR-14) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CTR-14\n1. Mở route bằng menu và deep link; kiểm tên trường: Hợp đồng, Nguyên nhân, Ngày chậm, Trách nhiệm, Hồ sơ claim, Quyết định\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-14",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-15",
+      "title": "Hoàn thành và bàn giao (CTR-15): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-15",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-15",
+      "oracle_source": "Claim → FR-CTR-15; kỳ vọng nguyên văn của ca thiết kế UI-CTR-15 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-15",
+      "catches_bug": "Màn hình Hoàn thành và bàn giao (CTR-15) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CTR-15\n1. Mở route bằng menu và deep link; kiểm tên trường: Hạng mục, Danh sách tồn tại, Biên bản bàn giao, Đơn vị nhận, Tài sản\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-15",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-16",
+      "title": "Bảo hành và khắc phục tồn tại (CTR-16): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-16",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-16",
+      "oracle_source": "Claim → FR-CTR-16; kỳ vọng nguyên văn của ca thiết kế UI-CTR-16 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-16",
+      "catches_bug": "Màn hình Bảo hành và khắc phục tồn tại (CTR-16) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CTR-16\n1. Mở route bằng menu và deep link; kiểm tên trường: Hạng mục, Thời hạn bảo hành, Tồn tại, Người xử lý, Bằng chứng đóng\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-16",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-17",
+      "title": "Quyết toán hợp đồng và dự án (CTR-17): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-17",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-17",
+      "oracle_source": "Claim → FR-CTR-17; kỳ vọng nguyên văn của ca thiết kế UI-CTR-17 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-17",
+      "catches_bug": "Màn hình Quyết toán hợp đồng và dự án (CTR-17) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CTR-17\n1. Mở route bằng menu và deep link; kiểm tên trường: Hợp đồng, Giá trị quyết toán, Công nợ, Tạm ứng chưa thu, Kết luận kiểm toán\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-17",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-18",
+      "title": "Hồ sơ tài sản và chuyển giao vận hành (CTR-18): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-18",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-18",
+      "oracle_source": "Claim → FR-CTR-18; kỳ vọng nguyên văn của ca thiết kế UI-CTR-18 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-18",
+      "catches_bug": "Màn hình Hồ sơ tài sản và chuyển giao vận hành (CTR-18) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CTR-18\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã tài sản, Nguồn hình thành, Giá trị ghi nhận, Đơn vị tiếp nhận, Bảo hành, Tài liệu vận hành\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc; maker-checker theo thẩm quyền.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-18",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC300",
+      "title": "Hợp lệ (200): DRAFT→IN_REVIEW, IN_REVIEW→DRAFT, IN_REVIEW→SIGNED, SIGNED→ACTIVE, ACTIVE→SUSPENDED, SUSPENDED→ACTIVE, SIG",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-02",
+      "oracle_source": "Claim → Thiết kế M1 CTR.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC300 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-02, FR-CTR-03, FR-CTR-22",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Soạn và ký kết hợp đồng\": Hợp lệ (200): DRAFT→IN_REVIEW, IN_REVIEW→DRAFT, IN_REVIEW→SIGNED, SIGNED→ACTIVE, ACTIVE→SUSPENDED, SUSPENDED→ACTIVE, SIGNED|ACTIVE|SUSPENDED→TERMINATED, ACTIVE→",
+      "coverage_ids": [
+        "COV-FR-CTR-02",
+        "COV-FR-CTR-03",
+        "COV-FR-CTR-22"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Các hợp đồng HD-S-01..HD-S-09 lần lượt ở DRAFT, IN_REVIEW, SIGNED, ACTIVE, SUSPENDED, TERMINATED, COMPLETED, CLOSED, CANCELLED.\nĐầu vào: Chạy bảng ma trận 9 trạng thái × lệnh (submit-review, return, sign, activate, suspend, resume, terminate, complete, close, cancel) với đủ quyền, mỗi lệnh Idempotency-Key riêng.\n1. Với mỗi cặp (trạng thái, lệnh) gọi lệnh và ghi mã trả về.\n2. So kết quả với bảng §4: chuyển hợp lệ trả 200 và đích đúng; còn lại 409 CONTRACT_STATE_INVALID.\n3. Kiểm contract_status_change có đúng một dòng cho mỗi chuyển hợp lệ.\n4. Thử UPDATE contract SET status trực tiếp bằng role machvon_app từ CLOSED về ACTIVE.",
+      "expected": "Hợp lệ (200): DRAFT→IN_REVIEW, IN_REVIEW→DRAFT, IN_REVIEW→SIGNED, SIGNED→ACTIVE, ACTIVE→SUSPENDED, SUSPENDED→ACTIVE, SIGNED|ACTIVE|SUSPENDED→TERMINATED, ACTIVE→COMPLETED, COMPLETED|TERMINATED→CLOSED, DRAFT|IN_REVIEW→CANCELLED. Mọi cặp khác (ví dụ CLOSED→ACTIVE, TERMINATED→ACTIVE, SUSPENDED→COMPLETED, CANCELLED→DRAFT) trả 409 CONTRACT_STATE_INVALID và không đổi dữ liệu. UPDATE trực tiếp bị từ chối bởi quyền cột/ứng dụng (role machvon_app không có endpoint ghi status chung; kiểm trigger/ràng buộc CHECK contract_effective_dates_chk).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "CTR-02",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC301",
+      "title": "Danh mục chỉ có HD-A-001 (1 dòng)",
+      "type": "RED",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-01",
+      "oracle_source": "Claim → Thiết kế M1 CTR.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC301 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-01, FR-CTR-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh mục hợp đồng\": Danh mục chỉ có HD-A-001 (1 dòng). HD-A-002: 404 RESOURCE_NOT_FOUND ở mọi endpoint (không phải 403, không lộ tồn tại). Ghi khối lượng HD-A-001: 200 (measurement",
+      "coverage_ids": [
+        "COV-FR-CTR-01",
+        "COV-FR-CTR-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). u.nt thuộc NT-A-01 (guest, scope CONTRACT HD-A-001); NT-A-02 có HD-A-002; HD-A-003 của NT-A-03 ở TNT-A; TNT-B có HD-B-001.\nĐầu vào: Với token u.nt: GET /resources/contract; GET /resources/contract/{HD-A-002}; GET /contracts/{HD-A-002}/summary; GET /resources/boq_line?contract=HD-A-002; POST /contracts/{HD-A-001}/measurements; GET HD-B-001.\n1. Liệt kê danh mục hợp đồng.\n2. Truy cập trực tiếp HD-A-002 theo id ở bốn endpoint.\n3. Ghi khối lượng cho HD-A-001.\n4. Truy cập HD-B-001.\n5. Thử gọi contract.activate bằng token u.nt.",
+      "expected": "Danh mục chỉ có HD-A-001 (1 dòng). HD-A-002: 404 RESOURCE_NOT_FOUND ở mọi endpoint (không phải 403, không lộ tồn tại). Ghi khối lượng HD-A-001: 200 (measurement.record cho guest). HD-B-001: 404. contract.activate: 403 SCOPE_DENIED. Response contract không chứa trường accepted_total_vnd/ledger nội bộ (DTO mask).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "CTR-01",
+      "tags": [
+        "security"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC302",
+      "title": "Bước 1: 422 PERFORMANCE_GUARANTEE_MISSING",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-02",
+      "oracle_source": "Claim → Thiết kế M1 CTR.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC302 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-02, FR-CTR-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Soạn và ký kết hợp đồng\": Bước 1: 422 PERFORMANCE_GUARANTEE_MISSING. Bước 2: 422 PERMIT_GATE_BLOCKED (details: gate_code CONTRACT_ACTIVATION, permit_type GPXD). Bước 3: 422 FUND_COMMIT_F",
+      "coverage_ids": [
+        "COV-FR-CTR-02",
+        "COV-FR-CTR-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). HD-A-030 SIGNED, loại xây dựng; bảo lãnh thực hiện BL-P-030 PENDING_VERIFICATION 500.000.000 (5%); cổng START/ACTIVATION yêu cầu GPXD hoặc miễn; quỹ AL-A-2026-NSDP đủ.\nĐầu vào: activateContract effective_from=2026-09-01 ở các điều kiện: chưa xác minh bảo lãnh; bảo lãnh VERIFIED nhưng thiếu GPXD; GPXD ISSUED; CAP trả lỗi AVC.\n1. Gọi activate khi bảo lãnh chưa xác minh.\n2. Xác minh bảo lãnh, gọi activate khi chưa có GPXD/miễn.\n3. Ghi GPXD ISSUED hiệu lực, gọi activate khi CAP giả lập AVC chặn.\n4. Cho CAP cho phép, gọi activate; đọc outbox.",
+      "expected": "Bước 1: 422 PERFORMANCE_GUARANTEE_MISSING. Bước 2: 422 PERMIT_GATE_BLOCKED (details: gate_code CONTRACT_ACTIVATION, permit_type GPXD). Bước 3: 422 FUND_COMMIT_FAILED, hợp đồng vẫn SIGNED. Bước 4: 200 ACTIVE, effective_from=2026-09-01; outbox có ctr.contract.activated.v1 và ctr.commitment.changed.v1 (amount = contract_value_vnd); CAP ghi COMMIT đúng một lần.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "CTR-02",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC303",
+      "title": "Bước 1: 422 DECISION_DOCUMENT_REQUIRED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-22",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-22",
+      "oracle_source": "Claim → Thiết kế M1 CTR.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC303 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-22, FR-CTR-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tạm dừng, tiếp tục và chấm dứt hợp đồng\": Bước 1: 422 DECISION_DOCUMENT_REQUIRED. Bước 2: 200 SUSPENDED, status_reason và status_decision_document_version_id lưu (CHECK contract_status_reason_chk). Bước",
+      "coverage_ids": [
+        "COV-FR-CTR-22",
+        "COV-FR-CTR-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). HD-A-001 ACTIVE; DOC-TD-001 là quyết định tạm dừng đã ISSUED; M-A-030 DRAFT.\nĐầu vào: suspendContract thiếu decision_document_version_id; có văn bản; recordMeasurement khi SUSPENDED; resumeContract với extension_days=20.\n1. suspendContract thiếu văn bản.\n2. suspendContract đầy đủ suspended_from=2026-07-10.\n3. recordMeasurement kỳ 2026-07 cho B01.\n4. resumeContract resumed_on=2026-07-30 extension_days=20; đọc completion_due.",
+      "expected": "Bước 1: 422 DECISION_DOCUMENT_REQUIRED. Bước 2: 200 SUSPENDED, status_reason và status_decision_document_version_id lưu (CHECK contract_status_reason_chk). Bước 3: 409 CONTRACT_STATE_INVALID. Bước 4: 200 ACTIVE; completion_due thay đổi theo 20 ngày chỉ khi có phiên bản gia hạn được duyệt, nếu không giữ 2026-12-31 và hiển thị đề xuất lập CO gia hạn tiến độ; contract_status_change ghi 2 dòng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "CTR-10",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC304",
+      "title": "Bước 1: 403 SELF_APPROVAL_DENIED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-22",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-22",
+      "oracle_source": "Claim → Thiết kế M1 CTR.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC304 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-22, FR-CTR-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tạm dừng, tiếp tục và chấm dứt hợp đồng\": Bước 1: 403 SELF_APPROVAL_DENIED. Bước 2: 200 TERMINATED, terminated_on=2026-08-15, bảo lãnh BL-P-001 chuyển CALLED, 1 dòng contractor_violation gợi ý ở trạng t",
+      "coverage_ids": [
+        "COV-FR-CTR-22",
+        "COV-FR-CTR-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). HD-A-001 ACTIVE; bảo lãnh thực hiện BL-P-001 500.000.000 ACTIVE; tạm ứng outstanding 1.250.000.000; DOC-CD-001 là quyết định chấm dứt.\nĐầu vào: terminateContract guarantee_action=CALL terminated_on=2026-08-15 bởi người có quyền; bởi chính người đề xuất; resumeContract sau chấm dứt.\n1. u.cv.hd (đề xuất) gọi terminateContract.\n2. u.lanhdao gọi terminateContract kèm DOC-CD-001.\n3. Gọi resumeContract và activateContract.\n4. Đọc guarantee, contractor_violation gợi ý, contract.",
+      "expected": "Bước 1: 403 SELF_APPROVAL_DENIED. Bước 2: 200 TERMINATED, terminated_on=2026-08-15, bảo lãnh BL-P-001 chuyển CALLED, 1 dòng contractor_violation gợi ý ở trạng thái RECORDED (chưa xác nhận). Bước 3: 409 CONTRACT_STATE_INVALID cho cả hai. advance_outstanding_vnd vẫn 1.250.000.000 (không tự xóa).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "CTR-05",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC305",
+      "title": "Bước 1: 422 OPEN_CRITICAL_NCR",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-15",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-15",
+      "oracle_source": "Claim → Thiết kế M1 CTR.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC305 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-15, FR-CTR-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hoàn thành và bàn giao\": Bước 1: 422 OPEN_CRITICAL_NCR. Bước 2: 422 MEASUREMENT_PENDING. Bước 3: 200 COMPLETED với completed_on; outbox ctr.contract.completed.v1; AST nhận sự kiện và đề",
+      "coverage_ids": [
+        "COV-FR-CTR-15",
+        "COV-FR-CTR-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). HD-A-001 ACTIVE; quality_acceptance QA-C-001 phạm vi COMPLETION APPROVED; NCR-007 CRITICAL OPEN; measurement M-A-040 SUBMITTED chưa quyết.\nĐầu vào: completeContract với QA-C-001 khi còn NCR-007 và M-A-040; sau khi đóng NCR; sau khi quyết M-A-040.\n1. Gọi completeContract.\n2. Đóng NCR-007 (qua QMS) rồi gọi lại.\n3. Duyệt M-A-040 rồi gọi lại.\n4. Đọc contract và warranty_obligation sinh bởi sự kiện.",
+      "expected": "Bước 1: 422 OPEN_CRITICAL_NCR. Bước 2: 422 MEASUREMENT_PENDING. Bước 3: 200 COMPLETED với completed_on; outbox ctr.contract.completed.v1; AST nhận sự kiện và đề xuất khởi tạo nghĩa vụ bảo hành (chưa tạo tự động nếu chưa có handover).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "CTR-03",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC306",
+      "title": "Bước 1 và submit với tổng 90%: 422 JV_SHARE_NOT_100",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-25",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-25",
+      "oracle_source": "Claim → Thiết kế M1 CTR.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC306 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-25, FR-CTR-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thành viên liên danh và phạm vi\": Bước 1 và submit với tổng 90%: 422 JV_SHARE_NOT_100. Bước 2: 200, Σ work_value_vnd = 10.000.000.000 = giá trị hợp đồng (nếu lệch: 422 BOQ_TOTAL_MISMATCH). Bước ",
+      "coverage_ids": [
+        "COV-FR-CTR-25",
+        "COV-FR-CTR-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). HD-A-002 DRAFT is_joint_venture=true; thành viên M1 60% giá trị phần việc 6.000.000.000, M2 40% 4.000.000.000.\nĐầu vào: replaceContractParties với M1 60 + M2 30; sau đó 60 + 40; submitContractForReview; UPDATE contract_party share_pct khi hợp đồng SIGNED.\n1. Gửi parties tổng 90%.\n2. Gửi parties 60/40 và submitContractForReview.\n3. Sau khi SIGNED, UPDATE contract_party SET share_pct=50 WHERE M2 bằng SQL trực tiếp rồi commit.",
+      "expected": "Bước 1 và submit với tổng 90%: 422 JV_SHARE_NOT_100. Bước 2: 200, Σ work_value_vnd = 10.000.000.000 = giá trị hợp đồng (nếu lệch: 422 BOQ_TOTAL_MISMATCH). Bước 3: commit thất bại do constraint trigger deferred contract_party_share_tg (JV_SHARE_NOT_100, SQLSTATE 23514).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "CTR-02",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC307",
+      "title": "Bước 1: locked_at NULL",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chuyen-vien-hop-dong",
+      "journey_ref": "J-FR-CTR-19",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-19",
+      "oracle_source": "Claim → Thiết kế M1 CTR.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC307 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-19, FR-CTR-20",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chuỗi thay đổi ChangeEvent → PCO → CO\": Bước 1: locked_at NULL. Bước 2: locked_at ≠ NULL, locked_by_change_id = id ChangeEvent đầu. Bước 3: 409 CHANGE_TIERS_LOCKED; UPDATE trực tiếp bị trigger change_",
+      "coverage_ids": [
+        "COV-FR-CTR-19",
+        "COV-FR-CTR-20"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-hop-dong",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). PRJ-A-001 chưa có change_chain_config; PRJ-A-002 cũng chưa có; HD-A-001 thuộc PRJ-A-001; u.cv.hd có change.tiers.configure.\nĐầu vào: setChangeChainTiers tier_count=3 cho PRJ-A-001; createChangeRequest stage=EVENT; setChangeChainTiers tier_count=2; PRJ-A-002 đặt tier_count=1 và tạo stage=PCO.\n1. Đặt tier_count=3 cho PRJ-A-001; đọc locked_at.\n2. Tạo ChangeEvent đầu tiên cho HD-A-001; đọc locked_at và locked_by_change_id.\n3. Đặt lại tier_count=2 cho PRJ-A-001; thử UPDATE trực tiếp change_chain_config.\n4. PRJ-A-002: đặt tier_count=1, thử createChangeRequest stage=PCO rồi stage=CO.",
+      "expected": "Bước 1: locked_at NULL. Bước 2: locked_at ≠ NULL, locked_by_change_id = id ChangeEvent đầu. Bước 3: 409 CHANGE_TIERS_LOCKED; UPDATE trực tiếp bị trigger change_chain_config_guard_tg chặn (SQLSTATE 23514). PRJ-A-002 (tier_count=1): stage=PCO → 422 CHANGE_STAGE_NOT_ALLOWED; stage=CO → 200. Cấu hình của PRJ-A-001 không ảnh hưởng PRJ-A-002.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "CTR-19",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC308",
+      "title": "CE-001 và PCO-001 chuyển PROMOTED, CO-001 EVALUATED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-19",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-19",
+      "oracle_source": "Claim → Thiết kế M1 CTR.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC308 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-19, FR-CTR-08, FR-CTR-26",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chuỗi thay đổi ChangeEvent → PCO → CO\": CE-001 và PCO-001 chuyển PROMOTED, CO-001 EVALUATED. Bước 2: 403 SELF_APPROVAL_DENIED. Bước 3: 200 APPROVED, tạo contract_revision rev2 PENDING_EFFECTIVE amount",
+      "coverage_ids": [
+        "COV-FR-CTR-19",
+        "COV-FR-CTR-08",
+        "COV-FR-CTR-26"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Chuỗi 3 tầng: CE-001 (EVENT) → PCO-001 → CO-001 do u.cv.hd lập; contract.accepted_total_vnd = 3.000.000.000; CO-001 approved_delta_vnd +500.000.000 effective_on 2026-08-01; CO-002 delta −8.000.000.000.\nĐầu vào: promote CE-001→PCO-001→CO-001; evaluate; decision approve bởi u.cv.hd rồi bởi u.lanhdao; duyệt CO-002.\n1. promote và evaluate để CO-001 EVALUATED.\n2. u.cv.hd gọi decision approve.\n3. u.lanhdao gọi decision approve kèm decision_document_version_id.\n4. Chạy job hiệu lực ngày 2026-08-01.\n5. Duyệt CO-002 (giảm 8.000.000.000).",
+      "expected": "CE-001 và PCO-001 chuyển PROMOTED, CO-001 EVALUATED. Bước 2: 403 SELF_APPROVAL_DENIED. Bước 3: 200 APPROVED, tạo contract_revision rev2 PENDING_EFFECTIVE amount 10.500.000.000. Sau job: rev2 EFFECTIVE, rev1 SUPERSEDED, contract_value_vnd 10.500.000.000 (partial unique contract_revision_effective_uq giữ đúng 1 EFFECTIVE). CO-002: 422 ACCEPTANCE_VALUE_EXCEEDS_CONTRACT vì giá trị mới 10.500.000.000 − 8.000.000.000 = 2.500.000.000 < accepted_total 3.000.000.000 (bảo vệ bởi CHECK contract_ledger_order_chk).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "CTR-08",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC309",
+      "title": "Bước 1: 403 (thiếu quyền retention",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-21",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-21",
+      "oracle_source": "Claim → Thiết kế M1 CTR.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC309 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-21, FR-CTR-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Giữ lại theo dòng BOQ và giải tỏa\": Bước 1: 403 (thiếu quyền retention.release). Bước 2: 422 RELEASE_CONDITION_NOT_MET. Bước 3: 422 RELEASE_EXCEEDS_HELD. Bước 4: 200, retention_hold B01 RELEASED (",
+      "coverage_ids": [
+        "COV-FR-CTR-21",
+        "COV-FR-CTR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). PR-A-001 SETTLED; retention_hold: B01 100.000.000, B02 50.000.000 (điều kiện WARRANTY_END, release_not_before 2028-03-01); u.cv.hd không có retention.release; u.ktt có retention.release; u.lanhdao duyệt.\nĐầu vào: releaseRetention B01 100000000 bởi u.cv.hd; bởi u.ktt khi chưa đến điều kiện; sau khi warranty_obligation đã CLOSED với số tiền 100000001; 100000000.\n1. u.cv.hd gọi releaseRetention.\n2. u.ktt gọi khi bảo hành còn hiệu lực.\n3. Đưa warranty_obligation sang CLOSED (không còn claim mở); u.ktt gọi amount 100.000.001.\n4. u.ktt gọi amount 100.000.000 kèm reason; kiểm người đề xuất ≠ người duyệt.",
+      "expected": "Bước 1: 403 (thiếu quyền retention.release). Bước 2: 422 RELEASE_CONDITION_NOT_MET. Bước 3: 422 RELEASE_EXCEEDS_HELD. Bước 4: 200, retention_hold B01 RELEASED (released_vnd = held_vnd = 100.000.000), contract.retention_released_vnd = 100.000.000 ≤ retention_held_vnd 150.000.000; B02 vẫn HELD 50.000.000.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "CTR-04",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC310",
+      "title": "Bước 1: 403 SELF_APPROVAL_DENIED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-05",
+      "oracle_source": "Claim → Thiết kế M1 CTR.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC310 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Bảo lãnh và bảo hiểm\": Bước 1: 403 SELF_APPROVAL_DENIED. Bước 2: ACTIVE và verification_status=VERIFIED. Bước 3: bản cũ SUPERSEDED, bản mới (extended_from_id trỏ bản cũ) PENDING_VERIF",
+      "coverage_ids": [
+        "COV-FR-CTR-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). BL-A-002 PENDING_VERIFICATION 500.000.000 hết hạn 2026-12-31; u.cv.hd đăng ký; u.ktt xác minh.\nĐầu vào: verifyGuarantee bởi người đăng ký; bởi u.ktt outcome=VERIFIED; extendGuarantee new_expires_at=2027-06-30; releaseGuarantee thiếu bằng chứng; đủ.\n1. u.cv.hd verify.\n2. u.ktt verify VERIFIED kèm biên bản xác minh.\n3. extendGuarantee.\n4. releaseGuarantee bản cũ và bản mới không có release_evidence_id; có evidence.",
+      "expected": "Bước 1: 403 SELF_APPROVAL_DENIED. Bước 2: ACTIVE và verification_status=VERIFIED. Bước 3: bản cũ SUPERSEDED, bản mới (extended_from_id trỏ bản cũ) PENDING_VERIFICATION; expires_at bản cũ không đổi. Bước 4: không evidence → 422 (CHECK guarantee_release_chk / RELEASE_CONDITION_NOT_MET); có evidence → RELEASED với released_at.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "CTR-05",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC311",
+      "title": "Bước 1: 422 CUMULATIVE_DECREASE_WITHOUT_CORRECTION",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-10",
+      "oracle_source": "Claim → Thiết kế M1 CTR.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC311 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ghi nhận khối lượng thực hiện\": Bước 1: 422 CUMULATIVE_DECREASE_WITHOUT_CORRECTION. Bước 2: M-A-050 → SUPERSEDED, bản mới revision 2 DRAFT với correction_of_id=M-A-050 và lũy kế 3.500; nếu M-A",
+      "coverage_ids": [
+        "COV-FR-CTR-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). M-A-050 APPROVED B01 kỳ 2026-06 lũy kế 4.000 m3; kỳ 2026-07 sẽ ghi.\nĐầu vào: recordMeasurement quantity_period=-500 cho kỳ 2026-07; correctMeasurement M-A-050 quantity_period=3500 reason; INSERT SQL trực tiếp quantity_period=-1 không correction.\n1. recordMeasurement quantity_period \"-500\".\n2. correctMeasurement M-A-050 với quantity_period \"3500\" và correction_reason.\n3. INSERT measurement quantity_period=-1, correction_of_id NULL bằng role machvon_app.\n4. Đọc chuỗi revision.",
+      "expected": "Bước 1: 422 CUMULATIVE_DECREASE_WITHOUT_CORRECTION. Bước 2: M-A-050 → SUPERSEDED, bản mới revision 2 DRAFT với correction_of_id=M-A-050 và lũy kế 3.500; nếu M-A-050 đã nằm trong nghiệm thu active: 409 MEASUREMENT_IN_ACTIVE_ACCEPTANCE. Bước 3: lỗi CHECK measurement_cumulative_chk. correction_reason bắt buộc khi có correction_of_id (CHECK measurement_correction_chk).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "CTR-10",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC312",
+      "title": "Bước 1: 200 (đúng biên 8",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-10",
+      "oracle_source": "Claim → Thiết kế M1 CTR.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC312 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-10, FR-CTR-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ghi nhận khối lượng thực hiện\": Bước 1: 200 (đúng biên 8.000). Bước 2 và 3: 422 QUANTITY_EXCEEDS_BOQ, details remaining_quantity=\"0.000000\". Bước 4: sau rev mới EFFECTIVE (quantity 8.100) ghi ",
+      "coverage_ids": [
+        "COV-FR-CTR-10",
+        "COV-FR-CTR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). B01 quantity 8.000 m3; lũy kế đã duyệt 7.999 m3; revision hợp đồng EFFECTIVE; không có CO tăng khối lượng.\nĐầu vào: recordMeasurement quantity_period=1 rồi 2 cho B01.\n1. Ghi 1,000000 m3 (tổng 8.000).\n2. Ghi thêm 0,000001 m3.\n3. Ghi 2 m3 trên bản trước khi duyệt.\n4. Tạo CO tăng khối lượng B01 +100 m3, duyệt và hiệu lực; ghi lại 2 m3.",
+      "expected": "Bước 1: 200 (đúng biên 8.000). Bước 2 và 3: 422 QUANTITY_EXCEEDS_BOQ, details remaining_quantity=\"0.000000\". Bước 4: sau rev mới EFFECTIVE (quantity 8.100) ghi 2 m3 thành công, lũy kế 8.002.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "CTR-04",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC313",
+      "title": "Bước 1: 422 QUALITY_ACCEPTANCE_REQUIRED",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-12",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-12",
+      "oracle_source": "Claim → Thiết kế M1 CTR.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC313 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-12",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nghiệm thu khối lượng\": Bước 1: 422 QUALITY_ACCEPTANCE_REQUIRED. Bước 2: 422 OPEN_CRITICAL_NCR. Bước 3: 200 APPROVED; acceptance.quality_acceptance_id = QA-W-060, accepted_amount_vnd >",
+      "coverage_ids": [
+        "COV-FR-CTR-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). HD-A-001 requires_quality_acceptance=true; acceptance NT-A-060 SUBMITTED với M-A-060 APPROVED; chưa có QA liên kết; NCR-009 CRITICAL OPEN trên B02.\nĐầu vào: decision approve NT-A-060 khi chưa có QA; sau khi gắn QA-W-060 APPROVED (sự kiện qms.quality_acceptance.approved.v1) nhưng NCR-009 CRITICAL còn mở; sau khi đóng NCR-009.\n1. u.lanhdao duyệt NT-A-060 khi chưa có quality_acceptance_id.\n2. Nhận sự kiện QA-W-060 APPROVED, gắn quality_acceptance_id, duyệt lại khi NCR-009 còn OPEN.\n3. Đóng NCR-009 qua QMS (hành động khắc phục đã VERIFIED), duyệt lại.\n4. Đọc acceptance và cumulative_ledger.",
+      "expected": "Bước 1: 422 QUALITY_ACCEPTANCE_REQUIRED. Bước 2: 422 OPEN_CRITICAL_NCR. Bước 3: 200 APPROVED; acceptance.quality_acceptance_id = QA-W-060, accepted_amount_vnd > 0 (CHECK acceptance_approved_chk) và có đúng một bút toán RECOGNIZE_ACCEPTANCE cho mỗi dòng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "CTR-12",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC314",
+      "title": "Mỗi vòng đúng 1 APPROVED và 1 lỗi 409 MEASUREMENT_ALREADY_ACCEPTED (unique acceptance_line_measurement_uq WHERE active)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-12",
+      "oracle_source": "Claim → Thiết kế M1 CTR.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC314 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-12",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nghiệm thu khối lượng\": Mỗi vòng đúng 1 APPROVED và 1 lỗi 409 MEASUREMENT_ALREADY_ACCEPTED (unique acceptance_line_measurement_uq WHERE active); accepted_total_vnd chỉ tăng một lần; ac",
+      "coverage_ids": [
+        "COV-FR-CTR-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). M-A-070 APPROVED chưa thuộc nghiệm thu nào; hai acceptance DRAFT NT-A-071 (u.cv.hd) và NT-A-072 (u.cv.hd2) cùng chứa M-A-070 trong danh sách.\nĐầu vào: Hai POST /acceptances/{id}/decision approve đồng thời bởi u.lanhdao và u.lanhdao2, khóa khác nhau.\n1. Chạy 30 vòng với barrier.\n2. Đọc acceptance_line theo measurement_id.\n3. Đọc contract.accepted_total_vnd và cumulative_ledger.",
+      "expected": "Mỗi vòng đúng 1 APPROVED và 1 lỗi 409 MEASUREMENT_ALREADY_ACCEPTED (unique acceptance_line_measurement_uq WHERE active); accepted_total_vnd chỉ tăng một lần; acceptance thua giữ SUBMITTED, không dòng sổ.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "concurrency",
+      "screen_id": "CTR-12",
+      "tags": [
+        "concurrency"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC315",
+      "title": "overall_score = 80×0,30 + 70×0,25 + 90×0,20 + 60×0,10 + 100×0,15 = 24 + 17,5 + 18 + 6 + 15 = 80,50",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chuyen-vien-hop-dong",
+      "journey_ref": "J-FR-CTR-23",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-23",
+      "oracle_source": "Claim → Thiết kế M1 CTR.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC315 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-23, FR-CTR-24",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Bảng điểm nhà thầu và nhật ký vi phạm\": overall_score = 80×0,30 + 70×0,25 + 90×0,20 + 60×0,10 + 100×0,15 = 24 + 17,5 + 18 + 6 + 15 = 80,50; rating theo ngưỡng rule (GOOD). Duyệt bởi người lập: 403 SEL",
+      "coverage_ids": [
+        "COV-FR-CTR-23",
+        "COV-FR-CTR-24"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-hop-dong",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). HD-A-001 COMPLETED; trọng số rule CTR.SCORECARD fixture W-01: chất lượng 30%, tiến độ 25%, an toàn–môi trường 20%, hợp tác 10%, tài chính 15%; 1 vi phạm DELAY MAJOR đã CONFIRMED.\nĐầu vào: evaluateContractor kỳ 2026-Q3 điểm 80/70/90/60/100; approve bởi người lập; bởi u.lanhdao; exportContractorRecords scope=BOTH 2026-07-01..2026-09-30 CSV hai lần; xuất kỳ không có dữ liệu.\n1. Lập đánh giá và đọc overall_score/rating.\n2. Duyệt bởi người lập, rồi bởi u.lanhdao.\n3. Xuất CSV lần 1 và lần 2 cùng tham số.\n4. Xuất kỳ 2027-01-01..2027-01-31.\n5. markContractorExportSubmitted với submitted_ref.",
+      "expected": "overall_score = 80×0,30 + 70×0,25 + 90×0,20 + 60×0,10 + 100×0,15 = 24 + 17,5 + 18 + 6 + 15 = 80,50; rating theo ngưỡng rule (GOOD). Duyệt bởi người lập: 403 SELF_APPROVAL_DENIED. Xuất lần 2 trả cùng batch (cùng file_sha256, unique contractor_export_file_uq) — không tạo bản thứ hai. Kỳ rỗng: 422 EXPORT_EMPTY. Nộp ngoài hệ thống được ghi submitted_ref; trạng thái adapter hiển thị PROPOSED/API MISSING [CXN-EXE-01].",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "CTR-23",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC316",
+      "title": "Lần 2 trả đúng body lần 1 (cùng id)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-02",
+      "oracle_source": "Claim → Thiết kế M1 CTR.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC316 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Soạn và ký kết hợp đồng\": Lần 2 trả đúng body lần 1 (cùng id). Cùng key khác body: 409 IDEMPOTENCY_CONFLICT. Key mới cùng code: 409 CONTRACT_CODE_DUPLICATE. Đúng 1 hợp đồng mã HD-A-300; ",
+      "coverage_ids": [
+        "COV-FR-CTR-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Gói PKG-A-030 đã trúng thầu; chưa có hợp đồng mã HD-A-300.\nĐầu vào: createContract code=HD-A-300 key K-AC316-A hai lần; cùng key nhưng giá trị khác; key K-AC316-B cùng code.\n1. Gửi lần 1 và lần 2 giống hệt.\n2. Gửi cùng key với contract_value_vnd khác.\n3. Gửi key mới, cùng code.\n4. Đếm hợp đồng mã HD-A-300.",
+      "expected": "Lần 2 trả đúng body lần 1 (cùng id). Cùng key khác body: 409 IDEMPOTENCY_CONFLICT. Key mới cùng code: 409 CONTRACT_CODE_DUPLICATE. Đúng 1 hợp đồng mã HD-A-300; 1 outbox ctr.contract.created.v1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "CTR-02",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC317",
+      "title": "Bước 1: 403 SELF_APPROVAL_DENIED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-02",
+      "oracle_source": "Claim → Thiết kế M1 CTR.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC317 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Soạn và ký kết hợp đồng\": Bước 1: 403 SELF_APPROVAL_DENIED. Bước 2: 403 SCOPE_DENIED (vượt DoA). Bước 3: 400 INVALID_REQUEST (trường thừa). Bước 4: 404/405 — không có endpoint ghi chung ",
+      "coverage_ids": [
+        "COV-FR-CTR-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). u.cv.hd tạo và gửi xem xét HD-A-031; DoA matrix: ký hợp đồng ≤ 20.000.000.000 cần lãnh đạo cấp Ban.\nĐầu vào: recordContractSigning bởi u.cv.hd (người lập); bởi u.lanhdao vượt hạn mức; payload thêm trường status=\"ACTIVE\" và tenant_id.\n1. u.cv.hd gọi sign.\n2. Người có thẩm quyền dưới hạn mức gọi sign cho hợp đồng 25.000.000.000.\n3. Gọi sign với body có status và tenant_id.\n4. Gọi PATCH /contracts/{id} (không tồn tại) và PUT /resources/contract/{id}.",
+      "expected": "Bước 1: 403 SELF_APPROVAL_DENIED. Bước 2: 403 SCOPE_DENIED (vượt DoA). Bước 3: 400 INVALID_REQUEST (trường thừa). Bước 4: 404/405 — không có endpoint ghi chung đổi status/tenant_id.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "CTR-02",
+      "tags": [
+        "security"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC397",
+      "title": "Lần 2 trả đúng body lần 1 và không tạo thêm audit/outbox/bút toán (mỗi lệnh đúng 1 bộ)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-CTR-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-12",
+      "oracle_source": "Claim → Thiết kế M1 CTR.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC397 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-12, FR-PAY-02, FR-LND-07, FR-ISS-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nghiệm thu khối lượng\": Lần 2 trả đúng body lần 1 và không tạo thêm audit/outbox/bút toán (mỗi lệnh đúng 1 bộ). Cùng key khác body: 409 IDEMPOTENCY_CONFLICT. Key mới sau thành công: 40",
+      "coverage_ids": [
+        "COV-FR-CTR-12",
+        "COV-FR-PAY-02",
+        "COV-FR-LND-07",
+        "COV-FR-ISS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Sáu lệnh đại diện: decision nghiệm thu, submit thanh toán, importTreasuryStatement, confirmCompensationPayment, closeIssue, releaseRetention; mỗi lệnh có fixture ở trạng thái hợp lệ.\nĐầu vào: Gửi mỗi lệnh hai lần cùng Idempotency-Key và cùng body; một lần cùng key khác body; một lần khác key sau khi thành công.\n1. Gửi lần 1 và lần 2 cho từng lệnh; so sánh body.\n2. Gửi cùng key nhưng đổi một trường body.\n3. Gửi key mới sau khi lệnh đã thành công.\n4. Đếm audit_entry, outbox_event, bút toán sổ cho từng lệnh.",
+      "expected": "Lần 2 trả đúng body lần 1 và không tạo thêm audit/outbox/bút toán (mỗi lệnh đúng 1 bộ). Cùng key khác body: 409 IDEMPOTENCY_CONFLICT. Key mới sau thành công: 409 với mã nghiệp vụ tương ứng (ACCEPTANCE_ALREADY_CLAIMED, ALREADY_IMPORTED trả 200 replay, PAYMENT_STATE_INVALID, ISSUE_STATE_INVALID, RELEASE_EXCEEDS_HELD…), không tạo hiệu ứng thứ hai.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "PAY-02",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-AC398",
+      "title": "Danh sách cột không có chỉ mục rỗng",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-CTR-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-03",
+      "oracle_source": "Claim → Thiết kế M1 CTR.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC398 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-03, FR-PAY-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Không gian thực hiện hợp đồng\": Danh sách cột không có chỉ mục rỗng. EXPLAIN dùng Index Scan/Bitmap Index Scan trên issue_project_status_idx và issue_status_due_idx; không có Seq Scan trên bản",
+      "coverage_ids": [
+        "COV-FR-CTR-03",
+        "COV-FR-PAY-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Schema đã áp; truy vấn pg_index.\nĐầu vào: Liệt kê cột *_id (trừ tenant_id) của 67 bảng và đối chiếu pg_index (cột đầu tenant_id, cột thứ hai là cột *_id).\n1. Truy vấn information_schema.columns cho 67 bảng, lọc column_name LIKE '%\\_id'.\n2. Truy vấn pg_index/pg_attribute để lấy cặp (tenant_id, col) của mọi chỉ mục.\n3. Tìm cột không có chỉ mục.\n4. EXPLAIN truy vấn danh sách theo project_id và theo status+due_at của issue.",
+      "expected": "Danh sách cột không có chỉ mục rỗng. EXPLAIN dùng Index Scan/Bitmap Index Scan trên issue_project_status_idx và issue_status_due_idx; không có Seq Scan trên bảng ≥ 10.000 dòng fixture.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "CTR-03",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-19",
+      "title": "Chuỗi thay đổi ChangeEvent → PCO → CO (CTR-19): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-hop-dong",
+      "journey_ref": "J-FR-CTR-19",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-19",
+      "oracle_source": "Claim → FR-CTR-19; kỳ vọng nguyên văn của ca thiết kế UI-CTR-19 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-19",
+      "catches_bug": "Màn hình Chuỗi thay đổi ChangeEvent → PCO → CO (CTR-19) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-hop-dong",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Chuỗi thay đổi ChangeEvent → PCO → CO\"; user có quyền và user chỉ đọc; route CTR-19\n1. Mở CTR-19 từ menu và deep link; kiểm nhãn trường: Tầng, Mã, Hợp đồng, Giá trị ước tính, Giá trị thẩm định, Giá trị duyệt, Ảnh hưởng tiến độ, Trạng thái\n2. Thực hiện thao tác chính theo quy tắc: Số tầng cố định theo dự án sau lần dùng đầu; chỉ CO APPROVED tạo phiên bản hợp đồng; duyệt khác người lập; phiên bản chưa hiệu lực không đổi BOQ thanh toán; thao tác dùng command createChangeRequest, promoteChangeRequest, evaluateChangeRequest\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-19",
+      "expected": "Chuỗi thay đổi ChangeEvent → PCO → CO: hiển thị đúng 8 trường; áp quy tắc \"Số tầng cố định theo dự án sau lần dùng đầu; chỉ CO APPROVED tạo phiên bản hợp đồng; duyệt khác người lập; phiên bản chưa hiệu lực không đổi BOQ thanh toán\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-19",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-20",
+      "title": "Cấu hình số tầng thay đổi của dự án (CTR-20): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-hop-dong",
+      "journey_ref": "J-FR-CTR-20",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-20",
+      "oracle_source": "Claim → FR-CTR-20; kỳ vọng nguyên văn của ca thiết kế UI-CTR-20 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-20",
+      "catches_bug": "Màn hình Cấu hình số tầng thay đổi của dự án (CTR-20) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-20"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-hop-dong",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Cấu hình số tầng thay đổi của dự án\"; user có quyền và user chỉ đọc; route CTR-20\n1. Mở CTR-20 từ menu và deep link; kiểm nhãn trường: Dự án, Số tầng (1/2/3), Đã khóa, Thay đổi đầu tiên, Người đặt\n2. Thực hiện thao tác chính theo quy tắc: Đặt được trước lần dùng đầu; sau đó khóa (CHANGE_TIERS_LOCKED), kể cả bằng SQL trực tiếp; thao tác dùng command setChangeChainTiers\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-20",
+      "expected": "Cấu hình số tầng thay đổi của dự án: hiển thị đúng 5 trường; áp quy tắc \"Đặt được trước lần dùng đầu; sau đó khóa (CHANGE_TIERS_LOCKED), kể cả bằng SQL trực tiếp\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-20",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-21",
+      "title": "Giữ lại theo dòng BOQ và giải tỏa (CTR-21): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-hop-dong",
+      "journey_ref": "J-FR-CTR-21",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-21",
+      "oracle_source": "Claim → FR-CTR-21; kỳ vọng nguyên văn của ca thiết kế UI-CTR-21 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-21",
+      "catches_bug": "Màn hình Giữ lại theo dòng BOQ và giải tỏa (CTR-21) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-hop-dong",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Giữ lại theo dòng BOQ và giải tỏa\"; user có quyền và user chỉ đọc; route CTR-21\n1. Mở CTR-21 từ menu và deep link; kiểm nhãn trường: Dòng BOQ, Giữ lại lũy kế, Điều kiện giải tỏa, Ngày sớm nhất, Đã giải tỏa, Còn giữ, Người duyệt\n2. Thực hiện thao tác chính theo quy tắc: Giải tỏa cần quyền retention.release, điều kiện đạt và người duyệt khác người đề xuất; không vượt số đang giữ; thao tác dùng command releaseRetention\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-21",
+      "expected": "Giữ lại theo dòng BOQ và giải tỏa: hiển thị đúng 7 trường; áp quy tắc \"Giải tỏa cần quyền retention.release, điều kiện đạt và người duyệt khác người đề xuất; không vượt số đang giữ\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-21",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-22",
+      "title": "Tạm dừng, tiếp tục và chấm dứt hợp đồng (CTR-22): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-hop-dong",
+      "journey_ref": "J-FR-CTR-22",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-22",
+      "oracle_source": "Claim → FR-CTR-22; kỳ vọng nguyên văn của ca thiết kế UI-CTR-22 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-22",
+      "catches_bug": "Màn hình Tạm dừng, tiếp tục và chấm dứt hợp đồng (CTR-22) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-22"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-hop-dong",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Tạm dừng, tiếp tục và chấm dứt hợp đồng\"; user có quyền và user chỉ đọc; route CTR-22\n1. Mở CTR-22 từ menu và deep link; kiểm nhãn trường: Hợp đồng, Hành động, Lý do, Văn bản quyết định, Ngày hiệu lực, Xử lý bảo lãnh, Ảnh hưởng thanh toán\n2. Thực hiện thao tác chính theo quy tắc: Mọi chuyển Suspended/Terminated cần lý do, văn bản và người duyệt; Terminated không đảo ngược; thao tác dùng command suspendContract, resumeContract, terminateContract\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-22",
+      "expected": "Tạm dừng, tiếp tục và chấm dứt hợp đồng: hiển thị đúng 7 trường; áp quy tắc \"Mọi chuyển Suspended/Terminated cần lý do, văn bản và người duyệt; Terminated không đảo ngược\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-22",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-23",
+      "title": "Bảng điểm nhà thầu và nhật ký vi phạm (CTR-23): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-hop-dong",
+      "journey_ref": "J-FR-CTR-23",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-23",
+      "oracle_source": "Claim → FR-CTR-23; kỳ vọng nguyên văn của ca thiết kế UI-CTR-23 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-23",
+      "catches_bug": "Màn hình Bảng điểm nhà thầu và nhật ký vi phạm (CTR-23) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-23"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-hop-dong",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Bảng điểm nhà thầu và nhật ký vi phạm\"; user có quyền và user chỉ đọc; route CTR-23\n1. Mở CTR-23 từ menu và deep link; kiểm nhãn trường: Nhà thầu, Hợp đồng, Chất lượng, Tiến độ, An toàn – môi trường, Hợp tác, Tài chính, Điểm tổng, Xếp hạng, Vi phạm\n2. Thực hiện thao tác chính theo quy tắc: Điểm theo trọng số rule version; người duyệt khác người lập; vi phạm cần văn bản mới được xác nhận; thao tác dùng command evaluateContractor, approveContractorEvaluation, recordContractorViolation\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-23",
+      "expected": "Bảng điểm nhà thầu và nhật ký vi phạm: hiển thị đúng 10 trường; áp quy tắc \"Điểm theo trọng số rule version; người duyệt khác người lập; vi phạm cần văn bản mới được xác nhận\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-23",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-24",
+      "title": "Xuất hồ sơ nhà thầu cho cơ sở dữ liệu quốc gia (CTR-24): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-hop-dong",
+      "journey_ref": "J-FR-CTR-24",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-24",
+      "oracle_source": "Claim → FR-CTR-24; kỳ vọng nguyên văn của ca thiết kế UI-CTR-24 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-24",
+      "catches_bug": "Màn hình Xuất hồ sơ nhà thầu cho cơ sở dữ liệu quốc gia (CTR-24) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-24"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-hop-dong",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Xuất hồ sơ nhà thầu cho cơ sở dữ liệu quốc gia\"; user có quyền và user chỉ đọc; route CTR-24\n1. Mở CTR-24 từ menu và deep link; kiểm nhãn trường: Phạm vi, Kỳ từ – đến, Định dạng, Số dòng, Mã băm SHA-256, Trạng thái nộp, Mã biên nhận\n2. Thực hiện thao tác chính theo quy tắc: Tệp xuất idempotent theo mã băm; nộp ra ngoài thực hiện thủ công, mã biên nhận nhập tay (adapter PROPOSED, API MISSING); thao tác dùng command exportContractorRecords, markContractorExportSubmitted\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-24",
+      "expected": "Xuất hồ sơ nhà thầu cho cơ sở dữ liệu quốc gia: hiển thị đúng 7 trường; áp quy tắc \"Tệp xuất idempotent theo mã băm; nộp ra ngoài thực hiện thủ công, mã biên nhận nhập tay (adapter PROPOSED, API MISSING)\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-24",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-25",
+      "title": "Thành viên liên danh và phạm vi (CTR-25): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-hop-dong",
+      "journey_ref": "J-FR-CTR-25",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-25",
+      "oracle_source": "Claim → FR-CTR-25; kỳ vọng nguyên văn của ca thiết kế UI-CTR-25 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-25",
+      "catches_bug": "Màn hình Thành viên liên danh và phạm vi (CTR-25) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-25"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-hop-dong",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Thành viên liên danh và phạm vi\"; user có quyền và user chỉ đọc; route CTR-25\n1. Mở CTR-25 từ menu và deep link; kiểm nhãn trường: Thành viên, Vai trò, Tỷ lệ phần việc, Giá trị phần việc, Tạm ứng được cấp, Đã thu hồi, Bảo lãnh\n2. Thực hiện thao tác chính theo quy tắc: Tổng tỷ lệ phải bằng 100; ngưỡng thu hồi 80% áp theo từng thành viên; thao tác dùng command replaceContractParties\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-25",
+      "expected": "Thành viên liên danh và phạm vi: hiển thị đúng 7 trường; áp quy tắc \"Tổng tỷ lệ phải bằng 100; ngưỡng thu hồi 80% áp theo từng thành viên\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-25",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UI-CTR-26",
+      "title": "Phiên bản hợp đồng và hiệu lực (CTR-26): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-hop-dong",
+      "journey_ref": "J-FR-CTR-26",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-26",
+      "oracle_source": "Claim → FR-CTR-26; kỳ vọng nguyên văn của ca thiết kế UI-CTR-26 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-26",
+      "catches_bug": "Màn hình Phiên bản hợp đồng và hiệu lực (CTR-26) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CTR-26"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-hop-dong",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Phiên bản hợp đồng và hiệu lực\"; user có quyền và user chỉ đọc; route CTR-26\n1. Mở CTR-26 từ menu và deep link; kiểm nhãn trường: Phiên bản, Loại, Hiệu lực từ, Giá trị, Nguồn thay đổi, Hồi tố, Trạng thái\n2. Thực hiện thao tác chính theo quy tắc: Chỉ phiên bản EFFECTIVE dùng cho BOQ thanh toán; phiên bản PENDING_EFFECTIVE hiển thị nhưng không tính; hồi tố qua quy trình riêng; thao tác dùng command getContractSummary, approveRetroactiveAdjustment\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CTR-26",
+      "expected": "Phiên bản hợp đồng và hiệu lực: hiển thị đúng 7 trường; áp quy tắc \"Chỉ phiên bản EFFECTIVE dùng cho BOQ thanh toán; phiên bản PENDING_EFFECTIVE hiển thị nhưng không tính; hồi tố qua quy trình riêng\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CTR-26",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-15",
+      "title": "The second call returns the first import result (same import id, HTTP 200)",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-ctr",
+      "journey_ref": "J-FR-CTR-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-04",
+      "oracle_source": "Claim → CTR.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-15 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"BOQ và mốc thanh toán\": The second call returns the first import result (same import id, HTTP 200); boq_item stays 3 and boq_line stays 3; no duplicate (revision, item) pair exists.",
+      "coverage_ids": [
+        "COV-FR-CTR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-ctr",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Draft contract revision CR-A-001 with no BOQ lines; BOQ file boq-a.xlsx with 3 lines and file_sha256 S1.\n1. importBoqLines mode APPEND with boq-a.xlsx and Idempotency-Key k-boq-1\n2. importBoqLines again with the same file (same file_sha256 S1) and key k-boq-2\n3. Count boq_item and boq_line rows of CR-A-001",
+      "expected": "The second call returns the first import result (same import id, HTTP 200); boq_item stays 3 and boq_line stays 3; no duplicate (revision, item) pair exists.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-16",
+      "title": "Both calls return 422 VALIDATION_FAILED before the parser runs (no parse log line)",
+      "type": "RED",
+      "platform": "api",
+      "persona": "nguoi-dung-ctr",
+      "journey_ref": "J-FR-CTR-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-04",
+      "oracle_source": "Claim → CTR.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-16 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"BOQ và mốc thanh toán\": Both calls return 422 VALIDATION_FAILED before the parser runs (no parse log line); boq_item and boq_line counts stay at 0.",
+      "coverage_ids": [
+        "COV-FR-CTR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-ctr",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Draft contract revision CR-A-001; one file carrying the EICAR signature and one executable renamed boq.xlsx.\n1. importBoqLines with the EICAR file\n2. importBoqLines with the renamed executable\n3. Count boq_item and boq_line rows of CR-A-001",
+      "expected": "Both calls return 422 VALIDATION_FAILED before the parser runs (no parse log line); boq_item and boq_line counts stay at 0.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "tags": [
+        "security"
+      ],
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-17",
+      "title": "Step 1: 422 VALIDATION_FAILED and V-A-001 stays PROPOSED",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-ctr",
+      "journey_ref": "J-FR-CTR-23",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-23",
+      "oracle_source": "Claim → CTR.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-17 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-23",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Bảng điểm nhà thầu và nhật ký vi phạm\": Step 1: 422 VALIDATION_FAILED and V-A-001 stays PROPOSED. Step 2: 200 and V-A-001 is CONFIRMED with document_id DOC-V-01. Step 3: the scorecard lists V-A-001 on",
+      "coverage_ids": [
+        "COV-FR-CTR-23"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-ctr",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Contractor violation V-A-001 of kind DELAY with a sanction in status PROPOSED; supporting document DOC-V-01 in the document store.\n1. Confirm V-A-001 without a document\n2. Attach DOC-V-01 and confirm again\n3. Open the contractor scorecard for the period",
+      "expected": "Step 1: 422 VALIDATION_FAILED and V-A-001 stays PROPOSED. Step 2: 200 and V-A-001 is CONFIRMED with document_id DOC-V-01. Step 3: the scorecard lists V-A-001 once.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "CTR"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-18",
+      "title": "B-A-001 stores submitted_ref NDB-2026-0042 and the submit time",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-ctr",
+      "journey_ref": "J-FR-CTR-24",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CTR-24",
+      "oracle_source": "Claim → CTR.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-18 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CTR-24",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Xuất hồ sơ nhà thầu cho cơ sở dữ liệu quốc gia\": B-A-001 stores submitted_ref NDB-2026-0042 and the submit time; the adapter status reads PROPOSED / API MISSING; no outbound HTTP call appears in the egress log",
+      "coverage_ids": [
+        "COV-FR-CTR-24"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-ctr",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Contractor export batch B-A-001 in status GENERATED for scope BOTH; adapter to the national database not contracted (CXN-EXE-01).\n1. markContractorExportSubmitted with submitted_ref \"NDB-2026-0042\"\n2. Read B-A-001 and the adapter status",
+      "expected": "B-A-001 stores submitted_ref NDB-2026-0042 and the submit time; the adapter status reads PROPOSED / API MISSING; no outbound HTTP call appears in the egress log.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "module": "CTR"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 35,
+    "M2": 0,
+    "M3": 0,
+    "M4": 120,
+    "max": 120,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 35,
+    "covered": 35,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

@@ -1,0 +1,1480 @@
+{
+  "feature": "bid",
+  "generated_at": "2026-11-05T07:53:18.045Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/bid/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UAT-AC13",
+      "title": "4 nhận xét có ≥ 1 dẫn chứng DOCUMENT (document_version, page_index, quote_sha256, verified_present=true)",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-09",
+      "oracle_source": "Claim → FRD AC13; kỳ vọng nguyên văn của ca thiết kế UAT-AC13 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-09, FR-BID-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Bàn phân tích có dẫn chứng\": 4 nhận xét có ≥ 1 dẫn chứng DOCUMENT (document_version, page_index, quote_sha256, verified_present=true); nhận xét quan trọng thiếu nguồn có status=NEEDS_REVIEW",
+      "coverage_ids": [
+        "COV-FR-BID-09",
+        "COV-FR-BID-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Gói G-01, criteria_version CV-1 (5 tiêu chí, 3 tiêu chí \"quan trọng\"), hồ sơ HS-A 40 trang đã OCR; lượt R-13 COMPLETED với 5 nhận xét; profile AI mock trả 1 nhận xét quan trọng không có trang nguồn.\n1. GET /analysis-runs/{R-13}/findings\n2. Mở BID-09 cho tiêu chí thiếu nguồn\n3. Kiểm analysis_evidence.verified_present của các trích dẫn",
+      "expected": "4 nhận xét có ≥ 1 dẫn chứng DOCUMENT (document_version, page_index, quote_sha256, verified_present=true); nhận xét quan trọng thiếu nguồn có status=NEEDS_REVIEW và cờ \"Thiếu nguồn\" trên BID-09; không có nhận xét SUPPORTED/CONTRADICTED nào với evidence_count=0 (guard BR-BID-07 trong command ghi nhận xét).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "BID-09",
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UAT-AC14",
+      "title": "Kết quả truy xuất chỉ gồm đoạn của HS-A (lọc tenant + ACL trước khi tính tương đồng)",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-09",
+      "oracle_source": "Claim → FRD AC14; kỳ vọng nguyên văn của ca thiết kế UAT-AC14 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-09, FR-LLM-16",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Bàn phân tích có dẫn chứng\": Kết quả truy xuất chỉ gồm đoạn của HS-A (lọc tenant + ACL trước khi tính tương đồng); mở trang HS-B trả 404; log truy xuất không có id đoạn của HS-B.",
+      "coverage_ids": [
+        "COV-FR-BID-09",
+        "COV-FR-LLM-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Hai hồ sơ HS-A (nhà thầu A) và HS-B (nhà thầu B) cùng gói; chuyên gia E1 có quyền HS-A nhưng HS-B bị giới hạn (acl_json loại E1 vì xung đột RECUSED); chỉ mục vector chứa cả hai.\n1. E1 chạy truy vấn hỏi đáp trong BID-09 \"kinh nghiệm thi công cầu\"\n2. E1 mở dẫn chứng là trang 12 của HS-B qua GET /document-versions/{HS-B-v}/download\n3. Kiểm log truy xuất",
+      "expected": "Kết quả truy xuất chỉ gồm đoạn của HS-A (lọc tenant + ACL trước khi tính tương đồng); mở trang HS-B trả 404; log truy xuất không có id đoạn của HS-B.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "BID-09",
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UAT-AC15",
+      "title": "Lượt mới R-16 với supersedes_run_id=R-15, input_hash khác",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-07",
+      "oracle_source": "Claim → FRD AC15; kỳ vọng nguyên văn của ca thiết kế UAT-AC15 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-07, FR-BID-08",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Cấu hình lượt phân tích\": Lượt mới R-16 với supersedes_run_id=R-15, input_hash khác; lặp lại CV-1 + S1 trả lượt R-15 hiện có (unique input) thay vì tạo bản mới; nhận xét và trạng thái củ",
+      "coverage_ids": [
+        "COV-FR-BID-07",
+        "COV-FR-BID-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Lượt R-15 COMPLETED với CV-1 và tập tài liệu S1 (băm D1); sau đó CV-2 được duyệt và HS-A bổ sung tệp làm rõ (tập S2, băm D2).\n1. POST /analysis-runs với CV-2 + S2\n2. POST /analysis-runs lại với CV-1 + S1 (cùng input)\n3. Đọc R-15 và nhận xét của nó",
+      "expected": "Lượt mới R-16 với supersedes_run_id=R-15, input_hash khác; lặp lại CV-1 + S1 trả lượt R-15 hiện có (unique input) thay vì tạo bản mới; nhận xét và trạng thái của R-15 không đổi (không UPDATE nào trên analysis_finding của R-15).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "BID-07",
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UAT-AC16",
+      "title": "Lần 1: 422 REASON_REQUIRED",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-12",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-12",
+      "oracle_source": "Claim → FRD AC16; kỳ vọng nguyên văn của ca thiết kế UAT-AC16 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-12, FR-BID-18",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thẩm tra chuyên gia\": Lần 1: 422 REASON_REQUIRED; lần 2: 200, analysis_finding_review ghi from SUPPORTED → CONTRADICTED, score 4 → 2, ai_decision_record ACCEPTED_WITH_CHANGE; quyết đ",
+      "coverage_ids": [
+        "COV-FR-BID-12",
+        "COV-FR-BID-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Nhận xét F-16 status=SUPPORTED điểm 4/5 trong lượt R-16; chuyên gia E2 đã khai báo không xung đột; người có thẩm quyền A-approver.\n1. E2 POST /analysis-findings/{F-16}/review {to_status:\"CONTRADICTED\", score_after:\"2\", reason:\"ngắn\"}\n2. Lặp lại với reason \"Hợp đồng tương tự ở trang 18 chưa được nghiệm thu, không đạt yêu cầu kinh nghiệm\"\n3. E2 POST /procurement-results/{id}/decision APPROVE",
+      "expected": "Lần 1: 422 REASON_REQUIRED; lần 2: 200, analysis_finding_review ghi from SUPPORTED → CONTRADICTED, score 4 → 2, ai_decision_record ACCEPTED_WITH_CHANGE; quyết định KQLCNT bởi E2: 403 SCOPE_DENIED (chỉ A-approver có bid.result.approve).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "BID-12",
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UAT-AC17",
+      "title": "So sánh chỉ gồm lượt CV-2 (R-A) và báo R-B bị loại vì CRITERIA_VERSION_MISMATCH",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-10",
+      "oracle_source": "Claim → FRD AC17; kỳ vọng nguyên văn của ca thiết kế UAT-AC17 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-10, FR-BID-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"So sánh đề án\": So sánh chỉ gồm lượt CV-2 (R-A) và báo R-B bị loại vì CRITERIA_VERSION_MISMATCH; excluded_attributes liệt kê tên/đặc tính cá nhân; tạo tiêu chí bị cấm: 422 PROH",
+      "coverage_ids": [
+        "COV-FR-BID-10",
+        "COV-FR-BID-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Gói G-01: lượt R-A (nhà thầu A, CV-2) và R-B (nhà thầu B, CV-1); người soạn tiêu chí thử thêm tiêu chí \"Giám đốc là người địa phương\" và \"Giới tính người đại diện\".\n1. GET /procurement-packages/{G-01}/proposal-comparison?criteria_version_id=CV-2\n2. POST /criteria-versions với tiêu chí bị cấm",
+      "expected": "So sánh chỉ gồm lượt CV-2 (R-A) và báo R-B bị loại vì CRITERIA_VERSION_MISMATCH; excluded_attributes liệt kê tên/đặc tính cá nhân; tạo tiêu chí bị cấm: 422 PROHIBITED_CRITERION.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "BID-04",
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-01",
+      "title": "Danh sách nhà thầu (BID-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-01",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-01",
+      "oracle_source": "Claim → FR-BID-01; kỳ vọng nguyên văn của ca thiết kế UI-BID-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-01",
+      "catches_bug": "Màn hình Danh sách nhà thầu (BID-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BID-01\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã số thuế, Tên, Năng lực, Hợp đồng\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-02",
+      "title": "Hồ sơ nhà thầu (BID-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-02",
+      "oracle_source": "Claim → FR-BID-02; kỳ vọng nguyên văn của ca thiết kế UI-BID-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-02",
+      "catches_bug": "Màn hình Hồ sơ nhà thầu (BID-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BID-02\n1. Mở route bằng menu và deep link; kiểm tên trường: Pháp lý, Nhân sự, Kinh nghiệm, Lịch sử thực hiện\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-03",
+      "title": "Gói thầu và đề án (BID-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-03",
+      "oracle_source": "Claim → FR-BID-03; kỳ vọng nguyên văn của ca thiết kế UI-BID-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-03",
+      "catches_bug": "Màn hình Gói thầu và đề án (BID-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BID-03\n1. Mở route bằng menu và deep link; kiểm tên trường: Gói thầu, Dự án, Giai đoạn, Hạn\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-04",
+      "title": "Tiêu chí đánh giá (BID-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-04",
+      "oracle_source": "Claim → FR-BID-04; kỳ vọng nguyên văn của ca thiết kế UI-BID-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-04",
+      "catches_bug": "Màn hình Tiêu chí đánh giá (BID-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BID-04\n1. Mở route bằng menu và deep link; kiểm tên trường: Tiêu chí, Trọng số, Ngưỡng, Bằng chứng yêu cầu\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-05",
+      "title": "Tiếp nhận hồ sơ (BID-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-05",
+      "oracle_source": "Claim → FR-BID-05; kỳ vọng nguyên văn của ca thiết kế UI-BID-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-05",
+      "catches_bug": "Màn hình Tiếp nhận hồ sơ (BID-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BID-05\n1. Mở route bằng menu và deep link; kiểm tên trường: Nhà thầu, Tệp, Phiên bản, Phân loại bảo mật\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-06",
+      "title": "Kiểm tra OCR (BID-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-06",
+      "oracle_source": "Claim → FR-BID-06; kỳ vọng nguyên văn của ca thiết kế UI-BID-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-06",
+      "catches_bug": "Màn hình Kiểm tra OCR (BID-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BID-06\n1. Mở route bằng menu và deep link; kiểm tên trường: Trang, Độ tin cậy, Nội dung gốc, Nội dung nhận dạng\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-07",
+      "title": "Cấu hình lượt phân tích (BID-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-07",
+      "oracle_source": "Claim → FR-BID-07; kỳ vọng nguyên văn của ca thiết kế UI-BID-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-07",
+      "catches_bug": "Màn hình Cấu hình lượt phân tích (BID-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BID-07\n1. Mở route bằng menu và deep link; kiểm tên trường: Bộ tiêu chí, Phiên bản hồ sơ, Profile AI, Hạn chi phí\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-08",
+      "title": "Tiến trình phân tích (BID-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-08",
+      "oracle_source": "Claim → FR-BID-08; kỳ vọng nguyên văn của ca thiết kế UI-BID-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-08",
+      "catches_bug": "Màn hình Tiến trình phân tích (BID-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BID-08\n1. Mở route bằng menu và deep link; kiểm tên trường: Trích xuất, Đối chiếu, Kiểm chứng, Hoàn tất\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-09",
+      "title": "Bàn phân tích có dẫn chứng (BID-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-09",
+      "oracle_source": "Claim → FR-BID-09; kỳ vọng nguyên văn của ca thiết kế UI-BID-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-09",
+      "catches_bug": "Màn hình Bàn phân tích có dẫn chứng (BID-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BID-09\n1. Mở route bằng menu và deep link; kiểm tên trường: Tiêu chí, Nhận xét AI, Trang nguồn, Độ chắc chắn\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-10",
+      "title": "So sánh đề án (BID-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-10",
+      "oracle_source": "Claim → FR-BID-10; kỳ vọng nguyên văn của ca thiết kế UI-BID-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-10",
+      "catches_bug": "Màn hình So sánh đề án (BID-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BID-10\n1. Mở route bằng menu và deep link; kiểm tên trường: Nhà thầu A, Nhà thầu B, Tiêu chí, Rủi ro\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-11",
+      "title": "Làm rõ hồ sơ (BID-11): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-11",
+      "oracle_source": "Claim → FR-BID-11; kỳ vọng nguyên văn của ca thiết kế UI-BID-11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-11",
+      "catches_bug": "Màn hình Làm rõ hồ sơ (BID-11) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BID-11\n1. Mở route bằng menu và deep link; kiểm tên trường: Câu hỏi, Căn cứ, Hạn trả lời, Người nhận\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-11",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-12",
+      "title": "Thẩm tra chuyên gia (BID-12): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-12",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-12",
+      "oracle_source": "Claim → FR-BID-12; kỳ vọng nguyên văn của ca thiết kế UI-BID-12 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-12",
+      "catches_bug": "Màn hình Thẩm tra chuyên gia (BID-12) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BID-12\n1. Mở route bằng menu và deep link; kiểm tên trường: Nhận xét, Điều chỉnh, Lý do, Xung đột lợi ích\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-12",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-13",
+      "title": "Biên bản đánh giá (BID-13): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-13",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-13",
+      "oracle_source": "Claim → FR-BID-13; kỳ vọng nguyên văn của ca thiết kế UI-BID-13 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-13",
+      "catches_bug": "Màn hình Biên bản đánh giá (BID-13) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BID-13\n1. Mở route bằng menu và deep link; kiểm tên trường: Phiên bản, Chữ ký, Kết luận, Ý kiến khác\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-13",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-14",
+      "title": "Hợp đồng và thay đổi (BID-14): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-14",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-14",
+      "oracle_source": "Claim → FR-BID-14; kỳ vọng nguyên văn của ca thiết kế UI-BID-14 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-14",
+      "catches_bug": "Màn hình Hợp đồng và thay đổi (BID-14) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BID-14\n1. Mở route bằng menu và deep link; kiểm tên trường: Hợp đồng, Giá trị, Tiến độ, Phụ lục\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: AI hỗ trợ có dẫn chứng; không tự quyết định kết quả lựa chọn\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-14",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-15",
+      "title": "Kế hoạch lựa chọn nhà thầu (BID-15): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-BID-15",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-15",
+      "oracle_source": "Claim → FR-BID-15; kỳ vọng nguyên văn của ca thiết kế UI-BID-15 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-15",
+      "catches_bug": "Màn hình Kế hoạch lựa chọn nhà thầu (BID-15) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BID-15\n1. Mở route bằng menu và deep link; kiểm tên trường: Gói thầu, Dự toán, Phương thức, Thời gian, Trạng thái\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-15",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-16",
+      "title": "Lập và điều chỉnh kế hoạch thầu (BID-16): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-BID-16",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-16",
+      "oracle_source": "Claim → FR-BID-16; kỳ vọng nguyên văn của ca thiết kế UI-BID-16 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-16",
+      "catches_bug": "Màn hình Lập và điều chỉnh kế hoạch thầu (BID-16) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BID-16\n1. Mở route bằng menu và deep link; kiểm tên trường: Dự án, Gói thầu, Giá gói thầu, Nguồn vốn, Căn cứ, Phương thức\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-16",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-17",
+      "title": "Theo dõi mời thầu và mốc lựa chọn (BID-17): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-BID-17",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-17",
+      "oracle_source": "Claim → FR-BID-17; kỳ vọng nguyên văn của ca thiết kế UI-BID-17 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-17",
+      "catches_bug": "Màn hình Theo dõi mời thầu và mốc lựa chọn (BID-17) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BID-17\n1. Mở route bằng menu và deep link; kiểm tên trường: Gói thầu, Ngày mời, Đóng thầu, Làm rõ, Mở thầu\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-17",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-18",
+      "title": "Phê duyệt kết quả lựa chọn (BID-18): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-BID-18",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-18",
+      "oracle_source": "Claim → FR-BID-18; kỳ vọng nguyên văn của ca thiết kế UI-BID-18 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-18",
+      "catches_bug": "Màn hình Phê duyệt kết quả lựa chọn (BID-18) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BID-18\n1. Mở route bằng menu và deep link; kiểm tên trường: Gói thầu, Báo cáo chuyên gia, Nhà thầu, Giá trúng, Quyết định\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-18",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-19",
+      "title": "Liên kết cổng đấu thầu và đối soát (BID-19): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-BID-19",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-19",
+      "oracle_source": "Claim → FR-BID-19; kỳ vọng nguyên văn của ca thiết kế UI-BID-19 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-19",
+      "catches_bug": "Màn hình Liên kết cổng đấu thầu và đối soát (BID-19) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BID-19\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã gói thầu ngoài, Nguồn, Lần đồng bộ, Sai lệch\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-19",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-20",
+      "title": "Kiến nghị và xung đột lợi ích (BID-20): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-BID-20",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-20",
+      "oracle_source": "Claim → FR-BID-20; kỳ vọng nguyên văn của ca thiết kế UI-BID-20 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-20",
+      "catches_bug": "Màn hình Kiến nghị và xung đột lợi ích (BID-20) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-20"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BID-20\n1. Mở route bằng menu và deep link; kiểm tên trường: Gói thầu, Người liên quan, Khai báo, Kiến nghị, Hạn xử lý\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: AI không phê duyệt lựa chọn nhà thầu. Kế hoạch, tiêu chí và kết quả có version/căn cứ; kiểm soát xung đột lợi ích và quyền hồ sơ.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-20",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UI-BID-21",
+      "title": "Hạn chế tham gia lựa chọn nhà thầu (BID-21): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-dau-thau",
+      "journey_ref": "J-FR-BID-21",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-21",
+      "oracle_source": "Claim → FR-BID-21; kỳ vọng nguyên văn của ca thiết kế UI-BID-21 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-21",
+      "catches_bug": "Màn hình Hạn chế tham gia lựa chọn nhà thầu (BID-21) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BID-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-dau-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Hạn chế tham gia lựa chọn nhà thầu\"; user có quyền và user chỉ đọc; route BID-21\n1. Mở BID-21 từ menu và deep link; kiểm nhãn trường: Nhà thầu, Loại hạn chế, Nguồn, Hiệu lực, Quyết định\n2. Thực hiện thao tác chính theo quy tắc: Hạn chế còn hiệu lực chặn tiếp nhận hồ sơ và trình kết quả (CONTRACTOR_RESTRICTED)\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BID-21",
+      "expected": "Hạn chế tham gia lựa chọn nhà thầu: hiển thị đúng 5 trường, áp quy tắc \"Hạn chế còn hiệu lực chặn tiếp nhận hồ sơ và trình kết quả (CONTRACTOR_RESTRICTED)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BID-21",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UAT-AC445",
+      "title": "Tự duyệt: 403 SELF_APPROVAL_DENIED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-15",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-15",
+      "oracle_source": "Claim → 05_modules/BID.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC445 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-15, FR-BID-16, FR-BID-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kế hoạch lựa chọn nhà thầu\": Tự duyệt: 403 SELF_APPROVAL_DENIED; thiếu QĐ: 422 DECISION_DOCUMENT_NOT_EFFECTIVE; có QĐ: APPROVED, bid.plan.approved.v1; revision 2 submit: 422 PACKAGE_BUDGET_",
+      "coverage_ids": [
+        "COV-FR-BID-15",
+        "COV-FR-BID-16",
+        "COV-FR-BID-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dự án P-A-010 IMPLEMENTATION, dòng vốn AL-1 = 30.000.000.000; A-planner lập KHLCNT 2 gói G-01 18 tỷ, G-02 10 tỷ; A-approver có bid.plan.approve.\n1. POST /procurement-plans {...}; submit; A-planner tự decision APPROVE\n2. A-approver APPROVE không có decision_document_id, rồi có QĐ KH-01 (EFFECTIVE)\n3. Lập revision 2 thêm G-03 5 tỷ (Σ 33 tỷ > 30 tỷ) và submit",
+      "expected": "Tự duyệt: 403 SELF_APPROVAL_DENIED; thiếu QĐ: 422 DECISION_DOCUMENT_NOT_EFFECTIVE; có QĐ: APPROVED, bid.plan.approved.v1; revision 2 submit: 422 PACKAGE_BUDGET_EXCEEDS_ALLOCATION; vẫn chỉ 1 KHLCNT APPROVED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "BID-03",
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UAT-AC446",
+      "title": "Xác minh NT-2: 409 TAX_ID_DUPLICATE_VERIFIED (không gộp tự động",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-01",
+      "oracle_source": "Claim → 05_modules/BID.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC446 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-01, FR-BID-21, FR-BID-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh sách nhà thầu\": Xác minh NT-2: 409 TAX_ID_DUPLICATE_VERIFIED (không gộp tự động; gợi ý merge MDM); NT-3 hồ sơ: 422 CONTRACTOR_RESTRICTED; trình kết quả: 422 CONTRACTOR_RESTRICT",
+      "coverage_ids": [
+        "COV-FR-BID-01",
+        "COV-FR-BID-21",
+        "COV-FR-BID-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Nhà thầu NT-1 MST 0101234567 VERIFIED; NT-2 cùng MST nhưng UNVERIFIED tên \"Cty NT Một\"; NT-3 bị DEBARMENT 2026-01-01..2027-12-31 theo QĐ.\n1. POST /contractors/{NT-2}/verification VERIFIED\n2. POST /proposals cho NT-3 vào G-01\n3. POST /procurement-results với winner NT-3",
+      "expected": "Xác minh NT-2: 409 TAX_ID_DUPLICATE_VERIFIED (không gộp tự động; gợi ý merge MDM); NT-3 hồ sơ: 422 CONTRACTOR_RESTRICTED; trình kết quả: 422 CONTRACTOR_RESTRICTED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "BID-01",
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UAT-AC447",
+      "title": "CV-3: 422 CRITERIA_WEIGHT_INVALID",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-04",
+      "oracle_source": "Claim → 05_modules/BID.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC447 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tiêu chí đánh giá\": CV-3: 422 CRITERIA_WEIGHT_INVALID; sửa CV-4 sau khi có lượt: 409 CRITERIA_LOCKED_BY_RUN (tạo revision mới).",
+      "coverage_ids": [
+        "COV-FR-BID-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Bộ tiêu chí CV-3 trọng số 30/30/20/10 (Σ 90); CV-4 hợp lệ Σ 100 đã có lượt phân tích.\n1. POST /criteria-versions CV-3\n2. Duyệt CV-4 lần nữa sau khi sửa trọng số",
+      "expected": "CV-3: 422 CRITERIA_WEIGHT_INVALID; sửa CV-4 sau khi có lượt: 409 CRITERIA_LOCKED_BY_RUN (tạo revision mới).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "BID-04",
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UAT-AC448",
+      "title": "E1 trước giờ mở: 404",
+      "type": "RED",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-05",
+      "oracle_source": "Claim → 05_modules/BID.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC448 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tiếp nhận hồ sơ\": E1 trước giờ mở: 404; VT: chỉ metadata (nhà thầu, thời điểm nhận, số tệp), không có giá dự thầu và tệp; sau giờ mở E1 thấy đầy đủ DTO.",
+      "coverage_ids": [
+        "COV-FR-BID-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Hồ sơ HS-A nhận lúc 2026-11-10 09:00, đóng thầu 2026-11-12 09:00 (access_released_at); E1 thuộc tổ chuyên gia đã khai báo; văn thư VT có bid.proposal.receive.\n1. E1 GET /resources/proposal/{HS-A} lúc 2026-11-11\n2. VT GET cùng lúc\n3. E1 GET lúc 2026-11-12 09:05",
+      "expected": "E1 trước giờ mở: 404; VT: chỉ metadata (nhà thầu, thời điểm nhận, số tệp), không có giá dự thầu và tệp; sau giờ mở E1 thấy đầy đủ DTO.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "BID-05",
+      "tags": [
+        "security"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UAT-AC449",
+      "title": "Lượt đầu dừng ở bước trích xuất tài chính với trạng thái AWAITING_REVIEW (không gọi model cho phần tài chính)",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-06",
+      "oracle_source": "Claim → 05_modules/BID.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC449 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-06, FR-BID-08",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kiểm tra OCR\": Lượt đầu dừng ở bước trích xuất tài chính với trạng thái AWAITING_REVIEW (không gọi model cho phần tài chính); sau xác nhận, lượt mới chạy đủ; giá dự thầu được ",
+      "coverage_ids": [
+        "COV-FR-BID-06",
+        "COV-FR-BID-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: HS-A có trang 23 (bảng giá) ocr_confidence 0.71 < ngưỡng 0.85 → NEEDS_REVIEW.\n1. POST /analysis-runs cho HS-A\n2. Chuyên gia POST /document-page-ocr/{p23}/review CORRECTED\n3. Chạy lại",
+      "expected": "Lượt đầu dừng ở bước trích xuất tài chính với trạng thái AWAITING_REVIEW (không gọi model cho phần tài chính); sau xác nhận, lượt mới chạy đủ; giá dự thầu được tính bằng code decimal từ bảng đã xác nhận.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "BID-06",
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UAT-AC450",
+      "title": "E3: 403 CONFLICT_UNDECLARED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-12",
+      "oracle_source": "Claim → 05_modules/BID.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC450 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-12, FR-BID-20",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thẩm tra chuyên gia\": E3: 403 CONFLICT_UNDECLARED; E4 tự quyết: 403 SELF_APPROVAL_DENIED; sau RECUSED E4 nhận 404 với hồ sơ NT-1 và bị loại khỏi signed_off_by.",
+      "coverage_ids": [
+        "COV-FR-BID-12",
+        "COV-FR-BID-20"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: E3 thuộc tổ chuyên gia gói G-01 chưa khai báo; E4 khai báo có quan hệ với NT-1.\n1. E3 GET /analysis-runs/{R}/findings\n2. E4 tự POST /bid-conflict-declarations/{id}/decision ALLOWED\n3. A-approver quyết định RECUSED; E4 truy cập HS của NT-1",
+      "expected": "E3: 403 CONFLICT_UNDECLARED; E4 tự quyết: 403 SELF_APPROVAL_DENIED; sau RECUSED E4 nhận 404 với hồ sơ NT-1 và bị loại khỏi signed_off_by.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "BID-12",
+      "tags": [
+        "security"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UAT-AC451",
+      "title": "History chỉ gồm CP-7 (APPROVED) với overall 83",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-02",
+      "oracle_source": "Claim → 05_modules/BID.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC451 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-02, FR-BID-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hồ sơ nhà thầu\": History chỉ gồm CP-7 (APPROVED) với overall 83.00, không có CP-8; nhận xét có dẫn chứng evidence_kind=SCORECARD trỏ contractor_performance_id=CP-7; BID không gh",
+      "coverage_ids": [
+        "COV-FR-BID-02",
+        "COV-FR-BID-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: CTR có bảng điểm contractor_performance CP-7 (hợp đồng C-07, NT-1, kỳ 2026-Q3, overall 83.00) APPROVED và CP-8 (SUBMITTED, chưa duyệt); CTR phát ctr.contractor_evaluation.approved.v1 cho CP-7.\n1. GET /contractors/{NT-1}/history\n2. Chạy lượt phân tích mới của NT-1 cho tiêu chí \"kinh nghiệm thực hiện hợp đồng tương tự\"\n3. Đọc analysis_evidence của nhận xét",
+      "expected": "History chỉ gồm CP-7 (APPROVED) với overall 83.00, không có CP-8; nhận xét có dẫn chứng evidence_kind=SCORECARD trỏ contractor_performance_id=CP-7; BID không ghi bảng điểm riêng (nguồn sự thật CTR).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "BID-02",
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UAT-AC452",
+      "title": "NT-2: 404",
+      "type": "RED",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-11",
+      "oracle_source": "Claim → 05_modules/BID.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC452 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-11",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Làm rõ hồ sơ\": NT-2: 404; NT-1 lần 1: ANSWERED với answer_document_id; lần hai: 409 CLARIFICATION_EXPIRED (trạng thái không đổi).",
+      "coverage_ids": [
+        "COV-FR-BID-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Làm rõ CL-1 gửi NT-1 (guest scope hợp đồng/gói G-01), hạn 2026-11-20 17:00; NT-2 là guest gói khác.\n1. NT-2 GET/POST answer cho CL-1\n2. NT-1 trả lời 2026-11-20 16:00\n3. NT-1 trả lời lần hai 2026-11-21",
+      "expected": "NT-2: 404; NT-1 lần 1: ANSWERED với answer_document_id; lần hai: 409 CLARIFICATION_EXPIRED (trạng thái không đổi).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "BID-11",
+      "tags": [
+        "security"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UAT-AC453",
+      "title": "Lần đầu: 422 UNREVIEWED_FINDINGS",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "to-chuyen-gia",
+      "journey_ref": "J-FR-BID-13",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-13",
+      "oracle_source": "Claim → 05_modules/BID.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC453 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-13",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Biên bản đánh giá\": Lần đầu: 422 UNREVIEWED_FINDINGS; sau thẩm tra: DRAFT; đủ 3 sign-off → ISSUE_REQUESTED; sau doc.issued → ISSUED với report_document_id.",
+      "coverage_ids": [
+        "COV-FR-BID-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "to-chuyen-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Gói G-01 có 6 nhận xét, 1 nhận xét chưa thẩm tra (final_status NULL); tổ chuyên gia 3 người.\n1. POST /evaluation-reports\n2. Thẩm tra nhận xét còn lại rồi tạo lại; 3 người sign-off\n3. DOC phát doc.issued cho biên bản",
+      "expected": "Lần đầu: 422 UNREVIEWED_FINDINGS; sau thẩm tra: DRAFT; đủ 3 sign-off → ISSUE_REQUESTED; sau doc.issued → ISSUED với report_document_id.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "BID-13",
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UAT-AC454",
+      "title": "Dry-run: rows_ok=2, rows_error=1 (PACKAGE_NOT_FOUND) không ghi dữ liệu",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-BID-19",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-19",
+      "oracle_source": "Claim → 05_modules/BID.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC454 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-19, FR-BID-17",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Liên kết cổng đấu thầu và đối soát\": Dry-run: rows_ok=2, rows_error=1 (PACKAGE_NOT_FOUND) không ghi dữ liệu; APPLY: 2 mốc BID_OPENING/RESULT_PUBLISHED source=IMPORT, external_link IN_SYNC; APPLY lạ",
+      "coverage_ids": [
+        "COV-FR-BID-19",
+        "COV-FR-BID-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tệp kết quả từ Hệ thống mạng đấu thầu quốc gia 3 dòng (1 dòng mã gói không tồn tại), adapter PROPOSED, không có lời gọi mạng ra ngoài.\n1. POST /procurement-imports DRY_RUN\n2. APPLY\n3. APPLY lại cùng tệp\n4. Kiểm egress log",
+      "expected": "Dry-run: rows_ok=2, rows_error=1 (PACKAGE_NOT_FOUND) không ghi dữ liệu; APPLY: 2 mốc BID_OPENING/RESULT_PUBLISHED source=IMPORT, external_link IN_SYNC; APPLY lại: 409 IMPORT_FILE_ALREADY_APPLIED; egress 0 kết nối tới muasamcong.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration (idempotency)",
+      "screen_id": "BID-17",
+      "tags": [
+        "concurrency"
+      ],
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UAT-AC455",
+      "title": "422 PRICE_EXCEEDS_PACKAGE_BUDGET",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-BID-18",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-18",
+      "oracle_source": "Claim → 05_modules/BID.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC455 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-18",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Phê duyệt kết quả lựa chọn\": 422 PRICE_EXCEEDS_PACKAGE_BUDGET; tự duyệt 403 SELF_APPROVAL_DENIED; APPROVED, bid.result.approved.v1 {package_id, contractor_id, award_price_vnd:\"17650000000\",",
+      "coverage_ids": [
+        "COV-FR-BID-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: G-01 giá gói 18.000.000.000; báo cáo đánh giá ISSUED; A-proposer trình, A-approver duyệt.\n1. POST /procurement-results {outcome:\"AWARDED\", winner:NT-1, award_price_vnd:\"18500000000\"}\n2. Trình lại 17.650.000.000; A-proposer tự duyệt\n3. A-approver duyệt kèm QĐ KQ-01",
+      "expected": "422 PRICE_EXCEEDS_PACKAGE_BUDGET; tự duyệt 403 SELF_APPROVAL_DENIED; APPROVED, bid.result.approved.v1 {package_id, contractor_id, award_price_vnd:\"17650000000\", decision_document_id}; không có dấu vết AI trong quyết định ngoài liên kết báo cáo.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "BID-18",
+      "module": "BID"
+    },
+    {
+      "tc_id": "TC-UAT-AC456",
+      "title": "due_on tính theo lịch làm việc tenant",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-BID-20",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BID-20",
+      "oracle_source": "Claim → 05_modules/BID.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC456 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BID-20",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kiến nghị và xung đột lợi ích\": due_on tính theo lịch làm việc tenant; quá hạn hiển thị cảnh báo và nhắc NOT; RESOLVED khi có resolution_document_id; thiếu văn bản: 422.",
+      "coverage_ids": [
+        "COV-FR-BID-20"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Quy tắc hạn xử lý kiến nghị là dữ liệu (ví dụ 7 ngày làm việc [CXN-BID-02]); NT-2 gửi kiến nghị về kết quả ngày 2026-11-25.\n1. POST /procurement-petitions\n2. Đặt đồng hồ sau hạn chưa trả lời\n3. POST resolution kèm văn bản",
+      "expected": "due_on tính theo lịch làm việc tenant; quá hạn hiển thị cảnh báo và nhắc NOT; RESOLVED khi có resolution_document_id; thiếu văn bản: 422.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "BID-20",
+      "module": "BID"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 22,
+    "M2": 0,
+    "M3": 0,
+    "M4": 80,
+    "max": 80,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 22,
+    "covered": 22,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

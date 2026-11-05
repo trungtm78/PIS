@@ -1,0 +1,900 @@
+{
+  "feature": "omni",
+  "generated_at": "2026-11-05T07:53:18.068Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/omni/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UAT-AC22",
+      "title": "Bước 1: 200, consent status Withdrawn, revoked_at = thời điểm server, 1 audit consent",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "omni-agent-xu-ly",
+      "journey_ref": "J-FR-OMNI-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-04",
+      "oracle_source": "Claim → FRD AC22; kỳ vọng nguyên văn của ca thiết kế UAT-AC22 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-04, FR-OMNI-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Xác minh và đồng ý nhận tin\": Bước 1: 200, consent status Withdrawn, revoked_at = thời điểm server, 1 audit consent.withdrawn, 1 outbox not.consent.changed.v1. Bước 2: 422 CONSENT_DENIED, kh",
+      "coverage_ids": [
+        "COV-FR-OMNI-04",
+        "COV-FR-OMNI-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "omni-agent-xu-ly",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Liên hệ C-01 có định danh ZALO đã xác minh; consent Granted cho (ZALO, SUPPORT_CONVERSATION) và (ZALO, REMINDER); hội thoại CV-01 trên channel_account ZOA-A (Active); adapter Zalo là mock đếm lời gọi.\n1. u.spec (OMNI_AGENT) gọi POST /contact-consents/{consent SUPPORT_CONVERSATION}/withdraw, Idempotency-Key k-ac22-1, If-Match \"1\", reason \"Liên hệ yêu cầu ngừng qua tổng đài\"\n2. Gọi POST /conversations/CV-01/messages kind=EXTERNAL purpose=SUPPORT_CONVERSATION text \"Xin chào\", Idempotency-Key k-ac22-2\n3. Gọi lại với purpose=REMINDER, Idempotency-Key k-ac22-3\n4. Đọc số lời gọi adapter mock, contact_consent và audit_event",
+      "expected": "Bước 1: 200, consent status Withdrawn, revoked_at = thời điểm server, 1 audit consent.withdrawn, 1 outbox not.consent.changed.v1. Bước 2: 422 CONSENT_DENIED, không tạo channel_message OUTBOUND, adapter 0 lời gọi. Bước 3: 202, 1 channel_message OUTBOUND purpose REMINDER, adapter 1 lời gọi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "OMNI-02",
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UAT-AC23",
+      "title": "Bước 1: 202, channel_message direction INTERNAL_NOTE, provider_message_id NULL, delivery_status NULL",
+      "type": "RED",
+      "platform": "web",
+      "persona": "omni-agent-xu-ly",
+      "journey_ref": "J-FR-OMNI-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-02",
+      "oracle_source": "Claim → FRD AC23; kỳ vọng nguyên văn của ca thiết kế UAT-AC23 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi tiết hội thoại\": Bước 1: 202, channel_message direction INTERNAL_NOTE, provider_message_id NULL, delivery_status NULL. Bước 2: 400 INVALID_REQUEST. Bước 3: adapter WhatsApp và e",
+      "coverage_ids": [
+        "COV-FR-OMNI-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "omni-agent-xu-ly",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Hội thoại CV-02 kênh WHATSAPP (cửa sổ 24h đang mở), email EM-A; adapter WhatsApp/email là mock ghi lại payload.\n1. u.spec gọi POST /conversations/CV-02/messages kind=INTERNAL_NOTE text \"Hồ sơ HD-001 còn thiếu bảo lãnh\", Idempotency-Key k-ac23-1\n2. Cố tình gửi lại cùng nội dung với kind=EXTERNAL nhưng channel_account_id rỗng (thiếu kênh)\n3. Chạy worker gửi 60 giây; đọc payload mà adapter mock nhận được và bảng channel_message\n4. Thử UPDATE channel_message đặt provider_message_id cho ghi chú vừa tạo bằng role runtime",
+      "expected": "Bước 1: 202, channel_message direction INTERNAL_NOTE, provider_message_id NULL, delivery_status NULL. Bước 2: 400 INVALID_REQUEST. Bước 3: adapter WhatsApp và email 0 payload chứa chuỗi \"thiếu bảo lãnh\". Bước 4: bị chặn bởi CHECK channel_message_note_ck.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "OMNI-02",
+      "tags": [
+        "security"
+      ],
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UAT-AC24",
+      "title": "Bước 1: 422 CHANNEL_ACCOUNT_MISMATCH, thông điệp không nêu tên/tồn tại của ZOA-B, adapter 0 lời gọi",
+      "type": "RED",
+      "platform": "web",
+      "persona": "omni-agent-xu-ly",
+      "journey_ref": "J-FR-OMNI-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-02",
+      "oracle_source": "Claim → FRD AC24; kỳ vọng nguyên văn của ca thiết kế UAT-AC24 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-02, FR-OMNI-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi tiết hội thoại\": Bước 1: 422 CHANNEL_ACCOUNT_MISMATCH, thông điệp không nêu tên/tồn tại của ZOA-B, adapter 0 lời gọi. Bước 2: 422 CHANNEL_UNVERIFIED, adapter 0 lời gọi. Bước 3: ",
+      "coverage_ids": [
+        "COV-FR-OMNI-02",
+        "COV-FR-OMNI-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "omni-agent-xu-ly",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tenant A có channel_account ZOA-A; tenant B có ZOA-B; hội thoại CV-03 thuộc A gắn ZOA-A; ZOA-A2 của A ở trạng thái Disabled.\n1. Phiên u.spec (tenant A) gọi POST /conversations/CV-03/messages channel_account_id = ZOA-B (UUID của tenant B), Idempotency-Key k-ac24-1\n2. Gọi lại với channel_account_id = ZOA-A2 (cùng tenant, Disabled), Idempotency-Key k-ac24-2\n3. Gọi lại với channel_account_id = ZOA-A, Idempotency-Key k-ac24-3\n4. Đếm lời gọi adapter và audit_event outcome",
+      "expected": "Bước 1: 422 CHANNEL_ACCOUNT_MISMATCH, thông điệp không nêu tên/tồn tại của ZOA-B, adapter 0 lời gọi. Bước 2: 422 CHANNEL_UNVERIFIED, adapter 0 lời gọi. Bước 3: 202, adapter 1 lời gọi bằng credential ZOA-A. Có 2 audit outcome DENIED (bước 1, 2) và 1 SUCCESS.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "OMNI-02",
+      "tags": [
+        "security"
+      ],
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UAT-AC25",
+      "title": "Bước 1: 422 CONTENT_CLASSIFICATION_BLOCKED, không có tệp nào gửi tới adapter",
+      "type": "RED",
+      "platform": "web",
+      "persona": "omni-agent-xu-ly",
+      "journey_ref": "J-FR-OMNI-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-02",
+      "oracle_source": "Claim → FRD AC25; kỳ vọng nguyên văn của ca thiết kế UAT-AC25 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi tiết hội thoại\": Bước 1: 422 CONTENT_CLASSIFICATION_BLOCKED, không có tệp nào gửi tới adapter. Bước 2: 202; email chứa deep link dạng /r/{opaque_id} không có token truy cập, khô",
+      "coverage_ids": [
+        "COV-FR-OMNI-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "omni-agent-xu-ly",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Tài liệu DOC-77 (classification CONFIDENTIAL) thuộc dự án P-01; liên hệ C-01 có consent SUPPORT_CONVERSATION qua email.\n1. u.spec gửi POST /conversations/CV-04/messages kind=EXTERNAL kèm attachment_ids=[DOC-77], Idempotency-Key k-ac25-1\n2. Gửi lại với resource_links=[{resource_type:\"project\", resource_id: P-01}] và không đính kèm, Idempotency-Key k-ac25-2\n3. Mở link trong email nhận được bằng trình duyệt chưa đăng nhập",
+      "expected": "Bước 1: 422 CONTENT_CLASSIFICATION_BLOCKED, không có tệp nào gửi tới adapter. Bước 2: 202; email chứa deep link dạng /r/{opaque_id} không có token truy cập, không chứa tên/tệp tài liệu. Bước 3: chuyển hướng tới IAM-01; sau đăng nhập chỉ mở được nếu có quyền đọc P-01.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "OMNI-02",
+      "tags": [
+        "security"
+      ],
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UI-OMNI-01",
+      "title": "Hộp thư hợp nhất (OMNI-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "omni-agent-xu-ly",
+      "journey_ref": "J-FR-OMNI-01",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-01",
+      "oracle_source": "Claim → FR-OMNI-01; kỳ vọng nguyên văn của ca thiết kế UI-OMNI-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-01",
+      "catches_bug": "Màn hình Hộp thư hợp nhất (OMNI-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-OMNI-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "omni-agent-xu-ly",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route OMNI-01\n1. Mở route bằng menu và deep link; kiểm tên trường: Kênh, Người phụ trách, SLA, Hồ sơ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Hội thoại hai chiều gắn hồ sơ; danh tính ngoài hệ thống cần xác minh\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "OMNI-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UI-OMNI-02",
+      "title": "Chi tiết hội thoại (OMNI-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "omni-agent-xu-ly",
+      "journey_ref": "J-FR-OMNI-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-02",
+      "oracle_source": "Claim → FR-OMNI-02; kỳ vọng nguyên văn của ca thiết kế UI-OMNI-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-02",
+      "catches_bug": "Màn hình Chi tiết hội thoại (OMNI-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-OMNI-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "omni-agent-xu-ly",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route OMNI-02\n1. Mở route bằng menu và deep link; kiểm tên trường: Tin nhắn, Tệp, Ghi chú nội bộ, Người tham gia\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Hội thoại hai chiều gắn hồ sơ; danh tính ngoài hệ thống cần xác minh\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "OMNI-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UI-OMNI-03",
+      "title": "Danh bạ và liên kết danh tính (OMNI-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "omni-agent-xu-ly",
+      "journey_ref": "J-FR-OMNI-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-03",
+      "oracle_source": "Claim → FR-OMNI-03; kỳ vọng nguyên văn của ca thiết kế UI-OMNI-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-03",
+      "catches_bug": "Màn hình Danh bạ và liên kết danh tính (OMNI-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-OMNI-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "omni-agent-xu-ly",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route OMNI-03\n1. Mở route bằng menu và deep link; kiểm tên trường: Người dùng, Zalo UID, WhatsApp, Email\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Hội thoại hai chiều gắn hồ sơ; danh tính ngoài hệ thống cần xác minh\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "OMNI-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UI-OMNI-04",
+      "title": "Xác minh và đồng ý nhận tin (OMNI-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "omni-agent-xu-ly",
+      "journey_ref": "J-FR-OMNI-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-04",
+      "oracle_source": "Claim → FR-OMNI-04; kỳ vọng nguyên văn của ca thiết kế UI-OMNI-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-04",
+      "catches_bug": "Màn hình Xác minh và đồng ý nhận tin (OMNI-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-OMNI-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "omni-agent-xu-ly",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route OMNI-04\n1. Mở route bằng menu và deep link; kiểm tên trường: Danh tính, Mục đích, Kênh, Bằng chứng đồng ý\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Hội thoại hai chiều gắn hồ sơ; danh tính ngoài hệ thống cần xác minh\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "OMNI-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UI-OMNI-05",
+      "title": "Kết nối kênh (OMNI-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "omni-agent-xu-ly",
+      "journey_ref": "J-FR-OMNI-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-05",
+      "oracle_source": "Claim → FR-OMNI-05; kỳ vọng nguyên văn của ca thiết kế UI-OMNI-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-05",
+      "catches_bug": "Màn hình Kết nối kênh (OMNI-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-OMNI-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "omni-agent-xu-ly",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route OMNI-05\n1. Mở route bằng menu và deep link; kiểm tên trường: Zalo OA, WhatsApp Business, Email, Trạng thái\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Hội thoại hai chiều gắn hồ sơ; danh tính ngoài hệ thống cần xác minh\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "OMNI-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UI-OMNI-06",
+      "title": "Cấu hình kênh (OMNI-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "omni-agent-xu-ly",
+      "journey_ref": "J-FR-OMNI-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-06",
+      "oracle_source": "Claim → FR-OMNI-06; kỳ vọng nguyên văn của ca thiết kế UI-OMNI-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-06",
+      "catches_bug": "Màn hình Cấu hình kênh (OMNI-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-OMNI-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "omni-agent-xu-ly",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route OMNI-06\n1. Mở route bằng menu và deep link; kiểm tên trường: Nhà cung cấp, Credential reference, Webhook, Phạm vi\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Hội thoại hai chiều gắn hồ sơ; danh tính ngoài hệ thống cần xác minh\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "OMNI-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UI-OMNI-07",
+      "title": "Phân công và SLA (OMNI-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "omni-agent-xu-ly",
+      "journey_ref": "J-FR-OMNI-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-07",
+      "oracle_source": "Claim → FR-OMNI-07; kỳ vọng nguyên văn của ca thiết kế UI-OMNI-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-07",
+      "catches_bug": "Màn hình Phân công và SLA (OMNI-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-OMNI-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "omni-agent-xu-ly",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route OMNI-07\n1. Mở route bằng menu và deep link; kiểm tên trường: Hàng đợi, Đơn vị, Ưu tiên, Hạn\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Hội thoại hai chiều gắn hồ sơ; danh tính ngoài hệ thống cần xác minh\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "OMNI-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UI-OMNI-08",
+      "title": "Mẫu trả lời (OMNI-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "omni-agent-xu-ly",
+      "journey_ref": "J-FR-OMNI-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-08",
+      "oracle_source": "Claim → FR-OMNI-08; kỳ vọng nguyên văn của ca thiết kế UI-OMNI-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-08",
+      "catches_bug": "Màn hình Mẫu trả lời (OMNI-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-OMNI-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "omni-agent-xu-ly",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route OMNI-08\n1. Mở route bằng menu và deep link; kiểm tên trường: Mẫu, Ngôn ngữ, Kênh, Trạng thái duyệt\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Hội thoại hai chiều gắn hồ sơ; danh tính ngoài hệ thống cần xác minh\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "OMNI-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UI-OMNI-09",
+      "title": "Chuyển hội thoại thành việc (OMNI-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "omni-agent-xu-ly",
+      "journey_ref": "J-FR-OMNI-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-09",
+      "oracle_source": "Claim → FR-OMNI-09; kỳ vọng nguyên văn của ca thiết kế UI-OMNI-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-09",
+      "catches_bug": "Màn hình Chuyển hội thoại thành việc (OMNI-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-OMNI-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "omni-agent-xu-ly",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route OMNI-09\n1. Mở route bằng menu và deep link; kiểm tên trường: Dự án, Loại việc, Hạn, Người xử lý\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Hội thoại hai chiều gắn hồ sơ; danh tính ngoài hệ thống cần xác minh\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "OMNI-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UI-OMNI-10",
+      "title": "Thống kê tương tác (OMNI-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "omni-agent-xu-ly",
+      "journey_ref": "J-FR-OMNI-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-10",
+      "oracle_source": "Claim → FR-OMNI-10; kỳ vọng nguyên văn của ca thiết kế UI-OMNI-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-10",
+      "catches_bug": "Màn hình Thống kê tương tác (OMNI-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-OMNI-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "omni-agent-xu-ly",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route OMNI-10\n1. Mở route bằng menu và deep link; kiểm tên trường: Thời gian phản hồi, SLA, Kênh, Đơn vị\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Hội thoại hai chiều gắn hồ sơ; danh tính ngoài hệ thống cần xác minh\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "OMNI-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UAT-AC195",
+      "title": "Bước 1: 422 CHANNEL_WINDOW_CLOSED",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "omni-agent-xu-ly",
+      "journey_ref": "J-FR-OMNI-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-02",
+      "oracle_source": "Claim → OMNI.md BR-OMNI-03; kỳ vọng nguyên văn của ca thiết kế UAT-AC195 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-02, FR-OMNI-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi tiết hội thoại\": Bước 1: 422 CHANNEL_WINDOW_CLOSED. Bước 2: 202. Bước 3: 422 OPT_IN_REQUIRED.",
+      "coverage_ids": [
+        "COV-FR-OMNI-02",
+        "COV-FR-OMNI-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "omni-agent-xu-ly",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Hội thoại WhatsApp CV-95, last_inbound_at 2026-10-20T09:00:00+07:00; contact C-02 không có opt-in WhatsApp.\n1. Tại 2026-10-21T09:00:01+07:00 gửi text tự do (k-195-1)\n2. Gửi template WhatsApp đã được duyệt (k-195-2)\n3. Gửi bất kỳ cho C-02 (k-195-3)",
+      "expected": "Bước 1: 422 CHANNEL_WINDOW_CLOSED. Bước 2: 202. Bước 3: 422 OPT_IN_REQUIRED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "OMNI-02",
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UAT-AC196",
+      "title": "Bước 1: 401 SIGNATURE_INVALID, 0 inbox row (chỉ metric)",
+      "type": "RED",
+      "platform": "web",
+      "persona": "omni-agent-xu-ly",
+      "journey_ref": "J-FR-OMNI-11",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-11",
+      "oracle_source": "Claim → OMNI.md BR-OMNI-04; kỳ vọng nguyên văn của ca thiết kế UAT-AC196 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-11, FR-OMNI-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hộp sự kiện webhook và đối soát\": Bước 1: 401 SIGNATURE_INVALID, 0 inbox row (chỉ metric). Bước 2: 401 REPLAY_WINDOW_EXCEEDED. Bước 3: 200 {duplicate:false} rồi 200 {duplicate:true}; 1 inbox row",
+      "coverage_ids": [
+        "COV-FR-OMNI-11",
+        "COV-FR-OMNI-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "omni-agent-xu-ly",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Webhook WhatsApp mock dùng app secret của ZWA-A; header chữ ký HMAC-SHA256.\n1. Gửi payload sửa 1 byte với chữ ký cũ\n2. Gửi payload timestamp cũ 10 phút\n3. Gửi payload hợp lệ 2 lần",
+      "expected": "Bước 1: 401 SIGNATURE_INVALID, 0 inbox row (chỉ metric). Bước 2: 401 REPLAY_WINDOW_EXCEEDED. Bước 3: 200 {duplicate:false} rồi 200 {duplicate:true}; 1 inbox row, 1 channel_message INBOUND, conversation.last_inbound_at cập nhật.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "OMNI-05",
+      "tags": [
+        "security"
+      ],
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UAT-AC197",
+      "title": "Bước 1: 422 RECIPIENT_AMBIGUOUS (không có định danh xác minh chung)",
+      "type": "RED",
+      "platform": "web",
+      "persona": "omni-agent-xu-ly",
+      "journey_ref": "J-FR-OMNI-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-03",
+      "oracle_source": "Claim → OMNI.md BR-OMNI-05; kỳ vọng nguyên văn của ca thiết kế UAT-AC197 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh bạ và liên kết danh tính\": Bước 1: 422 RECIPIENT_AMBIGUOUS (không có định danh xác minh chung). Bước 2: 200; C-12 status Merged, merged_into_id C-10; hội thoại của C-12 trỏ C-10; consent ",
+      "coverage_ids": [
+        "COV-FR-OMNI-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "omni-agent-xu-ly",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Contact C-10 và C-11 cùng display_name \"Nguyễn Văn A\"; C-12 chia sẻ số điện thoại đã xác minh với C-10.\n1. POST /contacts/merges {survivor C-10, merged C-11} (k-197-1)\n2. POST /contacts/merges {survivor C-10, merged C-12, shared_verified_identity} (k-197-2)",
+      "expected": "Bước 1: 422 RECIPIENT_AMBIGUOUS (không có định danh xác minh chung). Bước 2: 200; C-12 status Merged, merged_into_id C-10; hội thoại của C-12 trỏ C-10; consent của C-12 không tự cộng vào C-10.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "OMNI-03",
+      "tags": [
+        "security"
+      ],
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UAT-AC198",
+      "title": "Bước 1: 403 SCOPE_DENIED, không gọi ISS",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "omni-agent-xu-ly",
+      "journey_ref": "J-FR-OMNI-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-09",
+      "oracle_source": "Claim → OMNI.md §3.4; kỳ vọng nguyên văn của ca thiết kế UAT-AC198 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chuyển hội thoại thành việc\": Bước 1: 403 SCOPE_DENIED, không gọi ISS. Bước 2: 201, issue ISS tạo qua command của ISS, resource_links của CV-98 chứa issue; issue có liên kết ngược.",
+      "coverage_ids": [
+        "COV-FR-OMNI-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "omni-agent-xu-ly",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.spec không có scope dự án P-09; có scope P-01.\n1. POST /conversations/CV-98/issues {project P-09} (k-198-1)\n2. POST {project P-01, issue_type \"GPMB\", summary \"Dân phản ánh chậm chi trả\"} (k-198-2)",
+      "expected": "Bước 1: 403 SCOPE_DENIED, không gọi ISS. Bước 2: 201, issue ISS tạo qua command của ISS, resource_links của CV-98 chứa issue; issue có liên kết ngược.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "OMNI-09",
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UAT-AC199",
+      "title": "sla_first_response_due_at = 2026-10-26T08:20:00+07:00 (10 phút thứ 6 + 20 phút thứ 2)",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "omni-agent-xu-ly",
+      "journey_ref": "J-FR-OMNI-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-07",
+      "oracle_source": "Claim → OMNI.md BR-OMNI-06; kỳ vọng nguyên văn của ca thiết kế UAT-AC199 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-07, FR-OMNI-10, FR-OMNI-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Phân công và SLA\": sla_first_response_due_at = 2026-10-26T08:20:00+07:00 (10 phút thứ 6 + 20 phút thứ 2); quá hạn → cảnh báo OMNI_SUPERVISOR; OMNI-10 tính breach 1.",
+      "coverage_ids": [
+        "COV-FR-OMNI-07",
+        "COV-FR-OMNI-10",
+        "COV-FR-OMNI-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "omni-agent-xu-ly",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Routing policy v2: first_response_minutes 30, lịch VN-STD; tin vào thứ 6 2026-10-23 16:50 +07.\n1. Nhận tin; đọc sla_first_response_due_at\n2. Không phản hồi tới hạn",
+      "expected": "sla_first_response_due_at = 2026-10-26T08:20:00+07:00 (10 phút thứ 6 + 20 phút thứ 2); quá hạn → cảnh báo OMNI_SUPERVISOR; OMNI-10 tính breach 1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "OMNI-01",
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UI-OMNI-11",
+      "title": "Hộp sự kiện webhook và đối soát (OMNI-11): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "omni-agent-xu-ly",
+      "journey_ref": "J-FR-OMNI-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-11",
+      "oracle_source": "Claim → FR-OMNI-11; kỳ vọng nguyên văn của ca thiết kế UI-OMNI-11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-11",
+      "catches_bug": "Màn hình Hộp sự kiện webhook và đối soát (OMNI-11) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-OMNI-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "omni-agent-xu-ly",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1; route OMNI-11; dữ liệu có/không bản ghi; người dùng đủ quyền (OMNI_AGENT xử lý) và người dùng thiếu quyền\n1. Mở OMNI-11 \"Hộp sự kiện webhook và đối soát\" từ menu và deep link; kiểm nhãn trường: Nhà cung cấp, Mã sự kiện, Chữ ký hợp lệ, Nhận lúc, Trạng thái, Số lần xử lý, Mã lỗi\n2. Thực hiện thao tác chính bằng receiveChannelWebhook, replayInboxEvent; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền\n3. Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của table; bàn phím, 390px, quay lại giữ ngữ cảnh",
+      "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (INBOX_STATE_INVALID) với correlation_id; không mất dữ liệu nhập khi 409",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "OMNI-11",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-50",
+      "title": "The webhook returns 404 CHANNEL_ACCOUNT_UNKNOWN",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-omni",
+      "journey_ref": "J-FR-OMNI-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-06",
+      "oracle_source": "Claim → OMNI.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-50 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Cấu hình kênh\": The webhook returns 404 CHANNEL_ACCOUNT_UNKNOWN; both queued attempts become Suppressed; OMNI-06 renders the channel-disabled state.",
+      "coverage_ids": [
+        "COV-FR-OMNI-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-omni",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Channel account CA-1 disabled; 2 queued outbound attempts for CA-1.\n1. Deliver a webhook for CA-1\n2. Open OMNI-06 for CA-1\n3. Read the queued attempts",
+      "expected": "The webhook returns 404 CHANNEL_ACCOUNT_UNKNOWN; both queued attempts become Suppressed; OMNI-06 renders the channel-disabled state.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-51",
+      "title": "422 ASSIGNEE_NOT_ELIGIBLE and C-1 keeps its previous assignee",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-omni",
+      "journey_ref": "J-FR-OMNI-01",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-01",
+      "oracle_source": "Claim → OMNI.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-51 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hộp thư hợp nhất\": 422 ASSIGNEE_NOT_ELIGIBLE and C-1 keeps its previous assignee.",
+      "coverage_ids": [
+        "COV-FR-OMNI-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-omni",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Queue Q-1 with members M1, M2; user U-9 outside the queue scope; conversation C-1.\n1. assignConversation C-1 to U-9\n2. Read C-1",
+      "expected": "422 ASSIGNEE_NOT_ELIGIBLE and C-1 keeps its previous assignee.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "module": "OMNI"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-52",
+      "title": "Both saves are refused with 422 VALIDATION_FAILED naming the reason (variable not allowed, classification not allowed) a",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-omni",
+      "journey_ref": "J-FR-OMNI-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-OMNI-08",
+      "oracle_source": "Claim → OMNI.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-52 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-OMNI-08",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Mẫu trả lời\": Both saves are refused with 422 VALIDATION_FAILED naming the reason (variable not allowed, classification not allowed) and no canned_reply row is stored.",
+      "coverage_ids": [
+        "COV-FR-OMNI-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-omni",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Canned reply R-1 with a free variable {{customer.phone}} and a reply R-2 classified CONFIDENTIAL.\n1. Save R-1\n2. Save R-2",
+      "expected": "Both saves are refused with 422 VALIDATION_FAILED naming the reason (variable not allowed, classification not allowed) and no canned_reply row is stored.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "OMNI"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 11,
+    "M2": 0,
+    "M3": 0,
+    "M4": 50,
+    "max": 50,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 11,
+    "covered": 11,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

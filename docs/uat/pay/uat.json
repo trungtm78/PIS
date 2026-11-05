@@ -1,0 +1,1988 @@
+{
+  "feature": "pay",
+  "generated_at": "2026-11-05T07:53:18.070Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/pay/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UAT-AC10",
+      "title": "cùng callback hai lần chỉ tạo một giao dịch",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-04",
+      "oracle_source": "Claim → FRD AC10; kỳ vọng nguyên văn của ca thiết kế UAT-AC10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-04, FR-PAY-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Theo dõi gửi Kho bạc\": cùng callback hai lần chỉ tạo một giao dịch. Cụ thể: Lần 1: 200, tạo đúng 1 treasury_transaction (amount 2.100.000.000, source_kind=CALLBACK_MOCK), PR-A-001 chu",
+      "coverage_ids": [
+        "COV-FR-PAY-04",
+        "COV-FR-PAY-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). PR-A-001 (HD-A-001, NT-A-001) ở SENT_TREASURY, net 2.100.000.000; adapter Kho bạc ở trạng thái MOCK; chưa có treasury_transaction nào của PR-A-001.\nĐầu vào: POST /integrations/treasury/callbacks với provider_event_id=EVT-KB-0001, document_no=CT-0001, document_date=2026-07-02, project_code=PRJ-A-001, amount_vnd=2100000000, direction=PAYMENT, chữ ký HMAC hợp lệ; gửi lại đúng body lần 2; sau đó gửi provider_event_id=EVT-KB-0002 nhưng cùng document_no/document_date/project_code.\n1. Gửi callback EVT-KB-0001 lần 1, ghi status/body và số dòng treasury_transaction (đếm theo tenant+provider+external_id).\n2. Gửi lại callback EVT-KB-0001 lần 2 với cùng Idempotency-Key và cùng body; so sánh body với lần 1.\n3. Gửi EVT-KB-0002 (event khác, cùng khóa nghiệp vụ CT-0001|2026-07-02|PRJ-A-001).\n4. Đọc PR-A-001, contract.paid_total_vnd, cumulative_ledger.paid_vnd và số outbox pay.payment.settled.v1.",
+      "expected": "cùng callback hai lần chỉ tạo một giao dịch. Cụ thể: Lần 1: 200, tạo đúng 1 treasury_transaction (amount 2.100.000.000, source_kind=CALLBACK_MOCK), PR-A-001 chuyển SETTLED. Lần 2: 200 với body y hệt lần 1, số dòng vẫn 1. EVT-KB-0002: 409 TREASURY_TRANSACTION_DUPLICATE, số dòng vẫn 1. contract.paid_total_vnd = 3.000.000.000 (không phải 6.000.000.000); đúng 1 outbox pay.payment.settled.v1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PAY-04",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC11",
+      "title": "tổng đối soát không cộng cả bản gốc và bản nhập lặp",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-05",
+      "oracle_source": "Claim → FRD AC11; kỳ vọng nguyên văn của ca thiết kế UAT-AC11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-05, FR-PAY-13",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đối soát giao dịch\": tổng đối soát không cộng cả bản gốc và bản nhập lặp. Cụ thể: F1: status APPLIED, row_new=3, tổng 2.670.000.000. F1 lần 2: result=ALREADY_IMPORTED, không tạo tre",
+      "coverage_ids": [
+        "COV-FR-PAY-05",
+        "COV-FR-PAY-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Tệp KB-A-2026-06-30.csv (3 dòng: CT-0001 2.100.000.000; CT-0002 450.000.000; CT-0003 120.000.000; tổng 2.670.000.000) SHA-256 = HASH-F1; tệp KB-A-2026-07-01.csv chứa lại đúng 3 dòng trên cộng dòng CT-0004 300.000.000, SHA-256 = HASH-F2.\nĐầu vào: POST /treasury-imports lần lượt với F1, F1 lần 2, F2; sau đó mở PAY-05 xem tổng đối soát.\n1. Nhập F1; đọc treasury_import (row_total, row_new, row_duplicate).\n2. Nhập lại F1 (Idempotency-Key mới); đọc result và số bản ghi treasury_import.\n3. Nhập F2; đọc row_new/row_duplicate và số treasury_transaction.\n4. Tính tổng amount_vnd các treasury_transaction của PRJ-A-001 và so với tổng hiển thị ở PAY-05.",
+      "expected": "tổng đối soát không cộng cả bản gốc và bản nhập lặp. Cụ thể: F1: status APPLIED, row_new=3, tổng 2.670.000.000. F1 lần 2: result=ALREADY_IMPORTED, không tạo treasury_import mới (đếm vẫn 1). F2: row_duplicate=3, row_new=1, treasury_transaction tổng = 4 dòng; tổng đối soát = 2.970.000.000 (không phải 5.640.000.000).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PAY-05",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC12",
+      "title": "số nội bộ khác số xác nhận hiển thị hai cột và sai lệch, không tự chọn số lớn hơn",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-05",
+      "oracle_source": "Claim → FRD AC12; kỳ vọng nguyên văn của ca thiết kế UAT-AC12 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-05, FR-PAY-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đối soát giao dịch\": số nội bộ khác số xác nhận hiển thị hai cột và sai lệch, không tự chọn số lớn hơn. Cụ thể: Tạo 1 reconciliation_item AMOUNT_MISMATCH: internal 1.000.000.000, co",
+      "coverage_ids": [
+        "COV-FR-PAY-05",
+        "COV-FR-PAY-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). PR-A-002 net 1.000.000.000 ở SENT_TREASURY; sao kê xác nhận CT-0201 amount 990.000.000 cho PR-A-002; u.ktt là chủ xử lý được giao.\nĐầu vào: Nhập sao kê chứa CT-0201 rồi chạy matchTreasuryTransaction; mở PAY-05 và PAY-06; sau đó resolveReconciliationItem.\n1. Nhập sao kê và ghép CT-0201 với PR-A-002.\n2. Đọc reconciliation_item: kind, internal_amount_vnd, confirmed_amount_vnd, difference_vnd, owner_membership_id, due_at.\n3. Mở PAY-05: đọc hai cột và cột chênh lệch; kiểm trạng thái PR-A-002.\n4. Gọi resolve với resolution=EXPLAINED không có note rồi có note \"Kho bạc trừ phí 10.000.000 theo thông báo TB-77\".",
+      "expected": "số nội bộ khác số xác nhận hiển thị hai cột và sai lệch, không tự chọn số lớn hơn. Cụ thể: Tạo 1 reconciliation_item AMOUNT_MISMATCH: internal 1.000.000.000, confirmed 990.000.000, difference −10.000.000; PAY-05 hiển thị cả hai số và chênh lệch −10.000.000, không tự chọn số lớn hơn. PR-A-002 vẫn SENT_TREASURY, contract.paid_total_vnd không tăng. resolve không có note: 422 VALIDATION_FAILED; có note: item EXPLAINED, ghi audit. due_at và owner bắt buộc (không null).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PAY-05",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC67",
+      "title": "toàn bộ chuỗi dự án → hợp đồng → measurement → acceptance → payment → treasury → settlement truy vết được theo tenant và",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-PAY-17",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-17",
+      "oracle_source": "Claim → FRD AC67; kỳ vọng nguyên văn của ca thiết kế UAT-AC67 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-17, FR-CTR-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Truy vết chuỗi thanh toán\": toàn bộ chuỗi dự án → hợp đồng → measurement → acceptance → payment → treasury → settlement truy vết được theo tenant và phiên bản. Cụ thể: Bước 1: 7 nút theo t",
+      "coverage_ids": [
+        "COV-FR-PAY-17",
+        "COV-FR-CTR-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Chuỗi hoàn chỉnh PRJ-A-001 → HD-A-001 rev1 → M-A-010/M-A-011 → NT-A-001 → PR-A-001 → CT-0001 → SR-A-001 rev1; chuỗi tương tự thuộc TNT-B; u.audit có scope PROJECT PRJ-A-001; u.b.ketoan thuộc TNT-B.\nĐầu vào: GET /payment-chain?project_id=PRJ-A-001&contract_id=HD-A-001 bởi u.audit; cùng truy vấn bởi u.b.ketoan; GET với project_id của TNT-B bởi u.audit.\n1. Gọi getPaymentChain bởi u.audit; kiểm từng nút và version.\n2. Sửa measurement M-A-010 qua correctMeasurement tạo bản 2, gọi lại chuỗi.\n3. Gọi bởi u.b.ketoan với project_id PRJ-A-001.\n4. Gọi bởi u.audit với project_id thuộc TNT-B.",
+      "expected": "toàn bộ chuỗi dự án → hợp đồng → measurement → acceptance → payment → treasury → settlement truy vết được theo tenant và phiên bản. Cụ thể: Bước 1: 7 nút theo thứ tự project, contract(revision 1), measurement, acceptance, payment_request, treasury_transaction, settlement_revision, mỗi nút có id và version; tổng nút payment = 3.000.000.000 gross. Bước 2: chuỗi hiển thị measurement revision 2 và đánh dấu revision 1 SUPERSEDED, acceptance NT-A-001 giữ liên kết revision đã dùng. Bước 3 và 4: 404 RESOURCE_NOT_FOUND, không lộ tồn tại.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CTR-03",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UI-PAY-01",
+      "title": "Danh sách hồ sơ thanh toán (PAY-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-01",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-01",
+      "oracle_source": "Claim → FR-PAY-01; kỳ vọng nguyên văn của ca thiết kế UI-PAY-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-01",
+      "catches_bug": "Màn hình Danh sách hồ sơ thanh toán (PAY-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PAY-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PAY-01\n1. Mở route bằng menu và deep link; kiểm tên trường: Số hồ sơ, Hợp đồng, Số tiền, Trạng thái\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PAY-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UI-PAY-02",
+      "title": "Tạo đề nghị thanh toán (PAY-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-02",
+      "oracle_source": "Claim → FR-PAY-02; kỳ vọng nguyên văn của ca thiết kế UI-PAY-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-02",
+      "catches_bug": "Màn hình Tạo đề nghị thanh toán (PAY-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PAY-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PAY-02\n1. Mở route bằng menu và deep link; kiểm tên trường: Dự án, Hợp đồng, Nghiệm thu, Tạm ứng, Thu hồi, Giá trị đề nghị\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PAY-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UI-PAY-03",
+      "title": "Chi tiết và chứng từ (PAY-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-03",
+      "oracle_source": "Claim → FR-PAY-03; kỳ vọng nguyên văn của ca thiết kế UI-PAY-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-03",
+      "catches_bug": "Màn hình Chi tiết và chứng từ (PAY-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PAY-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PAY-03\n1. Mở route bằng menu và deep link; kiểm tên trường: Chứng từ, Chữ ký, Checksum, Phiên bản\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PAY-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UI-PAY-04",
+      "title": "Theo dõi gửi Kho bạc (PAY-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-04",
+      "oracle_source": "Claim → FR-PAY-04; kỳ vọng nguyên văn của ca thiết kế UI-PAY-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-04",
+      "catches_bug": "Màn hình Theo dõi gửi Kho bạc (PAY-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PAY-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PAY-04\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã giao dịch, Ngày gửi, Phản hồi\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PAY-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UI-PAY-05",
+      "title": "Đối soát giao dịch (PAY-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-05",
+      "oracle_source": "Claim → FR-PAY-05; kỳ vọng nguyên văn của ca thiết kế UI-PAY-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-05",
+      "catches_bug": "Màn hình Đối soát giao dịch (PAY-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PAY-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PAY-05\n1. Mở route bằng menu và deep link; kiểm tên trường: Số báo cáo, Số xác nhận, Chênh lệch\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PAY-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UI-PAY-06",
+      "title": "Xử lý sai lệch (PAY-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-06",
+      "oracle_source": "Claim → FR-PAY-06; kỳ vọng nguyên văn của ca thiết kế UI-PAY-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-06",
+      "catches_bug": "Màn hình Xử lý sai lệch (PAY-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PAY-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PAY-06\n1. Mở route bằng menu và deep link; kiểm tên trường: Loại sai lệch, Bằng chứng, Người xử lý\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PAY-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UI-PAY-07",
+      "title": "Tạm ứng và thu hồi (PAY-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-07",
+      "oracle_source": "Claim → FR-PAY-07; kỳ vọng nguyên văn của ca thiết kế UI-PAY-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-07",
+      "catches_bug": "Màn hình Tạm ứng và thu hồi (PAY-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PAY-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PAY-07\n1. Mở route bằng menu và deep link; kiểm tên trường: Hợp đồng, Đã tạm ứng, Đã thu hồi, Còn lại\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PAY-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UI-PAY-08",
+      "title": "Đảo và điều chỉnh giao dịch (PAY-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-08",
+      "oracle_source": "Claim → FR-PAY-08; kỳ vọng nguyên văn của ca thiết kế UI-PAY-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-08",
+      "catches_bug": "Màn hình Đảo và điều chỉnh giao dịch (PAY-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PAY-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PAY-08\n1. Mở route bằng menu và deep link; kiểm tên trường: Giao dịch gốc, Lý do, Giá trị đảo\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PAY-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UI-PAY-09",
+      "title": "Theo dõi dự án Kho bạc (PAY-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-09",
+      "oracle_source": "Claim → FR-PAY-09; kỳ vọng nguyên văn của ca thiết kế UI-PAY-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-09",
+      "catches_bug": "Màn hình Theo dõi dự án Kho bạc (PAY-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PAY-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PAY-09\n1. Mở route bằng menu và deep link; kiểm tên trường: Dự án, Mã Kho bạc, Hồ sơ gửi, Đã xác nhận, Sai lệch, Lần đồng bộ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PAY-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC320",
+      "title": "Mọi vòng: đúng 1 phản hồi 200 và 1 phản hồi 409 code ACCEPTANCE_ALREADY_CLAIMED",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-02",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC320 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-02, FR-PAY-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tạo đề nghị thanh toán\": Mọi vòng: đúng 1 phản hồi 200 và 1 phản hồi 409 code ACCEPTANCE_ALREADY_CLAIMED; không bao giờ 2 phản hồi 200. Trạng thái cuối: đúng 1 payment_request claims_ac",
+      "coverage_ids": [
+        "COV-FR-PAY-02",
+        "COV-FR-PAY-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). PR-A-101 (u.ketoan, request_no DNTT-101) và PR-A-102 (u.ketoan2, request_no DNTT-102) cùng DRAFT, version 1, cùng acceptance_id=NT-A-001 (accepted 3.000.000.000); cumulative_ledger: (HD-A-001,B01,NT-A-001) accepted 2.000.000.000 requested 0; (B02) accepted 1.000.000.000 requested 0; contract.requested_total_vnd=0.\nĐầu vào: Hai request submit đồng thời có rào đồng bộ: POST /payment-requests/PR-A-101/submit (Idempotency-Key K-AC320-0001, If-Match \"1\") và POST /payment-requests/PR-A-102/submit (K-AC320-0002, If-Match \"1\"), cùng expected_gross_vnd=3000000000, expected_net_vnd=2100000000.\n1. Dựng lại fixture cho mỗi vòng; chạy 50 vòng, mỗi vòng hai luồng khởi chạy sau cùng một barrier.\n2. Ghi status/code của từng luồng.\n3. Sau mỗi vòng đọc: SELECT count(*) FROM payment_request WHERE acceptance_id=NT-A-001 AND claims_acceptance; cumulative_ledger.requested_vnd từng dòng; contract.requested_total_vnd; số cumulative_ledger_entry kind CLAIM.\n4. Chạy thêm 10 vòng với kiểm tra ứng dụng bị tắt (test hook ở repository) để kiểm chứng ràng buộc DB.",
+      "expected": "Mọi vòng: đúng 1 phản hồi 200 và 1 phản hồi 409 code ACCEPTANCE_ALREADY_CLAIMED; không bao giờ 2 phản hồi 200. Trạng thái cuối: đúng 1 payment_request claims_acceptance=true; requested_vnd B01=2.000.000.000, B02=1.000.000.000 (không nhân đôi); contract.requested_total_vnd=3.000.000.000; đúng 2 bút toán CLAIM (mỗi dòng 1); bên thua không có bút toán, vẫn DRAFT. Khi tắt kiểm tra ứng dụng: bên thua nhận 409 với code ACCEPTANCE_ALREADY_CLAIMED (từ unique payment_request_active_acceptance_uq) hoặc VALUE_EXCEEDED (từ CHECK cumulative_ledger_requested_le_accepted_chk), vẫn đúng 1 thành công.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "concurrency",
+      "screen_id": "PAY-02",
+      "tags": [
+        "concurrency"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC321",
+      "title": "Câu 1: lỗi unique payment_request_active_acceptance_uq (23505)",
+      "type": "RED",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-10",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC321 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sổ lũy kế hợp đồng × dòng BOQ × nghiệm thu\": Câu 1: lỗi unique payment_request_active_acceptance_uq (23505). Câu 2: lỗi CHECK cumulative_ledger_requested_le_accepted_chk (23514). Câu 3: lỗi CHECK contract_",
+      "coverage_ids": [
+        "COV-FR-PAY-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). PR-A-001 SUBMITTED giữ claim NT-A-001 (claims_acceptance=true); cumulative_ledger B01 accepted 2.000.000.000 requested 2.000.000.000; kết nối bằng role machvon_app với app.tenant_id=TNT-A.\nĐầu vào: Các câu SQL trực tiếp: INSERT payment_request thứ hai (claims_acceptance=true, acceptance_id=NT-A-001); UPDATE cumulative_ledger SET requested_vnd=2000000001; UPDATE contract SET requested_total_vnd=3000000001; DELETE FROM cumulative_ledger_entry; UPDATE cumulative_ledger_entry SET requested_delta_vnd=0.\n1. Chạy INSERT payment_request trùng claim.\n2. Chạy UPDATE cumulative_ledger vượt accepted.\n3. Chạy UPDATE contract vượt accepted_total.\n4. Chạy DELETE và UPDATE trên cumulative_ledger_entry.\n5. Chạy lại câu 1 nhưng claims_acceptance=false cùng status SUBMITTED.",
+      "expected": "Câu 1: lỗi unique payment_request_active_acceptance_uq (23505). Câu 2: lỗi CHECK cumulative_ledger_requested_le_accepted_chk (23514). Câu 3: lỗi CHECK contract_ledger_order_chk (23514). Câu 4: lỗi permission denied (REVOKE UPDATE, DELETE) cho cả DELETE và UPDATE. Câu 5: lỗi CHECK payment_request_claim_chk. Không dòng nào thay đổi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PAY-10",
+      "tags": [
+        "security"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC322",
+      "title": "Sau submit: B01 requested 2",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-10",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC322 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-10, FR-PAY-08",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sổ lũy kế hợp đồng × dòng BOQ × nghiệm thu\": Sau submit: B01 requested 2.000.000.000, B02 1.000.000.000; 2 entry CLAIM. Sau return: requested 0, 2 entry CLAIM_RELEASE (reversal_of_id trỏ về CLAIM), claims_",
+      "coverage_ids": [
+        "COV-FR-PAY-10",
+        "COV-FR-PAY-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). PR-A-001 DRAFT cho NT-A-001; sổ lũy kế trống (requested 0).\nĐầu vào: submit; verify; returnPaymentRequest reason=\"Thiếu bảng 03.a/TT\"; chỉnh DRAFT; submit lần 2; verify; send-treasury; match; reversePayment.\n1. Submit PR-A-001 rồi đọc cumulative_ledger và entries.\n2. Return PR-A-001; đọc lại entries và claims_acceptance.\n3. Revise rồi submit lại; verify bởi u.ktt; send-treasury; ghép giao dịch CT-0001 2.100.000.000.\n4. reversePayment với reason và approval_document_version_id; đọc entries.\n5. Thử reversePayment lần 2.",
+      "expected": "Sau submit: B01 requested 2.000.000.000, B02 1.000.000.000; 2 entry CLAIM. Sau return: requested 0, 2 entry CLAIM_RELEASE (reversal_of_id trỏ về CLAIM), claims_acceptance=false, status RETURNED; entries không bị xóa/sửa (tổng 4). Sau settle: paid_vnd B01 2.000.000.000, B02 1.000.000.000. Sau reverse: PAYMENT_REVERSAL (paid_delta −2.000.000.000 và −1.000.000.000) và CLAIM_RELEASE, paid_vnd 0, requested_vnd 0, status REVERSED, acceptance NT-A-001 claim được lại. Reverse lần 2: 409 PAYMENT_STATE_INVALID; thử chèn thêm reversal cho cùng entry: vi phạm unique cumulative_ledger_entry_reversal_uq.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "PAY-08",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC323",
+      "title": "Header: gross 3",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-02",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC323 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-02, FR-CTR-13",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tạo đề nghị thanh toán\": Header: gross 3.000.000.000; advance_recovery = floor(2.000.000.000 × 3.000.000.000 / 8.000.000.000) = 750.000.000; retention 150.000.000; net 2.100.000.000. Dò",
+      "coverage_ids": [
+        "COV-FR-PAY-02",
+        "COV-FR-CTR-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). ADV-A-001 gốc 2.000.000.000, ngưỡng 80% (V=10.000.000.000 → 8.000.000.000), chưa thu hồi; giữ lại 5% trên gross từng dòng; NT-A-001 gross 3.000.000.000.\nĐầu vào: createPaymentRequest request_kind=INTERIM, acceptance_id=NT-A-001, allocation_line_id=AL-A-2026-NSDP, tax_adjustment_vnd=0.\n1. Tạo đề nghị; đọc header gross/advance_recovery/retention/net.\n2. Đọc payment_request_line của từng dòng B01, B02.\n3. Gửi tax_adjustment_vnd=-1000000 kèm tax_adjustment_basis rồi đọc lại net.\n4. Gửi body có trường gross_vnd=999 để thử ghi đè.",
+      "expected": "Header: gross 3.000.000.000; advance_recovery = floor(2.000.000.000 × 3.000.000.000 / 8.000.000.000) = 750.000.000; retention 150.000.000; net 2.100.000.000. Dòng B01: gross 2.000.000.000, thu hồi 500.000.000, giữ lại 100.000.000, net 1.400.000.000; B02: 1.000.000.000, 250.000.000, 50.000.000, 700.000.000. Với tax_adjustment −1.000.000: net 2.099.000.000. Body có gross_vnd bị từ chối 400 INVALID_REQUEST (DTO allowlist).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "PAY-02",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC324",
+      "title": "Tổng 100: B01 = 33, B02 = 67 (33,33→33",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-02",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC324 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tạo đề nghị thanh toán\": Tổng 100: B01 = 33, B02 = 67 (33,33→33; 66,67→67), tổng 100. Tổng 101: B01 = 34 (33,67→34), B02 = 67 (67,33→67), tổng 101. Không dòng nào lệch ±1 so với tổng he",
+      "coverage_ids": [
+        "COV-FR-PAY-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Nghiệm thu NT-A-004 hai dòng: B01 gross 1.000.000.000, B02 gross 2.000.000.000; tạm ứng còn lại đủ; tổng thu hồi tính được 100 VND (dữ liệu test thu nhỏ).\nĐầu vào: Gọi hàm phân bổ qua createPaymentRequest với tổng thu hồi 100 VND; lặp với 101 VND.\n1. Tạo đề nghị với tổng thu hồi 100; đọc advance_recovery_vnd từng dòng.\n2. Lặp với 101; đọc lại.\n3. Kiểm tổng dòng = tổng header và mỗi dòng ≤ gross dòng.",
+      "expected": "Tổng 100: B01 = 33, B02 = 67 (33,33→33; 66,67→67), tổng 100. Tổng 101: B01 = 34 (33,67→34), B02 = 67 (67,33→67), tổng 101. Không dòng nào lệch ±1 so với tổng header; kết quả lặp lại ổn định ở lần chạy thứ hai (xác định).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "PAY-02",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC325",
+      "title": "HD-A-004: 422 ADVANCE_CONTRACT_NOT_EFFECTIVE",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-PAY-11",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-11",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC325 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-11, FR-CTR-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đề nghị tạm ứng\": HD-A-004: 422 ADVANCE_CONTRACT_NOT_EFFECTIVE. HD-A-005 và HD-A-006: 422 ADVANCE_GUARANTEE_REQUIRED (bảo lãnh phải ACTIVE+VERIFIED và hạn còn hiệu lực). HD-A-001",
+      "coverage_ids": [
+        "COV-FR-PAY-11",
+        "COV-FR-CTR-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). HD-A-004 trạng thái SIGNED (chưa ACTIVE); HD-A-001 ACTIVE có bảo lãnh tạm ứng BL-A-001 2.000.000.000 hết hạn 2027-03-01 ở ACTIVE/VERIFIED; HD-A-005 ACTIVE nhưng bảo lãnh tạm ứng chưa xác minh (UNVERIFIED); HD-A-006 ACTIVE bảo lãnh đã EXPIRED.\nĐầu vào: POST /contracts/{id}/advances amount_vnd=1000000000 kind=CONTRACT cho HD-A-004, HD-A-005, HD-A-006, HD-A-001.\n1. Gọi requestAdvance cho HD-A-004.\n2. Gọi cho HD-A-005.\n3. Gọi cho HD-A-006.\n4. Gọi cho HD-A-001 rồi đọc contract_advance.",
+      "expected": "HD-A-004: 422 ADVANCE_CONTRACT_NOT_EFFECTIVE. HD-A-005 và HD-A-006: 422 ADVANCE_GUARANTEE_REQUIRED (bảo lãnh phải ACTIVE+VERIFIED và hạn còn hiệu lực). HD-A-001: 200, contract_advance PLANNED, amount 1.000.000.000, cap_vnd = 2.000.000.000 (20% × 10.000.000.000, fixture), guarantee_id = BL-A-001, không có advance_ledger_entry nào cho đến khi chi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "CTR-06",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC326",
+      "title": "2",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-11",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-11",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC326 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-11",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đề nghị tạm ứng\": 2.000.000.000: 200 (bằng trần). 2.000.000.001: 422 ADVANCE_CAP_EXCEEDED, details cap_vnd=2000000000. Tranche 2 = 600.000.000: 422 ADVANCE_CAP_EXCEEDED (còn 500.",
+      "coverage_ids": [
+        "COV-FR-PAY-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Rule PAY.ADVANCE.CAP fixture RULE-ADV-FIX-01 (không phải quy định): CONSTRUCTION giá trị ≥ 10.000.000.000 → 20%; CONSULTING → 30%; trạng thái rule: CHƯA XÁC NHẬN [CXN-02] nhưng cho phép dùng ở môi trường test; HD-A-001 giá trị 10.000.000.000 CONSTRUCTION, chưa có tạm ứng; HD-A-007 CONSULTING giá trị 1.000.000.000.\nĐầu vào: requestAdvance amount_vnd=2000000000, sau đó 2000000001, sau đó tranche 2 sau khi tranche 1 là 1500000000; HD-A-007 amount_vnd=300000000 và 300000001.\n1. HD-A-001 requestAdvance 2.000.000.000.\n2. HD-A-001 requestAdvance 2.000.000.001 trên hợp đồng mới tương đương.\n3. HD-A-001 có tranche 1 = 1.500.000.000 (PAID); requestAdvance tranche 2 = 600.000.000.\n4. HD-A-007 requestAdvance 300.000.000 rồi 300.000.001.",
+      "expected": "2.000.000.000: 200 (bằng trần). 2.000.000.001: 422 ADVANCE_CAP_EXCEEDED, details cap_vnd=2000000000. Tranche 2 = 600.000.000: 422 ADVANCE_CAP_EXCEEDED (còn 500.000.000 = 2.000.000.000 − 1.500.000.000). HD-A-007: 300.000.000 → 200; 300.000.001 → 422. Mọi lần từ chối ghi cap_rule_version_id RULE-ADV-FIX-01 và cảnh báo hiển thị \"[CXN-02] chưa xác nhận\".",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "PAY-11",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC327",
+      "title": "Thanh toán 1: M1 thu hồi floor(900",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-07",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC327 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-07, FR-CTR-25",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tạm ứng và thu hồi\": Thanh toán 1: M1 thu hồi floor(900.000.000 × 2.400.000.000 / 4.800.000.000) = 450.000.000. Thanh toán 2: lũy kế đạt 4.800.000.000 = 80% × 6.000.000.000 → thu hồ",
+      "coverage_ids": [
+        "COV-FR-PAY-07",
+        "COV-FR-CTR-25"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). HD-A-002 liên danh giá trị 10.000.000.000: M1 (LEAD) 60% giá trị phần việc 6.000.000.000, tạm ứng 900.000.000; M2 40% giá trị 4.000.000.000, tạm ứng 600.000.000; ngưỡng 80% mỗi thành viên; chưa thu hồi.\nĐầu vào: Thanh toán 1: gross M1 = 2.400.000.000; thanh toán 2: gross M1 = 2.400.000.000; thanh toán 3: gross M2 = 1.000.000.000.\n1. Submit thanh toán 1 của M1; đọc recovered của M1.\n2. Submit thanh toán 2 của M1 (lũy kế gross 4.800.000.000); đọc recovered của M1 và outstanding.\n3. Submit thanh toán 3 của M2; đọc recovered của M2.\n4. Thử thu hồi thêm cho M1 sau khi đã hết.",
+      "expected": "Thanh toán 1: M1 thu hồi floor(900.000.000 × 2.400.000.000 / 4.800.000.000) = 450.000.000. Thanh toán 2: lũy kế đạt 4.800.000.000 = 80% × 6.000.000.000 → thu hồi 450.000.000, tổng 900.000.000, outstanding M1 = 0, advance M1 FULLY_RECOVERED. Thanh toán 3: M2 thu hồi floor(600.000.000 × 1.000.000.000 / 3.200.000.000) = 187.500.000, outstanding M2 = 412.500.000 (không bị ảnh hưởng tiến độ của M1). Thu hồi thêm cho M1: số thu hồi tính được bằng 0.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "PAY-07",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC328",
+      "title": "07-24: cảnh báo mức 1 (còn 7 ngày)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-12",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-12",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC328 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-12, FR-LND-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Cảnh báo tạm ứng quá hạn và thu hồi\": 07-24: cảnh báo mức 1 (còn 7 ngày). 07-31: mức 2 (đến hạn). 08-01: overdue_since=2026-08-01, mức 3, tự tạo 1 vướng mắc ISS source_module=PAY loại ADVANCE_OVERDU",
+      "coverage_ids": [
+        "COV-FR-PAY-12",
+        "COV-FR-LND-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). ADV-G-001 loại GPMB 1.000.000.000 chi 2026-07-01 cho TTQD-A; recovery_deadline = 2026-07-31 [CXN-12]; chưa thu hồi; job cảnh báo chạy hằng ngày 06:00 giờ VN; u.ketoan nhận thông báo.\nĐầu vào: Chạy job với đồng hồ giả lập 2026-07-24, 2026-07-31, 2026-08-01, 2026-08-08; ghi nhận thu hồi 400.000.000 vào 2026-08-02.\n1. Chạy job ngày 07-24 và đọc last_alert_level, notification.\n2. Chạy 07-31.\n3. Chạy 08-01 và đọc overdue_since, issue ISS tạo ra.\n4. Ghi recordAdvanceRecovery 400.000.000 (2026-08-02) và chạy job 08-08.",
+      "expected": "07-24: cảnh báo mức 1 (còn 7 ngày). 07-31: mức 2 (đến hạn). 08-01: overdue_since=2026-08-01, mức 3, tự tạo 1 vướng mắc ISS source_module=PAY loại ADVANCE_OVERDUE (không tạo trùng khi chạy lại job). Sau thu hồi 400.000.000: outstanding 600.000.000, vẫn quá hạn; 08-08 mức 4 và leo thang cấp 2 lên lãnh đạo phụ trách. Không có thao tác nào tự đánh dấu đã thu hồi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "PAY-12",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC329",
+      "title": "Advance vào danh sách quá hạn mức 3 vì đã quá ngưỡng thu hồi mà outstanding > 0",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-12",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-12",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC329 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-12, FR-PAY-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Cảnh báo tạm ứng quá hạn và thu hồi\": Advance vào danh sách quá hạn mức 3 vì đã quá ngưỡng thu hồi mà outstanding > 0; closeContract trả 422 ADVANCE_OUTSTANDING; acknowledge lưu note và action_plan_",
+      "coverage_ids": [
+        "COV-FR-PAY-12",
+        "COV-FR-PAY-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). HD-A-008 đã COMPLETED, ADV tranche 1 outstanding 300.000.000 sau khi tổng gross thanh toán đạt 100% giá trị.\nĐầu vào: Chạy job advance-overdue cho 2026-12-31; mở PAY-12; thử closeContract.\n1. Chạy job; đọc contract_advance.overdue_since và listOverdueAdvances.\n2. Gọi closeContract HD-A-008 khi settlement chưa có ngoại lệ.\n3. Gọi acknowledgeAdvanceAlert với action_plan_due_on.",
+      "expected": "Advance vào danh sách quá hạn mức 3 vì đã quá ngưỡng thu hồi mà outstanding > 0; closeContract trả 422 ADVANCE_OUTSTANDING; acknowledge lưu note và action_plan_due_on nhưng không đổi outstanding (300.000.000).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "PAY-07",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC330",
+      "title": "PR-A-009b: paid_total = 500",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-02",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC330 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-02, FR-CTR-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tạo đề nghị thanh toán\": PR-A-009b: paid_total = 500.000.000 = contract_value. PR-A-009c: 409 VALUE_EXCEEDED (vượt accepted_total/giá trị), không thay đổi sổ. UPDATE giá trị xuống 499.9",
+      "coverage_ids": [
+        "COV-FR-PAY-02",
+        "COV-FR-CTR-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). HD-A-009 ESTIMATE_BASED giá trị 500.000.000 (dự toán được duyệt), estimate_ceiling_vnd 500.000.000; accepted_total 500.000.000; đã SETTLED 400.000.000 gross, advance_paid 0; PR-A-009b DRAFT gross 100.000.000; PR-A-009c DRAFT gross 100.000.001 (nghiệm thu NT-A-009c lập thủ công qua dữ liệu test).\nĐầu vào: submit PR-A-009b rồi match; submit PR-A-009c; cập nhật HD-A-009 contract_value_vnd=499999999 bằng SQL trực tiếp.\n1. Submit và settle PR-A-009b (100.000.000).\n2. Submit PR-A-009c.\n3. UPDATE contract SET contract_value_vnd=499999999 trên HD-A-009 bằng role machvon_app.\n4. Đọc contract.paid_total_vnd.",
+      "expected": "PR-A-009b: paid_total = 500.000.000 = contract_value. PR-A-009c: 409 VALUE_EXCEEDED (vượt accepted_total/giá trị), không thay đổi sổ. UPDATE giá trị xuống 499.999.999: lỗi CHECK contract_ledger_order_chk/contract_cash_out_chk. contract.paid_total_vnd vẫn 500.000.000.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "PAY-02",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC331",
+      "title": "Bước 1: 422 VALIDATION_FAILED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-08",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC331 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-08, FR-PAY-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đảo và điều chỉnh giao dịch\": Bước 1: 422 VALIDATION_FAILED. Bước 2: 422 REFUND_NOT_CONFIRMED. Bước 3: 200, status REVERSED, bút toán đảo: PAYMENT_REVERSAL (paid −3.000.000.000 gộp), ADVANCE",
+      "coverage_ids": [
+        "COV-FR-PAY-08",
+        "COV-FR-PAY-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). PR-A-001 SETTLED (gross 3.000.000.000, thu hồi 750.000.000, giữ lại 150.000.000); giao dịch CT-0001 2.100.000.000; sao kê hoàn trả CT-0901 REFUND 2.100.000.000 tham chiếu CT-0001 đã nhập; DOC-APPROVAL-009 là văn bản duyệt.\nĐầu vào: reversePayment không lý do; có lý do nhưng chưa có refund; có refund_treasury_transaction_id=CT-0901 và phê duyệt.\n1. reverse không reason.\n2. reverse có reason, không có refund_treasury_transaction_id.\n3. reverse với CT-0901 và approval_document_version_id.\n4. Đọc advance_ledger_entry, cumulative_ledger_entry, contract, acceptance NT-A-001 claim.",
+      "expected": "Bước 1: 422 VALIDATION_FAILED. Bước 2: 422 REFUND_NOT_CONFIRMED. Bước 3: 200, status REVERSED, bút toán đảo: PAYMENT_REVERSAL (paid −3.000.000.000 gộp), ADVANCE_RECOVERY_REVERSAL (−750.000.000 → advance outstanding tăng lại 750.000.000), RETENTION_RELEASE âm theo retention_hold bị hủy; contract.paid_total_vnd về 0; không dòng nào bị xóa. NT-A-001 có thể tạo đề nghị mới.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "PAY-04",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC332",
+      "title": "Bước 1: 403 SELF_APPROVAL_DENIED, status vẫn SUBMITTED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-02",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC332 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-02, FR-PAY-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tạo đề nghị thanh toán\": Bước 1: 403 SELF_APPROVAL_DENIED, status vẫn SUBMITTED. Bước 2: 200, status VERIFIED, verified_by=u.ketoan2. Bước 3: lỗi CHECK payment_request_checker_chk. Audi",
+      "coverage_ids": [
+        "COV-FR-PAY-02",
+        "COV-FR-PAY-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). PR-A-001 do u.ketoan tạo và gửi; u.ketoan2 và u.ktt có quyền payment.verify.\nĐầu vào: verifyPaymentRequest bởi u.ketoan; bởi u.ketoan2; UPDATE verified_by trực tiếp.\n1. u.ketoan (người tạo/gửi) gọi verify.\n2. u.ketoan2 gọi verify.\n3. UPDATE payment_request SET verified_by=created_by bằng SQL trực tiếp.\n4. Kiểm audit_entry.",
+      "expected": "Bước 1: 403 SELF_APPROVAL_DENIED, status vẫn SUBMITTED. Bước 2: 200, status VERIFIED, verified_by=u.ketoan2. Bước 3: lỗi CHECK payment_request_checker_chk. Audit có hai bản ghi (một bị từ chối, một thành công) kèm actor.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PAY-02",
+      "tags": [
+        "security"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC333",
+      "title": "Mỗi vòng: 1 request trả APPLIED (row_new=5), request kia trả ALREADY_IMPORTED trỏ cùng import_id",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-13",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-13",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC333 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-13",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nhập sao kê Kho bạc\": Mỗi vòng: 1 request trả APPLIED (row_new=5), request kia trả ALREADY_IMPORTED trỏ cùng import_id; luôn đúng 1 treasury_import và 5 treasury_transaction. F3b: co",
+      "coverage_ids": [
+        "COV-FR-PAY-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Tệp KB-A-2026-07-15.csv 5 dòng tổng 3.250.000.000, SHA-256 HASH-F3; chưa nhập; hai người u.ketoan và u.ketoan2 có quyền treasury.import.\nĐầu vào: Hai POST /treasury-imports đồng thời với cùng file_sha256=HASH-F3 và hai Idempotency-Key khác nhau; sau đó nhập tệp F3b có cùng nội dung nhưng khác 1 byte (HASH-F3b).\n1. Gửi hai request đồng thời với barrier, 30 vòng.\n2. Đọc số treasury_import có file_sha256=HASH-F3 và số treasury_transaction.\n3. Nhập F3b.\n4. Đổi tenant sang TNT-B và nhập HASH-F3.",
+      "expected": "Mỗi vòng: 1 request trả APPLIED (row_new=5), request kia trả ALREADY_IMPORTED trỏ cùng import_id; luôn đúng 1 treasury_import và 5 treasury_transaction. F3b: coi là tệp mới nhưng 5 dòng đều row_duplicate=5 (khóa nghiệp vụ + row_hash trùng), row_new=0, tổng không đổi 3.250.000.000. TNT-B: APPLIED độc lập (hash chỉ duy nhất trong tenant).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "concurrency",
+      "screen_id": "PAY-13",
+      "tags": [
+        "concurrency"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC334",
+      "title": "Dòng 1: DUPLICATE (không tạo giao dịch)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-13",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-13",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC334 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-13, FR-PAY-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nhập sao kê Kho bạc\": Dòng 1: DUPLICATE (không tạo giao dịch). Dòng 2: CONFLICT, reconciliation_item DUPLICATE_CONFLICT, giao dịch gốc CT-0001 không bị sửa. Dòng 3: ERROR code MISSIN",
+      "coverage_ids": [
+        "COV-FR-PAY-13",
+        "COV-FR-PAY-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Đã có treasury_transaction CT-0001 2.100.000.000 (row_hash RH-1); tệp KB-A-2026-07-20.csv gồm: dòng 1 CT-0001 amount 2.100.000.000 (giống hệt), dòng 2 CT-0001 amount 2.150.000.000 (cùng khóa, khác số tiền), dòng 3 thiếu so_chung_tu, dòng 4 CT-0500 hợp lệ 80.000.000.\nĐầu vào: Nhập tệp; mở PAY-13 và PAY-06.\n1. Nhập tệp và đọc treasury_import_row từng dòng.\n2. Đọc reconciliation_item sinh ra.\n3. Kiểm raw_masked của dòng có số tài khoản.\n4. Gán chủ xử lý và hạn cho item.",
+      "expected": "Dòng 1: DUPLICATE (không tạo giao dịch). Dòng 2: CONFLICT, reconciliation_item DUPLICATE_CONFLICT, giao dịch gốc CT-0001 không bị sửa. Dòng 3: ERROR code MISSING_DOCUMENT_NO, không tạo giao dịch. Dòng 4: NEW. Import status PARTIALLY_APPLIED với row_new=1, row_duplicate=1, row_conflict=1, row_error=1 (khớp row_total=4). raw_masked che số tài khoản (chỉ 4 ký tự cuối). Item có owner_membership_id và due_at sau assign.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "PAY-06",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC335",
+      "title": "PR-A-001 SETTLED",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-04",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC335 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-04, FR-PAY-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Theo dõi gửi Kho bạc\": PR-A-001 SETTLED; cumulative_ledger.paid_vnd B01 2.000.000.000, B02 1.000.000.000; contract.paid_total_vnd 3.000.000.000; contract_advance.recovered_vnd 750.000",
+      "coverage_ids": [
+        "COV-FR-PAY-04",
+        "COV-FR-PAY-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). PR-A-001 SENT_TREASURY net 2.100.000.000; allocation_line AL-A-2026-NSDP có allocated 20.000.000.000, disbursed 0; giao dịch CT-0001 2.100.000.000 UNMATCHED.\nĐầu vào: matchTreasuryTransaction(CT-0001, PR-A-001); sau đó matchTreasuryTransaction cho CT-0001 lần 2 với PR-A-002.\n1. Ghép CT-0001 với PR-A-001.\n2. Đọc PR-A-001, cumulative_ledger.paid_vnd, contract.paid_total_vnd, contract_advance.recovered_vnd.\n3. Đọc outbox và (qua consumer) capital_ledger_entry DISBURSE.\n4. Ghép lần 2 CT-0001 với PR-A-002.",
+      "expected": "PR-A-001 SETTLED; cumulative_ledger.paid_vnd B01 2.000.000.000, B02 1.000.000.000; contract.paid_total_vnd 3.000.000.000; contract_advance.recovered_vnd 750.000.000; outbox có pay.payment.settled.v1 với payload tối thiểu (payment_request_id, amount_vnd 2.100.000.000, allocation_line_id, confirmed_at); consumer CAP tạo đúng 1 capital_ledger_entry DISBURSE 2.100.000.000. Ghép lần 2: 409 TRANSACTION_ALREADY_MATCHED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "PAY-04",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC336",
+      "title": "Job tạo 1 vướng mắc ISS và gán issue_id vào RI-001 (chạy lại job không tạo thêm)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-06",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC336 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-06, FR-PAY-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Xử lý sai lệch\": Job tạo 1 vướng mắc ISS và gán issue_id vào RI-001 (chạy lại job không tạo thêm). Bước 2: 422 APPROVAL_REQUIRED. Bước 3: 403 SELF_APPROVAL_DENIED. Bước 4: 200, ",
+      "coverage_ids": [
+        "COV-FR-PAY-06",
+        "COV-FR-PAY-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). reconciliation_item RI-001 AMOUNT_MISMATCH −10.000.000 OPEN, due_at 2026-07-10 17:00; u.ktt là chủ; u.lanhdao có quyền duyệt xóa sổ.\nĐầu vào: Chạy job 2026-07-11; resolve WRITTEN_OFF không duyệt; resolve WRITTEN_OFF với phê duyệt bởi cùng người; bởi u.lanhdao.\n1. Chạy job quá hạn đối soát lúc 2026-07-11 06:00.\n2. resolve WRITTEN_OFF thiếu approval_document_version_id.\n3. resolve WRITTEN_OFF bởi chính chủ xử lý.\n4. resolve WRITTEN_OFF bởi u.lanhdao kèm văn bản.",
+      "expected": "Job tạo 1 vướng mắc ISS và gán issue_id vào RI-001 (chạy lại job không tạo thêm). Bước 2: 422 APPROVAL_REQUIRED. Bước 3: 403 SELF_APPROVAL_DENIED. Bước 4: 200, status WRITTEN_OFF_APPROVED, có resolved_by/resolved_at/resolution_note; difference_vnd −10.000.000 giữ nguyên (không sửa số gốc).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "PAY-05",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC337",
+      "title": "03",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-14",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-14",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC337 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Biểu mẫu thanh toán Kho bạc\": 03.a/TT: GENERATED, lưu legal_basis, template_version_id, file_sha256 và outgoing_document_id. 05.a/TT: 422 TEMPLATE_UNCONFIRMED (không sinh). 04.b/TT: 422 TEMP",
+      "coverage_ids": [
+        "COV-FR-PAY-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Template DOC \"03.a/TT\" phiên bản 2026.1 effective_from 2026-01-01, trạng thái CXN-08 = ĐÃ XÁC NHẬN; template \"05.a/TT\" phiên bản 2026.1 CXN-08 = CHƯA XÁC NHẬN; template \"04.b/TT\" phiên bản cũ hết hiệu lực 2025-12-31; PR-A-001 VERIFIED.\nĐầu vào: generatePaymentForms form_codes=[03.a/TT, 05.a/TT, 04.b/TT]; sau đó markPaymentSentToTreasury.\n1. Gọi generatePaymentForms cho ba mẫu.\n2. Đọc payment_form_instance từng mẫu.\n3. Gọi markPaymentSentToTreasury với form_instance_ids chỉ có 03.a/TT.\n4. Sinh lại 03.a/TT sau khi sửa tax_adjustment.",
+      "expected": "03.a/TT: GENERATED, lưu legal_basis, template_version_id, file_sha256 và outgoing_document_id. 05.a/TT: 422 TEMPLATE_UNCONFIRMED (không sinh). 04.b/TT: 422 TEMPLATE_NOT_EFFECTIVE. markPaymentSentToTreasury thiếu bộ mẫu bắt buộc: 422 FORMS_NOT_GENERATED. Sinh lại: bản cũ SUPERSEDED, bản mới GENERATED, vẫn đúng 1 GENERATED cho (PR-A-001, 03.a/TT).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "PAY-14",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC338",
+      "title": "INTERIM: 409 CONTRACT_STATE_INVALID",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-02",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC338 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-02, FR-CTR-22",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tạo đề nghị thanh toán\": INTERIM: 409 CONTRACT_STATE_INVALID. FINAL cho NT-A-005: 200 DRAFT (thu hồi tạm ứng tính trên 500.000.000 theo công thức). requestAdvance: 422 ADVANCE_CONTRACT_",
+      "coverage_ids": [
+        "COV-FR-PAY-02",
+        "COV-FR-CTR-22"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). HD-A-001 TERMINATED 2026-08-15; NT-A-001 đã SETTLED; NT-A-005 APPROVED trước chấm dứt (500.000.000) chưa thanh toán; NT-A-006 DRAFT; advance outstanding 1.250.000.000.\nĐầu vào: createPaymentRequest INTERIM cho NT-A-005; request_kind=FINAL cho NT-A-005 với settlement_revision_id; request_kind=ADVANCE; INTERIM cho NT-A-006.\n1. Tạo INTERIM cho NT-A-005.\n2. Tạo FINAL cho NT-A-005 có settlement_revision_id SR-A-T1.\n3. requestAdvance mới.\n4. Tạo FINAL cho NT-A-006 (chưa APPROVED).",
+      "expected": "INTERIM: 409 CONTRACT_STATE_INVALID. FINAL cho NT-A-005: 200 DRAFT (thu hồi tạm ứng tính trên 500.000.000 theo công thức). requestAdvance: 422 ADVANCE_CONTRACT_NOT_EFFECTIVE. FINAL cho NT-A-006: 422 ACCEPTANCE_NOT_APPROVED. Tạm ứng outstanding vẫn 1.250.000.000 cho đến khi quyết toán.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "PAY-02",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC339",
+      "title": "SR-A-001: verification_due_on = 2027-03-30 (180 ngày kể từ 2026-10-01)",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-15",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-15",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC339 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-15, FR-PAY-16",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Quyết toán niên độ và dự án hoàn thành\": SR-A-001: verification_due_on = 2027-03-30 (180 ngày kể từ 2026-10-01). SR-A-010: 2026-10-01 + 120 ngày = 2027-01-29. SR-A-011: 422 PROJECT_GROUP_MISSING. Khi r",
+      "coverage_ids": [
+        "COV-FR-PAY-15",
+        "COV-FR-PAY-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Rule PAY.SETTLEMENT.VERIFY_DEADLINE fixture RULE-SET-FIX-01 (không phải quy định, trạng thái CXN-09 chưa xác nhận nhưng bật ở test): QTQG/A = 270 ngày, B = 180 ngày, C = 120 ngày tính từ submitted_on; SR-A-001 (PRJ-A-001 nhóm B) DRAFT; SR-A-010 dự án nhóm C; SR-A-011 dự án chưa có project_group.\nĐầu vào: submitSettlement SR-A-001 submitted_on=2026-10-01; SR-A-010 submitted_on=2026-10-01; SR-A-011; đổi RULE-SET-FIX-01 sang trạng thái \"chưa bật\" rồi submit lại.\n1. Submit SR-A-001; đọc verification_due_on.\n2. Submit SR-A-010; đọc verification_due_on.\n3. Submit SR-A-011.\n4. Tắt rule rồi submit SR-A-012.",
+      "expected": "SR-A-001: verification_due_on = 2027-03-30 (180 ngày kể từ 2026-10-01). SR-A-010: 2026-10-01 + 120 ngày = 2027-01-29. SR-A-011: 422 PROJECT_GROUP_MISSING. Khi rule chưa được bật: 422 DEADLINE_RULE_UNCONFIRMED. deadline_rule_version_id lưu RULE-SET-FIX-01; đổi rule sau đó không làm đổi hạn của SR-A-001 (giữ phiên bản đã áp dụng).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "PAY-15",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC340",
+      "title": "01/QTNĐ và 01/QTDA sinh GENERATED",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-16",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-16",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC340 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-16, FR-PAY-15",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Biểu mẫu quyết toán và hạn thẩm tra\": 01/QTNĐ và 01/QTDA sinh GENERATED; 02/QTNĐ: 422 TEMPLATE_UNCONFIRMED. 10/QTDA được sinh là dự thảo quyết định (outgoing document chưa ISSUED) chỉ khi phiên bản ",
+      "coverage_ids": [
+        "COV-FR-PAY-16",
+        "COV-FR-PAY-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). SR-A-020 phạm vi ANNUAL fiscal_year 2026 và SR-A-021 phạm vi PROJECT cùng ở VERIFIED; template DOC 01/QTNĐ…05/QTNĐ và 01/QTDA…12/QTDA có mặt, trạng thái CXN-09 = ĐÃ XÁC NHẬN cho 01/QTNĐ, 01/QTDA, 10/QTDA; các mẫu còn lại CHƯA XÁC NHẬN.\nĐầu vào: generateSettlementForms cho SR-A-020 form_codes=[01/QTNĐ, 02/QTNĐ]; cho SR-A-021 form_codes=[01/QTDA, 10/QTDA]; closeSettlement SR-A-021.\n1. Sinh 01/QTNĐ và 02/QTNĐ cho SR-A-020.\n2. Sinh 01/QTDA và 10/QTDA cho SR-A-021.\n3. Đóng SR-A-021 kèm decision_document_version_id.\n4. Đọc payment_form_instance.",
+      "expected": "01/QTNĐ và 01/QTDA sinh GENERATED; 02/QTNĐ: 422 TEMPLATE_UNCONFIRMED. 10/QTDA được sinh là dự thảo quyết định (outgoing document chưa ISSUED) chỉ khi phiên bản mẫu đã xác nhận; closeSettlement cần decision_document_version_id của văn bản ISSUED, nếu là dự thảo: 422 DECISION_DOCUMENT_REQUIRED. Sau khi cung cấp văn bản hợp lệ: CLOSED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "PAY-15",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC341",
+      "title": "Bốn request: 404 RESOURCE_NOT_FOUND (submit không đổi gì ở TNT-B)",
+      "type": "RED",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-01",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC341 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-01, FR-PAY-10, FR-PAY-13",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh sách hồ sơ thanh toán\": Bốn request: 404 RESOURCE_NOT_FOUND (submit không đổi gì ở TNT-B). SQL không tenant: count = 0 ở cả bốn bảng. SQL tenant A: 0 dòng của B. Nhập HASH-F1 ở TNT-A: ",
+      "coverage_ids": [
+        "COV-FR-PAY-01",
+        "COV-FR-PAY-10",
+        "COV-FR-PAY-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Dữ liệu tương tự của TNT-B (PR-B-001, CT-B-0001, import HASH-F1 cũng đã nhập ở TNT-B); u.ketoan thuộc TNT-A; kết nối machvon_app không đặt app.tenant_id.\nĐầu vào: Với token u.ketoan: GET /payment-requests/{PR-B-001}, GET /contracts/{HD-B-001}/cumulative-ledger, POST submit PR-B-001, POST /treasury-imports với HASH-F1; truy vấn SQL không đặt tenant; truy vấn với app.tenant_id=TNT-A đọc bảng của TNT-B.\n1. Gọi bốn request với id của TNT-B.\n2. Chạy SELECT count(*) trên payment_request, cumulative_ledger, treasury_transaction, reconciliation_item khi chưa đặt app.tenant_id.\n3. Đặt app.tenant_id=TNT-A và SELECT theo id của TNT-B.\n4. Nhập HASH-F1 ở TNT-A (đã nhập ở TNT-B).",
+      "expected": "Bốn request: 404 RESOURCE_NOT_FOUND (submit không đổi gì ở TNT-B). SQL không tenant: count = 0 ở cả bốn bảng. SQL tenant A: 0 dòng của B. Nhập HASH-F1 ở TNT-A: APPLIED (không báo ALREADY_IMPORTED của tenant khác). Không rò rỉ tên dự án/số tiền ở body lỗi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PAY-01",
+      "tags": [
+        "security"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC342",
+      "title": "AL-A-2025: 422 PLAN_YEAR_MISMATCH",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-02",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC342 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tạo đề nghị thanh toán\": AL-A-2025: 422 PLAN_YEAR_MISMATCH. AL-A-2026-LOW: tạo được nhưng submit trả 422 ALLOCATION_UNAVAILABLE (khả dụng 1.000.000.000 < net 2.100.000.000), không bút t",
+      "coverage_ids": [
+        "COV-FR-PAY-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). AL-A-2026-NSDP (plan_year 2026, còn khả dụng 5.000.000.000), AL-A-2025-NSDP (plan_year 2025, đã hết hạn giải ngân, không gia hạn), AL-A-2026-LOW (còn 1.000.000.000); NT-A-001 gross 3.000.000.000 lập ngày 2026-07-01.\nĐầu vào: createPaymentRequest với allocation_line_id lần lượt AL-A-2025-NSDP, AL-A-2026-LOW, AL-A-2026-NSDP.\n1. Tạo với AL-A-2025-NSDP.\n2. Tạo với AL-A-2026-LOW rồi submit.\n3. Tạo với AL-A-2026-NSDP rồi submit.\n4. Đọc payment_request.plan_year.",
+      "expected": "AL-A-2025: 422 PLAN_YEAR_MISMATCH. AL-A-2026-LOW: tạo được nhưng submit trả 422 ALLOCATION_UNAVAILABLE (khả dụng 1.000.000.000 < net 2.100.000.000), không bút toán sổ. AL-A-2026-NSDP: SUBMITTED, plan_year=2026.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "PAY-02",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC343",
+      "title": "p95 ≤ 300 ms cho trang 50 dòng",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-10",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC343 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sổ lũy kế hợp đồng × dòng BOQ × nghiệm thu\": p95 ≤ 300 ms cho trang 50 dòng; không Seq Scan trên cumulative_ledger trong EXPLAIN; trang kế tiếp ổn định (cursor) khi có ghi mới; tổng hợp trả numerator/denom",
+      "coverage_ids": [
+        "COV-FR-PAY-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Hợp đồng HD-A-PERF có 5.000 dòng BOQ, 120 nghiệm thu, 40.000 dòng cumulative_ledger; Postgres cấu hình staging.\nĐầu vào: GET /contracts/{HD-A-PERF}/cumulative-ledger?limit=50 và theo boq_item_id 300 lần, 20 luồng.\n1. Nạp dữ liệu hiệu năng.\n2. Chạy 300 truy vấn trang đầu và 300 truy vấn lọc theo boq_item_id.\n3. Đo p50/p95/p99 và kiểm kế hoạch truy vấn dùng chỉ mục (tenant_id, contract_id) / (tenant_id, boq_item_id).",
+      "expected": "p95 ≤ 300 ms cho trang 50 dòng; không Seq Scan trên cumulative_ledger trong EXPLAIN; trang kế tiếp ổn định (cursor) khi có ghi mới; tổng hợp trả numerator/denominator chính xác với tổng SUM.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "performance",
+      "screen_id": "PAY-10",
+      "tags": [
+        "performance",
+        "budget-not-set"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC344",
+      "title": "NT-A-002: SUBMITTED được (nghiệm thu trước ngày tạm dừng)",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-02",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC344 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-02, FR-CTR-22",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tạo đề nghị thanh toán\": NT-A-002: SUBMITTED được (nghiệm thu trước ngày tạm dừng). NT-A-003: 409 CONTRACT_STATE_INVALID (nghiệm thu phát sinh sau tạm dừng). requestAdvance: 422 ADVANCE",
+      "coverage_ids": [
+        "COV-FR-PAY-02",
+        "COV-FR-CTR-22"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). HD-A-001 ACTIVE rồi SUSPENDED từ 2026-07-10 (decision DOC-TD-001); NT-A-002 APPROVED ngày 2026-07-05; NT-A-003 APPROVED ngày 2026-07-12 (sau tạm dừng, do dữ liệu nhập sai); ADV-A-002 PLANNED.\nĐầu vào: createPaymentRequest cho NT-A-002 và NT-A-003; submit; requestAdvance; resumeContract.\n1. Tạo và submit đề nghị cho NT-A-002.\n2. Tạo đề nghị cho NT-A-003.\n3. requestAdvance.\n4. resumeContract rồi tạo lại đề nghị cho NT-A-003.",
+      "expected": "NT-A-002: SUBMITTED được (nghiệm thu trước ngày tạm dừng). NT-A-003: 409 CONTRACT_STATE_INVALID (nghiệm thu phát sinh sau tạm dừng). requestAdvance: 422 ADVANCE_CONTRACT_NOT_EFFECTIVE. Sau resume: tạo được đề nghị cho NT-A-003, contract_status_change ghi 2 bản (ACTIVE→SUSPENDED, SUSPENDED→ACTIVE) kèm lý do và văn bản.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "PAY-02",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC345",
+      "title": "Lần 2 trả đúng body lần 1 (cùng resource_version=4), không thêm bút toán (còn 2 entry CLAIM)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-02",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC345 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tạo đề nghị thanh toán\": Lần 2 trả đúng body lần 1 (cùng resource_version=4), không thêm bút toán (còn 2 entry CLAIM). Cùng key khác body: 409 IDEMPOTENCY_CONFLICT. PR-A-001b với key mớ",
+      "coverage_ids": [
+        "COV-FR-PAY-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). PR-A-001 DRAFT version 3; PR-A-001b DRAFT cùng NT-A-001.\nĐầu vào: submit PR-A-001 key K-AC345-A hai lần; submit với K-AC345-A nhưng body expected_net_vnd khác; submit PR-A-001b key K-AC345-B.\n1. Submit PR-A-001 (K-AC345-A), ghi body phản hồi.\n2. Gửi lại cùng request, cùng key.\n3. Gửi cùng key nhưng expected_net_vnd=2100000001.\n4. Submit PR-A-001b với key K-AC345-B.",
+      "expected": "Lần 2 trả đúng body lần 1 (cùng resource_version=4), không thêm bút toán (còn 2 entry CLAIM). Cùng key khác body: 409 IDEMPOTENCY_CONFLICT. PR-A-001b với key mới: 409 ACCEPTANCE_ALREADY_CLAIMED — idempotency key không chống được trùng ý định, ràng buộc nghiệp vụ mới chặn.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "PAY-02",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC396",
+      "title": "Truy vấn 1 trả 0 dòng",
+      "type": "RED",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-01",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC396 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-01, FR-LND-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh sách hồ sơ thanh toán\": Truy vấn 1 trả 0 dòng. Mỗi bảng có đúng policy tenant_boundary (permissive=RESTRICTIVE) và tenant_access (PERMISSIVE); 8 bảng LND cá nhân có thêm scope_units_gu",
+      "coverage_ids": [
+        "COV-FR-PAY-01",
+        "COV-FR-LND-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Áp schema_reference.sql (module execution) vào PostgreSQL 16 sạch; role machvon_app NOSUPERUSER NOBYPASSRLS; 67 bảng thuộc nhóm execution.\nĐầu vào: Truy vấn catalog: pg_class.relrowsecurity/relforcerowsecurity và pg_policies cho 67 bảng; kết nối machvon_app không đặt app.tenant_id đọc 5 bảng mẫu; bảng LND cá nhân với app.scope_units không đặt.\n1. SELECT relname FROM pg_class WHERE relname = ANY(<67 bảng>) AND NOT (relrowsecurity AND relforcerowsecurity).\n2. SELECT tablename FROM pg_policies nhóm theo bảng: đếm policy RESTRICTIVE tenant_boundary và PERMISSIVE tenant_access.\n3. Kết nối machvon_app, SELECT count(*) trên contract, payment_request, cumulative_ledger, affected_household, issue.\n4. Đặt app.tenant_id=TNT-A và app.scope_units không đặt, SELECT affected_household.",
+      "expected": "Truy vấn 1 trả 0 dòng. Mỗi bảng có đúng policy tenant_boundary (permissive=RESTRICTIVE) và tenant_access (PERMISSIVE); 8 bảng LND cá nhân có thêm scope_units_guard RESTRICTIVE. Bước 3: count = 0 cho cả 5 bảng. Bước 4: 0 dòng (fail-closed khi thiếu scope).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PAY-01",
+      "tags": [
+        "security"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-AC399",
+      "title": "Tại mọi điểm lỗi: giao dịch rollback hoàn toàn — PR-A-001 vẫn DRAFT, requested_vnd = 0, không entry/audit/outbox mới",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-02",
+      "oracle_source": "Claim → Thiết kế M1 PAY.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC399 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-02, FR-PAY-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tạo đề nghị thanh toán\": Tại mọi điểm lỗi: giao dịch rollback hoàn toàn — PR-A-001 vẫn DRAFT, requested_vnd = 0, không entry/audit/outbox mới. Gọi lại với khóa cũ: 200 SUBMITTED, đúng 2",
+      "coverage_ids": [
+        "COV-FR-PAY-02",
+        "COV-FR-PAY-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). PR-A-001 DRAFT; bật tiêm lỗi (fault injection) ở các điểm: sau UPDATE cumulative_ledger, sau INSERT cumulative_ledger_entry, sau INSERT audit_entry, ngay trước COMMIT.\nĐầu vào: Gọi submit PR-A-001 với lỗi tiêm tại từng điểm; sau đó gọi lại với khóa cũ khi không có lỗi.\n1. Với mỗi điểm lỗi, gọi submit, ghi mã lỗi trả về (503 hoặc 500 retryable).\n2. Đọc payment_request.status, cumulative_ledger, cumulative_ledger_entry, audit_entry, outbox_event.\n3. Gọi lại submit với cùng Idempotency-Key khi không có lỗi.\n4. Chạy relay outbox hai lần.",
+      "expected": "Tại mọi điểm lỗi: giao dịch rollback hoàn toàn — PR-A-001 vẫn DRAFT, requested_vnd = 0, không entry/audit/outbox mới. Gọi lại với khóa cũ: 200 SUBMITTED, đúng 2 CLAIM, 1 audit, 1 outbox. Relay chạy 2 lần giao đúng 1 lần (inbox_record chống trùng) cho consumer idempotent.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "PAY-02",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UI-PAY-10",
+      "title": "Sổ lũy kế hợp đồng × dòng BOQ × nghiệm thu (PAY-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-10",
+      "oracle_source": "Claim → FR-PAY-10; kỳ vọng nguyên văn của ca thiết kế UI-PAY-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-10",
+      "catches_bug": "Màn hình Sổ lũy kế hợp đồng × dòng BOQ × nghiệm thu (PAY-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PAY-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Sổ lũy kế hợp đồng × dòng BOQ × nghiệm thu\"; user có quyền và user chỉ đọc; route PAY-10\n1. Mở PAY-10 từ menu và deep link; kiểm nhãn trường: Hợp đồng, Dòng BOQ, Nghiệm thu, Đã nghiệm thu, Đã đề nghị, Đã thanh toán, Tạm ứng còn lại, Giữ lại\n2. Thực hiện thao tác chính theo quy tắc: Tổng đề nghị ≤ giá trị nghiệm thu ≤ giá trị hợp đồng (CHECK DB); sửa sai bằng bút toán đảo, không xóa; thao tác dùng command getCumulativeLedger\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PAY-10",
+      "expected": "Sổ lũy kế hợp đồng × dòng BOQ × nghiệm thu: hiển thị đúng 8 trường; áp quy tắc \"Tổng đề nghị ≤ giá trị nghiệm thu ≤ giá trị hợp đồng (CHECK DB); sửa sai bằng bút toán đảo, không xóa\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PAY-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UI-PAY-11",
+      "title": "Đề nghị tạm ứng (PAY-11): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-11",
+      "oracle_source": "Claim → FR-PAY-11; kỳ vọng nguyên văn của ca thiết kế UI-PAY-11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-11",
+      "catches_bug": "Màn hình Đề nghị tạm ứng (PAY-11) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PAY-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Đề nghị tạm ứng\"; user có quyền và user chỉ đọc; route PAY-11\n1. Mở PAY-11 từ menu và deep link; kiểm nhãn trường: Hợp đồng, Thành viên, Loại tạm ứng, Số đề nghị, Trần cho phép, Bảo lãnh tạm ứng, Nguồn vốn – năm kế hoạch\n2. Thực hiện thao tác chính theo quy tắc: Chỉ sau khi hợp đồng có hiệu lực và có bảo lãnh tạm ứng hợp lệ; không vượt trần theo loại hợp đồng; thao tác dùng command requestAdvance, cancelAdvance\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PAY-11",
+      "expected": "Đề nghị tạm ứng: hiển thị đúng 7 trường; áp quy tắc \"Chỉ sau khi hợp đồng có hiệu lực và có bảo lãnh tạm ứng hợp lệ; không vượt trần theo loại hợp đồng\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PAY-11",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UI-PAY-12",
+      "title": "Cảnh báo tạm ứng quá hạn và thu hồi (PAY-12): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-12",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-12",
+      "oracle_source": "Claim → FR-PAY-12; kỳ vọng nguyên văn của ca thiết kế UI-PAY-12 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-12",
+      "catches_bug": "Màn hình Cảnh báo tạm ứng quá hạn và thu hồi (PAY-12) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PAY-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Cảnh báo tạm ứng quá hạn và thu hồi\"; user có quyền và user chỉ đọc; route PAY-12\n1. Mở PAY-12 từ menu và deep link; kiểm nhãn trường: Hợp đồng, Thành viên, Còn lại, Hạn thu hồi, Số ngày quá hạn, Mức cảnh báo, Người xử lý\n2. Thực hiện thao tác chính theo quy tắc: Tạm ứng GPMB thu hồi trong 30 ngày; cảnh báo T-7, đến hạn, quá hạn, leo thang; không tự đánh dấu đã thu hồi; thao tác dùng command listOverdueAdvances, recordAdvanceRecovery, acknowledgeAdvanceAlert\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PAY-12",
+      "expected": "Cảnh báo tạm ứng quá hạn và thu hồi: hiển thị đúng 7 trường; áp quy tắc \"Tạm ứng GPMB thu hồi trong 30 ngày; cảnh báo T-7, đến hạn, quá hạn, leo thang; không tự đánh dấu đã thu hồi\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PAY-12",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UI-PAY-13",
+      "title": "Nhập sao kê Kho bạc (PAY-13): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-13",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-13",
+      "oracle_source": "Claim → FR-PAY-13; kỳ vọng nguyên văn của ca thiết kế UI-PAY-13 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-13",
+      "catches_bug": "Màn hình Nhập sao kê Kho bạc (PAY-13) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PAY-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Nhập sao kê Kho bạc\"; user có quyền và user chỉ đọc; route PAY-13\n1. Mở PAY-13 từ menu và deep link; kiểm nhãn trường: Tệp, Mã băm SHA-256, Ngày sao kê, Dòng mới, Dòng trùng, Dòng xung đột, Dòng lỗi, Trạng thái\n2. Thực hiện thao tác chính theo quy tắc: Idempotent theo mã băm tệp + khóa nghiệp vụ từng dòng; nạp lại báo đã nạp; dòng lỗi vào quarantine; thao tác dùng command importTreasuryStatement, getTreasuryImport\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PAY-13",
+      "expected": "Nhập sao kê Kho bạc: hiển thị đúng 8 trường; áp quy tắc \"Idempotent theo mã băm tệp + khóa nghiệp vụ từng dòng; nạp lại báo đã nạp; dòng lỗi vào quarantine\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PAY-13",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UI-PAY-14",
+      "title": "Biểu mẫu thanh toán Kho bạc (PAY-14): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-14",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-14",
+      "oracle_source": "Claim → FR-PAY-14; kỳ vọng nguyên văn của ca thiết kế UI-PAY-14 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-14",
+      "catches_bug": "Màn hình Biểu mẫu thanh toán Kho bạc (PAY-14) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PAY-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Biểu mẫu thanh toán Kho bạc\"; user có quyền và user chỉ đọc; route PAY-14\n1. Mở PAY-14 từ menu và deep link; kiểm nhãn trường: Mẫu (03.a/TT, 04.a/TT, 04.b/TT, 05.a/TT), Phiên bản mẫu, Căn cứ pháp lý, Trạng thái xác nhận, Tệp sinh, Ngày gửi\n2. Thực hiện thao tác chính theo quy tắc: Mẫu sinh từ DOC theo phiên bản có hiệu lực; mẫu chưa xác nhận [CXN-08] không cho gửi; thao tác dùng command generatePaymentForms, markPaymentSentToTreasury\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PAY-14",
+      "expected": "Biểu mẫu thanh toán Kho bạc: hiển thị đúng 6 trường; áp quy tắc \"Mẫu sinh từ DOC theo phiên bản có hiệu lực; mẫu chưa xác nhận [CXN-08] không cho gửi\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PAY-14",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UI-PAY-15",
+      "title": "Quyết toán niên độ và dự án hoàn thành (PAY-15): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-15",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-15",
+      "oracle_source": "Claim → FR-PAY-15; kỳ vọng nguyên văn của ca thiết kế UI-PAY-15 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-15",
+      "catches_bug": "Màn hình Quyết toán niên độ và dự án hoàn thành (PAY-15) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PAY-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Quyết toán niên độ và dự án hoàn thành\"; user có quyền và user chỉ đọc; route PAY-15\n1. Mở PAY-15 từ menu và deep link; kiểm nhãn trường: Phạm vi, Nhóm dự án, Giá trị quyết toán, Công nợ, Tạm ứng chưa thu, Hạn thẩm tra, Ngoại lệ đóng, Trạng thái\n2. Thực hiện thao tác chính theo quy tắc: Đóng khi còn công nợ/tạm ứng cần phê duyệt ngoại lệ; hạn thẩm tra theo nhóm dự án; thao tác dùng command openSettlement, refreshSettlementFigures, submitSettlement\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PAY-15",
+      "expected": "Quyết toán niên độ và dự án hoàn thành: hiển thị đúng 8 trường; áp quy tắc \"Đóng khi còn công nợ/tạm ứng cần phê duyệt ngoại lệ; hạn thẩm tra theo nhóm dự án\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PAY-15",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UI-PAY-16",
+      "title": "Biểu mẫu quyết toán và hạn thẩm tra (PAY-16): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-16",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-16",
+      "oracle_source": "Claim → FR-PAY-16; kỳ vọng nguyên văn của ca thiết kế UI-PAY-16 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-16",
+      "catches_bug": "Màn hình Biểu mẫu quyết toán và hạn thẩm tra (PAY-16) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PAY-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Biểu mẫu quyết toán và hạn thẩm tra\"; user có quyền và user chỉ đọc; route PAY-16\n1. Mở PAY-16 từ menu và deep link; kiểm nhãn trường: Mẫu 01–05/QTNĐ, Mẫu 01–12/QTDA, Quyết định 10/QTDA, Ngày nộp, Hạn thẩm tra, Số ngày còn lại\n2. Thực hiện thao tác chính theo quy tắc: Hạn tính theo nhóm dự án tại ngày nộp bằng rule có hiệu lực; mẫu chưa xác nhận không sinh; thao tác dùng command generateSettlementForms\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PAY-16",
+      "expected": "Biểu mẫu quyết toán và hạn thẩm tra: hiển thị đúng 6 trường; áp quy tắc \"Hạn tính theo nhóm dự án tại ngày nộp bằng rule có hiệu lực; mẫu chưa xác nhận không sinh\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PAY-16",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UI-PAY-17",
+      "title": "Truy vết chuỗi thanh toán (PAY-17): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-toan",
+      "journey_ref": "J-FR-PAY-17",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-17",
+      "oracle_source": "Claim → FR-PAY-17; kỳ vọng nguyên văn của ca thiết kế UI-PAY-17 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-17",
+      "catches_bug": "Màn hình Truy vết chuỗi thanh toán (PAY-17) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PAY-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-toan",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Truy vết chuỗi thanh toán\"; user có quyền và user chỉ đọc; route PAY-17\n1. Mở PAY-17 từ menu và deep link; kiểm nhãn trường: Dự án, Hợp đồng (phiên bản), Khối lượng, Nghiệm thu, Thanh toán, Kho bạc, Quyết toán\n2. Thực hiện thao tác chính theo quy tắc: Chuỗi truy vết theo tenant và phiên bản, chỉ đọc; thao tác dùng command getPaymentChain\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PAY-17",
+      "expected": "Truy vết chuỗi thanh toán: hiển thị đúng 7 trường; áp quy tắc \"Chuỗi truy vết theo tenant và phiên bản, chỉ đọc\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PAY-17",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-19",
+      "title": "Strict tenant: 422 VALIDATION_FAILED naming national_project_code and no payment_request row",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-pay",
+      "journey_ref": "J-FR-PAY-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-02",
+      "oracle_source": "Claim → PAY.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-19 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tạo đề nghị thanh toán\": Strict tenant: 422 VALIDATION_FAILED naming national_project_code and no payment_request row; lenient tenant: 200 DRAFT; the log shows the flag read from tenant",
+      "coverage_ids": [
+        "COV-FR-PAY-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-pay",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Project PR-A-003 without national_project_code; tenant setting payment.require_national_code = true; a second tenant with the setting false.\n1. createPaymentRequest for PR-A-003 under the strict tenant\n2. createPaymentRequest for the same project shape under the lenient tenant\n3. Read the tenant setting source in the request log",
+      "expected": "Strict tenant: 422 VALIDATION_FAILED naming national_project_code and no payment_request row; lenient tenant: 200 DRAFT; the log shows the flag read from tenant settings, not from a constant.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-20",
+      "title": "Step 1: 422 FORMS_NOT_GENERATED and the status stays VERIFIED",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-pay",
+      "journey_ref": "J-FR-PAY-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-04",
+      "oracle_source": "Claim → PAY.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-20 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Theo dõi gửi Kho bạc\": Step 1: 422 FORMS_NOT_GENERATED and the status stays VERIFIED. Step 2: 200 and the status is SENT_TREASURY with sent_on 2026-10-05 and treasury_file_no KB-0099 ",
+      "coverage_ids": [
+        "COV-FR-PAY-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-pay",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Payment request PR-A-001 VERIFIED with 3 of 4 required forms GENERATED; the Treasury adapter is not contracted.\n1. markPaymentSentToTreasury with sent_on 2026-10-05 and treasury_file_no \"KB-0099\"\n2. Generate the fourth form and call markPaymentSentToTreasury again\n3. Read the egress log",
+      "expected": "Step 1: 422 FORMS_NOT_GENERATED and the status stays VERIFIED. Step 2: 200 and the status is SENT_TREASURY with sent_on 2026-10-05 and treasury_file_no KB-0099 stored as entered. The egress log has 0 calls to a Treasury API.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "PAY"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-21",
+      "title": "S1 and S2: 200 and settled_amount_vnd, outstanding_vnd and unrecovered_advance_vnd equal the ledger sums to the VND",
+      "type": "DECISION",
+      "platform": "api",
+      "persona": "nguoi-dung-pay",
+      "journey_ref": "J-FR-PAY-15",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PAY-15",
+      "oracle_source": "Claim → PAY.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-21 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PAY-15",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Quyết toán niên độ và dự án hoàn thành\": S1 and S2: 200 and settled_amount_vnd, outstanding_vnd and unrecovered_advance_vnd equal the ledger sums to the VND; S3: refused with 409 and none of its figure",
+      "coverage_ids": [
+        "COV-FR-PAY-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-pay",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Settlements S1 DRAFT, S2 RETURNED and S3 SUBMITTED for one contract; ledger holds payments 3,000,000,000 and advance recovery 750,000,000 VND.\n1. refreshSettlementFigures on S1\n2. refreshSettlementFigures on S2\n3. refreshSettlementFigures on S3\n4. Compare the figures with the ledger sums",
+      "expected": "S1 and S2: 200 and settled_amount_vnd, outstanding_vnd and unrecovered_advance_vnd equal the ledger sums to the VND; S3: refused with 409 and none of its figures change.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "module": "PAY"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 24,
+    "M2": 0,
+    "M3": 0,
+    "M4": 120,
+    "max": 120,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 24,
+    "covered": 24,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

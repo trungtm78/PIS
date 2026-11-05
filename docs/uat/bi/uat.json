@@ -1,0 +1,1456 @@
+{
+  "feature": "bi",
+  "generated_at": "2026-11-05T07:53:18.043Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/bi/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UAT-AC31",
+      "title": "Mọi phản hồi trả snapshot_id=SV-10a và as_of_period=2026-10 (không nhảy sang SV-10b)",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-09",
+      "oracle_source": "Claim → FRD AC31; kỳ vọng nguyên văn của ca thiết kế UAT-AC31 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-09, FR-BI-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Trình phân tích dữ liệu\": Mọi phản hồi trả snapshot_id=SV-10a và as_of_period=2026-10 (không nhảy sang SV-10b); tổng lũy kế theo unit = theo funding_source = theo project = 12.450.000.00",
+      "coverage_ids": [
+        "COV-FR-BI-09",
+        "COV-FR-BI-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dataset DS-DISB, kỳ 2026-10 có snapshot SV-10a (FROZEN, built 2026-11-05) và sau đó SV-10b (FROZEN, built 2026-11-12 do điều chỉnh); người dùng A-ana mở dashboard lúc SV-10a là bản mới nhất.\n1. POST /dashboard-queries {metric: GIAI_NGAN_LUY_KE, dimensions:[unit], as_of_period:\"2026-10\"} → nhận drill_token\n2. Sau khi SV-10b được dựng, đổi chiều sang [funding_source] bằng GET /bi/drill?drill_token=…&child_dimension=funding_source\n3. Đổi tiếp sang [project]",
+      "expected": "Mọi phản hồi trả snapshot_id=SV-10a và as_of_period=2026-10 (không nhảy sang SV-10b); tổng lũy kế theo unit = theo funding_source = theo project = 12.450.000.000 VND; phản hồi kèm cờ new_data_available=true để UI hiện NewDataBanner.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "BI-02",
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UAT-AC32",
+      "title": "Additive: 4 + 6 + 0 + 0,5 (Chưa phân loại) = 10,5 tỷ, reconciles_to_parent=true",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-09",
+      "oracle_source": "Claim → FRD AC32; kỳ vọng nguyên văn của ca thiết kế UAT-AC32 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-09, FR-BI-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Trình phân tích dữ liệu\": Additive: 4 + 6 + 0 + 0,5 (Chưa phân loại) = 10,5 tỷ, reconciles_to_parent=true; ratio tổng = 10,5/30 = 35,00% (tính lại từ Σ tử/Σ mẫu, không phải trung bình 40",
+      "coverage_ids": [
+        "COV-FR-BI-09",
+        "COV-FR-BI-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Snapshot SV-10a: 3 đơn vị U1, U2, U3; giải ngân 4, 6, 0 tỷ; kế hoạch 10, 20, 0 tỷ; U4 ngoài scope người xem; dòng \"Chưa phân loại\" 0,5 tỷ giải ngân.\n1. Truy vấn GIAI_NGAN (additive) theo đơn vị\n2. Truy vấn TY_LE_GIAI_NGAN (ratio) theo đơn vị\n3. Đọc tổng",
+      "expected": "Additive: 4 + 6 + 0 + 0,5 (Chưa phân loại) = 10,5 tỷ, reconciles_to_parent=true; ratio tổng = 10,5/30 = 35,00% (tính lại từ Σ tử/Σ mẫu, không phải trung bình 40%/30%), U3 có null_reason=NOT_APPLICABLE (mẫu số 0) hiển thị \"Chưa có cơ sở tính\" không phải 0%; U4 không xuất hiện và tổng ghi nhãn \"theo phạm vi của bạn\".",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "BI-04",
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UAT-AC33",
+      "title": "Cả ba: 400 DRILL_TOKEN_INVALID (chữ ký/tenant không khớp), không trả dữ liệu hay xác nhận C-9 tồn tại",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-09",
+      "oracle_source": "Claim → FRD AC33; kỳ vọng nguyên văn của ca thiết kế UAT-AC33 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-09, FR-BI-08",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Trình phân tích dữ liệu\": Cả ba: 400 DRILL_TOKEN_INVALID (chữ ký/tenant không khớp), không trả dữ liệu hay xác nhận C-9 tồn tại; audit outcome=DENIED với lý do mã hóa; drill_context khôn",
+      "coverage_ids": [
+        "COV-FR-BI-09",
+        "COV-FR-BI-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: A-ana (TNT-A) có drill_token hợp lệ cho context C-1; tenant TNT-B có context C-9.\n1. Sửa payload token đổi ctx id thành C-9 (giữ chữ ký cũ)\n2. Dùng token hợp lệ của TNT-B (lấy từ người dùng TNT-B) trong phiên của A-ana\n3. Đổi kid trong token sang khóa của TNT-B",
+      "expected": "Cả ba: 400 DRILL_TOKEN_INVALID (chữ ký/tenant không khớp), không trả dữ liệu hay xác nhận C-9 tồn tại; audit outcome=DENIED với lý do mã hóa; drill_context không đọc được qua GET scaffold (x-exposure internal).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "BI-09",
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UAT-AC34",
+      "title": "Bước 1: served_from_cache=true, built_at=08:00, snapshot SV-10a, banner \"Có dữ liệu mới (12/11/2026 09:00)\"",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-02",
+      "oracle_source": "Claim → FRD AC34; kỳ vọng nguyên văn của ca thiết kế UAT-AC34 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-02, FR-BI-13",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Dashboard của tôi\": Bước 1: served_from_cache=true, built_at=08:00, snapshot SV-10a, banner \"Có dữ liệu mới (12/11/2026 09:00)\"; bước 2: drill_context mới với snapshot SV-10b, pare",
+      "coverage_ids": [
+        "COV-FR-BI-02",
+        "COV-FR-BI-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Kết quả truy vấn dashboard D-1 kỳ 2026-10 được cache lúc 08:00 từ SV-10a; 09:00 SV-10b FROZEN.\n1. 09:05 mở D-1\n2. Bấm \"Làm mới dữ liệu\" (POST /bi/query-contexts/refresh)\n3. Mở lại drill cũ bằng token cũ",
+      "expected": "Bước 1: served_from_cache=true, built_at=08:00, snapshot SV-10a, banner \"Có dữ liệu mới (12/11/2026 09:00)\"; bước 2: drill_context mới với snapshot SV-10b, parent_context_id = context cũ; bước 3: token cũ vẫn trả SV-10a (không trộn số) cho tới hết hạn 30 phút, sau đó 409 SNAPSHOT_EXPIRED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "BI-02",
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UAT-AC35",
+      "title": "A-staff thấy layout D-2 nhưng số liệu chỉ của U-BQL1 (tổng khác tổng của A-lead, ghi nhãn phạm vi)",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-01",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-01",
+      "oracle_source": "Claim → FRD AC35; kỳ vọng nguyên văn của ca thiết kế UAT-AC35 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-01, FR-BI-17",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thư viện dashboard\": A-staff thấy layout D-2 nhưng số liệu chỉ của U-BQL1 (tổng khác tổng của A-lead, ghi nhãn phạm vi); không có dòng nào của đơn vị khác; sau thu hồi: 404 với D-2.",
+      "coverage_ids": [
+        "COV-FR-BI-01",
+        "COV-FR-BI-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dashboard D-2 của A-lead (scope toàn tenant); chia sẻ VIEW cho A-staff (scope U-BQL1); bi_access_policy của A-staff chỉ cho U-BQL1.\n1. POST /bi/dashboards/{D-2}/shares {grantee_kind:\"USER\", grantee_ref_id:A-staff, permission:\"VIEW\"}\n2. A-staff mở D-2\n3. A-lead thu hồi chia sẻ; A-staff mở lại",
+      "expected": "A-staff thấy layout D-2 nhưng số liệu chỉ của U-BQL1 (tổng khác tổng của A-lead, ghi nhãn phạm vi); không có dòng nào của đơn vị khác; sau thu hồi: 404 với D-2.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "BI-01",
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-BI01",
+      "title": "14%",
+      "type": "RED",
+      "platform": "api",
+      "persona": "nguoi-dung-bi",
+      "journey_ref": "J-NFR-PERFORMANCE-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-PERFORMANCE-03",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế BI01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-PERFORMANCE-03, FR-BI-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"BI từ snapshot kỳ, truy vấn nặng bất đồng bộ\": 14%; cuối kỳ150; không30% hoặc250; nguồn cùng snapshot",
+      "coverage_ids": [
+        "COV-NFR-PERFORMANCE-03",
+        "COV-FR-BI-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-bi",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. 140/1000 và snapshot tuần100→150; drill xuống nguồn\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "14%; cuối kỳ150; không30% hoặc250; nguồn cùng snapshot",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
+      "design_type": "integration/security/UAT",
+      "tags": [
+        "security"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-BI02",
+      "title": "Recheck quyền hiện tại",
+      "type": "SECURITY",
+      "platform": "api",
+      "persona": "chuyen-vien-so-x",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-TENANCY-06",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế BI02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-TENANCY-06, FR-BI-12 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Tệp xuất được tạo lại bằng quyền cũ sau khi phạm vi người yêu cầu đã thu hẹp",
+      "coverage_ids": [
+        "COV-NFR-TENANCY-06",
+        "COV-FR-BI-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-so-x",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Filter hoặc ACL đổi sau lưu dashboard/export job\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "Recheck quyền hiện tại; không xuất dữ liệu ngoài scope cũ∩mới",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
+      "design_type": "integration/security/UAT",
+      "tags": [
+        "security"
+      ],
+      "module": "BI",
+      "access": {
+        "url": "/api/bi/exports",
+        "method": "POST",
+        "allow": [
+          "chuyen-vien-so-x"
+        ],
+        "deny_status": [
+          401,
+          403
+        ],
+        "must_not_contain": [
+          "Ban Y"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UI-BI-01",
+      "title": "Thư viện dashboard (BI-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-01",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-01",
+      "oracle_source": "Claim → FR-BI-01; kỳ vọng nguyên văn của ca thiết kế UI-BI-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-01",
+      "catches_bug": "Màn hình Thư viện dashboard (BI-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BI-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BI-01\n1. Mở route bằng menu và deep link; kiểm tên trường: Chủ sở hữu, Vai trò, Công bố\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BI-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UI-BI-02",
+      "title": "Dashboard của tôi (BI-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-02",
+      "oracle_source": "Claim → FR-BI-02; kỳ vọng nguyên văn của ca thiết kế UI-BI-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-02",
+      "catches_bug": "Màn hình Dashboard của tôi (BI-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BI-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BI-02\n1. Mở route bằng menu và deep link; kiểm tên trường: Kỳ, Nguồn vốn, Đơn vị\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BI-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UI-BI-03",
+      "title": "Trình dựng dashboard (BI-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-03",
+      "oracle_source": "Claim → FR-BI-03; kỳ vọng nguyên văn của ca thiết kế UI-BI-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-03",
+      "catches_bug": "Màn hình Trình dựng dashboard (BI-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BI-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BI-03\n1. Mở route bằng menu và deep link; kiểm tên trường: Lưới, Widget, Bộ lọc, Thiết bị\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BI-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UI-BI-04",
+      "title": "Trình dựng biểu đồ (BI-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-04",
+      "oracle_source": "Claim → FR-BI-04; kỳ vọng nguyên văn của ca thiết kế UI-BI-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-04",
+      "catches_bug": "Màn hình Trình dựng biểu đồ (BI-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BI-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BI-04\n1. Mở route bằng menu và deep link; kiểm tên trường: Chiều phân tích, Chỉ tiêu, Loại biểu đồ, Định dạng\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BI-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UI-BI-05",
+      "title": "Danh mục chỉ tiêu (BI-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-05",
+      "oracle_source": "Claim → FR-BI-05; kỳ vọng nguyên văn của ca thiết kế UI-BI-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-05",
+      "catches_bug": "Màn hình Danh mục chỉ tiêu (BI-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BI-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BI-05\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã chỉ tiêu, Công thức, Đơn vị, Chủ sở hữu\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BI-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UI-BI-06",
+      "title": "Định nghĩa chỉ tiêu (BI-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-06",
+      "oracle_source": "Claim → FR-BI-06; kỳ vọng nguyên văn của ca thiết kế UI-BI-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-06",
+      "catches_bug": "Màn hình Định nghĩa chỉ tiêu (BI-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BI-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BI-06\n1. Mở route bằng menu và deep link; kiểm tên trường: Công thức, Grain, Mẫu số, Null, Phiên bản\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BI-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UI-BI-07",
+      "title": "Nguồn và mô hình dữ liệu (BI-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-07",
+      "oracle_source": "Claim → FR-BI-07; kỳ vọng nguyên văn của ca thiết kế UI-BI-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-07",
+      "catches_bug": "Màn hình Nguồn và mô hình dữ liệu (BI-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BI-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BI-07\n1. Mở route bằng menu và deep link; kiểm tên trường: Nguồn, Bảng, Quan hệ, Lịch làm mới\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BI-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UI-BI-08",
+      "title": "Phân quyền dòng và cột (BI-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-08",
+      "oracle_source": "Claim → FR-BI-08; kỳ vọng nguyên văn của ca thiết kế UI-BI-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-08",
+      "catches_bug": "Màn hình Phân quyền dòng và cột (BI-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BI-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BI-08\n1. Mở route bằng menu và deep link; kiểm tên trường: Vai trò, Phạm vi, Cột ẩn, Điều kiện\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BI-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UI-BI-09",
+      "title": "Trình phân tích dữ liệu (BI-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-09",
+      "oracle_source": "Claim → FR-BI-09; kỳ vọng nguyên văn của ca thiết kế UI-BI-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-09",
+      "catches_bug": "Màn hình Trình phân tích dữ liệu (BI-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BI-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BI-09\n1. Mở route bằng menu và deep link; kiểm tên trường: Chiều, Chỉ tiêu, Drill down, Bộ lọc\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BI-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UI-BI-10",
+      "title": "So sánh phiên bản dashboard (BI-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-10",
+      "oracle_source": "Claim → FR-BI-10; kỳ vọng nguyên văn của ca thiết kế UI-BI-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-10",
+      "catches_bug": "Màn hình So sánh phiên bản dashboard (BI-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BI-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BI-10\n1. Mở route bằng menu và deep link; kiểm tên trường: Phiên bản cũ, Phiên bản mới, Khác biệt\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BI-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UI-BI-11",
+      "title": "Phê duyệt công bố (BI-11): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-11",
+      "oracle_source": "Claim → FR-BI-11; kỳ vọng nguyên văn của ca thiết kế UI-BI-11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-11",
+      "catches_bug": "Màn hình Phê duyệt công bố (BI-11) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BI-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BI-11\n1. Mở route bằng menu và deep link; kiểm tên trường: Đối tượng, Phiên bản, Người duyệt\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BI-11",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UI-BI-12",
+      "title": "Lịch xuất và phân phối (BI-12): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-12",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-12",
+      "oracle_source": "Claim → FR-BI-12; kỳ vọng nguyên văn của ca thiết kế UI-BI-12 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-12",
+      "catches_bug": "Màn hình Lịch xuất và phân phối (BI-12) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BI-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BI-12\n1. Mở route bằng menu và deep link; kiểm tên trường: Lịch, Định dạng, Người nhận, Kênh\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BI-12",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UI-BI-13",
+      "title": "Nhật ký truy vấn và hiệu năng (BI-13): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-13",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-13",
+      "oracle_source": "Claim → FR-BI-13; kỳ vọng nguyên văn của ca thiết kế UI-BI-13 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-13",
+      "catches_bug": "Màn hình Nhật ký truy vấn và hiệu năng (BI-13) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BI-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BI-13\n1. Mở route bằng menu và deep link; kiểm tên trường: Truy vấn, Thời gian, Dung lượng, Trạng thái\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BI-13",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UI-BI-14",
+      "title": "Lineage và chất lượng dữ liệu (BI-14): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-14",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-14",
+      "oracle_source": "Claim → FR-BI-14; kỳ vọng nguyên văn của ca thiết kế UI-BI-14 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-14",
+      "catches_bug": "Màn hình Lineage và chất lượng dữ liệu (BI-14) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BI-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BI-14\n1. Mở route bằng menu và deep link; kiểm tên trường: Chỉ tiêu, Nguồn gốc, Kiểm tra, Độ mới\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BI-14",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UI-BI-15",
+      "title": "Đăng ký chỉ tiêu từ mã nguồn (BI-15): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-owner",
+      "journey_ref": "J-FR-BI-15",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-15",
+      "oracle_source": "Claim → FR-BI-15; kỳ vọng nguyên văn của ca thiết kế UI-BI-15 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-15",
+      "catches_bug": "Màn hình Đăng ký chỉ tiêu từ mã nguồn (BI-15) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BI-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Đăng ký chỉ tiêu từ mã nguồn\"; user có quyền và user chỉ đọc; route BI-15\n1. Mở BI-15 từ menu và deep link; kiểm nhãn trường: Commit, Băm gói, Chỉ tiêu thêm, Chỉ tiêu sửa, Chỉ tiêu ngừng, Trạng thái, Lỗi\n2. Thực hiện thao tác chính theo quy tắc: Đồng bộ chỉ từ CI/deploy; cùng băm gói không áp dụng lại; đổi nghĩa chỉ tiêu cần mã mới\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BI-15",
+      "expected": "Đăng ký chỉ tiêu từ mã nguồn: hiển thị đúng 7 trường, áp quy tắc \"Đồng bộ chỉ từ CI/deploy; cùng băm gói không áp dụng lại; đổi nghĩa chỉ tiêu cần mã mới\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BI-15",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UI-BI-16",
+      "title": "Xuất dữ liệu và phạm vi (BI-16): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-16",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-16",
+      "oracle_source": "Claim → FR-BI-16; kỳ vọng nguyên văn của ca thiết kế UI-BI-16 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-16",
+      "catches_bug": "Màn hình Xuất dữ liệu và phạm vi (BI-16) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BI-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Xuất dữ liệu và phạm vi\"; user có quyền và user chỉ đọc; route BI-16\n1. Mở BI-16 từ menu và deep link; kiểm nhãn trường: Truy vấn, Kỳ và snapshot, Mô tả phạm vi, Định dạng, Số dòng/trần, Trạng thái, Tải xuống\n2. Thực hiện thao tác chính theo quy tắc: Kiểm quyền lại khi chạy và khi tải; tệp ghi phạm vi, as_of, snapshot; vượt trần dòng → yêu cầu thu hẹp\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BI-16",
+      "expected": "Xuất dữ liệu và phạm vi: hiển thị đúng 7 trường, áp quy tắc \"Kiểm quyền lại khi chạy và khi tải; tệp ghi phạm vi, as_of, snapshot; vượt trần dòng → yêu cầu thu hẹp\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BI-16",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UI-BI-17",
+      "title": "Chia sẻ dashboard (BI-17): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dashboard",
+      "journey_ref": "J-FR-BI-17",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-17",
+      "oracle_source": "Claim → FR-BI-17; kỳ vọng nguyên văn của ca thiết kế UI-BI-17 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-17",
+      "catches_bug": "Màn hình Chia sẻ dashboard (BI-17) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BI-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dashboard",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Chia sẻ dashboard\"; user có quyền và user chỉ đọc; route BI-17\n1. Mở BI-17 từ menu và deep link; kiểm nhãn trường: Người/nhóm/đơn vị nhận, Quyền (xem/sửa), Cảnh báo quyền dữ liệu, Thu hồi\n2. Thực hiện thao tác chính theo quy tắc: Chia sẻ chỉ cấp quyền xem đối tượng; dữ liệu hiển thị theo quyền của người xem\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BI-17",
+      "expected": "Chia sẻ dashboard: hiển thị đúng 4 trường, áp quy tắc \"Chia sẻ chỉ cấp quyền xem đối tượng; dữ liệu hiển thị theo quyền của người xem\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BI-17",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UI-BI-18",
+      "title": "Bộ dữ liệu và ảnh chụp kỳ (BI-18): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "quan-tri-du-lieu",
+      "journey_ref": "J-FR-BI-18",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-18",
+      "oracle_source": "Claim → FR-BI-18; kỳ vọng nguyên văn của ca thiết kế UI-BI-18 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-18",
+      "catches_bug": "Màn hình Bộ dữ liệu và ảnh chụp kỳ (BI-18) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-BI-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-du-lieu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Bộ dữ liệu và ảnh chụp kỳ\"; user có quyền và user chỉ đọc; route BI-18\n1. Mở BI-18 từ menu và deep link; kiểm nhãn trường: Dataset, Kỳ, Snapshot nguồn (DIS), Thời điểm dựng, Số dòng, Huy hiệu chất lượng, Trạng thái\n2. Thực hiện thao tác chính theo quy tắc: Một snapshot FROZEN mỗi dataset × kỳ; dựng lại tạo bản mới SUPERSEDED bản cũ, không sửa bản đã dùng\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên BI-18",
+      "expected": "Bộ dữ liệu và ảnh chụp kỳ: hiển thị đúng 7 trường, áp quy tắc \"Một snapshot FROZEN mỗi dataset × kỳ; dựng lại tạo bản mới SUPERSEDED bản cũ, không sửa bản đã dùng\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "BI-18",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UAT-AC471",
+      "title": "APPLIED: revision mới origin=PLATFORM_CODE, source_commit, definition_sha256",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-15",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-15",
+      "oracle_source": "Claim → 05_modules/BI.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC471 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-15, FR-BI-05, FR-BI-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đăng ký chỉ tiêu từ mã nguồn\": APPLIED: revision mới origin=PLATFORM_CODE, source_commit, definition_sha256; gọi lại: NO_CHANGE (không revision mới); tenant sửa: 422 PLATFORM_METRIC_READ_ONLY",
+      "coverage_ids": [
+        "COV-FR-BI-15",
+        "COV-FR-BI-05",
+        "COV-FR-BI-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Repo commit c1a2b3c có metrics/disbursement_rate.metric.yaml (ratio, tử GIAI_NGAN, mẫu KE_HOACH_TTG); gói băm B1.\n1. CI gọi POST /bi/metric-registry-syncs {source_commit:\"c1a2b3c\", bundle_sha256:B1}\n2. Gọi lại cùng gói\n3. Tenant admin sửa chỉ tiêu PLATFORM_CODE qua POST /bi/metric-definitions cùng code\n4. Commit c4 đổi mẫu số nhưng giữ code",
+      "expected": "APPLIED: revision mới origin=PLATFORM_CODE, source_commit, definition_sha256; gọi lại: NO_CHANGE (không revision mới); tenant sửa: 422 PLATFORM_METRIC_READ_ONLY; đổi nghĩa giữ code: 422 BREAKING_CHANGE_WITHOUT_NEW_CODE (phải tạo code mới hoặc revision có effective_from mới kèm migration).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "BI-05",
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UAT-AC472",
+      "title": "422 RATIO_REQUIRES_NUMERATOR_DENOMINATOR",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-06",
+      "oracle_source": "Claim → 05_modules/BI.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC472 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Định nghĩa chỉ tiêu\": 422 RATIO_REQUIRES_NUMERATOR_DENOMINATOR; 422 EXPRESSION_NOT_ALLOWED; giá trị null với null_reason=NO_DATA hiển thị \"Chưa có dữ liệu\", không bao giờ 0.",
+      "coverage_ids": [
+        "COV-FR-BI-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Chỉ tiêu tenant \"TL_DUNG_HAN\" ratio thiếu denominator_ast; chỉ tiêu có AST chứa node \"raw_sql\".\n1. POST /bi/metric-definitions thiếu mẫu số\n2. POST với node raw_sql\n3. Truy vấn chỉ tiêu NULL_NOT_ZERO khi kỳ chưa có dữ liệu",
+      "expected": "422 RATIO_REQUIRES_NUMERATOR_DENOMINATOR; 422 EXPRESSION_NOT_ALLOWED; giá trị null với null_reason=NO_DATA hiển thị \"Chưa có dữ liệu\", không bao giờ 0.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "BI-06",
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UAT-AC473",
+      "title": "Bước 1: 403 ACCESS_POLICY_MISSING (đóng mặc định, không trả rỗng giả)",
+      "type": "RED",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-08",
+      "oracle_source": "Claim → 05_modules/BI.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC473 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-08, FR-BI-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Phân quyền dòng và cột\": Bước 1: 403 ACCESS_POLICY_MISSING (đóng mặc định, không trả rỗng giả); tự duyệt 403 SELF_APPROVAL_DENIED; sau ACTIVE: chỉ dòng thuộc scope, cột account_no không",
+      "coverage_ids": [
+        "COV-FR-BI-08",
+        "COV-FR-BI-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dataset DS-TREASURY (CONFIDENTIAL) chưa có bi_access_policy ACTIVE nào cho vai trò Chuyên viên; A-staff có quyền bi.query.\n1. A-staff truy vấn DS-TREASURY\n2. Tạo chính sách cho vai trò Chuyên viên với row_predicate unit ∈ scope, column_masks {account_no: HIDE}; tự duyệt; người khác duyệt\n3. A-staff truy vấn lại",
+      "expected": "Bước 1: 403 ACCESS_POLICY_MISSING (đóng mặc định, không trả rỗng giả); tự duyệt 403 SELF_APPROVAL_DENIED; sau ACTIVE: chỉ dòng thuộc scope, cột account_no không xuất hiện trong kết quả hay xuất.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "BI-08",
+      "tags": [
+        "security"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UAT-AC474",
+      "title": "422 METRIC_NOT_CERTIFIED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-03",
+      "oracle_source": "Claim → 05_modules/BI.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC474 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-03, FR-BI-11",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Trình dựng dashboard\": 422 METRIC_NOT_CERTIFIED; tự duyệt 403; duyệt → dashboard_version PUBLISHED (publish baseline), revision cũ còn nguyên.",
+      "coverage_ids": [
+        "COV-FR-BI-03",
+        "COV-FR-BI-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dashboard D-3 revision 2 dùng chỉ tiêu M-7 chưa CERTIFIED.\n1. POST /bi/dashboards/{D-3}/versions với M-7\n2. Chứng nhận M-7 rồi lưu và submit publication; người đề nghị tự duyệt\n3. Người khác duyệt",
+      "expected": "422 METRIC_NOT_CERTIFIED; tự duyệt 403; duyệt → dashboard_version PUBLISHED (publish baseline), revision cũ còn nguyên.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "BI-03",
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UAT-AC475",
+      "title": "Hai job riêng (subject_user_id khác nhau)",
+      "type": "RED",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-12",
+      "oracle_source": "Claim → 05_modules/BI.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC475 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-12, FR-BI-16",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Lịch xuất và phân phối\": Hai job riêng (subject_user_id khác nhau); job A-lead READY, đầu tệp ghi \"Phạm vi: toàn tỉnh; Kỳ 2026-10; Snapshot SV-10b\"; job A-staff DENIED (ACCESS_POLICY_MI",
+      "coverage_ids": [
+        "COV-FR-BI-12",
+        "COV-FR-BI-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Lịch xuất S-1 hằng tuần cho A-lead (toàn tenant) và A-staff (U-BQL1); A-staff bị thu hồi scope U-BQL1 sau khi lịch tạo.\n1. Chạy lịch S-1\n2. Đọc 2 bi_export_job và đầu tệp\n3. A-staff yêu cầu xuất 150.000 dòng",
+      "expected": "Hai job riêng (subject_user_id khác nhau); job A-lead READY, đầu tệp ghi \"Phạm vi: toàn tỉnh; Kỳ 2026-10; Snapshot SV-10b\"; job A-staff DENIED (ACCESS_POLICY_MISSING/SCOPE_DENIED) vì quyền bị thu hồi, không tạo tệp; xuất 150.000 dòng: truncated=false, 422 EXPORT_ROW_CAP_EXCEEDED (trần 100.000).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "BI-12",
+      "tags": [
+        "security"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UAT-AC476",
+      "title": "400 FIELD_NOT_ALLOWED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-07",
+      "oracle_source": "Claim → 05_modules/BI.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC476 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-07, FR-BI-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nguồn và mô hình dữ liệu\": 400 FIELD_NOT_ALLOWED; 422 DIMENSION_NOT_IN_DATASET; không có câu SQL nào sinh ngoài compiler allowlist (log compiler).",
+      "coverage_ids": [
+        "COV-FR-BI-07",
+        "COV-FR-BI-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Người dùng gửi truy vấn có trường \"sql\":\"select * from payment_request\" và dimension không có trong dataset.\n1. POST /dashboard-queries với trường sql\n2. POST với dimension \"contractor_tax_id\" không thuộc DS-DISB",
+      "expected": "400 FIELD_NOT_ALLOWED; 422 DIMENSION_NOT_IN_DATASET; không có câu SQL nào sinh ngoài compiler allowlist (log compiler).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "BI-07",
+      "tags": [
+        "security"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UAT-AC477",
+      "title": "p95 ≤ 2 s (NFR-PERFORMANCE-03)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-13",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-13",
+      "oracle_source": "Claim → 05_modules/BI.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC477 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-13, FR-BI-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nhật ký truy vấn và hiệu năng\": p95 ≤ 2 s (NFR-PERFORMANCE-03); truy vấn nặng trả 202 job (mode ASYNC_JOB) và thông báo khi xong; BI-13 hiển thị duration, row_count, served_from_cache, không h",
+      "coverage_ids": [
+        "COV-FR-BI-13",
+        "COV-FR-BI-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant 5.000 dự án, snapshot kỳ đã materialized trên read replica; truy vấn toàn tỉnh 12 chỉ tiêu; truy vấn nặng (theo dự án × tháng × nguồn, 3 năm).\n1. Chạy truy vấn toàn tỉnh 20 lần\n2. Chạy truy vấn nặng\n3. Mở BI-13",
+      "expected": "p95 ≤ 2 s (NFR-PERFORMANCE-03); truy vấn nặng trả 202 job (mode ASYNC_JOB) và thông báo khi xong; BI-13 hiển thị duration, row_count, served_from_cache, không hiển thị giá trị dữ liệu.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "performance",
+      "screen_id": "BI-13",
+      "tags": [
+        "performance",
+        "budget-not-set"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UAT-AC478",
+      "title": "Bản 1: quality_badge=NOT_ASSESSED (không phải lỗi, không phải PASSED), excluded_quarantine_rows=0",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "nha-phan-tich",
+      "journey_ref": "J-FR-BI-14",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-14",
+      "oracle_source": "Claim → 05_modules/BI.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC478 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-14, FR-BI-18",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Lineage và chất lượng dữ liệu\": Bản 1: quality_badge=NOT_ASSESSED (không phải lỗi, không phải PASSED), excluded_quarantine_rows=0; bản 2: quality_run_id=QR-1, badge theo kết quả, excluded_quar",
+      "coverage_ids": [
+        "COV-FR-BI-14",
+        "COV-FR-BI-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-phan-tich",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: DIS phát snapshot.frozen.v1 cho kỳ 2026-10; DGV chưa có quality_run cho dataset (R1); sau đó DGV chạy QR-1 với 12 dòng quarantine.\n1. Dựng bi_dataset_version tự động\n2. Mở dashboard\n3. Sau QR-1 dựng lại",
+      "expected": "Bản 1: quality_badge=NOT_ASSESSED (không phải lỗi, không phải PASSED), excluded_quarantine_rows=0; bản 2: quality_run_id=QR-1, badge theo kết quả, excluded_quarantine_rows=12 và tổng certified không gồm 12 dòng đó; bản 1 SUPERSEDED nhưng drill đang mở vẫn dùng bản 1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "BI-14",
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UAT-AC479",
+      "title": "Hai khóa cache khác nhau (t:{tenant}:bi:…:{scope_hash}), B không nhận kết quả của A",
+      "type": "RED",
+      "platform": "api",
+      "persona": "nguoi-dung-bi",
+      "journey_ref": "J-FR-BI-09",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-09",
+      "oracle_source": "Claim → 05_modules/BI.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC479 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-09, FR-BI-16",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Trình phân tích dữ liệu\": Hai khóa cache khác nhau (t:{tenant}:bi:…:{scope_hash}), B không nhận kết quả của A; export của A: 404.",
+      "coverage_ids": [
+        "COV-FR-BI-09",
+        "COV-FR-BI-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-bi",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: TNT-A và TNT-B cùng có dashboard mã \"GIAI-NGAN\" và cache truy vấn giống hệt tham số.\n1. A-ana truy vấn\n2. B-ana truy vấn cùng tham số\n3. B-ana GET /bi/exports/{job của A}",
+      "expected": "Hai khóa cache khác nhau (t:{tenant}:bi:…:{scope_hash}), B không nhận kết quả của A; export của A: 404.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security (cách ly tenant)",
+      "tags": [
+        "security"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UAT-AC480",
+      "title": "Mỗi đơn vị đếm P-9",
+      "type": "DECISION",
+      "platform": "api",
+      "persona": "nguoi-dung-bi",
+      "journey_ref": "J-FR-BI-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-09",
+      "oracle_source": "Claim → 05_modules/BI.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC480 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Trình phân tích dữ liệu\": Mỗi đơn vị đếm P-9; tổng toàn tỉnh đếm 1 lần; reconciles_to_parent=false với non_additive_reason=\"distinct count, nhóm chồng lấn\".",
+      "coverage_ids": [
+        "COV-FR-BI-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-bi",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Chỉ tiêu SO_DU_AN_CO_VUONG_MAC (distinct) theo đơn vị; dự án P-9 thuộc 2 đơn vị (đồng chủ trì).\n1. Truy vấn theo đơn vị\n2. Đọc tổng",
+      "expected": "Mỗi đơn vị đếm P-9; tổng toàn tỉnh đếm 1 lần; reconciles_to_parent=false với non_additive_reason=\"distinct count, nhóm chồng lấn\".",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UAT-AC481",
+      "title": "U-BQL2: 403 SCOPE_DENIED, không lộ tên dự án",
+      "type": "RED",
+      "platform": "api",
+      "persona": "nguoi-dung-bi",
+      "journey_ref": "J-FR-BI-09",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-09",
+      "oracle_source": "Claim → 05_modules/BI.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC481 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Trình phân tích dữ liệu\": U-BQL2: 403 SCOPE_DENIED, không lộ tên dự án; U-BQL1: 200 với cùng snapshot; scope tính = scope cũ ∩ membership hiện tại (thư viện chung với HOME).",
+      "coverage_ids": [
+        "COV-FR-BI-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-bi",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: A-staff mở drill lúc 10:00 với scope U-BQL1 + U-BQL2; 10:05 ADM thu hồi U-BQL2.\n1. 10:06 drill vào U-BQL2 bằng token cũ\n2. 10:06 drill vào U-BQL1",
+      "expected": "U-BQL2: 403 SCOPE_DENIED, không lộ tên dự án; U-BQL1: 200 với cùng snapshot; scope tính = scope cũ ∩ membership hiện tại (thư viện chung với HOME).",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "tags": [
+        "security"
+      ],
+      "module": "BI"
+    },
+    {
+      "tc_id": "TC-UAT-AC482",
+      "title": "Một bản FROZEN duy nhất cho (DS-DISB, 2026-10) (unique một phần)",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-bi",
+      "journey_ref": "J-FR-BI-18",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-BI-18",
+      "oracle_source": "Claim → 05_modules/BI.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC482 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-BI-18",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Bộ dữ liệu và ảnh chụp kỳ\": Một bản FROZEN duy nhất cho (DS-DISB, 2026-10) (unique một phần); lần 2 bị inbox bỏ qua; build thủ công: 409 BUILD_ALREADY_RUNNING.",
+      "coverage_ids": [
+        "COV-FR-BI-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-bi",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: snapshot.frozen.v1 cho kỳ 2026-10 đến hai lần.\n1. Consumer nhận lần 1 và lần 2\n2. Gọi buildBiDatasetVersion thủ công khi bản đang BUILDING",
+      "expected": "Một bản FROZEN duy nhất cho (DS-DISB, 2026-10) (unique một phần); lần 2 bị inbox bỏ qua; build thủ công: 409 BUILD_ALREADY_RUNNING.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration (idempotency)",
+      "tags": [
+        "concurrency"
+      ],
+      "module": "BI"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 20,
+    "M2": 0,
+    "M3": 0,
+    "M4": 80,
+    "max": 80,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 20,
+    "covered": 20,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

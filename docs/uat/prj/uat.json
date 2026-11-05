@@ -1,0 +1,1651 @@
+{
+  "feature": "prj",
+  "generated_at": "2026-11-05T07:53:18.072Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/prj/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UI-PRJ-01",
+      "title": "Danh sách dự án (PRJ-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-01",
+      "oracle_source": "Claim → FR-PRJ-01; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-01",
+      "catches_bug": "Màn hình Danh sách dự án (PRJ-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PRJ-01\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã dự án, Chủ đầu tư, Nhóm, Trạng thái\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Quản lý vòng đời dự án và phân cấp tổ chức hiệu lực theo thời gian\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UI-PRJ-02",
+      "title": "Tạo dự án (PRJ-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-02",
+      "oracle_source": "Claim → FR-PRJ-02; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-02",
+      "catches_bug": "Màn hình Tạo dự án (PRJ-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PRJ-02\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã dự án, Tên dự án, Chủ đầu tư, Địa bàn, Lĩnh vực, Tổng mức đầu tư\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Quản lý vòng đời dự án và phân cấp tổ chức hiệu lực theo thời gian\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UI-PRJ-03",
+      "title": "Không gian dự án (PRJ-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-03",
+      "oracle_source": "Claim → FR-PRJ-03; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-03",
+      "catches_bug": "Màn hình Không gian dự án (PRJ-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PRJ-03\n1. Mở route bằng menu và deep link; kiểm tên trường: Mục tiêu, Kế hoạch, Giải ngân, Vướng mắc\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Quản lý vòng đời dự án và phân cấp tổ chức hiệu lực theo thời gian\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UI-PRJ-04",
+      "title": "Hồ sơ pháp lý (PRJ-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-04",
+      "oracle_source": "Claim → FR-PRJ-04; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-04",
+      "catches_bug": "Màn hình Hồ sơ pháp lý (PRJ-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PRJ-04\n1. Mở route bằng menu và deep link; kiểm tên trường: Số quyết định, Ngày hiệu lực, Phiên bản\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Quản lý vòng đời dự án và phân cấp tổ chức hiệu lực theo thời gian\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UI-PRJ-05",
+      "title": "Cấu phần và WBS (PRJ-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-05",
+      "oracle_source": "Claim → FR-PRJ-05; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-05",
+      "catches_bug": "Màn hình Cấu phần và WBS (PRJ-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PRJ-05\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã cấu phần, Cấp cha, Giá trị\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Quản lý vòng đời dự án và phân cấp tổ chức hiệu lực theo thời gian\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UI-PRJ-06",
+      "title": "Điều chỉnh dự án (PRJ-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-06",
+      "oracle_source": "Claim → FR-PRJ-06; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-06",
+      "catches_bug": "Màn hình Điều chỉnh dự án (PRJ-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PRJ-06\n1. Mở route bằng menu và deep link; kiểm tên trường: Nội dung cũ, Nội dung mới, Căn cứ, Ngày hiệu lực\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Quản lý vòng đời dự án và phân cấp tổ chức hiệu lực theo thời gian\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UI-PRJ-07",
+      "title": "Tiến độ và mốc (PRJ-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-07",
+      "oracle_source": "Claim → FR-PRJ-07; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-07",
+      "catches_bug": "Màn hình Tiến độ và mốc (PRJ-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PRJ-07\n1. Mở route bằng menu và deep link; kiểm tên trường: Mốc, Ngày kế hoạch, Ngày thực tế, Phụ thuộc\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Quản lý vòng đời dự án và phân cấp tổ chức hiệu lực theo thời gian\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UI-PRJ-08",
+      "title": "Nhóm thực hiện (PRJ-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-08",
+      "oracle_source": "Claim → FR-PRJ-08; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-08",
+      "catches_bug": "Màn hình Nhóm thực hiện (PRJ-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PRJ-08\n1. Mở route bằng menu và deep link; kiểm tên trường: Thành viên, Vai trò, Phạm vi\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Quản lý vòng đời dự án và phân cấp tổ chức hiệu lực theo thời gian\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UI-PRJ-09",
+      "title": "Đề xuất chủ trương (PRJ-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-09",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-09",
+      "oracle_source": "Claim → FR-PRJ-09; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-09",
+      "catches_bug": "Màn hình Đề xuất chủ trương (PRJ-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PRJ-09\n1. Mở route bằng menu và deep link; kiểm tên trường: Mục tiêu, Quy mô, Nguồn vốn, Hiệu quả\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Quản lý vòng đời dự án và phân cấp tổ chức hiệu lực theo thời gian\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UI-PRJ-10",
+      "title": "Thẩm định và quyết định (PRJ-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-10",
+      "oracle_source": "Claim → FR-PRJ-10; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-10",
+      "catches_bug": "Màn hình Thẩm định và quyết định (PRJ-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PRJ-10\n1. Mở route bằng menu và deep link; kiểm tên trường: Tiêu chí, Ý kiến, Căn cứ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Quản lý vòng đời dự án và phân cấp tổ chức hiệu lực theo thời gian\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UI-PRJ-11",
+      "title": "Bàn giao tài sản (PRJ-11): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-11",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-11",
+      "oracle_source": "Claim → FR-PRJ-11; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-11",
+      "catches_bug": "Màn hình Bàn giao tài sản (PRJ-11) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PRJ-11\n1. Mở route bằng menu và deep link; kiểm tên trường: Tài sản, Đơn vị tiếp nhận, Ngày bàn giao\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Quản lý vòng đời dự án và phân cấp tổ chức hiệu lực theo thời gian\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-11",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UI-PRJ-12",
+      "title": "Quyết toán dự án (PRJ-12): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-12",
+      "oracle_source": "Claim → FR-PRJ-12; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-12 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-12",
+      "catches_bug": "Màn hình Quyết toán dự án (PRJ-12) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PRJ-12\n1. Mở route bằng menu và deep link; kiểm tên trường: Giá trị đề nghị, Giá trị phê duyệt, Chênh lệch\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Quản lý vòng đời dự án và phân cấp tổ chức hiệu lực theo thời gian\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-12",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UI-PRJ-13",
+      "title": "Theo dõi dự án tháng (PRJ-13): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-13",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-13",
+      "oracle_source": "Claim → FR-PRJ-13; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-13 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-13",
+      "catches_bug": "Màn hình Theo dõi dự án tháng (PRJ-13) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PRJ-13\n1. Mở route bằng menu và deep link; kiểm tên trường: Tháng, Dự án, Tiến độ, Vốn, Vướng mắc, Thuyết minh\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Quản lý vòng đời dự án và phân cấp tổ chức hiệu lực theo thời gian\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-13",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-AC200",
+      "title": "Lần 1: 200 status=CONCEPT, version=1, project_group=null",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-02",
+      "oracle_source": "Claim → 05_modules/PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC200 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tạo dự án\": Lần 1: 200 status=CONCEPT, version=1, project_group=null; lần 2: 409 PROJECT_CODE_DUPLICATE; TNT-B: 200 (mã trùng giữa tenant hợp lệ, không lộ dữ liệu TNT-A).",
+      "coverage_ids": [
+        "COV-FR-PRJ-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: TNT-A; A-maker có project.create trên U-BQL1; mã \"DA-2026-001\" đã tồn tại ở TNT-A, chưa có ở TNT-B.\n1. POST /projects {code:\"DA-2026-002\", name:\"Đường liên xã Synthetic 02\", owner_unit_id:U-BQL1, area_master_version_id:AREA-XA01-r1, total_investment_vnd:\"45000000000\"} (key k-200-000000001)\n2. POST /projects với code \"DA-2026-001\"\n3. B-maker tạo \"DA-2026-001\" ở TNT-B",
+      "expected": "Lần 1: 200 status=CONCEPT, version=1, project_group=null; lần 2: 409 PROJECT_CODE_DUPLICATE; TNT-B: 200 (mã trùng giữa tenant hợp lệ, không lộ dữ liệu TNT-A).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PRJ-02",
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-AC201",
+      "title": "Lần 1: 409 VERSION_CONFLICT, current_version=4",
+      "type": "RED",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-02",
+      "oracle_source": "Claim → 05_modules/PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC201 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-02, FR-PRJ-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tạo dự án\": Lần 1: 409 VERSION_CONFLICT, current_version=4; lần 2: 400 INVALID_REQUEST errors=[status: FIELD_NOT_ALLOWED, tenant_id: FIELD_NOT_ALLOWED]; lần 3: 200 version=",
+      "coverage_ids": [
+        "COV-FR-PRJ-02",
+        "COV-FR-PRJ-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-001 version=4; A-maker có project.update.\n1. POST /projects/{P-A-001}/profile {name:\"Tên mới\"} với If-Match \"3\"\n2. Cùng lệnh với If-Match \"4\" và body thêm {status:\"IMPLEMENTATION\", tenant_id:\"TNT-B\"}\n3. Cùng lệnh If-Match \"4\" chỉ có name",
+      "expected": "Lần 1: 409 VERSION_CONFLICT, current_version=4; lần 2: 400 INVALID_REQUEST errors=[status: FIELD_NOT_ALLOWED, tenant_id: FIELD_NOT_ALLOWED]; lần 3: 200 version=5, status không đổi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PRJ-02",
+      "tags": [
+        "security"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-AC202",
+      "title": "Trạng thái CONCEPT→APPRAISAL→PIPELINE",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-09",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-09",
+      "oracle_source": "Claim → 05_modules/PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC202 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-09, FR-PRJ-10, FR-PRJ-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đề xuất chủ trương\": Trạng thái CONCEPT→APPRAISAL→PIPELINE; project.appraisal_score=72.50, project_group=\"B\", policy_decision_document_id=DOC-QD-CT-01; outbox project.stage_changed ",
+      "coverage_ids": [
+        "COV-FR-PRJ-09",
+        "COV-FR-PRJ-10",
+        "COV-FR-PRJ-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-010 CONCEPT do A-maker tạo; bộ tiêu chí APPR-CRIT-2026r1 ngưỡng ADMIT=60.\n1. A-maker POST /projects/{P-A-010}/appraisal-submissions {policy_proposal_document_id:DOC-CT-01}\n2. A-reviewer POST /projects/{P-A-010}/appraisals với tổng điểm 72.50, recommendation ADMIT\n3. A-approver POST /project-appraisals/{id}/decision {decision:\"ADMIT\", decision_document_id:DOC-QD-CT-01, project_group:\"B\"}",
+      "expected": "Trạng thái CONCEPT→APPRAISAL→PIPELINE; project.appraisal_score=72.50, project_group=\"B\", policy_decision_document_id=DOC-QD-CT-01; outbox project.stage_changed 2 lần (to=APPRAISAL, to=PIPELINE); PRJ-14 hiện dự án ở cột \"Ngân hàng dự án\".",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PRJ-09",
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-AC203",
+      "title": "Lần 1: 403 SELF_APPROVAL_DENIED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-15",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-15",
+      "oracle_source": "Claim → 05_modules/PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC203 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-15",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chấm điểm thẩm định\": Lần 1: 403 SELF_APPROVAL_DENIED; lần 2: 200 recommendation=REJECT (55.00 < 60); lần 3: 422 OVERRIDE_REASON_REQUIRED; ghi override_reason ≥20 ký tự thì 200 và au",
+      "coverage_ids": [
+        "COV-FR-PRJ-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-010 APPRAISAL; A-maker là người đề xuất và có project.appraise.\n1. A-maker POST /projects/{P-A-010}/appraisals\n2. A-reviewer chấm tổng 55.00\n3. A-approver quyết định ADMIT dù recommendation REJECT, không ghi override_reason",
+      "expected": "Lần 1: 403 SELF_APPROVAL_DENIED; lần 2: 200 recommendation=REJECT (55.00 < 60); lần 3: 422 OVERRIDE_REASON_REQUIRED; ghi override_reason ≥20 ký tự thì 200 và audit có cờ override=true.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PRJ-15",
+      "tags": [
+        "security"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-AC204",
+      "title": "Lần 1: total_score = (4×30+3×25+5×20+2×15+4×10)/5 = 73",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-15",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-15",
+      "oracle_source": "Claim → 05_modules/PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC204 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-15",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chấm điểm thẩm định\": Lần 1: total_score = (4×30+3×25+5×20+2×15+4×10)/5 = 73.00 (numeric(5,2), làm tròn half-up); lần 2: 422 CRITERIA_WEIGHT_INVALID; lần 3: 422 SCORE_OUT_OF_RANGE fi",
+      "coverage_ids": [
+        "COV-FR-PRJ-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Bộ tiêu chí 5 tiêu chí trọng số 30/25/20/15/10 (tổng 100).\n1. Chấm điểm 4,3,5,2,4\n2. Chấm điểm với tổng trọng số 95 (bộ tiêu chí lỗi)\n3. Chấm điểm 6 cho tiêu chí 1",
+      "expected": "Lần 1: total_score = (4×30+3×25+5×20+2×15+4×10)/5 = 73.00 (numeric(5,2), làm tròn half-up); lần 2: 422 CRITERIA_WEIGHT_INVALID; lần 3: 422 SCORE_OUT_OF_RANGE field scores[0].score.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "PRJ-15",
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-AC205",
+      "title": "Cả hai: 409 STAGE_TRANSITION_DENIED với detail \"CONCEPT → IMPLEMENTATION không có trong bảng chuyển\"",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-14",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-14",
+      "oracle_source": "Claim → 05_modules/PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC205 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ngân hàng dự án và vòng đời PIMA\": Cả hai: 409 STAGE_TRANSITION_DENIED với detail \"CONCEPT → IMPLEMENTATION không có trong bảng chuyển\"; status vẫn CONCEPT; không outbox.",
+      "coverage_ids": [
+        "COV-FR-PRJ-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-011 CONCEPT.\n1. POST /projects/{P-A-011}/implementation-start\n2. POST /projects/{P-A-011}/closure",
+      "expected": "Cả hai: 409 STAGE_TRANSITION_DENIED với detail \"CONCEPT → IMPLEMENTATION không có trong bảng chuyển\"; status vẫn CONCEPT; không outbox.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PRJ-14",
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-AC206",
+      "title": "Lần 1: 422 NATIONAL_CODE_REQUIRED",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-21",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-21",
+      "oracle_source": "Claim → 05_modules/PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC206 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-21, FR-PRJ-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Mã dự án trên Hệ thống TTQG về ĐTC\": Lần 1: 422 NATIONAL_CODE_REQUIRED; sau gán mã: 200 status=IMPLEMENTATION; nếu rule đổi sang mode=WARN (dữ liệu rule mới có hiệu lực) thì lần 1 trả 200 kèm warni",
+      "coverage_ids": [
+        "COV-FR-PRJ-21",
+        "COV-FR-PRJ-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-012 BUDGETED, national_project_code=null; rule NATIONAL_CODE_REQUIRED mode=BLOCK [CXN-01].\n1. A-maker POST /projects/{P-A-012}/implementation-start {investment_decision_document_id:DOC-QDDT-12}\n2. POST /projects/{P-A-012}/national-code {national_project_code:\"7891234\"}\n3. Gọi lại implementation-start",
+      "expected": "Lần 1: 422 NATIONAL_CODE_REQUIRED; sau gán mã: 200 status=IMPLEMENTATION; nếu rule đổi sang mode=WARN (dữ liệu rule mới có hiệu lực) thì lần 1 trả 200 kèm warnings[0].code=NATIONAL_CODE_MISSING.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PRJ-14",
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-AC207",
+      "title": "Dry-run: dòng 2 lỗi NATIONAL_CODE_DUPLICATE, 0 thay đổi",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-21",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-21",
+      "oracle_source": "Claim → 05_modules/PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC207 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-21",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Mã dự án trên Hệ thống TTQG về ĐTC\": Dry-run: dòng 2 lỗi NATIONAL_CODE_DUPLICATE, 0 thay đổi; apply: 3 dự án nhận mã, audit 3 dòng; apply lại: 409 IMPORT_FILE_ALREADY_APPLIED (khóa tenant+sha256).",
+      "coverage_ids": [
+        "COV-FR-PRJ-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tệp national_codes.csv (sha256=…07) 3 dòng: P-A-001→\"7000001\", P-A-002→\"7000001\", P-A-003→\"7000003\".\n1. POST /project-national-code-imports (dry_run=true)\n2. Sửa dòng 2 thành \"7000002\", tải lại, apply\n3. Apply lại cùng tệp đã APPLIED với key mới",
+      "expected": "Dry-run: dòng 2 lỗi NATIONAL_CODE_DUPLICATE, 0 thay đổi; apply: 3 dự án nhận mã, audit 3 dòng; apply lại: 409 IMPORT_FILE_ALREADY_APPLIED (khóa tenant+sha256).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "PRJ-21",
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-AC208",
+      "title": "Lần 1: 422 PROJECT_GROUP_REQUIRED",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-02",
+      "oracle_source": "Claim → 05_modules/PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC208 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-02, FR-PRJ-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tạo dự án\": Lần 1: 422 PROJECT_GROUP_REQUIRED; lần 2: 422 VALIDATION_FAILED field project_group; lần 3: 200, CHECK project_group_required_chk thỏa.",
+      "coverage_ids": [
+        "COV-FR-PRJ-02",
+        "COV-FR-PRJ-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-013 APPRAISAL chưa có nhóm.\n1. Quyết định ADMIT không có project_group\n2. Quyết định ADMIT với project_group \"D\"\n3. Quyết định ADMIT với project_group \"QTQG\"",
+      "expected": "Lần 1: 422 PROJECT_GROUP_REQUIRED; lần 2: 422 VALIDATION_FAILED field project_group; lần 3: 200, CHECK project_group_required_chk thỏa.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PRJ-02",
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-AC209",
+      "title": "Risk score=20 (cột GENERATED), severity CRITICAL (≥15) → cảnh báo PROJECT_RISK_CRITICAL xuất hiện ở HOME-03 cho người có",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-16",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-16",
+      "oracle_source": "Claim → 05_modules/PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC209 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-16",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sổ đăng ký rủi ro dự án\": Risk score=20 (cột GENERATED), severity CRITICAL (≥15) → cảnh báo PROJECT_RISK_CRITICAL xuất hiện ở HOME-03 cho người có scope; đóng không lý do: 422 VALIDATION",
+      "coverage_ids": [
+        "COV-FR-PRJ-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-001 IMPLEMENTATION; A-maker có project.risk.manage.\n1. POST /projects/{P-A-001}/risks {code:\"R-01\", likelihood:4, impact:5, category:\"GPMB\", owner:A-leader, due_date:\"2026-11-15\"}\n2. Mở HOME-03\n3. POST /project-risks/{id}/closure không có closed_reason",
+      "expected": "Risk score=20 (cột GENERATED), severity CRITICAL (≥15) → cảnh báo PROJECT_RISK_CRITICAL xuất hiện ở HOME-03 cho người có scope; đóng không lý do: 422 VALIDATION_FAILED field closed_reason.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PRJ-16",
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-AC210",
+      "title": "Bước 1: 409 LEADER_ALREADY_ASSIGNED (unique partial)",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-17",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-17",
+      "oracle_source": "Claim → 05_modules/PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC210 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-17",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Phân công lãnh đạo phụ trách\": Bước 1: 409 LEADER_ALREADY_ASSIGNED (unique partial); bước 2: 200 status=ENDED; bước 3: 200; lịch sử PRJ-17 hiển thị 2 dòng không chồng hiệu lực; DIS-24 cột lãn",
+      "coverage_ids": [
+        "COV-FR-PRJ-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-001 có A-leader LEADER_IN_CHARGE ACTIVE từ 2026-01-01.\n1. POST /projects/{P-A-001}/accountability-assignments {leader_membership_id:A-leader2, role:\"LEADER_IN_CHARGE\", valid_from:\"2026-10-01\"}\n2. POST /accountability-assignments/{cũ}/end {valid_until:\"2026-09-30\", end_reason:\"Điều động công tác\"}\n3. Lặp lại bước 1",
+      "expected": "Bước 1: 409 LEADER_ALREADY_ASSIGNED (unique partial); bước 2: 200 status=ENDED; bước 3: 200; lịch sử PRJ-17 hiển thị 2 dòng không chồng hiệu lực; DIS-24 cột lãnh đạo hiện A-leader2 từ 2026-10-01.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PRJ-17",
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-AC211",
+      "title": "Bước 1: 422 MEMBER_OUT_OF_SCOPE",
+      "type": "RED",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-18",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-18",
+      "oracle_source": "Claim → 05_modules/PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC211 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-18",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tổ công tác đôn đốc giải ngân\": Bước 1: 422 MEMBER_OUT_OF_SCOPE; bước 2: 404 RESOURCE_NOT_FOUND (không lộ tồn tại); bước 3: 200 TF-01 DISSOLVED và mọi thành viên có valid_until = ngày giải thể",
+      "coverage_ids": [
+        "COV-FR-PRJ-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tổ TF-01 phạm vi U-BQL1; A-outsider chỉ có membership ở U-XA01 (ngoài phạm vi); B-maker ở tenant TNT-B.\n1. POST /task-forces/{TF-01}/members {membership_id:A-outsider}\n2. POST /task-forces/{TF-01}/members {membership_id:B-maker}\n3. POST /task-forces/{TF-01}/dissolution {reason:\"Hoàn thành nhiệm vụ\"}",
+      "expected": "Bước 1: 422 MEMBER_OUT_OF_SCOPE; bước 2: 404 RESOURCE_NOT_FOUND (không lộ tồn tại); bước 3: 200 TF-01 DISSOLVED và mọi thành viên có valid_until = ngày giải thể trong cùng transaction.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PRJ-18",
+      "tags": [
+        "security"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-AC212",
+      "title": "Warning chuyển EXPLANATION_REQUESTED",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-19",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-19",
+      "oracle_source": "Claim → 05_modules/PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC212 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-19",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Yêu cầu và phản hồi giải trình\": Warning chuyển EXPLANATION_REQUESTED; sau hạn status=OVERDUE; phản hồi vẫn nhận, is_late=true, status RESPONDED; A-maker tự kết luận: 403 SELF_APPROVAL_DENIED; ",
+      "coverage_ids": [
+        "COV-FR-PRJ-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Cảnh báo EW-01 OPEN cho P-A-002 kỳ W2026-40; A-leader có explanation.request.\n1. A-leader POST /explanation-requests {subject_kind:\"PROJECT\", project_id:P-A-002, warning_id:EW, question:\"Lý do chậm giải ngân\", requested_from:A-maker, due_at:\"2026-10-09T10:00:00Z\"}\n2. Clock = 2026-10-10; job OVERDUE chạy\n3. A-maker POST /explanation-requests/{id}/response\n4. A-maker tự kết luận; rồi A-leader kết luận ACCEPTED",
+      "expected": "Warning chuyển EXPLANATION_REQUESTED; sau hạn status=OVERDUE; phản hồi vẫn nhận, is_late=true, status RESPONDED; A-maker tự kết luận: 403 SELF_APPROVAL_DENIED; A-leader: ACCEPTED và warning RESOLVED với resolution_reason trỏ explanation id.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PRJ-19",
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-AC213",
+      "title": "Tự duyệt: 403 SELF_APPROVAL_DENIED",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-20",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-20",
+      "oracle_source": "Claim → 05_modules/PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC213 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-20",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chuyển dự án giữa đơn vị\": Tự duyệt: 403 SELF_APPROVAL_DENIED; duyệt: APPLIED, project.owner_unit_id=U-BQL2, version+1, outbox project.transferred; DIS-12 W38 tính cho U-BQL1, W41 cho U-B",
+      "coverage_ids": [
+        "COV-FR-PRJ-20"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-003 owner_unit=U-BQL1; báo cáo R-W38 ACCEPTED trước chuyển; A-maker đề nghị, A-approver duyệt.\n1. POST /projects/{P-A-003}/transfers {to_unit_id:U-BQL2, transfer_scope:\"OWNER_UNIT\", effective_date:\"2026-10-01\", reason:\"Sắp xếp Ban QLDA\"}\n2. A-maker tự duyệt\n3. A-approver duyệt; đọc DIS-12 kỳ W38 và W41\n4. Đề nghị chuyển sang unit id thuộc TNT-B",
+      "expected": "Tự duyệt: 403 SELF_APPROVAL_DENIED; duyệt: APPLIED, project.owner_unit_id=U-BQL2, version+1, outbox project.transferred; DIS-12 W38 tính cho U-BQL1, W41 cho U-BQL2; unit ngoài tenant: 404 RESOURCE_NOT_FOUND.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PRJ-20",
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-AC214",
+      "title": "Bước 2: 422 DECISION_REQUIRED",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-06",
+      "oracle_source": "Claim → 05_modules/PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC214 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Điều chỉnh dự án\": Bước 2: 422 DECISION_REQUIRED; bước 3: revision 2 APPROVED, revision 1 SUPERSEDED (vẫn đọc được), project.total_investment_vnd=52000000000 từ 2026-10-15; PRJ-06",
+      "coverage_ids": [
+        "COV-FR-PRJ-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-001 total_investment_vnd=45000000000 theo revision 1 APPROVED.\n1. POST /projects/{P-A-001}/revisions {change_kind:\"ADJUST_INVESTMENT\", total_investment_vnd:\"52000000000\", reason:\"Điều chỉnh giá\"}\n2. Quyết định approve không có decision_document_id\n3. Approve với DOC-QD-DC-01, effective_from 2026-10-15",
+      "expected": "Bước 2: 422 DECISION_REQUIRED; bước 3: revision 2 APPROVED, revision 1 SUPERSEDED (vẫn đọc được), project.total_investment_vnd=52000000000 từ 2026-10-15; PRJ-06 hiển thị trước/sau và căn cứ.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PRJ-06",
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-AC215",
+      "title": "409 OPEN_OBLIGATIONS_EXIST, detail liệt kê loại nghĩa vụ (allocation committed 500000000) không lộ dữ liệu ngoài scope",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-14",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-14",
+      "oracle_source": "Claim → 05_modules/PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC215 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ngân hàng dự án và vòng đời PIMA\": 409 OPEN_OBLIGATIONS_EXIST, detail liệt kê loại nghĩa vụ (allocation committed 500000000) không lộ dữ liệu ngoài scope; status giữ BUDGETED.",
+      "coverage_ids": [
+        "COV-FR-PRJ-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-004 BUDGETED có allocation_balance allocated=2000000000, committed=500000000.\n1. POST /projects/{P-A-004}/cancellation {reason:\"Không còn phù hợp quy hoạch\", decision_document_id:DOC-HUY-04}",
+      "expected": "409 OPEN_OBLIGATIONS_EXIST, detail liệt kê loại nghĩa vụ (allocation committed 500000000) không lộ dữ liệu ngoài scope; status giữ BUDGETED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PRJ-14",
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-AC216",
+      "title": "Lần 1: 409 STAGE_TRANSITION_DENIED (cần SETTLED)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-12",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-12",
+      "oracle_source": "Claim → 05_modules/PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC216 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-12, FR-PRJ-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Quyết toán dự án\": Lần 1: 409 STAGE_TRANSITION_DENIED (cần SETTLED); event lần 1 chuyển SETTLED, lần 2 bị inbox dedupe (không đổi version); closure: 200 CLOSED.",
+      "coverage_ids": [
+        "COV-FR-PRJ-12",
+        "COV-FR-PRJ-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-005 COMPLETED; settlement_revision chưa đóng.\n1. POST /projects/{P-A-005}/closure\n2. Phát event settlement.closed (CTR/PAY) cho P-A-005 hai lần cùng event_id\n3. Gọi lại closure",
+      "expected": "Lần 1: 409 STAGE_TRANSITION_DENIED (cần SETTLED); event lần 1 chuyển SETTLED, lần 2 bị inbox dedupe (không đổi version); closure: 200 CLOSED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "PRJ-12",
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-AC217",
+      "title": "Cả ba: 404 RESOURCE_NOT_FOUND (không 403, không lộ tồn tại)",
+      "type": "RED",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-01",
+      "oracle_source": "Claim → 05_modules/PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC217 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh sách dự án\": Cả ba: 404 RESOURCE_NOT_FOUND (không 403, không lộ tồn tại); RLS log không trả dòng; danh sách chỉ có dự án TNT-B.",
+      "coverage_ids": [
+        "COV-FR-PRJ-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-001 thuộc TNT-A; B-maker đăng nhập TNT-B có project.read.\n1. B-maker GET /resources/project/{P-A-001}\n2. B-maker GET /resources/project?cursor=… với header X-Tenant-ID: TNT-A\n3. B-maker POST /projects/{P-A-001}/risks",
+      "expected": "Cả ba: 404 RESOURCE_NOT_FOUND (không 403, không lộ tồn tại); RLS log không trả dòng; danh sách chỉ có dự án TNT-B.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PRJ-01",
+      "tags": [
+        "security"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-AC218",
+      "title": "C3: 200 kèm warnings[0]",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-05",
+      "oracle_source": "Claim → 05_modules/PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC218 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-05, FR-PRJ-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Cấu phần và WBS\": C3: 200 kèm warnings[0].code=WBS_EXCEEDS_TOTAL (48 > 45 tỷ) không chặn; M-KC trễ 15 ngày hiển thị DELAYED trên PRJ-07; M-HT: 422 VALIDATION_FAILED field actual_",
+      "coverage_ids": [
+        "COV-FR-PRJ-05",
+        "COV-FR-PRJ-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-001 total_investment 45 tỷ; WBS C1=30 tỷ, C2=10 tỷ.\n1. Thêm component C3=8 tỷ\n2. Ghi actual_date cho mốc M-KC (khởi công) = 2026-03-02, baseline 2026-02-15\n3. Đánh dấu M-HT DONE không có actual_date",
+      "expected": "C3: 200 kèm warnings[0].code=WBS_EXCEEDS_TOTAL (48 > 45 tỷ) không chặn; M-KC trễ 15 ngày hiển thị DELAYED trên PRJ-07; M-HT: 422 VALIDATION_FAILED field actual_date.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PRJ-05",
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-AC219",
+      "title": "Publish thành công",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-PRJ-14",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-14",
+      "oracle_source": "Claim → 05_modules/PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC219 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-14, FR-CAP-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ngân hàng dự án và vòng đời PIMA\": Publish thành công; consumer capital.plan_published chuyển P-A-006 PIPELINE→BUDGETED (system actor), outbox project.stage_changed; dự án PIPELINE không có dòng ",
+      "coverage_ids": [
+        "COV-FR-PRJ-14",
+        "COV-FR-CAP-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-006 PIPELINE có national code; CP-2026r3 có dòng 1 tỷ cho P-A-006 đang APPROVED.\n1. A-approver POST /plans/{CP-2026r3}/publish {decision_document_id:DOC-KH-03}\n2. Đọc P-A-006",
+      "expected": "Publish thành công; consumer capital.plan_published chuyển P-A-006 PIPELINE→BUDGETED (system actor), outbox project.stage_changed; dự án PIPELINE không có dòng vốn giữ nguyên PIPELINE.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "CAP-10",
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UI-PRJ-14",
+      "title": "Ngân hàng dự án và vòng đời PIMA (PRJ-14): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-14",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-14",
+      "oracle_source": "Claim → FR-PRJ-14; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-14 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-14",
+      "catches_bug": "Màn hình Ngân hàng dự án và vòng đời PIMA (PRJ-14) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Ngân hàng dự án và vòng đời PIMA; user có quyền và user chỉ đọc; route PRJ-14\n1. Mở PRJ-14 từ menu và deep link; kiểm nhãn trường: Giai đoạn PIMA, Nhóm dự án, Điểm thẩm định, Mã dự án TTQG, Sẵn sàng bố trí vốn, Lãnh đạo phụ trách\n2. Thực hiện thao tác chính theo quy tắc: Chuyển giai đoạn chỉ qua command có guard (bảng transition), căn cứ quyết định và người duyệt khác người đề xuất\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-14",
+      "expected": "Ngân hàng dự án và vòng đời PIMA: hiển thị đúng 6 trường, áp quy tắc \"Chuyển giai đoạn chỉ qua command có guard (bảng transition), căn cứ quyết định và người duyệt khác người đề xuất\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-14",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UI-PRJ-15",
+      "title": "Chấm điểm thẩm định (PRJ-15): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-15",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-15",
+      "oracle_source": "Claim → FR-PRJ-15; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-15 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-15",
+      "catches_bug": "Màn hình Chấm điểm thẩm định (PRJ-15) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Chấm điểm thẩm định; user có quyền và user chỉ đọc; route PRJ-15\n1. Mở PRJ-15 từ menu và deep link; kiểm nhãn trường: Bộ tiêu chí, Trọng số, Điểm 0–5, Bằng chứng, Tổng điểm, Khuyến nghị\n2. Thực hiện thao tác chính theo quy tắc: Tổng điểm = Σ(điểm × trọng số)/5, làm tròn 2 chữ số; người thẩm định khác người đề xuất; ngưỡng vào ngân hàng dự án là dữ liệu có hiệu lực\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-15",
+      "expected": "Chấm điểm thẩm định: hiển thị đúng 6 trường, áp quy tắc \"Tổng điểm = Σ(điểm × trọng số)/5, làm tròn 2 chữ số; người thẩm định khác người đề xuất; ngưỡng vào ngân hàng dự án là dữ liệu có hiệu lực\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-15",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UI-PRJ-16",
+      "title": "Sổ đăng ký rủi ro dự án (PRJ-16): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-16",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-16",
+      "oracle_source": "Claim → FR-PRJ-16; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-16 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-16",
+      "catches_bug": "Màn hình Sổ đăng ký rủi ro dự án (PRJ-16) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Sổ đăng ký rủi ro dự án; user có quyền và user chỉ đọc; route PRJ-16\n1. Mở PRJ-16 từ menu và deep link; kiểm nhãn trường: Mã rủi ro, Nhóm, Khả năng, Tác động, Điểm, Người phụ trách, Biện pháp, Hạn\n2. Thực hiện thao tác chính theo quy tắc: Điểm = khả năng × tác động (1–25); điểm ≥15 là CRITICAL và sinh cảnh báo HOME-03; đóng rủi ro phải có lý do\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-16",
+      "expected": "Sổ đăng ký rủi ro dự án: hiển thị đúng 8 trường, áp quy tắc \"Điểm = khả năng × tác động (1–25); điểm ≥15 là CRITICAL và sinh cảnh báo HOME-03; đóng rủi ro phải có lý do\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-16",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UI-PRJ-17",
+      "title": "Phân công lãnh đạo phụ trách (PRJ-17): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-17",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-17",
+      "oracle_source": "Claim → FR-PRJ-17; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-17 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-17",
+      "catches_bug": "Màn hình Phân công lãnh đạo phụ trách (PRJ-17) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Phân công lãnh đạo phụ trách; user có quyền và user chỉ đọc; route PRJ-17\n1. Mở PRJ-17 từ menu và deep link; kiểm nhãn trường: Dự án, Lãnh đạo phụ trách, Vai trò trách nhiệm, Văn bản phân công, Hiệu lực\n2. Thực hiện thao tác chính theo quy tắc: Mỗi dự án tối đa một LEADER_IN_CHARGE ACTIVE; kết thúc phân công phải có ngày và lý do; lịch sử không bị ghi đè\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-17",
+      "expected": "Phân công lãnh đạo phụ trách: hiển thị đúng 5 trường, áp quy tắc \"Mỗi dự án tối đa một LEADER_IN_CHARGE ACTIVE; kết thúc phân công phải có ngày và lý do; lịch sử không bị ghi đè\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-17",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UI-PRJ-18",
+      "title": "Tổ công tác đôn đốc giải ngân (PRJ-18): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-18",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-18",
+      "oracle_source": "Claim → FR-PRJ-18; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-18 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-18",
+      "catches_bug": "Màn hình Tổ công tác đôn đốc giải ngân (PRJ-18) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Tổ công tác đôn đốc giải ngân; user có quyền và user chỉ đọc; route PRJ-18\n1. Mở PRJ-18 từ menu và deep link; kiểm nhãn trường: Mã tổ, Trưởng tổ, Phạm vi đơn vị, Thành viên, Dự án theo dõi, Quyết định thành lập\n2. Thực hiện thao tác chính theo quy tắc: Thành viên phải có membership trong tenant và scope giao với phạm vi tổ; giải thể tổ kết thúc mọi thành viên cùng transaction\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-18",
+      "expected": "Tổ công tác đôn đốc giải ngân: hiển thị đúng 6 trường, áp quy tắc \"Thành viên phải có membership trong tenant và scope giao với phạm vi tổ; giải thể tổ kết thúc mọi thành viên cùng transaction\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-18",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UI-PRJ-19",
+      "title": "Yêu cầu và phản hồi giải trình (PRJ-19): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-19",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-19",
+      "oracle_source": "Claim → FR-PRJ-19; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-19 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-19",
+      "catches_bug": "Màn hình Yêu cầu và phản hồi giải trình (PRJ-19) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Yêu cầu và phản hồi giải trình; user có quyền và user chỉ đọc; route PRJ-19\n1. Mở PRJ-19 từ menu và deep link; kiểm nhãn trường: Đối tượng, Căn cứ yêu cầu, Câu hỏi, Hạn, Nội dung giải trình, Tệp, Kết luận\n2. Thực hiện thao tác chính theo quy tắc: Giải trình gắn cảnh báo/kỳ; quá hạn chuyển OVERDUE nhưng vẫn nhận phản hồi có cờ trễ; người kết luận khác người phản hồi\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-19",
+      "expected": "Yêu cầu và phản hồi giải trình: hiển thị đúng 7 trường, áp quy tắc \"Giải trình gắn cảnh báo/kỳ; quá hạn chuyển OVERDUE nhưng vẫn nhận phản hồi có cờ trễ; người kết luận khác người phản hồi\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-19",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UI-PRJ-20",
+      "title": "Chuyển dự án giữa đơn vị (PRJ-20): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-20",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-20",
+      "oracle_source": "Claim → FR-PRJ-20; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-20 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-20",
+      "catches_bug": "Màn hình Chuyển dự án giữa đơn vị (PRJ-20) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-20"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Chuyển dự án giữa đơn vị; user có quyền và user chỉ đọc; route PRJ-20\n1. Mở PRJ-20 từ menu và deep link; kiểm nhãn trường: Dự án, Đơn vị hiện tại, Đơn vị nhận, Phạm vi chuyển, Ngày hiệu lực, Căn cứ\n2. Thực hiện thao tác chính theo quy tắc: Chỉ chuyển trong cùng tenant; báo cáo trước ngày hiệu lực giữ đơn vị cũ; người duyệt khác người đề nghị\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-20",
+      "expected": "Chuyển dự án giữa đơn vị: hiển thị đúng 6 trường, áp quy tắc \"Chỉ chuyển trong cùng tenant; báo cáo trước ngày hiệu lực giữ đơn vị cũ; người duyệt khác người đề nghị\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-20",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UI-PRJ-21",
+      "title": "Mã dự án trên Hệ thống TTQG về ĐTC (PRJ-21): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-PRJ-21",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-21",
+      "oracle_source": "Claim → FR-PRJ-21; kỳ vọng nguyên văn của ca thiết kế UI-PRJ-21 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-21",
+      "catches_bug": "Màn hình Mã dự án trên Hệ thống TTQG về ĐTC (PRJ-21) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PRJ-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Mã dự án trên Hệ thống TTQG về ĐTC; user có quyền và user chỉ đọc; route PRJ-21\n1. Mở PRJ-21 từ menu và deep link; kiểm nhãn trường: Mã nội bộ, Mã TTQG, Trạng thái đối chiếu, Tệp nhập, Dòng lỗi\n2. Thực hiện thao tác chính theo quy tắc: Mã TTQG duy nhất trong tenant; nhập bằng tệp có hash chống nạp lại; dự án có vốn mà thiếu mã bị chặn theo quy tắc dữ liệu [CXN-01]\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên PRJ-21",
+      "expected": "Mã dự án trên Hệ thống TTQG về ĐTC: hiển thị đúng 5 trường, áp quy tắc \"Mã TTQG duy nhất trong tenant; nhập bằng tệp có hash chống nạp lại; dự án có vốn mà thiếu mã bị chặn theo quy tắc dữ liệu [CXN-01]\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PRJ-21",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-57",
+      "title": "409 REVISION_PENDING_EXISTS and only R2 is PENDING",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-prj",
+      "journey_ref": "J-FR-PRJ-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-06",
+      "oracle_source": "Claim → PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-57 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Điều chỉnh dự án\": 409 REVISION_PENDING_EXISTS and only R2 is PENDING.",
+      "coverage_ids": [
+        "COV-FR-PRJ-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-prj",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Project P-A-001 with a revision R2 in PENDING.\n1. Propose another revision R3\n2. Read the revisions",
+      "expected": "409 REVISION_PENDING_EXISTS and only R2 is PENDING.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "PRJ"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-58",
+      "title": "409 DEPENDENCY_CYCLE and the dependency list is unchanged (2 links)",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-prj",
+      "journey_ref": "J-FR-PRJ-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PRJ-07",
+      "oracle_source": "Claim → PRJ.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-58 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PRJ-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tiến độ và mốc\": 409 DEPENDENCY_CYCLE and the dependency list is unchanged (2 links).",
+      "coverage_ids": [
+        "COV-FR-PRJ-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-prj",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Milestones M1 -> M2 -> M3 already linked.\n1. Save the dependency M3 -> M1\n2. Read the dependencies",
+      "expected": "409 DEPENDENCY_CYCLE and the dependency list is unchanged (2 links).",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "PRJ"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 22,
+    "M2": 0,
+    "M3": 0,
+    "M4": 80,
+    "max": 80,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 22,
+    "covered": 22,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

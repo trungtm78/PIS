@@ -1,0 +1,979 @@
+{
+  "feature": "qms",
+  "generated_at": "2026-11-05T07:53:18.074Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/qms/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UAT-AC62",
+      "title": "hai thiết bị sync cùng nhật ký không nhân đôi",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+      "journey_ref": "J-FR-QMS-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-09",
+      "oracle_source": "Claim → FRD AC62; kỳ vọng nguyên văn của ca thiết kế UAT-AC62 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-09, FR-QMS-02, FR-CTR-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nhật ký thi công ngoại tuyến trên điện thoại\": hai thiết bị sync cùng nhật ký không nhân đôi; conflict không ghi đè silent. Cụ thể: D1: 200 tạo bản chính. D2: 409 DIARY_SYNC_CONFLICT và lưu bản xung đột (con",
+      "coverage_ids": [
+        "COV-FR-QMS-09",
+        "COV-FR-QMS-02",
+        "COV-FR-CTR-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-phan-cong-nguoi-duyet-theo-tham-quyen",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Thiết bị D1 (u.nt) và D2 (u.gs hỗ trợ, cùng hợp đồng) ngoại tuyến cùng soạn nhật ký HD-A-001 ngày 2026-06-10; D1 client_operation_id=OP-D1-001 nội dung công việc \"Đào đất B01: 120 m3\", nhân lực 25; D2 client_operation_id=OP-D2-001 nội dung \"Đào đất B01: 150 m3\", nhân lực 30; base_server_version=0 cả hai.\nĐầu vào: D1 đồng bộ trước; D2 đồng bộ sau; D1 gửi lại OP-D1-001; resolveDiaryConflict.\n1. D1 gọi saveSiteDiaryDraft.\n2. D2 gọi saveSiteDiaryDraft (cùng contract_id + record_date).\n3. D1 gửi lại OP-D1-001.\n4. Đọc site_diary theo hợp đồng + ngày.\n5. u.cv.hd gọi resolveDiaryConflict chọn MERGED với nội dung 150 m3 kèm ghi chú.",
+      "expected": "hai thiết bị sync cùng nhật ký không nhân đôi; conflict không ghi đè silent. Cụ thể: D1: 200 tạo bản chính. D2: 409 DIARY_SYNC_CONFLICT và lưu bản xung đột (conflict_of_id = bản chính, conflict_state=CONFLICT_PENDING) — không ghi đè bản chính (nội dung vẫn 120 m3). Gửi lại OP-D1-001: trả lại đúng bản chính, tổng bản ghi không tăng. Truy vấn theo hợp đồng+ngày: 1 bản chính + 1 bản xung đột (unique site_diary_day_uq không vi phạm). Sau resolve: bản chính version tăng, nội dung theo kết quả đã chọn, bản xung đột RESOLVED, không mất nội dung của D2 (lưu trong issue_event/audit).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CTR-09",
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UAT-AC356",
+      "title": "Bước 1: status CONTRACTOR_SIGNED, content_hash = SHA-256(content) khớp signed_content_hash",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-02",
+      "oracle_source": "Claim → Thiết kế M1 QMS.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC356 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-02, FR-QMS-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Lập và ký nhật ký ngày\": Bước 1: status CONTRACTOR_SIGNED, content_hash = SHA-256(content) khớp signed_content_hash. Bước 2: 409 DIARY_STATE_INVALID. Bước 3: SUPERVISED, supervisor_rema",
+      "coverage_ids": [
+        "COV-FR-QMS-02",
+        "COV-FR-QMS-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Nhật ký D-A-0610 DRAFT ngày 2026-06-10 HD-A-001; u.nt ký nhà thầu, u.gs là giám sát, u.cv.hd đại diện chủ đầu tư.\nĐầu vào: signSiteDiaryByContractor; sửa nội dung sau ký; addSupervisorRemark; confirmSiteDiaryByOwner; lockSiteDiary; correctSiteDiary.\n1. u.nt ký (IN_APP_OTP); đọc content_hash và qms_signature.\n2. u.nt gọi reviseSiteDiaryDraft sau khi ký.\n3. u.gs ghi ý kiến + ký.\n4. u.cv.hd xác nhận; lock.\n5. u.nt gọi correctSiteDiary với lý do; đọc site_diary.",
+      "expected": "Bước 1: status CONTRACTOR_SIGNED, content_hash = SHA-256(content) khớp signed_content_hash. Bước 2: 409 DIARY_STATE_INVALID. Bước 3: SUPERVISED, supervisor_remark lưu. Bước 4: OWNER_CONFIRMED rồi LOCKED (locked_at ≠ NULL). Bước 5: tạo bản điều chỉnh mới correction_of_id = bản gốc, correction_reason lưu, bản gốc giữ nguyên nội dung và chữ ký (không bị sửa); mỗi chữ ký ghi vào qms_signature bất biến.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "QMS-02",
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UAT-AC357",
+      "title": "Bước 1: 422 SIGNATURE_METHOD_NOT_ACCEPTED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-02",
+      "oracle_source": "Claim → Thiết kế M1 QMS.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC357 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Lập và ký nhật ký ngày\": Bước 1: 422 SIGNATURE_METHOD_NOT_ACCEPTED. Bước 2: legal_effect=LEGAL_E_SIGNATURE, cert_serial=SN-0099. Bước 3: legal_effect=INTERNAL_RECORD (hiển thị \"xác nhận",
+      "coverage_ids": [
+        "COV-FR-QMS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Rule QMS.SIGNATURE fixture: chấp nhận IN_APP_OTP/IN_APP_WEBAUTHN như xác nhận nội bộ; DIGITAL_CERT là chữ ký số hợp lệ [CXN-EXE-05 chưa xác nhận]; nhật ký D-A-0611 DRAFT.\nĐầu vào: signSiteDiaryByContractor với DIGITAL_CERT không cert_serial; với cert_serial=SN-0099; với IN_APP_OTP; chèn trực tiếp qms_signature method=DIGITAL_CERT legal_effect=INTERNAL_RECORD.\n1. Ký với DIGITAL_CERT thiếu cert_serial.\n2. Ký với DIGITAL_CERT cert_serial=SN-0099.\n3. Ký D-A-0612 với IN_APP_OTP.\n4. INSERT trực tiếp bản ghi sai hiệu lực.",
+      "expected": "Bước 1: 422 SIGNATURE_METHOD_NOT_ACCEPTED. Bước 2: legal_effect=LEGAL_E_SIGNATURE, cert_serial=SN-0099. Bước 3: legal_effect=INTERNAL_RECORD (hiển thị \"xác nhận nội bộ\", không khẳng định chữ ký số). Bước 4: lỗi CHECK qms_signature_effect_chk. Màn hình QMS-02 hiển thị nhãn phân biệt hai loại.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "QMS-02",
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UAT-AC358",
+      "title": "Lần 2 và 3 trả lại kết quả của lần 1 theo từng mục (accepted)",
+      "type": "INTEGRATION",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-09",
+      "oracle_source": "Claim → Thiết kế M1 QMS.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC358 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nhật ký thi công ngoại tuyến trên điện thoại\": Lần 2 và 3 trả lại kết quả của lần 1 theo từng mục (accepted); chỉ có 1 site_diary cho ngày 2026-06-11, 1 qms_signature, 1 outbox qms.site_diary.contractor_sign",
+      "coverage_ids": [
+        "COV-FR-QMS-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Thiết bị D1 có hàng đợi lệnh: OP-D1-010 (saveSiteDiaryDraft ngày 2026-06-11), OP-D1-011 (contractor-sign); mạng đứt giữa chừng.\nĐầu vào: Đồng bộ batch 3 lần với mạng chập chờn; sau lần 2 server đã commit nhưng ứng dụng không nhận phản hồi.\n1. Gửi batch lần 1 (thành công nhưng mất phản hồi).\n2. Gửi lại cả batch với cùng client_operation_id.\n3. Gửi lại lần 3.\n4. Đếm site_diary, qms_signature và outbox.",
+      "expected": "Lần 2 và 3 trả lại kết quả của lần 1 theo từng mục (accepted); chỉ có 1 site_diary cho ngày 2026-06-11, 1 qms_signature, 1 outbox qms.site_diary.contractor_signed.v1. Không mục nào bị đánh dấu conflict.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "QMS-09",
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UAT-AC359",
+      "title": "P1: OK/INSIDE/UNIQUE/CONSISTENT → PASS",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-08",
+      "oracle_source": "Claim → Thiết kế M1 QMS.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC359 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-08, FR-QMS-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kho ảnh hiện trường có định vị\": P1: OK/INSIDE/UNIQUE/CONSISTENT → PASS. P2: SKEW → WARN (lệch > 24 giờ). P3: OUTSIDE → WARN. P4: LOW_ACCURACY → WARN. P5: MISSING/STRIPPED → WARN. P6: DUPLICATE",
+      "coverage_ids": [
+        "COV-FR-QMS-08",
+        "COV-FR-QMS-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Vùng công trường PRJ-A-001 đoạn km0 tâm (10.800000, 106.700000) bán kính 500 m [GIẢ ĐỊNH ngưỡng]; ngưỡng lệch thời gian 24 giờ; ngưỡng độ chính xác GPS 50 m; nhật ký ngày 2026-06-10; ảnh P1..P6 như mô tả bên dưới.\nĐầu vào: registerSitePhoto cho: P1 EXIF 2026-06-10 08:15, GPS (10.8002,106.7003) accuracy 8 m, nhận 2026-06-10 17:00; P2 EXIF 2026-06-05; P3 GPS (10.9000,106.8000); P4 accuracy 120 m; P5 không EXIF; P6 trùng SHA-256 với P1.\n1. Đăng ký P1..P6 (geo_consent=true).\n2. Đọc check_time, check_geofence, check_duplicate, check_exif, check_summary từng ảnh.\n3. Đăng ký P1 lần 2 với cùng client_operation_id.\n4. Đăng ký P7 có GPS nhưng geo_consent=false.",
+      "expected": "P1: OK/INSIDE/UNIQUE/CONSISTENT → PASS. P2: SKEW → WARN (lệch > 24 giờ). P3: OUTSIDE → WARN. P4: LOW_ACCURACY → WARN. P5: MISSING/STRIPPED → WARN. P6: DUPLICATE_SAME_SITE → WARN. Không ảnh nào bị gán nhãn \"xác thực/giả mạo\" — chỉ là cờ rà soát. Đăng ký lại cùng client_operation_id trả ảnh cũ (không nhân đôi). P7: 422 GEO_CONSENT_REQUIRED hoặc lưu không có tọa độ theo gps_source=NONE.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "QMS-08",
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UAT-AC360",
+      "title": "required_roles lưu [CONTRACTOR, SUPERVISOR, OWNER] (ảnh chụp rule REG-FIX-1)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-04",
+      "oracle_source": "Claim → Thiết kế M1 QMS.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC360 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-04, FR-QMS-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đề nghị kiểm tra, nghiệm thu\": required_roles lưu [CONTRACTOR, SUPERVISOR, OWNER] (ảnh chụp rule REG-FIX-1). Thiếu OWNER: 422 SIGNATURES_INCOMPLETE. Sau đủ ba chữ ký: APPROVED, outbox qms.qua",
+      "coverage_ids": [
+        "COV-FR-QMS-04",
+        "COV-FR-QMS-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). HD-A-001 ACTIVE; rule QMS.REGIME fixture REG-FIX-1 yêu cầu ký: CONTRACTOR, SUPERVISOR, OWNER; inspection INS-A-001 loại CONCEALED_WORK B02 đã SCHEDULED.\nĐầu vào: recordInspectionResult PASS; createQualityAcceptance; signQualityAcceptance bởi hai vai trò rồi đủ ba; decideQualityAcceptance.\n1. Ghi kết quả PASS với checklist đủ.\n2. Tạo biên bản QA-W-001 và ký bởi CONTRACTOR, SUPERVISOR.\n3. Gọi decision approve khi thiếu OWNER.\n4. OWNER ký, rồi decision approve; đọc outbox.",
+      "expected": "required_roles lưu [CONTRACTOR, SUPERVISOR, OWNER] (ảnh chụp rule REG-FIX-1). Thiếu OWNER: 422 SIGNATURES_INCOMPLETE. Sau đủ ba chữ ký: APPROVED, outbox qms.quality_acceptance.approved.v1 chứa quality_acceptance_id, contract_id, boq_item_id, acceptance_scope; CTR nhận sự kiện (inbox ghi 1 bản, idempotent). Ký lặp bởi cùng vai trò cùng hash: 409 ALREADY_SIGNED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "QMS-04",
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UAT-AC361",
+      "title": "Bước 1: 422 OPEN_CRITICAL_NCR (blocks_acceptance=true bắt buộc cho CRITICAL — CHECK ncr_critical_blocks_chk)",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-07",
+      "oracle_source": "Claim → Thiết kế M1 QMS.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC361 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-07, FR-QMS-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Không phù hợp và hành động khắc phục\": Bước 1: 422 OPEN_CRITICAL_NCR (blocks_acceptance=true bắt buộc cho CRITICAL — CHECK ncr_critical_blocks_chk). Bước 3 thiếu bằng chứng: 422 EVIDENCE_REQUIRED. Bư",
+      "coverage_ids": [
+        "COV-FR-QMS-07",
+        "COV-FR-QMS-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). INS-A-002 FAIL tạo NCR-100 mức CRITICAL (action_owner u.nt); QA-W-002 DRAFT cho cùng hạng mục.\nĐầu vào: decideQualityAcceptance approve khi NCR-100 mở; assignCorrectiveAction; submitCorrectiveEvidence thiếu bằng chứng và đủ; verify bởi người khắc phục và bởi u.gs; closeNonconformance.\n1. Duyệt QA-W-002.\n2. Giao hành động khắc phục cho u.nt hạn 2026-07-15.\n3. Nộp bằng chứng thiếu rồi đủ (ảnh geotag P1).\n4. u.nt tự verify; u.gs verify VERIFIED.\n5. Đóng NCR-100; duyệt lại QA-W-002.",
+      "expected": "Bước 1: 422 OPEN_CRITICAL_NCR (blocks_acceptance=true bắt buộc cho CRITICAL — CHECK ncr_critical_blocks_chk). Bước 3 thiếu bằng chứng: 422 EVIDENCE_REQUIRED. Bước 4: tự verify 403 SELF_APPROVAL_DENIED; u.gs: corrective_action VERIFIED. Bước 5: NCR CLOSED với verified_by=u.gs; QA-W-002 duyệt thành công.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "QMS-05",
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UAT-AC362",
+      "title": "Bước 1: 422 VALIDATION_FAILED (CHECK material_test_result_chk)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-06",
+      "oracle_source": "Claim → Thiết kế M1 QMS.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC362 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-06, FR-QMS-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thí nghiệm vật liệu\": Bước 1: 422 VALIDATION_FAILED (CHECK material_test_result_chk). Bước 2: RESULT_RECORDED, result=FAIL, tự tạo 1 NCR (source_kind=MATERIAL_TEST, severity theo rul",
+      "coverage_ids": [
+        "COV-FR-QMS-06",
+        "COV-FR-QMS-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). material_test MT-A-001 mẫu bê tông B02 sample_code BT-0601, tiêu chuẩn fixture \"STD-BT-30\", chưa có kết quả.\nĐầu vào: recordMaterialTestResult FAIL không báo cáo; có báo cáo; PASS cho mẫu khác; đăng ký trùng sample_code.\n1. Ghi FAIL thiếu report_document_version_id.\n2. Ghi FAIL kèm báo cáo.\n3. Đọc nonconformance_id của mẫu.\n4. registerMaterialTest trùng BT-0601.",
+      "expected": "Bước 1: 422 VALIDATION_FAILED (CHECK material_test_result_chk). Bước 2: RESULT_RECORDED, result=FAIL, tự tạo 1 NCR (source_kind=MATERIAL_TEST, severity theo rule) và gán nonconformance_id. Mẫu PASS: không NCR. Đăng ký trùng: 409 SAMPLE_CODE_DUPLICATE.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "QMS-06",
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UAT-AC363",
+      "title": "Ngày 2026-12-31 → REG-FIX-1, required_roles [CONTRACTOR, SUPERVISOR, OWNER]",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-04",
+      "oracle_source": "Claim → Thiết kế M1 QMS.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC363 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-04, FR-QMS-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đề nghị kiểm tra, nghiệm thu\": Ngày 2026-12-31 → REG-FIX-1, required_roles [CONTRACTOR, SUPERVISOR, OWNER]; 2027-01-01 → REG-FIX-2, thêm DESIGNER. Cả hai đều hiển thị cảnh báo \"[CXN-07] chưa ",
+      "coverage_ids": [
+        "COV-FR-QMS-04",
+        "COV-FR-QMS-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Rule QMS.REGIME: REG-FIX-1 (ghi chú: gói NĐ 06/2021 hợp nhất) hiệu lực đến 2026-12-31; REG-FIX-2 (ghi chú: gói NĐ 207/2026) hiệu lực từ 2027-01-01 [CXN-07 chưa xác nhận → cờ cảnh báo]; REG-FIX-2 yêu cầu ký thêm DESIGNER.\nĐầu vào: requestInspection requested_for 2026-12-31 và 2027-01-01; createQualityAcceptance cho mỗi cái; đổi hiệu lực rule sau khi tạo.\n1. Tạo inspection ngày 2026-12-31; đọc regime_rule_version_id.\n2. Tạo inspection ngày 2027-01-01.\n3. Tạo QA cho cả hai; đọc required_roles.\n4. Sửa effective_from của REG-FIX-2 sang 2027-02-01 (phiên bản mới); đọc lại inspection cũ.",
+      "expected": "Ngày 2026-12-31 → REG-FIX-1, required_roles [CONTRACTOR, SUPERVISOR, OWNER]; 2027-01-01 → REG-FIX-2, thêm DESIGNER. Cả hai đều hiển thị cảnh báo \"[CXN-07] chưa xác nhận\" và không cho đánh dấu slice DONE. Đổi hiệu lực bằng phiên bản mới không làm thay đổi regime_rule_version_id/required_roles của bản ghi cũ.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "QMS-04",
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UAT-AC364",
+      "title": "Tổng 22 ngày làm việc = 15 đã ký (CONTRACTOR_SIGNED trở lên) + 3 DRAFT + 4 thiếu",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-11",
+      "oracle_source": "Claim → Thiết kế M1 QMS.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC364 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-11, FR-QMS-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Độ phủ nhật ký và cảnh báo thiếu nhật ký\": Tổng 22 ngày làm việc = 15 đã ký (CONTRACTOR_SIGNED trở lên) + 3 DRAFT + 4 thiếu; số ngày có bản xung đột = 2 (đếm riêng, không cộng vào tổng). Nhật ký bù hiển ",
+      "coverage_ids": [
+        "COV-FR-QMS-11",
+        "COV-FR-QMS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Tháng 2026-06 HD-A-001: 22 ngày làm việc theo lịch WORKDAY_VN; có nhật ký chính 18 ngày (15 ngày đã ký, 3 ngày mới DRAFT), trong đó 2 ngày còn bản phụ CONFLICT_PENDING; 4 ngày thiếu.\nĐầu vào: getDiaryCoverage from=2026-06-01 to=2026-06-30.\n1. Gọi getDiaryCoverage.\n2. Đọc số liệu: tổng ngày làm việc, đã ký, DRAFT, xung đột, thiếu.\n3. Ký bù nhật ký cho 1 ngày thiếu (ngày làm việc trong quá khứ) và đọc lại.",
+      "expected": "Tổng 22 ngày làm việc = 15 đã ký (CONTRACTOR_SIGNED trở lên) + 3 DRAFT + 4 thiếu; số ngày có bản xung đột = 2 (đếm riêng, không cộng vào tổng). Nhật ký bù hiển thị cờ \"ký muộn\" với số ngày muộn; thiếu giảm còn 3; ngày thiếu liệt kê ngày cụ thể.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "QMS-01",
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UAT-AC365",
+      "title": "HD-A-002: 404 RESOURCE_NOT_FOUND",
+      "type": "RED",
+      "platform": "web",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-02",
+      "oracle_source": "Claim → Thiết kế M1 QMS.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC365 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-02, FR-QMS-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Lập và ký nhật ký ngày\": HD-A-002: 404 RESOURCE_NOT_FOUND. supervisor-remark và owner-confirm: 403 SCOPE_DENIED (thiếu quyền diary.sign.supervisor/diary.sign.owner). Không có qms_signat",
+      "coverage_ids": [
+        "COV-FR-QMS-02",
+        "COV-FR-QMS-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). u.nt (NT-A-01) có scope CONTRACT HD-A-001; HD-A-002 của nhà thầu khác.\nĐầu vào: saveSiteDiaryDraft cho HD-A-002; addSupervisorRemark bởi u.nt; confirmSiteDiaryByOwner bởi u.nt.\n1. u.nt tạo nhật ký HD-A-002.\n2. u.nt gọi supervisor-remark trên nhật ký HD-A-001.\n3. u.nt gọi owner-confirm.",
+      "expected": "HD-A-002: 404 RESOURCE_NOT_FOUND. supervisor-remark và owner-confirm: 403 SCOPE_DENIED (thiếu quyền diary.sign.supervisor/diary.sign.owner). Không có qms_signature nào được tạo.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "QMS-02",
+      "tags": [
+        "security"
+      ],
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UAT-AC366",
+      "title": "Mỗi vòng: một 200 (version → 6) và một 409 VERSION_CONFLICT kèm current_version=6",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-03",
+      "oracle_source": "Claim → Thiết kế M1 QMS.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC366 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ý kiến giám sát và xác nhận chủ đầu tư\": Mỗi vòng: một 200 (version → 6) và một 409 VERSION_CONFLICT kèm current_version=6; supervisor_remark là của bên thắng, không bị trộn; qms_signature có đúng 1 dò",
+      "coverage_ids": [
+        "COV-FR-QMS-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). D-A-0613 CONTRACTOR_SIGNED version 5; hai giám sát u.gs1 và u.gs2 cùng đọc version 5.\nĐầu vào: Hai addSupervisorRemark đồng thời If-Match \"5\".\n1. Gửi đồng thời hai request (barrier), 20 vòng.\n2. Đọc site_diary.version và supervisor_remark.",
+      "expected": "Mỗi vòng: một 200 (version → 6) và một 409 VERSION_CONFLICT kèm current_version=6; supervisor_remark là của bên thắng, không bị trộn; qms_signature có đúng 1 dòng SUPERVISOR.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "concurrency",
+      "screen_id": "QMS-03",
+      "tags": [
+        "concurrency"
+      ],
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UAT-AC367",
+      "title": "Ảnh gửi lên có gps_source=NONE, gps_lat/lng NULL, geo_consent=false",
+      "type": "RED",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-10",
+      "oracle_source": "Claim → Thiết kế M1 QMS.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC367 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-10, FR-QMS-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chụp ảnh hiện trường kiểm EXIF và GPS\": Ảnh gửi lên có gps_source=NONE, gps_lat/lng NULL, geo_consent=false. Đổi tenant khi còn hàng đợi: bị chặn với thông báo phải gửi xong hoặc hủy. Sau hủy và đổi: ",
+      "coverage_ids": [
+        "COV-FR-QMS-10",
+        "COV-FR-QMS-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). App Flutter đăng nhập TNT-A, có hàng đợi 2 ảnh chưa gửi; quyền vị trí bị từ chối.\nĐầu vào: Chụp ảnh với quyền vị trí tắt; thử đổi sang TNT-B khi còn hàng đợi; hủy hàng đợi rồi đổi.\n1. Chụp ảnh với quyền vị trí tắt; đồng bộ.\n2. Đổi tenant khi còn 2 ảnh trong hàng đợi.\n3. Chọn hủy hàng đợi và đổi tenant; kiểm SQLite cục bộ.",
+      "expected": "Ảnh gửi lên có gps_source=NONE, gps_lat/lng NULL, geo_consent=false. Đổi tenant khi còn hàng đợi: bị chặn với thông báo phải gửi xong hoặc hủy. Sau hủy và đổi: SQLite cục bộ và cache file của TNT-A bị xóa; không có lệnh nào gửi dưới tenant B.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "QMS-09",
+      "tags": [
+        "security"
+      ],
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UI-QMS-01",
+      "title": "Danh mục nhật ký thi công điện tử (QMS-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-01",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-01",
+      "oracle_source": "Claim → FR-QMS-01; kỳ vọng nguyên văn của ca thiết kế UI-QMS-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-01",
+      "catches_bug": "Màn hình Danh mục nhật ký thi công điện tử (QMS-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-QMS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Danh mục nhật ký thi công điện tử\"; user có quyền và user chỉ đọc; route QMS-01\n1. Mở QMS-01 từ menu và deep link; kiểm nhãn trường: Ngày, Hợp đồng, Trạng thái ký, Ý kiến giám sát, Xung đột đồng bộ, Số ảnh\n2. Thực hiện thao tác chính theo quy tắc: Một nhật ký chính mỗi hợp đồng mỗi ngày; điều chỉnh sau khóa bằng bản điều chỉnh; thao tác dùng command getDiaryCoverage\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên QMS-01",
+      "expected": "Danh mục nhật ký thi công điện tử: hiển thị đúng 6 trường; áp quy tắc \"Một nhật ký chính mỗi hợp đồng mỗi ngày; điều chỉnh sau khóa bằng bản điều chỉnh\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "QMS-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UI-QMS-02",
+      "title": "Lập và ký nhật ký ngày (QMS-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-02",
+      "oracle_source": "Claim → FR-QMS-02; kỳ vọng nguyên văn của ca thiết kế UI-QMS-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-02",
+      "catches_bug": "Màn hình Lập và ký nhật ký ngày (QMS-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-QMS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Lập và ký nhật ký ngày\"; user có quyền và user chỉ đọc; route QMS-02\n1. Mở QMS-02 từ menu và deep link; kiểm nhãn trường: Ngày, Thời tiết, Nhân lực, Thiết bị, Công việc theo BOQ, Sự kiện, Ảnh, Chữ ký nhà thầu\n2. Thực hiện thao tác chính theo quy tắc: Ký băm nội dung; sửa sau khi ký bị chặn; phân biệt xác nhận nội bộ và chữ ký số; thao tác dùng command saveSiteDiaryDraft, reviseSiteDiaryDraft, signSiteDiaryByContractor\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên QMS-02",
+      "expected": "Lập và ký nhật ký ngày: hiển thị đúng 8 trường; áp quy tắc \"Ký băm nội dung; sửa sau khi ký bị chặn; phân biệt xác nhận nội bộ và chữ ký số\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "QMS-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UI-QMS-03",
+      "title": "Ý kiến giám sát và xác nhận chủ đầu tư (QMS-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-03",
+      "oracle_source": "Claim → FR-QMS-03; kỳ vọng nguyên văn của ca thiết kế UI-QMS-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-03",
+      "catches_bug": "Màn hình Ý kiến giám sát và xác nhận chủ đầu tư (QMS-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-QMS-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Ý kiến giám sát và xác nhận chủ đầu tư\"; user có quyền và user chỉ đọc; route QMS-03\n1. Mở QMS-03 từ menu và deep link; kiểm nhãn trường: Nhật ký, Ý kiến giám sát, Chữ ký giám sát, Xác nhận chủ đầu tư, Khóa\n2. Thực hiện thao tác chính theo quy tắc: Mỗi vai trò ký đúng một lần theo hash nội dung; If-Match chống ghi đè; thao tác dùng command addSupervisorRemark, confirmSiteDiaryByOwner, lockSiteDiary\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên QMS-03",
+      "expected": "Ý kiến giám sát và xác nhận chủ đầu tư: hiển thị đúng 5 trường; áp quy tắc \"Mỗi vai trò ký đúng một lần theo hash nội dung; If-Match chống ghi đè\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "QMS-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UI-QMS-04",
+      "title": "Đề nghị kiểm tra, nghiệm thu (QMS-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-04",
+      "oracle_source": "Claim → FR-QMS-04; kỳ vọng nguyên văn của ca thiết kế UI-QMS-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-04",
+      "catches_bug": "Màn hình Đề nghị kiểm tra, nghiệm thu (QMS-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-QMS-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Đề nghị kiểm tra, nghiệm thu\"; user có quyền và user chỉ đọc; route QMS-04\n1. Mở QMS-04 từ menu và deep link; kiểm nhãn trường: Hợp đồng, Hạng mục BOQ, Loại kiểm tra, Vị trí, Ngày đề nghị, Nhật ký liên quan\n2. Thực hiện thao tác chính theo quy tắc: Hợp đồng ACTIVE và cổng giấy phép đạt; quy chế áp dụng theo ngày đề nghị; thao tác dùng command requestInspection, scheduleInspection, recordInspectionResult\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên QMS-04",
+      "expected": "Đề nghị kiểm tra, nghiệm thu: hiển thị đúng 6 trường; áp quy tắc \"Hợp đồng ACTIVE và cổng giấy phép đạt; quy chế áp dụng theo ngày đề nghị\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "QMS-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UI-QMS-05",
+      "title": "Biên bản nghiệm thu chất lượng (QMS-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-05",
+      "oracle_source": "Claim → FR-QMS-05; kỳ vọng nguyên văn của ca thiết kế UI-QMS-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-05",
+      "catches_bug": "Màn hình Biên bản nghiệm thu chất lượng (QMS-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-QMS-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Biên bản nghiệm thu chất lượng\"; user có quyền và user chỉ đọc; route QMS-05\n1. Mở QMS-05 từ menu và deep link; kiểm nhãn trường: Biên bản, Phạm vi, Vai trò phải ký, Đã ký, NCR nghiêm trọng, Quyết định\n2. Thực hiện thao tác chính theo quy tắc: Duyệt cần đủ chữ ký theo quy chế và không còn NCR nghiêm trọng; duyệt phát sự kiện cho CTR; thao tác dùng command createQualityAcceptance, signQualityAcceptance, decideQualityAcceptance\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên QMS-05",
+      "expected": "Biên bản nghiệm thu chất lượng: hiển thị đúng 6 trường; áp quy tắc \"Duyệt cần đủ chữ ký theo quy chế và không còn NCR nghiêm trọng; duyệt phát sự kiện cho CTR\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "QMS-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UI-QMS-06",
+      "title": "Thí nghiệm vật liệu (QMS-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-06",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-06",
+      "oracle_source": "Claim → FR-QMS-06; kỳ vọng nguyên văn của ca thiết kế UI-QMS-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-06",
+      "catches_bug": "Màn hình Thí nghiệm vật liệu (QMS-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-QMS-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Thí nghiệm vật liệu\"; user có quyền và user chỉ đọc; route QMS-06\n1. Mở QMS-06 từ menu và deep link; kiểm nhãn trường: Mẫu, Vật liệu, Phòng thí nghiệm, Tiêu chuẩn, Kết quả, Báo cáo, NCR\n2. Thực hiện thao tác chính theo quy tắc: Không đạt tự tạo NCR; kết quả cần báo cáo đính kèm; thao tác dùng command registerMaterialTest, recordMaterialTestResult\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên QMS-06",
+      "expected": "Thí nghiệm vật liệu: hiển thị đúng 7 trường; áp quy tắc \"Không đạt tự tạo NCR; kết quả cần báo cáo đính kèm\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "QMS-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UI-QMS-07",
+      "title": "Không phù hợp và hành động khắc phục (QMS-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-07",
+      "oracle_source": "Claim → FR-QMS-07; kỳ vọng nguyên văn của ca thiết kế UI-QMS-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-07",
+      "catches_bug": "Màn hình Không phù hợp và hành động khắc phục (QMS-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-QMS-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Không phù hợp và hành động khắc phục\"; user có quyền và user chỉ đọc; route QMS-07\n1. Mở QMS-07 từ menu và deep link; kiểm nhãn trường: NCR, Mức độ, Chủ khắc phục, Hạn, Bằng chứng, Người xác nhận, Trạng thái\n2. Thực hiện thao tác chính theo quy tắc: NCR CRITICAL chặn nghiệm thu; xác nhận khác người khắc phục; thao tác dùng command raiseNonconformance, assignCorrectiveAction, submitCorrectiveEvidence\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên QMS-07",
+      "expected": "Không phù hợp và hành động khắc phục: hiển thị đúng 7 trường; áp quy tắc \"NCR CRITICAL chặn nghiệm thu; xác nhận khác người khắc phục\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "QMS-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UI-QMS-08",
+      "title": "Kho ảnh hiện trường có định vị (QMS-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-08",
+      "oracle_source": "Claim → FR-QMS-08; kỳ vọng nguyên văn của ca thiết kế UI-QMS-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-08",
+      "catches_bug": "Màn hình Kho ảnh hiện trường có định vị (QMS-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-QMS-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Kho ảnh hiện trường có định vị\"; user có quyền và user chỉ đọc; route QMS-08\n1. Mở QMS-08 từ menu và deep link; kiểm nhãn trường: Ảnh, Thời gian chụp (EXIF), Thời gian nhận, Vị trí, Độ chính xác, Cờ kiểm tra, Liên kết\n2. Thực hiện thao tác chính theo quy tắc: Cờ EXIF/GPS/thời gian/trùng lặp chỉ để rà soát, không kết luận xác thực; vị trí chỉ khi có đồng ý; thao tác dùng command registerSitePhoto, getSitePhotoChecks\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên QMS-08",
+      "expected": "Kho ảnh hiện trường có định vị: hiển thị đúng 7 trường; áp quy tắc \"Cờ EXIF/GPS/thời gian/trùng lặp chỉ để rà soát, không kết luận xác thực; vị trí chỉ khi có đồng ý\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "QMS-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UI-QMS-09",
+      "title": "Nhật ký thi công ngoại tuyến trên điện thoại (QMS-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-09",
+      "oracle_source": "Claim → FR-QMS-09; kỳ vọng nguyên văn của ca thiết kế UI-QMS-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-09",
+      "catches_bug": "Màn hình Nhật ký thi công ngoại tuyến trên điện thoại (QMS-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-QMS-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Nhật ký thi công ngoại tuyến trên điện thoại\"; user có quyền và user chỉ đọc; route QMS-09 trên app Flutter (thiết bị thật/giả lập)\n1. Mở QMS-09 từ điều hướng đáy; kiểm nhãn trường: Ngày, Nội dung nháp, Hàng đợi chưa gửi, Xung đột đồng bộ, Ký nhà thầu\n2. Thực hiện thao tác chính theo quy tắc: Chỉ xếp hàng lệnh với client_operation_id; xung đột không ghi đè im lặng; đổi tenant chặn khi còn hàng đợi; thao tác dùng command saveSiteDiaryDraft, signSiteDiaryByContractor, resolveDiaryConflict\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên QMS-09",
+      "expected": "Nhật ký thi công ngoại tuyến trên điện thoại: hiển thị đúng 5 trường; áp quy tắc \"Chỉ xếp hàng lệnh với client_operation_id; xung đột không ghi đè im lặng; đổi tenant chặn khi còn hàng đợi\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "QMS-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UI-QMS-10",
+      "title": "Chụp ảnh hiện trường kiểm EXIF và GPS (QMS-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-10",
+      "oracle_source": "Claim → FR-QMS-10; kỳ vọng nguyên văn của ca thiết kế UI-QMS-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-10",
+      "catches_bug": "Màn hình Chụp ảnh hiện trường kiểm EXIF và GPS (QMS-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-QMS-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Chụp ảnh hiện trường kiểm EXIF và GPS\"; user có quyền và user chỉ đọc; route QMS-10 trên app Flutter (thiết bị thật/giả lập)\n1. Mở QMS-10 từ điều hướng đáy; kiểm nhãn trường: Ảnh, Chú thích, Hợp đồng / nhật ký, Vị trí (khi đồng ý), Cờ kiểm tra\n2. Thực hiện thao tác chính theo quy tắc: Chỉ lưu vị trí khi người dùng đồng ý; hiển thị cờ trước khi gửi; thao tác dùng command registerSitePhoto\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên QMS-10",
+      "expected": "Chụp ảnh hiện trường kiểm EXIF và GPS: hiển thị đúng 5 trường; áp quy tắc \"Chỉ lưu vị trí khi người dùng đồng ý; hiển thị cờ trước khi gửi\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "QMS-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UI-QMS-11",
+      "title": "Độ phủ nhật ký và cảnh báo thiếu nhật ký (QMS-11): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nha-thau",
+      "journey_ref": "J-FR-QMS-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-11",
+      "oracle_source": "Claim → FR-QMS-11; kỳ vọng nguyên văn của ca thiết kế UI-QMS-11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-11",
+      "catches_bug": "Màn hình Độ phủ nhật ký và cảnh báo thiếu nhật ký (QMS-11) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-QMS-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-thau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Độ phủ nhật ký và cảnh báo thiếu nhật ký\"; user có quyền và user chỉ đọc; route QMS-11\n1. Mở QMS-11 từ menu và deep link; kiểm nhãn trường: Ngày làm việc, Có nhật ký, Đã ký, Thiếu, Ký muộn, Xung đột\n2. Thực hiện thao tác chính theo quy tắc: Tính theo lịch làm việc; ký bù hiển thị số ngày muộn; thao tác dùng command getDiaryCoverage\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên QMS-11",
+      "expected": "Độ phủ nhật ký và cảnh báo thiếu nhật ký: hiển thị đúng 6 trường; áp quy tắc \"Tính theo lịch làm việc; ký bù hiển thị số ngày muộn\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "QMS-11",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "QMS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-27",
+      "title": "One outbox row qms",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-qms",
+      "journey_ref": "J-FR-QMS-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-QMS-05",
+      "oracle_source": "Claim → QMS.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-27 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-QMS-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Biên bản nghiệm thu chất lượng\": One outbox row qms.quality_acceptance.revoked.v1 is emitted with quality_acceptance_id QA-A-001; CTR processes it once and the HD-A-001 acceptance link is remov",
+      "coverage_ids": [
+        "COV-FR-QMS-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-qms",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Quality acceptance QA-A-001 APPROVED and linked to contract HD-A-001 by the CTR inbox.\n1. revokeQualityAcceptance on QA-A-001 with a reason\n2. Read the outbox and the CTR inbox\n3. Read the HD-A-001 acceptance link",
+      "expected": "One outbox row qms.quality_acceptance.revoked.v1 is emitted with quality_acceptance_id QA-A-001; CTR processes it once and the HD-A-001 acceptance link is removed; replay of the event changes nothing.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "module": "QMS"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 12,
+    "M2": 0,
+    "M3": 0,
+    "M4": 50,
+    "max": 50,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 12,
+    "covered": 12,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

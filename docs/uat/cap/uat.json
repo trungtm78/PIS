@@ -1,0 +1,2033 @@
+{
+  "feature": "cap",
+  "generated_at": "2026-11-05T07:53:18.046Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/cap/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UAT-AC08",
+      "title": "Đúng 1 request 200",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-06",
+      "oracle_source": "Claim → FRD AC08; kỳ vọng nguyên văn của ca thiết kế UAT-AC08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Phân bổ vốn\": Đúng 1 request 200; request còn lại 422 APPROPRIATION_EXCEEDED (available=200000000 sau request thắng); allocated_total_vnd=9800000000 ≤ amount_vnd; chỉ 1 bút t",
+      "coverage_ids": [
+        "COV-FR-CAP-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-CAP-001: appropriation AP-NSTW-2026 amount_vnd=10000000000, allocated_total_vnd=9000000000; capital plan CP-2026r2 DRAFT.\n1. A-planner và A-planner2 đồng thời gọi POST /capital-plans/{CP}/allocations, mỗi bên thêm dòng 800000000 từ AP-NSTW-2026 cho dự án khác nhau (key khác nhau)\n2. Đọc appropriation AP-NSTW-2026 và capital_ledger_entry",
+      "expected": "Đúng 1 request 200; request còn lại 422 APPROPRIATION_EXCEEDED (available=200000000 sau request thắng); allocated_total_vnd=9800000000 ≤ amount_vnd; chỉ 1 bút toán ALLOCATE 800000000; không deadlock (khóa appropriation FOR UPDATE theo thứ tự id).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "CAP-06",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC09",
+      "title": "as-of 2026-06-30 trả revision=1, P-A-001=5000000000, decision_document_id của rev1",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-05",
+      "oracle_source": "Claim → FRD AC09; kỳ vọng nguyên văn của ca thiết kế UAT-AC09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-05, FR-CAP-10, FR-CAP-15",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Quyết định giao vốn\": as-of 2026-06-30 trả revision=1, P-A-001=5000000000, decision_document_id của rev1; as-of 2026-07-02 trả revision=2, 4200000000; rev1 status=SUPERSEDED nhưng vẫ",
+      "coverage_ids": [
+        "COV-FR-CAP-05",
+        "COV-FR-CAP-10",
+        "COV-FR-CAP-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: CP-2026 rev1 PUBLISHED effective_at=2026-01-15 (P-A-001 = 5000000000); rev2 PUBLISHED effective_at=2026-07-01 (P-A-001 = 4200000000) supersede rev1.\n1. Gọi GET /capital-plans/{CP-2026}/as-of?at=2026-06-30\n2. Gọi cùng API với at=2026-07-02\n3. Mở CAP-15 và DIS-07 của báo cáo tuần 2026-W20 (gắn plan_version rev1)",
+      "expected": "as-of 2026-06-30 trả revision=1, P-A-001=5000000000, decision_document_id của rev1; as-of 2026-07-02 trả revision=2, 4200000000; rev1 status=SUPERSEDED nhưng vẫn đọc được; báo cáo W20 vẫn hiển thị vốn giao 5000000000 theo plan_version_id đã lưu.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CAP-05",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-01",
+      "title": "Kế hoạch trung hạn (CAP-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-01",
+      "oracle_source": "Claim → FR-CAP-01; kỳ vọng nguyên văn của ca thiết kế UI-CAP-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-01",
+      "catches_bug": "Màn hình Kế hoạch trung hạn (CAP-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CAP-01\n1. Mở route bằng menu và deep link; kiểm tên trường: Giai đoạn, Nguồn vốn, Trần vốn\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-02",
+      "title": "Lập phương án vốn (CAP-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-02",
+      "oracle_source": "Claim → FR-CAP-02; kỳ vọng nguyên văn của ca thiết kế UI-CAP-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-02",
+      "catches_bug": "Màn hình Lập phương án vốn (CAP-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CAP-02\n1. Mở route bằng menu và deep link; kiểm tên trường: Dự án, Nhu cầu, Nguồn, Năm\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-03",
+      "title": "Kế hoạch năm (CAP-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-03",
+      "oracle_source": "Claim → FR-CAP-03; kỳ vọng nguyên văn của ca thiết kế UI-CAP-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-03",
+      "catches_bug": "Màn hình Kế hoạch năm (CAP-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CAP-03\n1. Mở route bằng menu và deep link; kiểm tên trường: Năm, Dự án, Vốn năm, Vốn kéo dài\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-04",
+      "title": "Nguồn vốn (CAP-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-04",
+      "oracle_source": "Claim → FR-CAP-04; kỳ vọng nguyên văn của ca thiết kế UI-CAP-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-04",
+      "catches_bug": "Màn hình Nguồn vốn (CAP-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CAP-04\n1. Mở route bằng menu và deep link; kiểm tên trường: NSTW, NSĐP, CTMTQG, Hiệu lực\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-05",
+      "title": "Quyết định giao vốn (CAP-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-05",
+      "oracle_source": "Claim → FR-CAP-05; kỳ vọng nguyên văn của ca thiết kế UI-CAP-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-05",
+      "catches_bug": "Màn hình Quyết định giao vốn (CAP-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CAP-05\n1. Mở route bằng menu và deep link; kiểm tên trường: Số quyết định, Cơ quan, Ngày, Giá trị\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-06",
+      "title": "Phân bổ vốn (CAP-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-06",
+      "oracle_source": "Claim → FR-CAP-06; kỳ vọng nguyên văn của ca thiết kế UI-CAP-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-06",
+      "catches_bug": "Màn hình Phân bổ vốn (CAP-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CAP-06\n1. Mở route bằng menu và deep link; kiểm tên trường: Dự án, Nguồn, Số tiền, Số dư khả dụng\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-07",
+      "title": "Điều chỉnh và điều chuyển (CAP-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-07",
+      "oracle_source": "Claim → FR-CAP-07; kỳ vọng nguyên văn của ca thiết kế UI-CAP-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-07",
+      "catches_bug": "Màn hình Điều chỉnh và điều chuyển (CAP-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CAP-07\n1. Mở route bằng menu và deep link; kiểm tên trường: Nguồn giảm, Nguồn tăng, Giá trị, Căn cứ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-08",
+      "title": "Đăng ký giải ngân tháng (CAP-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-08",
+      "oracle_source": "Claim → FR-CAP-08; kỳ vọng nguyên văn của ca thiết kế UI-CAP-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-08",
+      "catches_bug": "Màn hình Đăng ký giải ngân tháng (CAP-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CAP-08\n1. Mở route bằng menu và deep link; kiểm tên trường: Tháng, Vốn năm, Vốn kéo dài, Vốn khác\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-09",
+      "title": "Mô phỏng phân bổ (CAP-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-09",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-09",
+      "oracle_source": "Claim → FR-CAP-09; kỳ vọng nguyên văn của ca thiết kế UI-CAP-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-09",
+      "catches_bug": "Màn hình Mô phỏng phân bổ (CAP-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CAP-09\n1. Mở route bằng menu và deep link; kiểm tên trường: Trần vốn, Ưu tiên, Ràng buộc, Kịch bản\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-10",
+      "title": "Phê duyệt kế hoạch (CAP-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-10",
+      "oracle_source": "Claim → FR-CAP-10; kỳ vọng nguyên văn của ca thiết kế UI-CAP-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-10",
+      "catches_bug": "Màn hình Phê duyệt kế hoạch (CAP-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CAP-10\n1. Mở route bằng menu và deep link; kiểm tên trường: Phiên bản, Tác động, Người duyệt\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-11",
+      "title": "Chuyển nguồn và khóa năm (CAP-11): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-11",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-11",
+      "oracle_source": "Claim → FR-CAP-11; kỳ vọng nguyên văn của ca thiết kế UI-CAP-11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-11",
+      "catches_bug": "Màn hình Chuyển nguồn và khóa năm (CAP-11) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CAP-11\n1. Mở route bằng menu và deep link; kiểm tên trường: Năm nguồn, Năm đích, Căn cứ, Giá trị\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-11",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-12",
+      "title": "Kế hoạch ước giải ngân (CAP-12): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-12",
+      "oracle_source": "Claim → FR-CAP-12; kỳ vọng nguyên văn của ca thiết kế UI-CAP-12 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-12",
+      "catches_bug": "Màn hình Kế hoạch ước giải ngân (CAP-12) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CAP-12\n1. Mở route bằng menu và deep link; kiểm tên trường: Kỳ, Dự án, Ước thực hiện, Đăng ký, Thực tế, Chênh lệch\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-12",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-13",
+      "title": "Nhập ước giải ngân (CAP-13): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-13",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-13",
+      "oracle_source": "Claim → FR-CAP-13; kỳ vọng nguyên văn của ca thiết kế UI-CAP-13 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-13",
+      "catches_bug": "Màn hình Nhập ước giải ngân (CAP-13) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CAP-13\n1. Mở route bằng menu và deep link; kiểm tên trường: Dự án, Tháng, Nguồn, Ước cuối kỳ, Giả định, Lý do điều chỉnh\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-13",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-14",
+      "title": "Vốn hỗ trợ và tăng thu (CAP-14): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-14",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-14",
+      "oracle_source": "Claim → FR-CAP-14; kỳ vọng nguyên văn của ca thiết kế UI-CAP-14 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-14",
+      "catches_bug": "Màn hình Vốn hỗ trợ và tăng thu (CAP-14) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CAP-14\n1. Mở route bằng menu và deep link; kiểm tên trường: Loại nguồn, Quyết định, Phạm vi, Giá trị, Đã phân bổ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-14",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-15",
+      "title": "Theo dõi kế hoạch vốn (CAP-15): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-15",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-15",
+      "oracle_source": "Claim → FR-CAP-15; kỳ vọng nguyên văn của ca thiết kế UI-CAP-15 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-15",
+      "catches_bug": "Màn hình Theo dõi kế hoạch vốn (CAP-15) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CAP-15\n1. Mở route bằng menu và deep link; kiểm tên trường: Quyết định, Dự án, Giao đầu năm, Điều chỉnh, Hiện hành, Giải ngân\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-15",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC220",
+      "title": "Hai appropriation PUBLISHED",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-16",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-16",
+      "oracle_source": "Claim → 05_modules/CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC220 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-16, FR-CAP-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sổ dự toán và nguồn được giao\": Hai appropriation PUBLISHED; CAP-16 hiện \"TTg giao 500.000 triệu\", \"Địa phương giao thêm 100.000 triệu\", \"Còn lại\" = amount − allocated; HOME-07 tách thẻ vốn TT",
+      "coverage_ids": [
+        "COV-FR-CAP-16",
+        "COV-FR-CAP-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: FUND_SOURCE NSTW-DTPT r1, NSDP-DTPT r1; DOC-GV-01 (QĐ TTg giao), DOC-GV-02 (NQ HĐND giao thêm).\n1. A-planner POST /appropriations {fund_source:NSTW-DTPT, plan_year:2026, origin:\"PM_ASSIGNED\", budget_level:\"CENTRAL\", amount_vnd:\"500000000000\", decision_document_id:DOC-GV-01}\n2. POST /appropriations {…NSDP-DTPT, origin:\"LOCAL_ADDED\", budget_level:\"LOCAL\", amount_vnd:\"100000000000\", decision_document_id:DOC-GV-02}\n3. A-approver POST /appropriations/{id}/decision approve cho cả hai\n4. Mở CAP-16 và HOME-07",
+      "expected": "Hai appropriation PUBLISHED; CAP-16 hiện \"TTg giao 500.000 triệu\", \"Địa phương giao thêm 100.000 triệu\", \"Còn lại\" = amount − allocated; HOME-07 tách thẻ vốn TTg giao và vốn địa phương giao thêm; ledger có 2 bút toán APPROPRIATE.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CAP-04",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC221",
+      "title": "422 APPROPRIATION_EXCEEDED, errors[0]",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-06",
+      "oracle_source": "Claim → 05_modules/CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC221 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Phân bổ vốn\": 422 APPROPRIATION_EXCEEDED, errors[0].field=\"lines[0].amount_vnd\", detail available_vnd=\"5000000000\"; plan và appropriation không đổi version.",
+      "coverage_ids": [
+        "COV-FR-CAP-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: AP-NSTW-2026 amount 500 tỷ, allocated 495 tỷ.\n1. POST /capital-plans/{CP-2026r1}/allocations thêm dòng 6000000000 từ AP-NSTW-2026",
+      "expected": "422 APPROPRIATION_EXCEEDED, errors[0].field=\"lines[0].amount_vnd\", detail available_vnd=\"5000000000\"; plan và appropriation không đổi version.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CAP-06",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC222",
+      "title": "Lần 1: 422 SUBSET_EXCEEDS_PARENT",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-03",
+      "oracle_source": "Claim → 05_modules/CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC222 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-03, FR-CAP-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kế hoạch năm\": Lần 1: 422 SUBSET_EXCEEDS_PARENT; lần 2: tổng vốn = 1500000000 (CTMTQG 400000000 hiển thị \"Trong đó\", không cộng thành 1900000000).",
+      "coverage_ids": [
+        "COV-FR-CAP-03",
+        "COV-FR-CAP-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-CAP-002.\n1. Thêm dòng amount 1000000000 với ctmtqg_subset_vnd 1200000000\n2. Thêm dòng amount 1000000000, ctmtqg 400000000 và dòng NSĐP 500000000; đọc tổng CAP-03",
+      "expected": "Lần 1: 422 SUBSET_EXCEEDS_PARENT; lần 2: tổng vốn = 1500000000 (CTMTQG 400000000 hiển thị \"Trong đó\", không cộng thành 1900000000).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "CAP-03",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC223",
+      "title": "Submit → IN_REVIEW",
+      "type": "RED",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-10",
+      "oracle_source": "Claim → 05_modules/CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC223 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-10, FR-CAP-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Phê duyệt kế hoạch\": Submit → IN_REVIEW; tự duyệt 403 SELF_APPROVAL_DENIED; A-approver → APPROVED; publish thiếu văn bản 422 DECISION_REQUIRED; publish đủ → PUBLISHED, rev1 SUPERSED",
+      "coverage_ids": [
+        "COV-FR-CAP-10",
+        "COV-FR-CAP-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: CP-2026r2 DRAFT do A-planner soạn.\n1. A-planner POST /capital-plans/{id}/submit\n2. A-planner POST /capital-plans/{id}/decision approve\n3. A-approver approve\n4. A-approver POST /plans/{id}/publish không decision_document_id\n5. Publish với DOC-KH-02",
+      "expected": "Submit → IN_REVIEW; tự duyệt 403 SELF_APPROVAL_DENIED; A-approver → APPROVED; publish thiếu văn bản 422 DECISION_REQUIRED; publish đủ → PUBLISHED, rev1 SUPERSEDED, effective_at = giờ server, outbox capital.plan_published.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "CAP-05",
+      "tags": [
+        "security"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC224",
+      "title": "Tạo r2 DRAFT copy dòng (previous_line_id trỏ dòng r1)",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-07",
+      "oracle_source": "Claim → 05_modules/CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC224 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-07, FR-CAP-15",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Điều chỉnh và điều chuyển\": Tạo r2 DRAFT copy dòng (previous_line_id trỏ dòng r1); sau publish CAP-15 hiện \"Giao đầu năm 5.000\", \"Điều chỉnh −800\", \"Hiện hành 4.200\" triệu cho P-A-001; tổn",
+      "coverage_ids": [
+        "COV-FR-CAP-07",
+        "COV-FR-CAP-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: CP-2026r1 PUBLISHED; P-A-001 dòng 5 tỷ.\n1. POST /capital-plans/{r1}/revisions {reason:\"Điều chỉnh giữa năm\"}\n2. Sửa dòng P-A-001 xuống 4.2 tỷ, tăng P-A-002 thêm 0.8 tỷ, submit/approve/publish với DOC-KH-02\n3. Mở CAP-15",
+      "expected": "Tạo r2 DRAFT copy dòng (previous_line_id trỏ dòng r1); sau publish CAP-15 hiện \"Giao đầu năm 5.000\", \"Điều chỉnh −800\", \"Hiện hành 4.200\" triệu cho P-A-001; tổng plan không đổi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CAP-07",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC225",
+      "title": "Lần 1: 422 REVISED_BELOW_COMMITTED (8",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-07",
+      "oracle_source": "Claim → 05_modules/CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC225 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Điều chỉnh và điều chuyển\": Lần 1: 422 REVISED_BELOW_COMMITTED (8.5 tỷ < 9 tỷ cam kết+đã giải ngân), detail committed_plus_disbursed_vnd=\"9000000000\"; lần 2: 200, CHECK allocation_balance_",
+      "coverage_ids": [
+        "COV-FR-CAP-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-CAP-003: allocation_balance P-A-001: allocated 10000000000, committed 6000000000, disbursed 3000000000.\n1. Trong revision mới sửa dòng xuống 8500000000 rồi publish\n2. Sửa xuống 9000000000 rồi publish",
+      "expected": "Lần 1: 422 REVISED_BELOW_COMMITTED (8.5 tỷ < 9 tỷ cam kết+đã giải ngân), detail committed_plus_disbursed_vnd=\"9000000000\"; lần 2: 200, CHECK allocation_balance_revised_ge_committed_chk thỏa.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CAP-07",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC226",
+      "title": "Lần 1: 422 AVC_WARNING_ACK_REQUIRED (95% ≥ 90%)",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-17",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-17",
+      "oracle_source": "Claim → 05_modules/CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC226 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-17, FR-CAP-18",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kiểm soát hạn mức khả dụng (AVC)\": Lần 1: 422 AVC_WARNING_ACK_REQUIRED (95% ≥ 90%); lần 2: 200 ACTIVE, avc_warning_acknowledged=true, audit ghi người xác nhận; lần 3: 422 AVC_BLOCKED (101% > 100%",
+      "coverage_ids": [
+        "COV-FR-CAP-17",
+        "COV-FR-CAP-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: AVC policy TENANT/ALLOCATION_LINE warn 90, block 100, include_reservations=true; dòng L1 allocated 1000000000, committed 800000000.\n1. POST /fund-reservations {allocation_line_id:L1, amount_vnd:\"150000000\", purpose:\"CONTRACT_PENDING\"} không acknowledge\n2. Gửi lại với avc_acknowledged=true\n3. POST /fund-reservations amount 60000000",
+      "expected": "Lần 1: 422 AVC_WARNING_ACK_REQUIRED (95% ≥ 90%); lần 2: 200 ACTIVE, avc_warning_acknowledged=true, audit ghi người xác nhận; lần 3: 422 AVC_BLOCKED (101% > 100%).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CAP-17",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC227",
+      "title": "RS-1 EXPIRED",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-18",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-18",
+      "oracle_source": "Claim → 05_modules/CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC227 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-18, FR-CAP-21",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Giữ vốn trước cam kết\": RS-1 EXPIRED; reserved_vnd giảm 150000000 đúng 1 lần; ledger có 1 bút toán RELEASE source_ref=RS-1 (unique dedupe), lần chạy 2 không tạo thêm.",
+      "coverage_ids": [
+        "COV-FR-CAP-18",
+        "COV-FR-CAP-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Reservation RS-1 ACTIVE 150000000 expires_at 2026-10-20T00:00:00Z.\n1. Chạy job capital.reservation-expiry lúc 2026-10-20T00:05:00Z hai lần\n2. Đọc allocation_balance và ledger",
+      "expected": "RS-1 EXPIRED; reserved_vnd giảm 150000000 đúng 1 lần; ledger có 1 bút toán RELEASE source_ref=RS-1 (unique dedupe), lần chạy 2 không tạo thêm.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "CAP-18",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC228",
+      "title": "Dòng NSTW→NSĐP: 422 TRANSFER_UNBALANCED",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-19",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-19",
+      "oracle_source": "Claim → 05_modules/CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC228 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-19",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đề xuất điều chuyển vốn chậm sang nhanh\": Dòng NSTW→NSĐP: 422 TRANSFER_UNBALANCED; apply: tạo capital_plan revision mới PUBLISHED với P-A-001 −2 tỷ, P-A-002 +2 tỷ, tổng không đổi; ledger TRANSFER_OUT/TR",
+      "coverage_ids": [
+        "COV-FR-CAP-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Snapshot S-40 FROZEN: P-A-001 (NSTW) rate_total 12%, EAC thiếu 2.5 tỷ; P-A-002 (NSTW) rate 85%; P-A-003 (NSĐP).\n1. A-planner POST /reallocation-proposals {basis_snapshot_id:S-40, lines:[{from:L-P1-NSTW, to:P-A-002, amount:\"2000000000\"}]}\n2. Thêm dòng từ L-P1-NSTW sang P-A-003 dùng NSĐP\n3. Submit, A-approver approve, apply với DOC-DC-01",
+      "expected": "Dòng NSTW→NSĐP: 422 TRANSFER_UNBALANCED; apply: tạo capital_plan revision mới PUBLISHED với P-A-001 −2 tỷ, P-A-002 +2 tỷ, tổng không đổi; ledger TRANSFER_OUT/TRANSFER_IN cùng source_ref; proposal APPLIED có resulting_capital_plan_id.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CAP-19",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC229",
+      "title": "Request: REQUESTED",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-20",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-20",
+      "oracle_source": "Claim → 05_modules/CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC229 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-20",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kéo dài thời gian giải ngân vốn\": Request: REQUESTED; approve thiếu văn bản: 422 EXTENSION_DOCUMENT_REQUIRED; apply: dòng mới bucket CARRYOVER, is_extended=true, extended_to=2026-12-31, source_y",
+      "coverage_ids": [
+        "COV-FR-CAP-20"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dòng L-2025 (plan_year 2025, NSTW) còn 3000000000 chưa giải ngân; năm 2025 SOFT_CLOSED.\n1. POST /allocation-lines/{L-2025}/extensions {amount_vnd:\"3000000000\", extended_to:\"2026-12-31\", reason_code:\"GPMB_CHAM\"}\n2. A-approver approve không approving_document_id\n3. Approve với DOC-KD-01; apply",
+      "expected": "Request: REQUESTED; approve thiếu văn bản: 422 EXTENSION_DOCUMENT_REQUIRED; apply: dòng mới bucket CARRYOVER, is_extended=true, extended_to=2026-12-31, source_year=2025, extension_document_id=DOC-KD-01; ledger EXTEND_OUT(2025)/EXTEND_IN(2026) 3 tỷ; vốn năm 2026 không tăng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CAP-20",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC230",
+      "title": "Bước 1: 409 FISCAL_YEAR_LOCKED",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-11",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-11",
+      "oracle_source": "Claim → 05_modules/CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC230 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-11",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chuyển nguồn và khóa năm\": Bước 1: 409 FISCAL_YEAR_LOCKED; tự duyệt: 403 SELF_APPROVAL_DENIED; duyệt: status OPEN, reopened_until = +24h, job tự khóa lại khi hết hạn (locked_at mới).",
+      "coverage_ids": [
+        "COV-FR-CAP-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: fiscal_year_control 2025 LOCKED locked_at 2026-02-01.\n1. POST /capital-plans/{CP-2025r4}/allocations\n2. POST /fiscal-years/2025/reopen {reason:\"Điều chỉnh số liệu quyết toán Kho bạc\"} bởi A-planner rồi A-planner tự duyệt\n3. A-approver duyệt reopen 24h",
+      "expected": "Bước 1: 409 FISCAL_YEAR_LOCKED; tự duyệt: 403 SELF_APPROVAL_DENIED; duyệt: status OPEN, reopened_until = +24h, job tự khóa lại khi hết hạn (locked_at mới).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CAP-11",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC231",
+      "title": "CAP-08 hiện đăng ký 800 triệu, đạt 62",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-08",
+      "oracle_source": "Claim → 05_modules/CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC231 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-08",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đăng ký giải ngân tháng\": CAP-08 hiện đăng ký 800 triệu, đạt 62.5% đăng ký; DIS-19 không coi 800 triệu là đã giải ngân (tử số = 500 triệu theo Kho bạc).",
+      "coverage_ids": [
+        "COV-FR-CAP-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-001 đăng ký tháng 10/2026 = 800000000 (REGISTERED); Kho bạc đã trả 500000000 trong tháng.\n1. POST /disbursement-schedules {project_id:P-A-001, plan_year:2026, granularity:\"MONTH\", month:10, kind:\"REGISTERED\", bucket:\"CURRENT_YEAR\", budget_level:\"CENTRAL\", amount_vnd:\"800000000\"}\n2. Mở CAP-08 và DIS-19",
+      "expected": "CAP-08 hiện đăng ký 800 triệu, đạt 62.5% đăng ký; DIS-19 không coi 800 triệu là đã giải ngân (tử số = 500 triệu theo Kho bạc).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CAP-08",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC232",
+      "title": "EAC lần đầu 650000000, sau sửa 700000000",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-12",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-12",
+      "oracle_source": "Claim → 05_modules/CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC232 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-12, FR-CAP-13",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kế hoạch ước giải ngân\": EAC lần đầu 650000000, sau sửa 700000000; revision 1 is_current=false; CAP-12 hiện chênh lệch so kế hoạch −300000000 và lý do điều chỉnh.",
+      "coverage_ids": [
+        "COV-FR-CAP-12",
+        "COV-FR-CAP-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: P-A-002: đã giải ngân 400000000; dự báo tháng 11 = 100000000, tháng 12 = 150000000; kế hoạch 1000000000.\n1. POST /disbursement-schedules kind FORECAST cho tháng 11 và 12 với assumption\n2. Sửa dự báo tháng 12 thành 200000000 (revision 2)\n3. Mở CAP-12 và DIS-23",
+      "expected": "EAC lần đầu 650000000, sau sửa 700000000; revision 1 is_current=false; CAP-12 hiện chênh lệch so kế hoạch −300000000 và lý do điều chỉnh.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CAP-12",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC233",
+      "title": "Kịch bản RUN có result_json",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-09",
+      "oracle_source": "Claim → 05_modules/CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC233 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Mô phỏng phân bổ\": Kịch bản RUN có result_json; số bút toán ledger và allocation_line không đổi (n1, n2); promote tạo reallocation_proposal DRAFT, không ghi ledger.",
+      "coverage_ids": [
+        "COV-FR-CAP-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Đếm capital_ledger_entry, allocation_line trước (n1, n2).\n1. POST /allocation-scenarios {constraints:{ceiling:\"500000000000\"}, assumptions:{priority:\"rate_desc\"}}\n2. POST /allocation-scenarios/{id}/run\n3. Đếm lại",
+      "expected": "Kịch bản RUN có result_json; số bút toán ledger và allocation_line không đổi (n1, n2); promote tạo reallocation_proposal DRAFT, không ghi ledger.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "CAP-09",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC234",
+      "title": "UPDATE bị từ chối (permission denied, REVOKE)",
+      "type": "RED",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-21",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-21",
+      "oracle_source": "Claim → 05_modules/CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC234 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-21",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sổ cái vốn và tra cứu theo thời điểm\": UPDATE bị từ chối (permission denied, REVOKE); điều chỉnh tạo bút toán REDUCE mới, E1 giữ nguyên; CAP-21 hiển thị chuỗi bút toán và \"Đảo của\" khi là REVERSAL.",
+      "coverage_ids": [
+        "COV-FR-CAP-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Bút toán E1 ALLOCATE 1000000000.\n1. Dùng role runtime chạy UPDATE capital_ledger_entry SET amount_vnd=1 WHERE id=E1\n2. Gọi command reversal qua revision kế hoạch giảm dòng",
+      "expected": "UPDATE bị từ chối (permission denied, REVOKE); điều chỉnh tạo bút toán REDUCE mới, E1 giữ nguyên; CAP-21 hiển thị chuỗi bút toán và \"Đảo của\" khi là REVERSAL.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "CAP-21",
+      "tags": [
+        "security"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC235",
+      "title": "CAP-14 tách 2 loại nguồn với quyết định, phạm vi, giá trị, đã phân bổ (5 tỷ) và còn lại (10 tỷ)",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-14",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-14",
+      "oracle_source": "Claim → 05_modules/CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC235 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Vốn hỗ trợ và tăng thu\": CAP-14 tách 2 loại nguồn với quyết định, phạm vi, giá trị, đã phân bổ (5 tỷ) và còn lại (10 tỷ); HOME-07 thẻ \"Vốn tăng thu NSTW\" = 15 tỷ.",
+      "coverage_ids": [
+        "COV-FR-CAP-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Appropriation origin CENTRAL_SUPPORT 20 tỷ và REVENUE_INCREASE 15 tỷ năm 2026.\n1. Mở CAP-14\n2. Phân bổ 5 tỷ từ REVENUE_INCREASE cho P-A-007",
+      "expected": "CAP-14 tách 2 loại nguồn với quyết định, phạm vi, giá trị, đã phân bổ (5 tỷ) và còn lại (10 tỷ); HOME-07 thẻ \"Vốn tăng thu NSTW\" = 15 tỷ.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CAP-14",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC236",
+      "title": "200 kèm warnings[0]",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-01",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-01",
+      "oracle_source": "Claim → 05_modules/CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC236 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-01, FR-CAP-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kế hoạch trung hạn\": 200 kèm warnings[0].code=MEDIUM_TERM_CEILING_EXCEEDED (22 > 20 tỷ); không chặn vì trần trung hạn là cảnh báo [GIẢ ĐỊNH, CXN-13].",
+      "coverage_ids": [
+        "COV-FR-CAP-01",
+        "COV-FR-CAP-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Kế hoạch trung hạn MT-2026-2030 PUBLISHED: P-A-001 trần 20 tỷ; kế hoạch năm 2026 đã giao 8 tỷ, 2027 dự kiến 10 tỷ.\n1. Lập phương án năm 2028 cho P-A-001 = 4 tỷ",
+      "expected": "200 kèm warnings[0].code=MEDIUM_TERM_CEILING_EXCEEDED (22 > 20 tỷ); không chặn vì trần trung hạn là cảnh báo [GIẢ ĐỊNH, CXN-13].",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CAP-01",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC237",
+      "title": "GET chỉ trả dòng U-BQL1, tổng hiển thị ghi \"trong phạm vi quyền\"",
+      "type": "RED",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-15",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-15",
+      "oracle_source": "Claim → 05_modules/CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC237 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-15, FR-CAP-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Theo dõi kế hoạch vốn\": GET chỉ trả dòng U-BQL1, tổng hiển thị ghi \"trong phạm vi quyền\"; POST: 404 RESOURCE_NOT_FOUND.",
+      "coverage_ids": [
+        "COV-FR-CAP-15",
+        "COV-FR-CAP-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: A-maker chỉ có scope U-BQL1; capital plan có dòng của U-BQL1 và U-BQL2.\n1. A-maker GET /capital-plans/{id}/lines\n2. A-maker POST /fund-reservations cho dòng của U-BQL2",
+      "expected": "GET chỉ trả dòng U-BQL1, tổng hiển thị ghi \"trong phạm vi quyền\"; POST: 404 RESOURCE_NOT_FOUND.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "CAP-06",
+      "tags": [
+        "security"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC238",
+      "title": "Lần 2 trả đúng response lần 1 (cùng operation_id, resource_version 6)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-06",
+      "oracle_source": "Claim → 05_modules/CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC238 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Phân bổ vốn\": Lần 2 trả đúng response lần 1 (cùng operation_id, resource_version 6); lần 3: 409 IDEMPOTENCY_CONFLICT; không có dòng trùng.",
+      "coverage_ids": [
+        "COV-FR-CAP-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: CP-2026r2 DRAFT version 5.\n1. POST /capital-plans/{id}/allocations (key k-238-0000000001, If-Match \"5\", body B1)\n2. Gửi lại cùng key và B1\n3. Gửi lại cùng key với B2 khác số tiền",
+      "expected": "Lần 2 trả đúng response lần 1 (cùng operation_id, resource_version 6); lần 3: 409 IDEMPOTENCY_CONFLICT; không có dòng trùng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "CAP-06",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-AC239",
+      "title": "Cả hai bị từ chối: 422 EXTENSION_DOCUMENT_REQUIRED và 422 VALIDATION_FAILED field source_year (CHECK appropriation_carry",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-16",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-16",
+      "oracle_source": "Claim → 05_modules/CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC239 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-16, FR-CAP-20",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sổ dự toán và nguồn được giao\": Cả hai bị từ chối: 422 EXTENSION_DOCUMENT_REQUIRED và 422 VALIDATION_FAILED field source_year (CHECK appropriation_carryover_chk).",
+      "coverage_ids": [
+        "COV-FR-CAP-16",
+        "COV-FR-CAP-20"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Appropriation AP-EXT CARRYOVER plan_year 2026 source_year 2025.\n1. Tạo appropriation CARRYOVER không có extension_document_id\n2. Tạo với source_year 2026 = plan_year",
+      "expected": "Cả hai bị từ chối: 422 EXTENSION_DOCUMENT_REQUIRED và 422 VALIDATION_FAILED field source_year (CHECK appropriation_carryover_chk).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "CAP-16",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-16",
+      "title": "Sổ dự toán và nguồn được giao (CAP-16): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-16",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-16",
+      "oracle_source": "Claim → FR-CAP-16; kỳ vọng nguyên văn của ca thiết kế UI-CAP-16 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-16",
+      "catches_bug": "Màn hình Sổ dự toán và nguồn được giao (CAP-16) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Sổ dự toán và nguồn được giao; user có quyền và user chỉ đọc; route CAP-16\n1. Mở CAP-16 từ menu và deep link; kiểm nhãn trường: Nguồn vốn, Năm kế hoạch, Loại giao, Cấp ngân sách, Văn bản giao, Giá trị, Đã phân bổ, Còn lại\n2. Thực hiện thao tác chính theo quy tắc: Mỗi appropriation có văn bản giao; tổng phân bổ ≤ giá trị giao (CHECK DB); CTMTQG là tập con, không cộng thêm\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CAP-16",
+      "expected": "Sổ dự toán và nguồn được giao: hiển thị đúng 8 trường, áp quy tắc \"Mỗi appropriation có văn bản giao; tổng phân bổ ≤ giá trị giao (CHECK DB); CTMTQG là tập con, không cộng thêm\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-16",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-17",
+      "title": "Kiểm soát hạn mức khả dụng (AVC) (CAP-17): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-17",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-17",
+      "oracle_source": "Claim → FR-CAP-17; kỳ vọng nguyên văn của ca thiết kế UI-CAP-17 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-17",
+      "catches_bug": "Màn hình Kiểm soát hạn mức khả dụng (AVC) (CAP-17) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Kiểm soát hạn mức khả dụng (AVC); user có quyền và user chỉ đọc; route CAP-17\n1. Mở CAP-17 từ menu và deep link; kiểm nhãn trường: Phạm vi, Đối tượng kiểm soát, Ngưỡng cảnh báo %, Ngưỡng chặn %, Căn cứ, Hiệu lực\n2. Thực hiện thao tác chính theo quy tắc: warn_pct ≤ block_pct ≤ 100; tiêu dùng = (giữ vốn + cam kết + đã giải ngân)/vốn giao; vượt warn cần xác nhận, vượt block bị chặn\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CAP-17",
+      "expected": "Kiểm soát hạn mức khả dụng (AVC): hiển thị đúng 6 trường, áp quy tắc \"warn_pct ≤ block_pct ≤ 100; tiêu dùng = (giữ vốn + cam kết + đã giải ngân)/vốn giao; vượt warn cần xác nhận, vượt block bị chặn\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-17",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-18",
+      "title": "Giữ vốn trước cam kết (CAP-18): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-18",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-18",
+      "oracle_source": "Claim → FR-CAP-18; kỳ vọng nguyên văn của ca thiết kế UI-CAP-18 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-18",
+      "catches_bug": "Màn hình Giữ vốn trước cam kết (CAP-18) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Giữ vốn trước cam kết; user có quyền và user chỉ đọc; route CAP-18\n1. Mở CAP-18 từ menu và deep link; kiểm nhãn trường: Dòng vốn, Dự án, Mục đích, Số tiền, Hết hạn, Trạng thái\n2. Thực hiện thao tác chính theo quy tắc: Giữ vốn giảm số dư khả dụng; hết hạn tự giải phóng bằng bút toán RELEASE; không xóa\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CAP-18",
+      "expected": "Giữ vốn trước cam kết: hiển thị đúng 6 trường, áp quy tắc \"Giữ vốn giảm số dư khả dụng; hết hạn tự giải phóng bằng bút toán RELEASE; không xóa\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-18",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-19",
+      "title": "Đề xuất điều chuyển vốn chậm sang nhanh (CAP-19): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-19",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-19",
+      "oracle_source": "Claim → FR-CAP-19; kỳ vọng nguyên văn của ca thiết kế UI-CAP-19 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-19",
+      "catches_bug": "Màn hình Đề xuất điều chuyển vốn chậm sang nhanh (CAP-19) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Đề xuất điều chuyển vốn chậm sang nhanh; user có quyền và user chỉ đọc; route CAP-19\n1. Mở CAP-19 từ menu và deep link; kiểm nhãn trường: Dự án giảm, Tỷ lệ giải ngân, Dự báo cuối năm, Dự án tăng, Số tiền, Căn cứ, Văn bản quyết định\n2. Thực hiện thao tác chính theo quy tắc: Chỉ điều chuyển cùng nguồn và cấp ngân sách; dòng giảm không xuống dưới đã cam kết; áp dụng tạo revision kế hoạch mới có văn bản\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CAP-19",
+      "expected": "Đề xuất điều chuyển vốn chậm sang nhanh: hiển thị đúng 7 trường, áp quy tắc \"Chỉ điều chuyển cùng nguồn và cấp ngân sách; dòng giảm không xuống dưới đã cam kết; áp dụng tạo revision kế hoạch mới có văn bản\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-19",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-20",
+      "title": "Kéo dài thời gian giải ngân vốn (CAP-20): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-20",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-20",
+      "oracle_source": "Claim → FR-CAP-20; kỳ vọng nguyên văn của ca thiết kế UI-CAP-20 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-20",
+      "catches_bug": "Màn hình Kéo dài thời gian giải ngân vốn (CAP-20) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-20"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Kéo dài thời gian giải ngân vốn; user có quyền và user chỉ đọc; route CAP-20\n1. Mở CAP-20 từ menu và deep link; kiểm nhãn trường: Dòng vốn, Năm kế hoạch gốc, Số tiền kéo dài, Kéo dài đến, Lý do, Văn bản cho phép\n2. Thực hiện thao tác chính theo quy tắc: Kéo dài cần văn bản cho phép; tạo dòng CARRYOVER is_extended ở năm sau, giữ source_year gốc; không cộng vào vốn năm\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CAP-20",
+      "expected": "Kéo dài thời gian giải ngân vốn: hiển thị đúng 6 trường, áp quy tắc \"Kéo dài cần văn bản cho phép; tạo dòng CARRYOVER is_extended ở năm sau, giữ source_year gốc; không cộng vào vốn năm\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-20",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UI-CAP-21",
+      "title": "Sổ cái vốn và tra cứu theo thời điểm (CAP-21): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ke-hoach",
+      "journey_ref": "J-FR-CAP-21",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-21",
+      "oracle_source": "Claim → FR-CAP-21; kỳ vọng nguyên văn của ca thiết kế UI-CAP-21 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-21",
+      "catches_bug": "Màn hình Sổ cái vốn và tra cứu theo thời điểm (CAP-21) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-CAP-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ke-hoach",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Sổ cái vốn và tra cứu theo thời điểm; user có quyền và user chỉ đọc; route CAP-21\n1. Mở CAP-21 từ menu và deep link; kiểm nhãn trường: Bút toán, Loại, Số tiền, Chứng từ nguồn, Thời điểm, Đảo của\n2. Thực hiện thao tác chính theo quy tắc: Sổ cái append-only; sửa sai bằng REVERSAL; tra cứu kế hoạch tại thời điểm bất kỳ\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên CAP-21",
+      "expected": "Sổ cái vốn và tra cứu theo thời điểm: hiển thị đúng 6 trường, áp quy tắc \"Sổ cái append-only; sửa sai bằng REVERSAL; tra cứu kế hoạch tại thời điểm bất kỳ\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "CAP-21",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-01",
+      "title": "Ledger has one COMMIT, then UNCOMMIT plus DISBURSE dated treasury_paid_on, then one REVERSAL on the reversal date",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-cap",
+      "journey_ref": "J-FR-CAP-21",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-21",
+      "oracle_source": "Claim → CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-21",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sổ cái vốn và tra cứu theo thời điểm\": Ledger has one COMMIT, then UNCOMMIT plus DISBURSE dated treasury_paid_on, then one REVERSAL on the reversal date; the second delivery adds no ledger row; the b",
+      "coverage_ids": [
+        "COV-FR-CAP-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-cap",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Allocation line L1 with plan balance; events payment.submitted.v1 and pay.payment.settled.v2 (treasury_paid_on) delivered twice, then a reversal.\n1. Deliver payment.submitted.v1\n2. Deliver pay.payment.settled.v2 twice\n3. Deliver a reversal event\n4. Read ledger entries and balance",
+      "expected": "Ledger has one COMMIT, then UNCOMMIT plus DISBURSE dated treasury_paid_on, then one REVERSAL on the reversal date; the second delivery adds no ledger row; the balance equals the sum of entries.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-02",
+      "title": "cap_balance_drift_vnd = 1000, one incident is opened, the DGV alert fires and allocation_balance is unchanged (no automa",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-cap",
+      "journey_ref": "J-FR-CAP-21",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-21",
+      "oracle_source": "Claim → CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-21",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sổ cái vốn và tra cứu theo thời điểm\": cap_balance_drift_vnd = 1000, one incident is opened, the DGV alert fires and allocation_balance is unchanged (no automatic correction).",
+      "coverage_ids": [
+        "COV-FR-CAP-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-cap",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Ledger sum differs from allocation_balance by 1,000 VND on line L1.\n1. Run job capital.balance-reconcile\n2. Read cap_balance_drift_vnd, incidents and the balance",
+      "expected": "cap_balance_drift_vnd = 1000, one incident is opened, the DGV alert fires and allocation_balance is unchanged (no automatic correction).",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-03",
+      "title": "Steps 1 and 2 return 422 AVC_THRESHOLD_INVALID",
+      "type": "RED",
+      "platform": "api",
+      "persona": "nguoi-dung-cap",
+      "journey_ref": "J-FR-CAP-17",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-17",
+      "oracle_source": "Claim → CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-17",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kiểm soát hạn mức khả dụng (AVC)\": Steps 1 and 2 return 422 AVC_THRESHOLD_INVALID; step 3 returns 403 SELF_APPROVAL_DENIED; step 4 returns 200 and the policy is ACTIVE with an audit row for both ",
+      "coverage_ids": [
+        "COV-FR-CAP-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-cap",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Capital manager creates AVC policies; creator and a different approver exist.\n1. POST /avc-policies with warn 95 and block 90\n2. POST /avc-policies with block 120\n3. Creator publishes a valid draft\n4. Approver publishes it",
+      "expected": "Steps 1 and 2 return 422 AVC_THRESHOLD_INVALID; step 3 returns 403 SELF_APPROVAL_DENIED; step 4 returns 200 and the policy is ACTIVE with an audit row for both users.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "tags": [
+        "security"
+      ],
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-10",
+      "title": "Step 1: 422 AVC_WARNING_ACK_REQUIRED (exactly 100 percent used)",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-cap",
+      "journey_ref": "J-FR-CAP-18",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-18",
+      "oracle_source": "Claim → CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-18",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Giữ vốn trước cam kết\": Step 1: 422 AVC_WARNING_ACK_REQUIRED (exactly 100 percent used); step 2: 200 ACTIVE with the acknowledging user in the audit; step 3: 422 AVC_BLOCKED (110 perce",
+      "coverage_ids": [
+        "COV-FR-CAP-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-cap",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: AVC policy warn 90, block 100 on line with 600000000 allocated and 450000000 used.\n1. POST /fund-reservations 150000000 without acknowledge\n2. Repeat with avc_acknowledged=true\n3. POST /fund-reservations 60000000",
+      "expected": "Step 1: 422 AVC_WARNING_ACK_REQUIRED (exactly 100 percent used); step 2: 200 ACTIVE with the acknowledging user in the audit; step 3: 422 AVC_BLOCKED (110 percent).",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-59",
+      "title": "422 APPROPRIATION_BELOW_ALLOCATED",
+      "type": "DECISION",
+      "platform": "api",
+      "persona": "nguoi-dung-cap",
+      "journey_ref": "J-FR-CAP-16",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-16",
+      "oracle_source": "Claim → CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-59 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-16",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sổ dự toán và nguồn được giao\": 422 APPROPRIATION_BELOW_ALLOCATED; AP-1 amount stays 8000000000 and no ledger row is added.",
+      "coverage_ids": [
+        "COV-FR-CAP-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-cap",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Appropriation AP-1 of 8,000,000,000 VND already allocated 6,000,000,000 VND.\n1. Revise the amount to 5,000,000,000\n2. Read AP-1 and the ledger",
+      "expected": "422 APPROPRIATION_BELOW_ALLOCATED; AP-1 amount stays 8000000000 and no ledger row is added.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-60",
+      "title": "409 REVISION_PENDING_EXISTS and only one DRAFT revision exists",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-cap",
+      "journey_ref": "J-FR-CAP-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-07",
+      "oracle_source": "Claim → CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-60 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Điều chỉnh và điều chuyển\": 409 REVISION_PENDING_EXISTS and only one DRAFT revision exists.",
+      "coverage_ids": [
+        "COV-FR-CAP-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-cap",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Capital plan CP-1 with a DRAFT revision R2.\n1. Request another revision of CP-1\n2. Read the revisions",
+      "expected": "409 REVISION_PENDING_EXISTS and only one DRAFT revision exists.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-61",
+      "title": "Step 1: 422 AMOUNT_EXCEEDS_UNDISBURSED",
+      "type": "DECISION",
+      "platform": "api",
+      "persona": "nguoi-dung-cap",
+      "journey_ref": "J-FR-CAP-20",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-20",
+      "oracle_source": "Claim → CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-61 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-20",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kéo dài thời gian giải ngân vốn\": Step 1: 422 AMOUNT_EXCEEDS_UNDISBURSED; step 2: 200 REQUESTED; no ledger row is written by either request.",
+      "coverage_ids": [
+        "COV-FR-CAP-20"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-cap",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Line allocated 10,000,000,000, disbursed 6,000,000,000 and committed 2,000,000,000 VND (4,000,000,000 minus 2,000,000,000 = 2,000,000,000 undisbursed available).\n1. Request an extension of 3,000,000,000\n2. Request an extension of 2,000,000,000",
+      "expected": "Step 1: 422 AMOUNT_EXCEEDS_UNDISBURSED; step 2: 200 REQUESTED; no ledger row is written by either request.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-62",
+      "title": "409 YEAR_STATE_INVALID and the year state is unchanged",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-cap",
+      "journey_ref": "J-FR-CAP-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-11",
+      "oracle_source": "Claim → CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-62 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-11",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chuyển nguồn và khóa năm\": 409 YEAR_STATE_INVALID and the year state is unchanged.",
+      "coverage_ids": [
+        "COV-FR-CAP-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-cap",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Plan year 2026 with a plan IN_REVIEW.\n1. Request close of year 2026\n2. Read the year",
+      "expected": "409 YEAR_STATE_INVALID and the year state is unchanged.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-63",
+      "title": "Step 1: 422 SUBSET_EXCEEDS_PARENT",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-cap",
+      "journey_ref": "J-FR-CAP-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-08",
+      "oracle_source": "Claim → CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-63 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-08",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đăng ký giải ngân tháng\": Step 1: 422 SUBSET_EXCEEDS_PARENT; step 2: 409 PERIOD_LOCKED; step 3: 200 and exactly one current row per key remains.",
+      "coverage_ids": [
+        "COV-FR-CAP-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-cap",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Registration with CTMTQG 600,000,000 above the amount 500,000,000; a second registration for a LOCKED period; a valid registration with an existing current row for the same key.\n1. Submit the first registration\n2. Submit the second registration\n3. Submit a new revision of the valid registration\n4. Count current rows per key",
+      "expected": "Step 1: 422 SUBSET_EXCEEDS_PARENT; step 2: 409 PERIOD_LOCKED; step 3: 200 and exactly one current row per key remains.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-64",
+      "title": "409 PLAN_CHANGED_SINCE_PROPOSAL",
+      "type": "DECISION",
+      "platform": "api",
+      "persona": "nguoi-dung-cap",
+      "journey_ref": "J-FR-CAP-19",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-19",
+      "oracle_source": "Claim → CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-64 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-19",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Đề xuất điều chuyển vốn chậm sang nhanh\": 409 PLAN_CHANGED_SINCE_PROPOSAL; no ledger row is written and no plan revision is created.",
+      "coverage_ids": [
+        "COV-FR-CAP-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-cap",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Reallocation proposal RP-1 drafted on plan revision 3; plan revision 4 published afterwards.\n1. Apply RP-1\n2. Read the ledger and the plan",
+      "expected": "409 PLAN_CHANGED_SINCE_PROPOSAL; no ledger row is written and no plan revision is created.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "module": "CAP"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-65",
+      "title": "Step 1: 409 SCENARIO_NOT_RUN",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-cap",
+      "journey_ref": "J-FR-CAP-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-CAP-09",
+      "oracle_source": "Claim → CAP.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-65 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-CAP-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Mô phỏng phân bổ\": Step 1: 409 SCENARIO_NOT_RUN; step 2: a reallocation proposal in DRAFT is created and no ledger row is written.",
+      "coverage_ids": [
+        "COV-FR-CAP-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-cap",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Scenario SC-1 never run; scenario SC-2 run with a result.\n1. Promote SC-1\n2. Promote SC-2",
+      "expected": "Step 1: 409 SCENARIO_NOT_RUN; step 2: a reallocation proposal in DRAFT is created and no ledger row is written.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "CAP"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 21,
+    "M2": 0,
+    "M3": 0,
+    "M4": 120,
+    "max": 120,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 21,
+    "covered": 21,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

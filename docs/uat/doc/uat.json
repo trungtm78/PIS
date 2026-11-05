@@ -1,0 +1,2165 @@
+{
+  "feature": "doc",
+  "generated_at": "2026-11-05T07:53:18.053Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/doc/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UI-DOC-01",
+      "title": "Tổng quan văn bản (DOC-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-01",
+      "oracle_source": "Claim → FR-DOC-01; kỳ vọng nguyên văn của ca thiết kế UI-DOC-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-01",
+      "catches_bug": "Màn hình Tổng quan văn bản (DOC-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Tổng quan văn bản\"; user có quyền và user chỉ đọc; route DOC-01\n1. Mở DOC-01 từ menu và deep link; kiểm nhãn trường: Dự thảo chờ rà soát, Chờ ký lãnh đạo, Chờ cấp số, Chờ đóng dấu cơ quan, Văn bản đến quá hạn, Lỗi liên thông, Mẫu chờ xác nhận pháp lý\n2. Thực hiện thao tác chính theo quy tắc: Mỗi ô là MetricTile có as_of; số đếm theo scope đơn vị của người xem; ô \"Mẫu chờ xác nhận pháp lý\" hiển thị nhãn [CXN] và dẫn tới DOC-14\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-01",
+      "expected": "Tổng quan văn bản: hiển thị đúng 7 trường, áp quy tắc \"Mỗi ô là MetricTile có as_of; số đếm theo scope đơn vị của người xem; ô \"Mẫu chờ xác nhận pháp lý\" hiển thị nhãn [CXN] và dẫn tới DOC-14\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-02",
+      "title": "Soạn thảo văn bản đi (DOC-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-soan-thao",
+      "journey_ref": "J-FR-DOC-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-02",
+      "oracle_source": "Claim → FR-DOC-02; kỳ vọng nguyên văn của ca thiết kế UI-DOC-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-02",
+      "catches_bug": "Màn hình Soạn thảo văn bản đi (DOC-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-soan-thao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Soạn thảo văn bản đi\"; user có quyền và user chỉ đọc; route DOC-02\n1. Mở DOC-02 từ menu và deep link; kiểm nhãn trường: Loại văn bản, Mẫu và revision, Trích yếu, Nội dung theo tham số, Nơi nhận, Người ký và hình thức ký, Xem trước PDF có watermark\n2. Thực hiện thao tác chính theo quy tắc: Chỉ chọn được mẫu PUBLISHED còn hiệu lực tại ngày soạn; payload sai schema bị chặn; mẫu chưa xác nhận pháp lý luôn có watermark; văn bản độ mật nhà nước bị từ chối (STATE_SECRET_NOT_SUPPORTED)\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-02",
+      "expected": "Soạn thảo văn bản đi: hiển thị đúng 7 trường, áp quy tắc \"Chỉ chọn được mẫu PUBLISHED còn hiệu lực tại ngày soạn; payload sai schema bị chặn; mẫu chưa xác nhận pháp lý luôn có watermark; văn bản độ mật nhà nước bị từ chối (STATE_SECRET_NOT_SUPPORTED)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-03",
+      "title": "Danh sách văn bản đi (DOC-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-03",
+      "oracle_source": "Claim → FR-DOC-03; kỳ vọng nguyên văn của ca thiết kế UI-DOC-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-03",
+      "catches_bug": "Màn hình Danh sách văn bản đi (DOC-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Danh sách văn bản đi\"; user có quyền và user chỉ đọc; route DOC-03\n1. Mở DOC-03 từ menu và deep link; kiểm nhãn trường: Số và ký hiệu, Trích yếu, Trạng thái, Người soạn, Người ký, Ngày ban hành, Hiệu lực, Nguồn (module)\n2. Thực hiện thao tác chính theo quy tắc: Lọc theo scope cây đơn vị; trạng thái RECALLED/REPLACED/CORRECTED hiển thị bằng chữ + icon; không lộ văn bản ngoài scope\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-03",
+      "expected": "Danh sách văn bản đi: hiển thị đúng 8 trường, áp quy tắc \"Lọc theo scope cây đơn vị; trạng thái RECALLED/REPLACED/CORRECTED hiển thị bằng chữ + icon; không lộ văn bản ngoài scope\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-04",
+      "title": "Rà soát và trình ký (DOC-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "truong-don-vi",
+      "journey_ref": "J-FR-DOC-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-04",
+      "oracle_source": "Claim → FR-DOC-04; kỳ vọng nguyên văn của ca thiết kế UI-DOC-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-04",
+      "catches_bug": "Màn hình Rà soát và trình ký (DOC-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "truong-don-vi",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Rà soát và trình ký\"; user có quyền và user chỉ đọc; route DOC-04\n1. Mở DOC-04 từ menu và deep link; kiểm nhãn trường: Danh mục kiểm thể thức, Ý kiến rà soát, Băm SHA-256 của PDF cuối, Thẩm quyền ký theo DoA, Hình thức ký (trực tiếp/KT./TM./TL./TUQ.), Quyết định\n2. Thực hiện thao tác chính theo quy tắc: Người duyệt khác người soạn; PDF cuối bị khóa khi chuyển SUBMITTED; người ký phải đạt thẩm quyền DoA theo loại văn bản và số tiền; ký thay/ủy quyền cần delegation đang hiệu lực\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-04",
+      "expected": "Rà soát và trình ký: hiển thị đúng 6 trường, áp quy tắc \"Người duyệt khác người soạn; PDF cuối bị khóa khi chuyển SUBMITTED; người ký phải đạt thẩm quyền DoA theo loại văn bản và số tiền; ký thay/ủy quyền cần delegation đang hiệu lực\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-05",
+      "title": "Ký số lãnh đạo (DOC-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "lanh-dao-ky",
+      "journey_ref": "J-FR-DOC-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-05",
+      "oracle_source": "Claim → FR-DOC-05; kỳ vọng nguyên văn của ca thiết kế UI-DOC-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-05",
+      "catches_bug": "Màn hình Ký số lãnh đạo (DOC-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao-ky",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Ký số lãnh đạo\"; user có quyền và user chỉ đọc; route DOC-05\n1. Mở DOC-05 từ menu và deep link; kiểm nhãn trường: Trình xem PDF cuối, Hộp chữ ký lãnh đạo, Chứng thư dùng để ký, Phiên ký và hạn phiên, Trạng thái adapter ký số, Từ chối ký kèm lý do\n2. Thực hiện thao tác chính theo quy tắc: Lãnh đạo ký PAdES trên đúng PDF đã khóa (revision n); chứng thư phải Active ở ADM và chưa bị thu hồi; phiên hết hạn sau 15 phút; trạng thái adapter hiển thị VERIFIED/PROPOSED/MOCK/MISSING\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-05",
+      "expected": "Ký số lãnh đạo: hiển thị đúng 6 trường, áp quy tắc \"Lãnh đạo ký PAdES trên đúng PDF đã khóa (revision n); chứng thư phải Active ở ADM và chưa bị thu hồi; phiên hết hạn sau 15 phút; trạng thái adapter hiển thị VERIFIED/PROPOSED/MOCK/MISSING\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-06",
+      "title": "Cấp số và ký số cơ quan (DOC-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-06",
+      "oracle_source": "Claim → FR-DOC-06; kỳ vọng nguyên văn của ca thiết kế UI-DOC-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-06",
+      "catches_bug": "Màn hình Cấp số và ký số cơ quan (DOC-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Cấp số và ký số cơ quan\"; user có quyền và user chỉ đọc; route DOC-06\n1. Mở DOC-06 từ menu và deep link; kiểm nhãn trường: Hàng đợi chờ cấp số, Sổ cấp số và số kế tiếp, Ngày ban hành, Ký hiệu dự kiến, Con dấu/chứng thư cơ quan, Trạng thái từng bước, Hủy số kèm người duyệt\n2. Thực hiện thao tác chính theo quy tắc: Số cấp sau khi lãnh đạo ký, trong transaction khóa hàng sổ; không hậu tố a/b; thất bại ở bước đóng dấu giữ nguyên số (NUMBERED) cho tới khi thử lại hoặc hủy số có người duyệt khác\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-06",
+      "expected": "Cấp số và ký số cơ quan: hiển thị đúng 7 trường, áp quy tắc \"Số cấp sau khi lãnh đạo ký, trong transaction khóa hàng sổ; không hậu tố a/b; thất bại ở bước đóng dấu giữ nguyên số (NUMBERED) cho tới khi thử lại hoặc hủy số có người duyệt khác\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-07",
+      "title": "Xác minh chữ ký và chứng thư (DOC-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-07",
+      "oracle_source": "Claim → FR-DOC-07; kỳ vọng nguyên văn của ca thiết kế UI-DOC-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-07",
+      "catches_bug": "Màn hình Xác minh chữ ký và chứng thư (DOC-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Xác minh chữ ký và chứng thư\"; user có quyền và user chỉ đọc; route DOC-07\n1. Mở DOC-07 từ menu và deep link; kiểm nhãn trường: Danh sách chữ ký theo thứ tự, Chuỗi chứng thư và nhà cung cấp CA, Trạng thái thu hồi (OCSP/CRL), Thay đổi gia tăng sau chữ ký, Dấu thời gian, Kết luận VALID/INVALID/INDETERMINATE\n2. Thực hiện thao tác chính theo quy tắc: Hiển thị đủ lý do mã hóa (failure_codes); INDETERMINATE chặn phát hành trừ khi chính sách tenant cho phép; xác minh lại không ghi đè kết quả cũ\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-07",
+      "expected": "Xác minh chữ ký và chứng thư: hiển thị đúng 6 trường, áp quy tắc \"Hiển thị đủ lý do mã hóa (failure_codes); INDETERMINATE chặn phát hành trừ khi chính sách tenant cho phép; xác minh lại không ghi đè kết quả cũ\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-08",
+      "title": "Phát hành và phân phối (DOC-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-08",
+      "oracle_source": "Claim → FR-DOC-08; kỳ vọng nguyên văn của ca thiết kế UI-DOC-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-08",
+      "catches_bug": "Màn hình Phát hành và phân phối (DOC-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Phát hành và phân phối\"; user có quyền và user chỉ đọc; route DOC-08\n1. Mở DOC-08 từ menu và deep link; kiểm nhãn trường: Nơi nhận, Kênh gửi, Trạng thái phân phối, Gửi lúc, Xác nhận nhận, Mã lỗi, Gửi lại\n2. Thực hiện thao tác chính theo quy tắc: Chỉ phát hành khi cả hai chữ ký VALID; doc.issued phát một lần; gửi lại không tạo phân phối trùng\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-08",
+      "expected": "Phát hành và phân phối: hiển thị đúng 7 trường, áp quy tắc \"Chỉ phát hành khi cả hai chữ ký VALID; doc.issued phát một lần; gửi lại không tạo phân phối trùng\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-09",
+      "title": "Tải lên văn bản đã ký bên ngoài (DOC-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-09",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-09",
+      "oracle_source": "Claim → FR-DOC-09; kỳ vọng nguyên văn của ca thiết kế UI-DOC-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-09",
+      "catches_bug": "Màn hình Tải lên văn bản đã ký bên ngoài (DOC-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Tải lên văn bản đã ký bên ngoài\"; user có quyền và user chỉ đọc; route DOC-09\n1. Mở DOC-09 từ menu và deep link; kiểm nhãn trường: Tệp PDF đã ký, Người ký khai báo, Số và ký hiệu khai báo, Kết quả xác minh chữ ký, Sổ đăng ký số, Đăng ký\n2. Thực hiện thao tác chính theo quy tắc: Đường (ii): xác minh chữ ký và chuỗi chứng thư trước khi đăng ký số; trùng số trong sổ → 409; chữ ký không hợp lệ → không đăng ký\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-09",
+      "expected": "Tải lên văn bản đã ký bên ngoài: hiển thị đúng 6 trường, áp quy tắc \"Đường (ii): xác minh chữ ký và chuỗi chứng thư trước khi đăng ký số; trùng số trong sổ → 409; chữ ký không hợp lệ → không đăng ký\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-10",
+      "title": "Sổ đăng ký văn bản đi (DOC-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-10",
+      "oracle_source": "Claim → FR-DOC-10; kỳ vọng nguyên văn của ca thiết kế UI-DOC-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-10",
+      "catches_bug": "Màn hình Sổ đăng ký văn bản đi (DOC-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Sổ đăng ký văn bản đi\"; user có quyền và user chỉ đọc; route DOC-10\n1. Mở DOC-10 từ menu và deep link; kiểm nhãn trường: Năm, Sổ, Số, Ký hiệu, Ngày ban hành, Trích yếu, Trạng thái số (cấp/hủy), Xuất sổ\n2. Thực hiện thao tác chính theo quy tắc: Số liên tục từ 01 mỗi năm, số hủy vẫn hiện trong sổ; xuất sổ có chữ ký số và băm; auditor chỉ đọc\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-10",
+      "expected": "Sổ đăng ký văn bản đi: hiển thị đúng 8 trường, áp quy tắc \"Số liên tục từ 01 mỗi năm, số hủy vẫn hiện trong sổ; xuất sổ có chữ ký số và băm; auditor chỉ đọc\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-11",
+      "title": "Tiếp nhận văn bản đến (DOC-11): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-11",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-11",
+      "oracle_source": "Claim → FR-DOC-11; kỳ vọng nguyên văn của ca thiết kế UI-DOC-11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-11",
+      "catches_bug": "Màn hình Tiếp nhận văn bản đến (DOC-11) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Tiếp nhận văn bản đến\"; user có quyền và user chỉ đọc; route DOC-11\n1. Mở DOC-11 từ menu và deep link; kiểm nhãn trường: Nguồn tiếp nhận, Tệp quét/PDF, Cơ quan gửi, Ký hiệu và ngày trên văn bản gốc, Mức khẩn, Cảnh báo trùng, Lý do vẫn nhận\n2. Thực hiện thao tác chính theo quy tắc: Tệp quét virus trước khi liên kết; trùng (cơ quan + ký hiệu + ngày) bị chặn trừ khi có lý do; văn bản độ mật nhà nước không nhận\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-11",
+      "expected": "Tiếp nhận văn bản đến: hiển thị đúng 7 trường, áp quy tắc \"Tệp quét virus trước khi liên kết; trùng (cơ quan + ký hiệu + ngày) bị chặn trừ khi có lý do; văn bản độ mật nhà nước không nhận\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-11",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-12",
+      "title": "Sổ văn bản đến và phân công (DOC-12): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-12",
+      "oracle_source": "Claim → FR-DOC-12; kỳ vọng nguyên văn của ca thiết kế UI-DOC-12 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-12",
+      "catches_bug": "Màn hình Sổ văn bản đến và phân công (DOC-12) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Sổ văn bản đến và phân công\"; user có quyền và user chỉ đọc; route DOC-12\n1. Mở DOC-12 từ menu và deep link; kiểm nhãn trường: Số đến, Cơ quan gửi, Trích yếu, Bút phê chỉ đạo, Đơn vị/người xử lý, Hạn xử lý, Trạng thái, Quá hạn\n2. Thực hiện thao tác chính theo quy tắc: Số đến cấp theo sổ năm; phân công trong scope của người giao; quá hạn đánh dấu bằng chữ và ngày hạn gốc\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-12",
+      "expected": "Sổ văn bản đến và phân công: hiển thị đúng 8 trường, áp quy tắc \"Số đến cấp theo sổ năm; phân công trong scope của người giao; quá hạn đánh dấu bằng chữ và ngày hạn gốc\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-12",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-13",
+      "title": "Xử lý văn bản đến (DOC-13): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "chuyen-vien-duoc-giao",
+      "journey_ref": "J-FR-DOC-13",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-13",
+      "oracle_source": "Claim → FR-DOC-13; kỳ vọng nguyên văn của ca thiết kế UI-DOC-13 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-13",
+      "catches_bug": "Màn hình Xử lý văn bản đến (DOC-13) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-duoc-giao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Xử lý văn bản đến\"; user có quyền và user chỉ đọc; route DOC-13\n1. Mở DOC-13 từ menu và deep link; kiểm nhãn trường: Nội dung và tệp gốc, Bút phê, Kết quả xử lý, Văn bản trả lời liên kết, Hạn và số ngày trễ, Đưa vào hồ sơ\n2. Thực hiện thao tác chính theo quy tắc: Chỉ người được giao xử lý; văn bản trả lời liên kết phải đã ISSUED; giải quyết sau hạn đánh dấu trễ\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-13",
+      "expected": "Xử lý văn bản đến: hiển thị đúng 6 trường, áp quy tắc \"Chỉ người được giao xử lý; văn bản trả lời liên kết phải đã ISSUED; giải quyết sau hạn đánh dấu trễ\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-13",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-14",
+      "title": "Thư viện mẫu văn bản (DOC-14): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "quan-tri-mau",
+      "journey_ref": "J-FR-DOC-14",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-14",
+      "oracle_source": "Claim → FR-DOC-14; kỳ vọng nguyên văn của ca thiết kế UI-DOC-14 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-14",
+      "catches_bug": "Màn hình Thư viện mẫu văn bản (DOC-14) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-mau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Thư viện mẫu văn bản\"; user có quyền và user chỉ đọc; route DOC-14\n1. Mở DOC-14 từ menu và deep link; kiểm nhãn trường: Mã mẫu, Nhóm, Mã biểu mẫu, Căn cứ pháp lý, Hiệu lực từ–đến, Trạng thái xác nhận pháp lý, Module sở hữu\n2. Thực hiện thao tác chính theo quy tắc: Mẫu chưa xác nhận hiển thị nhãn \"Chờ xác nhận [CXN]\"; lọc theo ngày hiệu lực; mẫu của TT 44/2026 M02–M10 có watermark tới khi pháp chế ghi xác nhận\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-14",
+      "expected": "Thư viện mẫu văn bản: hiển thị đúng 7 trường, áp quy tắc \"Mẫu chưa xác nhận hiển thị nhãn \"Chờ xác nhận [CXN]\"; lọc theo ngày hiệu lực; mẫu của TT 44/2026 M02–M10 có watermark tới khi pháp chế ghi xác nhận\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-14",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-15",
+      "title": "Chi tiết và phiên bản mẫu (DOC-15): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "quan-tri-mau",
+      "journey_ref": "J-FR-DOC-15",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-15",
+      "oracle_source": "Claim → FR-DOC-15; kỳ vọng nguyên văn của ca thiết kế UI-DOC-15 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-15",
+      "catches_bug": "Màn hình Chi tiết và phiên bản mẫu (DOC-15) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-mau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Chi tiết và phiên bản mẫu\"; user có quyền và user chỉ đọc; route DOC-15\n1. Mở DOC-15 từ menu và deep link; kiểm nhãn trường: Revision, Khác biệt nội dung, Schema payload, Căn cứ pháp lý, Hiệu lực, Người soạn/Người duyệt, Xác nhận pháp lý\n2. Thực hiện thao tác chính theo quy tắc: Người duyệt khác người soạn; hiệu lực các revision cùng mã không chồng lấn; chỉ pháp chế ghi xác nhận pháp lý\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-15",
+      "expected": "Chi tiết và phiên bản mẫu: hiển thị đúng 7 trường, áp quy tắc \"Người duyệt khác người soạn; hiệu lực các revision cùng mã không chồng lấn; chỉ pháp chế ghi xác nhận pháp lý\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-15",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-16",
+      "title": "Thể thức và bố cục theo Phụ lục I NĐ 30/2020 (DOC-16): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "quan-tri-mau",
+      "journey_ref": "J-FR-DOC-16",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-16",
+      "oracle_source": "Claim → FR-DOC-16; kỳ vọng nguyên văn của ca thiết kế UI-DOC-16 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-16",
+      "catches_bug": "Màn hình Thể thức và bố cục theo Phụ lục I NĐ 30/2020 (DOC-16) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-mau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Thể thức và bố cục theo Phụ lục I NĐ 30/2020\"; user có quyền và user chỉ đọc; route DOC-16\n1. Mở DOC-16 từ menu và deep link; kiểm nhãn trường: Khổ giấy, Lề trang, Phông và cỡ chữ từng thành phần, Vị trí chữ ký lãnh đạo, Vị trí con dấu (đè 1/3 chữ ký), Trường số/ký hiệu/ngày, Phạm vi cho phép theo luật\n2. Thực hiện thao tác chính theo quy tắc: Giá trị ngoài khoảng cho phép bị từ chối (LAYOUT_OUT_OF_LEGAL_RANGE); dựng lại cùng đầu vào cho PDF cùng băm; phông thay thế được ghi rõ\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-16",
+      "expected": "Thể thức và bố cục theo Phụ lục I NĐ 30/2020: hiển thị đúng 7 trường, áp quy tắc \"Giá trị ngoài khoảng cho phép bị từ chối (LAYOUT_OUT_OF_LEGAL_RANGE); dựng lại cùng đầu vào cho PDF cùng băm; phông thay thế được ghi rõ\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-16",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-17",
+      "title": "Hồ sơ và lưu trữ (DOC-17): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-17",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-17",
+      "oracle_source": "Claim → FR-DOC-17; kỳ vọng nguyên văn của ca thiết kế UI-DOC-17 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-17",
+      "catches_bug": "Màn hình Hồ sơ và lưu trữ (DOC-17) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Hồ sơ và lưu trữ\"; user có quyền và user chỉ đọc; route DOC-17\n1. Mở DOC-17 từ menu và deep link; kiểm nhãn trường: Số và ký hiệu hồ sơ, Tiêu đề, Dự án/đối tượng, Trạng thái, Thời hạn bảo quản, Hạn nộp lưu, Legal hold\n2. Thực hiện thao tác chính theo quy tắc: Đóng hồ sơ chốt quy tắc bảo quản đang hiệu lực; chưa có quy tắc xác nhận → giữ vĩnh viễn tạm thời; legal hold chặn đề nghị hủy\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-17",
+      "expected": "Hồ sơ và lưu trữ: hiển thị đúng 7 trường, áp quy tắc \"Đóng hồ sơ chốt quy tắc bảo quản đang hiệu lực; chưa có quy tắc xác nhận → giữ vĩnh viễn tạm thời; legal hold chặn đề nghị hủy\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-17",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-18",
+      "title": "Quy tắc bảo quản tài liệu (DOC-18): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "luu-tru",
+      "journey_ref": "J-FR-DOC-18",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-18",
+      "oracle_source": "Claim → FR-DOC-18; kỳ vọng nguyên văn của ca thiết kế UI-DOC-18 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-18",
+      "catches_bug": "Màn hình Quy tắc bảo quản tài liệu (DOC-18) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "luu-tru",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Quy tắc bảo quản tài liệu\"; user có quyền và user chỉ đọc; route DOC-18\n1. Mở DOC-18 từ menu và deep link; kiểm nhãn trường: Bộ quy tắc (TT 74/2025/TT-BTC, TT 10/2022/TT-BNV, tenant), Nhóm hồ sơ, Thời hạn, Căn cứ bắt đầu tính, Thời hạn nộp lưu, Hiệu lực, Trạng thái xác nhận\n2. Thực hiện thao tác chính theo quy tắc: Quy tắc là dữ liệu có hiệu lực; hai bộ quy tắc khác nhau cùng nhóm cần pháp chế chọn precedence; người duyệt khác người soạn\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-18",
+      "expected": "Quy tắc bảo quản tài liệu: hiển thị đúng 7 trường, áp quy tắc \"Quy tắc là dữ liệu có hiệu lực; hai bộ quy tắc khác nhau cùng nhóm cần pháp chế chọn precedence; người duyệt khác người soạn\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-18",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-19",
+      "title": "Thu hồi, thay thế và đính chính (DOC-19): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-19",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-19",
+      "oracle_source": "Claim → FR-DOC-19; kỳ vọng nguyên văn của ca thiết kế UI-DOC-19 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-19",
+      "catches_bug": "Màn hình Thu hồi, thay thế và đính chính (DOC-19) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Thu hồi, thay thế và đính chính\"; user có quyền và user chỉ đọc; route DOC-19\n1. Mở DOC-19 từ menu và deep link; kiểm nhãn trường: Văn bản gốc, Loại xử lý, Căn cứ thu hồi, Văn bản thay thế/đính chính, Thông báo nơi nhận, Dòng thời gian hiệu lực\n2. Thực hiện thao tác chính theo quy tắc: Thu hồi cần lý do và căn cứ; số đã cấp không tái sử dụng; module nguồn nhận doc.recalled kèm source_ref và băm\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-19",
+      "expected": "Thu hồi, thay thế và đính chính: hiển thị đúng 6 trường, áp quy tắc \"Thu hồi cần lý do và căn cứ; số đã cấp không tái sử dụng; module nguồn nhận doc.recalled kèm source_ref và băm\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-19",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-20",
+      "title": "Liên thông văn bản qua LGSP (DOC-20): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "quan-tri-tich-hop",
+      "journey_ref": "J-FR-DOC-20",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-20",
+      "oracle_source": "Claim → FR-DOC-20; kỳ vọng nguyên văn của ca thiết kế UI-DOC-20 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-20",
+      "catches_bug": "Màn hình Liên thông văn bản qua LGSP (DOC-20) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-20"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-tich-hop",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Liên thông văn bản qua LGSP\"; user có quyền và user chỉ đọc; route DOC-20\n1. Mở DOC-20 từ menu và deep link; kiểm nhãn trường: Hướng gửi/nhận, Mã thông điệp ngoài, Cơ quan gửi/nhận, Trạng thái, Số lần thử, Mã lỗi, Trạng thái adapter\n2. Thực hiện thao tác chính theo quy tắc: Adapter PROPOSED [CXN-06]; không có lời gọi ra ngoài ngoài allowlist của tenant; trùng envelope bị bỏ qua; DEAD sau 20 lần có cảnh báo và owner\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-20",
+      "expected": "Liên thông văn bản qua LGSP: hiển thị đúng 7 trường, áp quy tắc \"Adapter PROPOSED [CXN-06]; không có lời gọi ra ngoài ngoài allowlist của tenant; trùng envelope bị bỏ qua; DEAD sau 20 lần có cảnh báo và owner\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-20",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-21",
+      "title": "Cấu hình sổ cấp số và loại văn bản (DOC-21): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "quan-tri-van-thu",
+      "journey_ref": "J-FR-DOC-21",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-21",
+      "oracle_source": "Claim → FR-DOC-21; kỳ vọng nguyên văn của ca thiết kế UI-DOC-21 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-21",
+      "catches_bug": "Màn hình Cấu hình sổ cấp số và loại văn bản (DOC-21) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Cấu hình sổ cấp số và loại văn bản\"; user có quyền và user chỉ đọc; route DOC-21\n1. Mở DOC-21 từ menu và deep link; kiểm nhãn trường: Loại văn bản, Mẫu ký hiệu, Sổ cấp số, Tổ chức cấp số, Chế độ sổ (MANAGED/MIRRORED), Năm, Khóa sổ\n2. Thực hiện thao tác chính theo quy tắc: Mỗi (sổ, tổ chức, năm) duy nhất; mở sổ năm mới tự động 00:00 01/01 giờ VN; khóa sổ năm cũ chỉ khi không còn văn bản NUMBERED\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-21",
+      "expected": "Cấu hình sổ cấp số và loại văn bản: hiển thị đúng 7 trường, áp quy tắc \"Mỗi (sổ, tổ chức, năm) duy nhất; mở sổ năm mới tự động 00:00 01/01 giờ VN; khóa sổ năm cũ chỉ khi không còn văn bản NUMBERED\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-21",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-22",
+      "title": "Duyệt và ký văn bản (di động) (DOC-22): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "lanh-dao-ky",
+      "journey_ref": "J-FR-DOC-22",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-22",
+      "oracle_source": "Claim → FR-DOC-22; kỳ vọng nguyên văn của ca thiết kế UI-DOC-22 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-22",
+      "catches_bug": "Màn hình Duyệt và ký văn bản (di động) (DOC-22) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-22"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao-ky",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Duyệt và ký văn bản (di động)\"; user có quyền và user chỉ đọc; route DOC-22\n1. Mở DOC-22 từ menu và deep link; kiểm nhãn trường: Danh sách chờ duyệt/ký, Xem PDF, Hình thức ký, Xác nhận OTP/sinh trắc, Trả lại kèm lý do\n2. Thực hiện thao tác chính theo quy tắc: Chỉ ký qua adapter remote CA có xác thực mạnh; không ký offline; hàng đợi offline không chứa lệnh ký\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-22",
+      "expected": "Duyệt và ký văn bản (di động): hiển thị đúng 5 trường, áp quy tắc \"Chỉ ký qua adapter remote CA có xác thực mạnh; không ký offline; hàng đợi offline không chứa lệnh ký\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-22",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UI-DOC-23",
+      "title": "Văn bản đến cần xử lý (di động) (DOC-23): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "chuyen-vien",
+      "journey_ref": "J-FR-DOC-23",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-23",
+      "oracle_source": "Claim → FR-DOC-23; kỳ vọng nguyên văn của ca thiết kế UI-DOC-23 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-23",
+      "catches_bug": "Màn hình Văn bản đến cần xử lý (di động) (DOC-23) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DOC-23"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của \"Văn bản đến cần xử lý (di động)\"; user có quyền và user chỉ đọc; route DOC-23\n1. Mở DOC-23 từ menu và deep link; kiểm nhãn trường: Số đến, Trích yếu, Bút phê, Hạn, Trạng thái, Mở tệp\n2. Thực hiện thao tác chính theo quy tắc: Dữ liệu cá nhân và tệp mật không đồng bộ offline; xử lý ghi qua command có Idempotency-Key\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DOC-23",
+      "expected": "Văn bản đến cần xử lý (di động): hiển thị đúng 6 trường, áp quy tắc \"Dữ liệu cá nhân và tệp mật không đồng bộ offline; xử lý ghi qua command có Idempotency-Key\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DOC-23",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC400",
+      "title": "Cả hai trả 200",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-06",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC400 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-06, FR-DOC-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Cấp số và ký số cơ quan\": Cả hai trả 200; số được cấp là 42 và 43 (mỗi số đúng một văn bản, không trùng, không hậu tố a/b, hiển thị \"42/QĐ-UBND\" và \"43/QĐ-UBND\"); last_number=43; documen",
+      "coverage_ids": [
+        "COV-FR-DOC-06",
+        "COV-FR-DOC-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: TNT-A; sổ REG-QD-2026 (OUTGOING, mã QD_CA_BIET, đơn vị U-VP, năm 2026) last_number=41; hai văn bản QĐ-X và QĐ-Y đều SIGNED (lãnh đạo A-leader đã ký); A-clerk và A-clerk2 đều có doc.outgoing.number.\n1. Đồng thời gửi POST /outgoing-documents/{QĐ-X}/numbering (key k-400-000000001) bởi A-clerk và POST /outgoing-documents/{QĐ-Y}/numbering (key k-400-000000002) bởi A-clerk2 trong cùng 50 ms\n2. Đọc document_number_allocation và document.symbol của hai văn bản\n3. GET /document-number-registers?year=2026 và chạy truy vấn kiểm khoảng trống số",
+      "expected": "Cả hai trả 200; số được cấp là 42 và 43 (mỗi số đúng một văn bản, không trùng, không hậu tố a/b, hiển thị \"42/QĐ-UBND\" và \"43/QĐ-UBND\"); last_number=43; document_number_allocation có đúng 2 dòng status=ALLOCATED mới; truy vấn khoảng trống trong 1..43 trả 0 dòng; thời gian chờ khóa hàng sổ p95 < 200 ms.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "concurrency",
+      "screen_id": "DOC-01",
+      "tags": [
+        "concurrency"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC401",
+      "title": "Lần 1: 200, số 42, status=NUMBERED",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-06",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC401 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Cấp số và ký số cơ quan\": Lần 1: 200, số 42, status=NUMBERED; lần 2: trả lại đúng phản hồi lần 1 (không cấp số mới, last_number vẫn 42); lần 3: 409 DOCUMENT_STATE_INVALID, last_number vẫ",
+      "coverage_ids": [
+        "COV-FR-DOC-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Như AC400 nhưng chỉ QĐ-X ở SIGNED, last_number=41.\n1. POST /outgoing-documents/{QĐ-X}/numbering key k-401-000000001\n2. Gửi lại đúng lệnh trên với cùng key và cùng body\n3. Gửi lệnh mới với key k-401-000000002 cho cùng QĐ-X (đã NUMBERED)",
+      "expected": "Lần 1: 200, số 42, status=NUMBERED; lần 2: trả lại đúng phản hồi lần 1 (không cấp số mới, last_number vẫn 42); lần 3: 409 DOCUMENT_STATE_INVALID, last_number vẫn 42, allocation chỉ 1 dòng cho QĐ-X.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration (idempotency)",
+      "screen_id": "DOC-06",
+      "tags": [
+        "concurrency"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC402",
+      "title": "Sổ REG-QD-2027 được mở với last_number=0",
+      "type": "BOUNDARY",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-06",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC402 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-06, FR-DOC-21",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Cấp số và ký số cơ quan\": Sổ REG-QD-2027 được mở với last_number=0; QĐ-Z nhận số 01 (hiển thị \"01/QĐ-UBND\"), issued_on=2027-01-01, number_year=2027; lệnh ép sổ 2026 trả 409 REGISTER_YEAR",
+      "coverage_ids": [
+        "COV-FR-DOC-06",
+        "COV-FR-DOC-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: TNT-A; REG-QD-2026 last_number=87, OPEN; REG-QD-2027 chưa mở; QĐ-Z đã SIGNED lúc 2026-12-31 23:59:30 (giờ VN); đồng hồ test đặt 2027-01-01 00:00:10 sau job rollover.\n1. Job doc.register-rollover chạy 00:00:00 01/01/2027 (POST /document-number-registers cùng tham số, key hệ thống)\n2. A-clerk gọi POST /outgoing-documents/{QĐ-Z}/numbering lúc 00:00:10 01/01/2027\n3. Cố ép cấp số vào sổ 2026: gọi lệnh numbering với register_id=REG-QD-2026",
+      "expected": "Sổ REG-QD-2027 được mở với last_number=0; QĐ-Z nhận số 01 (hiển thị \"01/QĐ-UBND\"), issued_on=2027-01-01, number_year=2027; lệnh ép sổ 2026 trả 409 REGISTER_YEAR_MISMATCH và REG-QD-2026 giữ last_number=87; không có số nào của 2027 xuất hiện trong sổ 2026.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain (boundary)",
+      "screen_id": "DOC-06",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC403",
+      "title": "Sau bước 1: stage=LEADER_SIGNED, pdf_revision_count=2, 1 chữ ký role=LEADER VALID",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "lanh-dao-ky",
+      "journey_ref": "J-FR-DOC-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-05",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC403 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-05, FR-DOC-06, FR-DOC-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ký số lãnh đạo\": Sau bước 1: stage=LEADER_SIGNED, pdf_revision_count=2, 1 chữ ký role=LEADER VALID; sau bước 2: stage=NUMBERED, pdf_revision_count=3, SHA-256 của [0..L0) vẫn bằn",
+      "coverage_ids": [
+        "COV-FR-DOC-05",
+        "COV-FR-DOC-06",
+        "COV-FR-DOC-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao-ky",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Adapter ký MOCK có CA kiểm thử với chứng thư CERT-LEADER-A (PERSONAL) và CERT-ORG-A (ORGANIZATION) Active; PDF cuối 3 trang đã khóa (độ dài L0 byte, băm H0), trường AcroForm số/ký hiệu/ngày để trống; văn bản ở SUBMITTED.\n1. A-leader POST /outgoing-documents/{id}/leader-signing-sessions rồi POST /signing-sessions/{sid}/completion\n2. A-clerk POST /outgoing-documents/{id}/numbering (cấp số 42, ngày 2026-10-22)\n3. A-clerk POST /outgoing-documents/{id}/organization-seal-sessions rồi hoàn tất phiên\n4. Tính SHA-256 của các byte [0..L0) của tệp sau mỗi bước và đọc GET /document-versions/{vid}/signature-report",
+      "expected": "Sau bước 1: stage=LEADER_SIGNED, pdf_revision_count=2, 1 chữ ký role=LEADER VALID; sau bước 2: stage=NUMBERED, pdf_revision_count=3, SHA-256 của [0..L0) vẫn bằng H0 (tiền tố không đổi) và prefix_sha256=H0, chữ ký lãnh đạo vẫn VALID với incremental_changes_allowed=true; sau bước 3: stage=ORG_SEALED có 2 chữ ký (LEADER, ORGANIZATION) cùng VALID, chữ ký cơ quan có covers_end_offset = byte_length; trường số=\"42\", ký hiệu=\"42/QĐ-UBND\", ngày=\"22/10/2026\".",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration (byte-level)",
+      "screen_id": "DOC-05",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC404",
+      "title": "422 SIGNATURE_VERIFICATION_FAILED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-07",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC404 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Xác minh chữ ký và chứng thư\": 422 SIGNATURE_VERIFICATION_FAILED; báo cáo: chữ ký LEADER verification_status=INVALID với failure_codes chứa DIGEST_MISMATCH, chữ ký ORGANIZATION INVALID; văn b",
+      "coverage_ids": [
+        "COV-FR-DOC-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Văn bản ở SEALED (như kết quả AC403); sửa 1 byte trong vùng nội dung trang 1 thuộc revision 0 (đổi \"100\" thành \"900\" trong tệp) rồi ghi đè document_version bằng công cụ kiểm thử.\n1. POST /outgoing-documents/{id}/issuance (key k-404-000000001)\n2. GET /document-versions/{vid}/signature-report\n3. Đọc outbox_event theo aggregate_id",
+      "expected": "422 SIGNATURE_VERIFICATION_FAILED; báo cáo: chữ ký LEADER verification_status=INVALID với failure_codes chứa DIGEST_MISMATCH, chữ ký ORGANIZATION INVALID; văn bản vẫn SEALED (không ISSUED); không có sự kiện doc.issued.v1 nào trong outbox.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security (negative)",
+      "screen_id": "DOC-07",
+      "tags": [
+        "security"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC405",
+      "title": "P1: LEADER VALID, incremental_changes_allowed=true",
+      "type": "RED",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-07",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC405 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Xác minh chữ ký và chứng thư\": P1: LEADER VALID, incremental_changes_allowed=true; P2: LEADER có hiệu lực mật mã nhưng incremental_changes_allowed=false với failure_codes chứa INCREMENTAL_CHA",
+      "coverage_ids": [
+        "COV-FR-DOC-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Hai tệp từ cùng PDF đã được lãnh đạo ký: tệp P1 thêm incremental update chỉ điền 3 trường số/ký hiệu/ngày + chữ ký cơ quan; tệp P2 thêm incremental update chèn một annotation FreeText đè lên nội dung và sửa object nội dung trang 1.\n1. POST /document-versions/{v-P1}/signature-verifications\n2. POST /document-versions/{v-P2}/signature-verifications\n3. GET signature-report cho cả hai",
+      "expected": "P1: LEADER VALID, incremental_changes_allowed=true; P2: LEADER có hiệu lực mật mã nhưng incremental_changes_allowed=false với failure_codes chứa INCREMENTAL_CHANGES_NOT_ALLOWED, overall=INVALID; phát hành P2 bị 422 INCREMENTAL_CHANGES_NOT_ALLOWED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security (negative)",
+      "screen_id": "DOC-07",
+      "tags": [
+        "security"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC406",
+      "title": "Bước 1: 422 CERTIFICATE_NOT_ACTIVE (không tạo phiên)",
+      "type": "RED",
+      "platform": "web",
+      "persona": "lanh-dao-ky",
+      "journey_ref": "J-FR-DOC-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-05",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC406 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-05, FR-DOC-07, FR-DOC-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ký số lãnh đạo\": Bước 1: 422 CERTIFICATE_NOT_ACTIVE (không tạo phiên); bước 2: 200, chữ ký VALID, timestamp_at=2026-03-15 chứng minh chứng thư còn hạn lúc ký; bước 3: 422 SIGNIN",
+      "coverage_ids": [
+        "COV-FR-DOC-05",
+        "COV-FR-DOC-07",
+        "COV-FR-DOC-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao-ky",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Ba chứng thư kiểm thử: CERT-LEADER-A Active; CERT-LEADER-REV bị thu hồi (OCSP fixture trả REVOKED); CERT-OLD đã hết hạn 2026-06-30 nhưng PDF ngoài ký ngày 2026-03-15 có dấu thời gian RFC 3161 hợp lệ (tệp E1) và một PDF khác E2 cùng chứng thư không có dấu thời gian.\n1. A-leader dùng CERT-LEADER-REV: POST /outgoing-documents/{id}/leader-signing-sessions\n2. POST /outgoing-documents/{id}/signed-uploads với tệp E1\n3. POST /outgoing-documents/{id}/signed-uploads với tệp E2",
+      "expected": "Bước 1: 422 CERTIFICATE_NOT_ACTIVE (không tạo phiên); bước 2: 200, chữ ký VALID, timestamp_at=2026-03-15 chứng minh chứng thư còn hạn lúc ký; bước 3: 422 SIGNING_TIME_UNPROVEN với verification_status=INDETERMINATE, văn bản vẫn SUBMITTED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DOC-05",
+      "tags": [
+        "security"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC407",
+      "title": "Bước 1: 200, doc_issue_request",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "chuyen-vien-soan-thao",
+      "journey_ref": "J-FR-DOC-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-02",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC407 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-02, FR-DOC-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Soạn thảo văn bản đi\": Bước 1: 200, doc_issue_request.status=ACCEPTED, outgoing_document.status=DRAFT, source_ref và payload_sha256=S1 được lưu; PDF có watermark \"CHƯA XÁC NHẬN PHÁP L",
+      "coverage_ids": [
+        "COV-FR-DOC-02",
+        "COV-FR-DOC-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-soan-thao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Mẫu MNE-TT44-M02 revision 1 PUBLISHED với confirmation_status=PENDING_CONFIRMATION, watermark_text=\"CHƯA XÁC NHẬN PHÁP LÝ [CXN-10]\"; báo cáo MR-1 (MNE) đã APPROVED, payload chuẩn hóa có băm S1.\n1. POST /document-issue-requests {source_module:\"MNE\", source_ref:\"MNE:mne_report:MR-1:r1\", template_code:\"MNE-TT44-M02\", payload_sha256:S1, event_id:E-407, as_of_date:\"2026-10-22\"} (key k-407-000000001)\n2. GET /outgoing-documents/{id} và tải PDF dựng\n3. A-reviewer duyệt rồi A-leader ký, A-clerk cấp số + đóng dấu, gọi POST /outgoing-documents/{id}/issuance không kèm unconfirmed_override_reason",
+      "expected": "Bước 1: 200, doc_issue_request.status=ACCEPTED, outgoing_document.status=DRAFT, source_ref và payload_sha256=S1 được lưu; PDF có watermark \"CHƯA XÁC NHẬN PHÁP LÝ [CXN-10]\" ở mọi trang; bước 3: 422 TEMPLATE_PENDING_LEGAL_CONFIRMATION cho tới khi gửi unconfirmed_override_reason ≥ 20 ký tự bởi người có doc.template.confirm_legal; khi đó ISSUED và PDF vẫn giữ watermark.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "DOC-02",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC408",
+      "title": "Bước 1: 422 PAYLOAD_HASH_MISMATCH, không tạo outgoing_document",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-doc",
+      "journey_ref": "J-FR-DOC-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-02",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC408 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-02, FR-DOC-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Soạn thảo văn bản đi\": Bước 1: 422 PAYLOAD_HASH_MISMATCH, không tạo outgoing_document; doc_issue_request.status=REJECTED reject_code=PAYLOAD_HASH_MISMATCH; outbox có doc.rejected.v1 m",
+      "coverage_ids": [
+        "COV-FR-DOC-02",
+        "COV-FR-DOC-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-doc",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Mẫu DOC-CV-GIAI-TRINH revision 1 CONFIRMED; payload thật của module nguồn có băm S2 nhưng yêu cầu phát hành khai payload_sha256 = băm S2 với một ký tự đổi.\n1. POST /document-issue-requests với payload_sha256 sai (key k-408-000000001)\n2. Đọc outbox_event và doc_issue_request\n3. Gửi lại đúng yêu cầu với băm đúng (key k-408-000000002)",
+      "expected": "Bước 1: 422 PAYLOAD_HASH_MISMATCH, không tạo outgoing_document; doc_issue_request.status=REJECTED reject_code=PAYLOAD_HASH_MISMATCH; outbox có doc.rejected.v1 mang source_ref và payload_sha256 đã khai; bước 3: 200 ACCEPTED, 1 outgoing_document DRAFT.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration (negative)",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC409",
+      "title": "Sau lần 1: 1 doc_issue_request + 1 outgoing_document",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-doc",
+      "journey_ref": "J-FR-DOC-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-02",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC409 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Soạn thảo văn bản đi\": Sau lần 1: 1 doc_issue_request + 1 outgoing_document; lần 2 bị bỏ qua bởi inbox (không dòng mới); E-409b: không tạo dòng thứ hai (unique mở theo source_ref + pa",
+      "coverage_ids": [
+        "COV-FR-DOC-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-doc",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Sự kiện mne.report.issue_requested.v1 với event_id E-409 đến consumer DOC hai lần (relay at-least-once) và một lần nữa với event_id mới E-409b nhưng cùng source_ref + payload_sha256 khi yêu cầu cũ còn ACCEPTED.\n1. Phát sự kiện E-409 lần 1\n2. Phát lại E-409 (cùng event_id)\n3. Phát E-409b",
+      "expected": "Sau lần 1: 1 doc_issue_request + 1 outgoing_document; lần 2 bị bỏ qua bởi inbox (không dòng mới); E-409b: không tạo dòng thứ hai (unique mở theo source_ref + payload_sha256), trả về yêu cầu hiện có với lỗi 409 ISSUE_REQUEST_ALREADY_OPEN ở đường REST; tổng cộng đúng 1 outgoing_document.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration (idempotency)",
+      "tags": [
+        "concurrency"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC410",
+      "title": "doc",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-08",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC410 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-08, FR-DOC-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Phát hành và phân phối\": doc.issued.v1 phát đúng 1 lần với document_id, source_ref=\"MNE:mne_report:MR-2:r1\", payload_sha256, document_number, symbol, issued_on, document_version_id; MNE",
+      "coverage_ids": [
+        "COV-FR-DOC-08",
+        "COV-FR-DOC-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Mẫu quyết định CONFIRMED; MR-2 của MNE APPROVED; A-reviewer, A-leader, A-clerk có quyền; adapter ký MOCK; nơi nhận gồm U-STC (nội bộ) và \"Bộ Tài chính\" (LGSP MOCK).\n1. Yêu cầu phát hành, duyệt, ký, cấp số, đóng dấu, issuance\n2. Đọc outbox_event doc.issued.v1 và trạng thái mne_report MR-2\n3. POST /outgoing-documents/{id}/distributions tới hai nơi nhận",
+      "expected": "doc.issued.v1 phát đúng 1 lần với document_id, source_ref=\"MNE:mne_report:MR-2:r1\", payload_sha256, document_number, symbol, issued_on, document_version_id; MNE chuyển MR-2 sang ISSUED với doc_document_id = document.id; document.effect_status=EFFECTIVE; hai phân phối SENT; U-STC ACKNOWLEDGED sau lệnh xác nhận; trạng thái văn bản đi DELIVERED rồi ACKNOWLEDGED khi đủ nơi nhận bắt buộc.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "E2E",
+      "screen_id": "DOC-08",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC411",
+      "title": "Lần 1: 200 status=RECALLED, document",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-19",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-19",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC411 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-19",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thu hồi, thay thế và đính chính\": Lần 1: 200 status=RECALLED, document.effect_status=RECALLED; outbox có doc.recalled.v1 mang source_ref và payload_sha256=S3; 2 phân phối nhận thông báo thu hồi;",
+      "coverage_ids": [
+        "COV-FR-DOC-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Văn bản D-411 ISSUED với số 42/QĐ-UBND, đã DELIVERED, nguồn MNE:mne_report:MR-3:r1 với payload_sha256 S3.\n1. A-leader POST /outgoing-documents/{D-411}/recall {reason:\"Sai số liệu bảng 2, phát hành nhầm kỳ\", notify_recipients:true}\n2. Gọi lại recall lần 2 với key mới\n3. Cấp số cho một văn bản mới QĐ-N trong cùng sổ",
+      "expected": "Lần 1: 200 status=RECALLED, document.effect_status=RECALLED; outbox có doc.recalled.v1 mang source_ref và payload_sha256=S3; 2 phân phối nhận thông báo thu hồi; lần 2: 409 DOCUMENT_STATE_INVALID; QĐ-N nhận số kế tiếp (không dùng lại 42), allocation 42 vẫn ALLOCATED và hiển thị \"Đã thu hồi\" trong sổ.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "DOC-19",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC412",
+      "title": "Khi bản thay thế ISSUED: D-412 chuyển REPLACED (effect_status=REPLACED), document_relation REPLACES từ bản mới tới D-412",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-19",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-19",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC412 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-19",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thu hồi, thay thế và đính chính\": Khi bản thay thế ISSUED: D-412 chuyển REPLACED (effect_status=REPLACED), document_relation REPLACES từ bản mới tới D-412; khi bản đính chính ISSUED: văn bản gốc",
+      "coverage_ids": [
+        "COV-FR-DOC-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Văn bản D-412 ISSUED (EFFECTIVE) đã FILED; A-leader có doc.outgoing.replace và doc.outgoing.correct.\n1. POST /outgoing-documents/{D-412}/replacements {reason:\"Điều chỉnh tổng mức\"} rồi đưa bản thay thế tới ISSUED\n2. Tạo văn bản đính chính POST /outgoing-documents/{D-412b}/corrections {correction_text:\"Sửa “Điều 3” thành “Điều 4”\"} và đưa tới ISSUED\n3. Gọi corrections lần nữa khi bản đính chính trước còn mở",
+      "expected": "Khi bản thay thế ISSUED: D-412 chuyển REPLACED (effect_status=REPLACED), document_relation REPLACES từ bản mới tới D-412; khi bản đính chính ISSUED: văn bản gốc effect_status=CORRECTED và vẫn hiệu lực với nội dung đã đính chính, relation CORRECTS; lần gọi thứ hai khi còn mở trả 409 CORRECTION_ALREADY_OPEN; resolveDocumentReference của D-412 trả DOCUMENT_NOT_EFFECTIVE sau REPLACED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "DOC-19",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC413",
+      "title": "Bước 1 và 2: 404 RESOURCE_NOT_FOUND (không lộ tồn tại, không URL tải)",
+      "type": "RED",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-03",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC413 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-03, FR-DOC-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh sách văn bản đi\": Bước 1 và 2: 404 RESOURCE_NOT_FOUND (không lộ tồn tại, không URL tải); bước 3: số 01 trong sổ TNT-B, sổ TNT-A vẫn last_number=42; truy vấn bằng role machvon_app",
+      "coverage_ids": [
+        "COV-FR-DOC-03",
+        "COV-FR-DOC-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: TNT-A có văn bản D-413 (ISSUED, version V-413) và sổ QD_CA_BIET 2026 last_number=42; TNT-B có sổ cùng mã QD_CA_BIET 2026 last_number=0 và B-clerk; B-clerk biết UUID của D-413 và V-413.\n1. B-clerk GET /outgoing-documents/{D-413}\n2. B-clerk GET /document-versions/{V-413}/download và GET /document-versions/{V-413}/signature-report\n3. B-clerk cấp số cho văn bản QĐ-B ở TNT-B",
+      "expected": "Bước 1 và 2: 404 RESOURCE_NOT_FOUND (không lộ tồn tại, không URL tải); bước 3: số 01 trong sổ TNT-B, sổ TNT-A vẫn last_number=42; truy vấn bằng role machvon_app không đặt app.tenant_id trả 0 dòng từ document và outgoing_document.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security (cách ly tenant)",
+      "screen_id": "DOC-03",
+      "tags": [
+        "security"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC414",
+      "title": "Bước 1: 403 SELF_APPROVAL_DENIED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "truong-don-vi",
+      "journey_ref": "J-FR-DOC-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-04",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC414 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-04, FR-DOC-05, FR-DOC-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Rà soát và trình ký\": Bước 1: 403 SELF_APPROVAL_DENIED; bước 2: 422 SIGNER_NOT_AUTHORIZED với chi tiết ngưỡng DoA; bước 3: 403 SCOPE_DENIED (thiếu doc.outgoing.sign); bước 4: 403 SCO",
+      "coverage_ids": [
+        "COV-FR-DOC-04",
+        "COV-FR-DOC-05",
+        "COV-FR-DOC-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "truong-don-vi",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Văn bản D-414 do A-drafter soạn, quy tắc DoA yêu cầu người ký cấp Phó Chủ tịch trở lên cho loại QĐ giao vốn > 100 tỷ; A-reviewer là trưởng phòng; A-clerk chỉ có quyền cấp số.\n1. A-drafter tự gọi POST /outgoing-documents/{D-414}/review-decision {decision:APPROVE}\n2. A-reviewer duyệt nhưng signer_user_id là một trưởng phòng không đủ thẩm quyền\n3. A-clerk gọi POST /outgoing-documents/{D-414}/leader-signing-sessions\n4. A-leader (Phó Chủ tịch) gọi POST /outgoing-documents/{D-414}/numbering",
+      "expected": "Bước 1: 403 SELF_APPROVAL_DENIED; bước 2: 422 SIGNER_NOT_AUTHORIZED với chi tiết ngưỡng DoA; bước 3: 403 SCOPE_DENIED (thiếu doc.outgoing.sign); bước 4: 403 SCOPE_DENIED (thiếu doc.outgoing.number); trạng thái văn bản không đổi và có 4 bản ghi audit outcome=DENIED/FAILED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DOC-04",
+      "tags": [
+        "security"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC415",
+      "title": "Hai PDF có cùng SHA-256 (dựng xác định)",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "quan-tri-mau",
+      "journey_ref": "J-FR-DOC-16",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-16",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC415 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-16, FR-DOC-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thể thức và bố cục theo Phụ lục I NĐ 30/2020\": Hai PDF có cùng SHA-256 (dựng xác định); MediaBox 595.28×841.89 pt (±0.5); lề đo được nằm trong [20–25] trên/dưới, [30–35] trái, [15–20] phải mm; quốc hiệu 13 p",
+      "coverage_ids": [
+        "COV-FR-DOC-16",
+        "COV-FR-DOC-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-mau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Layout ND30_A4_STANDARD revision 1: A4 210×297 mm, lề trên 20, dưới 20, trái 30, phải 15 mm, phông Times New Roman (nhúng phông thay thế tương thích số đo nếu tenant chưa có giấy phép); mẫu DOC-QD-PHE-DUYET-DU-AN rev 1 CONFIRMED; payload cố định 1 trang.\n1. POST /document-renders hai lần cùng đầu vào (as_of_date 2026-10-22)\n2. Đo trong PDF bằng bộ phân tích: MediaBox, lề thực tế của khối chữ, cỡ chữ quốc hiệu, tiêu ngữ, tên loại, trích yếu, nội dung\n3. So băm hai lần dựng",
+      "expected": "Hai PDF có cùng SHA-256 (dựng xác định); MediaBox 595.28×841.89 pt (±0.5); lề đo được nằm trong [20–25] trên/dưới, [30–35] trái, [15–20] phải mm; quốc hiệu 13 pt đậm chữ hoa, tiêu ngữ 14 pt đậm, tên loại \"QUYẾT ĐỊNH\" 14 pt đậm, nội dung 14 pt; renderer_version được ghi vào document_version.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain (golden master)",
+      "screen_id": "DOC-16",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC416",
+      "title": "Con dấu trùm lên 1/3 (±0",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "quan-tri-mau",
+      "journey_ref": "J-FR-DOC-16",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-16",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC416 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-16",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thể thức và bố cục theo Phụ lục I NĐ 30/2020\": Con dấu trùm lên 1/3 (±0.03) chiều rộng chữ ký lãnh đạo về phía bên trái; hộp chữ ký nằm trong khối chức vụ–họ tên; dòng thời gian ký dạng 2026-10-22T09:15:30+0",
+      "coverage_ids": [
+        "COV-FR-DOC-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-mau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: PDF ORG_SEALED theo AC403 với hình ảnh chữ ký lãnh đạo (PNG nền trong suốt, đỏ) trong hộp signature_layout.leader_box và hình con dấu cơ quan.\n1. Đọc bounding box của hình chữ ký và hình dấu từ content stream\n2. Tính phần giao nhau theo chiều ngang\n3. Đọc dòng thông tin thời gian ký ISO 8601 trên hình chữ ký",
+      "expected": "Con dấu trùm lên 1/3 (±0.03) chiều rộng chữ ký lãnh đạo về phía bên trái; hộp chữ ký nằm trong khối chức vụ–họ tên; dòng thời gian ký dạng 2026-10-22T09:15:30+07:00; cả hai hình có kích thước theo cấu hình layout [CXN-DOC-01].",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "DOC-16",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC417",
+      "title": "Bước 1: 200, document",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-09",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-09",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC417 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-09, FR-DOC-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tải lên văn bản đã ký bên ngoài\": Bước 1: 200, document.symbol=\"128/QĐ-UBND\", status=ISSUED, route=EXTERNAL_UPLOAD, last_number=128, hai chữ ký VALID; bước 2: 409 NUMBER_ALREADY_REGISTERED; bước",
+      "coverage_ids": [
+        "COV-FR-DOC-09",
+        "COV-FR-DOC-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Sổ REG-QD-2026 mode=MIRRORED (sổ chính ở hệ thống ngoài), last_number=127; PDF EXT-1 đã ký lãnh đạo và đóng dấu bên ngoài, ghi \"Số: 128/QĐ-UBND ngày 22/10/2026\", chữ ký hợp lệ chuỗi tin cậy; PDF EXT-2 có chữ ký bị sửa.\n1. POST /outgoing-documents/external-registrations với EXT-1 declared_number=128, declared_symbol=\"128/QĐ-UBND\"\n2. Lặp lại với tệp khác nhưng declared_number=128\n3. POST với EXT-2",
+      "expected": "Bước 1: 200, document.symbol=\"128/QĐ-UBND\", status=ISSUED, route=EXTERNAL_UPLOAD, last_number=128, hai chữ ký VALID; bước 2: 409 NUMBER_ALREADY_REGISTERED; bước 3: 422 SIGNATURE_INVALID và không có document mới; doc.issued.v1 phát đúng 1 lần.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "DOC-09",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC418",
+      "title": "D-418 chuyển IN_REVIEW",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "truong-don-vi",
+      "journey_ref": "J-FR-DOC-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-04",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC418 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Rà soát và trình ký\": D-418 chuyển IN_REVIEW; D-419: 422 SIGNER_NOT_AUTHORIZED (thiếu delegation); khi delegation hết hạn 11/2026: 422 SIGNER_NOT_AUTHORIZED và không tạo phiên ký; DB",
+      "coverage_ids": [
+        "COV-FR-DOC-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "truong-don-vi",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Văn bản D-418 ký thay: signing_mode=KT, người ký thực tế A-deputy, uỷ quyền delegation DG-1 (ADM) hiệu lực 2026-10-01..2026-10-31; một văn bản khác D-419 chọn TUQ mà không có delegation.\n1. Gọi POST /outgoing-documents/{D-418}/review-submission\n2. Gọi submit cho D-419 với signing_mode=TUQ không có delegation_id\n3. Đặt đồng hồ 2026-11-02 và gọi startLeaderSigning cho D-418",
+      "expected": "D-418 chuyển IN_REVIEW; D-419: 422 SIGNER_NOT_AUTHORIZED (thiếu delegation); khi delegation hết hạn 11/2026: 422 SIGNER_NOT_AUTHORIZED và không tạo phiên ký; DB CHECK outgoing_document_mode_chk từ chối chèn trực tiếp signing_mode<>DIRECT khi delegation_id NULL.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "DOC-04",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC419",
+      "title": "Lần 1: 200 status=RECEIVED",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-11",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-11",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC419 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-11, FR-DOC-12, FR-DOC-13, FR-DOC-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tiếp nhận văn bản đến\": Lần 1: 200 status=RECEIVED; lần 2: 409 INCOMING_DUPLICATE_SUSPECTED; số đến 10; chuỗi trạng thái RECEIVED→REGISTERED→ASSIGNED→PROCESSING→RESOLVED→FILED, mỗi bướ",
+      "coverage_ids": [
+        "COV-FR-DOC-11",
+        "COV-FR-DOC-12",
+        "COV-FR-DOC-13",
+        "COV-FR-DOC-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Sổ đến REG-DEN-2026 (INCOMING) last_number=9; công văn đến từ \"Bộ Tài chính\" ký hiệu \"1234/BTC-ĐTPT\" ngày 2026-10-20, PDF quét sạch virus; A-clerk, A-chief (chánh văn phòng), A-staff được giao; đã có công văn khác cùng cơ quan + ký hiệu + ngày.\n1. POST /incoming-documents lần 1 cho công văn mới, rồi lần 2 trùng (cơ quan + ký hiệu + ngày) không lý do\n2. registration → assignment {assigned_unit_id:U-STC, assignee_user_id:A-staff, due_on:2026-10-27} → processing (bởi A-staff) → resolution → filing vào dossier\n3. A-staff gọi processing khi văn bản chưa được giao cho mình (văn bản khác); gọi registration lần hai",
+      "expected": "Lần 1: 200 status=RECEIVED; lần 2: 409 INCOMING_DUPLICATE_SUSPECTED; số đến 10; chuỗi trạng thái RECEIVED→REGISTERED→ASSIGNED→PROCESSING→RESOLVED→FILED, mỗi bước phát sự kiện doc.incoming_*; processing bởi người không được giao: 403 NOT_ASSIGNEE; registration lần hai: 409 DOCUMENT_STATE_INVALID; last_number=10.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "E2E",
+      "screen_id": "DOC-01",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC420",
+      "title": "is_overdue=true sau job, nhãn \"Quá hạn 1 ngày (hạn 27/10/2026)\" trên DOC-12 và DOC-23, phát doc",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-12",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-12",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC420 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-12, FR-DOC-13, FR-DOC-23",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sổ văn bản đến và phân công\": is_overdue=true sau job, nhãn \"Quá hạn 1 ngày (hạn 27/10/2026)\" trên DOC-12 và DOC-23, phát doc.incoming_overdue.v1 tới NOT; resolution vẫn thành công với trạng",
+      "coverage_ids": [
+        "COV-FR-DOC-12",
+        "COV-FR-DOC-13",
+        "COV-FR-DOC-23"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Văn bản đến IN-420 ASSIGNED hạn 2026-10-27; job doc.incoming-overdue chạy hằng giờ; A-staff phản hồi sau hạn.\n1. Đặt đồng hồ 2026-10-28 08:00 và chạy job\n2. Mở DOC-12 và DOC-23 (di động)\n3. A-staff gọi resolution lúc 2026-10-28 15:00",
+      "expected": "is_overdue=true sau job, nhãn \"Quá hạn 1 ngày (hạn 27/10/2026)\" trên DOC-12 và DOC-23, phát doc.incoming_overdue.v1 tới NOT; resolution vẫn thành công với trạng thái RESOLVED và cờ trễ 1 ngày được ghi vào resolution_summary metadata; không có ghi offline từ DOC-23 nếu thiếu Idempotency-Key.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DOC-12",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC421",
+      "title": "DS-421: provisional_retention=true, retention_class_code=PERMANENT (giữ vĩnh viễn tạm thời), đề nghị hủy bị 422 RETENTIO",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-17",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-17",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC421 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-17, FR-DOC-18",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hồ sơ và lưu trữ\": DS-421: provisional_retention=true, retention_class_code=PERMANENT (giữ vĩnh viễn tạm thời), đề nghị hủy bị 422 RETENTION_PROVISIONAL; DS-421b: retention_rule_i",
+      "coverage_ids": [
+        "COV-FR-DOC-17",
+        "COV-FR-DOC-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Hồ sơ DS-421 (category PROJECT_INVESTMENT) có 6 tài liệu; doc_retention_rule: TT74_2025_BTC (PERMANENT, CONFIRMED=false) và TT10_2022_BNV (Y20, PENDING) đều chưa xác nhận trong lần chạy 1; lần chạy 2 pháp chế xác nhận TT74 là Y70, precedence 10; legal hold LH-1 (INSPECTION) đang Active trên dự án.\n1. POST /dossiers/{DS-421}/closure khi chưa có quy tắc xác nhận\n2. Xác nhận quy tắc TT74 (Y70) rồi tạo hồ sơ DS-421b cùng loại và đóng\n3. POST /dossiers/{DS-421}/disposal-proposals khi LH-1 còn Active",
+      "expected": "DS-421: provisional_retention=true, retention_class_code=PERMANENT (giữ vĩnh viễn tạm thời), đề nghị hủy bị 422 RETENTION_PROVISIONAL; DS-421b: retention_rule_id = quy tắc TT74, class Y70, handover_due_on = closed_at + handover_months; đề nghị hủy khi legal hold Active: 409 LEGAL_HOLD_ACTIVE kể cả khi hết hạn bảo quản.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "DOC-17",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC422",
+      "title": "DS-A giữ R-old (Y20), DS-B nhận R-new (Y70)",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-17",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-17",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC422 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-17, FR-DOC-18",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hồ sơ và lưu trữ\": DS-A giữ R-old (Y20), DS-B nhận R-new (Y70); công bố R-new không đổi retention_rule_id của DS-A; tạo R-new chồng hiệu lực với R-old bị 409 RETENTION_RANGE_OVERL",
+      "coverage_ids": [
+        "COV-FR-DOC-17",
+        "COV-FR-DOC-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Quy tắc R-old (Y20, hiệu lực đến 2026-12-31) và R-new (Y70, từ 2027-01-01) cùng category; hồ sơ DS-A đóng ngày 2026-12-31, DS-B đóng ngày 2027-01-02.\n1. Đóng DS-A và DS-B\n2. Đọc retention_rule_id của hai hồ sơ sau khi công bố R-new\n3. Đóng lại truy vấn as-of 2026-12-31 trên DS-B",
+      "expected": "DS-A giữ R-old (Y20), DS-B nhận R-new (Y70); công bố R-new không đổi retention_rule_id của DS-A; tạo R-new chồng hiệu lực với R-old bị 409 RETENTION_RANGE_OVERLAP.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "DOC-17",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC423",
+      "title": "Dựng ngày 2026-12-31 dùng rev1, ngày 2027-01-01 dùng rev2",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chuyen-vien-soan-thao",
+      "journey_ref": "J-FR-DOC-14",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-14",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC423 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-14, FR-DOC-15, FR-DOC-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thư viện mẫu văn bản\": Dựng ngày 2026-12-31 dùng rev1, ngày 2027-01-01 dùng rev2; publish rev3 bị 409 TEMPLATE_RANGE_OVERLAP (ràng buộc EXCLUDE) ; D-423 vẫn trỏ template_id rev1 và PD",
+      "coverage_ids": [
+        "COV-FR-DOC-14",
+        "COV-FR-DOC-15",
+        "COV-FR-DOC-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-soan-thao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Template DOC-CV-GIAI-TRINH rev1 hiệu lực đến 2026-12-31, rev2 từ 2027-01-01 (cả hai PUBLISHED); văn bản D-423 đã ISSUED bằng rev1.\n1. POST /document-renders as_of_date=2026-12-31 và as_of_date=2027-01-01\n2. Tạo rev3 có hiệu lực chồng 2027-03-01..2027-12-31 rồi publish\n3. GET /outgoing-documents/{D-423}",
+      "expected": "Dựng ngày 2026-12-31 dùng rev1, ngày 2027-01-01 dùng rev2; publish rev3 bị 409 TEMPLATE_RANGE_OVERLAP (ràng buộc EXCLUDE) ; D-423 vẫn trỏ template_id rev1 và PDF phát hành không đổi băm.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "DOC-02",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC424",
+      "title": "Bước 1: 403 SELF_APPROVAL_DENIED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "quan-tri-mau",
+      "journey_ref": "J-FR-DOC-14",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-14",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC424 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-14, FR-DOC-15",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thư viện mẫu văn bản\": Bước 1: 403 SELF_APPROVAL_DENIED; bước 2: 200 PUBLISHED, watermark còn; A-admin: 403 SCOPE_DENIED; A-legal rỗng: 422 CONFIRMATION_REF_REQUIRED, với CXN-10: 200 ",
+      "coverage_ids": [
+        "COV-FR-DOC-14",
+        "COV-FR-DOC-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-mau",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Mẫu MNE-TT44-M03 rev1 DRAFT do A-admin soạn; A-legal có doc.template.confirm_legal; A-author2 có doc.template.approve.\n1. A-admin tự gọi POST /document-templates/{id}/publish\n2. A-author2 publish\n3. A-admin gọi confirmDocumentTemplateLegalBasis; A-legal gọi với legal_confirmation_ref rỗng rồi với \"CXN-10\"\n4. Dựng PDF trước và sau xác nhận",
+      "expected": "Bước 1: 403 SELF_APPROVAL_DENIED; bước 2: 200 PUBLISHED, watermark còn; A-admin: 403 SCOPE_DENIED; A-legal rỗng: 422 CONFIRMATION_REF_REQUIRED, với CXN-10: 200 confirmation_status=CONFIRMED có legal_confirmed_by/at; PDF dựng sau xác nhận không còn watermark, PDF đã dựng trước đó giữ watermark.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DOC-14",
+      "tags": [
+        "security"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC425",
+      "title": "Thông điệp QUEUED→SENT sau lần thử 5, rồi ACKED",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-20",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-20",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC425 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-20, FR-DOC-08",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Liên thông văn bản qua LGSP\": Thông điệp QUEUED→SENT sau lần thử 5, rồi ACKED; ép lỗi 20 lần: status=DEAD, cảnh báo có owner (Quản trị tích hợp); inbound lần 2: bỏ qua (unique envelope hash)",
+      "coverage_ids": [
+        "COV-FR-DOC-20",
+        "COV-FR-DOC-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Adapter LGSP_EDXML ở trạng thái MOCK; văn bản ISSUED gửi tới đại diện \"Bộ Tài chính\" kênh LGSP; mock phản hồi lỗi 503 bốn lần rồi OK; envelope inbound E-IN-1 gửi hai lần.\n1. POST /outgoing-documents/{id}/distributions tới LGSP\n2. Chạy retry tới khi ACKED; lần khác ép lỗi 20 lần\n3. POST /integrations/lgsp/inbound-messages với E-IN-1 hai lần (cùng envelope_sha256)",
+      "expected": "Thông điệp QUEUED→SENT sau lần thử 5, rồi ACKED; ép lỗi 20 lần: status=DEAD, cảnh báo có owner (Quản trị tích hợp); inbound lần 2: bỏ qua (unique envelope hash), chỉ có 1 incoming_document từ E-IN-1; egress chỉ tới host trong allowlist của tenant.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "DOC-08",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC426",
+      "title": "Phiên 1 trạng thái AWAITING_SIGNER",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "lanh-dao-ky",
+      "journey_ref": "J-FR-DOC-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-05",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC426 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-05, FR-DOC-22",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ký số lãnh đạo\": Phiên 1 trạng thái AWAITING_SIGNER; phiên thứ hai: 409 SIGNING_SESSION_OPEN; lúc 09:16: 409 SIGNING_SESSION_EXPIRED, session EXPIRED, văn bản vẫn SUBMITTED; phi",
+      "coverage_ids": [
+        "COV-FR-DOC-05",
+        "COV-FR-DOC-22"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "lanh-dao-ky",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Văn bản D-426 SUBMITTED; A-leader mở phiên ký lúc 09:00 nhưng không xác nhận OTP.\n1. POST /outgoing-documents/{D-426}/leader-signing-sessions lúc 09:00\n2. Mở phiên thứ hai khi phiên đầu còn mở\n3. Đặt đồng hồ 09:16 và POST /signing-sessions/{sid}/completion\n4. Mở phiên mới 09:20 và hoàn tất bằng OTP đúng",
+      "expected": "Phiên 1 trạng thái AWAITING_SIGNER; phiên thứ hai: 409 SIGNING_SESSION_OPEN; lúc 09:16: 409 SIGNING_SESSION_EXPIRED, session EXPIRED, văn bản vẫn SUBMITTED; phiên mới hoàn tất → SIGNED; hàng đợi offline di động không chứa lệnh ký.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "DOC-05",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC427",
+      "title": "Lần 1: 503 PROVIDER_UNAVAILABLE, D-427 vẫn NUMBERED số 43",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "van-thu",
+      "journey_ref": "J-FR-DOC-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-06",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC427 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-06, FR-DOC-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Cấp số và ký số cơ quan\": Lần 1: 503 PROVIDER_UNAVAILABLE, D-427 vẫn NUMBERED số 43; thử lại: SEALED với cùng số 43 (không cấp số mới); A-clerk tự hủy: 403 SELF_APPROVAL_DENIED; A-manage",
+      "coverage_ids": [
+        "COV-FR-DOC-06",
+        "COV-FR-DOC-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-thu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: REG-QD-2026 last_number=42; văn bản D-427 đã NUMBERED với số 43; CA cơ quan ngừng (503) trong 30 phút; A-manager có quyền hủy số khác A-clerk.\n1. A-clerk POST /outgoing-documents/{D-427}/organization-seal-sessions khi CA lỗi\n2. Thử lại sau khi CA hồi phục\n3. Ở văn bản D-428 cũng NUMBERED (số 44) và CA hỏng vĩnh viễn: A-clerk tự hủy số; sau đó A-manager hủy số với lý do\n4. Cấp số cho D-429\n5. Chạy job doc.register-gap-audit",
+      "expected": "Lần 1: 503 PROVIDER_UNAVAILABLE, D-427 vẫn NUMBERED số 43; thử lại: SEALED với cùng số 43 (không cấp số mới); A-clerk tự hủy: 403 SELF_APPROVAL_DENIED; A-manager: allocation 44 VOIDED có lý do, D-428 CANCELLED, phát doc.number_voided.v1; D-429 nhận số 45; gap audit: không khoảng trống, số 44 liệt kê là VOIDED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain (failure)",
+      "screen_id": "DOC-06",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC428",
+      "title": "Bước 1: 422 FORMAT_CHECK_FAILED với errors=[recipients: REQUIRED]",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "truong-don-vi",
+      "journey_ref": "J-FR-DOC-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-04",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC428 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Rà soát và trình ký\": Bước 1: 422 FORMAT_CHECK_FAILED với errors=[recipients: REQUIRED]; bước 2: 422 SIGNER_NOT_AUTHORIZED (signer_user_id trống); bước 3: 200 SUBMITTED, PDF cuối khó",
+      "coverage_ids": [
+        "COV-FR-DOC-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "truong-don-vi",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Mẫu quyết định yêu cầu các thành phần: quốc hiệu/tiêu ngữ, tên cơ quan, trích yếu, nội dung, nơi nhận, chức vụ người ký; dự thảo D-428b thiếu nơi nhận và chưa chọn người ký.\n1. POST /outgoing-documents/{D-428b}/review-submission\n2. Bổ sung nơi nhận rồi POST review-decision APPROVE khi chưa chọn người ký\n3. Bổ sung người ký đủ thẩm quyền rồi APPROVE",
+      "expected": "Bước 1: 422 FORMAT_CHECK_FAILED với errors=[recipients: REQUIRED]; bước 2: 422 SIGNER_NOT_AUTHORIZED (signer_user_id trống); bước 3: 200 SUBMITTED, PDF cuối khóa với băm SHA-256 ghi vào document.payload_sha256/document_version.checksum.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "DOC-04",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC429",
+      "title": "422 STATE_SECRET_NOT_SUPPORTED ở cả hai",
+      "type": "RED",
+      "platform": "web",
+      "persona": "chuyen-vien-soan-thao",
+      "journey_ref": "J-FR-DOC-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-02",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC429 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-02, FR-DOC-11",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Soạn thảo văn bản đi\": 422 STATE_SECRET_NOT_SUPPORTED ở cả hai; không tạo document; thông báo hướng dẫn dùng kênh chuyên dụng ngoài hệ thống [CXN-DOC-08]; audit ghi outcome=DENIED.",
+      "coverage_ids": [
+        "COV-FR-DOC-02",
+        "COV-FR-DOC-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-soan-thao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Người dùng chọn độ mật \"MẬT\" trên văn bản đi và tải văn bản đến có dấu độ mật \"TỐI MẬT\" khai báo.\n1. POST /outgoing-documents với circulation hoặc nội dung khai báo độ mật nhà nước\n2. POST /incoming-documents với khai báo độ mật nhà nước",
+      "expected": "422 STATE_SECRET_NOT_SUPPORTED ở cả hai; không tạo document; thông báo hướng dẫn dùng kênh chuyên dụng ngoài hệ thống [CXN-DOC-08]; audit ghi outcome=DENIED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security (negative)",
+      "screen_id": "DOC-02",
+      "tags": [
+        "security"
+      ],
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC430",
+      "title": "Cả hai công cụ xác nhận 2 chữ ký hợp lệ, tiền tố revision 0 không đổi",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-doc",
+      "journey_ref": "J-FR-DOC-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-05",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC430 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-05, FR-DOC-06, FR-DOC-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ký số lãnh đạo\": Cả hai công cụ xác nhận 2 chữ ký hợp lệ, tiền tố revision 0 không đổi; ghi lại thuộc tính hỗ trợ của CA: chứng nhận DocMDP P=2 có/không, dấu thời gian RFC 3161 ",
+      "coverage_ids": [
+        "COV-FR-DOC-05",
+        "COV-FR-DOC-06",
+        "COV-FR-DOC-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-doc",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường sandbox CA thật (nhà cung cấp do D05 chọn) cấp hai chứng thư kiểm thử: cá nhân và tổ chức; adapter REMOTE_CA ở trạng thái PROPOSED; PDF mẫu 2 trang.\n1. Ký PDF bằng chứng thư cá nhân qua phiên ký hai pha (hash → CA → nhúng CMS)\n2. Cấp số bằng incremental update rồi ký chứng thư tổ chức\n3. Kiểm bằng công cụ xác minh độc lập (pdfsig/DSS) và bằng bộ xác minh DOC",
+      "expected": "Cả hai công cụ xác nhận 2 chữ ký hợp lệ, tiền tố revision 0 không đổi; ghi lại thuộc tính hỗ trợ của CA: chứng nhận DocMDP P=2 có/không, dấu thời gian RFC 3161 có/không, OCSP; kết quả đóng DOC-SPK-01: nâng adapter lên VERIFIED hoặc ghi giới hạn và giữ đường (ii); thiếu sandbox thì spike ở trạng thái BLOCKED và R1 chỉ dùng đường (ii).",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration (spike R0)",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC431",
+      "title": "Sổ xuất có 43 dòng, số 44 chưa có",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-doc",
+      "journey_ref": "J-FR-DOC-10",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-10",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC431 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sổ đăng ký văn bản đi\": Sổ xuất có 43 dòng, số 44 chưa có; dòng VOIDED và RECALLED hiển thị bằng chữ; số < 10 hiển thị hai chữ số (\"05/QĐ-UBND\") [CXN-DOC-02]; tệp xuất có băm SHA-256 v",
+      "coverage_ids": [
+        "COV-FR-DOC-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-doc",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Sổ QD_CA_BIET 2026 có 43 số (1 VOIDED, 1 RECALLED); auditor A-auditor có doc.register.read.\n1. Mở DOC-10 lọc năm 2026 và xuất sổ\n2. Kiểm số hiển thị với số < 10\n3. A-auditor thử gọi lệnh numbering",
+      "expected": "Sổ xuất có 43 dòng, số 44 chưa có; dòng VOIDED và RECALLED hiển thị bằng chữ; số < 10 hiển thị hai chữ số (\"05/QĐ-UBND\") [CXN-DOC-02]; tệp xuất có băm SHA-256 và ghi phạm vi/ngày xuất; A-auditor: 403 SCOPE_DENIED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "DOC"
+    },
+    {
+      "tc_id": "TC-UAT-AC432",
+      "title": "Bước 1: 409 SCAN_PENDING",
+      "type": "RED",
+      "platform": "api",
+      "persona": "nguoi-dung-doc",
+      "journey_ref": "J-FR-DOC-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DOC-08",
+      "oracle_source": "Claim → 05_modules/DOC.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC432 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-DOC-08, FR-DOC-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Phát hành và phân phối\": Bước 1: 409 SCAN_PENDING; bước 2: 403 SCOPE_DENIED kèm mã INFECTED_FILE_BLOCKED trong audit, không có URL; bước 3: 404 RESOURCE_NOT_FOUND; URL cấp cho người hợp",
+      "coverage_ids": [
+        "COV-FR-DOC-08",
+        "COV-FR-DOC-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-doc",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tệp PDF chưa quét xong (scan_status=PENDING) và tệp bị phát hiện mã độc (INFECTED); văn bản D-432 phân loại CONFIDENTIAL chỉ cho U-STC.\n1. GET /document-versions/{pending}/download\n2. GET /document-versions/{infected}/download\n3. Người dùng U-BQL1 (ngoài scope) GET /document-versions/{D-432-v}/download",
+      "expected": "Bước 1: 409 SCAN_PENDING; bước 2: 403 SCOPE_DENIED kèm mã INFECTED_FILE_BLOCKED trong audit, không có URL; bước 3: 404 RESOURCE_NOT_FOUND; URL cấp cho người hợp lệ hết hạn ≤ 300 giây và kiểm quyền lại khi cấp.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "tags": [
+        "security"
+      ],
+      "module": "DOC"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 23,
+    "M2": 0,
+    "M3": 0,
+    "M4": 80,
+    "max": 80,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 23,
+    "covered": 23,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

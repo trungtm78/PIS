@@ -1,0 +1,1603 @@
+{
+  "feature": "not",
+  "generated_at": "2026-11-05T07:53:18.067Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/not/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UAT-AC26",
+      "title": "Đúng 1 notification_instance với dedupe_key = \"n1:\" + hex(sha256(\"<tenantA>|E-26|<membership u",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-12",
+      "oracle_source": "Claim → FRD AC26; kỳ vọng nguyên văn của ca thiết kế UAT-AC26 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-12, FR-NOT-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi tiết hành trình gửi\": Đúng 1 notification_instance với dedupe_key = \"n1:\" + hex(sha256(\"<tenantA>|E-26|<membership u.spec>|OPERATIONAL\")); lần 2 và 3 bị ON CONFLICT DO NOTHING; 1 del",
+      "coverage_ids": [
+        "COV-FR-NOT-12",
+        "COV-FR-NOT-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Workflow thông báo WF-REPORT-SUBMITTED v3 (Published) cho sự kiện report.submitted, kênh [IN_APP, EMAIL]; người nhận u.spec; outbox relay giả lập giao lại.\n1. Phát sự kiện report.submitted event_id E-26 (tenant A) một lần\n2. Relay giao lại đúng sự kiện E-26 lần 2 và lần 3 (mô phỏng crash trước ACK)\n3. Đếm notification_instance theo dedupe_key và delivery_attempt theo kênh",
+      "expected": "Đúng 1 notification_instance với dedupe_key = \"n1:\" + hex(sha256(\"<tenantA>|E-26|<membership u.spec>|OPERATIONAL\")); lần 2 và 3 bị ON CONFLICT DO NOTHING; 1 delivery_attempt IN_APP và 1 EMAIL attempt_no 1; metric notification_dedupe_hits_total tăng 2.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "NOT-06",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC27",
+      "title": "deadline",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "nguoi-nhan-thong-bao",
+      "journey_ref": "J-FR-NOT-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-03",
+      "oracle_source": "Claim → FRD AC27; kỳ vọng nguyên văn của ca thiết kế UAT-AC27 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-03, FR-NOT-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tùy chọn nhận tin\": deadline.near: IN_APP Delivered ngay; PUSH Scheduled với scheduled_for 2026-10-23T00:00:00Z (07:00 VN). incident.raised: PUSH gửi ngay 15:30Z; 1 audit_event act",
+      "coverage_ids": [
+        "COV-FR-NOT-03",
+        "COV-FR-NOT-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-nhan-thong-bao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.spec time_zone Asia/Ho_Chi_Minh, quiet 21:00–07:00 cho PUSH; workflow WF-DEADLINE (NORMAL) và WF-INCIDENT (CRITICAL, quiet_hours_override=true đã duyệt).\n1. Đặt đồng hồ server 2026-10-22T15:30:00Z (22:30 giờ VN); phát sự kiện deadline.near cho u.spec\n2. Cùng thời điểm phát incident.raised (CRITICAL) cho u.spec\n3. Đọc notification_instance.scheduled_for, delivery_attempt và audit_event",
+      "expected": "deadline.near: IN_APP Delivered ngay; PUSH Scheduled với scheduled_for 2026-10-23T00:00:00Z (07:00 VN). incident.raised: PUSH gửi ngay 15:30Z; 1 audit_event action notification.quiet_hours_override chứa workflow_version_id và recipient.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "NOT-03",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC28",
+      "title": "Bước 1: 422 TEMPLATE_VARIABLE_CLASSIFIED (field content_ast",
+      "type": "RED",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-07",
+      "oracle_source": "Claim → FRD AC28; kỳ vọng nguyên văn của ca thiết kế UAT-AC28 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-07, FR-NOT-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Soạn mẫu đa kênh\": Bước 1: 422 TEMPLATE_VARIABLE_CLASSIFIED (field content_ast.body). Bước 3: payload title \"Có hồ sơ chờ phê duyệt\", body không chứa \"4999999999\", \"4.999.999.999\"",
+      "coverage_ids": [
+        "COV-FR-NOT-07",
+        "COV-FR-NOT-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Sự kiện payment.submitted có biến payment_amount_vnd=4999999999 (money) và document_title (CONFIDENTIAL); mẫu PUSH_FCM \"pay.submitted\" đang Active với lockscreen_safe=true.\n1. Tạo revision mẫu PUSH_FCM có nội dung \"Đề nghị {{payment_amount_vnd}} VND\" bằng POST /notification-templates, Idempotency-Key k-ac28-1\n2. Phát sự kiện payment.submitted cho u.leader dùng mẫu Active hiện hành\n3. Đọc payload FCM mock nhận được",
+      "expected": "Bước 1: 422 TEMPLATE_VARIABLE_CLASSIFIED (field content_ast.body). Bước 3: payload title \"Có hồ sơ chờ phê duyệt\", body không chứa \"4999999999\", \"4.999.999.999\" hay document_title; data chỉ có opaque resource id.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "NOT-07",
+      "tags": [
+        "security"
+      ],
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC29",
+      "title": "Bước 1: 200 trong < 2 giây, report Submitted",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-11",
+      "oracle_source": "Claim → FRD AC29; kỳ vọng nguyên văn của ca thiết kế UAT-AC29 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-11",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hàng đợi gửi\": Bước 1: 200 trong < 2 giây, report Submitted; outbox report.submitted PENDING→PUBLISHED; notification_instance Queued, delivery_attempt Failed RETRYABLE theo lị",
+      "coverage_ids": [
+        "COV-FR-NOT-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Adapter EMAIL và ZALO_ZNS cấu hình trả 503 liên tục (provider outage); u.maker có báo cáo nháp R-29 hợp lệ.\n1. u.maker gọi POST /reports/R-29/submit, Idempotency-Key k-ac29-1, If-Match \"3\"\n2. Đo thời gian phản hồi và đọc trạng thái report, outbox_event, notification_instance\n3. Khôi phục provider sau 5 phút và chạy worker",
+      "expected": "Bước 1: 200 trong < 2 giây, report Submitted; outbox report.submitted PENDING→PUBLISHED; notification_instance Queued, delivery_attempt Failed RETRYABLE theo lịch 30s/2m; circuit breaker kênh mở; bước 3: thông báo được gửi, report không đổi version.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "NOT-11",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC30",
+      "title": "Preview: recipient_count 120, excluded {opted_out:6, no_consent:0, inactive:4, duplicate:0}, preview_hash 64 hex",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-09",
+      "oracle_source": "Claim → FRD AC30; kỳ vọng nguyên văn của ca thiết kế UAT-AC30 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-09, FR-NOT-10, FR-NOT-16",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nhóm người nhận\": Preview: recipient_count 120, excluded {opted_out:6, no_consent:0, inactive:4, duplicate:0}, preview_hash 64 hex. Bước 3: PendingApproval. Bước 4: 403 SELF_APPR",
+      "coverage_ids": [
+        "COV-FR-NOT-09",
+        "COV-FR-NOT-10",
+        "COV-FR-NOT-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Mẫu ANNOUNCEMENT \"thong-bao-hop\" Active (IN_APP + EMAIL); segment: tất cả membership STAFF của A-BQLGT (130 người, 6 opt-out email, 4 Suspended).\n1. u.admin gọi POST /notification-campaigns (k-ac30-1) rồi POST /notification-campaigns/{id}/preview (k-ac30-2, If-Match \"1\")\n2. u.admin gọi POST /notification-campaigns/{id}/submit với preview_hash vừa nhận (k-ac30-3)\n3. u.admin tự gọi POST /notification-campaigns/{id}/decision approve (k-ac30-4)\n4. u.owner gọi decision approve (k-ac30-5)",
+      "expected": "Preview: recipient_count 120, excluded {opted_out:6, no_consent:0, inactive:4, duplicate:0}, preview_hash 64 hex. Bước 3: PendingApproval. Bước 4: 403 SELF_APPROVAL_DENIED, trạng thái không đổi. Bước 5: Approved, approved_by = u.owner; khi chạy tạo đúng 120 notification_instance.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "UAT",
+      "screen_id": "NOT-09",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UI-NOT-01",
+      "title": "Hộp thông báo cá nhân (NOT-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nguoi-nhan-thong-bao",
+      "journey_ref": "J-FR-NOT-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-01",
+      "oracle_source": "Claim → FR-NOT-01; kỳ vọng nguyên văn của ca thiết kế UI-NOT-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-01",
+      "catches_bug": "Màn hình Hộp thông báo cá nhân (NOT-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-NOT-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-nhan-thong-bao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route NOT-01\n1. Mở route bằng menu và deep link; kiểm tên trường: Chưa đọc, Loại, Ưu tiên, Hồ sơ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "NOT-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UI-NOT-02",
+      "title": "Chi tiết thông báo (NOT-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nguoi-nhan-thong-bao",
+      "journey_ref": "J-FR-NOT-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-02",
+      "oracle_source": "Claim → FR-NOT-02; kỳ vọng nguyên văn của ca thiết kế UI-NOT-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-02",
+      "catches_bug": "Màn hình Chi tiết thông báo (NOT-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-NOT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-nhan-thong-bao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route NOT-02\n1. Mở route bằng menu và deep link; kiểm tên trường: Nội dung, Hành động, Hạn, Xác nhận\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "NOT-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UI-NOT-03",
+      "title": "Tùy chọn nhận tin (NOT-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nguoi-nhan-thong-bao",
+      "journey_ref": "J-FR-NOT-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-03",
+      "oracle_source": "Claim → FR-NOT-03; kỳ vọng nguyên văn của ca thiết kế UI-NOT-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-03",
+      "catches_bug": "Màn hình Tùy chọn nhận tin (NOT-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-NOT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-nhan-thong-bao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route NOT-03\n1. Mở route bằng menu và deep link; kiểm tên trường: Kênh, Sự kiện, Giờ yên lặng, Gộp tin\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "NOT-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UI-NOT-04",
+      "title": "Tổng quan vận hành thông báo (NOT-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-04",
+      "oracle_source": "Claim → FR-NOT-04; kỳ vọng nguyên văn của ca thiết kế UI-NOT-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-04",
+      "catches_bug": "Màn hình Tổng quan vận hành thông báo (NOT-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-NOT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route NOT-04\n1. Mở route bằng menu và deep link; kiểm tên trường: Đã gửi, Lỗi, Độ trễ, Chi phí\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "NOT-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UI-NOT-05",
+      "title": "Danh mục sự kiện (NOT-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-05",
+      "oracle_source": "Claim → FR-NOT-05; kỳ vọng nguyên văn của ca thiết kế UI-NOT-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-05",
+      "catches_bug": "Màn hình Danh mục sự kiện (NOT-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-NOT-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route NOT-05\n1. Mở route bằng menu và deep link; kiểm tên trường: Sự kiện, Schema, Chủ sở hữu, Phiên bản\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "NOT-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UI-NOT-06",
+      "title": "Dựng luồng thông báo (NOT-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-06",
+      "oracle_source": "Claim → FR-NOT-06; kỳ vọng nguyên văn của ca thiết kế UI-NOT-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-06",
+      "catches_bug": "Màn hình Dựng luồng thông báo (NOT-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-NOT-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route NOT-06\n1. Mở route bằng menu và deep link; kiểm tên trường: Sự kiện, Điều kiện, Chờ, Kênh, Chuyển cấp\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "NOT-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UI-NOT-07",
+      "title": "Soạn mẫu đa kênh (NOT-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-07",
+      "oracle_source": "Claim → FR-NOT-07; kỳ vọng nguyên văn của ca thiết kế UI-NOT-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-07",
+      "catches_bug": "Màn hình Soạn mẫu đa kênh (NOT-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-NOT-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route NOT-07\n1. Mở route bằng menu và deep link; kiểm tên trường: Biến, Ngôn ngữ, Email, Push, Zalo, WhatsApp\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "NOT-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UI-NOT-08",
+      "title": "Xem trước và gửi thử (NOT-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-08",
+      "oracle_source": "Claim → FR-NOT-08; kỳ vọng nguyên văn của ca thiết kế UI-NOT-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-08",
+      "catches_bug": "Màn hình Xem trước và gửi thử (NOT-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-NOT-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route NOT-08\n1. Mở route bằng menu và deep link; kiểm tên trường: Đối tượng thử, Kênh, Nội dung, Biến thiếu\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "NOT-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UI-NOT-09",
+      "title": "Nhóm người nhận (NOT-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-09",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-09",
+      "oracle_source": "Claim → FR-NOT-09; kỳ vọng nguyên văn của ca thiết kế UI-NOT-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-09",
+      "catches_bug": "Màn hình Nhóm người nhận (NOT-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-NOT-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route NOT-09\n1. Mở route bằng menu và deep link; kiểm tên trường: Điều kiện, Loại trừ, Ước tính số người\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "NOT-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UI-NOT-10",
+      "title": "Lịch gửi và chiến dịch (NOT-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-10",
+      "oracle_source": "Claim → FR-NOT-10; kỳ vọng nguyên văn của ca thiết kế UI-NOT-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-10",
+      "catches_bug": "Màn hình Lịch gửi và chiến dịch (NOT-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-NOT-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route NOT-10\n1. Mở route bằng menu và deep link; kiểm tên trường: Thời điểm, Múi giờ, Hạn hiệu lực, Người nhận\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "NOT-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UI-NOT-11",
+      "title": "Hàng đợi gửi (NOT-11): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-11",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-11",
+      "oracle_source": "Claim → FR-NOT-11; kỳ vọng nguyên văn của ca thiết kế UI-NOT-11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-11",
+      "catches_bug": "Màn hình Hàng đợi gửi (NOT-11) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-NOT-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route NOT-11\n1. Mở route bằng menu và deep link; kiểm tên trường: Thông báo, Kênh, Trạng thái, Lần thử\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "NOT-11",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UI-NOT-12",
+      "title": "Chi tiết hành trình gửi (NOT-12): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-12",
+      "oracle_source": "Claim → FR-NOT-12; kỳ vọng nguyên văn của ca thiết kế UI-NOT-12 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-12",
+      "catches_bug": "Màn hình Chi tiết hành trình gửi (NOT-12) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-NOT-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route NOT-12\n1. Mở route bằng menu và deep link; kiểm tên trường: Đưa vào hàng đợi, Chấp nhận, Giao, Đọc, Xác nhận\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "NOT-12",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UI-NOT-13",
+      "title": "Hàng đợi lỗi và phát lại (NOT-13): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-13",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-13",
+      "oracle_source": "Claim → FR-NOT-13; kỳ vọng nguyên văn của ca thiết kế UI-NOT-13 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-13",
+      "catches_bug": "Màn hình Hàng đợi lỗi và phát lại (NOT-13) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-NOT-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route NOT-13\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã lỗi, Có thể thử lại, Số lần, Lần tới\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "NOT-13",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UI-NOT-14",
+      "title": "Thiết bị push (NOT-14): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-14",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-14",
+      "oracle_source": "Claim → FR-NOT-14; kỳ vọng nguyên văn của ca thiết kế UI-NOT-14 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-14",
+      "catches_bug": "Màn hình Thiết bị push (NOT-14) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-NOT-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route NOT-14\n1. Mở route bằng menu và deep link; kiểm tên trường: Nền tảng, Token ẩn, Lần hoạt động, Thu hồi\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "NOT-14",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UI-NOT-15",
+      "title": "Hạn mức và chi phí kênh (NOT-15): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-15",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-15",
+      "oracle_source": "Claim → FR-NOT-15; kỳ vọng nguyên văn của ca thiết kế UI-NOT-15 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-15",
+      "catches_bug": "Màn hình Hạn mức và chi phí kênh (NOT-15) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-NOT-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route NOT-15\n1. Mở route bằng menu và deep link; kiểm tên trường: Kênh, Ngân sách, Đã dùng, Còn lại\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "NOT-15",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UI-NOT-16",
+      "title": "Phê duyệt gửi diện rộng (NOT-16): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "notification-approver",
+      "journey_ref": "J-FR-NOT-16",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-16",
+      "oracle_source": "Claim → FR-NOT-16; kỳ vọng nguyên văn của ca thiết kế UI-NOT-16 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-16",
+      "catches_bug": "Màn hình Phê duyệt gửi diện rộng (NOT-16) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-NOT-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-approver",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route NOT-16\n1. Mở route bằng menu và deep link; kiểm tên trường: Phạm vi, Mẫu, Số người, Người duyệt\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Phân biệt accepted, delivered, read, acknowledged; có chống gửi trùng\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "NOT-16",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC176",
+      "title": "Vẫn 1 notification_instance cho (E-76, u",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-12",
+      "oracle_source": "Claim → NOT.md BR-NOT-01; kỳ vọng nguyên văn của ca thiết kế UAT-AC176 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-12, FR-NOT-06",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi tiết hành trình gửi\": Vẫn 1 notification_instance cho (E-76, u.leader, OPERATIONAL); không tạo bản thứ hai dù template/workflow version đổi.",
+      "coverage_ids": [
+        "COV-FR-NOT-12",
+        "COV-FR-NOT-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Workflow WF-PAY v1 dùng template pay.submitted rev 1.\n1. Phát payment.submitted E-76 cho u.leader\n2. Công bố template rev 2 và WF-PAY v2\n3. Relay giao lại E-76",
+      "expected": "Vẫn 1 notification_instance cho (E-76, u.leader, OPERATIONAL); không tạo bản thứ hai dù template/workflow version đổi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "NOT-06",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC177",
+      "title": "ZNS có đúng 5 attempt (attempt_no 1",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-11",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-11",
+      "oracle_source": "Claim → NOT.md BR-NOT-03; kỳ vọng nguyên văn của ca thiết kế UAT-AC177 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-11, FR-NOT-13",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hàng đợi gửi\": ZNS có đúng 5 attempt (attempt_no 1..5) tại t0, t0+30s, +2m, +10m, +30m (mỗi khoảng ±20%); không có attempt 6; ZNS Failed rồi 1 attempt EMAIL attempt_no 1; noti",
+      "coverage_ids": [
+        "COV-FR-NOT-11",
+        "COV-FR-NOT-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Kênh ZALO_ZNS mock luôn trả 503; fallback EMAIL; jitter seed cố định.\n1. Phát sự kiện cho u.spec tại t0\n2. Chạy đồng hồ tới t0+60 phút\n3. Đọc delivery_attempt theo kênh",
+      "expected": "ZNS có đúng 5 attempt (attempt_no 1..5) tại t0, t0+30s, +2m, +10m, +30m (mỗi khoảng ±20%); không có attempt 6; ZNS Failed rồi 1 attempt EMAIL attempt_no 1; notification Delivered qua EMAIL.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "NOT-11",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC178",
+      "title": "Không có attempt thứ hai (t0+600s > expires_at)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-11",
+      "oracle_source": "Claim → NOT.md BR-NOT-03; kỳ vọng nguyên văn của ca thiết kế UAT-AC178 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-11",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hàng đợi gửi\": Không có attempt thứ hai (t0+600s > expires_at); notification Expired; DLQ không nhận bản ghi.",
+      "coverage_ids": [
+        "COV-FR-NOT-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. expires_after_minutes 5; provider trả 429 Retry-After 600.\n1. Phát sự kiện tại t0\n2. Chạy đồng hồ tới t0+15 phút",
+      "expected": "Không có attempt thứ hai (t0+600s > expires_at); notification Expired; DLQ không nhận bản ghi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "NOT-11",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC179",
+      "title": "1 attempt Failed failure_class PERMANENT, không retry",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-14",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-14",
+      "oracle_source": "Claim → NOT.md BR-NOT-03; kỳ vọng nguyên văn của ca thiết kế UAT-AC179 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thiết bị push\": 1 attempt Failed failure_class PERMANENT, không retry; D-79 revoked_at có giá trị, revoke_reason \"TOKEN_UNREGISTERED\".",
+      "coverage_ids": [
+        "COV-FR-NOT-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Thiết bị D-79 của u.spec; FCM mock trả UNREGISTERED.\n1. Gửi push cho u.spec\n2. Đọc device_registration D-79",
+      "expected": "1 attempt Failed failure_class PERMANENT, không retry; D-79 revoked_at có giá trị, revoke_reason \"TOKEN_UNREGISTERED\".",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "NOT-14",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC180",
+      "title": "Sau bước 1: status Unknown",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-13",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-13",
+      "oracle_source": "Claim → NOT.md BR-NOT-04; kỳ vọng nguyên văn của ca thiết kế UAT-AC180 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-13",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hàng đợi lỗi và phát lại\": Sau bước 1: status Unknown. Bước 2: 409 RECONCILE_REQUIRED. Bước 3: Delivered. Bước 4: 409 NOTIFICATION_STATE_INVALID. Tổng SMS provider nhận: 1.",
+      "coverage_ids": [
+        "COV-FR-NOT-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. SMS mock timeout sau khi đã nhận request (không biết đã gửi hay chưa).\n1. Gửi SMS cho C-01\n2. POST /notifications/{id}/replay (k-180-1)\n3. Chạy job reconcile; provider trả DELIVERED\n4. replay lại (k-180-2)",
+      "expected": "Sau bước 1: status Unknown. Bước 2: 409 RECONCILE_REQUIRED. Bước 3: Delivered. Bước 4: 409 NOTIFICATION_STATE_INVALID. Tổng SMS provider nhận: 1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "NOT-13",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC181",
+      "title": "Bước 1: read_at NULL",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "nguoi-nhan-thong-bao",
+      "journey_ref": "J-FR-NOT-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-01",
+      "oracle_source": "Claim → NOT.md BR-NOT-05; kỳ vọng nguyên văn của ca thiết kế UAT-AC181 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-01, FR-NOT-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hộp thông báo cá nhân\": Bước 1: read_at NULL. Bước 2: status Read, read_at có giá trị. Bước 3: acknowledged_at ≥ read_at. Bước 4: 422 ACK_NOT_REQUIRED.",
+      "coverage_ids": [
+        "COV-FR-NOT-01",
+        "COV-FR-NOT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-nhan-thong-bao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Thông báo N-81 ack_required=true và N-82 ack_required=false cho u.spec; push gửi thành công.\n1. Đọc N-81 ngay sau push ProviderAccepted\n2. u.spec mở NOT-02 cho N-81 (POST /notifications/N-81/read)\n3. POST /notifications/N-81/acknowledge\n4. POST /notifications/N-82/acknowledge",
+      "expected": "Bước 1: read_at NULL. Bước 2: status Read, read_at có giá trị. Bước 3: acknowledged_at ≥ read_at. Bước 4: 422 ACK_NOT_REQUIRED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "E2E",
+      "screen_id": "NOT-01",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC182",
+      "title": "Chuỗi trạng thái cuối: ProviderAccepted → Delivered → Read",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-12",
+      "oracle_source": "Claim → NOT.md BR-NOT-06; kỳ vọng nguyên văn của ca thiết kế UAT-AC182 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-12",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chi tiết hành trình gửi\": Chuỗi trạng thái cuối: ProviderAccepted → Delivered → Read; webhook Accepted trễ bị bỏ (không lùi); Read trùng chỉ ghi 1 lần; 3 inbox row PROCESSED, 1 trùng eve",
+      "coverage_ids": [
+        "COV-FR-NOT-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Attempt A-82 ProviderAccepted.\n1. Webhook Delivered\n2. Webhook Accepted (đến trễ)\n3. Webhook Read hai lần\n4. Đọc A-82 và lịch sử trạng thái",
+      "expected": "Chuỗi trạng thái cuối: ProviderAccepted → Delivered → Read; webhook Accepted trễ bị bỏ (không lùi); Read trùng chỉ ghi 1 lần; 3 inbox row PROCESSED, 1 trùng event_key bị dedupe.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "NOT-12",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC183",
+      "title": "E-83: attempt ZALO Suppressed reason NO_CONSENT, IN_APP Delivered",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "nguoi-nhan-thong-bao",
+      "journey_ref": "J-FR-NOT-17",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-17",
+      "oracle_source": "Claim → NOT.md BR-NOT-07; kỳ vọng nguyên văn của ca thiết kế UAT-AC183 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-17, FR-NOT-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Lịch sử đồng ý nhận tin\": E-83: attempt ZALO Suppressed reason NO_CONSENT, IN_APP Delivered. E-84: attempt ZALO được gửi. NOT-17 hiển thị 1 consent Granted.",
+      "coverage_ids": [
+        "COV-FR-NOT-17",
+        "COV-FR-NOT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-nhan-thong-bao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.spec chưa đồng ý ZALO cho OPERATIONAL; workflow channel_plan [ZALO, IN_APP].\n1. Phát sự kiện E-83\n2. u.spec POST /me/consents {ZALO, OPERATIONAL, consent_text_version \"ct-2026-01\", IN_APP} (k-183-1)\n3. Phát sự kiện E-84",
+      "expected": "E-83: attempt ZALO Suppressed reason NO_CONSENT, IN_APP Delivered. E-84: attempt ZALO được gửi. NOT-17 hiển thị 1 consent Granted.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "NOT-03",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC184",
+      "title": "Attempt Suppressed tại thời điểm gửi (recheck)",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "nguoi-nhan-thong-bao",
+      "journey_ref": "J-FR-NOT-17",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-17",
+      "oracle_source": "Claim → NOT.md BR-NOT-07; kỳ vọng nguyên văn của ca thiết kế UAT-AC184 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-17",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Lịch sử đồng ý nhận tin\": Attempt Suppressed tại thời điểm gửi (recheck); adapter 0 lời gọi; IN_APP không bị ảnh hưởng.",
+      "coverage_ids": [
+        "COV-FR-NOT-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-nhan-thong-bao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Attempt ZALO cho u.spec lên lịch t0+2m (retry).\n1. Tại t0+1m u.spec POST /me/consents/{c}/withdraw (k-184-1)\n2. Chạy đồng hồ tới t0+3m",
+      "expected": "Attempt Suppressed tại thời điểm gửi (recheck); adapter 0 lời gọi; IN_APP không bị ảnh hưởng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "NOT-17",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC185",
+      "title": "u",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "nguoi-nhan-thong-bao",
+      "journey_ref": "J-FR-NOT-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-03",
+      "oracle_source": "Claim → NOT.md BR-NOT-08; kỳ vọng nguyên văn của ca thiết kế UAT-AC185 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tùy chọn nhận tin\": u.spec (20:30 VN): PUSH gửi ngay. u.guest (22:30 JST): PUSH scheduled_for 2026-10-22T22:00:00Z (07:00 JST).",
+      "coverage_ids": [
+        "COV-FR-NOT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-nhan-thong-bao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.spec (Asia/Ho_Chi_Minh) và u.guest (Asia/Tokyo), cả hai quiet 21:00–07:00.\n1. Phát sự kiện NORMAL lúc 2026-10-22T13:30:00Z cho cả hai",
+      "expected": "u.spec (20:30 VN): PUSH gửi ngay. u.guest (22:30 JST): PUSH scheduled_for 2026-10-22T22:00:00Z (07:00 JST).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "NOT-03",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC186",
+      "title": "HIGH gửi ngay",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "nguoi-nhan-thong-bao",
+      "journey_ref": "J-FR-NOT-03",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-03",
+      "oracle_source": "Claim → NOT.md BR-NOT-09; kỳ vọng nguyên văn của ca thiết kế UAT-AC186 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-03, FR-NOT-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tùy chọn nhận tin\": HIGH gửi ngay; 3 NORMAL ở trạng thái Scheduled với cùng digest_bucket_key; 07:30 tạo 1 notification digest chứa 3 mục, 3 bản gốc chuyển Delivered (qua digest).",
+      "coverage_ids": [
+        "COV-FR-NOT-03",
+        "COV-FR-NOT-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-nhan-thong-bao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. u.spec digest DAILY cho REPORT_REMINDER (07:30 local).\n1. Phát 3 sự kiện NORMAL REPORT_REMINDER trong ngày 22/10 và 1 sự kiện HIGH\n2. Chạy tới 23/10 07:31 +07",
+      "expected": "HIGH gửi ngay; 3 NORMAL ở trạng thái Scheduled với cùng digest_bucket_key; 07:30 tạo 1 notification digest chứa 3 mục, 3 bản gốc chuyển Delivered (qua digest).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "NOT-03",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC187",
+      "title": "Bước 1: 409 TEMPLATE_IMMUTABLE",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-07",
+      "oracle_source": "Claim → NOT.md BR-NOT-10; kỳ vọng nguyên văn của ca thiết kế UAT-AC187 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Soạn mẫu đa kênh\": Bước 1: 409 TEMPLATE_IMMUTABLE. Bước 2: PendingProvider. Bước 3: 409 TEMPLATE_PROVIDER_PENDING. Bước 4: rev 2 Active với provider_template_id 23045; rev 1 Retir",
+      "coverage_ids": [
+        "COV-FR-NOT-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Template ZNS \"nhac-han\" rev 1 Active (provider_template_id 23001).\n1. Sửa nội dung rev 1 (k-187-1)\n2. Tạo rev 2 và submit (k-187-2)\n3. decision approve khi provider chưa duyệt (k-187-3)\n4. Provider callback APPROVED template 23045; decision approve (k-187-4)",
+      "expected": "Bước 1: 409 TEMPLATE_IMMUTABLE. Bước 2: PendingProvider. Bước 3: 409 TEMPLATE_PROVIDER_PENDING. Bước 4: rev 2 Active với provider_template_id 23045; rev 1 Retired; tin mới dùng 23045.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "NOT-07",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC188",
+      "title": "Bước 1: 422 TEMPLATE_VARIABLE_CLASSIFIED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-07",
+      "oracle_source": "Claim → NOT.md BR-NOT-11; kỳ vọng nguyên văn của ca thiết kế UAT-AC188 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Soạn mẫu đa kênh\": Bước 1: 422 TEMPLATE_VARIABLE_CLASSIFIED. Bước 2: vi phạm CHECK notification_template_push_ck.",
+      "coverage_ids": [
+        "COV-FR-NOT-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. variable_schema: payment_amount_vnd {type money, classification CONFIDENTIAL}.\n1. POST /notification-templates channel ZALO_ZNS dùng {{payment_amount_vnd}} (k-188-1)\n2. Ghi trực tiếp DB template PUSH_FCM lockscreen_safe=false",
+      "expected": "Bước 1: 422 TEMPLATE_VARIABLE_CLASSIFIED. Bước 2: vi phạm CHECK notification_template_push_ck.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "NOT-07",
+      "tags": [
+        "security"
+      ],
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC189",
+      "title": "Bước 1: 422 TEST_RECIPIENT_NOT_ALLOWED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-08",
+      "oracle_source": "Claim → NOT.md §3; kỳ vọng nguyên văn của ca thiết kế UAT-AC189 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-08",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Xem trước và gửi thử\": Bước 1: 422 TEST_RECIPIENT_NOT_ALLOWED. Bước 2: 202, tin có tiền tố \"[TEST]\", is_test=true, không tính vào NOT-04.",
+      "coverage_ids": [
+        "COV-FR-NOT-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Danh sách thử của tenant A: u.admin, u.spec.\n1. POST /notification-templates/{t}/test-sends {test_recipient_ids [u.maker]} (k-189-1)\n2. Gửi cho [u.spec] (k-189-2)",
+      "expected": "Bước 1: 422 TEST_RECIPIENT_NOT_ALLOWED. Bước 2: 202, tin có tiền tố \"[TEST]\", is_test=true, không tính vào NOT-04.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "NOT-08",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC190",
+      "title": "Bước 2: 409 PREVIEW_STALE",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-09",
+      "oracle_source": "Claim → NOT.md BR-NOT-12; kỳ vọng nguyên văn của ca thiết kế UAT-AC190 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-09, FR-NOT-10, FR-NOT-16",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nhóm người nhận\": Bước 2: 409 PREVIEW_STALE. Bước 3: recipient_count 119, PendingApproval.",
+      "coverage_ids": [
+        "COV-FR-NOT-09",
+        "COV-FR-NOT-10",
+        "COV-FR-NOT-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Chiến dịch C-90 Previewed (120 người, preview_hash H1).\n1. 1 người trong segment rút đồng ý EMAIL\n2. submit với H1 (k-190-1)\n3. Preview lại → H2, submit (k-190-2)",
+      "expected": "Bước 2: 409 PREVIEW_STALE. Bước 3: recipient_count 119, PendingApproval.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "NOT-09",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC191",
+      "title": "Tin ZNS NORMAL bị hoãn (Scheduled tới kỳ ngân sách mới hoặc fallback EMAIL theo workflow), cảnh báo NOT-15",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-15",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-15",
+      "oracle_source": "Claim → NOT.md BR-NOT-13; kỳ vọng nguyên văn của ca thiết kế UAT-AC191 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-15",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hạn mức và chi phí kênh\": Tin ZNS NORMAL bị hoãn (Scheduled tới kỳ ngân sách mới hoặc fallback EMAIL theo workflow), cảnh báo NOT-15; CRITICAL IN_APP Delivered.",
+      "coverage_ids": [
+        "COV-FR-NOT-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. ZOA-ZNS monthly_budget_vnd 1.000.000, cost 300 VND/tin, đã dùng 999.900.\n1. Gửi 1 tin NORMAL (cost 300) và 1 tin CRITICAL IN_APP",
+      "expected": "Tin ZNS NORMAL bị hoãn (Scheduled tới kỳ ngân sách mới hoặc fallback EMAIL theo workflow), cảnh báo NOT-15; CRITICAL IN_APP Delivered.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "NOT-15",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC192",
+      "title": "1 device_registration live, token_fingerprint là của token thứ hai",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-14",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-14",
+      "oracle_source": "Claim → NOT.md §3; kỳ vọng nguyên văn của ca thiết kế UAT-AC192 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thiết bị push\": 1 device_registration live, token_fingerprint là của token thứ hai; sau đăng xuất revoked_at có giá trị.",
+      "coverage_ids": [
+        "COV-FR-NOT-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. Thiết bị dev-abc của u.spec.\n1. POST /devices {device_public_id dev-abc...} hai lần với token khác (k-192-1, k-192-2)\n2. u.spec đăng xuất",
+      "expected": "1 device_registration live, token_fingerprint là của token thứ hai; sau đăng xuất revoked_at có giá trị.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "NOT-14",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC193",
+      "title": "delivered_rate 84,21% (80/95, Suppressed không ở mẫu số), hiển thị mẫu số 95 và cutoff",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-04",
+      "oracle_source": "Claim → NOT.md BR-NOT-14; kỳ vọng nguyên văn của ca thiết kế UAT-AC193 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Tổng quan vận hành thông báo\": delivered_rate 84,21% (80/95, Suppressed không ở mẫu số), hiển thị mẫu số 95 và cutoff; Unknown 5 hiển thị riêng.",
+      "coverage_ids": [
+        "COV-FR-NOT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. 100 attempt kết thúc trong kỳ: 80 Delivered/Read, 10 Failed, 5 Unknown, 5 Suppressed.\n1. Mở NOT-04 cho kỳ",
+      "expected": "delivered_rate 84,21% (80/95, Suppressed không ở mẫu số), hiển thị mẫu số 95 và cutoff; Unknown 5 hiển thị riêng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "NOT-04",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-AC194",
+      "title": "422 EVENT_TYPE_UNKNOWN",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "notification-admin",
+      "journey_ref": "J-FR-NOT-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-05",
+      "oracle_source": "Claim → NOT.md BR-NOT-15; kỳ vọng nguyên văn của ca thiết kế UAT-AC194 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh mục sự kiện\": 422 EVENT_TYPE_UNKNOWN; NOT-05 không liệt kê loại này.",
+      "coverage_ids": [
+        "COV-FR-NOT-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "notification-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1: tenant A \"minh-ha\" (UBND tỉnh Minh Hà, POOL) và tenant B \"bo-thu-nghiem\" (Bộ Thử Nghiệm); đơn vị A-ROOT, A-STC (Sở Tài chính), A-SKHDT (Sở KH&ĐT, valid_until 2025-03-01), A-BQLGT (Ban QLDA giao thông), A-HUYEN-HB (UBND huyện Hòa Bình), A-XA-AP (xã An Phú), A-XA-BM (xã Bình Minh); người dùng u.owner (TENANT_OWNER 99), u.admin (TENANT_ADMIN 90), u.unitadmin (UNIT_ADMIN 70 trên subtree A-BQLGT), u.leader (LEADER 60), u.spec (SPECIALIST 40), u.maker (INVESTOR_OFFICER 30), u.guest (GUEST_CONTRACTOR, nhà thầu NT-01, hợp đồng HD-001); control plane sa.root, sa.two (System Admin), op.ops (Platform Operator), op.sup (Support Operator); đồng hồ server giả lập UTC. event_type \"report.overdue.v9\" chưa đăng ký.\n1. POST /notification-workflows {event_type \"report.overdue.v9\"} (k-194-1)",
+      "expected": "422 EVENT_TYPE_UNKNOWN; NOT-05 không liệt kê loại này.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "NOT-05",
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UI-NOT-17",
+      "title": "Lịch sử đồng ý nhận tin (NOT-17): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "nguoi-nhan-thong-bao",
+      "journey_ref": "J-FR-NOT-17",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-17",
+      "oracle_source": "Claim → FR-NOT-17; kỳ vọng nguyên văn của ca thiết kế UI-NOT-17 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-17",
+      "catches_bug": "Màn hình Lịch sử đồng ý nhận tin (NOT-17) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-NOT-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-nhan-thong-bao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-PLAT v1; route NOT-17; dữ liệu có/không bản ghi; người dùng đủ quyền (Người nhận thông báo (mọi membership)) và người dùng thiếu quyền\n1. Mở NOT-17 \"Lịch sử đồng ý nhận tin\" từ menu và deep link; kiểm nhãn trường: Kênh, Mục đích, Trạng thái, Thời điểm, Phiên bản điều khoản, Rút đồng ý\n2. Thực hiện thao tác chính bằng grantMyConsent, withdrawMyConsent; kiểm Idempotency-Key và If-Match được gửi; thử người dùng thiếu quyền\n3. Kiểm 7 trạng thái chuẩn (loading, empty, error, denied, stale, offline, success) và trạng thái riêng của list; bàn phím, 390px, quay lại giữ ngữ cảnh",
+      "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (CHANNEL_IDENTITY_UNVERIFIED, CONSENT_STATE_INVALID) với correlation_id; không mất dữ liệu nhập khi 409",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "NOT-17",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "NOT"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-49",
+      "title": "T-1 shows the provider approval state APPROVED and template id 987654 and the editor is locked",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-not",
+      "journey_ref": "J-FR-NOT-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-NOT-07",
+      "oracle_source": "Claim → NOT.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-49 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-NOT-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Soạn mẫu đa kênh\": T-1 shows the provider approval state APPROVED and template id 987654 and the editor is locked; T-2 shows PENDING without a template id.",
+      "coverage_ids": [
+        "COV-FR-NOT-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-not",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: ZNS template T-1 submitted to the provider and approved with provider template id 987654; template T-2 pending.\n1. Open the NOT-07 editor for T-1\n2. Open it for T-2",
+      "expected": "T-1 shows the provider approval state APPROVED and template id 987654 and the editor is locked; T-2 shows PENDING without a template id.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "module": "NOT"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 17,
+    "M2": 0,
+    "M3": 0,
+    "M4": 80,
+    "max": 80,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 17,
+    "covered": 17,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

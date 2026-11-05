@@ -1,0 +1,2240 @@
+{
+  "feature": "mdm",
+  "generated_at": "2026-11-05T07:53:18.060Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/mdm/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UAT-AC45",
+      "title": "TNT-A: 409 DUPLICATE_KEY (không nêu id bản ghi hiện có ngoài scope)",
+      "type": "RED",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-25",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-25",
+      "oracle_source": "Claim → FRD AC45; kỳ vọng nguyên văn của ca thiết kế UAT-AC45 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-25",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thêm bản ghi danh mục\": TNT-A: 409 DUPLICATE_KEY (không nêu id bản ghi hiện có ngoài scope); TNT-B: 200 tạo change request CREATE; tra cứu ở TNT-B chỉ trả bản ghi của TNT-B, không có m",
+      "coverage_ids": [
+        "COV-FR-MDM-25"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: TNT-A có master_record FUND_SOURCE/TENANT key \"NSDP-XS\" EFFECTIVE; TNT-B chưa có key này.\n1. A-steward đề xuất POST /master-records {master_type:\"FUND_SOURCE\", namespace:\"TENANT\", business_key:\"NSDP-XS\"} (key k-ac45-0000000001)\n2. B-steward đề xuất cùng key ở TNT-B\n3. B-steward gọi GET /master-records?business_key=NSDP-XS",
+      "expected": "TNT-A: 409 DUPLICATE_KEY (không nêu id bản ghi hiện có ngoài scope); TNT-B: 200 tạo change request CREATE; tra cứu ở TNT-B chỉ trả bản ghi của TNT-B, không có metadata/đếm của TNT-A.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "MDM-25",
+      "tags": [
+        "security"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UAT-AC46",
+      "title": "Lần 1: apply bị từ chối 409 EFFECTIVE_RANGE_OVERLAP (EXCLUDE constraint master_version_no_overlap), không có version mới",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-26",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-26",
+      "oracle_source": "Claim → FRD AC46; kỳ vọng nguyên văn của ca thiết kế UAT-AC46 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-26",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Sửa bản ghi và hiệu lực\": Lần 1: apply bị từ chối 409 EFFECTIVE_RANGE_OVERLAP (EXCLUDE constraint master_version_no_overlap), không có version mới; lần 2: r2 được đóng [.., 2026-01-01) v",
+      "coverage_ids": [
+        "COV-FR-MDM-26"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: master_record SECTOR \"GT\" có version r1 EFFECTIVE [2024-01-01, 2026-01-01) và r2 EFFECTIVE [2026-01-01, ∞).\n1. A-steward tạo change request UPDATE với valid_from=2025-06-01 cho \"GT\"\n2. A-steward2 duyệt và apply\n3. Thử lại với valid_from=2026-01-01 và đóng r2 tại 2026-01-01",
+      "expected": "Lần 1: apply bị từ chối 409 EFFECTIVE_RANGE_OVERLAP (EXCLUDE constraint master_version_no_overlap), không có version mới; lần 2: r2 được đóng [.., 2026-01-01) và r3 [2026-01-01, ∞) tạo trong cùng transaction, không khoảng chồng lấn.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "MDM-26",
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UAT-AC47",
+      "title": "R47 và PDF vẫn hiện \"Ban QLDA Huyện X\" (theo master_record_version tại ngày nghiệp vụ)",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-31",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-31",
+      "oracle_source": "Claim → FRD AC47; kỳ vọng nguyên văn của ca thiết kế UAT-AC47 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-31, FR-MDM-03",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ngừng dùng danh mục\": R47 và PDF vẫn hiện \"Ban QLDA Huyện X\" (theo master_record_version tại ngày nghiệp vụ); DIS-12 kỳ 2025-W30 hiện \"Ban QLDA KV1\"; bản ghi cũ status=RETIRED, không",
+      "coverage_ids": [
+        "COV-FR-MDM-31",
+        "COV-FR-MDM-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Đơn vị \"Ban QLDA Huyện X\" (AGENCY) có báo cáo R47 ACCEPTED kỳ 2025-W20 hiển thị tên này; master_succession sang \"Ban QLDA KV1\" hiệu lực 2025-07-01.\n1. A-steward retire \"Ban QLDA Huyện X\" từ 2025-07-01 với successor \"Ban QLDA KV1\"\n2. Mở DIS-07 của R47 và xuất PDF DIS-17\n3. Mở DIS-12 kỳ 2025-W30",
+      "expected": "R47 và PDF vẫn hiện \"Ban QLDA Huyện X\" (theo master_record_version tại ngày nghiệp vụ); DIS-12 kỳ 2025-W30 hiện \"Ban QLDA KV1\"; bản ghi cũ status=RETIRED, không bị xóa, FK của R47 còn nguyên.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "MDM-03",
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UAT-AC48",
+      "title": "Apply lần 1: 422 IMPORT_HAS_ERRORS, errors[0]={row:7, field:\"parent_code\", code:\"FK_NOT_FOUND\"}, vẫn 25 version EFFECTIV",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-29",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-29",
+      "oracle_source": "Claim → FRD AC48; kỳ vọng nguyên văn của ca thiết kế UAT-AC48 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-29",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nhập danh mục hàng loạt\": Apply lần 1: 422 IMPORT_HAS_ERRORS, errors[0]={row:7, field:\"parent_code\", code:\"FK_NOT_FOUND\"}, vẫn 25 version EFFECTIVE; lần 2: 10 version mới, batch APPLIED;",
+      "coverage_ids": [
+        "COV-FR-MDM-29"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tệp sectors.xlsx 10 dòng, dòng 7 thiếu mã cha (sha256=abc…01); mode ATOMIC; bảng SECTOR có 25 version EFFECTIVE.\n1. A-steward POST /master-imports (key k-ac48-0000000001)\n2. POST /master-imports/{id}/apply\n3. Sửa dòng 7, tải lại (sha256 khác), apply; rồi gửi lại apply cùng key k-ac48-0000000003",
+      "expected": "Apply lần 1: 422 IMPORT_HAS_ERRORS, errors[0]={row:7, field:\"parent_code\", code:\"FK_NOT_FOUND\"}, vẫn 25 version EFFECTIVE; lần 2: 10 version mới, batch APPLIED; gửi lại cùng key trả cùng kết quả, không thêm version (vẫn 35).",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "MDM-29",
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UAT-AC49",
+      "title": "Submit chỉ thành công khi impact_json có {report_revision:12, allocation_line:3, dashboards:n}",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-32",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-32",
+      "oracle_source": "Claim → FRD AC49; kỳ vọng nguyên văn của ca thiết kế UAT-AC49 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-32, FR-MDM-27, FR-MDM-28",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Duyệt và công bố danh mục\": Submit chỉ thành công khi impact_json có {report_revision:12, allocation_line:3, dashboards:n}; audit \"master.change.submitted\" trước \"master.published\"; báo cá",
+      "coverage_ids": [
+        "COV-FR-MDM-32",
+        "COV-FR-MDM-27",
+        "COV-FR-MDM-28"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: FUND_SOURCE \"NSTW-DTPT\" r1 được 12 report_revision và 3 allocation_line tham chiếu.\n1. A-steward tạo change request UPDATE label của \"NSTW-DTPT\"\n2. Gọi GET /master-change-requests/{id} xem impact_json trước khi submit\n3. A-steward2 duyệt; publish; mở DIS-07 của một báo cáo cũ",
+      "expected": "Submit chỉ thành công khi impact_json có {report_revision:12, allocation_line:3, dashboards:n}; audit \"master.change.submitted\" trước \"master.published\"; báo cáo cũ vẫn trỏ fund_source_version_id = r1 và hiện label cũ.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "MDM-27",
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-01",
+      "title": "Trung tâm danh mục (MDM-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-01",
+      "oracle_source": "Claim → FR-MDM-01; kỳ vọng nguyên văn của ca thiết kế UI-MDM-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-01",
+      "catches_bug": "Màn hình Trung tâm danh mục (MDM-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-01\n1. Mở route bằng menu và deep link; kiểm tên trường: Tổ chức, Nguồn vốn, Dự án, Báo cáo, Tích hợp\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-02",
+      "title": "Địa bàn và lịch sử sáp nhập (MDM-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-02",
+      "oracle_source": "Claim → FR-MDM-02; kỳ vọng nguyên văn của ca thiết kế UI-MDM-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-02",
+      "catches_bug": "Màn hình Địa bàn và lịch sử sáp nhập (MDM-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-02\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã địa bàn, Tên, Cấp, Hiệu lực, Đơn vị kế thừa\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-03",
+      "title": "Cơ quan và chủ đầu tư (MDM-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-03",
+      "oracle_source": "Claim → FR-MDM-03; kỳ vọng nguyên văn của ca thiết kế UI-MDM-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-03",
+      "catches_bug": "Màn hình Cơ quan và chủ đầu tư (MDM-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-03\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã đơn vị, Tên pháp lý, Loại, Cấp cha, Hiệu lực\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-04",
+      "title": "Nguồn vốn và cây phân loại (MDM-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-04",
+      "oracle_source": "Claim → FR-MDM-04; kỳ vọng nguyên văn của ca thiết kế UI-MDM-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-04",
+      "catches_bug": "Màn hình Nguồn vốn và cây phân loại (MDM-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-04\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã nguồn, NSTW hoặc NSĐP, Nguồn cha, Quan hệ bao hàm, Hiệu lực\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-05",
+      "title": "Chương trình và CTMTQG (MDM-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-05",
+      "oracle_source": "Claim → FR-MDM-05; kỳ vọng nguyên văn của ca thiết kế UI-MDM-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-05",
+      "catches_bug": "Màn hình Chương trình và CTMTQG (MDM-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-05\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã chương trình, Tên, Giai đoạn, Nguồn, Căn cứ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-06",
+      "title": "Lĩnh vực đầu tư (MDM-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-06",
+      "oracle_source": "Claim → FR-MDM-06; kỳ vọng nguyên văn của ca thiết kế UI-MDM-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-06",
+      "catches_bug": "Màn hình Lĩnh vực đầu tư (MDM-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-06\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã, Tên, Cấp cha, Hiệu lực\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-07",
+      "title": "Nhóm và loại dự án (MDM-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-07",
+      "oracle_source": "Claim → FR-MDM-07; kỳ vọng nguyên văn của ca thiết kế UI-MDM-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-07",
+      "catches_bug": "Màn hình Nhóm và loại dự án (MDM-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-07\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã, Tên, Tiêu chí, Phiên bản căn cứ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-08",
+      "title": "Giai đoạn và trạng thái dự án (MDM-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-08",
+      "oracle_source": "Claim → FR-MDM-08; kỳ vọng nguyên văn của ca thiết kế UI-MDM-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-08",
+      "catches_bug": "Màn hình Giai đoạn và trạng thái dự án (MDM-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-08\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã, Tên, Chuyển bước cho phép, Hiệu lực\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-09",
+      "title": "Cấp quyết định và thẩm quyền (MDM-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-09",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-09",
+      "oracle_source": "Claim → FR-MDM-09; kỳ vọng nguyên văn của ca thiết kế UI-MDM-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-09",
+      "catches_bug": "Màn hình Cấp quyết định và thẩm quyền (MDM-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-09\n1. Mở route bằng menu và deep link; kiểm tên trường: Cơ quan, Loại quyết định, Phạm vi, Hiệu lực\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-10",
+      "title": "Loại quyết định và văn bản (MDM-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-10",
+      "oracle_source": "Claim → FR-MDM-10; kỳ vọng nguyên văn của ca thiết kế UI-MDM-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-10",
+      "catches_bug": "Màn hình Loại quyết định và văn bản (MDM-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-10\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã, Tên, Trường bắt buộc, Mẫu\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-11",
+      "title": "Năm ngân sách và lịch kỳ (MDM-11): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-11",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-11",
+      "oracle_source": "Claim → FR-MDM-11; kỳ vọng nguyên văn của ca thiết kế UI-MDM-11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-11",
+      "catches_bug": "Màn hình Năm ngân sách và lịch kỳ (MDM-11) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-11\n1. Mở route bằng menu và deep link; kiểm tên trường: Năm, Kỳ, Ngày bắt đầu, Ngày kết thúc, Hạn, Khóa\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-11",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-12",
+      "title": "Đơn vị tính và tiền tệ (MDM-12): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-12",
+      "oracle_source": "Claim → FR-MDM-12; kỳ vọng nguyên văn của ca thiết kế UI-MDM-12 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-12",
+      "catches_bug": "Màn hình Đơn vị tính và tiền tệ (MDM-12) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-12\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã, Tên, Hệ số, Scale, Quy tắc làm tròn\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-12",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-13",
+      "title": "Loại hồ sơ và chứng từ (MDM-13): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-13",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-13",
+      "oracle_source": "Claim → FR-MDM-13; kỳ vọng nguyên văn của ca thiết kế UI-MDM-13 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-13",
+      "catches_bug": "Màn hình Loại hồ sơ và chứng từ (MDM-13) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-13\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã, Tên, Checklist, MIME, Kích thước tối đa\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-13",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-14",
+      "title": "Loại hợp đồng và phụ lục (MDM-14): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-14",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-14",
+      "oracle_source": "Claim → FR-MDM-14; kỳ vọng nguyên văn của ca thiết kế UI-MDM-14 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-14",
+      "catches_bug": "Màn hình Loại hợp đồng và phụ lục (MDM-14) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-14\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã, Tên, Trường bắt buộc, Chính sách phiên bản\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-14",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-15",
+      "title": "Loại thanh toán và tạm ứng (MDM-15): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-15",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-15",
+      "oracle_source": "Claim → FR-MDM-15; kỳ vọng nguyên văn của ca thiết kế UI-MDM-15 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-15",
+      "catches_bug": "Màn hình Loại thanh toán và tạm ứng (MDM-15) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-15\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã, Tên, Điều kiện, Bộ quy tắc\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-15",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-16",
+      "title": "Cơ quan Kho bạc và mã liên kết (MDM-16): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-16",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-16",
+      "oracle_source": "Claim → FR-MDM-16; kỳ vọng nguyên văn của ca thiết kế UI-MDM-16 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-16",
+      "catches_bug": "Màn hình Cơ quan Kho bạc và mã liên kết (MDM-16) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-16\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã nội bộ, Mã Kho bạc, Địa bàn, Hiệu lực\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-16",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-17",
+      "title": "Nhóm vướng mắc và nguyên nhân (MDM-17): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-17",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-17",
+      "oracle_source": "Claim → FR-MDM-17; kỳ vọng nguyên văn của ca thiết kế UI-MDM-17 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-17",
+      "catches_bug": "Màn hình Nhóm vướng mắc và nguyên nhân (MDM-17) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-17"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-17\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã, Nhóm cha, Đơn vị xử lý, SLA\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-17",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-18",
+      "title": "Mức độ ưu tiên và SLA (MDM-18): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-18",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-18",
+      "oracle_source": "Claim → FR-MDM-18; kỳ vọng nguyên văn của ca thiết kế UI-MDM-18 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-18",
+      "catches_bug": "Màn hình Mức độ ưu tiên và SLA (MDM-18) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-18"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-18\n1. Mở route bằng menu và deep link; kiểm tên trường: Mức, Thời hạn, Lịch làm việc, Chuyển cấp\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-18",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-19",
+      "title": "Tiêu chí đánh giá nhà thầu (MDM-19): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-19",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-19",
+      "oracle_source": "Claim → FR-MDM-19; kỳ vọng nguyên văn của ca thiết kế UI-MDM-19 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-19",
+      "catches_bug": "Màn hình Tiêu chí đánh giá nhà thầu (MDM-19) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-19"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-19\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã, Tên, Loại, Thang điểm, Bằng chứng, Phiên bản\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-19",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-20",
+      "title": "Vai trò chuyên gia và năng lực (MDM-20): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-20",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-20",
+      "oracle_source": "Claim → FR-MDM-20; kỳ vọng nguyên văn của ca thiết kế UI-MDM-20 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-20",
+      "catches_bug": "Màn hình Vai trò chuyên gia và năng lực (MDM-20) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-20"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-20\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã, Chuyên môn, Điều kiện, Hiệu lực\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-20",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-21",
+      "title": "Loại sự kiện và mục đích liên hệ (MDM-21): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-21",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-21",
+      "oracle_source": "Claim → FR-MDM-21; kỳ vọng nguyên văn của ca thiết kế UI-MDM-21 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-21",
+      "catches_bug": "Màn hình Loại sự kiện và mục đích liên hệ (MDM-21) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-21\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã, Mục đích, Consent, Mức bảo mật\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-21",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-22",
+      "title": "Ngôn ngữ và nội dung dùng chung (MDM-22): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-22",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-22",
+      "oracle_source": "Claim → FR-MDM-22; kỳ vọng nguyên văn của ca thiết kế UI-MDM-22 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-22",
+      "catches_bug": "Màn hình Ngôn ngữ và nội dung dùng chung (MDM-22) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-22"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-22\n1. Mở route bằng menu và deep link; kiểm tên trường: Key, Tiếng Việt, Ngôn ngữ khác, Phiên bản\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-22",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-23",
+      "title": "Phân loại bảo mật và lưu trữ (MDM-23): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-23",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-23",
+      "oracle_source": "Claim → FR-MDM-23; kỳ vọng nguyên văn của ca thiết kế UI-MDM-23 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-23",
+      "catches_bug": "Màn hình Phân loại bảo mật và lưu trữ (MDM-23) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-23"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-23\n1. Mở route bằng menu và deep link; kiểm tên trường: Loại dữ liệu, Mức, Thời hạn, Legal hold\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-23",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-24",
+      "title": "Ánh xạ mã liên hệ thống (MDM-24): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-24",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-24",
+      "oracle_source": "Claim → FR-MDM-24; kỳ vọng nguyên văn của ca thiết kế UI-MDM-24 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-24",
+      "catches_bug": "Màn hình Ánh xạ mã liên hệ thống (MDM-24) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-24"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-24\n1. Mở route bằng menu và deep link; kiểm tên trường: Hệ thống, Loại mã, Mã ngoài, Mã trong, Hiệu lực\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-24",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-25",
+      "title": "Thêm bản ghi danh mục (MDM-25): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-25",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-25",
+      "oracle_source": "Claim → FR-MDM-25; kỳ vọng nguyên văn của ca thiết kế UI-MDM-25 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-25",
+      "catches_bug": "Màn hình Thêm bản ghi danh mục (MDM-25) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-25"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-25\n1. Mở route bằng menu và deep link; kiểm tên trường: Loại danh mục, Mã, Tên, Cấp cha, Hiệu lực, Căn cứ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-25",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-26",
+      "title": "Sửa bản ghi và hiệu lực (MDM-26): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-26",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-26",
+      "oracle_source": "Claim → FR-MDM-26; kỳ vọng nguyên văn của ca thiết kế UI-MDM-26 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-26",
+      "catches_bug": "Màn hình Sửa bản ghi và hiệu lực (MDM-26) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-26"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-26\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã, Tên, Ngày hiệu lực mới, Lý do, Căn cứ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-26",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-27",
+      "title": "Chi tiết và nơi đang sử dụng (MDM-27): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-27",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-27",
+      "oracle_source": "Claim → FR-MDM-27; kỳ vọng nguyên văn của ca thiết kế UI-MDM-27 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-27",
+      "catches_bug": "Màn hình Chi tiết và nơi đang sử dụng (MDM-27) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-27"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-27\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã, Thuộc tính, Phiên bản, Số hồ sơ tham chiếu\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-27",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-28",
+      "title": "Lịch sử thay đổi danh mục (MDM-28): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-28",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-28",
+      "oracle_source": "Claim → FR-MDM-28; kỳ vọng nguyên văn của ca thiết kế UI-MDM-28 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-28",
+      "catches_bug": "Màn hình Lịch sử thay đổi danh mục (MDM-28) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-28"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-28\n1. Mở route bằng menu và deep link; kiểm tên trường: Phiên bản, Trước, Sau, Người duyệt, Hiệu lực\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-28",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-29",
+      "title": "Nhập danh mục hàng loạt (MDM-29): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-29",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-29",
+      "oracle_source": "Claim → FR-MDM-29; kỳ vọng nguyên văn của ca thiết kế UI-MDM-29 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-29",
+      "catches_bug": "Màn hình Nhập danh mục hàng loạt (MDM-29) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-29"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-29\n1. Mở route bằng menu và deep link; kiểm tên trường: Tệp, Mapping, Dry run, Dòng lỗi, Phê duyệt\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-29",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-30",
+      "title": "Hợp nhất mã trùng (MDM-30): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-30",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-30",
+      "oracle_source": "Claim → FR-MDM-30; kỳ vọng nguyên văn của ca thiết kế UI-MDM-30 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-30",
+      "catches_bug": "Màn hình Hợp nhất mã trùng (MDM-30) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-30"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-30\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã nguồn, Mã đích, Hồ sơ bị ảnh hưởng, Ngày hiệu lực\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-30",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-31",
+      "title": "Ngừng dùng danh mục (MDM-31): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-31",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-31",
+      "oracle_source": "Claim → FR-MDM-31; kỳ vọng nguyên văn của ca thiết kế UI-MDM-31 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-31",
+      "catches_bug": "Màn hình Ngừng dùng danh mục (MDM-31) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-31"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-31\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã, Lý do, Ngày ngừng, Đối tượng thay thế\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-31",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-32",
+      "title": "Duyệt và công bố danh mục (MDM-32): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-32",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-32",
+      "oracle_source": "Claim → FR-MDM-32; kỳ vọng nguyên văn của ca thiết kế UI-MDM-32 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-32",
+      "catches_bug": "Màn hình Duyệt và công bố danh mục (MDM-32) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-32"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-32\n1. Mở route bằng menu và deep link; kiểm tên trường: Batch, Độ ảnh hưởng, Phiên bản, Ngày hiệu lực\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-32",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-33",
+      "title": "Phạm vi danh mục toàn hệ thống và tenant (MDM-33): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-33",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-33",
+      "oracle_source": "Claim → FR-MDM-33; kỳ vọng nguyên văn của ca thiết kế UI-MDM-33 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-33",
+      "catches_bug": "Màn hình Phạm vi danh mục toàn hệ thống và tenant (MDM-33) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-33"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MDM-33\n1. Mở route bằng menu và deep link; kiểm tên trường: Loại, Platform baseline, Tenant override, Khóa chính sách\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có impact preview, phiên bản và phê duyệt.\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-33",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UAT-AC273",
+      "title": "Lần 1: 409 CROSSWALK_DUPLICATE",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-24",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-24",
+      "oracle_source": "Claim → 05_modules/MDM.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC273 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-24, FR-MDM-35",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ánh xạ mã liên hệ thống\": Lần 1: 409 CROSSWALK_DUPLICATE; sau retire: 200, lịch sử giữ cả hai dòng với valid_from/until.",
+      "coverage_ids": [
+        "COV-FR-MDM-24",
+        "COV-FR-MDM-35"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: master_record AGENCY \"KBNN-TINH\" có crosswalk ACTIVE TREASURY/AGENCY_CODE \"1234\".\n1. POST /master-crosswalks {master_record_id:AGENCY-X, source_system:\"TREASURY\", external_type:\"AGENCY_CODE\", external_code:\"1234\"}\n2. Retire crosswalk cũ rồi tạo lại",
+      "expected": "Lần 1: 409 CROSSWALK_DUPLICATE; sau retire: 200, lịch sử giữ cả hai dòng với valid_from/until.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "MDM-24",
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UAT-AC274",
+      "title": "Sau merge: A",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-30",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-30",
+      "oracle_source": "Claim → 05_modules/MDM.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC274 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-30, FR-MDM-35, FR-MDM-36",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Hợp nhất mã trùng\": Sau merge: A.legal_name từ NATIONAL, phone của A2; A2 status MERGED merged_into_id=A; 4 tham chiếu đọc qua alias tới A; repointed_refs_json liệt kê 4; unmerge: ",
+      "coverage_ids": [
+        "COV-FR-MDM-30",
+        "COV-FR-MDM-35",
+        "COV-FR-MDM-36"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: CONTRACTOR-A (source NATIONAL, phone 0901…) và CONTRACTOR-A2 (source TENANT, phone mới hơn) trùng MST; survivorship: legal_name SOURCE_PRIORITY [NATIONAL,TENANT], phone MOST_RECENT; 4 tham chiếu tới A2.\n1. Tạo change request MERGE survivor=A, merged=A2; A-steward2 duyệt\n2. Đọc A, A2 và 4 tham chiếu\n3. POST /master-merges/{id}/unmerge {reason:\"Hai pháp nhân khác chi nhánh\"}",
+      "expected": "Sau merge: A.legal_name từ NATIONAL, phone của A2; A2 status MERGED merged_into_id=A; 4 tham chiếu đọc qua alias tới A; repointed_refs_json liệt kê 4; unmerge: A2 trở lại EFFECTIVE, 4 tham chiếu khôi phục, master_merge REVERTED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "MDM-30",
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UAT-AC275",
+      "title": "409 UNMERGE_CONFLICT với danh sách thuộc tính đổi sau merge (phone)",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-35",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-35",
+      "oracle_source": "Claim → 05_modules/MDM.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC275 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-35",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Bản ghi chủ, crosswalk và tách/hợp nhất\": 409 UNMERGE_CONFLICT với danh sách thuộc tính đổi sau merge (phone); cần steward_decisions trong body để tiếp tục; gửi kèm quyết định thì 200.",
+      "coverage_ids": [
+        "COV-FR-MDM-35"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Merge M1 APPLIED; sau đó steward sửa phone của survivor.\n1. POST /master-merges/{M1}/unmerge",
+      "expected": "409 UNMERGE_CONFLICT với danh sách thuộc tính đổi sau merge (phone); cần steward_decisions trong body để tiếp tục; gửi kèm quyết định thì 200.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "MDM-35",
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UAT-AC276",
+      "title": "Tự duyệt 403 SELF_APPROVAL_DENIED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-34",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-34",
+      "oracle_source": "Claim → 05_modules/MDM.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC276 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-34",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thuật ngữ nghiệp vụ và phê duyệt\": Tự duyệt 403 SELF_APPROVAL_DENIED; r1 PUBLISHED; publish r2 chuyển r1 DEPRECATED (unique glossary_term_published_uq); DIS-25 liên kết định nghĩa tới term r2.",
+      "coverage_ids": [
+        "COV-FR-MDM-34"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Thuật ngữ \"GIAI_NGAN_YTD\" DRAFT do A-steward tạo.\n1. A-steward submit; A-steward approve\n2. A-owner (Chủ nghiệp vụ vốn) approve; publish\n3. Tạo revision 2 và publish",
+      "expected": "Tự duyệt 403 SELF_APPROVAL_DENIED; r1 PUBLISHED; publish r2 chuyển r1 DEPRECATED (unique glossary_term_published_uq); DIS-25 liên kết định nghĩa tới term r2.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "MDM-34",
+      "tags": [
+        "security"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UAT-AC277",
+      "title": "Ngày 2025-06-01: XA-A thuộc HUYEN-X",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-37",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-37",
+      "oracle_source": "Claim → 05_modules/MDM.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC277 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-37, FR-MDM-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kế thừa đơn vị hành chính và cơ quan 2025\": Ngày 2025-06-01: XA-A thuộc HUYEN-X; 2025-08-01: successor XA-Y (cấp xã trực thuộc tỉnh, không cấp huyện); DIS-12 W22 nhóm theo HUYEN-X/XA-A, W32 theo XA-Y có n",
+      "coverage_ids": [
+        "COV-FR-MDM-37",
+        "COV-FR-MDM-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture FX-MDM-001: AREA \"HUYEN-X\" (DISTRICT) và xã \"XA-A\",\"XA-B\" hiệu lực tới 2025-06-30; succession ABOLISH_LEVEL HUYEN-X và MERGE XA-A+XA-B→\"XA-Y\" hiệu lực 2025-07-01 (căn cứ cải cách 2025 [CXN-34]); P-A-001 area = XA-A.\n1. GET /master-records/{XA-A}/as-of?date=2025-06-01\n2. GET /master-records/{XA-A}/successors?date=2025-08-01\n3. Mở DIS-12 kỳ 2025-W22 và 2025-W32 lọc địa bàn",
+      "expected": "Ngày 2025-06-01: XA-A thuộc HUYEN-X; 2025-08-01: successor XA-Y (cấp xã trực thuộc tỉnh, không cấp huyện); DIS-12 W22 nhóm theo HUYEN-X/XA-A, W32 theo XA-Y có nhãn \"theo cơ cấu tại ngày chốt\".",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "MDM-02",
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UAT-AC278",
+      "title": "Cây kế thừa hiện P,Q → P(2025)",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-37",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-37",
+      "oracle_source": "Claim → 05_modules/MDM.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC278 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-37",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kế thừa đơn vị hành chính và cơ quan 2025\": Cây kế thừa hiện P,Q → P(2025); báo cáo trước 2025-07-01 phân tách P/Q, sau đó gộp; không đổi mã đã phát hành cho nghĩa khác.",
+      "coverage_ids": [
+        "COV-FR-MDM-37"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tỉnh \"TINH-P\" và \"TINH-Q\" MERGE → \"TINH-P\" mới (giữ mã P) hiệu lực 2025-07-01.\n1. Ghi succession; mở MDM-37\n2. Lọc báo cáo năm 2025 theo tỉnh",
+      "expected": "Cây kế thừa hiện P,Q → P(2025); báo cáo trước 2025-07-01 phân tách P/Q, sau đó gộp; không đổi mã đã phát hành cho nghĩa khác.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "MDM-37",
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UAT-AC279",
+      "title": "Lần 1: 403 POLICY_LOCKED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-33",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-33",
+      "oracle_source": "Claim → 05_modules/MDM.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC279 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-33",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Phạm vi danh mục toàn hệ thống và tenant\": Lần 1: 403 POLICY_LOCKED; lần 2: tạo crosswalk/alias TENANT trỏ về PLATFORM record, mã chuẩn không đổi.",
+      "coverage_ids": [
+        "COV-FR-MDM-33"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: FUND_SOURCE \"NSTW\" namespace PLATFORM khóa chính sách.\n1. Tenant admin TNT-A gửi change request UPDATE label NSTW\n2. Tạo override TENANT hiển thị \"Vốn ngân sách Trung ương (tỉnh)\"",
+      "expected": "Lần 1: 403 POLICY_LOCKED; lần 2: tạo crosswalk/alias TENANT trỏ về PLATFORM record, mã chuẩn không đổi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "MDM-33",
+      "tags": [
+        "security"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UAT-AC280",
+      "title": "Lần 1: 409 MASTER_IN_USE (impact 5 dự án)",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-31",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-31",
+      "oracle_source": "Claim → 05_modules/MDM.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC280 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-31",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ngừng dùng danh mục\": Lần 1: 409 MASTER_IN_USE (impact 5 dự án); lần 2: RETIRED valid_until set, 5 dự án giữ version cũ cho lịch sử, dữ liệu mới gợi ý \"GT\".",
+      "coverage_ids": [
+        "COV-FR-MDM-31"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: SECTOR \"GT-CU\" được 5 dự án tham chiếu.\n1. Đề nghị xóa (change_kind RETIRE không successor, policy yêu cầu successor)\n2. RETIRE với successor \"GT\"",
+      "expected": "Lần 1: 409 MASTER_IN_USE (impact 5 dự án); lần 2: RETIRED valid_until set, 5 dự án giữ version cũ cho lịch sử, dữ liệu mới gợi ý \"GT\".",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "MDM-31",
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UAT-AC281",
+      "title": "403",
+      "type": "RED",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-24",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-24",
+      "oracle_source": "Claim → 05_modules/MDM.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC281 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-24",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ánh xạ mã liên hệ thống\": 403; 422 VALIDATION_FAILED field reason; 200 cursor_json về điểm chọn, reset_reason lưu, audit; MDM-24 hiển thị badge \"PROPOSED – chưa có hợp đồng tích hợp\".",
+      "coverage_ids": [
+        "COV-FR-MDM-24"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: integration_cursor NATIONAL_PIM_FILE adapter_status PROPOSED.\n1. Người không có integration.cursor.reset gọi POST /integration-cursors/{id}/reset\n2. Người có quyền gọi không reason\n3. Gọi với reason",
+      "expected": "403; 422 VALIDATION_FAILED field reason; 200 cursor_json về điểm chọn, reset_reason lưu, audit; MDM-24 hiển thị badge \"PROPOSED – chưa có hợp đồng tích hợp\".",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "MDM-24",
+      "tags": [
+        "security"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UAT-AC282",
+      "title": "422 VALIDATION_FAILED code SUBSET_SOURCE_NOT_ADDITIVE",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-04",
+      "oracle_source": "Claim → 05_modules/MDM.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC282 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-04, FR-MDM-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nguồn vốn và cây phân loại\": 422 VALIDATION_FAILED code SUBSET_SOURCE_NOT_ADDITIVE; cây hiển thị CTMTQG với nhãn \"Trong đó (không cộng)\".",
+      "coverage_ids": [
+        "COV-FR-MDM-04",
+        "COV-FR-MDM-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Cây nguồn: NSTW → NSTW-DTPT; CTMTQG-NTM is_subset_of=[NSTW-DTPT, NSDP-DTPT].\n1. Mở MDM-04; thử đặt CTMTQG-NTM làm nguồn cha cộng dồn (relation ADDITIVE)",
+      "expected": "422 VALIDATION_FAILED code SUBSET_SOURCE_NOT_ADDITIVE; cây hiển thị CTMTQG với nhãn \"Trong đó (không cộng)\".",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "MDM-04",
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UAT-AC283",
+      "title": "Sinh 52/53 kỳ WEEK không chồng lấn (EXCLUDE constraint), calendar_version=2, deadline_at UTC đúng (03:00Z)",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MDM-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-11",
+      "oracle_source": "Claim → 05_modules/MDM.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC283 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-11, FR-DIS-14",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Năm ngân sách và lịch kỳ\": Sinh 52/53 kỳ WEEK không chồng lấn (EXCLUDE constraint), calendar_version=2, deadline_at UTC đúng (03:00Z); generate lại cùng key không tạo trùng.",
+      "coverage_ids": [
+        "COV-FR-MDM-11",
+        "COV-FR-DIS-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: CALENDAR \"DEFAULT\" r2: tuần thứ Bảy→thứ Sáu, hạn thứ Sáu 10:00 (+07) [GIẢ ĐỊNH].\n1. Publish CALENDAR r2\n2. POST /reporting-periods/generate {calendar_code:\"DEFAULT\", fiscal_year:2027}",
+      "expected": "Sinh 52/53 kỳ WEEK không chồng lấn (EXCLUDE constraint), calendar_version=2, deadline_at UTC đúng (03:00Z); generate lại cùng key không tạo trùng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIS-14",
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UAT-AC284",
+      "title": "Hệ thống gợi ý nhóm theo rule hiệu lực tại ngày đề xuất",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "chu-dau-tu",
+      "journey_ref": "J-FR-MDM-07",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-07",
+      "oracle_source": "Claim → 05_modules/MDM.md; kỳ vọng nguyên văn của ca thiết kế UAT-AC284 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-07, FR-PRJ-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Nhóm và loại dự án\": Hệ thống gợi ý nhóm theo rule hiệu lực tại ngày đề xuất; dự án cũ giữ nhóm theo r1; không hard-code ngưỡng trong code.",
+      "coverage_ids": [
+        "COV-FR-MDM-07",
+        "COV-FR-PRJ-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chu-dau-tu",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Rule PROJECT_GROUP_THRESHOLDS r1 (legal_basis Luật ĐTC 58/2024 sửa 90/2025 [CXN-32]) hiệu lực 2025-01-01.\n1. Tạo dự án lĩnh vực GT total 2500 tỷ\n2. Đổi rule r2 hiệu lực 2026-07-01, tạo dự án sau ngày đó",
+      "expected": "Hệ thống gợi ý nhóm theo rule hiệu lực tại ngày đề xuất; dự án cũ giữ nhóm theo r1; không hard-code ngưỡng trong code.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "PRJ-02",
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-34",
+      "title": "Thuật ngữ nghiệp vụ và phê duyệt (MDM-34): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-34",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-34",
+      "oracle_source": "Claim → FR-MDM-34; kỳ vọng nguyên văn của ca thiết kế UI-MDM-34 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-34",
+      "catches_bug": "Màn hình Thuật ngữ nghiệp vụ và phê duyệt (MDM-34) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-34"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Thuật ngữ nghiệp vụ và phê duyệt; user có quyền và user chỉ đọc; route MDM-34\n1. Mở MDM-34 từ menu và deep link; kiểm nhãn trường: Mã thuật ngữ, Định nghĩa, Công thức liên kết, Chủ sở hữu, Căn cứ, Phiên bản, Trạng thái\n2. Thực hiện thao tác chính theo quy tắc: Thuật ngữ có vòng duyệt; người đề xuất không tự duyệt; chỉ một phiên bản PUBLISHED mỗi mã\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên MDM-34",
+      "expected": "Thuật ngữ nghiệp vụ và phê duyệt: hiển thị đúng 7 trường, áp quy tắc \"Thuật ngữ có vòng duyệt; người đề xuất không tự duyệt; chỉ một phiên bản PUBLISHED mỗi mã\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-34",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-35",
+      "title": "Bản ghi chủ, crosswalk và tách/hợp nhất (MDM-35): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-35",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-35",
+      "oracle_source": "Claim → FR-MDM-35; kỳ vọng nguyên văn của ca thiết kế UI-MDM-35 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-35",
+      "catches_bug": "Màn hình Bản ghi chủ, crosswalk và tách/hợp nhất (MDM-35) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-35"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Bản ghi chủ, crosswalk và tách/hợp nhất; user có quyền và user chỉ đọc; route MDM-35\n1. Mở MDM-35 từ menu và deep link; kiểm nhãn trường: Bản ghi giữ lại, Bản ghi bị hợp nhất, Alias, Mã ngoài, Thuộc tính chọn, Hoàn tác\n2. Thực hiện thao tác chính theo quy tắc: Merge giữ alias và danh sách tham chiếu đã trỏ lại để unmerge đảo được; mã ngoài ACTIVE duy nhất theo hệ thống nguồn\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên MDM-35",
+      "expected": "Bản ghi chủ, crosswalk và tách/hợp nhất: hiển thị đúng 6 trường, áp quy tắc \"Merge giữ alias và danh sách tham chiếu đã trỏ lại để unmerge đảo được; mã ngoài ACTIVE duy nhất theo hệ thống nguồn\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-35",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-36",
+      "title": "Quy tắc survivorship theo thuộc tính (MDM-36): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-36",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-36",
+      "oracle_source": "Claim → FR-MDM-36; kỳ vọng nguyên văn của ca thiết kế UI-MDM-36 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-36",
+      "catches_bug": "Màn hình Quy tắc survivorship theo thuộc tính (MDM-36) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-36"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Quy tắc survivorship theo thuộc tính; user có quyền và user chỉ đọc; route MDM-36\n1. Mở MDM-36 từ menu và deep link; kiểm nhãn trường: Loại danh mục, Thuộc tính, Chiến lược, Thứ tự nguồn, Hiệu lực\n2. Thực hiện thao tác chính theo quy tắc: Mỗi thuộc tính một chiến lược có phiên bản; SOURCE_PRIORITY cần danh sách nguồn; thiếu quy tắc thì steward quyết định\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên MDM-36",
+      "expected": "Quy tắc survivorship theo thuộc tính: hiển thị đúng 5 trường, áp quy tắc \"Mỗi thuộc tính một chiến lược có phiên bản; SOURCE_PRIORITY cần danh sách nguồn; thiếu quy tắc thì steward quyết định\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-36",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UI-MDM-37",
+      "title": "Kế thừa đơn vị hành chính và cơ quan 2025 (MDM-37): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "data-steward",
+      "journey_ref": "J-FR-MDM-37",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-37",
+      "oracle_source": "Claim → FR-MDM-37; kỳ vọng nguyên văn của ca thiết kế UI-MDM-37 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-37",
+      "catches_bug": "Màn hình Kế thừa đơn vị hành chính và cơ quan 2025 (MDM-37) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-MDM-37"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "data-steward",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Kế thừa đơn vị hành chính và cơ quan 2025; user có quyền và user chỉ đọc; route MDM-37\n1. Mở MDM-37 từ menu và deep link; kiểm nhãn trường: Đơn vị trước, Đơn vị sau, Loại kế thừa, Ngày hiệu lực, Tỷ lệ chia, Căn cứ\n2. Thực hiện thao tác chính theo quy tắc: Sáp nhập tỉnh/xã, bỏ cấp huyện, hợp nhất sở theo cải cách 2025 ghi bằng succession có hiệu lực; báo cáo lịch sử giữ tên tại ngày nghiệp vụ [CXN-34]\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên MDM-37",
+      "expected": "Kế thừa đơn vị hành chính và cơ quan 2025: hiển thị đúng 6 trường, áp quy tắc \"Sáp nhập tỉnh/xã, bỏ cấp huyện, hợp nhất sở theo cải cách 2025 ghi bằng succession có hiệu lực; báo cáo lịch sử giữ tên tại ngày nghiệp vụ [CXN-34]\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "MDM-37",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-53",
+      "title": "422 IMPACT_NOT_COMPUTED and CR-1 stays DRAFT",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-mdm",
+      "journey_ref": "J-FR-MDM-32",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-32",
+      "oracle_source": "Claim → MDM.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-53 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-32",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Duyệt và công bố danh mục\": 422 IMPACT_NOT_COMPUTED and CR-1 stays DRAFT.",
+      "coverage_ids": [
+        "COV-FR-MDM-32"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mdm",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Master change request CR-1 in DRAFT whose impact analysis was never computed.\n1. Submit CR-1\n2. Read CR-1",
+      "expected": "422 IMPACT_NOT_COMPUTED and CR-1 stays DRAFT.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-54",
+      "title": "403 SCOPE_DENIED and the term stays IN_REVIEW with one denied audit row",
+      "type": "RED",
+      "platform": "api",
+      "persona": "nguoi-dung-mdm",
+      "journey_ref": "J-FR-MDM-34",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-34",
+      "oracle_source": "Claim → MDM.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-54 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-34",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Thuật ngữ nghiệp vụ và phê duyệt\": 403 SCOPE_DENIED and the term stays IN_REVIEW with one denied audit row.",
+      "coverage_ids": [
+        "COV-FR-MDM-34"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mdm",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Domain DISBURSEMENT terms seeded PROPOSED (basis PERIOD, YTD, PROJECT_TO_DATE and two denominators); user outside the capital owner scope.\n1. Decide term GIAI_NGAN_YTD as the outside user\n2. Read the term",
+      "expected": "403 SCOPE_DENIED and the term stays IN_REVIEW with one denied audit row.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "tags": [
+        "security"
+      ],
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-55",
+      "title": "Step 1: 422 SUCCESSION_CYCLE",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-mdm",
+      "journey_ref": "J-FR-MDM-37",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-37",
+      "oracle_source": "Claim → MDM.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-55 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-37",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kế thừa đơn vị hành chính và cơ quan 2025\": Step 1: 422 SUCCESSION_CYCLE; step 2: 422 VALIDATION_FAILED because share_pct sums to 90; step 3: 200 with shares summing to 100.",
+      "coverage_ids": [
+        "COV-FR-MDM-37"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mdm",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Units A -> B recorded as succession; a SPLIT of unit C into D (60) and E (30).\n1. Record B -> A\n2. Record the SPLIT with shares 60 and 30\n3. Record the SPLIT with shares 60 and 40",
+      "expected": "Step 1: 422 SUCCESSION_CYCLE; step 2: 422 VALIDATION_FAILED because share_pct sums to 90; step 3: 200 with shares summing to 100.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "MDM"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-56",
+      "title": "409 MERGE_ALREADY_REVERTED",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-mdm",
+      "journey_ref": "J-FR-MDM-35",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-MDM-35",
+      "oracle_source": "Claim → MDM.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-56 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-MDM-35",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Bản ghi chủ, crosswalk và tách/hợp nhất\": 409 MERGE_ALREADY_REVERTED; M1 stays REVERTED and the survivor record is unchanged.",
+      "coverage_ids": [
+        "COV-FR-MDM-35"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-mdm",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Merge M1 already REVERTED by an earlier unmerge.\n1. POST unmerge on M1 again\n2. Read M1 and the survivor",
+      "expected": "409 MERGE_ALREADY_REVERTED; M1 stays REVERTED and the survivor record is unchanged.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "MDM"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 39,
+    "M2": 0,
+    "M3": 0,
+    "M4": 80,
+    "max": 80,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 39,
+    "covered": 39,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}

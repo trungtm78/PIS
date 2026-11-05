@@ -1,0 +1,851 @@
+{
+  "feature": "iss",
+  "generated_at": "2026-11-05T07:53:18.056Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/iss/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UI-ISS-01",
+      "title": "Danh sách vướng mắc (ISS-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-ISS-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-01",
+      "oracle_source": "Claim → FR-ISS-01; kỳ vọng nguyên văn của ca thiết kế UI-ISS-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-01",
+      "catches_bug": "Màn hình Danh sách vướng mắc (ISS-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ISS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ISS-01\n1. Mở route bằng menu và deep link; kiểm tên trường: Nhóm, Mức độ, Hạn, Người xử lý\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giao việc có SLA và bằng chứng đóng việc\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ISS-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UI-ISS-02",
+      "title": "Ghi nhận vướng mắc (ISS-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-ISS-02",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-02",
+      "oracle_source": "Claim → FR-ISS-02; kỳ vọng nguyên văn của ca thiết kế UI-ISS-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-02",
+      "catches_bug": "Màn hình Ghi nhận vướng mắc (ISS-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ISS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ISS-02\n1. Mở route bằng menu và deep link; kiểm tên trường: Dự án, Mô tả, Nhóm, Ảnh, Vị trí\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giao việc có SLA và bằng chứng đóng việc\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ISS-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UI-ISS-03",
+      "title": "Không gian xử lý (ISS-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-ISS-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-03",
+      "oracle_source": "Claim → FR-ISS-03; kỳ vọng nguyên văn của ca thiết kế UI-ISS-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-03",
+      "catches_bug": "Màn hình Không gian xử lý (ISS-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ISS-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ISS-03\n1. Mở route bằng menu và deep link; kiểm tên trường: Phân công, Ý kiến, Bằng chứng, SLA\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giao việc có SLA và bằng chứng đóng việc\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ISS-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UI-ISS-04",
+      "title": "Chuyển cấp và gia hạn (ISS-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-ISS-04",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-04",
+      "oracle_source": "Claim → FR-ISS-04; kỳ vọng nguyên văn của ca thiết kế UI-ISS-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-04",
+      "catches_bug": "Màn hình Chuyển cấp và gia hạn (ISS-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ISS-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ISS-04\n1. Mở route bằng menu và deep link; kiểm tên trường: Cấp nhận, Lý do, Hạn mới\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giao việc có SLA và bằng chứng đóng việc\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ISS-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UI-ISS-05",
+      "title": "Kiểm tra hiện trường (ISS-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-ISS-05",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-05",
+      "oracle_source": "Claim → FR-ISS-05; kỳ vọng nguyên văn của ca thiết kế UI-ISS-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-05",
+      "catches_bug": "Màn hình Kiểm tra hiện trường (ISS-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ISS-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ISS-05\n1. Mở route bằng menu và deep link; kiểm tên trường: Vị trí, Checklist, Thời điểm, Người kiểm tra\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giao việc có SLA và bằng chứng đóng việc\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ISS-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UI-ISS-06",
+      "title": "Tiến độ xử lý theo tuần (ISS-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-ISS-06",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-06",
+      "oracle_source": "Claim → FR-ISS-06; kỳ vọng nguyên văn của ca thiết kế UI-ISS-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-06",
+      "catches_bug": "Màn hình Tiến độ xử lý theo tuần (ISS-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ISS-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ISS-06\n1. Mở route bằng menu và deep link; kiểm tên trường: Đơn vị, Mới, Quá hạn, Đã đóng\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giao việc có SLA và bằng chứng đóng việc\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ISS-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UI-ISS-07",
+      "title": "Xác nhận hoàn tất (ISS-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-ISS-07",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-07",
+      "oracle_source": "Claim → FR-ISS-07; kỳ vọng nguyên văn của ca thiết kế UI-ISS-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-07",
+      "catches_bug": "Màn hình Xác nhận hoàn tất (ISS-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ISS-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ISS-07\n1. Mở route bằng menu và deep link; kiểm tên trường: Kết quả, Bằng chứng, Người xác nhận\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giao việc có SLA và bằng chứng đóng việc\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ISS-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UI-ISS-08",
+      "title": "Ma trận vướng mắc theo tuần (ISS-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-ISS-08",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-08",
+      "oracle_source": "Claim → FR-ISS-08; kỳ vọng nguyên văn của ca thiết kế UI-ISS-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-08",
+      "catches_bug": "Màn hình Ma trận vướng mắc theo tuần (ISS-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ISS-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route ISS-08\n1. Mở route bằng menu và deep link; kiểm tên trường: Tuần, Đơn vị, Nhóm vướng mắc, Phát sinh, Tồn đầu, Đã xử lý, Tồn cuối\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Giao việc có SLA và bằng chứng đóng việc\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ISS-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UAT-AC350",
+      "title": "Vướng mắc 1: sla_policy_id = rev1",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-ISS-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-01",
+      "oracle_source": "Claim → Thiết kế M1 ISS.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC350 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-01, FR-ISS-09, FR-ISS-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh sách vướng mắc\": Vướng mắc 1: sla_policy_id = rev1; response_due_at = thứ Hai 2026-07-13 07:30 + 3 giờ làm việc → 2026-07-13 10:30 (1 giờ còn lại thứ Sáu 16:00–17:00 + 3 giờ thứ",
+      "coverage_ids": [
+        "COV-FR-ISS-01",
+        "COV-FR-ISS-09",
+        "COV-FR-ISS-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). issue_sla_policy SLA-GPMB-HIGH rev1: nhóm GPMB, mức HIGH, response 4 giờ, resolve 72 giờ, lịch WORKDAY_VN (thứ Hai–thứ Sáu 07:30–17:00, nghỉ lễ theo calendar_version 2026); rev2 hiệu lực 2026-09-01 resolve 48 giờ; ngày 2026-07-10 là thứ Sáu.\nĐầu vào: createIssue lúc 2026-07-10 16:00 (giờ VN) nhóm GPMB HIGH; createIssue lúc 2026-09-02 09:00; transferIssueUnit sau khi quá hạn 2 ngày; extendIssueDeadline.\n1. Tạo vướng mắc lúc thứ Sáu 16:00; đọc response_due_at, due_at, sla_policy_id.\n2. Tạo vướng mắc 2026-09-02 09:00; đọc sla_policy_id và due_at.\n3. Với vướng mắc đầu, chuyển sang UBND-XA-A1 sau khi quá hạn 2 ngày; đọc due_at, overdue_since.\n4. Gia hạn bởi người duyệt khác với new_due_at.",
+      "expected": "Vướng mắc 1: sla_policy_id = rev1; response_due_at = thứ Hai 2026-07-13 07:30 + 3 giờ làm việc → 2026-07-13 10:30 (1 giờ còn lại thứ Sáu 16:00–17:00 + 3 giờ thứ Hai); due_at tính 72 giờ làm việc theo lịch. Vướng mắc 2: sla_policy_id = rev2 (48 giờ). Sau chuyển đơn vị: owner_unit_id đổi, due_at và overdue_since KHÔNG đổi. Gia hạn: due_at mới, overdue_since vẫn giữ giá trị cũ, issue_event EXTENDED ghi người duyệt.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "ISS-01",
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UAT-AC351",
+      "title": "Bước 1: 422 EVIDENCE_REQUIRED",
+      "type": "RED",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-ISS-03",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-03",
+      "oracle_source": "Claim → Thiết kế M1 ISS.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC351 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-03, FR-ISS-07",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Không gian xử lý\": Bước 1: 422 EVIDENCE_REQUIRED. Bước 2: PENDING_VERIFICATION. Bước 3: 403 SELF_APPROVAL_DENIED. Bước 4: CLOSED, closed_by=u.lanhdao, verifier_id=u.lanhdao, close",
+      "coverage_ids": [
+        "COV-FR-ISS-03",
+        "COV-FR-ISS-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). ISS-A-001 IN_PROGRESS, assignee u.cv.hd, policy require_independent_verifier=true, require_evidence=true; u.lanhdao là người xác nhận.\nĐầu vào: requestIssueVerification không bằng chứng; có bằng chứng; closeIssue bởi u.cv.hd; bởi u.lanhdao; UPDATE trực tiếp status=CLOSED.\n1. requestIssueVerification thiếu evidence_document_version_ids.\n2. requestIssueVerification đầy đủ.\n3. u.cv.hd gọi closeIssue.\n4. u.lanhdao gọi closeIssue.\n5. UPDATE issue SET status='CLOSED' bằng role machvon_app (verifier_id NULL).",
+      "expected": "Bước 1: 422 EVIDENCE_REQUIRED. Bước 2: PENDING_VERIFICATION. Bước 3: 403 SELF_APPROVAL_DENIED. Bước 4: CLOSED, closed_by=u.lanhdao, verifier_id=u.lanhdao, closed_at ≠ NULL. Bước 5: lỗi CHECK issue_close_chk. issue_event ghi 4 sự kiện theo thứ tự.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "ISS-03",
+      "tags": [
+        "security"
+      ],
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UAT-AC352",
+      "title": "100%: escalation_level=1→2, issue_escalation level 2 (target_unit_id = đơn vị chủ quản, due_at xác định), status ESCALAT",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-ISS-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-10",
+      "oracle_source": "Claim → Thiết kế M1 ISS.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC352 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-10, FR-ISS-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Leo thang và tổ công tác\": 100%: escalation_level=1→2, issue_escalation level 2 (target_unit_id = đơn vị chủ quản, due_at xác định), status ESCALATED nhưng issue vẫn mở (không CLOSED). 15",
+      "coverage_ids": [
+        "COV-FR-ISS-10",
+        "COV-FR-ISS-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). ISS-A-002 HIGH, due_at 2026-07-20 17:00, đơn vị CDT-A-01; TF-A-01 là tổ công tác ACTIVE (lead u.lanhdao) phạm vi CDT-A-01; policy escalate_l2_pct=100, escalate_l3_pct=150; thời gian xử lý đầy đủ = 72 giờ làm việc.\nĐầu vào: Chạy job leo thang với đồng hồ giả lập tại 100% SLA, 150% SLA; acceptIssueEscalation; closeIssue gốc.\n1. Chạy job lúc đạt 100% SLA; đọc issue.escalation_level và issue_escalation.\n2. Chạy job lúc 150% SLA; đọc issue_escalation cấp 3.\n3. Người nhận chấp nhận leo thang cấp 3.\n4. Đọc issue.status trong từng bước; chạy lại job.",
+      "expected": "100%: escalation_level=1→2, issue_escalation level 2 (target_unit_id = đơn vị chủ quản, due_at xác định), status ESCALATED nhưng issue vẫn mở (không CLOSED). 150%: level 3 với task_force_id=TF-A-01 (CHECK issue_escalation_level3_chk). Chấp nhận: status quay IN_PROGRESS, issue_escalation ACCEPTED. Chạy lại job không tạo escalation trùng (unique issue_escalation_open_uq). Thử level 3 với tổ công tác DISSOLVED: 422 TASK_FORCE_NOT_ACTIVE.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "ISS-04",
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UAT-AC353",
+      "title": "Lần 3: 422 EXTENSION_LIMIT_REACHED",
+      "type": "DECISION",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-ISS-04",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-04",
+      "oracle_source": "Claim → Thiết kế M1 ISS.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC353 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-04",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chuyển cấp và gia hạn\": Lần 3: 422 EXTENSION_LIMIT_REACHED. Tự duyệt: 403 SELF_APPROVAL_DENIED. u.lanhdao: 200, due_at mới, issue_event EXTENDED có lý do; overdue_since không bị xóa.",
+      "coverage_ids": [
+        "COV-FR-ISS-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). ISS-A-003 đã gia hạn 2 lần (giới hạn policy = 2); người đề xuất u.cv.hd.\nĐầu vào: extendIssueDeadline lần 3; lần 1 của ISS-A-004 bởi chính người đề xuất.\n1. Gia hạn lần 3 cho ISS-A-003.\n2. ISS-A-004: người đề xuất tự duyệt gia hạn.\n3. ISS-A-004: u.lanhdao duyệt.",
+      "expected": "Lần 3: 422 EXTENSION_LIMIT_REACHED. Tự duyệt: 403 SELF_APPROVAL_DENIED. u.lanhdao: 200, due_at mới, issue_event EXTENDED có lý do; overdue_since không bị xóa.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "domain",
+      "screen_id": "ISS-04",
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UAT-AC354",
+      "title": "issue",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-ISS-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-11",
+      "oracle_source": "Claim → Thiết kế M1 ISS.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC354 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-11, FR-ISS-02",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Vướng mắc phát sinh từ GPMB, giấy phép, chất lượng\": issue.source_module=LND, source_ref_id=LC-A-001; title \"Khiếu nại LC-A-001 chờ xử lý\"; description không chứa họ tên/CCCD (không có chuỗi 079000000001 trong iss",
+      "coverage_ids": [
+        "COV-FR-ISS-11",
+        "COV-FR-ISS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Khiếu nại LC-A-001 của hộ HH-A-001 (nội dung chứa họ tên và CCCD giả \"079000000001\"); giấy phép PMT-A-001 hết hạn.\nĐầu vào: fileLandComplaint tạo issue tự động; chạy job PMT hết hạn hai lần; xem issue bởi u.gs (không có quyền land.household.read).\n1. Nộp khiếu nại LC-A-001; đọc issue.source_module, title, description.\n2. Chạy job PMT hết hạn lần 1 và lần 2; đếm vướng mắc source_module=PMT cho PMT-A-001.\n3. u.gs GET /resources/issue/{id}.",
+      "expected": "issue.source_module=LND, source_ref_id=LC-A-001; title \"Khiếu nại LC-A-001 chờ xử lý\"; description không chứa họ tên/CCCD (không có chuỗi 079000000001 trong issue, issue_event, audit hay log). Job PMT: đúng 1 vướng mắc mở cho PMT-A-001 (lần 2: DUPLICATE_SOURCE_OPEN được bỏ qua êm). u.gs xem được vướng mắc nhưng không thấy nội dung khiếu nại.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "ISS-02",
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UAT-AC355",
+      "title": "Bước 1: 422 (tọa độ không kèm đồng ý) / CHECK issue_geo_consent_chk nếu bỏ qua ứng dụng",
+      "type": "INTEGRATION",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-ISS-02",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-02",
+      "oracle_source": "Claim → Thiết kế M1 ISS.md §10; kỳ vọng nguyên văn của ca thiết kế UAT-AC355 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-02, FR-ISS-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ghi nhận vướng mắc\": Bước 1: 422 (tọa độ không kèm đồng ý) / CHECK issue_geo_consent_chk nếu bỏ qua ứng dụng. Bước 2: lưu geo_lat=10.800000, geo_lng=106.700000, geo_accuracy_m=12.00",
+      "coverage_ids": [
+        "COV-FR-ISS-02",
+        "COV-FR-ISS-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01 đào đất 8.000 m3 × 500.000 = 4.000.000.000, B02 bê tông 2.500 m3 × 2.000.000 = 5.000.000.000, B03 hoàn thiện 500 m2 × 2.000.000 = 1.000.000.000; nghiệm thu NT-A-001 kỳ 2026-06: B01 4.000 m3 = 2.000.000.000, B02 500 m3 = 1.000.000.000 (tổng 3.000.000.000); tạm ứng ADV-A-001 2.000.000.000 chi 2026-03-15; giữ lại 5% trên gross; người dùng: u.ketoan, u.ketoan2 (kế toán), u.ktt (kế toán trưởng), u.cv.hd (chuyên viên hợp đồng), u.lanhdao (lãnh đạo duyệt), u.gs (tư vấn giám sát, khách), u.nt (nhà thầu NT-A-01, khách), u.audit (auditor), u.b.ketoan (TNT-B). Ứng dụng di động offline tạo vướng mắc với client_operation_id=OP-AC355-1 (geo_lat 10.800000, geo_lng 106.700000, độ chính xác 12 m).\nĐầu vào: createIssue geo_consent=false có tọa độ; geo_consent=true; gửi lại OP-AC355-1 sau khi mạng trở lại.\n1. Gọi với geo_consent=false và có tọa độ.\n2. Gọi với geo_consent=true.\n3. Gửi lại cùng client_operation_id.\n4. Đọc issue.geo_*.",
+      "expected": "Bước 1: 422 (tọa độ không kèm đồng ý) / CHECK issue_geo_consent_chk nếu bỏ qua ứng dụng. Bước 2: lưu geo_lat=10.800000, geo_lng=106.700000, geo_accuracy_m=12.00. Bước 3: trả lại đúng id cũ, không tạo thêm (đếm = 1). Bước 1 với tọa độ bỏ trống: 200, geo_* NULL.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "ISS-02",
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UI-ISS-09",
+      "title": "Chính sách SLA theo loại và đơn vị (ISS-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-ISS-09",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-09",
+      "oracle_source": "Claim → FR-ISS-09; kỳ vọng nguyên văn của ca thiết kế UI-ISS-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-09",
+      "catches_bug": "Màn hình Chính sách SLA theo loại và đơn vị (ISS-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ISS-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Chính sách SLA theo loại và đơn vị\"; user có quyền và user chỉ đọc; route ISS-09\n1. Mở ISS-09 từ menu và deep link; kiểm nhãn trường: Nhóm vướng mắc, Mức độ, Đơn vị, Lịch làm việc, Phản hồi (giờ), Xử lý (giờ), Ngưỡng leo thang, Hiệu lực\n2. Thực hiện thao tác chính theo quy tắc: Mỗi thay đổi tạo phiên bản mới; vướng mắc giữ SLA đã áp tại thời điểm tạo; thao tác dùng command upsertIssueSlaPolicy, retireIssueSlaPolicy\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên ISS-09",
+      "expected": "Chính sách SLA theo loại và đơn vị: hiển thị đúng 8 trường; áp quy tắc \"Mỗi thay đổi tạo phiên bản mới; vướng mắc giữ SLA đã áp tại thời điểm tạo\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ISS-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UI-ISS-10",
+      "title": "Leo thang và tổ công tác (ISS-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-ISS-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-10",
+      "oracle_source": "Claim → FR-ISS-10; kỳ vọng nguyên văn của ca thiết kế UI-ISS-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-10",
+      "catches_bug": "Màn hình Leo thang và tổ công tác (ISS-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ISS-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Leo thang và tổ công tác\"; user có quyền và user chỉ đọc; route ISS-10\n1. Mở ISS-10 từ menu và deep link; kiểm nhãn trường: Vướng mắc, Cấp leo thang, Đơn vị / tổ công tác, Hạn xác nhận, Trạng thái, Quá hạn từ\n2. Thực hiện thao tác chính theo quy tắc: Leo thang không đóng vướng mắc gốc; cấp 3 phải đến tổ công tác đang hoạt động; thao tác dùng command escalateIssue, acceptIssueEscalation, listIssueSlaBreaches\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên ISS-10",
+      "expected": "Leo thang và tổ công tác: hiển thị đúng 6 trường; áp quy tắc \"Leo thang không đóng vướng mắc gốc; cấp 3 phải đến tổ công tác đang hoạt động\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ISS-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UI-ISS-11",
+      "title": "Vướng mắc phát sinh từ GPMB, giấy phép, chất lượng (ISS-11): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ban-qlda",
+      "journey_ref": "J-FR-ISS-11",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-11",
+      "oracle_source": "Claim → FR-ISS-11; kỳ vọng nguyên văn của ca thiết kế UI-ISS-11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-11",
+      "catches_bug": "Màn hình Vướng mắc phát sinh từ GPMB, giấy phép, chất lượng (ISS-11) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ISS-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ban-qlda",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Vướng mắc phát sinh từ GPMB, giấy phép, chất lượng\"; user có quyền và user chỉ đọc; route ISS-11\n1. Mở ISS-11 từ menu và deep link; kiểm nhãn trường: Mã, Nguồn, Đối tượng nguồn, Mức độ, Hạn, Đơn vị\n2. Thực hiện thao tác chính theo quy tắc: Nội dung liên quan dữ liệu cá nhân không đưa vào vướng mắc; không tạo trùng cho cùng nguồn đang mở; thao tác dùng command createIssue\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên ISS-11",
+      "expected": "Vướng mắc phát sinh từ GPMB, giấy phép, chất lượng: hiển thị đúng 6 trường; áp quy tắc \"Nội dung liên quan dữ liệu cá nhân không đưa vào vướng mắc; không tạo trùng cho cùng nguồn đang mở\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ISS-11",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-22",
+      "title": "Step 1: 409 and SP-2 stays DRAFT",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-iss",
+      "journey_ref": "J-FR-ISS-09",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-09",
+      "oracle_source": "Claim → ISS.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-22 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-09",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Chính sách SLA theo loại và đơn vị\": Step 1: 409 and SP-2 stays DRAFT. Step 2: 200 and SP-1 is RETIRED. Step 3: I-1 keeps sla_policy_id SP-1 and its due_at is unchanged.",
+      "coverage_ids": [
+        "COV-FR-ISS-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-iss",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: SLA policy SP-1 PUBLISHED for category QUALITY, severity HIGH, unit U-BQL1; issue I-1 created under SP-1.\n1. Publish a second policy SP-2 for the same category, severity and unit with an overlapping validity\n2. Retire SP-1\n3. Read I-1 and its sla_policy_id",
+      "expected": "Step 1: 409 and SP-2 stays DRAFT. Step 2: 200 and SP-1 is RETIRED. Step 3: I-1 keeps sla_policy_id SP-1 and its due_at is unchanged.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-23",
+      "title": "The guest list returns only I-A1 and the U2 officer list returns only I-A2",
+      "type": "RED",
+      "platform": "api",
+      "persona": "nguoi-dung-iss",
+      "journey_ref": "J-FR-ISS-01",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-01",
+      "oracle_source": "Claim → ISS.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-23 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-01",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Danh sách vướng mắc\": The guest list returns only I-A1 and the U2 officer list returns only I-A2; the cross-unit opens return 404; I-B1 returns 404 for both users and the RLS log sho",
+      "coverage_ids": [
+        "COV-FR-ISS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-iss",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenants TNT-A and TNT-B; issues I-A1 (unit U1), I-A2 (unit U2), I-B1 (TNT-B); a guest contractor with a grant on I-A1 and an officer of U2.\n1. The guest lists issues and opens I-A2\n2. The U2 officer lists issues and opens I-A1\n3. Both open I-B1",
+      "expected": "The guest list returns only I-A1 and the U2 officer list returns only I-A2; the cross-unit opens return 404; I-B1 returns 404 for both users and the RLS log shows 0 rows read from TNT-B.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "tags": [
+        "security"
+      ],
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-24",
+      "title": "Step 1: 403 and E-1 stays OPEN with one denied audit row",
+      "type": "GREEN",
+      "platform": "api",
+      "persona": "nguoi-dung-iss",
+      "journey_ref": "J-FR-ISS-10",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-10",
+      "oracle_source": "Claim → ISS.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-24 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-10",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Leo thang và tổ công tác\": Step 1: 403 and E-1 stays OPEN with one denied audit row. Step 2: 200 and E-1 becomes ACCEPTED with accepted_by M1.",
+      "coverage_ids": [
+        "COV-FR-ISS-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-iss",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Escalation E-1 at level 3 addressed to task force TF-A-01 (members M1, M2); user X is outside TF-A-01.\n1. X accepts E-1\n2. M1 accepts E-1\n3. Read E-1 and the audit rows",
+      "expected": "Step 1: 403 and E-1 stays OPEN with one denied audit row. Step 2: 200 and E-1 becomes ACCEPTED with accepted_by M1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-25",
+      "title": "Every matrix count equals the database count for the same snapshot (sum 24)",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-iss",
+      "journey_ref": "J-FR-ISS-08",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-08",
+      "oracle_source": "Claim → ISS.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-25 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-08",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Ma trận vướng mắc theo tuần\": Every matrix count equals the database count for the same snapshot (sum 24); the U1 / OPEN drill-down returns exactly the issues counted in that cell.",
+      "coverage_ids": [
+        "COV-FR-ISS-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-iss",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Snapshot SV-10a with 24 issues across units U1 (14) and U2 (10) in statuses OPEN 9, IN_PROGRESS 8, CLOSED 7.\n1. GET the weekly issue matrix for SV-10a\n2. Count issue rows per unit and status directly in the database\n3. Drill into the U1 / OPEN cell",
+      "expected": "Every matrix count equals the database count for the same snapshot (sum 24); the U1 / OPEN drill-down returns exactly the issues counted in that cell.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "module": "ISS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-26",
+      "title": "2 issues are created, one per failed item, each with the source reference to its checklist item",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "persona": "nguoi-dung-iss",
+      "journey_ref": "J-FR-ISS-05",
+      "priority": "P1",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ISS-05",
+      "oracle_source": "Claim → ISS.md; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-26 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-ISS-05",
+      "catches_bug": "Hệ thống làm khác kỳ vọng thiết kế của \"Kiểm tra hiện trường\": 2 issues are created, one per failed item, each with the source reference to its checklist item; geo_lat/geo_lng are stored only on the issue of item 4.",
+      "coverage_ids": [
+        "COV-FR-ISS-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-dung-iss",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Inspection checklist with 5 items, 2 failed (items 2 and 4); item 4 has a location; consent flag set only on item 4.\n1. Save the inspection\n2. Read the created issues",
+      "expected": "2 issues are created, one per failed item, each with the source reference to its checklist item; geo_lat/geo_lng are stored only on the issue of item 4.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "module": "ISS"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 11,
+    "M2": 0,
+    "M3": 0,
+    "M4": 50,
+    "max": 50,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 11,
+    "covered": 11,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}
