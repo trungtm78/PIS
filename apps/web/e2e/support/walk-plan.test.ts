@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { DEFAULT_WALK_PAGES, devUserFor, MAX_RETRY_SHARE, batchesOf, isExpectedAbsence, isInfrastructureFailure, parseWalkPages, retryShareExceeded, summariseRetries } from './walk-plan.ts';
+import { DEFAULT_WALK_PAGES, devUserFor, MAX_RETRY_SHARE, batchesOf, failedByTheMachine, isExpectedAbsence, isInfrastructureFailure, parseWalkPages, retryShareExceeded, summariseRetries } from './walk-plan.ts';
 
 test('the failures a starved machine produces are infrastructure failures', () => {
   for (const message of [
@@ -77,4 +77,14 @@ test('the 404 of an estimate that DIS has none to give for a project is an answe
   assert.equal(isExpectedAbsence(missing, 'http://127.0.0.1:1/api/projects/x'), false);
   assert.equal(isExpectedAbsence('Failed to load resource: the server responded with a status of 500 (Internal Server Error)', estimate), false);
   assert.equal(isExpectedAbsence('Uncaught TypeError', estimate), false);
+});
+
+test('a page whose load failed with a console error of the machine (no buffer space for a socket) is the machine\'s failure, and a plain 404 or a script error is not', () => {
+  const full = 'Failed to load resource: net::ERR_NO_BUFFER_SPACE http://127.0.0.1:1/src/routes/DocumentLink.tsx';
+  assert.equal(failedByTheMachine('page.waitForSelector: Timeout 15000ms exceeded.', [full]), true);
+  assert.equal(failedByTheMachine(undefined, [full]), true);
+  assert.equal(failedByTheMachine('page.goto: Page crashed', []), true);
+  assert.equal(failedByTheMachine('page.waitForSelector: Timeout 15000ms exceeded.', ['Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:1/api/x']), false);
+  assert.equal(failedByTheMachine(undefined, ['Uncaught TypeError: x is not a function']), false);
+  assert.equal(failedByTheMachine(undefined, []), false);
 });

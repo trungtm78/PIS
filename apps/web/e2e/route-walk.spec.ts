@@ -4,7 +4,7 @@ import { WEB_ROUTES } from './support/web-routes.ts';
 import { browserChannel } from './support/browser-channel.ts';
 import { problemsOf, writeReportPart } from './support/report.ts';
 import { selectRoutes } from './support/routes-filter.ts';
-import { ROUTES_PER_BROWSER, batchesOf, devUserFor, isExpectedAbsence, isInfrastructureFailure, parseWalkPages, retryShareExceeded, summariseRetries } from './support/walk-plan.ts';
+import { ROUTES_PER_BROWSER, batchesOf, devUserFor, failedByTheMachine, isExpectedAbsence, parseWalkPages, retryShareExceeded, summariseRetries } from './support/walk-plan.ts';
 import type { RouteWalkEntry, WalkViewport } from './support/report.ts';
 
 type WalkRoute = (typeof WEB_ROUTES)[number];
@@ -118,7 +118,7 @@ async function walkInFreshBrowser(routes: readonly WalkRoute[], viewport: WalkVi
       }
       const entry = await measureRoute(page, route, viewport);
       entries.push(entry);
-      if (isInfrastructureFailure(entry.loadError)) {
+      if (failedByTheMachine(entry.loadError, entry.consoleErrors)) {
         await closeQuietly(page);
         page = undefined;
       }
@@ -137,7 +137,7 @@ async function walkBatch(routes: readonly WalkRoute[], viewport: WalkViewport, w
   const first = await walkInFreshBrowser(routes, viewport, walk);
   const retryRoutes = routes.filter((route) => {
     const entry = first.find((candidate) => candidate.id === route.id);
-    return entry !== undefined && isInfrastructureFailure(entry.loadError);
+    return entry !== undefined && failedByTheMachine(entry.loadError, entry.consoleErrors);
   });
   if (retryRoutes.length === 0) return first;
   const second = await walkInFreshBrowser(retryRoutes, viewport, { ...walk, pages: 1 });

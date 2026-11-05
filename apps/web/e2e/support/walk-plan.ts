@@ -79,3 +79,11 @@ const ABSENT_ESTIMATE = /\/api\/disbursement-forecasts\?project_id=/;
 export function isExpectedAbsence(text: string, url: string): boolean {
   return /status of 404/.test(text) && ABSENT_ESTIMATE.test(url);
 }
+
+// The console says so when the machine has no socket buffer left: the browser then fails to load the files of a page that is healthy.
+const MACHINE_CONSOLE_ERRORS: readonly RegExp[] = [/ERR_NO_BUFFER_SPACE/, /ERR_INSUFFICIENT_RESOURCES/, /ERR_NETWORK_IO_SUSPENDED/];
+
+/** Whether a page failed because of the machine: the load error or a console error is one that a starved machine produces (retry it once in a fresh browser). */
+export function failedByTheMachine(loadError: string | undefined, consoleErrors: readonly string[]): boolean {
+  return isInfrastructureFailure(loadError) || consoleErrors.some((message) => MACHINE_CONSOLE_ERRORS.some((pattern) => pattern.test(message)));
+}

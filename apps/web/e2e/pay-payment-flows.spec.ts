@@ -171,7 +171,7 @@ const documentsOf = (requestId: string) =>
     [requestId],
   );
 const eventsOf = (requestId: string, type: string) => sql<{ id: string }>('select id from machvon.outbox_event where aggregate_id = $1 and type = $2', [requestId, type]);
-const auditsOf = (requestId: string, action: string) => sql<{ actor_id: string }>('select actor_id from machvon.audit_event where resource_id = $1 and action = $2', [requestId, action]);
+const auditsOf = (requestId: string, action: string) => sql<{ actor_id: string }>('select actor_id from machvon.audit_event where resource_id = $1 and action = $2 order by occurred_at, id', [requestId, action]);
 
 /** Draws a request up in the form (PAY-02) and gives back the page with the result open. */
 async function draw(page: Page, seeded: Seeded, number: string, tax?: { amount: string; basis: string }): Promise<void> {
