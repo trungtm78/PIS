@@ -456,13 +456,16 @@ export class DeliveryStore {
   /** A send on the account failed or was lost: the circuit opens after enough failures in the window, or again after a failed probe. Returns the state. */
   async circuitFailure(tx: TenantTx, channelAccountId: string, now: Date): Promise<CircuitState> {
     await tx.query(`insert into machvon.channel_account_circuit (tenant_id, channel_account_id) values (${TENANT}, $1::uuid) on conflict do nothing`, [channelAccountId]);
-    const [row] = await tx.query<{ state: CircuitState; failures: string }>(
-      `select c.state, (select count(*) from machvon.delivery_attempt a
-                         where a.channel_account_id = c.channel_account_id and a.failure_class is distinct from 'PERMANENT'
-                           and a.failed_at > $2::timestamptz - make_interval(secs => 60) and a.failed_at <= $2::timestamptz)::text as failures
-         from machvon.channel_account_circuit c where c.channel_account_id = $1::uuid for update`,
+    // The row is locked in a statement of its own and the failures are counted in the next one: a count made in the statement that waits for the lock
+    // uses the snapshot taken before the wait, and the sends that failed at the same time and committed while it waited would not be seen.
+    const [locked] = await tx.query<{ state: CircuitState }>('select state from machvon.channel_account_circuit where channel_account_id = $1::uuid for update', [channelAccountId]);
+    const [counted] = await tx.query<{ failures: string }>(
+      `select count(*)::text as failures from machvon.delivery_attempt a
+        where a.channel_account_id = $1::uuid and a.failure_class is distinct from 'PERMANENT'
+          and a.failed_at > $2::timestamptz - make_interval(secs => 60) and a.failed_at <= $2::timestamptz`,
       [channelAccountId, now.toISOString()],
     );
+    const row = locked === undefined ? undefined : { state: locked.state, failures: counted?.failures ?? '0' };
     if (row === undefined) throw new Error('circuit row vanished');
     const state = circuitAfterFailure(row.state, Number(row.failures));
     if (state === 'OPEN' && row.state !== 'OPEN') {
