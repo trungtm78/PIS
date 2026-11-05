@@ -1,4 +1,4 @@
-import { mkdtemp } from 'node:fs/promises';
+import { mkdtemp, rm } from 'node:fs/promises';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -100,8 +100,9 @@ export async function startDatabase({ EmbeddedPostgres, directory, port, startTi
   const Server = EmbeddedPostgres ?? (await import('embedded-postgres')).default;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     const log = [];
+    const databaseDir = directory ?? (await mkdtemp(join(tmpdir(), 'machvon-sql-verify-')));
     const server = new Server({
-      databaseDir: directory ?? (await mkdtemp(join(tmpdir(), 'machvon-sql-verify-'))),
+      databaseDir,
       port: port ?? (await freePort()),
       user: 'postgres',
       password: 'verify',
@@ -139,9 +140,12 @@ export async function startDatabase({ EmbeddedPostgres, directory, port, startTi
       },
       async close() {
         try {
-          await client.end();
+          await within(client.end(), stopTimeoutMs).catch(() => undefined);
         } finally {
-          await server.stop();
+          // The stop of the embedded server waits for the exit of the server process: when that has already exited (the process was ended before the stop was asked)
+          // the wait never ends. What the run had to ask the database is in by now, so the wait is bounded and the data directory is removed here when it did not.
+          await within(Promise.resolve(server.stop()), stopTimeoutMs).catch(() => undefined);
+          await rm(databaseDir, { recursive: true, force: true }).catch(() => undefined);
         }
       },
     };

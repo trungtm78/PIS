@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtemp } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   INITDB_FLAGS,
@@ -245,6 +248,21 @@ test('startDatabase fails with the reason when every attempt hangs, and does not
   } finally {
     FakeEmbeddedPostgres.prototype.stop = stuckStop;
     FakeEmbeddedPostgres.hangStarts = 0;
+  }
+});
+
+test('closing does not wait for a server that cannot be stopped: the answer is already in, and the directory of the cluster is removed', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'sql-verify-close-'));
+  writeFileSync(join(directory, 'PG_VERSION'), '18');
+  const stuckStop = FakeEmbeddedPostgres.prototype.stop;
+  FakeEmbeddedPostgres.prototype.stop = () => new Promise(() => {});
+  try {
+    const database = await startDatabase({ EmbeddedPostgres: FakeEmbeddedPostgres, directory, port: 54002, stopTimeoutMs: 20 });
+    await database.close();
+    assert.equal(existsSync(directory), false);
+  } finally {
+    FakeEmbeddedPostgres.prototype.stop = stuckStop;
+    rmSync(directory, { recursive: true, force: true });
   }
 });
 
