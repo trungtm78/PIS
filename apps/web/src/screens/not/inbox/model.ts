@@ -80,7 +80,13 @@ export function filterNotifications(
  */
 export function resolveDeepLink(reference: string | undefined, routes: readonly { path: string }[]): string | undefined {
   if (reference === undefined || !reference.startsWith('/') || reference.startsWith('//')) return undefined;
-  const matches = routes.filter(({ path }) => reference === path || reference.startsWith(`${path}/`));
+  // The emitters of the jobs write the screen followed by the record in a query (`/ctr/ctr-05?id=…`): the path is matched alone, whole segments only, and the query goes
+  // with the route so that the screen can read its record (it is the screen's to check the query and the access of the member).
+  const split = reference.indexOf('?');
+  const address = split < 0 ? reference : reference.slice(0, split);
+  const query = split < 0 ? '' : reference.slice(split + 1);
+  const matches = routes.filter(({ path }) => address === path || address.startsWith(`${path}/`));
   if (matches.length === 0) return undefined;
-  return matches.reduce((best, route) => (route.path.length > best.path.length ? route : best)).path;
+  const route = matches.reduce((best, candidate) => (candidate.path.length > best.path.length ? candidate : best)).path;
+  return query === '' ? route : `${route}?${query}`;
 }

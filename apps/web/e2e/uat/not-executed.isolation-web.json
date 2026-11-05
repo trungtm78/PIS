@@ -1,0 +1,27 @@
+[
+  {
+    "tc_id": "TC-UAT-NFR-TENANCY-03",
+    "reason": "The case needs the keys of a Redis cache to be listed (SCAN, every key under the prefix t:{tenant_id}:) and the metric BI-MET-001 to be read as GET /api/v1/metrics/BI-MET-001/query. The stack has no Redis: its caches (AuthzCache, EntitlementCache, the ledger and summary caches under apps/api/src/modules) are Map objects inside the API process, so no test process can list their keys, and the API has no such route for a metric (the BI query is POST /dashboard-queries over certified dashboard versions). Only the theme of tenant B after a publish of tenant A could be proved, and a case proved in part is not proved; the theme isolation is covered by TC-TH01.",
+    "needs": "A Redis (or a cache adapter whose keys a test can list) in the staging stack, and the metric query route with BI-MET-001 seeded with 1,000,000,000 VND for tenant A and 2,000,000,000 VND for tenant B"
+  },
+  {
+    "tc_id": "TC-UAT-NFR-TENANCY-04",
+    "reason": "The case needs a full-text search AND a vector retrieval of top-k=20 by a token of tenant A over documents of both tenants (and the id of a document of B read directly). The stack has a global search over a tenant projection (GET /search) but the vector retrieval of the AI gateway (knowledge collections, AiKnowledgeService.retrieve, the embedding model is a stand-in) is a service of the API process with no HTTP route, so no test can call it with a token. A case proved in part is not proved.",
+    "needs": "A route (or a test port) that runs the vector retrieval with top-k for the caller's token, the knowledge collection of both tenants indexed with the embeddings created, and the documents with the same title and different content in tenants A and B"
+  },
+  {
+    "tc_id": "TC-MOB01",
+    "reason": "needs the Flutter app built and run on the Android emulator (AVD `guide` exists on D:/Android/avd; the APK is not built)",
+    "needs": "The Flutter APK of the mobile app built, installed on the AVD `guide`, and driven by Maestro against the stack"
+  },
+  {
+    "tc_id": "TC-MOB02",
+    "reason": "needs the Flutter app built and run on the Android emulator (AVD `guide` exists on D:/Android/avd; the APK is not built)",
+    "needs": "The Flutter APK of the mobile app built, installed on the AVD `guide`, and driven by Maestro against the stack"
+  },
+  {
+    "tc_id": "TC-UAT-NFR-TENANCY-07",
+    "reason": "The case is the PowerSync sync of the Android app (setup: an Android test device, user in two tenants, PowerSync staging): the local table holds only rows of the tenant, a revoked membership empties it in 60 seconds, an offline draft command blocks the change of tenant and shows a queue of one, and the old database file is deleted. A first version of this test drove the web tenant switcher; that is not what the design case says, and it was removed.",
+    "needs": "The Flutter APK built and installed on the AVD `guide`, a PowerSync service (or its staging stand-in) and a debug bridge to read the local database"
+  }
+]

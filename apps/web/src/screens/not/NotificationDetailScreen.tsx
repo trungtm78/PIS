@@ -50,18 +50,19 @@ export default function NotificationDetailScreen({ route }: ScreenProps) {
     if (id !== undefined && found === undefined && hasNextPage && !isFetchingNextPage && !isFetchNextPageError && pages < MAX_PAGES) void fetchNextPage();
   }, [id, found, hasNextPage, isFetchingNextPage, isFetchNextPageError, pages, fetchNextPage]);
 
-  // Opening it marks it read: once per notification, however often the page renders.
+  // Opening it marks it read: once per notification, however often the page renders. Content the member may not read is not opened (the record is not shown),
+  // so it is not marked read either: nothing of reading is written for a record the member could not see.
   const marked = useRef(new Set<string>());
   const [markFailed, setMarkFailed] = useState(false);
   const { markRead } = commands;
   useEffect(() => {
-    if (found === undefined || !isUnread(found) || marked.current.has(found.id)) return;
+    if (found === undefined || isUnavailable(found) || !isUnread(found) || marked.current.has(found.id)) return;
     marked.current.add(found.id);
     markRead(found.id, { onError: () => setMarkFailed(true) });
   }, [found, markRead]);
   // A failed marking keeps its id in `marked` (no loop) and is retried by the member with the same idempotency attempt.
   const retryMarkRead = (): void => {
-    if (found === undefined) return;
+    if (found === undefined || isUnavailable(found)) return;
     setMarkFailed(false);
     markRead(found.id, { onError: () => setMarkFailed(true) });
   };

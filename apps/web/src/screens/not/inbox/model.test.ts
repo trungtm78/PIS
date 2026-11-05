@@ -75,6 +75,18 @@ describe('resolveDeepLink', () => {
     expect(resolveDeepLink('/prj/prj-01/sub/9', [{ path: '/prj/prj-01' }, { path: '/prj/prj-01/sub' }])).toBe('/prj/prj-01/sub');
   });
 
+  it('follows a reference whose screen is followed by a query string, as the emitters of the jobs write them, and keeps the query for the screen to read', () => {
+    expect(resolveDeepLink('/pay/pay-03?id=00000000-0000-4000-8000-000000000001', ROUTES)).toBe('/pay/pay-03?id=00000000-0000-4000-8000-000000000001');
+    expect(resolveDeepLink('/prj/prj-01/sub/9?plan=1&year=2027', ROUTES)).toBe('/prj/prj-01?plan=1&year=2027');
+    expect(resolveDeepLink('/pay/pay-03?', ROUTES)).toBe('/pay/pay-03');
+  });
+
+  it('does not take a query string for a path: a screen that only shares a prefix, or an address that hides another one after the query, is refused', () => {
+    expect(resolveDeepLink('/pay/pay-0399?id=1', ROUTES)).toBeUndefined();
+    expect(resolveDeepLink('/xyz/xyz-99?next=/pay/pay-03', ROUTES)).toBeUndefined();
+    expect(resolveDeepLink('/pay/pay-03?next=https://example.org', ROUTES)).toBe('/pay/pay-03?next=https://example.org');
+  });
+
   it.each([
     ['nothing', undefined],
     ['an external URL', 'https://example.org/pay/pay-03'],

@@ -1,6 +1,6 @@
 {
   "feature": "nfr",
-  "generated_at": "2026-11-05T07:53:18.065Z",
+  "generated_at": "2026-11-05T08:04:25.379Z",
   "platform_contract": "docs/uat/_platform.json",
   "domain_pack": "docs/uat/_domain-pack.md",
   "coverage_ledger": "docs/uat/nfr/_coverage-ledger.md",
@@ -135,6 +135,7 @@
         "security"
       ],
       "module": "NFR",
+      "oracle_note": "Câu chữ của ca nêu 409 BALANCE_INSUFFICIENT hoặc VERSION_CONFLICT; đặc tả mô-đun (CAP.md, draftCapitalAllocation và BR-CAP-02) và sổ mã lỗi nêu 422 APPROPRIATION_EXCEEDED hoặc 409 VERSION_CONFLICT. Đặc tả mô-đun được ưu tiên; cần chỉnh câu chữ của ca thiết kế (TODOS.md).",
       "db_assert": {
         "query": "SELECT allocated_total_vnd::text AS v FROM machvon.appropriation WHERE id = '{appropriation_id}'",
         "expect": {
@@ -892,9 +893,9 @@
     {
       "tc_id": "TC-UAT-NFR-TENANCY-07",
       "title": "Bước 1: 3 dòng đều tenant_id=TNT-A",
-      "type": "E2E",
-      "platform": "web",
-      "persona": "chuyen-vien-tinh-a",
+      "type": "LIFECYCLE",
+      "platform": "android",
+      "persona": "nguoi-dung-nhieu-tenant",
       "journey_ref": "J-ISOL-01",
       "priority": "P0",
       "severity_if_fail": "S1",
@@ -907,7 +908,7 @@
       ],
       "backend_policy": "live",
       "determinism": {
-        "auth_role": "chuyen-vien-tinh-a",
+        "auth_role": "nguoi-dung-nhieu-tenant",
         "clock_freeze": null,
         "network_stubs": [],
         "serial": false
@@ -917,15 +918,15 @@
       "expected": "Bước 1: 3 dòng đều tenant_id=TNT-A; bước 2: 0 dòng; bước 3: app chặn đổi tenant và hiển thị hàng đợi 1 mục; bước 4: tệp DB cũ đã xóa, chỉ có 3 dòng TNT-B",
       "evidence_required": [
         "trace",
-        "response-bodies",
-        "screenshot-final"
+        "response-bodies"
       ],
       "design_evidence": "Dump SQLite cục bộ từng bước + log PowerSync service",
       "design_type": "E2E/security",
       "tags": [
         "security"
       ],
-      "module": "NFR"
+      "module": "NFR",
+      "target": "simulator-ok"
     },
     {
       "tc_id": "TC-UAT-NFR-TENANCY-08",
@@ -1169,7 +1170,7 @@
         "method": "POST",
         "key_header": "Idempotency-Key",
         "concurrency": 1,
-        "count_query": "SELECT count(*) FROM machvon.outbox_event WHERE aggregate_id = '{report_id}' AND type = 'dis.report.submitted.v1'",
+        "count_query": "SELECT count(*) FROM machvon.outbox_event WHERE aggregate_id = '{report_id}' AND type = 'report.submitted.v1'",
         "expect_rows": 1
       }
     },
@@ -1354,6 +1355,7 @@
         "concurrency"
       ],
       "module": "NFR",
+      "oracle_note": "Câu chữ của ca nêu 409 BALANCE_INSUFFICIENT hoặc VERSION_CONFLICT; đặc tả mô-đun (CAP.md, draftCapitalAllocation và BR-CAP-02) và sổ mã lỗi nêu 422 APPROPRIATION_EXCEEDED hoặc 409 VERSION_CONFLICT. Đặc tả mô-đun được ưu tiên; cần chỉnh câu chữ của ca thiết kế (TODOS.md).",
       "db_assert": {
         "query": "SELECT allocated_total_vnd::text AS v FROM machvon.appropriation WHERE id = '{appropriation_id}'",
         "expect": {

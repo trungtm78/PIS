@@ -38,7 +38,7 @@ Sinh bởi một bộ quy tắc cố định từ 1097 ca thiết kế (`Design/
 - Hợp đồng handoff hợp lệ: 26/26 phân hệ.
 - Phủ coverage item: 100% ở mọi phân hệ (mỗi yêu cầu có ít nhất một ca).
 - Đạt sàn `TC_min`: 2/26 phân hệ. 24 phân hệ dưới sàn: ca thiết kế phủ yêu cầu nhưng chưa đào phân vùng giá trị, biên, bảng quyết định, đường chuyển trạng thái sai và ma trận quyền. Không độn ca để đạt con số.
-- Nền tảng của ca: web 858, api 163, android 76.
+- Nền tảng của ca: web 857, api 163, android 77.
 
 ## Việc còn lại của writer (nợ có chủ đích)
 

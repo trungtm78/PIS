@@ -35,7 +35,7 @@ M2=0 · FP=0 · risk=CRITICAL
 ## Tổng
 
 - Coverage item: 21, mỗi item có ít nhất một TC (21/21).
-- TC: 28; chạy được trên máy này qua API/web thật: 21; cần hạ tầng/thiết bị: 7 (diễn tập khôi phục, rollback, ứng dụng di động).
+- TC: 28; chạy được trên máy này qua API/web thật: 20; cần hạ tầng/thiết bị: 8 (diễn tập khôi phục, rollback, ứng dụng di động).
 
 ## Completeness critic
 

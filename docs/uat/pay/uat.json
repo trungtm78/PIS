@@ -1,6 +1,6 @@
 {
   "feature": "pay",
-  "generated_at": "2026-11-05T07:53:18.070Z",
+  "generated_at": "2026-11-05T08:04:25.383Z",
   "platform_contract": "docs/uat/_platform.json",
   "domain_pack": "docs/uat/_domain-pack.md",
   "coverage_ledger": "docs/uat/pay/_coverage-ledger.md",

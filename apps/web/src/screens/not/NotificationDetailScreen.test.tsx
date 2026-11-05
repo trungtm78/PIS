@@ -46,6 +46,16 @@ describe('NOT-02 notification detail: opening marks it read once', () => {
     expect(h.command).toHaveBeenCalledTimes(1);
   });
 
+  it('does not mark a notification read when its content is unavailable to the member: the deep link of a record they may not read changes nothing (UAT-NFR-PRIVACY NOT02)', async () => {
+    const h = harness();
+    open(h, NOTIFICATION_IDS.gone);
+    expect(await screen.findByRole('heading', { level: 2, name: 'Nội dung không còn khả dụng' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: vi_['not.detail.link.open.action'] })).not.toBeInTheDocument();
+    // Nothing is sent: the notification stays unread and no audit row of reading is written for a record the member could not see.
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(h.command).not.toHaveBeenCalled();
+  });
+
   it('does not mark a notification that is already read', async () => {
     const h = harness();
     open(h, NOTIFICATION_IDS.report);
