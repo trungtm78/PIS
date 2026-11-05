@@ -1,0 +1,90 @@
+{
+  "platforms": [
+    "ANDROID",
+    "FLUTTER",
+    "IOS",
+    "WEB"
+  ],
+  "packages": [
+    {
+      "path": "apps\\mobile",
+      "labels": [
+        "ANDROID",
+        "FLUTTER",
+        "IOS"
+      ],
+      "evidence": [
+        "D:\\PIS\\apps\\mobile\\pubspec.yaml"
+      ]
+    },
+    {
+      "path": "apps\\web",
+      "labels": [
+        "WEB"
+      ],
+      "evidence": [
+        "D:\\PIS\\apps\\web\\package.json (web framework)"
+      ]
+    },
+    {
+      "path": "packages\\mobile-api-client",
+      "labels": [
+        "ANDROID",
+        "FLUTTER",
+        "IOS"
+      ],
+      "evidence": [
+        "D:\\PIS\\packages\\mobile-api-client\\pubspec.yaml"
+      ]
+    },
+    {
+      "path": "packages\\mobile-tokens",
+      "labels": [
+        "ANDROID",
+        "FLUTTER",
+        "IOS"
+      ],
+      "evidence": [
+        "D:\\PIS\\packages\\mobile-tokens\\pubspec.yaml"
+      ]
+    }
+  ],
+  "appId": {
+    "android": "vn.machvon.app",
+    "ios": "vn.machvon.app"
+  },
+  "buildCmds": {
+    "android": "flutter build apk --debug",
+    "ios": "flutter build ios --simulator"
+  },
+  "artifacts": {
+    "android": "build/app/outputs/flutter-apk/app-debug.apk"
+  },
+  "apiBaseUrl": "http://localhost:3000",
+  "apiBaseUrlForAndroidEmulator": "http://10.0.2.2:3000",
+  "recommendedStack": {
+    "web": "playwright",
+    "mobile": "maestro",
+    "api": null
+  },
+  "host": {
+    "os": "win32",
+    "hasAdb": true,
+    "hasJava17": true,
+    "hasMaestro": true,
+    "hasXcode": false,
+    "iosPossible": false
+  },
+  "devices": [],
+  "blockers": [
+    {
+      "platform": "ios",
+      "reason": "no macOS host",
+      "remediation": [
+        "github-actions macos-latest workflow",
+        "maestro cloud",
+        "browserstack app automate"
+      ]
+    }
+  ]
+}

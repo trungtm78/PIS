@@ -1,0 +1,1122 @@
+{
+  "feature": "critical",
+  "generated_at": "2026-11-05T07:43:34.762Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/critical/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-SEC01",
+      "title": "403/404 theo policy",
+      "type": "SECURITY",
+      "platform": "api",
+      "persona": "chuyen-vien-tinh-a",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-TENANCY-01",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế SEC01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-TENANCY-01, NFR-TENANCY-04, NFR-TENANCY-06 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Một endpoint trả 200 hoặc lộ metadata, count, tệp của tenant khác thay vì 403/404",
+      "coverage_ids": [
+        "COV-NFR-TENANCY-01",
+        "COV-NFR-TENANCY-04",
+        "COV-NFR-TENANCY-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-tinh-a",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Tenant A truy cập UUID của B qua API/detail/search/export/vector\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "403/404 theo policy; không lộ metadata, count hoặc file; không side effect",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
+      "access": {
+        "url": "/api/projects/{project_b_id}",
+        "method": "GET",
+        "allow": [
+          "chuyen-vien-tinh-b"
+        ],
+        "deny_status": [
+          403,
+          404
+        ],
+        "must_not_contain": [
+          "PRJ-B-001"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-TH01",
+      "title": "Nháp persist đúng tenant",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "quan-tri-tenant-a",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-04",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế TH01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-04, NFR-TENANCY-01 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Bản nháp giao diện lưu sai tenant hoặc làm đổi bản đã công bố và người dùng khác",
+      "coverage_ids": [
+        "COV-FR-SAS-04",
+        "COV-NFR-TENANCY-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-tenant-a",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Sửa tên/màu/logo, lưu nháp, reload, mở preview web/mobile\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "Nháp persist đúng tenant; published và người dùng khác không đổi",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id"
+    },
+    {
+      "tc_id": "TC-TH05",
+      "title": "Đúng theme/version tenant",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chuyen-vien-tinh-a",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-SAS-04",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế TH05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-SAS-04, NFR-TENANCY-03 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Đổi theme của tenant làm mất breadcrumb, form đang nhập hoặc vị trí menu, hoặc áp theme của tenant khác",
+      "coverage_ids": [
+        "COV-FR-SAS-04",
+        "COV-NFR-TENANCY-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-tinh-a",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Dựng lại menu, route back, reload và đổi thiết bị sau publish\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "Đúng theme/version tenant; không mất breadcrumb, form hoặc vị trí menu",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id"
+    },
+    {
+      "tc_id": "TC-TX01",
+      "title": "Chỉ một thành công",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "can-bo-phan-bo-von",
+      "journey_ref": "J-MONEY-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-SECURITY-09",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế TX01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-SECURITY-09 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Hai lệnh đồng thời cùng thành công trên một số dư: số dư về âm",
+      "coverage_ids": [
+        "COV-NFR-SECURITY-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "can-bo-phan-bo-von",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": true
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Hai phân bổ100 trên số dư100 chạy đồng thời\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "Chỉ một thành công; số dư0; request còn lại conflict/insufficient",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
+      "db_assert": {
+        "query": "SELECT allocated_total_vnd::text AS v FROM machvon.appropriation WHERE id = '{appropriation_id}'",
+        "expect": {
+          "value": "100000000"
+        }
+      }
+    },
+    {
+      "tc_id": "TC-TX02",
+      "title": "Lần1 trả cùng kết quả",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "nguoi-lap-bao-cao",
+      "journey_ref": "J-MONEY-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-SECURITY-04",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế TX02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-SECURITY-04 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Gửi lại cùng key hoặc retry sau timeout ghi thêm audit hoặc outbox; cùng key khác body không bị 409",
+      "coverage_ids": [
+        "COV-NFR-SECURITY-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-lap-bao-cao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": true
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Gửi lại cùng key/body; cùng key/body khác; retry sau timeout\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "Lần1 trả cùng kết quả; body khác409; tối đa một audit nghiệp vụ và một logical outbox event",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
+      "idempotency": {
+        "url": "/api/reports/{report_id}/submit",
+        "method": "POST",
+        "key_header": "Idempotency-Key",
+        "concurrency": 1,
+        "count_query": "SELECT count(*) FROM machvon.outbox_event WHERE aggregate_id = '{report_id}'",
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-TX03",
+      "title": "Retry/dedupe theo provider capability",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "nha-cung-cap-kenh-thong-bao",
+      "journey_ref": "J-MONEY-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-OPERABILITY-05",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế TX03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-OPERABILITY-05, NFR-SECURITY-10 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Retry hoặc dedupe tuyên bố exactly-once vượt khả năng của nhà cung cấp, hoặc không đối soát được tin không rõ kết quả",
+      "coverage_ids": [
+        "COV-NFR-OPERABILITY-05",
+        "COV-NFR-SECURITY-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-cung-cap-kenh-thong-bao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": true
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Worker crash sau provider accepted trước lưu ACK\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "Retry/dedupe theo provider capability; không khẳng định exactly-once; đối soát uncertain",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
+      "transition": {
+        "from": "DELIVERED",
+        "to": "SENT",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-BI02",
+      "title": "Recheck quyền hiện tại",
+      "type": "SECURITY",
+      "platform": "api",
+      "persona": "chuyen-vien-so-x",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-TENANCY-06",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế BI02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-TENANCY-06, FR-BI-12 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Tệp xuất được tạo lại bằng quyền cũ sau khi phạm vi người yêu cầu đã thu hẹp",
+      "coverage_ids": [
+        "COV-NFR-TENANCY-06",
+        "COV-FR-BI-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-so-x",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Filter hoặc ACL đổi sau lưu dashboard/export job\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "Recheck quyền hiện tại; không xuất dữ liệu ngoài scope cũ∩mới",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
+      "access": {
+        "url": "/api/bi/exports",
+        "method": "POST",
+        "allow": [
+          "chuyen-vien-so-x"
+        ],
+        "deny_status": [
+          401,
+          403
+        ],
+        "must_not_contain": [
+          "Ban Y"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-NOT01",
+      "title": "Không lùi trạng thái",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "nha-cung-cap-kenh-thong-bao",
+      "journey_ref": "J-MONEY-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-SECURITY-10",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế NOT01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-SECURITY-10, NFR-OPERABILITY-05 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Biên nhận muộn hoặc trùng làm lùi trạng thái giao tin, hoặc retry không bị chặn theo policy",
+      "coverage_ids": [
+        "COV-NFR-SECURITY-10",
+        "COV-NFR-OPERABILITY-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-cung-cap-kenh-thong-bao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": true
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Webhook Delivered rồi Accepted, duplicate Read, opt-out trước retry\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "Không lùi trạng thái; dedupe; retry bị suppression theo policy",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
+      "transition": {
+        "from": "DELIVERED",
+        "to": "QUEUED",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-NOT02",
+      "title": "Không đánh dấu đã đọc",
+      "type": "SECURITY",
+      "platform": "web",
+      "persona": "chuyen-vien-tinh-a",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-PRIVACY-02",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế NOT02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-PRIVACY-02, NFR-TENANCY-01 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Mở deep link thông báo của hồ sơ không thuộc người dùng: đánh dấu đã đọc hoặc lộ nội dung hồ sơ",
+      "coverage_ids": [
+        "COV-NFR-PRIVACY-02",
+        "COV-NFR-TENANCY-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-tinh-a",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Push accepted nhưng app chưa mở; deep link sau revoke quyền\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "Không đánh dấu đã đọc; deep link không tiết lộ hồ sơ",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
+      "access": {
+        "url": "/api/notifications/{notification_b_id}",
+        "method": "GET",
+        "allow": [
+          "chuyen-vien-tinh-b"
+        ],
+        "deny_status": [
+          403,
+          404
+        ],
+        "must_not_contain": [
+          "PRJ-B-001"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-MOB01",
+      "title": "Khôi phục nháp",
+      "type": "OFFLINE",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "can-bo-hien-truong",
+      "journey_ref": "J-MONEY-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-SECURITY-04",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế MOB01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-SECURITY-04, NFR-SECURITY-05 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Khôi phục nháp sau mất mạng tạo hai bản trên máy chủ hoặc ghi đè số tiền xung đột mà không báo người dùng",
+      "coverage_ids": [
+        "COV-NFR-SECURITY-04",
+        "COV-NFR-SECURITY-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "can-bo-hien-truong",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": true
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Offline tạo nháp, kill app, reconnect, gửi cùng local_uuid hai lần\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "Khôi phục nháp; một bản server; conflict số tiền cần người dùng giải quyết",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id"
+    },
+    {
+      "tc_id": "TC-MOB02",
+      "title": "Không upload bằng tenant mới",
+      "type": "LIFECYCLE",
+      "platform": "android",
+      "target": "simulator-ok",
+      "persona": "can-bo-hien-truong",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-TENANCY-07",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế MOB02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-TENANCY-07 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Sau khi đổi tenant app vẫn upload bằng token hoặc cache của tenant cũ, rò tệp",
+      "coverage_ids": [
+        "COV-NFR-TENANCY-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "can-bo-hien-truong",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Đổi tenant/logout với upload và queue đang pending\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "Không upload bằng tenant mới; cache/secret cũ được xử lý theo policy; không rò file",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id"
+    },
+    {
+      "tc_id": "TC-OPS01",
+      "title": "Checksum/file reference/totals khớp",
+      "type": "RECOVERY",
+      "platform": "api",
+      "persona": "van-hanh-ha-tang",
+      "journey_ref": "J-RESTORE-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-AVAILABILITY-02",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế OPS01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-AVAILABILITY-02, NFR-AVAILABILITY-03, FR-SAS-21 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Diễn tập khôi phục không đo được RPO/RTO hoặc checksum, tổng và tham chiếu tệp không khớp",
+      "coverage_ids": [
+        "COV-NFR-AVAILABILITY-02",
+        "COV-NFR-AVAILABILITY-03",
+        "COV-FR-SAS-21"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-hanh-ha-tang",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Restore DB và object ở recovery point được chọn\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "Checksum/file reference/totals khớp; đo RPO/RTO; có biên bản drill",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id"
+    },
+    {
+      "tc_id": "TC-OPS02",
+      "title": "Đọc/ghi tương thích",
+      "type": "RECOVERY",
+      "platform": "api",
+      "persona": "van-hanh-ha-tang",
+      "journey_ref": "J-RESTORE-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-OPERABILITY-03",
+      "oracle_source": "Claim → Baseline1.3 cross-cutting; kỳ vọng nguyên văn của ca thiết kế OPS02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-OPERABILITY-03 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Bản triển khai mới không tương thích đọc/ghi với bản cũ hoặc rollback làm rơi outbox",
+      "coverage_ids": [
+        "COV-NFR-OPERABILITY-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-hanh-ha-tang",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường staging cách ly; tenant A/B và quyền maker/reviewer/SystemAdmin/TenantAdmin; đồng hồ/server stub và provider mock kiểm soát được\n1. Rollback ứng dụng sau schema expand, có mobile version trước\n2. Kiểm response, dữ liệu trước/sau, audit/outbox và tác động tenant khác",
+      "expected": "Đọc/ghi tương thích; không rollback phá dữ liệu đã nhận; outbox không mất",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id"
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-01",
+      "title": "Mọi request trả 404 code RESOURCE_NOT_FOUND, body không chứa tên/mã dự án B",
+      "type": "SECURITY",
+      "platform": "api",
+      "persona": "chuyen-vien-tinh-a",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-TENANCY-01",
+      "oracle_source": "Claim → NFR-TENANCY-01 (04_Thiet_ke_co_ban.md Baseline 1.4); kỳ vọng nguyên văn của ca thiết kế UAT-NFR-TENANCY-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-TENANCY-01 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Một endpoint bỏ lọc tenant: dùng id dự án của tenant B bằng token tenant A vẫn đọc được hoặc đổi được dữ liệu của B",
+      "coverage_ids": [
+        "COV-NFR-TENANCY-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-tinh-a",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Fixture tenant TNT-A (UBND tỉnh A) và TNT-B; user u.a.chuyenvien@TNT-A có grant UNIT_TREE; dự án PRJ-B-001 (id 2b000000-0000-4000-8000-000000000001) thuộc TNT-B\nĐầu vào: Token của u.a.chuyenvien; danh sách operationId GET/POST từ openapi.json với path param thay bằng id của TNT-B\n1. Sinh request cho mọi operation có path param {id} dùng id thuộc TNT-B\n2. Gửi bằng token TNT-A, ghi status/body/headers\n3. Gọi GET /api/v1/projects?search=PRJ-B-001 và đếm total\n4. So sánh số dòng audit/outbox TNT-B trước và sau",
+      "expected": "Mọi request trả 404 code RESOURCE_NOT_FOUND, body không chứa tên/mã dự án B; search trả total=0; audit/outbox TNT-B không đổi (chênh lệch 0 dòng)",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Báo cáo quét operation (CSV status theo operationId) + diff số dòng audit/outbox",
+      "access": {
+        "url": "/api/projects/{project_b_id}",
+        "method": "GET",
+        "allow": [
+          "chuyen-vien-tinh-b"
+        ],
+        "deny_status": [
+          404
+        ],
+        "must_not_contain": [
+          "PRJ-B-001"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-02",
+      "title": "Catalog: 0 bảng thiếu RLS/FORCE/policy",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "quan-tri-he-thong",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-TENANCY-02",
+      "oracle_source": "Claim → NFR-TENANCY-02 (04_Thiet_ke_co_ban.md Baseline 1.4); kỳ vọng nguyên văn của ca thiết kế UAT-NFR-TENANCY-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-TENANCY-02 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Một bảng mới thiếu RLS/FORCE/policy: không có ngữ cảnh tenant vẫn đọc được dòng của mọi tenant",
+      "coverage_ids": [
+        "COV-NFR-TENANCY-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-he-thong",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: DB ci dựng từ migration mới nhất; seed 3 dòng project cho TNT-A, 2 dòng cho TNT-B; kết nối bằng role machvon_app\nĐầu vào: SQL: SELECT count(*) FROM machvon.project; SET LOCAL app.tenant_id='<TNT-A>'; INSERT project với tenant_id=<TNT-B>\n1. Chạy truy vấn catalog pg_class/pg_policies cho mọi bảng có cột tenant_id\n2. Không đặt app.tenant_id, chạy SELECT count(*) FROM project\n3. BEGIN; SET LOCAL app.tenant_id=TNT-A; SELECT count(*); COMMIT\n4. BEGIN; SET LOCAL app.tenant_id=TNT-A; INSERT project tenant_id=TNT-B; ROLLBACK\n5. Kiểm rolbypassrls và owner của bảng project",
+      "expected": "Catalog: 0 bảng thiếu RLS/FORCE/policy; không context → count=0; context A → count=3; insert sai tenant lỗi \"new row violates row-level security policy\"; machvon_app rolbypassrls=false và không phải owner",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Log SQL của job CI + output truy vấn catalog đính kèm build",
+      "db_assert": {
+        "query": "SELECT count(*) AS n FROM pg_class c JOIN pg_namespace s ON s.oid = c.relnamespace WHERE s.nspname = 'machvon' AND c.relkind = 'r' AND (NOT c.relrowsecurity OR NOT c.relforcerowsecurity) AND EXISTS (SELECT 1 FROM pg_attribute a WHERE a.attrelid = c.oid AND a.attname = 'tenant_id' AND NOT a.attisdropped)",
+        "expect": {
+          "value": "0"
+        }
+      }
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-03",
+      "title": "A nhận 1.000.000.000, B nhận 2.000.000.000",
+      "type": "SECURITY",
+      "platform": "api",
+      "persona": "quan-tri-tenant-a",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-TENANCY-03",
+      "oracle_source": "Claim → NFR-TENANCY-03 (04_Thiet_ke_co_ban.md Baseline 1.4); kỳ vọng nguyên văn của ca thiết kế UAT-NFR-TENANCY-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-TENANCY-03 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Cache hoặc theme dùng khoá không có tiền tố tenant: tenant này đọc được số liệu hoặc giao diện của tenant kia",
+      "coverage_ids": [
+        "COV-NFR-TENANCY-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-tenant-a",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Staging có Redis; TNT-A và TNT-B cùng dashboard metric BI-MET-001 với số liệu khác nhau (A: 1.000.000.000 VND, B: 2.000.000.000 VND)\nĐầu vào: GET /api/v1/metrics/BI-MET-001/query bằng token A rồi token B trong vòng 5 giây\n1. Xóa cache; gọi query bằng token A (cache miss)\n2. Gọi cùng query bằng token B\n3. SCAN toàn bộ khóa Redis và kiểm tiền tố\n4. Publish theme mới cho TNT-A rồi đọc theme bằng user TNT-B",
+      "expected": "A nhận 1.000.000.000, B nhận 2.000.000.000; mọi khóa có tiền tố t:{tenant_id}:; theme TNT-B không đổi sau publish của A",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Response JSON hai lần gọi + danh sách khóa Redis (đã che giá trị)",
+      "access": {
+        "url": "/api/theme",
+        "method": "GET",
+        "allow": [
+          "quan-tri-tenant-a"
+        ],
+        "deny_status": [
+          401,
+          403
+        ],
+        "must_not_contain": [
+          "TNT-B"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-04",
+      "title": "Kết quả chỉ chứa tài liệu tenant_id=TNT-A",
+      "type": "SECURITY",
+      "platform": "api",
+      "persona": "chuyen-vien-tinh-a",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-TENANCY-04",
+      "oracle_source": "Claim → NFR-TENANCY-04 (04_Thiet_ke_co_ban.md Baseline 1.4); kỳ vọng nguyên văn của ca thiết kế UAT-NFR-TENANCY-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-TENANCY-04 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Tìm kiếm văn bản hoặc vector không lọc theo tenant: top-20 chứa tài liệu của tenant B",
+      "coverage_ids": [
+        "COV-NFR-TENANCY-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-tinh-a",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: TNT-A và TNT-B mỗi bên có tài liệu \"Hồ sơ đề xuất gói thầu XL-01\" với nội dung khác nhau; embedding đã tạo\nĐầu vào: Truy vấn tìm kiếm \"gói thầu XL-01\" và truy vấn RAG \"tóm tắt hồ sơ XL-01\" bằng user TNT-A\n1. Gọi API tìm kiếm toàn văn bằng token A\n2. Gọi truy xuất vector top-k=20 bằng token A\n3. Lấy id tài liệu B và gọi GET file trực tiếp bằng token A",
+      "expected": "Kết quả chỉ chứa tài liệu tenant_id=TNT-A; top-20 không có id tài liệu B; GET file B trả 404 RESOURCE_NOT_FOUND",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Danh sách id kết quả + tenant_id, log truy vấn có điều kiện tenant",
+      "access": {
+        "url": "/api/search/documents",
+        "method": "GET",
+        "allow": [
+          "chuyen-vien-tinh-a"
+        ],
+        "deny_status": [
+          401,
+          403,
+          404
+        ],
+        "must_not_contain": [
+          "TNT-B"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-05",
+      "title": "Tệp B → 404",
+      "type": "SECURITY",
+      "platform": "api",
+      "persona": "chuyen-vien-tinh-a",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-TENANCY-05",
+      "oracle_source": "Claim → NFR-TENANCY-05 (04_Thiet_ke_co_ban.md Baseline 1.4); kỳ vọng nguyên văn của ca thiết kế UAT-NFR-TENANCY-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-TENANCY-05 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Tệp của tenant khác tải được, URL ký không hết hạn đúng 300 giây, hoặc tệp nhiễm EICAR không bị chặn",
+      "coverage_ids": [
+        "COV-NFR-TENANCY-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-tinh-a",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tệp FILE-B-001 (PDF) thuộc TNT-B ở key tenants/<TNT-B>/doc/…; user TNT-A có quyền tải tệp của tenant mình\nĐầu vào: POST /api/v1/files/{FILE-B-001}/download-url bằng token A; upload tệp EICAR test bằng token A\n1. Xin URL tải tệp B bằng token A\n2. Xin URL tải tệp hợp lệ của A, đợi 301 giây rồi tải\n3. Upload tệp chứa chuỗi EICAR rồi thử gắn vào báo cáo",
+      "expected": "Tệp B → 404; URL của A hết hạn sau 300 giây (403 từ storage); tệp EICAR có scan_status=INFECTED và lệnh gắn trả 422 VALIDATION_FAILED",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Log request + phản hồi storage + bản ghi FileObject",
+      "access": {
+        "url": "/api/files/{file_b_id}",
+        "method": "GET",
+        "allow": [
+          "chuyen-vien-tinh-b"
+        ],
+        "deny_status": [
+          404
+        ],
+        "must_not_contain": [
+          "TNT-B"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-06",
+      "title": "Tệp chứa đúng 5 dự án của Sở X",
+      "type": "SECURITY",
+      "platform": "api",
+      "persona": "chuyen-vien-so-x",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-TENANCY-06",
+      "oracle_source": "Claim → NFR-TENANCY-06 (04_Thiet_ke_co_ban.md Baseline 1.4); kỳ vọng nguyên văn của ca thiết kế UAT-NFR-TENANCY-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-TENANCY-06 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Tệp xuất ra chứa dự án ngoài phạm vi của người yêu cầu (gồm cả dự án của đơn vị khác cùng tenant)",
+      "coverage_ids": [
+        "COV-NFR-TENANCY-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-so-x",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: User u.a.ld có grant UNIT_TREE trên Sở X (5 dự án) và Ban Y (3 dự án); lịch xuất BI-12 hằng ngày đã tạo\nĐầu vào: Thu hồi grant Ban Y; chạy job xuất ngay\n1. Tạo lịch xuất dashboard giải ngân theo dự án\n2. Tenant Admin thu hồi grant Ban Y của u.a.ld\n3. Kích hoạt chạy job\n4. Đếm dự án trong tệp xuất",
+      "expected": "Tệp chứa đúng 5 dự án của Sở X; không có dự án Ban Y; audit job ghi scope_hash mới",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Tệp xuất + audit ExportJob",
+      "access": {
+        "url": "/api/bi/exports",
+        "method": "POST",
+        "allow": [
+          "chuyen-vien-so-x"
+        ],
+        "deny_status": [
+          401,
+          403
+        ],
+        "must_not_contain": [
+          "Ban Y"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-07",
+      "title": "Bước 1: 3 dòng đều tenant_id=TNT-A",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "chuyen-vien-tinh-a",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-TENANCY-07",
+      "oracle_source": "Claim → NFR-TENANCY-07 (04_Thiet_ke_co_ban.md Baseline 1.4); kỳ vọng nguyên văn của ca thiết kế UAT-NFR-TENANCY-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-TENANCY-07 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Đổi tenant giữa phiên vẫn dùng token, cache hoặc dữ liệu của tenant cũ: người dùng thấy hoặc ghi vào tenant sai",
+      "coverage_ids": [
+        "COV-NFR-TENANCY-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-tinh-a",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Thiết bị Android test; user u.multi thuộc TNT-A (Ban QLDA 1) và TNT-B; mỗi tenant có 3 báo cáo tuần; PowerSync staging\nĐầu vào: Đăng nhập TNT-A, sync; Tenant Admin A thu hồi membership Ban QLDA 1; đổi sang TNT-B\n1. Đăng nhập TNT-A, đợi sync, đọc bảng report_revision cục bộ bằng debug bridge\n2. Thu hồi membership ở server, đợi 60 giây, đọc lại DB cục bộ\n3. Tạo command nháp offline ở TNT-A rồi thử đổi tenant\n4. Hủy command, đổi sang TNT-B, kiểm DB cục bộ",
+      "expected": "Bước 1: 3 dòng đều tenant_id=TNT-A; bước 2: 0 dòng; bước 3: app chặn đổi tenant và hiển thị hàng đợi 1 mục; bước 4: tệp DB cũ đã xóa, chỉ có 3 dòng TNT-B",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": "Dump SQLite cục bộ từng bước + log PowerSync service"
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-08",
+      "title": "Workflow hợp lệ ghi đúng TNT-A",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "he-thong-workflow",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-TENANCY-08",
+      "oracle_source": "Claim → NFR-TENANCY-08 (04_Thiet_ke_co_ban.md Baseline 1.4); kỳ vọng nguyên văn của ca thiết kế UAT-NFR-TENANCY-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-TENANCY-08 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Một tác vụ nền bị sửa ngữ cảnh tenant vẫn chạy và ghi vào tenant khác",
+      "coverage_ids": [
+        "COV-NFR-TENANCY-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "he-thong-workflow",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Temporal test server; workflow ApprovalWorkflow của TNT-A cho kế hoạch vốn CAP-PLAN-A-01\nĐầu vào: Sửa trực tiếp payload activity đổi tenant_id sang TNT-B (giả lập hàng đợi bị can thiệp)\n1. Khởi chạy workflow hợp lệ, quan sát SET LOCAL trong log DB\n2. Gửi task có tenant_id bị sửa nhưng chữ ký cũ\n3. Kiểm bảng của TNT-B",
+      "expected": "Workflow hợp lệ ghi đúng TNT-A; task bị sửa bị từ chối với lỗi TENANT_CONTEXT_INVALID, không ghi dòng nào ở TNT-B, cảnh báo bảo mật phát ra",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Lịch sử workflow + log cảnh báo + diff bảng TNT-B",
+      "db_assert": {
+        "query": "SELECT count(*) AS n FROM machvon.audit_event WHERE action LIKE '%tenant_context%'",
+        "expect": {
+          "min_rows": 1
+        }
+      }
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-09",
+      "title": "User Sở NN chỉ thấy dự án Sở NN, dự án Ban QLDA GT trả 404",
+      "type": "SECURITY",
+      "platform": "api",
+      "persona": "chuyen-vien-so-nn",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-TENANCY-09",
+      "oracle_source": "Claim → NFR-TENANCY-09 (04_Thiet_ke_co_ban.md Baseline 1.4); kỳ vọng nguyên văn của ca thiết kế UAT-NFR-TENANCY-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-TENANCY-09 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Phạm vi đơn vị (scope) bị bỏ qua: người của Sở NN thấy dự án của Ban QLDA GT cùng tenant",
+      "coverage_ids": [
+        "COV-NFR-TENANCY-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "chuyen-vien-so-nn",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: TNT-A có Sở GTVT (con: Ban QLDA GT) và Sở NN; nhà thầu guest g.nt01 với hợp đồng HD-A-001; 2 hợp đồng khác HD-A-002, HD-A-003\nĐầu vào: Token của user Sở NN và token g.nt01\n1. User Sở NN gọi GET danh sách dự án và GET dự án của Ban QLDA GT\n2. g.nt01 gọi GET /contracts\n3. g.nt01 gọi GET /contracts/HD-A-002 và GET /projects",
+      "expected": "User Sở NN chỉ thấy dự án Sở NN, dự án Ban QLDA GT trả 404; g.nt01 chỉ thấy HD-A-001; HD-A-002 → 404; /projects → 403 SCOPE_DENIED",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Ma trận kết quả role × endpoint",
+      "access": {
+        "url": "/api/projects/{project_ban_qlda_gt_id}",
+        "method": "GET",
+        "allow": [
+          "chuyen-vien-ban-qlda-gt"
+        ],
+        "deny_status": [
+          404
+        ],
+        "must_not_contain": [
+          "Ban QLDA GT"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-NFR-SECURITY-04",
+      "title": "Lần 1: 200 status SUBMITTED version 5",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "nguoi-lap-bao-cao",
+      "journey_ref": "J-MONEY-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-SECURITY-04",
+      "oracle_source": "Claim → NFR-SECURITY-04 (04_Thiet_ke_co_ban.md Baseline 1.4); kỳ vọng nguyên văn của ca thiết kế UAT-NFR-SECURITY-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-SECURITY-04 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Gửi lại cùng Idempotency-Key làm sinh thêm audit hoặc outbox, hoặc cùng key với body khác không bị từ chối 409",
+      "coverage_ids": [
+        "COV-NFR-SECURITY-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-lap-bao-cao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": true
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Báo cáo tuần DIS-RPT-A-2026-W42 ở DRAFT version 4 của TNT-A\nĐầu vào: POST /api/v1/reports/{id}/submit với Idempotency-Key k-001 body {comment:\"gửi\"}; lặp lại; gửi k-001 với body {comment:\"khác\"}; gửi không header\n1. Gửi lần 1 với k-001\n2. Gửi lại y hệt k-001 sau 2 giây\n3. Gửi k-001 với body khác\n4. Gửi không Idempotency-Key\n5. Đếm audit_entry và outbox_event của báo cáo",
+      "expected": "Lần 1: 200 status SUBMITTED version 5; lần 2: cùng body phản hồi, header Idempotent-Replayed: true; body khác: 409 IDEMPOTENCY_CONFLICT; thiếu header: 400 INVALID_REQUEST; đúng 1 audit \"report.submitted\" và 1 outbox event",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Response 4 lần + truy vấn đếm audit/outbox",
+      "idempotency": {
+        "url": "/api/reports/{report_id}/submit",
+        "method": "POST",
+        "key_header": "Idempotency-Key",
+        "concurrency": 1,
+        "count_query": "SELECT count(*) FROM machvon.outbox_event WHERE aggregate_id = '{report_id}' AND type = 'dis.report.submitted.v1'",
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-NFR-SECURITY-09",
+      "title": "Mỗi vòng đúng 1 lệnh 200, 1 lệnh 409 code BALANCE_INSUFFICIENT hoặc VERSION_CONFLICT",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "can-bo-phan-bo-von",
+      "journey_ref": "J-MONEY-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-SECURITY-09",
+      "oracle_source": "Claim → NFR-SECURITY-09 (04_Thiet_ke_co_ban.md Baseline 1.4); kỳ vọng nguyên văn của ca thiết kế UAT-NFR-SECURITY-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-SECURITY-09 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Hai lệnh phân bổ đồng thời cùng thấy đủ số dư: cả hai thành công, số dư âm, tiền bị phân bổ hai lần",
+      "coverage_ids": [
+        "COV-NFR-SECURITY-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "can-bo-phan-bo-von",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": true
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Dòng vốn FS-A-2026-01 số dư khả dụng 100.000.000 VND\nĐầu vào: Hai lệnh phân bổ 100.000.000 VND với Idempotency-Key khác nhau gửi đồng thời (barrier)\n1. Chạy 2 lệnh song song 1.000 vòng (reset fixture mỗi vòng)\n2. Ghi kết quả và số dư sau mỗi vòng",
+      "expected": "Mỗi vòng đúng 1 lệnh 200, 1 lệnh 409 code BALANCE_INSUFFICIENT hoặc VERSION_CONFLICT; số dư cuối = 0; không vòng nào âm",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Bảng kết quả 1.000 vòng + truy vấn số dư",
+      "db_assert": {
+        "query": "SELECT allocated_total_vnd::text AS v FROM machvon.appropriation WHERE id = '{appropriation_id}'",
+        "expect": {
+          "value": "100000000"
+        }
+      }
+    },
+    {
+      "tc_id": "TC-UAT-NFR-SECURITY-10",
+      "title": "Trạng thái cuối DELIVERED",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "nha-cung-cap-kenh-thong-bao",
+      "journey_ref": "J-MONEY-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-SECURITY-10",
+      "oracle_source": "Claim → NFR-SECURITY-10 (04_Thiet_ke_co_ban.md Baseline 1.4); kỳ vọng nguyên văn của ca thiết kế UAT-NFR-SECURITY-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-SECURITY-10 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Biên nhận đến sai thứ tự hoặc trùng làm lùi trạng thái giao tin hoặc ghi thêm dòng lịch sử",
+      "coverage_ids": [
+        "COV-NFR-SECURITY-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nha-cung-cap-kenh-thong-bao",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": true
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Delivery DA-0001 của NOT gửi qua mock Zalo ở trạng thái ACCEPTED\nĐầu vào: Callback DELIVERED (chữ ký đúng), rồi ACCEPTED (cũ hơn), DELIVERED trùng event id, và một callback READ không chữ ký\n1. Gửi DELIVERED\n2. Gửi ACCEPTED có timestamp cũ hơn\n3. Gửi lại DELIVERED cùng event id\n4. Gửi READ thiếu chữ ký",
+      "expected": "Trạng thái cuối DELIVERED; ACCEPTED bị bỏ qua có log; bản trùng không tạo dòng lịch sử mới; READ không chữ ký trả 401 và không đổi trạng thái",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Lịch sử DeliveryAttempt + inbox_record",
+      "db_assert": {
+        "query": "SELECT status FROM machvon.delivery_attempt WHERE id = '{attempt_id}'",
+        "expect": {
+          "value": "Delivered"
+        }
+      },
+      "transition": {
+        "from": "DELIVERED",
+        "to": "ACCEPTED",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-NFR-AVAILABILITY-02",
+      "title": "Khoảng mất dữ liệu ≤ 15 phút theo sequence",
+      "type": "RECOVERY",
+      "platform": "api",
+      "persona": "van-hanh-ha-tang",
+      "journey_ref": "J-RESTORE-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-AVAILABILITY-02",
+      "oracle_source": "Claim → NFR-AVAILABILITY-02 (04_Thiet_ke_co_ban.md Baseline 1.4); kỳ vọng nguyên văn của ca thiết kế UAT-NFR-AVAILABILITY-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-AVAILABILITY-02 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Khôi phục sau sự cố mất quá 15 phút dữ liệu hoặc quá 4 giờ dịch vụ: RPO/RTO cam kết không đạt",
+      "coverage_ids": [
+        "COV-NFR-AVAILABILITY-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-hanh-ha-tang",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Môi trường dr cách ly; staging đang chạy tải ghi liên tục (1 command/giây có sequence number)\nĐầu vào: Tắt site chính tại thời điểm T0\n1. Ghi sequence cuối đã commit trước T0\n2. Kích hoạt runbook DR, khôi phục DB từ backup + WAL và object storage\n3. Ghi thời điểm dịch vụ trả lời health + smoke test\n4. So sequence cuối trên bản khôi phục",
+      "expected": "Khoảng mất dữ liệu ≤ 15 phút theo sequence; dịch vụ phục hồi ≤ 4 giờ từ T0; smoke test đạt",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Biên bản DR có mốc thời gian + truy vấn sequence"
+    },
+    {
+      "tc_id": "TC-UAT-NFR-AVAILABILITY-03",
+      "title": "Tổng giải ngân 12.345.000.000 VND khớp",
+      "type": "RECOVERY",
+      "platform": "api",
+      "persona": "van-hanh-ha-tang",
+      "journey_ref": "J-RESTORE-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-AVAILABILITY-03",
+      "oracle_source": "Claim → NFR-AVAILABILITY-03 (04_Thiet_ke_co_ban.md Baseline 1.4); kỳ vọng nguyên văn của ca thiết kế UAT-NFR-AVAILABILITY-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-AVAILABILITY-03 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Bản khôi phục lệch tổng giải ngân, số dòng hoặc còn tham chiếu tệp treo: dữ liệu tài chính sai sau restore",
+      "coverage_ids": [
+        "COV-NFR-AVAILABILITY-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-hanh-ha-tang",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Bản sao lưu staging có TNT-A (tổng giải ngân 12.345.000.000 VND) và TNT-B\nĐầu vào: Yêu cầu khôi phục TNT-A về thời điểm T-1 ngày\n1. Dựng bản sao cách ly từ backup T-1\n2. Trích dữ liệu TNT-A theo runbook\n3. So checksum, số dòng mỗi bảng, tổng giải ngân, tham chiếu file\n4. Đếm dòng tenant khác trong gói trích",
+      "expected": "Tổng giải ngân 12.345.000.000 VND khớp; số dòng khớp báo cáo backup; 0 tham chiếu file treo; 0 dòng TNT-B",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Biên bản diễn tập + báo cáo so sánh"
+    },
+    {
+      "tc_id": "TC-UAT-NFR-OPERABILITY-03",
+      "title": "App cũ gửi thành công",
+      "type": "RECOVERY",
+      "platform": "api",
+      "persona": "van-hanh-ha-tang",
+      "journey_ref": "J-RESTORE-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "NFR-OPERABILITY-03",
+      "oracle_source": "Claim → NFR-OPERABILITY-03 (04_Thiet_ke_co_ban.md Baseline 1.4); kỳ vọng nguyên văn của ca thiết kế UAT-NFR-OPERABILITY-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu NFR-OPERABILITY-03 (Design/MACHVON_Design/03_Engineering/nonfunctional_requirements.json)",
+      "catches_bug": "Rollback phiên bản làm mất dữ liệu đã nhận hoặc làm rơi event của outbox",
+      "coverage_ids": [
+        "COV-NFR-OPERABILITY-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "van-hanh-ha-tang",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Staging chạy API v1.4.0 và app mobile v1.3.x; migration v1.4.1 thêm cột mới (expand)\nĐầu vào: Triển khai v1.4.1 rồi rollback về v1.4.0 khi đang có 100 event trong outbox\n1. Áp migration expand + deploy v1.4.1\n2. App v1.3.x gửi báo cáo\n3. Rollback ứng dụng về v1.4.0\n4. Kiểm outbox và dữ liệu đã ghi",
+      "expected": "App cũ gửi thành công; rollback ≤ 15 phút; 100 event đều được giao; dữ liệu ghi bởi v1.4.1 vẫn đọc được bởi v1.4.0",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": "Log triển khai + truy vấn outbox"
+    }
+  ],
+  "data_fixtures": [],
+  "tc_min": {
+    "M1": 21,
+    "M2": 0,
+    "M3": 0,
+    "M4": 120,
+    "max": 120,
+    "computed_by": "coverage_calc.py",
+    "coverage_pct": 100.0,
+    "items": 21,
+    "covered": 21,
+    "missing_inputs": [],
+    "status": "ĐỦ ENSEMBLE"
+  }
+}
