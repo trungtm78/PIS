@@ -151,6 +151,9 @@ class FakeEmbeddedPostgres {
 
   static failConnect = false;
 
+  /** How many of the next starts never answer (the server process died before it said it was ready). */
+  static hangStarts = 0;
+
   constructor(options) {
     this.options = options;
     this.events = [];
@@ -163,6 +166,10 @@ class FakeEmbeddedPostgres {
 
   async start() {
     this.events.push('start');
+    if (FakeEmbeddedPostgres.hangStarts > 0) {
+      FakeEmbeddedPostgres.hangStarts -= 1;
+      await new Promise(() => {});
+    }
   }
 
   async stop() {
@@ -210,6 +217,34 @@ test('startDatabase stops the server when the client cannot connect', async () =
     assert.deepEqual(FakeEmbeddedPostgres.instances.at(-1).events, ['initialise', 'start', 'connect', 'stop']);
   } finally {
     FakeEmbeddedPostgres.failConnect = false;
+  }
+});
+
+test('startDatabase gives up on a server that never says it is ready, stops it, and starts another in a directory of its own', async () => {
+  FakeEmbeddedPostgres.hangStarts = 1;
+  try {
+    const before = FakeEmbeddedPostgres.instances.length;
+    const database = await startDatabase({ EmbeddedPostgres: FakeEmbeddedPostgres, startTimeoutMs: 30 });
+    const [hung, started] = FakeEmbeddedPostgres.instances.slice(before);
+    assert.deepEqual(hung.events, ['initialise', 'start', 'stop']);
+    assert.deepEqual(started.events, ['initialise', 'start', 'connect']);
+    assert.notEqual(hung.options.databaseDir, started.options.databaseDir);
+    assert.notEqual(hung.options.port, started.options.port);
+    await database.close();
+  } finally {
+    FakeEmbeddedPostgres.hangStarts = 0;
+  }
+});
+
+test('startDatabase fails with the reason when every attempt hangs, and does not wait for a server that cannot be stopped', async () => {
+  FakeEmbeddedPostgres.hangStarts = 2;
+  const stuckStop = FakeEmbeddedPostgres.prototype.stop;
+  FakeEmbeddedPostgres.prototype.stop = () => new Promise(() => {});
+  try {
+    await assert.rejects(startDatabase({ EmbeddedPostgres: FakeEmbeddedPostgres, startTimeoutMs: 20, stopTimeoutMs: 20 }), /did not become ready within 20 ms \(2 attempts\)/);
+  } finally {
+    FakeEmbeddedPostgres.prototype.stop = stuckStop;
+    FakeEmbeddedPostgres.hangStarts = 0;
   }
 });
 

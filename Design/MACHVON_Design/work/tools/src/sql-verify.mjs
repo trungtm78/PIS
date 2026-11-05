@@ -80,41 +80,73 @@ function freePort() {
   });
 }
 
-// Starts a throwaway cluster in a temporary directory (embedded-postgres removes it on stop).
-export async function startDatabase({ EmbeddedPostgres, directory, port } = {}) {
-  const Server = EmbeddedPostgres ?? (await import('embedded-postgres')).default;
-  const log = [];
-  const server = new Server({
-    databaseDir: directory ?? (await mkdtemp(join(tmpdir(), 'machvon-sql-verify-'))),
-    port: port ?? (await freePort()),
-    user: 'postgres',
-    password: 'verify',
-    persistent: false,
-    initdbFlags: INITDB_FLAGS,
-    onLog: (line) => log.push(String(line)),
-    onError: (line) => log.push(String(line)),
+/** Rejects when `promise` has not settled within `ms`; the work behind it is not cancelled (a server that never answers cannot be). */
+function within(promise, ms) {
+  let timer;
+  const late = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error('timeout')), ms);
   });
-  await server.initialise();
-  await server.start();
-  const client = server.getPgClient();
-  try {
-    await client.connect();
-  } catch (error) {
-    await server.stop();
-    throw error;
+  return Promise.race([promise, late]).finally(() => clearTimeout(timer));
+}
+
+const START_TIMEOUT_MS = 120_000;
+const STOP_TIMEOUT_MS = 10_000;
+const START_ATTEMPTS = 2;
+
+// Starts a throwaway cluster in a temporary directory (embedded-postgres removes it on stop). The embedded server reports that it is ready on its log,
+// so a server process that dies before it does leaves the start waiting for ever: an attempt that is not ready in time is stopped (without waiting
+// for a stop that may not come either) and the next one gets a directory and a port of its own.
+export async function startDatabase({ EmbeddedPostgres, directory, port, startTimeoutMs = START_TIMEOUT_MS, stopTimeoutMs = STOP_TIMEOUT_MS, attempts = START_ATTEMPTS } = {}) {
+  const Server = EmbeddedPostgres ?? (await import('embedded-postgres')).default;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const log = [];
+    const server = new Server({
+      databaseDir: directory ?? (await mkdtemp(join(tmpdir(), 'machvon-sql-verify-'))),
+      port: port ?? (await freePort()),
+      user: 'postgres',
+      password: 'verify',
+      persistent: false,
+      initdbFlags: INITDB_FLAGS,
+      onLog: (line) => log.push(String(line)),
+      onError: (line) => log.push(String(line)),
+    });
+    try {
+      await within(
+        (async () => {
+          await server.initialise();
+          await server.start();
+        })(),
+        startTimeoutMs,
+      );
+    } catch (error) {
+      if (error.message !== 'timeout') throw error;
+      await within(Promise.resolve(server.stop()), stopTimeoutMs).catch(() => undefined);
+      if (attempt === attempts) throw new Error(`the embedded PostgreSQL did not become ready within ${startTimeoutMs} ms (${attempts} attempts)`);
+      directory = undefined;
+      port = undefined;
+      continue;
+    }
+    const client = server.getPgClient();
+    try {
+      await client.connect();
+    } catch (error) {
+      await server.stop();
+      throw error;
+    }
+    return {
+      async query(text) {
+        return (await client.query(text)).rows;
+      },
+      async close() {
+        try {
+          await client.end();
+        } finally {
+          await server.stop();
+        }
+      },
+    };
   }
-  return {
-    async query(text) {
-      return (await client.query(text)).rows;
-    },
-    async close() {
-      try {
-        await client.end();
-      } finally {
-        await server.stop();
-      }
-    },
-  };
+  throw new Error('the embedded PostgreSQL was not started');
 }
 
 function executionProblem(error, sql) {
