@@ -123,7 +123,27 @@ describe('E2eIdentityProvider', () => {
     expect((await authorize({ login_hint: 'nobody', code_challenge: 'x' })).status).toBe(400);
   });
 
-  it('refuses any grant type other than the authorization code', async () => {
+  it('renews a session with a refresh token that is rotated: same person and session id, a new token, the old one is dead', async () => {
+    const { code, verifier } = await login('auditor', { acr_values: 'aal2' });
+    const first = (await (await exchange(code, verifier)).json()) as { id_token: string; refresh_token: string };
+    expect(first.refresh_token).toBeTruthy();
+
+    const renewed = await token({ grant_type: 'refresh_token', refresh_token: first.refresh_token, client_id: CLIENT });
+    expect(renewed.status).toBe(200);
+    const second = (await renewed.json()) as { id_token: string; refresh_token: string };
+    expect(second.refresh_token).not.toBe(first.refresh_token);
+    const before = claimsOf(first.id_token);
+    const after = claimsOf(second.id_token);
+    expect([after.sub, after.sid, after.acr, after.aud, after.iss]).toEqual([before.sub, before.sid, 'aal2', CLIENT, idp.issuer]);
+    expect(after.nonce).toBeUndefined();
+
+    expect((await token({ grant_type: 'refresh_token', refresh_token: first.refresh_token, client_id: CLIENT })).status).toBe(400);
+    // a refusal for the client burns the token too: a refresh token gets one try
+    expect((await token({ grant_type: 'refresh_token', refresh_token: second.refresh_token, client_id: 'someone-else' })).status).toBe(400);
+    expect((await token({ grant_type: 'refresh_token', refresh_token: second.refresh_token, client_id: CLIENT })).status).toBe(400);
+  });
+
+  it('refuses any grant type other than the authorization code and the refresh token', async () => {
     expect((await token({ grant_type: 'password', username: 'a', password: 'b' })).status).toBe(400);
   });
 });

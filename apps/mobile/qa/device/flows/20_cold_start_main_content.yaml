@@ -1,4 +1,5 @@
-# STATUS: NOT RUN. Written on a host with no device; nobody has run this flow on a phone.
+# STATUS: RUN ON AN EMULATOR ONLY (AVD guide, Android 15, software graphics, debug build, 2026-11-06): 3 samples out of 3 were NOT within 2.5 s. That says nothing about a
+# phone (a debug build on a software renderer is far slower than a release build on a phone): the verdict stays NOT RUN until the matrix devices run it.
 # Supports: AC-ST-MOB-040-2 / UAT-NFR-PERFORMANCE-02, the 2.5 s budget of the main content after a cold start.
 # One run of this flow is ONE sample: it fails when the loaded content of the home screen is not visible within the budget, so a pass says "this sample
 # was within 2.5 s as seen by Maestro" (the polling of Maestro adds up to a few hundred ms: the verdict is made from the

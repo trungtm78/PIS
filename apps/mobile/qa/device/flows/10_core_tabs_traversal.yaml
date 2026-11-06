@@ -1,4 +1,6 @@
-# STATUS: NOT RUN. Written on a host with no device; nobody has run this flow on a phone.
+# STATUS: RUN ON AN EMULATOR ONLY (AVD guide, Android 15, debug build, 2026-11-06): passed, the five tabs are reached by name. NOT RUN on a phone of
+# the pilot device matrix and not with TalkBack or the 200 percent font, so it proves nothing yet for UAT-NFR-ACCESSIBILITY-02. The shot of the approvals tab is black on
+# purpose: the screen is secure (kSecureScreenIds) and Android refuses to capture it. A tab is matched with a regex because its name carries "Tab 2 trong tổng số 5".
 # Supports: AC-ST-MOB-040-1 / UAT-NFR-ACCESSIBILITY-02 (every tab reachable and named, with the system font at 200 percent and with
 # TalkBack or VoiceOver switched on by the tester: see docs/mobile-device-matrix.md, section "Accessibility run").
 # Needs: a build installed on the device, a signed-in session of a seeded tenant (run 05_sign_in.yaml first), Vietnamese interface.
@@ -6,17 +8,17 @@
 appId: vn.machvon.app
 ---
 - launchApp
-- assertVisible: 'Trang chủ'
-- takeScreenshot: results/${DEVICE}/10_home
-- tapOn: 'Dự án'
-- assertVisible: 'Dự án'
-- takeScreenshot: results/${DEVICE}/10_projects
-- tapOn: 'Phê duyệt'
-- assertVisible: 'Phê duyệt'
-- takeScreenshot: results/${DEVICE}/10_approval
-- tapOn: 'Thông báo'
-- assertVisible: 'Thông báo'
-- takeScreenshot: results/${DEVICE}/10_inbox
-- tapOn: 'Cá nhân'
-- assertVisible: 'Cá nhân'
-- takeScreenshot: results/${DEVICE}/10_account
+- assertVisible: 'Trang chủ.*'
+- takeScreenshot: 10_home
+- tapOn: 'Dự án.*'
+- assertVisible: 'Dự án.*'
+- takeScreenshot: 10_projects
+- tapOn: 'Phê duyệt.*'
+- assertVisible: 'Phê duyệt.*'
+- takeScreenshot: 10_approval
+- tapOn: 'Thông báo.*'
+- assertVisible: 'Thông báo.*'
+- takeScreenshot: 10_inbox
+- tapOn: 'Cá nhân.*'
+- assertVisible: 'Cá nhân.*'
+- takeScreenshot: 10_account

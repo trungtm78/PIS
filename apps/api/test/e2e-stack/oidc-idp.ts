@@ -28,6 +28,14 @@ interface IssuedCode {
   acr: 'aal1' | 'aal2';
 }
 
+/** What a refresh token stands for: the person, the client and the level of the sign-in, and the session id the identity tokens of it carry. */
+interface IdpSession {
+  user: IdpUser;
+  clientId: string;
+  acr: 'aal1' | 'aal2';
+  sid: string;
+}
+
 const REALM = '/realms/machvon';
 const OIDC = `${REALM}/protocol/openid-connect`;
 const ID_TOKEN_SECONDS = 600;
@@ -47,6 +55,7 @@ export class E2eIdentityProvider {
   readonly issuer: string;
   private readonly key: ProviderKey = newKey('RS256');
   private readonly codes = new Map<string, IssuedCode>();
+  private readonly sessions = new Map<string, IdpSession>();
 
   private constructor(
     private readonly server: Server,
@@ -129,7 +138,9 @@ export class E2eIdentityProvider {
     const chunks: Buffer[] = [];
     for await (const chunk of request) chunks.push(chunk as Buffer);
     const form = new URLSearchParams(Buffer.concat(chunks).toString('utf8'));
-    if (form.get('grant_type') !== 'authorization_code') return this.refuse(response, 'unsupported_grant_type');
+    const grant = form.get('grant_type');
+    if (grant === 'refresh_token') return this.refresh(form, response);
+    if (grant !== 'authorization_code') return this.refuse(response, 'unsupported_grant_type');
     // A code is burnt by its first use, whatever the outcome: a guessed verifier gets one try.
     const issued = this.codes.get(form.get('code') ?? '');
     this.codes.delete(form.get('code') ?? '');
@@ -138,21 +149,36 @@ export class E2eIdentityProvider {
     if (issued === undefined || form.get('client_id') !== issued.clientId || form.get('redirect_uri') !== issued.redirectUri || challenge !== issued.challenge) {
       return this.refuse(response, 'invalid_grant');
     }
+    this.issue(response, { user: issued.user, clientId: issued.clientId, acr: issued.acr, sid: randomUUID() }, issued.nonce);
+  }
+
+  /** The refresh grant of a native client: the token is rotated, so the one that was used is dead and a second use of it is refused. */
+  private refresh(form: URLSearchParams, response: ServerResponse): void {
+    const token = form.get('refresh_token') ?? '';
+    const session = this.sessions.get(token);
+    this.sessions.delete(token);
+    if (session === undefined || form.get('client_id') !== session.clientId) return this.refuse(response, 'invalid_grant');
+    this.issue(response, session, null);
+  }
+
+  private issue(response: ServerResponse, session: IdpSession, nonce: string | null): void {
     const now = Math.floor(Date.now() / 1000);
     const idToken = signJwt(this.key, {
       iss: this.issuer,
-      aud: issued.clientId,
-      sub: issued.user.subject,
-      sid: randomUUID(),
-      name: issued.user.name,
-      email: `${issued.user.key}@example.test`,
-      nonce: issued.nonce,
+      aud: session.clientId,
+      sub: session.user.subject,
+      sid: session.sid,
+      name: session.user.name,
+      email: `${session.user.key}@example.test`,
+      ...(nonce === null ? {} : { nonce }),
       iat: now,
       auth_time: now,
       exp: now + ID_TOKEN_SECONDS,
-      acr: issued.acr,
-      amr: issued.acr === 'aal2' ? ['pwd', 'otp'] : ['pwd'],
+      acr: session.acr,
+      amr: session.acr === 'aal2' ? ['pwd', 'otp'] : ['pwd'],
     });
-    this.json(response, 200, { id_token: idToken, token_type: 'Bearer', expires_in: ID_TOKEN_SECONDS });
+    const refreshToken = randomUUID();
+    this.sessions.set(refreshToken, session);
+    this.json(response, 200, { id_token: idToken, refresh_token: refreshToken, token_type: 'Bearer', expires_in: ID_TOKEN_SECONDS });
   }
 }

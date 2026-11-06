@@ -1,0 +1,41 @@
+# Sign-in against the test identity provider of the e2e stack (apps/api/test/e2e-stack), the way a tester runs it on the emulator.
+# Supports: MOB-02 sign-in, MOB-03 choice of unit, MOB-04 second factor, MOB-07 home (AC-ST-MOB-040-1). It replaces 05_sign_in.yaml
+# only where the provider is the test one: that one signs the first fixture person in at once (no page, no password) and grants
+# the second factor when the application asks for it; a real provider shows its own page (05_sign_in.yaml).
+# Needs: the APK built with MACHVON_API_BASE_URL=http://127.0.0.1:3999, MACHVON_OIDC_ISSUER=http://127.0.0.1:3998/realms/machvon,
+# MACHVON_OIDC_CLIENT_ID=machvon-web; the stack started with E2E_API_PORT=3999 E2E_IDP_PORT=3998 (npm run e2e:stack -w @machvon/api);
+# adb reverse tcp:3999 tcp:3999 and tcp:3998 tcp:3998; the application language set to Vietnamese:
+#   adb shell cmd locale set-app-locales vn.machvon.app --locales vi-VN     (clearState would reset it: use adb shell pm clear first)
+appId: vn.machvon.app
+---
+- launchApp
+- extendedWaitUntil:
+    visible: 'Đăng nhập bằng SSO'
+    timeout: 20000
+- tapOn: 'Đăng nhập bằng SSO'
+# The first start of the system browser asks about an account and about notifications: not part of the application.
+- runFlow:
+    when:
+      visible: 'Use without an account'
+    commands:
+      - tapOn: 'Use without an account'
+- runFlow:
+    when:
+      visible: 'No thanks'
+    commands:
+      - tapOn: 'No thanks'
+- extendedWaitUntil:
+    visible: 'Chọn đơn vị và vai trò'
+    timeout: 30000
+- takeScreenshot: mob03_choose_unit
+- tapOn: 'Cao Bằng.*'
+- tapOn: 'Tiếp tục'
+- extendedWaitUntil:
+    visible: 'Xác thực hai yếu tố'
+    timeout: 30000
+- takeScreenshot: mob04_second_factor
+- tapOn: 'Xác thực trong trình duyệt'
+- extendedWaitUntil:
+    visible: 'Trang chủ lãnh đạo'
+    timeout: 30000
+- takeScreenshot: mob07_home
