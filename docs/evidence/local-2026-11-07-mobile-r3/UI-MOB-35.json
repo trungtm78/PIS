@@ -1,0 +1,78 @@
+{
+  "id": "UI-MOB-35",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-35 hộp hội thoại",
+      "status": "passed",
+      "durationMs": 10186,
+      "at": "2026-11-06T04:55:29.157Z",
+      "requests": [
+        {
+          "id": "0d597b5c-5890-4367-9ad7-d7a102e1f176",
+          "method": "GET",
+          "path": "/resources/conversation",
+          "status": 200,
+          "at": "2026-11-06T04:55:29.291Z"
+        }
+      ]
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-35 Hộp hội thoại (MOB-35): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 10815,
+      "at": "2026-11-06T18:04:41.000Z",
+      "requests": [
+        {
+          "id": "74a6a0bb-e3da-450b-9dd4-7b8b0d0da7d5",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:04:46.119Z"
+        },
+        {
+          "id": "8771d935-7d5d-49d9-9383-8732d2b7deb3",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T18:04:46.141Z"
+        },
+        {
+          "id": "1ab83c4d-a0d4-4794-aad4-649a46d512a0",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-06T18:04:46.217Z"
+        },
+        {
+          "id": "035952d4-2c02-43b1-9e62-a78f50e6e7bc",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-06T18:04:46.216Z"
+        },
+        {
+          "id": "e74fc541-f780-44ea-80b9-7948b5c5eff9",
+          "method": "GET",
+          "path": "/me/notifications",
+          "status": 200,
+          "at": "2026-11-06T18:04:48.713Z"
+        },
+        {
+          "id": "e1ec80b1-be7f-4c02-9dc4-781d359b00f7",
+          "method": "GET",
+          "path": "/resources/conversation",
+          "status": 200,
+          "at": "2026-11-06T18:04:50.870Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "UI-MOB-34",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-34 cài đặt thông báo",
+      "status": "passed",
+      "durationMs": 10016,
+      "at": "2026-11-06T04:55:48.910Z",
+      "requests": [
+        {
+          "id": "8f43e15e-689e-41f9-a78b-d1a03091d157",
+          "method": "GET",
+          "path": "/me/notification-preferences",
+          "status": 200,
+          "at": "2026-11-06T04:55:49.018Z"
+        }
+      ]
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-34 Cài đặt thông báo (MOB-34): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 10982,
+      "at": "2026-11-06T18:04:52.000Z",
+      "requests": [
+        {
+          "id": "1dc69ef7-b7fb-40bd-ad96-1cf8cce50a7b",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:04:57.023Z"
+        },
+        {
+          "id": "5eb49961-b76c-4045-a427-3292be2930b6",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T18:04:57.033Z"
+        },
+        {
+          "id": "723f47e9-a24f-4f26-a921-e3882964dfd7",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-06T18:04:57.093Z"
+        },
+        {
+          "id": "8d79e80e-ae45-4ea8-8566-0eb3486cfcd1",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-06T18:04:57.094Z"
+        },
+        {
+          "id": "1a8a94f8-5f02-4e31-843a-64e5bb935acb",
+          "method": "GET",
+          "path": "/me/notifications",
+          "status": 200,
+          "at": "2026-11-06T18:04:59.628Z"
+        },
+        {
+          "id": "3bec2eb6-8da9-40bf-b547-b0803bb179b3",
+          "method": "GET",
+          "path": "/me/notification-preferences",
+          "status": 200,
+          "at": "2026-11-06T18:05:01.953Z"
+        }
+      ]
+    }
+  ]
+}

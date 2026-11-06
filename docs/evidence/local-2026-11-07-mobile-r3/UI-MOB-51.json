@@ -1,0 +1,70 @@
+{
+  "id": "UI-MOB-51",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-51 tìm kiếm trên điện thoại",
+      "status": "passed",
+      "durationMs": 9858,
+      "at": "2026-11-06T05:02:55.558Z",
+      "requests": []
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-51 Tìm kiếm trên điện thoại (MOB-51): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 10968,
+      "at": "2026-11-06T18:05:55.000Z",
+      "requests": [
+        {
+          "id": "e195dff3-9174-4558-a2e4-557dedb8c19e",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:05:59.744Z"
+        },
+        {
+          "id": "3fcb6114-13b6-451b-8a4b-096206862f76",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T18:05:59.834Z"
+        },
+        {
+          "id": "bb78e75f-10a8-40d3-8a2c-0f2f31c3ba6b",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-06T18:05:59.905Z"
+        },
+        {
+          "id": "87878766-ca24-408a-a633-9b834a37843f",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-06T18:05:59.942Z"
+        },
+        {
+          "id": "faf9268b-6bdb-42a5-a114-70be77ac695d",
+          "method": "GET",
+          "path": "/me/session/tenant-selection/candidates",
+          "status": 200,
+          "at": "2026-11-06T18:06:02.361Z"
+        },
+        {
+          "id": "043fcbef-80da-4ff0-81cf-ca9ae4c6f60a",
+          "method": "GET",
+          "path": "/me/profile",
+          "status": 200,
+          "at": "2026-11-06T18:06:02.360Z"
+        }
+      ]
+    }
+  ]
+}

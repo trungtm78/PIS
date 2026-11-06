@@ -1,0 +1,5 @@
+## Kết quả UAT (uat-test-runner)
+VERDICT: NO-GO
+TỔNG: 25 | ĐẠT: 25 | HỎNG: 0 | BỎ QUA: 0 | CHẬP CHỜN: 0 | HEAL: 9
+KHUYẾT PHÉP ĐO: G0 (Entry), G4 (Defect budget), G6 (Non-functional), G7 (Sign-off record) — không đo được nên KHÔNG được coi là đạt; cần người xác nhận.
+CỔNG: G0=KHÔNG ĐO ĐƯỢC · G1=KHÔNG ÁP · G2=HỎNG · G3=HỎNG · G4=CẦN NGƯỜI · G5=KHÔNG ÁP · G6=KHÔNG ĐO ĐƯỢC · G7=CẦN NGƯỜI

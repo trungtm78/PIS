@@ -1,0 +1,70 @@
+{
+  "id": "UI-MOB-05",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-05 xin quyền thông báo",
+      "status": "passed",
+      "durationMs": 10095,
+      "at": "2026-11-06T05:06:29.508Z",
+      "requests": []
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-05 Xin quyền thông báo (MOB-05): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 11002,
+      "at": "2026-11-06T18:05:03.000Z",
+      "requests": [
+        {
+          "id": "cd8c75e1-88cc-408b-adfc-663c37f4dafb",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:05:06.445Z"
+        },
+        {
+          "id": "4c00f5c6-da64-4fcc-b8a0-2e3222a85d90",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T18:05:06.541Z"
+        },
+        {
+          "id": "b649be4e-00f7-46a9-a9b3-0c27f45cc7ee",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-06T18:05:06.615Z"
+        },
+        {
+          "id": "b889a312-7c02-43a1-9801-afa7c0106ab9",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-06T18:05:06.611Z"
+        },
+        {
+          "id": "f9948071-e926-4471-a2c5-caf43bc85ee4",
+          "method": "GET",
+          "path": "/me/profile",
+          "status": 200,
+          "at": "2026-11-06T18:05:09.220Z"
+        },
+        {
+          "id": "2ae0439e-2df5-4daf-b5a6-de8af791ba96",
+          "method": "GET",
+          "path": "/me/session/tenant-selection/candidates",
+          "status": 200,
+          "at": "2026-11-06T18:05:09.223Z"
+        }
+      ]
+    }
+  ]
+}

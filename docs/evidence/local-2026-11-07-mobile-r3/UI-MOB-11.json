@@ -1,0 +1,120 @@
+{
+  "id": "UI-MOB-11",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-11 bản đồ hiện trường",
+      "status": "passed",
+      "durationMs": 10637,
+      "at": "2026-11-06T04:49:33.703Z",
+      "requests": [
+        {
+          "id": "cd80d632-0cd5-4302-92d6-8f9c9975bf32",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-06T04:49:33.800Z"
+        },
+        {
+          "id": "62b7ec4a-57a7-4224-a276-683092b27472",
+          "method": "GET",
+          "path": "/resources/project/00000000-0000-4000-0050-000000000001",
+          "status": 200,
+          "at": "2026-11-06T04:49:33.844Z"
+        },
+        {
+          "id": "b661f698-59a8-4328-b1fc-4528c209458d",
+          "method": "GET",
+          "path": "/resources/project/00000000-0000-4000-005b-000000000002",
+          "status": 200,
+          "at": "2026-11-06T04:49:33.858Z"
+        },
+        {
+          "id": "7d4adcde-ae42-4d9b-9305-3ff00c304390",
+          "method": "GET",
+          "path": "/resources/project/00000000-0000-4000-005e-000000000001",
+          "status": 200,
+          "at": "2026-11-06T04:49:33.861Z"
+        }
+      ]
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-11 Bản đồ hiện trường (MOB-11): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 10923,
+      "at": "2026-11-06T18:03:30.000Z",
+      "requests": [
+        {
+          "id": "89fcc439-e4ff-4db9-87a7-479700ea36d9",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:03:34.654Z"
+        },
+        {
+          "id": "ffb7a0bc-ce18-48e0-a951-13cb45126e35",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T18:03:34.747Z"
+        },
+        {
+          "id": "9ece4258-82c7-4b40-be2a-ba3bc3edddb1",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-06T18:03:34.793Z"
+        },
+        {
+          "id": "32c5991b-5fb5-4579-aa43-5a705c41b543",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-06T18:03:34.827Z"
+        },
+        {
+          "id": "befeb1b2-e868-4c5a-9ecf-b899e03e6e2f",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-06T18:03:37.248Z"
+        },
+        {
+          "id": "3b05740f-9382-4734-aee2-1ae8e6146443",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-06T18:03:39.546Z"
+        },
+        {
+          "id": "754803d4-e45f-4d15-bdd5-8657cbbdefec",
+          "method": "GET",
+          "path": "/resources/project/00000000-0000-4000-0050-000000000001",
+          "status": 200,
+          "at": "2026-11-06T18:03:39.557Z"
+        },
+        {
+          "id": "21aa5aae-a212-4375-afe5-e8d2c25ea760",
+          "method": "GET",
+          "path": "/resources/project/00000000-0000-4000-005b-000000000002",
+          "status": 200,
+          "at": "2026-11-06T18:03:39.558Z"
+        },
+        {
+          "id": "90696421-f7e9-496c-ab08-6bcd2c789cc9",
+          "method": "GET",
+          "path": "/resources/project/00000000-0000-4000-005e-000000000001",
+          "status": 200,
+          "at": "2026-11-06T18:03:39.578Z"
+        }
+      ]
+    }
+  ]
+}

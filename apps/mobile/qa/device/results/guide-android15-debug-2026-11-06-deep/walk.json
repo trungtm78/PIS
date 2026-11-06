@@ -502,8 +502,8 @@
       "screenshot": "screens/MOB-50.png"
     },
     {
-      "id": "MOB-34",
-      "title": "cài đặt thông báo",
+      "id": "MOB-05",
+      "title": "xin quyền thông báo",
       "heading": "Thông báo đẩy",
       "via": "Thông báo đẩy",
       "at": "2026-11-06T05:06:29.508Z",
@@ -516,5 +516,5 @@
       "screenshot": "screens/MOB-34.png"
     }
   ],
-  "journal": 24
+  "journal": 25
 }

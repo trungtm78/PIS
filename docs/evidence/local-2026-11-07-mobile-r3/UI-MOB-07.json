@@ -1,0 +1,56 @@
+{
+  "id": "UI-MOB-07",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-07 trang chủ lãnh đạo",
+      "status": "passed",
+      "durationMs": 10156,
+      "at": "2026-11-06T04:45:54.708Z",
+      "requests": []
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-07 Trang chủ lãnh đạo (MOB-07): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 6030,
+      "at": "2026-11-06T18:02:34.000Z",
+      "requests": [
+        {
+          "id": "41cb6600-6478-4132-9c5d-952266d77439",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:02:39.308Z"
+        },
+        {
+          "id": "c1723be0-2e01-4711-9b93-9bc25f673347",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T18:02:39.401Z"
+        },
+        {
+          "id": "e595932e-34c7-4200-b166-ce415e64c013",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-06T18:02:39.454Z"
+        },
+        {
+          "id": "0d99757a-0520-4818-98bf-a627b40c1539",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-06T18:02:39.451Z"
+        }
+      ]
+    }
+  ]
+}

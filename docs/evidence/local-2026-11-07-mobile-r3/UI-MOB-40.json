@@ -1,0 +1,71 @@
+{
+  "id": "UI-MOB-40",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-40 dashboard bi cá nhân",
+      "status": "passed",
+      "durationMs": 10095,
+      "at": "2026-11-06T04:47:34.914Z",
+      "requests": [
+        {
+          "id": "70967516-20ce-4f58-8ef6-bd00d339614c",
+          "method": "GET",
+          "path": "/bi/dashboards",
+          "status": 200,
+          "at": "2026-11-06T04:47:35.124Z"
+        }
+      ]
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-40 Dashboard BI cá nhân (MOB-40): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 13926,
+      "at": "2026-11-06T18:02:52.000Z",
+      "requests": [
+        {
+          "id": "7c92881d-56d2-4e05-a0e5-aba44ce0f18d",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:02:57.575Z"
+        },
+        {
+          "id": "864f0808-02fd-4af9-9117-8ea44664153d",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T18:02:57.671Z"
+        },
+        {
+          "id": "08fa5daa-e0fb-4fc2-9546-1c547131ffd2",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-06T18:02:57.741Z"
+        },
+        {
+          "id": "910c540a-4975-4cf5-9636-a64e788fe23d",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-06T18:02:57.742Z"
+        },
+        {
+          "id": "e389a2a6-7a66-47d8-a4a5-910d81b6fc37",
+          "method": "GET",
+          "path": "/bi/dashboards",
+          "status": 200,
+          "at": "2026-11-06T18:03:05.535Z"
+        }
+      ]
+    }
+  ]
+}

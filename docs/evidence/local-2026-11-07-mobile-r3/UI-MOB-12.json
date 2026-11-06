@@ -1,0 +1,85 @@
+{
+  "id": "UI-MOB-12",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-12 kế hoạch vốn",
+      "status": "passed",
+      "durationMs": 10090,
+      "at": "2026-11-06T04:51:26.454Z",
+      "requests": [
+        {
+          "id": "4bec93fb-68b3-4d0f-8133-13cda8735dd1",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T04:51:26.585Z"
+        },
+        {
+          "id": "b59e2416-fb8a-42ff-a298-e5b52e7f32d4",
+          "method": "GET",
+          "path": "/resources/plan_version",
+          "status": 200,
+          "at": "2026-11-06T04:51:26.628Z"
+        }
+      ]
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-12 Kế hoạch vốn (MOB-12): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 10671,
+      "at": "2026-11-06T18:03:40.000Z",
+      "requests": [
+        {
+          "id": "b604bd30-08a9-4015-bccb-70ed9b81233d",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:03:45.513Z"
+        },
+        {
+          "id": "48185b5a-8215-4eb3-b064-79f953a75992",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T18:03:45.608Z"
+        },
+        {
+          "id": "dae34617-c873-40e4-95be-59c1b8e34b3c",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-06T18:03:45.712Z"
+        },
+        {
+          "id": "42b6089e-8e99-4e12-82f9-033175fba9a7",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-06T18:03:45.708Z"
+        },
+        {
+          "id": "4baf5248-d998-49ba-a549-f250e765c056",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-06T18:03:48.065Z"
+        },
+        {
+          "id": "61bb5698-c21d-46bf-832d-e9475da3e538",
+          "method": "GET",
+          "path": "/resources/plan_version",
+          "status": 200,
+          "at": "2026-11-06T18:03:50.280Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "UI-MOB-01",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-01 chào mừng và nhận diện tenant",
+      "status": "passed",
+      "durationMs": 10406,
+      "at": "2026-11-06T04:44:37.467Z",
+      "requests": []
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-01 Chào mừng và nhận diện tenant (MOB-01): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 13143,
+      "at": "2026-11-06T18:01:28.000Z",
+      "requests": [
+        {
+          "id": "2fb93f57-b232-46e1-8e06-93a5547f1f6f",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:01:37.722Z"
+        }
+      ]
+    }
+  ]
+}

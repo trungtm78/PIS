@@ -1,0 +1,130 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="guide" tests="25" failures="0" time="288.185" timestamp="2026-11-07T01:01:28">
+    <testcase id="TC-UI-MOB-01" name="TC-UI-MOB-01" classname="TC-UI-MOB-01" file=".maestro\mob\TC-UI-MOB-01.yaml" time="13.143" timestamp="2026-11-07T01:01:28" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P0, S2"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-02" name="TC-UI-MOB-02" classname="TC-UI-MOB-02" file=".maestro\mob\TC-UI-MOB-02.yaml" time="8.493" timestamp="2026-11-07T01:01:42" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P0, S2"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-04" name="TC-UI-MOB-04" classname="TC-UI-MOB-04" file=".maestro\mob\TC-UI-MOB-04.yaml" time="18.599" timestamp="2026-11-07T01:01:50" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P0, S2"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-03" name="TC-UI-MOB-03" classname="TC-UI-MOB-03" file=".maestro\mob\TC-UI-MOB-03.yaml" time="25.577" timestamp="2026-11-07T01:02:09" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P0, S2"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-07" name="TC-UI-MOB-07" classname="TC-UI-MOB-07" file=".maestro\mob\TC-UI-MOB-07.yaml" time="6.03" timestamp="2026-11-07T01:02:34" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P0, S2"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-08" name="TC-UI-MOB-08" classname="TC-UI-MOB-08" file=".maestro\mob\TC-UI-MOB-08.yaml" time="12.198" timestamp="2026-11-07T01:02:40" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P0, S2"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-40" name="TC-UI-MOB-40" classname="TC-UI-MOB-40" file=".maestro\mob\TC-UI-MOB-40.yaml" time="13.926" timestamp="2026-11-07T01:02:52" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P1, S3"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-58" name="TC-UI-MOB-58" classname="TC-UI-MOB-58" file=".maestro\mob\TC-UI-MOB-58.yaml" time="14.785" timestamp="2026-11-07T01:03:06" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P0, S2"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-09" name="TC-UI-MOB-09" classname="TC-UI-MOB-09" file=".maestro\mob\TC-UI-MOB-09.yaml" time="8.33" timestamp="2026-11-07T01:03:21" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P0, S2"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-11" name="TC-UI-MOB-11" classname="TC-UI-MOB-11" file=".maestro\mob\TC-UI-MOB-11.yaml" time="10.923" timestamp="2026-11-07T01:03:30" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P0, S2"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-12" name="TC-UI-MOB-12" classname="TC-UI-MOB-12" file=".maestro\mob\TC-UI-MOB-12.yaml" time="10.671" timestamp="2026-11-07T01:03:40" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P0, S2"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-57" name="TC-UI-MOB-57" classname="TC-UI-MOB-57" file=".maestro\mob\TC-UI-MOB-57.yaml" time="11.453" timestamp="2026-11-07T01:03:51" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P0, S2"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-59" name="TC-UI-MOB-59" classname="TC-UI-MOB-59" file=".maestro\mob\TC-UI-MOB-59.yaml" time="11.061" timestamp="2026-11-07T01:04:03" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P0, S2"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-10" name="TC-UI-MOB-10" classname="TC-UI-MOB-10" file=".maestro\mob\TC-UI-MOB-10.yaml" time="10.884" timestamp="2026-11-07T01:04:14" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P0, S2"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-23" name="TC-UI-MOB-23" classname="TC-UI-MOB-23" file=".maestro\mob\TC-UI-MOB-23.yaml" time="8.298" timestamp="2026-11-07T01:04:25" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P0, S2"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-32" name="TC-UI-MOB-32" classname="TC-UI-MOB-32" file=".maestro\mob\TC-UI-MOB-32.yaml" time="8.228" timestamp="2026-11-07T01:04:33" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P0, S2"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-35" name="TC-UI-MOB-35" classname="TC-UI-MOB-35" file=".maestro\mob\TC-UI-MOB-35.yaml" time="10.815" timestamp="2026-11-07T01:04:41" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P1, S3"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-34" name="TC-UI-MOB-34" classname="TC-UI-MOB-34" file=".maestro\mob\TC-UI-MOB-34.yaml" time="10.982" timestamp="2026-11-07T01:04:52" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P0, S2"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-05" name="TC-UI-MOB-05" classname="TC-UI-MOB-05" file=".maestro\mob\TC-UI-MOB-05.yaml" time="11.002" timestamp="2026-11-07T01:05:03" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P0, S2"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-47" name="TC-UI-MOB-47" classname="TC-UI-MOB-47" file=".maestro\mob\TC-UI-MOB-47.yaml" time="8.657" timestamp="2026-11-07T01:05:14" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P1, S3"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-49" name="TC-UI-MOB-49" classname="TC-UI-MOB-49" file=".maestro\mob\TC-UI-MOB-49.yaml" time="11.034" timestamp="2026-11-07T01:05:23" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P1, S3"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-41" name="TC-UI-MOB-41" classname="TC-UI-MOB-41" file=".maestro\mob\TC-UI-MOB-41.yaml" time="10.49" timestamp="2026-11-07T01:05:34" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P1, S3"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-43" name="TC-UI-MOB-43" classname="TC-UI-MOB-43" file=".maestro\mob\TC-UI-MOB-43.yaml" time="10.645" timestamp="2026-11-07T01:05:44" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P1, S3"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-51" name="TC-UI-MOB-51" classname="TC-UI-MOB-51" file=".maestro\mob\TC-UI-MOB-51.yaml" time="10.968" timestamp="2026-11-07T01:05:55" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P1, S3"/>
+      </properties>
+    </testcase>
+    <testcase id="TC-UI-MOB-50" name="TC-UI-MOB-50" classname="TC-UI-MOB-50" file=".maestro\mob\TC-UI-MOB-50.yaml" time="10.914" timestamp="2026-11-07T01:06:06" status="SUCCESS">
+      <properties>
+        <property name="tags" value="P1, S3"/>
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>

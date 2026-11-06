@@ -1,0 +1,106 @@
+{
+  "id": "UI-MOB-10",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-10 chi tiết dự án",
+      "status": "passed",
+      "durationMs": 10089,
+      "at": "2026-11-06T04:49:56.606Z",
+      "requests": [
+        {
+          "id": "a59d26df-2491-472d-90ac-23bb7733ccb0",
+          "method": "GET",
+          "path": "/resources/project/00000000-0000-4000-0050-000000000001",
+          "status": 200,
+          "at": "2026-11-06T04:49:56.705Z"
+        },
+        {
+          "id": "a3ac2db9-4e54-4064-9be7-27fe6f9185dc",
+          "method": "GET",
+          "path": "/projects/00000000-0000-4000-0050-000000000001/milestones",
+          "status": 200,
+          "at": "2026-11-06T04:49:56.726Z"
+        },
+        {
+          "id": "76751eb9-ab8f-486e-aa15-62a356476375",
+          "method": "GET",
+          "path": "/projects/00000000-0000-4000-0050-000000000001/risks",
+          "status": 200,
+          "at": "2026-11-06T04:49:56.742Z"
+        }
+      ]
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-10 Chi tiết dự án (MOB-10): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 10884,
+      "at": "2026-11-06T18:04:14.000Z",
+      "requests": [
+        {
+          "id": "e29630fc-f0f0-4059-bff8-39f3ebafcf01",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:04:18.635Z"
+        },
+        {
+          "id": "d6a8f2e7-9a87-43cb-a5cd-dd49be17f8ea",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T18:04:18.720Z"
+        },
+        {
+          "id": "7c49a944-8c1e-405d-b2a3-8f1674679b19",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-06T18:04:18.800Z"
+        },
+        {
+          "id": "0dd04af5-f05e-43d5-9d61-1aacdc09e9b3",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-06T18:04:18.803Z"
+        },
+        {
+          "id": "e0c1bba7-6a4d-45ad-aa8a-66528cdb518a",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-06T18:04:21.371Z"
+        },
+        {
+          "id": "b0d55059-ad00-443f-a22b-c3df1bf5a2c3",
+          "method": "GET",
+          "path": "/resources/project/00000000-0000-4000-0050-000000000001",
+          "status": 200,
+          "at": "2026-11-06T18:04:23.589Z"
+        },
+        {
+          "id": "c368b337-a9b3-4b34-be67-a131b721a7c9",
+          "method": "GET",
+          "path": "/projects/00000000-0000-4000-0050-000000000001/milestones",
+          "status": 200,
+          "at": "2026-11-06T18:04:23.603Z"
+        },
+        {
+          "id": "81e32ca0-6604-4629-808f-1aab11e34453",
+          "method": "GET",
+          "path": "/projects/00000000-0000-4000-0050-000000000001/risks",
+          "status": 200,
+          "at": "2026-11-06T18:04:23.629Z"
+        }
+      ]
+    }
+  ]
+}

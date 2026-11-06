@@ -1,0 +1,63 @@
+{
+  "id": "UI-MOB-09",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-09 danh sách dự án",
+      "status": "passed",
+      "durationMs": 10301,
+      "at": "2026-11-06T04:49:02.179Z",
+      "requests": []
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-09 Danh sách dự án (MOB-09): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 8330,
+      "at": "2026-11-06T18:03:21.000Z",
+      "requests": [
+        {
+          "id": "e0fc7c58-50e7-408b-ae9c-ad38632c6bc5",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:03:26.268Z"
+        },
+        {
+          "id": "3a4275c6-cb67-4ccd-a6c7-ec57412bd5f1",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T18:03:26.384Z"
+        },
+        {
+          "id": "5f10980b-72b1-4c6a-8161-a6a128f6bcc7",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-06T18:03:26.437Z"
+        },
+        {
+          "id": "ea2a1c16-e298-4299-9e17-f5ececc707cc",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-06T18:03:26.434Z"
+        },
+        {
+          "id": "47858618-e1de-4453-84de-3d225b1d7c7b",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-06T18:03:28.804Z"
+        }
+      ]
+    }
+  ]
+}

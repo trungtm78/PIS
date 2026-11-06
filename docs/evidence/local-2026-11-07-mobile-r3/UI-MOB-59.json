@@ -1,0 +1,78 @@
+{
+  "id": "UI-MOB-59",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-59 vướng mắc theo tuần",
+      "status": "passed",
+      "durationMs": 10285,
+      "at": "2026-11-06T04:52:17.062Z",
+      "requests": [
+        {
+          "id": "9f61b9e2-9ec9-46c9-9108-01af60cf1df4",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-06T04:52:17.220Z"
+        }
+      ]
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-59 Vướng mắc theo tuần (MOB-59): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 11061,
+      "at": "2026-11-06T18:04:03.000Z",
+      "requests": [
+        {
+          "id": "4d478741-326d-4308-ab60-4e305c5be76d",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:04:07.629Z"
+        },
+        {
+          "id": "c4e7d171-9b2b-4b72-b2ee-836a58ff9dcb",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T18:04:07.722Z"
+        },
+        {
+          "id": "98ced463-2352-401f-bb7c-db105c4804bb",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-06T18:04:07.770Z"
+        },
+        {
+          "id": "648e2dff-6ad7-4180-bbc0-0188efaa94b5",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-06T18:04:07.802Z"
+        },
+        {
+          "id": "8e432e5e-e960-4fa8-8d4e-a4ee2909a228",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-06T18:04:10.262Z"
+        },
+        {
+          "id": "282b3074-2222-453f-81b5-ac29113b2b7f",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-06T18:04:12.598Z"
+        }
+      ]
+    }
+  ]
+}

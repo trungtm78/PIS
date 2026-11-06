@@ -1,0 +1,77 @@
+{
+  "id": "UI-MOB-41",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-41 danh sách đồng bộ",
+      "status": "passed",
+      "durationMs": 9958,
+      "at": "2026-11-06T05:00:04.402Z",
+      "requests": []
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-41 Danh sách đồng bộ (MOB-41): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 10490,
+      "at": "2026-11-06T18:05:34.000Z",
+      "requests": [
+        {
+          "id": "dec2f16b-328e-40fd-9de3-3a3181b70442",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:05:38.612Z"
+        },
+        {
+          "id": "9b67996f-9118-4f5c-8212-a33c4165fd89",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T18:05:38.700Z"
+        },
+        {
+          "id": "39ddde31-aa21-4a70-af46-8ae881f11987",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-06T18:05:38.745Z"
+        },
+        {
+          "id": "6ddc0b9b-a193-4e40-821f-06cea72e46f2",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-06T18:05:38.784Z"
+        },
+        {
+          "id": "9c5b224b-40b4-48bc-8baf-af9fc222d1a3",
+          "method": "GET",
+          "path": "/me/profile",
+          "status": 200,
+          "at": "2026-11-06T18:05:41.144Z"
+        },
+        {
+          "id": "2ef3cbde-0a3b-4d23-b33c-11d0f92af029",
+          "method": "GET",
+          "path": "/me/session/tenant-selection/candidates",
+          "status": 200,
+          "at": "2026-11-06T18:05:41.146Z"
+        },
+        {
+          "id": "b9fa0b3f-a348-4cb6-beb3-3157baa4d6d2",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-06T18:05:43.520Z"
+        }
+      ]
+    }
+  ]
+}

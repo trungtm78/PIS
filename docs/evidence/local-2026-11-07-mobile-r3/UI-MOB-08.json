@@ -1,0 +1,109 @@
+{
+  "id": "UI-MOB-08",
+  "result": "FAIL",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-08 trang chủ cán bộ",
+      "status": "passed",
+      "durationMs": 9817,
+      "at": "2026-11-06T04:47:03.940Z",
+      "requests": [
+        {
+          "id": "6c2334e5-13f5-4735-9287-9fa2e974ea1d",
+          "method": "GET",
+          "path": "/home/my-work",
+          "status": 200,
+          "at": "2026-11-06T04:47:04.063Z"
+        }
+      ]
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-08 Trang chủ cán bộ (MOB-08): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 12198,
+      "at": "2026-11-06T18:02:40.000Z",
+      "requests": [
+        {
+          "id": "9329b23d-f666-4bbe-b843-e2051ec6fd2b",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:02:45.550Z"
+        },
+        {
+          "id": "815a3579-3084-4168-8f2e-b6db78b91314",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T18:02:45.568Z"
+        },
+        {
+          "id": "6a8d6684-202b-4d26-8ea1-08628e2b4f71",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-06T18:02:45.630Z"
+        },
+        {
+          "id": "43e94c15-7195-4f22-85b4-c65fed084301",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-06T18:02:45.632Z"
+        },
+        {
+          "id": "33ba00a4-c9b9-4a3a-b993-6e2d08d170d5",
+          "method": "GET",
+          "path": "/home/my-work",
+          "status": 200,
+          "at": "2026-11-06T18:02:51.548Z"
+        }
+      ]
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-08 failed in the suite run of 2026-11-06 23:40 and again right after the flow before it (screen stays loading, no /home/my-work request)",
+      "status": "failed",
+      "durationMs": 31000,
+      "at": "2026-11-06T16:40:00.000Z",
+      "requests": [
+        {
+          "id": "f5e220b6-800d-4f9e-b4c3-10bfef6f56de",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T16:40:30.297Z"
+        },
+        {
+          "id": "ce25fdfc-0f0e-41bd-8def-8835d33b137c",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T16:40:30.313Z"
+        },
+        {
+          "id": "60e59e88-accf-4a74-919e-648f9c74c8c8",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-06T16:40:30.386Z"
+        },
+        {
+          "id": "b090eec6-3765-4c1d-b519-5416fb3353bf",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-06T16:40:30.387Z"
+        }
+      ]
+    }
+  ]
+}

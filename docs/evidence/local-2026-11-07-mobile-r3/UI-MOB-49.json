@@ -1,0 +1,99 @@
+{
+  "id": "UI-MOB-49",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-49 thiết bị và đăng xuất",
+      "status": "passed",
+      "durationMs": 10495,
+      "at": "2026-11-06T04:59:44.040Z",
+      "requests": [
+        {
+          "id": "a8a09811-b637-476a-a09a-2abe1ce531bd",
+          "method": "GET",
+          "path": "/me/sessions",
+          "status": 200,
+          "at": "2026-11-06T04:59:44.134Z"
+        },
+        {
+          "id": "e33affb8-e6d7-4b4b-acba-34942e8874b7",
+          "method": "GET",
+          "path": "/me/devices",
+          "status": 200,
+          "at": "2026-11-06T04:59:44.163Z"
+        }
+      ]
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-49 Thiết bị và đăng xuất (MOB-49): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 11034,
+      "at": "2026-11-06T18:05:23.000Z",
+      "requests": [
+        {
+          "id": "47e1c278-8ee3-40db-9dbc-030aecc4d3ab",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:05:27.669Z"
+        },
+        {
+          "id": "d122630e-437c-4c95-af0f-7e1648e39061",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T18:05:27.758Z"
+        },
+        {
+          "id": "36eb3e4d-0741-48c1-af28-5538da4df4f7",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-06T18:05:27.841Z"
+        },
+        {
+          "id": "9a0ae319-d452-4780-b67f-6288a3a2f8f3",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-06T18:05:27.834Z"
+        },
+        {
+          "id": "244e0187-8e10-474b-90c2-efebf5813264",
+          "method": "GET",
+          "path": "/me/profile",
+          "status": 200,
+          "at": "2026-11-06T18:05:30.418Z"
+        },
+        {
+          "id": "1d3e6655-181f-417c-b91e-cd3e8b12adf2",
+          "method": "GET",
+          "path": "/me/session/tenant-selection/candidates",
+          "status": 200,
+          "at": "2026-11-06T18:05:30.420Z"
+        },
+        {
+          "id": "9c48b4aa-f01f-43be-9bcf-597713eb7db1",
+          "method": "GET",
+          "path": "/me/sessions",
+          "status": 200,
+          "at": "2026-11-06T18:05:32.658Z"
+        },
+        {
+          "id": "261f06ab-dffd-425f-a9d8-3dd8d761fdb5",
+          "method": "GET",
+          "path": "/me/devices",
+          "status": 200,
+          "at": "2026-11-06T18:05:32.668Z"
+        }
+      ]
+    }
+  ]
+}

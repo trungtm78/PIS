@@ -1,0 +1,49 @@
+{
+  "id": "UI-MOB-04",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-04 chọn đơn vị và vai trò",
+      "status": "passed",
+      "durationMs": 7549,
+      "at": "2026-11-06T04:45:09.999Z",
+      "requests": []
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-04 Chọn đơn vị và vai trò (MOB-04): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 18599,
+      "at": "2026-11-06T18:01:50.000Z",
+      "requests": [
+        {
+          "id": "d320e6b6-3234-4e9d-a097-4db64f598d57",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:01:56.870Z"
+        },
+        {
+          "id": "04735e3a-af91-4eb5-aa4f-e1d96928f049",
+          "method": "GET",
+          "path": "/me/session/tenant-selection/candidates",
+          "status": 200,
+          "at": "2026-11-06T18:01:59.417Z"
+        },
+        {
+          "id": "283c9d08-ae3c-4dd4-9380-f417f26efca3",
+          "method": "GET",
+          "path": "/me/session/tenant-selection/candidates",
+          "status": 200,
+          "at": "2026-11-06T18:01:59.630Z"
+        }
+      ]
+    }
+  ]
+}

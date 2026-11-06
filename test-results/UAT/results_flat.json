@@ -1,0 +1,302 @@
+{
+  "generated_at": "2026-11-07T01:06:47",
+  "sources": [
+    {
+      "file": "test-results\\mobile\\junit.xml",
+      "kind": "maestro-junit",
+      "tests": 25
+    }
+  ],
+  "tests": [
+    {
+      "tc_id": "TC-UI-MOB-01",
+      "title": "TC-UI-MOB-01",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 13143,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-02",
+      "title": "TC-UI-MOB-02",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 8493,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-04",
+      "title": "TC-UI-MOB-04",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 18599,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-03",
+      "title": "TC-UI-MOB-03",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 25577,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-07",
+      "title": "TC-UI-MOB-07",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 6030,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-08",
+      "title": "TC-UI-MOB-08",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 12198,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-40",
+      "title": "TC-UI-MOB-40",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 13926,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-58",
+      "title": "TC-UI-MOB-58",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 14785,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-09",
+      "title": "TC-UI-MOB-09",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 8330,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-11",
+      "title": "TC-UI-MOB-11",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 10923,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-12",
+      "title": "TC-UI-MOB-12",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 10671,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-57",
+      "title": "TC-UI-MOB-57",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 11453,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-59",
+      "title": "TC-UI-MOB-59",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 11061,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-10",
+      "title": "TC-UI-MOB-10",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 10884,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-23",
+      "title": "TC-UI-MOB-23",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 8298,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-32",
+      "title": "TC-UI-MOB-32",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 8228,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-35",
+      "title": "TC-UI-MOB-35",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 10815,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-34",
+      "title": "TC-UI-MOB-34",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 10982,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-05",
+      "title": "TC-UI-MOB-05",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 11002,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-47",
+      "title": "TC-UI-MOB-47",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 8657,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-49",
+      "title": "TC-UI-MOB-49",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 11034,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-41",
+      "title": "TC-UI-MOB-41",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 10490,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-43",
+      "title": "TC-UI-MOB-43",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 10645,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-51",
+      "title": "TC-UI-MOB-51",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 10968,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    },
+    {
+      "tc_id": "TC-UI-MOB-50",
+      "title": "TC-UI-MOB-50",
+      "status": "passed",
+      "layer": "mobile",
+      "file": "test-results\\mobile\\junit.xml",
+      "duration_ms": 10914,
+      "retries": 0,
+      "pass_on_retry": false,
+      "error": ""
+    }
+  ],
+  "summary": {
+    "total": 25,
+    "passed": 25,
+    "failed": 0,
+    "skipped": 0,
+    "by_layer": {
+      "mobile": {
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    "flaky_pass_on_retry": 0
+  }
+}

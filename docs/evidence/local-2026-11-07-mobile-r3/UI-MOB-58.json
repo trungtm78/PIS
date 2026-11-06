@@ -1,0 +1,85 @@
+{
+  "id": "UI-MOB-58",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-58 cơ cấu nguồn vốn",
+      "status": "passed",
+      "durationMs": 9617,
+      "at": "2026-11-06T04:48:05.931Z",
+      "requests": [
+        {
+          "id": "d325b76c-8f4a-4f7a-ba8e-1ae69a26b169",
+          "method": "GET",
+          "path": "/appropriations",
+          "status": 200,
+          "at": "2026-11-06T04:48:06.052Z"
+        },
+        {
+          "id": "01d6194e-c013-4118-aa5e-c1604b38e3b4",
+          "method": "GET",
+          "path": "/resources/allocation_line",
+          "status": 200,
+          "at": "2026-11-06T04:48:06.080Z"
+        }
+      ]
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-58 Cơ cấu nguồn vốn (MOB-58): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 14785,
+      "at": "2026-11-06T18:03:06.000Z",
+      "requests": [
+        {
+          "id": "d1ed7d85-00ce-4db8-97f6-d4db749f7ae0",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:03:11.617Z"
+        },
+        {
+          "id": "43efa092-9f46-422b-af9e-53a241210309",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T18:03:11.713Z"
+        },
+        {
+          "id": "3b4d6649-ce90-4a3b-9af5-65f42c9e5baf",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-06T18:03:11.792Z"
+        },
+        {
+          "id": "144b912f-079d-4e51-8728-44abce02ec61",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-06T18:03:11.796Z"
+        },
+        {
+          "id": "4fccf4ad-f28e-4741-a2fa-5617548c033f",
+          "method": "GET",
+          "path": "/appropriations",
+          "status": 200,
+          "at": "2026-11-06T18:03:20.211Z"
+        },
+        {
+          "id": "2d557585-a81e-4992-8c13-606325b5d246",
+          "method": "GET",
+          "path": "/resources/allocation_line",
+          "status": 200,
+          "at": "2026-11-06T18:03:20.238Z"
+        }
+      ]
+    }
+  ]
+}

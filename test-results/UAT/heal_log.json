@@ -1,0 +1,68 @@
+{
+  "entries": [
+    {
+      "at": "2026-11-07T01:07:05+07:00",
+      "tc": "TC-UI-MOB-07",
+      "what": "mẫu so khớp thêm .* sau nhãn tiêu đề thẻ ('Ngữ cảnh của số liệu.*', 'Hai tỷ lệ giải ngân.*'); giá trị mong đợi giữ nguyên",
+      "why": "app gộp nhãn thẻ nhiều dòng thành một nút trợ năng ('Ngữ cảnh của số liệu / Chất lượng dữ liệu…'): locator không khớp nhãn gộp, không phải lỗi sản phẩm",
+      "who": "uat-test-runner"
+    },
+    {
+      "at": "2026-11-07T01:07:05+07:00",
+      "tc": "TC-UI-MOB-08",
+      "what": "mẫu so khớp 'Chưa có dữ liệu' thành 'Chưa có dữ liệu.*'; giá trị mong đợi giữ nguyên",
+      "why": "nhãn trạng thái rỗng của app là một câu gộp 'Chưa có dữ liệu. Điều chỉnh bộ lọc…': locator không khớp nhãn gộp",
+      "who": "uat-test-runner"
+    },
+    {
+      "at": "2026-11-07T01:07:05+07:00",
+      "tc": "TC-UI-MOB-40",
+      "what": "mẫu so khớp 'Chưa có dữ liệu' thành 'Chưa có dữ liệu.*'; giá trị mong đợi giữ nguyên",
+      "why": "nhãn trạng thái rỗng của app là một câu gộp 'Chưa có dữ liệu. Điều chỉnh bộ lọc…': locator không khớp nhãn gộp",
+      "who": "uat-test-runner"
+    },
+    {
+      "at": "2026-11-07T01:07:05+07:00",
+      "tc": "TC-UI-MOB-12",
+      "what": "mẫu so khớp 'Chưa có dữ liệu' thành 'Chưa có dữ liệu.*'; giá trị mong đợi giữ nguyên",
+      "why": "nhãn trạng thái rỗng của app là một câu gộp 'Chưa có dữ liệu. Điều chỉnh bộ lọc…': locator không khớp nhãn gộp",
+      "who": "uat-test-runner"
+    },
+    {
+      "at": "2026-11-07T01:07:05+07:00",
+      "tc": "TC-UI-MOB-32",
+      "what": "mẫu so khớp 'Chưa có dữ liệu' thành 'Chưa có dữ liệu.*'; giá trị mong đợi giữ nguyên",
+      "why": "nhãn trạng thái rỗng của app là một câu gộp 'Chưa có dữ liệu. Điều chỉnh bộ lọc…': locator không khớp nhãn gộp",
+      "who": "uat-test-runner"
+    },
+    {
+      "at": "2026-11-07T01:07:05+07:00",
+      "tc": "TC-UI-MOB-41",
+      "what": "mẫu so khớp 'Chưa có dữ liệu' thành 'Chưa có dữ liệu.*'; giá trị mong đợi giữ nguyên",
+      "why": "nhãn trạng thái rỗng của app là một câu gộp 'Chưa có dữ liệu. Điều chỉnh bộ lọc…': locator không khớp nhãn gộp",
+      "who": "uat-test-runner"
+    },
+    {
+      "at": "2026-11-07T01:07:05+07:00",
+      "tc": "TC-UI-MOB-57",
+      "what": "mẫu so khớp 'E2E-CLOSE-2026-10.*' và '.*2 trên 2 dự án chưa nộp.*'",
+      "why": "nhãn thẻ kỳ báo cáo gộp ba dòng thành một nút trợ năng",
+      "who": "uat-test-runner"
+    },
+    {
+      "at": "2026-11-07T01:07:05+07:00",
+      "tc": "TC-UI-MOB-34",
+      "what": "đổi cặp xác nhận từ 'Thông báo đẩy/Cho phép/Để sau' sang 'Cài đặt thông báo/Trong ứng dụng/Thông báo đẩy'",
+      "why": "flow viết nhầm màn: 'Cho phép/Để sau' là màn MOB-05, không phải MOB-34 (bí danh tiêu đề sai của bộ duyệt); đây là lỗi tác giả flow, không phải sửa cho khớp app",
+      "who": "uat-test-runner"
+    },
+    {
+      "at": "2026-11-07T01:07:05+07:00",
+      "tc": "TC-UI-MOB-05",
+      "what": "viết lại đường vào: tab Cá nhân, cuộn tới 'Thông báo đẩy', quyền thông báo 'unset' (trước đó: công tắc trong Cài đặt thông báo, quyền 'deny')",
+      "why": "đường vào ban đầu sai: màn xin quyền mở từ dòng cuối màn Tài khoản khi quyền chưa từng được hỏi; flow đầu tiên chạm công tắc kênh (đổi cài đặt của người dùng)",
+      "who": "uat-test-runner"
+    }
+  ],
+  "reset_at": "2026-11-06T20:08:32+07:00"
+}

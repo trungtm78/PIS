@@ -1,0 +1,85 @@
+{
+  "id": "UI-MOB-47",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-47 tài khoản và sinh trắc học",
+      "status": "passed",
+      "durationMs": 9953,
+      "at": "2026-11-06T04:59:12.532Z",
+      "requests": [
+        {
+          "id": "5c577e8a-dc3a-43fb-8740-7e0129ec0bb5",
+          "method": "GET",
+          "path": "/me/profile",
+          "status": 200,
+          "at": "2026-11-06T04:59:12.664Z"
+        },
+        {
+          "id": "76c354e9-4a65-49f4-b6df-21d7c2a9a129",
+          "method": "GET",
+          "path": "/me/session/tenant-selection/candidates",
+          "status": 200,
+          "at": "2026-11-06T04:59:12.665Z"
+        }
+      ]
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-47 Tài khoản và sinh trắc học (MOB-47): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 8657,
+      "at": "2026-11-06T18:05:14.000Z",
+      "requests": [
+        {
+          "id": "80268c83-8b27-450d-8e2d-eb24da9e3241",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:05:18.959Z"
+        },
+        {
+          "id": "0c5870ac-6e61-4515-ad12-0808968b8f0b",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T18:05:19.051Z"
+        },
+        {
+          "id": "531f0b33-9a2c-4e90-8e77-e5db3722d7e6",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-06T18:05:19.130Z"
+        },
+        {
+          "id": "6df781a6-d8ff-45e8-ab21-07530685721a",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-06T18:05:19.127Z"
+        },
+        {
+          "id": "71adbd8a-669b-43e4-9b2a-68d543fbc0e4",
+          "method": "GET",
+          "path": "/me/session/tenant-selection/candidates",
+          "status": 200,
+          "at": "2026-11-06T18:05:21.636Z"
+        },
+        {
+          "id": "8d794514-a2f7-4753-99c9-57b6f8b8d9c8",
+          "method": "GET",
+          "path": "/me/profile",
+          "status": 200,
+          "at": "2026-11-06T18:05:21.635Z"
+        }
+      ]
+    }
+  ]
+}

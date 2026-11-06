@@ -1,0 +1,71 @@
+{
+  "id": "UI-MOB-32",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-32 hộp thông báo",
+      "status": "passed",
+      "durationMs": 9745,
+      "at": "2026-11-06T04:55:06.546Z",
+      "requests": [
+        {
+          "id": "bc946ccc-c8de-4c21-befd-9471a895008e",
+          "method": "GET",
+          "path": "/me/notifications",
+          "status": 200,
+          "at": "2026-11-06T04:55:06.650Z"
+        }
+      ]
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-32 Hộp thông báo (MOB-32): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 8228,
+      "at": "2026-11-06T18:04:33.000Z",
+      "requests": [
+        {
+          "id": "308e44e2-456d-48a6-bed4-70f7cc0a7a03",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:04:38.086Z"
+        },
+        {
+          "id": "ec5a0cd7-06e9-4925-b9e1-12843deabaeb",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T18:04:38.099Z"
+        },
+        {
+          "id": "55a89fd0-02e7-4553-89de-4eaac6f3be2e",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-06T18:04:38.145Z"
+        },
+        {
+          "id": "0f895048-3120-4752-b134-fd6553bba71e",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-06T18:04:38.144Z"
+        },
+        {
+          "id": "09bb8941-035b-4f77-b648-b2e86b7b7b82",
+          "method": "GET",
+          "path": "/me/notifications",
+          "status": 200,
+          "at": "2026-11-06T18:04:40.446Z"
+        }
+      ]
+    }
+  ]
+}

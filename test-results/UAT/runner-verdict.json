@@ -1,0 +1,87 @@
+{
+  "verdict": "NO-GO",
+  "ceiling": "",
+  "verdict_full": "NO-GO",
+  "gates": [
+    {
+      "gate": "G0",
+      "name": "Entry",
+      "state": "KHÔNG ĐO ĐƯỢC",
+      "detail": "không có url.json (resolve_url.py)",
+      "effect": "HẠ TRẦN"
+    },
+    {
+      "gate": "G1",
+      "name": "API smoke",
+      "state": "KHÔNG ÁP",
+      "detail": "bộ ca không có lớp api",
+      "effect": ""
+    },
+    {
+      "gate": "G2",
+      "name": "Critical path",
+      "state": "HỎNG",
+      "detail": "34/51 ca đường găng không đạt: TC-UI-MOB-06(không chạy), TC-UI-MOB-13(không chạy), TC-UI-MOB-14(không chạy), TC-UI-MOB-15(không chạy), TC-UI-MOB-16(không chạy), TC-UI-MOB-17(không chạy), TC-UI-MOB-18(không chạy), TC-UI-MOB-19(không chạy), TC-UI-MOB-20(không chạy), TC-UI-MOB-21(không chạy)",
+      "effect": "NO-GO"
+    },
+    {
+      "gate": "G3",
+      "name": "Coverage",
+      "state": "HỎNG",
+      "detail": "25/88 = 28.4% < 95%",
+      "effect": "NO-GO"
+    },
+    {
+      "gate": "G4",
+      "name": "Defect budget",
+      "state": "CẦN NGƯỜI",
+      "detail": "0 lỗi S2 mở, nhưng ngưỡng S2 chưa do người đặt (--s2-budget) — không bịa ngưỡng rồi tuyên bố đạt",
+      "effect": "HẠ TRẦN"
+    },
+    {
+      "gate": "G5",
+      "name": "Regression",
+      "state": "KHÔNG ÁP",
+      "detail": "không có baseline do người chỉ định (kỹ năng không bao giờ tự chọn baseline)",
+      "effect": ""
+    },
+    {
+      "gate": "G6",
+      "name": "Non-functional",
+      "state": "KHÔNG ĐO ĐƯỢC",
+      "detail": "chưa có hiện vật a11y/perf (--a11y/--perf)",
+      "effect": "HẠ TRẦN"
+    },
+    {
+      "gate": "G7",
+      "name": "Sign-off record",
+      "state": "CẦN NGƯỜI",
+      "detail": "chưa có hồ sơ ký duyệt (người duyệt + bằng chứng + thời điểm)",
+      "effect": "HẠ TRẦN"
+    }
+  ],
+  "debts": [],
+  "degraded": [
+    "G0",
+    "G4",
+    "G6",
+    "G7"
+  ],
+  "heal_count": 9,
+  "summary": {
+    "total": 25,
+    "passed": 25,
+    "failed": 0,
+    "skipped": 0,
+    "by_layer": {
+      "mobile": {
+        "total": 25,
+        "passed": 25,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    "flaky_pass_on_retry": 0
+  },
+  "generated_at": "2026-11-07T01:07:05+07:00"
+}

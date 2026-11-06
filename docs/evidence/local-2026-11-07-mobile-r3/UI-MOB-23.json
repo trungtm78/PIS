@@ -1,0 +1,85 @@
+{
+  "id": "UI-MOB-23",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-23 danh sách phê duyệt",
+      "status": "passed",
+      "durationMs": 9926,
+      "at": "2026-11-06T04:54:30.215Z",
+      "requests": [
+        {
+          "id": "244a620d-5bd0-4aee-9a9c-a89430166b63",
+          "method": "GET",
+          "path": "/resources/approval_task",
+          "status": 200,
+          "at": "2026-11-06T04:54:30.318Z"
+        },
+        {
+          "id": "657df68e-da62-4eb2-8e8e-873546c96fc1",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 200,
+          "at": "2026-11-06T04:54:30.345Z"
+        }
+      ]
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-23 Danh sách phê duyệt (MOB-23): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 8298,
+      "at": "2026-11-06T18:04:25.000Z",
+      "requests": [
+        {
+          "id": "8a914854-0a3e-4c72-9aec-8d4f0e8c686a",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:04:29.610Z"
+        },
+        {
+          "id": "34acbabf-64d1-403a-a37f-33030b43dbb9",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T18:04:29.728Z"
+        },
+        {
+          "id": "d3649f39-5819-4f7e-8eb9-a6485f24dd90",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-06T18:04:29.781Z"
+        },
+        {
+          "id": "a9b6ea25-9bdb-48dd-853f-658a09b6bfcb",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-06T18:04:29.782Z"
+        },
+        {
+          "id": "20dab28e-d5de-4ac2-829b-5423f5e98179",
+          "method": "GET",
+          "path": "/resources/approval_task",
+          "status": 200,
+          "at": "2026-11-06T18:04:32.331Z"
+        },
+        {
+          "id": "6d521751-0858-47c5-a403-102767dde70a",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 200,
+          "at": "2026-11-06T18:04:32.353Z"
+        }
+      ]
+    }
+  ]
+}

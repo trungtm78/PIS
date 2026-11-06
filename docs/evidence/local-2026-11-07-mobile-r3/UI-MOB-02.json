@@ -1,0 +1,35 @@
+{
+  "id": "UI-MOB-02",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-02 đăng nhập sso",
+      "status": "passed",
+      "durationMs": 7826,
+      "at": "2026-11-06T04:44:29.325Z",
+      "requests": []
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-02 Đăng nhập SSO (MOB-02): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 8493,
+      "at": "2026-11-06T18:01:42.000Z",
+      "requests": [
+        {
+          "id": "8ae2abb6-9dfe-43eb-84c3-ad9609a81bfd",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:01:49.373Z"
+        }
+      ]
+    }
+  ]
+}

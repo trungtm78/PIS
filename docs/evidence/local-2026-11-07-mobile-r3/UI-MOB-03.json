@@ -1,0 +1,77 @@
+{
+  "id": "UI-MOB-03",
+  "result": "PASS",
+  "at": "2026-11-06T18:07:40.045Z",
+  "build": "9c978a88aa2d0425008b4ac3c4d075705cd844a4+dirty",
+  "run": "local-2026-11-07-mobile-r3",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-03 xác thực mfa",
+      "status": "passed",
+      "durationMs": 7578,
+      "at": "2026-11-06T04:45:30.844Z",
+      "requests": []
+    },
+    {
+      "suite": "maestro-flow",
+      "file": "",
+      "name": "UI-MOB-03 Xác thực MFA (MOB-03): hợp đồng màn hình",
+      "status": "passed",
+      "durationMs": 25577,
+      "at": "2026-11-06T18:02:09.000Z",
+      "requests": [
+        {
+          "id": "a4912cdc-22d9-41db-b12d-ab302f09806e",
+          "method": "GET",
+          "path": "/mobile/version-policy",
+          "status": 404,
+          "at": "2026-11-06T18:02:15.562Z"
+        },
+        {
+          "id": "ccccb1e9-c0cd-4ae0-9643-0c4461df3b4b",
+          "method": "GET",
+          "path": "/me/session/tenant-selection/candidates",
+          "status": 200,
+          "at": "2026-11-06T18:02:17.447Z"
+        },
+        {
+          "id": "e57ec4bc-ec28-4faf-9360-c66110d8457b",
+          "method": "GET",
+          "path": "/me/session/tenant-selection/candidates",
+          "status": 200,
+          "at": "2026-11-06T18:02:17.648Z"
+        },
+        {
+          "id": "cd25f37a-351d-45ea-ac8e-b1f17e264b28",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 403,
+          "at": "2026-11-06T18:02:29.570Z"
+        },
+        {
+          "id": "2d4084ce-03df-4f5e-ba07-3fc12d1377e0",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T18:02:32.929Z"
+        },
+        {
+          "id": "4b5cc344-1393-46c0-a974-928f509e32cd",
+          "method": "GET",
+          "path": "/me/tenant/theme",
+          "status": 200,
+          "at": "2026-11-06T18:02:33.147Z"
+        },
+        {
+          "id": "7f293674-a6df-4dad-9231-c7e1b0534167",
+          "method": "GET",
+          "path": "/home/command-center",
+          "status": 200,
+          "at": "2026-11-06T18:02:33.475Z"
+        }
+      ]
+    }
+  ]
+}
