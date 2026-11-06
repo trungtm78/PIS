@@ -1,0 +1,26 @@
+{
+  "id": "UI-MOB-35",
+  "result": "PASS",
+  "at": "2026-11-06T05:08:13.190Z",
+  "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+  "run": "local-2026-11-06-mobile-r2",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-35 hộp hội thoại",
+      "status": "passed",
+      "durationMs": 10186,
+      "at": "2026-11-06T04:55:29.157Z",
+      "requests": [
+        {
+          "id": "0d597b5c-5890-4367-9ad7-d7a102e1f176",
+          "method": "GET",
+          "path": "/resources/conversation",
+          "status": 200,
+          "at": "2026-11-06T04:55:29.291Z"
+        }
+      ]
+    }
+  ]
+}

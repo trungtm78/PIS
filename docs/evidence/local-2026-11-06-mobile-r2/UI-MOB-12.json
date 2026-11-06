@@ -1,0 +1,33 @@
+{
+  "id": "UI-MOB-12",
+  "result": "PASS",
+  "at": "2026-11-06T05:08:13.190Z",
+  "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+  "run": "local-2026-11-06-mobile-r2",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-12 kế hoạch vốn",
+      "status": "passed",
+      "durationMs": 10090,
+      "at": "2026-11-06T04:51:26.454Z",
+      "requests": [
+        {
+          "id": "4bec93fb-68b3-4d0f-8133-13cda8735dd1",
+          "method": "POST",
+          "path": "/me/session/tenant-selection",
+          "status": 200,
+          "at": "2026-11-06T04:51:26.585Z"
+        },
+        {
+          "id": "b59e2416-fb8a-42ff-a298-e5b52e7f32d4",
+          "method": "GET",
+          "path": "/resources/plan_version",
+          "status": 200,
+          "at": "2026-11-06T04:51:26.628Z"
+        }
+      ]
+    }
+  ]
+}

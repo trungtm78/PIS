@@ -1,0 +1,33 @@
+{
+  "id": "UI-MOB-58",
+  "result": "PASS",
+  "at": "2026-11-06T05:08:13.190Z",
+  "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+  "run": "local-2026-11-06-mobile-r2",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-58 cơ cấu nguồn vốn",
+      "status": "passed",
+      "durationMs": 9617,
+      "at": "2026-11-06T04:48:05.931Z",
+      "requests": [
+        {
+          "id": "d325b76c-8f4a-4f7a-ba8e-1ae69a26b169",
+          "method": "GET",
+          "path": "/appropriations",
+          "status": 200,
+          "at": "2026-11-06T04:48:06.052Z"
+        },
+        {
+          "id": "01d6194e-c013-4118-aa5e-c1604b38e3b4",
+          "method": "GET",
+          "path": "/resources/allocation_line",
+          "status": 200,
+          "at": "2026-11-06T04:48:06.080Z"
+        }
+      ]
+    }
+  ]
+}

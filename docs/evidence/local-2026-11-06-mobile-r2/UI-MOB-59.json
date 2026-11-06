@@ -1,0 +1,26 @@
+{
+  "id": "UI-MOB-59",
+  "result": "PASS",
+  "at": "2026-11-06T05:08:13.190Z",
+  "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+  "run": "local-2026-11-06-mobile-r2",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-59 vướng mắc theo tuần",
+      "status": "passed",
+      "durationMs": 10285,
+      "at": "2026-11-06T04:52:17.062Z",
+      "requests": [
+        {
+          "id": "9f61b9e2-9ec9-46c9-9108-01af60cf1df4",
+          "method": "GET",
+          "path": "/issues/weekly-matrix",
+          "status": 200,
+          "at": "2026-11-06T04:52:17.220Z"
+        }
+      ]
+    }
+  ]
+}

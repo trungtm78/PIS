@@ -1,0 +1,33 @@
+{
+  "id": "UI-MOB-23",
+  "result": "PASS",
+  "at": "2026-11-06T05:08:13.190Z",
+  "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+  "run": "local-2026-11-06-mobile-r2",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-23 danh sách phê duyệt",
+      "status": "passed",
+      "durationMs": 9926,
+      "at": "2026-11-06T04:54:30.215Z",
+      "requests": [
+        {
+          "id": "244a620d-5bd0-4aee-9a9c-a89430166b63",
+          "method": "GET",
+          "path": "/resources/approval_task",
+          "status": 200,
+          "at": "2026-11-06T04:54:30.318Z"
+        },
+        {
+          "id": "657df68e-da62-4eb2-8e8e-873546c96fc1",
+          "method": "GET",
+          "path": "/resources/organization_unit",
+          "status": 200,
+          "at": "2026-11-06T04:54:30.345Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "id": "UI-MOB-40",
+  "result": "PASS",
+  "at": "2026-11-06T05:08:13.190Z",
+  "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+  "run": "local-2026-11-06-mobile-r2",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-40 dashboard bi cá nhân",
+      "status": "passed",
+      "durationMs": 10095,
+      "at": "2026-11-06T04:47:34.914Z",
+      "requests": [
+        {
+          "id": "70967516-20ce-4f58-8ef6-bd00d339614c",
+          "method": "GET",
+          "path": "/bi/dashboards",
+          "status": 200,
+          "at": "2026-11-06T04:47:35.124Z"
+        }
+      ]
+    }
+  ]
+}

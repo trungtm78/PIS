@@ -1,6 +1,6 @@
 {
-  "runId": "local-2026-11-06-mobile-r1",
-  "build": "c37efd98fdc4591cd28187f560e8a2a2d503729f+dirty",
+  "runId": "local-2026-11-06-mobile-r2",
+  "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
   "schemaVersion": "1706",
   "datasetSha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
   "results": {
@@ -23581,133 +23581,260 @@
     },
     "UI-MOB-01": {
       "result": "PASS",
-      "at": "2026-11-06T03:48:08.037Z",
-      "build": "c37efd98fdc4591cd28187f560e8a2a2d503729f+dirty",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
       "schema_version": "1706",
       "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
       "request_ids": [],
-      "evidence": "docs/evidence/local-2026-11-06-mobile-r1/UI-MOB-01.json"
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-01.json"
     },
     "UI-MOB-02": {
       "result": "PASS",
-      "at": "2026-11-06T03:48:08.037Z",
-      "build": "c37efd98fdc4591cd28187f560e8a2a2d503729f+dirty",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
       "schema_version": "1706",
       "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
       "request_ids": [],
-      "evidence": "docs/evidence/local-2026-11-06-mobile-r1/UI-MOB-02.json"
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-02.json"
     },
     "UI-MOB-03": {
       "result": "PASS",
-      "at": "2026-11-06T03:48:08.037Z",
-      "build": "c37efd98fdc4591cd28187f560e8a2a2d503729f+dirty",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
       "schema_version": "1706",
       "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
       "request_ids": [],
-      "evidence": "docs/evidence/local-2026-11-06-mobile-r1/UI-MOB-03.json"
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-03.json"
     },
     "UI-MOB-04": {
       "result": "PASS",
-      "at": "2026-11-06T03:48:08.037Z",
-      "build": "c37efd98fdc4591cd28187f560e8a2a2d503729f+dirty",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
       "schema_version": "1706",
       "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
       "request_ids": [],
-      "evidence": "docs/evidence/local-2026-11-06-mobile-r1/UI-MOB-04.json"
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-04.json"
     },
     "UI-MOB-07": {
       "result": "PASS",
-      "at": "2026-11-06T03:48:08.037Z",
-      "build": "c37efd98fdc4591cd28187f560e8a2a2d503729f+dirty",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
       "schema_version": "1706",
       "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
       "request_ids": [],
-      "evidence": "docs/evidence/local-2026-11-06-mobile-r1/UI-MOB-07.json"
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-07.json"
     },
     "UI-MOB-09": {
       "result": "PASS",
-      "at": "2026-11-06T03:48:08.037Z",
-      "build": "c37efd98fdc4591cd28187f560e8a2a2d503729f+dirty",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
       "schema_version": "1706",
       "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
-      "request_ids": [
-        "03433a3b-e55c-4a49-8176-e6e2b1ce8b62"
-      ],
-      "evidence": "docs/evidence/local-2026-11-06-mobile-r1/UI-MOB-09.json"
+      "request_ids": [],
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-09.json"
     },
     "UI-MOB-10": {
       "result": "PASS",
-      "at": "2026-11-06T03:48:08.037Z",
-      "build": "c37efd98fdc4591cd28187f560e8a2a2d503729f+dirty",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
       "schema_version": "1706",
       "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
       "request_ids": [
-        "7efda5c1-77fe-42ed-827a-cbc2047bfba1",
-        "060baf98-02b4-4e36-bc78-e8b1859c25be",
-        "f93b5181-54a9-4403-86a5-c0be375fe061"
+        "a59d26df-2491-472d-90ac-23bb7733ccb0",
+        "a3ac2db9-4e54-4064-9be7-27fe6f9185dc",
+        "76751eb9-ab8f-486e-aa15-62a356476375"
       ],
-      "evidence": "docs/evidence/local-2026-11-06-mobile-r1/UI-MOB-10.json"
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-10.json"
     },
     "UI-MOB-11": {
       "result": "PASS",
-      "at": "2026-11-06T03:48:08.037Z",
-      "build": "c37efd98fdc4591cd28187f560e8a2a2d503729f+dirty",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
       "schema_version": "1706",
       "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
       "request_ids": [
-        "1c63b460-88f7-483a-a079-fb933824f673",
-        "b8c46edb-b76a-4231-b992-e246840f0459",
-        "0581ffb8-16e2-40a6-9b36-a0a01d1a0e01",
-        "10816148-9b5c-4a73-acd1-b1b46252ea6a"
+        "cd80d632-0cd5-4302-92d6-8f9c9975bf32",
+        "62b7ec4a-57a7-4224-a276-683092b27472",
+        "b661f698-59a8-4328-b1fc-4528c209458d",
+        "7d4adcde-ae42-4d9b-9305-3ff00c304390"
       ],
-      "evidence": "docs/evidence/local-2026-11-06-mobile-r1/UI-MOB-11.json"
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-11.json"
     },
     "UI-MOB-23": {
       "result": "PASS",
-      "at": "2026-11-06T03:48:08.037Z",
-      "build": "c37efd98fdc4591cd28187f560e8a2a2d503729f+dirty",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
       "schema_version": "1706",
       "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
       "request_ids": [
-        "d5dc4fb1-5a90-4521-96a8-174abaa12583",
-        "7812d86a-2e25-4696-922b-ccdc017260df"
+        "244a620d-5bd0-4aee-9a9c-a89430166b63",
+        "657df68e-da62-4eb2-8e8e-873546c96fc1"
       ],
-      "evidence": "docs/evidence/local-2026-11-06-mobile-r1/UI-MOB-23.json"
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-23.json"
     },
     "UI-MOB-32": {
       "result": "PASS",
-      "at": "2026-11-06T03:48:08.037Z",
-      "build": "c37efd98fdc4591cd28187f560e8a2a2d503729f+dirty",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
       "schema_version": "1706",
       "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
       "request_ids": [
-        "c7c2fe80-dd60-4882-87ee-447953746e11"
+        "bc946ccc-c8de-4c21-befd-9471a895008e"
       ],
-      "evidence": "docs/evidence/local-2026-11-06-mobile-r1/UI-MOB-32.json"
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-32.json"
     },
     "UI-MOB-47": {
       "result": "PASS",
-      "at": "2026-11-06T03:48:08.037Z",
-      "build": "c37efd98fdc4591cd28187f560e8a2a2d503729f+dirty",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
       "schema_version": "1706",
       "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
       "request_ids": [
-        "c758f937-87f1-4046-aaed-93ea5e8424f8",
-        "81cf9b42-74b2-48b9-a651-b5d10f739f75"
+        "5c577e8a-dc3a-43fb-8740-7e0129ec0bb5",
+        "76c354e9-4a65-49f4-b6df-21d7c2a9a129"
       ],
-      "evidence": "docs/evidence/local-2026-11-06-mobile-r1/UI-MOB-47.json"
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-47.json"
     },
     "UI-MOB-49": {
       "result": "PASS",
-      "at": "2026-11-06T03:48:08.037Z",
-      "build": "c37efd98fdc4591cd28187f560e8a2a2d503729f+dirty",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
       "schema_version": "1706",
       "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
       "request_ids": [
-        "e9e6af77-f93e-457b-a531-d5ee9fcf9dab",
-        "14259403-b237-43e4-b8f1-e94c08655b22"
+        "a8a09811-b637-476a-a09a-2abe1ce531bd",
+        "e33affb8-e6d7-4b4b-acba-34942e8874b7"
       ],
-      "evidence": "docs/evidence/local-2026-11-06-mobile-r1/UI-MOB-49.json"
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-49.json"
+    },
+    "UI-MOB-08": {
+      "result": "PASS",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+      "schema_version": "1706",
+      "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
+      "request_ids": [
+        "6c2334e5-13f5-4735-9287-9fa2e974ea1d"
+      ],
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-08.json"
+    },
+    "UI-MOB-12": {
+      "result": "PASS",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+      "schema_version": "1706",
+      "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
+      "request_ids": [
+        "4bec93fb-68b3-4d0f-8133-13cda8735dd1",
+        "b59e2416-fb8a-42ff-a298-e5b52e7f32d4"
+      ],
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-12.json"
+    },
+    "UI-MOB-34": {
+      "result": "PASS",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+      "schema_version": "1706",
+      "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
+      "request_ids": [
+        "8f43e15e-689e-41f9-a78b-d1a03091d157"
+      ],
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-34.json"
+    },
+    "UI-MOB-35": {
+      "result": "PASS",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+      "schema_version": "1706",
+      "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
+      "request_ids": [
+        "0d597b5c-5890-4367-9ad7-d7a102e1f176"
+      ],
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-35.json"
+    },
+    "UI-MOB-40": {
+      "result": "PASS",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+      "schema_version": "1706",
+      "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
+      "request_ids": [
+        "70967516-20ce-4f58-8ef6-bd00d339614c"
+      ],
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-40.json"
+    },
+    "UI-MOB-41": {
+      "result": "PASS",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+      "schema_version": "1706",
+      "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
+      "request_ids": [],
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-41.json"
+    },
+    "UI-MOB-43": {
+      "result": "PASS",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+      "schema_version": "1706",
+      "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
+      "request_ids": [],
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-43.json"
+    },
+    "UI-MOB-50": {
+      "result": "PASS",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+      "schema_version": "1706",
+      "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
+      "request_ids": [],
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-50.json"
+    },
+    "UI-MOB-51": {
+      "result": "PASS",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+      "schema_version": "1706",
+      "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
+      "request_ids": [],
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-51.json"
+    },
+    "UI-MOB-57": {
+      "result": "PASS",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+      "schema_version": "1706",
+      "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
+      "request_ids": [
+        "3aa3be6f-64ef-4fdc-bc15-f44aa33cadbf",
+        "cca7da51-db65-4054-858d-d91a6f41620d",
+        "8a5f2f97-9c4e-4d01-b425-d0a728859f63",
+        "aacccb08-4d7f-4c66-9595-9ae4e912899a"
+      ],
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-57.json"
+    },
+    "UI-MOB-58": {
+      "result": "PASS",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+      "schema_version": "1706",
+      "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
+      "request_ids": [
+        "d325b76c-8f4a-4f7a-ba8e-1ae69a26b169",
+        "01d6194e-c013-4118-aa5e-c1604b38e3b4"
+      ],
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-58.json"
+    },
+    "UI-MOB-59": {
+      "result": "PASS",
+      "at": "2026-11-06T05:08:13.190Z",
+      "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+      "schema_version": "1706",
+      "dataset_sha256": "c9e70ecae77e6aebb7046f21a971e982b3f6ada15a69cf566e08c56e7c406279",
+      "request_ids": [
+        "9f61b9e2-9ec9-46c9-9108-01af60cf1df4"
+      ],
+      "evidence": "docs/evidence/local-2026-11-06-mobile-r2/UI-MOB-59.json"
     }
   },
   "waivers": []

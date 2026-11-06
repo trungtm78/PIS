@@ -1,0 +1,18 @@
+{
+  "id": "UI-MOB-50",
+  "result": "PASS",
+  "at": "2026-11-06T05:08:13.190Z",
+  "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+  "run": "local-2026-11-06-mobile-r2",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-50 trợ giúp và phản hồi",
+      "status": "passed",
+      "durationMs": 9912,
+      "at": "2026-11-06T05:03:36.008Z",
+      "requests": []
+    }
+  ]
+}

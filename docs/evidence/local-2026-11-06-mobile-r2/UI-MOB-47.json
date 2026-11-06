@@ -1,0 +1,33 @@
+{
+  "id": "UI-MOB-47",
+  "result": "PASS",
+  "at": "2026-11-06T05:08:13.190Z",
+  "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+  "run": "local-2026-11-06-mobile-r2",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-47 tài khoản và sinh trắc học",
+      "status": "passed",
+      "durationMs": 9953,
+      "at": "2026-11-06T04:59:12.532Z",
+      "requests": [
+        {
+          "id": "5c577e8a-dc3a-43fb-8740-7e0129ec0bb5",
+          "method": "GET",
+          "path": "/me/profile",
+          "status": 200,
+          "at": "2026-11-06T04:59:12.664Z"
+        },
+        {
+          "id": "76c354e9-4a65-49f4-b6df-21d7c2a9a129",
+          "method": "GET",
+          "path": "/me/session/tenant-selection/candidates",
+          "status": 200,
+          "at": "2026-11-06T04:59:12.665Z"
+        }
+      ]
+    }
+  ]
+}

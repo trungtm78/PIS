@@ -1,0 +1,18 @@
+{
+  "id": "UI-MOB-02",
+  "result": "PASS",
+  "at": "2026-11-06T05:08:13.190Z",
+  "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+  "run": "local-2026-11-06-mobile-r2",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-02 đăng nhập sso",
+      "status": "passed",
+      "durationMs": 7826,
+      "at": "2026-11-06T04:44:29.325Z",
+      "requests": []
+    }
+  ]
+}

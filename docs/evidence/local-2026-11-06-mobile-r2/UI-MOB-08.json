@@ -1,0 +1,26 @@
+{
+  "id": "UI-MOB-08",
+  "result": "PASS",
+  "at": "2026-11-06T05:08:13.190Z",
+  "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+  "run": "local-2026-11-06-mobile-r2",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-08 trang chủ cán bộ",
+      "status": "passed",
+      "durationMs": 9817,
+      "at": "2026-11-06T04:47:03.940Z",
+      "requests": [
+        {
+          "id": "6c2334e5-13f5-4735-9287-9fa2e974ea1d",
+          "method": "GET",
+          "path": "/home/my-work",
+          "status": 200,
+          "at": "2026-11-06T04:47:04.063Z"
+        }
+      ]
+    }
+  ]
+}

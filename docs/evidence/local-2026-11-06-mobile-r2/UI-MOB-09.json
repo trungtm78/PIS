@@ -1,0 +1,18 @@
+{
+  "id": "UI-MOB-09",
+  "result": "PASS",
+  "at": "2026-11-06T05:08:13.190Z",
+  "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+  "run": "local-2026-11-06-mobile-r2",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-09 danh sách dự án",
+      "status": "passed",
+      "durationMs": 10301,
+      "at": "2026-11-06T04:49:02.179Z",
+      "requests": []
+    }
+  ]
+}

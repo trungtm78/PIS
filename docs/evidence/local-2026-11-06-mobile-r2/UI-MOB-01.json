@@ -1,0 +1,18 @@
+{
+  "id": "UI-MOB-01",
+  "result": "PASS",
+  "at": "2026-11-06T05:08:13.190Z",
+  "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+  "run": "local-2026-11-06-mobile-r2",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-01 chào mừng và nhận diện tenant",
+      "status": "passed",
+      "durationMs": 10406,
+      "at": "2026-11-06T04:44:37.467Z",
+      "requests": []
+    }
+  ]
+}

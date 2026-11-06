@@ -1,0 +1,26 @@
+{
+  "id": "UI-MOB-32",
+  "result": "PASS",
+  "at": "2026-11-06T05:08:13.190Z",
+  "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+  "run": "local-2026-11-06-mobile-r2",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-32 hộp thông báo",
+      "status": "passed",
+      "durationMs": 9745,
+      "at": "2026-11-06T04:55:06.546Z",
+      "requests": [
+        {
+          "id": "bc946ccc-c8de-4c21-befd-9471a895008e",
+          "method": "GET",
+          "path": "/me/notifications",
+          "status": 200,
+          "at": "2026-11-06T04:55:06.650Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "UI-MOB-57",
+  "result": "PASS",
+  "at": "2026-11-06T05:08:13.190Z",
+  "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+  "run": "local-2026-11-06-mobile-r2",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-57 dự án chưa nộp báo cáo",
+      "status": "passed",
+      "durationMs": 10042,
+      "at": "2026-11-06T04:48:36.479Z",
+      "requests": [
+        {
+          "id": "3aa3be6f-64ef-4fdc-bc15-f44aa33cadbf",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-06T04:48:36.623Z"
+        },
+        {
+          "id": "cca7da51-db65-4054-858d-d91a6f41620d",
+          "method": "GET",
+          "path": "/resources/reporting_period",
+          "status": 200,
+          "at": "2026-11-06T04:48:36.627Z"
+        },
+        {
+          "id": "8a5f2f97-9c4e-4d01-b425-d0a728859f63",
+          "method": "GET",
+          "path": "/reporting-periods/00000000-0000-4000-005f-000000000001/submission-progress",
+          "status": 200,
+          "at": "2026-11-06T04:48:36.683Z"
+        },
+        {
+          "id": "aacccb08-4d7f-4c66-9595-9ae4e912899a",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-06T04:48:36.711Z"
+        }
+      ]
+    }
+  ]
+}

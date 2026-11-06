@@ -1,0 +1,47 @@
+{
+  "id": "UI-MOB-11",
+  "result": "PASS",
+  "at": "2026-11-06T05:08:13.190Z",
+  "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+  "run": "local-2026-11-06-mobile-r2",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-11 bản đồ hiện trường",
+      "status": "passed",
+      "durationMs": 10637,
+      "at": "2026-11-06T04:49:33.703Z",
+      "requests": [
+        {
+          "id": "cd80d632-0cd5-4302-92d6-8f9c9975bf32",
+          "method": "GET",
+          "path": "/resources/project",
+          "status": 200,
+          "at": "2026-11-06T04:49:33.800Z"
+        },
+        {
+          "id": "62b7ec4a-57a7-4224-a276-683092b27472",
+          "method": "GET",
+          "path": "/resources/project/00000000-0000-4000-0050-000000000001",
+          "status": 200,
+          "at": "2026-11-06T04:49:33.844Z"
+        },
+        {
+          "id": "b661f698-59a8-4328-b1fc-4528c209458d",
+          "method": "GET",
+          "path": "/resources/project/00000000-0000-4000-005b-000000000002",
+          "status": 200,
+          "at": "2026-11-06T04:49:33.858Z"
+        },
+        {
+          "id": "7d4adcde-ae42-4d9b-9305-3ff00c304390",
+          "method": "GET",
+          "path": "/resources/project/00000000-0000-4000-005e-000000000001",
+          "status": 200,
+          "at": "2026-11-06T04:49:33.861Z"
+        }
+      ]
+    }
+  ]
+}

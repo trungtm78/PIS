@@ -1,0 +1,26 @@
+{
+  "id": "UI-MOB-34",
+  "result": "PASS",
+  "at": "2026-11-06T05:08:13.190Z",
+  "build": "6a97ac268491b09eab5039a4f66480c13baaa4fd+dirty",
+  "run": "local-2026-11-06-mobile-r2",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-34 cài đặt thông báo",
+      "status": "passed",
+      "durationMs": 10016,
+      "at": "2026-11-06T04:55:48.910Z",
+      "requests": [
+        {
+          "id": "8f43e15e-689e-41f9-a78b-d1a03091d157",
+          "method": "GET",
+          "path": "/me/notification-preferences",
+          "status": 200,
+          "at": "2026-11-06T04:55:49.018Z"
+        }
+      ]
+    }
+  ]
+}
