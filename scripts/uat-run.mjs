@@ -149,6 +149,8 @@ export function main(argv, { log = console.log, now = () => new Date(), build = 
       locale: { type: 'string', default: DEFAULT_LOCALE },
       journal: { type: 'string', multiple: true, default: [] },
       'run-id': { type: 'string' },
+      // Keeps the results of an earlier run that this journal does not name (a run of the phone adds to the run of the API and the browser).
+      merge: { type: 'boolean', default: false },
     },
   });
   const messages = loadMessages(values.locale);
@@ -175,6 +177,7 @@ export function main(argv, { log = console.log, now = () => new Date(), build = 
   });
   mkdirSync(join(root, 'docs', 'evidence', runId), { recursive: true });
   for (const [path, content] of Object.entries(evidence)) writeFileSync(join(root, path), `${JSON.stringify(content, null, 2)}\n`);
+  if (values.merge) store.results = { ...(before.results ?? {}), ...store.results };
   writeFileSync(storePath, `${JSON.stringify(store, null, 2)}\n`);
   const counts = { PASS: 0, FAIL: 0, SKIPPED: 0 };
   for (const entry of Object.values(store.results)) counts[entry.result] += 1;

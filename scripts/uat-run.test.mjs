@@ -127,6 +127,21 @@ test('a run writes the store and the evidence, and keeps the waivers the store h
   assert.equal(evidence.tests[0].requests[0].id, 'r-1');
 });
 
+test('a run with --merge keeps the results of the earlier run that its journal does not name, and a result it names is replaced', () => {
+  const root = repo();
+  const before = { runId: 'run-a', results: { 'UAT-AC01': { result: 'FAIL', request_ids: [] }, 'UAT-AC02': { result: 'PASS', request_ids: ['old'] } }, waivers: [] };
+  writeFileSync(join(root, 'docs', 'uat-run-results.json'), JSON.stringify(before));
+  const journal = join(root, 'journal.jsonl');
+  const file = join(root, 'apps', 'api', 'test', 'a.test.ts');
+  writeFileSync(journal, [request('r-9', 'UAT-AC01 again', file), result('jest', file, 'UAT-AC01 again', 'passed')].map((line) => JSON.stringify(line)).join('\n'));
+  main(['--root', root, '--locale', 'en', '--journal', journal, '--run-id', 'run-b', '--merge'], { log: () => undefined, now: () => new Date('2026-11-04T12:00:00Z'), build: () => 'abc' });
+  const store = JSON.parse(readFileSync(join(root, 'docs', 'uat-run-results.json'), 'utf8'));
+  assert.equal(store.runId, 'run-b');
+  assert.equal(store.results['UAT-AC01'].result, 'PASS');
+  assert.deepEqual(store.results['UAT-AC01'].request_ids, ['r-9']);
+  assert.deepEqual(store.results['UAT-AC02'], { result: 'PASS', request_ids: ['old'] });
+});
+
 test('a PASS without any request is counted as one without full evidence, and the default run id is made from the time', () => {
   const root = repo();
   const journal = join(root, 'journal.jsonl');
