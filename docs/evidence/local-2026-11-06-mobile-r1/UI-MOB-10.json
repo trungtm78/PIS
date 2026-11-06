@@ -1,0 +1,40 @@
+{
+  "id": "UI-MOB-10",
+  "result": "PASS",
+  "at": "2026-11-06T03:48:08.037Z",
+  "build": "c37efd98fdc4591cd28187f560e8a2a2d503729f+dirty",
+  "run": "local-2026-11-06-mobile-r1",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-10 chi tiết dự án",
+      "status": "passed",
+      "durationMs": 10070,
+      "at": "2026-11-06T03:45:28.469Z",
+      "requests": [
+        {
+          "id": "7efda5c1-77fe-42ed-827a-cbc2047bfba1",
+          "method": "GET",
+          "path": "/resources/project/00000000-0000-4000-0050-000000000001",
+          "status": 200,
+          "at": "2026-11-06T03:45:28.565Z"
+        },
+        {
+          "id": "060baf98-02b4-4e36-bc78-e8b1859c25be",
+          "method": "GET",
+          "path": "/projects/00000000-0000-4000-0050-000000000001/milestones",
+          "status": 200,
+          "at": "2026-11-06T03:45:28.597Z"
+        },
+        {
+          "id": "f93b5181-54a9-4403-86a5-c0be375fe061",
+          "method": "GET",
+          "path": "/projects/00000000-0000-4000-0050-000000000001/risks",
+          "status": 200,
+          "at": "2026-11-06T03:45:28.620Z"
+        }
+      ]
+    }
+  ]
+}

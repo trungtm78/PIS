@@ -1,0 +1,202 @@
+{
+  "label": "guide-android15-debug-2026-11-06",
+  "signedIn": true,
+  "timedOut": false,
+  "visits": [
+    {
+      "id": "MOB-02",
+      "title": "đăng nhập sso",
+      "heading": "Đăng nhập",
+      "via": "launch",
+      "at": "2026-11-06T03:43:29.339Z",
+      "endedAt": "2026-11-06T03:43:36.921Z",
+      "status": "passed",
+      "reasons": [],
+      "problems": [],
+      "controls": 2,
+      "smallTargets": [],
+      "screenshot": "screens/MOB-02.png"
+    },
+    {
+      "id": "MOB-01",
+      "title": "chào mừng và nhận diện tenant",
+      "heading": "Biểu trưng MACHVON",
+      "via": "Đổi tổ chức",
+      "at": "2026-11-06T03:43:37.300Z",
+      "endedAt": "2026-11-06T03:43:47.349Z",
+      "status": "passed",
+      "reasons": [],
+      "problems": [],
+      "controls": 1,
+      "smallTargets": [],
+      "screenshot": "screens/MOB-01.png"
+    },
+    {
+      "id": "MOB-04",
+      "title": "chọn đơn vị và vai trò",
+      "heading": "Chọn đơn vị và vai trò",
+      "via": "sign-in",
+      "at": "2026-11-06T03:44:09.854Z",
+      "endedAt": "2026-11-06T03:44:17.602Z",
+      "status": "passed",
+      "reasons": [],
+      "problems": [],
+      "controls": 4,
+      "smallTargets": [],
+      "screenshot": "screens/MOB-04.png"
+    },
+    {
+      "id": "MOB-03",
+      "title": "xác thực mfa",
+      "heading": "Xác thực hai yếu tố",
+      "via": "sign-in",
+      "at": "2026-11-06T03:44:31.398Z",
+      "endedAt": "2026-11-06T03:44:39.234Z",
+      "status": "passed",
+      "reasons": [],
+      "problems": [],
+      "controls": 2,
+      "smallTargets": [],
+      "screenshot": "screens/MOB-03.png"
+    },
+    {
+      "id": "MOB-07",
+      "title": "trang chủ lãnh đạo",
+      "heading": "Trang chủ lãnh đạo",
+      "via": "tab Trang chủ",
+      "at": "2026-11-06T03:44:55.223Z",
+      "endedAt": "2026-11-06T03:45:04.977Z",
+      "status": "passed",
+      "reasons": [],
+      "problems": [],
+      "controls": 6,
+      "smallTargets": [],
+      "screenshot": "screens/MOB-07.png"
+    },
+    {
+      "id": "MOB-09",
+      "title": "danh sách dự án",
+      "heading": "Danh sách dự án",
+      "via": "tab Dự án",
+      "at": "2026-11-06T03:45:07.074Z",
+      "endedAt": "2026-11-06T03:45:17.110Z",
+      "status": "passed",
+      "reasons": [],
+      "problems": [],
+      "controls": 13,
+      "smallTargets": [
+        {
+          "label": "DA-CTR Dự án cầu thử hợp đồng, Đang thực hiện",
+          "width": 720,
+          "height": 32
+        }
+      ],
+      "screenshot": "screens/MOB-09.png"
+    },
+    {
+      "id": "MOB-11",
+      "title": "bản đồ hiện trường",
+      "heading": "Bản đồ hiện trường",
+      "via": "Bản đồ hiện trường",
+      "at": "2026-11-06T03:45:17.801Z",
+      "endedAt": "2026-11-06T03:45:27.939Z",
+      "status": "passed",
+      "reasons": [],
+      "problems": [],
+      "controls": 11,
+      "smallTargets": [],
+      "screenshot": "screens/MOB-11.png"
+    },
+    {
+      "id": "MOB-10",
+      "title": "chi tiết dự án",
+      "heading": "Chi tiết dự án",
+      "via": "DA-01 Dự án thử, Theo địa bàn, chưa có tọa độ",
+      "at": "2026-11-06T03:45:28.469Z",
+      "endedAt": "2026-11-06T03:45:38.539Z",
+      "status": "passed",
+      "reasons": [],
+      "problems": [],
+      "controls": 7,
+      "smallTargets": [],
+      "screenshot": "screens/MOB-10.png"
+    },
+    {
+      "id": "MOB-23",
+      "title": "danh sách phê duyệt",
+      "heading": "Danh sách phê duyệt",
+      "via": "tab Phê duyệt",
+      "at": "2026-11-06T03:45:58.398Z",
+      "endedAt": "2026-11-06T03:46:08.401Z",
+      "status": "passed",
+      "reasons": [],
+      "problems": [],
+      "controls": 8,
+      "smallTargets": [],
+      "screenshot": "screens/MOB-23.png"
+    },
+    {
+      "id": "MOB-32",
+      "title": "hộp thông báo",
+      "heading": "Hộp thông báo",
+      "via": "tab Thông báo",
+      "at": "2026-11-06T03:46:10.508Z",
+      "endedAt": "2026-11-06T03:46:20.684Z",
+      "status": "passed",
+      "reasons": [],
+      "problems": [],
+      "controls": 8,
+      "smallTargets": [],
+      "screenshot": "screens/MOB-32.png"
+    },
+    {
+      "id": "MOB-47",
+      "title": "tài khoản và sinh trắc học",
+      "heading": "Tài khoản",
+      "via": "tab Cá nhân",
+      "at": "2026-11-06T03:46:22.658Z",
+      "endedAt": "2026-11-06T03:46:33.116Z",
+      "status": "passed",
+      "reasons": [],
+      "problems": [],
+      "controls": 12,
+      "smallTargets": [
+        {
+          "label": "Tiếng Việt",
+          "width": 656,
+          "height": 48
+        }
+      ],
+      "screenshot": "screens/MOB-47.png"
+    },
+    {
+      "id": "MOB-49",
+      "title": "thiết bị và đăng xuất",
+      "heading": "Thiết bị và đăng xuất",
+      "via": "Thiết bị và đăng xuất",
+      "at": "2026-11-06T03:46:33.541Z",
+      "endedAt": "2026-11-06T03:46:44.948Z",
+      "status": "passed",
+      "reasons": [],
+      "problems": [],
+      "controls": 7,
+      "smallTargets": [],
+      "screenshot": "screens/MOB-49.png"
+    },
+    {
+      "id": null,
+      "title": "Hàng đợi gửi",
+      "heading": "Hàng đợi gửi",
+      "via": "Hàng đợi gửi",
+      "at": "2026-11-06T03:46:54.609Z",
+      "endedAt": "2026-11-06T03:47:04.554Z",
+      "status": "passed",
+      "reasons": [],
+      "problems": [],
+      "controls": 6,
+      "smallTargets": [],
+      "screenshot": "screens/unknown-1.png"
+    }
+  ],
+  "journal": 12
+}

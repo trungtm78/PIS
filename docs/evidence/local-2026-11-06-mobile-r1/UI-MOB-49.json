@@ -1,0 +1,33 @@
+{
+  "id": "UI-MOB-49",
+  "result": "PASS",
+  "at": "2026-11-06T03:48:08.037Z",
+  "build": "c37efd98fdc4591cd28187f560e8a2a2d503729f+dirty",
+  "run": "local-2026-11-06-mobile-r1",
+  "tests": [
+    {
+      "suite": "maestro",
+      "file": "",
+      "name": "UI-MOB-49 thiết bị và đăng xuất",
+      "status": "passed",
+      "durationMs": 11407,
+      "at": "2026-11-06T03:46:33.541Z",
+      "requests": [
+        {
+          "id": "e9e6af77-f93e-457b-a531-d5ee9fcf9dab",
+          "method": "GET",
+          "path": "/me/sessions",
+          "status": 200,
+          "at": "2026-11-06T03:46:33.653Z"
+        },
+        {
+          "id": "14259403-b237-43e4-b8f1-e94c08655b22",
+          "method": "GET",
+          "path": "/me/devices",
+          "status": 200,
+          "at": "2026-11-06T03:46:33.675Z"
+        }
+      ]
+    }
+  ]
+}
