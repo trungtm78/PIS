@@ -257,8 +257,8 @@ final class OidcClient {
       throw const OidcException(OidcFailure.unreachable);
     }
     final Map<String, Object?>? document = result.ok ? _jsonObject(result.body) : null;
-    final Uri? authorization = _httpsUri(document?['authorization_endpoint']);
-    final Uri? token = _httpsUri(document?['token_endpoint']);
+    final Uri? authorization = _endpointUri(document?['authorization_endpoint'], config.issuer);
+    final Uri? token = _endpointUri(document?['token_endpoint'], config.issuer);
     final Object? announced = document?['issuer'];
     if (authorization == null || token == null || announced is! String || announced.replaceAll(RegExp(r'/+$'), '') != key) {
       throw const OidcException(OidcFailure.discoveryFailed);
@@ -266,8 +266,8 @@ final class OidcClient {
     return _endpoints[key] = OidcEndpoints(
       authorization: authorization,
       token: token,
-      revocation: _httpsUri(document?['revocation_endpoint']),
-      endSession: _httpsUri(document?['end_session_endpoint']),
+      revocation: _endpointUri(document?['revocation_endpoint'], config.issuer),
+      endSession: _endpointUri(document?['end_session_endpoint'], config.issuer),
     );
   }
 
@@ -352,10 +352,14 @@ bool _sameIssuer(Object? claim, Uri issuer) => claim is String && claim.replaceA
 bool _audienceHas(Object? audience, String clientId) =>
     audience == clientId || (audience is List<Object?> && audience.contains(clientId));
 
-Uri? _httpsUri(Object? value) {
+/// An endpoint of the discovery document: https, or plain http on the very address of an issuer that is itself plain http (an
+/// issuer is only accepted that way for a loopback host of a debug build, see [OidcConfig.parse]).
+Uri? _endpointUri(Object? value, Uri issuer) {
   if (value is! String) return null;
   final Uri? url = Uri.tryParse(value);
-  return url != null && url.scheme == 'https' && url.host.isNotEmpty ? url : null;
+  if (url == null || url.host.isEmpty) return null;
+  if (url.scheme == 'https') return url;
+  return url.scheme == 'http' && issuer.scheme == 'http' && url.host == issuer.host && url.port == issuer.port ? url : null;
 }
 
 Map<String, Object?>? _jsonObject(String text) {

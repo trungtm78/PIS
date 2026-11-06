@@ -315,6 +315,29 @@ void main() {
       expect((await _failure(client.signIn(kOidcConfig))).failure, OidcFailure.unreachable);
     });
 
+    test('takes plain http endpoints only on the address of a loopback issuer that a debug build allowed', () async {
+      const String loopback = 'http://127.0.0.1:3998/realms/machvon';
+      final OidcConfig config = OidcConfig.parse(issuer: loopback, clientId: 'c', allowInsecureLoopback: true);
+      Future<OidcFailure?> failureFor(OidcConfig forConfig, String document) async {
+        final OidcClient other = OidcClient(
+          transport: _Stub((HttpCall call) async => HttpResult(status: 200, headers: const <String, String>{}, body: document)),
+          browser: world.browser,
+        );
+        try {
+          await other.discover(forConfig);
+          return null;
+        } on OidcException catch (error) {
+          return error.failure;
+        }
+      }
+
+      expect(await failureFor(config, '{"issuer":"$loopback","authorization_endpoint":"$loopback/auth","token_endpoint":"$loopback/token"}'), isNull);
+      expect(await failureFor(config, '{"issuer":"$loopback","authorization_endpoint":"http://127.0.0.1:9/auth","token_endpoint":"$loopback/token"}'), OidcFailure.discoveryFailed);
+      expect(await failureFor(config, '{"issuer":"$loopback","authorization_endpoint":"http://evil.test/auth","token_endpoint":"$loopback/token"}'), OidcFailure.discoveryFailed);
+      // an https issuer never takes a plain http endpoint, even one on its own host
+      expect(await failureFor(kOidcConfig, '{"issuer":"$kIssuer","authorization_endpoint":"http://idp.test/a","token_endpoint":"$kIssuer/t"}'), OidcFailure.discoveryFailed);
+    });
+
     test('accepts only an https issuer (a loopback one only when a debug build allows it) and a custom-scheme redirect', () {
       expect(() => OidcConfig.parse(issuer: 'http://idp.test', clientId: 'c'), throwsA(isA<OidcException>()));
       expect(() => OidcConfig.parse(issuer: 'http://localhost:8080/realms/x', clientId: 'c'), throwsA(isA<OidcException>()));
