@@ -24,10 +24,12 @@ const TAB_BAR_TOP = 1352;
 const STATUS_BAR = 128;
 /** Where the bar of a screen ends: its title is drawn between the bar of the system and this line. */
 const BAR_BOTTOM = 250;
+/** How many pages a screen is scrolled when its touch areas are listed. */
+const MAX_PAGES = 4;
 /** 48 dp at the 2 pixels per dp of the emulator. */
 const MIN_TOUCH_PX = 96;
 /** What a walk never taps: it leaves the session, deletes, sends, decides, switches the tenant or sets a filter (a menu is not a screen). The screens are looked at, not used. */
-const NEVER_TAP = /^(đăng xuất|xóa|xoá|gửi|nộp|phê duyệt|duyệt|từ chối|ký|trả lại|đổi tổ chức|đổi tenant|thoát|hủy|huỷ|làm mới|đồng ý|xác nhận|tiếp tục|trạng thái|bộ lọc|lọc)(?!\p{L})/iu;
+const NEVER_TAP = /^(đăng xuất|xóa|xoá|gửi|nộp|phê duyệt|duyệt|từ chối|ký|trả lại|đổi tổ chức|đổi tenant|thoát|hủy|huỷ|làm mới|đồng ý|xác nhận|tiếp tục|trạng thái|bộ lọc|lọc|english|tiếng việt|ngôn ngữ|quay lại)(?!\p{L})/iu;
 /** The screens whose rows are an action (a choice of tenant or unit, the device list with its sign-out): the walk does not go below them. */
 const NO_DESCEND = new Set(['MOB-03', 'MOB-04', 'MOB-48', 'MOB-49']);
 const LOG_PROBLEM = /FATAL EXCEPTION|EXCEPTION CAUGHT BY|RenderFlex overflowed|overflowed by|ANR in|Process vn\.machvon\.app.*has died/u;
@@ -36,6 +38,12 @@ const LOG_PROBLEM = /FATAL EXCEPTION|EXCEPTION CAUGHT BY|RenderFlex overflowed|o
 export const TITLE_ALIASES = {
   'Biểu trưng MACHVON': 'MOB-01',
   'Tài khoản': 'MOB-47',
+  'Hàng đợi gửi': 'MOB-41',
+  'Làm việc ngoại tuyến': 'MOB-43',
+  'Tìm kiếm': 'MOB-51',
+  'Dashboard BI của tôi': 'MOB-40',
+  'Thông báo đẩy': 'MOB-34',
+  'Hội thoại': 'MOB-35',
   'Đăng nhập': 'MOB-02',
   'Xác thực hai yếu tố': 'MOB-03',
 };
@@ -114,7 +122,8 @@ export function targetsOf(nodes, limit) {
   const targets = [];
   for (const node of nodes) {
     if (!node.clickable || node.editable || node.label === '' || NEVER_TAP.test(node.label)) continue;
-    if (node.bounds.top < CONTENT_TOP || node.bounds.bottom > TAB_BAR_TOP || node.bounds.right - node.bounds.left < 40) continue;
+    // The buttons of the bar of a screen (a conversation, a setting) open screens too; the bar of the system is above STATUS_BAR.
+    if (node.bounds.top < STATUS_BAR || node.bounds.bottom > TAB_BAR_TOP || node.bounds.right - node.bounds.left < 40) continue;
     const key = normal(node.label);
     if (seen.has(key)) continue;
     seen.add(key);
@@ -194,7 +203,7 @@ const back = () => adb('shell', 'input', 'keyevent', 'KEYCODE_BACK');
 const inForeground = () => /topResumedActivity=.*vn\.machvon\.app/u.test(adb('shell', 'dumpsys', 'activity', 'activities').out);
 const launch = () => adb('shell', 'monkey', '-p', PACKAGE, '-c', 'android.intent.category.LAUNCHER', '1');
 
-export async function walk({ root = REPO_ROOT, label, journal, budgetMinutes, perScreen, perChild, log = console.log }) {
+export async function walk({ root = REPO_ROOT, label, journal, budgetMinutes, perScreen, perChild, maxDepth = 3, log = console.log }) {
   const titles = titlesOf(JSON.parse(readFileSync(join(root, CATALOG), 'utf8')));
   const outDir = join(root, 'apps', 'mobile', 'qa', 'device', 'results', label);
   mkdirSync(join(outDir, 'screens'), { recursive: true });
@@ -299,14 +308,68 @@ export async function walk({ root = REPO_ROOT, label, journal, budgetMinutes, pe
     return { visits, signedIn, unknown, timedOut: false };
   }
 
-  // 2. Each tab and what a person can open from it, two levels down at most.
+  // 2. Each tab and what a person can open from it, as deep as the depth allows. A screen is opened once for its own children (a list of projects has one detail page to look at, not ten).
   let timedOut = false;
+  const tried = new Set();
+  const explored = new Set();
+  const swipeUp = () => adb('shell', 'input', 'swipe', '360', '1100', '360', '450', '500');
+  const swipeDown = () => adb('shell', 'input', 'swipe', '360', '450', '360', '1100', '300');
+  const toTop = async () => {
+    for (let times = 0; times <= MAX_PAGES; times += 1) swipeDown();
+    await sleep(800);
+  };
+  const contentLabels = (nodes) => nodes.filter((node) => node.label !== '' && node.bounds.top >= CONTENT_TOP && node.bounds.bottom <= TAB_BAR_TOP).map((node) => normal(node.label));
+
+  /** What can be touched on a screen, from its top to its end: the screen is scrolled until a page adds no label, then brought back to the top. */
+  const targetLabels = async (first, limit) => {
+    const labels = [];
+    const seen = new Set();
+    const known = new Set(contentLabels(first));
+    const add = (nodes) => {
+      for (const node of targetsOf(nodes, 200)) {
+        const key = normal(node.label);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        labels.push(node.label);
+      }
+    };
+    add(first);
+    for (let page = 0; page < MAX_PAGES; page += 1) {
+      swipeUp();
+      await sleep(900);
+      const nodes = readScreen();
+      const fresh = contentLabels(nodes).filter((label) => !known.has(label));
+      if (fresh.length === 0) break;
+      for (const label of fresh) known.add(label);
+      add(nodes);
+    }
+    await toTop();
+    return labels.slice(0, limit);
+  };
+
+  /** The touch area with a name, wherever the screen has been scrolled to: from the top, one page at a time. */
+  const locate = async (label, start) => {
+    let nodes = start;
+    const find = () => targetsOf(nodes, 200).find((node) => node.label === label);
+    if (find() !== undefined) return find();
+    await toTop();
+    for (let page = 0; page <= MAX_PAGES; page += 1) {
+      nodes = readScreen();
+      if (find() !== undefined) return find();
+      swipeUp();
+      await sleep(900);
+    }
+    return undefined;
+  };
+
   const explore = async (first, parent, depth) => {
     const limit = depth === 1 ? perScreen : perChild;
-    const labels = targetsOf(first, limit).map((node) => node.label);
+    const labels = await targetLabels(first, limit);
     let current = first;
     for (const [index, label] of labels.entries()) {
       const name = label.split('\n')[0];
+      const key = `${parent}>${normal(label)}`;
+      if (tried.has(key)) continue;
       if (Date.now() > deadline) {
         timedOut = true;
         return 'time';
@@ -329,11 +392,13 @@ export async function walk({ root = REPO_ROOT, label, journal, budgetMinutes, pe
           }
         }
       }
-      const target = targetsOf(current, labels.length + 4).find((node) => node.label === label);
+      const target = await locate(label, current);
       if (target === undefined) {
         log(`skip: "${name}" is not on the screen any more`);
+        tried.add(key);
         continue;
       }
+      tried.add(key);
       adb('logcat', '-c');
       const at = new Date();
       tap(...centre(target));
@@ -350,7 +415,10 @@ export async function walk({ root = REPO_ROOT, label, journal, budgetMinutes, pe
         await sleep(6000);
         return 'lost';
       }
-      if (id !== null && depth < 2 && !NO_DESCEND.has(id) && (await explore(after, id, depth + 1)) === 'lost') return 'lost';
+      if (id !== null && depth < maxDepth && !NO_DESCEND.has(id) && !explored.has(id)) {
+        explored.add(id);
+        if ((await explore(after, id, depth + 1)) === 'lost') return 'lost';
+      }
       back();
       await sleep(1500);
       if (!inForeground()) {
@@ -362,22 +430,27 @@ export async function walk({ root = REPO_ROOT, label, journal, budgetMinutes, pe
     return 'done';
   };
   for (const tab of TABS) {
-    if (Date.now() > deadline) {
-      timedOut = true;
-      break;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      if (Date.now() > deadline) {
+        timedOut = true;
+        break;
+      }
+      if (!inForeground()) {
+        launch();
+        await sleep(6000);
+      }
+      adb('logcat', '-c');
+      const at = new Date();
+      tap(tab.x, TAB_Y);
+      const nodes = await settle();
+      const id = visit(at, nodes, `tab ${tab.name}`);
+      explored.add(id);
+      // Lost on the way: the walk starts again from the root of the tab and goes on with what it has not touched yet.
+      if ((await explore(nodes, id, 1)) !== 'lost') break;
     }
-    if (!inForeground()) {
-      launch();
-      await sleep(6000);
-    }
-    adb('logcat', '-c');
-    const at = new Date();
-    tap(tab.x, TAB_Y);
-    const nodes = await settle();
-    const id = visit(at, nodes, `tab ${tab.name}`);
-    await explore(nodes, id, 1);
     tap(tab.x, TAB_Y);
     await sleep(1500);
+    if (timedOut) break;
   }
 
   const lines = journalOf(visits);
@@ -394,7 +467,8 @@ export async function main(argv, io = {}) {
       journal: { type: 'string', default: process.env.UAT_JOURNAL ?? '' },
       budget: { type: 'string', default: '45' },
       'per-screen': { type: 'string', default: '10' },
-      'per-child': { type: 'string', default: '3' },
+      'per-child': { type: 'string', default: '6' },
+      depth: { type: 'string', default: '3' },
     },
   });
   const log = io.log ?? console.log;
@@ -404,6 +478,7 @@ export async function main(argv, io = {}) {
     budgetMinutes: Number(values.budget),
     perScreen: Number(values['per-screen']),
     perChild: Number(values['per-child']),
+    maxDepth: Number(values.depth),
     log,
   });
   const ids = new Set(result.visits.filter((visit) => visit.id !== null).map((visit) => visit.id));
