@@ -1,0 +1,23 @@
+# TC-UI-MOB-68: Nhiệm vụ GPMB hiện trường (MOB-68): hợp đồng màn hình
+# persona: can-bo-gpmb | oracle: Claim -> FR-MOB-68
+# catches_bug: Màn hình Nhiệm vụ GPMB hiện trường (MOB-68) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai
+appId: vn.machvon.app
+tags: [P1, S3, J-FR-MOB-68]
+---
+- clearState
+- launchApp:
+    permissions: { all: allow }
+- startRecording: TC-UI-MOB-68   # cap ~3 phut, journey dai chia chunk
+- takeScreenshot: TC-UI-MOB-68-given
+# TODO step: Chuẩn bị: TNT-A; người dùng có quyền xem MOB-68; dữ liệu synthetic theo fixture
+# TODO step: 1. Mở màn hình trên thiết bị 390×844 và 360×800
+# TODO step: 2. Kiểm 7 trạng thái chuẩn cộng offline và quyền camera/push bị từ chối
+# TODO step: 3. Kiểm vùng chạm ≥44 pt/48 dp, dynamic type 200% và trình đọc màn hình
+# TODO: thay TODO step bang tapOn/inputText/scrollUntilVisible... (uu tien accessibility label/text; khong tim thay = a11y defect)
+- takeScreenshot: TC-UI-MOB-68-when
+# >=3 assertion: screen identity + element + text/data (mirror rule web)
+- assertVisible: "MOB-68 hiển thị đúng quyền, trạng thái và theo mockup; không"   # TODO 1: screen identity
+# TODO 2: assertVisible element nghiep vu (id: tu testID neu co)
+# TODO 3: assertVisible text/data dung theo oracle_source
+- takeScreenshot: TC-UI-MOB-68-then
+- stopRecording

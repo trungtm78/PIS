@@ -1,0 +1,18 @@
+# TC-UI-MOB-10: Chi tiết dự án (MOB-10): hợp đồng màn hình
+# persona: theo-vai-tro-dang-chon | oracle: Claim -> FR-MOB-10 | platform: android (emulator AVD guide, debug build)
+# catches_bug: Màn hình Chi tiết dự án (MOB-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai
+# backend_policy: the real API and database of the e2e stack (apps/api/test/e2e-stack); nothing of the system under test is mocked.
+appId: vn.machvon.app
+tags: [P0, S2]
+---
+- launchApp:
+    stopApp: true
+- assertVisible: 'Trang chủ lãnh đạo'
+- takeScreenshot: TC-UI-MOB-10-given
+- tapOn: 'Dự án.*'
+- tapOn: 'DA-01.*'
+- takeScreenshot: TC-UI-MOB-10-when
+- assertVisible: 'Chi tiết dự án'   # 1. screen identity
+- assertVisible: 'DA-01 · Dự án thử'   # 2. element of the screen
+- assertVisible: 'Vốn.*'   # 3. text or data of the screen
+- takeScreenshot: TC-UI-MOB-10-then

@@ -1,0 +1,18 @@
+# TC-UI-MOB-35: Hộp hội thoại (MOB-35): hợp đồng màn hình
+# persona: theo-vai-tro-dang-chon | oracle: Claim -> FR-MOB-35 | platform: android (emulator AVD guide, debug build)
+# catches_bug: Màn hình Hộp hội thoại (MOB-35) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai
+# backend_policy: the real API and database of the e2e stack (apps/api/test/e2e-stack); nothing of the system under test is mocked.
+appId: vn.machvon.app
+tags: [P1, S3]
+---
+- launchApp:
+    stopApp: true
+- assertVisible: 'Trang chủ lãnh đạo'
+- takeScreenshot: TC-UI-MOB-35-given
+- tapOn: 'Thông báo.*'
+- tapOn: 'Hội thoại gắn với hồ sơ.*'
+- takeScreenshot: TC-UI-MOB-35-when
+- assertVisible: 'Hội thoại'   # 1. screen identity
+- assertVisible: 'Quay lại'   # 2. element of the screen
+- assertVisible: 'Thông báo.*'   # 3. text or data of the screen
+- takeScreenshot: TC-UI-MOB-35-then

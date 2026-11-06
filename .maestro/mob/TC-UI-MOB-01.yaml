@@ -1,0 +1,18 @@
+# TC-UI-MOB-01: Chào mừng và nhận diện tenant (MOB-01): hợp đồng màn hình
+# persona: theo-vai-tro-dang-chon | oracle: Claim -> FR-MOB-01 | platform: android (emulator AVD guide, debug build)
+# catches_bug: Màn hình Chào mừng và nhận diện tenant (MOB-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai
+# backend_policy: the real API and database of the e2e stack (apps/api/test/e2e-stack); nothing of the system under test is mocked.
+appId: vn.machvon.app
+tags: [P0, S2]
+---
+- clearState
+- launchApp:
+    permissions: { all: allow }
+- assertVisible: 'Đăng nhập'
+- takeScreenshot: TC-UI-MOB-01-given
+- tapOn: 'Đổi tổ chức'
+- takeScreenshot: TC-UI-MOB-01-when
+- assertVisible: 'Chào mừng đến MACHVON'   # 1. screen identity
+- assertVisible: 'Mã tổ chức hoặc tên miền'   # 2. the field of the tenant
+- assertVisible: 'Tiếp tục'   # 3. the action
+- takeScreenshot: TC-UI-MOB-01-then

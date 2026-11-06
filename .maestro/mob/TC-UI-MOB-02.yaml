@@ -1,0 +1,16 @@
+# TC-UI-MOB-02: Đăng nhập SSO (MOB-02): hợp đồng màn hình
+# persona: theo-vai-tro-dang-chon | oracle: Claim -> FR-MOB-02 | platform: android (emulator AVD guide, debug build)
+# catches_bug: Màn hình Đăng nhập SSO (MOB-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai
+# backend_policy: the real API and database of the e2e stack (apps/api/test/e2e-stack); nothing of the system under test is mocked.
+appId: vn.machvon.app
+tags: [P0, S2]
+---
+- clearState
+- launchApp:
+    permissions: { all: allow }
+- takeScreenshot: TC-UI-MOB-02-given
+- assertVisible: 'Đăng nhập'   # 1. screen identity
+- assertVisible: 'Bạn đăng nhập trong trình duyệt.*'   # 2. the password never reaches the application
+- assertVisible: 'Đăng nhập bằng SSO'   # 3. the action
+- assertVisible: 'Đổi tổ chức'
+- takeScreenshot: TC-UI-MOB-02-then

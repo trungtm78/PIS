@@ -1,0 +1,23 @@
+# TC-UI-MOB-18: Đăng ký tháng sau (MOB-18): hợp đồng màn hình
+# persona: theo-vai-tro-dang-chon | oracle: Claim -> FR-MOB-18
+# catches_bug: Màn hình Đăng ký tháng sau (MOB-18) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai
+appId: vn.machvon.app
+tags: [P0, S2, J-FR-MOB-18]
+---
+- clearState
+- launchApp:
+    permissions: { all: allow }
+- startRecording: TC-UI-MOB-18   # cap ~3 phut, journey dai chia chunk
+- takeScreenshot: TC-UI-MOB-18-given
+# TODO step: Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route MOB-18
+# TODO step: 1. Mở route bằng menu và deep link; kiểm tên trường: Tháng, Nguồn, Giá trị
+# TODO step: 2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Dữ liệu offline chỉ cho bản nháp; phê duyệt và quyền cuối cùng được kiểm tra online tại server.
+# TODO step: 3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot
+# TODO: thay TODO step bang tapOn/inputText/scrollUntilVisible... (uu tien accessibility label/text; khong tim thay = a11y defect)
+- takeScreenshot: TC-UI-MOB-18-when
+# >=3 assertion: screen identity + element + text/data (mirror rule web)
+- assertVisible: "Không crash/tràn; mọi control có nhãn; không action ngoài qu"   # TODO 1: screen identity
+# TODO 2: assertVisible element nghiep vu (id: tu testID neu co)
+# TODO 3: assertVisible text/data dung theo oracle_source
+- takeScreenshot: TC-UI-MOB-18-then
+- stopRecording

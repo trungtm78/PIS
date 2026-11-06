@@ -1,0 +1,18 @@
+# TC-UI-MOB-34: Cài đặt thông báo (MOB-34): hợp đồng màn hình
+# persona: theo-vai-tro-dang-chon | oracle: Claim -> FR-MOB-34 | platform: android (emulator AVD guide, debug build)
+# catches_bug: Màn hình Cài đặt thông báo (MOB-34) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai
+# backend_policy: the real API and database of the e2e stack (apps/api/test/e2e-stack); nothing of the system under test is mocked.
+appId: vn.machvon.app
+tags: [P0, S2]
+---
+- launchApp:
+    stopApp: true
+- assertVisible: 'Trang chủ lãnh đạo'
+- takeScreenshot: TC-UI-MOB-34-given
+- tapOn: 'Thông báo.*'
+- tapOn: 'Cài đặt thông báo.*'
+- takeScreenshot: TC-UI-MOB-34-when
+- assertVisible: 'Cài đặt thông báo'   # 1. screen identity
+- assertVisible: 'Trong ứng dụng'   # 2. element of the screen
+- assertVisible: 'Thông báo đẩy'   # 3. text or data of the screen
+- takeScreenshot: TC-UI-MOB-34-then

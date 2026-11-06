@@ -42,7 +42,7 @@ export const TITLE_ALIASES = {
   'Làm việc ngoại tuyến': 'MOB-43',
   'Tìm kiếm': 'MOB-51',
   'Dashboard BI của tôi': 'MOB-40',
-  'Thông báo đẩy': 'MOB-34',
+  'Thông báo đẩy': 'MOB-05',
   'Hội thoại': 'MOB-35',
   'Đăng nhập': 'MOB-02',
   'Xác thực hai yếu tố': 'MOB-03',

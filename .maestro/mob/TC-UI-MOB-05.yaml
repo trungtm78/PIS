@@ -1,0 +1,21 @@
+# TC-UI-MOB-05: Xin quyền thông báo (MOB-05): hợp đồng màn hình
+# persona: theo-vai-tro-dang-chon | oracle: Claim -> FR-MOB-05 | platform: android (emulator AVD guide, debug build)
+# catches_bug: Màn hình Xin quyền thông báo (MOB-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai
+# backend_policy: the real API and database of the e2e stack (apps/api/test/e2e-stack); nothing of the system under test is mocked.
+appId: vn.machvon.app
+tags: [P0, S2]
+---
+- launchApp:
+    stopApp: true
+    permissions: { notifications: deny }   # the screen asks for a permission that was not given
+- assertVisible: 'Trang chủ lãnh đạo'
+- takeScreenshot: TC-UI-MOB-05-given
+- tapOn: 'Thông báo.*'
+- tapOn: 'Cài đặt thông báo.*'
+- tapOn: 'Thông báo đẩy'   # the switch of the push channel goes off
+- tapOn: 'Thông báo đẩy'   # and on again: the device has not given the permission, so the application asks for it
+- takeScreenshot: TC-UI-MOB-05-when
+- assertVisible: 'Thông báo đẩy'   # 1. screen identity
+- assertVisible: 'Cho phép'   # 2. element of the screen
+- assertVisible: 'Để sau'   # 3. text or data of the screen
+- takeScreenshot: TC-UI-MOB-05-then

@@ -1,0 +1,18 @@
+# TC-UI-MOB-12: Kế hoạch vốn (MOB-12): hợp đồng màn hình
+# persona: theo-vai-tro-dang-chon | oracle: Claim -> FR-MOB-12 | platform: android (emulator AVD guide, debug build)
+# catches_bug: Màn hình Kế hoạch vốn (MOB-12) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai
+# backend_policy: the real API and database of the e2e stack (apps/api/test/e2e-stack); nothing of the system under test is mocked.
+appId: vn.machvon.app
+tags: [P0, S2]
+---
+- launchApp:
+    stopApp: true
+- assertVisible: 'Trang chủ lãnh đạo'
+- takeScreenshot: TC-UI-MOB-12-given
+- tapOn: 'Dự án.*'
+- tapOn: 'Kế hoạch vốn.*'
+- takeScreenshot: TC-UI-MOB-12-when
+- assertVisible: 'Kế hoạch vốn'   # 1. screen identity
+- assertVisible: 'Chưa có dữ liệu.*'   # 2. element of the screen
+- assertVisible: 'Số liệu tại.*'   # 3. text or data of the screen
+- takeScreenshot: TC-UI-MOB-12-then

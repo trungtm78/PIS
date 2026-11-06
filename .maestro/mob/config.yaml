@@ -1,0 +1,31 @@
+# The order matters: TC-UI-MOB-03 signs the person in and the flows after it start from that session.
+flows:
+  - 'TC-*.yaml'
+executionOrder:
+  continueOnFailure: true
+  flowsOrder:
+    - TC-UI-MOB-01
+    - TC-UI-MOB-02
+    - TC-UI-MOB-04
+    - TC-UI-MOB-03
+    - TC-UI-MOB-07
+    - TC-UI-MOB-08
+    - TC-UI-MOB-40
+    - TC-UI-MOB-58
+    - TC-UI-MOB-09
+    - TC-UI-MOB-11
+    - TC-UI-MOB-12
+    - TC-UI-MOB-57
+    - TC-UI-MOB-59
+    - TC-UI-MOB-10
+    - TC-UI-MOB-23
+    - TC-UI-MOB-32
+    - TC-UI-MOB-35
+    - TC-UI-MOB-34
+    - TC-UI-MOB-05
+    - TC-UI-MOB-47
+    - TC-UI-MOB-49
+    - TC-UI-MOB-41
+    - TC-UI-MOB-43
+    - TC-UI-MOB-51
+    - TC-UI-MOB-50

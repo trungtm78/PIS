@@ -1,0 +1,34 @@
+# TC-UI-MOB-03: Xác thực MFA (MOB-03): hợp đồng màn hình
+# persona: theo-vai-tro-dang-chon | oracle: Claim -> FR-MOB-03 | platform: android (emulator AVD guide, debug build)
+# catches_bug: Màn hình Xác thực MFA (MOB-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai
+# backend_policy: the real API and database of the e2e stack (apps/api/test/e2e-stack); nothing of the system under test is mocked.
+appId: vn.machvon.app
+tags: [P0, S2]
+---
+- clearState
+- launchApp:
+    permissions: { all: allow }
+- tapOn: 'Đăng nhập bằng SSO'
+- runFlow:
+    when:
+      visible: 'Use without an account'
+    commands:
+      - tapOn: 'Use without an account'
+- extendedWaitUntil:
+    visible: 'Chọn đơn vị và vai trò'
+    timeout: 60000
+- tapOn: 'Cao Bằng.*'
+- tapOn: 'Tiếp tục'
+- extendedWaitUntil:
+    visible: 'Xác thực hai yếu tố'
+    timeout: 30000
+- takeScreenshot: TC-UI-MOB-03-when
+- assertVisible: 'Xác thực hai yếu tố'   # 1. screen identity
+- assertVisible: 'Mã xác thực'   # 2. the code is typed in the browser, not in the application
+- assertVisible: 'Xác thực trong trình duyệt'   # 3. the action
+- assertVisible: 'Để sau'
+- takeScreenshot: TC-UI-MOB-03-then
+- tapOn: 'Xác thực trong trình duyệt'
+- extendedWaitUntil:
+    visible: 'Trang chủ lãnh đạo'
+    timeout: 60000

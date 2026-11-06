@@ -1,0 +1,18 @@
+# TC-UI-MOB-57: Dự án chưa nộp báo cáo (MOB-57): hợp đồng màn hình
+# persona: theo-vai-tro-dang-chon | oracle: Claim -> FR-MOB-57 | platform: android (emulator AVD guide, debug build)
+# catches_bug: Màn hình Dự án chưa nộp báo cáo (MOB-57) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai
+# backend_policy: the real API and database of the e2e stack (apps/api/test/e2e-stack); nothing of the system under test is mocked.
+appId: vn.machvon.app
+tags: [P0, S2]
+---
+- launchApp:
+    stopApp: true
+- assertVisible: 'Trang chủ lãnh đạo'
+- takeScreenshot: TC-UI-MOB-57-given
+- tapOn: 'Dự án.*'
+- tapOn: 'Dự án chưa nộp báo cáo.*'
+- takeScreenshot: TC-UI-MOB-57-when
+- assertVisible: 'Dự án chưa nộp báo.*'   # 1. screen identity
+- assertVisible: 'E2E-CLOSE-2026-10.*'   # 2. element of the screen
+- assertVisible: '.*2 trên 2 dự án chưa nộp.*'   # 3. text or data of the screen
+- takeScreenshot: TC-UI-MOB-57-then
