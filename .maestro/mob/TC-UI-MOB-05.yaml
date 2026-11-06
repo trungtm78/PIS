@@ -7,13 +7,13 @@ tags: [P0, S2]
 ---
 - launchApp:
     stopApp: true
-    permissions: { notifications: deny }   # the screen asks for a permission that was not given
+    permissions: { notifications: unset }   # the permission was never asked: the screen offers to ask it
 - assertVisible: 'Trang chủ lãnh đạo'
 - takeScreenshot: TC-UI-MOB-05-given
-- tapOn: 'Thông báo.*'
-- tapOn: 'Cài đặt thông báo.*'
-- tapOn: 'Thông báo đẩy'   # the switch of the push channel goes off
-- tapOn: 'Thông báo đẩy'   # and on again: the device has not given the permission, so the application asks for it
+- tapOn: 'Cá nhân.*'
+- scrollUntilVisible:
+    element: 'Thông báo đẩy.*'
+- tapOn: 'Thông báo đẩy.*'
 - takeScreenshot: TC-UI-MOB-05-when
 - assertVisible: 'Thông báo đẩy'   # 1. screen identity
 - assertVisible: 'Cho phép'   # 2. element of the screen
