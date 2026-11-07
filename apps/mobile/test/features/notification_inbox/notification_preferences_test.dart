@@ -25,6 +25,13 @@ Future<ProviderContainer> _open(WidgetTester tester, ScriptedServer server, {Fak
       overrides: <Override>[if (push != null) pushPlatformProvider.overrideWithValue(push)],
     );
 
+/// The test opens the app twice; taking the tree down and letting the providers dispose leaves no timer of theirs pending when the test ends.
+Future<void> _closeApp(WidgetTester tester) async {
+  await tester.pumpWidget(const SizedBox.shrink());
+  await tester.pump(const Duration(milliseconds: 1));
+  await tester.pump(const Duration(milliseconds: 1));
+}
+
 void _healthy(ScriptedServer server) => server.on(
       'GET',
       '/me/notification-preferences',
@@ -166,6 +173,7 @@ void main() {
       await _open(tester, other, session: FakeSession(const SessionSnapshot(status: SessionStatus.signedIn, tenantId: 'tenant-a', userId: 'user-1', mode: SessionMode.readOnly)), push: FakePush());
       expect(find.text('Tổ chức đang ở chế độ chỉ đọc nên chưa thể lưu cài đặt.'), findsOneWidget);
       expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Lưu cài đặt')).onPressed, isNull);
+      await _closeApp(tester);
     });
 
     testWidgets('the push state of the device is said, and a blocked push leaves the inbox working', (WidgetTester tester) async {
@@ -179,6 +187,7 @@ void main() {
       _healthy(unknown);
       await _open(tester, unknown);
       expect(find.text('Chưa đăng ký thông báo đẩy trên thiết bị này. Thông báo trong ứng dụng vẫn hoạt động.'), findsOneWidget);
+      await _closeApp(tester);
     });
 
     testWidgets('every state is drawn and the contract of the screen holds', (WidgetTester tester) async {
