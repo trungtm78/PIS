@@ -1,5 +1,12 @@
 import type { useTranslation } from '../../../i18n';
+import type { Tone } from '../../../ui';
+import { TONE_OF } from '../../ctr/kit';
 import type { DocKind, FormProblem, PaymentKind, PaymentStatus, Problem, WarningCode } from './model';
+
+/** The state of a request as a pill: the finished is green, what waits on someone is blue, what was sent back is amber and what was undone is red. */
+export function statusTone(status: PaymentStatus): Tone {
+  return TONE_OF[status === 'DRAFT' ? 'draft' : status === 'SETTLED' ? 'done' : status === 'RETURNED' ? 'returned' : status === 'CANCELLED' || status === 'REVERSED' ? 'undone' : 'waiting'];
+}
 
 type Translate = ReturnType<typeof useTranslation>['t'];
 

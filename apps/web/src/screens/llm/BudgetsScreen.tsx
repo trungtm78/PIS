@@ -12,6 +12,7 @@ import { useBudgets, useCreateBudget } from './hooks';
 import { budgetPeriodLabel, budgetScopeLabel, financeProblemMessage, refusalMessage } from './labels';
 import { BUDGET_PERIODS, BUDGET_SCOPES, EMPTY_BUDGET, FINOPS, describeLlmProblem, groupDigits, usedPercent, validateBudget, vietnamDay } from './llm-model';
 import type { BudgetEntry, BudgetErrors, BudgetPeriod, BudgetScope, BudgetValues } from './llm-model';
+import './llm-kit.css';
 
 export const USAGE_PATH = '/llm/llm-09';
 
@@ -186,7 +187,7 @@ function BudgetForm() {
         <input id="budget-hard" type="checkbox" checked={values.hardStop} onChange={(event) => set('hardStop', event.target.checked)} /> {t('llm.budgets.form.hardStop')}
       </label>
       <div className="mne-actions">
-        <button type="submit" className="btn" disabled={create.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending}>
           {t('llm.budgets.form.submit')}
         </button>
       </div>

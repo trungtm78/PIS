@@ -15,6 +15,7 @@ import { CLASSIFICATIONS, matrixInForce, vietnamDay } from '../llm-model';
 import { TRACE_PATH, maskPersonal, shortId } from '../trace/model';
 import { useGuardProfiles } from './hooks';
 import { POLICY_READ_PERMISSION, PROFILE_READ_PERMISSION, refusals } from './model';
+import '../llm-kit.css';
 
 const holds = (permissions: readonly string[] | undefined, permission: string): boolean => permissions === undefined || permissions.includes(permission);
 const CONTROLS = ['pii', 'tools', 'untrusted', 'citation', 'storage'] as const;
@@ -227,7 +228,7 @@ function Refusals() {
         {more ? (
           <button
             type="button"
-            className="btn"
+            className="ui-button ui-button--outline ui-button--small"
             data-testid="refusals-more"
             disabled={policy.isFetchingNextPage || citation.isFetchingNextPage}
             onClick={() => {

@@ -15,6 +15,7 @@ import { KINDS, LIST_PATH, REQUEST_PERMISSION, listLink, signedAmountText } from
 import { EMPTY_REQUEST, describeRequestRefusal, requestBody, toRequested, validateRequest } from './request-model';
 import type { GuaranteeReason, RequestForm, RequestRefusal, Requested } from './request-model';
 import '../pay.css';
+import { StickyActions } from '../../../ui';
 
 type T = Translator['t'];
 
@@ -196,11 +197,13 @@ function RequestAdvanceContent({ route }: ScreenProps) {
             <input id="request-tranche" inputMode="numeric" autoComplete="off" value={form.trancheNo} onChange={(event) => set({ trancheNo: event.target.value })} />
           </Field>
         </div>
-        <div className="formfooter">
-          <button type="submit" className="primary" disabled={!may || request.isPending}>
-            {t('pay.request.submit')}
-          </button>
-        </div>
+        <StickyActions
+          primary={
+            <button type="submit" className="ui-button ui-button--primary" disabled={!may || request.isPending}>
+              {t('pay.request.submit')}
+            </button>
+          }
+        />
       </form>
       <p className="prototype-note">{t('pay.request.footer', { id: route.id, req: route.req ?? '' })}</p>
     </section>

@@ -1,4 +1,5 @@
 import type { Translator } from '../../../i18n';
+import type { Tone } from '../../../ui';
 import type { ConversationStatus, ProblemView } from './model';
 
 type T = Translator['t'];
@@ -17,6 +18,19 @@ export function statusLabel(t: T, value: ConversationStatus): string {
       return t('omni.inbox.status.resolved');
     case 'Closed':
       return t('omni.inbox.status.closed');
+  }
+}
+
+/** The tone of the pill of a conversation: a new one waits for a first answer (blue), one in work is green, one that is over is plain. */
+export function statusTone(value: ConversationStatus): Tone {
+  switch (value) {
+    case 'New':
+      return 'info';
+    case 'Resolved':
+    case 'Closed':
+      return 'neutral';
+    default:
+      return 'success';
   }
 }
 

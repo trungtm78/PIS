@@ -11,6 +11,8 @@ import { directionLabel, kindLabel, reasonMessage } from '../dgv/lineage/labels'
 import { useMetricLineage, useMetrics } from './hooks';
 import { EMPTY_LINEAGE_QUERY, lineageNeedsMetric } from './metric-lineage-model';
 import type { MetricLineage, MetricLineageQuery } from './metric-lineage-model';
+import './bi-kit.css';
+import { StatusPill } from '../../ui';
 
 /**
  * BI-14: where the figures of a metric come from (ST-BI-009, BI F5): the version of the metric, the version of the dataset it was read over, the snapshot of DIS and the projects it is made of, level by level, each step with the
@@ -78,7 +80,7 @@ function LineageContent({ route }: ScreenProps) {
           </select>
         </Field>
         <div className="formfooter">
-          <button type="submit" className="primary" disabled={lineage.isFetching}>
+          <button type="submit" className="ui-button ui-button--primary" disabled={lineage.isFetching}>
             {t('bi.lin.submit')}
           </button>
         </div>
@@ -161,13 +163,13 @@ function NodeLine({ node, quality }: { node: LineageNode; quality: { badge: stri
   if (node.restricted) {
     return (
       <li data-restricted="true" data-node={node.key}>
-        <span className="pill gray">{t('dgv.lin.restricted')}</span>
+        <StatusPill tone="neutral">{t('dgv.lin.restricted')}</StatusPill>
       </li>
     );
   }
   return (
     <li data-node={node.key} data-kind={node.kind ?? ''}>
-      <span className="pill">{node.kind === null ? '' : kindLabel(t, node.kind)}</span> <strong>{node.name}</strong>
+      <StatusPill tone="neutral">{node.kind === null ? '' : kindLabel(t, node.kind)}</StatusPill> <strong>{node.name}</strong>
       <span className="sub">
         {' '}
         · {node.module} · {node.refId ?? node.refKey}

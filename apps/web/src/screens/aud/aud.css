@@ -1,9 +1,8 @@
 .aud-filters {
   display: grid;
   gap: 12px;
-  grid-template-columns: minmax(0, 2fr) repeat(auto-fit, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
   align-items: end;
-  margin-bottom: 12px;
 }
 .aud-back-link {
   margin: 0 0 17px;
@@ -12,18 +11,18 @@
 }
 .aud-back-link a {
   font-size: 11px;
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }
 .aud-badge {
   display: inline-block;
   padding: 2px 8px;
-  border: 1px solid var(--shell-line, #e4e0e6);
+  border: 1px solid var(--mv-color-border);
   border-radius: 999px;
   font-size: 12px;
   white-space: nowrap;
 }
 .aud-badge.warning {
-  border-color: var(--shell-warning, #b45309);
+  border-color: var(--mv-color-warning);
 }
 .aud-dialog-body {
   padding: 16px;
@@ -48,7 +47,7 @@
   margin: 0;
 }
 .aud-facts dt {
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
   font-size: 12px;
 }
 .aud-facts dd {
@@ -104,8 +103,8 @@
   display: grid;
   gap: 12px;
   padding: 12px;
-  border: 1px solid var(--shell-line, #e4e0e6);
-  border-radius: 8px;
+  border: 1px solid var(--mv-color-border);
+  border-radius: var(--mv-radius-control);
 }
 .aud-column h2 {
   display: flex;
@@ -160,4 +159,31 @@
   margin: 4px 0;
   font-size: 28px;
   font-weight: 700;
+}
+
+.aud-sub {
+  display: block;
+  font-size: 12px;
+  color: var(--mv-color-text-secondary);
+}
+.aud-tile {
+  display: grid;
+  min-width: 0;
+}
+.aud-stack {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.aud-due {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+}
+.aud-card[data-stripe] {
+  border-left: 4px solid var(--mv-color-warning);
+}
+.aud-column {
+  background: var(--mv-color-surface2);
 }

@@ -18,8 +18,12 @@ import type { CorrectionForm, CorrectionKind, LineForm, VatCategory } from './co
 import { TenantPicker } from './subscription/TenantPicker';
 import { useTenantChoice } from './subscription/hooks';
 import { toneClass } from './tenants/labels';
+import { SectionCard, StatusPill } from '../../ui';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 import './tenants/sas.css';
 import './billing/billing.css';
+import { toneOfPill } from '../adm/kit-tone';
 
 /**
  * SAS-24: the correction of an issued invoice. There is no way to cancel an invoice: a mistake is corrected by an adjustment (lines that add to or take from what was invoiced, a negative line for a reduction) or by a
@@ -119,8 +123,7 @@ function CorrectionContent({ route }: ScreenProps) {
       </div>
       <TenantPicker id="correction-tenant" label={t('sas.correction.tenant.label')} moreLabel={t('sas.correction.tenant.more.action')} choice={choice} />
       <StateBoundary state={state} onRetry={() => void (choice.chosen === undefined ? choice.refetch() : invoices.refetch())}>
-        <div className="card">
-          <h2>{t('sas.correction.invoices.title')}</h2>
+        <SectionCard title={t('sas.correction.invoices.title')} unit={t('dis.wr.unit')}>
           <p className="sub" data-receivable>
             {t('sas.correction.receivable.text', { amount: money(receivable) })}
           </p>
@@ -134,7 +137,7 @@ function CorrectionContent({ route }: ScreenProps) {
               {t('sas.correction.invoices.none')}
             </p>
           ) : (
-            <table className="table" data-invoices>
+            <KitTable caption={t('w2sas.correction.table.invoices')} data-invoices>
               <thead>
                 <tr>
                   <th scope="col">{t('sas.correction.column.invoice')}</th>
@@ -162,13 +165,13 @@ function CorrectionContent({ route }: ScreenProps) {
                       {invoice.relatedInvoiceId === undefined ? null : <small className="sub"> {t('sas.correction.of.text', { code: items.find((entry) => entry.id === invoice.relatedInvoiceId)?.invoiceCode ?? '—' })}</small>}
                     </td>
                     <td>
-                      <span className={toneClass(invoiceStatusTone(invoice.status))}>{invoiceStatusLabel(t, invoice.status)}</span>
+                      <StatusPill tone={toneOfPill(toneClass(invoiceStatusTone(invoice.status)))}>{invoiceStatusLabel(t, invoice.status)}</StatusPill>
                     </td>
                     <td className="amount">{money(invoice.totalVnd)}</td>
                     <td>{invoice.agreementDocumentRef ?? '—'}</td>
                     <td>
                       {canCorrect && isCorrectable(invoice) ? (
-                        <button type="button" onClick={() => open(invoice)}>
+                        <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => open(invoice)}>
                           {t('sas.correction.correct.action')}
                         </button>
                       ) : null}
@@ -176,7 +179,7 @@ function CorrectionContent({ route }: ScreenProps) {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </KitTable>
           )}
           {invoices.hasNextPage ? (
             <div className="row gap">
@@ -185,7 +188,7 @@ function CorrectionContent({ route }: ScreenProps) {
               </button>
             </div>
           ) : null}
-        </div>
+        </SectionCard>
         {problem === undefined ? null : (
           <div className="callout warning" role="alert">
             <p>{problemMessage(t, problem, money)}</p>
@@ -222,7 +225,7 @@ function CorrectionContent({ route }: ScreenProps) {
                   </small>
                 )}
               </div>
-              <table className="table" aria-label={t('sas.correction.lines.aria')}>
+              <KitTable caption={t('w2sas.correction.table.lines')} aria-label={t('sas.correction.lines.aria')}>
                 <thead>
                   <tr>
                     <th scope="col">{t('sas.correction.line.description')}</th>
@@ -261,7 +264,7 @@ function CorrectionContent({ route }: ScreenProps) {
                       </td>
                       <td>
                         {current.form.lines.length > 1 ? (
-                          <button type="button" onClick={() => change({ lines: current.form.lines.filter((entry) => entry.key !== line.key) })}>
+                          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => change({ lines: current.form.lines.filter((entry) => entry.key !== line.key) })}>
                             {t('sas.correction.line.remove.action', { n: index + 1 })}
                           </button>
                         ) : null}
@@ -274,7 +277,7 @@ function CorrectionContent({ route }: ScreenProps) {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </KitTable>
               {shown?.lines === undefined ? null : (
                 <small role="alert" className="field-error">
                   {linesProblemMessage(t, shown.lines)}
@@ -313,10 +316,10 @@ function CorrectionContent({ route }: ScreenProps) {
                 </small>
               )}
               <div className="row gap">
-                <button type="submit" className="primary" disabled={create.isPending}>
+                <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending}>
                   {t('sas.correction.form.submit.action')}
                 </button>
-                <button type="button" onClick={() => setPicked(undefined)}>
+                <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setPicked(undefined)}>
                   {t('sas.correction.form.close.action')}
                 </button>
               </div>

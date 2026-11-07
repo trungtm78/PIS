@@ -9,6 +9,10 @@ import { READ_TENANTS_PERMISSION } from '../tenants/types';
 import { usePlatformHealth } from './hooks';
 import { PENDING_INDICATORS } from './model';
 import type { Count, PendingIndicator, PlatformHealth } from './model';
+import { SectionCard, StatusPill } from '../../../ui';
+import { KitTable } from '../../adm/KitTable';
+import '../../adm/adm-kit.css';
+import { toneOfPill } from '../../adm/kit-tone';
 
 const holds = (permissions: readonly string[] | undefined, permission: string): boolean => permissions === undefined || permissions.includes(permission);
 
@@ -52,7 +56,7 @@ function HealthContent({ route }: ScreenProps) {
         </div>
         {allowed ? (
           <div className="actions">
-            <button type="button" onClick={() => void health.refetch()} disabled={health.isFetching}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => void health.refetch()} disabled={health.isFetching}>
               {t('sas.health.refresh.action')}
             </button>
           </div>
@@ -121,10 +125,9 @@ function Dashboard({ health, readAt }: { health: PlatformHealth; readAt: number 
           ))}
         </ul>
       </section>
-      <section className="card" aria-label={t('sas.health.table.title')}>
-        <h2>{t('sas.health.table.title')}</h2>
-        <div className="tablewrap">
-          <table className="table" aria-label={t('sas.health.table.title')}>
+      <section aria-label={t('sas.health.table.title')}>
+      <SectionCard title={t('sas.health.table.title')}>
+          <KitTable caption={t('w2sas.health.table.caption')} aria-label={t('sas.health.table.title')}>
             <thead>
               <tr>
                 <th scope="col">{t('sas.health.column.code')}</th>
@@ -139,7 +142,7 @@ function Dashboard({ health, readAt }: { health: PlatformHealth; readAt: number 
                 <tr key={row.id} data-tenant-code={row.code}>
                   <th scope="row">{row.code}</th>
                   <td>
-                    <span className={toneClass(statusTone(row.status))}>{statusLabel(t, row.status)}</span>
+                    <StatusPill tone={toneOfPill(toneClass(statusTone(row.status)))}>{statusLabel(t, row.status)}</StatusPill>
                   </td>
                   <td>{isolationLabel(t, row.isolationMode)}</td>
                   <td>{row.planCode ?? t('sas.tenants.none')}</td>
@@ -147,8 +150,8 @@ function Dashboard({ health, readAt }: { health: PlatformHealth; readAt: number 
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+          </KitTable>
+      </SectionCard>
       </section>
     </>
   );

@@ -13,6 +13,8 @@ import { NO_FILTER, useCatalog } from '../hooks';
 import { useBindTerm, useBindings, useTerms } from './hooks';
 import { EMPTY_BIND, GLOSSARY_READ_PERMISSION, MANAGE_PERMISSION, bindBody, describeBind, holds, validateBind } from './model';
 import type { BindField, BindForm, BindProblem, BindingView, FormProblem } from './model';
+import '../dgv-kit.css';
+import { StatusPill } from '../../../ui';
 
 type T = Translator['t'];
 const NONE = '—';
@@ -152,7 +154,7 @@ function BindingRow({ item, canBind, pending, onBind }: { item: BindingView; can
             {t('dgv.glossary.row.deprecated')}
           </span>
         ) : (
-          <span className="pill green">{t('dgv.glossary.row.current')}</span>
+          <StatusPill tone="success">{t('dgv.glossary.row.current')}</StatusPill>
         )}
         {item.deprecated ? (
           <p className="callout warning" role="status" data-testid="deprecated-warning">
@@ -238,7 +240,7 @@ function BindPanel({ datasetId }: { datasetId: string }) {
         <input id="bind-column" type="text" value={form.columnName} onChange={(event) => set({ columnName: event.target.value })} />
       </Field>
       <div className="formfooter">
-        <button type="submit" className="primary" disabled={send.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={send.isPending}>
           {t('dgv.glossary.form.submit.action')}
         </button>
       </div>

@@ -7,14 +7,17 @@ import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { Field } from './components';
 import { inTreeOrder } from './catalogues';
-import { fieldProblemMessage, recordStatusLabel } from './labels';
+import { fieldProblemMessage, recordStatusLabel, recordStatusTone } from './labels';
 import { isCalendarDate, recordLink } from './model';
 import { STRUCTURES } from './structure';
 import type { StructureConfig, StructureContext } from './structure';
 import { useConversions, useRecordsAsOf, useStructureAsOf } from './succession-hooks';
 import { vietnamToday } from './succession-model';
 import { structureStateLabel, successionKindLabel } from './succession-labels';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 import './mdm.css';
+import { StatusPill } from '../../ui';
 
 const DETAIL_PATH = '/mdm/mdm-27';
 const SUCCESSION_PATH = '/mdm/mdm-37';
@@ -94,7 +97,7 @@ function StructureContent({ route, config }: ScreenProps & { config: StructureCo
               {t('mdm.structure.empty.text')}
             </p>
           ) : (
-            <table className="table">
+            <KitTable caption={t('w2mdm.structure.table.caption')}>
               <thead>
                 <tr>
                   {config.columns.map((item) => (
@@ -102,7 +105,7 @@ function StructureContent({ route, config }: ScreenProps & { config: StructureCo
                   ))}
                   <th>{t('mdm.structure.state.column')}</th>
                   <th>
-                    <span className="sr-only">{t('mdm.structure.actions.column')}</span>
+                    {t('mdm.structure.actions.column')}
                   </th>
                 </tr>
               </thead>
@@ -118,7 +121,9 @@ function StructureContent({ route, config }: ScreenProps & { config: StructureCo
                         </td>
                       ))}
                       <td>
-                        {standing === 'IN_FORCE' ? structureStateLabel(t, 'IN_FORCE') : standing === 'SUCCEEDED' ? structureStateLabel(t, 'SUCCEEDED') : recordStatusLabel(t, record.status)}
+                        <StatusPill tone={standing === 'IN_FORCE' ? 'success' : standing === 'SUCCEEDED' ? 'neutral' : recordStatusTone(record.status)}>
+                          {standing === 'IN_FORCE' ? structureStateLabel(t, 'IN_FORCE') : standing === 'SUCCEEDED' ? structureStateLabel(t, 'SUCCEEDED') : recordStatusLabel(t, record.status)}
+                        </StatusPill>
                       </td>
                       <td className="row-actions">
                         <button type="button" aria-pressed={inspected === record.id} onClick={() => setInspected(inspected === record.id ? undefined : record.id)}>
@@ -130,7 +135,7 @@ function StructureContent({ route, config }: ScreenProps & { config: StructureCo
                   );
                 })}
               </tbody>
-            </table>
+            </KitTable>
           )}
           <p className="sub" data-testid="count">
             {t('mdm.structure.count.text', { count: rows.length })}
@@ -175,7 +180,7 @@ function Inspection({ recordId, date }: { recordId: string; date: string }) {
             {view.targets.map((target) => (
               <li key={target.recordId} data-key={target.businessKey}>
                 <code>{target.businessKey}</code> {target.version?.label ?? ''}
-                {target.kind === null ? null : <span className="pill">{target.kind}</span>}
+                {target.kind === null ? null : <StatusPill tone="success">{target.kind}</StatusPill>}
                 <span className="sub"> {t('mdm.succession.share.text', { share: target.sharePct })}</span>
               </li>
             ))}

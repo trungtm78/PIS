@@ -34,17 +34,17 @@ describe('DossierPermits (PMT-01): the permits of one dossier', () => {
     );
     const issued = within(row(1));
     expect(issued.getByText(vi_['pmt.dossier.revision.text'].replace('{revision}', '2'))).toBeTruthy();
-    expect(issued.getByText(vi_['pmt.permit.status.issued.text']).className).toContain('green');
+    expect(issued.getByText(vi_['pmt.permit.status.issued.text']).closest('.ui-pill')?.className).toContain('ui-tone-success');
     expect(issued.getByText('GP-0001')).toBeTruthy();
     expect(issued.getByText(/2026-01-01 → 2026-12-01/)).toBeTruthy();
     expect(issued.getByTestId('remaining').textContent).toBe(vi_['pmt.dossier.remaining.days.text'].replace('{days}', '38'));
-    expect(issued.getByTestId('remaining').className).toContain('warn');
+    expect(issued.getByTestId('remaining').querySelector('.ui-pill')?.className).toContain('ui-tone-warning');
     expect(issued.getByText(vi_['pmt.dossier.required.yes.text'])).toBeTruthy();
     expect(issued.getByRole('link', { name: vi_['pmt.dossier.detail.action'] }).getAttribute('href')).toBe(`/pmt/pmt-02?permit=${permitId(1)}`);
     const planned = within(row(2));
     expect(planned.getByText(vi_['pmt.dossier.optional.text'])).toBeTruthy();
     expect(planned.getByTestId('unconfirmed').textContent).toBe(vi_['pmt.type.unconfirmed.text'].replace('{cxn}', 'CXN-EXE-03'));
-    expect(planned.getByText(vi_['pmt.permit.status.planned.text']).className).toContain('gray');
+    expect(planned.getByText(vi_['pmt.permit.status.planned.text']).closest('.ui-pill')?.className).toContain('ui-tone-neutral');
     expect(planned.getByText(vi_['pmt.dossier.number.none.text'])).toBeTruthy();
     expect(planned.getByText('Trần B')).toBeTruthy();
     expect(planned.getByText(vi_['pmt.dossier.validity.none.text'])).toBeTruthy();
@@ -60,9 +60,9 @@ describe('DossierPermits (PMT-01): the permits of one dossier', () => {
       types(),
     );
     expect(within(row(1)).getAllByText(vi_['pmt.dossier.remaining.none.text']).length).toBeGreaterThan(0);
-    expect(within(row(2)).getByTestId('remaining').className).not.toContain('warn');
+    expect(within(row(2)).getByTestId('remaining').querySelector('.ui-pill')?.className).not.toContain('ui-tone-warning');
     expect(within(row(3)).queryByTestId('remaining')).toBeNull();
-    expect(within(row(3)).getByText(vi_['pmt.permit.status.expired.text']).className).toContain('red');
+    expect(within(row(3)).getByText(vi_['pmt.permit.status.expired.text']).closest('.ui-pill')?.className).toContain('ui-tone-danger');
   });
 
   it('offers to add a permit of a type in force that the dossier does not hold, and sends it (AC-ST-PMT-002-1)', async () => {

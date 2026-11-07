@@ -6,12 +6,13 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { AuditLine, SectionCard, StatusPill } from '../../ui';
 import { AssignForm, CommentForm, StartForm, TransferForm } from './IssueActions';
 import { closureRightsOf, extensionLink, verificationLink } from './closure-model';
 import { useIssue, useUnits } from './hooks';
-import { BackLink, DueBadge, PersonText, SeverityBadge, StatusBadge, Timeline, useMoment } from './issue-components';
+import { BackLink, DeadlineLine, DueBadge, PersonText, SeverityBadge, StatusBadge, Timeline, useMoment } from './issue-components';
 import { sourceLabel } from './issue-labels';
-import { ESCALATION_BOARD_PATH, ISSUE_ASSIGN_PERMISSION, ISSUE_WORK_PERMISSION, LIST_PATH, actionsOf, hasPermission } from './issue-model';
+import { ESCALATION_BOARD_PATH, ISSUE_ASSIGN_PERMISSION, ISSUE_WORK_PERMISSION, LIST_PATH, actionsOf, hasPermission, stripeOf } from './issue-model';
 import type { IssueView } from './issue-model';
 import './iss.css';
 
@@ -85,23 +86,27 @@ function Workspace({ issue, onReload }: { issue: IssueView; onReload: () => void
   const boardOffered = issue.escalations.length > 0;
   const nothingToDo = !actions.assign && !actions.start && !actions.comment && !actions.transfer && !verificationOffered && !extensionOffered && !boardOffered;
   const now = new Date();
+  const stripe = stripeOf(issue, now);
 
   return (
     <>
-      <div className="heading">
+      <div className="heading iss-record-head" {...(stripe === null ? {} : { 'data-stripe': stripe })}>
         <div>
           <h1 id="screen-title">
             {issue.code} · {issue.title}
           </h1>
-          <p>
-            <StatusBadge status={issue.status} /> <SeverityBadge severity={issue.severity} /> <DueBadge line={issue} now={now} />
+          {stripe === null ? null : <span className="ui-sr-only">{t('ui.dataTable.severityPrefix', { label: stripe === 'URGENT' ? t('ui.dataTable.severity.urgent') : t('ui.dataTable.severity.action') })}</span>}
+          <p className="iss-chips">
+            <StatusBadge status={issue.status} />
+            <SeverityBadge severity={issue.severity} />
+            <DueBadge line={issue} now={now} />
+            <DeadlineLine line={issue} now={now} />
           </p>
         </div>
       </div>
       <div className="iss-grid">
-        <div>
-          <article className="card" aria-label={t('iss.workspace.summary.title')}>
-            <h2>{t('iss.workspace.summary.title')}</h2>
+        <div className="iss-stack">
+          <SectionCard title={t('iss.workspace.summary.title')}>
             <dl className="iss-facts" data-testid="summary">
               <Fact label={t('iss.workspace.field.project')}>
                 {issue.projectCode} · {issue.projectName}
@@ -127,9 +132,8 @@ function Workspace({ issue, onReload }: { issue: IssueView; onReload: () => void
                 )}
               </Fact>
             </dl>
-          </article>
-          <article className="card" aria-label={t('iss.workspace.sla.title')}>
-            <h2>{t('iss.workspace.sla.title')}</h2>
+          </SectionCard>
+          <SectionCard title={t('iss.workspace.sla.title')}>
             <dl className="iss-facts" data-testid="sla">
               <Fact label={t('iss.workspace.field.responseDue')}>
                 {moment(issue.responseDueAt)}
@@ -153,9 +157,8 @@ function Workspace({ issue, onReload }: { issue: IssueView; onReload: () => void
                 </p>
               </>
             )}
-          </article>
-          <article className="card" aria-label={t('iss.workspace.geo.title')}>
-            <h2>{t('iss.workspace.geo.title')}</h2>
+          </SectionCard>
+          <SectionCard title={t('iss.workspace.geo.title')}>
             {issue.geo === null ? (
               <p className="muted" data-testid="geo-none">
                 {issue.geoConsent ? t('iss.workspace.geo.consentOnly.text') : t('iss.workspace.geo.none.text')}
@@ -165,19 +168,25 @@ function Workspace({ issue, onReload }: { issue: IssueView; onReload: () => void
                 {t('iss.workspace.geo.value.text', { lat: issue.geo.lat, lng: issue.geo.lng })}
                 {issue.geo.accuracyM === null ? '' : ` · ${t('iss.workspace.geo.accuracy.text', { accuracy: issue.geo.accuracyM })}`}{' '}
                 {issue.geo.lowAccuracy ? (
-                  <span className="iss-badge warning" data-testid="geo-low-accuracy">
-                    {t('iss.workspace.geo.low.badge')}
+                  <span data-testid="geo-low-accuracy">
+                    <StatusPill tone="warning">{t('iss.workspace.geo.low.badge')}</StatusPill>
                   </span>
                 ) : null}
               </p>
             )}
-          </article>
-          <article className="card" aria-label={t('iss.workspace.timeline.title')}>
-            <h2>{t('iss.workspace.timeline.title')}</h2>
+          </SectionCard>
+          <SectionCard title={t('iss.workspace.timeline.title')}>
             <Timeline events={issue.events} unitName={unitName} />
-          </article>
+          </SectionCard>
+          <AuditLine
+            items={[
+              { label: t('iss.workspace.field.reporter'), value: issue.reporter === null ? none : issue.reporter.name === '' ? issue.reporter.id : issue.reporter.name },
+              { label: t('iss.workspace.field.opened'), value: moment(issue.openedAt) },
+              { label: t('w2iss.audit.version'), value: String(issue.version) },
+            ]}
+          />
         </div>
-        <div>
+        <div className="iss-stack">
           {nothingToDo ? (
             <p className="callout" role="status" data-testid="read-only">
               {issue.status === 'CLOSED' ? t('iss.workspace.actions.closed.notice') : live ? t('iss.workspace.actions.denied.notice') : t('iss.workspace.actions.frozen.notice')}

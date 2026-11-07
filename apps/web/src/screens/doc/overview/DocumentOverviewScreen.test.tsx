@@ -28,6 +28,20 @@ function open(read: () => unknown) {
 
 afterEach(() => cleanup());
 
+describe('DocumentOverviewScreen (DOC-01): the component kit', () => {
+  it('names the scope in the context bar and lays the tiles out as a figure strip, a queue with errors being told by its number as well as its tint', async () => {
+    open(() => answer({ interop_errors: 3, overdue_incoming: 2, awaiting_seal: null }));
+    await screen.findByTestId('tiles');
+    expect(within(screen.getByRole('group', { name: word('ui.contextBar.label') })).getByText('Phạm vi')).toBeTruthy();
+    expect(screen.getByTestId('tile-interop_errors').className).toContain('ui-tone-danger');
+    expect(within(screen.getByTestId('tile-interop_errors')).getByTestId('count').textContent).toBe('3');
+    expect(screen.getByTestId('tile-overdue_incoming').className).toContain('ui-tone-warning');
+    // A queue the viewer may not count is never tinted and never shows a number.
+    expect(screen.getByTestId('tile-awaiting_seal').className).toContain('ui-tone-default');
+    expect(within(screen.getByTestId('tile-awaiting_seal')).getByTestId('count').textContent).toBe(word('doc.overview.notPermitted'));
+  });
+});
+
 describe('DocumentOverviewScreen (DOC-01): the overview of the documents', () => {
   it('UI-DOC-01 AC-ST-DOC-014-1: UAT-AC400 shows a tile for each queue with the number the server counted and the moment it was counted', async () => {
     open(() => answer({ drafts_in_review: 4, awaiting_leader_signature: 2, awaiting_number: 0, awaiting_seal: 7, overdue_incoming: 3, templates_pending_confirmation: 5 }));

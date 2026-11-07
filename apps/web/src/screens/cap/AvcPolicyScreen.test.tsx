@@ -44,7 +44,19 @@ interface State {
 
 const state = (overrides: Partial<State> = {}): State => ({
   policies: [
-    policy(3, { status: 'DRAFT', created_by: OTHER, version: 1, revision: 2, scope_kind: 'UNIT', scope_ref_id: UNIT, warn_pct: '80.00', block_pct: '95.00', control_object: 'APPROPRIATION', include_reservations: false, approved_by: null }),
+    policy(3, {
+      status: 'DRAFT',
+      created_by: OTHER,
+      version: 1,
+      revision: 2,
+      scope_kind: 'UNIT',
+      scope_ref_id: UNIT,
+      warn_pct: '80.00',
+      block_pct: '95.00',
+      control_object: 'APPROPRIATION',
+      include_reservations: false,
+      approved_by: null,
+    }),
     policy(2, { scope_kind: 'FUND_SOURCE', scope_value: 'NSTW-DTPT', effective_until: '2026-12-31' }),
     policy(1, { scope_kind: 'PROJECT_GROUP', scope_value: 'A' }),
   ],
@@ -77,7 +89,8 @@ function client(current: State, command: (operation: string, input: unknown) => 
 
 afterEach(cleanup);
 
-const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('tr[data-policy-id]'));
+// A policy is the row of the table of the kit that holds a cell carrying its id.
+const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('[data-policy-id]')).flatMap((node) => (node.closest('tr') === null ? [] : [node.closest('tr') as HTMLElement]));
 const ready = () => waitFor(() => expect(rows().length).toBeGreaterThan(0));
 const form = () => within(screen.getByRole('form', { name: vi_['cap.avc.form.aria'] }));
 const set = (label: string, value: string): void => {
@@ -187,7 +200,16 @@ describe('AvcPolicyScreen (CAP-17): the availability control policy', () => {
       await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
       expect(h.command.mock.calls[0]?.[0]).toBe('createAvcPolicyVersion');
       expect(h.command.mock.calls[0]?.[1]).toMatchObject({
-        body: { policy_code: 'AVC-NEW', scope_kind: 'TENANT', control_object: 'ALLOCATION_LINE', warn_pct: '85.5', block_pct: '100', include_reservations: false, legal_basis: 'Quyết định 99/QĐ-UBND', effective_from: '2027-01-01' },
+        body: {
+          policy_code: 'AVC-NEW',
+          scope_kind: 'TENANT',
+          control_object: 'ALLOCATION_LINE',
+          warn_pct: '85.5',
+          block_pct: '100',
+          include_reservations: false,
+          legal_basis: 'Quyết định 99/QĐ-UBND',
+          effective_from: '2027-01-01',
+        },
       });
       expect(await screen.findByText(vi_['cap.avc.done.created'].replace('{code}', 'AVC-NEW').replace('{revision}', '1'))).toBeTruthy();
       expect((form().getByLabelText(vi_['cap.avc.form.code.label']) as HTMLInputElement).value).toBe('');
@@ -242,7 +264,11 @@ describe('AvcPolicyScreen (CAP-17): the availability control policy', () => {
       ['SESSION_EXPIRED', 401, 'cap.avc.problem.session'],
       ['SOMETHING_ELSE', 500, 'cap.avc.problem.general'],
     ] as const)('says in words why the server refused the draft: %s', async (code, status, key) => {
-      mount(<AvcPolicyScreen route={ROUTE} />, client(state(), () => problem(code, status)), { permissions: ADMIN });
+      mount(
+        <AvcPolicyScreen route={ROUTE} />,
+        client(state(), () => problem(code, status)),
+        { permissions: ADMIN },
+      );
       await ready();
       fillValid();
       fireEvent.click(form().getByRole('button', { name: vi_['cap.avc.form.submit.action'] }));
@@ -304,7 +330,11 @@ describe('AvcPolicyScreen (CAP-17): the availability control policy', () => {
       ['VERSION_CONFLICT', 409, 'cap.avc.problem.conflict'],
       ['RESOURCE_NOT_FOUND', 404, 'cap.avc.problem.notFound'],
     ] as const)('says in words why the publication was refused: %s', async (code, status, key) => {
-      mount(<AvcPolicyScreen route={ROUTE} />, client(state(), () => problem(code, status)), { permissions: APPROVER });
+      mount(
+        <AvcPolicyScreen route={ROUTE} />,
+        client(state(), () => problem(code, status)),
+        { permissions: APPROVER },
+      );
       await ready();
       fireEvent.click(screen.getByRole('button', { name: vi_['cap.avc.row.publish.action'] }));
       expect((await screen.findByRole('alert')).textContent).toContain(vi_[key]);

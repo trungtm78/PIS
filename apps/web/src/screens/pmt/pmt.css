@@ -17,7 +17,7 @@
   list-style: none;
   margin: 8px 0 0;
   padding: 0 0 0 12px;
-  border-left: 2px solid var(--shell-line, #e4e0e6);
+  border-left: 2px solid var(--mv-color-border);
   display: grid;
   gap: 12px;
 }
@@ -32,10 +32,10 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--shell-muted, #68616c);
+  background: var(--mv-color-text-secondary);
 }
 .pmt-timeline li.done::before {
-  background: var(--shell-success, #15803d);
+  background: var(--mv-color-success);
 }
 .pmt-actions {
   display: grid;
@@ -61,5 +61,5 @@
 }
 .pmt-back-link a {
   font-size: 11px;
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }

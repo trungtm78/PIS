@@ -13,6 +13,8 @@ import { BREAKPOINTS, BREAKPOINT_RANGE, CHART_PATH, LIBRARY_PATH, MANAGE_DASHBOA
 import type { Dashboard, DashboardVersion, DatasetPolicy, VersionForm, WidgetForm, WidgetKind } from './dashboard-model';
 import { useDashboard, useDashboards, useDatasetVersions, useDatasets, useMetrics, useSaveVersion } from './hooks';
 import { COMPARE_PATH } from './publication-model';
+import { SectionCard } from '../../ui';
+import './bi-kit.css';
 
 const NONE = '—';
 
@@ -185,8 +187,7 @@ function Editor({ dashboard, metrics, catalogueFailed, incoming, onConsumed, onR
 
   return (
     <div data-testid="editor" data-dashboard={dashboard.id}>
-      <section className="card" aria-labelledby="versions-title">
-        <h2 id="versions-title">{t('bi.dash.builder.versions')}</h2>
+      <SectionCard title={t('bi.dash.builder.versions')}>
         {dashboard.versions.length === 0 ? (
           <p className="sub" data-testid="no-versions">
             {t('bi.dash.library.noVersion')}
@@ -216,10 +217,9 @@ function Editor({ dashboard, metrics, catalogueFailed, incoming, onConsumed, onR
           </table>
         )}
         {dashboard.versions.length > 1 ? <Link to={`${COMPARE_PATH}?dashboard=${dashboard.id}`}>{t('bi.dash.builder.compare')}</Link> : null}
-      </section>
+      </SectionCard>
 
-      <section className="card" aria-labelledby="preview-title">
-        <h2 id="preview-title">{t('bi.dash.builder.preview')}</h2>
+      <SectionCard title={t('bi.dash.builder.preview')}>
         <div className="dash-grid" data-testid="preview" style={{ display: 'grid', gridTemplateColumns: `repeat(${form.columns}, 1fr)`, gap: 4 }}>
           {form.widgets.map((widget) => {
             const x = Number(widget.x);
@@ -255,11 +255,11 @@ function Editor({ dashboard, metrics, catalogueFailed, incoming, onConsumed, onR
             ))}
           </tbody>
         </table>
-      </section>
+      </SectionCard>
 
       {mayEdit ? (
-        <form className="card" onSubmit={submit} noValidate aria-label={t('bi.dash.builder.form')}>
-          <h2>{t('bi.dash.builder.form')}</h2>
+        <SectionCard title={t('bi.dash.builder.form')}>
+        <form onSubmit={submit} noValidate aria-label={t('bi.dash.builder.form')}>
           <p className="sub">{t('bi.dash.builder.help')}</p>
           {saved === undefined ? null : (
             <p className="callout" role="status" data-testid="saved">
@@ -390,11 +390,12 @@ function Editor({ dashboard, metrics, catalogueFailed, incoming, onConsumed, onR
           <PolicyFields form={form} setForm={setForm} error={problems.pinned === undefined ? undefined : versionProblemMessage(t, problems.pinned)} />
 
           <div className="formfooter">
-            <button type="submit" className="primary" disabled={save.isPending}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={save.isPending}>
               {t('bi.dash.builder.submit')}
             </button>
           </div>
         </form>
+        </SectionCard>
       ) : (
         <p className="callout" role="status" data-testid="read-only">
           {catalogueFailed && dashboard.mayEdit ? t('bi.dash.builder.metricsFailed') : t('bi.dash.builder.readOnly')}

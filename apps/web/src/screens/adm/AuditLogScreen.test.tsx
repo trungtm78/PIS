@@ -58,13 +58,13 @@ describe('AuditLogScreen (ADM-11)', () => {
     const h = harness(() => page([row(1), row(2, { outcome: 'DENIED', seal_hash: null, impersonator_id: 'c0000001-0000-4000-8000-000000000001' })]));
     mountInSession(<AuditLogScreen route={ROUTE} />, h, { permissions: AUDITOR });
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['adm.audit.page.title']);
-    const first = await found('[data-event-id="e1"]');
+    const first = (await found('[data-event-id="e1"]')).closest('tr') as HTMLElement;
     expect(within(first).getByText('widget.change.1')).toBeTruthy();
     expect(first.querySelector('[data-seal-hash]')?.textContent).toBe(HASH.slice(0, 12));
     expect(first.querySelector('[data-seal-hash]')?.getAttribute('title')).toBe(HASH);
-    const denied = document.querySelector('[data-event-id="e2"]') as HTMLElement;
-    expect(denied.getAttribute('data-outcome')).toBe('DENIED');
-    expect(within(denied).getByText(vi_['adm.audit.outcome.denied']).className).toContain('red');
+    const denied = document.querySelector('[data-event-id="e2"]')?.closest('tr') as HTMLElement;
+    expect((denied.querySelector('[data-event-id]') as HTMLElement).getAttribute('data-outcome')).toBe('DENIED');
+    expect(within(denied).getByText(vi_['adm.audit.outcome.denied']).closest('.ui-pill')?.className).toContain('ui-tone-danger');
     expect(within(denied).getByText(vi_['adm.audit.seal.pending.text'])).toBeTruthy();
     expect(within(denied).getByText(vi_['adm.audit.behalf.impersonator'].replace('{id}', 'c0000001'))).toBeTruthy();
     expect(h.read).toHaveBeenCalledWith('get_resources_audit_event', { query: { limit: 50 } });
@@ -74,12 +74,28 @@ describe('AuditLogScreen (ADM-11)', () => {
   it('shows the diff as the server redacted it, on request, with the reason', async () => {
     const h = harness(() => page([row(1, { safe_diff: { api_key: REDACTED, note: 'kept' }, reason: 'A stated reason for the change' }), row(2, { safe_diff: null, reason: null })]));
     mountInSession(<AuditLogScreen route={ROUTE} />, h, { permissions: AUDITOR });
-    const first = await found('[data-event-id="e1"]');
+    const first = (await found('[data-event-id="e1"]')).closest('tr') as HTMLElement;
     const details = first.querySelector('details') as HTMLElement;
     fireEvent.click(within(details).getByText(vi_['adm.audit.diff.show.action']));
     expect(details.querySelector('pre')?.textContent).toContain('"api_key": "[REDACTED]"');
     expect(within(details).getByText(vi_['adm.audit.diff.reason.text'].replace('{reason}', 'A stated reason for the change'))).toBeTruthy();
-    expect((document.querySelector('[data-event-id="e2"]') as HTMLElement).querySelector('details')).toBeNull();
+    expect((document.querySelector('[data-event-id="e2"]')?.closest('tr') as HTMLElement).querySelector('details')).toBeNull();
+  });
+
+  it('gives the trail an audit line with the time of the seal check and the count, and the filter panel counts what is applied', async () => {
+    const h = harness(() => page([row(1)]));
+    mountInSession(<AuditLogScreen route={ROUTE} />, h, { permissions: AUDITOR });
+    await found('[data-event-id="e1"]');
+    const line = screen.getByRole('list', { name: vi_['ui.auditLine.label'] });
+    expect(within(line).getByText(translator.t('w2adm.audit.line.seals'))).toBeTruthy();
+    expect(within(line).getByText('3')).toBeTruthy();
+    expect(screen.getByRole('table', { name: translator.t('w2adm.audit.table.caption') })).toBeTruthy();
+    expect(screen.getByRole('button', { name: vi_['ui.filterPanel.toggle'] })).toBeTruthy();
+    const user = userEvent.setup();
+    await user.selectOptions(screen.getByLabelText(vi_['adm.audit.filter.outcome.label']), 'DENIED');
+    await user.type(screen.getByLabelText(vi_['adm.audit.filter.action.label']), 'a.b');
+    await user.click(screen.getByRole('button', { name: vi_['adm.audit.filter.apply.action'] }));
+    expect(await screen.findByRole('button', { name: vi_['ui.filterPanel.toggleApplied'].replace('{count}', '2') })).toBeTruthy();
   });
 
   it('shows the banner of a broken chain as an alert with the failing window (AC-ST-ADM-016-3, UI-ADM-11)', async () => {
@@ -134,8 +150,8 @@ describe('AuditLogScreen (ADM-11)', () => {
     await userEvent.setup().selectOptions(screen.getByLabelText(vi_['adm.audit.filter.outcome.label']), 'DENIED');
     await userEvent.setup().click(screen.getByRole('button', { name: vi_['adm.audit.filter.apply.action'] }));
     await waitFor(() => expect(document.querySelectorAll('[data-event-id]')).toHaveLength(1));
-    const denied = document.querySelector('[data-event-id="e9"]') as HTMLElement;
-    expect(denied.getAttribute('data-outcome')).toBe('DENIED');
+    const denied = document.querySelector('[data-event-id="e9"]')?.closest('tr') as HTMLElement;
+    expect((denied.querySelector('[data-event-id]') as HTMLElement).getAttribute('data-outcome')).toBe('DENIED');
     fireEvent.click(within(denied).getByText(vi_['adm.audit.diff.show.action']));
     expect(denied.querySelector('pre')?.textContent).toContain('"api_key": "[REDACTED]"');
     expect(queryOf(h, h.read.mock.calls.length - 1)).toEqual({ limit: 50, outcome: 'DENIED' });

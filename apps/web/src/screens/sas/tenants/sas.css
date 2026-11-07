@@ -1,8 +1,8 @@
 /* SAS-01, SAS-02 and SAS-25: the control-plane screens in the mockup's visual language (tokens come from the prototype stylesheets). */
 .button-link {
   display: inline-block;
-  border: 1px solid var(--border, #e8e3e5);
-  background: #fff;
+  border: 1px solid var(--mv-color-border);
+  background: var(--mv-color-surface);
   color: inherit;
   padding: 10px 15px;
   border-radius: 9px;
@@ -11,22 +11,22 @@
 }
 
 .button-link:hover {
-  border-color: #dbbbc4;
+  border-color: var(--mv-color-primary);
 }
 
 .button-link.primary {
-  background: #b4233d;
-  border-color: #b4233d;
-  color: #fff;
+  background: var(--mv-color-primary);
+  border-color: var(--mv-color-primary);
+  color: var(--mv-color-surface);
 }
 
 .button-link.primary:hover {
-  background: #921b32;
-  border-color: #921b32;
+  background: var(--mv-color-primary-hover);
+  border-color: var(--mv-color-primary-hover);
 }
 
 .field-error {
-  color: #a22b22;
+  color: var(--mv-color-danger);
 }
 
 .run-summary {
@@ -58,5 +58,5 @@
 
 .sas-back-link a {
   font-size: 11px;
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }

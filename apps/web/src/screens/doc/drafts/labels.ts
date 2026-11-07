@@ -1,4 +1,5 @@
 import type { Translator } from '../../../i18n';
+import type { Tone } from '../../../ui';
 import type { DraftProblem, Failure, Threshold } from './problems';
 import { groupDigits } from './rules';
 import type { FieldProblem } from './rules';
@@ -66,6 +67,31 @@ export function statusMark(status: DocumentStatus): string {
     case 'REPLACED':
     case 'CORRECTED':
       return '⚠';
+  }
+}
+
+/** The tone of the pill of a state: work in progress is blue, a finished step green, a withdrawn document red, the rest grey (amber is only for warnings). */
+export function statusTone(status: DocumentStatus): Tone {
+  switch (status) {
+    case 'DRAFT':
+    case 'CANCELLED':
+    case 'REPLACED':
+    case 'CORRECTED':
+      return 'neutral';
+    case 'IN_REVIEW':
+    case 'SUBMITTED':
+    case 'SIGNED':
+    case 'NUMBERED':
+    case 'SEALED':
+      return 'info';
+    case 'ISSUED':
+    case 'DELIVERED':
+    case 'ACKNOWLEDGED':
+    case 'FILED':
+    case 'ARCHIVED':
+      return 'success';
+    case 'RECALLED':
+      return 'danger';
   }
 }
 

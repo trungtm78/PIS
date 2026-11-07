@@ -13,6 +13,7 @@ import type { RequestFilter, RequestSummary } from './gateway-model';
 import { useRequests } from './hooks';
 import { classificationLabel, routeLabel } from './labels';
 import { CLASSIFICATIONS, ROUTES, groupDigits, vietnamDay } from './llm-model';
+import './llm-kit.css';
 
 /**
  * LLM-01: the overview of what the AI gateway did (ST-LLM-005, LLM F1): for the month, how many requests there were, the share of each route (the international one with two places: 50 of 1,000 is 5.00 percent), how many were
@@ -118,7 +119,7 @@ function RequestsContent({ route }: ScreenProps) {
         </table>
         {rows.length === 0 ? <p data-testid="requests-none">{t('llm.requests.none')}</p> : null}
         {requests.hasNextPage ? (
-          <button type="button" className="btn" data-testid="requests-more" disabled={requests.isFetchingNextPage} onClick={() => void requests.fetchNextPage()}>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid="requests-more" disabled={requests.isFetchingNextPage} onClick={() => void requests.fetchNextPage()}>
             {t('llm.requests.more')}
           </button>
         ) : null}

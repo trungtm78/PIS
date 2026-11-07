@@ -9,6 +9,8 @@ import { DEFAULT_WINDOW, WINDOWS, renewLink, summaryOf, urgencyOf, windowOf } fr
 import type { ExpiringPermitView } from './expiry-model';
 import { useExpiringPermits } from './hooks';
 import './pmt.css';
+import { Pill } from './components';
+import { FilterPanel } from '../../ui';
 
 // A board with nothing on it is a good answer, not the "empty" state of the screen.
 const NEVER_EMPTY = (): boolean => false;
@@ -49,7 +51,8 @@ function PermitExpiryContent({ route }: ScreenProps) {
       </div>
       <StateBoundary state={state} onRetry={() => void permits.refetch()}>
         <div className="stack">
-          <div className="card cap-filters">
+          <FilterPanel applied={days === DEFAULT_WINDOW ? 0 : 1}>
+            <div className="cap-filters">
             <div className="field" data-field="expiry-window">
               <label htmlFor="expiry-window">{t('pmt.expiry.window.label')}</label>
               <select id="expiry-window" value={days} onChange={(event) => choose(Number(event.target.value))}>
@@ -61,7 +64,8 @@ function PermitExpiryContent({ route }: ScreenProps) {
               </select>
             </div>
             <p data-testid="summary">{t('pmt.expiry.summary.text', { expiring: summary.expiring, expired: summary.expired })}</p>
-          </div>
+            </div>
+          </FilterPanel>
           <p className="callout" role="note" data-testid="no-renewal">
             {t('pmt.expiry.note.noRenewal')}
           </p>
@@ -115,7 +119,7 @@ function Board({ rows }: { rows: readonly ExpiringPermitView[] }) {
                   {urgency === 'EXPIRED' ? t('pmt.expiry.left.expired', { days: Math.abs(permit.daysLeft) }) : permit.daysLeft}
                 </td>
                 <td data-testid="level" data-level={permit.alertLevel}>
-                  <span className={urgency === 'AHEAD' ? 'pill' : 'pill warning'}>{levelText(t, permit)}</span>
+                  <Pill tone={urgency === 'AHEAD' ? 'neutral' : 'warning'}>{levelText(t, permit)}</Pill>
                 </td>
                 <td>{permit.responsible === null ? t('pmt.expiry.owner.none') : permit.responsible.displayName}</td>
                 <td className="row-actions">

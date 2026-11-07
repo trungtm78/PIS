@@ -9,6 +9,8 @@ import { useLineage } from './hooks';
 import { directionLabel, kindLabel, queryProblemMessage, reasonMessage } from './labels';
 import { DEPTHS, DIRECTIONS, EMPTY_QUERY, NODE_KINDS, describeLineageProblem, levelsOf, sameQuery, validateQuery } from './model';
 import type { Direction, LineageNode, LineageQuery, NodeKind } from './model';
+import '../dgv-kit.css';
+import { StatusPill } from '../../../ui';
 
 /**
  * DGV-05: the lineage of a node (ST-DGV-006, DGV F5): where a figure comes from (up) or what is made of it (down), level by level, each step with the run that saw it and the version of the transform. A node the person may not
@@ -78,7 +80,7 @@ function LineageContent({ route }: ScreenProps) {
           </select>
         </Field>
         <div className="formfooter">
-          <button type="submit" className="primary" disabled={graph.isFetching}>
+          <button type="submit" className="ui-button ui-button--primary" disabled={graph.isFetching}>
             {t('dgv.lin.submit')}
           </button>
         </div>
@@ -145,13 +147,13 @@ function NodeLine({ node }: { node: LineageNode }) {
   if (node.restricted) {
     return (
       <li data-restricted="true" data-node={node.key}>
-        <span className="pill gray">{t('dgv.lin.restricted')}</span>
+        <StatusPill tone="neutral">{t('dgv.lin.restricted')}</StatusPill>
       </li>
     );
   }
   return (
     <li data-node={node.key} data-kind={node.kind ?? ''}>
-      <span className="pill">{node.kind === null ? '' : kindLabel(t, node.kind)}</span> <strong>{node.name}</strong>
+      <StatusPill tone="neutral">{node.kind === null ? '' : kindLabel(t, node.kind)}</StatusPill> <strong>{node.name}</strong>
       <span className="sub">
         {' '}
         · {node.module} · {node.refId ?? node.refKey} · {node.classification}

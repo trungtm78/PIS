@@ -73,22 +73,22 @@ describe('SyncMonitorWorkspace (ADM-10)', () => {
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['adm.sync.page.title']);
     const cursors = screen.getByTestId('cursors');
     const proposed = cursors.querySelector('[data-cursor-id="k-proposed"]') as HTMLElement;
-    expect(within(proposed).getByText(vi_['mdm.cursor.adapter.proposed.pill']).className).toBe('pill warn');
+    expect(within(proposed).getByText(vi_['mdm.cursor.adapter.proposed.pill']).closest('.ui-pill')?.className).toContain('ui-tone-warning');
     expect(within(proposed).getByText(vi_['adm.sync.cursor.never.text'])).toBeTruthy();
     const mock = cursors.querySelector('[data-cursor-id="k-mock"]') as HTMLElement;
-    expect(within(mock).getByText(vi_['mdm.cursor.adapter.mock.pill']).className).toBe('pill red');
+    expect(within(mock).getByText(vi_['mdm.cursor.adapter.mock.pill']).closest('.ui-pill')?.className).toContain('ui-tone-danger');
     expect(within(mock).getByText('FILE_REJECTED')).toBeTruthy();
     expect(within(mock).getByText(vi_['mdm.cursor.status.failed.text'])).toBeTruthy();
-    expect(within(cursors.querySelector('[data-cursor-id="k-verified"]') as HTMLElement).getByText(vi_['mdm.cursor.adapter.verified.pill']).className).toBe('pill');
+    expect(within(cursors.querySelector('[data-cursor-id="k-verified"]') as HTMLElement).getByText(vi_['mdm.cursor.adapter.verified.pill']).closest('.ui-pill')?.className).toContain('ui-tone-success');
   });
 
   it('lists the events with their status, attempts and error, the dead ones in red, and says how many are dead', () => {
     mount();
     expect(document.querySelectorAll('[data-event-id]')).toHaveLength(5);
-    expect(within(rowOf('e-dead')).getByText(vi_['adm.sync.status.dead']).className).toBe('pill red');
-    expect(within(rowOf('e-failed')).getByText(vi_['adm.sync.status.failed']).className).toBe('pill warn');
-    expect(within(rowOf('e-done')).getByText(vi_['adm.sync.status.processed']).className).toBe('pill');
-    expect(within(rowOf('e-new')).getByText(vi_['adm.sync.status.received']).className).toBe('pill gray');
+    expect(within(rowOf('e-dead')).getByText(vi_['adm.sync.status.dead']).closest('.ui-pill')?.className).toContain('ui-tone-danger');
+    expect(within(rowOf('e-failed')).getByText(vi_['adm.sync.status.failed']).closest('.ui-pill')?.className).toContain('ui-tone-warning');
+    expect(within(rowOf('e-done')).getByText(vi_['adm.sync.status.processed']).closest('.ui-pill')?.className).toContain('ui-tone-success');
+    expect(within(rowOf('e-new')).getByText(vi_['adm.sync.status.received']).closest('.ui-pill')?.className).toContain('ui-tone-neutral');
     expect(within(rowOf('e-failed')).getByText('PROVIDER_DOWN')).toBeTruthy();
     expect(within(rowOf('e-dead')).getByText(vi_['adm.sync.events.replayed.text'].replace('{count}', '2'))).toBeTruthy();
     expect(screen.getByTestId('dead-note').textContent).toBe(vi_['adm.sync.events.dead.note'].replace('{count}', '2'));

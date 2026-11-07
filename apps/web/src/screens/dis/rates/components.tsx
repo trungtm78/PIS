@@ -1,11 +1,16 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { Translator } from '../../../i18n';
+import { useSession } from '../../../session/SessionContext';
+import { ContextBar, KpiStrip, KpiTile, ReadonlyStat, SectionCard, StatusPill } from '../../../ui';
+import type { DataTableColumn } from '../../../ui';
 import { Field } from '../components';
 import { usePeriods } from '../hooks';
 import { formatVnd } from '../report/money';
 import type { SnapshotView } from '../snapshot/model';
 import '../dis.css';
+import './rates.css';
+import { useFrozenSnapshots } from './hooks';
 import { FORMULA_REFERENCE, passesWhole } from './model';
 import type { Basis, Coverage, Definition, NullReason, RateFigures, RatesProblem } from './model';
 
@@ -57,84 +62,118 @@ export const rateText = (t: T, rate: string | null, reason: NullReason | null): 
 export function DefinitionBadge({ definition }: { definition: Definition }) {
   const { t } = useTranslation();
   return definition === 'SIGNED' ? (
-    <span className="pill green" data-testid="definition-signed">
-      {t('dis.rates.definition.signed')}
+    <span data-testid="definition-signed">
+      <StatusPill tone="success">{t('dis.rates.definition.signed')}</StatusPill>
     </span>
   ) : (
-    <span className="pill warn" data-testid="definition-pending" title={t('dis.rates.definition.pending.title', { ref: FORMULA_REFERENCE })}>
-      {t('dis.rates.definition.pending')}
+    <span data-testid="definition-pending" title={t('dis.rates.definition.pending.title', { ref: FORMULA_REFERENCE })}>
+      <StatusPill tone="warning">{t('dis.rates.definition.pending')}</StatusPill>
     </span>
   );
 }
 
-/** The two rates of a scope, together and never one alone: the same numerator over the plan of the Prime Minister and over the whole plan. */
+/** Coverage of the Treasury figures as a word on a pill: complete is success, partial a warning, none neutral; never colour alone. */
+export function CoveragePill({ coverage }: { coverage: Coverage }) {
+  const { t } = useTranslation();
+  return <StatusPill tone={coverage === 'COMPLETE' ? 'success' : coverage === 'PARTIAL' ? 'warning' : 'neutral'}>{coverageLabel(t, coverage)}</StatusPill>;
+}
+
+/** The value of a rate tile: the percent, "Không áp dụng" when the denominator is zero, or the reason there is none (a rate that cannot be given is never 0%). */
+function tileValue(t: T, rate: string | null, reason: NullReason | null): string {
+  if (rate !== null) return percent(t, rate);
+  return reason === 'ZERO_DENOMINATOR' ? t('w2dis.rates.tile.na') : reasonLabel(t, reason);
+}
+
+/** The scope line of the screens of the rates: scope, period of the snapshot, the day the Treasury figures are cut off, the unit of the money. */
+export function RatesContext({ snapshotId, cutoff }: { snapshotId: string | undefined; cutoff: string | undefined }) {
+  const { t } = useTranslation();
+  const { tenant } = useSession();
+  const frozen = useFrozenSnapshots();
+  const periods = usePeriods();
+  const snapshot = (frozen.data ?? []).find((candidate) => candidate.id === snapshotId);
+  const period = snapshot === undefined ? undefined : (periods.data ?? []).find((candidate) => candidate.id === snapshot.periodId);
+  return (
+    <ContextBar
+      items={[
+        { label: t('dis.wr.ctx.scope'), value: tenant?.name ?? t('dis.wr.ctx.scope.all') },
+        { label: t('dis.wr.ctx.period'), value: period?.code ?? NONE },
+        { label: t('dis.rates.fact.cutoff'), value: cutoff ?? NONE },
+      ]}
+      unit={t('dis.wr.unit')}
+    />
+  );
+}
+
+/** The two rates of a scope, together and never one alone: the same numerator over the plan of the Prime Minister and over the whole plan, each tile with its denominator and its formula. */
 export function RatePair({ figures, definition, cutoff, basis }: { figures: RateFigures; definition: Definition; cutoff: string; basis: Basis }) {
   const { t } = useTranslation();
+  const noBasis = figures.nullReason === 'ZERO_DENOMINATOR';
   return (
-    <section className="card" aria-labelledby="rate-pair-title" data-testid="rate-pair">
-      <div className="heading">
-        <h2 id="rate-pair-title">{basis === 'CURRENT_YEAR' ? t('dis.rates.pair.title.year') : t('dis.rates.pair.title.carryover')}</h2>
-        <DefinitionBadge definition={definition} />
-      </div>
-      <div className="dis-rate-pair" role="group" aria-label={t('dis.rates.pair.aria')}>
-        <div className="dis-rate-tile" data-rate="pm" title={t('dis.rates.formula.pm', { ref: FORMULA_REFERENCE })}>
-          <span className="sub">{t('dis.rates.pair.pm.label')}</span>
-          <strong data-testid="rate-pm">{rateText(t, figures.ratePmPct, figures.nullReason)}</strong>
-          {passesWhole(figures.ratePmPct) ? <small data-testid="rate-pm-over">{t('dis.rates.pair.over.note')}</small> : null}
+    <div data-testid="rate-pair">
+      <SectionCard title={basis === 'CURRENT_YEAR' ? t('dis.rates.pair.title.year') : t('dis.rates.pair.title.carryover')} unit={t('dis.wr.unit')} status={<DefinitionBadge definition={definition} />}>
+        <div className="w2dis-stack">
+          <div className="w2dis-pair">
+            <KpiStrip label={t('dis.rates.pair.aria')}>
+              <KpiTile
+                label={t('dis.rates.pair.pm.label')}
+                value={tileValue(t, figures.ratePmPct, figures.nullReason)}
+                tone="info"
+                sub={
+                  <span className="w2dis-tile-sub">
+                    <span>{t('w2dis.rates.tile.sub', { numerator: money(figures.numeratorVnd), denominator: money(figures.planPmVnd) })}</span>
+                    {figures.ratePmPct === null && noBasis ? <small>{reasonLabel(t, figures.nullReason)}</small> : null}
+                    <small>{t('dis.rates.formula.pm', { ref: FORMULA_REFERENCE })}</small>
+                    {passesWhole(figures.ratePmPct) ? <small data-testid="rate-pm-over">{t('dis.rates.pair.over.note')}</small> : null}
+                  </span>
+                }
+              />
+              <KpiTile
+                label={t('dis.rates.pair.total.label')}
+                value={tileValue(t, figures.rateTotalPct, figures.nullReason)}
+                sub={
+                  <span className="w2dis-tile-sub">
+                    <span>{t('w2dis.rates.tile.sub', { numerator: money(figures.numeratorVnd), denominator: money(figures.planTotalVnd) })}</span>
+                    {figures.rateTotalPct === null && noBasis ? <small>{reasonLabel(t, figures.nullReason)}</small> : null}
+                    <small>{t('dis.rates.formula.total', { ref: FORMULA_REFERENCE })}</small>
+                  </span>
+                }
+              />
+            </KpiStrip>
+          </div>
+          <div className="w2dis-facts">
+            <ReadonlyStat label={t('dis.rates.fact.numerator')} value={money(figures.numeratorVnd)} />
+            <ReadonlyStat label={t('dis.rates.fact.planPm')} value={money(figures.planPmVnd)} />
+            <ReadonlyStat label={t('dis.rates.fact.planTotal')} value={money(figures.planTotalVnd)} />
+            <ReadonlyStat label={t('dis.rates.fact.cutoff')} value={cutoff} />
+            <ReadonlyStat label={t('dis.rates.fact.coverage')} value={coverageLabel(t, figures.coverage)} />
+          </div>
+          <details>
+            <summary>{t('dis.rates.formula.summary')}</summary>
+            <p className="w2dis-note">{t('dis.rates.formula.body', { ref: FORMULA_REFERENCE })}</p>
+          </details>
         </div>
-        <div className="dis-rate-tile" data-rate="total" title={t('dis.rates.formula.total', { ref: FORMULA_REFERENCE })}>
-          <span className="sub">{t('dis.rates.pair.total.label')}</span>
-          <strong data-testid="rate-total">{rateText(t, figures.rateTotalPct, figures.nullReason)}</strong>
-        </div>
-      </div>
-      <dl className="aud-facts" data-testid="rate-facts">
-        <dt>{t('dis.rates.fact.numerator')}</dt>
-        <dd data-testid="fact-numerator">{money(figures.numeratorVnd)}</dd>
-        <dt>{t('dis.rates.fact.planPm')}</dt>
-        <dd data-testid="fact-plan-pm">{money(figures.planPmVnd)}</dd>
-        <dt>{t('dis.rates.fact.planTotal')}</dt>
-        <dd data-testid="fact-plan-total">{money(figures.planTotalVnd)}</dd>
-        <dt>{t('dis.rates.fact.cutoff')}</dt>
-        <dd data-testid="fact-cutoff">{cutoff}</dd>
-        <dt>{t('dis.rates.fact.coverage')}</dt>
-        <dd data-testid="fact-coverage">{coverageLabel(t, figures.coverage)}</dd>
-      </dl>
-      <details>
-        <summary>{t('dis.rates.formula.summary')}</summary>
-        <p className="sub">{t('dis.rates.formula.body', { ref: FORMULA_REFERENCE })}</p>
-      </details>
-    </section>
+      </SectionCard>
+    </div>
   );
 }
 
-/** The two cells of a table row that hold the rates: they always come as a pair. */
-export function RateCells({ figures }: { figures: RateFigures }) {
+/** The cell of a rate in a table row: the percent, or why there is none; the reason is also the tooltip. */
+export function RateCell({ rate, reason, kind }: { rate: string | null; reason: NullReason | null; kind: 'pm' | 'total' }) {
   const { t } = useTranslation();
   return (
-    <>
-      <td className="num" data-rate="pm" title={figures.ratePmPct === null ? reasonLabel(t, figures.nullReason) : undefined}>
-        {rateText(t, figures.ratePmPct, figures.nullReason)}
-      </td>
-      <td className="num" data-rate="total" title={figures.rateTotalPct === null ? reasonLabel(t, figures.nullReason) : undefined}>
-        {rateText(t, figures.rateTotalPct, figures.nullReason)}
-      </td>
-    </>
+    <span data-rate={kind} title={rate === null ? reasonLabel(t, reason) : undefined}>
+      {rateText(t, rate, reason)}
+    </span>
   );
 }
 
-/** The headers of the two rate columns, with the formula in the title (CXN-03). */
-export function RateHeaders() {
-  const { t } = useTranslation();
-  return (
-    <>
-      <th scope="col" className="num" title={t('dis.rates.formula.pm', { ref: FORMULA_REFERENCE })}>
-        {t('dis.rates.col.ratePm')}
-      </th>
-      <th scope="col" className="num" title={t('dis.rates.formula.total', { ref: FORMULA_REFERENCE })}>
-        {t('dis.rates.col.rateTotal')}
-      </th>
-    </>
-  );
+/** The two columns that hold the rates, under one group head: they always come as a pair. */
+export function rateColumns<Row>(t: T, pick: (row: Row) => { ratePmPct: string | null; rateTotalPct: string | null; reason: NullReason | null }): DataTableColumn<Row>[] {
+  const group = t('w2dis.rates.group.rates');
+  return [
+    { key: 'ratePm', header: t('dis.rates.col.ratePm'), group, align: 'right', render: (row) => <RateCell kind="pm" rate={pick(row).ratePmPct} reason={pick(row).reason} /> },
+    { key: 'rateTotal', header: t('dis.rates.col.rateTotal'), group, align: 'right', render: (row) => <RateCell kind="total" rate={pick(row).rateTotalPct} reason={pick(row).reason} /> },
+  ];
 }
 
 /** What is chosen to read: the most recent frozen snapshot, or one named by its period, its kind and its cutoff. */

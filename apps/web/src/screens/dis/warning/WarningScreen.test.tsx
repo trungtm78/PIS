@@ -60,6 +60,9 @@ const warningRecord = (n: number, over: Record<string, unknown> = {}): Record<st
   ...over,
 });
 
+const rulesTable = (): Promise<HTMLElement> => screen.findByRole('table', { name: vi_['dis.warning.rules.aria'] });
+const warningsTable = (): Promise<HTMLElement> => screen.findByRole('table', { name: vi_['dis.warning.list.aria'] });
+const rowIn = (table: HTMLElement, attribute: 'rule' | 'warning', id: string): HTMLElement => table.querySelector(`[data-${attribute}="${id}"]`)?.closest('tr') as HTMLElement;
 const open = (options: { rules?: Array<Record<string, unknown>>; warnings?: Record<string, unknown> | ((query: Record<string, unknown>) => unknown); permissions?: readonly string[] | undefined; command?: (operation: string, input: unknown) => unknown; mode?: 'FULL' | 'READ_ONLY' } = {}) => {
   const h = client(world({ rules: options.rules ?? [ruleRecord(1)], warnings: options.warnings ?? { items: [warningRecord(1)], next_cursor: null } }), options.command ?? (() => ({ status: 'OK', resource_version: 2, resource_id: RULE(9) })));
   mount(<WarningScreen route={ROUTE} />, h, { permissions: 'permissions' in options ? options.permissions : ALL, path: '/dis/dis-20', ...(options.mode === undefined ? {} : { mode: options.mode }) });
@@ -71,14 +74,14 @@ describe('DIS-20 early-warning rules and warnings', () => {
   it('UI-DIS-20: lists the rules with their metric, threshold in words, severity, status and legal basis, and says what a draft would open on the latest frozen snapshot', async () => {
     open({ rules: [ruleRecord(1), ruleRecord(2, { revision: 2, status: 'DRAFT', approved_by: null, preview: { snapshot_id: 's', would_open: 3 }, threshold_json: { points: '15' } })] });
     expect(await screen.findByRole('heading', { level: 1, name: vi_['dis.warning.page.title'] })).toBeTruthy();
-    const table = await screen.findByTestId('rules');
-    const published = table.querySelector(`tr[data-rule="${RULE(1)}"]`) as HTMLElement;
+    const table = await rulesTable();
+    const published = rowIn(table, 'rule', RULE(1));
     expect(within(published).getAllByText(vi_['dis.warning.metric.ytdRateGap']).length).toBeGreaterThanOrEqual(1);
     expect(within(published).getByText('Thấp hơn kỳ vọng từ 10 điểm %, nghiêm trọng từ 20 điểm')).toBeTruthy();
     expect(within(published).getByText(vi_['dis.warning.rule.status.published'])).toBeTruthy();
     expect(published.textContent).toContain('DIS BR-DIS-13 [giả định, chờ phòng Tài chính xác nhận]');
     expect(screen.getByTestId(`preview-${RULE(1)}`).textContent).toBe('—');
-    const draft = table.querySelector(`tr[data-rule="${RULE(2)}"]`) as HTMLElement;
+    const draft = rowIn(table, 'rule', RULE(2));
     expect(within(draft).getByText('Thấp hơn kỳ vọng từ 15 điểm %')).toBeTruthy();
     expect(within(draft).getByText(vi_['dis.warning.rule.status.draft'])).toBeTruthy();
     expect(screen.getByTestId(`preview-${RULE(2)}`).textContent).toBe('3 cảnh báo');
@@ -95,8 +98,8 @@ describe('DIS-20 early-warning rules and warnings', () => {
         next_cursor: null,
       },
     });
-    const table = await screen.findByTestId('warnings');
-    const first = table.querySelector(`tr[data-warning="${WARNING(1)}"]`) as HTMLElement;
+    const table = await warningsTable();
+    const first = rowIn(table, 'warning', WARNING(1));
     expect(Array.from(first.querySelectorAll('td')).slice(0, 5).map((cell) => cell.textContent)).toEqual([
       'EW-01Tỷ lệ giải ngân thấp hơn đường kỳ vọng',
       'P-A-002Cầu qua sông',
@@ -104,11 +107,11 @@ describe('DIS-20 early-warning rules and warnings', () => {
       '22.0000% so với kỳ vọng 45.0000% (chênh 23.0000 điểm)',
       vi_['dis.warning.status.open'],
     ]);
-    const cleared = table.querySelector(`tr[data-warning="${WARNING(2)}"]`) as HTMLElement;
+    const cleared = rowIn(table, 'warning', WARNING(2));
     expect(within(cleared).getByText(vi_['dis.warning.severity.critical'])).toBeTruthy();
     expect(within(cleared).getByText('Trễ hạn 2 ngày, chưa có báo cáo')).toBeTruthy();
     expect(within(cleared).getByText(vi_['dis.warning.resolution.autoCleared'])).toBeTruthy();
-    const dismissed = table.querySelector(`tr[data-warning="${WARNING(3)}"]`) as HTMLElement;
+    const dismissed = rowIn(table, 'warning', WARNING(3));
     expect(within(dismissed).getByText('Giải ngân trong kỳ -20.000.000 đồng')).toBeTruthy();
     expect(within(dismissed).getByText('Dự án chuyển sang kế hoạch quý sau.')).toBeTruthy();
     // A warning that is closed cannot be handled.
@@ -119,7 +122,7 @@ describe('DIS-20 early-warning rules and warnings', () => {
   it('acknowledges an open warning with a reason under the version shown, and says why when the reason is missing or too short', async () => {
     const user = userEvent.setup();
     const h = open({ command: () => ({ status: 'ACKNOWLEDGED', resource_version: 2, resource_id: WARNING(1) }) });
-    const row = (await screen.findByTestId('warnings')).querySelector(`tr[data-warning="${WARNING(1)}"]`) as HTMLElement;
+    const row = rowIn(await warningsTable(), 'warning', WARNING(1));
     await user.click(within(row).getByRole('button', { name: vi_['dis.warning.acknowledge.action'] }));
     const dialog = await screen.findByRole('dialog');
     await user.click(within(dialog).getByRole('button', { name: vi_['dis.warning.acknowledge.confirm.action'] }));
@@ -142,8 +145,8 @@ describe('DIS-20 early-warning rules and warnings', () => {
       warnings: { items: [warningRecord(1), warningRecord(2, { status: 'ACKNOWLEDGED' }), warningRecord(3, { status: 'EXPLANATION_REQUESTED' })], next_cursor: null },
       command: () => failure,
     });
-    const table = await screen.findByTestId('warnings');
-    const rowOf = (n: number) => table.querySelector(`tr[data-warning="${WARNING(n)}"]`) as HTMLElement;
+    const table = await warningsTable();
+    const rowOf = (n: number) => rowIn(table, 'warning', WARNING(n));
     expect(within(rowOf(1)).getByRole('button', { name: vi_['dis.warning.acknowledge.action'] })).toBeTruthy();
     expect(within(rowOf(1)).getByRole('button', { name: vi_['dis.warning.dismiss.action'] })).toBeTruthy();
     expect(within(rowOf(2)).queryByRole('button', { name: vi_['dis.warning.acknowledge.action'] })).toBeNull();
@@ -165,9 +168,9 @@ describe('DIS-20 early-warning rules and warnings', () => {
     const h = open({
       warnings: (query) => (query.cursor === undefined ? { items: [warningRecord(1)], next_cursor: 'next' } : { items: [warningRecord(2)], next_cursor: null }),
     });
-    await screen.findByTestId('warnings');
+    await warningsTable();
     await user.click(screen.getByRole('button', { name: vi_['dis.warning.list.more.action'] }));
-    await waitFor(() => expect(screen.getByTestId('warnings').querySelectorAll('tbody tr')).toHaveLength(2));
+    await waitFor(() => expect(screen.getByRole('table', { name: vi_['dis.warning.list.aria'] }).querySelectorAll('tbody tr')).toHaveLength(2));
     expect(screen.queryByRole('button', { name: vi_['dis.warning.list.more.action'] })).toBeNull();
     await user.selectOptions(screen.getByLabelText(vi_['dis.warning.filter.status']), 'OPEN');
     await user.selectOptions(screen.getByLabelText(vi_['dis.warning.filter.severity']), 'CRITICAL');
@@ -178,14 +181,19 @@ describe('DIS-20 early-warning rules and warnings', () => {
     });
     const first = h.read.mock.calls.find((call) => call[0] === 'listEarlyWarnings');
     expect((first?.[1] as { query: Record<string, unknown> }).query).toEqual({ limit: 25 });
+    // The filter panel counts what is applied and one button takes every condition off.
+    await user.click(screen.getByRole('button', { name: vi_['dis.reports.filter.clear.action'] }));
+    expect((screen.getByLabelText(vi_['dis.warning.filter.status']) as HTMLSelectElement).value).toBe('');
+    expect((screen.getByLabelText(vi_['dis.warning.filter.severity']) as HTMLSelectElement).value).toBe('');
+    expect(screen.queryByRole('button', { name: vi_['dis.reports.filter.clear.action'] })).toBeNull();
   });
 
   it('AC-ST-DIS-012-3 / UAT-PLAN-70: publishes a draft under the version shown for a person who may approve, and says in words that the author cannot publish their own rule', async () => {
     const user = userEvent.setup();
     let failure: Error | undefined = new ApiError({ status: 403, code: 'SELF_APPROVAL_DENIED', correlationId: 'c' });
     const h = open({ rules: [ruleRecord(1), ruleRecord(2, { revision: 2, status: 'DRAFT', approved_by: null, version: 1 })], command: () => failure ?? { status: 'PUBLISHED', resource_version: 2, resource_id: RULE(2) } });
-    const draft = (await screen.findByTestId('rules')).querySelector(`tr[data-rule="${RULE(2)}"]`) as HTMLElement;
-    expect(within((await screen.findByTestId('rules')).querySelector(`tr[data-rule="${RULE(1)}"]`) as HTMLElement).queryByRole('button', { name: vi_['dis.warning.rule.publish.action'] })).toBeNull();
+    const draft = rowIn(await rulesTable(), 'rule', RULE(2));
+    expect(within(rowIn(await rulesTable(), 'rule', RULE(1))).queryByRole('button', { name: vi_['dis.warning.rule.publish.action'] })).toBeNull();
     await user.click(within(draft).getByRole('button', { name: vi_['dis.warning.rule.publish.action'] }));
     await waitFor(() => expect(screen.getByTestId('publish-refusal').textContent).toBe(vi_['dis.warning.problem.selfApproval']));
     expect(sent(h)).toEqual(['publishEarlyWarningRule', expect.objectContaining({ path: { id: RULE(2) }, ifMatchVersion: 1 })]);
@@ -197,7 +205,7 @@ describe('DIS-20 early-warning rules and warnings', () => {
   it('makes a new revision of a rule: the form starts from the words of the rule, is checked field by field, and sends the draft in the words of the contract', async () => {
     const user = userEvent.setup();
     const h = open({ command: () => ({ status: 'DRAFT', resource_version: 1, resource_id: RULE(9) }) });
-    await screen.findByTestId('rules');
+    await rulesTable();
     await user.click(screen.getByRole('button', { name: vi_['dis.warning.rule.revise.action'] }));
     const form = await screen.findByTestId('rule-form');
     expect(within(form).getByRole('heading', { level: 2 }).textContent).toBe('Bản mới của quy tắc EW-01');
@@ -236,7 +244,7 @@ describe('DIS-20 early-warning rules and warnings', () => {
   it('makes a new rule of a metric with its own threshold, and puts the 422 of the server on the field it names', async () => {
     const user = userEvent.setup();
     const h = open({ command: () => new ApiError({ status: 422, code: 'VALIDATION_FAILED', detail: 'threshold_json.grace_days', correlationId: 'c' }) });
-    await screen.findByTestId('rules');
+    await rulesTable();
     await user.click(screen.getByRole('button', { name: vi_['dis.warning.rule.new.action'] }));
     const form = await screen.findByTestId('rule-form');
     await user.click(within(form).getByRole('button', { name: vi_['dis.warning.editor.save.action'] }));
@@ -258,7 +266,7 @@ describe('DIS-20 early-warning rules and warnings', () => {
   it('says in words why the server refused a metric it does not compute, on the form and not on a field', async () => {
     const user = userEvent.setup();
     open({ command: () => new ApiError({ status: 422, code: 'METRIC_UNKNOWN', detail: 'metric_code', correlationId: 'c' }) });
-    await screen.findByTestId('rules');
+    await rulesTable();
     await user.click(screen.getByRole('button', { name: vi_['dis.warning.rule.revise.action'] }));
     await user.click(await screen.findByRole('button', { name: vi_['dis.warning.editor.save.action'] }));
     expect((await screen.findByTestId('create-refusal')).textContent).toBe(vi_['dis.warning.problem.unknownMetric']);
@@ -266,18 +274,18 @@ describe('DIS-20 early-warning rules and warnings', () => {
 
   it('shows each person only what they can do: a reader sees the rules and the warnings and no control; read-only mode too', async () => {
     open({ permissions: WARNING_READER, rules: [ruleRecord(1), ruleRecord(2, { status: 'DRAFT', approved_by: null })] });
-    await screen.findByTestId('rules');
+    await rulesTable();
     expect(screen.queryAllByRole('button').filter((button) => /Công bố|Tạo|Tiếp nhận|Bỏ qua/.test(button.textContent ?? ''))).toHaveLength(0);
     cleanup();
     open({ permissions: ALL, mode: 'READ_ONLY', rules: [ruleRecord(1), ruleRecord(2, { status: 'DRAFT', approved_by: null })] });
-    await screen.findByTestId('rules');
+    await rulesTable();
     expect(screen.queryByRole('button', { name: vi_['dis.warning.rule.new.action'] })).toBeNull();
     expect(screen.queryByRole('button', { name: vi_['dis.warning.rule.publish.action'] })).toBeNull();
     expect(screen.queryByRole('button', { name: vi_['dis.warning.acknowledge.action'] })).toBeNull();
     cleanup();
     open({ permissions: WARNING_HANDLER });
-    await screen.findByTestId('rules');
-    await screen.findByTestId('warnings');
+    await rulesTable();
+    await warningsTable();
     expect(screen.queryByRole('button', { name: vi_['dis.warning.rule.new.action'] })).toBeNull();
     expect(screen.getByRole('button', { name: vi_['dis.warning.acknowledge.action'] })).toBeTruthy();
   });

@@ -21,7 +21,9 @@ function open(state: World, options: { permissions?: readonly string[]; mode?: '
   return h;
 }
 
-const rowOf = (id: string): HTMLElement => document.querySelector(`tr[data-item="${id}"]`) as HTMLElement;
+const rowOf = (id: string): HTMLElement | null => (document.querySelector(`[data-item="${id}"]`)?.closest('tr') as HTMLElement | null) ?? null;
+const figureOf = (label: string): string | null | undefined => screen.getByText(label).closest('article')?.querySelector('.ui-kpi__value')?.textContent;
+const transactionRow = (id: string): HTMLElement => document.querySelector(`[data-transaction="${id}"]`)?.closest('tr') as HTMLElement;
 const dialog = (): HTMLElement => screen.getByRole('dialog');
 
 describe('BoardScreen (PAY-05): matching and the differences', () => {
@@ -31,7 +33,7 @@ describe('BoardScreen (PAY-05): matching and the differences', () => {
     await screen.findByTestId('items');
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['pay.recon.title']);
     expect(screen.getByText(text('pay.recon.footer', { id: 'PAY-05', req: 'FR-PAY-05' }))).toBeTruthy();
-    const first = rowOf(itemId(1));
+    const first = rowOf(itemId(1)) as HTMLElement;
     expect(within(first).getByTestId('kind').textContent).toBe(vi_['pay.recon.kind.amountMismatch']);
     expect(within(first).getByTestId('internal').textContent).toBe('1.000.000.000');
     expect(within(first).getByTestId('confirmed').textContent).toBe('990.000.000');
@@ -44,21 +46,21 @@ describe('BoardScreen (PAY-05): matching and the differences', () => {
     expect(within(first).queryByTestId('overdue')).toBeNull();
     expect((within(first).getByTestId('open') as HTMLAnchorElement).getAttribute('href')).toBe(`/pay/pay-06?item=${itemId(1)}`);
     expect(within(first).getByRole('link', { name: 'DNTT-001' }).getAttribute('href')).toBe(`/pay/pay-03?request=${paymentId(1)}`);
-    const second = rowOf(itemId(2));
-    expect(second.getAttribute('data-overdue')).toBe('yes');
+    const second = rowOf(itemId(2)) as HTMLElement;
+    expect(within(second).getByTestId('kind').getAttribute('data-overdue')).toBe('yes');
     expect(within(second).getByTestId('overdue').textContent?.trim()).toBe(vi_['pay.recon.overdue']);
     expect(within(second).getByTestId('difference').textContent).toBe('+10.000.000');
     expect(within(second).getByTestId('status').textContent).toBe(vi_['pay.recon.status.explained']);
-    expect(screen.getByTestId('waiting').textContent).toBe('2');
-    expect(screen.getByTestId('overdue-count').textContent).toBe('1');
-    expect(screen.getByTestId('difference-sum').textContent).toBe('0');
+    expect(figureOf(vi_['pay.recon.summary.waiting'])).toBe('2');
+    expect(figureOf(vi_['pay.recon.summary.overdue'])).toBe('1');
+    expect(figureOf(vi_['pay.recon.summary.difference'])).toBe('0');
   });
 
   it('leaves out the cells an item does not have, and narrows the items by status', async () => {
     const bare = item(3, { payment_request_id: null, request_no: null, document_no: null, source_file_name: null, source_file_sha256: null, internal_amount_vnd: null, confirmed_amount_vnd: null, difference_vnd: null, owner_name: null });
     const h = open(world({ items: [bare, item(4, { status: 'RESOLVED' })] }), { permissions: READER });
     await screen.findByTestId('items');
-    const row = rowOf(itemId(3));
+    const row = rowOf(itemId(3)) as HTMLElement;
     for (const cell of ['request', 'voucher', 'internal', 'confirmed', 'difference', 'file']) expect(within(row).getByTestId(cell).textContent).toBe('');
     expect(within(row).queryByTestId('hash')).toBeNull();
     expect(within(row).getByTestId('owner').textContent).toBe(item(3).owner_membership_id);
@@ -86,13 +88,13 @@ describe('BoardScreen (PAY-05): matching and the differences', () => {
     const state = world({ transactions: [transaction(1), transaction(2, { match_status: 'MATCHED' }), transaction(3, { direction: 'REFUND' }), transaction(4, { amount_vnd: '990000000', document_no: null })], requests: [sentRequest(1)] });
     open(state);
     await screen.findByTestId('pending');
-    expect(document.querySelectorAll('tr[data-transaction]')).toHaveLength(2);
-    const first = document.querySelector(`tr[data-transaction="${transactionId(1)}"]`) as HTMLElement;
+    expect(document.querySelectorAll('[data-transaction]')).toHaveLength(2);
+    const first = transactionRow(transactionId(1));
     expect(within(first).getByTestId('voucher').textContent).toBe('CT-0001');
     expect(within(first).getByTestId('amount').textContent).toBe('2.100.000.000');
     expect(within(first).getByTestId('project').textContent).toBe('DA-A-001');
     expect(within(first).getByRole('button', { name: vi_['pay.recon.action.match'] })).toBeTruthy();
-    expect((document.querySelector(`tr[data-transaction="${transactionId(4)}"]`) as HTMLElement).querySelector('[data-testid="voucher"]')?.textContent).toBe(transactionId(4));
+    expect(transactionRow(transactionId(4)).querySelector('[data-testid="voucher"]')?.textContent).toBe(transactionId(4));
     cleanup();
     open(state, { permissions: READER });
     await screen.findByTestId('pending');

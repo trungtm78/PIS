@@ -1,6 +1,6 @@
 /* MNE-01 and MNE-02: the filing calendar and the form catalogue, in the language of the shared screen classes. */
 .mne .field-error {
-  color: #a22b22;
+  color: var(--mv-color-danger);
 }
 
 .mne-actions {
@@ -44,7 +44,7 @@
 }
 
 tr.mne-late td:first-child {
-  border-left: 3px solid #a22b22;
+  border-left: 3px solid var(--mv-color-danger);
 }
 
 /* MNE-07: the lines of the slow projects and the proposals of the week. */
@@ -74,4 +74,19 @@ tr.mne-late td:first-child {
 
 .mne-facts dd {
   margin: 0;
+}
+
+/* Wave 2: the calendar and the lists in the component kit (ui/). */
+.mne-month-card,
+.mne-generate {
+  margin-bottom: var(--mv-space-16);
+}
+
+.mne-count {
+  margin: var(--mv-space-8) 0 var(--mv-space-16);
+  font-variant-numeric: tabular-nums;
+}
+
+.mne-num {
+  font-variant-numeric: tabular-nums;
 }

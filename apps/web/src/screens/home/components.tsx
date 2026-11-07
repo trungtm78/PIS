@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { Translator } from '../../i18n';
+import { StatusPill } from '../../ui';
 import { formatVnd } from '../dis/report/money';
 import '../dis/dis.css';
 import { FORMULA_REFERENCE, SNAPSHOT_SCREEN_PATH, drillPathOf } from './model';
@@ -61,8 +62,8 @@ export function MetricTile({ tile, rate }: { tile: Tile; rate?: 'pm' | 'total' }
       ) : null}
       <small data-testid={`tile-measure-${tile.metricCode}`}>{tile.unit === 'PERCENT' ? t('home.tile.measure.percent') : t('home.tile.measure.vnd')}</small>
       <small data-testid={`tile-formula-${tile.metricCode}`}>{t('home.tile.formula', { formula: tile.formula })}</small>
-      <small className={tile.definitionStatus === 'SIGNED' ? undefined : 'pill warn'} data-testid={`tile-definition-${tile.metricCode}`}>
-        {tile.definitionStatus === 'SIGNED' ? t('home.tile.definition.signed') : t('home.tile.definition.pending', { ref: FORMULA_REFERENCE })}
+      <small data-testid={`tile-definition-${tile.metricCode}`}>
+        {tile.definitionStatus === 'SIGNED' ? t('home.tile.definition.signed') : <StatusPill tone="warning">{t('home.tile.definition.pending', { ref: FORMULA_REFERENCE })}</StatusPill>}
       </small>
       <Link to={drillPathOf(tile)} aria-label={t('home.tile.drill', { label })}>
         {t('home.tile.drill.link')}
@@ -75,13 +76,13 @@ export function QualityBadgeLabel({ badge }: { badge: QualityBadge }) {
   const { t } = useTranslation();
   switch (badge) {
     case 'OK':
-      return <span className="pill green">{t('home.quality.ok')}</span>;
+      return <StatusPill tone="success">{t('home.quality.ok')}</StatusPill>;
     case 'WARN':
-      return <span className="pill warn">{t('home.quality.warn')}</span>;
+      return <StatusPill tone="warning">{t('home.quality.warn')}</StatusPill>;
     case 'FAIL':
-      return <span className="pill warn">{t('home.quality.fail')}</span>;
+      return <StatusPill tone="danger">{t('home.quality.fail')}</StatusPill>;
     case 'NOT_ASSESSED':
-      return <span className="pill">{t('home.quality.notAssessed')}</span>;
+      return <StatusPill tone="neutral">{t('home.quality.notAssessed')}</StatusPill>;
   }
 }
 
@@ -89,9 +90,9 @@ export function QualityBadgeLabel({ badge }: { badge: QualityBadge }) {
 export function NewDataBanner({ onRefresh }: { onRefresh: () => void }) {
   const { t } = useTranslation();
   return (
-    <div role="status" className="card" data-testid="new-data-banner">
+    <div role="status" className="home-queue-note" data-testid="new-data-banner">
       <p>{t('home.banner.new')}</p>
-      <button type="button" className="primary" onClick={onRefresh}>
+      <button type="button" className="ui-button ui-button--primary" onClick={onRefresh}>
         {t('home.banner.refresh')}
       </button>
     </div>

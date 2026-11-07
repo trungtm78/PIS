@@ -10,6 +10,7 @@ import { paymentLink, percentText, signedAmountText } from '../../pay/payment/mo
 import { quantityText } from '../measurement/model';
 import { BackLink } from '../components';
 import '../ctr.css';
+import { SectionCard } from '../../../ui';
 
 /**
  * CTR-13: how the amount of a payment request is made up (ST-PAY-002, PAY 3.1). For each line of the accepted work the quantity and the price in force on the day the acceptance was drawn up, the
@@ -47,7 +48,7 @@ function ValuationContent({ route }: ScreenProps) {
       ) : (
         <StateBoundary state={state} onRetry={() => void payment.refetch()}>
           {request === null || request === undefined ? null : (
-            <article className="card" aria-label={t('ctr.valuation.table')}>
+            <SectionCard title={t('ctr.valuation.table')} unit={t('w2pay.ctx.unit')}>
               <p>
                 <strong data-testid="request-no">{request.requestNo ?? request.id}</strong> · <span data-testid="contract">{request.contract.code}</span> · {kindLabel(t, request.requestKind)} ·{' '}
                 <span data-testid="status">{statusLabel(t, request.status)}</span>
@@ -149,7 +150,7 @@ function ValuationContent({ route }: ScreenProps) {
                 </p>
               )}
               <p className="sub">{t('ctr.valuation.note')}</p>
-            </article>
+            </SectionCard>
           )}
         </StateBoundary>
       )}

@@ -12,7 +12,9 @@ const created = { operation_id: 'o', status: 'DRAFT', resource_version: 1, resou
 
 afterEach(cleanup);
 
-const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('tr[data-plan-id]'));
+// A plan is the row of the table of the kit that holds a cell carrying its id.
+const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('[data-plan-id]')).flatMap((node) => (node.closest('tr') === null ? [] : [node.closest('tr') as HTMLElement]));
+const planOf = (row: HTMLElement | undefined): string | null | undefined => row?.querySelector('[data-plan-id]')?.getAttribute('data-plan-id');
 const ready = () => waitFor(() => expect(rows().length).toBeGreaterThan(0));
 const cell = (row: HTMLElement | undefined, index: number): string => row?.querySelectorAll('th, td')[index]?.textContent ?? '';
 const open = (world: PlanWorld = planWorld(), command?: (operation: string, input: unknown) => unknown, permissions: readonly string[] = PLAN_PLANNER, mode?: 'FULL' | 'READ_ONLY') => {
@@ -47,7 +49,7 @@ describe('PlanListScreen (CAP-01): the capital plans of the province', () => {
     ]);
     expect(rows()).toHaveLength(1);
     const medium = rows()[0];
-    expect(medium?.getAttribute('data-plan-id')).toBe(MEDIUM_ID);
+    expect(planOf(medium)).toBe(MEDIUM_ID);
     expect(cell(medium, 0)).toBe('2026 - 2030');
     expect(cell(medium, 1)).toContain('TH-2026-2030');
     expect(cell(medium, 1)).toContain(vi_['cap.planKind.medium.label']);
@@ -56,7 +58,11 @@ describe('PlanListScreen (CAP-01): the capital plans of the province', () => {
     expect(cell(medium, 4)).toBe('5.000');
     expect(cell(medium, 5)).toBe(vi_['cap.planStatus.draft.label']);
     expect(cell(medium, 6)).toBe(vi_['cap.planHeader.noDecision.notice']);
-    expect(within(medium as HTMLElement).getByRole('link', { name: vi_['cap.plans.open.action'] }).getAttribute('href')).toContain(`/cap/cap-06?plan=${MEDIUM_ID}`);
+    expect(
+      within(medium as HTMLElement)
+        .getByRole('link', { name: vi_['cap.plans.open.action'] })
+        .getAttribute('href'),
+    ).toContain(`/cap/cap-06?plan=${MEDIUM_ID}`);
   });
 
   it('filters by kind: all the plans show the annual ones too, with the decision of a published one and a link to its lines', async () => {
@@ -64,12 +70,16 @@ describe('PlanListScreen (CAP-01): the capital plans of the province', () => {
     await ready();
     fireEvent.change(screen.getByLabelText(vi_['cap.plans.kind.label']), { target: { value: '' } });
     expect(rows()).toHaveLength(3);
-    const published = rows().find((row) => row.getAttribute('data-plan-id') === PUBLISHED_ID);
+    const published = rows().find((row) => planOf(row) === PUBLISHED_ID);
     expect(cell(published, 6)).toBe('12/QD-UBND ngày 2025-01-10');
     expect(cell(published, 5)).toBe(vi_['cap.planStatus.published.label']);
-    expect(within(published as HTMLElement).getByRole('link', { name: vi_['cap.plans.annual.action'] }).getAttribute('href')).toContain(`/cap/cap-03?plan=${PUBLISHED_ID}`);
+    expect(
+      within(published as HTMLElement)
+        .getByRole('link', { name: vi_['cap.plans.annual.action'] })
+        .getAttribute('href'),
+    ).toContain(`/cap/cap-03?plan=${PUBLISHED_ID}`);
     fireEvent.change(screen.getByLabelText(vi_['cap.plans.kind.label']), { target: { value: 'ANNUAL' } });
-    expect(rows().map((row) => row.getAttribute('data-plan-id'))).toEqual([ANNUAL_ID, PUBLISHED_ID]);
+    expect(rows().map((row) => planOf(row))).toEqual([ANNUAL_ID, PUBLISHED_ID]);
     // A plan without lines says so instead of an empty cell.
     const world = planWorld();
     world.plans = [{ ...(world.plans[1] as object), fund_sources: [] }];
@@ -81,9 +91,12 @@ describe('PlanListScreen (CAP-01): the capital plans of the province', () => {
 
   it('says when no plan matches, and shows the empty, denied and error states', async () => {
     const onlyAnnual = planWorld();
-    onlyAnnual.plans = [(planWorld().plans[0] as object) as Record<string, unknown>];
+    onlyAnnual.plans = [planWorld().plans[0] as object as Record<string, unknown>];
     open(onlyAnnual);
-    await waitFor(() => expect(screen.getByTestId('no-match')).toBeTruthy());
+    await waitFor(() => expect(within(screen.getByTestId('plans')).getByRole('status').textContent).toContain(vi_['ui.dataTable.emptyFiltered']));
+    // The empty state of the table offers to clear the filter, and the plan of the other kind is listed again.
+    fireEvent.click(within(screen.getByTestId('plans')).getByRole('button', { name: vi_['ui.dataTable.clearFilters'] }));
+    expect(rows()).toHaveLength(1);
     cleanup();
     open(planWorld({ plans: [] }));
     await waitFor(() => expect(screen.getByText(vi_['states.empty.title'])).toBeTruthy());
@@ -126,7 +139,14 @@ describe('PlanListScreen (CAP-01): the capital plans of the province', () => {
     set(vi_['cap.plans.unit.label'], UNIT_BQL);
     fireEvent.click(form().getByRole('button', { name: vi_['cap.plans.form.submit.action'] }));
     await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
-    expect((h.command.mock.calls[0]?.[1] as { body: unknown }).body).toEqual({ plan_code: 'CP-2031', plan_kind: 'ANNUAL', plan_year: 2031, period_from_year: 2031, period_to_year: 2031, scope_unit_id: UNIT_BQL });
+    expect((h.command.mock.calls[0]?.[1] as { body: unknown }).body).toEqual({
+      plan_code: 'CP-2031',
+      plan_kind: 'ANNUAL',
+      plan_year: 2031,
+      period_from_year: 2031,
+      period_to_year: 2031,
+      scope_unit_id: UNIT_BQL,
+    });
   });
 
   it('judges the form before sending: the code, the unit, the years and their order', async () => {

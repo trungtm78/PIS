@@ -78,6 +78,21 @@ describe('OutgoingListScreen (DOC-03)', () => {
     expect(screen.getByText(fill(vi_['doc.list.count.text'], { count: 7 }))).toBeTruthy();
   });
 
+  it('tells the status on a pill whose tone follows the stage, counts the filters on the filter panel and keeps the number column in view', async () => {
+    mount(<OutgoingListScreen route={ROUTE} />, harness(answer), ALL);
+    await screen.findByText('Decision 1');
+    const tone = (title: string, status: string): string => within(rowOf(title)).getAllByText(status).map((node) => node.closest('.ui-pill')).find((pill) => pill !== null)?.className ?? '';
+    expect(tone('Decision 1', vi_['doc.draft.status.draft'])).toContain('ui-tone-neutral');
+    expect(tone('Decision 2', vi_['doc.draft.status.inReview'])).toContain('ui-tone-info');
+    expect(tone('Decision 5', vi_['doc.draft.status.issued'])).toContain('ui-tone-success');
+    expect(tone('Decision 6', vi_['doc.draft.status.recalled'])).toContain('ui-tone-danger');
+    expect(rowOf('Decision 1').querySelector('td')?.className).toContain('ui-table__cell--pinned');
+    expect(screen.getByRole('button', { name: vi_['ui.filterPanel.toggle'] })).toBeTruthy();
+    await userEvent.setup().selectOptions(screen.getByLabelText(vi_['doc.list.status.label']), 'IN_REVIEW');
+    await userEvent.setup().click(screen.getByRole('button', { name: vi_['doc.list.filter.action'] }));
+    await waitFor(() => expect(screen.getByRole('button', { name: vi_['ui.filterPanel.toggleApplied'].replace('{count}', '1') })).toBeTruthy());
+  });
+
   it('sends the work on to the screen of its state when the caller may do it, and shows the document otherwise', async () => {
     mount(<OutgoingListScreen route={ROUTE} />, harness(answer), ALL);
     await screen.findByText('Decision 1');

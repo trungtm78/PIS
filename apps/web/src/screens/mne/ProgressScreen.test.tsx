@@ -32,13 +32,16 @@ describe('MNE-09 filing progress (ST-MNE-006, MNE F2, BR-MNE-04)', () => {
     expect(screen.getByTestId(`progress-${idOf(U3)}`).textContent).toBe(fill(vi_['mne.progress.status.openLate'], { days: 5 }));
     expect(screen.getByTestId(`progress-${idOf(WAITING)}`).textContent).toBe(vi_['mne.progress.status.open']);
     // The day of the filing is shown, and "not filed" says so.
-    const row = (item: { mne_report_id: string }) => within(document.querySelector(`tr[data-report-id="${idOf(item)}"]`) as HTMLElement);
+    const row = (item: { mne_report_id: string }) => within(screen.getByTestId(`rule-${idOf(item)}`).closest('tr') as HTMLElement);
     expect(row(U1).getByText('2026-07-09')).toBeTruthy();
     expect(row(U2).getByText('2026-07-12')).toBeTruthy();
     expect(row(U3).getByText(vi_['mne.progress.filed.none'])).toBeTruthy();
     // The lateness is a kind of row, for assistive technology and for the eye, and never only a colour.
-    expect(document.querySelector(`tr[data-report-id="${idOf(U2)}"]`)?.getAttribute('data-progress')).toBe('LATE');
-    expect(document.querySelector(`tr[data-report-id="${idOf(U3)}"]`)?.getAttribute('data-progress')).toBe('OPEN_LATE');
+    expect(screen.getByTestId(`progress-${idOf(U2)}`).getAttribute('data-progress')).toBe('LATE');
+    expect(screen.getByTestId(`progress-${idOf(U3)}`).getAttribute('data-progress')).toBe('OPEN_LATE');
+    // An open filing that is already late carries the urgent stripe of the table; the rest carry none.
+    expect(screen.getByTestId(`progress-${idOf(U3)}`).closest('tr')?.getAttribute('data-severity')).toBe('URGENT');
+    expect(screen.getByTestId(`progress-${idOf(U2)}`).closest('tr')?.getAttribute('data-severity')).toBeNull();
   });
 
   it('AC-ST-MNE-006-2: UAT-AC299 shows the version of the rule each obligation follows', async () => {
@@ -68,7 +71,7 @@ describe('MNE-09 filing progress (ST-MNE-006, MNE F2, BR-MNE-04)', () => {
     const user = userEvent.setup();
     mount(<ProgressScreen route={ROUTE} />, harness(answer(page(ROWS))), { permissions: READER });
     await screen.findByTestId(`progress-${idOf(U1)}`);
-    const order = (): string[] => Array.from(document.querySelectorAll('tbody tr')).map((tr) => tr.getAttribute('data-report-id') ?? '');
+    const order = (): string[] => Array.from(document.querySelectorAll('tbody tr')).map((tr) => (tr.querySelector('[data-testid^="rule-"]')?.getAttribute('data-testid') ?? '').slice('rule-'.length));
     expect(order()).toEqual([idOf(U3), idOf(U2), idOf(U1), idOf(WAITING)]);
     await user.click(screen.getByLabelText(vi_['mne.progress.filter.late']));
     expect(order()).toEqual([idOf(U3), idOf(U2)]);

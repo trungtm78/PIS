@@ -8,6 +8,7 @@ import { amountText } from '../model';
 import { ViewFrame } from './ViewFrame';
 import { useAssets, useViewScope } from './hooks';
 import { assetsTotal, ownerLink, withinContractValue } from './model';
+import { SectionCard } from '../../../ui';
 
 /**
  * CTR-18: the asset dossier and the transfer to operation of a contract, read-only (ST-CTR-017, CTR section 7). AST owns the assets (AST-03, AST-06). The value of the assets is a financial
@@ -45,7 +46,7 @@ function AssetContent({ route }: ScreenProps) {
                 {within ? t('ctr.assetView.total.within', figures) : t('ctr.assetView.total.over', figures)}
               </p>
             ) : null}
-            <article className="card" aria-label={t('ctr.assetView.table.label')}>
+            <SectionCard title={t('ctr.assetView.table.label')}>
               <table className="table" data-testid="assets">
                 <thead>
                   <tr>
@@ -94,7 +95,7 @@ function AssetContent({ route }: ScreenProps) {
                   ))}
                 </tbody>
               </table>
-            </article>
+            </SectionCard>
           </>
         );
       }}

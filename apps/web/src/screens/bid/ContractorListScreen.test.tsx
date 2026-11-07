@@ -12,8 +12,8 @@ const OK = { operation_id: 'o', status: 'UNVERIFIED', resource_version: 1, resou
 
 afterEach(cleanup);
 
-const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('tr[data-contractor-id]'));
-const names = (): string[] => rows().map((row) => row.querySelector('td')?.textContent ?? '');
+const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('[data-contractor-id]')).map((cell) => cell.closest('tr') as HTMLElement);
+const names = (): string[] => rows().map((row) => row.querySelectorAll('td')[1]?.textContent ?? '');
 const ready = () => waitFor(() => expect(rows().length).toBeGreaterThan(0));
 const set = (label: string, value: string): void => {
   fireEvent.change(screen.getByLabelText(label), { target: { value } });
@@ -49,7 +49,7 @@ describe('ContractorListScreen (BID-01): the registry of contractors', () => {
     expect(first.querySelector('[data-testid="restriction-none"]')?.textContent).toBe(vi_['bid.restriction.none.text']);
     const second = rows()[1] as HTMLElement;
     expect(second.querySelector('[data-testid="verification"]')?.textContent).toBe(`${vi_['bid.status.verified.label']}${vi_['bid.basis.document.label']}`);
-    expect(second.querySelectorAll('td')[1]?.textContent).toBe('2');
+    expect(second.querySelectorAll('td')[2]?.textContent).toBe('2');
     expect(second.querySelector('[data-testid="restriction-in-force"]')?.textContent).toBe(
       vi_['bid.restriction.until.badge'].replace('{kind}', vi_['bid.kind.debarment.label']).replace('{until}', '2027-12-31'),
     );
@@ -182,5 +182,15 @@ describe('ContractorListScreen (BID-01): the registry of contractors', () => {
     (h.client as unknown as { readAll: () => Promise<unknown[]> }).readAll = () => Promise.reject(new ApiError({ status: 403, code: 'SCOPE_DENIED', correlationId: 'c', extensions: {} }));
     mount(<ContractorListScreen route={ROUTE} />, h, { permissions: READER });
     expect(await screen.findByText(vi_['states.denied.title'])).toBeTruthy();
+  });
+  it('offers to clear the filter when nothing matches, and puts the filters, the table and the pager in the kit', async () => {
+    mount(<ContractorListScreen route={ROUTE} />, client(world()), { permissions: READER });
+    await ready();
+    expect(screen.getByRole('group', { name: vi_['ui.contextBar.label'] })).toBeTruthy();
+    expect(screen.getByRole('navigation', { name: vi_['ui.tablePager.nav'] })).toBeTruthy();
+    set(vi_['bid.list.status.label'], 'REJECTED');
+    fireEvent.click(screen.getByRole('button', { name: vi_['ui.dataTable.clearFilters'] }));
+    await waitFor(() => expect(rows()).toHaveLength(2));
+    expect((screen.getByLabelText(vi_['bid.list.status.label']) as HTMLSelectElement).value).toBe('');
   });
 });

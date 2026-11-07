@@ -56,11 +56,23 @@ describe('CatalogScreen (DGV-04): the data catalogue (UI-DGV-04)', () => {
     expect(rows().filter((row) => row.hasAttribute('aria-current'))).toEqual([]);
   });
 
+  it('names the scope and the number of datasets in the context bar, and counts the conditions applied on the button of the filter panel', async () => {
+    mount(<CatalogScreen route={ROUTE} />, client(world({ datasets: [dataset(1), dataset(2)] })), READER, '/dgv/dgv-04');
+    await ready();
+    const bar = screen.getByRole('group', { name: vi_['ui.contextBar.label'] });
+    expect(within(bar).getByText('Số bộ dữ liệu đang hiện')).toBeTruthy();
+    expect(within(bar).getByText('2')).toBeTruthy();
+    expect(screen.getByRole('button', { name: vi_['ui.filterPanel.toggle'] })).toBeTruthy();
+    fireEvent.change(screen.getByLabelText(vi_['dgv.catalog.filter.domain.label']), { target: { value: 'TREASURY' } });
+    await userEvent.setup().click(screen.getByRole('button', { name: vi_['dgv.catalog.filter.apply.action'] }));
+    expect(await screen.findByRole('button', { name: vi_['ui.filterPanel.toggleApplied'].replace('{count}', '1') })).toBeTruthy();
+  });
+
   it('shows a dataset that was never assessed with the neutral badge "not assessed", not as passed or failed', async () => {
     mount(<CatalogScreen route={ROUTE} />, client(world({ datasets: [dataset(1)] })), READER, '/dgv/dgv-04');
     await ready();
     const pill = document.querySelector('[data-badge]') as HTMLElement;
-    expect([pill.getAttribute('data-badge'), pill.textContent, pill.className]).toEqual(['NOT_ASSESSED', vi_['dgv.badge.notAssessed.text'], 'pill gray']);
+    expect([pill.getAttribute('data-badge'), pill.textContent, pill.querySelector('.ui-pill')?.className]).toEqual(['NOT_ASSESSED', vi_['dgv.badge.notAssessed.text'], 'ui-pill ui-tone-neutral']);
   });
 
   it('shows no result and a zero count when nothing is visible, without telling that something is hidden (AC-ST-DGV-001-2)', async () => {

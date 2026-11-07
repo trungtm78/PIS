@@ -12,6 +12,7 @@ import { useOverview, useSetLimits } from './limits/hooks';
 import { limitsProblemMessage, problemMessage } from './limits/labels';
 import { MANAGE_PERMISSION, READ_PERMISSION, describeProblem, formOf, limitsBody, limitsProblems, periodRange, utilisation } from './limits/model';
 import type { AccountUse, LimitsForm, LimitsProblem, Overview } from './limits/model';
+import { StatusPill } from '../../ui';
 
 const money = (locale: string, value: string): string => `${new Intl.NumberFormat(locale === 'vi' ? 'vi-VN' : 'en-US').format(Number(value))} ₫`;
 
@@ -74,7 +75,7 @@ function ChannelLimitsContent({ route }: ScreenProps) {
                         ? t('not.overview.use.noBudget', { spent: money(locale, account.spentMonthVnd) })
                         : t('not.overview.use.budget', { spent: money(locale, account.spentMonthVnd), budget: money(locale, account.monthlyBudgetVnd), share: Math.floor(monthShare ?? 0) })}
                     </span>
-                    {account.heldByLimit > 0 ? <span className="pill warn"> {t('not.overview.use.held', { count: account.heldByLimit })}</span> : null}
+                    {account.heldByLimit > 0 ? <StatusPill tone="warning">{t('not.overview.use.held', { count: account.heldByLimit })}</StatusPill> : null}
                     {canManage ? (
                       <>
                         {' '}

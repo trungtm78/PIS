@@ -95,6 +95,32 @@ describe('NumberRegistersScreen (DOC-10)', () => {
     await waitFor(() => expect(h.read).toHaveBeenCalledWith('listDocumentNumberRegisters', { query: { limit: 50, direction: 'INCOMING' } }));
   });
 
+  it('tells the state of a register on a pill, names the columns, counts the filters and clears them in one click when the filter finds nothing', async () => {
+    mount(<NumberRegistersScreen route={ROUTE} />, harness(answer));
+    await screen.findByText('REG-1');
+    const row = screen.getByText('REG-2').closest('tr') as HTMLElement;
+    expect(within(row).getByText(vi_['doc.registers.status.closed']).closest('.ui-pill')?.className).toContain('ui-tone-neutral');
+    expect(within(screen.getByText('REG-1').closest('tr') as HTMLElement).getByText(vi_['doc.registers.status.open']).closest('.ui-pill')?.className).toContain('ui-tone-success');
+    expect(screen.getAllByRole('columnheader').map((cell) => cell.textContent)).toEqual([
+      vi_['doc.registers.col.register'],
+      vi_['doc.registers.col.year'],
+      vi_['doc.registers.col.direction'],
+      vi_['doc.registers.col.counter'],
+      vi_['doc.registers.col.status'],
+      'Thao tác',
+    ]);
+    // The year is applied from the start: one condition.
+    expect(screen.getByRole('button', { name: vi_['ui.filterPanel.toggleApplied'].replace('{count}', '1') })).toBeTruthy();
+    const user = userEvent.setup();
+    await user.type(screen.getByLabelText(vi_['doc.registers.search.label']), 'nothing like it');
+    await user.click(screen.getByRole('button', { name: vi_['doc.registers.filter.action'] }));
+    expect(screen.getByText(vi_['doc.registers.filtered.empty'])).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: 'Xóa bộ lọc' }));
+    expect(await screen.findByText('REG-1')).toBeTruthy();
+    expect((screen.getByLabelText(vi_['doc.registers.search.label']) as HTMLInputElement).value).toBe('');
+    expect((screen.getByLabelText(vi_['doc.registers.year.label']) as HTMLSelectElement).value).toBe('');
+  });
+
   it('opens the log of a register with two-digit numbers, voided numbers marked, and pages it', async () => {
     const h = harness(answer);
     mount(<NumberRegistersScreen route={ROUTE} />, h);

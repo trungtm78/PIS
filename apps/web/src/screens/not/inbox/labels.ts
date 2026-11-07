@@ -1,6 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import { hasMessage } from '../../../i18n';
 import type { Translator } from '../../../i18n';
+import type { Tone } from '../../../ui';
 import { isUnavailable, needsAction } from './model';
 import type { NotificationItem } from './model';
 
@@ -37,6 +38,13 @@ export function categoryOf(t: Translate, item: NotificationItem): string {
 /** The prototype's colour tones: amber for what needs the member, neutral for the rest. */
 export function toneOf(item: NotificationItem): 'amber' | 'neutral' {
   return needsAction(item) || item.priority === 'CRITICAL' ? 'amber' : 'neutral';
+}
+
+/** The tone of the pill of a notification: an act due or a critical one is a warning, a high priority is told as one too, the rest is plain. Always read with its text. */
+export function pillToneOf(item: NotificationItem): Tone {
+  if (item.priority === 'CRITICAL') return 'danger';
+  if (needsAction(item) || item.priority === 'HIGH') return 'warning';
+  return 'neutral';
 }
 
 /** The glyph in the round symbol of a row. */

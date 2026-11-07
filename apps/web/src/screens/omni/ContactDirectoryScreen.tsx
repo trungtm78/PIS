@@ -29,6 +29,7 @@ import {
   verifyProblems,
 } from './contact/model';
 import type { Contact, ContactForm, Identity, IdentityForm, VerifyForm } from './contact/model';
+import { StatusPill } from '../../ui';
 
 /**
  * OMNI-03: the directory of the people outside the tenant that write to it. A contact has identities (a phone number, an address, a Zalo or WhatsApp id) that are shown masked; an identity is verified by a code sent to it, by the provider that
@@ -142,7 +143,7 @@ function CreateForm({ onDone }: { onDone(): void }) {
           ))}
         </select>
       </div>
-      <button type="submit" className="primary" disabled={create.isPending}>
+      <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending}>
         {t('omni.contact.form.submit.action')}
       </button>
     </form>
@@ -157,8 +158,8 @@ function ContactCard({ contact, canManage, canMerge, names, onNotice }: { contac
   return (
     <li data-contact-id={contact.id} data-status={contact.status}>
       <strong>{contact.displayName}</strong> · {classificationLabel(t, contact.classification)} ·{' '}
-      <span className="pill" data-contact-status>
-        {contactStatusLabel(t, contact.status)}
+      <span data-contact-status>
+        <StatusPill tone={contact.status === 'Verified' ? 'success' : contact.status === 'Unverified' ? 'warning' : 'neutral'}>{contactStatusLabel(t, contact.status)}</StatusPill>
       </span>
       {contact.status === 'Merged' ? <span data-merged-into> · {t('omni.contact.merged.into', { name: into?.displayName ?? contact.mergedIntoId ?? '' })}</span> : null}
       <ul data-identities>

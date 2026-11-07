@@ -5,13 +5,15 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { ContextBar, DataTable, FilterPanel, StatusPill } from '../../../ui';
+import type { DataTableColumn } from '../../../ui';
 import { todayInVietnam } from '../model';
 import { useParcels, useProjectOptions, useUnits } from '../read-hooks';
 import { LinkDialog, RegisterDialog, RevealDialog } from './dialogs';
 import { useHouseholds } from './hooks';
 import { householdStatusLabel, legalBasisLabel, rightKindLabel } from './labels';
 import { EMPTY_FILTER, HOUSEHOLD_STATUSES, REQUESTS_PATH, canHandleRequests, canReveal, canWrite, filterHouseholds, isOpenable } from './model';
-import type { HouseholdFilter, HouseholdLine } from './model';
+import type { HouseholdFilter, HouseholdLine, HouseholdStatus } from './model';
 import '../lnd.css';
 
 type Dialog = { kind: 'register' } | { kind: 'link'; household: HouseholdLine } | { kind: 'reveal'; household: HouseholdLine };
@@ -28,7 +30,7 @@ export default function HouseholdScreen({ route }: ScreenProps) {
 
 function HouseholdContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { permissions, mode } = useSession();
+  const { permissions, mode, tenant } = useSession();
   const [params, setParams] = useSearchParams();
   const projectId = params.get('project') ?? undefined;
   const projects = useProjectOptions();
@@ -54,16 +56,22 @@ function HouseholdContent({ route }: ScreenProps) {
         </div>
         {mayWrite && projectId !== undefined ? (
           <div className="actions">
-            <button type="button" className="primary" onClick={() => setDialog({ kind: 'register' })}>
+            <button type="button" className="ui-button ui-button--primary" onClick={() => setDialog({ kind: 'register' })}>
               {t('lnd.households.register.action')}
             </button>
           </div>
         ) : null}
       </div>
+      <ContextBar
+        items={[
+          { label: t('w2iss.ctx.scope'), value: tenant?.name ?? t('w2iss.ctx.scope.all') },
+          { label: t('w2iss.lnd.ctx.project'), value: (projects.data ?? []).find((project) => project.id === projectId)?.code ?? t('w2iss.lnd.ctx.project.none') },
+        ]}
+      />
       <p className="callout" data-testid="privacy-note">
         {t('lnd.households.privacy.note')}
       </p>
-      <div className="card">
+      <FilterPanel>
         <div className="field">
           <label htmlFor="household-project">{t('lnd.households.project.label')}</label>
           <select
@@ -82,14 +90,14 @@ function HouseholdContent({ route }: ScreenProps) {
             ))}
           </select>
         </div>
-      </div>
+      </FilterPanel>
       {projectId === undefined ? (
         <p className="callout" role="status" data-testid="choose-project">
           {t('lnd.households.project.notice')}
         </p>
       ) : (
         <StateBoundary state={state} onRetry={() => void households.refetch()}>
-          <div className="card">
+          <FilterPanel applied={[filter.query.trim() !== '', filter.status !== ''].filter(Boolean).length}>
             <form className="lnd-filters" role="search" aria-label={t('lnd.households.filters.title')} onSubmit={(event) => event.preventDefault()}>
               <div className="field">
                 <label htmlFor="household-query">{t('lnd.households.query.label')}</label>
@@ -107,39 +115,23 @@ function HouseholdContent({ route }: ScreenProps) {
                 </select>
               </div>
             </form>
-            {shown.length === 0 ? (
-              <p className="callout" role="status" data-testid="no-match">
-                {(households.data ?? []).length === 0 ? t('lnd.households.empty.notice') : t('lnd.households.noMatch.notice')}
-              </p>
-            ) : (
-              <table className="table" data-testid="households">
-                <thead>
-                  <tr>
-                    <th scope="col">{t('lnd.households.column.code')}</th>
-                    <th scope="col">{t('lnd.households.column.head')}</th>
-                    <th scope="col">{t('lnd.households.column.nationalId')}</th>
-                    <th scope="col">{t('lnd.households.column.parcels')}</th>
-                    <th scope="col">{t('lnd.households.column.basis')}</th>
-                    <th scope="col">{t('lnd.households.column.status')}</th>
-                    <th scope="col">{t('lnd.households.column.action')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {shown.map((household) => (
-                    <HouseholdRow
-                      key={household.id}
-                      household={household}
-                      canLink={mayWrite}
-                      canOpen={mayReveal}
-                      requestTo={mayRequest ? `${REQUESTS_PATH}?project=${projectId}&household=${household.id}` : undefined}
-                      onLink={() => setDialog({ kind: 'link', household })}
-                      onReveal={() => setDialog({ kind: 'reveal', household })}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+          </FilterPanel>
+          {shown.length === 0 ? (
+            <p className="callout" role="status" data-testid="no-match">
+              {(households.data ?? []).length === 0 ? t('lnd.households.empty.notice') : t('lnd.households.noMatch.notice')}
+            </p>
+          ) : (
+            <div data-testid="households">
+              <HouseholdTable
+                households={shown}
+                canLink={mayWrite}
+                canOpen={mayReveal}
+                requestTo={(household) => (mayRequest ? `${REQUESTS_PATH}?project=${projectId}&household=${household.id}` : undefined)}
+                onLink={(household) => setDialog({ kind: 'link', household })}
+                onReveal={(household) => setDialog({ kind: 'reveal', household })}
+              />
+            </div>
+          )}
         </StateBoundary>
       )}
       {dialog?.kind === 'register' && projectId !== undefined ? <RegisterDialog projectId={projectId} units={units.data ?? []} today={today} onClose={() => setDialog(undefined)} /> : null}
@@ -150,76 +142,112 @@ function HouseholdContent({ route }: ScreenProps) {
   );
 }
 
-interface RowProps {
-  household: HouseholdLine;
+const STATUS_TONE: Readonly<Record<HouseholdStatus, 'neutral' | 'info' | 'success' | 'warning'>> = {
+  REGISTERED: 'neutral',
+  INVENTORIED: 'neutral',
+  PLAN_LISTED: 'info',
+  COMPENSATED: 'success',
+  RESETTLED: 'success',
+  CLOSED: 'neutral',
+  DISPUTED: 'warning',
+};
+
+interface TableProps {
+  households: HouseholdLine[];
   canLink: boolean;
   canOpen: boolean;
   /** Where the request of the person is handled, when the caller may handle it. */
-  requestTo: string | undefined;
-  onLink(): void;
-  onReveal(): void;
+  requestTo(household: HouseholdLine): string | undefined;
+  onLink(household: HouseholdLine): void;
+  onReveal(household: HouseholdLine): void;
 }
 
-function HouseholdRow({ household, canLink, canOpen, requestTo, onLink, onReveal }: RowProps) {
+/** The households as a table: every personal field is the masked one the server sent; the flags (restricted, anonymised, request open) are pills with words. */
+function HouseholdTable({ households, canLink, canOpen, requestTo, onLink, onReveal }: TableProps) {
   const { t } = useTranslation();
-  return (
-    <tr data-household-id={household.id}>
-      <th scope="row">{household.householdCode}</th>
-      <td data-testid="head">{household.headNameMasked}</td>
-      <td data-testid="national-id">{household.nationalIdMasked ?? t('lnd.households.nationalId.none')}</td>
-      <td data-testid="parcels">
-        {household.parcels.length === 0
-          ? t('lnd.households.parcels.none')
-          : household.parcels.map((parcel) => (
-              <div key={parcel.id} data-parcel-link={parcel.id}>
-                {t('lnd.households.parcels.line', { code: parcel.parcelCode, right: rightKindLabel(t, parcel.rightKind), share: parcel.sharePct })}
-              </div>
-            ))}
-      </td>
-      <td>
-        <span data-testid="basis">{legalBasisLabel(t, household.legalBasis)}</span>
-        <br />
-        <small className="sub" data-testid="retention">
-          {t('lnd.households.retention.line', { until: household.retentionUntil })}
-        </small>
-      </td>
-      <td>
-        <span className="lnd-badge" data-testid="status">
-          {householdStatusLabel(t, household.status)}
+  const columns: DataTableColumn<HouseholdLine>[] = [
+    { key: 'code', header: t('lnd.households.column.code'), pinned: true, render: (household) => <span data-household-id={household.id}>{household.householdCode}</span> },
+    { key: 'head', header: t('lnd.households.column.head'), render: (household) => <span data-testid="head">{household.headNameMasked}</span> },
+    { key: 'nationalId', header: t('lnd.households.column.nationalId'), render: (household) => <span data-testid="national-id">{household.nationalIdMasked ?? t('lnd.households.nationalId.none')}</span> },
+    {
+      key: 'parcels',
+      header: t('lnd.households.column.parcels'),
+      render: (household) => (
+        <span data-testid="parcels">
+          {household.parcels.length === 0
+            ? t('lnd.households.parcels.none')
+            : household.parcels.map((parcel) => (
+                <span key={parcel.id} className="lnd-line" data-parcel-link={parcel.id}>
+                  {t('lnd.households.parcels.line', { code: parcel.parcelCode, right: rightKindLabel(t, parcel.rightKind), share: parcel.sharePct })}
+                </span>
+              ))}
         </span>
-        {household.processingRestricted ? (
-          <span className="lnd-badge warning" data-testid="restricted">
-            {t('lnd.households.restricted.badge')}
+      ),
+    },
+    {
+      key: 'basis',
+      header: t('lnd.households.column.basis'),
+      render: (household) => (
+        <>
+          <span data-testid="basis">{legalBasisLabel(t, household.legalBasis)}</span>
+          <small className="sub lnd-sub" data-testid="retention">
+            {t('lnd.households.retention.line', { until: household.retentionUntil })}
+          </small>
+        </>
+      ),
+    },
+    {
+      key: 'status',
+      header: t('lnd.households.column.status'),
+      render: (household) => (
+        <span className="lnd-chips">
+          <span data-testid="status">
+            <StatusPill tone={STATUS_TONE[household.status]}>{householdStatusLabel(t, household.status)}</StatusPill>
           </span>
-        ) : null}
-        {household.anonymised ? (
-          <span className="lnd-badge warning" data-testid="anonymised">
-            {t('lnd.households.anonymised.badge')}
+          {household.processingRestricted ? (
+            <span data-testid="restricted">
+              <StatusPill tone="warning">{t('lnd.households.restricted.badge')}</StatusPill>
+            </span>
+          ) : null}
+          {household.anonymised ? (
+            <span data-testid="anonymised">
+              <StatusPill tone="warning">{t('lnd.households.anonymised.badge')}</StatusPill>
+            </span>
+          ) : null}
+          {household.dsrOpen ? (
+            <span data-testid="dsr-open">
+              <StatusPill tone="warning">{t('lnd.households.dsr.open')}</StatusPill>
+            </span>
+          ) : null}
+        </span>
+      ),
+    },
+    {
+      key: 'action',
+      header: t('lnd.households.column.action'),
+      render: (household) => {
+        const to = requestTo(household);
+        return (
+          <span className="lnd-row-actions">
+            {canLink ? (
+              <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('lnd.households.link.aria', { code: household.householdCode })} onClick={() => onLink(household)}>
+                {t('lnd.households.link.action')}
+              </button>
+            ) : null}
+            {to === undefined ? null : (
+              <Link className="ui-button ui-button--outline ui-button--small" to={to} aria-label={t('lnd.households.request.aria', { code: household.householdCode })}>
+                {t('lnd.households.request.action')}
+              </Link>
+            )}
+            {canOpen && isOpenable(household) ? (
+              <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('lnd.households.reveal.aria', { code: household.householdCode })} onClick={() => onReveal(household)}>
+                {t('lnd.households.reveal.action')}
+              </button>
+            ) : null}
           </span>
-        ) : null}
-        {household.dsrOpen ? (
-          <span className="lnd-badge warning" data-testid="dsr-open">
-            {t('lnd.households.dsr.open')}
-          </span>
-        ) : null}
-      </td>
-      <td>
-        {canLink ? (
-          <button type="button" className="button" aria-label={t('lnd.households.link.aria', { code: household.householdCode })} onClick={onLink}>
-            {t('lnd.households.link.action')}
-          </button>
-        ) : null}
-        {requestTo === undefined ? null : (
-          <Link className="button" to={requestTo} aria-label={t('lnd.households.request.aria', { code: household.householdCode })}>
-            {t('lnd.households.request.action')}
-          </Link>
-        )}
-        {canOpen && isOpenable(household) ? (
-          <button type="button" className="button" aria-label={t('lnd.households.reveal.aria', { code: household.householdCode })} onClick={onReveal}>
-            {t('lnd.households.reveal.action')}
-          </button>
-        ) : null}
-      </td>
-    </tr>
-  );
+        );
+      },
+    },
+  ];
+  return <DataTable caption={t('w2iss.lnd.households.aria')} columns={columns} rows={households} rowKey={(household) => household.id} />;
 }

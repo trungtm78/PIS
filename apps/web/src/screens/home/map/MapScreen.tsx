@@ -9,6 +9,10 @@ import { PROJECT_STATUSES, workspaceLink } from '../../prj/model';
 import type { ProjectStatus } from '../../prj/model';
 import { stageLabel } from '../../prj/labels';
 import { Field } from '../../mne/components';
+import { ContextBar, DataTable, FilterPanel, SectionCard, StatusPill } from '../../../ui';
+import type { DataTableColumn } from '../../../ui';
+import '../../dis/dis.css';
+import '../home.css';
 import { useProjectMap } from './hooks';
 import { OUTSIDE, READ_PERMISSIONS, clustersOf, filterProjects, sectorsOf, validDate } from './model';
 import type { Cluster, ClusterProject, MapData } from './model';
@@ -28,7 +32,7 @@ export default function MapScreen({ route }: ScreenProps) {
 
 function MapContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { permissions } = useSession();
+  const { permissions, tenant } = useSession();
   const [params, setParams] = useSearchParams();
   const allowed = holds(permissions);
   const asked = params.get('as_of');
@@ -53,8 +57,27 @@ function MapContent({ route }: ScreenProps) {
       </div>
       {allowed ? (
         <>
-          <div className="card">
-            <div className="filters">
+          <ContextBar items={[{ label: t('dis.wr.ctx.scope'), value: tenant?.name ?? t('dis.wr.ctx.scope.all') }, { label: t('home.map.date.label'), value: asOf }]} />
+          <FilterPanel
+            applied={(status === '' ? 0 : 1) + (sector === '' ? 0 : 1)}
+            actions={
+              status === '' && sector === '' ? undefined : (
+                <button
+                  type="button"
+                  className="ui-button ui-button--outline"
+                  onClick={() => {
+                    const next = new URLSearchParams(params);
+                    next.delete('status');
+                    next.delete('sector');
+                    setParams(next, { replace: true });
+                  }}
+                >
+                  {t('w2dis.home.filter.clear')}
+                </button>
+              )
+            }
+          >
+            <div className="dis-filters">
               <Field id="map-date" label={t('home.map.date.label')} hint={t('home.map.date.hint')} error={asked !== null && validDate(asked) === undefined ? t('home.map.date.invalid') : undefined}>
                 <input id="map-date" type="date" value={asOf} onChange={(event) => change('as_of', event.target.value)} />
               </Field>
@@ -79,7 +102,7 @@ function MapContent({ route }: ScreenProps) {
                 </select>
               </Field>
             </div>
-          </div>
+          </FilterPanel>
           <StateBoundary state={state} onRetry={() => void map.refetch()}>
             {map.data === undefined ? null : <Placing data={map.data} status={status} sector={sector} />}
           </StateBoundary>
@@ -99,11 +122,11 @@ function Placing({ data, status, sector }: { data: MapData; status: ProjectStatu
   const projects = filterProjects(data.projects, { status, sector });
   const clusters = clustersOf(projects, data.structures);
   return (
-    <>
+    <div className="home-stack">
       <p className="callout" role="note" data-testid="map-asof">
         {t('home.map.asof.text', { date: data.asOf })}
       </p>
-      <p className="sub" data-testid="map-tiles">
+      <p className="home-note" data-testid="map-tiles">
         {t('home.map.tiles.note')}
       </p>
       {data.truncated ? (
@@ -115,68 +138,49 @@ function Placing({ data, status, sector }: { data: MapData; status: ProjectStatu
         <p data-testid="map-nomatch">{t('home.map.nomatch.notice')}</p>
       ) : (
         <>
-          <section className="card" aria-label={t('home.map.areas.title')} data-testid="map-areas">
-            <h2>{t('home.map.areas.title')}</h2>
-            {clusters.map((cluster) => (
-              <AreaCluster key={cluster.key} cluster={cluster} />
-            ))}
-          </section>
-          <section className="card" aria-label={t('home.map.nocoords.title')} data-testid="map-nocoords">
-            <h2>{t('home.map.nocoords.title')}</h2>
-            <p className="sub">{t('home.map.nocoords.note')}</p>
-            <ul>
-              {projects.map((project) => (
-                <li key={project.id} className="item" data-project-id={project.id}>
-                  <Link to={workspaceLink(project.id)}>{t('home.map.project.text', { code: project.code, name: project.name })}</Link>
-                </li>
-              ))}
-            </ul>
-          </section>
+          <div data-testid="map-areas">
+            <SectionCard title={t('home.map.areas.title')}>
+              <div className="home-stack">
+                {clusters.map((cluster) => (
+                  <AreaCluster key={cluster.key} cluster={cluster} />
+                ))}
+              </div>
+            </SectionCard>
+          </div>
+          <div data-testid="map-nocoords">
+            <SectionCard title={t('home.map.nocoords.title')}>
+              <p className="home-note">{t('home.map.nocoords.note')}</p>
+              <ul className="home-lines">
+                {projects.map((project) => (
+                  <li key={project.id} data-project-id={project.id}>
+                    <Link to={workspaceLink(project.id)}>{t('home.map.project.text', { code: project.code, name: project.name })}</Link>
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+          </div>
         </>
       )}
-    </>
+    </div>
   );
 }
 
 function AreaCluster({ cluster }: { cluster: Cluster }) {
   const { t } = useTranslation();
   const title = cluster.key === OUTSIDE ? t('home.map.outside.title') : cluster.label;
+  const columns: DataTableColumn<ClusterProject>[] = [
+    { key: 'project', header: t('home.map.column.project'), pinned: true, render: (project) => <Link to={workspaceLink(project.id)}>{t('home.map.project.text', { code: project.code, name: project.name })}</Link> },
+    { key: 'status', header: t('home.map.column.status'), render: (project) => <StatusPill tone="neutral">{stageLabel(t, project.status)}</StatusPill> },
+    { key: 'share', header: t('home.map.column.share'), align: 'right', render: (project) => (project.sharePct === '100.00' ? '—' : t('home.map.share.value', { share: project.sharePct })) },
+  ];
   return (
     <section aria-label={title} data-area={cluster.key} data-in-force={cluster.inForce}>
       <h3>{title}</h3>
-      <p className="sub">
+      <p className="home-note">
         {cluster.key === OUTSIDE ? t('home.map.outside.note') : cluster.structureDate === null ? null : t('home.map.structure.text', { date: cluster.structureDate })}
         {cluster.key !== OUTSIDE && !cluster.inForce ? ` ${t('home.map.notinforce.note')}` : ''}
       </p>
-      <div className="tablewrap">
-        <table className="table" aria-label={title}>
-          <thead>
-            <tr>
-              <th scope="col">{t('home.map.column.project')}</th>
-              <th scope="col">{t('home.map.column.status')}</th>
-              <th scope="col">{t('home.map.column.share')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {cluster.projects.map((project) => (
-              <ProjectRow key={project.id} project={project} />
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <DataTable caption={title} columns={columns} rows={cluster.projects} rowKey={(project) => project.id} />
     </section>
-  );
-}
-
-function ProjectRow({ project }: { project: ClusterProject }) {
-  const { t } = useTranslation();
-  return (
-    <tr data-project-id={project.id}>
-      <th scope="row">
-        <Link to={workspaceLink(project.id)}>{t('home.map.project.text', { code: project.code, name: project.name })}</Link>
-      </th>
-      <td>{stageLabel(t, project.status)}</td>
-      <td>{project.sharePct === '100.00' ? '—' : t('home.map.share.value', { share: project.sharePct })}</td>
-    </tr>
   );
 }

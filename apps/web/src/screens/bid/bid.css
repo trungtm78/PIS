@@ -1,3 +1,4 @@
+@import '../ctr/kit.css';
 .bid-filters {
   display: grid;
   gap: 12px;
@@ -12,24 +13,34 @@
 }
 .bid-back-link a {
   font-size: 11px;
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }
 .bid-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border: 1px solid var(--shell-line, #e4e0e6);
-  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--mv-space-12);
+  border: 1px solid var(--mv-color-neutral);
+  border-radius: var(--mv-radius-pill);
+  background: var(--mv-color-neutral-soft);
+  color: var(--mv-color-neutral);
   font-size: 12px;
+  font-weight: 600;
   white-space: nowrap;
 }
 .bid-badge.ok {
-  border-color: var(--shell-success, #15803d);
+  border-color: var(--mv-color-success);
+  background: var(--mv-color-success-soft);
+  color: var(--mv-color-success);
 }
 .bid-badge.warning {
-  border-color: var(--shell-warning, #b45309);
+  border-color: var(--mv-color-warning);
+  background: var(--mv-color-warning-soft);
+  color: var(--mv-color-warning);
 }
 .bid-badge.danger {
-  border-color: var(--shell-danger, #b91c1c);
+  border-color: var(--mv-color-danger);
+  background: var(--mv-color-danger-soft);
+  color: var(--mv-color-danger);
 }
 .bid-basis {
   display: block;
@@ -55,7 +66,7 @@
 .bid-package-row {
   margin: 0 0 12px;
   padding: 12px;
-  border: 1px solid var(--shell-line, #e4e0e6);
+  border: 1px solid var(--mv-color-border);
   border-radius: 8px;
 }
 .bid-package-row legend {
@@ -94,7 +105,7 @@
 .bid-files {
   margin: 12px 0;
   padding: 12px;
-  border: 1px solid var(--shell-line, #e4e0e6);
+  border: 1px solid var(--mv-color-border);
   border-radius: 8px;
 }
 .bid-files legend {
@@ -124,4 +135,15 @@
   gap: 6px;
   margin: 0 0 12px;
   padding-left: 18px;
+}
+.bid-badge.warning::before {
+  content: "! ";
+  white-space: pre;
+}
+.bid-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
 }

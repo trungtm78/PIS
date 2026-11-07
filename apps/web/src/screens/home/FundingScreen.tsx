@@ -4,9 +4,11 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { ContextBar, FilterPanel, KpiStrip, SectionCard } from '../../ui';
 import { categoryLabel, originLabel } from '../cap/labels';
 import '../dis/dis.css';
-import { Amount, YearField, subsetLine } from './funding-components';
+import './home.css';
+import { FundTile, YearField, subsetLine } from './funding-components';
 import { useFunding } from './funding-hooks';
 import type { OriginCard, SourceCard } from './funding-model';
 
@@ -25,6 +27,7 @@ export default function FundingScreen({ route }: ScreenProps) {
 
 function FundingContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
+  const tenant = useSession().tenant;
   const { register, years, year, funding, setYear } = useFunding();
   const state = useScreenState({ isLoading: register.isLoading, error: register.error, data: register.data === undefined ? undefined : years });
   return (
@@ -35,41 +38,47 @@ function FundingContent({ route }: ScreenProps) {
           <p>{t('home.funding.page.subtitle')}</p>
         </div>
         {year === undefined ? null : (
-          <Link className="button" to={`${DETAIL_PATH}?year=${year}`}>
-            {t('home.funding.detail.link')}
-          </Link>
+          <div className="actions">
+            <Link className="ui-button ui-button--outline" to={`${DETAIL_PATH}?year=${year}`}>
+              {t('home.funding.detail.link')}
+            </Link>
+          </div>
         )}
       </div>
       <StateBoundary state={state} onRetry={() => void register.refetch()}>
         {funding === undefined ? null : (
-          <>
-            <div className="card">
+          <div className="home-stack">
+            <ContextBar items={[{ label: t('dis.wr.ctx.scope'), value: tenant?.name ?? t('dis.wr.ctx.scope.all') }, { label: t('home.funding.year.label'), value: String(funding.year) }]} unit={t('w2dis.home.unit.billion')} />
+            <FilterPanel unitLabel={t('w2dis.home.unit.billion')}>
               <YearField years={years} year={year} onChange={setYear} />
+            </FilterPanel>
+            <div data-testid="funding-total">
+              <SectionCard title={t('home.funding.total.title', { year: funding.year })} unit={t('w2dis.home.unit.billion')}>
+                <KpiStrip label={t('home.funding.total.title', { year: funding.year })}>
+                  <FundTile label={t('w2dis.home.funding.total.label')} vnd={funding.totalVnd} testId="funding-total-amount" tone="success" />
+                </KpiStrip>
+                <p className="home-note">{t('home.funding.total.note')}</p>
+              </SectionCard>
             </div>
-            <section className="card" aria-labelledby="funding-total-title" data-testid="funding-total">
-              <h2 id="funding-total-title">{t('home.funding.total.title', { year: funding.year })}</h2>
-              <p>
-                <Amount vnd={funding.totalVnd} testId="funding-total-amount" />
-              </p>
-              <p className="sub">{t('home.funding.total.note')}</p>
-            </section>
-            <section aria-labelledby="funding-sources-title" data-testid="funding-sources">
-              <h2 id="funding-sources-title">{t('home.funding.group.sources')}</h2>
-              <div className="dis-rate-pair">
-                {funding.sources.map((card) => (
-                  <SourceCardView key={card.category} card={card} locale={locale} />
-                ))}
-              </div>
-            </section>
-            <section aria-labelledby="funding-origins-title" data-testid="funding-origins">
-              <h2 id="funding-origins-title">{t('home.funding.group.origins')}</h2>
-              <div className="dis-rate-pair">
-                {funding.origins.map((card) => (
-                  <OriginCardView key={card.origin} card={card} />
-                ))}
-              </div>
-            </section>
-          </>
+            <div data-testid="funding-sources">
+              <SectionCard title={t('home.funding.group.sources')} unit={t('w2dis.home.unit.billion')}>
+                <KpiStrip label={t('home.funding.group.sources')}>
+                  {funding.sources.map((card) => (
+                    <SourceCardView key={card.category} card={card} locale={locale} />
+                  ))}
+                </KpiStrip>
+              </SectionCard>
+            </div>
+            <div data-testid="funding-origins">
+              <SectionCard title={t('home.funding.group.origins')} unit={t('w2dis.home.unit.billion')}>
+                <KpiStrip label={t('home.funding.group.origins')}>
+                  {funding.origins.map((card) => (
+                    <OriginCardView key={card.origin} card={card} />
+                  ))}
+                </KpiStrip>
+              </SectionCard>
+            </div>
+          </div>
         )}
       </StateBoundary>
     </section>
@@ -79,31 +88,23 @@ function FundingContent({ route }: ScreenProps) {
 function SourceCardView({ card, locale }: { card: SourceCard; locale: string }) {
   const { t } = useTranslation();
   return (
-    <section className="card" data-card={card.category} aria-label={categoryLabel(t, card.category)}>
-      <h3>{categoryLabel(t, card.category)}</h3>
-      <p>
-        <Amount vnd={card.vnd} testId={`source-${card.category}`} />
-      </p>
-      {card.count === 0 ? null : <p className="sub">{t('home.funding.card.count', { count: card.count })}</p>}
+    <FundTile label={categoryLabel(t, card.category)} vnd={card.vnd} card={card.category} testId={`source-${card.category}`}>
+      {card.count === 0 ? null : <span className="home-fund-line">{t('home.funding.card.count', { count: card.count })}</span>}
       {card.subset === null ? null : (
-        <p data-testid={`subset-${card.category}`}>
+        <span className="home-fund-line" data-testid={`subset-${card.category}`}>
           {subsetLine(t, card.subset.vnd, locale)}
-          {card.subset.partial && card.subset.vnd !== null ? <small className="sub"> {t('home.funding.subset.partial')}</small> : null}
-        </p>
+          {card.subset.partial && card.subset.vnd !== null ? <small> {t('home.funding.subset.partial')}</small> : null}
+        </span>
       )}
-    </section>
+    </FundTile>
   );
 }
 
 function OriginCardView({ card }: { card: OriginCard }) {
   const { t } = useTranslation();
   return (
-    <section className="card" data-card={card.origin} aria-label={originLabel(t, card.origin)}>
-      <h3>{originLabel(t, card.origin)}</h3>
-      <p>
-        <Amount vnd={card.vnd} testId={`origin-${card.origin}`} />
-      </p>
-      {card.count === 0 ? null : <p className="sub">{t('home.funding.card.count', { count: card.count })}</p>}
-    </section>
+    <FundTile label={originLabel(t, card.origin)} vnd={card.vnd} card={card.origin} testId={`origin-${card.origin}`}>
+      {card.count === 0 ? null : <span className="home-fund-line">{t('home.funding.card.count', { count: card.count })}</span>}
+    </FundTile>
   );
 }

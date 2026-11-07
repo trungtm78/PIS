@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
+import { SectionCard, StickyActions } from '../../ui';
 import { BackLink, ProjectFormFields, SuggestionPanel } from './components';
 import { useCreateProject, useMasterOptions, useProject, useUnits } from './hooks';
 import { problemMessage } from './labels';
@@ -47,8 +48,13 @@ function ProjectCreateContent({ route }: ScreenProps) {
     setErrors(found);
     if (Object.keys(found).length > 0) return;
     // The investor is the owner unit unless another one is chosen.
-    const body = createBody({ ...form, investorUnitId: form.investorUnitId === '' ? form.ownerUnitId : form.investorUnitId });
-    create.mutate(body, { onSuccess: (result) => setCreatedId(result.resource_id) });
+    const body = createBody({
+      ...form,
+      investorUnitId: form.investorUnitId === '' ? form.ownerUnitId : form.investorUnitId,
+    });
+    create.mutate(body, {
+      onSuccess: (result) => setCreatedId(result.resource_id),
+    });
   };
 
   return (
@@ -61,70 +67,83 @@ function ProjectCreateContent({ route }: ScreenProps) {
         </div>
       </div>
       <div className="prj-grid">
-        <form className="card" onSubmit={save} noValidate aria-label={t('prj.create.form.title')}>
-          <h2>{t('prj.create.form.title')}</h2>
-          {!canCreate ? (
-            <p className="callout warning" role="status">
-              {frozen ? t('prj.readOnly.frozen.notice') : t('prj.readOnly.denied.notice')}
-            </p>
-          ) : null}
-          {problem === undefined ? null : (
-            <p className="callout warning" role="alert">
-              {problemMessage(t, problem)}
-            </p>
-          )}
-          <ProjectFormFields
-            mode="create"
-            form={form}
-            errors={errors}
-            onChange={setField}
-            units={units.data ?? []}
-            areas={areas.data ?? []}
-            sectors={sectors.data ?? []}
-            projectTypes={projectTypes.data ?? []}
-            programs={programs.data ?? []}
-            disabled={!canCreate || createdId !== undefined}
-          />
-          <div className="formfooter">
-            <Link to={LIST_PATH}>{t('prj.create.cancel.action')}</Link>
-            <button type="submit" className="button primary" disabled={!canCreate || create.isPending || createdId !== undefined}>
-              {create.isPending ? t('prj.create.submit.pending') : t('prj.create.submit.action')}
-            </button>
-          </div>
-        </form>
-        <aside className="card" aria-label={t('prj.create.rules.title')}>
-          <h2>{t('prj.create.rules.title')}</h2>
-          <dl className="prj-facts">
-            <dt>{t('prj.create.group.label')}</dt>
-            <dd>{t('prj.create.group.text')}</dd>
-            <dt>{t('prj.create.nationalCode.label')}</dt>
-            <dd>{t('prj.create.nationalCode.text')}</dd>
-            <dt>{t('prj.create.stage.label')}</dt>
-            <dd>{t('prj.create.stage.text')}</dd>
-          </dl>
-          {createdId === undefined ? null : (
-            <div className="rule" data-testid="created">
-              <h3>{t('prj.create.done.title')}</h3>
-              <p role="status">{t('prj.create.done.text')}</p>
-              {created.data === undefined || created.data === null ? (
-                created.isError ? (
-                  <p className="callout warning" role="alert">
-                    {t('prj.create.done.suggestionError')}
-                  </p>
-                ) : null
-              ) : (
-                <SuggestionPanel suggestion={created.data.suggestion} />
-              )}
-              <p>
-                <Link className="button primary" to={workspaceLink(createdId)}>
-                  {t('prj.create.done.open')}
-                </Link>
+        <form onSubmit={save} noValidate aria-label={t('prj.create.form.title')}>
+          <SectionCard title={t('prj.create.form.title')}>
+            {!canCreate ? (
+              <p className="callout warning" role="status">
+                {frozen ? t('prj.readOnly.frozen.notice') : t('prj.readOnly.denied.notice')}
               </p>
-            </div>
-          )}
+            ) : null}
+            {problem === undefined ? null : (
+              <p className="callout warning" role="alert">
+                {problemMessage(t, problem)}
+              </p>
+            )}
+            <ProjectFormFields
+              mode="create"
+              form={form}
+              errors={errors}
+              onChange={setField}
+              units={units.data ?? []}
+              areas={areas.data ?? []}
+              sectors={sectors.data ?? []}
+              projectTypes={projectTypes.data ?? []}
+              programs={programs.data ?? []}
+              disabled={!canCreate || createdId !== undefined}
+            />
+            <StickyActions
+              primary={
+                <button type="submit" className="ui-button ui-button--primary" disabled={!canCreate || create.isPending || createdId !== undefined}>
+                  {create.isPending ? t('prj.create.submit.pending') : t('prj.create.submit.action')}
+                </button>
+              }
+              secondary={[
+                <Link key="cancel" className="ui-button ui-button--outline" to={LIST_PATH}>
+                  {t('prj.create.cancel.action')}
+                </Link>,
+              ]}
+            />
+          </SectionCard>
+        </form>
+        <aside aria-label={t('prj.create.rules.title')}>
+          <SectionCard title={t('prj.create.rules.title')}>
+            <dl className="prj-facts">
+              <dt>{t('prj.create.group.label')}</dt>
+              <dd>{t('prj.create.group.text')}</dd>
+              <dt>{t('prj.create.nationalCode.label')}</dt>
+              <dd>{t('prj.create.nationalCode.text')}</dd>
+              <dt>{t('prj.create.stage.label')}</dt>
+              <dd>{t('prj.create.stage.text')}</dd>
+            </dl>
+            {createdId === undefined ? null : (
+              <div className="rule" data-testid="created">
+                <h3>{t('prj.create.done.title')}</h3>
+                <p role="status">{t('prj.create.done.text')}</p>
+                {created.data === undefined || created.data === null ? (
+                  created.isError ? (
+                    <p className="callout warning" role="alert">
+                      {t('prj.create.done.suggestionError')}
+                    </p>
+                  ) : null
+                ) : (
+                  <SuggestionPanel suggestion={created.data.suggestion} />
+                )}
+                <p>
+                  <Link className="ui-button ui-button--primary" to={workspaceLink(createdId)}>
+                    {t('prj.create.done.open')}
+                  </Link>
+                </p>
+              </div>
+            )}
+          </SectionCard>
         </aside>
       </div>
-      <p className="prototype-note">{t('prj.create.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
+      <p className="prototype-note">
+        {t('prj.create.footer.reference', {
+          id: route.id,
+          req: route.req ?? '',
+        })}
+      </p>
     </section>
   );
 }

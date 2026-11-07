@@ -10,6 +10,9 @@ import { changeLabel, compatibilityLabel, kindLabel, problemMessage } from './la
 import { useDecideConsumer, useWaiting } from './hooks';
 import { CONSUME_PERMISSION, describeContractProblem } from './model';
 import type { WaitingApproval } from './model';
+import '../dgv-kit.css';
+import { StatusPill } from '../../../ui';
+import { pillTone } from '../pill-tone';
 
 /**
  * DGV-19: the approvals that wait for the person as the owner of a consumer (ST-DGV-005, UAT-AC50): the revisions of the contracts that are in review with a breaking change, each with the consumer the person answers for, what
@@ -65,7 +68,7 @@ function Waiting({ waiting, mayDecide }: { waiting: WaitingApproval; mayDecide: 
         <code>{waiting.datasetCode}</code> · {t('dgv.inbox.revision', { revision: waiting.revision })}
       </h2>
       <p>
-        <span className={`pill ${waiting.compatibility === 'BREAKING' ? 'red' : 'green'}`}>{compatibilityLabel(t, waiting.compatibility)}</span>
+        <StatusPill tone={pillTone(waiting.compatibility === 'BREAKING' ? 'red' : 'green')}>{compatibilityLabel(t, waiting.compatibility)}</StatusPill>
       </p>
       <dl>
         <div>
@@ -100,7 +103,7 @@ function Waiting({ waiting, mayDecide }: { waiting: WaitingApproval; mayDecide: 
             <input id={`comment-${approval.id}`} value={comment} maxLength={2000} onChange={(event) => setComment(event.target.value)} />
           </Field>
           <div className="formfooter">
-            <button type="button" className="primary" disabled={send.isPending} onClick={() => decide('APPROVED')}>
+            <button type="button" className="ui-button ui-button--primary" disabled={send.isPending} onClick={() => decide('APPROVED')}>
               {t('dgv.inbox.approve')}
             </button>
             <button type="button" disabled={send.isPending} onClick={() => decide('REJECTED')}>

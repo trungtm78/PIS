@@ -6,11 +6,27 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { AuditLine, KpiStrip, KpiTile, SectionCard, StatusPill, StickyActions } from '../../ui';
 import { DECISION_PATH, PROPOSAL_PATH, SCORE_PATH, appraisalLink } from './appraisal-model';
 import { BackLink, NationalCode, ProjectFormFields, SuggestionPanel, optionsWith } from './components';
 import { useMasterOptions, useProject, useUnits, useUpdateProfile } from './hooks';
-import { classificationLabel, lifeLabel, problemMessage, stageLabel } from './labels';
-import { AREA_TYPES, LIST_PATH, PROGRAM_TYPES, PROJECT_TYPE_TYPES, SECTOR_TYPES, UPDATE_PERMISSION, amountText, describeProblem, formOf, isDossierLocked, isFrozen, profileBody, validateForm } from './model';
+import { classificationLabel, lifeLabel, problemMessage, stageLabel, stageTone } from './labels';
+import {
+  AREA_TYPES,
+  LIST_PATH,
+  PROGRAM_TYPES,
+  PROJECT_TYPE_TYPES,
+  SECTOR_TYPES,
+  UPDATE_PERMISSION,
+  amountText,
+  describeProblem,
+  formOf,
+  isDossierLocked,
+  isFrozen,
+  profileBody,
+  readAtLabel,
+  validateForm,
+} from './model';
 import type { ProjectField, ProjectForm, ProjectView } from './model';
 import './prj.css';
 
@@ -59,7 +75,12 @@ function ProjectWorkspaceContent({ route }: ScreenProps) {
   const projectId = params.get('id') ?? undefined;
   const project = useProject(projectId);
   const [tab, setTab] = useState<Tab>('overview');
-  const state = useScreenState({ isLoading: project.isLoading, error: project.error, data: projectId === undefined ? undefined : (project.data ?? undefined), isEmpty: NEVER_EMPTY });
+  const state = useScreenState({
+    isLoading: project.isLoading,
+    error: project.error,
+    data: projectId === undefined ? undefined : (project.data ?? undefined),
+    isEmpty: NEVER_EMPTY,
+  });
 
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
@@ -78,7 +99,12 @@ function ProjectWorkspaceContent({ route }: ScreenProps) {
           {project.data === undefined || project.data === null ? null : <Workspace project={project.data} tab={tab} onTab={setTab} onReload={() => void project.refetch()} />}
         </StateBoundary>
       )}
-      <p className="prototype-note">{t('prj.workspace.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
+      <p className="prototype-note">
+        {t('prj.workspace.footer.reference', {
+          id: route.id,
+          req: route.req ?? '',
+        })}
+      </p>
     </section>
   );
 }
@@ -93,8 +119,8 @@ function Workspace({ project, tab, onTab, onReload }: { project: ProjectView; ta
             {project.code} · {project.name}
           </h1>
           <p>
-            <span className="prj-badge" data-testid="stage">
-              {stageLabel(t, project.status)}
+            <span data-testid="stage">
+              <StatusPill tone={stageTone(project.status)}>{stageLabel(t, project.status)}</StatusPill>
             </span>{' '}
             <NationalCode code={project.nationalProjectCode} />
           </p>
@@ -104,7 +130,8 @@ function Workspace({ project, tab, onTab, onReload }: { project: ProjectView; ta
             </p>
           ) : project.status === 'APPRAISAL' ? (
             <p data-testid="appraisal-links">
-              <Link to={appraisalLink(SCORE_PATH, project.id)}>{t('prj.workspace.appraisal.score.link')}</Link> · <Link to={appraisalLink(DECISION_PATH, project.id)}>{t('prj.workspace.appraisal.decide.link')}</Link>
+              <Link to={appraisalLink(SCORE_PATH, project.id)}>{t('prj.workspace.appraisal.score.link')}</Link> ·{' '}
+              <Link to={appraisalLink(DECISION_PATH, project.id)}>{t('prj.workspace.appraisal.decide.link')}</Link>
             </p>
           ) : null}
         </div>
@@ -143,36 +170,62 @@ function Overview({ project, onReload }: { project: ProjectView; onReload: () =>
   const none = t('prj.workspace.value.none');
   const years = project.startYear === null && project.endYear === null ? none : `${project.startYear ?? ''} – ${project.endYear ?? ''}`;
   return (
-    <div className="prj-grid">
-      <article className="card" aria-label={t('prj.workspace.profile.title')}>
-        <h2>{t('prj.workspace.profile.title')}</h2>
-        <dl className="prj-facts" data-testid="profile">
-          <Fact label={t('prj.workspace.field.code')}>
-            <code>{project.code}</code>
-          </Fact>
-          <Fact label={t('prj.workspace.field.name')}>{project.name}</Fact>
-          <Fact label={t('prj.workspace.field.owner')}>{project.ownerUnitName}</Fact>
-          <Fact label={t('prj.workspace.field.investor')}>{project.investorUnitName ?? none}</Fact>
-          <Fact label={t('prj.workspace.field.authority')}>{project.decisionAuthorityUnitName ?? none}</Fact>
-          <Fact label={t('prj.workspace.field.area')}>{project.area.label}</Fact>
-          <Fact label={t('prj.workspace.field.sector')}>{project.sector?.label ?? none}</Fact>
-          <Fact label={t('prj.workspace.field.projectType')}>{project.projectType?.label ?? none}</Fact>
-          <Fact label={t('prj.workspace.field.program')}>{project.program?.label ?? none}</Fact>
-          <Fact label={t('prj.workspace.field.total')}>{t('prj.workspace.value.amount', { amount: amountText(project.totalInvestmentVnd, locale) })}</Fact>
-          <Fact label={t('prj.workspace.field.years')}>{years}</Fact>
-          <Fact label={t('prj.workspace.field.classification')}>{classificationLabel(t, project.classification)}</Fact>
-          <Fact label={t('prj.workspace.field.stage')}>
-            {stageLabel(t, project.status)} · {lifeLabel(t, project.status)}
-          </Fact>
-          <Fact label={t('prj.workspace.field.group')}>{project.projectGroup ?? none}</Fact>
-          <Fact label={t('prj.workspace.field.score')}>{project.appraisalScore ?? none}</Fact>
-          <Fact label={t('prj.workspace.field.leader')}>{project.leaderName ?? none}</Fact>
-        </dl>
-        <h3>{t('prj.workspace.suggestion.title')}</h3>
-        <SuggestionPanel suggestion={project.suggestion} />
-      </article>
-      <ProfileEditor project={project} onReload={onReload} />
-    </div>
+    <>
+      <KpiStrip label={t('prj.workspace.kpi.label')}>
+        <KpiTile label={t('prj.workspace.field.total')} value={amountText(project.totalInvestmentVnd, locale)} unit={t('prj.workspace.kpi.unit')} tone="info" />
+        <KpiTile label={t('prj.workspace.field.years')} value={years} />
+        <KpiTile label={t('prj.workspace.field.score')} value={project.appraisalScore ?? t('prj.workspace.kpi.noScore')} />
+      </KpiStrip>
+      <div className="prj-grid">
+        <SectionCard title={t('prj.workspace.profile.title')}>
+          <dl className="prj-facts" data-testid="profile">
+            <Fact label={t('prj.workspace.field.code')}>
+              <code>{project.code}</code>
+            </Fact>
+            <Fact label={t('prj.workspace.field.name')}>{project.name}</Fact>
+            <Fact label={t('prj.workspace.field.owner')}>{project.ownerUnitName}</Fact>
+            <Fact label={t('prj.workspace.field.investor')}>{project.investorUnitName ?? none}</Fact>
+            <Fact label={t('prj.workspace.field.authority')}>{project.decisionAuthorityUnitName ?? none}</Fact>
+            <Fact label={t('prj.workspace.field.area')}>{project.area.label}</Fact>
+            <Fact label={t('prj.workspace.field.sector')}>{project.sector?.label ?? none}</Fact>
+            <Fact label={t('prj.workspace.field.projectType')}>{project.projectType?.label ?? none}</Fact>
+            <Fact label={t('prj.workspace.field.program')}>{project.program?.label ?? none}</Fact>
+            <Fact label={t('prj.workspace.field.total')}>
+              {t('prj.workspace.value.amount', {
+                amount: amountText(project.totalInvestmentVnd, locale),
+              })}
+            </Fact>
+            <Fact label={t('prj.workspace.field.years')}>{years}</Fact>
+            <Fact label={t('prj.workspace.field.classification')}>{classificationLabel(t, project.classification)}</Fact>
+            <Fact label={t('prj.workspace.field.stage')}>
+              {stageLabel(t, project.status)} · {lifeLabel(t, project.status)}
+            </Fact>
+            <Fact label={t('prj.workspace.field.group')}>{project.projectGroup ?? none}</Fact>
+            <Fact label={t('prj.workspace.field.score')}>{project.appraisalScore ?? none}</Fact>
+            <Fact label={t('prj.workspace.field.leader')}>{project.leaderName ?? none}</Fact>
+          </dl>
+          <h3>{t('prj.workspace.suggestion.title')}</h3>
+          <SuggestionPanel suggestion={project.suggestion} />
+        </SectionCard>
+        <ProfileEditor project={project} onReload={onReload} />
+      </div>
+      <AuditLine
+        items={[
+          {
+            label: t('prj.workspace.audit.created'),
+            value: readAtLabel(Date.parse(project.createdAt)),
+          },
+          {
+            label: t('prj.workspace.audit.changed'),
+            value: readAtLabel(Date.parse(project.statusChangedAt)),
+          },
+          {
+            label: t('prj.workspace.audit.version'),
+            value: String(project.version),
+          },
+        ]}
+      />
+    </>
   );
 }
 
@@ -218,55 +271,58 @@ function ProfileEditor({ project, onReload }: { project: ProjectView; onReload: 
   };
 
   return (
-    <form className="card" onSubmit={save} noValidate aria-label={t('prj.workspace.edit.title')}>
-      <h2>{t('prj.workspace.edit.title')}</h2>
-      {!canUpdate ? (
-        <p className="callout" role="status" data-testid="read-only">
-          {isFrozen(project.status) ? t('prj.workspace.edit.frozen.notice') : t('prj.workspace.edit.denied.notice')}
-        </p>
-      ) : null}
-      {problem === undefined ? null : (
-        <p className="callout warning" role="alert" data-testid="problem">
-          {problemMessage(t, problem)}
-        </p>
-      )}
-      {problem?.reason === 'versionConflict' ? (
-        <p>
-          <button
-            type="button"
-            className="button"
-            onClick={() => {
-              update.reset();
-              onReload();
-            }}
-          >
-            {t('prj.workspace.edit.reload.action')}
-          </button>
-        </p>
-      ) : null}
-      {saved ? (
-        <p role="status" data-testid="saved">
-          {t('prj.workspace.edit.saved.notice')}
-        </p>
-      ) : null}
-      <ProjectFormFields
-        mode="profile"
-        form={form}
-        errors={errors}
-        onChange={setField}
-        units={units.data ?? []}
-        areas={area}
-        sectors={sector}
-        projectTypes={projectType}
-        programs={program}
-        disabled={!canUpdate}
-        dossierLocked={isDossierLocked(project.status)}
-      />
-      <div className="formfooter">
-        <button type="submit" className="button primary" disabled={!canUpdate || update.isPending}>
-          {update.isPending ? t('prj.workspace.edit.submit.pending') : t('prj.workspace.edit.submit.action')}
-        </button>
-      </div>
+    <form onSubmit={save} noValidate aria-label={t('prj.workspace.edit.title')}>
+      <SectionCard title={t('prj.workspace.edit.title')}>
+        {!canUpdate ? (
+          <p className="callout" role="status" data-testid="read-only">
+            {isFrozen(project.status) ? t('prj.workspace.edit.frozen.notice') : t('prj.workspace.edit.denied.notice')}
+          </p>
+        ) : null}
+        {problem === undefined ? null : (
+          <p className="callout warning" role="alert" data-testid="problem">
+            {problemMessage(t, problem)}
+          </p>
+        )}
+        {problem?.reason === 'versionConflict' ? (
+          <p>
+            <button
+              type="button"
+              className="ui-button ui-button--outline"
+              onClick={() => {
+                update.reset();
+                onReload();
+              }}
+            >
+              {t('prj.workspace.edit.reload.action')}
+            </button>
+          </p>
+        ) : null}
+        {saved ? (
+          <p role="status" data-testid="saved">
+            {t('prj.workspace.edit.saved.notice')}
+          </p>
+        ) : null}
+        <ProjectFormFields
+          mode="profile"
+          form={form}
+          errors={errors}
+          onChange={setField}
+          units={units.data ?? []}
+          areas={area}
+          sectors={sector}
+          projectTypes={projectType}
+          programs={program}
+          disabled={!canUpdate}
+          dossierLocked={isDossierLocked(project.status)}
+        />
+        <StickyActions
+          primary={
+            <button type="submit" className="ui-button ui-button--primary" disabled={!canUpdate || update.isPending}>
+              {update.isPending ? t('prj.workspace.edit.submit.pending') : t('prj.workspace.edit.submit.action')}
+            </button>
+          }
+        />
+      </SectionCard>
     </form>
   );
 }

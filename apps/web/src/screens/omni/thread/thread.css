@@ -5,7 +5,7 @@
   padding: 0;
 }
 .omni-thread .message {
-  border: 1px solid var(--line, #d9d4dc);
+  border: 1px solid var(--mv-color-border);
   border-radius: 8px;
   margin: 8px 0;
   padding: 10px 12px;
@@ -15,16 +15,16 @@
 }
 .omni-thread .message[data-direction='INTERNAL_NOTE'] {
   border-style: dashed;
-  border-color: var(--warn, #b7791f);
-  background: var(--warn-soft, #fff8e6);
+  border-color: var(--mv-color-warning);
+  background: var(--mv-color-warning-soft);
 }
 .omni-thread .composer.note-mode {
-  border: 2px dashed var(--warn, #b7791f);
-  background: var(--warn-soft, #fff8e6);
+  border: 2px dashed var(--mv-color-warning);
+  background: var(--mv-color-warning-soft);
   padding: 12px;
 }
 .omni-thread .window.closed {
-  color: var(--danger, #b3261e);
+  color: var(--mv-color-danger);
 }
 .omni-thread textarea {
   min-height: 90px;

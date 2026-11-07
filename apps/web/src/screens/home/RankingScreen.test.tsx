@@ -1,5 +1,5 @@
 import { ApiError, NETWORK_ERROR_CODE } from '@machvon/api-client';
-import { cleanup, screen, within } from '@testing-library/react';
+import { cleanup, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../i18n/vi.json';
@@ -53,15 +53,26 @@ describe('HOME-04 ranking (ST-HOME-003, HOME 3 F3, BR-HOME-06)', () => {
     // The plan of the Prime Minister first: two tables (the group of boards and the communes), and not one of the other denominator beside them.
     expect(tables.map((table) => table.getAttribute('data-table'))).toEqual(['PROJECT_MANAGEMENT_BOARD|PM_ASSIGNED', 'COMMUNE|PM_ASSIGNED']);
     const boards = tables[0] as HTMLElement;
-    expect(Array.from(boards.querySelectorAll('tbody tr')).map((tr) => tr.getAttribute('data-unit-id'))).toEqual([U2, U1]);
+    expect(Array.from(boards.querySelectorAll('tbody [data-unit-id]')).map((cell) => cell.getAttribute('data-unit-id'))).toEqual([U2, U1]);
     expect(within(boards).getByTestId(`rate-${U1}`).textContent).toBe('14.0000%');
     expect(within(boards).getByTestId('ranking-excluded').textContent).toContain(vi_['home.ranking.reason.zeroDenominator']);
     // The other denominator is another table, with another order.
     await user.selectOptions(screen.getByLabelText(vi_['home.ranking.denominator.label']), 'TOTAL_INCL_LOCAL');
     const total = (await screen.findAllByTestId('ranking-table'))[0] as HTMLElement;
     expect(total.getAttribute('data-table')).toBe('PROJECT_MANAGEMENT_BOARD|TOTAL_INCL_LOCAL');
-    expect(Array.from(total.querySelectorAll('tbody tr')).map((tr) => tr.getAttribute('data-unit-id'))).toEqual([U1, U2]);
+    expect(Array.from(total.querySelectorAll('tbody [data-unit-id]')).map((cell) => cell.getAttribute('data-unit-id'))).toEqual([U1, U2]);
     expect(within(total).getByTestId(`rate-${U1}`).textContent).toBe('11.2000%');
+  });
+
+  it('narrows to one comparison group and clears the narrowing with the button of the filter panel', async () => {
+    const user = userEvent.setup();
+    mount(<RankingScreen route={ROUTE} />, harness(() => body()), { permissions: READER });
+    expect(await screen.findAllByTestId('ranking-table')).toHaveLength(2);
+    expect(screen.queryByRole('button', { name: 'Xóa bộ lọc' })).toBeNull();
+    await user.selectOptions(screen.getByLabelText(vi_['home.ranking.group.label']), 'COMMUNE');
+    await waitFor(() => expect(screen.getAllByTestId('ranking-table')).toHaveLength(1));
+    await user.click(screen.getByRole('button', { name: 'Xóa bộ lọc' }));
+    await waitFor(() => expect(screen.getAllByTestId('ranking-table')).toHaveLength(2));
   });
 
   it('AC-ST-HOME-003-5: UI-HOME-04 shows the snapshot and the day, says the formulas are proposals, and says which units are shown when the tenant limits the ranking to the reader', async () => {

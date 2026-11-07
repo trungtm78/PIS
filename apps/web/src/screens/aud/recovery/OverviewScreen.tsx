@@ -4,12 +4,15 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { ContextBar, DataTable, KpiStrip, KpiTile, SectionCard, StatusPill } from '../../../ui';
+import type { DataTableColumn } from '../../../ui';
 import '../aud.css';
 import { formatVnd } from '../conclusion/model';
 import { engagementStatusLabel } from '../labels';
 import { ENGAGEMENT_PATH, ENGAGEMENTS_PATH } from '../model';
 import type { EngagementStatus } from '../model';
 import { RateText } from './components';
+import type { WatchedEngagement } from './model';
 import { useOverview } from './hooks';
 import { RECOVERY_PATH } from './model';
 
@@ -26,6 +29,7 @@ export default function OverviewScreen({ route }: ScreenProps) {
 
 function OverviewContent({ route }: ScreenProps) {
   const { t } = useTranslation();
+  const { tenant } = useSession();
   const overview = useOverview();
   const state = useScreenState({ isLoading: overview.isLoading, error: overview.error, data: overview.data, isEmpty: (data) => data === undefined });
   const data = overview.data;
@@ -37,36 +41,36 @@ function OverviewContent({ route }: ScreenProps) {
           <p>{t('aud.overview.page.subtitle')}</p>
         </div>
         <div className="actions">
-          <Link to={ENGAGEMENTS_PATH}>{t('aud.overview.engagements.link')}</Link>
+          <Link className="ui-button ui-button--outline" to={ENGAGEMENTS_PATH}>
+            {t('aud.overview.engagements.link')}
+          </Link>
         </div>
       </div>
+      <ContextBar items={[{ label: t('w2iss.ctx.scope'), value: tenant?.name ?? t('w2iss.ctx.scope.all') }]} unit={t('w2iss.aud.unit')} />
       <p className="callout" data-testid="confidential-note">
         {t('aud.overview.confidential.note')}
       </p>
       <StateBoundary state={state} onRetry={() => void overview.refetch()}>
         {data === undefined ? null : (
           <>
-            <div className="aud-cards" data-testid="tiles">
-              <div className="card" data-testid="tile-engagements">
-                <h2>{t('aud.overview.tile.engagements')}</h2>
-                <p className="aud-figure">{data.engagementsOngoing + data.engagementsFollowUp}</p>
-                <p className="sub">{t('aud.overview.tile.engagements.parts', { ongoing: data.engagementsOngoing, followUp: data.engagementsFollowUp })}</p>
-              </div>
-              <div className="card" data-testid="tile-open">
-                <h2>{t('aud.overview.tile.open')}</h2>
-                <p className="aud-figure">{data.recommendationsOpen}</p>
-              </div>
-              <div className="card" data-testid="tile-overdue">
-                <h2>{t('aud.overview.tile.overdue')}</h2>
-                <p className="aud-figure">{data.recommendationsOverdue}</p>
-              </div>
-              <div className="card" data-testid="tile-money">
-                <h2>{t('aud.overview.tile.money')}</h2>
-                <p className="aud-figure">{formatVnd(data.amountVnd)}</p>
-                <p className="sub">{t('aud.overview.tile.money.parts', { recovered: formatVnd(data.recoveredVnd), remaining: formatVnd(data.remainingVnd) })}</p>
-              </div>
-              <div className="card" data-testid="tile-rates">
-                <h2>{t('aud.overview.tile.rates')}</h2>
+            <div data-testid="tiles">
+              <KpiStrip label={t('w2iss.aud.kpi.label')}>
+                <div className="aud-tile" data-testid="tile-engagements">
+                  <KpiTile label={t('aud.overview.tile.engagements')} value={String(data.engagementsOngoing + data.engagementsFollowUp)} sub={t('aud.overview.tile.engagements.parts', { ongoing: data.engagementsOngoing, followUp: data.engagementsFollowUp })} />
+                </div>
+                <div className="aud-tile" data-testid="tile-open">
+                  <KpiTile label={t('aud.overview.tile.open')} value={String(data.recommendationsOpen)} />
+                </div>
+                <div className="aud-tile" data-testid="tile-overdue">
+                  <KpiTile label={t('aud.overview.tile.overdue')} value={String(data.recommendationsOverdue)} tone={data.recommendationsOverdue > 0 ? 'danger' : 'default'} />
+                </div>
+                <div className="aud-tile" data-testid="tile-money">
+                  <KpiTile label={t('aud.overview.tile.money')} value={formatVnd(data.amountVnd)} tone="info" sub={t('aud.overview.tile.money.parts', { recovered: formatVnd(data.recoveredVnd), remaining: formatVnd(data.remainingVnd) })} />
+                </div>
+              </KpiStrip>
+            </div>
+            <div data-testid="tile-rates">
+              <SectionCard title={t('aud.overview.tile.rates')}>
                 <dl className="aud-facts">
                   <dt>{t('aud.recovery.rates.money')}</dt>
                   <dd>
@@ -77,62 +81,60 @@ function OverviewContent({ route }: ScreenProps) {
                     <RateText rate={data.countRate} testId="overview-rate-count" />
                   </dd>
                 </dl>
-              </div>
+              </SectionCard>
             </div>
             {data.exceptionsOpen > 0 ? (
               <p className="callout warning" role="status" data-testid="exceptions-note">
                 {t('aud.overview.exceptions.note', { count: data.exceptionsOpen })}
               </p>
             ) : null}
-            <div className="card">
-              <h2>{t('aud.overview.watch.title')}</h2>
+            <SectionCard title={t('aud.overview.watch.title')} unit={t('w2iss.aud.unit')}>
               {data.engagements.length === 0 ? (
                 <p className="muted" data-testid="no-engagements">
                   {t('aud.overview.watch.none')}
                 </p>
               ) : (
-                <div className="tablewrap">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>{t('aud.overview.watch.col.engagement')}</th>
-                        <th>{t('aud.overview.watch.col.status')}</th>
-                        <th>{t('aud.overview.watch.col.open')}</th>
-                        <th>{t('aud.overview.watch.col.overdue')}</th>
-                        <th>{t('aud.overview.watch.col.amount')}</th>
-                        <th>{t('aud.overview.watch.col.recovered')}</th>
-                        <th>{t('aud.overview.watch.col.links')}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {data.engagements.map((engagement) => (
-                        <tr key={engagement.id} data-engagement-id={engagement.id}>
-                          <td>
-                            <strong>{engagement.code}</strong>
-                            <div className="sub">{engagement.title}</div>
-                          </td>
-                          <td>
-                            <span className="aud-badge">{engagementStatusLabel(t, engagement.status as EngagementStatus)}</span>
-                          </td>
-                          <td>{engagement.recommendationsOpen}</td>
-                          <td>{engagement.recommendationsOverdue}</td>
-                          <td>{formatVnd(engagement.amountVnd)}</td>
-                          <td>{formatVnd(engagement.recoveredVnd)}</td>
-                          <td className="aud-links">
-                            <Link to={`${ENGAGEMENT_PATH}?engagement=${engagement.id}`}>{t('aud.overview.watch.open.link')}</Link>
-                            <Link to={`${RECOVERY_PATH}?engagement=${engagement.id}`}>{t('aud.overview.watch.recovery.link')}</Link>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <WatchTable engagements={data.engagements} />
               )}
-            </div>
+            </SectionCard>
           </>
         )}
       </StateBoundary>
       <p className="prototype-note">{t('aud.overview.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
   );
+}
+
+/** The watch list, the engagements with the most overdue first: a stripe marks the ones with a recommendation that is overdue. */
+function WatchTable({ engagements }: { engagements: WatchedEngagement[] }) {
+  const { t } = useTranslation();
+  const columns: DataTableColumn<WatchedEngagement>[] = [
+    {
+      key: 'engagement',
+      header: t('aud.overview.watch.col.engagement'),
+      pinned: true,
+      render: (engagement) => (
+        <>
+          <strong>{engagement.code}</strong>
+          <span className="aud-sub">{engagement.title}</span>
+        </>
+      ),
+    },
+    { key: 'status', header: t('aud.overview.watch.col.status'), render: (engagement) => <StatusPill tone="info">{engagementStatusLabel(t, engagement.status as EngagementStatus)}</StatusPill> },
+    { key: 'open', header: t('aud.overview.watch.col.open'), align: 'right', render: (engagement) => String(engagement.recommendationsOpen) },
+    { key: 'overdue', header: t('aud.overview.watch.col.overdue'), align: 'right', render: (engagement) => String(engagement.recommendationsOverdue) },
+    { key: 'amount', header: t('aud.overview.watch.col.amount'), align: 'right', render: (engagement) => formatVnd(engagement.amountVnd) },
+    { key: 'recovered', header: t('aud.overview.watch.col.recovered'), align: 'right', render: (engagement) => formatVnd(engagement.recoveredVnd) },
+    {
+      key: 'links',
+      header: t('aud.overview.watch.col.links'),
+      render: (engagement) => (
+        <span className="aud-links">
+          <Link to={`${ENGAGEMENT_PATH}?engagement=${engagement.id}`}>{t('aud.overview.watch.open.link')}</Link>
+          <Link to={`${RECOVERY_PATH}?engagement=${engagement.id}`}>{t('aud.overview.watch.recovery.link')}</Link>
+        </span>
+      ),
+    },
+  ];
+  return <DataTable caption={t('w2iss.aud.watch.aria')} columns={columns} rows={engagements} rowKey={(engagement) => engagement.id} severity={(engagement) => (engagement.recommendationsOverdue > 0 ? 'ACTION' : null)} />;
 }

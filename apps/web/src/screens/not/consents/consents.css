@@ -19,7 +19,7 @@
 
 .not-consents .locked-list small {
   display: block;
-  color: var(--muted, #6b6570);
+  color: var(--mv-color-text-secondary);
 }
 
 .not-consents .grant-form {
@@ -42,6 +42,6 @@
   gap: 10px;
   margin-top: 16px;
   padding: 16px;
-  border: 1px solid var(--line, #d9d4dc);
+  border: 1px solid var(--mv-color-border);
   border-radius: 8px;
 }

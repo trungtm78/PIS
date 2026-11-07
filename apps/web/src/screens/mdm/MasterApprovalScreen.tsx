@@ -12,6 +12,8 @@ import { changeKindLabel, problemMessage } from './labels';
 import { SuccessionProposal } from './SuccessionProposal';
 import { PUBLISH_PERMISSION, REASON_MAX_LENGTH, REASON_MIN_LENGTH, REVIEW_PERMISSION, describeProblem, proposalRows, recordLink } from './model';
 import type { ChangeView, ProposalField } from './model';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 
 const DETAIL_PATH = '/mdm/mdm-27';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -137,7 +139,7 @@ function MasterApprovalContent({ route }: ScreenProps) {
               {t('mdm.approval.own.hint')}
             </span>
           ) : acting === change.id ? null : (
-            <button type="button" onClick={() => open(change.id)}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => open(change.id)}>
               {stage === 'review' ? t('mdm.approval.review.action') : t('mdm.approval.publish.action')}
             </button>
           )}
@@ -159,7 +161,7 @@ function MasterApprovalContent({ route }: ScreenProps) {
         {change.changeKind === 'SUCCESSION' ? (
           <SuccessionProposal change={change} />
         ) : (
-          <table className="table" data-testid="proposal">
+          <KitTable caption={t('w2mdm.approval.table.caption')} data-testid="proposal">
             <thead>
               <tr>
                 <th>{t('mdm.approval.proposal.col.field')}</th>
@@ -176,7 +178,7 @@ function MasterApprovalContent({ route }: ScreenProps) {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </KitTable>
         )}
         <p className="sub">{change.reason}</p>
         {stage === 'review' ? (
@@ -184,13 +186,13 @@ function MasterApprovalContent({ route }: ScreenProps) {
             <Field id={`reason-${change.id}`} label={t('mdm.approval.reason.label')} error={problemField === 'reason' ? t('mdm.field.tooShort.error') : undefined}>
               <textarea id={`reason-${change.id}`} rows={2} value={reason} aria-invalid={problemField === 'reason'} onChange={(event) => { setReason(event.target.value); setProblemField(undefined); }} />
             </Field>
-            <div className="formfooter">
+            <div className="adm-kit-actions">
               {DECISIONS.map((decision) => (
                 <button key={decision} type="button" className={decision === 'approve' ? 'primary' : undefined} disabled={decide.isPending} data-decision={decision} onClick={(event) => send(event, change, decision)}>
                   {decisionLabel(t, decision)}
                 </button>
               ))}
-              <button type="button" onClick={() => setActing(undefined)}>
+              <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setActing(undefined)}>
                 {t('mdm.approval.cancel.action')}
               </button>
             </div>
@@ -200,11 +202,11 @@ function MasterApprovalContent({ route }: ScreenProps) {
             <Field id={`document-${change.id}`} label={t('mdm.approval.document.label')} error={problemField === 'document' ? t('mdm.approval.document.error') : undefined} hint={t('mdm.approval.document.hint')}>
               <input id={`document-${change.id}`} value={documentId} aria-invalid={problemField === 'document'} onChange={(event) => { setDocumentId(event.target.value); setProblemField(undefined); }} />
             </Field>
-            <div className="formfooter">
-              <button type="submit" className="primary" disabled={publish.isPending || change.recordVersion === null}>
+            <div className="adm-kit-actions">
+              <button type="submit" className="ui-button ui-button--primary" disabled={publish.isPending || change.recordVersion === null}>
                 {t('mdm.approval.publish.confirm.action')}
               </button>
-              <button type="button" onClick={() => setActing(undefined)}>
+              <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setActing(undefined)}>
                 {t('mdm.approval.cancel.action')}
               </button>
             </div>
@@ -220,7 +222,7 @@ function MasterApprovalContent({ route }: ScreenProps) {
       {changes.length === 0 ? (
         <p className="muted">{empty}</p>
       ) : (
-        <table className="table">
+        <KitTable caption={t('w2mdm.approval.table.detail')}>
           <thead>
             <tr>
               <th>{t('mdm.approval.col.kind')}</th>
@@ -228,14 +230,14 @@ function MasterApprovalContent({ route }: ScreenProps) {
               <th>{t('mdm.approval.col.impact')}</th>
               <th>{t('mdm.approval.col.effective')}</th>
               <th>
-                <span className="sr-only">{t('mdm.approval.col.actions')}</span>
+                {t('mdm.approval.col.actions')}
               </th>
             </tr>
           </thead>
           <tbody>
             {changes.flatMap((change) => (acting === change.id ? [row(change, stage), panel(change, stage)] : [row(change, stage)]))}
           </tbody>
-        </table>
+        </KitTable>
       )}
     </section>
   );

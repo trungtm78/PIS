@@ -12,6 +12,9 @@ import { changeLabel, compatibilityLabel, decisionLabel, kindLabel, problemMessa
 import { useCloseRevision, useDraftRevision, usePublishRevision, useRevision, useRevisions, useVersions } from './hooks';
 import { APPROVE_PERMISSION, DECIDE_PERMISSION, DRAFT_PERMISSION, EMPTY_DRAFT, ODCS_VERSIONS, allApproved, describeContractProblem, isDay, openRevision, shortHash, validateDraft } from './model';
 import type { DraftField, DraftForm, DraftProblem, Revision } from './model';
+import '../dgv-kit.css';
+import { StatusPill } from '../../../ui';
+import { pillTone } from '../pill-tone';
 
 const NONE = '—';
 const holds = (permissions: readonly string[] | undefined, permission: string, mode: string | undefined): boolean =>
@@ -245,7 +248,7 @@ function OpenRevision({ revision, mayPublish, mayDecide }: { revision: Revision;
                     </td>
                     <td>{approval.ownerName ?? approval.ownerId}</td>
                     <td>
-                      <span className={`pill ${approval.decision === 'APPROVED' ? 'green' : approval.decision === 'REJECTED' ? 'red' : 'gray'}`}>{decisionLabel(t, approval.decision)}</span>
+                      <StatusPill tone={pillTone(approval.decision === 'APPROVED' ? 'green' : approval.decision === 'REJECTED' ? 'red' : 'gray')}>{decisionLabel(t, approval.decision)}</StatusPill>
                       {approval.comment === null ? null : <p className="sub">{approval.comment}</p>}
                     </td>
                   </tr>
@@ -280,7 +283,7 @@ function OpenRevision({ revision, mayPublish, mayDecide }: { revision: Revision;
           ) : null}
           <div className="formfooter">
             {mayPublish ? (
-              <button type="submit" className="primary" disabled={publish.isPending}>
+              <button type="submit" className="ui-button ui-button--primary" disabled={publish.isPending}>
                 {t('dgv.contract.publish.submit')}
               </button>
             ) : null}
@@ -358,7 +361,7 @@ function DraftPanel({ datasetId }: { datasetId: string }) {
         <input id="draft-effective" type="date" value={form.effectiveFrom} aria-invalid={problems.effectiveFrom !== undefined} onChange={(event) => set({ effectiveFrom: event.target.value })} />
       </Field>
       <div className="formfooter">
-        <button type="submit" className="primary" disabled={send.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={send.isPending}>
           {t('dgv.contract.draft.submit')}
         </button>
       </div>

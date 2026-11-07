@@ -1,4 +1,5 @@
 import type { Translator } from '../../../i18n';
+import type { Tone } from '../../../ui';
 import type { FormProblem, MilestoneStatus, PlanProblem } from './model';
 
 type T = Translator['t'];
@@ -46,4 +47,5 @@ export function milestoneStatusLabel(t: T, status: MilestoneStatus): string {
   }
 }
 
-export const milestoneTone = (status: MilestoneStatus): 'blue' | 'green' | 'warn' | 'gray' => (status === 'DONE' ? 'green' : status === 'DELAYED' ? 'warn' : status === 'CANCELLED' ? 'gray' : 'blue');
+/** The tone of the pill of a milestone: done is green, delayed is amber, cancelled is grey, planned is blue (the label says it in words). */
+export const milestoneTone = (status: MilestoneStatus): Tone => (status === 'DONE' ? 'success' : status === 'DELAYED' ? 'warning' : status === 'CANCELLED' ? 'neutral' : 'info');

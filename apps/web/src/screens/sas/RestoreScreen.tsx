@@ -25,8 +25,12 @@ import { ReportPanel } from './restore/ReportPanel';
 import { TenantPicker } from './subscription/TenantPicker';
 import { useTenantChoice } from './subscription/hooks';
 import { toneClass } from './tenants/labels';
+import { SectionCard, StatusPill } from '../../ui';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 import './tenants/sas.css';
 import './billing/billing.css';
+import { toneOfPill } from '../adm/kit-tone';
 
 type Field = 'point' | 'reason';
 interface Deciding {
@@ -177,8 +181,8 @@ function RestoreContent({ route }: ScreenProps) {
         }}>
         {page === undefined ? null : (
           <>
-            <div className="card" data-recovery>
-              <h2>{t('sas.restore.window.title')}</h2>
+            <SectionCard title={t('sas.restore.window.title')}>
+              <div data-recovery>
               <dl className="kv">
                 <dt>{t('sas.restore.window.tenant')}</dt>
                 <dd data-tenant-status>{tenantStatusLabel(t, page.tenantStatus)}</dd>
@@ -194,7 +198,8 @@ function RestoreContent({ route }: ScreenProps) {
                   {t('sas.restore.window.noneRule')}
                 </p>
               ) : null}
-            </div>
+              </div>
+            </SectionCard>
             {done === undefined ? null : (
               <p className="callout" role="status">
                 {done === 'approve' ? t('sas.restore.done.approved') : t('sas.restore.done.rejected')}
@@ -206,8 +211,7 @@ function RestoreContent({ route }: ScreenProps) {
               </div>
             )}
             {canManage ? (
-              <div className="card">
-                <h2>{t('sas.restore.ask.title')}</h2>
+              <SectionCard title={t('sas.restore.ask.title')}>
                 <p className="sub">{t('sas.restore.ask.rule')}</p>
                 {sent ? (
                   <p className="callout" role="status">
@@ -246,22 +250,21 @@ function RestoreContent({ route }: ScreenProps) {
                     ) : null}
                   </div>
                   <div className="row gap">
-                    <button type="submit" className="primary" disabled={busy || page.window === undefined || !canAskRestore(page.tenantStatus)}>
+                    <button type="submit" className="ui-button ui-button--primary" disabled={busy || page.window === undefined || !canAskRestore(page.tenantStatus)}>
                       {t('sas.restore.ask.submit.action')}
                     </button>
                     {canAskRestore(page.tenantStatus) ? null : <span className="sub">{t('sas.restore.ask.stateRule')}</span>}
                   </div>
                 </form>
-              </div>
+              </SectionCard>
             ) : null}
-            <div className="card">
-              <h2>{t('sas.restore.list.title')}</h2>
+            <SectionCard title={t('sas.restore.list.title')}>
               {items.length === 0 ? (
                 <p className="sub" role="status">
                   {t('sas.restore.list.none')}
                 </p>
               ) : (
-                <table className="table" data-restores>
+                <KitTable caption={t('w2sas.restore.table.caption')} data-restores>
                   <thead>
                     <tr>
                       <th scope="col">{t('sas.restore.column.point')}</th>
@@ -281,7 +284,7 @@ function RestoreContent({ route }: ScreenProps) {
                         <td>{day(entry.recoveryPoint)}</td>
                         <td>{targetLabel(t, entry.target)}</td>
                         <td>
-                          <span className={toneClass(statusTone(entry.status))}>{statusLabel(t, entry.status)}</span>
+                          <StatusPill tone={toneOfPill(toneClass(statusTone(entry.status)))}>{statusLabel(t, entry.status)}</StatusPill>
                           {entry.errorCode === undefined ? null : (
                             <small className="sub" data-failure>
                               {' · '}
@@ -331,7 +334,7 @@ function RestoreContent({ route }: ScreenProps) {
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                </KitTable>
               )}
               {restores.hasNextPage ? (
                 <div className="row gap">
@@ -361,10 +364,10 @@ function RestoreContent({ route }: ScreenProps) {
                     ) : null}
                   </div>
                   <div className="row gap">
-                    <button type="submit" className="primary" disabled={decide.isPending}>
+                    <button type="submit" className="ui-button ui-button--primary" disabled={decide.isPending}>
                       {t('sas.restore.decide.confirm.action')}
                     </button>
-                    <button type="button" onClick={() => setDeciding(undefined)}>
+                    <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setDeciding(undefined)}>
                       {t('sas.restore.decide.abort.action')}
                     </button>
                   </div>
@@ -373,7 +376,7 @@ function RestoreContent({ route }: ScreenProps) {
               {items.map((entry) =>
                 opened === entry.id && entry.report !== undefined ? <ReportPanel key={entry.id} report={entry.report} reference={entry.reportRef} restoredTo={entry.restoredTo} day={day} /> : null,
               )}
-            </div>
+            </SectionCard>
           </>
         )}
       </StateBoundary>

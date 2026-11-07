@@ -3,6 +3,8 @@ import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import { routeById } from '../../../routes/registry';
+import { StatusPill } from '../../../ui';
+import { toneOfPill } from '../../adm/kit-tone';
 import { useRetryProvisioning, useTenantDetail } from './hooks';
 import { describeProblem } from './problems';
 import { isolationLabel, problemMessage, runStatusLabel, statusLabel, statusTone, stepLabel, toneClass } from './labels';
@@ -27,7 +29,7 @@ function RetryForm({ tenantId, version }: RetryProps) {
 
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)}>
+      <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setOpen(true)}>
         {t('sas.tenants.retry.action')}
       </button>
     );
@@ -58,10 +60,10 @@ function RetryForm({ tenantId, version }: RetryProps) {
         </p>
       ) : null}
       <div className="row">
-        <button type="submit" className="primary" disabled={retry.isPending}>
+        <button type="submit" className="ui-button ui-button--primary ui-button--small" disabled={retry.isPending}>
           {t('sas.tenants.retry.submit')}
         </button>
-        <button type="button" onClick={() => setOpen(false)}>
+        <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setOpen(false)}>
           {t('sas.tenants.retry.cancel')}
         </button>
       </div>
@@ -112,19 +114,19 @@ export function TenantRow({ tenant, canManage }: Props) {
       <td>{tenant.planCode ?? t('sas.tenants.none')}</td>
       <td>{isolationLabel(t, tenant.isolationMode)}</td>
       <td>
-        <span className={toneClass(statusTone(tenant.status))}>{statusLabel(t, tenant.status)}</span>
+        <StatusPill tone={toneOfPill(toneClass(statusTone(tenant.status)))}>{statusLabel(t, tenant.status)}</StatusPill>
         <RunSummary tenant={tenant} canManage={canManage} />
       </td>
       <td>{tenant.licenseStatus ?? t('sas.tenants.none')}</td>
       <td>
         <div className="row gap">
           {detail === undefined ? null : (
-            <Link className="button-link" to={`${detail.path}?tenant=${encodeURIComponent(tenant.id)}`}>
+            <Link className="ui-button ui-button--outline ui-button--small" to={`${detail.path}?tenant=${encodeURIComponent(tenant.id)}`}>
               {t('sas.tenants.detail.action')}
             </Link>
           )}
           {entitlements === undefined ? null : (
-            <Link className="button-link" to={`${entitlements.path}?tenant=${encodeURIComponent(tenant.id)}`}>
+            <Link className="ui-button ui-button--outline ui-button--small" to={`${entitlements.path}?tenant=${encodeURIComponent(tenant.id)}`}>
               {t('sas.tenants.entitlements.action')}
             </Link>
           )}

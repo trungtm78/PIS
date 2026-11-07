@@ -1,4 +1,5 @@
 import type { Translator } from '../../../i18n';
+import type { Tone } from '../../../ui';
 import type { CalendarStatus, DayKind, FieldProblem, Finding, ProblemView } from './model';
 
 type T = Translator['t'];
@@ -87,5 +88,17 @@ export function problemMessage(t: T, problem: ProblemView): string {
       return t('adm.calendar.problem.session');
     case 'general':
       return t('adm.calendar.problem.general');
+  }
+}
+
+/** The tone of the status pill of a version of the calendar. */
+export function statusTone(status: CalendarStatus): Tone {
+  switch (status) {
+    case 'Draft':
+      return 'warning';
+    case 'Published':
+      return 'success';
+    case 'Superseded':
+      return 'neutral';
   }
 }

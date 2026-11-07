@@ -92,7 +92,7 @@ describe('QualityScoreScreen (DGV-07): profiling and quality score (UI-DGV-07)',
       `${vi_['dgv.quality.action.hardBlock.text']}${vi_['dgv.quality.severity.critical.text']}`,
       vi_['dgv.quality.result.fail.text'],
     ]);
-    expect(failed.querySelector('.pill')?.className).toBe('pill red');
+    expect(failed.querySelector('.ui-pill')?.className).toBe('ui-pill ui-tone-danger');
     expect(document.querySelectorAll('tr[data-result="PASS"]')).toHaveLength(9);
   });
 
@@ -148,7 +148,7 @@ describe('QualityScoreScreen (DGV-07): profiling and quality score (UI-DGV-07)',
     const row = document.querySelector('tr[data-rule-code="R-1"]') as HTMLElement;
     expect(row.textContent).toContain(vi_['dgv.score.rule.notMeasured']);
     expect(row.textContent).toContain(vi_['dgv.quality.ruleError.noRows.text']);
-    expect(row.querySelector('.pill')?.className).toBe('pill gray');
+    expect(row.querySelector('.ui-pill')?.className).toBe('ui-pill ui-tone-neutral');
     cleanup();
 
     const broken = hardFailCard({ pending_attempt: runRow({ status: 'FAILED', overall_result: null, score: null, failure_code: 'SNAPSHOT_CHANGED' }) });

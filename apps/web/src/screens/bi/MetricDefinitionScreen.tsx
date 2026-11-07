@@ -12,6 +12,7 @@ import { AGGREGATES, AGGREGATIONS, CATALOGUE_PATH, EMPTY_VALUES, MANAGE_PERMISSI
 import type { Aggregate, Aggregation, Metric, MetricErrors, MetricValues, NullPolicy, Operand } from './bi-model';
 import { useCreateMetric, useMetric } from './hooks';
 import { aggregateLabel, aggregationLabel, fieldProblemMessage, nullPolicyLabel, originLabel, problemMessage, statusLabel } from './labels';
+import './bi-kit.css';
 
 /**
  * BI-06: the definition of a metric (ST-BI-001, BI 3 F1). With an id it shows one revision, read-only: a metric of the platform changes by the files of the repository, and a draft of the tenant is judged
@@ -37,7 +38,7 @@ function DefinitionContent({ route, id }: ScreenProps & { id: string | undefined
           <h1 id="screen-title">{t('bi.definition.page.title')}</h1>
           <p>{t('bi.definition.page.subtitle')}</p>
         </div>
-        <Link className="button" to={CATALOGUE_PATH}>
+        <Link className="ui-button ui-button--outline" to={CATALOGUE_PATH}>
           {t('bi.definition.back')}
         </Link>
       </div>
@@ -199,7 +200,7 @@ function MetricForm() {
         </Field>
       </div>
       <div className="mne-actions">
-        <button type="submit" className="btn" disabled={create.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending}>
           {t('bi.definition.save')}
         </button>
       </div>

@@ -8,12 +8,13 @@ import { useScreenState } from '../../../states/useScreenState';
 import { BackLink, Fact } from '../../ctr/components';
 import { AttachDialog, CancelDialog, ReturnDialog, ReviseDialog, SubmitDialog, VerifyDialog } from './PaymentDialogs';
 import { usePayment } from './hooks';
-import { docKindLabel, kindLabel, statusLabel, warningMessage } from './labels';
+import { docKindLabel, kindLabel, statusLabel, statusTone, warningMessage } from './labels';
 import { listLink, signedAmountText, valuationLink } from './model';
 import { formsLink } from '../forms/model';
 import { reversalLink } from '../reversal/model';
 import type { PaymentAnswer, PaymentRequest, WarningCode } from './model';
 import '../pay.css';
+import { SectionCard, StatusPill } from '../../../ui';
 
 /**
  * PAY-03: a payment request and its documents (ST-PAY-002, PAY 3.1 step 2). The figures are the server's and read-only; a draft can be revised, given documents and cancelled by those who hold
@@ -73,11 +74,11 @@ function Detail({ request }: { request: PaymentRequest }) {
 
   return (
     <>
-      <article className="card" aria-label={t('pay.payment.detail.facts')}>
+      <SectionCard title={t('pay.payment.detail.facts')} unit={t('w2pay.ctx.unit')}>
         <h2>
           <span data-testid="request-no">{request.requestNo ?? request.id}</span>{' '}
-          <span className={request.status === 'CANCELLED' || request.status === 'REVERSED' || request.status === 'RETURNED' ? 'pay-badge warning' : 'pay-badge'} data-testid="status">
-            {statusLabel(t, request.status)}
+          <span data-testid="status">
+            <StatusPill tone={statusTone(request.status)}>{statusLabel(t, request.status)}</StatusPill>
           </span>
         </h2>
         <dl className="pay-facts">
@@ -133,51 +134,51 @@ function Detail({ request }: { request: PaymentRequest }) {
           </p>
         ) : null}
         <div className="pay-row-actions">
-          <Link className="button" to={valuationLink(request.id)} data-testid="valuation">
+          <Link className="ui-button ui-button--outline" to={valuationLink(request.id)} data-testid="valuation">
             {t('pay.payment.detail.valuation')}
           </Link>
           {request.status === 'VERIFIED' || request.status === 'SENT_TREASURY' ? (
-            <Link className="button" to={formsLink(request.id)} data-testid="forms">
+            <Link className="ui-button ui-button--outline" to={formsLink(request.id)} data-testid="forms">
               {t('pay.payment.detail.forms')}
             </Link>
           ) : null}
           {request.status === 'SETTLED' || request.status === 'REVERSED' ? (
-            <Link className="button" to={reversalLink(request.id)} data-testid="reversal">
+            <Link className="ui-button ui-button--outline" to={reversalLink(request.id)} data-testid="reversal">
               {t('pay.payment.detail.reversal')}
             </Link>
           ) : null}
           {writable && request.actions.revise ? (
-            <button type="button" onClick={() => setDialog('revise')} data-action="revise">
+            <button type="button" className="ui-button ui-button--outline" onClick={() => setDialog('revise')} data-action="revise">
               {t('pay.payment.detail.revise')}
             </button>
           ) : null}
           {writable && request.actions.attachDocument ? (
-            <button type="button" onClick={() => setDialog('attach')} data-action="attach">
+            <button type="button" className="ui-button ui-button--outline" onClick={() => setDialog('attach')} data-action="attach">
               {t('pay.payment.detail.attach')}
             </button>
           ) : null}
           {writable && request.actions.submit ? (
-            <button type="button" className="primary" onClick={() => setDialog('submit')} data-action="submit">
+            <button type="button" className="ui-button ui-button--primary" onClick={() => setDialog('submit')} data-action="submit">
               {t('pay.payment.detail.submit')}
             </button>
           ) : null}
           {writable && request.actions.verify ? (
-            <button type="button" className="primary" onClick={() => setDialog('verify')} data-action="verify">
+            <button type="button" className="ui-button ui-button--primary" onClick={() => setDialog('verify')} data-action="verify">
               {t('pay.payment.detail.verify')}
             </button>
           ) : null}
           {writable && request.actions.return ? (
-            <button type="button" onClick={() => setDialog('return')} data-action="return">
+            <button type="button" className="ui-button ui-button--outline" onClick={() => setDialog('return')} data-action="return">
               {t('pay.payment.detail.return')}
             </button>
           ) : null}
           {writable && request.actions.cancel ? (
-            <button type="button" onClick={() => setDialog('cancel')} data-action="cancel">
+            <button type="button" className="ui-button ui-button--outline" onClick={() => setDialog('cancel')} data-action="cancel">
               {t('pay.payment.detail.cancel')}
             </button>
           ) : null}
         </div>
-      </article>
+      </SectionCard>
       {done === undefined ? null : (
         <div className="callout" role="status" data-testid="done">
           <p>{done.message}</p>
@@ -190,8 +191,7 @@ function Detail({ request }: { request: PaymentRequest }) {
           )}
         </div>
       )}
-      <article className="card" aria-label={t('pay.payment.documents.title')}>
-        <h2>{t('pay.payment.documents.title')}</h2>
+      <SectionCard title={t('pay.payment.documents.title')}>
         {request.documents.length === 0 ? (
           <p className="sub" data-testid="no-documents">
             {t('pay.payment.documents.empty')}
@@ -222,7 +222,7 @@ function Detail({ request }: { request: PaymentRequest }) {
             </tbody>
           </table>
         )}
-      </article>
+      </SectionCard>
       {dialog === 'revise' ? <ReviseDialog request={request} onDone={finished(t('pay.payment.done.revised'))} onClose={close} /> : null}
       {dialog === 'attach' ? <AttachDialog request={request} onDone={finished(t('pay.payment.done.attached'))} onClose={close} /> : null}
       {dialog === 'cancel' ? <CancelDialog request={request} onDone={finished(t('pay.payment.done.cancelled'))} onClose={close} /> : null}

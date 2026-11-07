@@ -5,13 +5,14 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { ContextBar, DeadlineCountdown, FilterPanel, KpiStrip, KpiTile, StatusPill } from '../../ui';
 import { AcceptForm } from './EscalationForms';
 import { acceptStateOf, countByLevel, filterBreaches } from './escalation-model';
 import type { BreachView, LevelFilter } from './escalation-model';
 import { useBreaches } from './hooks';
 import { SeverityBadge, useMoment } from './issue-components';
 import { statusLabel } from './issue-labels';
-import { ESCALATION_LEVELS, workspaceLink } from './issue-model';
+import { ESCALATION_LEVELS, businessDay, workspaceLink } from './issue-model';
 import type { EscalationLevel } from './issue-model';
 import './iss.css';
 
@@ -41,7 +42,7 @@ export default function EscalationBoardScreen({ route }: ScreenProps) {
 
 function EscalationBoardContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { mode } = useSession();
+  const { mode, tenant } = useSession();
   const [level, setLevel] = useState<LevelFilter>('');
   const [notice, setNotice] = useState<string | undefined>(undefined);
   const live = mode !== 'READ_ONLY';
@@ -61,13 +62,24 @@ function EscalationBoardContent({ route }: ScreenProps) {
           <p>{t('iss.board.page.subtitle')}</p>
         </div>
       </div>
+      <ContextBar
+        items={[
+          { label: t('w2iss.ctx.scope'), value: tenant?.name ?? t('w2iss.ctx.scope.all') },
+          { label: t('w2iss.ctx.today'), value: businessDay(now).split('-').reverse().join('/') },
+        ]}
+      />
       <StateBoundary state={state} onRetry={() => void breaches.refetch()}>
-        <div className="card">
-          {notice === undefined ? null : (
-            <p className="callout" role="status" data-testid="done">
-              {notice}
-            </p>
-          )}
+        {notice === undefined ? null : (
+          <p className="callout" role="status" data-testid="done">
+            {notice}
+          </p>
+        )}
+        <KpiStrip label={t('w2iss.board.kpi.label')}>
+          {ESCALATION_LEVELS.map((candidate) => (
+            <KpiTile key={candidate} label={levelName(t, candidate)} value={String(counts[candidate])} tone={candidate === 3 && counts[candidate] > 0 ? 'danger' : counts[candidate] > 0 ? 'warning' : 'default'} />
+          ))}
+        </KpiStrip>
+        <FilterPanel applied={level === '' ? 0 : 1}>
           <form className="iss-filters" role="search" aria-label={t('iss.board.filters.title')} onSubmit={(event) => event.preventDefault()}>
             <div className="field">
               <label htmlFor="board-level">{t('iss.board.level.label')}</label>
@@ -81,29 +93,29 @@ function EscalationBoardContent({ route }: ScreenProps) {
               </select>
             </div>
           </form>
-          <p className="sub" data-testid="count" role="status">
-            {t('iss.board.count.text', { count: shown.length })}
+        </FilterPanel>
+        <p className="sub" data-testid="count" role="status">
+          {t('iss.board.count.text', { count: shown.length })}
+        </p>
+        {(breaches.data ?? []).length === 0 ? (
+          <p className="muted" data-testid="empty-board">
+            {t('iss.board.empty.text')}
           </p>
-          {(breaches.data ?? []).length === 0 ? (
-            <p className="muted" data-testid="empty-board">
-              {t('iss.board.empty.text')}
-            </p>
-          ) : (
-            <div className="iss-board" data-testid="board">
-              {levels.map((candidate) => {
-                const lines = shown.filter((line) => line.level === candidate);
-                return (
-                  <section key={candidate} className="iss-column" aria-labelledby={`level-${candidate}`} data-level={candidate}>
-                    <h2 id={`level-${candidate}`}>
-                      {levelName(t, candidate)} ({lines.length})
-                    </h2>
-                    {lines.length === 0 ? <p className="sub">{t('iss.board.column.empty')}</p> : lines.map((line) => <BreachCard key={line.escalationId} line={line} now={now} live={live} onDone={setNotice} />)}
-                  </section>
-                );
-              })}
-            </div>
-          )}
-        </div>
+        ) : (
+          <div className="iss-board" data-testid="board">
+            {levels.map((candidate) => {
+              const lines = shown.filter((line) => line.level === candidate);
+              return (
+                <section key={candidate} className="iss-column" aria-labelledby={`level-${candidate}`} data-level={candidate}>
+                  <h2 id={`level-${candidate}`}>
+                    {levelName(t, candidate)} ({lines.length})
+                  </h2>
+                  {lines.length === 0 ? <p className="sub">{t('iss.board.column.empty')}</p> : lines.map((line) => <BreachCard key={line.escalationId} line={line} now={now} live={live} onDone={setNotice} />)}
+                </section>
+              );
+            })}
+          </div>
+        )}
       </StateBoundary>
       <p className="prototype-note">{t('iss.board.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
@@ -114,9 +126,12 @@ function BreachCard({ line, now, live, onDone }: { line: BreachView; now: Date; 
   const { t } = useTranslation();
   const moment = useMoment();
   const state = acceptStateOf(line, now);
+  // An escalation that waits for its receiver is a breach that needs action; level 3 (the task force) is urgent (design.md, severity defaults). An accepted one is being handled.
+  const stripe = state === 'accepted' ? null : line.level >= 3 ? 'URGENT' : 'ACTION';
   const target = line.taskForce !== null ? `${line.taskForce.code} · ${line.taskForce.name}` : (line.targetUnit?.name ?? t('iss.value.none.text'));
   return (
-    <article className="iss-card" data-escalation-id={line.escalationId} data-status={line.status}>
+    <article className="iss-card" data-escalation-id={line.escalationId} data-status={line.status} {...(stripe === null ? {} : { 'data-stripe': stripe })}>
+      {stripe === null ? null : <span className="ui-sr-only">{t('ui.dataTable.severityPrefix', { label: stripe === 'URGENT' ? t('ui.dataTable.severity.urgent') : t('ui.dataTable.severity.action') })}. </span>}
       <p>
         <Link to={workspaceLink(line.issueId)}>{line.issueCode}</Link> <SeverityBadge severity={line.severity} />
       </p>
@@ -125,13 +140,20 @@ function BreachCard({ line, now, live, onDone }: { line: BreachView; now: Date; 
         {line.projectCode} · {line.ownerUnitName} · {statusLabel(t, line.issueStatus)}
       </p>
       <p>{t('iss.board.target.text', { target })}</p>
-      <p className={state === 'late' ? 'iss-badge warning' : 'sub'} data-testid="accept-state" data-state={state}>
-        {state === 'accepted'
-          ? t('iss.board.accepted.text', { date: moment(line.acceptedAt) })
-          : state === 'late'
-            ? t('iss.board.late.text', { date: moment(line.acceptDueAt) })
-            : t('iss.board.waiting.text', { date: moment(line.acceptDueAt) })}
+      <p data-testid="accept-state" data-state={state}>
+        <StatusPill tone={state === 'accepted' ? 'success' : state === 'late' ? 'danger' : 'warning'}>
+          {state === 'accepted'
+            ? t('iss.board.accepted.text', { date: moment(line.acceptedAt) })
+            : state === 'late'
+              ? t('iss.board.late.text', { date: moment(line.acceptDueAt) })
+              : t('iss.board.waiting.text', { date: moment(line.acceptDueAt) })}
+        </StatusPill>
       </p>
+      {state === 'accepted' ? null : (
+        <p className="sub">
+          <DeadlineCountdown dueOn={businessDay(line.acceptDueAt) === '' ? null : businessDay(line.acceptDueAt)} today={businessDay(now)} />
+        </p>
+      )}
       <p className="sub">
         {line.overdueSince === null
           ? t('iss.board.notOverdue.text')

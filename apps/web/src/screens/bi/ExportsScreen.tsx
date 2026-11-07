@@ -15,6 +15,9 @@ import { useDatasetVersions, useDatasets, useExportLink, useExports, useMetrics,
 import { linkOf } from '../ctr/export/model';
 import { dimensionLabel } from './labels';
 import { DIMENSIONS } from './query-model';
+import './bi-kit.css';
+import { StatusPill } from '../../ui';
+import { exportStatusTone } from './tones';
 
 const NONE = '—';
 const day = (stamp: string): string => stamp.slice(0, 10);
@@ -119,7 +122,7 @@ function ExportsContent({ route }: ScreenProps) {
                   <td>{formatLabel(t, job.format)}</td>
                   <td>{job.rowCount === null ? NONE : t('bi.exp.rows', { rows: job.rowCount, cap: job.rowCap })}</td>
                   <td>
-                    <span className="pill">{exportStatusLabel(t, job.status)}</span>
+                    <StatusPill tone={exportStatusTone(job.status)}>{exportStatusLabel(t, job.status)}</StatusPill>
                     {job.status === 'READY' && job.expiresAt !== null ? <p className="sub">{t('bi.exp.expires', { date: day(job.expiresAt) })}</p> : null}
                     {reason === undefined ? null : (
                       <p className="sub" data-testid="job-reason" data-reason={reason}>
@@ -182,7 +185,7 @@ function ExportsContent({ route }: ScreenProps) {
             </select>
           </Field>
           <div className="formfooter">
-            <button type="submit" className="primary" disabled={request.isPending}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={request.isPending}>
               {t('bi.exp.submit')}
             </button>
           </div>

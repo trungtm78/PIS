@@ -1,4 +1,5 @@
 import type { Translator } from '../../../i18n';
+import type { Tone } from '../../../ui';
 import type { InboxStatus, ProblemView } from './model';
 
 type T = Translator['t'];
@@ -50,5 +51,20 @@ export function problemMessage(t: T, problem: ProblemView): string {
       return t('adm.sync.problem.session');
     case 'general':
       return t('adm.sync.problem.general');
+  }
+}
+
+/** The tone of the status pill of an inbound event: dead is red, failed amber, done green, waiting grey. */
+export function inboxStatusTone(status: InboxStatus): Tone {
+  switch (status) {
+    case 'DEAD':
+      return 'danger';
+    case 'FAILED':
+      return 'warning';
+    case 'PROCESSED':
+      return 'success';
+    case 'RECEIVED':
+    case 'PROCESSING':
+      return 'neutral';
   }
 }

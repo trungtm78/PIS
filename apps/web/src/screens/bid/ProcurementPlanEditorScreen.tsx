@@ -26,6 +26,7 @@ import {
 } from './plan-model';
 import type { BiddingForm, ContractType, FieldProblem, PackageRow, PlanErrors, PlanForm, SelectionMethod } from './plan-model';
 import './bid.css';
+import { StickyActions } from '../../ui';
 
 /**
  * BID-16: drafting and revising a procurement plan. A plan is never edited once made: a change is a new revision, which starts from the packages
@@ -222,23 +223,29 @@ function EditorContent({ route }: ScreenProps) {
             </button>
           </fieldset>
         ))}
-        <div className="formfooter">
-          <button
-            type="button"
-            onClick={() => {
-              setForm((previous) => ({ ...previous, rows: [...previous.rows, emptyRow()] }));
-              touch();
-            }}
-          >
-            {t('bid.editor.row.add')}
-          </button>
-          <p className="sub" data-testid="running-total">
-            {t('bid.editor.total.text', { total: formatVnd(total) })}
-          </p>
-          <button type="submit" className="primary" disabled={create.isPending}>
-            {t('bid.editor.submit.action')}
-          </button>
-        </div>
+        <p className="sub" data-testid="running-total">
+          {t('bid.editor.total.text', { total: formatVnd(total) })}
+        </p>
+        <StickyActions
+          primary={
+            <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending}>
+              {t('bid.editor.submit.action')}
+            </button>
+          }
+          secondary={[
+            <button
+              key="add"
+              type="button"
+              className="ui-button ui-button--outline"
+              onClick={() => {
+                setForm((previous) => ({ ...previous, rows: [...previous.rows, emptyRow()] }));
+                touch();
+              }}
+            >
+              {t('bid.editor.row.add')}
+            </button>,
+          ]}
+        />
       </form>
       <p className="prototype-note">{t('bid.editor.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>

@@ -3,6 +3,7 @@ import { cleanup, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../i18n/vi.json';
+import { translator } from '../../i18n';
 import { harness, mount, routeOf } from '../doc/test-support';
 import CertificatesScreen from './CertificatesScreen';
 import { SECOND_TENANT, mountInSession } from './security/test-support';
@@ -67,6 +68,14 @@ describe('CertificatesScreen (ADM-08)', () => {
     expect(rowOf('c3').querySelector('[data-expiry]')).toBeNull();
     expect(rowOf('c4').querySelector('[data-expiry]')?.getAttribute('data-expiry')).toBe('expired');
     expect(screen.getByTestId('expiry-banner').textContent).toBe(vi_['adm.certificates.expiring.banner'].replace('{count}', '1').replace('{days}', '30'));
+  });
+
+  it('tells the expiry and the status of a certificate on pills of the kit, and keeps the register in a scroll region of its own', async () => {
+    mount(<CertificatesScreen route={ROUTE} />, withReads(harness(() => new Error('no read'))), MANAGER);
+    await ready();
+    expect(rowOf('c1').querySelector('[data-expiry="expiring"] .ui-pill')?.className).toContain('ui-tone-warning');
+    expect(rowOf('c4').querySelector('[data-expiry="expired"] .ui-pill')?.className).toContain('ui-tone-danger');
+    expect(screen.getByRole('region', { name: translator.t('w2adm.certificates.table.caption') })).toBeTruthy();
   });
 
   it('shows no banner when nothing ends soon, and the empty state for an empty register', async () => {

@@ -13,6 +13,10 @@ import { useDecide, useHeadcount, usePropose, useReorganization, useReorganizati
 import { decisionLabel, formProblemMessage, kindLabel, problemMessage, statusLabel, statusTone, stepLabel, wizardStepLabel } from './labels';
 import { APPROVE_PERMISSION, KINDS, PROPOSE_PERMISSION, READ_PERMISSION, REASON_MIN, UNIT_TYPES, WIZARD_STEPS, decisionsFor, describeProblem, emptyForm, formProblems, problemsOfStep, readMissing, stepCounts, toBody } from './model';
 import type { Form, FormProblem, ReorganizationView, WizardStep } from './model';
+import { SectionCard, StatusPill } from '../../../ui';
+import { KitTable } from '../KitTable';
+import { toneOfPill } from '../kit-tone';
+import '../adm-kit.css';
 import './reorganization.css';
 
 /**
@@ -49,14 +53,14 @@ function ReorganizationContent({ route }: ScreenProps) {
           <p>{t('adm.reorg.subtitle')}</p>
         </div>
         {mayPropose ? (
-          <button type="button" className="primary" data-action="new" onClick={() => setWizard(true)}>
+          <button type="button" className="ui-button ui-button--primary" data-action="new" onClick={() => setWizard(true)}>
             {t('adm.reorg.new.action')}
           </button>
         ) : null}
       </div>
       <StateBoundary state={state} onRetry={() => void list.refetch()}>
-        <div className="card">
-          <table className="table" data-testid="reorganizations">
+        <SectionCard title={t('w2adm.reorg.section.title')}>
+          <KitTable caption={t('w2adm.reorg.table.caption')} testId="reorganizations">
             <thead>
               <tr>
                 <th scope="col">{t('adm.reorg.column.kind')}</th>
@@ -66,7 +70,7 @@ function ReorganizationContent({ route }: ScreenProps) {
                 <th scope="col">{t('adm.reorg.column.basis')}</th>
                 <th scope="col">{t('adm.reorg.column.status')}</th>
                 <th scope="col">
-                  <span className="sr-only">{t('adm.reorg.column.actions')}</span>
+                  {t('adm.reorg.column.actions')}
                 </th>
               </tr>
             </thead>
@@ -79,8 +83,8 @@ function ReorganizationContent({ route }: ScreenProps) {
                   <td>{moment(row.effectiveFrom)}</td>
                   <td>{row.legalBasisRef}</td>
                   <td>
-                    <span className={`pill ${statusTone(row.status)}`} data-testid="status">
-                      {statusLabel(t, row.status)}
+                    <span data-testid="status">
+                      <StatusPill tone={toneOfPill(`pill ${statusTone(row.status)}`)}>{statusLabel(t, row.status)}</StatusPill>
                     </span>
                   </td>
                   <td>
@@ -88,7 +92,7 @@ function ReorganizationContent({ route }: ScreenProps) {
                       {t('adm.reorg.open.action')}
                     </button>{' '}
                     {row.mayDecide && permissions?.includes(APPROVE_PERMISSION) !== false && mode !== 'READ_ONLY' ? (
-                      <button type="button" className="primary" data-action="decide" onClick={() => setDeciding(row)}>
+                      <button type="button" className="ui-button ui-button--primary" data-action="decide" onClick={() => setDeciding(row)}>
                         {t('adm.reorg.decide.action')}
                       </button>
                     ) : null}
@@ -96,8 +100,8 @@ function ReorganizationContent({ route }: ScreenProps) {
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+          </KitTable>
+        </SectionCard>
         {opened === undefined ? null : <Timeline view={detail.data} loading={detail.isLoading} failed={detail.isError} />}
       </StateBoundary>
       {wizard ? <Wizard onClose={() => setWizard(false)} /> : null}
@@ -117,8 +121,8 @@ function Timeline({ view, loading, failed }: { view: ReorganizationView | undefi
     );
   const counts = stepCounts(view.steps);
   return (
-    <div className="card" data-testid="timeline" data-for={view.id}>
-      <h2>{t('adm.reorg.timeline.title')}</h2>
+    <SectionCard title={t('adm.reorg.timeline.title')}>
+    <div data-testid="timeline" data-for={view.id}>
       <p className="sub">{t('adm.reorg.timeline.people', { proposer: view.requestedByName === '' ? t('adm.reorg.none') : view.requestedByName, approver: view.approvedByName === '' ? t('adm.reorg.none') : view.approvedByName })}</p>
       {view.decisionReason === null ? null : <p className="sub">{view.decisionReason}</p>}
       {counts.length === 0 ? (
@@ -145,6 +149,7 @@ function Timeline({ view, loading, failed }: { view: ReorganizationView | undefi
         </p>
       ) : null}
     </div>
+    </SectionCard>
   );
 }
 

@@ -11,6 +11,9 @@ import { useQueryRuns } from './hooks';
 import { runModeLabel, runStatusLabel } from './query-log-labels';
 import { EMPTY_RUN_FILTER, LOG_PERMISSION, RUN_STATUSES, summarise } from './query-log-model';
 import type { RunFilter, RunStatus } from './query-log-model';
+import './bi-kit.css';
+import { StatusPill } from '../../ui';
+import { runStatusTone } from './tones';
 
 const NONE = '—';
 const stamp = (value: string): string => value.slice(0, 19).replace('T', ' ');
@@ -64,7 +67,7 @@ function QueryLogContent({ route }: ScreenProps) {
           <input id="log-period" value={form.period} onChange={(event) => setForm({ ...form, period: event.target.value })} />
         </Field>
         <div className="formfooter">
-          <button type="submit" className="primary" disabled={log.isFetching}>
+          <button type="submit" className="ui-button ui-button--primary" disabled={log.isFetching}>
             {t('bi.log.apply')}
           </button>
         </div>
@@ -93,7 +96,7 @@ function QueryLogContent({ route }: ScreenProps) {
                 <td>{run.asOfPeriod}</td>
                 <td>{runModeLabel(t, run.mode)}</td>
                 <td>
-                  <span className="pill">{runStatusLabel(t, run.status)}</span>
+                  <StatusPill tone={runStatusTone(run.status)}>{runStatusLabel(t, run.status)}</StatusPill>
                   {run.errorCode === null ? null : <p className="sub">{run.errorCode}</p>}
                 </td>
                 <td>{run.durationMs === null ? NONE : t('bi.log.ms', { ms: run.durationMs })}</td>

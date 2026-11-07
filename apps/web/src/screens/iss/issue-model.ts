@@ -422,6 +422,68 @@ export function dueStateOf(line: Pick<IssueLine, 'status' | 'dueAt' | 'overdueSi
   return due - now.getTime() <= DAY_MS ? 'dueSoon' : 'onTrack';
 }
 
+/** The tone of the pill of a status, of a severity and of a deadline state; the pill always carries the words too. */
+export type IssueTone = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
+
+export function statusToneOf(status: IssueStatus): IssueTone {
+  switch (status) {
+    case 'ESCALATED':
+      return 'danger';
+    case 'PENDING_VERIFICATION':
+    case 'REOPENED':
+      return 'warning';
+    case 'CLOSED':
+      return 'success';
+    case 'OPEN':
+    case 'ASSIGNED':
+    case 'IN_PROGRESS':
+      return 'info';
+  }
+}
+
+export function severityToneOf(severity: Severity): IssueTone {
+  switch (severity) {
+    case 'CRITICAL':
+      return 'danger';
+    case 'HIGH':
+      return 'warning';
+    case 'MEDIUM':
+      return 'info';
+    case 'LOW':
+      return 'neutral';
+  }
+}
+
+export function dueToneOf(state: DueState): IssueTone {
+  switch (state) {
+    case 'overdue':
+      return 'danger';
+    case 'dueSoon':
+      return 'warning';
+    case 'onTrack':
+      return 'success';
+    case 'closed':
+      return 'neutral';
+  }
+}
+
+/**
+ * The stripe of a row or a card of an issue that is still open, from the severity defaults of the alert centre (design.md): an SLA breach escalated to level 3 is URGENT, a breach at level 1-2 or
+ * an overdue issue needs action. An issue that is closed, or that is on time and not escalated, has no stripe.
+ */
+export function stripeOf(line: Pick<IssueLine, 'status' | 'dueAt' | 'overdueSince' | 'escalationLevel'>, now: Date): 'URGENT' | 'ACTION' | null {
+  if (line.status === 'CLOSED') return null;
+  if (line.escalationLevel >= 3) return 'URGENT';
+  if (line.escalationLevel > 0 || dueStateOf(line, now) === 'overdue') return 'ACTION';
+  return null;
+}
+
+/** The calendar day (YYYY-MM-DD) of an instant in the time zone of the business (UTC+7). */
+export function businessDay(instant: Date | string): string {
+  const date = typeof instant === 'string' ? new Date(instant) : instant;
+  return Number.isNaN(date.getTime()) ? '' : new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok' }).format(date);
+}
+
 /** The address of the workspace of an issue. */
 export function workspaceLink(issueId: string): string {
   return `${WORKSPACE_PATH}?${new URLSearchParams({ id: issueId }).toString()}`;

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../i18n';
-import { Field } from './components';
+import { Field, Pill } from './components';
+import { SectionCard } from '../../ui';
 import { useRetireGateRule } from './gate-hooks';
 import { gateLabel, gateProblemMessage, requirementLabel } from './gate-labels';
 import { canRetire, describeGateProblem, rulePhase, rulesByGate, validateRetireDate } from './gate-model';
@@ -30,8 +31,8 @@ export function GateRulesTable({ rules, today, mayRetire }: GateRulesTableProps)
   return (
     <>
       {rulesByGate(rules, today).map((group) => (
-        <div className="card" key={group.gateCode} data-gate={group.gateCode}>
-          <h2>{gateLabel(t, group.gateCode)}</h2>
+        <div key={group.gateCode} data-gate={group.gateCode}>
+          <SectionCard title={gateLabel(t, group.gateCode)}>
           <table className="table" aria-label={t('pmt.gate.table.aria', { gate: gateLabel(t, group.gateCode) })}>
             <thead>
               <tr>
@@ -52,6 +53,7 @@ export function GateRulesTable({ rules, today, mayRetire }: GateRulesTableProps)
               ))}
             </tbody>
           </table>
+          </SectionCard>
         </div>
       ))}
     </>
@@ -80,7 +82,7 @@ function RuleRow({ rule, today, mayRetire, open, onOpen, onClose }: RuleRowProps
         <td>{requirementLabel(t, rule.requirement)}</td>
         <td>{applicabilityText(t, rule.appliesTo)}</td>
         <td>
-          {validity(rule)} <span className={phase === 'inForce' ? 'pill' : 'pill gray'}>{phaseLabel(t, phase)}</span>
+          {validity(rule)} <Pill tone={phase === 'inForce' ? 'success' : 'gray'}>{phaseLabel(t, phase)}</Pill>
         </td>
         <td>{rule.legalBasis}</td>
         <td className="row-actions">

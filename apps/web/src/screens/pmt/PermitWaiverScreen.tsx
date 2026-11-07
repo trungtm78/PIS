@@ -9,6 +9,7 @@ import { Field } from './components';
 import { usePermitTypes } from './hooks';
 import { groupTypes, vietnamToday } from './model';
 import { WaiverGrantForm } from './WaiverGrantForm';
+import { FilterPanel } from '../../ui';
 import { WaiversTable } from './WaiversTable';
 import { useWaivers } from './waiver-hooks';
 import { waiverStatusLabel } from './waiver-labels';
@@ -55,7 +56,7 @@ function PermitWaiverContent({ route }: ScreenProps) {
       </div>
       <StateBoundary state={state} onRetry={() => void waivers.refetch()}>
         <div className="stack">
-          <div className="card">
+          <FilterPanel applied={filter.status === '' ? 0 : 1}>
             <form className="cap-filters" role="search" aria-label={t('pmt.waiver.filters.title')} onSubmit={(event) => event.preventDefault()}>
               <Field id="waiver-status-filter" label={t('pmt.waiver.filters.status.label')} error={undefined}>
                 <select id="waiver-status-filter" value={filter.status} onChange={(event) => setFilter({ status: event.target.value as WaiverStatus | '' })}>
@@ -68,6 +69,8 @@ function PermitWaiverContent({ route }: ScreenProps) {
                 </select>
               </Field>
             </form>
+          </FilterPanel>
+          <div className="card">
             {shown.length === 0 ? (
               <p className="sub" data-testid="empty-waivers">
                 {t('pmt.waiver.empty.text')}

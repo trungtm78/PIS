@@ -15,6 +15,7 @@ import { advanceLabel, eventLabel, exceptionStatusLabel, formProblemMessage, pro
 import { INCIDENT_STATUSES, MEMBERS_PERMISSION, NO_FILTER, SEVERITIES, assignBody, decisionBody, describeProblem, emptyAssign, emptyDecision, emptyResolve, emptyVerify, referenceLines, validateAssign, validateDecision, validateResolve, validateVerify } from './model';
 import type { AssignForm, DecisionForm, ExceptionView, IncidentFilter, IncidentView, ResolveForm, VerifyForm } from './model';
 import '../dgv.css';
+import '../dgv-kit.css';
 
 const INCIDENT_PARAM = 'incident';
 
@@ -196,18 +197,18 @@ function WorkspaceContent({ route }: ScreenProps) {
           {acting ? (
             <div className="actions">
               {incident.actions.assign ? (
-                <button type="button" className="primary" data-action="assign" onClick={() => show({ kind: 'assign' })}>
+                <button type="button" className="ui-button ui-button--primary" data-action="assign" onClick={() => show({ kind: 'assign' })}>
                   {incident.assigneeId === null ? t('dgv.incident.assign.action') : t('dgv.incident.reassign.action')}
                 </button>
               ) : null}
               {incident.actions.advance === null ? null : incident.actions.advance === 'RESOLVED_PENDING_VERIFICATION' ? (
-                <button type="button" className="primary" data-action="resolve" onClick={() => show({ kind: 'resolve' })}>
+                <button type="button" className="ui-button ui-button--primary" data-action="resolve" onClick={() => show({ kind: 'resolve' })}>
                   {advanceLabel(t, incident.actions.advance)}
                 </button>
               ) : (
                 <button
                   type="button"
-                  className="primary"
+                  className="ui-button ui-button--primary"
                   data-action="advance"
                   disabled={transition.isPending}
                   onClick={() => {
@@ -220,7 +221,7 @@ function WorkspaceContent({ route }: ScreenProps) {
                 </button>
               )}
               {incident.actions.verify ? (
-                <button type="button" className="primary" data-action="verify" onClick={() => show({ kind: 'verify' })}>
+                <button type="button" className="ui-button ui-button--primary" data-action="verify" onClick={() => show({ kind: 'verify' })}>
                   {t('dgv.incident.verify.action')}
                 </button>
               ) : null}

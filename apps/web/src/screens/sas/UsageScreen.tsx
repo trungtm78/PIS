@@ -11,8 +11,12 @@ import { useUsage } from './usage/hooks';
 import { counterLabel, levelLabel, levelTone, unitLabel } from './usage/labels';
 import { READ_TENANT_USAGE_PERMISSION, levelOf, shareOf } from './usage/model';
 import type { SeatRow } from './usage/model';
+import { SectionCard, StatusPill } from '../../ui';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 import './tenants/sas.css';
 import './usage/usage.css';
+import { toneOfPill } from '../adm/kit-tone';
 
 /**
  * SAS-11: what a tenant used this month against its limits. The control plane (the Billing Operator, the System Admin) picks a tenant and also sees the
@@ -52,7 +56,7 @@ export default function UsageScreen({ route }: ScreenProps) {
         <td>{seat.used}</td>
         <td>{seat.limit ?? t('sas.usage.limit.none')}</td>
         <td>
-          <span className={toneClass(levelTone(level))}>{levelLabel(t, level)}</span>
+          <StatusPill tone={toneOfPill(toneClass(levelTone(level)))}>{levelLabel(t, level)}</StatusPill>
           {share === undefined ? null : <small className="sub"> {t('sas.usage.share.text', { percent: share })}</small>}
         </td>
       </tr>
@@ -92,13 +96,11 @@ export default function UsageScreen({ route }: ScreenProps) {
       <StateBoundary state={state} onRetry={() => void (control && chosen === undefined ? tenants.refetch() : usage.refetch())}>
         {data === undefined ? null : (
           <>
-            <div className="card">
-              <h2>{t('sas.usage.meters.title')}</h2>
+            <SectionCard title={t('sas.usage.meters.title')}>
               <p className="sub" data-window-start={data.windowStart}>
                 {t('sas.usage.window.text', { from: date(data.windowStart), until: date(new Date(new Date(data.windowEnd).getTime() - 1).toISOString()) })}
               </p>
-              <div className="tablewrap">
-                <table aria-label={t('sas.usage.meters.title')}>
+                <KitTable caption={t('w2sas.usage.table.meters')} aria-label={t('sas.usage.meters.title')}>
                   <thead>
                     <tr>
                       <th>{t('sas.usage.col.meter')}</th>
@@ -122,20 +124,17 @@ export default function UsageScreen({ route }: ScreenProps) {
                           <td>{meter.used}</td>
                           <td>{meter.limit ?? t('sas.usage.limit.none')}</td>
                           <td>
-                            <span className={toneClass(levelTone(level))}>{levelLabel(t, level)}</span>
+                            <StatusPill tone={toneOfPill(toneClass(levelTone(level)))}>{levelLabel(t, level)}</StatusPill>
                             {share === undefined ? null : <small className="sub"> {t('sas.usage.share.text', { percent: share })}</small>}
                           </td>
                         </tr>
                       );
                     })}
                   </tbody>
-                </table>
-              </div>
-            </div>
-            <div className="card">
-              <h2>{t('sas.usage.seats.title')}</h2>
-              <div className="tablewrap">
-                <table aria-label={t('sas.usage.seats.title')}>
+                </KitTable>
+            </SectionCard>
+            <SectionCard title={t('sas.usage.seats.title')}>
+                <KitTable caption={t('w2sas.usage.table.seats')} aria-label={t('sas.usage.seats.title')}>
                   <thead>
                     <tr>
                       <th>{t('sas.usage.col.seats')}</th>
@@ -148,20 +147,17 @@ export default function UsageScreen({ route }: ScreenProps) {
                     {seatRow('staff', t('sas.usage.seats.staff'), data.seats)}
                     {seatRow('guests', t('sas.usage.seats.guests'), data.guestSeats)}
                   </tbody>
-                </table>
-              </div>
+                </KitTable>
               <p className="sub">{t('sas.usage.seats.note')}</p>
-            </div>
+            </SectionCard>
             {data.recentEvents === undefined ? null : (
-              <div className="card">
-                <h2>{t('sas.usage.events.title')}</h2>
+              <SectionCard title={t('sas.usage.events.title')}>
                 {data.recentEvents.length === 0 ? (
                   <p className="sub" role="status">
                     {t('sas.usage.events.empty')}
                   </p>
                 ) : (
-                  <div className="tablewrap">
-                    <table aria-label={t('sas.usage.events.title')}>
+                    <KitTable caption={t('w2sas.usage.table.events')} aria-label={t('sas.usage.events.title')}>
                       <thead>
                         <tr>
                           <th>{t('sas.usage.col.occurred')}</th>
@@ -186,10 +182,9 @@ export default function UsageScreen({ route }: ScreenProps) {
                           </tr>
                         ))}
                       </tbody>
-                    </table>
-                  </div>
+                    </KitTable>
                 )}
-              </div>
+              </SectionCard>
             )}
           </>
         )}

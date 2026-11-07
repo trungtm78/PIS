@@ -55,6 +55,10 @@ describe('AUD-06 recommendations and assignment', () => {
     const badges = screen.getAllByTestId('late-badge');
     expect(badges.length).toBe(1);
     expect(badges[0]?.textContent).toMatch(/^Quá hạn \d+ ngày \(hạn 2020-01-01\)$/);
+    // Only the late row carries the stripe.
+    expect(rowOf('KN-001').getAttribute('data-severity')).toBe('ACTION');
+    expect(rowOf('KN-002').getAttribute('data-severity')).toBeNull();
+    expect(rowOf('KN-003').getAttribute('data-severity')).toBeNull();
   });
 
   it('offers the assignment to a leader for what is OPEN or ASSIGNED, and the dispute and the answer to whoever holds that permission', async () => {

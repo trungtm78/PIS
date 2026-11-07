@@ -14,6 +14,7 @@ import { useRequests, useRouteDecision } from '../hooks';
 import { classificationLabel, routeLabel } from '../labels';
 import { CLASSIFICATIONS, ROUTES, vietnamDay } from '../llm-model';
 import { GUARDRAIL_PATH, isError, matches, maskPersonal, shortId } from './model';
+import '../llm-kit.css';
 
 const holds = (permissions: readonly string[] | undefined, permission: string): boolean => permissions === undefined || permissions.includes(permission);
 
@@ -137,7 +138,7 @@ function Traces() {
         </div>
         {rows.length === 0 ? <p data-testid="trace-none">{t('llm.trace.none.notice')}</p> : null}
         {requests.hasNextPage ? (
-          <button type="button" className="btn" data-testid="trace-more" disabled={requests.isFetchingNextPage} onClick={() => void requests.fetchNextPage()}>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid="trace-more" disabled={requests.isFetchingNextPage} onClick={() => void requests.fetchNextPage()}>
             {t('llm.requests.more')}
           </button>
         ) : null}

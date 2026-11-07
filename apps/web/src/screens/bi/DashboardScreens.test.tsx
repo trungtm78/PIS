@@ -202,6 +202,14 @@ describe('BI-03 builder of a dashboard (ST-BI-005)', () => {
     return h;
   };
 
+  it('puts the versions, the preview and the form in section cards, each with its title as a level 2 heading', async () => {
+    open();
+    await screen.findByTestId('versions');
+    const titles = screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent);
+    expect(titles).toEqual(expect.arrayContaining([vi_['bi.dash.builder.versions'], vi_['bi.dash.builder.preview'], vi_['bi.dash.builder.form']]));
+    expect(screen.getByRole('form', { name: vi_['bi.dash.builder.form'] })).toBeTruthy();
+  });
+
   it('opens the dashboard of the address with its versions and a form that starts from the latest, and previews the layout with a table of the tiles', async () => {
     open();
     const versions = within(await screen.findByTestId('versions')).getAllByRole('row').slice(1);
@@ -518,6 +526,19 @@ describe('BI-04 builder of a chart (ST-BI-005, UAT-AC32)', () => {
     ],
     drill_token: 'root',
     ...overrides,
+  });
+
+  it('colours the series by a class of the tokens of the design and not by a hex written in the picture, and names the period and the snapshot in the context bar', async () => {
+    const h = client({ dashboards: [] }, () => ratio());
+    mount(<ChartBuilderScreen route={CHART} />, h, { permissions: VIEW });
+    const bar = await screen.findByRole('group', { name: vi_['ui.contextBar.label'] });
+    await waitFor(() => expect(within(bar).getByText('2026-10')).toBeTruthy());
+    await userEvent.setup().click(await screen.findByRole('button', { name: vi_['bi.chart.draw'] }));
+    const result = await screen.findByTestId('chart-result');
+    const bars = [...result.querySelectorAll('rect')];
+    expect(bars.map((rect) => rect.getAttribute('class'))).toEqual(['bi-series-0', 'bi-series-1']);
+    expect(bars.every((rect) => rect.getAttribute('fill') === null)).toBe(true);
+    expect(within(result).getByRole('heading', { level: 2 })).toBeTruthy();
   });
 
   it('AC-ST-BI-005-2: UAT-AC32 draws a ratio from the sums of numerator and denominator, with the period and the snapshot on the chart and the table beside it', async () => {

@@ -23,25 +23,25 @@
 }
 .prj-back-link a {
   font-size: 11px;
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }
 .prj-badge {
   display: inline-block;
   padding: 2px 8px;
-  border: 1px solid var(--shell-line, #e4e0e6);
+  border: 1px solid var(--mv-color-border);
   border-radius: 999px;
   font-size: 12px;
   white-space: nowrap;
 }
 .prj-badge.warning {
-  border-color: var(--shell-warning, #b45309);
+  border-color: var(--mv-color-warning);
 }
 .prj-tabs {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
   margin: 16px 0;
-  border-bottom: 1px solid var(--shell-line, #e4e0e6);
+  border-bottom: 1px solid var(--mv-color-border);
 }
 .prj-tabs button {
   padding: 8px 12px;
@@ -51,7 +51,7 @@
   cursor: pointer;
 }
 .prj-tabs button[aria-selected='true'] {
-  border-bottom-color: var(--shell-accent, #5b2a86);
+  border-bottom-color: var(--mv-color-primary);
   font-weight: 600;
 }
 .prj-facts {
@@ -74,7 +74,7 @@
   flex: 0 0 260px;
   min-width: 0;
   padding: 10px;
-  border: 1px solid var(--shell-line, #e4e0e6);
+  border: 1px solid var(--mv-color-border);
   border-radius: 8px;
 }
 .prj-column-head {
@@ -99,7 +99,7 @@
   display: grid;
   gap: 6px;
   padding: 10px;
-  border: 1px solid var(--shell-line, #e4e0e6);
+  border: 1px solid var(--mv-color-border);
   border-radius: 8px;
   overflow-wrap: anywhere;
 }
@@ -144,17 +144,17 @@
 .prj-segment span {
   min-width: 28px;
   padding: 4px 8px;
-  border: 1px solid var(--shell-line, #e4e0e6);
+  border: 1px solid var(--mv-color-border);
   text-align: center;
 }
 .prj-segment input:checked + span {
-  border-color: var(--shell-accent, #5b2a86);
-  background: var(--shell-accent, #5b2a86);
-  color: var(--shell-accent-ink, #ffffff);
+  border-color: var(--mv-color-primary);
+  background: var(--mv-color-primary);
+  color: var(--mv-color-surface);
   font-weight: 600;
 }
 .prj-segment input:focus-visible + span {
-  outline: 2px solid var(--shell-accent, #5b2a86);
+  outline: 2px solid var(--mv-color-primary);
   outline-offset: 2px;
 }
 .prj-links {
@@ -177,7 +177,7 @@
 .prj-code {
   display: block;
   font-size: 12px;
-  color: var(--muted, #5b6770);
+  color: var(--mv-color-text-secondary);
 }
 
 .prj-matrix th,
@@ -187,4 +187,17 @@
 }
 .prj-matrix td strong {
   font-size: 18px;
+}
+
+.prj-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.prj-row-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }

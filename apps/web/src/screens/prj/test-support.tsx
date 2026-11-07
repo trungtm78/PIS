@@ -25,7 +25,18 @@ export const TENANT: SessionTenant = {
 export const MAKER = ['project.read', 'project.create', 'project.update'];
 export const READER = ['project.read'];
 
-export const routeOf = (id: string, req: string): WebRoute => ({ id, path: `/prj/${id.toLowerCase()}`, title: id, kind: 'list', area: 'investment', module: 'PRJ', group: 'Danh mục & theo dõi', role: 'workspace', parent: null, req });
+export const routeOf = (id: string, req: string): WebRoute => ({
+  id,
+  path: `/prj/${id.toLowerCase()}`,
+  title: id,
+  kind: 'list',
+  area: 'investment',
+  module: 'PRJ',
+  group: 'Danh mục & theo dõi',
+  role: 'workspace',
+  parent: null,
+  req,
+});
 
 const uuid = (family: string, n: number): string => `00000000-0000-4000-8000-${family}${String(n).padStart(8, '0')}`;
 export const UNIT_PROVINCE = uuid('0001', 1);
@@ -180,3 +191,9 @@ export function mount(screen: ReactElement, h: Harness, options: SessionOptions)
     ),
   };
 }
+
+const viParts = import.meta.glob<Record<string, string>>('../../i18n/parts/*.vi.json', { eager: true, import: 'default' });
+const viCatalogue = import.meta.glob<Record<string, string>>('../../i18n/vi.json', { eager: true, import: 'default' });
+/** The Vietnamese words of the catalogue and of the parts not folded into it yet, so a test reads a new key before and after the fold. */
+export const words: Record<string, string> = Object.assign({}, ...Object.values(viParts), ...Object.values(viCatalogue));
+export const word = (key: string): string => words[key] ?? key;

@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from '../../i18n';
 import type { Translator } from '../../i18n';
+import { KpiTile } from '../../ui';
+import type { Tone } from '../../ui';
 import { Field } from '../mne/components';
 import { vndText } from '../cap/model';
 import { billionsText } from './funding-model';
@@ -24,20 +26,28 @@ export function YearField({ years, year, onChange }: { years: readonly number[];
   );
 }
 
-/** An amount in billions, with the exact dong beside it; no amount is "no data" and is never written as zero. */
-export function Amount({ vnd, testId }: { vnd: string | null; testId?: string }): ReactNode {
+/**
+ * A figure of capital as a tile: the amount in billions with the exact dong under it and what else the caller says of it. No amount is "no data" on a neutral tile and is never written as zero.
+ * The wrapper carries the key of the card and the test id, so the tile stays one element for whoever looks for it.
+ */
+export function FundTile({ label, vnd, card, testId, tone, children }: { label: string; vnd: string | null; card?: string; testId?: string; tone?: Tone; children?: ReactNode }) {
   const { t, locale } = useTranslation();
-  if (vnd === null) {
-    return (
-      <span className="sub" data-testid={testId}>
-        {t('home.funding.card.none')}
-      </span>
-    );
-  }
   return (
-    <span data-testid={testId}>
-      <strong>{t('home.funding.card.amount', { value: billionsText(vnd, locale) })}</strong> <span className="sub">{t('home.funding.card.exact', { value: vndText(vnd, locale) })}</span>
-    </span>
+    <div className="home-fund-tile" data-testid={testId} {...(card === undefined ? {} : { 'data-card': card })}>
+      <KpiTile
+        label={label}
+        value={vnd === null ? t('home.funding.card.none') : t('home.funding.card.amount', { value: billionsText(vnd, locale) })}
+        tone={vnd === null ? 'neutral' : (tone ?? 'info')}
+        sub={
+          vnd === null && children === undefined ? undefined : (
+            <>
+              {vnd === null ? null : <span className="home-fund-line">{t('home.funding.card.exact', { value: vndText(vnd, locale) })}</span>}
+              {children}
+            </>
+          )
+        }
+      />
+    </div>
   );
 }
 

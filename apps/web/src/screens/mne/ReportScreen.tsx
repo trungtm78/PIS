@@ -12,7 +12,10 @@ import { describeReportProblem, draftsOf, drillPath, isEditable, missingCells, n
 import type { Drafts } from './report-model';
 import { vietnamToday, yearsAround } from './model';
 import type { ReportField, ReportView } from './types';
+import { StatusPill } from '../../ui';
+import { reportStatusTone } from './tones';
 import './mne.css';
+import './mne-kit.css';
 
 type Done = 'saved' | 'submitted';
 
@@ -35,7 +38,7 @@ function ReportContent({ route }: ScreenProps) {
           <p>{t('mne.report.page.subtitle')}</p>
         </div>
         {reportId === '' ? null : (
-          <button type="button" className="btn" onClick={() => setParams({})}>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setParams({})}>
             {t('mne.report.back')}
           </button>
         )}
@@ -95,7 +98,7 @@ function ReportPicker({ onOpen }: { onOpen: (id: string) => void }) {
                   <td>{item.dueDate}</td>
                   <td>{reportStatusLabel(t, item.status)}</td>
                   <td>
-                    <button type="button" className="btn" onClick={() => onOpen(item.reportId)}>
+                    <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => onOpen(item.reportId)}>
                       {t('mne.report.picker.open')}
                     </button>
                   </td>
@@ -106,7 +109,7 @@ function ReportPicker({ onOpen }: { onOpen: (id: string) => void }) {
         </div>
         {list.hasNextPage ? (
           <div className="mne-actions">
-            <button type="button" className="btn" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
               {t('mne.calendar.more.action')}
             </button>
           </div>
@@ -191,8 +194,8 @@ function ReportBody({ report, done, actions }: BodyProps) {
     <div className="card" data-report-status={report.status}>
       <div className="mne-badges">
         <strong>{report.formTitle}</strong>
-        <span className="pill" data-testid="report-status">
-          {reportStatusLabel(t, report.status)}
+        <span data-testid="report-status">
+          <StatusPill tone={reportStatusTone(report.status)}>{reportStatusLabel(t, report.status)}</StatusPill>
         </span>
         <ConfirmationLabel awaiting={report.awaitingConfirmation} cxnRefs={report.cxnRefs} />
       </div>
@@ -268,10 +271,10 @@ function ReportBody({ report, done, actions }: BodyProps) {
             </p>
           )}
           <div className="mne-actions">
-            <button type="button" className="btn" disabled={busy || !dirty} onClick={() => actions.save(report, draft)}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={busy || !dirty} onClick={() => actions.save(report, draft)}>
               {busy ? t('mne.report.action.working') : t('mne.report.action.save')}
             </button>
-            <button type="button" className="btn primary" disabled={busy || !hasSnapshot || missing.length > 0} onClick={() => void actions.handIn(report, draft, dirty)}>
+            <button type="button" className="ui-button ui-button--primary" disabled={busy || !hasSnapshot || missing.length > 0} onClick={() => void actions.handIn(report, draft, dirty)}>
               {t('mne.report.action.submit')}
             </button>
           </div>
@@ -314,8 +317,8 @@ function FieldRow({ report, field, editable, draft, onDraft }: RowProps) {
           <span className="sub">{t('mne.report.field.written')}</span>
         ) : (
           <>
-            <span className="pill" data-testid={`locked-${field.key}`}>
-              {t('mne.report.field.locked')}
+            <span data-testid={`locked-${field.key}`}>
+              <StatusPill tone="neutral">{t('mne.report.field.locked')}</StatusPill>
             </span>{' '}
             {drill === undefined ? (
               <span className="sub">{sourceLabel(t, field.source)}</span>

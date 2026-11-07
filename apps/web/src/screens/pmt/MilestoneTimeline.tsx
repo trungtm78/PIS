@@ -1,4 +1,5 @@
 import { useTranslation } from '../../i18n';
+import { SectionCard } from '../../ui';
 import { stepLabel } from './dossier-labels';
 import type { MilestoneView } from './dossier-model';
 import './pmt.css';
@@ -7,8 +8,8 @@ import './pmt.css';
 export function MilestoneTimeline({ milestones }: { milestones: readonly MilestoneView[] }) {
   const { t } = useTranslation();
   return (
-    <div className="card" data-testid="timeline">
-      <h2>{t('pmt.permit.timeline.title')}</h2>
+    <div data-testid="timeline">
+      <SectionCard title={t('pmt.permit.timeline.title')}>
       {milestones.length === 0 ? (
         <p className="sub" data-testid="no-milestones">
           {t('pmt.permit.timeline.empty.text')}
@@ -30,6 +31,7 @@ export function MilestoneTimeline({ milestones }: { milestones: readonly Milesto
           ))}
         </ol>
       )}
+      </SectionCard>
     </div>
   );
 }

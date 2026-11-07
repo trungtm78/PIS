@@ -7,6 +7,8 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { ContextBar, DataTable, SectionCard, StatusPill } from '../../../ui';
+import type { DataTableColumn, Tone } from '../../../ui';
 import { DISBURSEMENT_DOMAIN, DISBURSEMENT_REQUIRED_TERMS, definitionState } from '../../mdm/model';
 import type { GlossaryTermView } from '../../mdm/model';
 import { useGlossaryTerms } from '../../mdm/hooks';
@@ -71,12 +73,81 @@ export default function DefinitionsScreen({ route }: ScreenProps) {
   return <DefinitionsContent key={tenantId ?? 'none'} route={route} />;
 }
 
+
+const termTone = (status: GlossaryTermView['status'] | undefined): Tone => (status === 'PUBLISHED' ? 'success' : status === 'REJECTED' ? 'danger' : status === 'DEPRECATED' ? 'neutral' : 'warning');
+
 function DefinitionsContent({ route }: ScreenProps) {
   const { t } = useTranslation();
+  const tenant = useSession().tenant;
   const glossary = useGlossaryTerms();
   const state = useScreenState({ isLoading: glossary.isLoading, error: glossary.error, data: glossary.data, isEmpty: () => false });
   const terms = (glossary.data ?? []).filter((term) => term.domain === DISBURSEMENT_DOMAIN);
   const signed = definitionState(glossary.data ?? [], DISBURSEMENT_DOMAIN)?.signed === true;
+  const pending = t('dis.definitions.pending', { session: DIS_GOLDEN_SESSION });
+  const termColumns: DataTableColumn<string>[] = [
+    {
+      key: 'term',
+      header: t('dis.definitions.col.term'),
+      pinned: true,
+      render: (code) => {
+        const term = termOf(terms, code);
+        return (
+          <span data-term={code} data-status={term?.status ?? 'MISSING'}>
+            <strong>{term?.termVi ?? code}</strong>
+            <span className="dis-code">{code}</span>
+          </span>
+        );
+      },
+    },
+    { key: 'definition', header: t('dis.definitions.col.definition'), render: (code) => termOf(terms, code)?.definition ?? t('dis.definitions.term.none') },
+    {
+      key: 'formula',
+      header: t('dis.definitions.col.formula'),
+      render: (code) => {
+        const term = termOf(terms, code);
+        return term?.formulaRef === null || term === undefined ? <span>—</span> : <code>{term.formulaRef}</code>;
+      },
+    },
+    {
+      key: 'status',
+      header: t('dis.definitions.col.status'),
+      render: (code) => {
+        const term = termOf(terms, code);
+        return (
+          <>
+            <StatusPill tone={termTone(term?.status)}>{termStatusLabel(t, term?.status)}</StatusPill>
+            {term?.status === 'PUBLISHED' ? null : <span className="dis-code">{t('dis.definitions.term.awaiting', { session: DIS_GOLDEN_SESSION })}</span>}
+          </>
+        );
+      },
+    },
+  ];
+  const fixtureColumns: DataTableColumn<GoldenFixture>[] = [
+    {
+      key: 'id',
+      header: t('dis.definitions.fixtures.col.id'),
+      pinned: true,
+      render: (fixture) => (
+        <span data-fixture={fixture.id}>
+          <strong>{fixture.id}</strong>
+          <span className="dis-code">{fixture.test}</span>
+        </span>
+      ),
+    },
+    { key: 'case', header: t('dis.definitions.fixtures.col.case'), render: (fixture) => fixtureTitle(t, fixture.id) },
+    { key: 'rule', header: t('dis.definitions.fixtures.col.rule'), render: (fixture) => fixture.rule },
+    { key: 'given', header: t('dis.definitions.fixtures.col.given'), render: (fixture) => <code data-testid={`given-${fixture.id}`}>{JSON.stringify(fixture.given)}</code> },
+    {
+      key: 'expected',
+      header: t('dis.definitions.fixtures.col.expected'),
+      render: (fixture) => (
+        <>
+          <code data-testid={`expected-${fixture.id}`}>{JSON.stringify(fixture.expected)}</code>
+          <StatusPill tone="warning">{pending}</StatusPill>
+        </>
+      ),
+    },
+  ];
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       <div className="heading">
@@ -85,89 +156,34 @@ function DefinitionsContent({ route }: ScreenProps) {
           <p>{t('dis.definitions.page.subtitle')}</p>
         </div>
         {glossary.data === undefined ? null : signed ? (
-          <span className="pill green" data-testid="definitions-signed">
-            {t('dis.definitions.signed')}
+          <span data-testid="definitions-signed">
+            <StatusPill tone="success">{t('dis.definitions.signed')}</StatusPill>
           </span>
         ) : (
-          <span className="pill warn" data-testid="definitions-pending" title={t('dis.definitions.pending.title')}>
-            {t('dis.definitions.pending', { session: DIS_GOLDEN_SESSION })}
+          <span data-testid="definitions-pending" title={t('dis.definitions.pending.title')}>
+            <StatusPill tone="warning">{pending}</StatusPill>
           </span>
         )}
       </div>
+      <ContextBar
+        items={[
+          { label: t('dis.wr.ctx.scope'), value: tenant?.name ?? t('dis.wr.ctx.scope.all') },
+          { label: t('w2dis.definitions.ctx.session'), value: DIS_GOLDEN_SESSION },
+        ]}
+      />
       <StateBoundary state={state} onRetry={() => void glossary.refetch()}>
-        <section className="card" aria-labelledby="definitions-title">
-          <h2 id="definitions-title">{t('dis.definitions.terms.title')}</h2>
-          <p className="sub" data-testid="definitions-readonly">
-            {t('dis.definitions.readonly.note')} <Link to={GLOSSARY_PATH}>{t('dis.definitions.glossary.link')}</Link>
-          </p>
-          <div className="tablewrap">
-            <table className="table" aria-label={t('dis.definitions.terms.aria')} data-testid="definitions-table">
-              <thead>
-                <tr>
-                  <th scope="col">{t('dis.definitions.col.term')}</th>
-                  <th scope="col">{t('dis.definitions.col.definition')}</th>
-                  <th scope="col">{t('dis.definitions.col.formula')}</th>
-                  <th scope="col">{t('dis.definitions.col.status')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {DISBURSEMENT_REQUIRED_TERMS.map((code) => {
-                  const term = termOf(terms, code);
-                  return (
-                    <tr key={code} data-term={code} data-status={term?.status ?? 'MISSING'}>
-                      <td>
-                        {term?.termVi ?? code}
-                        <span className="dis-code">{code}</span>
-                      </td>
-                      <td>{term?.definition ?? t('dis.definitions.term.none')}</td>
-                      <td>{term?.formulaRef === null || term === undefined ? <span>—</span> : <code>{term.formulaRef}</code>}</td>
-                      <td>
-                        <span className={term?.status === 'PUBLISHED' ? 'pill green' : 'pill warn'}>{termStatusLabel(t, term?.status)}</span>
-                        {term?.status === 'PUBLISHED' ? null : <span className="dis-code">{t('dis.definitions.term.awaiting', { session: DIS_GOLDEN_SESSION })}</span>}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </section>
-        <section className="card" aria-labelledby="fixtures-title">
-          <h2 id="fixtures-title">{t('dis.definitions.fixtures.title')}</h2>
-          <p className="sub">{t('dis.definitions.fixtures.note', { session: DIS_GOLDEN_SESSION })}</p>
-          <div className="tablewrap">
-            <table className="table" aria-label={t('dis.definitions.fixtures.aria')} data-testid="fixtures-table">
-              <thead>
-                <tr>
-                  <th scope="col">{t('dis.definitions.fixtures.col.id')}</th>
-                  <th scope="col">{t('dis.definitions.fixtures.col.case')}</th>
-                  <th scope="col">{t('dis.definitions.fixtures.col.rule')}</th>
-                  <th scope="col">{t('dis.definitions.fixtures.col.given')}</th>
-                  <th scope="col">{t('dis.definitions.fixtures.col.expected')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {DIS_GOLDEN.map((fixture) => (
-                  <tr key={fixture.id} data-fixture={fixture.id}>
-                    <th scope="row">
-                      {fixture.id}
-                      <span className="dis-code">{fixture.test}</span>
-                    </th>
-                    <td>{fixtureTitle(t, fixture.id)}</td>
-                    <td>{fixture.rule}</td>
-                    <td>
-                      <code data-testid={`given-${fixture.id}`}>{JSON.stringify(fixture.given)}</code>
-                    </td>
-                    <td>
-                      <code data-testid={`expected-${fixture.id}`}>{JSON.stringify(fixture.expected)}</code>
-                      <span className="pill warn">{t('dis.definitions.pending', { session: DIS_GOLDEN_SESSION })}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
+        <div className="dis-w2-stack">
+          <SectionCard title={t('dis.definitions.terms.title')}>
+            <p className="dis-w2-note" data-testid="definitions-readonly">
+              {t('dis.definitions.readonly.note')} <Link to={GLOSSARY_PATH}>{t('dis.definitions.glossary.link')}</Link>
+            </p>
+            <DataTable caption={t('dis.definitions.terms.aria')} columns={termColumns} rows={[...DISBURSEMENT_REQUIRED_TERMS]} rowKey={(code) => code} />
+          </SectionCard>
+          <SectionCard title={t('dis.definitions.fixtures.title')}>
+            <p className="dis-w2-note">{t('dis.definitions.fixtures.note', { session: DIS_GOLDEN_SESSION })}</p>
+            <DataTable caption={t('dis.definitions.fixtures.aria')} columns={fixtureColumns} rows={[...DIS_GOLDEN]} rowKey={(fixture) => fixture.id} />
+          </SectionCard>
+        </div>
       </StateBoundary>
       <p className="prototype-note">{t('dis.definitions.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>

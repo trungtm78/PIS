@@ -154,6 +154,15 @@ describe('the pure rules of the registry screens (ST-LLM-001)', () => {
 });
 
 describe('LLM-02 providers (ST-LLM-001, LLM F2)', () => {
+  it('writes the status of a provider as a pill and the number of providers in the context bar', async () => {
+    mount(<ProvidersScreen route={PROVIDERS} />, client(normal()), { permissions: ADMIN });
+    const cards = await screen.findByTestId('provider-cards');
+    const pill = within(within(cards).getAllByTestId('provider-status')[0] as HTMLElement).getByText(/.+/).closest('.ui-pill');
+    expect(pill).not.toBeNull();
+    const bar = screen.getByRole('group', { name: vi_['ui.contextBar.label'] });
+    expect(within(bar).getByText('Số nhà cung cấp')).toBeTruthy();
+  });
+
   it('AC-ST-LLM-001-1: UAT-AC457 shows each provider with its route, highest class, agreement, D07 and status, and says international is public only', async () => {
     mount(<ProvidersScreen route={PROVIDERS} />, client(normal()), { permissions: ADMIN });
     const cards = await screen.findByTestId('provider-cards');
@@ -283,6 +292,19 @@ describe('LLM-03 model catalogue (ST-LLM-001, LLM F2)', () => {
     expect(rows[1]?.textContent).toContain(vi_['llm.modelStatus.approved']);
     expect(rows[1]?.textContent).not.toContain(vi_['llm.models.notUsable']);
     expect(screen.getByTestId('models-usable-note').textContent).toBe(vi_['llm.models.usableNote']);
+  });
+
+  it('shows the status of a model as a pill that says the word, counts the models in the context bar and the applied filter on the button of the panel', async () => {
+    const user = userEvent.setup();
+    const world = { ...normal(), models: [rawModel(), rawModel({ id: '00000000-0000-4000-8000-0000000000c3', provider_id: P2, model_id: 'intl-model' })] };
+    mount(<ModelsScreen route={MODELS} />, client(world), { permissions: ADMIN });
+    const table = await screen.findByTestId('model-table');
+    expect(within(table).getAllByText(vi_['llm.modelStatus.proposed'])[0]?.closest('.ui-pill')?.className).toContain('ui-tone-info');
+    const bar = screen.getByRole('group', { name: vi_['ui.contextBar.label'] });
+    expect(within(bar).getByText('Số mô hình đang hiện')).toBeTruthy();
+    expect(within(bar).getByText('2')).toBeTruthy();
+    await user.selectOptions(screen.getByLabelText(vi_['llm.models.filter']), P2);
+    expect(await screen.findByRole('button', { name: vi_['ui.filterPanel.toggleApplied'].replace('{count}', '1') })).toBeTruthy();
   });
 
   it('narrows the table to a provider', async () => {

@@ -10,6 +10,9 @@ import { classificationLabel, collectionStatusLabel, itemStatusLabel, problemMes
 import { CLASSIFICATIONS, EMPTY_COLLECTION, MANAGE_PERMISSION, describeProblem, validateCollection, versionProblem } from './model';
 import type { Classification, Collection, CollectionField, CollectionForm, FormProblem } from './model';
 import { unchanged } from '../../unsent';
+import '../llm-kit.css';
+import { StatusPill } from '../../../ui';
+import { pillTone } from '../pill-tone';
 
 const holds = (permissions: readonly string[] | undefined, permission: string, mode: string | undefined): boolean =>
   mode !== 'READ_ONLY' && (permissions === undefined || permissions.includes(permission));
@@ -174,7 +177,7 @@ function CreatePanel() {
         </p>
       ) : null}
       <div className="formfooter">
-        <button type="submit" className="primary" disabled={send.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={send.isPending}>
           {t('llm.knowledge.create.submit')}
         </button>
       </div>
@@ -262,7 +265,7 @@ function CollectionDetail({ collection, mayManage }: { collection: Collection; m
                     <code title={item.documentVersionId}>{item.documentVersionId.slice(0, SHORT_HASH)}</code>
                   </td>
                   <td>
-                    <span className={`pill ${item.status === 'INDEXED' ? 'green' : 'gray'}`}>{itemStatusLabel(t, item.status)}</span>
+                    <StatusPill tone={pillTone(item.status === 'INDEXED' ? 'green' : 'gray')}>{itemStatusLabel(t, item.status)}</StatusPill>
                     {item.stale ? (
                       <span className="pill amber" data-testid="stale">
                         {t('llm.knowledge.item.stale')}
@@ -313,7 +316,7 @@ function CollectionDetail({ collection, mayManage }: { collection: Collection; m
             </p>
           )}
           <div className="formfooter">
-            <button type="submit" className="primary" disabled={index.isPending}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={index.isPending}>
               {t('llm.knowledge.index.submit')}
             </button>
           </div>

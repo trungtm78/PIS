@@ -33,9 +33,13 @@ import type { DetailView, MigrationView, PlacementView, ReconciliationView } fro
 import { TenantPicker } from './subscription/TenantPicker';
 import { useTenantChoice } from './subscription/hooks';
 import { toneClass } from './tenants/labels';
+import { SectionCard, StatusPill } from '../../ui';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 import './tenants/sas.css';
 import './billing/billing.css';
 import './promotion/promotion.css';
+import { toneOfPill } from '../adm/kit-tone';
 
 type Doing = {
   what: 'approve' | 'abort';
@@ -231,8 +235,7 @@ function PromotionContent({ route, canManage }: ScreenProps & { canManage: boole
         </div>
       )}
       {canManage ? (
-        <div className="card">
-          <h2>{t('sas.promotion.start.title')}</h2>
+        <SectionCard title={t('sas.promotion.start.title')}>
           <p className="sub">{t('sas.promotion.start.rule')}</p>
           {open !== undefined ? (
             <p className="callout" role="status" data-open-migration>
@@ -256,11 +259,10 @@ function PromotionContent({ route, canManage }: ScreenProps & { canManage: boole
               onSubmit={submitStart}
             />
           )}
-        </div>
+        </SectionCard>
       ) : null}
       <StateBoundary state={state} onRetry={() => void migrations.refetch()}>
-        <div className="card">
-          <h2>{t('sas.promotion.list.title')}</h2>
+        <SectionCard title={t('sas.promotion.list.title')}>
           <p className="sub">{t('sas.promotion.list.rule')}</p>
           {items.length === 0 ? (
             <p className="sub" role="status">
@@ -268,7 +270,7 @@ function PromotionContent({ route, canManage }: ScreenProps & { canManage: boole
             </p>
           ) : (
             <div className="promotion-scroll">
-              <table className="table" data-migrations>
+              <KitTable caption={t('w2sas.promotion.table.migrations')} data-migrations>
                 <thead>
                   <tr>
                     <th scope="col">{t('sas.promotion.column.status')}</th>
@@ -284,7 +286,7 @@ function PromotionContent({ route, canManage }: ScreenProps & { canManage: boole
                   {items.map((entry) => (
                     <tr key={entry.id} data-migration-id={entry.id} data-status={entry.status} aria-current={entry.id === shownId ? 'true' : undefined}>
                       <td>
-                        <span className={toneClass(statusTone(entry.status))}>{statusLabel(t, entry.status)}</span>
+                        <StatusPill tone={toneOfPill(toneClass(statusTone(entry.status)))}>{statusLabel(t, entry.status)}</StatusPill>
                       </td>
                       <td>
                         <code>{targetName(t, placements.data, entry.toPlacementId)}</code>
@@ -312,7 +314,7 @@ function PromotionContent({ route, canManage }: ScreenProps & { canManage: boole
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </KitTable>
             </div>
           )}
           {migrations.hasNextPage ? (
@@ -322,11 +324,11 @@ function PromotionContent({ route, canManage }: ScreenProps & { canManage: boole
               </button>
             </div>
           ) : null}
-        </div>
+        </SectionCard>
         {shownId === undefined ? null : detail.error !== null ? (
           <div className="callout warning" role="alert">
             <p>{t('sas.promotion.detail.error')}</p>
-            <button type="button" onClick={() => void detail.refetch()}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => void detail.refetch()}>
               {t('sas.promotion.detail.retry.action')}
             </button>
           </div>
@@ -342,7 +344,7 @@ function PromotionContent({ route, canManage }: ScreenProps & { canManage: boole
               <div className="card">
                 <div className="row gap">
                   {canApprove(current.migration) ? (
-                    <button type="button" className="primary" disabled={busy} onClick={() => openAction('approve', current.migration)}>
+                    <button type="button" className="ui-button ui-button--primary" disabled={busy} onClick={() => openAction('approve', current.migration)}>
                       {t('sas.promotion.approve.action')}
                     </button>
                   ) : null}
@@ -373,7 +375,7 @@ function PromotionContent({ route, canManage }: ScreenProps & { canManage: boole
                       ) : null}
                     </div>
                     <div className="row gap">
-                      <button type="submit" className="primary" disabled={busy}>
+                      <button type="submit" className="ui-button ui-button--primary" disabled={busy}>
                         {acting.what === 'approve' ? t('sas.promotion.approve.confirm.action') : t('sas.promotion.abort.confirm.action')}
                       </button>
                       <button type="button" disabled={busy} onClick={() => setDoing(undefined)}>
@@ -521,7 +523,7 @@ function StartForm(props: StartFormProps) {
         ) : null}
       </div>
       <div className="row gap">
-        <button type="submit" className="primary" disabled={props.busy || !props.canStart}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={props.busy || !props.canStart}>
           {t('sas.promotion.start.submit.action')}
         </button>
       </div>
@@ -550,8 +552,8 @@ function MigrationFacts({ detail, placements, now, stamp }: FactsProps) {
             count: reconciliation.mismatchedTables.length,
           });
   return (
-    <div className="card" data-migration-detail data-status={migration.status}>
-      <h2>{t('sas.promotion.detail.title')}</h2>
+    <SectionCard title={t('sas.promotion.detail.title')}>
+      <div data-migration-detail data-status={migration.status}>
       <ol className="steps" data-steps aria-label={t('sas.promotion.steps.aria')}>
         {STEPS.map((step) => (
           <li key={step} data-step={step} data-state={stepState(migration.status, step)} aria-current={stepState(migration.status, step) === 'current' ? 'step' : undefined}>
@@ -562,7 +564,7 @@ function MigrationFacts({ detail, placements, now, stamp }: FactsProps) {
       <dl className="kv">
         <dt>{t('sas.promotion.field.status')}</dt>
         <dd data-field="status">
-          <span className={toneClass(statusTone(migration.status))}>{statusLabel(t, migration.status)}</span>
+          <StatusPill tone={toneOfPill(toneClass(statusTone(migration.status)))}>{statusLabel(t, migration.status)}</StatusPill>
           {migration.lastErrorCode === undefined ? null : (
             <small className="sub" data-last-error>
               {' · '}
@@ -590,7 +592,7 @@ function MigrationFacts({ detail, placements, now, stamp }: FactsProps) {
         </dd>
         <dt>{t('sas.promotion.field.result')}</dt>
         <dd data-field="result">
-          <span className={toneClass(reconciliation === undefined ? 'gray' : reconciliation.match ? 'ok' : 'red')}>{verdict}</span>
+          <StatusPill tone={toneOfPill(toneClass(reconciliation === undefined ? 'gray' : reconciliation.match ? 'ok' : 'red'))}>{verdict}</StatusPill>
           {migration.verifiedAt === undefined ? null : (
             <small className="sub">
               {' '}
@@ -655,7 +657,8 @@ function MigrationFacts({ detail, placements, now, stamp }: FactsProps) {
           </>
         )}
       </dl>
-    </div>
+      </div>
+    </SectionCard>
   );
 }
 
@@ -670,19 +673,20 @@ function ReconciliationCard({ reconciliation, onlyData, onOnlyData, stamp }: Rec
   const { t } = useTranslation();
   if (reconciliation === undefined) {
     return (
-      <div className="card" data-reconciliation>
-        <h2>{t('sas.promotion.recon.title')}</h2>
+      <SectionCard title={t('sas.promotion.recon.title')}>
+        <div data-reconciliation>
         <p className="sub" role="status">
           {t('sas.promotion.recon.none')}
         </p>
-      </div>
+        </div>
+      </SectionCard>
     );
   }
   const shown = onlyData ? reconciliation.tables.filter(isInteresting) : reconciliation.tables;
   const totals = moneyTotals(reconciliation.tables);
   return (
-    <div className="card" data-reconciliation data-match={reconciliation.match}>
-      <h2>{t('sas.promotion.recon.title')}</h2>
+    <SectionCard title={t('sas.promotion.recon.title')}>
+      <div data-reconciliation data-match={reconciliation.match}>
       <p className="sub">
         {t('sas.promotion.recon.rule', {
           at: stamp(reconciliation.measuredAt),
@@ -692,7 +696,7 @@ function ReconciliationCard({ reconciliation, onlyData, onOnlyData, stamp }: Rec
         <input type="checkbox" checked={onlyData} onChange={(event) => onOnlyData(event.target.checked)} /> {t('sas.promotion.recon.filter.label')}
       </label>
       <div className="promotion-scroll">
-        <table className="table" data-tables>
+        <KitTable caption={t('w2sas.promotion.table.tables')} data-tables>
           <thead>
             <tr>
               <th scope="col">{t('sas.promotion.recon.column.table')}</th>
@@ -725,7 +729,7 @@ function ReconciliationCard({ reconciliation, onlyData, onOnlyData, stamp }: Rec
                       ))}
                 </td>
                 <td data-result>
-                  <span className={toneClass(table.match ? 'ok' : 'red')}>{table.match ? t('sas.promotion.recon.ok') : t('sas.promotion.recon.differs')}</span>
+                  <StatusPill tone={toneOfPill(toneClass(table.match ? 'ok' : 'red'))}>{table.match ? t('sas.promotion.recon.ok') : t('sas.promotion.recon.differs')}</StatusPill>
                 </td>
               </tr>
             ))}
@@ -750,7 +754,7 @@ function ReconciliationCard({ reconciliation, onlyData, onOnlyData, stamp }: Rec
               <td />
             </tr>
           </tfoot>
-        </table>
+        </KitTable>
       </div>
       {reconciliation.unreadableTables.length === 0 ? null : (
         <p className="sub" data-unreadable>
@@ -759,6 +763,7 @@ function ReconciliationCard({ reconciliation, onlyData, onOnlyData, stamp }: Rec
           })}
         </p>
       )}
-    </div>
+      </div>
+    </SectionCard>
   );
 }

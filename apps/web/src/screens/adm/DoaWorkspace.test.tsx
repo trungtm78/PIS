@@ -84,7 +84,7 @@ const mount = (options: { matrices?: readonly DoaMatrixView[]; session?: Paramet
   const view = mountInSession(<DoaWorkspace route={ROUTE} matrices={options.matrices ?? MATRICES} units={UNITS} roles={ROLES} />, h, options.session ?? { permissions: BOTH });
   return { h, view };
 };
-const rowOf = (id: string): HTMLElement => document.querySelector(`[data-matrix-id="${id}"][data-status]`) as HTMLElement;
+const rowOf = (id: string): HTMLElement => document.querySelector(`[data-matrix-id="${id}"][data-status]`)?.closest("tr") as HTMLElement;
 const editor = (): HTMLElement => screen.getByTestId('editor');
 const save = (): HTMLButtonElement => within(editor()).getByRole('button', { name: new RegExp(`^(${vi_['adm.doa.draft.save.action']}|${vi_['adm.doa.draft.update.action']})$`) }) as HTMLButtonElement;
 const field = (name: string, row: number): HTMLElement => within(editor()).getByLabelText(name.replace('{row}', String(row)));
@@ -103,6 +103,26 @@ async function fillFirstBand(user: ReturnType<typeof userEvent.setup>, max = '')
 }
 
 describe('DoaWorkspace (ADM-15)', () => {
+  it('shows the version in view with an audit line, who made and who approved it, and the status of every version as a pill', () => {
+    mount();
+    const inView = screen.getByTestId('matrix-in-view');
+    const line = within(inView).getByRole('list', { name: vi_['ui.auditLine.label'] });
+    expect(within(line).getByText('#1')).toBeTruthy();
+    expect(within(line).getByText(translator.t('w2adm.doa.audit.publishedAt'))).toBeTruthy();
+    const badge = within(inView).getByRole('group', { name: vi_['ui.makerChecker.label'] });
+    expect(badge.textContent).toContain(vi_['ui.makerChecker.maker'].replace('{name}', OTHER.slice(0, 8)));
+    expect(badge.textContent).toContain(vi_['ui.makerChecker.checker'].replace('{name}', OTHER.slice(0, 8)));
+    expect(within(rowOf('m2')).getByText(vi_['adm.doa.status.pendingApproval']).closest('.ui-pill')?.className).toContain('ui-tone-warning');
+    expect(within(rowOf('m1')).getByText(vi_['adm.doa.status.published']).closest('.ui-pill')?.className).toContain('ui-tone-success');
+  });
+
+  it('says a draft nobody approved yet is waiting for a checker', async () => {
+    mount();
+    await userEvent.setup().click(within(rowOf('m3')).getByRole('button', { name: vi_['adm.doa.view.action'] }));
+    const badge = within(screen.getByTestId('matrix-in-view')).getByRole('group', { name: vi_['ui.makerChecker.label'] });
+    expect(within(badge).getByText(vi_['ui.makerChecker.pending'])).toBeTruthy();
+  });
+
   it('draws the bands of the matrix in force with their approvers, and the screen says what it is (AC-ST-ADM-011-3)', () => {
     mount();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['adm.doa.page.title']);
@@ -165,7 +185,7 @@ describe('DoaWorkspace (ADM-15)', () => {
     mount();
     await userEvent.setup().click(within(rowOf('m3')).getByRole('button', { name: vi_['adm.doa.view.action'] }));
     expect(screen.getByTestId('matrix-in-view').getAttribute('data-matrix-id')).toBe('m3');
-    expect(rowOf('m3').getAttribute('aria-current')).toBe('true');
+    expect(rowOf('m3').querySelector('[data-matrix-id]')?.getAttribute('aria-current')).toBe('true');
   });
 
   describe('who approves a document', () => {

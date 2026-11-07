@@ -49,7 +49,7 @@ export function GroupTable({ result, onDrill }: { result: QueryResult; onDrill?:
             {onDrill === undefined ? null : (
               <td>
                 {group.drillToken === null ? null : (
-                  <button type="button" className="btn" onClick={() => onDrill(group)}>
+                  <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => onDrill(group)}>
                     {t('bi.query.drill.action')}
                   </button>
                 )}

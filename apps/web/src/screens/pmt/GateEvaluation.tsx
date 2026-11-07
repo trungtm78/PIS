@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { ApiError } from '@machvon/api-client';
 import { useTranslation } from '../../i18n';
-import { Field } from './components';
+import { Field, Pill } from './components';
+import { SectionCard } from '../../ui';
 import { useProjectOptions } from './dossier-commands';
 import { useGateEvaluation } from './gate-hooks';
 import { gateLabel, outcomeLabel, requirementLabel, statusLabel } from './gate-labels';
@@ -26,8 +27,8 @@ export function GateEvaluation() {
   const missing = evaluation.error instanceof ApiError && evaluation.error.status === 404;
 
   return (
-    <div className="card" data-testid="evaluation">
-      <h2>{t('pmt.gate.eval.title')}</h2>
+    <div data-testid="evaluation">
+      <SectionCard title={t('pmt.gate.eval.title')}>
       <p className="sub">{t('pmt.gate.eval.hint')}</p>
       <div className="cap-filters">
         <Field id="eval-project" label={t('pmt.gate.eval.project.label')} error={undefined}>
@@ -72,6 +73,7 @@ export function GateEvaluation() {
           ))}
         </div>
       )}
+      </SectionCard>
     </div>
   );
 }
@@ -81,7 +83,7 @@ function GateResult({ view }: { view: GateView }) {
   return (
     <section data-gate-result={view.gateCode} data-status={view.status} aria-label={gateLabel(t, view.gateCode)}>
       <h3>
-        {gateLabel(t, view.gateCode)} <span className={view.status === 'BLOCKED' ? 'pill warning' : 'pill'}>{statusLabel(t, view.status)}</span>
+        {gateLabel(t, view.gateCode)} <Pill tone={view.status === 'BLOCKED' ? 'warning' : 'success'}>{statusLabel(t, view.status)}</Pill>
       </h3>
       {view.rules.length === 0 ? (
         <p className="sub">{t('pmt.gate.eval.noRules.text')}</p>

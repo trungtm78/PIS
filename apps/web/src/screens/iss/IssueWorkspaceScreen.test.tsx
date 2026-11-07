@@ -1,6 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
+import { t } from '../../i18n';
 import vi_ from '../../i18n/vi.json';
 import IssueWorkspaceScreen from './IssueWorkspaceScreen';
 import { COORDINATOR, EXTENDER, READER, SELF_MEMBERSHIP, VERIFIER, WORKER, client, detail, event, member, mountIssue, person, routeOf, unit, world } from './test-support';
@@ -51,6 +52,20 @@ describe('IssueWorkspaceScreen (ISS-03): the workspace of one issue', () => {
     expect(timelineKinds()).toEqual(['CREATED', 'ASSIGNED', 'STARTED']);
     expect(within(screen.getByTestId('timeline')).getByText('Nhờ anh xử lý')).toBeTruthy();
     expect(within(screen.getByTestId('timeline')).getByText(vi_['iss.event.assigned.text'].replace('{to}', 'Nguyễn Văn B'))).toBeTruthy();
+  });
+
+  it('marks the record of an issue that is overdue or escalated with the stripe, counts the time left, and ends with the audit line', async () => {
+    open(detail(1, { status: 'IN_PROGRESS', assignee: person(2), overdue_since: '2026-10-01T02:00:00.000Z', overdue_days: 3, escalation_level: 3 }));
+    await ready();
+    const head = screen.getByRole('heading', { level: 1 }).closest('.iss-record-head') as HTMLElement;
+    expect(head.getAttribute('data-stripe')).toBe('URGENT');
+    expect(within(head).getByText(vi_['alerts.deadline.late'].replace('{days}', '3'))).toBeTruthy();
+    const audit = screen.getByText(t('w2iss.audit.version')).closest('ul') as HTMLElement;
+    expect(audit.textContent).toContain('1');
+    cleanup();
+    open(detail(2, { status: 'OPEN' }));
+    await ready();
+    expect((screen.getByRole('heading', { level: 1 }).closest('.iss-record-head') as HTMLElement).getAttribute('data-stripe')).toBeNull();
   });
 
   it('keeps the days overdue on the issue when it has moved to another unit, and names both units in the timeline (AC-ST-ISS-002-1)', async () => {

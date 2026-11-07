@@ -8,6 +8,7 @@ import { useScreenState } from '../../../states/useScreenState';
 import { Field } from '../components';
 import { useRecords, useTypePolicies } from '../hooks';
 import type { RecordView } from '../model';
+import '../../adm/adm-kit.css';
 import '../mdm.css';
 import { useMergeRecords } from './hooks';
 import { problemMessage } from './labels';
@@ -172,8 +173,8 @@ function MergePanel({ masterType, mayMerge }: { masterType: string; mayMerge: bo
           </p>
         )}
         {mayMerge ? (
-          <div className="formfooter">
-            <button type="submit" className="primary" disabled={send.isPending || unanswered.length > 0}>
+          <div className="adm-kit-actions">
+            <button type="submit" className="ui-button ui-button--primary" disabled={send.isPending || unanswered.length > 0}>
               {t('mdm.merge.merge.submit')}
             </button>
           </div>

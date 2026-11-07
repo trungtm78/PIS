@@ -3,6 +3,8 @@ import { useRecords } from './hooks';
 import type { ChangeView } from './model';
 import { successionKindLabel } from './succession-labels';
 import { toProposedSuccession } from './succession-model';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 
 /** What a SUCCESSION change request proposes, for the reviewer: the kind, the date, the legal basis and the entries that take over with their shares. */
 export function SuccessionProposal({ change }: { change: ChangeView }) {
@@ -12,7 +14,7 @@ export function SuccessionProposal({ change }: { change: ChangeView }) {
   if (proposed === undefined) return <p className="callout warning">{t('mdm.approval.succession.unreadable.error')}</p>;
   const keyOf = (id: string): string => records.data?.find((record) => record.id === id)?.businessKey ?? id;
   return (
-    <table className="table" data-testid="proposal" data-proposal="succession">
+    <KitTable caption={t('w2mdm.proposal.table.caption')} data-testid="proposal" data-proposal="succession">
       <thead>
         <tr>
           <th>{t('mdm.approval.proposal.col.field')}</th>
@@ -46,6 +48,6 @@ export function SuccessionProposal({ change }: { change: ChangeView }) {
           </td>
         </tr>
       </tbody>
-    </table>
+    </KitTable>
   );
 }

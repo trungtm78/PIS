@@ -8,6 +8,7 @@ import '../dis/dis.css';
 import { DGV_CATALOGUE_PATH, VERSIONS_PATH } from './dataset-model';
 import { useDatasets } from './hooks';
 import { badgeLabel, refreshLabel, sourceKindLabel } from './labels';
+import './bi-kit.css';
 
 /**
  * BI-07: the sources and the model of the data (ST-BI-002, BI 3 F2): each dataset of BI as a tree: where it comes from, the table it is at the grain of, the dimensions it offers, the joins that were approved for
@@ -79,7 +80,7 @@ function ModelContent({ route }: ScreenProps) {
                 ))}
               </ul>
             )}
-            <Link className="button" to={`${VERSIONS_PATH}?dataset=${dataset.id}`}>
+            <Link className="ui-button ui-button--outline" to={`${VERSIONS_PATH}?dataset=${dataset.id}`}>
               {t('bi.model.versions')}
             </Link>
           </section>

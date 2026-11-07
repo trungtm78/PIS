@@ -10,7 +10,11 @@ import { MANAGE_OVERRIDES_PERMISSION } from './entitlements/model';
 import { useEntitlements, useTenantList } from './tenants/hooks';
 import { featureLabel, licenseLabel, modeLabel, modeTone, sourceLabel, toneClass } from './tenants/labels';
 import { READ_TENANTS_PERMISSION } from './tenants/types';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 import './tenants/sas.css';
+import { StatusPill } from '../../ui';
+import { toneOfPill } from '../adm/kit-tone';
 
 /**
  * SAS-25: what a tenant may do under its plan and licence. The control plane picks a tenant (the table of that tenant comes from
@@ -80,8 +84,7 @@ export default function EntitlementsScreen({ route }: ScreenProps) {
                   {t('sas.entitlements.license.label')}: {licenseLabel(t, table.data.licenseStatus)}
                 </span>
               </p>
-              <div className="tablewrap">
-                <table>
+                <KitTable caption={t('w2sas.entitlements.table.caption')}>
                   <thead>
                     <tr>
                       <th>{t('sas.entitlements.col.feature')}</th>
@@ -102,13 +105,12 @@ export default function EntitlementsScreen({ route }: ScreenProps) {
                         <td>{feature.limit ?? t('sas.entitlements.noLimit')}</td>
                         <td>{feature.used ?? t('sas.entitlements.noLimit')}</td>
                         <td>
-                          <span className={toneClass(modeTone(feature.mode))}>{modeLabel(t, feature.mode)}</span>
+                          <StatusPill tone={toneOfPill(toneClass(modeTone(feature.mode)))}>{modeLabel(t, feature.mode)}</StatusPill>
                         </td>
                       </tr>
                     ))}
                   </tbody>
-                </table>
-              </div>
+                </KitTable>
             </>
           )}
         </div>

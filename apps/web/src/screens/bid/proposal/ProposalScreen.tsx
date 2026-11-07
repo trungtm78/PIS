@@ -15,6 +15,7 @@ import { canEvaluate, canReceive, describeProblem, momentText, openPackages, ope
 import type { Proposal } from './model';
 import { ProposalDetailDialog } from './ProposalDetailDialog';
 import '../bid.css';
+import { SectionCard } from '../../../ui';
 
 /**
  * BID-05: the proposals of a package (ST-BID-004, BID 3 F3, BR-BID-03). A proposal is confidential and sealed until the opening of the bids of its package: a clerk who may
@@ -117,8 +118,7 @@ function ProposalContent({ route }: ScreenProps) {
         </div>
         {pack === undefined ? null : (
           <>
-            <article className="card" aria-label={t('bid.proposals.table.title')}>
-              <h2>{t('bid.proposals.table.title')}</h2>
+            <SectionCard title={t('bid.proposals.table.title')}>
               {opener.isError ? (
                 <p className="callout warning" role="alert" data-testid="open-refusal">
                   {problemMessage(t, describeProblem(opener.error))}
@@ -176,7 +176,7 @@ function ProposalContent({ route }: ScreenProps) {
                   </tbody>
                 </table>
               )}
-            </article>
+            </SectionCard>
             <DeclarationPanel pack={pack} mayEvaluate={mayEvaluate} />
           </>
         )}

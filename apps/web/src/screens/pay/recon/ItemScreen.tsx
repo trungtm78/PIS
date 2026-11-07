@@ -14,6 +14,7 @@ import { itemStatusLabel, kindLabel, resolutionLabel } from './labels';
 import { ASSIGN_PERMISSION, MEMBER_READ_PERMISSION, READ_PERMISSION, RESOLVE_PERMISSION, boardLink, differenceText, vndText } from './model';
 import type { Resolution } from './model';
 import '../pay.css';
+import { SectionCard } from '../../../ui';
 
 type Dialog = { kind: 'assign' } | { kind: 'resolve'; resolution: Resolution };
 
@@ -77,7 +78,7 @@ function ItemContent({ route }: ScreenProps) {
       ) : (
         <StateBoundary state={state} onRetry={() => void item.refetch()}>
           {row === null || row === undefined ? null : (
-            <article className="card" aria-label={t('pay.item.title')}>
+            <SectionCard title={t('pay.item.title')}>
               <h2>
                 <span data-testid="kind">{kindLabel(t, row.kind)}</span>{' '}
                 <span className="pay-badge" data-testid="status">
@@ -200,7 +201,7 @@ function ItemContent({ route }: ScreenProps) {
                   onClose={() => setDialog(undefined)}
                 />
               ) : null}
-            </article>
+            </SectionCard>
           )}
         </StateBoundary>
       )}

@@ -1,7 +1,6 @@
-/* ADM-18: a task past its deadline is red (UI-ADM-18). */
-.adm-approvals tr.late {
-  background: #f9dcd9;
-  color: #8a1f17;
+/* ADM-18: a task past its deadline carries a red stripe and says "Quá hạn" in its status pill, so the colour is never the only cue. */
+.adm-approvals tr.late > td:first-child {
+  box-shadow: inset 4px 0 0 var(--mv-color-danger);
 }
 
 .adm-approvals tr.late code {

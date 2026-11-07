@@ -15,6 +15,8 @@ import { useConversions, useRecordSuccession, useRecordsAsOf } from './successio
 import { successionKindLabel, successionProblemMessage } from './succession-labels';
 import { EMPTY_SUCCESSION_FORM, REFORM_DATE, STRUCTURE_TYPES, SUCCESSION_KINDS, connectorsOf, dayBefore, edgesOn, toProposedSuccession, validateSuccession } from './succession-model';
 import type { SuccessionField, SuccessionForm, SuccessionKind, SuccessionProblem } from './succession-model';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 import './mdm.css';
 
 const APPROVAL_PATH = '/mdm/mdm-32';
@@ -109,7 +111,7 @@ function SuccessionContent({ route }: ScreenProps) {
         <div className="card" data-testid="succession-tree" data-as-of={day}>
           <div className="mdm-succession mdm-succession-head" aria-hidden="false">
             <h2>{t('mdm.succession.before.title', { date: day })}</h2>
-            <span className="sr-only">{t('mdm.succession.connector.title')}</span>
+            {t('mdm.succession.connector.title')}
             <h2>{t('mdm.succession.after.title', { date: day })}</h2>
           </div>
           {connectors.length === 0 ? (
@@ -169,7 +171,7 @@ function PendingSuccessions({ changes, records }: { changes: readonly ChangeView
       {changes.length === 0 ? (
         <p className="muted">{t('mdm.succession.pending.empty')}</p>
       ) : (
-        <table className="table">
+        <KitTable caption={t('w2mdm.succession.table.caption')}>
           <thead>
             <tr>
               <th>{t('mdm.succession.col.before')}</th>
@@ -195,7 +197,7 @@ function PendingSuccessions({ changes, records }: { changes: readonly ChangeView
               );
             })}
           </tbody>
-        </table>
+        </KitTable>
       )}
     </section>
   );
@@ -308,10 +310,10 @@ function RecordForm({ masterType, defaultDate, records, canPropose }: { masterTy
             <textarea id="succession-reason" rows={2} value={form.reason} aria-invalid={error('reason') !== undefined} onChange={(event) => setField('reason', event.target.value)} />
           </Field>
         </fieldset>
-        <div className="formfooter">
+        <div className="adm-kit-actions">
           <span className="sub">{t('mdm.succession.form.hint')}</span>
           {canPropose && (opened === undefined || form.kind === 'SPLIT') ? (
-            <button type="submit" className="primary" disabled={record.isPending}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={record.isPending}>
               {t('mdm.succession.save.action')}
             </button>
           ) : null}
@@ -324,7 +326,7 @@ function RecordForm({ masterType, defaultDate, records, canPropose }: { masterTy
               {t('mdm.succession.saved.notice')}
             </p>
             {form.kind === 'SPLIT' && !submitted ? (
-              <button type="button" onClick={addAnother} data-testid="add-another">
+              <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={addAnother} data-testid="add-another">
                 {t('mdm.succession.another.action')}
               </button>
             ) : null}

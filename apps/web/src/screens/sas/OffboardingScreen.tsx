@@ -32,8 +32,12 @@ import type { ExportScope, ExportView, LinkView } from './offboarding/model';
 import { TenantPicker } from './subscription/TenantPicker';
 import { useTenantChoice } from './subscription/hooks';
 import { toneClass } from './tenants/labels';
+import { SectionCard, StatusPill } from '../../ui';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 import './tenants/sas.css';
 import './billing/billing.css';
+import { toneOfPill } from '../adm/kit-tone';
 
 type Leaving = 'offboard' | 'archive' | 'renew';
 
@@ -140,8 +144,7 @@ function ExportSection() {
 
   return (
     <>
-      <div className="card">
-        <h2>{t('sas.exit.export.title')}</h2>
+      <SectionCard title={t('sas.exit.export.title')}>
         <p className="sub">{t('sas.exit.export.rule')}</p>
         {sent ? (
           <p className="callout" role="status">
@@ -183,22 +186,21 @@ function ExportSection() {
             ) : null}
           </div>
           <div className="row gap">
-            <button type="submit" className="primary" disabled={request.isPending || waiting}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={request.isPending || waiting}>
               {t('sas.exit.export.submit.action')}
             </button>
             {waiting ? <span className="sub">{t('sas.exit.export.waiting')}</span> : null}
           </div>
         </form>
-      </div>
+      </SectionCard>
       <StateBoundary state={state} onRetry={() => void exports.refetch()}>
-        <div className="card">
-          <h2>{t('sas.exit.list.title')}</h2>
+        <SectionCard title={t('sas.exit.list.title')}>
           {items.length === 0 ? (
             <p className="sub" role="status">
               {t('sas.exit.list.none')}
             </p>
           ) : (
-            <table className="table" data-exports>
+            <KitTable caption={t('w2sas.exit.table.exports')} data-exports>
               <thead>
                 <tr>
                   <th scope="col">{t('sas.exit.column.requested')}</th>
@@ -216,7 +218,7 @@ function ExportSection() {
                   <ExportRow key={entry.id} entry={entry} day={day} size={size} onOpen={() => setOpened(opened === entry.id ? undefined : entry.id)} open={opened === entry.id} />
                 ))}
               </tbody>
-            </table>
+            </KitTable>
           )}
           {exports.hasNextPage ? (
             <div className="row gap">
@@ -257,7 +259,7 @@ function ExportSection() {
                   )}
                   {Object.keys(manifest.data.omittedColumns).length === 0 ? null : <p className="sub">{t('sas.exit.manifest.omitted', { tables: Object.keys(manifest.data.omittedColumns).join(', ') })}</p>}
                   {manifest.data.keyFingerprint === undefined ? null : <p className="sub">{t('sas.exit.manifest.key', { fingerprint: manifest.data.keyFingerprint })}</p>}
-                  <table className="table" data-files>
+                  <KitTable caption={t('w2sas.exit.table.files')} data-files>
                     <thead>
                       <tr>
                         <th scope="col">{t('sas.exit.file.path')}</th>
@@ -302,12 +304,12 @@ function ExportSection() {
                         );
                       })}
                     </tbody>
-                  </table>
+                  </KitTable>
                 </>
               )}
             </div>
           )}
-        </div>
+        </SectionCard>
       </StateBoundary>
     </>
   );
@@ -327,7 +329,7 @@ function ExportRow({ entry, day, size, onOpen, open }: { entry: ExportView; day:
         {entry.encrypted ? <small className="sub"> · {t('sas.exit.export.encrypted')}</small> : null}
       </td>
       <td>
-        <span className={toneClass(statusTone(entry.status))}>{statusLabel(t, entry.status)}</span>
+        <StatusPill tone={toneOfPill(toneClass(statusTone(entry.status)))}>{statusLabel(t, entry.status)}</StatusPill>
         {entry.errorCode === undefined ? null : <small className="sub"> · {entry.errorCode}</small>}
       </td>
       <td>{entry.readyAt === undefined ? '—' : t('sas.exit.column.expires', { ready: day(entry.readyAt), expires: entry.expiresAt === undefined ? '—' : day(entry.expiresAt) })}</td>
@@ -413,8 +415,8 @@ function LeavingSection({ canManage }: { canManage: boolean }) {
       <TenantPicker id="exit-tenant" label={t('sas.exit.tenant.label')} moreLabel={t('sas.exit.tenant.more.action')} choice={{ ...choice, choose: pick }} />
       <StateBoundary state={state} onRetry={() => void exit.refetch()}>
         {view === undefined ? null : (
-          <div className="card" data-tenant-exit>
-            <h2>{t('sas.exit.leaving.title')}</h2>
+          <SectionCard title={t('sas.exit.leaving.title')}>
+            <div data-tenant-exit>
             {done === undefined ? null : (
               <p className="callout" role="status">
                 {done === 'offboard' ? t('sas.exit.done.offboard') : done === 'archive' ? t('sas.exit.done.archive') : t('sas.exit.done.renew')}
@@ -441,16 +443,16 @@ function LeavingSection({ canManage }: { canManage: boolean }) {
             {canManage ? (
               <div className="row gap">
                 {canOffboard(view.status) ? (
-                  <button type="button" onClick={() => open('offboard')}>
+                  <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => open('offboard')}>
                     {t('sas.exit.offboard.action')}
                   </button>
                 ) : null}
                 {canArchive(view.status) ? (
                   <>
-                    <button type="button" onClick={() => open('archive')}>
+                    <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => open('archive')}>
                       {t('sas.exit.archive.action')}
                     </button>
-                    <button type="button" onClick={() => open('renew')}>
+                    <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => open('renew')}>
                       {t('sas.exit.renew.action')}
                     </button>
                   </>
@@ -492,10 +494,10 @@ function LeavingSection({ canManage }: { canManage: boolean }) {
                   ) : null}
                 </div>
                 <div className="row gap">
-                  <button type="submit" className="primary" disabled={offboard.isPending || archive.isPending || renew.isPending}>
+                  <button type="submit" className="ui-button ui-button--primary" disabled={offboard.isPending || archive.isPending || renew.isPending}>
                     {t('sas.exit.act.confirm.action')}
                   </button>
-                  <button type="button" onClick={() => setActing(undefined)}>
+                  <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setActing(undefined)}>
                     {t('sas.exit.act.abort.action')}
                   </button>
                 </div>
@@ -506,7 +508,7 @@ function LeavingSection({ canManage }: { canManage: boolean }) {
                 {t('sas.exit.leaving.noExports')}
               </p>
             ) : (
-              <table className="table" data-tenant-exports>
+              <KitTable caption={t('w2sas.exit.table.tenant')} data-tenant-exports>
                 <thead>
                   <tr>
                     <th scope="col">{t('sas.exit.column.requested')}</th>
@@ -521,15 +523,16 @@ function LeavingSection({ canManage }: { canManage: boolean }) {
                       <td>{day(entry.requestedAt)}</td>
                       <td>{scopeLabel(t, entry.scope)}</td>
                       <td>
-                        <span className={toneClass(statusTone(entry.status))}>{statusLabel(t, entry.status)}</span>
+                        <StatusPill tone={toneOfPill(toneClass(statusTone(entry.status)))}>{statusLabel(t, entry.status)}</StatusPill>
                       </td>
                       <td>{entry.deliveredAt !== undefined ? t('sas.exit.leaving.deliveredAt', { at: day(entry.deliveredAt) }) : entry.expiresAt === undefined ? '—' : t('sas.exit.leaving.expiresAt', { at: day(entry.expiresAt) })}</td>
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </KitTable>
             )}
-          </div>
+            </div>
+          </SectionCard>
         )}
       </StateBoundary>
     </>

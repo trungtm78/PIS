@@ -2,6 +2,7 @@ import { ApiError } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../i18n/vi.json';
+import { message } from './test-catalogue';
 import ContractListScreen from './ContractListScreen';
 import { MAKER, READER, client, contractId, line, mount, routeOf, world } from './test-support';
 
@@ -9,7 +10,7 @@ const ROUTE = routeOf('CTR-01', 'FR-CTR-01');
 
 afterEach(cleanup);
 
-const rows = (): HTMLElement[] => within(screen.getByTestId('contracts')).getAllByRole('row').slice(1);
+const rows = (): HTMLElement[] => Array.from(screen.getByTestId('contracts').querySelectorAll<HTMLElement>('tbody tr'));
 
 describe('ContractListScreen (CTR-01): the register of contracts in the scope of the member', () => {
   it('lists the contracts with the project, the contractor, the value and the status, and links each code to its draft (UI-CTR-01)', async () => {
@@ -73,5 +74,15 @@ describe('ContractListScreen (CTR-01): the register of contracts in the scope of
     denied.unmount();
     mount(<ContractListScreen route={ROUTE} />, client(world({ failing: new Set(['get_resources_contract']) })), { permissions: MAKER });
     await waitFor(() => expect(screen.getByText(vi_['states.error.title'])).toBeTruthy());
+  });
+  it('adds up the value of the contracts that stand, says how many, and clears the filter when nothing matches', async () => {
+    mount(<ContractListScreen route={ROUTE} />, client(world()), { permissions: MAKER });
+    await waitFor(() => expect(rows()).toHaveLength(2));
+    expect(screen.getByTestId('totals-note').textContent).toBe(message('w2pay.ctr.list.totals.note', { standing: 2, total: 2 }));
+    expect(within(document.querySelector('tfoot') as HTMLElement).getByText(/VND$/)).toBeTruthy();
+    expect(screen.getByRole('group', { name: vi_['ui.contextBar.label'] }).textContent).toContain(message('ui.unitChip.label', { unit: message('w2pay.ctx.unit') }));
+    fireEvent.change(screen.getByLabelText(vi_['ctr.list.query.label']), { target: { value: 'không có' } });
+    fireEvent.click(screen.getByRole('button', { name: vi_['ui.dataTable.clearFilters'] }));
+    await waitFor(() => expect(rows()).toHaveLength(2));
   });
 });

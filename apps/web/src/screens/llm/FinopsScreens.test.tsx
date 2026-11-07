@@ -448,6 +448,17 @@ describe('LLM-09 usage and reconciliation (ST-LLM-003, LLM F3, BR-LLM-06)', () =
     await waitFor(() => expect(h.read.mock.calls.filter((call) => call[0] === 'getAiSpendSummary').map((call) => (call[1] as { path: { id: string } }).path.id)).toContain(B1));
   });
 
+  it('shows the limit and the use as a strip of seven KPI tiles under a card that names the unit, and the scope and the period in the context bar', async () => {
+    mount(<UsageScreen route={USAGE} />, client(normal()), { permissions: FINOPS });
+    const counterBox = await screen.findByTestId('usage-counter');
+    const strip = within(counterBox).getByRole('group', { name: 'Hạn mức và mức đã dùng của ngân sách' });
+    expect(within(strip).getAllByRole('article')).toHaveLength(7);
+    expect(within(counterBox).getByText('ĐVT: Đồng')).toBeTruthy();
+    const bar = screen.getByRole('group', { name: vi_['ui.contextBar.label'] });
+    expect(within(bar).getByText('Phạm vi ngân sách')).toBeTruthy();
+    expect(within(bar).getByText('Chu kỳ')).toBeTruthy();
+  });
+
   it('does not show a pending notice when nothing waits, and says that nothing is held when there is no reservation', async () => {
     const world = { ...normal(), reservations: [], spend: rawSpend({ current: { attempts: 0, input_total: '0', cached_input: '0', noncached_input: '0', output_total: '0', cost_vnd: '0', pending_reconcile: 0 } }) };
     mount(<UsageScreen route={USAGE} />, client(world), { permissions: FINOPS });

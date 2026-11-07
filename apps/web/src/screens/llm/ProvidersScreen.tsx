@@ -11,6 +11,9 @@ import { useActivateProvider, useProviders, useRegisterProvider } from './hooks'
 import { classificationLabel, problemMessage, providerStatusLabel, refusalMessage, routeLabel } from './labels';
 import { CLASSIFICATIONS, EMPTY_PROVIDER, PROVIDER_APPROVE, PROVIDER_MANAGE, ROUTES, describeLlmProblem, validateProvider } from './llm-model';
 import type { Classification, Provider, ProviderErrors, ProviderValues, Route } from './llm-model';
+import { providerStatusTone } from './tones';
+import { ContextBar, StatusPill } from '../../ui';
+import './llm-kit.css';
 
 /**
  * LLM-02: the providers of the AI models (ST-LLM-001, LLM F2): where each one is, which route it is (a domestic service, one the tenant hosts, or an international one), the most sensitive class of data it may be sent,
@@ -24,7 +27,7 @@ export default function ProvidersScreen({ route }: ScreenProps) {
 
 function ProvidersContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { permissions, mode } = useSession();
+  const { permissions, mode, tenant } = useSession();
   const can = (permission: string): boolean => (permissions === undefined || permissions.includes(permission)) && mode !== 'READ_ONLY';
   const providers = useProviders();
   const state = useScreenState({ isLoading: providers.isLoading, error: providers.error, data: providers.data === undefined ? undefined : { rows: providers.data } });
@@ -36,6 +39,13 @@ function ProvidersContent({ route }: ScreenProps) {
           <p>{t('llm.providers.page.subtitle')}</p>
         </div>
       </div>
+      <ContextBar
+        items={[
+          { label: t('llm.providers.ctx.scope'), value: tenant?.name ?? t('llm.providers.ctx.scope.all') },
+          { label: t('llm.providers.ctx.count'), value: String((providers.data ?? []).length) },
+        ]}
+        {...(providers.dataUpdatedAt > 0 ? { asOf: new Date(providers.dataUpdatedAt).toLocaleString('vi-VN') } : {})}
+      />
       <StateBoundary state={state} onRetry={() => void providers.refetch()}>
         <p className="callout" data-testid="providers-international-note">
           {t('llm.providers.internationalNote')}
@@ -79,7 +89,9 @@ function ProviderCard({ provider, mayApprove }: { provider: Provider; mayApprove
         <dt>{t('llm.providers.card.d07')}</dt>
         <dd>{provider.d07Ref ?? t('llm.providers.card.d07None')}</dd>
         <dt>{t('llm.providers.card.status')}</dt>
-        <dd data-testid="provider-status">{providerStatusLabel(t, provider.status)}</dd>
+        <dd data-testid="provider-status">
+          <StatusPill tone={providerStatusTone(provider.status)}>{providerStatusLabel(t, provider.status)}</StatusPill>
+        </dd>
       </dl>
       {mayApprove && provider.status === 'PROPOSED' ? (
         <form onSubmit={send} noValidate aria-label={t('llm.providers.activate.title', { name: provider.name })}>
@@ -94,7 +106,7 @@ function ProviderCard({ provider, mayApprove }: { provider: Provider; mayApprove
             </p>
           )}
           <div className="mne-actions">
-            <button type="submit" className="btn" disabled={activate.isPending}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={activate.isPending}>
               {t('llm.providers.activate.submit')}
             </button>
           </div>
@@ -169,7 +181,7 @@ function ProviderForm() {
         </Field>
       </div>
       <div className="mne-actions">
-        <button type="submit" className="btn" disabled={register.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={register.isPending}>
           {t('llm.providers.form.submit')}
         </button>
       </div>

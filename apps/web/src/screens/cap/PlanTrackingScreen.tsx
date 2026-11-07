@@ -6,6 +6,8 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { ContextBar, DataTable, FilterPanel, SectionCard } from '../../ui';
+import type { DataTableColumn } from '../../ui';
 import { Field, Money } from './components';
 import { PlanChooser, SignedMoney } from './plan-components';
 import { usePlans } from './plan-hooks';
@@ -61,18 +63,33 @@ function PlanTrackingContent({ route }: ScreenProps) {
           <p>{t('cap.tracking.page.subtitle')}</p>
         </div>
       </div>
-      <StateBoundary state={state} onRetry={() => {
+      <StateBoundary
+        state={state}
+        onRetry={() => {
           void plans.refetch();
           void found.refetch();
-        }}>
+        }}
+      >
         {selected === undefined ? null : (
           <>
-            <div className="card cap-filters">
-              <PlanChooser id="tracking-plan" plans={tracked} value={selected.id} onChange={choose} />
-              <Field id="tracking-date" label={t('cap.tracking.date.label')} hint={t('cap.tracking.date.hint')} error={day.valid ? undefined : t('cap.tracking.date.invalid.error')}>
-                <input id="tracking-date" type="date" value={typed} aria-invalid={!day.valid} onChange={(event) => setTyped(event.target.value)} />
-              </Field>
-            </div>
+            <ContextBar
+              items={[
+                { label: t('cap.tracking.ctx.plan'), value: selected.planCode },
+                {
+                  label: t('cap.tracking.ctx.day'),
+                  value: day.valid && typed !== '' ? typed : t('cap.tracking.ctx.today'),
+                },
+              ]}
+              unit={t('cap.ctx.unit')}
+            />
+            <FilterPanel applied={typed === '' ? 0 : 1}>
+              <div className="cap-filters">
+                <PlanChooser id="tracking-plan" plans={tracked} value={selected.id} onChange={choose} />
+                <Field id="tracking-date" label={t('cap.tracking.date.label')} hint={t('cap.tracking.date.hint')} error={day.valid ? undefined : t('cap.tracking.date.invalid.error')}>
+                  <input id="tracking-date" type="date" value={typed} aria-invalid={!day.valid} onChange={(event) => setTyped(event.target.value)} />
+                </Field>
+              </div>
+            </FilterPanel>
             {nothingInForce ? (
               <p className="callout" role="status" data-testid="nothing">
                 {t('cap.tracking.none.notice')}
@@ -86,7 +103,12 @@ function PlanTrackingContent({ route }: ScreenProps) {
           </>
         )}
       </StateBoundary>
-      <p className="prototype-note">{t('cap.tracking.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
+      <p className="prototype-note">
+        {t('cap.tracking.footer.reference', {
+          id: route.id,
+          req: route.req ?? '',
+        })}
+      </p>
     </section>
   );
 }
@@ -97,80 +119,116 @@ function Tracking({ found, revision }: { found: PlanAsOf; revision: PlanSummary 
   const symbol = revision?.decisionSymbol ?? null;
   const issued = revision?.decisionIssuedOn ?? null;
   const citation = symbol === null ? t('cap.planHeader.noDecision.notice') : issued === null ? symbol : t('cap.decision.citation.label', { symbol, date: issued });
+  const columns: DataTableColumn<PlanAsOf['lines'][number]>[] = [
+    {
+      key: 'decision',
+      header: t('cap.tracking.column.decision'),
+      render: () => <span data-testid="decision">{citation}</span>,
+    },
+    {
+      key: 'project',
+      header: t('cap.tracking.column.project'),
+      pinned: true,
+      render: (row) => (
+        <span data-project={row.line.project.code}>
+          {row.line.project.code} <small className="sub">{row.line.project.name}</small>
+        </span>
+      ),
+    },
+    {
+      key: 'initial',
+      header: t('cap.tracking.column.initial'),
+      align: 'right',
+      render: (row) => (
+        <span data-testid="initial">
+          <Money vnd={row.initialVnd} />
+        </span>
+      ),
+    },
+    {
+      key: 'adjustment',
+      header: t('cap.tracking.column.adjustment'),
+      align: 'right',
+      render: (row) => (
+        <span data-testid="adjustment">
+          <SignedMoney vnd={row.adjustmentVnd} />
+        </span>
+      ),
+    },
+    {
+      key: 'current',
+      header: t('cap.tracking.column.current'),
+      align: 'right',
+      render: (row) => (
+        <span data-testid="current">
+          <Money vnd={row.line.amountVnd} />
+        </span>
+      ),
+    },
+    {
+      key: 'disbursed',
+      header: t('cap.tracking.column.disbursed'),
+      align: 'right',
+      render: (row) => (
+        <span data-testid="disbursed">
+          <Money vnd={row.disbursedVnd} />
+        </span>
+      ),
+    },
+  ];
   return (
-    <div className="card" data-testid="tracking" data-plan-id={found.planId} data-revision={found.revision}>
-      <h2>{t('cap.tracking.revision.title', { code: found.planCode, revision: found.revision })}</h2>
-      <p data-testid="in-force">{t('cap.tracking.revision.label', { status: planStatusLabel(t, found.status), date: (found.effectiveAt ?? '').slice(0, 10) })}</p>
-      <p className="sub">{t('cap.tracking.scope.notice')}</p>
-      {found.truncated ? (
-        <p className="callout warning" role="status" data-testid="truncated">
-          {t('cap.tracking.truncated.notice')}
+    <div data-testid="tracking" data-plan-id={found.planId} data-revision={found.revision}>
+      <SectionCard
+        title={t('cap.tracking.revision.title', {
+          code: found.planCode,
+          revision: found.revision,
+        })}
+        unit={t('cap.ctx.unit')}
+      >
+        <p data-testid="in-force">
+          {t('cap.tracking.revision.label', {
+            status: planStatusLabel(t, found.status),
+            date: (found.effectiveAt ?? '').slice(0, 10),
+          })}
         </p>
-      ) : null}
-      <div className="cap-scroll">
-        <table className="table cap-table" aria-label={t('cap.tracking.table.aria', { code: found.planCode })}>
-          <caption className="sr-only">{t('cap.tracking.table.caption')}</caption>
-          <thead>
-            <tr>
-              <th scope="col">{t('cap.tracking.column.decision')}</th>
-              <th scope="col">{t('cap.tracking.column.project')}</th>
-              <th scope="col" className="cap-number">
-                {t('cap.tracking.column.initial')}
-              </th>
-              <th scope="col" className="cap-number">
-                {t('cap.tracking.column.adjustment')}
-              </th>
-              <th scope="col" className="cap-number">
-                {t('cap.tracking.column.current')}
-              </th>
-              <th scope="col" className="cap-number">
-                {t('cap.tracking.column.disbursed')}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {found.lines.map((row) => (
-              <tr key={row.line.id} data-project={row.line.project.code}>
-                <td data-testid="decision">{citation}</td>
-                <th scope="row">
-                  {row.line.project.code} <small className="sub">{row.line.project.name}</small>
-                </th>
-                <td className="cap-number" data-testid="initial">
-                  <Money vnd={row.initialVnd} />
-                </td>
-                <td className="cap-number" data-testid="adjustment">
-                  <SignedMoney vnd={row.adjustmentVnd} />
-                </td>
-                <td className="cap-number" data-testid="current">
-                  <Money vnd={row.line.amountVnd} />
-                </td>
-                <td className="cap-number" data-testid="disbursed">
-                  <Money vnd={row.disbursedVnd} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr>
-              <th scope="row" colSpan={2}>
-                {t('cap.tracking.total.label', { count: found.lines.length })}
-              </th>
-              <td className="cap-number" data-testid="total-initial">
+        <p className="sub">{t('cap.tracking.scope.notice')}</p>
+        {found.truncated ? (
+          <p className="callout warning" role="status" data-testid="truncated">
+            {t('cap.tracking.truncated.notice')}
+          </p>
+        ) : null}
+        <DataTable
+          caption={t('cap.tracking.table.aria', { code: found.planCode })}
+          columns={columns}
+          rows={found.lines}
+          rowKey={(row) => row.line.id}
+          totalsLabel={t('cap.tracking.total.label', {
+            count: found.lines.length,
+          })}
+          totals={{
+            initial: (
+              <span data-testid="total-initial">
                 <Money vnd={found.totals.initialVnd} />
-              </td>
-              <td className="cap-number" data-testid="total-adjustment">
+              </span>
+            ),
+            adjustment: (
+              <span data-testid="total-adjustment">
                 <SignedMoney vnd={found.totals.adjustmentVnd} />
-              </td>
-              <td className="cap-number" data-testid="total-current">
+              </span>
+            ),
+            current: (
+              <span data-testid="total-current">
                 <Money vnd={found.totals.currentVnd} />
-              </td>
-              <td className="cap-number" data-testid="total-disbursed">
+              </span>
+            ),
+            disbursed: (
+              <span data-testid="total-disbursed">
                 <Money vnd={found.totals.disbursedVnd} />
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+              </span>
+            ),
+          }}
+        />
+      </SectionCard>
     </div>
   );
 }

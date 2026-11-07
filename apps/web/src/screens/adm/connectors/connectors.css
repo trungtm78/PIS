@@ -1,6 +1,6 @@
 /* ADM-09: the integration connectors. The mockup's cards, tables and pills do the rest. */
 .adm-connectors .field-error {
-  color: #a03e3e;
+  color: var(--mv-color-danger);
 }
 .adm-connectors .move-panel {
   margin-top: 16px;

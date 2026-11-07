@@ -6,7 +6,7 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { useCreatePolicyDraft, usePolicies, usePublishPolicy, useRoleCodes } from './security/hooks';
-import { policyFieldMessage, policyProblemMessage, policyStatusLabel } from './security/labels';
+import { policyFieldMessage, policyProblemMessage, policyStatusLabel, policyStatusTone } from './security/labels';
 import {
   APPROVE_POLICY_PERMISSION,
   DRAFT_POLICY_PERMISSION,
@@ -19,6 +19,9 @@ import {
   valuesOfPolicy,
 } from './security/model';
 import type { PolicyErrors, PolicyField, PolicyValues, PolicyView } from './security/model';
+import { SectionCard, StatusPill } from '../../ui';
+import { KitTable } from './KitTable';
+import './adm-kit.css';
 import './security/security.css';
 
 const NEVER_EMPTY = (): boolean => false;
@@ -146,8 +149,8 @@ function SecurityPolicyContent({ route }: ScreenProps) {
       </div>
       <StateBoundary state={state} onRetry={() => void list.refetch()}>
         <div className="adm-security">
-          <div className="card">
-            <h2>{t('adm.securityPolicy.form.title')}</h2>
+          <div className="adm-kit-stack">
+          <SectionCard title={t('adm.securityPolicy.form.title')}>
             {!canDraft ? (
               <p className="callout warning" role="status">
                 {frozen ? t('adm.securityPolicy.frozen.notice') : t('adm.securityPolicy.readOnly.notice')}
@@ -197,21 +200,22 @@ function SecurityPolicyContent({ route }: ScreenProps) {
                 <input type="checkbox" checked={values.exportWatermark} onChange={(event) => setValues((current) => ({ ...current, exportWatermark: event.target.checked }))} />
                 {t('adm.securityPolicy.watermark.label')}
               </label>
-              <div className="formfooter">
+              <div className="adm-kit-actions">
                 <span className="sub">{t('adm.securityPolicy.form.hint')}</span>
                 {inForce === undefined ? null : (
-                  <button type="button" onClick={() => setValues(valuesOfPolicy(inForce))}>
+                  <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setValues(valuesOfPolicy(inForce))}>
                     {t('adm.securityPolicy.copy.action')}
                   </button>
                 )}
                 {canDraft ? (
-                  <button type="submit" className="primary" disabled={create.isPending || !rolesReady || unchanged}>
+                  <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending || !rolesReady || unchanged}>
                     {t('adm.securityPolicy.draft.submit.action')}
                   </button>
                 ) : null}
               </div>
             </form>
-            <h2>{t('adm.securityPolicy.history.title')}</h2>
+          </SectionCard>
+          <SectionCard title={t('adm.securityPolicy.history.title')}>
             {policies.length === 0 ? <p className="muted">{t('adm.securityPolicy.history.empty')}</p> : null}
             {publish.isSuccess ? (
               <p className="callout" role="status">
@@ -224,7 +228,7 @@ function SecurityPolicyContent({ route }: ScreenProps) {
               </p>
             )}
             {policies.length === 0 ? null : (
-              <table className="table">
+              <KitTable caption={t('w2adm.securityPolicy.table.caption')}>
                 <thead>
                   <tr>
                     <th>{t('adm.securityPolicy.col.revision')}</th>
@@ -232,7 +236,7 @@ function SecurityPolicyContent({ route }: ScreenProps) {
                     <th>{t('adm.securityPolicy.col.roles')}</th>
                     <th>{t('adm.securityPolicy.col.session')}</th>
                     <th>
-                      <span className="sr-only">{t('adm.securityPolicy.col.actions')}</span>
+                      {t('adm.securityPolicy.col.actions')}
                     </th>
                   </tr>
                 </thead>
@@ -242,7 +246,9 @@ function SecurityPolicyContent({ route }: ScreenProps) {
                     return (
                       <tr key={policy.id} data-policy-id={policy.id} data-status={policy.status}>
                         <td>#{policy.revision}</td>
-                        <td>{policyStatusLabel(t, policy.status)}</td>
+                        <td>
+                          <StatusPill tone={policyStatusTone(policy.status)}>{policyStatusLabel(t, policy.status)}</StatusPill>
+                        </td>
                         <td>{policy.mfaRequiredRoles.join(', ')}</td>
                         <td>{t('adm.securityPolicy.session.summary', { idle: policy.sessionIdleMinutes, hours: policy.sessionMaxHours })}</td>
                         <td className="row-actions">
@@ -257,10 +263,10 @@ function SecurityPolicyContent({ route }: ScreenProps) {
                               <Field id={`publish-reason-${policy.id}`} label={t('adm.securityPolicy.publish.reason.label')} error={reasonError ? t('adm.securityPolicy.field.required') : undefined}>
                                 <input id={`publish-reason-${policy.id}`} value={reason} aria-invalid={reasonError} onChange={(event) => { setReason(event.target.value); setReasonError(false); }} />
                               </Field>
-                              <button type="submit" className="primary" disabled={publish.isPending}>
+                              <button type="submit" className="ui-button ui-button--primary" disabled={publish.isPending}>
                                 {t('adm.securityPolicy.publish.confirm.action')}
                               </button>
-                              <button type="button" onClick={() => setPublishing(undefined)}>
+                              <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setPublishing(undefined)}>
                                 {t('adm.securityPolicy.publish.cancel.action')}
                               </button>
                             </form>
@@ -270,11 +276,12 @@ function SecurityPolicyContent({ route }: ScreenProps) {
                     );
                   })}
                 </tbody>
-              </table>
+              </KitTable>
             )}
+          </SectionCard>
           </div>
-          <aside className="card" aria-label={t('adm.securityPolicy.current.title')}>
-            <h2>{t('adm.securityPolicy.current.title')}</h2>
+          <aside aria-label={t('adm.securityPolicy.current.title')}>
+          <SectionCard title={t('adm.securityPolicy.current.title')}>
             {inForce === undefined ? (
               <p className="muted" data-testid="no-policy">{t('adm.securityPolicy.current.none')}</p>
             ) : (
@@ -290,6 +297,7 @@ function SecurityPolicyContent({ route }: ScreenProps) {
             <p className="callout" role="note">
               {t('adm.securityPolicy.enforcement.note')}
             </p>
+          </SectionCard>
           </aside>
         </div>
       </StateBoundary>

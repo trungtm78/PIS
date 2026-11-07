@@ -12,6 +12,7 @@ import { keyScopeLabel, keyStatusLabel, problemMessage, refusalMessage } from '.
 import { ApiError } from '@machvon/api-client';
 import { EMPTY_KEY, KEY_MANAGE, KEY_SCOPES, MIN_REVOKE_REASON, describeLlmProblem, validateKey, vietnamDay } from './llm-model';
 import type { KeyEntry, KeyErrors, KeyScope, KeyValues, ModelEntry } from './llm-model';
+import './llm-kit.css';
 
 /**
  * LLM-06: the virtual keys of the AI gateway (ST-LLM-002, LLM F5, BR-LLM-09): for each key its alias, its scope, the number of models it reaches, its end, its fingerprint and its state (a key that is being rotated
@@ -109,11 +110,11 @@ function KeyRow({ entry, may }: { entry: KeyEntry; may: boolean }) {
           {may && live ? (
             <div className="mne-actions">
               {entry.status === 'ACTIVE' ? (
-                <button type="button" className="btn" disabled={rotate.isPending} onClick={() => rotate.mutate({ keyId: entry.id, version: entry.version })}>
+                <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={rotate.isPending} onClick={() => rotate.mutate({ keyId: entry.id, version: entry.version })}>
                   {t('llm.keys.rotate')}
                 </button>
               ) : null}
-              <button type="button" className="btn" aria-expanded={asking} onClick={() => setAsking(!asking)}>
+              <button type="button" className="ui-button ui-button--outline ui-button--small" aria-expanded={asking} onClick={() => setAsking(!asking)}>
                 {t('llm.keys.revoke')}
               </button>
             </div>
@@ -142,7 +143,7 @@ function KeyRow({ entry, may }: { entry: KeyEntry; may: boolean }) {
               </Field>
               <p className="sub">{t('llm.keys.revoke.hint')}</p>
               <div className="mne-actions">
-                <button type="submit" className="btn" disabled={revoke.isPending}>
+                <button type="submit" className="ui-button ui-button--primary" disabled={revoke.isPending}>
                   {t('llm.keys.revoke.submit')}
                 </button>
               </div>
@@ -222,7 +223,7 @@ function KeyForm({ models, modelsLoading, modelsError, onRetry }: { models: read
         {modelsError === undefined || modelsError === null ? null : (
           <p className="callout warning" role="alert" data-testid="key-models-failed">
             {modelsError instanceof ApiError && modelsError.status === 403 ? t('llm.keys.form.modelsDenied') : t('llm.keys.form.modelsFailed')}{' '}
-            <button type="button" className="btn" onClick={onRetry}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={onRetry}>
               {t('llm.keys.form.modelsRetry')}
             </button>
           </p>
@@ -237,7 +238,7 @@ function KeyForm({ models, modelsLoading, modelsError, onRetry }: { models: read
         ))}
       </fieldset>
       <div className="mne-actions">
-        <button type="submit" className="btn" disabled={create.isPending || modelsLoading || (modelsError !== undefined && modelsError !== null)}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending || modelsLoading || (modelsError !== undefined && modelsError !== null)}>
           {t('llm.keys.form.submit')}
         </button>
       </div>

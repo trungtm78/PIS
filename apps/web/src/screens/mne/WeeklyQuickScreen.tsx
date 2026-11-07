@@ -14,6 +14,9 @@ import { currentRevisionId, defaultWeek, pairedRates, proposalsOf, slowLines, we
 import type { ReportView } from './types';
 import '../dis/dis.css';
 import './mne.css';
+import './mne-kit.css';
+import { StatusPill } from '../../ui';
+import { reportStatusTone } from './tones';
 
 /**
  * MNE-07: the weekly quick report (CV 3665/BTC-PTHT [CXN-11]) of a week: the two disbursement rates, the same numbers as DIS-19 because the report is filled from the same frozen snapshot, the sums they are made of, and
@@ -106,7 +109,7 @@ function WeeklyBody({ report }: { report: ReportView }) {
       <div data-testid="weekly-header">
         <div className="mne-badges">
           <strong>{report.formTitle}</strong>
-          <span className="pill">{reportStatusLabel(t, report.status)}</span>
+          <StatusPill tone={reportStatusTone(report.status)}>{reportStatusLabel(t, report.status)}</StatusPill>
           <ConfirmationLabel awaiting={report.awaitingConfirmation} cxnRefs={report.cxnRefs} />
           {report.revision > 1 ? <span className="pill warn" data-testid="weekly-revision">{t('mne.weekly.header.revision', { revision: report.revision })}</span> : null}
         </div>
@@ -155,7 +158,7 @@ function WeeklyBody({ report }: { report: ReportView }) {
         )}
       </section>
       <div className="mne-actions">
-        <Link className="btn" to={`/mne/mne-03?report=${report.id}`}>
+        <Link className="ui-button ui-button--outline" to={`/mne/mne-03?report=${report.id}`}>
           {t('mne.weekly.open')}
         </Link>
       </div>

@@ -4,10 +4,14 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { DataTable, FilterPanel, SectionCard } from '../../../ui';
+import type { DataTableColumn } from '../../../ui';
 import '../dis.css';
-import { DefinitionBadge, RateCells, RateHeaders, SnapshotPicker, coverageLabel, money, problemMessage } from './components';
+import { CoveragePill, DefinitionBadge, RatesContext, SnapshotPicker, money, problemMessage, rateColumns, rateText } from './components';
 import { useFrozenSnapshots, useRates } from './hooks';
 import { PAIRED_PATH, describeRates } from './model';
+import type { RateGroup, Rates } from './model';
+import './rates.css';
 
 /**
  * DIS-12: the totals by unit with the two rates of each, and the day the Treasury figures are cut off (ST-DIS-010, FR-DIS-12, FR-DIS-19). Each unit row is made from the sums of its projects (BR-DIS-04):
@@ -43,96 +47,85 @@ function UnitTotalsContent({ route }: ScreenProps) {
         </div>
         {data === undefined ? null : <DefinitionBadge definition={data.definition} />}
       </div>
-      <div className="card">
+      <RatesContext snapshotId={data?.snapshotId} cutoff={data?.cutoffDate} />
+      <FilterPanel unitLabel={t('dis.wr.unit')} applied={snapshotId === '' ? 0 : 1}>
         <div className="dis-filters">
           <SnapshotPicker id="totals-snapshot" value={snapshotId} onChange={choose} snapshots={frozen.data ?? []} />
         </div>
-      </div>
+      </FilterPanel>
       {failure === undefined ? null : (
-        <p className="callout warning" role="alert" data-testid="rates-refusal">
-          {problemMessage(t, failure)}{' '}
-          <button type="button" onClick={() => void total.refetch()}>
+        <p className="w2dis-banner" role="alert" data-testid="rates-refusal">
+          {problemMessage(t, failure)}
+          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => void total.refetch()}>
             {t('states.retry.action')}
           </button>
         </p>
       )}
       <StateBoundary state={failure === undefined ? state : 'default'} onRetry={() => void total.refetch()}>
         {data === undefined ? (
-          <p className="muted" data-testid="rates-none">
+          <p className="w2dis-empty" data-testid="rates-none">
             {t('dis.rates.none.text')}
           </p>
         ) : (
-          <section className="card" aria-labelledby="totals-table-title">
-            <h2 id="totals-table-title">{t('dis.unitTotals.table.title')}</h2>
-            <p className="sub" data-testid="totals-cutoff">
+          <SectionCard title={t('dis.unitTotals.table.title')} unit={t('dis.wr.unit')}>
+            <p className="w2dis-note" data-testid="totals-cutoff">
               {t('dis.unitTotals.cutoff.text', { cutoff: data.cutoffDate })}
             </p>
-            <div className="tablewrap">
-              <table className="table" aria-label={t('dis.unitTotals.table.aria')} data-testid="totals-table">
-                <thead>
-                  <tr>
-                    <th scope="col">{t('dis.unitTotals.col.unit')}</th>
-                    <th scope="col" className="num">
-                      {t('dis.rates.col.projects')}
-                    </th>
-                    <th scope="col" className="num">
-                      {t('dis.rates.col.planPm')}
-                    </th>
-                    <th scope="col" className="num">
-                      {t('dis.rates.col.planLocal')}
-                    </th>
-                    <th scope="col" className="num">
-                      {t('dis.rates.col.numerator')}
-                    </th>
-                    <RateHeaders />
-                    <th scope="col">{t('dis.rates.col.coverage')}</th>
-                    <th scope="col">{t('dis.unitTotals.col.cutoff')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(total.data?.groups ?? []).map((group) => (
-                    <tr key={group.id ?? group.code ?? 'row'} data-unit={group.id ?? undefined}>
-                      <td>
-                        {group.id === null ? (
-                          (group.name ?? group.code)
-                        ) : (
-                          <Link to={`${PAIRED_PATH}?snapshot=${data.snapshotId}&unit=${group.id}`}>{group.name ?? group.code ?? group.id}</Link>
-                        )}
-                        <span className="dis-code">{group.code}</span>
-                      </td>
-                      <td className="num">{group.projects}</td>
-                      <td className="num">{money(group.planPmVnd)}</td>
-                      <td className="num">{money(group.planLocalVnd)}</td>
-                      <td className="num">{money(group.numeratorVnd)}</td>
-                      <RateCells figures={group} />
-                      <td>{coverageLabel(t, group.coverage)}</td>
-                      <td>{data.cutoffDate}</td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr data-testid="totals-row">
-                    <th scope="row">{t('dis.unitTotals.total.label')}</th>
-                    <td className="num">{data.projects}</td>
-                    <td className="num">{money(data.planPmVnd)}</td>
-                    <td className="num">{money(data.planLocalVnd)}</td>
-                    <td className="num">{money(data.numeratorVnd)}</td>
-                    <RateCells figures={data} />
-                    <td>{coverageLabel(t, data.coverage)}</td>
-                    <td>{data.cutoffDate}</td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-            {(total.data?.groups ?? []).length === 0 ? (
-              <p className="muted" data-testid="totals-empty">
+            {data.groups.length === 0 ? (
+              <p className="w2dis-empty" data-testid="totals-empty">
                 {t('dis.unitTotals.table.empty.text')}
               </p>
-            ) : null}
-          </section>
+            ) : (
+              <UnitTable groups={data.groups} whole={data} />
+            )}
+          </SectionCard>
         )}
       </StateBoundary>
       <p className="prototype-note">{t('dis.unitTotals.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
+  );
+}
+
+function UnitTable({ groups, whole }: { groups: readonly RateGroup[]; whole: Rates }) {
+  const { t } = useTranslation();
+  const planGroup = t('w2dis.rates.group.plan');
+  const columns: DataTableColumn<RateGroup>[] = [
+    {
+      key: 'unit',
+      header: t('dis.unitTotals.col.unit'),
+      pinned: true,
+      render: (group) => (
+        <>
+          {group.id === null ? <strong>{group.name ?? group.code}</strong> : <Link to={`${PAIRED_PATH}?snapshot=${whole.snapshotId}&unit=${group.id}`}>{group.name ?? group.code ?? group.id}</Link>}
+          <span className="dis-code">{group.code}</span>
+        </>
+      ),
+    },
+    { key: 'projects', header: t('dis.rates.col.projects'), align: 'right', render: (group) => String(group.projects) },
+    { key: 'planPm', header: t('dis.rates.col.planPm'), group: planGroup, align: 'right', render: (group) => money(group.planPmVnd) },
+    { key: 'planLocal', header: t('dis.rates.col.planLocal'), group: planGroup, align: 'right', render: (group) => money(group.planLocalVnd) },
+    { key: 'numerator', header: t('dis.rates.col.numerator'), align: 'right', render: (group) => money(group.numeratorVnd) },
+    ...rateColumns<RateGroup>(t, (group) => ({ ratePmPct: group.ratePmPct, rateTotalPct: group.rateTotalPct, reason: group.nullReason })),
+    { key: 'coverage', header: t('dis.rates.col.coverage'), render: (group) => <CoveragePill coverage={group.coverage} /> },
+    { key: 'cutoff', header: t('dis.unitTotals.col.cutoff'), render: () => whole.cutoffDate },
+  ];
+  return (
+    <DataTable
+      caption={t('dis.unitTotals.table.aria')}
+      columns={columns}
+      rows={[...groups]}
+      rowKey={(group) => group.id ?? group.code ?? 'row'}
+      totalsLabel={t('dis.unitTotals.total.label')}
+      totals={{
+        projects: String(whole.projects),
+        planPm: money(whole.planPmVnd),
+        planLocal: money(whole.planLocalVnd),
+        numerator: money(whole.numeratorVnd),
+        ratePm: rateText(t, whole.ratePmPct, whole.nullReason),
+        rateTotal: rateText(t, whole.rateTotalPct, whole.nullReason),
+        coverage: <CoveragePill coverage={whole.coverage} />,
+        cutoff: whole.cutoffDate,
+      }}
+    />
   );
 }

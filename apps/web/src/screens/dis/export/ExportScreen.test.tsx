@@ -83,11 +83,15 @@ describe('DIS-17 report export', () => {
     await waitFor(() => expect(within(screen.getByLabelText(vi_['dis.export.snapshot.label'])).getAllByRole('option')).toHaveLength(2));
     await user.selectOptions(screen.getByLabelText(vi_['dis.export.snapshot.label']), SNAPSHOT);
     expect(screen.getByTestId('export-pending-note').textContent).toBe(vi_['dis.export.pending.note']);
+    // The status of the definitions is told in words on the form too, with the rows the file will carry.
+    expect(screen.getByText('Định nghĩa chờ ký')).toBeTruthy();
+    expect(screen.getByRole('group', { name: 'Số dòng của snapshot' })).toBeTruthy();
     cleanup();
     open({ snapshots: { '': { items: [snapshotRecord({ definition_status: 'SIGNED' })], next_cursor: null, pending_reports: null } } });
     await waitFor(() => expect(within(screen.getByLabelText(vi_['dis.export.snapshot.label'])).getAllByRole('option')).toHaveLength(2));
     await userEvent.setup().selectOptions(screen.getByLabelText(vi_['dis.export.snapshot.label']), SNAPSHOT);
     expect(screen.queryByTestId('export-pending-note')).toBeNull();
+    expect(screen.getByText('Định nghĩa đã ký')).toBeTruthy();
   });
 
   it('sends only the columns that were kept, asks for a snapshot and for at least one column before it sends anything', async () => {

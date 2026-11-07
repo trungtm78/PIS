@@ -1,13 +1,14 @@
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../../i18n/vi.json';
+import { message } from '../../ctr/test-catalogue';
 import PaymentListScreen from './PaymentListScreen';
 import { ACCOUNTANT, READER, client, contractId, mount, payment, paymentId, routeOf, world } from './test-support';
 import type { World } from './test-support';
 
-
 const ROUTE = routeOf('PAY-01', 'PAY', 'FR-PAY-01');
-const text = (key: string, params: Record<string, string | number> = {}): string => Object.entries(params).reduce((message, [name, value]) => message.replace(`{${name}}`, String(value)), (vi_ as Record<string, string>)[key] ?? key);
+const text = (key: string, params: Record<string, string | number> = {}): string =>
+  Object.entries(params).reduce((message, [name, value]) => message.replace(`{${name}}`, String(value)), (vi_ as Record<string, string>)[key] ?? key);
 
 afterEach(() => {
   cleanup();
@@ -20,7 +21,7 @@ function open(state: World, options: { path?: string; permissions?: readonly str
   return h;
 }
 
-const rowOf = (id: string): HTMLElement => document.querySelector(`tr[data-request="${id}"]`) as HTMLElement;
+const rowOf = (id: string): HTMLElement => (document.querySelector(`[data-testid="status"][data-request="${id}"]`) as HTMLElement).closest('tr') as HTMLElement;
 
 describe('PaymentListScreen (PAY-01): the payment requests', () => {
   it('UI-PAY-01: lists the requests with the contract, the kind, the value of the work and the amount to pay, each a link to its detail', async () => {
@@ -34,8 +35,12 @@ describe('PaymentListScreen (PAY-01): the payment requests', () => {
     expect(within(first).getByTestId('gross').textContent).toBe('3.000.000.000');
     expect(within(first).getByTestId('net').textContent).toBe('2.100.000.000');
     expect(within(first).getByTestId('status').textContent).toBe(vi_['pay.payment.status.cancelled']);
-    expect(within(first).getByTestId('status').className).toContain('warning');
-    expect(within(rowOf(paymentId(1))).getByTestId('status').className).not.toContain('warning');
+    expect(within(first).getByTestId('status').querySelector('.ui-tone-danger')).not.toBeNull();
+    expect(
+      within(rowOf(paymentId(1)))
+        .getByTestId('status')
+        .querySelector('.ui-tone-neutral'),
+    ).not.toBeNull();
     const link = within(rowOf(paymentId(1))).getByTestId('open') as HTMLAnchorElement;
     expect(link.textContent).toBe('DNTT-001');
     expect(link.getAttribute('href')).toBe(`/pay/pay-03?request=${paymentId(1)}`);
@@ -90,5 +95,17 @@ describe('PaymentListScreen (PAY-01): the payment requests', () => {
     open(world({ failing: new Set(['get_resources_contract']) }));
     await screen.findByTestId('payments');
     expect((screen.getByTestId('filter-contract') as HTMLSelectElement).options).toHaveLength(1);
+  });
+  it('adds up only the requests that still stand, says so, and offers to clear the filter when nothing matches', async () => {
+    open(world({ payments: [payment(2, { status: 'CANCELLED' }), payment(1)] }));
+    await screen.findByTestId('payments');
+    const totals = document.querySelector('tfoot') as HTMLElement;
+    expect(within(totals).getByText('3.000.000.000')).toBeTruthy();
+    expect(screen.getByTestId('totals-note').textContent).toBe(message('w2pay.pay.list.totals.note', { standing: 1, total: 2 }));
+    expect(screen.getByRole('group', { name: vi_['ui.contextBar.label'] }).textContent).toContain(message('ui.unitChip.label', { unit: message('w2pay.ctx.unit') }));
+    cleanup();
+    open(world({ payments: [payment(1)] }), { path: '/pay/pay-01?status=CANCELLED' });
+    fireEvent.click(await screen.findByRole('button', { name: vi_['ui.dataTable.clearFilters'] }));
+    await waitFor(() => expect(document.querySelectorAll('tbody tr')).toHaveLength(1));
   });
 });

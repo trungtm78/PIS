@@ -6,6 +6,8 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { ContextBar, DataTable, FilterPanel, SectionCard, StatusPill } from '../../ui';
+import type { DataTableColumn } from '../../ui';
 import { ConfirmationLabel } from './components';
 import { FormRevisionForm } from './FormRevisionForm';
 import { useForms, usePublishForm } from './hooks';
@@ -13,9 +15,13 @@ import type { FormFilter } from './hooks';
 import { formStatusLabel, phaseLabel, problemMessage, reportKindLabel } from './labels';
 import { actionsFor, describeProblem, lastDayOf, phaseOf, vietnamToday } from './model';
 import { RulesPanel } from './RulesPanel';
+import { formStatusTone } from './tones';
 import { APPROVE_FORMS_PERMISSION, MANAGE_FORMS_PERMISSION, REPORT_KINDS } from './types';
 import type { FormView, ReportKind } from './types';
 import './mne.css';
+import './mne-kit.css';
+
+type Translate = ReturnType<typeof useTranslation>['t'];
 
 const EMPTY_FILTER: FormFilter = { reportKind: '', effectiveOn: '' };
 /** The route of the DOC template library (DOC-14), where the template of a form is read. */
@@ -61,6 +67,8 @@ function FormCatalogueContent({ route }: ScreenProps) {
     setPublishing(form);
   };
 
+  const columns = formColumns(t, today, context, openPublish);
+
   const confirmPublish = (event: FormEvent): void => {
     event.preventDefault();
     if (publishing === undefined || publish.isPending) return;
@@ -86,7 +94,7 @@ function FormCatalogueContent({ route }: ScreenProps) {
           <p>{t('mne.forms.page.subtitle')}</p>
         </div>
         {mayDraft ? (
-          <button type="button" className="primary" onClick={startCreate}>
+          <button type="button" className="ui-button ui-button--primary" onClick={startCreate}>
             {t('mne.forms.create.open.action')}
           </button>
         ) : null}
@@ -97,7 +105,14 @@ function FormCatalogueContent({ route }: ScreenProps) {
           {done}
         </p>
       )}
-      <div className="card">
+      <ContextBar
+        items={[
+          { label: t('mne.forms.ctx.scope'), value: tenant?.name ?? t('mne.forms.ctx.scope.all') },
+          { label: t('mne.forms.ctx.count'), value: String(rows.length) },
+        ]}
+        {...(forms.dataUpdatedAt > 0 ? { asOf: new Date(forms.dataUpdatedAt).toLocaleString('vi-VN') } : {})}
+      />
+      <FilterPanel applied={(applied.reportKind === '' ? 0 : 1) + (applied.effectiveOn === '' ? 0 : 1)}>
         <form className="mne-filters" onSubmit={submitFilter} noValidate aria-label={t('mne.forms.filter.title')}>
           <div>
             <label htmlFor="form-kind">{t('mne.forms.filter.kind.label')}</label>
@@ -115,101 +130,30 @@ function FormCatalogueContent({ route }: ScreenProps) {
             <input id="form-effective-on" type="date" value={draft.effectiveOn} onChange={(event) => setDraft({ ...draft, effectiveOn: event.target.value })} />
             <small className="sub">{t('mne.forms.filter.effectiveOn.hint')}</small>
           </div>
-          <button type="submit">{t('mne.forms.filter.action')}</button>
+          <button type="submit" className="ui-button ui-button--outline">
+            {t('mne.forms.filter.action')}
+          </button>
         </form>
-        {frozen ? (
-          <p className="callout warning" role="status">
-            {t('mne.forms.frozen.notice')}
-          </p>
-        ) : null}
-        {awaiting === 0 ? null : (
-          <p className="callout warning" role="status" data-testid="awaiting-banner">
-            {t('mne.forms.awaiting.banner', { count: awaiting })}
-          </p>
-        )}
-        <StateBoundary state={state} onRetry={() => void forms.refetch()}>
-          <div className="tablewrap">
-            <table aria-label={t('mne.forms.table.aria')}>
-              <thead>
-                <tr>
-                  <th>{t('mne.forms.col.code')}</th>
-                  <th>{t('mne.forms.col.name')}</th>
-                  <th>{t('mne.forms.col.kind')}</th>
-                  <th>{t('mne.forms.col.legal')}</th>
-                  <th>{t('mne.forms.col.period')}</th>
-                  <th>{t('mne.forms.col.template')}</th>
-                  <th>{t('mne.forms.col.formats')}</th>
-                  <th>{t('mne.forms.col.status')}</th>
-                  <th>
-                    <span className="sr-only">{t('mne.forms.col.actions')}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((form) => {
-                  const actions = actionsFor(form, context);
-                  const phase = phaseOf(form, today);
-                  return (
-                    <tr key={form.id} data-form-id={form.id} data-form-code={form.formCode} data-phase={phase} className={form.id === publishing?.id ? 'selected' : undefined}>
-                      <td>
-                        <strong>{form.formCode}</strong> <span className="pill gray">{t('mne.forms.revision.pill', { revision: form.revision })}</span>
-                      </td>
-                      <td>{form.title}</td>
-                      <td>{reportKindLabel(t, form.reportKind)}</td>
-                      <td className="mne-legal">
-                        <div>{form.legalBasis}</div>
-                        <div className="mne-badges">
-                          <ConfirmationLabel awaiting={form.awaitingConfirmation} cxnRefs={form.cxnRefs} reference={form.legalConfirmationRef} />
-                        </div>
-                        {form.awaitingConfirmation && form.watermarkText !== null ? <div className="sub">{t('mne.forms.watermark.text', { text: form.watermarkText })}</div> : null}
-                      </td>
-                      <td>
-                        {form.effectiveUntil === null
-                          ? t('mne.forms.period.open', { from: form.effectiveFrom })
-                          : t('mne.forms.period.closed', { from: form.effectiveFrom, until: lastDayOf(form.effectiveUntil) ?? '' })}
-                      </td>
-                      <td>
-                        {form.docTemplateId === null ? (
-                          <>
-                            <code>{form.docTemplateCode}</code> <span className="pill warn">{t('mne.forms.template.missing')}</span>
-                          </>
-                        ) : (
-                          <Link to={DOC_TEMPLATES_PATH} aria-label={t('mne.forms.template.link.label', { code: form.docTemplateCode })}>
-                            {form.docTemplateCode}
-                          </Link>
-                        )}
-                      </td>
-                      <td>{form.exportFormats.join(', ')}</td>
-                      <td>
-                        <div className="mne-badges">
-                          <span className={form.status === 'RETIRED' ? 'pill red' : form.status === 'PUBLISHED' ? 'pill' : 'pill gray'} data-lifecycle={form.status}>
-                            {formStatusLabel(t, form.status)}
-                          </span>
-                          <span className={phase === 'inForce' ? 'pill green' : 'pill gray'}>{phaseLabel(t, phase)}</span>
-                        </div>
-                      </td>
-                      <td className="mne-actions">
-                        {actions.publish ? (
-                          <button type="button" aria-label={t('mne.forms.publish.label', { code: form.formCode, revision: form.revision })} onClick={() => openPublish(form)}>
-                            {t('mne.forms.publish.action')}
-                          </button>
-                        ) : null}
-                        {actions.publishNeedsOther ? <span className="sub">{t('mne.forms.publish.other.hint')}</span> : null}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          <p className="muted tiny" data-testid="count">
-            {t('mne.forms.count.text', { count: rows.length })}
-          </p>
-        </StateBoundary>
-      </div>
+      </FilterPanel>
+      {frozen ? (
+        <p className="callout warning" role="status">
+          {t('mne.forms.frozen.notice')}
+        </p>
+      ) : null}
+      {awaiting === 0 ? null : (
+        <p className="callout warning" role="status" data-testid="awaiting-banner">
+          {t('mne.forms.awaiting.banner', { count: awaiting })}
+        </p>
+      )}
+      <StateBoundary state={state} onRetry={() => void forms.refetch()}>
+        <DataTable caption={t('mne.forms.table.aria')} columns={columns} rows={rows} rowKey={(form) => form.id} />
+        <p className="muted tiny mne-count" data-testid="count">
+          {t('mne.forms.count.text', { count: rows.length })}
+        </p>
+      </StateBoundary>
       {publishing === undefined || frozen ? null : (
-        <form className="card" onSubmit={confirmPublish} noValidate aria-label={t('mne.forms.publish.title', { code: publishing.formCode, revision: publishing.revision })}>
-          <h2>{t('mne.forms.publish.title', { code: publishing.formCode, revision: publishing.revision })}</h2>
+        <SectionCard title={t('mne.forms.publish.title', { code: publishing.formCode, revision: publishing.revision })}>
+        <form onSubmit={confirmPublish} noValidate aria-label={t('mne.forms.publish.title', { code: publishing.formCode, revision: publishing.revision })}>
           <p className="sub">{t('mne.forms.publish.hint')}</p>
           {refused === undefined ? null : (
             <p className="callout warning" role="alert">
@@ -217,14 +161,15 @@ function FormCatalogueContent({ route }: ScreenProps) {
             </p>
           )}
           <div className="row gap">
-            <button type="submit" className="primary" disabled={publish.isPending}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={publish.isPending}>
               {t('mne.forms.publish.confirm.action')}
             </button>
-            <button type="button" onClick={() => setPublishing(undefined)}>
+            <button type="button" className="ui-button ui-button--outline" onClick={() => setPublishing(undefined)}>
               {t('mne.forms.publish.cancel.action')}
             </button>
           </div>
         </form>
+        </SectionCard>
       )}
       {creating && mayDraft ? (
         <FormRevisionForm
@@ -240,4 +185,88 @@ function FormCatalogueContent({ route }: ScreenProps) {
       <p className="prototype-note">{t('mne.forms.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
   );
+}
+
+/** The columns of the catalogue: the code with its revision stays pinned, the lifecycle and the phase are pills, and the publish action is the last cell. */
+function formColumns(t: Translate, today: string, context: Parameters<typeof actionsFor>[1], openPublish: (form: FormView) => void): DataTableColumn<FormView>[] {
+  return [
+    {
+      key: 'code',
+      header: t('mne.forms.col.code'),
+      pinned: true,
+      render: (form) => (
+        <>
+          <strong>{form.formCode}</strong> <StatusPill tone="neutral">{t('mne.forms.revision.pill', { revision: form.revision })}</StatusPill>
+        </>
+      ),
+    },
+    { key: 'name', header: t('mne.forms.col.name'), render: (form) => form.title },
+    { key: 'kind', header: t('mne.forms.col.kind'), render: (form) => reportKindLabel(t, form.reportKind) },
+    {
+      key: 'legal',
+      header: t('mne.forms.col.legal'),
+      render: (form) => (
+        <div className="mne-legal">
+          <div>{form.legalBasis}</div>
+          <div className="mne-badges">
+            <ConfirmationLabel awaiting={form.awaitingConfirmation} cxnRefs={form.cxnRefs} reference={form.legalConfirmationRef} />
+          </div>
+          {form.awaitingConfirmation && form.watermarkText !== null ? <div className="sub">{t('mne.forms.watermark.text', { text: form.watermarkText })}</div> : null}
+        </div>
+      ),
+    },
+    {
+      key: 'period',
+      header: t('mne.forms.col.period'),
+      render: (form) =>
+        form.effectiveUntil === null
+          ? t('mne.forms.period.open', { from: form.effectiveFrom })
+          : t('mne.forms.period.closed', { from: form.effectiveFrom, until: lastDayOf(form.effectiveUntil) ?? '' }),
+    },
+    {
+      key: 'template',
+      header: t('mne.forms.col.template'),
+      render: (form) =>
+        form.docTemplateId === null ? (
+          <>
+            <code>{form.docTemplateCode}</code> <StatusPill tone="warning">{t('mne.forms.template.missing')}</StatusPill>
+          </>
+        ) : (
+          <Link to={DOC_TEMPLATES_PATH} aria-label={t('mne.forms.template.link.label', { code: form.docTemplateCode })}>
+            {form.docTemplateCode}
+          </Link>
+        ),
+    },
+    { key: 'formats', header: t('mne.forms.col.formats'), render: (form) => form.exportFormats.join(', ') },
+    {
+      key: 'status',
+      header: t('mne.forms.col.status'),
+      render: (form) => {
+        const phase = phaseOf(form, today);
+        return (
+          <div className="mne-badges">
+            <StatusPill tone={formStatusTone(form.status)}>{formStatusLabel(t, form.status)}</StatusPill>
+            <StatusPill tone={phase === 'inForce' ? 'success' : 'neutral'}>{phaseLabel(t, phase)}</StatusPill>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'actions',
+      header: t('mne.forms.col.actions'),
+      render: (form) => {
+        const actions = actionsFor(form, context);
+        return (
+          <div className="mne-actions">
+            {actions.publish ? (
+              <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('mne.forms.publish.label', { code: form.formCode, revision: form.revision })} onClick={() => openPublish(form)}>
+                {t('mne.forms.publish.action')}
+              </button>
+            ) : null}
+            {actions.publishNeedsOther ? <span className="sub">{t('mne.forms.publish.other.hint')}</span> : null}
+          </div>
+        );
+      },
+    },
+  ];
 }

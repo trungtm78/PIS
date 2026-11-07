@@ -45,7 +45,14 @@ const component = (n: number, overrides: Record<string, unknown> = {}) => ({
   depth: 1,
   ...overrides,
 });
-const componentsAnswer = (items: unknown[], extra: Record<string, unknown> = {}) => ({ items, wbs_total_vnd: '20000000000', project_total_vnd: '45000000000', exceeds_total: false, as_of: '2026-10-31', ...extra });
+const componentsAnswer = (items: unknown[], extra: Record<string, unknown> = {}) => ({
+  items,
+  wbs_total_vnd: '20000000000',
+  project_total_vnd: '45000000000',
+  exceeds_total: false,
+  as_of: '2026-10-31',
+  ...extra,
+});
 
 const milestone = (n: number, overrides: Record<string, unknown> = {}) => ({
   id: `00000000-0000-4000-8000-0000000000d${n}`,
@@ -84,15 +91,29 @@ function open(
 }
 
 const showComponents = (h: Harness, permissions: readonly string[], options: { mode?: 'FULL' | 'READ_ONLY'; project?: boolean } = {}) =>
-  mount(<ComponentsScreen route={COMPONENTS_ROUTE} />, h, { permissions, ...(options.mode === undefined ? {} : { mode: options.mode }), path: `/prj/prj-05${options.project === false ? '' : `?id=${PROJECT}`}` });
+  mount(<ComponentsScreen route={COMPONENTS_ROUTE} />, h, {
+    permissions,
+    ...(options.mode === undefined ? {} : { mode: options.mode }),
+    path: `/prj/prj-05${options.project === false ? '' : `?id=${PROJECT}`}`,
+  });
 const showMilestones = (h: Harness, permissions: readonly string[], options: { mode?: 'FULL' | 'READ_ONLY'; project?: boolean } = {}) =>
-  mount(<MilestonesScreen route={MILESTONES_ROUTE} />, h, { permissions, ...(options.mode === undefined ? {} : { mode: options.mode }), path: `/prj/prj-07${options.project === false ? '' : `?id=${PROJECT}`}` });
+  mount(<MilestonesScreen route={MILESTONES_ROUTE} />, h, {
+    permissions,
+    ...(options.mode === undefined ? {} : { mode: options.mode }),
+    path: `/prj/prj-07${options.project === false ? '' : `?id=${PROJECT}`}`,
+  });
 const type = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
-const sent = (h: Harness, operation: string) => h.command.mock.calls.filter(([name]) => name === operation).map(([, input]) => input as { path?: Record<string, string>; body?: Record<string, unknown>; ifMatchVersion?: number });
+const sent = (h: Harness, operation: string) =>
+  h.command.mock.calls.filter(([name]) => name === operation).map(([, input]) => input as { path?: Record<string, string>; body?: Record<string, unknown>; ifMatchVersion?: number });
 
 describe('ComponentsScreen (PRJ-05): the work breakdown of a project', () => {
   it('UI-PRJ-05: lists the components as a tree with their code, parent and value, and tells in words when the first level exceeds the total', async () => {
-    const h = open({ components: componentsAnswer([component(1), component(2, { parent_component_id: component(1).id, depth: 2, planned_value_vnd: '4000000000' }), component(3)], { wbs_total_vnd: '48000000000', exceeds_total: true }) });
+    const h = open({
+      components: componentsAnswer([component(1), component(2, { parent_component_id: component(1).id, depth: 2, planned_value_vnd: '4000000000' }), component(3)], {
+        wbs_total_vnd: '48000000000',
+        exceeds_total: true,
+      }),
+    });
     showComponents(h, READER);
     const table = await screen.findByTestId('components');
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['prj.wbs.title']);
@@ -139,7 +160,10 @@ describe('ComponentsScreen (PRJ-05): the work breakdown of a project', () => {
     type(vi_['prj.wbs.field.sort.label'], '3');
     fireEvent.click(within(form).getByRole('button', { name: vi_['prj.wbs.form.submit.action'] }));
     await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
-    expect(sent(h, 'addProjectComponent')[0]).toMatchObject({ path: { id: PROJECT }, body: { code: 'C1-1', name: 'Gói phụ', planned_value_vnd: '4000000000', valid_from: '2026-01-01', parent_component_id: component(1).id, sort_order: 3 } });
+    expect(sent(h, 'addProjectComponent')[0]).toMatchObject({
+      path: { id: PROJECT },
+      body: { code: 'C1-1', name: 'Gói phụ', planned_value_vnd: '4000000000', valid_from: '2026-01-01', parent_component_id: component(1).id, sort_order: 3 },
+    });
     expect((await screen.findByTestId('component-saved')).textContent).toBe(vi_['prj.wbs.form.saved']);
     expect((within(form).getByLabelText(vi_['prj.wbs.field.code.label']) as HTMLInputElement).value).toBe('');
   });
@@ -159,7 +183,10 @@ describe('ComponentsScreen (PRJ-05): the work breakdown of a project', () => {
     await screen.findByTestId('components');
     expect(screen.queryByRole('form', { name: vi_['prj.wbs.form.title'] })).toBeNull();
     cleanup();
-    showComponents(open({ components: componentsAnswer([]) }, () => OK, [line(1, { status: 'CLOSED' })]), WRITER);
+    showComponents(
+      open({ components: componentsAnswer([]) }, () => OK, [line(1, { status: 'CLOSED' })]),
+      WRITER,
+    );
     await screen.findByTestId('components');
     expect(screen.queryByRole('form', { name: vi_['prj.wbs.form.title'] })).toBeNull();
   });
@@ -184,12 +211,13 @@ describe('MilestonesScreen (PRJ-07): the schedule of a project', () => {
     showMilestones(h, READER);
     const table = await screen.findByTestId('milestones');
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['prj.mile.title']);
-    for (const key of ['prj.mile.col.milestone', 'prj.mile.col.planned', 'prj.mile.col.actual', 'prj.mile.col.depends'] as const) expect(within(table).getByRole('columnheader', { name: vi_[key] })).toBeTruthy();
+    for (const key of ['prj.mile.col.milestone', 'prj.mile.col.planned', 'prj.mile.col.actual', 'prj.mile.col.depends'] as const)
+      expect(within(table).getByRole('columnheader', { name: vi_[key] })).toBeTruthy();
     const rows = within(table).getAllByRole('row').slice(1);
     expect(rows[0]?.textContent).toContain('2026-03-02');
     expect(rows[0]?.textContent).toContain(vi_['prj.mile.status.done']);
     expect(within(rows[0] as HTMLElement).getByTestId('delay').textContent).toBe(vi_['prj.mile.delay.pill'].replace('{days}', '15'));
-    expect(rows[0]?.getAttribute('data-delayed')).toBe('true');
+    expect(rows[0]?.querySelector('[data-delayed]')?.getAttribute('data-delayed')).toBe('true');
     expect(rows[0]?.textContent).toContain(vi_['prj.mile.component'].replace('{component}', 'C1'));
     expect(within(rows[1] as HTMLElement).queryByTestId('delay')).toBeNull();
     expect(within(rows[1] as HTMLElement).getAllByRole('cell')[4]?.textContent).toBe('M-KC');
@@ -218,7 +246,10 @@ describe('MilestonesScreen (PRJ-07): the schedule of a project', () => {
     fireEvent.change(within(form).getByLabelText(vi_['prj.mile.field.depends.label']), { target: { value: milestone(1).id } });
     fireEvent.click(within(form).getByRole('button', { name: vi_['prj.mile.form.submit.action'] }));
     await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
-    expect(sent(h, 'addProjectMilestone')[0]).toMatchObject({ path: { id: PROJECT }, body: { code: 'M-KC', name: 'Khởi công', baseline_date: '2026-02-15', planned_date: '2026-02-20', component_id: component(1).id, depends_on_milestone_id: milestone(1).id } });
+    expect(sent(h, 'addProjectMilestone')[0]).toMatchObject({
+      path: { id: PROJECT },
+      body: { code: 'M-KC', name: 'Khởi công', baseline_date: '2026-02-15', planned_date: '2026-02-20', component_id: component(1).id, depends_on_milestone_id: milestone(1).id },
+    });
     expect((await screen.findByTestId('milestone-saved')).textContent).toBe(vi_['prj.mile.form.saved']);
   });
 
@@ -316,7 +347,10 @@ describe('MilestonesScreen (PRJ-07): the schedule of a project', () => {
     expect(screen.queryByRole('form')).toBeNull();
     expect(screen.queryByRole('button', { name: vi_['prj.mile.progress.action'] })).toBeNull();
     cleanup();
-    showMilestones(open({ milestones: milestonesAnswer([milestone(1)]) }, () => OK, [line(1, { status: 'CANCELLED' })]), WRITER);
+    showMilestones(
+      open({ milestones: milestonesAnswer([milestone(1)]) }, () => OK, [line(1, { status: 'CANCELLED' })]),
+      WRITER,
+    );
     await screen.findByTestId('milestones');
     expect(screen.queryByRole('form')).toBeNull();
     cleanup();
@@ -334,20 +368,40 @@ describe('MilestonesScreen (PRJ-07): the schedule of a project', () => {
 
 describe('the model of the plan', () => {
   it('reads the breakdown and the milestones, leaves out what is not one, and knows what is open', () => {
-    const read = toComponentRegister(componentsAnswer([component(1), { id: 'x' }, null, component(2, { depth: 'x' }), component(3, { parent_component_id: component(1).id, depth: 2 })], { exceeds_total: true }));
-    expect(read.items.map((item) => [item.code, item.depth, item.parentId])).toEqual([['C1', 1, null], ['C3', 2, component(1).id]]);
+    const read = toComponentRegister(
+      componentsAnswer([component(1), { id: 'x' }, null, component(2, { depth: 'x' }), component(3, { parent_component_id: component(1).id, depth: 2 })], { exceeds_total: true }),
+    );
+    expect(read.items.map((item) => [item.code, item.depth, item.parentId])).toEqual([
+      ['C1', 1, null],
+      ['C3', 2, component(1).id],
+    ]);
     expect(read).toMatchObject({ wbsTotalVnd: '20000000000', projectTotalVnd: '45000000000', exceedsTotal: true });
     expect(toComponentRegister(undefined)).toEqual({ items: [], wbsTotalVnd: '0', projectTotalVnd: '0', exceedsTotal: false });
-    const items = toMilestones(milestonesAnswer([milestone(1), { id: 'x' }, milestone(2, { status: 'LOST' }), null, milestone(3, { delay_days: 'x', delayed: 'yes', depends_on: { id: milestone(1).id }, component: { id: 'c' }, version: 2 })]));
+    const items = toMilestones(
+      milestonesAnswer([
+        milestone(1),
+        { id: 'x' },
+        milestone(2, { status: 'LOST' }),
+        null,
+        milestone(3, { delay_days: 'x', delayed: 'yes', depends_on: { id: milestone(1).id }, component: { id: 'c' }, version: 2 }),
+      ]),
+    );
     expect(items.map((item) => item.code)).toEqual(['M1', 'M3']);
     expect(items[1]).toMatchObject({ delayDays: 0, delayed: false, dependsOn: { id: milestone(1).id, code: '' }, componentCode: null });
     expect(toMilestones(undefined)).toEqual([]);
     expect([isOpen('PLANNED'), isOpen('DELAYED'), isOpen('DONE'), isOpen('CANCELLED')]).toEqual([true, true, false, false]);
-    expect([holds(WRITER, 'project.update', undefined), holds(READER, 'project.update', undefined), holds(undefined, 'x', 'FULL'), holds(WRITER, 'project.update', 'READ_ONLY')]).toEqual([true, false, true, false]);
+    expect([holds(WRITER, 'project.update', undefined), holds(READER, 'project.update', undefined), holds(undefined, 'x', 'FULL'), holds(WRITER, 'project.update', 'READ_ONLY')]).toEqual([
+      true,
+      false,
+      true,
+      false,
+    ]);
   });
 
   it('offers as a dependency the other milestones that do not already wait, through others, for this one', () => {
-    const items: MilestoneView[] = toMilestones(milestonesAnswer([milestone(1), milestone(2, { depends_on: { id: milestone(1).id, code: 'M1' } }), milestone(3, { depends_on: { id: milestone(2).id, code: 'M2' } }), milestone(4)]));
+    const items: MilestoneView[] = toMilestones(
+      milestonesAnswer([milestone(1), milestone(2, { depends_on: { id: milestone(1).id, code: 'M1' } }), milestone(3, { depends_on: { id: milestone(2).id, code: 'M2' } }), milestone(4)]),
+    );
     expect(dependencyChoices(items, milestone(1).id).map((item) => item.code)).toEqual(['M4']);
     expect(dependencyChoices(items, milestone(3).id).map((item) => item.code)).toEqual(['M1', 'M2', 'M4']);
     expect(dependencyChoices(items, milestone(4).id).map((item) => item.code)).toEqual(['M1', 'M2', 'M3']);
@@ -360,14 +414,35 @@ describe('the model of the plan', () => {
   it('checks a component and a milestone and builds the body the server takes', () => {
     expect(validateComponent(COMPONENT)).toEqual({});
     expect(validateComponent(EMPTY_COMPONENT)).toEqual({ code: 'required', name: 'required', value: 'required', validFrom: 'required' });
-    expect(validateComponent({ ...COMPONENT, code: '-x', name: 'x', parent: 'x', value: '-1', validFrom: '2026-02-30', sortOrder: '100001' })).toEqual({ code: 'invalid', name: 'invalid', parent: 'invalid', value: 'invalid', validFrom: 'invalid', sortOrder: 'invalid' });
+    expect(validateComponent({ ...COMPONENT, code: '-x', name: 'x', parent: 'x', value: '-1', validFrom: '2026-02-30', sortOrder: '100001' })).toEqual({
+      code: 'invalid',
+      name: 'invalid',
+      parent: 'invalid',
+      value: 'invalid',
+      validFrom: 'invalid',
+      sortOrder: 'invalid',
+    });
     expect(validateComponent({ ...COMPONENT, value: '1'.repeat(25), sortOrder: 'x' })).toEqual({ value: 'invalid', sortOrder: 'invalid' });
-    expect(componentBody({ ...COMPONENT, code: ' C1 ', parent: component(1).id, sortOrder: '2' })).toEqual({ code: 'C1', name: 'Gói chính', planned_value_vnd: '10', valid_from: '2026-01-01', parent_component_id: component(1).id, sort_order: 2 });
+    expect(componentBody({ ...COMPONENT, code: ' C1 ', parent: component(1).id, sortOrder: '2' })).toEqual({
+      code: 'C1',
+      name: 'Gói chính',
+      planned_value_vnd: '10',
+      valid_from: '2026-01-01',
+      parent_component_id: component(1).id,
+      sort_order: 2,
+    });
     expect(componentBody(COMPONENT)).toEqual({ code: 'C1', name: 'Gói chính', planned_value_vnd: '10', valid_from: '2026-01-01' });
     expect(validateMilestone(MILESTONE)).toEqual({});
     expect(validateMilestone(EMPTY_MILESTONE)).toEqual({ code: 'required', name: 'required', baseline: 'required', planned: 'required' });
     expect(validateMilestone({ ...MILESTONE, code: '-x', name: 'x', baseline: '2026-13-01', planned: 'x' })).toEqual({ code: 'invalid', name: 'invalid', baseline: 'invalid', planned: 'invalid' });
-    expect(milestoneBody({ ...MILESTONE, component: component(1).id, dependsOn: milestone(1).id })).toEqual({ code: 'M1', name: 'Khởi công', baseline_date: '2026-02-15', planned_date: '2026-02-20', component_id: component(1).id, depends_on_milestone_id: milestone(1).id });
+    expect(milestoneBody({ ...MILESTONE, component: component(1).id, dependsOn: milestone(1).id })).toEqual({
+      code: 'M1',
+      name: 'Khởi công',
+      baseline_date: '2026-02-15',
+      planned_date: '2026-02-20',
+      component_id: component(1).id,
+      depends_on_milestone_id: milestone(1).id,
+    });
     expect(milestoneBody(MILESTONE)).toEqual({ code: 'M1', name: 'Khởi công', baseline_date: '2026-02-15', planned_date: '2026-02-20' });
   });
 
@@ -390,8 +465,18 @@ describe('the model of the plan', () => {
     expect(vietnamToday()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     const refusal = (status: number, code: string) => describePlan(new ApiError({ status, code, correlationId: 'c' }));
     expect([
-      refusal(409, 'COMPONENT_CODE_DUPLICATE'), refusal(409, 'MILESTONE_CODE_DUPLICATE'), refusal(409, 'DEPENDENCY_CYCLE'), refusal(409, 'MILESTONE_STATE_INVALID'), refusal(409, 'VERSION_CONFLICT'),
-      refusal(403, 'SCOPE_DENIED'), refusal(422, 'PROJECT_STAGE_INVALID'), refusal(422, 'VALIDATION_FAILED'), refusal(400, 'INVALID_REQUEST'), refusal(404, 'RESOURCE_NOT_FOUND'), refusal(500, 'X'), describePlan(new Error('x')),
+      refusal(409, 'COMPONENT_CODE_DUPLICATE'),
+      refusal(409, 'MILESTONE_CODE_DUPLICATE'),
+      refusal(409, 'DEPENDENCY_CYCLE'),
+      refusal(409, 'MILESTONE_STATE_INVALID'),
+      refusal(409, 'VERSION_CONFLICT'),
+      refusal(403, 'SCOPE_DENIED'),
+      refusal(422, 'PROJECT_STAGE_INVALID'),
+      refusal(422, 'VALIDATION_FAILED'),
+      refusal(400, 'INVALID_REQUEST'),
+      refusal(404, 'RESOURCE_NOT_FOUND'),
+      refusal(500, 'X'),
+      describePlan(new Error('x')),
     ]).toEqual(['componentDuplicate', 'milestoneDuplicate', 'cycle', 'stateInvalid', 'versionConflict', 'scopeDenied', 'stageClosed', 'validation', 'validation', 'notFound', 'general', 'general']);
   });
 });

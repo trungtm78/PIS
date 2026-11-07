@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import vi_ from '../../../i18n/vi.json';
 import { PERIOD, RATE_READER, client, mount, routeOf, world } from '../report/test-support';
 import FullTableScreen from './FullTableScreen';
+import viParts from '../../../i18n/vi.json';
 import { SNAPSHOT, ratesRecord } from './rates-test-support';
 
 const ROUTE = routeOf('DIS-16', 'FR-DIS-16');
@@ -67,18 +68,21 @@ const open = (pages: Record<string, Record<string, unknown>> = { '': { snapshot,
   mount(<FullTableScreen route={ROUTE} />, h, { permissions: RATE_READER, path: '/dis/dis-16' });
   return h;
 };
+const tableOf = (): Promise<HTMLElement> => screen.findByRole('table', { name: vi_['dis.full.table.aria'] });
+const bodyRows = (table: HTMLElement): HTMLElement[] => Array.from(table.querySelectorAll<HTMLElement>('tbody tr'));
+const stat = (name: string): string => screen.getByRole('group', { name }).querySelector('.ui-stat__value')?.textContent ?? '';
 const headers = (table: HTMLElement) => within(table).getAllByRole('columnheader').map((header) => header.textContent);
 
 describe('DIS-16 the full table and the configuration of its columns', () => {
   it('AC-ST-DIS-010-4 / UAT-AC240 / FX-DIS-001: shows the CTMTQG of 40 million as a column of its own, apart from the 420 million of the cells, and does not add it to the total', async () => {
     open();
     expect(await screen.findByRole('heading', { level: 1, name: vi_['dis.full.page.title'] })).toBeTruthy();
-    const table = await screen.findByTestId('full-table');
+    const table = await tableOf();
     expect(headers(table)).toContain(vi_['dis.full.col.ctmtqg']);
-    expect(table.querySelector('tr[data-line="' + LINE(0) + '"] [data-col="ctmtqg"]')?.textContent).toBe('40.000.000');
-    expect(table.querySelector('tr[data-line="' + LINE(0) + '"] [data-col="reported"]')?.textContent).toBe('100.000.000');
-    expect(screen.getByTestId('total-reported').textContent).toBe('420.000.000');
-    expect(screen.getByTestId('total-ctmtqg').textContent).toBe('40.000.000');
+    expect(bodyRows(table)[0]?.querySelector('[data-col="ctmtqg"]')?.textContent).toBe('40.000.000');
+    expect(bodyRows(table)[0]?.querySelector('[data-col="reported"]')?.textContent).toBe('100.000.000');
+    expect(stat(vi_['dis.full.total.reported'])).toBe('420.000.000');
+    expect(stat(vi_['dis.full.total.ctmtqg'])).toBe('40.000.000');
     expect(screen.getByText(vi_['dis.full.total.note'])).toBeTruthy();
   });
 
@@ -92,13 +96,15 @@ describe('DIS-16 the full table and the configuration of its columns', () => {
 
   it('pins the project and the cell, and shows both rates for every line with a dash and its reason where a line has none', async () => {
     open();
-    const table = await screen.findByTestId('full-table');
-    const first = table.querySelector('tr[data-line="' + LINE(0) + '"]') as HTMLElement;
-    expect(first.querySelectorAll('.pinned')).toHaveLength(2);
+    const table = await tableOf();
+    const first = bodyRows(table)[0] as HTMLElement;
+    // The project is the pinned column (the kit pins one); the cell follows it.
+    expect(first.querySelectorAll('.ui-table__cell--pinned')).toHaveLength(1);
+    expect(first.querySelector('.ui-table__cell--pinned')?.textContent).toBe('DA-2027-001');
     expect(headers(table).slice(0, 2)).toEqual([vi_['dis.snapshot.line.project'], vi_['dis.snapshot.line.cell']]);
     expect(first.querySelector('[data-rate="pm"]')?.textContent).toBe('50.0000%');
     expect(first.querySelector('[data-rate="total"]')?.textContent).toBe('50.0000%');
-    const second = table.querySelector('tr[data-line="' + LINE(1) + '"]') as HTMLElement;
+    const second = bodyRows(table)[1] as HTMLElement;
     expect(second.querySelector('[data-rate="pm"]')?.textContent).toBe(vi_['dis.rates.reason.noData']);
     expect(first.textContent).toContain('-20.000.000');
   });
@@ -106,12 +112,12 @@ describe('DIS-16 the full table and the configuration of its columns', () => {
   it('lets a person choose the columns, keeps the two rates as one choice, and remembers the choice for the next visit', async () => {
     const user = userEvent.setup();
     open();
-    await screen.findByTestId('full-table');
+    await tableOf();
     await user.click(screen.getByRole('button', { name: vi_['dis.full.columns.action'] }));
     const config = await screen.findByTestId('column-config');
     await user.click(within(config).getByLabelText(vi_['dis.full.column.treasury']));
     await user.click(within(config).getByLabelText(vi_['dis.full.column.rates']));
-    const table = screen.getByTestId('full-table');
+    const table = screen.getByRole('table', { name: vi_['dis.full.table.aria'] });
     expect(headers(table)).not.toContain(vi_['dis.snapshot.line.treasury']);
     // Both rates leave together: never one alone.
     expect(headers(table)).not.toContain(vi_['dis.rates.col.ratePm']);
@@ -122,12 +128,24 @@ describe('DIS-16 the full table and the configuration of its columns', () => {
     expect(within(config).queryByLabelText(vi_['dis.snapshot.line.project'])).toBeNull();
     cleanup();
     open();
-    const again = await screen.findByTestId('full-table');
+    const again = await tableOf();
     expect(headers(again)).not.toContain(vi_['dis.snapshot.line.treasury']);
     expect(again.querySelectorAll('[data-rate]')).toHaveLength(0);
     await user.click(screen.getByRole('button', { name: vi_['dis.full.columns.action'] }));
     await user.click(within(await screen.findByTestId('column-config')).getByLabelText(vi_['dis.full.column.rates']));
-    expect(headers(screen.getByTestId('full-table'))).toEqual(expect.arrayContaining([vi_['dis.rates.col.ratePm'], vi_['dis.rates.col.rateTotal']]));
+    expect(headers(screen.getByRole('table', { name: vi_['dis.full.table.aria'] }))).toEqual(expect.arrayContaining([vi_['dis.rates.col.ratePm'], vi_['dis.rates.col.rateTotal']]));
+  });
+
+  it('closes the table with a total row of the lines that are shown: the reported figures and, apart, the CTMTQG that is inside them, under a two-tier head that groups the columns', async () => {
+    open();
+    const table = await tableOf();
+    const total = table.querySelector('tfoot tr') as HTMLElement;
+    expect(within(total).getByRole('rowheader').textContent).toBe(vi_['dis.wr.totals.label']);
+    expect(Array.from(total.querySelectorAll('td')).map((cell) => cell.textContent).filter((text) => text !== '')).toEqual(['420.000.000', '40.000.000']);
+    // The head has a group row over the plan, the disbursement and the two rates.
+    for (const group of ['w2dis.rates.group.plan', 'w2dis.rates.group.disbursed', 'w2dis.rates.group.rates']) {
+      expect(within(table).getByRole('columnheader', { name: viParts[group as keyof typeof viParts] })).toBeTruthy();
+    }
   });
 
   it('loads the next page of lines and adds them to the totals of the lines loaded', async () => {
@@ -136,10 +154,10 @@ describe('DIS-16 the full table and the configuration of its columns', () => {
       '': { snapshot, items: [line(0)], next_cursor: 'next' },
       next: { snapshot, items: [line(1)], next_cursor: null },
     });
-    await screen.findByTestId('full-table');
-    expect(screen.getByTestId('total-reported').textContent).toBe('100.000.000');
+    await tableOf();
+    expect(stat(vi_['dis.full.total.reported'])).toBe('100.000.000');
     await user.click(screen.getByRole('button', { name: vi_['dis.snapshot.lines.more.action'] }));
-    await waitFor(() => expect(screen.getByTestId('total-reported').textContent).toBe('300.000.000'));
+    await waitFor(() => expect(stat(vi_['dis.full.total.reported'])).toBe('300.000.000'));
     expect(screen.queryByRole('button', { name: vi_['dis.snapshot.lines.more.action'] })).toBeNull();
   });
 });

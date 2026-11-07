@@ -1,4 +1,5 @@
 import type { Translator } from '../../../i18n';
+import type { Tone } from '../../../ui';
 import type { Finding, ResolveFailure } from './engine';
 import type { DoaStatus, FieldProblem, ProblemView } from './model';
 
@@ -113,5 +114,21 @@ export function previewFailureMessage(t: T, failure: ResolveFailure): string {
       return t('adm.doa.preview.unitUnknown');
     case 'notFound':
       return t('adm.doa.preview.notFound');
+  }
+}
+
+/** The tone of the status pill of a version of the matrix. */
+export function statusTone(status: DoaStatus): Tone {
+  switch (status) {
+    case 'Draft':
+      return 'neutral';
+    case 'PendingApproval':
+      return 'warning';
+    case 'Published':
+      return 'success';
+    case 'Superseded':
+      return 'neutral';
+    case 'Rejected':
+      return 'danger';
   }
 }

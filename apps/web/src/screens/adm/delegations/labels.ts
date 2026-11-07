@@ -1,4 +1,5 @@
 import type { useTranslation } from '../../../i18n';
+import type { Tone } from '../../../ui';
 import type { FormProblem, Problem, Status } from './model';
 
 type Translate = ReturnType<typeof useTranslation>['t'];
@@ -114,4 +115,9 @@ export function problemMessage(t: Translate, problem: Problem): string {
     case 'general':
       return t('adm.delegation.error.general');
   }
+}
+
+/** The tone of the status pill of the kit: in force is green, scheduled amber, closed grey. */
+export function statusKitTone(status: Status): Tone {
+  return status === 'Active' ? 'success' : status === 'Scheduled' ? 'warning' : 'neutral';
 }

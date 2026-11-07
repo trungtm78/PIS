@@ -14,7 +14,10 @@ import { vietnamToday, yearsAround } from './model';
 import { canFile, describeReportProblem, instantOf, mayExport, shortHash } from './report-model';
 import { EXPORT_TARGETS, PACKAGE_FORMATS } from './types';
 import type { ExportTarget, PackageFormat, PackageView, ReportStatus, ReportView } from './types';
+import { StatusPill } from '../../ui';
+import { reportStatusTone } from './tones';
 import './mne.css';
+import './mne-kit.css';
 
 type Done = 'generated' | 'filed';
 /** How long after a click on a download the packages are read again: the file is served, and the package it came from has moved. */
@@ -44,7 +47,7 @@ function PackagesContent({ route }: ScreenProps) {
           <p>{t('mne.export.page.subtitle')}</p>
         </div>
         {reportId === '' ? null : (
-          <button type="button" className="btn" onClick={() => setParams({})}>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setParams({})}>
             {t('mne.export.back')}
           </button>
         )}
@@ -107,7 +110,7 @@ function IssuedPicker({ onOpen }: { onOpen: (id: string) => void }) {
                   <td>{item.dueDate}</td>
                   <td>{reportStatusLabel(t, item.status)}</td>
                   <td>
-                    <button type="button" className="btn" onClick={() => onOpen(item.reportId)}>
+                    <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => onOpen(item.reportId)}>
                       {t('mne.export.picker.open')}
                     </button>
                   </td>
@@ -118,7 +121,7 @@ function IssuedPicker({ onOpen }: { onOpen: (id: string) => void }) {
         </div>
         {list.hasNextPage ? (
           <div className="mne-actions">
-            <button type="button" className="btn" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
               {t('mne.calendar.more.action')}
             </button>
           </div>
@@ -200,8 +203,8 @@ function PackagesBody({ report, done, actions }: { report: ReportView; done: Don
     <div className="card" data-report-status={report.status}>
       <div className="mne-badges">
         <strong>{report.formTitle}</strong>
-        <span className="pill" data-testid="report-status">
-          {reportStatusLabel(t, report.status)}
+        <span data-testid="report-status">
+          <StatusPill tone={reportStatusTone(report.status)}>{reportStatusLabel(t, report.status)}</StatusPill>
         </span>
         <ConfirmationLabel awaiting={report.awaitingConfirmation} cxnRefs={report.cxnRefs} />
       </div>
@@ -250,7 +253,7 @@ function PackagesBody({ report, done, actions }: { report: ReportView; done: Don
             ) : null}
           </fieldset>
           <div className="mne-actions">
-            <button type="submit" className="btn primary" disabled={actions.busy}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={actions.busy}>
               {t('mne.export.generate.action')}
             </button>
           </div>
@@ -328,8 +331,8 @@ function PackageRow({ item, allowed, busy, onFile, onDownload }: { item: Package
         </td>
         <td>{packageStatusLabel(t, item.status)}</td>
         <td>
-          <span className="pill warn" data-testid={`adapter-${item.id}`}>
-            {adapterLabel(t, item.adapterStatus)}
+          <span data-testid={`adapter-${item.id}`}>
+            <StatusPill tone="warning">{adapterLabel(t, item.adapterStatus)}</StatusPill>
           </span>
         </td>
         <td>
@@ -359,7 +362,7 @@ function PackageRow({ item, allowed, busy, onFile, onDownload }: { item: Package
                 <input id={`filed-${item.id}`} type="datetime-local" value={filedAt} onChange={(event) => setFiledAt(event.target.value)} />
               </Field>
               <div className="mne-actions">
-                <button type="submit" className="btn" disabled={busy}>
+                <button type="submit" className="ui-button ui-button--primary" disabled={busy}>
                   {t('mne.export.receipt.action')}
                 </button>
               </div>

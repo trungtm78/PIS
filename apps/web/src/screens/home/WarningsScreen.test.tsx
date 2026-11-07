@@ -50,7 +50,10 @@ describe('HOME-03 early warnings (ST-HOME-003, HOME 3 F4)', () => {
     const open = warningBody(W1, { status: 'EXPLANATION_REQUESTED', explanation: { id: 'e1', status: 'REQUESTED', due_at: '2027-10-09T00:00:00.000Z', is_late: false } });
     mount(<WarningsScreen route={ROUTE} />, client(() => page([open])), { permissions: READER });
     const row = (await screen.findByText('EW-01')).closest('tr') as HTMLElement;
-    expect(row.getAttribute('data-severity')).toBe('WARNING');
+    expect(row.querySelector('[data-severity]')?.getAttribute('data-severity')).toBe('WARNING');
+    // The row carries the stripe of the alert centre for the same severity, and says it to a screen reader.
+    expect(row.getAttribute('data-severity')).toBe('ACTION');
+    expect(within(row).getByText(fill(vi_['ui.dataTable.severityPrefix'], { label: vi_['ui.dataTable.severity.action'] }) + '.', { exact: false })).toBeTruthy();
     // The severity is said in words and with an icon (hidden from assistive technology), never by colour alone.
     expect(within(row).getByText(vi_['home.warnings.severity.warning'])).toBeTruthy();
     expect(row.querySelector('[aria-hidden="true"]')?.textContent).toBe('⚠');
@@ -82,6 +85,20 @@ describe('HOME-03 early warnings (ST-HOME-003, HOME 3 F4)', () => {
     await user.selectOptions(screen.getByLabelText(vi_['home.warnings.severity.label']), 'CRITICAL');
     await user.type(screen.getByLabelText(vi_['home.warnings.rule.label']), 'ew-02');
     await waitFor(() => expect(calls(h).at(-1)).toMatchObject({ severity: 'CRITICAL', rule_code: 'EW-02' }));
+  });
+
+  it('clears the narrowing with one button of the filter panel, and the table asks for everything again', async () => {
+    const user = userEvent.setup();
+    const h = client(() => page([warningBody(W1)]));
+    mount(<WarningsScreen route={ROUTE} />, h, { permissions: READER });
+    await screen.findByTestId(`leader-${W1}`);
+    expect(screen.queryByRole('button', { name: 'Xóa bộ lọc' })).toBeNull();
+    await user.selectOptions(screen.getByLabelText(vi_['home.warnings.severity.label']), 'CRITICAL');
+    await waitFor(() => expect(calls(h).at(-1)).toMatchObject({ severity: 'CRITICAL' }));
+    await user.click(screen.getByRole('button', { name: 'Xóa bộ lọc' }));
+    await waitFor(() => expect((screen.getByLabelText(vi_['home.warnings.severity.label']) as HTMLSelectElement).value).toBe(''));
+    await waitFor(() => expect(calls(h).at(-1)?.severity).toBeUndefined());
+    expect(screen.queryByRole('button', { name: 'Xóa bộ lọc' })).toBeNull();
   });
 
   describe('the seven standard states', () => {

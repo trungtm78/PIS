@@ -3,9 +3,11 @@ import type { FormEvent, ReactNode } from 'react';
 import { useTranslation } from '../../i18n';
 import type { WebRoute } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
+import { SectionCard, StatusPill, StickyActions } from '../../ui';
+import { KitTable } from './KitTable';
 import { adapterLabel } from '../mdm/labels';
 import { useCreateConnector, useMoveConnector } from './connectors/hooks';
-import { adapterPill, connectorStatusLabel, connectorStatusPill, fieldMessage, modeLabel, problemMessage } from './connectors/labels';
+import { adapterTone, connectorStatusLabel, connectorStatusTone, fieldMessage, modeLabel, problemMessage } from './connectors/labels';
 import {
   ADAPTER_STATUSES,
   CONNECTOR_MODES,
@@ -21,6 +23,7 @@ import {
 } from './connectors/model';
 import type { ConnectorErrors, ConnectorField, ConnectorMode, ConnectorStatus, ConnectorValues, ConnectorView } from './connectors/model';
 import type { AdapterStatus } from '../mdm/model';
+import './adm-kit.css';
 import './connectors/connectors.css';
 
 export interface ConnectorsWorkspaceProps {
@@ -135,8 +138,7 @@ function WorkspaceContent({ route, connectors }: ConnectorsWorkspaceProps) {
         {t('adm.connectors.honesty.note')}
       </p>
       <div className="two">
-        <div className="card">
-          <h2>{t('adm.connectors.list.title')}</h2>
+        <SectionCard title={t('adm.connectors.list.title')}>
           {register.length === 0 ? <p className="muted">{t('adm.connectors.list.empty')}</p> : null}
           {moveProblem === undefined ? null : (
             <p className="callout warning" role="alert" data-testid="move-problem">
@@ -144,8 +146,7 @@ function WorkspaceContent({ route, connectors }: ConnectorsWorkspaceProps) {
             </p>
           )}
           {register.length === 0 ? null : (
-            <div className="tablewrap">
-              <table>
+            <KitTable caption={t('w2adm.connectors.table.caption')}>
                 <thead>
                   <tr>
                     <th>{t('adm.connectors.col.code')}</th>
@@ -154,9 +155,7 @@ function WorkspaceContent({ route, connectors }: ConnectorsWorkspaceProps) {
                     <th>{t('adm.connectors.col.mapping')}</th>
                     <th>{t('adm.connectors.col.credential')}</th>
                     <th>{t('adm.connectors.col.status')}</th>
-                    <th>
-                      <span className="sr-only">{t('adm.connectors.col.actions')}</span>
-                    </th>
+                    <th>{t('adm.connectors.col.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -168,18 +167,18 @@ function WorkspaceContent({ route, connectors }: ConnectorsWorkspaceProps) {
                       </td>
                       <td>{modeLabel(t, connector.mode)}</td>
                       <td>
-                        <span className={adapterPill(connector.adapterStatus)}>{adapterLabel(t, connector.adapterStatus)}</span>
+                        <StatusPill tone={adapterTone(connector.adapterStatus)}>{adapterLabel(t, connector.adapterStatus)}</StatusPill>
                       </td>
                       <td>{connector.mappingVersion ?? t('adm.connectors.mapping.none')}</td>
                       <td>{connector.credentialSecretRef ?? t('adm.connectors.credential.none')}</td>
                       <td>
-                        <span className={connectorStatusPill(connector.status)}>{connectorStatusLabel(t, connector.status)}</span>
+                        <StatusPill tone={connectorStatusTone(connector.status)}>{connectorStatusLabel(t, connector.status)}</StatusPill>
                       </td>
                       <td className="row-actions">
                         {!canManage ? null : (
                           <>
                             {connector.status === 'Active' ? null : mayBeActive(connector.adapterStatus) ? (
-                              <button type="button" onClick={() => open(connector.id, 'Active')}>
+                              <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => open(connector.id, 'Active')}>
                                 {t('adm.connectors.activate.action')}
                               </button>
                             ) : (
@@ -188,7 +187,7 @@ function WorkspaceContent({ route, connectors }: ConnectorsWorkspaceProps) {
                               </span>
                             )}
                             {connector.status === 'Disabled' ? null : (
-                              <button type="button" onClick={() => open(connector.id, 'Disabled')}>
+                              <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => open(connector.id, 'Disabled')}>
                                 {t('adm.connectors.disable.action')}
                               </button>
                             )}
@@ -198,35 +197,34 @@ function WorkspaceContent({ route, connectors }: ConnectorsWorkspaceProps) {
                     </tr>
                   ))}
                 </tbody>
-              </table>
-            </div>
+            </KitTable>
           )}
           {target === undefined || moving === undefined ? null : (
             <form className="move-panel" onSubmit={confirmMove} aria-label={t('adm.connectors.move.title')} data-testid="move-panel">
               <h3>{t('adm.connectors.move.title')}</h3>
               <p>
-                <strong>{target.connectorCode}</strong> · <span className={adapterPill(target.adapterStatus)}>{adapterLabel(t, target.adapterStatus)}</span> →{' '}
+                <strong>{target.connectorCode}</strong> · <StatusPill tone={adapterTone(target.adapterStatus)}>{adapterLabel(t, target.adapterStatus)}</StatusPill> →{' '}
                 {connectorStatusLabel(t, moving.status)}
               </p>
               <Field id="move-reason" label={t('adm.connectors.move.reason.label')} error={reasonError ? t('adm.connectors.move.reason.error') : undefined}>
                 <textarea id="move-reason" value={reason} onChange={(event) => setReason(event.target.value)} />
               </Field>
-              <div className="formfooter">
-                <button type="submit" className="primary" disabled={move.isPending}>
+              <div className="adm-kit-actions">
+                <button type="submit" className="ui-button ui-button--primary" disabled={move.isPending}>
                   {t('adm.connectors.move.confirm.action')}
                 </button>
-                <button type="button" onClick={() => setMoving(undefined)}>
+                <button type="button" className="ui-button ui-button--outline" onClick={() => setMoving(undefined)}>
                   {t('adm.connectors.move.cancel.action')}
                 </button>
               </div>
             </form>
           )}
-        </div>
+        </SectionCard>
 
         {canManage ? (
-          <aside className="card" aria-label={t('adm.connectors.form.title')}>
-            <h2>{t('adm.connectors.form.title')}</h2>
-            <p className="sub">{t('adm.connectors.form.hint')}</p>
+          <aside aria-label={t('adm.connectors.form.title')}>
+            <SectionCard title={t('adm.connectors.form.title')}>
+            <p className="adm-kit-sub">{t('adm.connectors.form.hint')}</p>
             <form onSubmit={saveConnector} noValidate>
               <Field id="connector-code" label={t('adm.connectors.form.code.label')} error={errors.connectorCode === undefined ? undefined : fieldMessage(t, errors.connectorCode)}>
                 <input id="connector-code" value={values.connectorCode} aria-invalid={errors.connectorCode !== undefined} onChange={(event) => set('connectorCode', event.target.value)} />
@@ -273,12 +271,15 @@ function WorkspaceContent({ route, connectors }: ConnectorsWorkspaceProps) {
                   {t('adm.connectors.form.saved.text')}
                 </p>
               ) : null}
-              <div className="formfooter">
-                <button type="submit" className="primary" disabled={create.isPending}>
-                  {t('adm.connectors.form.submit.action')}
-                </button>
-              </div>
+              <StickyActions
+                primary={
+                  <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending}>
+                    {t('adm.connectors.form.submit.action')}
+                  </button>
+                }
+              />
             </form>
+            </SectionCard>
           </aside>
         ) : null}
       </div>

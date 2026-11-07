@@ -36,8 +36,10 @@ describe('AUD-01 overview of inspections and audits', () => {
   it('names the engagements of the watch list with what is open and overdue in each, its money and links to its file and its ledger', async () => {
     open();
     await screen.findByTestId('tiles');
-    const rows = Array.from(document.querySelectorAll('tr[data-engagement-id]')).map((row) => within(row as HTMLElement).getAllByRole('cell').map((cell) => cell.textContent));
-    expect(rows).toEqual([['TTCP-2026-001Thanh tra đầu tư cầu số 1', vi_['aud.engagementStatus.followUp'], '4', '2', '800.000.000', '500.000.000', `${vi_['aud.overview.watch.open.link']}${vi_['aud.overview.watch.recovery.link']}`]]);
+    const rows = Array.from(document.querySelectorAll('tbody tr.ui-table__row')).map((row) => within(row as HTMLElement).getAllByRole('cell').map((cell) => cell.textContent));
+    // An engagement with a recommendation that is overdue carries the stripe, and says its level in words before the code.
+    expect(rows).toEqual([[`${vi_['ui.dataTable.severityPrefix'].replace('{label}', vi_['ui.dataTable.severity.action'])}. TTCP-2026-001Thanh tra đầu tư cầu số 1`, vi_['aud.engagementStatus.followUp'], '4', '2', '800.000.000', '500.000.000', `${vi_['aud.overview.watch.open.link']}${vi_['aud.overview.watch.recovery.link']}`]]);
+    expect(document.querySelector('tbody tr.ui-table__row')?.getAttribute('data-severity')).toBe('ACTION');
     expect(screen.getByRole('link', { name: vi_['aud.overview.watch.open.link'] }).getAttribute('href')).toBe(`/aud/aud-03?engagement=${ID}`);
     expect(screen.getByRole('link', { name: vi_['aud.overview.watch.recovery.link'] }).getAttribute('href')).toBe(`/aud/aud-08?engagement=${ID}`);
     expect(screen.getByRole('link', { name: vi_['aud.overview.engagements.link'] }).getAttribute('href')).toBe('/aud/aud-02');

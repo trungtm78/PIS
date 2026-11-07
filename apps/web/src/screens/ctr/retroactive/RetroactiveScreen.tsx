@@ -23,6 +23,7 @@ import { adjustProblemMessage, daysText } from './labels';
 import { adjustBody, adjustable, delaySummary, emptyAdjustment, mismatchOf, reachable, reconciled, toggled, validateAdjustment } from './model';
 import type { AdjustForm } from './model';
 import '../ctr.css';
+import { SectionCard } from '../../../ui';
 
 type AdjustMutation = ReturnType<typeof useAdjustChange>;
 
@@ -104,8 +105,7 @@ function ContractPicker({ onPick }: { onPick(contractId: string): void }) {
   const state = useScreenState({ isLoading: contracts.isLoading, error: contracts.error, data: contracts.data });
   return (
     <StateBoundary state={state} onRetry={() => void contracts.refetch()}>
-      <article className="card" aria-label={t('ctr.retro.pick.title')}>
-        <h2>{t('ctr.retro.pick.title')}</h2>
+      <SectionCard title={t('ctr.retro.pick.title')}>
         <div className="field" data-field="retro-contract">
           <label htmlFor="retro-contract">{t('ctr.retro.pick.label')}</label>
           <select id="retro-contract" value="" onChange={(event) => (event.target.value === '' ? undefined : onPick(event.target.value))}>
@@ -117,7 +117,7 @@ function ContractPicker({ onPick }: { onPick(contractId: string): void }) {
             ))}
           </select>
         </div>
-      </article>
+      </SectionCard>
     </StateBoundary>
   );
 }
@@ -141,8 +141,7 @@ function Content({ contract, requests, locale, readOnly, selected, onSelect, don
   return (
     <>
       <Delays contract={contract} requests={requests} />
-      <article className="card" aria-label={t('ctr.retro.adjust.title')}>
-        <h2>{t('ctr.retro.adjust.title')}</h2>
+      <SectionCard title={t('ctr.retro.adjust.title')}>
         {done === undefined ? null : (
           <p className="callout" role="status" data-testid="done">
             {t('ctr.retro.done.notice', { code: done })}{' '}
@@ -178,7 +177,7 @@ function Content({ contract, requests, locale, readOnly, selected, onSelect, don
             <AdjustFormView key={`${request.id}:${request.version}`} request={request} contract={contract} locale={locale} adjust={adjust} onSend={onSend} />
           </>
         )}
-      </article>
+      </SectionCard>
       <History contract={contract} locale={locale} />
     </>
   );
@@ -189,8 +188,7 @@ function Delays({ contract, requests }: { contract: ContractView; requests: Chan
   const { t } = useTranslation();
   const summary = delaySummary(requests, contract.id, contract.completionDue);
   return (
-    <article className="card" aria-label={t('ctr.retro.delay.title')}>
-      <h2>{t('ctr.retro.delay.title')}</h2>
+    <SectionCard title={t('ctr.retro.delay.title')}>
       <p>
         <strong data-testid="contract-code">{contract.code}</strong> · {contract.title ?? contract.projectName} ·{' '}
         <Link to={chainLink(contract.projectId, contract.id)} data-testid="board-link">
@@ -222,7 +220,7 @@ function Delays({ contract, requests }: { contract: ContractView; requests: Chan
         </ul>
       )}
       <p className="sub">{t('ctr.retro.delay.note')}</p>
-    </article>
+    </SectionCard>
   );
 }
 
@@ -231,8 +229,7 @@ function History({ contract, locale }: { contract: ContractView; locale: string 
   const { t } = useTranslation();
   if (contract.retroactiveAdjustments.length === 0) return null;
   return (
-    <article className="card" aria-label={t('ctr.retro.history.title')}>
-      <h2>{t('ctr.retro.history.title')}</h2>
+    <SectionCard title={t('ctr.retro.history.title')}>
       <ol className="ctr-timeline" data-testid="history">
         {contract.retroactiveAdjustments.map((record) => (
           <li key={record.id} data-adjustment-item={record.id}>
@@ -241,7 +238,7 @@ function History({ contract, locale }: { contract: ContractView; locale: string 
           </li>
         ))}
       </ol>
-    </article>
+    </SectionCard>
   );
 }
 

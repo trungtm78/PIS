@@ -10,6 +10,7 @@ import { vietnamToday } from '../workspace/model';
 import { ViewFrame } from './ViewFrame';
 import { useDiaries, useViewScope } from './hooks';
 import { ownerLink } from './model';
+import { SectionCard } from '../../../ui';
 
 /**
  * CTR-09: the site diaries of a contract, read-only (ST-CTR-017, CTR section 7). QMS owns the diaries (QMS-01 to QMS-03): every write and every signature goes through its commands. Here a
@@ -83,7 +84,7 @@ function Coverage({ contractId }: { contractId: string }) {
 function DiaryTable({ rows }: { rows: DiaryLine[] }) {
   const { t } = useTranslation();
   return (
-    <article className="card" aria-label={t('ctr.diaryView.table.label')}>
+    <SectionCard title={t('ctr.diaryView.table.label')}>
       <table className="table" data-testid="diaries">
         <thead>
           <tr>
@@ -125,6 +126,6 @@ function DiaryTable({ rows }: { rows: DiaryLine[] }) {
           })}
         </tbody>
       </table>
-    </article>
+    </SectionCard>
   );
 }

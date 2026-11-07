@@ -18,6 +18,7 @@ import { CorrectDialog, DecideDialog, RecordDialog } from './MeasurementDialogs'
 import { describeMeasurementProblem, itemRows, mayRecord, quantityText } from './model';
 import type { ItemRow, Measurement } from './model';
 import '../ctr.css';
+import { SectionCard } from '../../../ui';
 
 /** The screen CTR-10 hangs under (the site diary), which the back link of a detail screen names. */
 const PARENT_PATH = '/ctr/ctr-09';
@@ -111,8 +112,7 @@ function Measurements({ contract, lines, measurements }: MeasurementsProps) {
 
   return (
     <>
-      <article className="card" aria-label={t('ctr.measurement.contract.title')}>
-        <h2>{t('ctr.measurement.contract.title')}</h2>
+      <SectionCard title={t('ctr.measurement.contract.title')} unit={t('w2pay.ctx.unit')}>
         <p>
           <strong data-testid="contract-code">{contract.code}</strong> <StatusBadge status={contract.status} />
           {effective === undefined ? null : <span data-testid="revision-no"> · {t('ctr.measurement.contract.revision', { revision: effective.revision })}</span>}
@@ -122,7 +122,7 @@ function Measurements({ contract, lines, measurements }: MeasurementsProps) {
             {t('ctr.measurement.contract.notActive')}
           </p>
         )}
-      </article>
+      </SectionCard>
       {done === undefined ? null : (
         <p className="callout" role="status" data-testid="done">
           {done}
@@ -133,8 +133,7 @@ function Measurements({ contract, lines, measurements }: MeasurementsProps) {
           {measurementProblemMessage(t, describeMeasurementProblem(submit.error), locale)}
         </p>
       ) : null}
-      <article className="card" aria-label={t('ctr.measurement.items.title')}>
-        <h2>{t('ctr.measurement.items.title')}</h2>
+      <SectionCard title={t('ctr.measurement.items.title')} unit={t('w2pay.ctx.unit')}>
         {rows.length === 0 ? (
           <p className="sub" data-testid="no-items">
             {lines === undefined ? t('ctr.measurement.items.denied') : t('ctr.measurement.items.empty')}
@@ -166,9 +165,8 @@ function Measurements({ contract, lines, measurements }: MeasurementsProps) {
             </tbody>
           </table>
         )}
-      </article>
-      <article className="card" aria-label={t('ctr.measurement.list.title')}>
-        <h2>{t('ctr.measurement.list.title')}</h2>
+      </SectionCard>
+      <SectionCard title={t('ctr.measurement.list.title')}>
         {measurements.length === 0 ? (
           <p className="sub" data-testid="no-measurements">
             {t('ctr.measurement.list.empty')}
@@ -229,7 +227,7 @@ function Measurements({ contract, lines, measurements }: MeasurementsProps) {
             </tbody>
           </table>
         )}
-      </article>
+      </SectionCard>
       {target === undefined || effective === undefined ? null : (
         <RecordDialog contractId={contract.id} revisionId={effective.id} row={target} periods={periods.data} onDone={finished(t('ctr.measurement.done.recorded'))} onClose={close} />
       )}

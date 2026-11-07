@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 import { ApiError } from '@machvon/api-client';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
@@ -7,13 +8,16 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { DataTable, FilterPanel, ReadonlyStat, SectionCard } from '../../../ui';
+import type { DataTableColumn } from '../../../ui';
 import '../dis.css';
 import { useSnapshotLines } from '../snapshot/hooks';
 import type { LinesPage, SnapshotLineView } from '../snapshot/model';
-import { DefinitionBadge, NONE, SnapshotPicker, coverageLabel, money, rateText, signedVnd } from './components';
+import { CoveragePill, DefinitionBadge, NONE, RatesContext, SnapshotPicker, money, rateColumns, signedVnd } from './components';
 import { useFrozenSnapshots, useRates } from './hooks';
 import { PAIRED_PATH, NULL_REASONS } from './model';
 import type { NullReason } from './model';
+import './rates.css';
 
 type T = Translator['t'];
 
@@ -111,6 +115,26 @@ function FullTableContent({ route }: ScreenProps) {
     else value.set('snapshot', next);
     setParams(value, { replace: true });
   };
+  const totals: Record<string, ReactNode> = { reported: money(sum(items, (line) => line.reportedVnd)), ctmtqg: money(sum(items, (line) => line.ctmtqgVnd)) };
+  const planGroup = t('w2dis.rates.group.plan');
+  const paidGroup = t('w2dis.rates.group.disbursed');
+  const columns: DataTableColumn<SnapshotLineView>[] = [
+    { key: 'project', header: t('dis.snapshot.line.project'), pinned: true, render: (line) => <strong>{line.projectCode}</strong> },
+    {
+      key: 'cell',
+      header: t('dis.snapshot.line.cell'),
+      render: (line) => t('dis.snapshot.line.cell.text', { bucket: bucketLabel(t, line.bucket), level: line.budgetLevel === 'CENTRAL' ? t('dis.snapshot.level.central') : t('dis.snapshot.level.local') }),
+    },
+    ...(shown('planPm') ? [{ key: 'planPm', header: t('dis.snapshot.line.planPm'), group: planGroup, align: 'right' as const, render: (line: SnapshotLineView) => money(line.planPmVnd) }] : []),
+    ...(shown('planLocal') ? [{ key: 'planLocal', header: t('dis.snapshot.line.planLocal'), group: planGroup, align: 'right' as const, render: (line: SnapshotLineView) => money(line.planLocalVnd) }] : []),
+    ...(shown('planTotal') ? [{ key: 'planTotal', header: t('dis.full.column.planTotal'), group: planGroup, align: 'right' as const, render: (line: SnapshotLineView) => money(line.planTotalVnd) }] : []),
+    ...(shown('treasury') ? [{ key: 'treasury', header: t('dis.snapshot.line.treasury'), group: paidGroup, align: 'right' as const, render: (line: SnapshotLineView) => money(line.treasuryVnd) }] : []),
+    ...(shown('reported') ? [{ key: 'reported', header: t('dis.snapshot.line.reported'), group: paidGroup, align: 'right' as const, render: (line: SnapshotLineView) => <span data-col="reported">{money(line.reportedVnd)}</span> }] : []),
+    ...(shown('ctmtqg') ? [{ key: 'ctmtqg', header: t('dis.full.col.ctmtqg'), group: paidGroup, align: 'right' as const, render: (line: SnapshotLineView) => <span data-col="ctmtqg">{money(line.ctmtqgVnd)}</span> }] : []),
+    ...(shown('delta') ? [{ key: 'delta', header: t('dis.snapshot.line.delta'), group: paidGroup, align: 'right' as const, render: (line: SnapshotLineView) => (line.deltaVnd === null ? NONE : signedVnd(line.deltaVnd)) }] : []),
+    ...(shown('rates') ? rateColumns<SnapshotLineView>(t, (line) => ({ ratePmPct: line.ratePmPct, rateTotalPct: line.rateTotalPct, reason: reasonOf(line.rateNullReason) })) : []),
+    ...(shown('coverage') ? [{ key: 'coverage', header: t('dis.rates.col.coverage'), render: (line: SnapshotLineView) => <CoveragePill coverage={line.coverage === 'COMPLETE' || line.coverage === 'PARTIAL' ? line.coverage : 'NONE'} /> }] : []),
+  ];
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       <div className="heading">
@@ -120,101 +144,62 @@ function FullTableContent({ route }: ScreenProps) {
         </div>
         {header === undefined ? null : <DefinitionBadge definition={header.definitionStatus} />}
       </div>
-      <div className="card">
+      <RatesContext snapshotId={chosen} cutoff={header?.cutoffDate} />
+      <FilterPanel
+        unitLabel={t('dis.wr.unit')}
+        applied={named === '' ? 0 : 1}
+        actions={
+          <button type="button" className="ui-button ui-button--outline" aria-expanded={configuring} aria-controls="full-columns" onClick={() => setConfiguring((open) => !open)}>
+            {t('dis.full.columns.action')}
+          </button>
+        }
+      >
         <div className="dis-filters">
           <SnapshotPicker id="full-snapshot" value={named} onChange={choose} snapshots={frozen.data ?? []} />
-          <div>
-            <button type="button" aria-expanded={configuring} aria-controls="full-columns" onClick={() => setConfiguring((open) => !open)}>
-              {t('dis.full.columns.action')}
-            </button>
-          </div>
         </div>
         {configuring ? (
-          <fieldset id="full-columns" className="dis-scope" data-testid="column-config">
+          <fieldset id="full-columns" className="w2dis-columns" data-testid="column-config">
             <legend>{t('dis.full.columns.legend')}</legend>
-            <p className="sub">{t('dis.full.columns.hint')}</p>
+            <p className="w2dis-note">{t('dis.full.columns.hint')}</p>
             {COLUMNS.map((column) => (
-              <label key={column} className="dis-radio">
+              <label key={column} className="w2dis-check">
                 <input type="checkbox" checked={shown(column)} onChange={() => toggle(column)} />
                 {columnLabel(t, column)}
               </label>
             ))}
           </fieldset>
         ) : null}
-      </div>
+      </FilterPanel>
       <StateBoundary state={state} onRetry={() => void lines.refetch()}>
-        <section className="card" aria-labelledby="full-table-title">
-          <h2 id="full-table-title">{t('dis.full.table.title')}</h2>
-          {header === undefined ? null : (
-            <p className="sub" data-testid="full-cutoff">
-              {t('dis.full.cutoff.text', { cutoff: header.cutoffDate })} · <Link to={`${PAIRED_PATH}?snapshot=${header.id}`}>{t('dis.full.link.paired')}</Link>
-            </p>
-          )}
-          <dl className="aud-facts" data-testid="full-totals">
-            <dt>{t('dis.full.total.reported')}</dt>
-            <dd data-testid="total-reported">{money(sum(items, (line) => line.reportedVnd))}</dd>
-            <dt>{t('dis.full.total.ctmtqg')}</dt>
-            <dd data-testid="total-ctmtqg">{money(sum(items, (line) => line.ctmtqgVnd))}</dd>
-          </dl>
-          <p className="sub">{t('dis.full.total.note')}</p>
-          <div className="tablewrap">
-            <table className="table dis-full-table" aria-label={t('dis.full.table.aria')} data-testid="full-table">
-              <thead>
-                <tr>
-                  <th scope="col" className="pinned pinned-first">
-                    {t('dis.snapshot.line.project')}
-                  </th>
-                  <th scope="col" className="pinned pinned-second">
-                    {t('dis.snapshot.line.cell')}
-                  </th>
-                  {shown('planPm') ? <th scope="col" className="num">{t('dis.snapshot.line.planPm')}</th> : null}
-                  {shown('planLocal') ? <th scope="col" className="num">{t('dis.snapshot.line.planLocal')}</th> : null}
-                  {shown('planTotal') ? <th scope="col" className="num">{t('dis.full.column.planTotal')}</th> : null}
-                  {shown('treasury') ? <th scope="col" className="num">{t('dis.snapshot.line.treasury')}</th> : null}
-                  {shown('reported') ? <th scope="col" className="num">{t('dis.snapshot.line.reported')}</th> : null}
-                  {shown('ctmtqg') ? <th scope="col" className="num">{t('dis.full.col.ctmtqg')}</th> : null}
-                  {shown('delta') ? <th scope="col" className="num">{t('dis.snapshot.line.delta')}</th> : null}
-                  {shown('rates') ? (
-                    <>
-                      <th scope="col" className="num">{t('dis.rates.col.ratePm')}</th>
-                      <th scope="col" className="num">{t('dis.rates.col.rateTotal')}</th>
-                    </>
-                  ) : null}
-                  {shown('coverage') ? <th scope="col">{t('dis.rates.col.coverage')}</th> : null}
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((line) => (
-                  <tr key={line.id} data-line={line.id}>
-                    <td className="pinned pinned-first">{line.projectCode}</td>
-                    <td className="pinned pinned-second">{t('dis.snapshot.line.cell.text', { bucket: bucketLabel(t, line.bucket), level: line.budgetLevel === 'CENTRAL' ? t('dis.snapshot.level.central') : t('dis.snapshot.level.local') })}</td>
-                    {shown('planPm') ? <td className="num">{money(line.planPmVnd)}</td> : null}
-                    {shown('planLocal') ? <td className="num">{money(line.planLocalVnd)}</td> : null}
-                    {shown('planTotal') ? <td className="num">{money(line.planTotalVnd)}</td> : null}
-                    {shown('treasury') ? <td className="num">{money(line.treasuryVnd)}</td> : null}
-                    {shown('reported') ? <td className="num" data-col="reported">{money(line.reportedVnd)}</td> : null}
-                    {shown('ctmtqg') ? <td className="num" data-col="ctmtqg">{money(line.ctmtqgVnd)}</td> : null}
-                    {shown('delta') ? <td className="num">{line.deltaVnd === null ? NONE : signedVnd(line.deltaVnd)}</td> : null}
-                    {shown('rates') ? (
-                      <>
-                        <td className="num" data-rate="pm">{rateText(t, line.ratePmPct, reasonOf(line.rateNullReason))}</td>
-                        <td className="num" data-rate="total">{rateText(t, line.rateTotalPct, reasonOf(line.rateNullReason))}</td>
-                      </>
-                    ) : null}
-                    {shown('coverage') ? <td>{coverageLabel(t, line.coverage === 'COMPLETE' || line.coverage === 'PARTIAL' ? line.coverage : 'NONE')}</td> : null}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="w2dis-stack">
+          <div className="w2dis-facts" data-testid="full-totals">
+            <ReadonlyStat label={t('dis.full.total.reported')} value={money(sum(items, (line) => line.reportedVnd))} />
+            <ReadonlyStat label={t('dis.full.total.ctmtqg')} value={money(sum(items, (line) => line.ctmtqgVnd))} />
           </div>
-          {lines.hasNextPage ? (
-            <p>
-              <button type="button" disabled={lines.isFetchingNextPage} onClick={() => void lines.fetchNextPage()}>
-                {t('dis.snapshot.lines.more.action')}
-              </button>
-            </p>
-          ) : null}
-        </section>
+          <SectionCard title={t('dis.full.table.title')} unit={t('dis.wr.unit')}>
+            {header === undefined ? null : (
+              <p className="w2dis-note" data-testid="full-cutoff">
+                {t('dis.full.cutoff.text', { cutoff: header.cutoffDate })} · <Link to={`${PAIRED_PATH}?snapshot=${header.id}`}>{t('dis.full.link.paired')}</Link>
+              </p>
+            )}
+            <p className="w2dis-note">{t('dis.full.total.note')}</p>
+            <DataTable
+              caption={t('dis.full.table.aria')}
+              columns={columns}
+              rows={items}
+              rowKey={(line) => line.id}
+              totalsLabel={t('dis.wr.totals.label')}
+              totals={totals}
+            />
+            {lines.hasNextPage ? (
+              <p className="w2dis-more">
+                <button type="button" className="ui-button ui-button--outline" disabled={lines.isFetchingNextPage} onClick={() => void lines.fetchNextPage()}>
+                  {t('dis.snapshot.lines.more.action')}
+                </button>
+              </p>
+            ) : null}
+          </SectionCard>
+        </div>
       </StateBoundary>
       <p className="prototype-note">{t('dis.full.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>

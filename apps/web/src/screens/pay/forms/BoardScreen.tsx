@@ -4,9 +4,13 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { DataTable, StatusPill } from '../../../ui';
+import type { DataTableColumn } from '../../../ui';
+import { ScopeBar } from '../../ctr/kit';
 import { usePayments } from '../payment/hooks';
-import { kindLabel, statusLabel } from '../payment/labels';
+import { kindLabel, statusLabel, statusTone } from '../payment/labels';
 import { paymentLink, signedAmountText } from '../payment/model';
+import type { PaymentRequest } from '../payment/model';
 import { BOARD_STATUSES, FORM_CODES, formsLink, standingCount } from './model';
 import '../pay.css';
 
@@ -27,6 +31,44 @@ function BoardContent({ route }: ScreenProps) {
   const onTheWay = (payments.data ?? []).filter((request) => (BOARD_STATUSES as readonly string[]).includes(request.status));
   const money = (value: string): string => signedAmountText(value, locale) ?? value;
 
+  const columns: DataTableColumn<PaymentRequest>[] = [
+    {
+      key: 'no',
+      header: t('pay.board.column.no'),
+      pinned: true,
+      render: (request) => (
+        <>
+          <Link to={formsLink(request.id)} data-testid="open">
+            {request.requestNo ?? request.id}
+          </Link>{' '}
+          <Link to={paymentLink(request.id)} className="sub" data-testid="detail">
+            {t('pay.board.detail')}
+          </Link>
+        </>
+      ),
+    },
+    { key: 'contract', header: t('pay.board.column.contract'), render: (request) => <span data-testid="contract">{request.contract.code}</span> },
+    { key: 'kind', header: t('pay.board.column.kind'), render: (request) => <span data-testid="kind">{kindLabel(t, request.requestKind)}</span> },
+    { key: 'net', header: t('pay.board.column.net'), align: 'right', render: (request) => <span data-testid="net">{money(request.netVnd)}</span> },
+    {
+      key: 'status',
+      header: t('pay.board.column.status'),
+      render: (request) => (
+        <span data-testid="status" data-request={request.id} data-status={request.status}>
+          <StatusPill tone={statusTone(request.status)}>{statusLabel(t, request.status)}</StatusPill>
+        </span>
+      ),
+    },
+    {
+      key: 'forms',
+      header: t('pay.board.column.forms'),
+      align: 'right',
+      render: (request) => <span data-testid="forms">{t('pay.board.forms', { count: standingCount(request), total: FORM_CODES.length })}</span>,
+    },
+    { key: 'sentOn', header: t('pay.board.column.sentOn'), render: (request) => <span data-testid="sent-on">{request.treasurySubmittedOn ?? ''}</span> },
+    { key: 'ref', header: t('pay.board.column.ref'), render: (request) => <span data-testid="ref">{request.treasuryRef ?? ''}</span> },
+  ];
+
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       <div className="heading">
@@ -35,62 +77,22 @@ function BoardContent({ route }: ScreenProps) {
           <p>{t('pay.board.subtitle')}</p>
         </div>
       </div>
+      <ScopeBar
+        money
+        updatedAt={payments.dataUpdatedAt}
+        stale={payments.isRefetchError}
+        extra={[{ label: t('w2pay.pay.board.ctx.on'), value: t('w2pay.pay.board.ctx.count', { count: onTheWay.length }) }]}
+      />
       <StateBoundary state={state} onRetry={() => void payments.refetch()}>
-        <article className="card" aria-label={t('pay.board.title')}>
-          {onTheWay.length === 0 ? (
-            <p className="sub" data-testid="nothing">
-              {t('pay.board.empty')}
-            </p>
-          ) : (
-            <table className="table" data-testid="board">
-              <thead>
-                <tr>
-                  <th scope="col">{t('pay.board.column.no')}</th>
-                  <th scope="col">{t('pay.board.column.contract')}</th>
-                  <th scope="col">{t('pay.board.column.kind')}</th>
-                  <th scope="col" className="pay-amount">
-                    {t('pay.board.column.net')}
-                  </th>
-                  <th scope="col">{t('pay.board.column.status')}</th>
-                  <th scope="col" className="pay-amount">
-                    {t('pay.board.column.forms')}
-                  </th>
-                  <th scope="col">{t('pay.board.column.sentOn')}</th>
-                  <th scope="col">{t('pay.board.column.ref')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {onTheWay.map((request) => (
-                  <tr key={request.id} data-request={request.id} data-status={request.status}>
-                    <td>
-                      <Link to={formsLink(request.id)} data-testid="open">
-                        {request.requestNo ?? request.id}
-                      </Link>{' '}
-                      <Link to={paymentLink(request.id)} className="sub" data-testid="detail">
-                        {t('pay.board.detail')}
-                      </Link>
-                    </td>
-                    <td data-testid="contract">{request.contract.code}</td>
-                    <td data-testid="kind">{kindLabel(t, request.requestKind)}</td>
-                    <td className="pay-amount" data-testid="net">
-                      {money(request.netVnd)}
-                    </td>
-                    <td>
-                      <span className="pay-badge" data-testid="status">
-                        {statusLabel(t, request.status)}
-                      </span>
-                    </td>
-                    <td className="pay-amount" data-testid="forms">
-                      {t('pay.board.forms', { count: standingCount(request), total: FORM_CODES.length })}
-                    </td>
-                    <td data-testid="sent-on">{request.treasurySubmittedOn ?? ''}</td>
-                    <td data-testid="ref">{request.treasuryRef ?? ''}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </article>
+        {onTheWay.length === 0 ? (
+          <p className="sub" data-testid="nothing">
+            {t('pay.board.empty')}
+          </p>
+        ) : (
+          <div data-testid="board">
+            <DataTable caption={t('pay.board.title')} columns={columns} rows={onTheWay} rowKey={(request) => request.id} />
+          </div>
+        )}
       </StateBoundary>
       <p className="prototype-note">{t('pay.board.footer', { id: route.id, req: route.req ?? '' })}</p>
     </section>

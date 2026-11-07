@@ -404,3 +404,12 @@ export function filterProjects(projects: readonly ProjectLine[], filter: ListFil
 export function workspaceLink(projectId: string): string {
   return `${WORKSPACE_PATH}?${new URLSearchParams({ id: projectId }).toString()}`;
 }
+
+/** `HH:mm dd/MM/yyyy` in Vietnam time: when the numbers of a screen were read (the freshness of its context bar). */
+export function readAtLabel(milliseconds: number): string {
+  const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(
+    new Date(milliseconds),
+  );
+  const part = (type: string): string => parts.find((candidate) => candidate.type === type)?.value ?? '';
+  return `${part('hour')}:${part('minute')} ${part('day')}/${part('month')}/${part('year')}`;
+}

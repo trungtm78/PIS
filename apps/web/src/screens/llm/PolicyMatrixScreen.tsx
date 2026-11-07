@@ -11,6 +11,7 @@ import { useDraftPolicy, usePolicies, usePublishPolicy } from './hooks';
 import { classificationLabel, policyStatusLabel, problemMessage, refusalMessage, routeLabel } from './labels';
 import { BASELINE, CLASSIFICATIONS, POLICY_APPROVE, POLICY_MANAGE, ROUTES, describeLlmProblem, initialPolicy, matrixInForce, validatePolicy, vietnamDay } from './llm-model';
 import type { Classification, Matrix, PolicyEntry, PolicyErrors, PolicyValues, Route } from './llm-model';
+import './llm-kit.css';
 
 /**
  * LLM-19: the matrix that says which route each class of data may take (ST-LLM-001, LLM BR-LLM-01): the one in force, the revisions with who may publish them, and a draft made from the matrix in force. The baseline is
@@ -123,7 +124,7 @@ function PolicyRow({ policy, mayPublish }: { policy: PolicyEntry; mayPublish: bo
         <td>{vietnamDay(policy.effectiveFrom)}</td>
         <td>
           {mayPublish && policy.status === 'DRAFT' ? (
-            <button type="button" className="btn" disabled={publish.isPending} onClick={() => publish.mutate({ policyId: policy.id, version: policy.version })}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={publish.isPending} onClick={() => publish.mutate({ policyId: policy.id, version: policy.version })}>
               {t('llm.policy.publish')}
             </button>
           ) : null}
@@ -234,7 +235,7 @@ function DraftForm({ matrix }: { matrix: Matrix }) {
         </Field>
       </div>
       <div className="mne-actions">
-        <button type="submit" className="btn" disabled={draft.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={draft.isPending}>
           {t('llm.policy.form.submit')}
         </button>
       </div>

@@ -1,3 +1,4 @@
+@import './kit.css';
 .ctr-grid {
   display: grid;
   gap: 16px;
@@ -23,18 +24,34 @@
 }
 .ctr-back-link a {
   font-size: 11px;
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }
 .ctr-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border: 1px solid var(--shell-line, #e4e0e6);
-  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--mv-space-12);
+  border: 1px solid var(--mv-color-neutral);
+  border-radius: var(--mv-radius-pill);
+  background: var(--mv-color-neutral-soft);
+  color: var(--mv-color-neutral);
   font-size: 12px;
+  font-weight: 600;
   white-space: nowrap;
 }
+.ctr-badge.ok {
+  border-color: var(--mv-color-success);
+  background: var(--mv-color-success-soft);
+  color: var(--mv-color-success);
+}
 .ctr-badge.warning {
-  border-color: var(--shell-warning, #b45309);
+  border-color: var(--mv-color-warning);
+  background: var(--mv-color-warning-soft);
+  color: var(--mv-color-warning);
+}
+.ctr-badge.danger {
+  border-color: var(--mv-color-danger);
+  background: var(--mv-color-danger-soft);
+  color: var(--mv-color-danger);
 }
 .ctr-facts {
   display: grid;
@@ -111,4 +128,8 @@
 .ctr-lines {
   margin: 0;
   padding-left: 18px;
+}
+.ctr-badge.warning::before {
+  content: "! ";
+  white-space: pre;
 }

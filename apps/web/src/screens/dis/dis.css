@@ -23,7 +23,7 @@
 .dis-code {
   display: block;
   font-size: 11px;
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }
 .dis-dialog-body {
   padding: 18px 22px 22px;
@@ -38,7 +38,7 @@
 .dis-projects {
   margin: 12px 0;
   padding: 8px 12px;
-  border: 1px solid var(--line, #d8d3da);
+  border: 1px solid var(--mv-color-border);
   border-radius: 6px;
 }
 .dis-radio {
@@ -89,7 +89,7 @@
 }
 .dis-back-link a {
   font-size: 11px;
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }
 .dis-matrix th[scope='row'] {
   text-align: left;
@@ -103,13 +103,13 @@
 .dis-subrow th[scope='row'] {
   padding-left: 28px;
   font-weight: 400;
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }
 .dis-subrow td {
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }
 .dis-fall {
-  color: var(--shell-warning, #b45309);
+  color: var(--mv-color-warning);
   font-weight: 600;
 }
 td.num,
@@ -155,7 +155,7 @@ th.num {
   flex-direction: column;
   gap: 4px;
   padding: 12px 14px;
-  border: 1px solid var(--line, #d8d3da);
+  border: 1px solid var(--mv-color-border);
   border-radius: 6px;
 }
 .dis-rate-tile strong {
@@ -164,7 +164,7 @@ th.num {
 .dis-full-table .pinned {
   position: sticky;
   z-index: 1;
-  background: var(--surface, #fff);
+  background: var(--mv-color-surface);
 }
 .dis-full-table .pinned-first {
   left: 0;
@@ -218,3 +218,20 @@ th.num {
 .dis-wr-receipt dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
 .dis-wr-actions-inline { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); }
 .dis-wr-field-error { display: block; font-size: 12px; color: var(--mv-color-danger); margin-top: var(--mv-space-4); }
+
+/* DIS-15, DIS-17..DIS-20, DIS-22, DIS-24 on the component kit: tokens only (design.md). */
+.dis-w2-stack { display: flex; flex-direction: column; gap: var(--mv-space-16); margin-bottom: var(--mv-space-16); }
+.dis-w2-note { margin: 0; font-size: 12px; color: var(--mv-color-text-secondary); }
+.dis-w2-empty { margin: 0; padding: var(--mv-space-16); color: var(--mv-color-text-secondary); }
+.dis-w2-banner { margin: 0 0 var(--mv-space-16); padding: var(--mv-space-12) var(--mv-space-16); border: 1px solid var(--mv-color-warning); border-left-width: 4px; border-radius: var(--mv-radius-control); background: var(--mv-color-warning-soft); color: var(--mv-color-ink); }
+.dis-w2-banner--danger { border-color: var(--mv-color-danger); background: var(--mv-color-danger-soft); }
+.dis-w2-banner--info { border-color: var(--mv-color-info); background: var(--mv-color-info-soft); }
+.dis-w2-banner button { margin-left: var(--mv-space-8); }
+.dis-w2-pills { display: inline-flex; flex-wrap: wrap; gap: var(--mv-space-4); }
+.dis-w2-more { margin: var(--mv-space-12) 0 0; }
+.dis-w2-actions { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); }
+.dis-w2-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--mv-space-12) var(--mv-space-16); align-items: start; }
+.dis-w2-cellnote { display: block; font-size: 12px; color: var(--mv-color-text-secondary); }
+.dis-w2-inline-field { display: flex; flex-wrap: wrap; align-items: end; gap: var(--mv-space-12); }
+.dis-w2-decision { margin-top: var(--mv-space-16); }
+.dis-w2-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--mv-space-8); }

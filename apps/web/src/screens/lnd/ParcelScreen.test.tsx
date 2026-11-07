@@ -22,7 +22,8 @@ const worldOf = () =>
       parcel(4, { recovery_notice_on: '2026-01-01', notice_days_applied: 90, status: 'PAID', deadline: deadline({ status: 'SATISFIED', satisfied_on: '2026-04-05', due_on: '2026-04-01', started_on: '2026-01-01', awaiting_confirmation: false }) }),
     ],
   });
-const rowOf = (n: number): HTMLElement => document.querySelector(`[data-parcel-id="${parcel(n).id}"]`) as HTMLElement;
+/** The code of the parcel is marked in its cell; the row is the table row around it. */
+const rowOf = (n: number): HTMLElement => (document.querySelector(`[data-parcel-id="${parcel(n).id}"]`) as HTMLElement).closest('tr') as HTMLElement;
 const ready = () => screen.findByTestId('parcels');
 
 describe('ParcelScreen (LND-02): the parcels of a project and the notice of recovery', () => {
@@ -56,7 +57,7 @@ describe('ParcelScreen (LND-02): the parcels of a project and the notice of reco
       vi_['lnd.parcels.column.status'],
       vi_['lnd.parcels.column.action'],
     ]);
-    expect(rowOf(1).querySelector('th')?.textContent).toBe('TB-1/10');
+    expect(rowOf(1).querySelector('td')?.textContent).toBe('TB-1/10');
     expect(within(rowOf(1)).getByText('UBND xã An Phú')).toBeTruthy();
     expect(within(rowOf(1)).getByText(vi_['lnd.landUse.agricultural.label'])).toBeTruthy();
     expect(within(rowOf(1)).getByTestId('notice').textContent).toBe(vi_['lnd.notice.none.label']);

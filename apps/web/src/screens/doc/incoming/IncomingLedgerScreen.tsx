@@ -6,7 +6,9 @@ import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { useIncomings } from './hooks';
-import { statusLabel, urgencyLabel } from './labels';
+import { DataTable, FilterPanel, StatusPill } from '../../../ui';
+import type { DataTableColumn } from '../../../ui';
+import { statusLabel, statusTone, urgencyLabel } from './labels';
 import { INCOMING_STATUSES, NO_FILTER, RECEIVE_PERMISSION, canAct, handlingLink, holds, intakeLink } from './model';
 import type { IncomingFilter, IncomingLine } from './model';
 import './incoming.css';
@@ -37,6 +39,83 @@ function LedgerContent({ route }: ScreenProps) {
     return [now, now - 1, now - 2].map(String);
   }, []);
 
+  const columns: DataTableColumn<IncomingLine>[] = [
+    {
+      key: 'number',
+      header: t('doc.incoming.column.number'),
+      pinned: true,
+      render: (line) => (
+        <span data-testid="number" data-letter={line.id} data-status={line.status} data-overdue={line.isOverdue ? 'yes' : 'no'}>
+          {line.symbol ?? t('doc.incoming.none')}
+        </span>
+      ),
+    },
+    {
+      key: 'letter',
+      header: t('doc.incoming.column.letter'),
+      render: (line) => (
+        <span data-testid="letter">
+          <strong>{line.title}</strong>
+          <small className="sub incoming-meta">
+            {line.senderName}
+            {line.originalSymbol === null ? '' : ` · ${line.originalSymbol}`}
+            {line.originalIssuedOn === null ? '' : ` · ${day(line.originalIssuedOn)}`}
+          </small>
+          {line.urgency === 'NORMAL' ? null : (
+            <span className="incoming-chip">
+              <StatusPill tone="warning">{urgencyLabel(t, line.urgency)}</StatusPill>
+            </span>
+          )}
+        </span>
+      ),
+    },
+    { key: 'received', header: t('doc.incoming.column.received'), render: (line) => <span data-testid="received">{day(line.receivedAt)}</span> },
+    {
+      key: 'assigned',
+      header: t('doc.incoming.column.assigned'),
+      render: (line) => (
+        <span data-testid="assigned">
+          {line.assignedUnit === null ? (
+            <span className="sub">{t('doc.incoming.none')}</span>
+          ) : (
+            <>
+              {line.assignedUnit.name}
+              {line.assignee === null ? null : <small className="sub incoming-meta">{line.assignee.name}</small>}
+              {line.dueOn === null ? null : <small className="sub incoming-meta">{t('doc.incoming.due', { date: day(line.dueOn) })}</small>}
+            </>
+          )}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: t('doc.incoming.column.status'),
+      render: (line) => (
+        <span className="incoming-states">
+          <span data-testid="status">
+            <StatusPill tone={statusTone(line.status)}>{statusLabel(t, line.status)}</StatusPill>
+          </span>
+          {line.overdueDays === null || line.dueOn === null ? null : (
+            <span data-testid="overdue">
+              <StatusPill tone="danger">{t('doc.incoming.overdue', { days: line.overdueDays, date: day(line.dueOn) })}</StatusPill>
+            </span>
+          )}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      header: t('doc.incoming.column.actions'),
+      render: (line) => (
+        <Link className="ui-button ui-button--outline ui-button--small" to={handlingLink(line.id)} data-open={line.id}>
+          {t('doc.incoming.open.action')}
+        </Link>
+      ),
+    },
+  ];
+  const filtered = filter.status !== '' || filter.year !== '' || filter.overdue;
+  const appliedCount = [filter.status, filter.year].filter((value) => value !== '').length + (filter.overdue ? 1 : 0);
+
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       <div className="heading">
@@ -46,13 +125,13 @@ function LedgerContent({ route }: ScreenProps) {
         </div>
         {canAct(mode) && holds(permissions, RECEIVE_PERMISSION) ? (
           <div className="actions">
-            <Link className="button primary" to={intakeLink()}>
+            <Link className="ui-button ui-button--primary" to={intakeLink()}>
               {t('doc.incoming.intake.link')}
             </Link>
           </div>
         ) : null}
       </div>
-      <div className="card">
+      <FilterPanel applied={appliedCount}>
         <div className="field">
           <label htmlFor="incoming-filter-status">{t('doc.incoming.column.status')}</label>
           <select id="incoming-filter-status" value={filter.status} onChange={(event) => change({ status: event.target.value })}>
@@ -80,87 +159,35 @@ function LedgerContent({ route }: ScreenProps) {
             <input id="incoming-filter-overdue" type="checkbox" checked={filter.overdue} onChange={(event) => change({ overdue: event.target.checked })} /> {t('doc.incoming.filter.overdue')}
           </label>
         </div>
-      </div>
+        {filtered ? (
+          <div className="field">
+            <button type="button" className="ui-button ui-button--outline" onClick={() => setFilter(NO_FILTER)}>
+              {t('w2doc.incoming.filter.clear')}
+            </button>
+          </div>
+        ) : null}
+      </FilterPanel>
       <StateBoundary state={state} onRetry={() => void list.refetch()}>
-        <div className="card">
-          {lines.length === 0 ? (
+        {lines.length === 0 ? (
+          <div className="card">
             <p className="callout" role="status" data-testid="no-letters">
               {t('doc.incoming.none.notice')}
             </p>
-          ) : (
-            <table className="table" data-testid="letters">
-              <thead>
-                <tr>
-                  <th scope="col">{t('doc.incoming.column.number')}</th>
-                  <th scope="col">{t('doc.incoming.column.letter')}</th>
-                  <th scope="col">{t('doc.incoming.column.received')}</th>
-                  <th scope="col">{t('doc.incoming.column.assigned')}</th>
-                  <th scope="col">{t('doc.incoming.column.status')}</th>
-                  <th scope="col">
-                    <span className="sr-only">{t('doc.incoming.column.actions')}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {lines.map((line) => (
-                  <LetterRow key={line.id} line={line} day={day} />
-                ))}
-              </tbody>
-            </table>
-          )}
-          {list.hasNextPage ? (
-            <button type="button" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
+          </div>
+        ) : (
+          <div data-testid="letters">
+            <DataTable caption={t('w2doc.incoming.table.caption')} columns={columns} rows={lines} rowKey={(line) => line.id} emptyKind={filtered ? 'filtered' : 'none'} onClearFilters={() => setFilter(NO_FILTER)} />
+          </div>
+        )}
+        {list.hasNextPage ? (
+          <p>
+            <button type="button" className="ui-button ui-button--outline" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
               {t('doc.incoming.more.action')}
             </button>
-          ) : null}
-        </div>
+          </p>
+        ) : null}
       </StateBoundary>
       <p className="prototype-note">{t('doc.incoming.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
-  );
-}
-
-function LetterRow({ line, day }: { line: IncomingLine; day: (iso: string | null) => string }) {
-  const { t } = useTranslation();
-  return (
-    <tr data-letter={line.id} data-status={line.status} data-overdue={line.isOverdue ? 'yes' : 'no'}>
-      <td data-testid="number">{line.symbol ?? t('doc.incoming.none')}</td>
-      <td data-testid="letter">
-        <strong>{line.title}</strong>
-        <small className="sub incoming-meta">
-          {line.senderName}
-          {line.originalSymbol === null ? '' : ` · ${line.originalSymbol}`}
-          {line.originalIssuedOn === null ? '' : ` · ${day(line.originalIssuedOn)}`}
-        </small>
-        {line.urgency === 'NORMAL' ? null : <span className="incoming-chip warning">{urgencyLabel(t, line.urgency)}</span>}
-      </td>
-      <td data-testid="received">{day(line.receivedAt)}</td>
-      <td data-testid="assigned">
-        {line.assignedUnit === null ? (
-          <span className="sub">{t('doc.incoming.none')}</span>
-        ) : (
-          <>
-            {line.assignedUnit.name}
-            {line.assignee === null ? null : <small className="sub incoming-meta">{line.assignee.name}</small>}
-            {line.dueOn === null ? null : <small className="sub incoming-meta">{t('doc.incoming.due', { date: day(line.dueOn) })}</small>}
-          </>
-        )}
-      </td>
-      <td>
-        <span className="incoming-chip" data-testid="status">
-          {statusLabel(t, line.status)}
-        </span>
-        {line.overdueDays === null || line.dueOn === null ? null : (
-          <span className="incoming-chip danger" data-testid="overdue">
-            {t('doc.incoming.overdue', { days: line.overdueDays, date: day(line.dueOn) })}
-          </span>
-        )}
-      </td>
-      <td>
-        <Link className="button" to={handlingLink(line.id)} data-open={line.id}>
-          {t('doc.incoming.open.action')}
-        </Link>
-      </td>
-    </tr>
   );
 }

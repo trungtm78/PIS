@@ -66,11 +66,11 @@
 }
 .license-chain li {
   padding: 12px;
-  border: 1px solid var(--shell-line, #e4e0e6);
+  border: 1px solid var(--mv-color-border);
   border-radius: 8px;
 }
 .license-chain li[data-current="true"] {
-  border-color: var(--shell-success, #15803d);
+  border-color: var(--mv-color-success);
 }
 .license-chain-head {
   margin-bottom: 4px;

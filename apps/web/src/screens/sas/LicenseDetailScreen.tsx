@@ -14,9 +14,13 @@ import { MANAGE_LICENSES_PERMISSION } from './license/types';
 import type { License } from './license/types';
 import { toneClass } from './tenants/labels';
 import { TenantSelect } from './license/TenantSelect';
+import { SectionCard, StatusPill } from '../../ui';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 import './tenants/sas.css';
 import './tenant-detail/tenant-detail.css';
 import './license/license.css';
+import { toneOfPill } from '../adm/kit-tone';
 
 const ARROW = '←';
 
@@ -41,8 +45,8 @@ function LicenseCard({ license }: RevisionProps) {
     </div>
   );
   return (
-    <div className="card" data-license-id={license.id}>
-      <h2>{t('sas.licenseDetail.card.title')}</h2>
+    <SectionCard title={t('sas.licenseDetail.card.title')}>
+      <div data-license-id={license.id}>
       <dl className="sas-detail-fields">
         {row(t('sas.licenseDetail.field.serial'), license.serial)}
         {row(t('sas.licenseDetail.field.revision'), license.revision)}
@@ -50,10 +54,14 @@ function LicenseCard({ license }: RevisionProps) {
         <div className="sas-detail-row">
           <dt>{t('sas.licenseDetail.field.status')}</dt>
           <dd>
-            <span className={toneClass(statusTone(license.status))} data-license-status={license.status}>
+            <span data-license-status={license.status}><StatusPill tone={toneOfPill(toneClass(statusTone(license.status)))}>
               {statusLabel(t, license.status)}
-            </span>
-            {license.expiring ? <span className="pill warn license-expiring"> {t('sas.licenseDetail.expiring.label')}</span> : null}
+            </StatusPill></span>
+            {license.expiring ? (
+              <span className="license-expiring">
+                <StatusPill tone="warning">{t('sas.licenseDetail.expiring.label')}</StatusPill>
+              </span>
+            ) : null}
           </dd>
         </div>
         {license.statusReason === undefined ? null : row(t('sas.licenseDetail.field.reason'), license.statusReason)}
@@ -67,14 +75,15 @@ function LicenseCard({ license }: RevisionProps) {
         <div className="sas-detail-row">
           <dt>{t('sas.licenseDetail.field.signature')}</dt>
           <dd>
-            <span className={toneClass(signatureTone(license.signatureCheck))} data-signature-check={license.signatureCheck}>
+            <span data-signature-check={license.signatureCheck}><StatusPill tone={toneOfPill(toneClass(signatureTone(license.signatureCheck)))}>
               {signatureLabel(t, license.signatureCheck)}
-            </span>
+            </StatusPill></span>
           </dd>
         </div>
         {row(t('sas.licenseDetail.field.version'), license.version)}
       </dl>
-    </div>
+      </div>
+    </SectionCard>
   );
 }
 
@@ -93,8 +102,7 @@ function OneLicense({ licenseId, canManage }: { licenseId: string; canManage: bo
       {license === undefined ? null : (
         <div className="sas-detail-grid">
           <LicenseCard license={license} />
-          <div className="card">
-            <h2>{t('sas.licenseDetail.actions.title')}</h2>
+          <SectionCard title={t('sas.licenseDetail.actions.title')}>
             {!canManage ? (
               <p className="callout warning" role="status">
                 {t('sas.licenseDetail.readOnly.notice')}
@@ -122,7 +130,7 @@ function OneLicense({ licenseId, canManage }: { licenseId: string; canManage: bo
                 </Link>
               </div>
             )}
-          </div>
+          </SectionCard>
         </div>
       )}
     </StateBoundary>
@@ -138,10 +146,8 @@ function TenantLicenses({ tenantId }: { tenantId: string }) {
   const detail = routeById('SAS-13');
   return (
     <StateBoundary state={state} onRetry={() => void query.refetch()}>
-      <div className="card">
-        <h2>{t('sas.licenseDetail.list.title')}</h2>
-        <div className="tablewrap">
-          <table>
+      <SectionCard title={t('sas.licenseDetail.list.title')}>
+          <KitTable caption={t('w2sas.licenseDetail.table.caption')}>
             <thead>
               <tr>
                 <th>{t('sas.licenseDetail.col.serial')}</th>
@@ -161,11 +167,11 @@ function TenantLicenses({ tenantId }: { tenantId: string }) {
                   </td>
                   <td>{editionLabel(t, license.edition)}</td>
                   <td>
-                    <span className={toneClass(statusTone(license.status))}>{statusLabel(t, license.status)}</span>
+                    <StatusPill tone={toneOfPill(toneClass(statusTone(license.status)))}>{statusLabel(t, license.status)}</StatusPill>
                   </td>
                   <td>{dateOf(locale, license.validUntil)}</td>
                   <td>
-                    <span className={toneClass(signatureTone(license.signatureCheck))}>{signatureLabel(t, license.signatureCheck)}</span>
+                    <StatusPill tone={toneOfPill(toneClass(signatureTone(license.signatureCheck)))}>{signatureLabel(t, license.signatureCheck)}</StatusPill>
                   </td>
                   <td>
                     {detail === undefined ? null : (
@@ -177,8 +183,7 @@ function TenantLicenses({ tenantId }: { tenantId: string }) {
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+          </KitTable>
         {query.hasNextPage ? (
           <div className="row between gap tiny muted">
             <span />
@@ -187,7 +192,7 @@ function TenantLicenses({ tenantId }: { tenantId: string }) {
             </button>
           </div>
         ) : null}
-      </div>
+      </SectionCard>
     </StateBoundary>
   );
 }

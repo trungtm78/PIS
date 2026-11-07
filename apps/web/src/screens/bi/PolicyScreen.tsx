@@ -12,6 +12,7 @@ import { useCreatePolicy, useDatasets, usePolicies } from './hooks';
 import { granteeKindLabel, policyFieldMessage, policyRefusalMessage, policyStatusLabel } from './labels';
 import { EMPTY_POLICY, GRANTEE_KINDS, POLICY_PERMISSION, describePolicyProblem, predicateText, validatePolicy } from './policy-model';
 import type { GranteeKind, PolicyErrors, PolicyValues } from './policy-model';
+import './bi-kit.css';
 
 /**
  * BI-08: the row and column policies (ST-BI-003, BI BR-BI-05): for the dataset chosen, who each policy is for (a role, a unit and everything under it, or one person), the rows it allows, the columns it hides and
@@ -164,7 +165,7 @@ function PolicyForm({ datasetId, dimensions }: { datasetId: string; dimensions: 
         </Field>
       </div>
       <div className="mne-actions">
-        <button type="submit" className="btn" disabled={create.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending}>
           {t('bi.policy.form.save')}
         </button>
       </div>

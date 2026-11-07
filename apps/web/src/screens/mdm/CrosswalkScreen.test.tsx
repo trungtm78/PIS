@@ -239,8 +239,8 @@ describe('CrosswalkScreen: the integration connectors', () => {
     mount(<CrosswalkScreen route={ROUTE} />, client(connectors()), CROSSWALK_MANAGER, '/mdm/mdm-24');
     await ready();
     await screen.findByRole('table', { name: vi_['mdm.cursor.table.aria'] });
-    expect(within(cursorRow('NATIONAL_PIM_FILE')).getByText(vi_['mdm.cursor.adapter.proposed.pill']).className).toContain('gray');
-    expect(within(cursorRow('TREASURY_STATEMENT_FILE')).getByText(vi_['mdm.cursor.adapter.verified.pill']).className).toContain('green');
+    expect(within(cursorRow('NATIONAL_PIM_FILE')).getByText(vi_['mdm.cursor.adapter.proposed.pill']).closest('.ui-pill')?.className).toContain('ui-tone-neutral');
+    expect(within(cursorRow('TREASURY_STATEMENT_FILE')).getByText(vi_['mdm.cursor.adapter.verified.pill']).closest('.ui-pill')?.className).toContain('ui-tone-success');
     expect(within(cursorRow('PROCUREMENT_FILE')).getByText(vi_['mdm.cursor.adapter.mock.pill'])).toBeTruthy();
     expect(within(cursorRow('BUDGET_CODE_FILE')).getByText(vi_['mdm.cursor.adapter.missing.pill'])).toBeTruthy();
     expect(within(cursorRow('TREASURY_STATEMENT_FILE')).getByText(vi_['mdm.cursor.status.failed.text'])).toBeTruthy();

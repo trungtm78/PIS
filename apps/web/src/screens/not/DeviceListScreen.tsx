@@ -9,6 +9,7 @@ import './delivery/delivery.css';
 import { useDevices } from './device/hooks';
 import { PLATFORMS, READ_PERMISSION, STATUSES, canReceivePush, shortId } from './device/model';
 import type { DevicePage, DeviceView } from './device/model';
+import { StatusPill } from '../../ui';
 
 
 /**
@@ -103,9 +104,7 @@ export default function DeviceListScreen({ route }: ScreenProps) {
                       <td>{device.appVersion}</td>
                       <td>{day(device.lastSeenAt)}</td>
                       <td>
-                        <span className={device.status === 'Active' ? (canReceivePush(device) ? 'pill' : 'pill warn') : 'pill gray'}>
-                          {device.status === 'Active' ? t('not.device.status.active') : t('not.device.status.revoked')}
-                        </span>
+                        <StatusPill tone={device.status === 'Active' ? (canReceivePush(device) ? 'success' : 'warning') : 'neutral'}>{device.status === 'Active' ? t('not.device.status.active') : t('not.device.status.revoked')}</StatusPill>
                         {device.status === 'Revoked' ? (
                           <small className="sub" data-revoke-reason>
                             {' · '}

@@ -4,6 +4,7 @@ import { useTranslation } from '../../i18n';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { SectionCard, StatusPill } from '../../ui';
 import { GrantDialog } from './roles/GrantDialog';
 import { GrantList } from './roles/GrantList';
 import { useGrantableRoles, useGrants, useRoleDefinitions } from './roles/hooks';
@@ -12,6 +13,7 @@ import { RolePreview } from './roles/RolePreview';
 import { RevokeDialog } from './roles/RevokeDialog';
 import { PERMISSION_GRANT, PERMISSION_MANAGE, PERMISSION_READ } from './roles/types';
 import type { GrantView } from './roles/types';
+import './adm-kit.css';
 import './roles/roles.css';
 
 type Selection = { kind: 'role'; id: string } | { kind: 'new' } | { kind: 'none' };
@@ -90,12 +92,12 @@ function RolesGrantsContent({ routeId }: { routeId: string }) {
         {state === 'default' ? (
           <div className="actions">
             {canManage ? (
-              <button type="button" onClick={() => setSelection({ kind: 'new' })}>
+              <button type="button" className="ui-button ui-button--outline" onClick={() => setSelection({ kind: 'new' })}>
                 {t('adm.roles.action.create')}
               </button>
             ) : null}
             {canGrant ? (
-              <button type="button" className="primary" onClick={() => setGranting(true)}>
+              <button type="button" className="ui-button ui-button--primary" onClick={() => setGranting(true)}>
                 {t('adm.roles.action.grant')}
               </button>
             ) : null}
@@ -112,11 +114,7 @@ function RolesGrantsContent({ routeId }: { routeId: string }) {
           </div>
         )}
         <div className="two">
-          <div className="card">
-            <div className="row between">
-              <h2>{t('adm.roles.card.title')}</h2>
-              {selected === undefined ? null : <span className="pill gray">{t('adm.roles.version.label', { version: selected.version })}</span>}
-            </div>
+          <SectionCard title={t('adm.roles.card.title')} status={selected === undefined ? undefined : <StatusPill tone="neutral">{t('adm.roles.version.label', { version: selected.version })}</StatusPill>}>
             <div className="field">
               <label htmlFor="role-picker">{t('adm.roles.picker.label')}</label>
               <select
@@ -141,13 +139,12 @@ function RolesGrantsContent({ routeId }: { routeId: string }) {
                 onReload={() => setFormVersion((current) => current + 1)}
               />
             )}
-          </div>
+          </SectionCard>
           <RolePreview role={selected} />
         </div>
-        <div className="card">
-          <h2>{t('adm.roles.grants.title')}</h2>
+        <SectionCard title={t('adm.roles.grants.title')}>
           <GrantList grants={grants.data ?? []} canRevoke={canGrant} onRevoke={setRevoking} />
-        </div>
+        </SectionCard>
       </StateBoundary>
       {granting ? (
         <GrantDialog

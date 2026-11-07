@@ -10,6 +10,9 @@ import { NO_MAPPING_FILTER, useGates, useMappings } from './hooks';
 import { gateOutcomeLabel, gateReasonLabel, mappingStatusLabel, mappingStatusTone, unitLabel } from './labels';
 import { GATE_OUTCOMES } from './model';
 import '../dgv.css';
+import '../dgv-kit.css';
+import { StatusPill } from '../../../ui';
+import { pillTone } from '../pill-tone';
 
 const MAPPING_PATH = '/dgv/dgv-20';
 
@@ -45,7 +48,7 @@ function PipelineContent({ route }: ScreenProps) {
           <h1 id="screen-title">{t('dgv.pipeline.title')}</h1>
           <p>{t('dgv.pipeline.subtitle')}</p>
         </div>
-        <Link className="button" to={datasetId === '' ? MAPPING_PATH : `${MAPPING_PATH}?dataset=${datasetId}`} data-testid="to-mappings">
+        <Link className="ui-button ui-button--outline" to={datasetId === '' ? MAPPING_PATH : `${MAPPING_PATH}?dataset=${datasetId}`} data-testid="to-mappings">
           {t('dgv.pipeline.mappings.link')}
         </Link>
       </div>
@@ -155,7 +158,7 @@ function PipelineContent({ route }: ScreenProps) {
             <ul data-testid="confirmed-mappings">
               {usable.map((mapping) => (
                 <li key={mapping.id} data-mapping={mapping.id}>
-                  <span className={`pill ${mappingStatusTone(mapping.status)}`}>{mappingStatusLabel(t, mapping.status)}</span> {mapping.datasetCode} · {mapping.sourceSystem}.{mapping.sourceField} → {mapping.targetField} · {unitLabel(t, mapping.unit)}
+                  <StatusPill tone={pillTone(mappingStatusTone(mapping.status))}>{mappingStatusLabel(t, mapping.status)}</StatusPill> {mapping.datasetCode} · {mapping.sourceSystem}.{mapping.sourceField} → {mapping.targetField} · {unitLabel(t, mapping.unit)}
                 </li>
               ))}
             </ul>

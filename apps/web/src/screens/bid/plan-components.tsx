@@ -1,17 +1,19 @@
 import { useTranslation } from '../../i18n';
+import { StatusPill } from '../../ui';
+import type { Tone } from '../../ui';
 import { planProblemMessage, planStatusLabel } from './plan-labels';
 import { formatVnd } from './plan-model';
 import type { PlanStatus, ProblemView } from './plan-model';
 import './bid.css';
 
-const STATUS_TONE: Readonly<Record<PlanStatus, string>> = { DRAFT: 'warning', IN_REVIEW: 'warning', APPROVED: 'ok', SUPERSEDED: '', CANCELLED: 'danger' };
+const STATUS_TONE: Readonly<Record<PlanStatus, Tone>> = { DRAFT: 'neutral', IN_REVIEW: 'info', APPROVED: 'success', SUPERSEDED: 'neutral', CANCELLED: 'danger' };
 
 /** The state of a plan in words: a state is never told by colour alone. */
 export function PlanStatusBadge({ status }: { status: PlanStatus }) {
   const { t } = useTranslation();
   return (
-    <span className={`bid-badge ${STATUS_TONE[status]}`.trim()} data-testid="plan-status" data-status={status}>
-      {planStatusLabel(t, status)}
+    <span data-testid="plan-status" data-status={status}>
+      <StatusPill tone={STATUS_TONE[status]}>{planStatusLabel(t, status)}</StatusPill>
     </span>
   );
 }

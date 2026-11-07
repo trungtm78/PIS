@@ -12,6 +12,7 @@ import { typeLabel } from './labels';
 import { NODE_TYPES, PROJECT_READ_PERMISSION, READ_PERMISSION, correctsOf, nodeLink, nodesOf, vndText } from './model';
 import type { Chain, ChainNode } from './model';
 import '../pay.css';
+import { SectionCard } from '../../../ui';
 
 /**
  * PAY-17: the trace of a payment (ST-PAY-010, PAY 3.4, UAT-AC67). From a project, and from one of its contracts when one is picked, the screen lists in the order of the chain the project, the contract with
@@ -54,8 +55,7 @@ function ChainContent({ route }: ScreenProps) {
         </p>
       ) : (
         <>
-          <article className="card" aria-label={t('pay.chain.pick.title')}>
-            <h2>{t('pay.chain.pick.title')}</h2>
+          <SectionCard title={t('pay.chain.pick.title')}>
             <div className="pay-form-grid">
               <div className="field">
                 <label htmlFor="chain-project">{t('pay.chain.pick.project')}</label>
@@ -95,7 +95,7 @@ function ChainContent({ route }: ScreenProps) {
                 </div>
               )}
             </div>
-          </article>
+          </SectionCard>
           {projectId === null ? (
             <p className="sub" role="status" data-testid="pick">
               {t('pay.chain.pick.none')}

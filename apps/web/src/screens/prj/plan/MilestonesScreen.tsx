@@ -6,6 +6,8 @@ import { useSession } from '../../../session/SessionContext';
 import { NavigationDialog } from '../../../shell/NavigationDialog';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { DataTable, SectionCard, StatusPill, StickyActions } from '../../../ui';
+import type { DataTableColumn } from '../../../ui';
 import { Field } from '../components';
 import { useProjects } from '../hooks';
 import '../prj.css';
@@ -54,7 +56,75 @@ function MilestonesContent({ route }: ScreenProps) {
   const project = (projects.data ?? []).find((candidate) => candidate.id === projectId);
   const list = useMilestones(projectId);
   const items = list.data ?? [];
-  const state = useScreenState({ isLoading: list.isLoading, error: list.error, data: projectId === undefined || list.data === undefined ? undefined : items, isEmpty: () => false });
+  const state = useScreenState({
+    isLoading: list.isLoading,
+    error: list.error,
+    data: projectId === undefined || list.data === undefined ? undefined : items,
+    isEmpty: () => false,
+  });
+  const columns: DataTableColumn<MilestoneView>[] = [
+    {
+      key: 'milestone',
+      header: t('prj.mile.col.milestone'),
+      pinned: true,
+      render: (item) => (
+        <>
+          <code>{item.code}</code> {item.name}
+          {item.componentCode === null ? null : <span className="prj-code">{t('prj.mile.component', { component: item.componentCode })}</span>}
+          {item.reason === null ? null : <span className="prj-code">{t('prj.mile.reason', { reason: item.reason })}</span>}
+        </>
+      ),
+    },
+    {
+      key: 'baseline',
+      header: t('prj.mile.col.baseline'),
+      render: (item) => item.baselineDate,
+    },
+    {
+      key: 'planned',
+      header: t('prj.mile.col.planned'),
+      render: (item) => item.plannedDate,
+    },
+    {
+      key: 'actual',
+      header: t('prj.mile.col.actual'),
+      render: (item) => item.actualDate ?? NONE,
+    },
+    {
+      key: 'depends',
+      header: t('prj.mile.col.depends'),
+      render: (item) => (item.dependsOn === null ? NONE : item.dependsOn.code),
+    },
+    {
+      key: 'status',
+      header: t('prj.mile.col.status'),
+      render: (item) => (
+        <span className="prj-pills" data-status={item.status} data-delayed={item.delayed}>
+          <StatusPill tone={milestoneTone(item.status)}>{milestoneStatusLabel(t, item.status)}</StatusPill>
+          {item.delayed ? (
+            <span data-testid="delay">
+              <StatusPill tone="danger">{t('prj.mile.delay.pill', { days: item.delayDays })}</StatusPill>
+            </span>
+          ) : null}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      header: t('prj.mile.col.actions'),
+      render: (item) =>
+        mayWrite && isOpen(item.status) ? (
+          <span className="prj-row-actions">
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setProgressing(item)}>
+              {t('prj.mile.progress.action')}
+            </button>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setLinking(item)}>
+              {t('prj.mile.depends.action')}
+            </button>
+          </span>
+        ) : null,
+    },
+  ];
   const mayWrite = holds(permissions, UPDATE_PERMISSION, mode) && project !== undefined && !FROZEN_STAGES.includes(project.status);
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
@@ -72,65 +142,19 @@ function MilestonesContent({ route }: ScreenProps) {
       ) : (
         <StateBoundary state={state} onRetry={() => void list.refetch()}>
           {mayWrite ? <AddMilestonePanel projectId={projectId} /> : null}
-          <div className="tablewrap">
-            <table className="table" aria-label={t('prj.mile.list.aria')} data-testid="milestones">
-              <thead>
-                <tr>
-                  <th scope="col">{t('prj.mile.col.milestone')}</th>
-                  <th scope="col">{t('prj.mile.col.baseline')}</th>
-                  <th scope="col">{t('prj.mile.col.planned')}</th>
-                  <th scope="col">{t('prj.mile.col.actual')}</th>
-                  <th scope="col">{t('prj.mile.col.depends')}</th>
-                  <th scope="col">{t('prj.mile.col.status')}</th>
-                  <th scope="col">
-                    <span className="sr-only">{t('prj.mile.col.actions')}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item) => (
-                  <tr key={item.id} data-milestone={item.id} data-status={item.status} data-delayed={item.delayed}>
-                    <td>
-                      <code>{item.code}</code> {item.name}
-                      {item.componentCode === null ? null : <span className="prj-code">{t('prj.mile.component', { component: item.componentCode })}</span>}
-                      {item.reason === null ? null : <span className="prj-code">{t('prj.mile.reason', { reason: item.reason })}</span>}
-                    </td>
-                    <td>{item.baselineDate}</td>
-                    <td>{item.plannedDate}</td>
-                    <td>{item.actualDate ?? NONE}</td>
-                    <td>{item.dependsOn === null ? NONE : item.dependsOn.code}</td>
-                    <td>
-                      <span className={`pill ${milestoneTone(item.status)}`} data-status={item.status}>
-                        {milestoneStatusLabel(t, item.status)}
-                      </span>
-                      {item.delayed ? (
-                        <span className="pill red" data-testid="delay">
-                          {t('prj.mile.delay.pill', { days: item.delayDays })}
-                        </span>
-                      ) : null}
-                    </td>
-                    <td>
-                      {mayWrite && isOpen(item.status) ? (
-                        <>
-                          <button type="button" onClick={() => setProgressing(item)}>
-                            {t('prj.mile.progress.action')}
-                          </button>{' '}
-                          <button type="button" onClick={() => setLinking(item)}>
-                            {t('prj.mile.depends.action')}
-                          </button>
-                        </>
-                      ) : null}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div data-testid="milestones">
+            <DataTable caption={t('prj.mile.list.aria')} columns={columns} rows={items} rowKey={(item) => item.id} />
           </div>
         </StateBoundary>
       )}
       {progressing === undefined ? null : <ProgressDialog milestone={progressing} onClose={() => setProgressing(undefined)} />}
       {linking === undefined ? null : <DependencyDialog milestone={linking} items={items} onClose={() => setLinking(undefined)} />}
-      <p className="prototype-note">{t('prj.revision.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
+      <p className="prototype-note">
+        {t('prj.revision.footer.reference', {
+          id: route.id,
+          req: route.req ?? '',
+        })}
+      </p>
     </section>
   );
 }
@@ -165,55 +189,58 @@ function AddMilestonePanel({ projectId }: { projectId: string }) {
   };
   const error = (field: MilestoneField): string | undefined => fieldMessage(t, problems[field]);
   return (
-    <form className="card" onSubmit={submit} noValidate aria-label={t('prj.mile.form.title')}>
-      <h2>{t('prj.mile.form.title')}</h2>
-      {refusal === undefined ? null : (
-        <p className="callout warning" role="alert" data-testid="milestone-refusal">
-          {problemMessage(t, refusal)}
-        </p>
-      )}
-      {saved ? (
-        <p className="callout" role="status" data-testid="milestone-saved">
-          {t('prj.mile.form.saved')}
-        </p>
-      ) : null}
-      <Field id="milestone-code" label={t('prj.mile.field.code.label')} error={error('code')} hint={t('prj.plan.field.code.hint')}>
-        <input id="milestone-code" type="text" value={form.code} onChange={(event) => set({ code: event.target.value })} />
-      </Field>
-      <Field id="milestone-name" label={t('prj.mile.field.name.label')} error={error('name')}>
-        <input id="milestone-name" type="text" value={form.name} onChange={(event) => set({ name: event.target.value })} />
-      </Field>
-      <Field id="milestone-component" label={t('prj.mile.field.component.label')} error={error('component')}>
-        <select id="milestone-component" value={form.component} onChange={(event) => set({ component: event.target.value })}>
-          <option value="">{NONE}</option>
-          {(components.data?.items ?? []).map((component) => (
-            <option key={component.id} value={component.id}>
-              {component.code} {component.name}
-            </option>
-          ))}
-        </select>
-      </Field>
-      <Field id="milestone-baseline" label={t('prj.mile.field.baseline.label')} error={error('baseline')} hint={t('prj.mile.field.baseline.hint')}>
-        <input id="milestone-baseline" type="date" value={form.baseline} onChange={(event) => set({ baseline: event.target.value })} />
-      </Field>
-      <Field id="milestone-planned" label={t('prj.mile.field.planned.label')} error={error('planned')}>
-        <input id="milestone-planned" type="date" value={form.planned} onChange={(event) => set({ planned: event.target.value })} />
-      </Field>
-      <Field id="milestone-depends" label={t('prj.mile.field.depends.label')} error={error('dependsOn')}>
-        <select id="milestone-depends" value={form.dependsOn} onChange={(event) => set({ dependsOn: event.target.value })}>
-          <option value="">{NONE}</option>
-          {(milestones.data ?? []).map((milestone) => (
-            <option key={milestone.id} value={milestone.id}>
-              {milestone.code} {milestone.name}
-            </option>
-          ))}
-        </select>
-      </Field>
-      <div className="formfooter">
-        <button type="submit" className="primary" disabled={send.isPending}>
-          {t('prj.mile.form.submit.action')}
-        </button>
-      </div>
+    <form onSubmit={submit} noValidate aria-label={t('prj.mile.form.title')}>
+      <SectionCard title={t('prj.mile.form.title')}>
+        {refusal === undefined ? null : (
+          <p className="callout warning" role="alert" data-testid="milestone-refusal">
+            {problemMessage(t, refusal)}
+          </p>
+        )}
+        {saved ? (
+          <p className="callout" role="status" data-testid="milestone-saved">
+            {t('prj.mile.form.saved')}
+          </p>
+        ) : null}
+        <Field id="milestone-code" label={t('prj.mile.field.code.label')} error={error('code')} hint={t('prj.plan.field.code.hint')}>
+          <input id="milestone-code" type="text" value={form.code} onChange={(event) => set({ code: event.target.value })} />
+        </Field>
+        <Field id="milestone-name" label={t('prj.mile.field.name.label')} error={error('name')}>
+          <input id="milestone-name" type="text" value={form.name} onChange={(event) => set({ name: event.target.value })} />
+        </Field>
+        <Field id="milestone-component" label={t('prj.mile.field.component.label')} error={error('component')}>
+          <select id="milestone-component" value={form.component} onChange={(event) => set({ component: event.target.value })}>
+            <option value="">{NONE}</option>
+            {(components.data?.items ?? []).map((component) => (
+              <option key={component.id} value={component.id}>
+                {component.code} {component.name}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field id="milestone-baseline" label={t('prj.mile.field.baseline.label')} error={error('baseline')} hint={t('prj.mile.field.baseline.hint')}>
+          <input id="milestone-baseline" type="date" value={form.baseline} onChange={(event) => set({ baseline: event.target.value })} />
+        </Field>
+        <Field id="milestone-planned" label={t('prj.mile.field.planned.label')} error={error('planned')}>
+          <input id="milestone-planned" type="date" value={form.planned} onChange={(event) => set({ planned: event.target.value })} />
+        </Field>
+        <Field id="milestone-depends" label={t('prj.mile.field.depends.label')} error={error('dependsOn')}>
+          <select id="milestone-depends" value={form.dependsOn} onChange={(event) => set({ dependsOn: event.target.value })}>
+            <option value="">{NONE}</option>
+            {(milestones.data ?? []).map((milestone) => (
+              <option key={milestone.id} value={milestone.id}>
+                {milestone.code} {milestone.name}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <StickyActions
+          primary={
+            <button type="submit" className="ui-button ui-button--primary" disabled={send.isPending}>
+              {t('prj.mile.form.submit.action')}
+            </button>
+          }
+        />
+      </SectionCard>
     </form>
   );
 }
@@ -245,7 +272,14 @@ function ProgressDialog({ milestone, onClose }: { milestone: MilestoneView; onCl
     const found = validateProgress(form, milestone, vietnamToday());
     setProblems(found);
     if (Object.keys(found).length > 0 || send.isPending) return;
-    send.mutate({ id: milestone.id, version: milestone.version, body: progressBody(form) }, { onSuccess: onClose });
+    send.mutate(
+      {
+        id: milestone.id,
+        version: milestone.version,
+        body: progressBody(form),
+      },
+      { onSuccess: onClose },
+    );
   };
   return (
     <NavigationDialog className="catalog command-mode" onClose={onClose}>
@@ -257,7 +291,12 @@ function ProgressDialog({ milestone, onClose }: { milestone: MilestoneView; onCl
           </button>
         </div>
         <form className="dis-dialog-body" onSubmit={submit} noValidate>
-          <p data-testid="progress-summary">{t('prj.mile.progress.summary', { baseline: milestone.baselineDate, planned: milestone.plannedDate })}</p>
+          <p data-testid="progress-summary">
+            {t('prj.mile.progress.summary', {
+              baseline: milestone.baselineDate,
+              planned: milestone.plannedDate,
+            })}
+          </p>
           {refusal === undefined ? null : (
             <p className="callout warning" role="alert" data-testid="progress-refusal">
               {problemMessage(t, refusal)}
@@ -281,7 +320,12 @@ function ProgressDialog({ milestone, onClose }: { milestone: MilestoneView; onCl
               <input id="progress-planned" type="date" value={form.planned} onChange={(event) => set({ planned: event.target.value })} />
             </Field>
           ) : null}
-          <Field id="progress-reason" label={t('prj.mile.progress.reason.label')} error={fieldMessage(t, problems.reason)} hint={form.outcome === 'DONE' ? t('prj.mile.progress.reason.optional') : t('prj.mile.progress.reason.hint')}>
+          <Field
+            id="progress-reason"
+            label={t('prj.mile.progress.reason.label')}
+            error={fieldMessage(t, problems.reason)}
+            hint={form.outcome === 'DONE' ? t('prj.mile.progress.reason.optional') : t('prj.mile.progress.reason.hint')}
+          >
             <textarea id="progress-reason" rows={3} value={form.reason} onChange={(event) => set({ reason: event.target.value })} />
           </Field>
           <div className="formfooter">
@@ -307,7 +351,14 @@ function DependencyDialog({ milestone, items, onClose }: { milestone: MilestoneV
   const submit = (event: FormEvent): void => {
     event.preventDefault();
     if (send.isPending) return;
-    send.mutate({ id: milestone.id, version: milestone.version, body: { depends_on_milestone_id: target === '' ? null : target } }, { onSuccess: onClose });
+    send.mutate(
+      {
+        id: milestone.id,
+        version: milestone.version,
+        body: { depends_on_milestone_id: target === '' ? null : target },
+      },
+      { onSuccess: onClose },
+    );
   };
   return (
     <NavigationDialog className="catalog command-mode" onClose={onClose}>

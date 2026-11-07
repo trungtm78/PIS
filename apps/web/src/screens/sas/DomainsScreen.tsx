@@ -12,8 +12,12 @@ import type { ChallengeView, DomainKind, DomainView } from './domains/model';
 import { TenantPicker } from './subscription/TenantPicker';
 import { useTenantChoice } from './subscription/hooks';
 import { toneClass } from './tenants/labels';
+import { SectionCard, StatusPill } from '../../ui';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 import './tenants/sas.css';
 import './billing/billing.css';
+import { toneOfPill } from '../adm/kit-tone';
 
 /** The type of the DNS record of the proof: a protocol name, not a word to translate. */
 const RECORD_TYPE = 'TXT';
@@ -153,8 +157,7 @@ function DomainsContent({ route, canManage }: ScreenProps & { canManage: boolean
       </div>
       <TenantPicker id="domain-tenant" label={t('sas.domain.tenant.label')} moreLabel={t('sas.domain.tenant.more.action')} choice={{ ...choice, choose: pick }} />
       {canManage ? (
-        <div className="card">
-          <h2>{t('sas.domain.add.title')}</h2>
+        <SectionCard title={t('sas.domain.add.title')}>
           <p className="sub">{t('sas.domain.add.rule')}</p>
           <form onSubmit={submitAdd} noValidate aria-label={t('sas.domain.add.aria')} className="billing-issue">
             <div className="field">
@@ -177,12 +180,12 @@ function DomainsContent({ route, canManage }: ScreenProps & { canManage: boolean
               </label>
             </fieldset>
             <div className="row gap">
-              <button type="submit" className="primary" disabled={busy || choice.chosen === undefined}>
+              <button type="submit" className="ui-button ui-button--primary" disabled={busy || choice.chosen === undefined}>
                 {t('sas.domain.add.submit.action')}
               </button>
             </div>
           </form>
-        </div>
+        </SectionCard>
       ) : null}
       {shownChallenge === undefined ? null : (
         <div className="callout" role="status" data-challenge>
@@ -207,7 +210,7 @@ function DomainsContent({ route, canManage }: ScreenProps & { canManage: boolean
             )}
           </dl>
           <p className="sub">{t('sas.domain.challenge.once')}</p>
-          <button type="button" onClick={() => setChallenge(undefined)}>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setChallenge(undefined)}>
             {t('sas.domain.challenge.hide.action')}
           </button>
         </div>
@@ -223,15 +226,14 @@ function DomainsContent({ route, canManage }: ScreenProps & { canManage: boolean
         </div>
       )}
       <StateBoundary state={state} onRetry={() => void domains.refetch()}>
-        <div className="card">
-          <h2>{t('sas.domain.list.title')}</h2>
+        <SectionCard title={t('sas.domain.list.title')}>
           <p className="sub">{t('sas.domain.list.rule')}</p>
           {items.length === 0 ? (
             <p className="sub" role="status">
               {t('sas.domain.list.none')}
             </p>
           ) : (
-            <table className="table" data-domains>
+            <KitTable caption={t('w2sas.domains.table.caption')} data-domains>
               <thead>
                 <tr>
                   <th scope="col">{t('sas.domain.column.domain')}</th>
@@ -253,7 +255,7 @@ function DomainsContent({ route, canManage }: ScreenProps & { canManage: boolean
                       <small className="sub">{kindLabel(t, entry.kind)}</small>
                     </td>
                     <td>
-                      <span className={toneClass(statusTone(entry.status))}>{statusLabel(t, entry.status)}</span>
+                      <StatusPill tone={toneOfPill(toneClass(statusTone(entry.status)))}>{statusLabel(t, entry.status)}</StatusPill>
                       {entry.failureCode === undefined ? null : <small className="sub"> · {entry.failureCode}</small>}
                       {choosesTenant(entry) ? <small className="sub" data-chooses> · {t('sas.domain.chooses')}</small> : null}
                       {entry.status === 'Revoked' && entry.reservedUntil !== undefined ? <small className="sub" data-reserved> · {t('sas.domain.reservedUntil', { at: day(entry.reservedUntil) })}</small> : null}
@@ -286,7 +288,7 @@ function DomainsContent({ route, canManage }: ScreenProps & { canManage: boolean
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </KitTable>
           )}
           {domains.hasNextPage ? (
             <div className="row gap">
@@ -308,16 +310,16 @@ function DomainsContent({ route, canManage }: ScreenProps & { canManage: boolean
                 ) : null}
               </div>
               <div className="row gap">
-                <button type="submit" className="primary" disabled={busy}>
+                <button type="submit" className="ui-button ui-button--primary" disabled={busy}>
                   {t('sas.domain.act.confirm.action')}
                 </button>
-                <button type="button" onClick={() => setDoing(undefined)}>
+                <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setDoing(undefined)}>
                   {t('sas.domain.act.abort.action')}
                 </button>
               </div>
             </form>
           )}
-        </div>
+        </SectionCard>
       </StateBoundary>
     </section>
   );

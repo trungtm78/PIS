@@ -5,6 +5,8 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { ContextBar, DataTable, FilterPanel, StatusPill } from '../../../ui';
+import type { DataTableColumn } from '../../../ui';
 import '../aud.css';
 import { recommendationStatusLabel, recommendationTypeLabel } from '../conclusion/labels';
 import { RECOMMENDATION_STATUSES, RECOMMENDATION_TYPES } from '../conclusion/model';
@@ -14,7 +16,9 @@ import { AssignDialog, DecisionDialog, DisputeDialog } from './dialogs';
 import { useRecommendationBoard } from './hooks';
 import type { BoardFilter } from './hooks';
 import { BOARD_PATH, canAssign, canDecide, canDispute, matching } from './model';
-import type { BoardItem } from './model';
+import type { BoardItem, Caller } from './model';
+import { lateDays } from './model';
+import { recommendationTone } from '../tones';
 
 type Dialog = { kind: 'assign' | 'dispute' | 'decide'; item: BoardItem };
 
@@ -31,6 +35,7 @@ export default function RecommendationsScreen({ route }: ScreenProps) {
 
 function RecommendationsContent({ route }: ScreenProps) {
   const { t } = useTranslation();
+  const { tenant } = useSession();
   const caller = useCaller();
   const [params] = useSearchParams();
   const engagementId = params.get('engagement') ?? undefined;
@@ -52,10 +57,11 @@ function RecommendationsContent({ route }: ScreenProps) {
           <p>{t('aud.remediation.list.subtitle')}</p>
         </div>
       </div>
+      <ContextBar items={[{ label: t('w2iss.ctx.scope'), value: tenant?.name ?? t('w2iss.ctx.scope.all') }]} unit={t('w2iss.aud.unit')} />
       <p className="callout" data-testid="confidential-note">
         {t('aud.remediation.confidential.note')}
       </p>
-      <div className="card">
+      <FilterPanel applied={[words.trim() !== '', engagementId !== undefined, filter.status !== '', filter.type !== ''].filter(Boolean).length}>
         <div className="aud-filters">
           <div className="field">
             <label htmlFor="remediation-search">{t('aud.remediation.filter.search.label')}</label>
@@ -85,88 +91,84 @@ function RecommendationsContent({ route }: ScreenProps) {
             </select>
           </div>
         </div>
-        <StateBoundary state={state} onRetry={() => void list.refetch()}>
-          {shown.length === 0 ? (
-            <p className="muted" data-testid="no-recommendations">
-              {t('aud.remediation.list.none.text')}
-            </p>
-          ) : (
-            <div className="tablewrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>{t('aud.remediation.list.col.code')}</th>
-                    <th>{t('aud.remediation.list.col.type')}</th>
-                    <th>{t('aud.remediation.list.col.amount')}</th>
-                    <th>{t('aud.remediation.list.col.owner')}</th>
-                    <th>{t('aud.remediation.list.col.due')}</th>
-                    <th>{t('aud.remediation.list.col.status')}</th>
-                    <th>{t('aud.remediation.list.col.actions')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {shown.map((item) => (
-                    <tr key={item.id} data-recommendation-id={item.id}>
-                      <td>
-                        <strong>{item.code}</strong>
-                        <div className="sub">{item.description}</div>
-                        <div className="sub">{item.engagement.code}</div>
-                      </td>
-                      <td>{recommendationTypeLabel(t, item.type)}</td>
-                      <td>
-                        <Money item={item} />
-                      </td>
-                      <td>
-                        {item.ownerUnit === null ? (
-                          t('aud.remediation.owner.none')
-                        ) : (
-                          <>
-                            {item.ownerUnit.name}
-                            {item.ownerUser === null ? null : <div className="sub">{item.ownerUser.name}</div>}
-                          </>
-                        )}
-                      </td>
-                      <td>
-                        <DueDay item={item} today={today} />
-                      </td>
-                      <td>
-                        <span className="aud-badge">{recommendationStatusLabel(t, item.status)}</span>
-                      </td>
-                      <td>
-                        <div className="aud-row-actions">
-                          {canAssign(item, caller) ? (
-                            <button type="button" onClick={() => setDialog({ kind: 'assign', item })}>
-                              {item.status === 'OPEN' ? t('aud.remediation.assign.action') : t('aud.remediation.reassign.action')}
-                            </button>
-                          ) : null}
-                          {canDispute(item, caller) ? (
-                            <button type="button" onClick={() => setDialog({ kind: 'dispute', item })}>
-                              {t('aud.remediation.dispute.action')}
-                            </button>
-                          ) : null}
-                          {canDecide(item, caller) ? (
-                            <button type="button" onClick={() => setDialog({ kind: 'decide', item })}>
-                              {t('aud.remediation.decision.action')}
-                            </button>
-                          ) : null}
-                          <Link to={`${BOARD_PATH}?engagement=${item.engagement.id}`}>{t('aud.remediation.list.open.link')}</Link>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-          <p className="sub" data-testid="recommendation-count">
-            {t('aud.remediation.list.count.text', { count: shown.length })}
+      </FilterPanel>
+      <StateBoundary state={state} onRetry={() => void list.refetch()}>
+        {shown.length === 0 ? (
+          <p className="muted" data-testid="no-recommendations">
+            {t('aud.remediation.list.none.text')}
           </p>
-        </StateBoundary>
-      </div>
+        ) : (
+          <RecommendationTable items={shown} caller={caller} today={today} onDialog={setDialog} />
+        )}
+        <p className="sub" data-testid="recommendation-count">
+          {t('aud.remediation.list.count.text', { count: shown.length })}
+        </p>
+      </StateBoundary>
       {dialog?.kind === 'assign' ? <AssignDialog item={dialog.item} onClose={close} /> : null}
       {dialog?.kind === 'dispute' ? <DisputeDialog item={dialog.item} onClose={close} /> : null}
       {dialog?.kind === 'decide' ? <DecisionDialog item={dialog.item} onClose={close} /> : null}
       <p className="prototype-note">{t('aud.remediation.list.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
   );
+}
+
+/** The recommendations as a table: a stripe marks the ones that are late (they need action); a recommendation that is closed, disputed or cancelled is never late. */
+function RecommendationTable({ items, caller, today, onDialog }: { items: BoardItem[]; caller: Caller; today: string; onDialog: (dialog: Dialog) => void }) {
+  const { t } = useTranslation();
+  const columns: DataTableColumn<BoardItem>[] = [
+    {
+      key: 'code',
+      header: t('aud.remediation.list.col.code'),
+      pinned: true,
+      render: (item) => (
+        <>
+          <strong>{item.code}</strong>
+          <span className="aud-sub">{item.description}</span>
+          <span className="aud-sub">{item.engagement.code}</span>
+        </>
+      ),
+    },
+    { key: 'type', header: t('aud.remediation.list.col.type'), render: (item) => recommendationTypeLabel(t, item.type) },
+    { key: 'amount', header: t('aud.remediation.list.col.amount'), align: 'right', render: (item) => <Money item={item} /> },
+    {
+      key: 'owner',
+      header: t('aud.remediation.list.col.owner'),
+      render: (item) =>
+        item.ownerUnit === null ? (
+          t('aud.remediation.owner.none')
+        ) : (
+          <>
+            {item.ownerUnit.name}
+            {item.ownerUser === null ? null : <span className="aud-sub">{item.ownerUser.name}</span>}
+          </>
+        ),
+    },
+    { key: 'due', header: t('aud.remediation.list.col.due'), render: (item) => <DueDay item={item} today={today} /> },
+    { key: 'status', header: t('aud.remediation.list.col.status'), render: (item) => <StatusPill tone={recommendationTone(item.status)}>{recommendationStatusLabel(t, item.status)}</StatusPill> },
+    {
+      key: 'actions',
+      header: t('aud.remediation.list.col.actions'),
+      render: (item) => (
+        <div className="aud-row-actions">
+          {canAssign(item, caller) ? (
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => onDialog({ kind: 'assign', item })}>
+              {item.status === 'OPEN' ? t('aud.remediation.assign.action') : t('aud.remediation.reassign.action')}
+            </button>
+          ) : null}
+          {canDispute(item, caller) ? (
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => onDialog({ kind: 'dispute', item })}>
+              {t('aud.remediation.dispute.action')}
+            </button>
+          ) : null}
+          {canDecide(item, caller) ? (
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => onDialog({ kind: 'decide', item })}>
+              {t('aud.remediation.decision.action')}
+            </button>
+          ) : null}
+          <Link to={`${BOARD_PATH}?engagement=${item.engagement.id}`}>{t('aud.remediation.list.open.link')}</Link>
+        </div>
+      ),
+    },
+  ];
+  return <DataTable caption={t('w2iss.aud.recommendations.aria')} columns={columns} rows={items} rowKey={(item) => item.id} severity={(item) => (lateDays(item, today) > 0 ? 'ACTION' : null)} />;
 }

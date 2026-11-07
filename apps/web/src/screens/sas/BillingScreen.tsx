@@ -14,8 +14,12 @@ import { fieldProblemMessage, kindLabel, problemMessage, statusLabel, statusTone
 import { EMPTY_RUN, MANAGE_BILLING_PERMISSION, MAX_REASON, describeProblem, formatVnd, isReasonValid, validateRun } from './billing/model';
 import type { InvoiceView, RunField, RunForm } from './billing/model';
 import { toneClass } from './tenants/labels';
+import { SectionCard, StatusPill } from '../../ui';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 import './tenants/sas.css';
 import './billing/billing.css';
+import { toneOfPill } from '../adm/kit-tone';
 
 type Context = 'run' | 'issue';
 type IssueNotice = 'ISSUED' | 'PENDING_ISSUE' | 'ISSUE_FAILED';
@@ -176,7 +180,7 @@ function BillingContent({ route }: ScreenProps) {
                 </div>
               </div>
               <div className="row gap">
-                <button type="submit" className="primary" disabled={run.isPending || choice.chosen === undefined}>
+                <button type="submit" className="ui-button ui-button--primary" disabled={run.isPending || choice.chosen === undefined}>
                   {t('sas.billing.run.submit.action')}
                 </button>
               </div>
@@ -193,14 +197,13 @@ function BillingContent({ route }: ScreenProps) {
             <p>{problemMessage(t, problem)}</p>
           </div>
         )}
-        <div className="card">
-          <h2>{t('sas.billing.invoices.title')}</h2>
+        <SectionCard title={t('sas.billing.invoices.title')} unit={t('dis.wr.unit')}>
           {data === undefined || data.items.length === 0 ? (
             <p className="sub" role="status">
               {t('sas.billing.invoices.none')}
             </p>
           ) : (
-            <table className="table" data-invoices>
+            <KitTable caption={t('w2sas.billing.table.invoices')} data-invoices>
               <thead>
                 <tr>
                   <th scope="col">{t('sas.billing.column.period')}</th>
@@ -224,7 +227,7 @@ function BillingContent({ route }: ScreenProps) {
                       <code>{invoice.invoiceCode}</code>
                     </td>
                     <td>
-                      <span className={toneClass(statusTone(invoice.status))}>{statusLabel(t, invoice.status)}</span>
+                      <StatusPill tone={toneOfPill(toneClass(statusTone(invoice.status)))}>{statusLabel(t, invoice.status)}</StatusPill>
                       {invoice.status === 'PendingIssue' || invoice.status === 'IssueFailed' ? (
                         <small className="sub" data-attempts>
                           {' '}
@@ -241,7 +244,7 @@ function BillingContent({ route }: ScreenProps) {
                     <td>{invoice.number === undefined ? '—' : t('sas.billing.number.text', { series: invoice.series ?? '', number: invoice.number })}</td>
                     <td>
                       {canManage && invoice.canIssue ? (
-                        <button type="button" onClick={() => setIssuing({ tenantId: choice.chosen, invoice, reason: '', tooShort: false })}>
+                        <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setIssuing({ tenantId: choice.chosen, invoice, reason: '', tooShort: false })}>
                           {t('sas.billing.issue.action')}
                         </button>
                       ) : null}
@@ -249,7 +252,7 @@ function BillingContent({ route }: ScreenProps) {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </KitTable>
           )}
           {invoices.hasNextPage ? (
             <div className="row gap">
@@ -261,7 +264,7 @@ function BillingContent({ route }: ScreenProps) {
           {data?.items.map((invoice) => (
             <details key={invoice.id} className="billing-lines" data-lines-of={invoice.id}>
               <summary>{t('sas.billing.lines.summary', { code: invoice.invoiceCode, count: invoice.lines.length })}</summary>
-              <table className="table">
+              <KitTable caption={t('w2sas.billing.table.lines')}>
                 <thead>
                   <tr>
                     <th scope="col">{t('sas.billing.line.kind')}</th>
@@ -284,7 +287,7 @@ function BillingContent({ route }: ScreenProps) {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </KitTable>
             </details>
           ))}
           {issuing === undefined ? null : (
@@ -300,16 +303,16 @@ function BillingContent({ route }: ScreenProps) {
                 ) : null}
               </div>
               <div className="row gap">
-                <button type="submit" className="primary" disabled={issue.isPending}>
+                <button type="submit" className="ui-button ui-button--primary" disabled={issue.isPending}>
                   {t('sas.billing.issue.confirm.action')}
                 </button>
-                <button type="button" onClick={() => setIssuing(undefined)}>
+                <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setIssuing(undefined)}>
                   {t('sas.billing.issue.abort.action')}
                 </button>
               </div>
             </form>
           )}
-        </div>
+        </SectionCard>
       </StateBoundary>
     </section>
   );

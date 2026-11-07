@@ -19,6 +19,10 @@ import {
   validateOverrideForm,
 } from './model';
 import type { OverrideEntry, OverrideField, OverrideFieldProblem, OverrideForm } from './model';
+import { KitTable } from '../../adm/KitTable';
+import '../../adm/adm-kit.css';
+import { StatusPill } from '../../../ui';
+import { toneOfPill } from '../../adm/kit-tone';
 
 interface Pending {
   entry: OverrideEntry;
@@ -220,7 +224,7 @@ export function OverridesPanel({ tenantId, canManage, membershipId }: Props) {
             />
             {fieldError('reason')}
           </div>
-          <button type="submit" className="primary" disabled={requesting.isPending || tenantId === undefined}>
+          <button type="submit" className="ui-button ui-button--primary" disabled={requesting.isPending || tenantId === undefined}>
             {t('sas.overrides.request.action')}
           </button>
         </form>
@@ -247,8 +251,7 @@ export function OverridesPanel({ tenantId, canManage, membershipId }: Props) {
             {t('sas.overrides.empty')}
           </p>
         ) : (
-          <div className="tablewrap">
-            <table aria-label={t('sas.overrides.title')}>
+            <KitTable caption={t('w2sas.overrides.table.caption')} aria-label={t('sas.overrides.title')}>
               <thead>
                 <tr>
                   <th>{t('sas.overrides.col.feature')}</th>
@@ -283,7 +286,7 @@ export function OverridesPanel({ tenantId, canManage, membershipId }: Props) {
                       })}
                     </td>
                     <td>
-                      <span className={toneClass(overrideStatusTone(entry.status))}>{overrideStatusLabel(t, entry.status)}</span>
+                      <StatusPill tone={toneOfPill(toneClass(overrideStatusTone(entry.status)))}>{overrideStatusLabel(t, entry.status)}</StatusPill>
                     </td>
                     <td>
                       <div>
@@ -304,10 +307,10 @@ export function OverridesPanel({ tenantId, canManage, membershipId }: Props) {
                         <div className="row gap">
                           {mayDecide(entry, membershipId) ? (
                             <>
-                              <button type="button" onClick={() => choose(entry, 'approve')}>
+                              <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => choose(entry, 'approve')}>
                                 {t('sas.overrides.approve.action')}
                               </button>
-                              <button type="button" onClick={() => choose(entry, 'reject')}>
+                              <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => choose(entry, 'reject')}>
                                 {t('sas.overrides.reject.action')}
                               </button>
                             </>
@@ -317,7 +320,7 @@ export function OverridesPanel({ tenantId, canManage, membershipId }: Props) {
                             </small>
                           ) : null}
                           {mayRevoke(entry) ? (
-                            <button type="button" onClick={() => choose(entry, 'revoke')}>
+                            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => choose(entry, 'revoke')}>
                               {t('sas.overrides.revoke.action')}
                             </button>
                           ) : null}
@@ -327,8 +330,7 @@ export function OverridesPanel({ tenantId, canManage, membershipId }: Props) {
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+            </KitTable>
         )}
         {list.hasNextPage ? (
           <button type="button" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
@@ -360,10 +362,10 @@ export function OverridesPanel({ tenantId, canManage, membershipId }: Props) {
             ) : null}
           </div>
           <div className="row gap">
-            <button type="submit" className="primary" disabled={deciding.isPending || revoking.isPending}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={deciding.isPending || revoking.isPending}>
               {decisionConfirm(t, pending.action)}
             </button>
-            <button type="button" onClick={() => setPending(undefined)}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setPending(undefined)}>
               {t('sas.overrides.decision.cancel.action')}
             </button>
           </div>

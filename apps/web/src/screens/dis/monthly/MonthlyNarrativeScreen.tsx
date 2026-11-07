@@ -6,14 +6,17 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { AuditLine, ContextBar, SectionCard, StatusPill, StickyActions } from '../../../ui';
 import { Field } from '../components';
 import { usePeriods } from '../hooks';
 import '../dis.css';
+import '../rates/rates.css';
 import { useCreateReport, useProjectOptions, useReport, useSaveDraft } from '../report/hooks';
-import { reportProblemMessage } from '../report/labels';
+import { reportProblemMessage, reportStatusLabel } from '../report/labels';
 import { REVIEW_PATH, canCreate, canEdit, describeReport, resourceIdOf } from '../report/model';
 import { NOTE_FIELDS, notesBody, notesFormOf, validateNotes } from '../report/step-model';
 import type { NoteField, NotesForm } from '../report/step-model';
+import { statusTone } from '../report/weekly-model';
 
 const NEVER_EMPTY = (): boolean => false;
 const THIS_PATH = '/dis/dis-13';
@@ -66,14 +69,16 @@ function Start({ route }: ScreenProps) {
         </div>
       </div>
       <StateBoundary state={state} onRetry={() => void Promise.all([periods.refetch(), projects.refetch()])}>
-        <form className="card" onSubmit={submit} noValidate>
+        <form onSubmit={submit} noValidate aria-label={t('dis.monthly.start.action')}>
+          <SectionCard title={t('dis.monthly.start.action')}>
+          <div className="w2dis-stack">
           {allowed ? null : (
-            <p className="callout warning" role="status" data-testid="create-denied">
+            <p className="w2dis-banner w2dis-banner--info" role="status" data-testid="create-denied">
               {t('dis.monthly.denied.note')}
             </p>
           )}
           {described === undefined ? null : (
-            <p className="callout warning" role="alert" data-testid="refusal">
+            <p className="w2dis-banner" role="alert" data-testid="refusal">
               {reportProblemMessage(t, described.problem)}
               {described.existingId === undefined ? null : (
                 <>
@@ -83,7 +88,7 @@ function Start({ route }: ScreenProps) {
               )}
             </p>
           )}
-          <div className="formgrid">
+          <div className="w2dis-form-grid">
             <Field id="monthly-month" label={t('dis.monthly.month.label')} error={submitted && periodId === '' ? t('dis.monthly.month.required') : undefined}>
               <select id="monthly-month" value={periodId} onChange={(event) => setPeriodId(event.target.value)}>
                 <option value="">{t('dis.monthly.month.choose')}</option>
@@ -105,11 +110,15 @@ function Start({ route }: ScreenProps) {
               </select>
             </Field>
           </div>
-          <div className="formfooter">
-            <button type="submit" className="primary" disabled={!allowed || create.isPending}>
-              {create.isPending ? t('dis.monthly.start.pending') : t('dis.monthly.start.action')}
-            </button>
+          <StickyActions
+            primary={
+              <button type="submit" className="ui-button ui-button--primary" disabled={!allowed || create.isPending}>
+                {create.isPending ? t('dis.monthly.start.pending') : t('dis.monthly.start.action')}
+              </button>
+            }
+          />
           </div>
+          </SectionCard>
         </form>
       </StateBoundary>
       <p className="prototype-note">{t('dis.monthly.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
@@ -119,7 +128,7 @@ function Start({ route }: ScreenProps) {
 
 function Narrative({ route, reportId }: ScreenProps & { reportId: string }) {
   const { t } = useTranslation();
-  const { permissions, mode } = useSession();
+  const { permissions, mode, tenant } = useSession();
   const report = useReport(reportId);
   const state = useScreenState({ isLoading: report.isLoading, error: report.error, data: report.data, isEmpty: (data) => data === undefined });
   const detail = report.data;
@@ -133,15 +142,31 @@ function Narrative({ route, reportId }: ScreenProps & { reportId: string }) {
       </div>
       <StateBoundary state={state} onRetry={() => void report.refetch()}>
         {detail === undefined ? null : (
-          <section className="card" aria-labelledby="narrative-title">
-            <h2 id="narrative-title">{t('dis.monthly.narrative.title', { project: detail.project.code, period: detail.period.code })}</h2>
-            {detail.reportType === 'MONTHLY' ? null : (
-              <p className="callout warning" role="alert" data-testid="not-monthly">
-                {t('dis.monthly.notMonthly.note')}
-              </p>
-            )}
-            <NarrativeForm key={detail.id} detail={detail} editable={detail.reportType === 'MONTHLY' && canEdit(permissions, mode, detail.status)} />
-          </section>
+          <div className="w2dis-stack">
+            <ContextBar
+              items={[
+                { label: t('dis.wr.ctx.scope'), value: tenant?.name ?? t('dis.wr.ctx.scope.all') },
+                { label: t('dis.reports.col.project'), value: `${detail.project.code} · ${detail.project.name}` },
+                { label: t('dis.wr.ctx.period'), value: detail.period.code },
+              ]}
+            />
+            <SectionCard title={t('dis.monthly.narrative.title', { project: detail.project.code, period: detail.period.code })} status={<StatusPill tone={statusTone(detail.status)}>{reportStatusLabel(t, detail.status)}</StatusPill>}>
+              <div className="w2dis-stack">
+                {detail.reportType === 'MONTHLY' ? null : (
+                  <p className="w2dis-banner" role="alert" data-testid="not-monthly">
+                    {t('dis.monthly.notMonthly.note')}
+                  </p>
+                )}
+                <AuditLine
+                  items={[
+                    { label: t('dis.reports.col.updated'), value: detail.updatedAt === null ? '—' : detail.updatedAt.slice(0, 10) },
+                    { label: t('w2dis.monthly.audit.version'), value: t('dis.reports.revision.text', { revision: detail.revision }) },
+                  ]}
+                />
+                <NarrativeForm key={detail.id} detail={detail} editable={detail.reportType === 'MONTHLY' && canEdit(permissions, mode, detail.status)} />
+              </div>
+            </SectionCard>
+          </div>
         )}
       </StateBoundary>
       <p className="prototype-note">{t('dis.monthly.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
@@ -175,16 +200,21 @@ function NarrativeForm({ detail, editable }: { detail: NonNullable<ReturnType<ty
     save.mutate({ detail, body: notesBody(detail, form) });
   };
   const missingCauses = form.causes.trim() === '';
+  const reviewLink = (
+    <Link className="ui-button ui-button--outline" to={`${REVIEW_PATH}?report=${detail.id}`}>
+      {t('dis.monthly.review.link')}
+    </Link>
+  );
   return (
-    <form onSubmit={submit} noValidate>
-      <p className="sub">{t('dis.monthly.narrative.help')}</p>
+    <form className="w2dis-narrative" onSubmit={submit} noValidate aria-label={t('dis.monthly.narrative.help')}>
+      <p className="w2dis-note">{t('dis.monthly.narrative.help')}</p>
       {described === undefined ? null : (
-        <p className="callout warning" role="alert" data-testid="narrative-refusal">
+        <p className="w2dis-banner" role="alert" data-testid="narrative-refusal">
           {reportProblemMessage(t, described.problem)}
         </p>
       )}
       {save.isSuccess ? (
-        <p className="callout" role="status" data-testid="narrative-saved">
+        <p className="w2dis-banner w2dis-banner--info" role="status" data-testid="narrative-saved">
           {t('dis.monthly.saved.note')}
         </p>
       ) : null}
@@ -199,14 +229,18 @@ function NarrativeForm({ detail, editable }: { detail: NonNullable<ReturnType<ty
           <textarea id={`monthly-${field}`} rows={4} value={form[field]} disabled={!editable} onChange={(event: ChangeEvent<HTMLTextAreaElement>) => setForm({ ...form, [field]: event.target.value })} />
         </Field>
       ))}
-      <div className="formfooter">
-        {editable ? (
-          <button type="submit" className="primary" disabled={save.isPending}>
-            {save.isPending ? t('dis.monthly.save.pending') : t('dis.monthly.save.action')}
-          </button>
-        ) : null}{' '}
-        <Link to={`${REVIEW_PATH}?report=${detail.id}`}>{t('dis.monthly.review.link')}</Link>
-      </div>
+      {editable ? (
+        <StickyActions
+          primary={
+            <button type="submit" className="ui-button ui-button--primary" disabled={save.isPending}>
+              {save.isPending ? t('dis.monthly.save.pending') : t('dis.monthly.save.action')}
+            </button>
+          }
+          secondary={[reviewLink]}
+        />
+      ) : (
+        <StickyActions primary={reviewLink} />
+      )}
     </form>
   );
 }

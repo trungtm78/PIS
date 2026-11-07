@@ -140,7 +140,8 @@ function intake(options: { permissions?: readonly string[]; mode?: 'FULL' | 'REA
 }
 
 const rows = (): string[] => Array.from(document.querySelectorAll('[data-letter]')).map((row) => row.getAttribute('data-letter') as string);
-const row = (id: string): HTMLElement => document.querySelector(`[data-letter="${id}"]`) as HTMLElement;
+const carrier = (id: string): HTMLElement => document.querySelector(`[data-letter="${id}"]`) as HTMLElement;
+const row = (id: string): HTMLElement => carrier(id).closest('tr') as HTMLElement;
 const pick = (id: string, value: string): void => {
   fireEvent.change(document.getElementById(id) as HTMLElement, { target: { value } });
 };
@@ -167,7 +168,7 @@ describe('IncomingLedgerScreen (DOC-12): the register of the incoming documents'
     expect(within(overdue).getByTestId('assigned').textContent).toContain('Phòng Kế hoạch');
     expect(within(overdue).getByTestId('assigned').textContent).toContain('Chuyên viên An');
     expect(within(overdue).getByTestId('overdue').textContent).toBe(text('doc.incoming.overdue', { days: 1, date: '27/10/26' }));
-    expect(overdue.getAttribute('data-overdue')).toBe('yes');
+    expect(carrier(letterId(3)).getAttribute('data-overdue')).toBe('yes');
     const received = row(letterId(2));
     expect(within(received).getByTestId('number').textContent).toBe(word('doc.incoming.none'));
     expect(within(received).getByTestId('status').textContent).toBe(word('doc.incoming.status.received'));
@@ -194,6 +195,29 @@ describe('IncomingLedgerScreen (DOC-12): the register of the incoming documents'
     fireEvent.click(document.getElementById('incoming-filter-overdue') as HTMLElement);
     await waitFor(() => expect(rows()).toEqual([letterId(3)]));
     expect(reads().at(-1)).toEqual({ limit: 50, overdue: 'true' });
+  });
+
+  it('shows the state of a letter as a pill with its words, counts the conditions on the filter and clears them in one click', async () => {
+    const h = ledger({ page: 50, letters: [letter(3, { is_overdue: true }), letter(2, { status: 'PROCESSING' })] });
+    await screen.findByTestId('letters');
+    expect(screen.queryByRole('button', { name: /xóa bộ lọc/i })).toBeNull();
+    // The columns are named and the first one is the one that stays in view.
+    expect(screen.getAllByRole('columnheader').map((cell) => cell.textContent)).toEqual([
+      word('doc.incoming.column.number'),
+      word('doc.incoming.column.letter'),
+      word('doc.incoming.column.received'),
+      word('doc.incoming.column.assigned'),
+      word('doc.incoming.column.status'),
+      word('doc.incoming.column.actions'),
+    ]);
+    expect(within(row(letterId(2))).getByTestId('status').textContent).toBe(word('doc.incoming.status.processing'));
+    pick('incoming-filter-status', 'PROCESSING');
+    await waitFor(() => expect(rows()).toEqual([letterId(2)]));
+    expect(screen.getByRole('button', { name: /1/, expanded: false })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /xóa bộ lọc/i }));
+    await waitFor(() => expect(rows()).toEqual([letterId(3), letterId(2)]));
+    expect((document.getElementById('incoming-filter-status') as HTMLSelectElement).value).toBe('');
+    expect(h.read.mock.calls.filter((call) => call[0] === 'listIncomingDocuments').at(-1)?.[1]).toEqual({ query: { limit: 50 } });
   });
 
   it('offers taking a letter in only to whoever may, says when there is none, and shows a read that failed', async () => {

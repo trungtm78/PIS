@@ -1,6 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
+import { t } from '../../i18n';
 import vi_ from '../../i18n/vi.json';
 import EscalationBoardScreen from './EscalationBoardScreen';
 import { READER, breach, client, mountIssue, routeOf, world } from './test-support';
@@ -48,6 +49,23 @@ describe('EscalationBoardScreen (ISS-10): the escalations that wait for their re
     const accepted = screen.getByTestId('board').querySelector(`article[data-escalation-id="${String(breach(3).escalation_id)}"]`) as HTMLElement;
     expect(within(accepted).getByTestId('accept-state').getAttribute('data-state')).toBe('accepted');
     expect(within(accepted).getByText(new RegExp(vi_['iss.board.overdueUnknown.text'].split('{date}')[0] as string))).toBeTruthy();
+  });
+
+  it('marks the card of an escalation that waits for its receiver with a stripe (level 3 urgent, level 1-2 needs action), and not an accepted one', async () => {
+    open({
+      breaches: [
+        breach(1, { level: 2 }),
+        breach(2, { level: 3, target_unit: null, task_force: TASK_FORCE, accept_due_at: '2020-01-01T00:00:00.000Z' }),
+        breach(3, { level: 2, status: 'ACCEPTED', accepted_at: '2026-10-21T02:00:00.000Z' }),
+      ],
+    });
+    await ready();
+    const stripeOf = (n: number): string | null => (screen.getByTestId('board').querySelector(`article[data-escalation-id="${String(breach(n).escalation_id)}"]`) as HTMLElement).getAttribute('data-stripe');
+    expect(stripeOf(1)).toBe('ACTION');
+    expect(stripeOf(2)).toBe('URGENT');
+    expect(stripeOf(3)).toBeNull();
+    const kpi = within(screen.getByRole('group', { name: t('w2iss.board.kpi.label') }));
+    expect(kpi.getByText(vi_['iss.escalation.level3.option']).closest('div')?.textContent).toContain('1');
   });
 
   it('narrows the board to one level and keeps the counts of the others', async () => {

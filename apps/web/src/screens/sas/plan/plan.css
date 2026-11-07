@@ -50,6 +50,6 @@
 }
 
 .sas-plans .field-error {
-  color: #a22b22;
+  color: var(--mv-color-danger);
   display: block;
 }

@@ -1,4 +1,5 @@
 import type { useTranslation } from '../../i18n';
+import type { Tone } from '../../ui';
 import type { AdapterStatus, ChangeKind, ChangeStatus, CrosswalkMethod, CrosswalkStatus, CursorStatus, FieldProblem, GlossaryStatus, ImportStatus, ProblemView, RecordStatus, TypeScope } from './model';
 
 type Translate = ReturnType<typeof useTranslation>['t'];
@@ -272,5 +273,21 @@ export function cursorStatusLabel(t: Translate, status: CursorStatus): string {
       return t('mdm.cursor.status.paused.text');
     case 'FAILED':
       return t('mdm.cursor.status.failed.text');
+  }
+}
+
+/** The tone of the status pill of a master data record: in force is green, waiting for a decision amber, approved blue, closed grey. */
+export function recordStatusTone(status: RecordStatus): Tone {
+  switch (status) {
+    case 'EFFECTIVE':
+      return 'success';
+    case 'IN_REVIEW':
+      return 'warning';
+    case 'APPROVED':
+      return 'info';
+    case 'DRAFT':
+    case 'RETIRED':
+    case 'MERGED':
+      return 'neutral';
   }
 }

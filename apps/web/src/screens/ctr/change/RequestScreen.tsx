@@ -16,6 +16,7 @@ import { eventKindLabel, formProblemMessage, problemMessage, stageLabel } from '
 import { CHANGEABLE_CONTRACT_STATUSES, EVENT_KINDS, MAX_TEXT, chainLink, describeProblem, emptyOpen, openBody, tiersLink, validateOpen } from './model';
 import type { Chain, EventKind, OpenForm, Stage } from './model';
 import '../ctr.css';
+import { SectionCard } from '../../../ui';
 
 /**
  * CTR-07: raise a change on a contract that is being performed (ST-CTR-006, CTR 3.3). The request starts at the first tier of the chain of the project (the event with three tiers, the
@@ -98,8 +99,7 @@ function Request({ contract, chain, locale, readOnly }: RequestProps) {
   return (
     <div className="ctr-grid">
       <div>
-        <article className="card" aria-label={t('ctr.change.request.contract.title')}>
-          <h2>{t('ctr.change.request.contract.title')}</h2>
+        <SectionCard title={t('ctr.change.request.contract.title')}>
           <p>
             <strong data-testid="contract-code">{contract.code}</strong> · {contract.title ?? t('ctr.change.none.text')} <StatusBadge status={contract.status} />
           </p>
@@ -109,9 +109,8 @@ function Request({ contract, chain, locale, readOnly }: RequestProps) {
             <dt>{t('ctr.change.request.fact.value')}</dt>
             <dd data-testid="value">{t('ctr.value.amount', { amount: amountText(contract.contractValueVnd, locale) })}</dd>
           </dl>
-        </article>
-        <article className="card" aria-label={t('ctr.change.request.list.title')}>
-          <h2>{t('ctr.change.request.list.title')}</h2>
+        </SectionCard>
+        <SectionCard title={t('ctr.change.request.list.title')}>
           {chain.requests.length === 0 ? (
             <p className="callout" role="status" data-testid="no-requests">
               {t('ctr.change.request.list.empty')}
@@ -124,10 +123,9 @@ function Request({ contract, chain, locale, readOnly }: RequestProps) {
               {t('ctr.change.request.board.link')}
             </Link>
           </p>
-        </article>
+        </SectionCard>
       </div>
-      <article className="card" aria-label={t('ctr.change.request.form.title')}>
-        <h2>{t('ctr.change.request.form.title')}</h2>
+      <SectionCard title={t('ctr.change.request.form.title')}>
         {blocked === undefined ? (
           <p className="callout" role="status" data-testid="not-configured">
             {t('ctr.change.request.notConfigured')} {chain.canConfigure ? <Link to={tiersLink(contract.projectId)}>{t('ctr.change.request.tiers.link')}</Link> : null}
@@ -158,7 +156,7 @@ function Request({ contract, chain, locale, readOnly }: RequestProps) {
             />
           </>
         )}
-      </article>
+      </SectionCard>
     </div>
   );
 }

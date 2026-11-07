@@ -82,12 +82,15 @@ function open(served: Served, command: (operation: string, input: unknown) => un
   });
   const readAll = (h.client as unknown as { readAll: ReturnType<typeof vi.fn> }).readAll;
   const base = readAll.getMockImplementation();
-  readAll.mockImplementation((operation: string, input?: unknown) => (operation === 'get_resources_membership' ? Promise.resolve(MEMBERS) : (base?.(operation, input) ?? Promise.reject(new Error(`unexpected ${operation}`)))));
+  readAll.mockImplementation((operation: string, input?: unknown) =>
+    operation === 'get_resources_membership' ? Promise.resolve(MEMBERS) : (base?.(operation, input) ?? Promise.reject(new Error(`unexpected ${operation}`))),
+  );
   return h;
 }
 
 const page = (items: unknown[], next: string | null = null) => ({ items, next_cursor: next, as_of: '2026-10-27T00:00:00.000Z' });
-const show = (h: Harness, permissions: readonly string[], mode?: 'FULL' | 'READ_ONLY') => mount(<ExplanationScreen route={ROUTE} />, h, { permissions, ...(mode === undefined ? {} : { mode }), path: '/prj/prj-19' });
+const show = (h: Harness, permissions: readonly string[], mode?: 'FULL' | 'READ_ONLY') =>
+  mount(<ExplanationScreen route={ROUTE} />, h, { permissions, ...(mode === undefined ? {} : { mode }), path: '/prj/prj-19' });
 const asked = (h: Harness) => h.read.mock.calls.filter(([operation]) => operation === 'listExplanationRequests').map(([, input]) => (input as { query: Record<string, unknown> }).query);
 const buttonOf = (name: string) => screen.findByRole('button', { name });
 
@@ -98,7 +101,16 @@ describe('ExplanationScreen (PRJ-19): the requests for an explanation and their 
         page([
           request(1),
           request(2, { due_at: PAST, original_due_at: PAST, status: 'OVERDUE' }),
-          request(3, { warning_id: '00000000-0000-4000-8000-0000000000f1', trigger_code: 'EW-02', status: 'RESPONDED', is_late: true, response_text: ANSWER, responded_by: ME, due_at: '2099-02-01T16:59:59.999Z', original_due_at: FUTURE }),
+          request(3, {
+            warning_id: '00000000-0000-4000-8000-0000000000f1',
+            trigger_code: 'EW-02',
+            status: 'RESPONDED',
+            is_late: true,
+            response_text: ANSWER,
+            responded_by: ME,
+            due_at: '2099-02-01T16:59:59.999Z',
+            original_due_at: FUTURE,
+          }),
         ]),
       ],
     });
@@ -112,8 +124,8 @@ describe('ExplanationScreen (PRJ-19): the requests for an explanation and their 
     expect(rows).toHaveLength(3);
     expect(rows[0]?.textContent).toContain('DA-2026-001 Dự án số 1');
     expect(rows[0]?.textContent).toContain(vi_['prj.explanation.basis.manual']);
-    expect(rows[0]?.getAttribute('data-overdue')).toBe('false');
-    expect(rows[1]?.getAttribute('data-overdue')).toBe('true');
+    expect(rows[0]?.querySelector('[data-overdue]')?.getAttribute('data-overdue')).toBe('false');
+    expect(rows[1]?.querySelector('[data-overdue]')?.getAttribute('data-overdue')).toBe('true');
     expect(rows[1]?.textContent).toContain(vi_['prj.explanation.due.overdue']);
     expect(rows[1]?.textContent).toContain(vi_['prj.explanation.status.overdue']);
     expect(rows[2]?.textContent).toContain(vi_['prj.explanation.basis.warning'].replace('{rule}', 'EW-02'));
@@ -129,7 +141,10 @@ describe('ExplanationScreen (PRJ-19): the requests for an explanation and their 
     const h = open({ pages: [page([request(1)])] });
     const view = show(h, READER);
     await screen.findByTestId('explanations');
-    const keys = view.queries.getQueryCache().getAll().map((query) => query.queryKey);
+    const keys = view.queries
+      .getQueryCache()
+      .getAll()
+      .map((query) => query.queryKey);
     expect(keys.some((key) => key.includes(ME) && key.includes('explanations'))).toBe(true);
   });
 
@@ -166,7 +181,9 @@ describe('ExplanationScreen (PRJ-19): the requests for an explanation and their 
   });
 
   it('shows the question beside the answer and the conclusion under them', async () => {
-    const h = open({ pages: [page([request(1, { status: 'ACCEPTED', response_text: ANSWER, responded_by: ME, responded_at: '2026-10-25T03:00:00.000Z', reviewed_by: OTHER, review_note: 'Checked against the site records' })])] });
+    const h = open({
+      pages: [page([request(1, { status: 'ACCEPTED', response_text: ANSWER, responded_by: ME, responded_at: '2026-10-25T03:00:00.000Z', reviewed_by: OTHER, review_note: 'Checked against the site records' })])],
+    });
     show(h, READER);
     fireEvent.click(await buttonOf(vi_['prj.explanation.view.action']));
     const detail = await screen.findByTestId('explanation-detail');
@@ -196,11 +213,14 @@ describe('ExplanationScreen (PRJ-19): the requests for an explanation and their 
       expect(h.command.mock.calls[0]?.[1]).toMatchObject({ path: { id: request(1).id }, body: { response_text: ANSWER }, ifMatchVersion: 2 });
       await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
       await waitFor(() => expect(asked(h).length).toBeGreaterThan(1));
-      expect((await screen.findByTestId('explanations')).querySelector('tr[data-status="RESPONDED"]')).toBeTruthy();
+      expect((await screen.findByTestId('explanations')).querySelector('[data-status="RESPONDED"]')).toBeTruthy();
     });
 
     it('offers the answer only to the person asked and only while it waits, and says in words why a refusal came', async () => {
-      const h = open({ pages: [page([request(1), request(2, { requested_from_membership_id: OTHER }), request(3, { status: 'ACCEPTED' })])] }, () => new ApiError({ status: 422, code: 'EXPLANATION_ALREADY_SUBMITTED', correlationId: 'c' }));
+      const h = open(
+        { pages: [page([request(1), request(2, { requested_from_membership_id: OTHER }), request(3, { status: 'ACCEPTED' })])] },
+        () => new ApiError({ status: 422, code: 'EXPLANATION_ALREADY_SUBMITTED', correlationId: 'c' }),
+      );
       show(h, RESPONDER);
       const buttons = await screen.findAllByRole('button', { name: vi_['prj.explanation.answer.action'] });
       expect(buttons).toHaveLength(1);
@@ -231,7 +251,11 @@ describe('ExplanationScreen (PRJ-19): the requests for an explanation and their 
       fireEvent.click(within(dialog).getByRole('button', { name: vi_['prj.explanation.review.submit.action'] }));
       await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
       expect(h.command.mock.calls[0]?.[0]).toBe('reviewExplanation');
-      expect(h.command.mock.calls[0]?.[1]).toMatchObject({ path: { id: request(1).id }, ifMatchVersion: 3, body: { decision: 'RETURNED', review_note: 'Attach the site records', new_due_at: endOfDay('2099-03-05') } });
+      expect(h.command.mock.calls[0]?.[1]).toMatchObject({
+        path: { id: request(1).id },
+        ifMatchVersion: 3,
+        body: { decision: 'RETURNED', review_note: 'Attach the site records', new_due_at: endOfDay('2099-03-05') },
+      });
     });
 
     it('does not offer the conclusion to the person who answered, and tells the refusal of the server in words', async () => {
@@ -277,43 +301,45 @@ describe('ExplanationScreen (PRJ-19): the requests for an explanation and their 
     });
 
     it('names the person asked by the identifier when the caller may not list the members, and says so when the list cannot be loaded', async () => {
-    const h = open({ pages: [page([])] }, () => ({ ...OK, status: 'REQUESTED' }));
-    show(h, ASKER_WITHOUT_MEMBERS);
-    fireEvent.click(await buttonOf(vi_['prj.explanation.request.open.action']));
-    const dialog = await screen.findByRole('dialog');
-    const field = within(dialog).getByLabelText(vi_['prj.explanation.request.assignee.label']);
-    expect(field.tagName).toBe('INPUT');
-    expect(within(dialog).getByText(vi_['prj.explanation.request.assignee.idHint'])).toBeTruthy();
-    await waitFor(() => expect(within(dialog).getByLabelText(vi_['prj.explanation.request.project.label']).querySelectorAll('option').length).toBeGreaterThan(1));
-    fireEvent.change(within(dialog).getByLabelText(vi_['prj.explanation.request.project.label']), { target: { value: PROJECT } });
-    fireEvent.change(within(dialog).getByLabelText(vi_['prj.explanation.request.question.label']), { target: { value: request(1).question } });
-    fireEvent.change(within(dialog).getByLabelText(vi_['prj.explanation.request.due.label']), { target: { value: '2099-03-05' } });
-    fireEvent.change(field, { target: { value: 'not an identifier' } });
-    fireEvent.click(within(dialog).getByRole('button', { name: vi_['prj.explanation.request.submit.action'] }));
-    expect(await within(dialog).findByText(vi_['prj.explanation.field.invalid.error'])).toBeTruthy();
-    expect(h.command).not.toHaveBeenCalled();
-    fireEvent.change(field, { target: { value: OTHER } });
-    fireEvent.click(within(dialog).getByRole('button', { name: vi_['prj.explanation.request.submit.action'] }));
-    await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
-    expect(h.command.mock.calls[0]?.[1]).toMatchObject({ body: { requested_from_membership_id: OTHER } });
-    cleanup();
-    const failing = open({ pages: [page([])] });
-    const readAll = (failing.client as unknown as { readAll: ReturnType<typeof vi.fn> }).readAll;
-    const base = readAll.getMockImplementation();
-    readAll.mockImplementation((operation: string, input?: unknown) => (operation === 'get_resources_membership' ? Promise.reject(new Error('members failed')) : base?.(operation, input)));
-    show(failing, ASKER);
-    fireEvent.click(await buttonOf(vi_['prj.explanation.request.open.action']));
-    expect((await screen.findByTestId('members-failed')).textContent).toBe(vi_['prj.explanation.request.assignee.failed']);
-  });
+      const h = open({ pages: [page([])] }, () => ({ ...OK, status: 'REQUESTED' }));
+      show(h, ASKER_WITHOUT_MEMBERS);
+      fireEvent.click(await buttonOf(vi_['prj.explanation.request.open.action']));
+      const dialog = await screen.findByRole('dialog');
+      const field = within(dialog).getByLabelText(vi_['prj.explanation.request.assignee.label']);
+      expect(field.tagName).toBe('INPUT');
+      expect(within(dialog).getByText(vi_['prj.explanation.request.assignee.idHint'])).toBeTruthy();
+      await waitFor(() => expect(within(dialog).getByLabelText(vi_['prj.explanation.request.project.label']).querySelectorAll('option').length).toBeGreaterThan(1));
+      fireEvent.change(within(dialog).getByLabelText(vi_['prj.explanation.request.project.label']), { target: { value: PROJECT } });
+      fireEvent.change(within(dialog).getByLabelText(vi_['prj.explanation.request.question.label']), { target: { value: request(1).question } });
+      fireEvent.change(within(dialog).getByLabelText(vi_['prj.explanation.request.due.label']), { target: { value: '2099-03-05' } });
+      fireEvent.change(field, { target: { value: 'not an identifier' } });
+      fireEvent.click(within(dialog).getByRole('button', { name: vi_['prj.explanation.request.submit.action'] }));
+      expect(await within(dialog).findByText(vi_['prj.explanation.field.invalid.error'])).toBeTruthy();
+      expect(h.command).not.toHaveBeenCalled();
+      fireEvent.change(field, { target: { value: OTHER } });
+      fireEvent.click(within(dialog).getByRole('button', { name: vi_['prj.explanation.request.submit.action'] }));
+      await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+      expect(h.command.mock.calls[0]?.[1]).toMatchObject({ body: { requested_from_membership_id: OTHER } });
+      cleanup();
+      const failing = open({ pages: [page([])] });
+      const readAll = (failing.client as unknown as { readAll: ReturnType<typeof vi.fn> }).readAll;
+      const base = readAll.getMockImplementation();
+      readAll.mockImplementation((operation: string, input?: unknown) => (operation === 'get_resources_membership' ? Promise.reject(new Error('members failed')) : base?.(operation, input)));
+      show(failing, ASKER);
+      fireEvent.click(await buttonOf(vi_['prj.explanation.request.open.action']));
+      expect((await screen.findByTestId('members-failed')).textContent).toBe(vi_['prj.explanation.request.assignee.failed']);
+    });
 
-  it('asks about a unit as well, and tells a request that is already open in words', async () => {
+    it('asks about a unit as well, and tells a request that is already open in words', async () => {
       const h = open({ pages: [page([])] }, () => new ApiError({ status: 409, code: 'EXPLANATION_ALREADY_OPEN', correlationId: 'c' }));
       show(h, ASKER);
       fireEvent.click(await buttonOf(vi_['prj.explanation.request.open.action']));
       const dialog = await screen.findByRole('dialog');
       fireEvent.change(within(dialog).getByLabelText(vi_['prj.explanation.request.subject.label']), { target: { value: 'UNIT' } });
       await waitFor(() => expect(within(dialog).getByLabelText(vi_['prj.explanation.request.unit.label']).querySelectorAll('option').length).toBeGreaterThan(1));
-      fireEvent.change(within(dialog).getByLabelText(vi_['prj.explanation.request.unit.label']), { target: { value: (within(dialog).getByLabelText(vi_['prj.explanation.request.unit.label']).querySelectorAll('option')[1] as HTMLOptionElement).value } });
+      fireEvent.change(within(dialog).getByLabelText(vi_['prj.explanation.request.unit.label']), {
+        target: { value: (within(dialog).getByLabelText(vi_['prj.explanation.request.unit.label']).querySelectorAll('option')[1] as HTMLOptionElement).value },
+      });
       fireEvent.change(within(dialog).getByLabelText(vi_['prj.explanation.request.question.label']), { target: { value: request(1).question } });
       await waitFor(() => expect(within(dialog).getByLabelText(vi_['prj.explanation.request.assignee.label']).querySelectorAll('option').length).toBe(3));
       fireEvent.change(within(dialog).getByLabelText(vi_['prj.explanation.request.assignee.label']), { target: { value: ME } });
@@ -357,26 +383,79 @@ describe('ExplanationScreen (PRJ-19): the requests for an explanation and their 
 describe('the explanation model', () => {
   it('reads a page and drops what is not whole, and names the refusals of the server', () => {
     expect(toExplanationPage(undefined)).toEqual({ items: [], nextCursor: undefined });
-    const read = toExplanationPage({ items: [request(1), { id: 'x' }, request(2, { status: 'NOPE' }), request(3, { subject_kind: 'UNIT', project: null, unit: { id: 'u', name: 'Sở Giao thông' } })], next_cursor: 'c' });
-    expect(read.items.map((item) => [item.subject, item.subjectName])).toEqual([['PROJECT', 'Dự án số 1'], ['UNIT', 'Sở Giao thông']]);
+    const read = toExplanationPage({
+      items: [request(1), { id: 'x' }, request(2, { status: 'NOPE' }), request(3, { subject_kind: 'UNIT', project: null, unit: { id: 'u', name: 'Sở Giao thông' } })],
+      next_cursor: 'c',
+    });
+    expect(read.items.map((item) => [item.subject, item.subjectName])).toEqual([
+      ['PROJECT', 'Dự án số 1'],
+      ['UNIT', 'Sở Giao thông'],
+    ]);
     expect(read.nextCursor).toBe('c');
-    const codes = ['EXPLANATION_ALREADY_OPEN', 'EXPLANATION_ALREADY_SUBMITTED', 'SELF_APPROVAL_DENIED', 'VERSION_CONFLICT', 'STAGE_TRANSITION_DENIED', 'SCOPE_DENIED', 'WARNING_STATE_INVALID', 'VALIDATION_FAILED', 'RESOURCE_NOT_FOUND', 'OTHER'];
-    expect(codes.map((code) => describeExplanation(new ApiError({ status: 409, code, correlationId: 'c' })))).toEqual(['alreadyOpen', 'alreadySubmitted', 'selfApproval', 'versionConflict', 'stageDenied', 'scopeDenied', 'warningState', 'validation', 'notFound', 'general']);
+    const codes = [
+      'EXPLANATION_ALREADY_OPEN',
+      'EXPLANATION_ALREADY_SUBMITTED',
+      'SELF_APPROVAL_DENIED',
+      'VERSION_CONFLICT',
+      'STAGE_TRANSITION_DENIED',
+      'SCOPE_DENIED',
+      'WARNING_STATE_INVALID',
+      'VALIDATION_FAILED',
+      'RESOURCE_NOT_FOUND',
+      'OTHER',
+    ];
+    expect(codes.map((code) => describeExplanation(new ApiError({ status: 409, code, correlationId: 'c' })))).toEqual([
+      'alreadyOpen',
+      'alreadySubmitted',
+      'selfApproval',
+      'versionConflict',
+      'stageDenied',
+      'scopeDenied',
+      'warningState',
+      'validation',
+      'notFound',
+      'general',
+    ]);
     expect(describeExplanation(new Error('x'))).toBe('general');
   });
 
   it('decides what a person may do: answer while it waits and only if asked, conclude an answer that is not theirs, and tells overdue by the clock whatever the job has marked', () => {
     const now = new Date('2026-10-27T03:00:00Z');
-    expect([canAnswer({ status: 'REQUESTED', requestedFrom: ME }, ME), canAnswer({ status: 'OVERDUE', requestedFrom: ME }, ME), canAnswer({ status: 'RETURNED', requestedFrom: ME }, ME), canAnswer({ status: 'RESPONDED', requestedFrom: ME }, ME), canAnswer({ status: 'REQUESTED', requestedFrom: OTHER }, ME)]).toEqual([true, true, true, false, false]);
-    expect([canConclude({ status: 'RESPONDED', respondedBy: OTHER }, ME), canConclude({ status: 'RESPONDED', respondedBy: ME }, ME), canConclude({ status: 'REQUESTED', respondedBy: null }, ME)]).toEqual([true, false, false]);
+    expect([
+      canAnswer({ status: 'REQUESTED', requestedFrom: ME }, ME),
+      canAnswer({ status: 'OVERDUE', requestedFrom: ME }, ME),
+      canAnswer({ status: 'RETURNED', requestedFrom: ME }, ME),
+      canAnswer({ status: 'RESPONDED', requestedFrom: ME }, ME),
+      canAnswer({ status: 'REQUESTED', requestedFrom: OTHER }, ME),
+    ]).toEqual([true, true, true, false, false]);
+    expect([canConclude({ status: 'RESPONDED', respondedBy: OTHER }, ME), canConclude({ status: 'RESPONDED', respondedBy: ME }, ME), canConclude({ status: 'REQUESTED', respondedBy: null }, ME)]).toEqual([
+      true,
+      false,
+      false,
+    ]);
     expect([isPastDue({ status: 'REQUESTED', dueAt: PAST }, now), isPastDue({ status: 'RESPONDED', dueAt: PAST }, now), isPastDue({ status: 'REQUESTED', dueAt: FUTURE }, now)]).toEqual([true, false, false]);
   });
 
   it('judges the forms: what is missing, a question of ten characters, an answer of twenty, a day after today, and builds what the server reads', () => {
-    expect(validateRequest({ subject: 'PROJECT', projectId: '', unitId: '', triggerCode: '', question: '', requestedFrom: '', dueDate: '' }, '2026-10-27')).toEqual({ projectId: 'required', triggerCode: 'required', question: 'required', requestedFrom: 'required', dueDate: 'required' });
-    expect(validateRequest({ subject: 'PROJECT', projectId: 'p', unitId: '', triggerCode: 'MANUAL', question: request(1).question, requestedFrom: 'a name', dueDate: '2099-01-01' }, '2026-10-27')).toEqual({ requestedFrom: 'invalid' });
-    expect(validateRequest({ subject: 'UNIT', projectId: '', unitId: '', triggerCode: 'x'.repeat(51), question: 'short', requestedFrom: ME, dueDate: '2026-10-27' }, '2026-10-27')).toEqual({ unitId: 'required', triggerCode: 'invalid', question: 'invalid', dueDate: 'past' });
-    expect(validateRequest({ subject: 'PROJECT', projectId: 'p', unitId: '', triggerCode: 'MANUAL', question: request(1).question, requestedFrom: ME, dueDate: '2026-02-30' }, '2026-10-27')).toEqual({ dueDate: 'invalid' });
+    expect(validateRequest({ subject: 'PROJECT', projectId: '', unitId: '', triggerCode: '', question: '', requestedFrom: '', dueDate: '' }, '2026-10-27')).toEqual({
+      projectId: 'required',
+      triggerCode: 'required',
+      question: 'required',
+      requestedFrom: 'required',
+      dueDate: 'required',
+    });
+    expect(validateRequest({ subject: 'PROJECT', projectId: 'p', unitId: '', triggerCode: 'MANUAL', question: request(1).question, requestedFrom: 'a name', dueDate: '2099-01-01' }, '2026-10-27')).toEqual({
+      requestedFrom: 'invalid',
+    });
+    expect(validateRequest({ subject: 'UNIT', projectId: '', unitId: '', triggerCode: 'x'.repeat(51), question: 'short', requestedFrom: ME, dueDate: '2026-10-27' }, '2026-10-27')).toEqual({
+      unitId: 'required',
+      triggerCode: 'invalid',
+      question: 'invalid',
+      dueDate: 'past',
+    });
+    expect(validateRequest({ subject: 'PROJECT', projectId: 'p', unitId: '', triggerCode: 'MANUAL', question: request(1).question, requestedFrom: ME, dueDate: '2026-02-30' }, '2026-10-27')).toEqual({
+      dueDate: 'invalid',
+    });
     expect(requestBody({ subject: 'UNIT', projectId: '', unitId: 'u', triggerCode: ' MANUAL ', question: ` ${request(1).question} `, requestedFrom: ME, dueDate: '2026-11-01' })).toEqual({
       subject_kind: 'UNIT',
       unit_id: 'u',

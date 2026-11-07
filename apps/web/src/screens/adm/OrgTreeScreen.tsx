@@ -19,6 +19,8 @@ import type { FormField, OrgUnit } from './org-tree/types';
 import { changedFields, UnitForm } from './org-tree/UnitForm';
 import type { FormValues } from './org-tree/UnitForm';
 import { UnitTree } from './org-tree/UnitTree';
+import { SectionCard } from '../../ui';
+import './adm-kit.css';
 import './org-tree/org-tree.css';
 
 type Mode = 'idle' | 'create' | 'edit';
@@ -224,7 +226,7 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
           <div className="actions">
             <button
               type="button"
-              className="primary"
+              className="ui-button ui-button--primary"
               onClick={() => {
                 clearFeedback();
                 setMode('create');
@@ -241,25 +243,25 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
         {refreshFailed ? (
           <p className="callout warning" role="alert">
             {t('adm.orgUnit.refresh.error')}{' '}
-            <button type="button" onClick={() => void units.refetch()}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => void units.refetch()}>
               {t('states.retry.action')}
             </button>
           </p>
         ) : null}
         <div className="two">
-          <div className="card">
-            <div className="row between unit-card-heading">
-              <h2>{t('adm.orgUnit.tree.title')}</h2>
+          <SectionCard
+            title={t('adm.orgUnit.tree.title')}
+            actions={
               <div className="field">
                 <label htmlFor="as-of">{t('adm.orgUnit.asOf.label')}</label>
                 <input id="as-of" type="date" value={asOf} onChange={(event) => event.target.value !== '' && setAsOf(event.target.value)} />
               </div>
-            </div>
-            <p className="sub">{t('adm.orgUnit.asOf.hint')}</p>
+            }
+          >
+            <p className="adm-kit-sub">{t('adm.orgUnit.asOf.hint')}</p>
             <UnitTree forest={forest} expanded={expanded} onToggle={toggle} selectedId={selectedId} onSelect={select} />
-          </div>
-          <div className="card">
-            <h2>{mode === 'create' ? t('adm.orgUnit.form.new.title') : t('adm.orgUnit.form.edit.title')}</h2>
+          </SectionCard>
+          <SectionCard title={mode === 'create' ? t('adm.orgUnit.form.new.title') : t('adm.orgUnit.form.edit.title')}>
             {notice === undefined ? null : <p className="callout" role="status">{notice}</p>}
             {mode === 'idle' || (mode === 'edit' && selected === undefined) ? (
               <p className="muted">{t('adm.orgUnit.form.idle.hint')}</p>
@@ -293,7 +295,7 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
                   </p>
                 ) : null}
                 {(problem?.kind === 'conflict' || (serverChanged && hasEdits)) && !moving ? (
-                  <button type="button" onClick={reload}>
+                  <button type="button" className="ui-button ui-button--outline" onClick={reload}>
                     {t('adm.orgUnit.conflict.reload')}
                   </button>
                 ) : null}
@@ -314,7 +316,7 @@ export default function OrgTreeScreen({ route }: ScreenProps) {
                 ) : null}
               </>
             )}
-          </div>
+          </SectionCard>
         </div>
       </StateBoundary>
       <p className="prototype-note">{t('adm.orgUnit.footer.reference', { id: route.id, req: route.req ?? '' })}</p>

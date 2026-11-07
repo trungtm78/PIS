@@ -5,6 +5,7 @@ import { errorIdOf, hintIdOf, wireControl } from '../field-wiring';
 import { classificationLabel, fieldProblemMessage } from './labels';
 import { CLASSIFICATIONS } from './model';
 import type { FieldProblem, GroupSuggestion, MasterOption, MasterRef, ProjectField, ProjectForm, UnitOption } from './model';
+import { StatusPill } from '../../ui';
 import './prj.css';
 
 /** The link above the title that the mockup of a detail screen carries: an arrow and the name of the screen it comes from. */
@@ -50,8 +51,8 @@ export function Field({ id, label, error, hint, children }: FieldProps) {
 export function NationalCode({ code }: { code: string | null }) {
   const { t } = useTranslation();
   return code === null ? (
-    <span className="prj-badge warning" data-testid="national-code-missing">
-      {t('prj.nationalCode.missing.badge')}
+    <span data-testid="national-code-missing">
+      <StatusPill tone="warning">{t('prj.nationalCode.missing.badge')}</StatusPill>
     </span>
   ) : (
     <code data-testid="national-code">{code}</code>
@@ -73,8 +74,8 @@ export function SuggestionPanel({ suggestion }: { suggestion: GroupSuggestion | 
       <p>
         {t('prj.suggestion.group.text', { group: suggestion.groupKey, date: suggestion.asOf })}{' '}
         {suggestion.awaitingConfirmation ? (
-          <span className="prj-badge warning" data-testid="suggestion-awaiting">
-            {suggestion.cxn === null ? t('prj.suggestion.awaiting.badge') : t('prj.suggestion.awaitingCxn.badge', { cxn: suggestion.cxn })}
+          <span data-testid="suggestion-awaiting">
+            <StatusPill tone="warning">{suggestion.cxn === null ? t('prj.suggestion.awaiting.badge') : t('prj.suggestion.awaitingCxn.badge', { cxn: suggestion.cxn })}</StatusPill>
           </span>
         ) : null}
       </p>
@@ -104,7 +105,21 @@ export interface FormFieldsProps {
   dossierLocked?: boolean;
 }
 
-function MasterSelect({ id, value, options, disabled, onChange, optional }: { id: string; value: string; options: readonly MasterOption[]; disabled: boolean; onChange: (value: string) => void; optional: boolean }) {
+function MasterSelect({
+  id,
+  value,
+  options,
+  disabled,
+  onChange,
+  optional,
+}: {
+  id: string;
+  value: string;
+  options: readonly MasterOption[];
+  disabled: boolean;
+  onChange: (value: string) => void;
+  optional: boolean;
+}) {
   const { t } = useTranslation();
   return (
     <select id={id} value={value} disabled={disabled} onChange={(event) => onChange(event.target.value)}>
@@ -194,7 +209,13 @@ export function ProjectFormFields({ mode, form, errors, onChange, units, areas, 
         </Field>
         {mode === 'create' ? (
           <Field id="project-totalInvestment" label={t('prj.form.total.label')} error={error('totalInvestment')} hint={t('prj.form.total.hint')}>
-            <input id="project-totalInvestment" inputMode="numeric" value={form.totalInvestment} aria-invalid={error('totalInvestment') !== undefined} onChange={(event) => onChange('totalInvestment', event.target.value)} />
+            <input
+              id="project-totalInvestment"
+              inputMode="numeric"
+              value={form.totalInvestment}
+              aria-invalid={error('totalInvestment') !== undefined}
+              onChange={(event) => onChange('totalInvestment', event.target.value)}
+            />
           </Field>
         ) : null}
         <Field id="project-startYear" label={t('prj.form.startYear.label')} error={error('startYear')}>

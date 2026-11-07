@@ -14,6 +14,9 @@ import { formProblemMessage, kindLabel, problemMessage, resultLabel, resultTone,
 import { DIFFERENCE_KINDS, RECON_BASIS, RECON_RESULTS, RECON_SOURCE_A, RECON_SOURCE_B, describeProblem, emptyRecon, formatDong, reconBody, resourceIdOf, validateRecon } from './model';
 import type { ReconForm, ReconView } from './model';
 import '../dgv.css';
+import '../dgv-kit.css';
+import { StatusPill } from '../../../ui';
+import { pillTone } from '../pill-tone';
 
 const RECON_PARAM = 'recon';
 const INCIDENT_PATH = '/dgv/dgv-08';
@@ -56,7 +59,7 @@ function ReconciliationContent({ route }: ScreenProps) {
           <p>{t('dgv.recon.subtitle')}</p>
         </div>
         {acting ? (
-          <button type="button" className="primary" data-action="run" onClick={() => setRunning(true)}>
+          <button type="button" className="ui-button ui-button--primary" data-action="run" onClick={() => setRunning(true)}>
             {t('dgv.recon.run.action')}
           </button>
         ) : null}
@@ -161,7 +164,7 @@ function Detail({ recon, dong, onClose }: { recon: ReconView; dong: (value: stri
             {recon.reconCode} · {recon.asOfPeriod}
           </h2>
           <p>
-            <span className={`pill ${resultTone(recon.result)}`}>{resultLabel(t, recon.result)}</span> <small className="sub">{t('dgv.recon.detail.tolerance', { amount: dong(recon.tolerance) })}</small>
+            <StatusPill tone={pillTone(resultTone(recon.result))}>{resultLabel(t, recon.result)}</StatusPill> <small className="sub">{t('dgv.recon.detail.tolerance', { amount: dong(recon.tolerance) })}</small>
           </p>
         </div>
         <button type="button" onClick={onClose}>

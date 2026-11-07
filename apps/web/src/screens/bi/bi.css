@@ -1,0 +1,26 @@
+/* BI screens: the series of the charts take their colour from the tokens of design.md (fund and semantic colours), never a hex. */
+.bi-series-0 { fill: var(--mv-color-fund-year); stroke: var(--mv-color-surface); stroke-width: 1; }
+.bi-series-1 { fill: var(--mv-color-info); stroke: var(--mv-color-surface); stroke-width: 1; }
+.bi-series-2 { fill: var(--mv-color-fund-carry-over); stroke: var(--mv-color-surface); stroke-width: 1; }
+.bi-series-3 { fill: var(--mv-color-fund-programme); stroke: var(--mv-color-surface); stroke-width: 1; }
+.bi-series-4 { fill: var(--mv-color-fund-other); stroke: var(--mv-color-surface); stroke-width: 1; }
+.bi-series-5 { fill: var(--mv-color-fund-increase); stroke: var(--mv-color-surface); stroke-width: 1; }
+.bi-series-6 { fill: var(--mv-color-neutral); stroke: var(--mv-color-surface); stroke-width: 1; }
+.bi-series-7 { fill: var(--mv-color-success); stroke: var(--mv-color-surface); stroke-width: 1; }
+.bi-line { fill: none; stroke: var(--mv-color-fund-year); stroke-width: 2; }
+.bi-area { fill: var(--mv-color-fund-year); stroke: none; opacity: 0.25; }
+.bi-dot { fill: var(--mv-color-fund-year); stroke: var(--mv-color-surface); stroke-width: 1; }
+
+.bi-chart { max-width: 100%; height: auto; }
+.bi-kpi-value { font-variant-numeric: tabular-nums; }
+.bi-tile-actions { margin-top: var(--mv-space-12); }
+.bi-tile-labels { margin-top: var(--mv-space-8); }
+.bi-board-filter { max-width: 320px; }
+.bi-num { font-variant-numeric: tabular-nums; }
+
+/* BI-02: a tile of the board is a KPI tile with the labels of its figure under it. */
+.bi-tile { display: flex; flex-direction: column; gap: var(--mv-space-8); min-width: 0; }
+.bi-tile__more { display: flex; flex-direction: column; align-items: flex-start; gap: var(--mv-space-8); padding: var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); background: var(--mv-color-surface2); font-size: 12px; color: var(--mv-color-text-secondary); }
+.bi-tile__more .mne-lines { width: 100%; }
+.bi-decide,
+.bi-result { margin-bottom: var(--mv-space-16); }

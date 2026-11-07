@@ -10,7 +10,10 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { formatVnd } from '../dis/report/money';
+import { ContextBar, DataTable, KpiStrip, KpiTile, SectionCard, StatusPill } from '../../ui';
+import type { DataTableColumn } from '../../ui';
 import '../dis/dis.css';
+import './home.css';
 import { homeRoot } from './hooks';
 import { FORMULA_REFERENCE, SNAPSHOT_SCREEN_PATH, shortId, toCommandCenter } from './model';
 import { describeDrill, refreshTargetOf, toDrill, tokenOfMetric } from './drill-model';
@@ -19,6 +22,7 @@ import type { Drill, DrillChild, DrillDimension, Step } from './drill-model';
 type T = Translator['t'];
 const COMMAND_CENTER_PATH = '/home/home-09';
 const PAGE_SIZE = 50;
+const NONE = '—';
 
 function metricLabel(t: T, code: string): string {
   switch (code) {
@@ -228,8 +232,8 @@ function DrillProblemCard({ problem }: { problem: 'denied' | 'invalid' | 'notFou
       <div className="card statecard" role="alert" data-testid="drill-denied">
         <h2>{t('home.drill.denied.title')}</h2>
         <p>{t('home.drill.denied.body')}</p>
-        <span className="pill warn" data-testid="needs-refresh">
-          {t('home.drill.needsRefresh')}
+        <span data-testid="needs-refresh">
+          <StatusPill tone="warning">{t('home.drill.needsRefresh')}</StatusPill>
         </span>
         <Link to={COMMAND_CENTER_PATH}>{t('home.drill.back')}</Link>
       </div>
@@ -271,22 +275,53 @@ interface BodyProps {
   restarted: boolean;
 }
 
+const BUTTON = 'ui-button ui-button--outline';
+
 function DrillBody({ drill, trail, metric, rows, sources, dimension, onDimension, onOpen, onStep, more, loadingMore, onMore, onRefresh, restarted }: BodyProps) {
   const { t } = useTranslation();
   const place = drill.scope.projectCode !== null ? `${drill.scope.projectCode} ${drill.scope.projectName ?? ''}`.trim() : drill.scope.unitName;
   const hasSums = drill.numerator !== null && drill.denominator !== null;
   // Where there can be many children (a scope, a unit) the next page is more children; below, where the way goes on to the sources, it is more transactions.
   const pagesChildren = drill.level === 'SCOPE' || drill.level === 'UNIT';
+  const money = drill.unit === 'VND';
+  const percentColumns = drill.unit === 'PERCENT';
+  const columns: DataTableColumn<DrillChild>[] = [
+    { key: 'code', header: t('home.drill.column.code'), pinned: true, render: (child) => <span data-child-id={child.id}>{child.code}</span> },
+    { key: 'name', header: t('home.drill.column.name'), render: (child) => child.name },
+    { key: 'value', header: t('home.drill.fact.value'), align: 'right', render: (child) => <span data-testid={`child-value-${child.id}`}>{figure(t, drill.unit, child.value, child.nullReason)}</span> },
+    ...(percentColumns
+      ? [
+          { key: 'numerator', header: t('home.drill.fact.numerator'), align: 'right' as const, render: (child: DrillChild) => (child.numerator === null ? NONE : formatVnd(child.numerator)) },
+          { key: 'denominator', header: t('home.drill.fact.denominator'), align: 'right' as const, render: (child: DrillChild) => (child.denominator === null ? NONE : formatVnd(child.denominator)) },
+        ]
+      : []),
+    {
+      key: 'open',
+      header: t('w2dis.home.drill.column.open'),
+      render: (child) => (
+        <button type="button" className={`${BUTTON} ui-button--small`} onClick={() => onOpen(child)} aria-label={t('home.drill.open', { name: child.code === '' ? child.name : child.code })}>
+          {t('home.drill.open.action')}
+        </button>
+      ),
+    },
+  ];
   return (
-    <>
-      <nav aria-label={t('home.drill.breadcrumb')} className="card" data-testid="drill-breadcrumb">
-        <ol className="mne-lines">
+    <div className="home-stack">
+      <ContextBar
+        items={[
+          { label: t('home.drill.fact.place'), value: place ?? t('dis.wr.ctx.scope.all') },
+          { label: t('home.drill.fact.asOf'), value: drill.asOfDate },
+        ]}
+        {...(money ? { unit: t('dis.wr.unit') } : {})}
+      />
+      <nav aria-label={t('home.drill.breadcrumb')} className="home-trail" data-testid="drill-breadcrumb">
+        <ol>
           {trail.map((step, index) => (
             <li key={`${index}:${step.token}`}>
               {index === trail.length - 1 ? (
                 <strong aria-current="step">{index === 0 ? metric : step.label}</strong>
               ) : (
-                <button type="button" className="btn" onClick={() => onStep(index)}>
+                <button type="button" className={`${BUTTON} ui-button--small`} onClick={() => onStep(index)}>
                   {index === 0 ? metric : step.label}
                 </button>
               )}
@@ -295,144 +330,127 @@ function DrillBody({ drill, trail, metric, rows, sources, dimension, onDimension
         </ol>
       </nav>
       {restarted ? (
-        <p role="status" className="pill" data-testid="drill-renewed">
-          {t('home.drill.renewed')}
+        <p role="status" data-testid="drill-renewed">
+          <StatusPill tone="info">{t('home.drill.renewed')}</StatusPill>
         </p>
       ) : null}
       {drill.scopeChanged ? (
-        <div role="status" className="pill warn" data-testid="scope-changed">
-          {t('home.drill.scopeChanged')}{' '}
-          <button type="button" className="btn" onClick={onRefresh}>
+        <div role="status" className="home-notice" data-testid="scope-changed">
+          <StatusPill tone="warning">{t('home.drill.scopeChanged')}</StatusPill>
+          <button type="button" className={BUTTON} onClick={onRefresh}>
             {t('home.drill.refresh')}
           </button>
         </div>
       ) : null}
-      <section className="card" aria-labelledby="drill-figure-title" data-testid="drill-figure">
-        <h2 id="drill-figure-title">{metric}</h2>
-        <dl className="aud-facts">
-          <dt>{t('home.drill.fact.value')}</dt>
-          <dd data-testid="drill-value">{figure(t, drill.unit, drill.value, drill.nullReason)}</dd>
-          {hasSums ? (
-            <>
-              <dt>{t('home.drill.fact.numerator')}</dt>
-              <dd data-testid="drill-numerator">{formatVnd(drill.numerator ?? '0')}</dd>
-              <dt>{t('home.drill.fact.denominator')}</dt>
-              <dd data-testid="drill-denominator">{formatVnd(drill.denominator ?? '0')}</dd>
-            </>
-          ) : null}
-          <dt>{t('home.drill.fact.formula')}</dt>
-          <dd data-testid="drill-formula" title={t('home.tile.formula.title', { formula: drill.formula, ref: FORMULA_REFERENCE })}>
-            {drill.formula}
-          </dd>
-          <dt>{t('home.drill.fact.snapshot')}</dt>
-          <dd data-testid="drill-snapshot" title={drill.snapshotId}>
-            {shortId(drill.snapshotId)}
-          </dd>
-          <dt>{t('home.drill.fact.asOf')}</dt>
-          <dd data-testid="drill-as-of">{drill.asOfDate}</dd>
-          {place === null ? null : (
-            <>
-              <dt>{t('home.drill.fact.place')}</dt>
-              <dd data-testid="drill-place">{place}</dd>
-            </>
-          )}
-        </dl>
-        {drill.definitionStatus === 'SIGNED' ? null : <p className="pill warn">{t('home.tile.definition.pending', { ref: FORMULA_REFERENCE })}</p>}
-      </section>
+      <div data-testid="drill-figure">
+        <SectionCard title={metric} status={drill.definitionStatus === 'SIGNED' ? undefined : <StatusPill tone="warning">{t('home.tile.definition.pending', { ref: FORMULA_REFERENCE })}</StatusPill>}>
+          <KpiStrip label={t('w2dis.home.drill.figure.aria')}>
+            <KpiTile
+              label={t('home.drill.fact.value')}
+              value={drill.value === null ? t('w2dis.home.na') : figure(t, drill.unit, drill.value, drill.nullReason)}
+              tone={drill.value === null ? 'neutral' : 'info'}
+              sub={drill.value === null ? reasonLabel(t, drill.nullReason) : hasSums ? `${t('home.tile.numerator', { value: formatVnd(drill.numerator ?? '0') })} · ${t('home.tile.denominator', { value: formatVnd(drill.denominator ?? '0') })}` : undefined}
+            />
+          </KpiStrip>
+          <dl className="aud-facts">
+            {hasSums ? (
+              <>
+                <dt>{t('home.drill.fact.numerator')}</dt>
+                <dd data-testid="drill-numerator">{formatVnd(drill.numerator ?? '0')}</dd>
+                <dt>{t('home.drill.fact.denominator')}</dt>
+                <dd data-testid="drill-denominator">{formatVnd(drill.denominator ?? '0')}</dd>
+              </>
+            ) : null}
+            <dt>{t('home.drill.fact.formula')}</dt>
+            <dd data-testid="drill-formula" title={t('home.tile.formula.title', { formula: drill.formula, ref: FORMULA_REFERENCE })}>
+              {drill.formula}
+            </dd>
+            <dt>{t('home.drill.fact.snapshot')}</dt>
+            <dd data-testid="drill-snapshot" title={drill.snapshotId}>
+              {shortId(drill.snapshotId)}
+            </dd>
+          </dl>
+        </SectionCard>
+      </div>
       {drill.exclusions.length === 0 ? null : (
-        <section className="card" aria-labelledby="drill-exclusions-title" data-testid="drill-exclusions">
-          <h2 id="drill-exclusions-title">{t('home.drill.exclusions.title')}</h2>
-          <ul className="mne-lines">
-            {drill.exclusions.map((exclusion) => (
-              <li key={`${exclusion.id ?? 'self'}:${exclusion.code}`}>
-                {exclusion.id === null ? t('home.drill.exclusions.self') : exclusion.code} {reasonLabel(t, exclusion.reason)}
-              </li>
-            ))}
-          </ul>
-        </section>
+        <div data-testid="drill-exclusions">
+          <SectionCard title={t('home.drill.exclusions.title')}>
+            <ul className="home-lines">
+              {drill.exclusions.map((exclusion) => (
+                <li key={`${exclusion.id ?? 'self'}:${exclusion.code}`}>
+                  {exclusion.id === null ? t('home.drill.exclusions.self') : exclusion.code} {reasonLabel(t, exclusion.reason)}
+                </li>
+              ))}
+            </ul>
+          </SectionCard>
+        </div>
       )}
       {drill.dimensions.length === 0 ? null : (
-        <section className="card" aria-labelledby="drill-children-title" data-testid="drill-children">
-          <div className="heading">
-            <h2 id="drill-children-title">{t('home.drill.children.title')}</h2>
-            {drill.dimensions.length > 1 ? (
-              <label htmlFor="drill-dimension">
-                {t('home.drill.dimension.label')}{' '}
-                <select id="drill-dimension" value={dimension} onChange={(event) => onDimension(event.target.value as DrillDimension)}>
-                  {drill.dimensions.map((option) => (
-                    <option key={option} value={option}>
-                      {dimensionLabel(t, option)}
-                    </option>
-                  ))}
-                </select>
-              </label>
+        <div data-testid="drill-children">
+          <SectionCard
+            title={t('home.drill.children.title')}
+            {...(money ? { unit: t('dis.wr.unit') } : {})}
+            actions={
+              drill.dimensions.length > 1 ? (
+                <label htmlFor="drill-dimension" className="home-inline-field">
+                  {t('home.drill.dimension.label')}{' '}
+                  <select id="drill-dimension" value={dimension} onChange={(event) => onDimension(event.target.value as DrillDimension)}>
+                    {drill.dimensions.map((option) => (
+                      <option key={option} value={option}>
+                        {dimensionLabel(t, option)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : undefined
+            }
+          >
+            <DataTable caption={t('home.drill.children.title')} columns={columns} rows={rows} rowKey={(child) => `${child.dimension}:${child.id}`} />
+            {more && pagesChildren ? (
+              <button type="button" className={BUTTON} disabled={loadingMore} onClick={onMore}>
+                {t('home.drill.more')}
+              </button>
             ) : null}
-          </div>
-          <div className="tablewrap">
-            <table>
-              <thead>
-                <tr>
-                  <th scope="col">{t('home.drill.column.code')}</th>
-                  <th scope="col">{t('home.drill.column.name')}</th>
-                  <th scope="col">{t('home.drill.fact.value')}</th>
-                  {drill.unit === 'PERCENT' ? <th scope="col">{t('home.drill.fact.numerator')}</th> : null}
-                  {drill.unit === 'PERCENT' ? <th scope="col">{t('home.drill.fact.denominator')}</th> : null}
-                  <th scope="col" />
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((child) => (
-                  <tr key={`${child.dimension}:${child.id}`} data-child-id={child.id}>
-                    <td>{child.code}</td>
-                    <td>{child.name}</td>
-                    <td data-testid={`child-value-${child.id}`}>{figure(t, drill.unit, child.value, child.nullReason)}</td>
-                    {drill.unit === 'PERCENT' ? <td>{child.numerator === null ? '—' : formatVnd(child.numerator)}</td> : null}
-                    {drill.unit === 'PERCENT' ? <td>{child.denominator === null ? '—' : formatVnd(child.denominator)}</td> : null}
-                    <td>
-                      <button type="button" className="btn" onClick={() => onOpen(child)} aria-label={t('home.drill.open', { name: child.code === '' ? child.name : child.code })}>
-                        {t('home.drill.open.action')}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {more && pagesChildren ? (
-            <button type="button" className="btn" disabled={loadingMore} onClick={onMore}>
-              {t('home.drill.more')}
-            </button>
-          ) : null}
-          <p className={drill.nonAdditiveReason === null && !drill.reconcilesToParent ? 'pill warn' : 'sub'} role="status" data-testid="drill-reconciliation">
-            {drill.nonAdditiveReason === 'RATIO' ? t('home.drill.reconcile.ratio') : drill.reconcilesToParent ? t('home.drill.reconcile.ok') : t('home.drill.reconcile.broken')}
-          </p>
-        </section>
+            <p className="home-note" role="status" data-testid="drill-reconciliation">
+              {drill.nonAdditiveReason === null && !drill.reconcilesToParent ? (
+                <StatusPill tone="warning">{t('home.drill.reconcile.broken')}</StatusPill>
+              ) : drill.nonAdditiveReason === 'RATIO' ? (
+                t('home.drill.reconcile.ratio')
+              ) : drill.reconcilesToParent ? (
+                t('home.drill.reconcile.ok')
+              ) : (
+                t('home.drill.reconcile.broken')
+              )}
+            </p>
+          </SectionCard>
+        </div>
       )}
       {sources.length === 0 ? null : (
-        <section className="card" aria-labelledby="drill-sources-title" data-testid="drill-sources">
-          <h2 id="drill-sources-title">{t('home.drill.sources.title')}</h2>
-          <ul className="mne-lines">
-            {sources.map((source) =>
-              source.kind === 'REPORT_REVISION' ? (
-                <li key={`report:${source.id}`} data-source="report">
-                  {t('home.drill.sources.report', { revision: source.revision, status: source.status })}
-                </li>
-              ) : (
-                <li key={`tx:${source.id}`} data-source="treasury">
-                  {source.reversalOfId === null
-                    ? t('home.drill.sources.treasury', { ref: source.externalId, amount: formatVnd(source.contributionVnd), at: source.confirmedAt.slice(0, 10) })
-                    : t('home.drill.sources.reversal', { ref: source.externalId, amount: formatVnd(source.contributionVnd), at: source.confirmedAt.slice(0, 10) })}
-                </li>
-              ),
-            )}
-          </ul>
-          {more && !pagesChildren ? (
-            <button type="button" className="btn" disabled={loadingMore} onClick={onMore}>
-              {t('home.drill.more')}
-            </button>
-          ) : null}
-        </section>
+        <div data-testid="drill-sources">
+          <SectionCard title={t('home.drill.sources.title')}>
+            <ul className="home-lines">
+              {sources.map((source) =>
+                source.kind === 'REPORT_REVISION' ? (
+                  <li key={`report:${source.id}`} data-source="report">
+                    {t('home.drill.sources.report', { revision: source.revision, status: source.status })}
+                  </li>
+                ) : (
+                  <li key={`tx:${source.id}`} data-source="treasury">
+                    {source.reversalOfId === null
+                      ? t('home.drill.sources.treasury', { ref: source.externalId, amount: formatVnd(source.contributionVnd), at: source.confirmedAt.slice(0, 10) })
+                      : t('home.drill.sources.reversal', { ref: source.externalId, amount: formatVnd(source.contributionVnd), at: source.confirmedAt.slice(0, 10) })}
+                  </li>
+                ),
+              )}
+            </ul>
+            {more && !pagesChildren ? (
+              <button type="button" className={BUTTON} disabled={loadingMore} onClick={onMore}>
+                {t('home.drill.more')}
+              </button>
+            ) : null}
+          </SectionCard>
+        </div>
       )}
-    </>
+    </div>
   );
 }

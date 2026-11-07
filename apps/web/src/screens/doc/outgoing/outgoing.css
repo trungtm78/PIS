@@ -1,6 +1,6 @@
 /* DOC-05 and DOC-06: the signing checklist, the preview paper and the step cards, in the language of the shared screen classes. */
 .field-error {
-  color: #a22b22;
+  color: var(--mv-color-danger);
 }
 
 .checklist .item .title {
@@ -12,12 +12,12 @@
 }
 
 .flow .node[data-state='waiting'] {
-  background: #f7f7f6;
-  border-color: #dedad7;
+  background: var(--mv-color-surface2);
+  border-color: var(--mv-color-border);
 }
 
 .flow .node[data-state='current'] {
-  border-color: #d69a30;
+  border-color: var(--mv-color-warning);
 }
 
 .check {

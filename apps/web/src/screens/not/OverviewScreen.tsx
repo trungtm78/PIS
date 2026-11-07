@@ -13,6 +13,7 @@ import './delivery/delivery.css';
 import { useOverview } from './limits/hooks';
 import { PERIODS, READ_PERMISSION, isSpentUp, periodRange, utilisation } from './limits/model';
 import type { Overview, Period } from './limits/model';
+import { StatusPill } from '../../ui';
 
 const money = (locale: string, value: string): string => `${new Intl.NumberFormat(locale === 'vi' ? 'vi-VN' : 'en-US').format(Number(value))} ₫`;
 
@@ -137,9 +138,9 @@ function OverviewContent({ route }: ScreenProps) {
                             : t('not.overview.use.budget', { spent: money(locale, account.spentMonthVnd), budget: money(locale, account.monthlyBudgetVnd), share: Math.floor(monthShare ?? 0) })}
                         </span>
                         {account.heldByLimit > 0 ? (
-                          <span className="pill warn" data-held>
+                          <span data-held>
                             {' '}
-                            {t('not.overview.use.held', { count: account.heldByLimit })}
+                            <StatusPill tone="warning">{t('not.overview.use.held', { count: account.heldByLimit })}</StatusPill>
                           </span>
                         ) : null}
                       </li>

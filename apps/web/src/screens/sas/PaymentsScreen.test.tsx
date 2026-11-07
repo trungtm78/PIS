@@ -2,6 +2,7 @@ import { ApiError } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../i18n/vi.json';
+import { translator } from '../../i18n';
 import PaymentsScreen from './PaymentsScreen';
 import { toPayment, toTenantInvoices } from './billing/model';
 import { outstandingOf, payableInvoices, toPaymentPage } from './payments/model';
@@ -114,6 +115,16 @@ describe('PaymentsScreen (SAS-10): the invoices and the reconciliation of the pa
     // The paid one shows the payment that matched it; a draft has no number yet.
     expect(invoiceRow('a2').querySelector('[data-match-status]')?.textContent).toContain(vi_['sas.payments.status.matched']);
     expect(invoiceRow('a3').querySelector('[data-einvoice-number]')?.textContent).toBe('—');
+  });
+
+  it('says the unit of the money blocks (ĐVT chip), draws the payment status as a pill of the kit and keeps each table in a scroll region of its own', async () => {
+    mount(<PaymentsScreen route={ROUTE} />, client(world()), BILLING);
+    await waitFor(() => expect(row('pay-1')).not.toBeNull());
+    await waitFor(() => expect(invoiceRow('a1')).not.toBeNull());
+    expect(screen.getAllByText(vi_['ui.unitChip.label'].replace('{unit}', vi_['dis.wr.unit'])).length).toBe(2);
+    expect(within(row('pay-1')).getByText(vi_['sas.payments.status.unmatched']).closest('.ui-pill')).not.toBeNull();
+    expect(screen.getByRole('region', { name: translator.t('w2sas.payments.table.queue') })).toBeTruthy();
+    expect(screen.getByRole('region', { name: translator.t('w2sas.payments.table.invoices') })).toBeTruthy();
   });
 
   it('matches a payment with a payable invoice of the tenant, with the version of the payment and a reason, and says so', async () => {

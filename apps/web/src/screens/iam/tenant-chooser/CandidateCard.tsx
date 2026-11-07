@@ -1,5 +1,7 @@
 import { useId } from 'react';
 import { useTranslation } from '../../../i18n';
+import { StatusPill } from '../../../ui';
+import '../../adm/adm-kit.css';
 import type { TenantCandidate } from '../../../session/SessionContext';
 import type { Selectability } from './candidate-model';
 import { membershipTypeLabel, noteOf, tenantStatusLabel } from './labels';
@@ -34,8 +36,10 @@ export function CandidateCard({ candidate, selectability, busy, choosing, onChoo
       <p className="muted">
         {membershipTypeLabel(t, candidate.membership_type)} · {t('iam.tenantChooser.card.description')}
       </p>
-      <span className={candidate.tenant_status === 'Active' ? 'pill' : candidate.tenant_status === 'Suspended' ? 'pill warn' : 'pill gray'}>{tenantStatusLabel(t, candidate.tenant_status)}</span>{' '}
-      {selectability === 'inactive' ? <span className="pill red">{t('iam.tenantChooser.membership.inactive.label')}</span> : null}
+      <span className="adm-kit-chips">
+        <StatusPill tone={candidate.tenant_status === 'Active' ? 'success' : candidate.tenant_status === 'Suspended' ? 'warning' : 'neutral'}>{tenantStatusLabel(t, candidate.tenant_status)}</StatusPill>
+        {selectability === 'inactive' ? <StatusPill tone="danger">{t('iam.tenantChooser.membership.inactive.label')}</StatusPill> : null}
+      </span>
       {note === undefined ? null : (
         <p className="muted" id={noteId}>
           {note}
@@ -44,6 +48,7 @@ export function CandidateCard({ candidate, selectability, busy, choosing, onChoo
       <div className="gap">
         <button
           type="button"
+          className="ui-button ui-button--primary"
           disabled={!choosable || busy}
           aria-label={t('iam.tenantChooser.select.label', { name: candidate.tenant_name })}
           aria-describedby={note === undefined ? undefined : noteId}

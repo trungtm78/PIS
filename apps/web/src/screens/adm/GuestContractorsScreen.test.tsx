@@ -2,6 +2,7 @@ import { cleanup, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../i18n/vi.json';
+import { translator } from '../../i18n';
 import GuestContractorsScreen from './GuestContractorsScreen';
 import { ADMIN, CONTRACTOR_ONE, CONTRACTOR_TWO, READER, contract, guest, harness, mount, problem, role, routeOf } from './members/test-support';
 
@@ -43,6 +44,14 @@ describe('GuestContractorsScreen (ADM-17)', () => {
     expect(cells[3]?.textContent).toBe('GUEST_CONTRACTOR');
     expect(cells[4]?.textContent).toBe('2027-03-31');
     expect(within(rowOf('p2@example.test')).getAllByRole('cell')[2]?.textContent).toBe(vi_['adm.guests.contracts.none']);
+  });
+
+  it('shows the status of each guest as a pill of the kit and keeps the table in its own scroll region', async () => {
+    mount(<GuestContractorsScreen route={ROUTE} />, harness({ members: ROWS }));
+    await screen.findByText('Other Builders');
+    expect(within(rowOf('p3@example.test')).getByText(vi_['adm.members.status.suspended']).closest('.ui-pill')?.className).toContain('ui-tone-warning');
+    expect(within(rowOf('p1@example.test')).getByText(vi_['adm.members.status.active']).closest('.ui-pill')?.className).toContain('ui-tone-success');
+    expect(screen.getByRole('region', { name: translator.t('w2adm.guests.table.caption') })).toBeTruthy();
   });
 
   it('offers the commands of the status, and none to a read-only user', async () => {

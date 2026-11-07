@@ -13,6 +13,9 @@ import { importStatusLabel, problemMessage, rowErrorLabel, rowFieldLabel } from 
 import { EMPTY_MAPPING, IMPORT_PERMISSION, PUBLISH_PERMISSION, REASON_MAX_LENGTH, REASON_MIN_LENGTH, REVIEW_PERMISSION, describeProblem, mappingBody, mappingComplete, suggestMapping } from './model';
 import type { ImportBatchView, ImportFileView, ImportMappingForm, ImportMode } from './model';
 import { TYPE_FORMS } from './typeForms';
+import { SectionCard, StatusPill } from '../../ui';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 
 const APPROVAL_PATH = '/mdm/mdm-32';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -184,7 +187,7 @@ function MasterImportContent({ route }: ScreenProps) {
           <p>{t('mdm.catalogue.page.subtitle')}</p>
         </div>
         <div className="row-actions">
-          <button type="button" onClick={exportErrors} disabled={current === undefined || current.errors.length === 0}>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={exportErrors} disabled={current === undefined || current.errors.length === 0}>
             {t('mdm.import.export.action')}
           </button>
         </div>
@@ -201,12 +204,12 @@ function MasterImportContent({ route }: ScreenProps) {
       )}
       <StateBoundary state={state} onRetry={() => void recent.refetch()}>
         <div className="mdm-grid">
-          <div className="card" data-testid="steps">
-            <h2>{t('mdm.import.steps.title')}</h2>
+          <SectionCard title={t('mdm.import.steps.title')}>
+            <div data-testid="steps">
             <ol className="plain mdm-steps">
               {steps.map((title, index) => (
                 <li key={title} data-step={index + 1} data-state={stepStates[index]}>
-                  <strong>{title}</strong> <span className="pill gray">{stepLabel(t, stepStates[index] ?? 'pending')}</span>
+                  <strong>{title}</strong> <StatusPill tone="neutral">{stepLabel(t, stepStates[index] ?? 'pending')}</StatusPill>
                 </li>
               ))}
             </ol>
@@ -240,8 +243,8 @@ function MasterImportContent({ route }: ScreenProps) {
                   {t('mdm.readOnly.denied.notice')}
                 </p>
               ) : (
-                <div className="formfooter">
-                  <button type="submit" className="primary" disabled={file === undefined || upload.isPending}>
+                <div className="adm-kit-actions">
+                  <button type="submit" className="ui-button ui-button--primary" disabled={file === undefined || upload.isPending}>
                     {t('mdm.import.upload.action')}
                   </button>
                 </div>
@@ -315,8 +318,8 @@ function MasterImportContent({ route }: ScreenProps) {
                     ))}
                   </ul>
                 </fieldset>
-                <div className="formfooter">
-                  <button type="button" className="primary" onClick={check} disabled={!mappingComplete(mapping) || masterType.trim() === '' || stage.isPending}>
+                <div className="adm-kit-actions">
+                  <button type="button" className="ui-button ui-button--primary" onClick={check} disabled={!mappingComplete(mapping) || masterType.trim() === '' || stage.isPending}>
                     {t('mdm.import.check.action')}
                   </button>
                 </div>
@@ -334,7 +337,7 @@ function MasterImportContent({ route }: ScreenProps) {
                 ) : (
                   <>
                     <h3>{t('mdm.import.step.errors.title')}</h3>
-                    <table className="table" data-testid="errors">
+                    <KitTable caption={t('w2mdm.import.table.caption')} data-testid="errors">
                       <thead>
                         <tr>
                           <th>{t('mdm.import.errors.row.column')}</th>
@@ -351,7 +354,7 @@ function MasterImportContent({ route }: ScreenProps) {
                           </tr>
                         ))}
                       </tbody>
-                    </table>
+                    </KitTable>
                     {current.errorRows > current.errors.length ? <p className="sub">{t('mdm.import.errors.truncated.text', { shown: current.errors.length, total: current.errorRows })}</p> : null}
                   </>
                 )}
@@ -380,8 +383,8 @@ function MasterImportContent({ route }: ScreenProps) {
                       </label>
                     ) : null}
                     {may(IMPORT_PERMISSION) ? (
-                      <div className="formfooter">
-                        <button type="button" className="primary" disabled={!readyToApply || apply.isPending} onClick={() => apply.mutate({ id: current.id, version: current.version })}>
+                      <div className="adm-kit-actions">
+                        <button type="button" className="ui-button ui-button--primary" disabled={!readyToApply || apply.isPending} onClick={() => apply.mutate({ id: current.id, version: current.version })}>
                           {t('mdm.import.apply.action')}
                         </button>
                       </div>
@@ -398,8 +401,8 @@ function MasterImportContent({ route }: ScreenProps) {
                       <Field id="import-reason" label={t('mdm.approval.reason.label')} error={invalid === 'reason' ? t('mdm.field.tooShort.error') : undefined}>
                         <textarea id="import-reason" rows={2} value={reason} aria-invalid={invalid === 'reason'} onChange={(event) => { setReason(event.target.value); setInvalid(undefined); }} />
                       </Field>
-                      <div className="formfooter">
-                        <button type="button" className="primary" data-decision="approve" disabled={decide.isPending} onClick={() => decideBatch('approve')}>
+                      <div className="adm-kit-actions">
+                        <button type="button" className="ui-button ui-button--primary" data-decision="approve" disabled={decide.isPending} onClick={() => decideBatch('approve')}>
                           {t('mdm.import.review.approve.action')}
                         </button>
                         <button type="button" data-decision="reject" disabled={decide.isPending} onClick={() => decideBatch('reject')}>
@@ -421,8 +424,8 @@ function MasterImportContent({ route }: ScreenProps) {
                       <Field id="import-document" label={t('mdm.approval.document.label')} error={invalid === 'document' ? t('mdm.approval.document.error') : undefined} hint={t('mdm.approval.document.hint')}>
                         <input id="import-document" value={documentId} aria-invalid={invalid === 'document'} onChange={(event) => { setDocumentId(event.target.value); setInvalid(undefined); }} />
                       </Field>
-                      <div className="formfooter">
-                        <button type="submit" className="primary" disabled={publish.isPending}>
+                      <div className="adm-kit-actions">
+                        <button type="submit" className="ui-button ui-button--primary" disabled={publish.isPending}>
                           {t('mdm.import.publish.action')}
                         </button>
                       </div>
@@ -444,10 +447,11 @@ function MasterImportContent({ route }: ScreenProps) {
                 {current.status === 'IN_REVIEW' ? <Link to={APPROVAL_PATH}>{t('mdm.import.queue.link')}</Link> : null}
               </section>
             )}
-          </div>
+            </div>
+          </SectionCard>
 
-          <aside className="card" aria-label={t('mdm.import.preview.title')}>
-            <h2>{t('mdm.import.preview.title')}</h2>
+          <aside aria-label={t('mdm.import.preview.title')}>
+          <SectionCard title={t('mdm.import.preview.title')}>
             {uploaded === undefined ? (
               <p className="muted">{t('mdm.import.preview.empty.text')}</p>
             ) : (
@@ -480,6 +484,7 @@ function MasterImportContent({ route }: ScreenProps) {
                 ))}
               </ul>
             )}
+          </SectionCard>
           </aside>
         </div>
       </StateBoundary>

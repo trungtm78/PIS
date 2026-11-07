@@ -16,6 +16,7 @@ import { kindLabel, standingLabel } from './labels';
 import { decisionLink, timelineOf } from './model';
 import type { TimelineEntry } from './model';
 import '../ctr.css';
+import { SectionCard } from '../../../ui';
 
 /**
  * CTR-26: the revisions of a contract in time (ST-CTR-007, CTR 3.3, BR-CTR-03). Each revision shows when it is in force, what it adds to the one it follows, the change order that made it
@@ -64,8 +65,7 @@ function ContractPicker({ onPick }: { onPick(contractId: string): void }) {
   const state = useScreenState({ isLoading: contracts.isLoading, error: contracts.error, data: contracts.data });
   return (
     <StateBoundary state={state} onRetry={() => void contracts.refetch()}>
-      <article className="card" aria-label={t('ctr.revision.pick.title')}>
-        <h2>{t('ctr.revision.pick.title')}</h2>
+      <SectionCard title={t('ctr.revision.pick.title')}>
         <div className="field" data-field="versions-contract">
           <label htmlFor="versions-contract">{t('ctr.revision.pick.label')}</label>
           <select id="versions-contract" value="" onChange={(event) => (event.target.value === '' ? undefined : onPick(event.target.value))}>
@@ -77,7 +77,7 @@ function ContractPicker({ onPick }: { onPick(contractId: string): void }) {
             ))}
           </select>
         </div>
-      </article>
+      </SectionCard>
     </StateBoundary>
   );
 }
@@ -87,8 +87,7 @@ function Timeline({ contract, locale }: { contract: ContractView; locale: string
   const entries = timelineOf(contract.revisions);
   return (
     <>
-      <article className="card" aria-label={t('ctr.revision.contract.title')}>
-        <h2>{t('ctr.revision.contract.title')}</h2>
+      <SectionCard title={t('ctr.revision.contract.title')}>
         <p>
           <strong data-testid="contract-code">{contract.code}</strong> · {contract.title ?? t('ctr.revision.none.text')} <StatusBadge status={contract.status} />
         </p>
@@ -103,7 +102,7 @@ function Timeline({ contract, locale }: { contract: ContractView; locale: string
             {t('ctr.revision.workspace.link')}
           </Link>
         </p>
-      </article>
+      </SectionCard>
       {entries.length === 0 ? (
         <p className="callout" role="status" data-testid="no-revisions">
           {t('ctr.revision.versions.empty')}

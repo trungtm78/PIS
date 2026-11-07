@@ -15,6 +15,8 @@ import { toneClass } from './tenants/labels';
 import './tenants/sas.css';
 import './tenant-detail/tenant-detail.css';
 import './license/license.css';
+import { StatusPill } from '../../ui';
+import { toneOfPill } from '../adm/kit-tone';
 
 /** Dates and instants of a license are server instants in UTC: they are shown in UTC, never in the zone of the browser. */
 function dateOf(locale: string, value: string): string {
@@ -70,13 +72,12 @@ export default function LicenseHistoryScreen({ route }: ScreenProps) {
                 <li key={license.id} data-license-id={license.id} data-current={current}>
                   <div className="license-chain-head">
                     <b>{license.serial}</b> <span className="sub">{t('sas.licenseHistory.revision.text', { revision: license.revision })}</span>{' '}
-                    <span className={toneClass(statusTone(license.status))} data-license-status={license.status}>
+                    <span data-license-status={license.status}><StatusPill tone={toneOfPill(toneClass(statusTone(license.status)))}>
                       {statusLabel(t, license.status)}
-                    </span>
+                    </StatusPill></span>
                     {current ? (
-                      <span className="pill ok license-current" data-testid="current-mark">
-                        {' '}
-                        {t('sas.licenseHistory.current.label')}
+                      <span className="license-current" data-testid="current-mark">
+                        <StatusPill tone="success">{t('sas.licenseHistory.current.label')}</StatusPill>
                       </span>
                     ) : null}
                   </div>
@@ -91,9 +92,9 @@ export default function LicenseHistoryScreen({ route }: ScreenProps) {
                   )}
                   {license.statusReason === undefined ? null : <div className="sub">{t('sas.licenseHistory.reason.text', { reason: license.statusReason })}</div>}
                   <div className="sub">
-                    <span className={toneClass(signatureTone(license.signatureCheck))} data-signature-check={license.signatureCheck}>
+                    <span data-signature-check={license.signatureCheck}><StatusPill tone={toneOfPill(toneClass(signatureTone(license.signatureCheck)))}>
                       {signatureLabel(t, license.signatureCheck)}
-                    </span>
+                    </StatusPill></span>
                   </div>
                   <div className="row gap">
                     {detail === undefined ? null : (

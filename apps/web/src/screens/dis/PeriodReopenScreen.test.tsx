@@ -14,9 +14,10 @@ const HOUR = 3_600_000;
 afterEach(cleanup);
 
 const text = (key: keyof typeof vi_, params: Record<string, string | number> = {}): string => Object.entries(params).reduce((message, [name, value]) => message.replace(`{${name}}`, String(value)), vi_[key]);
-const requestRows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('tr[data-reopen-id]'));
+const requestRows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('[data-reopen-id]'));
 const ready = () => waitFor(() => expect(requestRows().length).toBeGreaterThan(0));
-const rowOf = (n: number): HTMLElement => document.querySelector(`tr[data-reopen-id="00000000-0000-4000-8000-0004${String(n).padStart(8, '0')}"]`) as HTMLElement;
+const markerOf = (n: number): HTMLElement => document.querySelector(`[data-reopen-id="00000000-0000-4000-8000-0004${String(n).padStart(8, '0')}"]`) as HTMLElement;
+const rowOf = (n: number): HTMLElement => markerOf(n).closest('tr') as HTMLElement;
 const decisionButton = (n: number, decision: 'approve' | 'reject'): HTMLButtonElement => rowOf(n).querySelector(`button[data-decision="${decision}"]`) as HTMLButtonElement;
 /** The time as the screen shows it: Vietnam time, UTC+7, to the minute. */
 const vietnam = (instant: number): string => new Date(instant + 7 * HOUR).toISOString().slice(0, 16).replace('T', ' ');
@@ -56,7 +57,7 @@ describe('PeriodReopenScreen (DIS-22): the reasoned reopening of a locked period
     expect(rowOf(1).textContent).toContain(text('dis.reopen.queue.window.until', { when: vietnam(open) }));
     expect(rowOf(2).textContent).toContain(vi_['dis.reopen.queue.allProjects.text']);
     expect(rowOf(1).textContent).toContain('P-A-001');
-    const statusOf = (n: number): string => (rowOf(n).querySelector('.pill[data-status]') as HTMLElement).textContent ?? '';
+    const statusOf = (n: number): string => (rowOf(n).querySelectorAll('td')[5]?.querySelector('.ui-pill') as HTMLElement).textContent ?? '';
     expect([1, 2, 3, 4].map(statusOf)).toEqual([
       vi_['dis.calendar.reopenStatus.approved.text'],
       vi_['dis.calendar.reopenStatus.requested.text'],
@@ -64,7 +65,7 @@ describe('PeriodReopenScreen (DIS-22): the reasoned reopening of a locked period
       vi_['dis.calendar.reopenStatus.expired.text'],
     ]);
     // An approved window that has ended is Expired on the screen although the server still says Approved.
-    expect(rowOf(4).getAttribute('data-status')).toBe('EXPIRED');
+    expect(markerOf(4).getAttribute('data-status')).toBe('EXPIRED');
   });
 
   it('marks the projects of an open window with "reopened until hh:mm", and no project of a window that has ended or was never granted (TK-DIS-002-3)', async () => {
@@ -98,8 +99,8 @@ describe('PeriodReopenScreen (DIS-22): the reasoned reopening of a locked period
       periods: [{ ...LOCKED, reopens: [{ id: 'r1', scope_kind: 'PROJECTS', status: 'APPROVED', window_until: new Date(Date.now() + HOUR).toISOString(), requested_at: '2026-10-03T01:00:00.000Z' }] }],
     });
     mount(<PeriodReopenScreen route={ROUTE} />, client(state), MAKER, PATH);
-    await waitFor(() => expect(document.querySelector('tr[data-reopen-id="r1"]')).not.toBeNull());
-    const row = document.querySelector('tr[data-reopen-id="r1"]') as HTMLElement;
+    await waitFor(() => expect(document.querySelector('[data-reopen-id="r1"]')).not.toBeNull());
+    const row = document.querySelector('[data-reopen-id="r1"]')?.closest('tr') as HTMLElement;
     expect(row.textContent).toContain(vi_['dis.calendar.reopenScope.projects.text']);
     expect(row.textContent).not.toContain('Treasury');
     expect(row.querySelectorAll('button')).toHaveLength(0);
@@ -162,8 +163,8 @@ describe('PeriodReopenScreen (DIS-22): the reasoned reopening of a locked period
       await user.click(within(form).getByRole('button', { name: vi_['dis.reopen.decision.approve.confirm'] }));
       await waitFor(() => expect(screen.queryByTestId('decision-row')).toBeNull());
       expect(h.command).toHaveBeenCalledTimes(1);
-      expect(h.command).toHaveBeenCalledWith('decidePeriodReopen', expect.objectContaining({ path: { id: rowOf(2).getAttribute('data-reopen-id') }, body: { decision: 'approve', reason: 'okcuments are in order', window_hours: 48 }, ifMatchVersion: 1 }));
-      await waitFor(() => expect(rowOf(2).getAttribute('data-status')).toBe('APPROVED'));
+      expect(h.command).toHaveBeenCalledWith('decidePeriodReopen', expect.objectContaining({ path: { id: markerOf(2).getAttribute('data-reopen-id') }, body: { decision: 'approve', reason: 'okcuments are in order', window_hours: 48 }, ifMatchVersion: 1 }));
+      await waitFor(() => expect(markerOf(2).getAttribute('data-status')).toBe('APPROVED'));
       expect(decisionButton(2, 'approve')).toBeNull();
     });
 
@@ -179,6 +180,15 @@ describe('PeriodReopenScreen (DIS-22): the reasoned reopening of a locked period
       await user.click(within(form).getByRole('button', { name: vi_['dis.reopen.decision.reject.confirm'] }));
       await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
       expect(h.command).toHaveBeenCalledWith('decidePeriodReopen', expect.objectContaining({ body: { decision: 'reject', reason: 'The vouchers are not documented' }, ifMatchVersion: 1 }));
+    });
+
+    it('names the request before it asks for the reason: its period, its scope and its status, read only', async () => {
+      mount(<PeriodReopenScreen route={ROUTE} />, client(waiting()), APPROVER, PATH);
+      await ready();
+      await userEvent.setup().click(decisionButton(2, 'approve'));
+      const panel = await screen.findByTestId('decision-row');
+      expect(within(panel).getByRole('group', { name: vi_['dis.reopen.queue.period.column'] }).textContent).toContain(LOCKED.code);
+      expect(within(panel).getByRole('group', { name: vi_['dis.reopen.queue.status.column'] }).textContent).toContain(vi_['dis.calendar.reopenStatus.requested.text']);
     });
 
     it('can be cancelled without sending anything', async () => {

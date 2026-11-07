@@ -7,7 +7,7 @@
 
 .doc-back-link a {
   font-size: 11px;
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }
 
 .checklist .item .title {
@@ -35,7 +35,7 @@
 }
 
 .facts dt {
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }
 
 .facts dd {

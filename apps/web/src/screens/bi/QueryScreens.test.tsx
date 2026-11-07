@@ -12,6 +12,14 @@ import WorkbenchScreen from './WorkbenchScreen';
 import { rawMetric } from './test-support';
 
 const BOARD = routeOf('BI-02', 'FR-BI-02');
+/** The figure of the tile of a metric on the board: the big number of its KPI tile. */
+const figureOf = (id: string): HTMLElement | null => document.querySelector(`[data-metric-id="${id}"] .ui-kpi__value`);
+const findFigure = (id: string) =>
+  waitFor(() => {
+    const element = figureOf(id);
+    if (element === null) throw new Error(`the tile of ${id} has no figure yet`);
+    return element;
+  });
 const BENCH = routeOf('BI-09', 'FR-BI-09');
 const QUERIER = ['bi.query', 'metric_definition.read'];
 const DATASET = '00000000-0000-4000-8000-0000000000d1';
@@ -134,6 +142,17 @@ describe('BI-09 analysis workbench (ST-BI-004, BI F3, F4)', () => {
     expect(within(result).getByText(fill(vi_['bi.versions.excluded'], { rows: 12 }))).toBeTruthy();
     expect(within(result).getByTestId('reconciles').getAttribute('data-reconciles')).toBe('true');
     expect(screen.queryByTestId('new-data-banner')).toBeNull();
+  });
+
+  it('names the period and the snapshot that will be asked in the context bar, and gives the result a card titled with its metric', async () => {
+    const user = userEvent.setup();
+    mount(<WorkbenchScreen route={BENCH} />, client(normal(), () => answer()), { permissions: QUERIER });
+    await screen.findByLabelText(vi_['bi.workbench.metric']);
+    const bar = screen.getByRole('group', { name: vi_['ui.contextBar.label'] });
+    expect(within(bar).getByText('2026-10')).toBeTruthy();
+    expect(within(bar).getByText(V1.slice(0, 8))).toBeTruthy();
+    const result = await runIt(user);
+    expect(within(result).getByRole('heading', { level: 2 }).textContent).toBe('disbursed');
   });
 
   it('AC-ST-BI-004-2: UAT-AC32 shows Unclassified as a group, a figure that cannot be given as "no data" or "not applicable" and never as 0, and a ratio with its numerator and denominator', async () => {
@@ -345,14 +364,31 @@ describe('BI-02 the board of certified metrics (ST-BI-004, BI F3)', () => {
         : answer();
     });
     mount(<BoardScreen route={BOARD} />, h, { permissions: QUERIER });
-    expect(await screen.findByTestId(`tile-value-${RATE.id}`)).toBeTruthy();
-    await waitFor(() => expect(screen.getByTestId(`tile-value-${DISBURSED.id}`).textContent).toBe('10.500.000.000 ₫'));
-    expect(screen.getByTestId(`tile-value-${RATE.id}`).textContent).toBe('35,00%');
+    expect(await findFigure(RATE.id)).toBeTruthy();
+    await waitFor(() => expect((figureOf(DISBURSED.id) as HTMLElement).textContent).toBe('10.500.000.000 ₫'));
+    expect((figureOf(RATE.id) as HTMLElement).textContent).toBe('35,00%');
     expect(document.querySelector(`[data-metric-id="${DRAFT.id}"]`)).toBeNull();
     expect(h.command.mock.calls.every(([, input]) => (input as { body: { snapshot_id: string } }).body.snapshot_id === V1)).toBe(true);
     const tile = document.querySelector(`[data-metric-id="${RATE.id}"]`) as HTMLElement;
     expect(within(tile).getByTestId('label-quality').textContent).toContain(vi_['bi.dataset.badge.warning']);
     expect(within(tile).getByRole('link').getAttribute('href')).toBe(`/bi/bi-09?metric=${RATE.id}&snapshot=${V1}`);
+  });
+
+  it('names the period and the snapshot of the board in the context bar, and groups the tiles in a strip with a label', async () => {
+    mount(<BoardScreen route={BOARD} />, client(normal(), () => answer()), { permissions: QUERIER });
+    await findFigure(RATE.id);
+    const bar = screen.getByRole('group', { name: vi_['ui.contextBar.label'] });
+    expect(within(bar).getByText('2026-10')).toBeTruthy();
+    expect(within(bar).getByText(V1.slice(0, 8))).toBeTruthy();
+    const strip = screen.getByRole('group', { name: 'Chỉ tiêu đã chứng nhận của kỳ chọn' });
+    expect(within(strip).getAllByRole('article').length).toBe(2);
+  });
+
+  it('shows a dash with the reason, and not 0, in the tile that cannot be given', async () => {
+    const h = client(normal(), () => failure(403, 'ACCESS_POLICY_MISSING'));
+    mount(<BoardScreen route={BOARD} />, h, { permissions: QUERIER });
+    await waitFor(() => expect(document.querySelectorAll('[data-reason="policy"]').length).toBe(2));
+    expect(figureOf(RATE.id)?.textContent).toBe('—');
   });
 
   it('says why a tile has no figure, tile by tile, and never draws 0', async () => {
@@ -362,7 +398,7 @@ describe('BI-02 the board of certified metrics (ST-BI-004, BI F3)', () => {
         : answer({ total: { value: null, numerator: null, denominator: null, null_reason: 'NO_DATA' } }),
     );
     mount(<BoardScreen route={BOARD} />, h, { permissions: QUERIER });
-    const tile = await screen.findByTestId(`tile-value-${DISBURSED.id}`);
+    const tile = await findFigure(DISBURSED.id);
     expect(tile.textContent).toBe(vi_['bi.query.noData']);
     await waitFor(() => expect(document.querySelector(`[data-metric-id="${RATE.id}"] [data-reason="policy"]`)?.textContent).toBe(vi_['bi.query.refused.policy']));
   });
@@ -371,7 +407,7 @@ describe('BI-02 the board of certified metrics (ST-BI-004, BI F3)', () => {
     const user = userEvent.setup();
     const h = client({ ...normal(), versions: [version(V1), version(V2, 'FROZEN', '2026-09')] }, () => answer());
     mount(<BoardScreen route={BOARD} />, h, { permissions: QUERIER });
-    await screen.findByTestId(`tile-value-${RATE.id}`);
+    await findFigure(RATE.id);
     await user.selectOptions(screen.getByLabelText(vi_['bi.board.period']), V2);
     await waitFor(() => expect(h.command.mock.calls.some(([, input]) => (input as { body: { snapshot_id: string } }).body.snapshot_id === V2)).toBe(true));
     cleanup();
@@ -599,10 +635,10 @@ describe('a query that became a job (ST-BI-009, BI F3: 202 ASYNC_JOB)', () => {
         runs([state('QUEUED'), state('RUNNING'), state('COMPLETED')]),
       );
       mount(<BoardScreen route={BOARD} />, h, { permissions: QUERIER });
-      await screen.findByTestId(`tile-value-${RATE.id}`);
-      expect(screen.queryByTestId(`tile-value-${DISBURSED.id}`)).toBeNull();
+      await findFigure(RATE.id);
+      expect(figureOf(DISBURSED.id)).toBeNull();
       await vi.advanceTimersByTimeAsync(JOB_WAIT.intervalMs * 3);
-      await waitFor(() => expect(screen.getByTestId(`tile-value-${DISBURSED.id}`).textContent).toBe('10.500.000.000 ₫'));
+      await waitFor(() => expect((figureOf(DISBURSED.id) as HTMLElement).textContent).toBe('10.500.000.000 ₫'));
       // One question, one job: the run was looked at, the question was not made again until the job had completed.
       expect(asked).toBe(2);
     });

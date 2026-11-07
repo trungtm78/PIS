@@ -11,6 +11,9 @@ import { useEvaluationProjects, useEvaluations } from './hooks';
 import { conclusionLabel, evaluatorLabel, kindLabel, statusLabel } from './labels';
 import { READ_PERMISSION, STATUSES, canPlan, holds } from './model';
 import type { Evaluation } from './model';
+import '../mne-kit.css';
+import { StatusPill } from '../../../ui';
+import { pillTone } from '../pill-tone';
 
 const NONE = '—';
 
@@ -59,7 +62,7 @@ function EvaluationContent({ route }: ScreenProps) {
         </div>
         {mayPlan ? (
           <div className="actions">
-            <button type="button" className="primary" onClick={() => setDialog({ kind: 'plan' })}>
+            <button type="button" className="ui-button ui-button--primary" onClick={() => setDialog({ kind: 'plan' })}>
               {t('mne.evaluation.plan.action')}
             </button>
           </div>
@@ -154,7 +157,7 @@ function EvaluationRow({ line, writable, onSubmit, onDecide }: { line: Evaluatio
       </td>
       <td>{line.plannedDate}</td>
       <td>
-        <span className={`pill ${line.status === 'APPROVED' ? 'green' : 'gray'}`}>{statusLabel(t, line.status)}</span>
+        <StatusPill tone={pillTone(line.status === 'APPROVED' ? 'green' : 'gray')}>{statusLabel(t, line.status)}</StatusPill>
         {line.status === 'APPROVED' && line.linkedReport ? (
           <small className="sub" data-testid="linked">
             {' '}

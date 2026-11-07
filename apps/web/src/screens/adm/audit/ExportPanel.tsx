@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../../i18n';
+import { SectionCard } from '../../../ui';
 import { useExportAudit } from './hooks';
 import { exportFieldMessage, problemMessage } from './labels';
 import { EMPTY_EXPORT, EXPORT_FORMATS, MAX_EXPORT_DAYS, describeProblem, exportBody, validateExport } from './model';
@@ -40,8 +41,8 @@ export function ExportPanel({ onClose }: { onClose(): void }) {
   };
 
   return (
-    <aside className="card export-panel" aria-label={t('adm.audit.export.title')} data-testid="export-panel">
-      <h2>{t('adm.audit.export.title')}</h2>
+    <aside className="export-panel" aria-label={t('adm.audit.export.title')} data-testid="export-panel">
+      <SectionCard title={t('adm.audit.export.title')}>
       <p className="sub">{t('adm.audit.export.hint', { days: MAX_EXPORT_DAYS })}</p>
       <form onSubmit={submit} noValidate>
         <div className="formgrid">
@@ -83,15 +84,16 @@ export function ExportPanel({ onClose }: { onClose(): void }) {
             {t('adm.audit.export.done.text', { id: done.exportId })}
           </p>
         )}
-        <div className="formfooter">
-          <button type="submit" className="primary" disabled={exporting.isPending}>
+        <div className="adm-kit-actions">
+          <button type="submit" className="ui-button ui-button--primary" disabled={exporting.isPending}>
             {t('adm.audit.export.submit.action')}
           </button>
-          <button type="button" onClick={onClose}>
+          <button type="button" className="ui-button ui-button--outline" onClick={onClose}>
             {t('adm.audit.export.close.action')}
           </button>
         </div>
       </form>
+      </SectionCard>
     </aside>
   );
 }

@@ -5,12 +5,15 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { FilterPanel, SectionCard, StatusPill } from '../../../ui';
 import { Field } from '../../dgv/components';
+import { KitTable } from '../KitTable';
 import { CommandFrame } from '../../qms/CommandFrame';
 import { useAssignees, useCancelInstance, useOpenTasks, useReassign } from './hooks';
 import { BUSINESS_TYPES, businessTypeLabel, problemMessage } from './labels';
 import { NO_FILTER, READ_PERMISSION, REASON_MIN, applyFilters, byUrgency, describeProblem } from './model';
 import type { Filters, MonitorTask } from './model';
+import '../adm-kit.css';
 import './approvals.css';
 
 type Acting = { kind: 'reassign'; task: MonitorTask } | { kind: 'cancel'; task: MonitorTask };
@@ -49,7 +52,7 @@ function MonitorContent({ route }: ScreenProps) {
         </div>
       </div>
       <StateBoundary state={state} onRetry={() => void tasks.refetch()}>
-        <div className="card">
+        <FilterPanel applied={(filters.businessType === '' ? 0 : 1) + (filters.onlyOverdue ? 1 : 0)}>
           <div className="field">
             <label htmlFor="monitor-type">{t('adm.monitor.filter.type')}</label>
             <select id="monitor-type" value={filters.businessType} onChange={(event) => setFilters({ ...filters, businessType: event.target.value })}>
@@ -66,15 +69,17 @@ function MonitorContent({ route }: ScreenProps) {
               <input type="checkbox" id="monitor-late" checked={filters.onlyOverdue} onChange={(event) => setFilters({ ...filters, onlyOverdue: event.target.checked })} /> {t('adm.monitor.filter.late')}
             </label>
           </div>
-          <p className="sub" data-testid="counts">
+        </FilterPanel>
+        <SectionCard title={t('adm.monitor.title')}>
+          <p className="adm-kit-sub" data-testid="counts">
             {t('adm.monitor.counts', { open: all.length, late })}
           </p>
           {shown.length === 0 ? (
-            <p className="sub" data-testid="none-shown">
+            <p className="adm-kit-empty" role="status" data-testid="none-shown">
               {t('adm.monitor.noneShown')}
             </p>
           ) : (
-            <table className="table" data-testid="tasks">
+            <KitTable caption={t('w2adm.monitor.table.caption')} testId="tasks">
               <thead>
                 <tr>
                   <th scope="col">{t('adm.monitor.column.record')}</th>
@@ -103,26 +108,25 @@ function MonitorContent({ route }: ScreenProps) {
                     <td>{moment(task.dueAt)}</td>
                     <td>{task.workflowRevision}</td>
                     <td>
-                      <span className={`pill ${task.overdue ? 'red' : 'gray'}`} data-testid="status">
-                        {task.overdue ? t('adm.monitor.status.late') : t('adm.monitor.status.pending')}
-                      </span>
-                      {task.escalated ? (
-                        <>
-                          {' '}
-                          <span className="pill warn" data-testid="escalated">
-                            {t('adm.monitor.status.escalated')}
+                      <span className="adm-kit-chips">
+                        <span data-testid="status">
+                          <StatusPill tone={task.overdue ? 'danger' : 'neutral'}>{task.overdue ? t('adm.monitor.status.late') : t('adm.monitor.status.pending')}</StatusPill>
+                        </span>
+                        {task.escalated ? (
+                          <span data-testid="escalated">
+                            <StatusPill tone="warning">{t('adm.monitor.status.escalated')}</StatusPill>
                           </span>
-                        </>
-                      ) : null}
+                        ) : null}
+                      </span>
                     </td>
                     <td>
                       {task.mayReassign && writable ? (
-                        <button type="button" data-action="reassign" onClick={() => setActing({ kind: 'reassign', task })}>
+                        <button type="button" className="ui-button ui-button--outline ui-button--small" data-action="reassign" onClick={() => setActing({ kind: 'reassign', task })}>
                           {t('adm.monitor.action.reassign')}
                         </button>
                       ) : null}{' '}
                       {task.mayCancel && writable ? (
-                        <button type="button" data-action="cancel" onClick={() => setActing({ kind: 'cancel', task })}>
+                        <button type="button" className="ui-button ui-button--outline ui-button--small" data-action="cancel" onClick={() => setActing({ kind: 'cancel', task })}>
                           {t('adm.monitor.action.cancel')}
                         </button>
                       ) : null}
@@ -130,9 +134,9 @@ function MonitorContent({ route }: ScreenProps) {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </KitTable>
           )}
-        </div>
+        </SectionCard>
       </StateBoundary>
       {acting?.kind === 'reassign' ? <ReassignDialog task={acting.task} onClose={() => setActing(undefined)} /> : null}
       {acting?.kind === 'cancel' ? <CancelDialog task={acting.task} onClose={() => setActing(undefined)} /> : null}

@@ -11,6 +11,7 @@ import { kindLabel, levelLabel } from './labels';
 import { ALERT_LEVELS, scheduleLink, signedAmountText } from './model';
 import type { Advance, AlertLevel } from './model';
 import '../pay.css';
+import { SectionCard } from '../../../ui';
 
 type Dialog = { kind: 'recovery' | 'acknowledge'; advance: Advance };
 
@@ -55,7 +56,7 @@ function AlertBoardContent({ route }: ScreenProps) {
           <p>{t('pay.alert.subtitle')}</p>
         </div>
       </div>
-      <article className="card" aria-label={t('pay.alert.filter')}>
+      <SectionCard title={t('pay.alert.filter')}>
         <label>
           {t('pay.alert.level.filter')}
           <select value={level === null ? '' : String(level)} onChange={(event) => choose(event.target.value)} data-testid="filter-level">
@@ -67,14 +68,14 @@ function AlertBoardContent({ route }: ScreenProps) {
             ))}
           </select>
         </label>
-      </article>
+      </SectionCard>
       {done === undefined ? null : (
         <p className="callout" role="status" data-testid="done">
           {done}
         </p>
       )}
       <StateBoundary state={state} onRetry={() => void board.refetch()}>
-        <article className="card" aria-label={t('pay.alert.list')}>
+        <SectionCard title={t('pay.alert.list')}>
           {advances.length === 0 ? (
             <p className="sub" data-testid="no-alerts">
               {t('pay.alert.empty')}
@@ -147,7 +148,7 @@ function AlertBoardContent({ route }: ScreenProps) {
               </tbody>
             </table>
           )}
-        </article>
+        </SectionCard>
       </StateBoundary>
       {dialog?.kind === 'recovery' && target !== undefined ? <RecoveryDialog advance={target} onDone={finished(t('pay.advance.done.recovered'))} onClose={() => setDialog(undefined)} /> : null}
       {dialog?.kind === 'acknowledge' && target !== undefined ? <AcknowledgeDialog advance={target} onDone={finished(t('pay.alert.done.acknowledged'))} onClose={() => setDialog(undefined)} /> : null}

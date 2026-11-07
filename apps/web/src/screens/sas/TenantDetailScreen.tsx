@@ -15,6 +15,8 @@ import { governingBodyLabel, isolationLabel, statusLabel, statusTone, toneClass 
 import { MANAGE_TENANTS_PERMISSION } from './tenants/types';
 import './tenants/sas.css';
 import './tenant-detail/tenant-detail.css';
+import { StatusPill } from '../../ui';
+import { toneOfPill } from '../adm/kit-tone';
 
 const ARROW = '←';
 
@@ -82,9 +84,9 @@ export default function TenantDetailScreen({ route }: ScreenProps) {
                   <div className="sas-detail-row">
                     <dt>{t('sas.tenantDetail.field.status')}</dt>
                     <dd>
-                      <span className={toneClass(statusTone(tenant.status))} data-tenant-status={tenant.status}>
+                      <span data-tenant-status={tenant.status}><StatusPill tone={toneOfPill(toneClass(statusTone(tenant.status)))}>
                         {statusLabel(t, tenant.status)}
-                      </span>
+                      </StatusPill></span>
                     </dd>
                   </div>
                   <div className="sas-detail-row">

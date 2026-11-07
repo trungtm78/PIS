@@ -7,6 +7,7 @@ import { statusLabel, stageLabel } from './labels';
 import { CHANGEABLE_CONTRACT_STATUSES, chainLink, signedAmountText } from './model';
 import type { ChangeRequest, ChangeStatus } from './model';
 import '../ctr.css';
+import { SectionCard } from '../../../ui';
 
 /** The status of a request as a word, never as a colour alone. */
 export function ChangeBadge({ status }: { status: ChangeStatus }) {
@@ -25,8 +26,7 @@ export function ProjectPicker({ onPick }: { onPick(projectId: string): void }) {
   const state = useScreenState({ isLoading: projects.isLoading, error: projects.error, data: projects.data });
   return (
     <StateBoundary state={state} onRetry={() => void projects.refetch()}>
-      <article className="card" aria-label={t('ctr.change.pick.project.title')}>
-        <h2>{t('ctr.change.pick.project.title')}</h2>
+      <SectionCard title={t('ctr.change.pick.project.title')}>
         <div className="field" data-field="change-project">
           <label htmlFor="change-project">{t('ctr.change.pick.project.label')}</label>
           <select id="change-project" value="" onChange={(event) => (event.target.value === '' ? undefined : onPick(event.target.value))}>
@@ -38,7 +38,7 @@ export function ProjectPicker({ onPick }: { onPick(projectId: string): void }) {
             ))}
           </select>
         </div>
-      </article>
+      </SectionCard>
     </StateBoundary>
   );
 }
@@ -51,8 +51,7 @@ export function ContractPicker({ onPick }: { onPick(contractId: string): void })
   const state = useScreenState({ isLoading: contracts.isLoading, error: contracts.error, data: contracts.data === undefined ? undefined : offered });
   return (
     <StateBoundary state={state} onRetry={() => void contracts.refetch()}>
-      <article className="card" aria-label={t('ctr.change.pick.contract.title')}>
-        <h2>{t('ctr.change.pick.contract.title')}</h2>
+      <SectionCard title={t('ctr.change.pick.contract.title')}>
         <div className="field" data-field="change-contract">
           <label htmlFor="change-contract">{t('ctr.change.pick.contract.label')}</label>
           <select id="change-contract" value="" onChange={(event) => (event.target.value === '' ? undefined : onPick(event.target.value))}>
@@ -64,7 +63,7 @@ export function ContractPicker({ onPick }: { onPick(contractId: string): void })
             ))}
           </select>
         </div>
-      </article>
+      </SectionCard>
     </StateBoundary>
   );
 }

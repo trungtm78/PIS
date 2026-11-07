@@ -5,7 +5,9 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { SectionCard, StatusPill } from '../../../ui';
 import { BackLink, StatusBadge } from '../components';
+import { ScopeBar } from '../kit';
 import { LIST_PATH, amountText, haltLink } from '../model';
 import { CHANGEABLE_CONTRACT_STATUSES, requestLink } from '../change/model';
 import { measurementLink } from '../measurement/model';
@@ -119,33 +121,40 @@ function Workspace({ summary, locale, readOnly, onOpen }: WorkspaceProps) {
             <button
               key={command}
               type="button"
-              className={command === 'activate' || command === 'sign' || command === 'complete' || command === 'close' ? 'button primary' : 'button'}
+              className={command === 'activate' || command === 'sign' || command === 'complete' || command === 'close' ? 'ui-button ui-button--primary' : 'ui-button ui-button--outline'}
               data-command={command}
               onClick={() => onOpen(command)}
             >
               {commandLabel(t, command)}
             </button>
           ))}
-          <Link className="button" to={versionsLink(contract.id)} data-testid="versions-link">
+          <Link className="ui-button ui-button--outline" to={versionsLink(contract.id)} data-testid="versions-link">
             {t('ctr.workspace.versions.action')}
           </Link>
           {changeable ? (
-            <Link className="button" to={requestLink(contract.id)} data-testid="change-link">
+            <Link className="ui-button ui-button--outline" to={requestLink(contract.id)} data-testid="change-link">
               {t('ctr.workspace.change.action')}
             </Link>
           ) : null}
           {CHANGEABLE_CONTRACT_STATUSES.includes(contract.status) ? (
-            <Link className="button" to={measurementLink(contract.id)} data-testid="measurements-link">
+            <Link className="ui-button ui-button--outline" to={measurementLink(contract.id)} data-testid="measurements-link">
               {t('ctr.workspace.measurements.action')}
             </Link>
           ) : null}
           {haltable ? (
-            <Link className="button" to={haltLink(contract.id)} data-testid="halt-link">
+            <Link className="ui-button ui-button--outline" to={haltLink(contract.id)} data-testid="halt-link">
               {t('ctr.workspace.halt.action')}
             </Link>
           ) : null}
         </div>
       </div>
+      <ScopeBar
+        money
+        extra={[
+          { label: t('w2pay.ctr.ctx.project'), value: contract.projectCode },
+          { label: t('w2pay.ctr.ctx.contractor'), value: contract.contractorName ?? t('ctr.workspace.none.text') },
+        ]}
+      />
       {summary.actions !== undefined && buttons.length === 0 && !haltable ? (
         <p className="callout" role="status" data-testid="no-command">
           {readOnly ? t('ctr.workspace.readOnly.notice') : t('ctr.workspace.noCommand.notice')}
@@ -153,8 +162,7 @@ function Workspace({ summary, locale, readOnly, onOpen }: WorkspaceProps) {
       ) : null}
       <div className="ctr-grid">
         <div>
-          <article className="card" aria-label={t('ctr.workspace.facts.title')}>
-            <h2>{t('ctr.workspace.facts.title')}</h2>
+          <SectionCard title={t('ctr.workspace.facts.title')} unit={t('w2pay.ctx.unit')}>
             <dl className="ctr-facts" data-testid="facts">
               <dt>{t('ctr.workspace.fact.project')}</dt>
               <dd>{`${contract.projectCode} · ${contract.projectName}`}</dd>
@@ -183,53 +191,49 @@ function Workspace({ summary, locale, readOnly, onOpen }: WorkspaceProps) {
                 </>
               )}
             </dl>
-          </article>
+          </SectionCard>
           {checks.length === 0 ? null : (
-            <article className="card" aria-label={t('ctr.workspace.checks.title')}>
-              <h2>{t('ctr.workspace.checks.title')}</h2>
+            <SectionCard title={t('ctr.workspace.checks.title')}>
               <ul className="ctr-checks" data-testid="checks">
                 {checks.map((check) => (
                   <li key={check.key} data-check={check.key} data-ok={check.ok === undefined ? 'n/a' : String(check.ok)}>
-                    <strong>{checkLabel(t, check)}</strong> <span className={check.ok === false ? 'ctr-badge warning' : 'ctr-badge'}>{checkState(t, check)}</span>
+                    <strong>{checkLabel(t, check)}</strong> <StatusPill tone={check.ok === undefined ? 'neutral' : check.ok ? 'success' : 'warning'}>{checkState(t, check)}</StatusPill>
                     {check.key === 'permitGate' && gate !== undefined && gate.required ? <span className="sub"> {gateLabel(t, gate.status)}</span> : null}
                     {check.detail.length > 0 && check.key === 'permitGate' ? <span className="sub"> {t('ctr.workspace.check.blocking', { types: check.detail.join(', ') })}</span> : null}
                   </li>
                 ))}
               </ul>
-            </article>
+            </SectionCard>
           )}
           {completionChecks.length === 0 ? null : (
-            <article className="card" aria-label={t('ctr.workspace.completion.title')}>
-              <h2>{t('ctr.workspace.completion.title')}</h2>
+            <SectionCard title={t('ctr.workspace.completion.title')}>
               <ul className="ctr-checks" data-testid="completion-checks">
                 {completionChecks.map((check) => (
                   <li key={check.key} data-completion={check.key} data-ok={String(check.ok)}>
                     <strong>{completionCheckLabel(t, check)}</strong>{' '}
-                    <span className={check.ok ? 'ctr-badge' : 'ctr-badge warning'}>{check.ok ? t('ctr.workspace.check.met') : t('ctr.workspace.check.unmet')}</span>
+                    <StatusPill tone={check.ok ? 'success' : 'warning'}>{check.ok ? t('ctr.workspace.check.met') : t('ctr.workspace.check.unmet')}</StatusPill>
                     {check.key !== 'acceptance' && check.count > 0 ? <span className="sub"> {t('ctr.workspace.completion.count', { count: check.count })}</span> : null}
                   </li>
                 ))}
               </ul>
-            </article>
+            </SectionCard>
           )}
           {closureChecks.length === 0 || closure === undefined ? null : (
-            <article className="card" aria-label={t('ctr.workspace.closure.title')}>
-              <h2>{t('ctr.workspace.closure.title')}</h2>
+            <SectionCard title={t('ctr.workspace.closure.title')} unit={t('w2pay.ctx.unit')}>
               <ul className="ctr-checks" data-testid="closure-checks">
                 {closureChecks.map((check) => (
                   <li key={check.key} data-closure={check.key} data-ok={String(check.ok)}>
                     <strong>{closureCheckLabel(t, check)}</strong>{' '}
-                    <span className={check.ok ? 'ctr-badge' : 'ctr-badge warning'}>{check.ok ? t('ctr.workspace.check.met') : t('ctr.workspace.check.unmet')}</span>
+                    <StatusPill tone={check.ok ? 'success' : 'warning'}>{check.ok ? t('ctr.workspace.check.met') : t('ctr.workspace.check.unmet')}</StatusPill>
                     {check.key === 'advance' && !check.ok ? <span className="sub"> {t('ctr.workspace.closure.amount', { amount: amountText(closure.advanceOutstandingVnd, locale) })}</span> : null}
                     {check.key === 'retention' && !check.ok ? <span className="sub"> {t('ctr.workspace.closure.amount', { amount: amountText(closure.retention.unresolvedVnd, locale) })}</span> : null}
                   </li>
                 ))}
               </ul>
-            </article>
+            </SectionCard>
           )}
         </div>
-        <article className="card" aria-label={t('ctr.workspace.history.title')}>
-          <h2>{t('ctr.workspace.history.title')}</h2>
+        <SectionCard title={t('ctr.workspace.history.title')}>
           {contract.statusChanges.length === 0 ? (
             <p className="sub" data-testid="no-history">
               {t('ctr.workspace.history.empty')}
@@ -245,7 +249,7 @@ function Workspace({ summary, locale, readOnly, onOpen }: WorkspaceProps) {
               ))}
             </ol>
           )}
-        </article>
+        </SectionCard>
       </div>
     </>
   );

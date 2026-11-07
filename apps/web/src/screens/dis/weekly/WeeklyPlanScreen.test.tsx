@@ -31,13 +31,15 @@ const open = (weekly: Parameters<typeof world>[0] = {}, permissions = RATE_READE
 };
 const asked = (h: ReturnType<typeof client>): Array<Record<string, unknown>> => h.read.mock.calls.filter((call) => call[0] === 'listWeeklyDisbursementPlans').map((call) => (call[1] as { query: Record<string, unknown> }).query);
 
+const weeklyTable = (): Promise<HTMLElement> => screen.findByRole('table', { name: vi_['dis.weekly.table.aria'] });
+
 describe('DIS-24 weekly disbursement plan by project', () => {
   it('AC-ST-DIS-014-1 / UAT-AC256: shows the commitments of 200 and 250 million against the 120 and 100 million the Treasury paid, the differences -80 and -150 million with their sign, and the leader in charge', async () => {
     open({ weekly: page([row(40), row(41)]) });
     expect(await screen.findByRole('heading', { level: 1, name: vi_['dis.weekly.page.title'] })).toBeTruthy();
-    const table = await screen.findByTestId('weekly-table');
-    const first = table.querySelector('tr[data-period="00000000-0000-4000-8000-0000000000c0"]') as HTMLElement;
-    const second = table.querySelector('tr[data-period="00000000-0000-4000-8000-0000000000c1"]') as HTMLElement;
+    const table = await weeklyTable();
+    const first = table.querySelector('[data-period="00000000-0000-4000-8000-0000000000c0"]')?.closest('tr') as HTMLElement;
+    const second = table.querySelector('[data-period="00000000-0000-4000-8000-0000000000c1"]')?.closest('tr') as HTMLElement;
     const cell = (tr: HTMLElement, name: string) => tr.querySelector(`[data-cell="${name}"]`)?.textContent;
     expect(cell(first, 'leader')).toBe('Trần Thị Bình');
     expect(cell(first, 'commitment')).toBe('200.000.000');
@@ -52,29 +54,40 @@ describe('DIS-24 weekly disbursement plan by project', () => {
 
   it('says a week that is not frozen has no actual yet (not zero) and no difference, and a project with no leader has none assigned; a week above its commitment is shown with a plus', async () => {
     open({ weekly: page([row(40, { actual_vnd: null, difference_vnd: null, actual_from_year_start: false, leader: null }), row(41, { actual_vnd: '300000000', difference_vnd: '50000000', actual_from_year_start: false })]) });
-    const table = await screen.findByTestId('weekly-table');
-    const first = table.querySelector('tr[data-period="00000000-0000-4000-8000-0000000000c0"]') as HTMLElement;
+    const table = await weeklyTable();
+    const first = table.querySelector('[data-period="00000000-0000-4000-8000-0000000000c0"]')?.closest('tr') as HTMLElement;
     expect(first.querySelector('[data-cell="actual"]')?.textContent).toBe(vi_['dis.weekly.actual.pending']);
     expect(first.querySelector('[data-cell="difference"]')?.textContent).toBe('—');
     expect(first.querySelector('[data-cell="leader"]')?.textContent).toBe(vi_['dis.weekly.leader.none']);
-    const second = table.querySelector('tr[data-period="00000000-0000-4000-8000-0000000000c1"]') as HTMLElement;
+    const second = table.querySelector('[data-period="00000000-0000-4000-8000-0000000000c1"]')?.closest('tr') as HTMLElement;
     expect(second.querySelector('[data-cell="difference"]')?.textContent).toBe('+50.000.000');
     expect(second.querySelector('[data-standing]')?.getAttribute('data-standing')).toBe('over');
   });
 
+  it('takes the year off with one button, and asks for the plan year it was given', async () => {
+    const h = open({ weekly: page([row(40)]) });
+    await weeklyTable();
+    expect(screen.queryByRole('button', { name: vi_['dis.reports.filter.clear.action'] })).toBeNull();
+    fireEvent.change(screen.getByLabelText(vi_['dis.weekly.filter.year']), { target: { value: '2027' } });
+    await waitFor(() => expect(asked(h).some((query) => query.plan_year === 2027)).toBe(true));
+    fireEvent.click(await screen.findByRole('button', { name: vi_['dis.reports.filter.clear.action'] }));
+    expect((screen.getByLabelText(vi_['dis.weekly.filter.year']) as HTMLInputElement).value).toBe('');
+  });
+
   it('is read only: it carries no button that registers or changes a commitment, only the one that loads more weeks, and it reads a page at a time by cursor', async () => {
     const h = open({ weekly: (query) => (query.cursor === undefined ? page([row(40)], 'next-page') : page([row(41)])) });
-    await screen.findByTestId('weekly-table');
-    expect(screen.queryAllByRole('button').map((button) => button.textContent)).toEqual([vi_['dis.weekly.more.action']]);
+    await weeklyTable();
+    // Apart from the toggle of the filter panel (shown under 980 px), the only button is the one that loads more weeks.
+    expect(screen.queryAllByRole('button').map((button) => button.textContent)).toEqual([vi_['ui.filterPanel.toggle'], vi_['dis.weekly.more.action']]);
     fireEvent.click(screen.getByRole('button', { name: vi_['dis.weekly.more.action'] }));
-    await waitFor(() => expect(screen.getByTestId('weekly-table').querySelectorAll('tbody tr')).toHaveLength(2));
+    await waitFor(() => expect(screen.getByRole('table', { name: vi_['dis.weekly.table.aria'] }).querySelectorAll('tbody tr')).toHaveLength(2));
     expect(asked(h)).toEqual([{ limit: 50 }, { limit: 50, cursor: 'next-page' }]);
     expect(screen.queryByRole('button', { name: vi_['dis.weekly.more.action'] })).toBeNull();
   });
 
   it('asks for the plan year that was typed, says an invalid year is not valid before asking, and shows the refusal of the server for a query it judges invalid', async () => {
     const h = open({ weekly: page([row(40)]) });
-    await screen.findByTestId('weekly-table');
+    await weeklyTable();
     fireEvent.change(screen.getByLabelText(vi_['dis.weekly.filter.year']), { target: { value: '2028' } });
     await waitFor(() => expect(asked(h).some((query) => query.plan_year === 2028)).toBe(true));
     fireEvent.change(screen.getByLabelText(vi_['dis.weekly.filter.year']), { target: { value: '19' } });

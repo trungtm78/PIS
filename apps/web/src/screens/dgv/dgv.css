@@ -14,7 +14,7 @@
 .dgv-code {
   display: block;
   font-size: 11px;
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }
 .dgv-tiles {
   display: grid;
@@ -27,7 +27,7 @@
   flex-direction: column;
   gap: 4px;
   padding: 12px;
-  border: 1px solid var(--shell-border, #d9d4dc);
+  border: 1px solid var(--mv-color-border);
   border-radius: 8px;
 }
 .dgv-tile strong {
@@ -56,9 +56,20 @@
 }
 .dgv-facts dt {
   font-size: 12px;
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }
 .dgv-facts dd {
   margin: 0;
   overflow-wrap: anywhere;
+}
+
+/* Wave 2: the pieces next to the component kit. */
+.dgv-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mv-space-4);
+  align-items: center;
+}
+.dgv-tile-slot {
+  min-width: 0;
 }

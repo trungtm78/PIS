@@ -81,7 +81,7 @@ describe('PaymentDetailScreen (PAY-03): a payment request and its documents', ()
       }),
     );
     await screen.findByTestId('request-no');
-    expect(screen.getByTestId('status').className).toContain('warning');
+    expect(screen.getByTestId('status').querySelector('.ui-tone-warning')).not.toBeNull();
     expect(screen.getByTestId('tax').textContent).toBe('-1.000.000');
     expect(screen.getByTestId('tax-basis').textContent).toBe('Thông báo thuế');
     expect(screen.getByTestId('return-reason').textContent).toBe('Fix the invoice.');

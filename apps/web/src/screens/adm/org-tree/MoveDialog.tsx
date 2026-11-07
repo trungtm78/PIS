@@ -75,7 +75,7 @@ export function MoveDialog({ unit, units, pending, errors, message, onSubmit, on
             {t('adm.orgUnit.move.cancel')}
           </button>
           <div className="actions">
-            <button type="submit" className="primary" disabled={pending || reasonTooShort || values.new_parent_id === ''}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={pending || reasonTooShort || values.new_parent_id === ''}>
               {t('adm.orgUnit.move.submit')}
             </button>
           </div>

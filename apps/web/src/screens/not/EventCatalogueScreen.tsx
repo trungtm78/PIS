@@ -7,6 +7,7 @@ import './delivery/delivery.css';
 import { useEventTypes } from './workflow/hooks';
 import { classificationLabel, purposeLabel } from './workflow/labels';
 import { PUBLISH_PERMISSION } from './workflow/model';
+import { StatusPill } from '../../ui';
 
 /**
  * NOT-05: the catalogue of the event types that may reach people (BR-NOT-15). The platform registers them, a tenant only reads them: the module that owns the type, the purposes a notification of the type may have
@@ -51,10 +52,10 @@ export default function EventCatalogueScreen({ route }: ScreenProps) {
                     <td>{entry.owningModule}</td>
                     <td>{entry.allowedPurposes.map((purpose) => purposeLabel(t, purpose)).join(', ')}</td>
                     <td>
-                      <span className={entry.classification === 'PUBLIC' || entry.classification === 'INTERNAL' ? 'pill' : 'pill warn'}>{classificationLabel(t, entry.classification)}</span>
+                      <StatusPill tone={entry.classification === 'PUBLIC' || entry.classification === 'INTERNAL' ? 'neutral' : 'warning'}>{classificationLabel(t, entry.classification)}</StatusPill>
                     </td>
                     <td>
-                      <span className={entry.active ? 'pill' : 'pill gray'}>{entry.active ? t('not.catalogue.status.active') : t('not.catalogue.status.deprecated')}</span>
+                      <StatusPill tone={entry.active ? 'success' : 'neutral'}>{entry.active ? t('not.catalogue.status.active') : t('not.catalogue.status.deprecated')}</StatusPill>
                     </td>
                   </tr>
                 ))}

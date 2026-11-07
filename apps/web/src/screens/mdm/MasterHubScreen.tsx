@@ -6,9 +6,12 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { useQueue, useRecords } from './hooks';
-import { recordStatusLabel } from './labels';
+import { recordStatusLabel, recordStatusTone } from './labels';
 import { PROPOSE_PERMISSION, recordLink } from './model';
 import type { RecordView } from './model';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
+import { StatusPill } from '../../ui';
 
 const CREATE_PATH = '/mdm/mdm-25';
 const DETAIL_PATH = '/mdm/mdm-27';
@@ -92,7 +95,7 @@ function MasterHubContent({ route }: ScreenProps) {
         </div>
         <div className="card">
           <h2>{chosen === undefined ? t('mdm.hub.table.all.title') : t('mdm.hub.table.type.title', { type: chosen })}</h2>
-          <table className="table">
+          <KitTable caption={t('w2mdm.hub.table.caption')}>
             <thead>
               <tr>
                 <th>{t('mdm.hub.col.type')}</th>
@@ -101,7 +104,7 @@ function MasterHubContent({ route }: ScreenProps) {
                 <th>{t('mdm.hub.col.status')}</th>
                 <th>{t('mdm.hub.col.validity')}</th>
                 <th>
-                  <span className="sr-only">{t('mdm.hub.col.actions')}</span>
+                  {t('mdm.hub.col.actions')}
                 </th>
               </tr>
             </thead>
@@ -114,8 +117,8 @@ function MasterHubContent({ route }: ScreenProps) {
                   </td>
                   <td>{record.label ?? ''}</td>
                   <td>
-                    {recordStatusLabel(t, record.status)}
-                    {record.openChangeRequestId === null ? null : <span className="pill gray">{t('mdm.hub.pending.pill')}</span>}
+                    <StatusPill tone={recordStatusTone(record.status)}>{recordStatusLabel(t, record.status)}</StatusPill>
+                    {record.openChangeRequestId === null ? null : <StatusPill tone="neutral">{t('mdm.hub.pending.pill')}</StatusPill>}
                   </td>
                   <td>{record.validFrom === null ? '' : `${record.validFrom} → ${record.validUntil ?? ''}`}</td>
                   <td className="row-actions">
@@ -125,7 +128,7 @@ function MasterHubContent({ route }: ScreenProps) {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </KitTable>
         </div>
       </StateBoundary>
       <p className="prototype-note">{t('mdm.hub.footer.reference', { id: route.id, req: route.req ?? '' })}</p>

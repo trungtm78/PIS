@@ -14,6 +14,7 @@ import { useEngageKillSwitch, useKillSwitches, useReleaseKillSwitch } from './ho
 import { refusalMessage } from './labels';
 import { describeLlmProblem, vietnamDay } from './llm-model';
 import { unchanged } from '../unsent';
+import './llm-kit.css';
 
 /**
  * LLM-18: the emergency stop of the AI gateway (ST-LLM-006, LLM F7, BR-LLM-12): the switches there are, by scope (the whole tenant, a provider, a model, a profile or a task), why each was engaged and by whom, how many requests it
@@ -114,7 +115,7 @@ function SwitchRow({ entry, may }: { entry: KillSwitchEntry; may: boolean }) {
         </td>
         <td>
           {may && entry.state === 'ENGAGED' ? (
-            <button type="button" className="btn" aria-expanded={asking} onClick={() => setAsking(!asking)}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" aria-expanded={asking} onClick={() => setAsking(!asking)}>
               {t('llm.emergency.release')}
             </button>
           ) : null}
@@ -142,7 +143,7 @@ function SwitchRow({ entry, may }: { entry: KillSwitchEntry; may: boolean }) {
                 />
               </Field>
               <div className="mne-actions">
-                <button type="submit" className="btn" disabled={release.isPending}>
+                <button type="submit" className="ui-button ui-button--primary" disabled={release.isPending}>
                   {t('llm.emergency.release.submit')}
                 </button>
               </div>
@@ -253,7 +254,7 @@ function EngageForm() {
         </p>
       ) : null}
       <div className="mne-actions">
-        <button type="submit" className="btn" disabled={engage.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={engage.isPending}>
           {t('llm.emergency.form.submit')}
         </button>
       </div>

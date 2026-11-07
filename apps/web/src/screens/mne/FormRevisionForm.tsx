@@ -108,7 +108,7 @@ export function FormRevisionForm({ onDone, onCancel }: FormRevisionFormProps) {
         <textarea id="revision-schema" value={values.schemaText} aria-invalid={errors.schemaText !== undefined} onChange={(event) => set('schemaText', event.target.value)} />
       </Field>
       <div className="row gap">
-        <button type="submit" className="primary" disabled={create.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending}>
           {t('mne.forms.create.submit.action')}
         </button>
         <button type="button" onClick={onCancel}>

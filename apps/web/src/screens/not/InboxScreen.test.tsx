@@ -71,7 +71,18 @@ describe('NOT-01 personal inbox: the list', () => {
     const names = screen.getAllByRole('img').map((image) => image.getAttribute('aria-label'));
     expect(names.filter((name) => name === 'Chưa đọc').length).toBe(3);
     expect(names.filter((name) => name === 'Đã đọc').length).toBe(1);
-    expect(screen.getAllByText('Cần xử lý', { selector: '.notification-category' }).length).toBe(2);
+    expect(screen.getAllByText('Cần xử lý', { selector: '.notification-category .ui-pill span' }).length).toBe(2);
+  });
+
+  it('tells the category and the priority on a pill with its words: an act due is a warning, a plain notification is neutral, and the preview repeats the priority', async () => {
+    const { user } = await loaded();
+    const pillOf = (name: RegExp, text: string): HTMLElement => within(row(name)).getByText(text).closest('.ui-pill') as HTMLElement;
+    expect(pillOf(/Hồ sơ thanh toán đang chờ phê duyệt/, 'Cần xử lý').className).toContain('ui-tone-warning');
+    expect(pillOf(/Báo cáo giải ngân tuần/, 'Thông thường').className).toContain('ui-tone-neutral');
+    await user.click(row(/Báo cáo giải ngân tuần/));
+    const preview = screen.getByRole('complementary');
+    expect(within(preview).getAllByText('Thông thường').length).toBe(2);
+    expect(within(preview).getByRole('link', { name: /Mở chi tiết thông báo/ })).toBeInTheDocument();
   });
 
   it('shows the unavailable title and nothing of the record for a notification whose content is gone (AC-ST-NOT-001-4)', async () => {

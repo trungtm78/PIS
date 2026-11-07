@@ -9,7 +9,9 @@ import { Field } from './components';
 import { NO_FILTER, useAssignOwnership, useCatalog, useMembers, useRegisterDataset } from './hooks';
 import { classificationLabel, fieldProblemMessage, freshnessLabel, problemMessage, statusLabel } from './labels';
 import { CATALOG_MANAGE_PERMISSION, CLASSIFICATION_LIST, EMPTY_REGISTER_FORM, MEMBER_READ_PERMISSION, describeProblem, registerBody, validateOwnership, validateRegister } from './model';
+import { StatusPill } from '../../ui';
 import type { Classification, DatasetView, FormErrors, MemberOption, OwnershipField, OwnershipForm, RegisterField, RegisterForm } from './model';
+import './dgv-kit.css';
 
 const NEVER_EMPTY = (): boolean => false;
 
@@ -113,7 +115,7 @@ function DatasetRow({ row, mayChange, open, onToggle, people }: { row: DatasetVi
         <td>{row.stewardName ?? t('dgv.owners.person.unknown')}</td>
         <td>{freshnessLabel(t, row.freshnessSloSeconds)}</td>
         <td>
-          <span className={row.isCritical ? 'pill warn' : 'pill gray'}>{row.isCritical ? t('dgv.owners.critical.yes') : t('dgv.owners.critical.no')}</span>
+          <StatusPill tone={row.isCritical ? 'warning' : 'neutral'}>{row.isCritical ? t('dgv.owners.critical.yes') : t('dgv.owners.critical.no')}</StatusPill>
         </td>
         <td>{statusLabel(t, row.status)}</td>
         <td className="row-actions">
@@ -194,7 +196,7 @@ function ChangeOwnership({ row, people, onDone }: { row: DatasetView; people: Me
         <button type="button" onClick={onDone}>
           {t('dgv.owners.change.cancel.action')}
         </button>
-        <button type="submit" className="primary" disabled={assign.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={assign.isPending}>
           {t('dgv.owners.change.confirm.action')}
         </button>
       </div>
@@ -285,7 +287,7 @@ function RegisterDataset({ people, membersFailed, membersReadable }: { people: M
       </div>
       <div className="formfooter">
         <span className="sub">{t('dgv.owners.register.hint.text')}</span>
-        <button type="submit" className="primary" disabled={register.isPending || !listed}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={register.isPending || !listed}>
           {t('dgv.owners.register.save.action')}
         </button>
       </div>

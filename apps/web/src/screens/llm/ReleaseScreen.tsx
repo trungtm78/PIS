@@ -15,6 +15,7 @@ import { useDatasets, useDecideProfile, useEvalRuns, useModels, useProfiles, use
 import { refusalMessage, routeLabel } from './labels';
 import { describeLlmProblem } from './llm-model';
 import type { Route } from './llm-model';
+import './llm-kit.css';
 
 const MIN_COMMENT = 10;
 const open = (profile: ProfileEntry): boolean => profile.status === 'DRAFT' || profile.status === 'EVAL_PENDING';
@@ -151,7 +152,7 @@ function RouteRow({ profile, route, runs, datasets, mayStart, maySign }: { profi
         <td>{run === undefined ? t('llm.release.noCost') : `${evalCost(run.costVnd)} ₫`}</td>
         <td>
           {run?.status === 'PENDING_SIGNATURE' && maySign ? (
-            <button type="button" className="btn" aria-expanded={signing} onClick={() => setSigning(!signing)}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" aria-expanded={signing} onClick={() => setSigning(!signing)}>
               {t('llm.release.sign')}
             </button>
           ) : null}
@@ -208,7 +209,7 @@ function StartForm({ profile, route, datasets }: { profile: ProfileEntry; route:
         ))}
       </select>
       {usable.length === 0 ? <p className="sub">{t('llm.release.start.none')}</p> : null}
-      <button type="submit" className="btn" disabled={start.isPending || datasetId === ''}>
+      <button type="submit" className="ui-button ui-button--primary" disabled={start.isPending || datasetId === ''}>
         {t('llm.release.start.submit')}
       </button>
       {refused === undefined ? null : (
@@ -263,7 +264,7 @@ function SignForm({ run, onDone }: { run: RunEntry; onDone: () => void }) {
         />
       </Field>
       <div className="mne-actions">
-        <button type="submit" className="btn" disabled={sign.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={sign.isPending}>
           {t('llm.release.sign.submit')}
         </button>
       </div>
@@ -325,11 +326,11 @@ function DecisionForm({ profile, runs, ready }: { profile: ProfileEntry; runs: r
         />
       </Field>
       <div className="mne-actions">
-        <button type="submit" className="btn" disabled={decide.isPending || !ready}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={decide.isPending || !ready}>
           {t('llm.release.decide.publish')}
         </button>
         {profile.status === 'EVAL_PENDING' ? (
-          <button type="button" className="btn" disabled={decide.isPending} onClick={() => submit('return')}>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={decide.isPending} onClick={() => submit('return')}>
             {t('llm.release.decide.return')}
           </button>
         ) : null}

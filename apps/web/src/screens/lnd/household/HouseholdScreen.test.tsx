@@ -26,7 +26,8 @@ const worldOf = () =>
     ],
     parcels: [parcel(1), parcel(2, { owner_unit_id: UNIT_TTQD, owner_unit_name: 'Trung tâm phát triển quỹ đất' })],
   });
-const rowOf = (n: number): HTMLElement => document.querySelector(`[data-household-id="${household(n).id}"]`) as HTMLElement;
+/** The code of the household is marked in its cell; the row is the table row around it. */
+const rowOf = (n: number): HTMLElement => (document.querySelector(`[data-household-id="${household(n).id}"]`) as HTMLElement).closest('tr') as HTMLElement;
 const ready = () => screen.findByTestId('households');
 const REASON = 'Checking the record before the payment';
 const IDENTITY = { id: household(1).id, project_id: PROJECT, owner_unit_id: UNIT_XA, household_code: 'HH-000001', head_name: 'Nguyễn Văn Anh', national_id: '079000000001', phone: '0912345678', address_text: '12 Lê Lợi, Quận 1' };
@@ -61,7 +62,7 @@ describe('HouseholdScreen (LND-03): the households affected by a land recovery',
       vi_['lnd.households.column.action'],
     ]);
     const first = rowOf(1);
-    expect(first.querySelector('th')?.textContent).toBe('HH-000001');
+    expect(first.querySelector('td')?.textContent).toBe('HH-000001');
     expect(within(first).getByTestId('head').textContent).toBe('N***** V** A');
     expect(within(first).getByTestId('national-id').textContent).toBe('********0001');
     expect(within(first).getByTestId('parcels').textContent).toBe(vi_['lnd.households.parcels.line'].replace('{code}', 'TB-1/10').replace('{right}', vi_['lnd.rightKind.owner.label']).replace('{share}', '60.0000'));

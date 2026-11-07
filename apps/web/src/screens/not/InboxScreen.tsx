@@ -3,12 +3,13 @@ import { useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
+import { StatusPill } from '../../ui';
 import { routeById } from '../../routes/registry';
 import type { ScreenProps } from '../../routes/types';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { itemsOf, useMyNotifications, useNotificationCommands } from './inbox/hooks';
-import { categoryOf, priorityLabel, symbolOf, titleOf, toneOf } from './inbox/labels';
+import { categoryOf, pillToneOf, priorityLabel, symbolOf, titleOf, toneOf } from './inbox/labels';
 import { filterNotifications, isUnavailable, isUnread, needsAction, unreadCount } from './inbox/model';
 import type { InboxFilter, NotificationItem } from './inbox/model';
 import './inbox/inbox.css';
@@ -166,7 +167,9 @@ function NotificationRow({ item, selected, onSelect }: RowProps) {
         {symbolOf(item)}
       </span>
       <span className="notification-copy">
-        <span className="notification-category">{categoryOf(t, item)}</span>
+        <span className="notification-category">
+          <StatusPill tone={pillToneOf(item)}>{categoryOf(t, item)}</StatusPill>
+        </span>
         <strong>{titleOf(t, item)}</strong>
       </span>
       <span
@@ -194,22 +197,24 @@ function Preview({ item, markError, pending, onMarkRead, onBack }: PreviewProps)
         {t('not.detail.back.action')}
       </button>
       <div className="notification-preview-head">
-        <span className={`notification-status ${toneOf(item)}`}>{categoryOf(t, item)}</span>
+        <StatusPill tone={pillToneOf(item)}>{categoryOf(t, item)}</StatusPill>
         <span>{isUnread(item) ? t('not.inbox.row.unread.label') : t('not.inbox.row.read.label')}</span>
       </div>
       <h2>{titleOf(t, item)}</h2>
       {isUnavailable(item) ? null : (
         <dl>
           <dt>{t('not.inbox.preview.priority.label')}</dt>
-          <dd>{priorityLabel(t, item.priority)}</dd>
+          <dd>
+            <StatusPill tone={pillToneOf(item)}>{priorityLabel(t, item.priority)}</StatusPill>
+          </dd>
         </dl>
       )}
-      <Link className="notification-primary-action" to={detailPathOf(item.id)}>
+      <Link className="notification-primary-action ui-button ui-button--primary" to={detailPathOf(item.id)}>
         {t('not.inbox.preview.open.action')}
         <span aria-hidden="true">{'↗'}</span>
       </Link>
       {isUnread(item) ? (
-        <button type="button" className="notification-read-action" disabled={pending} onClick={() => onMarkRead(item.id)}>
+        <button type="button" className="notification-read-action ui-button ui-button--outline" disabled={pending} onClick={() => onMarkRead(item.id)}>
           {t('not.inbox.preview.markRead.action')}
         </button>
       ) : null}

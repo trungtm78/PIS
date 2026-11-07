@@ -26,10 +26,10 @@ describe('DIS-12 totals by investor', () => {
   it('AC-ST-DIS-010-2 / FX-DIS-003 / UAT-AC242: shows a row for each unit with the rate of its sums (14%, not the mean of 50% and 10%), the two rates together, and the day the Treasury figures are cut off', async () => {
     open();
     expect(await screen.findByRole('heading', { level: 1, name: vi_['dis.unitTotals.page.title'] })).toBeTruthy();
-    const table = await screen.findByTestId('totals-table');
-    const one = table.querySelector(`tr[data-unit="${UNIT}"]`) as HTMLElement;
+    const table = await screen.findByRole('table', { name: vi_['dis.unitTotals.table.aria'] });
+    const one = within(table).getByRole('row', { name: /Ban quản lý 1/ });
     expect(Array.from(one.querySelectorAll('td')).map((cell) => cell.textContent)).toEqual(['Ban quản lý 1U-1', '2', '1.000.000.000', '0', '140.000.000', '14.0000%', '14.0000%', vi_['dis.rates.coverage.complete'], '2027-01-10']);
-    const two = table.querySelector(`tr[data-unit="${OTHER_UNIT}"]`) as HTMLElement;
+    const two = within(table).getByRole('row', { name: /Ban quản lý 2/ });
     expect(two.querySelector('[data-rate="pm"]')?.textContent).toBe('60.0000%');
     expect(two.querySelector('[data-rate="total"]')?.textContent).toBe('48.0000%');
     expect((await screen.findByTestId('totals-cutoff')).textContent).toBe('Số Kho bạc tính đến hết ngày 2027-01-10.');
@@ -37,7 +37,8 @@ describe('DIS-12 totals by investor', () => {
 
   it('closes with the row of all the units, made from the sums over the sums and not from the rates of the rows, and carries the label that the formulas await D03', async () => {
     open();
-    const row = await screen.findByTestId('totals-row');
+    const table = await screen.findByRole('table', { name: vi_['dis.unitTotals.table.aria'] });
+    const row = table.querySelector('tfoot tr') as HTMLElement;
     expect(Array.from(row.querySelectorAll('td')).map((cell) => cell.textContent)).toEqual(['3', '2.000.000.000', '250.000.000', '740.000.000', '37.0000%', '32.8889%', vi_['dis.rates.coverage.complete'], '2027-01-10']);
     expect(within(row).getByRole('rowheader').textContent).toBe(vi_['dis.unitTotals.total.label']);
     expect(screen.getByTestId('definition-pending').textContent).toBe('CHỜ KÝ D03');

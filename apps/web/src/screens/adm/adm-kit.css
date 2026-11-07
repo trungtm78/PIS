@@ -1,0 +1,58 @@
+/* The few classes the converted ADM screens share on top of the component kit (apps/web/src/ui). Tokens only. */
+.adm-kit-form {
+  margin: 0;
+}
+
+.adm-kit-stack {
+  display: grid;
+  gap: var(--mv-space-16);
+  margin-bottom: var(--mv-space-16);
+}
+
+.adm-kit-sub {
+  display: block;
+  font-size: 12px;
+  color: var(--mv-color-text-secondary);
+}
+
+.adm-kit-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mv-space-4);
+  margin-top: var(--mv-space-4);
+}
+
+.adm-kit-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mv-space-8) var(--mv-space-16);
+  padding: var(--mv-space-12) var(--mv-space-16);
+  font-size: 12px;
+  color: var(--mv-color-text-secondary);
+}
+
+.adm-kit-empty {
+  margin: 0;
+  padding: var(--mv-space-24) var(--mv-space-16);
+  text-align: center;
+  color: var(--mv-color-text-secondary);
+}
+
+.adm-kit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mv-space-8);
+}
+
+.adm-kit-mono {
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.adm-kit-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}

@@ -31,6 +31,15 @@ describe('FundSourceScreen (CAP-04): the tree of the fund sources', () => {
     expect(category('CTMTQG')).toBeNull();
   });
 
+  it('draws each fund source as a card by itself, in the fund colour of its category, with the source named in words (UI-CAP-04)', async () => {
+    mount(<FundSourceScreen route={ROUTE} />, client(world()), { permissions: READER });
+    await ready();
+    const cards = Array.from(document.querySelectorAll('li.cap-fund-card'));
+    expect(cards.length).toBeGreaterThanOrEqual(2);
+    expect(cards.map((card) => card.getAttribute('data-fund-category'))).toEqual(['NSTW', 'NSDP']);
+    for (const card of cards) expect(card.querySelector('.cap-fund-card__title strong')?.textContent).toBe(card.getAttribute('data-fund-source'));
+  });
+
   it('shows ODA with its validity and whether it is on-lent, in words', async () => {
     const published = line(6, { fund_source: ODA, amount_vnd: '5000000000', allocated_total_vnd: '0', remaining_vnd: '5000000000' });
     mount(<FundSourceScreen route={ROUTE} />, client(world({ lines: [published] })), { permissions: READER });

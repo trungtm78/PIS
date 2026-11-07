@@ -1,6 +1,6 @@
 /* DOC-08: issue and distribution. The shared cards, tables, pills and callouts do the rest. */
 .field-error {
-  color: #a22b22;
+  color: var(--mv-color-danger);
 }
 
 .issue-form,
@@ -23,7 +23,7 @@ label.check {
 .dispatch-form td small,
 .tablewrap td small {
   display: block;
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }
 
 .receipt-form {

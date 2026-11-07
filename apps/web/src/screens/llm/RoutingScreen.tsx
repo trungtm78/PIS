@@ -13,6 +13,7 @@ import { useRequests, useRouteDecision } from './hooks';
 import { classificationLabel, routeLabel } from './labels';
 import { NO_FILTER } from './gateway-model';
 import { groupDigits, vietnamDay } from './llm-model';
+import './llm-kit.css';
 
 /**
  * LLM-05: how a request of the AI gateway was routed (ST-LLM-005, LLM F1, BR-LLM-01, BR-LLM-02): the class the server gave it and the sources that gave it, the policy in force when it was made (or the baseline, when none was),
@@ -57,7 +58,7 @@ function RoutingContent({ route }: ScreenProps) {
         {recent.isError ? (
           <p className="callout warning" role="alert" data-testid="routing-list-failed">
             {t('llm.routing.listFailed')}{' '}
-            <button type="button" className="btn" onClick={() => void recent.refetch()}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => void recent.refetch()}>
               {t('llm.routing.listRetry')}
             </button>
           </p>

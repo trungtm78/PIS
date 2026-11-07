@@ -5,14 +5,17 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { DataTable, FilterPanel, SectionCard, StatusPill } from '../../ui';
+import type { DataTableColumn } from '../../ui';
 import { DevAcceptanceSlot } from './members/DevAcceptanceSlot';
 import { InviteMemberDialog } from './members/InviteMemberDialog';
 import { LifecycleDialog } from './members/LifecycleDialog';
 import { RowActions } from './members/RowActions';
 import { useMembers, useSeatUsage, useUnits } from './members/hooks';
-import { dayOf, invitationLabel, lifecycleDone, seatCountText, statusLabel, statusPill, typeLabel } from './members/labels';
+import { dayOf, invitationLabel, lifecycleDone, seatCountText, statusLabel, statusTone, typeLabel } from './members/labels';
 import { MEMBERSHIP_STATUSES, MEMBERSHIP_TYPES, PERMISSION_INVITE, PERMISSION_MANAGE, PERMISSION_READ, PERMISSION_USAGE } from './members/types';
 import type { Lifecycle, Member, MembershipStatus, MembershipType } from './members/types';
+import './adm-kit.css';
 import './members/members.css';
 
 interface Filter {
@@ -78,6 +81,36 @@ function MembersContent({ routeId, requirement }: { routeId: string; requirement
     setApplied(draft);
   };
 
+  const appliedCount = [applied.text, applied.status, applied.type].filter((value) => value !== '').length;
+  const columns: DataTableColumn<Member>[] = [
+    {
+      key: 'account',
+      header: t('adm.members.col.account'),
+      pinned: true,
+      render: (member) => (
+        <span data-member-id={member.id}>
+          <strong>{member.displayName}</strong>
+          <span className="adm-kit-sub">{member.email}</span>
+        </span>
+      ),
+    },
+    { key: 'roles', header: t('adm.members.col.roles'), render: (member) => (member.roleCodes.length === 0 ? t('adm.members.roles.none') : member.roleCodes.join(', ')) },
+    { key: 'unit', header: t('adm.members.col.unit'), render: (member) => unitNames.get(member.organizationId) ?? member.organizationId.slice(-SHORT_ID) },
+    { key: 'type', header: t('adm.members.col.type'), render: (member) => typeLabel(t, member.membershipType) },
+    { key: 'invitation', header: t('adm.members.col.invitation'), render: (member) => invitationLabel(t, member.invitationStatus) },
+    { key: 'validUntil', header: t('adm.members.col.validUntil'), render: (member) => (member.validUntil === null ? t('adm.members.validUntil.open') : dayOf(member.validUntil)) },
+    { key: 'status', header: t('adm.members.col.status'), render: (member) => <StatusPill tone={statusTone(member.status)}>{statusLabel(t, member.status)}</StatusPill> },
+    {
+      key: 'actions',
+      header: t('ui.stickyActions.label'),
+      render: (member) => (
+        <div className="members-actions">
+          <RowActions member={member} selfId={tenant?.membershipId} canManage={canManage} onAction={(action, target) => setActing({ action, member: target })} />
+        </div>
+      ),
+    },
+  ];
+
   return (
     <section data-screen-id={routeId} aria-labelledby="screen-title">
       <div className="heading">
@@ -87,7 +120,7 @@ function MembersContent({ routeId, requirement }: { routeId: string; requirement
         </div>
         {(state === 'default' || state === 'empty') && canInvite ? (
           <div className="actions">
-            <button type="button" className="primary" onClick={() => setInviting(true)}>
+            <button type="button" className="ui-button ui-button--primary" onClick={() => setInviting(true)}>
               {t('adm.members.invite.action')}
             </button>
           </div>
@@ -105,13 +138,20 @@ function MembersContent({ routeId, requirement }: { routeId: string; requirement
             {t('adm.members.seats.text', { staff: seatCountText(t, seats.data.staff), guests: seatCountText(t, seats.data.guests) })}
           </p>
         )}
-        <div className="card">
-          <form className="filters" onSubmit={submit}>
-            <div>
+        <form className="adm-kit-form" onSubmit={submit} aria-label={t('adm.members.filter.action')}>
+          <FilterPanel
+            applied={appliedCount}
+            actions={
+              <button type="submit" className="ui-button ui-button--primary">
+                {t('adm.members.filter.action')}
+              </button>
+            }
+          >
+            <div className="field">
               <label htmlFor="member-search">{t('adm.members.search.label')}</label>
               <input id="member-search" type="search" value={draft.text} placeholder={t('adm.members.search.placeholder')} onChange={(event) => setDraft({ ...draft, text: event.target.value })} />
             </div>
-            <div>
+            <div className="field">
               <label htmlFor="member-type">{t('adm.members.type.label')}</label>
               <select id="member-type" value={draft.type} onChange={(event) => setDraft({ ...draft, type: event.target.value as MembershipType | '' })}>
                 <option value="">{t('adm.members.type.all')}</option>
@@ -122,7 +162,7 @@ function MembersContent({ routeId, requirement }: { routeId: string; requirement
                 ))}
               </select>
             </div>
-            <div>
+            <div className="field">
               <label htmlFor="member-status">{t('adm.members.status.label')}</label>
               <select id="member-status" value={draft.status} onChange={(event) => setDraft({ ...draft, status: event.target.value as MembershipStatus | '' })}>
                 <option value="">{t('adm.members.status.all')}</option>
@@ -133,55 +173,25 @@ function MembersContent({ routeId, requirement }: { routeId: string; requirement
                 ))}
               </select>
             </div>
-            <button type="submit">{t('adm.members.filter.action')}</button>
-          </form>
-          <div className="tablewrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>{t('adm.members.col.account')}</th>
-                  <th>{t('adm.members.col.roles')}</th>
-                  <th>{t('adm.members.col.unit')}</th>
-                  <th>{t('adm.members.col.type')}</th>
-                  <th>{t('adm.members.col.invitation')}</th>
-                  <th>{t('adm.members.col.validUntil')}</th>
-                  <th>{t('adm.members.col.status')}</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
-                {shown.map((member) => (
-                  <tr key={member.id} data-member-id={member.id}>
-                    <td>
-                      <strong>{member.displayName}</strong>
-                      <div className="sub">{member.email}</div>
-                    </td>
-                    <td>{member.roleCodes.length === 0 ? t('adm.members.roles.none') : member.roleCodes.join(', ')}</td>
-                    <td>{unitNames.get(member.organizationId) ?? member.organizationId.slice(-SHORT_ID)}</td>
-                    <td>{typeLabel(t, member.membershipType)}</td>
-                    <td>{invitationLabel(t, member.invitationStatus)}</td>
-                    <td>{member.validUntil === null ? t('adm.members.validUntil.open') : dayOf(member.validUntil)}</td>
-                    <td>
-                      <span className={statusPill(member.status)}>{statusLabel(t, member.status)}</span>
-                    </td>
-                    <td className="members-actions">
-                      <RowActions member={member} selfId={tenant?.membershipId} canManage={canManage} onAction={(action, target) => setActing({ action, member: target })} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {shown.length === 0 ? <p className="muted">{t('adm.members.filtered.empty')}</p> : null}
-          <div className="row between gap tiny muted">
+          </FilterPanel>
+        </form>
+        <SectionCard title={t('adm.members.page.title')}>
+          {shown.length === 0 ? (
+            <p className="adm-kit-empty" role="status">
+              {t('adm.members.filtered.empty')}
+            </p>
+          ) : (
+            <DataTable caption={t('w2adm.members.table.caption')} columns={columns} rows={shown} rowKey={(member) => member.id} />
+          )}
+          <div className="adm-kit-foot">
             <span>{t('adm.members.count.text', { count: shown.length })}</span>
             {list.hasNextPage ? (
-              <button type="button" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
+              <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
                 {t('adm.members.more.action')}
               </button>
             ) : null}
           </div>
-        </div>
+        </SectionCard>
       </StateBoundary>
       {inviting ? (
         <InviteMemberDialog

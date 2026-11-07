@@ -17,7 +17,7 @@
 }
 
 .cap-avc .field-error {
-  color: #a22b22;
+  color: var(--mv-color-danger);
 }
 
 .cap-avc .check {
@@ -32,7 +32,7 @@
   display: flex;
   height: 14px;
   overflow: hidden;
-  border: 1px solid var(--line, #d8d3d9);
+  border: 1px solid var(--mv-color-border);
   border-radius: 7px;
 }
 
@@ -42,16 +42,16 @@
 }
 
 .cap-avc .avc-ok {
-  background: #cfe8d9;
+  background: var(--mv-color-success-soft);
 }
 
 .cap-avc .avc-warn {
-  background: #f3d99a;
+  background: var(--mv-color-warning-soft);
   background-image: repeating-linear-gradient(45deg, transparent 0 4px, rgba(0, 0, 0, 0.08) 4px 8px);
 }
 
 .cap-avc .avc-block {
-  background: #e8b4b0;
+  background: var(--mv-color-danger-soft);
   background-image: repeating-linear-gradient(-45deg, transparent 0 3px, rgba(0, 0, 0, 0.14) 3px 6px);
 }
 

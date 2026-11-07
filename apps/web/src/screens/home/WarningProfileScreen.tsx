@@ -10,16 +10,21 @@ import { useScreenState } from '../../states/useScreenState';
 import { formatVnd } from '../dis/report/money';
 import { Field } from '../mne/components';
 import { vietnamToday } from '../mne/model';
+import { ContextBar, DataTable, SectionCard, StatusPill } from '../../ui';
+import type { DataTableColumn, Tone } from '../../ui';
 import '../dis/dis.css';
+import './home.css';
 import { FORMULA_REFERENCE, shortId } from './model';
 import { ObservedText, SeverityBadge, explanationStatusLabel, warningStatusLabel } from './WarningsScreen';
 import { useAcknowledgeWarning, useAskExplanation, useDismissWarning, useHomeWarning } from './warning-hooks';
 import { HANDLE_WARNING_PERMISSION, REQUEST_EXPLANATION_PERMISSION, WARNINGS_PATH, describeWarning, trimmed } from './warning-model';
-import type { HistoryEvent, WarningItem } from './warning-model';
+import type { EvidenceCell, HistoryEvent, WarningItem } from './warning-model';
 
 type T = Translator['t'];
 const REASON_MIN = 5;
 const QUESTION_MIN = 10;
+const NONE = '—';
+const STATUS_TONE: Readonly<Record<string, Tone>> = { OPEN: 'warning', ACKNOWLEDGED: 'info', EXPLANATION_REQUESTED: 'info', RESOLVED: 'success', DISMISSED: 'neutral' };
 
 function historyLabel(t: T, event: HistoryEvent): string {
   switch (event) {
@@ -77,9 +82,11 @@ function ProfileContent({ route, id }: ScreenProps & { id: string }) {
           <h1 id="screen-title">{t('home.profile.page.title')}</h1>
           <p>{t('home.profile.page.subtitle')}</p>
         </div>
-        <Link className="btn" to={WARNINGS_PATH}>
-          {t('home.profile.back')}
-        </Link>
+        <div className="actions">
+          <Link className="ui-button ui-button--outline" to={WARNINGS_PATH}>
+            {t('home.profile.back')}
+          </Link>
+        </div>
       </div>
       {id === '' ? (
         <div className="card statecard" role="alert" data-testid="profile-no-id">
@@ -144,128 +151,140 @@ function ProfileBody({ warning }: { warning: WarningItem }) {
   const threshold = warning.threshold === null ? null : Object.entries(warning.threshold).map(([key, value]) => `${key} ${String(value)}`).join(', ');
   const gap = typeof warning.observed.gap_points === 'string' ? trimmed(warning.observed.gap_points) : null;
 
+  const evidenceColumns: DataTableColumn<EvidenceCell>[] = [
+    { key: 'cell', header: t('home.profile.evidence.cell'), pinned: true, render: (cell) => `${cell.bucket} · ${cell.budgetLevel}` },
+    { key: 'planPm', header: t('home.profile.evidence.planPm'), align: 'right', render: (cell) => formatVnd(cell.planPmVnd) },
+    { key: 'planLocal', header: t('home.profile.evidence.planLocal'), align: 'right', render: (cell) => formatVnd(cell.planLocalVnd) },
+    { key: 'disbursed', header: t('home.profile.evidence.disbursed'), align: 'right', render: (cell) => (cell.disbursedVnd === null ? t('home.tile.nullReason.noData') : formatVnd(cell.disbursedVnd)) },
+    { key: 'ratePm', header: t('home.profile.evidence.ratePm'), align: 'right', render: (cell) => (cell.ratePmPct === null ? t('home.tile.nullReason.noData') : t('home.tile.value.percent', { value: cell.ratePmPct })) },
+  ];
+  const actionTitle = action === 'explain' ? t('home.profile.action.explain') : action === 'acknowledge' ? t('home.profile.action.acknowledge') : t('home.profile.action.dismiss');
+
   return (
-    <div data-testid="warning-profile" data-warning-status={warning.status}>
-      <section className="card" aria-labelledby="profile-cause-title" data-testid="profile-cause">
-        <div className="mne-badges">
-          <SeverityBadge severity={warning.severity} />
-          <span className="pill" data-testid="profile-status">
-            {warningStatusLabel(t, warning.status)}
-          </span>
-        </div>
-        <h2 id="profile-cause-title">{t('home.profile.cause.title')}</h2>
-        <dl className="aud-facts">
-          <dt>{t('home.profile.cause.rule')}</dt>
-          <dd data-testid="profile-rule">
-            {warning.ruleCode} {warning.ruleName}
-          </dd>
-          <dt>{t('home.profile.cause.project')}</dt>
-          <dd data-testid="profile-project">{warning.project === null ? '—' : `${warning.project.code} ${warning.project.name}`}</dd>
-          <dt>{t('home.profile.cause.observed')}</dt>
-          <dd data-testid="profile-observed">
-            <ObservedText item={warning} />
-          </dd>
-          {gap === null ? null : (
+    <div className="home-stack" data-testid="warning-profile" data-warning-status={warning.status}>
+      <ContextBar
+        items={[
+          { label: t('home.profile.cause.rule'), value: `${warning.ruleCode} ${warning.ruleName}` },
+          { label: t('home.profile.cause.project'), value: warning.project === null ? NONE : `${warning.project.code} ${warning.project.name}` },
+        ]}
+        {...(warning.evidence === null ? {} : { asOf: warning.evidence.asOfDate })}
+      />
+      <div data-testid="profile-cause">
+        <SectionCard
+          title={t('home.profile.cause.title')}
+          status={
+            <span className="home-badges">
+              <SeverityBadge severity={warning.severity} />
+              <span data-testid="profile-status">
+                <StatusPill tone={STATUS_TONE[warning.status] ?? 'neutral'}>{warningStatusLabel(t, warning.status)}</StatusPill>
+              </span>
+            </span>
+          }
+        >
+          <dl className="aud-facts">
+            <dt>{t('home.profile.cause.rule')}</dt>
+            <dd data-testid="profile-rule">
+              {warning.ruleCode} {warning.ruleName}
+            </dd>
+            <dt>{t('home.profile.cause.project')}</dt>
+            <dd data-testid="profile-project">{warning.project === null ? NONE : `${warning.project.code} ${warning.project.name}`}</dd>
+            <dt>{t('home.profile.cause.observed')}</dt>
+            <dd data-testid="profile-observed">
+              <ObservedText item={warning} />
+            </dd>
+            {gap === null ? null : (
+              <>
+                <dt>{t('home.profile.cause.gap')}</dt>
+                <dd data-testid="profile-gap">{t('home.profile.cause.gap.value', { gap })}</dd>
+              </>
+            )}
+            {threshold === null ? null : (
+              <>
+                <dt>{t('home.profile.cause.threshold')}</dt>
+                <dd data-testid="profile-threshold" title={t('home.profile.cause.threshold.title', { ref: FORMULA_REFERENCE })}>
+                  {threshold}
+                </dd>
+              </>
+            )}
+          </dl>
+        </SectionCard>
+      </div>
+      <div data-testid="profile-evidence">
+        <SectionCard title={t('home.profile.evidence.title')} {...(warning.evidence === null || warning.evidence.cells.length === 0 ? {} : { unit: t('dis.wr.unit') })}>
+          {warning.evidence === null || warning.evidence.cells.length === 0 ? (
+            <p>{t('home.profile.evidence.none')}</p>
+          ) : (
             <>
-              <dt>{t('home.profile.cause.gap')}</dt>
-              <dd data-testid="profile-gap">{t('home.profile.cause.gap.value', { gap })}</dd>
+              <p className="home-note" data-testid="evidence-context">
+                {t('home.profile.evidence.context', { id: shortId(warning.evidence.snapshotId), date: warning.evidence.asOfDate })}
+              </p>
+              <DataTable caption={t('home.profile.evidence.title')} columns={evidenceColumns} rows={warning.evidence.cells} rowKey={(cell) => `${cell.bucket}|${cell.budgetLevel}`} />
             </>
           )}
-          {threshold === null ? null : (
-            <>
-              <dt>{t('home.profile.cause.threshold')}</dt>
-              <dd data-testid="profile-threshold" title={t('home.profile.cause.threshold.title', { ref: FORMULA_REFERENCE })}>
-                {threshold}
-              </dd>
-            </>
-          )}
-        </dl>
-      </section>
-      <section className="card" aria-labelledby="profile-evidence-title" data-testid="profile-evidence">
-        <h2 id="profile-evidence-title">{t('home.profile.evidence.title')}</h2>
-        {warning.evidence === null || warning.evidence.cells.length === 0 ? (
-          <p>{t('home.profile.evidence.none')}</p>
-        ) : (
-          <>
-            <p className="sub" data-testid="evidence-context">
-              {t('home.profile.evidence.context', { id: shortId(warning.evidence.snapshotId), date: warning.evidence.asOfDate })}
-            </p>
-            <div className="tablewrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th scope="col">{t('home.profile.evidence.cell')}</th>
-                    <th scope="col">{t('home.profile.evidence.planPm')}</th>
-                    <th scope="col">{t('home.profile.evidence.planLocal')}</th>
-                    <th scope="col">{t('home.profile.evidence.disbursed')}</th>
-                    <th scope="col">{t('home.profile.evidence.ratePm')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {warning.evidence.cells.map((cell) => (
-                    <tr key={`${cell.bucket}|${cell.budgetLevel}`}>
-                      <td>{`${cell.bucket} · ${cell.budgetLevel}`}</td>
-                      <td>{formatVnd(cell.planPmVnd)}</td>
-                      <td>{formatVnd(cell.planLocalVnd)}</td>
-                      <td>{cell.disbursedVnd === null ? t('home.tile.nullReason.noData') : formatVnd(cell.disbursedVnd)}</td>
-                      <td>{cell.ratePmPct === null ? t('home.tile.nullReason.noData') : t('home.tile.value.percent', { value: cell.ratePmPct })}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
-      </section>
-      <section className="card" aria-labelledby="profile-leader-title" data-testid="profile-leader">
-        <h2 id="profile-leader-title">{t('home.profile.leader.title')}</h2>
-        <p>{warning.leader === null ? t('home.warnings.leader.none') : warning.leader.displayName}</p>
-      </section>
-      <section className="card" aria-labelledby="profile-explanation-title" data-testid="profile-explanation">
-        <h2 id="profile-explanation-title">{t('home.profile.explanation.title')}</h2>
-        <p>
-          {warning.explanation === null
-            ? t('home.warnings.explanation.none')
-            : t('home.profile.explanation.status', { status: explanationStatusLabel(t, warning.explanation.status), due: warning.explanation.dueAt.slice(0, 10) })}
-        </p>
-      </section>
-      <section className="card" aria-labelledby="profile-history-title" data-testid="profile-history">
-        <h2 id="profile-history-title">{t('home.profile.history.title')}</h2>
-        <ol className="mne-lines">
-          {warning.history.map((entry, index) => (
-            <li key={`${entry.event}:${index}`} data-event={entry.event}>
-              {entry.at.slice(0, 10)} · {historyLabel(t, entry.event)}
-              {entry.note === null ? '' : `: ${entry.note}`}
-            </li>
-          ))}
-        </ol>
-      </section>
+        </SectionCard>
+      </div>
+      <div data-testid="profile-leader">
+        <SectionCard title={t('home.profile.leader.title')}>
+          <p>{warning.leader === null ? t('home.warnings.leader.none') : warning.leader.displayName}</p>
+        </SectionCard>
+      </div>
+      <div data-testid="profile-explanation">
+        <SectionCard title={t('home.profile.explanation.title')}>
+          <p>
+            {warning.explanation === null
+              ? t('home.warnings.explanation.none')
+              : t('home.profile.explanation.status', { status: explanationStatusLabel(t, warning.explanation.status), due: warning.explanation.dueAt.slice(0, 10) })}
+          </p>
+        </SectionCard>
+      </div>
+      <div data-testid="profile-history">
+        <SectionCard title={t('home.profile.history.title')}>
+          <ol className="home-lines">
+            {warning.history.map((entry, index) => (
+              <li key={`${entry.event}:${index}`} data-event={entry.event}>
+                {entry.at.slice(0, 10)} · {historyLabel(t, entry.event)}
+                {entry.note === null ? '' : `: ${entry.note}`}
+              </li>
+            ))}
+          </ol>
+        </SectionCard>
+      </div>
       {done === undefined ? null : (
-        <p role="status" className="pill" data-testid="profile-done">
-          {done === 'explain' ? t('home.profile.done.explain') : done === 'acknowledge' ? t('home.profile.done.acknowledge') : t('home.profile.done.dismiss')}
+        <p role="status" data-testid="profile-done">
+          <StatusPill tone="success">{done === 'explain' ? t('home.profile.done.explain') : done === 'acknowledge' ? t('home.profile.done.acknowledge') : t('home.profile.done.dismiss')}</StatusPill>
         </p>
       )}
-      <div className="mne-actions" data-testid="profile-actions">
+      <div className="home-actions" data-testid="profile-actions">
         {canExplain ? (
-          <button type="button" className="btn" onClick={() => setAction('explain')}>
+          <button type="button" className="ui-button ui-button--outline" onClick={() => setAction('explain')}>
             {t('home.profile.action.explain')}
           </button>
         ) : null}
         {canAcknowledge ? (
-          <button type="button" className="btn" onClick={() => setAction('acknowledge')}>
+          <button type="button" className="ui-button ui-button--outline" onClick={() => setAction('acknowledge')}>
             {t('home.profile.action.acknowledge')}
           </button>
         ) : null}
         {canDismiss ? (
-          <button type="button" className="btn" onClick={() => setAction('dismiss')}>
+          <button type="button" className="ui-button ui-button--outline" onClick={() => setAction('dismiss')}>
             {t('home.profile.action.dismiss')}
           </button>
         ) : null}
       </div>
-      {holds(REQUEST_EXPLANATION_PERMISSION) && warning.project !== null && warning.leader === null && (warning.status === 'OPEN' || warning.status === 'ACKNOWLEDGED') ? <p className="sub">{t('home.profile.explain.noLeader')}</p> : null}
+      {holds(REQUEST_EXPLANATION_PERMISSION) && warning.project !== null && warning.leader === null && (warning.status === 'OPEN' || warning.status === 'ACKNOWLEDGED') ? <p className="home-note">{t('home.profile.explain.noLeader')}</p> : null}
       {action === undefined ? null : (
-        <div className="card" role="dialog" aria-modal="false" aria-labelledby="profile-dialog-title" data-testid="profile-dialog">
-          <h2 id="profile-dialog-title">{action === 'explain' ? t('home.profile.action.explain') : action === 'acknowledge' ? t('home.profile.action.acknowledge') : t('home.profile.action.dismiss')}</h2>
+        <div className="home-dialog" role="dialog" aria-modal="false" aria-labelledby="profile-dialog-title" data-testid="profile-dialog">
+          <h2 id="profile-dialog-title">{actionTitle}</h2>
+          <dl className="aud-facts" data-testid="profile-dialog-context">
+            <dt>{t('home.profile.cause.rule')}</dt>
+            <dd>
+              {warning.ruleCode} {warning.ruleName}
+            </dd>
+            <dt>{t('home.profile.cause.project')}</dt>
+            <dd>{warning.project === null ? NONE : `${warning.project.code} ${warning.project.name}`}</dd>
+            <dt>{t('w2dis.home.profile.dialog.status')}</dt>
+            <dd>{warningStatusLabel(t, warning.status)}</dd>
+          </dl>
           {action === 'explain' ? (
             <>
               <Field id="profile-question" label={t('home.profile.explain.question.label')} error={undefined}>
@@ -274,7 +293,7 @@ function ProfileBody({ warning }: { warning: WarningItem }) {
               <Field id="profile-due" label={t('home.profile.explain.due.label')} error={undefined}>
                 <input id="profile-due" type="date" min={today} value={due} onChange={(event) => setDue(event.target.value)} />
               </Field>
-              <p className="sub">{t('home.profile.explain.to', { leader: warning.leader?.displayName ?? '' })}</p>
+              <p className="home-note">{t('home.profile.explain.to', { leader: warning.leader?.displayName ?? '' })}</p>
             </>
           ) : (
             <Field id="profile-reason" label={t('home.profile.reason.label')} error={undefined}>
@@ -286,11 +305,11 @@ function ProfileBody({ warning }: { warning: WarningItem }) {
               {problemText(t, problemKey(failure))}
             </p>
           )}
-          <div className="mne-actions">
-            <button type="button" className="btn" onClick={close} disabled={busy}>
+          <div className="home-actions">
+            <button type="button" className="ui-button ui-button--outline" onClick={close} disabled={busy}>
               {t('home.profile.cancel')}
             </button>
-            <button type="button" className="primary" onClick={submit} disabled={busy || (action === 'explain' ? !askOk : !reasonOk)}>
+            <button type="button" className="ui-button ui-button--primary" onClick={submit} disabled={busy || (action === 'explain' ? !askOk : !reasonOk)}>
               {t('home.profile.confirm')}
             </button>
           </div>

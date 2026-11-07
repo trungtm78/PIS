@@ -9,6 +9,8 @@ import { useChange, useProposeRecord, useRecordByKey, useRecords } from './hooks
 import { fieldProblemMessage, problemMessage } from './labels';
 import { EMPTY_RECORD_FORM, LABEL_MAX_LENGTH, PROPOSE_PERMISSION, describeProblem, parseAttributes, recordLink, validateNewRecord } from './model';
 import type { RecordField, RecordForm } from './model';
+import { SectionCard } from '../../ui';
+import '../adm/adm-kit.css';
 
 const APPROVAL_PATH = '/mdm/mdm-32';
 const IMPORT_PATH = '/mdm/mdm-29';
@@ -146,10 +148,10 @@ function MasterCreateContent({ route }: ScreenProps) {
               <textarea id="record-reason" rows={2} value={form.reason} aria-invalid={error('reason') !== undefined} onChange={(event) => setField('reason', event.target.value)} />
             </Field>
           </fieldset>
-          <div className="formfooter">
+          <div className="adm-kit-actions">
             <span className="sub">{t('mdm.create.form.hint')}</span>
             {canPropose && draft === undefined ? (
-              <button type="submit" className="primary" disabled={propose.isPending}>
+              <button type="submit" className="ui-button ui-button--primary" disabled={propose.isPending}>
                 {t('mdm.create.save.action')}
               </button>
             ) : null}
@@ -157,10 +159,9 @@ function MasterCreateContent({ route }: ScreenProps) {
         </form>
         <div>
           {draft === undefined ? (
-            <aside className="card">
-              <h2>{t('mdm.impact.step.title')}</h2>
+            <SectionCard title={t('mdm.impact.step.title')}>
               <p className="muted">{t('mdm.create.impact.waiting.text')}</p>
-            </aside>
+            </SectionCard>
           ) : (
             <>
               <p className="callout" role="status">

@@ -6,6 +6,7 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { ContextBar, ReadonlyStat, SectionCard, StatusPill, StickyActions } from '../../../ui';
 import { Field } from '../components';
 import { usePeriods } from '../hooks';
 import { useFrozenSnapshots } from '../rates/hooks';
@@ -15,6 +16,7 @@ import { COLUMN_KEYS, FORMATS, SCALES, canChoose, canExport, describeExport, exp
 import type { ColumnKey, ExportForm, ExportProblem, Format, Scale } from './model';
 
 type T = Translator['t'];
+const NONE = '—';
 
 function problemMessage(t: T, problem: ExportProblem): string {
   switch (problem) {
@@ -85,7 +87,7 @@ export default function ExportScreen({ route }: ScreenProps) {
 
 function ExportContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { permissions } = useSession();
+  const { permissions, tenant } = useSession();
   const reads = canChoose(permissions);
   const frozen = useFrozenSnapshots(reads);
   const periods = usePeriods();
@@ -122,95 +124,117 @@ function ExportContent({ route }: ScreenProps) {
           <p>{t('dis.export.page.subtitle')}</p>
         </div>
       </div>
+      <ContextBar
+        items={[
+          { label: t('dis.wr.ctx.scope'), value: tenant?.name ?? t('dis.wr.ctx.scope.all') },
+          { label: t('dis.wr.ctx.period'), value: chosen === undefined ? t('dis.wr.ctx.period.none') : (codes.get(chosen.periodId) ?? chosen.periodId.slice(0, 8)) },
+          { label: t('w2dis.export.ctx.cutoff'), value: chosen?.cutoffDate ?? NONE },
+        ]}
+        unit={scaleLabel(t, form.scale)}
+      />
       <StateBoundary state={state} onRetry={() => void frozen.refetch()}>
-        <form className="card" onSubmit={submit} noValidate aria-label={t('dis.export.form.aria')}>
-          {canExport(permissions) ? null : (
-            <p className="callout warning" role="status" data-testid="export-denied">
-              {t('dis.export.denied.note')}
-            </p>
-          )}
-          {canExport(permissions) && !reads ? (
-            <p className="callout warning" role="status" data-testid="export-read-needed">
-              {t('dis.export.readNeeded.note')}
-            </p>
-          ) : null}
-          {createProblem === undefined ? null : (
-            <p className="callout warning" role="alert" data-testid="export-refusal">
-              {problemMessage(t, createProblem)}
-            </p>
-          )}
-          <div className="formgrid">
-            <Field id="export-snapshot" label={t('dis.export.snapshot.label')} error={invalid === 'snapshotRequired' ? t('dis.export.snapshot.required') : undefined}>
-              <select id="export-snapshot" value={form.snapshotId} onChange={(event) => setForm({ ...form, snapshotId: event.target.value })}>
-                <option value="">{t('dis.export.snapshot.choose')}</option>
-                {(frozen.data ?? []).map((snapshot) => (
-                  <option key={snapshot.id} value={snapshot.id}>
-                    {t('dis.export.snapshot.option', { period: codes.get(snapshot.periodId) ?? snapshot.periodId.slice(0, 8), cutoff: snapshot.cutoffDate })}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field id="export-format" label={t('dis.export.format.label')} error={undefined}>
-              <select id="export-format" value={form.format} onChange={(event) => setForm({ ...form, format: event.target.value as Format })}>
-                {FORMATS.map((format) => (
-                  <option key={format} value={format}>
-                    {formatLabel(t, format)}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field id="export-scale" label={t('dis.export.scale.label')} error={undefined}>
-              <select id="export-scale" value={form.scale} onChange={(event) => setForm({ ...form, scale: event.target.value as Scale })}>
-                {SCALES.map((scale) => (
-                  <option key={scale} value={scale}>
-                    {scaleLabel(t, scale)}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          </div>
-          {chosen?.definitionStatus === 'PROPOSED_PENDING_SIGNOFF' ? (
-            <p className="callout" role="note" data-testid="export-pending-note">
-              {t('dis.export.pending.note')}
-            </p>
-          ) : null}
-          <fieldset aria-describedby={invalid === 'columnsRequired' ? 'export-columns-error' : undefined}>
-            <legend>{t('dis.export.columns.legend')}</legend>
-            <div className="dis-chip-list">
-              {COLUMN_KEYS.map((key) => (
-                <label key={key} className="check">
-                  <input type="checkbox" checked={form.columns.includes(key)} onChange={() => toggle(key)} /> {columnLabel(t, key)}
-                </label>
-              ))}
-            </div>
-            <p>
-              <button type="button" onClick={() => setForm({ ...form, columns: COLUMN_KEYS })}>
-                {t('dis.export.columns.all.action')}
-              </button>
-            </p>
-            {invalid === 'columnsRequired' ? (
-              <small role="alert" className="field-error" id="export-columns-error">
-                {t('dis.export.columns.required')}
-              </small>
+        <form onSubmit={submit} noValidate aria-label={t('dis.export.form.aria')}>
+          <SectionCard
+            title={t('w2dis.export.form.title')}
+            status={
+              chosen === undefined ? undefined : (
+                <StatusPill tone={chosen.definitionStatus === 'PROPOSED_PENDING_SIGNOFF' ? 'warning' : 'success'}>
+                  {chosen.definitionStatus === 'PROPOSED_PENDING_SIGNOFF' ? t('w2dis.export.definition.pending') : t('w2dis.export.definition.signed')}
+                </StatusPill>
+              )
+            }
+          >
+            {canExport(permissions) ? null : (
+              <p className="dis-w2-banner" role="status" data-testid="export-denied">
+                {t('dis.export.denied.note')}
+              </p>
+            )}
+            {canExport(permissions) && !reads ? (
+              <p className="dis-w2-banner" role="status" data-testid="export-read-needed">
+                {t('dis.export.readNeeded.note')}
+              </p>
             ) : null}
-          </fieldset>
-          <div className="formfooter">
-            <button type="submit" className="primary" disabled={!allowed || create.isPending}>
-              {create.isPending ? t('dis.export.submit.pending') : t('dis.export.submit.action')}
-            </button>
-          </div>
+            {createProblem === undefined ? null : (
+              <p className="dis-w2-banner" role="alert" data-testid="export-refusal">
+                {problemMessage(t, createProblem)}
+              </p>
+            )}
+            <div className="formgrid">
+              <Field id="export-snapshot" label={t('dis.export.snapshot.label')} error={invalid === 'snapshotRequired' ? t('dis.export.snapshot.required') : undefined}>
+                <select id="export-snapshot" value={form.snapshotId} onChange={(event) => setForm({ ...form, snapshotId: event.target.value })}>
+                  <option value="">{t('dis.export.snapshot.choose')}</option>
+                  {(frozen.data ?? []).map((snapshot) => (
+                    <option key={snapshot.id} value={snapshot.id}>
+                      {t('dis.export.snapshot.option', { period: codes.get(snapshot.periodId) ?? snapshot.periodId.slice(0, 8), cutoff: snapshot.cutoffDate })}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field id="export-format" label={t('dis.export.format.label')} error={undefined}>
+                <select id="export-format" value={form.format} onChange={(event) => setForm({ ...form, format: event.target.value as Format })}>
+                  {FORMATS.map((format) => (
+                    <option key={format} value={format}>
+                      {formatLabel(t, format)}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field id="export-scale" label={t('dis.export.scale.label')} error={undefined}>
+                <select id="export-scale" value={form.scale} onChange={(event) => setForm({ ...form, scale: event.target.value as Scale })}>
+                  {SCALES.map((scale) => (
+                    <option key={scale} value={scale}>
+                      {scaleLabel(t, scale)}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+            {chosen?.definitionStatus === 'PROPOSED_PENDING_SIGNOFF' ? (
+              <p className="dis-w2-banner dis-w2-banner--info" role="note" data-testid="export-pending-note">
+                {t('dis.export.pending.note')}
+              </p>
+            ) : null}
+            <fieldset aria-describedby={invalid === 'columnsRequired' ? 'export-columns-error' : undefined}>
+              <legend>{t('dis.export.columns.legend')}</legend>
+              <div className="dis-chip-list">
+                {COLUMN_KEYS.map((key) => (
+                  <label key={key} className="check">
+                    <input type="checkbox" checked={form.columns.includes(key)} onChange={() => toggle(key)} /> {columnLabel(t, key)}
+                  </label>
+                ))}
+              </div>
+              <p>
+                <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setForm({ ...form, columns: COLUMN_KEYS })}>
+                  {t('dis.export.columns.all.action')}
+                </button>
+              </p>
+              {invalid === 'columnsRequired' ? (
+                <small role="alert" className="field-error" id="export-columns-error">
+                  {t('dis.export.columns.required')}
+                </small>
+              ) : null}
+            </fieldset>
+            {chosen === undefined ? null : <ReadonlyStat label={t('w2dis.export.stat.rows')} value={String(chosen.rowCount)} />}
+            <StickyActions
+              primary={
+                <button type="submit" className="ui-button ui-button--primary" disabled={!allowed || create.isPending}>
+                  {create.isPending ? t('dis.export.submit.pending') : t('dis.export.submit.action')}
+                </button>
+              }
+            />
+          </SectionCard>
         </form>
         {ready === undefined ? null : (
-          <section className="card" aria-labelledby="export-ready-title" data-testid="export-ready">
+          <section className="dis-wr-receipt" aria-labelledby="export-ready-title" data-testid="export-ready">
             <h2 id="export-ready-title">{t('dis.export.ready.title')}</h2>
             <p>{t('dis.export.ready.text')}</p>
             {downloadProblem === undefined ? null : (
-              <p className="callout warning" role="alert" data-testid="download-refusal">
+              <p className="dis-w2-banner" role="alert" data-testid="download-refusal">
                 {problemMessage(t, downloadProblem)}
               </p>
             )}
             {link === undefined ? (
-              <button type="button" disabled={issue.isPending} onClick={() => issue.mutate(ready)}>
+              <button type="button" className="ui-button ui-button--primary" disabled={issue.isPending} onClick={() => issue.mutate(ready)}>
                 {t('dis.export.download.action')}
               </button>
             ) : (
@@ -219,7 +243,7 @@ function ExportContent({ route }: ScreenProps) {
                   {t('dis.export.download.link')}
                 </a>{' '}
                 <span className="sub">{t('dis.export.download.expires', { at: link.expiresAt.slice(11, 16), rows: String(link.rows) })}</span>{' '}
-                <button type="button" disabled={issue.isPending} onClick={() => issue.mutate(ready)}>
+                <button type="button" className="ui-button ui-button--outline" disabled={issue.isPending} onClick={() => issue.mutate(ready)}>
                   {t('dis.export.download.renew.action')}
                 </button>
               </p>

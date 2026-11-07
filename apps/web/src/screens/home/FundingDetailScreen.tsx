@@ -4,11 +4,15 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { ContextBar, DataTable, FilterPanel, SectionCard, StatusPill } from '../../ui';
+import type { DataTableColumn } from '../../ui';
 import { categoryLabel, originLabel } from '../cap/labels';
 import { vndText } from '../cap/model';
 import '../dis/dis.css';
+import './home.css';
 import { YearField } from './funding-components';
 import { useFunding } from './funding-hooks';
+import type { DetailRow } from './funding-model';
 
 const OVERVIEW_PATH = '/home/home-07';
 
@@ -24,8 +28,21 @@ export default function FundingDetailScreen({ route }: ScreenProps) {
 
 function DetailContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
+  const tenant = useSession().tenant;
   const { register, years, year, funding, setYear } = useFunding();
   const state = useScreenState({ isLoading: register.isLoading, error: register.error, data: register.data === undefined ? undefined : years });
+  const columns: DataTableColumn<DetailRow>[] = [
+    { key: 'source', header: t('home.funding.detail.column.source'), pinned: true, render: (row) => row.label },
+    { key: 'category', header: t('home.funding.detail.column.category'), render: (row) => categoryLabel(t, row.category) },
+    { key: 'origin', header: t('home.funding.detail.column.origin'), render: (row) => (row.origin === null ? '' : originLabel(t, row.origin)) },
+    { key: 'amount', header: t('home.funding.detail.column.amount'), align: 'right', render: (row) => vndText(row.vnd, locale) },
+    {
+      key: 'relation',
+      header: t('home.funding.detail.column.relation'),
+      render: (row) => (row.subsetOf === null ? t('home.funding.detail.relation.independent') : <StatusPill tone="info">{t('home.funding.detail.relation.subset')}</StatusPill>),
+    },
+    { key: 'cutoff', header: t('home.funding.detail.column.cutoff'), render: (row) => row.cutOff ?? t('home.funding.detail.cutoff.none') },
+  ];
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       <div className="heading">
@@ -33,61 +50,41 @@ function DetailContent({ route }: ScreenProps) {
           <h1 id="screen-title">{t('home.funding.detail.title')}</h1>
           <p>{t('home.funding.detail.subtitle')}</p>
         </div>
-        <Link className="button" to={year === undefined ? OVERVIEW_PATH : `${OVERVIEW_PATH}?year=${year}`}>
-          {t('home.funding.detail.back')}
-        </Link>
+        <div className="actions">
+          <Link className="ui-button ui-button--outline" to={year === undefined ? OVERVIEW_PATH : `${OVERVIEW_PATH}?year=${year}`}>
+            {t('home.funding.detail.back')}
+          </Link>
+        </div>
       </div>
       <StateBoundary state={state} onRetry={() => void register.refetch()}>
         {funding === undefined ? null : (
-          <>
-            <div className="card">
+          <div className="home-stack">
+            <ContextBar items={[{ label: t('dis.wr.ctx.scope'), value: tenant?.name ?? t('dis.wr.ctx.scope.all') }, { label: t('home.funding.year.label'), value: String(funding.year) }]} unit={t('dis.wr.unit')} />
+            <FilterPanel unitLabel={t('dis.wr.unit')}>
               <YearField years={years} year={year} onChange={setYear} />
+            </FilterPanel>
+            <SectionCard title={t('home.funding.detail.table', { year: funding.year })} unit={t('dis.wr.unit')}>
+              <div data-testid="funding-table">
+                <DataTable
+                  caption={t('home.funding.detail.table', { year: funding.year })}
+                  columns={columns}
+                  rows={funding.rows}
+                  rowKey={(row) => row.key}
+                  totalsLabel={t('home.funding.detail.total')}
+                  totals={{ amount: funding.totalVnd === null ? t('home.funding.card.none') : vndText(funding.totalVnd, locale) }}
+                />
+              </div>
+            </SectionCard>
+            <div data-testid="funding-scope">
+              <SectionCard title={t('home.funding.scope.title')}>
+                <ul className="home-lines">
+                  <li>{t('home.funding.scope.published', { year: funding.year })}</li>
+                  <li>{t('home.funding.scope.subset')}</li>
+                  <li>{t('home.funding.scope.cutoff')}</li>
+                </ul>
+              </SectionCard>
             </div>
-            <section className="card" aria-labelledby="funding-table-title">
-              <h2 id="funding-table-title">{t('home.funding.detail.table', { year: funding.year })}</h2>
-              <table className="table" data-testid="funding-table" aria-label={t('home.funding.detail.table', { year: funding.year })}>
-                <thead>
-                  <tr>
-                    <th scope="col">{t('home.funding.detail.column.source')}</th>
-                    <th scope="col">{t('home.funding.detail.column.category')}</th>
-                    <th scope="col">{t('home.funding.detail.column.origin')}</th>
-                    <th scope="col">{t('home.funding.detail.column.amount')}</th>
-                    <th scope="col">{t('home.funding.detail.column.relation')}</th>
-                    <th scope="col">{t('home.funding.detail.column.cutoff')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {funding.rows.map((row) => (
-                    <tr key={row.key} data-row={row.key} data-subset={row.subsetOf === null ? 'false' : 'true'}>
-                      <td>{row.label}</td>
-                      <td>{categoryLabel(t, row.category)}</td>
-                      <td>{row.origin === null ? '' : originLabel(t, row.origin)}</td>
-                      <td className="num">{vndText(row.vnd, locale)}</td>
-                      <td>{row.subsetOf === null ? t('home.funding.detail.relation.independent') : t('home.funding.detail.relation.subset')}</td>
-                      <td>{row.cutOff ?? t('home.funding.detail.cutoff.none')}</td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr data-testid="funding-table-total">
-                    <th scope="row" colSpan={3}>
-                      {t('home.funding.detail.total')}
-                    </th>
-                    <td className="num">{funding.totalVnd === null ? t('home.funding.card.none') : vndText(funding.totalVnd, locale)}</td>
-                    <td colSpan={2} />
-                  </tr>
-                </tfoot>
-              </table>
-            </section>
-            <section className="card" aria-labelledby="funding-scope-title" data-testid="funding-scope">
-              <h2 id="funding-scope-title">{t('home.funding.scope.title')}</h2>
-              <ul className="mne-lines">
-                <li>{t('home.funding.scope.published', { year: funding.year })}</li>
-                <li>{t('home.funding.scope.subset')}</li>
-                <li>{t('home.funding.scope.cutoff')}</li>
-              </ul>
-            </section>
-          </>
+          </div>
         )}
       </StateBoundary>
     </section>

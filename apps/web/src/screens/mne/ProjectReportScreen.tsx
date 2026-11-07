@@ -16,6 +16,8 @@ import { ReportEditor } from './ReportScreen';
 import { READ_PERMISSION } from './types';
 import type { ReportView } from './types';
 import './mne.css';
+import './mne-kit.css';
+import { StatusPill } from '../../ui';
 
 const NO_FILTER = { reportKind: '', effectiveOn: '' } as const;
 const REPORT_PATH = '/mne/mne-03';
@@ -44,7 +46,7 @@ function ProjectReportContent({ route }: ScreenProps) {
           <p>{t('mne.project.page.subtitle')}</p>
         </div>
         {reportId === '' || !readable ? null : (
-          <button type="button" className="btn" onClick={() => setParams({})}>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setParams({})}>
             {t('mne.project.back.action')}
           </button>
         )}
@@ -115,7 +117,7 @@ function ProjectReportPicker({ onOpen }: { onOpen: (id: string) => void }) {
                   <td>{item.dueDate}</td>
                   <td>{reportStatusLabel(t, item.status)}</td>
                   <td>
-                    <button type="button" className="btn" onClick={() => onOpen(item.reportId)}>
+                    <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => onOpen(item.reportId)}>
                       {t('mne.project.picker.open', { milestone: item.periodLabel })}
                     </button>
                   </td>
@@ -126,7 +128,7 @@ function ProjectReportPicker({ onOpen }: { onOpen: (id: string) => void }) {
         </div>
         {list.hasNextPage ? (
           <div className="mne-actions">
-            <button type="button" className="btn" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
               {t('mne.calendar.more.action')}
             </button>
           </div>
@@ -147,7 +149,7 @@ function OpenProjectReport({ id }: { id: string }) {
       {report === undefined ? null : report.projectId === null ? (
         <div className="card" data-testid="not-project-report">
           <p role="status">{t('mne.project.notProject.notice')}</p>
-          <Link className="btn" to={`${REPORT_PATH}?report=${id}`}>
+          <Link className="ui-button ui-button--outline" to={`${REPORT_PATH}?report=${id}`}>
             {t('mne.project.notProject.action')}
           </Link>
         </div>
@@ -180,7 +182,7 @@ function ProjectCard({ report, projectId }: { report: ReportView; projectId: str
             <span className="sub">{t('mne.project.project.unreadable.notice')}</span>
           ) : (
             <>
-              {found.code} {found.name} <span className="pill">{stageLabel(t, found.status)}</span>
+              {found.code} {found.name} <StatusPill tone="info">{stageLabel(t, found.status)}</StatusPill>
             </>
           )}
         </dd>

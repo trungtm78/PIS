@@ -11,6 +11,7 @@ import { useInboxEvents, useReplayInboxEvent } from '../adm/inbox/hooks';
 import { inboxStatusLabel, inboxStatusPill, problemMessage } from '../adm/inbox/labels';
 import { INBOX_STATUSES, OPERATE_INTEGRATION_PERMISSION, REASON_MAX_LENGTH, REASON_MIN_LENGTH, describeProblem, mayReplay } from '../adm/inbox/model';
 import type { InboxStatus } from '../adm/inbox/model';
+import { StatusPill } from '../../ui';
 import '../not/delivery/delivery.css';
 
 /**
@@ -118,7 +119,7 @@ function EventsContent({ route }: ScreenProps) {
                       {event.eventType === null ? null : <div className="sub">{event.eventType}</div>}
                     </td>
                     <td data-signature>
-                      <span className="pill ok">{t('omni.webhook.signature.valid')}</span>
+                      <StatusPill tone="success">{t('omni.webhook.signature.valid')}</StatusPill>
                     </td>
                     <td>{instantText(locale, event.receivedAt)}</td>
                     <td>

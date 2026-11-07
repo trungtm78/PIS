@@ -6,11 +6,14 @@ import { useSession } from '../../session/SessionContext';
 import { adapterLabel, cursorStatusLabel } from '../mdm/labels';
 import type { CursorView } from '../mdm/model';
 import { instantText } from './audit/SealBanner';
-import { adapterPill } from './connectors/labels';
+import { adapterTone } from './connectors/labels';
 import { useReplayInboxEvent } from './inbox/hooks';
-import { inboxStatusLabel, inboxStatusPill, problemMessage } from './inbox/labels';
+import { inboxStatusLabel, inboxStatusTone, problemMessage } from './inbox/labels';
 import { INBOX_STATUSES, OPERATE_INTEGRATION_PERMISSION, REASON_MAX_LENGTH, REASON_MIN_LENGTH, describeProblem, mayReplay } from './inbox/model';
 import type { InboxEventView, InboxStatus } from './inbox/model';
+import { SectionCard, StatusPill } from '../../ui';
+import { KitTable } from './KitTable';
+import './adm-kit.css';
 import './inbox/inbox.css';
 
 export interface SyncMonitorWorkspaceProps {
@@ -74,12 +77,11 @@ function WorkspaceContent({ route, cursors, events }: SyncMonitorWorkspaceProps)
         </div>
       </div>
 
-      <div className="card" data-testid="cursors">
-        <h2>{t('adm.sync.cursor.title')}</h2>
+      <SectionCard title={t('adm.sync.cursor.title')}>
+        <div data-testid="cursors">
         {cursors.length === 0 ? <p className="muted">{t('adm.sync.cursor.empty')}</p> : null}
         {cursors.length === 0 ? null : (
-          <div className="tablewrap">
-            <table>
+          <KitTable caption={t('w2adm.sync.table.cursors')}>
               <thead>
                 <tr>
                   <th>{t('adm.sync.cursor.col.connector')}</th>
@@ -97,7 +99,7 @@ function WorkspaceContent({ route, cursors, events }: SyncMonitorWorkspaceProps)
                       <div className="sub">{cursor.sourceScope}</div>
                     </td>
                     <td>
-                      <span className={adapterPill(cursor.adapterStatus)}>{adapterLabel(t, cursor.adapterStatus)}</span>
+                      <StatusPill tone={adapterTone(cursor.adapterStatus)}>{adapterLabel(t, cursor.adapterStatus)}</StatusPill>
                     </td>
                     <td>{cursorStatusLabel(t, cursor.status)}</td>
                     <td>{cursor.lastSuccessAt === null ? t('adm.sync.cursor.never.text') : instantText(locale, cursor.lastSuccessAt)}</td>
@@ -105,13 +107,13 @@ function WorkspaceContent({ route, cursors, events }: SyncMonitorWorkspaceProps)
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+            </KitTable>
         )}
-      </div>
+        </div>
+      </SectionCard>
 
-      <div className="card" data-testid="events">
-        <h2>{t('adm.sync.events.title')}</h2>
+      <SectionCard title={t('adm.sync.events.title')}>
+        <div data-testid="events">
         <p className="sub">{t('adm.sync.events.hint')}</p>
         {dead === 0 ? null : (
           <p className="callout warning" role="status" data-testid="dead-note">
@@ -138,8 +140,7 @@ function WorkspaceContent({ route, cursors, events }: SyncMonitorWorkspaceProps)
         </div>
         {shown.length === 0 ? <p className="muted">{t('adm.sync.events.empty')}</p> : null}
         {shown.length === 0 ? null : (
-          <div className="tablewrap">
-            <table>
+          <KitTable caption={t('w2adm.sync.table.events')}>
               <thead>
                 <tr>
                   <th>{t('adm.sync.events.col.event')}</th>
@@ -149,7 +150,7 @@ function WorkspaceContent({ route, cursors, events }: SyncMonitorWorkspaceProps)
                   <th>{t('adm.sync.events.col.error')}</th>
                   <th>{t('adm.sync.events.col.received')}</th>
                   <th>
-                    <span className="sr-only">{t('adm.sync.events.col.actions')}</span>
+                    {t('adm.sync.events.col.actions')}
                   </th>
                 </tr>
               </thead>
@@ -161,7 +162,7 @@ function WorkspaceContent({ route, cursors, events }: SyncMonitorWorkspaceProps)
                       <div className="sub">{event.eventType ?? event.eventKey}</div>
                     </td>
                     <td>
-                      <span className={inboxStatusPill(event.status)}>{inboxStatusLabel(t, event.status)}</span>
+                      <StatusPill tone={inboxStatusTone(event.status)}>{inboxStatusLabel(t, event.status)}</StatusPill>
                       {event.replayCount === 0 ? null : <div className="sub">{t('adm.sync.events.replayed.text', { count: event.replayCount })}</div>}
                     </td>
                     <td>{event.attempts}</td>
@@ -170,7 +171,7 @@ function WorkspaceContent({ route, cursors, events }: SyncMonitorWorkspaceProps)
                     <td>{instantText(locale, event.receivedAt)}</td>
                     <td className="row-actions">
                       {!canOperate || !(event.status === 'FAILED' || event.status === 'DEAD') ? null : mayReplay(event) ? (
-                        <button type="button" onClick={() => (setReplaying(event.id), setReason(''), setReasonError(false))}>
+                        <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => (setReplaying(event.id), setReason(''), setReasonError(false))}>
                           {t('adm.sync.replay.action')}
                         </button>
                       ) : (
@@ -182,8 +183,7 @@ function WorkspaceContent({ route, cursors, events }: SyncMonitorWorkspaceProps)
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+            </KitTable>
         )}
         {target === undefined ? null : (
           <form className="replay-panel" onSubmit={confirm} aria-label={t('adm.sync.replay.title')} data-testid="replay-panel">
@@ -201,17 +201,18 @@ function WorkspaceContent({ route, cursors, events }: SyncMonitorWorkspaceProps)
                 </small>
               ) : null}
             </div>
-            <div className="formfooter">
-              <button type="submit" className="primary" disabled={replay.isPending}>
+            <div className="adm-kit-actions">
+              <button type="submit" className="ui-button ui-button--primary" disabled={replay.isPending}>
                 {t('adm.sync.replay.confirm.action')}
               </button>
-              <button type="button" onClick={() => setReplaying(undefined)}>
+              <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setReplaying(undefined)}>
                 {t('adm.sync.replay.cancel.action')}
               </button>
             </div>
           </form>
         )}
-      </div>
+        </div>
+      </SectionCard>
       <p className="prototype-note">{t('adm.sync.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
   );

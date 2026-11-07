@@ -14,6 +14,9 @@ import type { ScheduleForm, ScheduleFormat } from './export-model';
 import { useCreateSchedule, useMetrics, useSchedules } from './hooks';
 import { dimensionLabel } from './labels';
 import { DIMENSIONS } from './query-model';
+import './bi-kit.css';
+import { StatusPill } from '../../ui';
+import { scheduleStateTone } from './tones';
 
 const NONE = '—';
 
@@ -108,7 +111,7 @@ function SchedulesContent({ route }: ScreenProps) {
                 <td>{t('bi.sch.recipients.count', { count: schedule.recipients.length })}</td>
                 <td>{schedule.lastRunAt === null ? t('bi.sch.last.never') : schedule.lastRunAt.slice(0, 16).replace('T', ' ')}</td>
                 <td>
-                  <span className="pill">{scheduleStateLabel(t, schedule.status)}</span>
+                  <StatusPill tone={scheduleStateTone(schedule.status)}>{scheduleStateLabel(t, schedule.status)}</StatusPill>
                 </td>
               </tr>
             ))}
@@ -155,7 +158,7 @@ function SchedulesContent({ route }: ScreenProps) {
           </Field>
           <p className="sub">{t('bi.sch.recipients.help')}</p>
           <div className="formfooter">
-            <button type="submit" className="primary" disabled={create.isPending}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending}>
               {t('bi.sch.submit')}
             </button>
           </div>

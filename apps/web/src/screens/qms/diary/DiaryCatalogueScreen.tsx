@@ -5,12 +5,14 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { ContextBar, DataTable, FilterPanel, StatusPill } from '../../../ui';
+import type { DataTableColumn } from '../../../ui';
 import { useContracts } from '../../ctr/hooks';
 import { NewDiaryDialog } from './DiaryDialogs';
 import { useDiaries } from './hooks';
 import { roleLabel, statusLabel } from './labels';
 import { DIARY_ROLES, DIARY_STATUSES, NO_FILTER, canWrite, composeLink, pendingConflicts, reviewLink, vietnamToday } from './model';
-import type { DiaryFilter } from './model';
+import type { DiaryFilter, DiaryLine, DiaryStatus } from './model';
 import '../qms.css';
 
 /**
@@ -25,7 +27,7 @@ export default function DiaryCatalogueScreen({ route }: ScreenProps) {
 
 function CatalogueContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { permissions, mode } = useSession();
+  const { permissions, mode, tenant } = useSession();
   const navigate = useNavigate();
   const contracts = useContracts();
   const options = useMemo(() => contracts.data ?? [], [contracts.data]);
@@ -37,6 +39,7 @@ function CatalogueContent({ route }: ScreenProps) {
   const state = useScreenState({ isLoading: list.isLoading, error: list.error, data: list.data, isEmpty: () => false });
   const writable = canWrite(permissions, mode);
   const change = (next: Partial<DiaryFilter>): void => setFilter({ ...filter, ...next });
+  const applied = [filter.contractId !== '', filter.status !== '', filter.hasConflict, filter.from !== '', filter.to !== ''].filter(Boolean).length;
 
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
@@ -47,121 +50,78 @@ function CatalogueContent({ route }: ScreenProps) {
         </div>
         {writable ? (
           <div className="actions">
-            <button type="button" className="primary" onClick={() => setCreating(true)}>
+            <button type="button" className="ui-button ui-button--primary" onClick={() => setCreating(true)}>
               {t('qms.diary.new.action')}
             </button>
           </div>
         ) : null}
       </div>
-      <div className="card">
-        <div className="field">
-          <label htmlFor="diary-filter-contract">{t('qms.diary.field.contract')}</label>
-          <select id="diary-filter-contract" value={filter.contractId} onChange={(event) => change({ contractId: event.target.value })}>
-            <option value="">{t('qms.diary.filter.allContracts')}</option>
-            {options.map((contract) => (
-              <option key={contract.id} value={contract.id}>
-                {contract.title === null ? contract.code : `${contract.code} · ${contract.title}`}
-              </option>
-            ))}
-          </select>
+      <ContextBar items={[{ label: t('w2iss.ctx.scope'), value: tenant?.name ?? t('w2iss.ctx.scope.all') }]} />
+      <FilterPanel
+        applied={applied}
+        actions={
+          applied === 0 ? undefined : (
+            <button type="button" className="ui-button ui-button--outline" onClick={() => setFilter(NO_FILTER)}>
+              {t('w2iss.qms.filter.clear')}
+            </button>
+          )
+        }
+      >
+        <div className="qms-filters">
+          <div className="field">
+            <label htmlFor="diary-filter-contract">{t('qms.diary.field.contract')}</label>
+            <select id="diary-filter-contract" value={filter.contractId} onChange={(event) => change({ contractId: event.target.value })}>
+              <option value="">{t('qms.diary.filter.allContracts')}</option>
+              {options.map((contract) => (
+                <option key={contract.id} value={contract.id}>
+                  {contract.title === null ? contract.code : `${contract.code} · ${contract.title}`}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="diary-filter-status">{t('qms.diary.column.status')}</label>
+            <select id="diary-filter-status" value={filter.status} onChange={(event) => change({ status: event.target.value })}>
+              <option value="">{t('qms.diary.filter.allStatuses')}</option>
+              {DIARY_STATUSES.map((status) => (
+                <option key={status} value={status}>
+                  {statusLabel(t, status)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="diary-filter-conflict">
+              <input id="diary-filter-conflict" type="checkbox" checked={filter.hasConflict} onChange={(event) => change({ hasConflict: event.target.checked })} /> {t('qms.diary.filter.conflict')}
+            </label>
+          </div>
+          <div className="field">
+            <label htmlFor="diary-filter-from">{t('qms.diary.filter.from')}</label>
+            <input id="diary-filter-from" type="date" value={filter.from} onChange={(event) => change({ from: event.target.value })} />
+          </div>
+          <div className="field">
+            <label htmlFor="diary-filter-to">{t('qms.diary.filter.to')}</label>
+            <input id="diary-filter-to" type="date" value={filter.to} onChange={(event) => change({ to: event.target.value })} />
+          </div>
         </div>
-        <div className="field">
-          <label htmlFor="diary-filter-status">{t('qms.diary.column.status')}</label>
-          <select id="diary-filter-status" value={filter.status} onChange={(event) => change({ status: event.target.value })}>
-            <option value="">{t('qms.diary.filter.allStatuses')}</option>
-            {DIARY_STATUSES.map((status) => (
-              <option key={status} value={status}>
-                {statusLabel(t, status)}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="field">
-          <label htmlFor="diary-filter-conflict">
-            <input id="diary-filter-conflict" type="checkbox" checked={filter.hasConflict} onChange={(event) => change({ hasConflict: event.target.checked })} /> {t('qms.diary.filter.conflict')}
-          </label>
-        </div>
-        <div className="field">
-          <label htmlFor="diary-filter-from">{t('qms.diary.filter.from')}</label>
-          <input id="diary-filter-from" type="date" value={filter.from} onChange={(event) => change({ from: event.target.value })} />
-        </div>
-        <div className="field">
-          <label htmlFor="diary-filter-to">{t('qms.diary.filter.to')}</label>
-          <input id="diary-filter-to" type="date" value={filter.to} onChange={(event) => change({ to: event.target.value })} />
-        </div>
-      </div>
+      </FilterPanel>
       <StateBoundary state={state} onRetry={() => void list.refetch()}>
-        <div className="card">
-          {lines.length === 0 ? (
-            <p className="callout" role="status" data-testid="no-diaries">
-              {t('qms.diary.none.notice')}
-            </p>
-          ) : (
-            <table className="table" data-testid="diaries">
-              <thead>
-                <tr>
-                  <th scope="col">{t('qms.diary.column.diary')}</th>
-                  <th scope="col">{t('qms.diary.column.day')}</th>
-                  <th scope="col">{t('qms.diary.column.signatures')}</th>
-                  <th scope="col">{t('qms.diary.column.status')}</th>
-                  <th scope="col">
-                    <span className="sr-only">{t('qms.diary.column.actions')}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {lines.map((line) => (
-                  <tr key={line.id} data-diary={line.id} data-status={line.status}>
-                    <td data-testid="diary">
-                      <strong>{line.diaryNo}</strong>
-                      <small className="sub qms-regime">{line.contract.code}</small>
-                      {line.correctionOfId === null ? null : <span className="qms-badge">{t('qms.diary.correction.badge')}</span>}
-                      {pendingConflicts(line).length === 0 ? null : (
-                        <span className="qms-badge warning" data-testid="conflicts-waiting">
-                          {t('qms.diary.conflicts.count', { count: pendingConflicts(line).length })}
-                        </span>
-                      )}
-                    </td>
-                    <td data-testid="day">{line.recordDate}</td>
-                    <td data-testid="chain">
-                      <ul className="qms-signers">
-                        {DIARY_ROLES.map((role) => {
-                          const signature = line.signatures.find((candidate) => candidate.role === role);
-                          return (
-                            <li key={role} data-role={role} data-signed={signature === undefined ? 'no' : signature.valid ? 'yes' : 'void'}>
-                              <strong>{roleLabel(t, role)}</strong>
-                              <span className="sub"> — {signature === undefined ? t('qms.diary.signature.missing') : signature.valid ? signature.signerName : t('qms.diary.signature.void')}</span>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </td>
-                    <td>
-                      <span className={line.status === 'LOCKED' || line.status === 'OWNER_CONFIRMED' ? 'qms-badge ok' : line.status === 'SUPERSEDED' ? 'qms-badge warning' : 'qms-badge'} data-testid="status">
-                        {statusLabel(t, line.status)}
-                      </span>
-                    </td>
-                    <td>
-                      <Link className="button" to={composeLink(line.id)} data-open={line.id}>
-                        {t('qms.diary.open.action')}
-                      </Link>
-                      {line.actions.supervise || line.actions.ownerConfirm || line.actions.lock || line.actions.resolveConflict ? (
-                        <Link className="button" to={reviewLink(line.id)} data-review={line.id}>
-                          {t('qms.diary.review.action')}
-                        </Link>
-                      ) : null}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-          {list.hasNextPage ? (
-            <button type="button" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
+        {lines.length === 0 ? (
+          <p className="callout" role="status" data-testid="no-diaries">
+            {t('qms.diary.none.notice')}
+          </p>
+        ) : (
+          <div data-testid="diaries">
+            <DiaryTable lines={lines} />
+          </div>
+        )}
+        {list.hasNextPage ? (
+          <p>
+            <button type="button" className="ui-button ui-button--outline" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
               {t('qms.diary.more.action')}
             </button>
-          ) : null}
-        </div>
+          </p>
+        ) : null}
       </StateBoundary>
       {creating ? (
         <NewDiaryDialog
@@ -178,4 +138,83 @@ function CatalogueContent({ route }: ScreenProps) {
       <p className="prototype-note">{t('qms.diary.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
   );
+}
+
+const STATUS_TONE: Readonly<Record<DiaryStatus, 'neutral' | 'info' | 'success' | 'warning'>> = {
+  DRAFT: 'neutral',
+  CONTRACTOR_SIGNED: 'info',
+  SUPERVISED: 'info',
+  OWNER_CONFIRMED: 'success',
+  LOCKED: 'success',
+  SUPERSEDED: 'warning',
+};
+
+/** The diaries, newest day first as the server answers: the number and the contract, the day, the three signatures in the order they are made, the status and the way to the diary. */
+function DiaryTable({ lines }: { lines: DiaryLine[] }) {
+  const { t } = useTranslation();
+  const columns: DataTableColumn<DiaryLine>[] = [
+    {
+      key: 'diary',
+      header: t('qms.diary.column.diary'),
+      pinned: true,
+      render: (line) => (
+        <span data-testid="diary" data-diary={line.id}>
+          <strong>{line.diaryNo}</strong>
+          <small className="sub qms-regime">{line.contract.code}</small>
+          <span className="qms-chips">
+            {line.correctionOfId === null ? null : <StatusPill tone="neutral">{t('qms.diary.correction.badge')}</StatusPill>}
+            {pendingConflicts(line).length === 0 ? null : (
+              <span data-testid="conflicts-waiting">
+                <StatusPill tone="warning">{t('qms.diary.conflicts.count', { count: pendingConflicts(line).length })}</StatusPill>
+              </span>
+            )}
+          </span>
+        </span>
+      ),
+    },
+    { key: 'day', header: t('qms.diary.column.day'), render: (line) => <span data-testid="day">{line.recordDate}</span> },
+    {
+      key: 'signatures',
+      header: t('qms.diary.column.signatures'),
+      render: (line) => (
+        <ul className="qms-signers" data-testid="chain">
+          {DIARY_ROLES.map((role) => {
+            const signature = line.signatures.find((candidate) => candidate.role === role);
+            return (
+              <li key={role} data-role={role} data-signed={signature === undefined ? 'no' : signature.valid ? 'yes' : 'void'}>
+                <strong>{roleLabel(t, role)}</strong>
+                <span className="sub"> — {signature === undefined ? t('qms.diary.signature.missing') : signature.valid ? signature.signerName : t('qms.diary.signature.void')}</span>
+              </li>
+            );
+          })}
+        </ul>
+      ),
+    },
+    {
+      key: 'status',
+      header: t('qms.diary.column.status'),
+      render: (line) => (
+        <span data-testid="status" data-status={line.status}>
+          <StatusPill tone={STATUS_TONE[line.status]}>{statusLabel(t, line.status)}</StatusPill>
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      header: t('qms.diary.column.actions'),
+      render: (line) => (
+        <span className="qms-row-actions">
+          <Link className="ui-button ui-button--outline ui-button--small" to={composeLink(line.id)} data-open={line.id}>
+            {t('qms.diary.open.action')}
+          </Link>
+          {line.actions.supervise || line.actions.ownerConfirm || line.actions.lock || line.actions.resolveConflict ? (
+            <Link className="ui-button ui-button--outline ui-button--small" to={reviewLink(line.id)} data-review={line.id}>
+              {t('qms.diary.review.action')}
+            </Link>
+          ) : null}
+        </span>
+      ),
+    },
+  ];
+  return <DataTable caption={t('w2iss.qms.diaries.aria')} columns={columns} rows={lines} rowKey={(line) => line.id} />;
 }

@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
-import { Field } from './components';
+import { Field, Pill } from './components';
+import { SectionCard } from '../../ui';
 import { useAddPermit } from './dossier-commands';
 import { permitFieldMessage, permitProblemMessage, permitStatusLabel, remainingText } from './dossier-labels';
 import { EMPTY_ADD_PERMIT, daysRemaining, describePermitProblem, isExpiring, isValidOn, permitLink, statusTone, toAddPermitBody, validateAddPermit } from './dossier-model';
@@ -34,9 +35,9 @@ function Validity({ permit, today }: { permit: PermitLineView; today: string }) 
       {valid ? (
         <>
           {' '}
-          <span className={isExpiring(permit, today) ? 'pill warn' : 'pill gray'} data-testid="remaining">
+          <Pill tone={isExpiring(permit, today) ? 'warn' : 'gray'} data-testid="remaining">
             {remainingText(t, permit.noExpiry ? null : daysRemaining(permit.validUntil, today))}
-          </span>
+          </Pill>
         </>
       ) : null}
     </>
@@ -60,8 +61,8 @@ export function DossierPermits({ dossier, types, today, mayAdd }: DossierPermits
   );
 
   return (
-    <div className="card" data-testid="dossier-permits" data-dossier-id={dossier.id}>
-      <h2>{t('pmt.dossier.permits.title', { code: dossier.projectCode })}</h2>
+    <div data-testid="dossier-permits" data-dossier-id={dossier.id}>
+      <SectionCard title={t('pmt.dossier.permits.title', { code: dossier.projectCode })}>
       <table className="table" aria-label={t('pmt.dossier.permits.aria')}>
         <thead>
           <tr>
@@ -87,14 +88,14 @@ export function DossierPermits({ dossier, types, today, mayAdd }: DossierPermits
                 {permit.cxnRef === null ? null : (
                   <>
                     {' '}
-                    <span className="pill warn" data-testid="unconfirmed">
+                    <Pill tone="warn" data-testid="unconfirmed">
                       {t('pmt.type.unconfirmed.text', { cxn: permit.cxnRef })}
-                    </span>
+                    </Pill>
                   </>
                 )}
               </th>
               <td>
-                <span className={`pill ${statusTone(permit.status)}`}>{permitStatusLabel(t, permit.status)}</span>
+                <Pill tone={statusTone(permit.status)}>{permitStatusLabel(t, permit.status)}</Pill>
               </td>
               <td>{permit.permitNo ?? t('pmt.dossier.number.none.text')}</td>
               <td>
@@ -109,6 +110,7 @@ export function DossierPermits({ dossier, types, today, mayAdd }: DossierPermits
         </tbody>
       </table>
       {mayAdd ? <AddPermitForm dossierId={dossier.id} addable={addable} /> : null}
+      </SectionCard>
     </div>
   );
 }

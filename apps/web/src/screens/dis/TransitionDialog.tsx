@@ -4,8 +4,8 @@ import { useTranslation } from '../../i18n';
 import { NavigationDialog } from '../../shell/NavigationDialog';
 import { Field } from './components';
 import { usePeriodMove } from './hooks';
-import { fieldProblemMessage, problemMessage } from './labels';
-import { describeProblem, validateReason } from './model';
+import { fieldProblemMessage, problemMessage, statusLabel } from './labels';
+import { describeProblem, validateReason, vietnamMoment } from './model';
 import type { FieldProblem, PeriodMove, PeriodView } from './model';
 
 /** The multiplication sign on the close button of the dialog. */
@@ -50,8 +50,22 @@ export function TransitionDialog({ period, move, onClose }: TransitionDialogProp
         </div>
         <form className="dis-dialog-body" onSubmit={submit} noValidate>
           <p>{closing ? t('dis.calendar.softClose.dialog.body') : t('dis.calendar.lock.dialog.body')}</p>
+          <dl className="ui-dialog__context">
+            <div className="ui-dialog__row">
+              <dt>{t('dis.calendar.period.column')}</dt>
+              <dd>{period.code}</dd>
+            </div>
+            <div className="ui-dialog__row">
+              <dt>{t('dis.calendar.status.column')}</dt>
+              <dd>{statusLabel(t, period.status)}</dd>
+            </div>
+            <div className="ui-dialog__row">
+              <dt>{t('dis.calendar.deadline.column')}</dt>
+              <dd>{vietnamMoment(period.deadlineAt)}</dd>
+            </div>
+          </dl>
           {refused === undefined ? null : (
-            <p className="callout warning" role="alert">
+            <p className="dis-w2-banner" role="alert">
               {problemMessage(t, refused)}
             </p>
           )}
@@ -68,10 +82,10 @@ export function TransitionDialog({ period, move, onClose }: TransitionDialogProp
             />
           </Field>
           <div className="formfooter">
-            <button type="button" onClick={onClose}>
+            <button type="button" className="ui-button ui-button--outline" onClick={onClose}>
               {t('dis.calendar.dialog.cancel.action')}
             </button>
-            <button type="submit" className={closing ? 'primary' : 'danger'} disabled={send.isPending}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={send.isPending}>
               {closing ? t('dis.calendar.softClose.confirm.action') : t('dis.calendar.lock.confirm.action')}
             </button>
           </div>

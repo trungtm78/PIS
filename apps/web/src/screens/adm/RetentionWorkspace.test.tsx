@@ -91,10 +91,10 @@ describe('RetentionWorkspace (ADM-12)', () => {
     expect(within(live).getByText(vi_['adm.retention.basis.closed'])).toBeTruthy();
     expect(within(live).getByText(vi_['adm.retention.period.years'].replace('{count}', '12'))).toBeTruthy();
     expect(within(live).getByText(vi_['adm.retention.endAction.review'])).toBeTruthy();
-    expect(within(live).getByText(vi_['adm.retention.status.published']).className).toBe('pill');
+    expect(within(live).getByText(vi_['adm.retention.status.published']).closest('.ui-pill')?.className).toContain('ui-tone-success');
     expect(within(live).getByText(/Basis of p-live/)).toBeTruthy();
-    expect(within(rowOf('p-draft')).getByText(vi_['adm.retention.status.draft']).className).toContain('warn');
-    expect(within(rowOf('p-old')).getByText(vi_['adm.retention.status.superseded']).className).toContain('gray');
+    expect(within(rowOf('p-draft')).getByText(vi_['adm.retention.status.draft']).closest('.ui-pill')?.className).toContain('ui-tone-warning');
+    expect(within(rowOf('p-old')).getByText(vi_['adm.retention.status.superseded']).closest('.ui-pill')?.className).toContain('ui-tone-neutral');
     const session = rowOf('p-session');
     expect(within(session).getAllByText(vi_['adm.retention.period.permanent']).length).toBeGreaterThan(0);
     expect(within(session).getByText(vi_['adm.retention.endAction.purge'])).toBeTruthy();

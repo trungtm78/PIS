@@ -11,6 +11,7 @@ import '../dis/dis.css';
 import { BUILD_PERMISSION, MODEL_PATH, describeBuildProblem, periodProblem } from './dataset-model';
 import { useBuildVersion, useDatasetVersions, useDatasets } from './hooks';
 import { badgeLabel, buildProblemMessage, versionStatusLabel } from './labels';
+import './bi-kit.css';
 
 /**
  * BI-18: the datasets and the snapshots of their periods (ST-BI-002, BI 3 F2): for the dataset chosen, a version for each period: the snapshot of DIS it was made from, when it was built, the rows it has and the rows
@@ -54,7 +55,7 @@ function VersionsContent({ route }: ScreenProps) {
           <h1 id="screen-title">{t('bi.versions.page.title')}</h1>
           <p>{t('bi.versions.page.subtitle')}</p>
         </div>
-        <Link className="button" to={MODEL_PATH}>
+        <Link className="ui-button ui-button--outline" to={MODEL_PATH}>
           {t('bi.versions.back')}
         </Link>
       </div>
@@ -87,7 +88,7 @@ function VersionsContent({ route }: ScreenProps) {
               <input id="build-period" value={period} aria-invalid={problem !== undefined} onChange={(event) => { setPeriod(event.target.value); setProblem(undefined); }} />
             </Field>
             <div className="mne-actions">
-              <button type="submit" className="btn" disabled={build.isPending}>
+              <button type="submit" className="ui-button ui-button--primary" disabled={build.isPending}>
                 {t('bi.versions.build.action')}
               </button>
             </div>

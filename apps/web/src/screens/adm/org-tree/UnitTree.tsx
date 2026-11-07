@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import { useTranslation } from '../../../i18n';
+import { StatusPill } from '../../../ui';
 import { statusLabel } from './labels';
 import { visibleNodes } from './tree-model';
 import type { TreeNode } from './tree-model';
@@ -68,8 +69,8 @@ function NodeView({ node, expanded, onToggle, selectedId, onSelect, focusedId, r
           </span>
         </button>
         {/* A space between the parts of a row is not drawn (the row is a flex container) but it is in the text, so that the visible text reads as the name does. */}{' '}
-        <span id={`unit-status-${unit.id}`} className={`pill ${unit.status === 'Active' ? '' : 'gray'}`}>
-          {statusLabel(t, unit.status)}
+        <span id={`unit-status-${unit.id}`}>
+          <StatusPill tone={unit.status === 'Active' ? 'success' : 'neutral'}>{statusLabel(t, unit.status)}</StatusPill>
         </span>
         {node.successor === undefined ? null : (
           <>

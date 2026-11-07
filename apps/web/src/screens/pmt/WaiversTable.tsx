@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../i18n';
-import { Field } from './components';
+import { Field, Pill } from './components';
 import { gateLabel } from './gate-labels';
 import { useRevokeWaiver } from './waiver-hooks';
 import { phaseLabel, waiverProblemMessage, waiverStatusLabel } from './waiver-labels';
@@ -95,7 +95,7 @@ function WaiverRow({ waiver, today, mayRevoke, open, onOpen, onClose }: WaiverRo
           ) : null}
         </td>
         <td>
-          <span className={phase === 'inForce' ? 'pill' : 'pill gray'}>{phaseLabel(t, phase)}</span>
+          <Pill tone={phase === 'inForce' ? 'success' : 'gray'}>{phaseLabel(t, phase)}</Pill>
           <br />
           <small className="sub">{waiverStatusLabel(t, waiver.status)}</small>
         </td>

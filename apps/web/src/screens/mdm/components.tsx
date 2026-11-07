@@ -10,6 +10,8 @@ import type { ChangeView, Impact, RecordView } from './model';
 import { problemMessage } from './labels';
 import { TYPE_FORMS, attributesOf, keyPart, wordsOf, withAttribute } from './typeForms';
 import type { AttributeSpec } from './typeForms';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 import './mdm.css';
 
 /** The link above the title that the mockup of a detail screen carries: an arrow and the name of the screen it comes from. */
@@ -56,7 +58,7 @@ export function ImpactTable({ impact }: { impact: Impact }) {
       {entries.length === 0 ? (
         <p className="muted">{t('mdm.impact.none.text')}</p>
       ) : (
-        <table className="table">
+        <KitTable caption={t('w2mdm.impact.table.caption')}>
           <thead>
             <tr>
               <th>{t('mdm.impact.col.reference')}</th>
@@ -73,7 +75,7 @@ export function ImpactTable({ impact }: { impact: Impact }) {
               </tr>
             ))}
           </tbody>
-        </table>
+        </KitTable>
       )}
       <p className="sub">{t('mdm.impact.total.text', { total: impact.total })}</p>
     </div>
@@ -116,7 +118,7 @@ export function SubmitWithImpact({ change, canSubmit, onSubmitted }: { change: C
         {t('mdm.impact.read.label')}
       </label>
       {canSubmit ? (
-        <button type="submit" className="primary" disabled={!read || submit.isPending || change.impact === null}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={!read || submit.isPending || change.impact === null}>
           {t('mdm.impact.submit.action')}
         </button>
       ) : null}

@@ -3,7 +3,10 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { WebRoute } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
-import { recordStatusLabel } from '../mdm/labels';
+import { recordStatusLabel, recordStatusTone } from '../mdm/labels';
+import { FilterPanel, KpiStrip, KpiTile, SectionCard, StatusPill } from '../../ui';
+import { KitTable } from './KitTable';
+import './adm-kit.css';
 import type { RecordView } from '../mdm/model';
 import { HUB_PATH, catalogueRoute, entryRoute, groupsOf, nameOf, validityOf, versionOf } from './catalogues/model';
 
@@ -41,18 +44,25 @@ function Workspace({ route, records }: SharedCatalogueWorkspaceProps) {
           </Link>
         </div>
       </div>
-      <div className="cards" aria-label={t('adm.catalogues.types.title')}>
+      <KpiStrip label={t('adm.catalogues.types.title')}>
         {groups.map((group) => (
-          <div key={group.masterType} className="card" data-type-card={group.masterType}>
-            <strong>{group.masterType}</strong>
-            <span className="sub">{t('adm.catalogues.card.summary', { total: group.total, inForce: group.inForce })}</span>
-            <Link to={catalogueRoute(group.masterType)} data-testid="open-catalogue">
-              {t('adm.catalogues.open.action')}
-            </Link>
+          <div key={group.masterType} data-type-card={group.masterType}>
+            <KpiTile
+              label={group.masterType}
+              value={String(group.total)}
+              sub={
+                <>
+                  <span>{t('adm.catalogues.card.summary', { total: group.total, inForce: group.inForce })}</span>{' '}
+                  <Link to={catalogueRoute(group.masterType)} data-testid="open-catalogue">
+                    {t('adm.catalogues.open.action')}
+                  </Link>
+                </>
+              }
+            />
           </div>
         ))}
-      </div>
-      <div className="card">
+      </KpiStrip>
+      <FilterPanel>
         <div className="field" data-field="catalogue-type">
           <label htmlFor="catalogue-type">{t('adm.catalogues.type.label')}</label>
           <select id="catalogue-type" value={chosen} onChange={(event) => setChosen(event.target.value)}>
@@ -64,8 +74,9 @@ function Workspace({ route, records }: SharedCatalogueWorkspaceProps) {
             ))}
           </select>
         </div>
-        <table className="table" aria-label={t('adm.catalogues.table.aria')}>
-          <caption className="sr-only">{t('adm.catalogues.table.caption', { count: shown.length })}</caption>
+      </FilterPanel>
+      <SectionCard title={t('adm.catalogues.table.aria')}>
+        <KitTable caption={t('adm.catalogues.table.caption', { count: shown.length })} label={t('adm.catalogues.table.aria')}>
           <thead>
             <tr>
               <th scope="col">{t('adm.catalogues.column.type')}</th>
@@ -74,9 +85,7 @@ function Workspace({ route, records }: SharedCatalogueWorkspaceProps) {
               <th scope="col">{t('adm.catalogues.column.validity')}</th>
               <th scope="col">{t('adm.catalogues.column.namespace')}</th>
               <th scope="col">{t('adm.catalogues.column.version')}</th>
-              <th scope="col">
-                <span className="sr-only">{t('adm.catalogues.column.actions')}</span>
-              </th>
+              <th scope="col">{t('adm.catalogues.column.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -87,7 +96,7 @@ function Workspace({ route, records }: SharedCatalogueWorkspaceProps) {
                   <code>{record.businessKey}</code>
                 </td>
                 <td>
-                  {nameOf(record)} <small className="sub">{recordStatusLabel(t, record.status)}</small>
+                  {nameOf(record)} <StatusPill tone={recordStatusTone(record.status)}>{recordStatusLabel(t, record.status)}</StatusPill>
                 </td>
                 <td>{validityOf(record)}</td>
                 <td data-namespace={record.namespace}>{record.namespace === 'PLATFORM' ? t('adm.catalogues.namespace.platform.label') : t('adm.catalogues.namespace.tenant.label')}</td>
@@ -100,8 +109,8 @@ function Workspace({ route, records }: SharedCatalogueWorkspaceProps) {
               </tr>
             ))}
           </tbody>
-        </table>
-      </div>
+        </KitTable>
+      </SectionCard>
       <p className="prototype-note">{t('adm.catalogues.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
   );

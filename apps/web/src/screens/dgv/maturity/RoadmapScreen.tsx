@@ -15,6 +15,9 @@ import { useCreateMilestone, useMilestones, useRubrics } from './hooks';
 import { milestoneStatusLabel, pillarLabel, problemMessage } from './labels';
 import { EMPTY_MILESTONE, MANAGE_PERMISSION, PILLARS, describeMaturityProblem, personName, validateMilestone } from './model';
 import type { FormProblem, Milestone, MilestoneField, MilestoneForm } from './model';
+import '../dgv-kit.css';
+import { StatusPill } from '../../../ui';
+import { pillTone } from '../pill-tone';
 
 const holds = (permissions: readonly string[] | undefined, permission: string, mode: string | undefined): boolean =>
   mode !== 'READ_ONLY' && (permissions === undefined || permissions.includes(permission));
@@ -80,7 +83,7 @@ function RoadmapContent({ route }: ScreenProps) {
                     <td>{milestone.exitCriteria}</td>
                     <td>{milestone.evidenceRequired.join('; ')}</td>
                     <td>
-                      <span className={`pill ${pill(milestone)}`}>{milestoneStatusLabel(t, milestone.status)}</span>
+                      <StatusPill tone={pillTone(pill(milestone))}>{milestoneStatusLabel(t, milestone.status)}</StatusPill>
                       {milestone.status === 'ACHIEVED' ? <p className="sub">{t('dgv.maturity.road.provedBy')}</p> : null}
                     </td>
                   </tr>
@@ -202,7 +205,7 @@ function PlanPanel({
         </p>
       ) : null}
       <div className="formfooter">
-        <button type="submit" className="primary" disabled={send.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={send.isPending}>
           {t('dgv.maturity.plan.submit')}
         </button>
       </div>

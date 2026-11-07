@@ -3,6 +3,7 @@ import { useTranslation } from '../../i18n';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { ContextBar, SectionCard } from '../../ui';
 import { BackLink } from './components';
 import { useNow, usePeriods } from './hooks';
 import { REOPEN_APPROVE_PERMISSION, REOPEN_REQUEST_PERMISSION, queueOf } from './model';
@@ -10,6 +11,7 @@ import { ReopenQueue } from './ReopenQueue';
 import { ReopenRequestForm } from './ReopenRequestForm';
 
 const NEVER_EMPTY = (): boolean => false;
+const NONE = '–';
 /** The screen DIS-22 is opened from (DIS-21, the close and freeze of the figures of a period). */
 const PARENT_PATH = '/dis/dis-21';
 
@@ -46,17 +48,22 @@ function ReopenContent({ route }: ScreenProps) {
           <p>{t('dis.reopen.page.subtitle')}</p>
         </div>
       </div>
+      <ContextBar
+        items={[
+          { label: t('dis.wr.ctx.scope'), value: tenant?.name ?? t('dis.wr.ctx.scope.all') },
+          { label: t('w2dis.reopen.ctx.waiting'), value: periods.data === undefined ? NONE : String(queueOf(all).filter((request) => request.reopen.status === 'REQUESTED').length) },
+        ]}
+      />
       {!canRequest && !canApprove ? (
-        <p className="callout" role="status" data-testid="read-only">
+        <p className="dis-w2-banner dis-w2-banner--info" role="status" data-testid="read-only">
           {frozen ? t('dis.reopen.readOnly.frozen.notice') : t('dis.reopen.readOnly.denied.notice')}
         </p>
       ) : null}
       <StateBoundary state={state} onRetry={() => void periods.refetch()}>
         {canRequest ? <ReopenRequestForm periods={all} /> : null}
-        <div className="card">
-          <h2>{t('dis.reopen.queue.title')}</h2>
+        <SectionCard title={t('dis.reopen.queue.title')}>
           <ReopenQueue requests={queueOf(all)} now={now} approve={canApprove} me={tenant?.membershipId} />
-        </div>
+        </SectionCard>
       </StateBoundary>
       <p className="prototype-note">{t('dis.reopen.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>

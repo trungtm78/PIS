@@ -9,9 +9,12 @@ import { RulePanel } from './RulePanel';
 import { CATALOGUES, camel, download, inTreeOrder, toCsv } from './catalogues';
 import type { CatalogueConfig, CellContext } from './catalogues';
 import { useCatalogue, useCrosswalks, useTypePolicies } from './hooks';
-import { recordStatusLabel, scopeLabel } from './labels';
+import { recordStatusLabel, recordStatusTone, scopeLabel } from './labels';
 import { PROPOSE_PERMISSION, recordLink } from './model';
 import type { RecordStatus } from './model';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
+import { StatusPill } from '../../ui';
 
 const CREATE_PATH = '/mdm/mdm-25';
 const DETAIL_PATH = '/mdm/mdm-27';
@@ -88,7 +91,7 @@ function CatalogueContent({ route, config }: ScreenProps & { config: CatalogueCo
           <p>{t('mdm.catalogue.page.subtitle')}</p>
         </div>
         <div className="row-actions">
-          <button type="button" onClick={exportRows} disabled={rows.length === 0}>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={exportRows} disabled={rows.length === 0}>
             {t('mdm.catalogue.export.action')}
           </button>
           {canAdd ? (
@@ -147,7 +150,7 @@ function CatalogueContent({ route, config }: ScreenProps & { config: CatalogueCo
               {filtering ? t('mdm.catalogue.noMatch.text') : t('mdm.catalogue.empty.text')}
             </p>
           ) : (
-            <table className="table">
+            <KitTable caption={t('w2mdm.catalogue.table.caption')}>
               <thead>
                 <tr>
                   {config.columns.map((item) => (
@@ -155,7 +158,7 @@ function CatalogueContent({ route, config }: ScreenProps & { config: CatalogueCo
                   ))}
                   <th>{t('mdm.catalogue.status.column')}</th>
                   <th>
-                    <span className="sr-only">{t('mdm.catalogue.actions.column')}</span>
+                    {t('mdm.catalogue.actions.column')}
                   </th>
                 </tr>
               </thead>
@@ -168,9 +171,9 @@ function CatalogueContent({ route, config }: ScreenProps & { config: CatalogueCo
                       </td>
                     ))}
                     <td>
-                      {recordStatusLabel(t, record.status)}
-                      {record.namespace === 'PLATFORM' ? <span className="pill gray">{t('mdm.catalogue.platform.pill')}</span> : null}
-                      {record.openChangeRequestId === null ? null : <span className="pill gray">{t('mdm.catalogue.pending.pill')}</span>}
+                      <StatusPill tone={recordStatusTone(record.status)}>{recordStatusLabel(t, record.status)}</StatusPill>
+                      {record.namespace === 'PLATFORM' ? <StatusPill tone="neutral">{t('mdm.catalogue.platform.pill')}</StatusPill> : null}
+                      {record.openChangeRequestId === null ? null : <StatusPill tone="neutral">{t('mdm.catalogue.pending.pill')}</StatusPill>}
                     </td>
                     <td className="row-actions">
                       <Link to={recordLink(DETAIL_PATH, record.masterType, record.businessKey, record.namespace)}>{t('mdm.catalogue.open.action')}</Link>
@@ -178,7 +181,7 @@ function CatalogueContent({ route, config }: ScreenProps & { config: CatalogueCo
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </KitTable>
           )}
           <p className="sub" data-testid="count">
             {t('mdm.catalogue.count.text', { count: rows.length })}

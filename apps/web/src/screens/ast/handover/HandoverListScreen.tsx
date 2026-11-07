@@ -5,10 +5,13 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { ContextBar, DataTable, FilterPanel, StatusPill } from '../../../ui';
+import type { DataTableColumn } from '../../../ui';
 import { useContracts } from '../../ctr/hooks';
 import { useHandovers } from './hooks';
 import { kindLabel, statusLabel } from './labels';
 import { canDraft } from './model';
+import type { HandoverLine, HandoverStatus } from './model';
 import { CreateDialog } from './HandoverDialogs';
 import '../../qms/qms.css';
 
@@ -28,7 +31,7 @@ export default function HandoverListScreen({ route }: ScreenProps) {
 
 function HandoverListContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { permissions, mode } = useSession();
+  const { permissions, mode, tenant } = useSession();
   const [search, setSearch] = useSearchParams();
   const contracts = useContracts();
   // Whoever may read handovers and not the register still reads them: only the filter and the choice of a contract are missing.
@@ -52,14 +55,15 @@ function HandoverListContent({ route }: ScreenProps) {
         </div>
         {canDraft(permissions, mode) && open.length > 0 ? (
           <div className="actions">
-            <button type="button" className="primary" onClick={() => setCreating(true)}>
+            <button type="button" className="ui-button ui-button--primary" onClick={() => setCreating(true)}>
               {t('ast.handover.create.action')}
             </button>
           </div>
         ) : null}
       </div>
+      <ContextBar items={[{ label: t('w2iss.ctx.scope'), value: tenant?.name ?? t('w2iss.ctx.scope.all') }]} />
       {options.length === 0 ? null : (
-        <div className="card">
+        <FilterPanel applied={contractId === '' ? 0 : 1}>
           <div className="field">
             <label htmlFor="handovers-contract">{t('ast.handover.filter.contract')}</label>
             <select id="handovers-contract" value={contractId} onChange={(event) => choose(event.target.value)}>
@@ -71,65 +75,79 @@ function HandoverListContent({ route }: ScreenProps) {
               ))}
             </select>
           </div>
-        </div>
+        </FilterPanel>
       )}
       <StateBoundary state={state} onRetry={() => void handovers.refetch()}>
-        <div className="card">
-          {lines.length === 0 ? (
-            <p className="callout" role="status" data-testid="no-handovers">
-              {t('ast.handover.none.notice')}
-            </p>
-          ) : (
-            <table className="table" data-testid="handovers">
-              <thead>
-                <tr>
-                  <th scope="col">{t('ast.handover.column.no')}</th>
-                  <th scope="col">{t('ast.handover.column.contract')}</th>
-                  <th scope="col">{t('ast.handover.column.kind')}</th>
-                  <th scope="col">{t('ast.handover.column.unit')}</th>
-                  <th scope="col">{t('ast.handover.column.critical')}</th>
-                  <th scope="col">{t('ast.handover.column.status')}</th>
-                  <th scope="col">
-                    <span className="sr-only">{t('ast.handover.column.actions')}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {lines.map((line) => (
-                  <tr key={line.id} data-handover={line.id} data-status={line.status}>
-                    <td data-testid="no">{line.handoverNo}</td>
-                    <td data-testid="contract">{line.contract.code}</td>
-                    <td data-testid="kind">{kindLabel(t, line.kind)}</td>
-                    <td data-testid="unit">{line.recipientUnit.name}</td>
-                    <td data-testid="critical">
-                      {line.openCriticalCount > 0 ? (
-                        <span className="qms-badge danger" role="status">
-                          {t('ast.handover.critical.notice', { count: line.openCriticalCount })}
-                        </span>
-                      ) : (
-                        t('ast.handover.critical.none')
-                      )}
-                      <small className="sub qms-regime">{t('ast.handover.items.count', { count: line.itemCount })}</small>
-                    </td>
-                    <td>
-                      <span className={line.status === 'ACCEPTED' ? 'qms-badge ok' : line.status === 'REJECTED' ? 'qms-badge danger' : 'qms-badge'} data-testid="status">
-                        {statusLabel(t, line.status)}
-                      </span>
-                    </td>
-                    <td>
-                      <Link className="button" to={handoverLink(line.id)} data-open={line.id}>
-                        {t('ast.handover.open.action')}
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+        {lines.length === 0 ? (
+          <p className="callout" role="status" data-testid="no-handovers">
+            {t('ast.handover.none.notice')}
+          </p>
+        ) : (
+          <div data-testid="handovers">
+            <HandoverTable lines={lines} />
+          </div>
+        )}
       </StateBoundary>
       {creating ? <CreateDialog contracts={open} initialContractId={contractId} onClose={() => setCreating(false)} /> : null}
       <p className="prototype-note">{t('ast.handover.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
   );
+}
+
+const STATUS_TONE: Readonly<Record<HandoverStatus, 'neutral' | 'info' | 'success' | 'warning' | 'danger'>> = {
+  DRAFT: 'neutral',
+  INSPECTING: 'info',
+  PUNCH_PENDING: 'warning',
+  ACCEPTED: 'success',
+  REJECTED: 'danger',
+  CANCELLED: 'neutral',
+};
+
+/** The handovers as a table: the number, the contract, the kind, the unit that receives the work, the critical items still open and the status. */
+function HandoverTable({ lines }: { lines: HandoverLine[] }) {
+  const { t } = useTranslation();
+  const columns: DataTableColumn<HandoverLine>[] = [
+    {
+      key: 'no',
+      header: t('ast.handover.column.no'),
+      pinned: true,
+      render: (line) => (
+        <span data-testid="no" data-handover={line.id}>
+          {line.handoverNo}
+        </span>
+      ),
+    },
+    { key: 'contract', header: t('ast.handover.column.contract'), render: (line) => <span data-testid="contract">{line.contract.code}</span> },
+    { key: 'kind', header: t('ast.handover.column.kind'), render: (line) => <span data-testid="kind">{kindLabel(t, line.kind)}</span> },
+    { key: 'unit', header: t('ast.handover.column.unit'), render: (line) => <span data-testid="unit">{line.recipientUnit.name}</span> },
+    {
+      key: 'critical',
+      header: t('ast.handover.column.critical'),
+      render: (line) => (
+        <span data-testid="critical">
+          {line.openCriticalCount > 0 ? <StatusPill tone="danger">{t('ast.handover.critical.notice', { count: line.openCriticalCount })}</StatusPill> : t('ast.handover.critical.none')}
+          <small className="sub qms-regime">{t('ast.handover.items.count', { count: line.itemCount })}</small>
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: t('ast.handover.column.status'),
+      render: (line) => (
+        <span data-testid="status" data-status={line.status}>
+          <StatusPill tone={STATUS_TONE[line.status]}>{statusLabel(t, line.status)}</StatusPill>
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      header: t('ast.handover.column.actions'),
+      render: (line) => (
+        <Link className="ui-button ui-button--outline ui-button--small" to={handoverLink(line.id)} data-open={line.id}>
+          {t('ast.handover.open.action')}
+        </Link>
+      ),
+    },
+  ];
+  return <DataTable caption={t('w2iss.ast.handovers.aria')} columns={columns} rows={lines} rowKey={(line) => line.id} />;
 }

@@ -5,6 +5,7 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { ContextBar, FilterPanel, KpiStrip, KpiTile, StatusPill } from '../../../ui';
 import '../aud.css';
 import { recommendationStatusLabel, recommendationTypeLabel } from '../conclusion/labels';
 import { todayInVietnam } from '../model';
@@ -12,7 +13,7 @@ import { DueDay, EngagementFilter, Money, useCaller } from './components';
 import { CompleteDialog, DecisionDialog, DisputeDialog, EvidenceDialog, PlanDialog, SubmitDialog, VerifyDialog } from './dialogs';
 import { useRecommendationBoard } from './hooks';
 import { actionStatusLabel, disputeOutcomeLabel } from './labels';
-import { BOARD_COLUMNS, RECOMMENDATIONS_PATH, canAttach, canComplete, canDecide, canDispute, canPlan, canSubmit, canVerify, inColumn } from './model';
+import { BOARD_COLUMNS, RECOMMENDATIONS_PATH, canAttach, canComplete, canDecide, canDispute, canPlan, canSubmit, canVerify, inColumn, lateDays } from './model';
 import type { ActionItem, BoardColumn, BoardItem, Caller } from './model';
 
 type Dialog =
@@ -32,6 +33,7 @@ export default function BoardScreen({ route }: ScreenProps) {
 
 function BoardContent({ route }: ScreenProps) {
   const { t } = useTranslation();
+  const { tenant } = useSession();
   const caller = useCaller();
   const [params] = useSearchParams();
   const engagementId = params.get('engagement') ?? undefined;
@@ -41,6 +43,10 @@ function BoardContent({ route }: ScreenProps) {
   const state = useScreenState({ isLoading: list.isLoading, error: list.error, data: list.data, isEmpty: () => false });
   const today = todayInVietnam();
   const close = (): void => setDialog(undefined);
+  const all = list.data ?? [];
+  const active = all.filter((item) => item.status !== 'CLOSED' && item.status !== 'CANCELLED');
+  const late = all.filter((item) => lateDays(item, today) > 0);
+  const disputed = all.filter((item) => item.status === 'DISPUTED');
 
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
@@ -50,16 +56,28 @@ function BoardContent({ route }: ScreenProps) {
           <p>{t('aud.remediation.board.subtitle')}</p>
         </div>
       </div>
+      <ContextBar items={[{ label: t('w2iss.ctx.scope'), value: tenant?.name ?? t('w2iss.ctx.scope.all') }]} unit={t('w2iss.aud.unit')} />
       <p className="callout" data-testid="confidential-note">
         {t('aud.remediation.confidential.note')}
       </p>
-      <div className="card aud-filters">
-        <EngagementFilter selected={engagementId} />
-        <p className="sub">
-          <Link to={RECOMMENDATIONS_PATH + (engagementId === undefined ? '' : `?engagement=${engagementId}`)}>{t('aud.remediation.board.list.link')}</Link>
-        </p>
-      </div>
+      <FilterPanel
+        applied={engagementId === undefined ? 0 : 1}
+        actions={
+          <Link className="ui-button ui-button--outline" to={RECOMMENDATIONS_PATH + (engagementId === undefined ? '' : `?engagement=${engagementId}`)}>
+            {t('aud.remediation.board.list.link')}
+          </Link>
+        }
+      >
+        <div className="aud-filters">
+          <EngagementFilter selected={engagementId} />
+        </div>
+      </FilterPanel>
       <StateBoundary state={state} onRetry={() => void list.refetch()}>
+        <KpiStrip label={t('w2iss.aud.board.kpi.label')}>
+          <KpiTile label={t('w2iss.aud.board.kpi.active')} value={String(active.length)} />
+          <KpiTile label={t('w2iss.aud.board.kpi.late')} value={String(late.length)} tone={late.length > 0 ? 'danger' : 'default'} />
+          <KpiTile label={t('w2iss.aud.board.kpi.disputed')} value={String(disputed.length)} tone={disputed.length > 0 ? 'warning' : 'default'} />
+        </KpiStrip>
         <div className="aud-board" data-testid="board">
           {BOARD_COLUMNS.map((column) => (
             <Column key={column} column={column} items={inColumn(list.data ?? [], column)} caller={caller} today={today} onDialog={setDialog} />
@@ -95,10 +113,13 @@ function Column({ column, items, caller, today, onDialog }: { column: BoardColum
 
 function Card({ item, caller, today, onDialog }: { item: BoardItem; caller: Caller; today: string; onDialog(dialog: Dialog): void }) {
   const { t } = useTranslation();
+  // A recommendation that is past its day needs action; the board does not carry an escalation, so none is marked urgent here.
+  const stripe = lateDays(item, today) > 0 ? 'ACTION' : null;
   return (
-    <article className="card aud-card" data-recommendation-id={item.id}>
+    <article className="card aud-card" data-recommendation-id={item.id} {...(stripe === null ? {} : { 'data-stripe': stripe })}>
+      {stripe === null ? null : <span className="ui-sr-only">{t('ui.dataTable.severityPrefix', { label: t('ui.dataTable.severity.action') })}. </span>}
       <p>
-        <span className="aud-badge">{recommendationTypeLabel(t, item.type)}</span>
+        <StatusPill tone="neutral">{recommendationTypeLabel(t, item.type)}</StatusPill>
       </p>
       <h3>{item.code}</h3>
       <p className="aud-words">{item.description}</p>
@@ -107,7 +128,7 @@ function Card({ item, caller, today, onDialog }: { item: BoardItem; caller: Call
         <dd>{item.ownerUser !== null ? item.ownerUser.name : item.ownerUnit !== null ? item.ownerUnit.name : t('aud.remediation.owner.none')}</dd>
         <dt>{t('aud.remediation.card.due')}</dt>
         <dd>
-          <DueDay item={item} today={today} />
+          <DueDay item={item} today={today} countdown />
         </dd>
         <dt>{t('aud.remediation.card.money')}</dt>
         <dd>

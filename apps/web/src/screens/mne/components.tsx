@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from '../../i18n';
+import { StatusPill } from '../../ui';
 import { cxnTags } from './model';
 
 export interface FieldProps {
@@ -39,14 +40,14 @@ export function ConfirmationLabel({ awaiting, cxnRefs, reference }: Confirmation
   const { t } = useTranslation();
   if (awaiting) {
     return (
-      <span className="pill warn" data-confirmation="pending">
-        {t('mne.forms.confirmation.pending', { tags: cxnTags(cxnRefs) })}
+      <span data-confirmation="pending">
+        <StatusPill tone="warning">{t('mne.forms.confirmation.pending', { tags: cxnTags(cxnRefs) })}</StatusPill>
       </span>
     );
   }
   return (
-    <span className="pill" data-confirmation="confirmed">
-      {reference === undefined || reference === null ? t('mne.forms.confirmation.confirmed') : t('mne.forms.confirmation.reference', { reference })}
+    <span data-confirmation="confirmed">
+      <StatusPill tone="success">{reference === undefined || reference === null ? t('mne.forms.confirmation.confirmed') : t('mne.forms.confirmation.reference', { reference })}</StatusPill>
     </span>
   );
 }

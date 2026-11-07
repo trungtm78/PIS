@@ -6,10 +6,10 @@
   vertical-align: top;
 }
 .bid-compare td[data-risk='MANDATORY_NOT_MET'] {
-  border-left: 3px solid var(--shell-danger, #b91c1c);
+  border-left: 3px solid var(--mv-color-danger);
 }
 .bid-compare td[data-risk='ATTENTION'] {
-  border-left: 3px solid var(--shell-warning, #b45309);
+  border-left: 3px solid var(--mv-color-warning);
 }
 .bid-criterion-facts {
   display: block;

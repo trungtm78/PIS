@@ -1,6 +1,6 @@
 /* DOC-14: the template library, in the language of the shared screen classes. */
 .field-error {
-  color: #a22b22;
+  color: var(--mv-color-danger);
 }
 
 .row-actions {
@@ -11,7 +11,7 @@
 }
 
 tr.selected {
-  background: #fbf3f5;
+  background: var(--mv-color-primary-soft);
 }
 
 .template-legal {

@@ -14,6 +14,8 @@ import { granteeKindLabel, rightLabel, shareProblemMessage, shareRefusalMessage,
 import { EMPTY_SHARE, GRANTEE_KINDS, SHARE_PERMISSION, SHARE_RIGHTS, describeShareProblem, validateShare } from './share-model';
 import type { ShareForm, ShareRight } from './share-model';
 import '../dis/dis.css';
+import './bi-kit.css';
+import { StatusPill } from '../../ui';
 
 const NONE = '—';
 
@@ -158,7 +160,7 @@ function Sharing({ dashboard }: { dashboard: Dashboard }) {
               {dashboard.shares.map((row) => (
                 <tr key={row.id} data-share={row.id} data-status={row.status}>
                   <td>
-                    <span className="pill gray">{granteeKindLabel(t, row.kind)}</span> {row.granteeName ?? row.granteeId}
+                    <StatusPill tone="neutral">{granteeKindLabel(t, row.kind)}</StatusPill> {row.granteeName ?? row.granteeId}
                   </td>
                   <td>{rightLabel(t, row.permission)}</td>
                   <td>{shareStateLabel(t, row.status)}</td>
@@ -200,7 +202,7 @@ function Sharing({ dashboard }: { dashboard: Dashboard }) {
             </select>
           </Field>
           <div className="formfooter">
-            <button type="submit" className="primary" disabled={share.isPending}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={share.isPending}>
               {t('bi.share.submit')}
             </button>
           </div>

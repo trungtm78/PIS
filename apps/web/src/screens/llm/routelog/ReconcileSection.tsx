@@ -112,7 +112,7 @@ export function ReconcileSection() {
           </div>
         )}
         {list.hasNextPage ? (
-          <button type="button" className="btn" data-testid="reconcile-more" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid="reconcile-more" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
             {t('llm.requests.more')}
           </button>
         ) : null}
@@ -283,7 +283,7 @@ function RunPanel() {
         </p>
       )}
       <div className="formfooter">
-        <button type="submit" className="primary" disabled={send.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={send.isPending}>
           {t('llm.routelog.run.submit')}
         </button>
       </div>

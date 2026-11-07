@@ -7,8 +7,10 @@ import { usePublishRule, useRules } from './hooks';
 import { formStatusLabel, frequencyLabel, problemMessage, roleLabel } from './labels';
 import { actionsFor, describeProblem, formulaText, lastDayOf } from './model';
 import { RuleRevisionForm } from './RuleRevisionForm';
+import { formStatusTone } from './tones';
 import { APPROVE_CALENDAR_PERMISSION, MANAGE_CALENDAR_PERMISSION } from './types';
 import type { RuleView } from './types';
+import { StatusPill } from '../../ui';
 
 /**
  * The obligation rules of MNE-02: every revision with who files which form, how often, to whom and by which formula, its legal basis and
@@ -117,7 +119,7 @@ export function RulesPanel() {
                 return (
                   <tr key={rule.id} data-rule-id={rule.id} data-rule-code={rule.ruleCode} className={rule.id === publishing?.id ? 'selected' : undefined}>
                     <td>
-                      <strong>{rule.ruleCode}</strong> <span className="pill gray">{t('mne.forms.revision.pill', { revision: rule.revision })}</span>
+                      <strong>{rule.ruleCode}</strong> <StatusPill tone="neutral">{t('mne.forms.revision.pill', { revision: rule.revision })}</StatusPill>
                     </td>
                     <td>{rule.formCode}</td>
                     <td>{roleLabel(t, rule.reportingRole)}</td>
@@ -138,8 +140,8 @@ export function RulesPanel() {
                         : t('mne.forms.period.closed', { from: rule.effectiveFrom, until: lastDayOf(rule.effectiveUntil) ?? '' })}
                     </td>
                     <td>
-                      <span className={rule.status === 'RETIRED' ? 'pill red' : rule.status === 'PUBLISHED' ? 'pill' : 'pill gray'} data-lifecycle={rule.status}>
-                        {formStatusLabel(t, rule.status)}
+                      <span data-lifecycle={rule.status}>
+                        <StatusPill tone={formStatusTone(rule.status)}>{formStatusLabel(t, rule.status)}</StatusPill>
                       </span>
                     </td>
                     <td className="mne-actions">
@@ -167,7 +169,7 @@ export function RulesPanel() {
             </p>
           )}
           <div className="row gap">
-            <button type="submit" className="primary" disabled={publish.isPending}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={publish.isPending}>
               {t('mne.forms.publish.confirm.action')}
             </button>
             <button type="button" onClick={() => setPublishing(undefined)}>

@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from '../../i18n';
+import { StatusPill } from '../../ui';
+import type { Tone } from '../../ui';
 import { badgeLabel, badgeTone } from './labels';
 import type { QualityBadge } from './model';
 import './dgv.css';
@@ -27,12 +29,14 @@ export function Field({ id, label, error, hint, children }: FieldProps) {
   );
 }
 
-/** The quality badge of a dataset: a colour and a word, so the state is never told by colour alone. */
+const TONES: Readonly<Record<ReturnType<typeof badgeTone>, Tone>> = { green: 'success', gray: 'neutral', warn: 'warning', red: 'danger' };
+
+/** The quality badge of a dataset: a pill with the word and a tone, so the state is never told by colour alone. */
 export function QualityPill({ badge }: { badge: QualityBadge }) {
   const { t } = useTranslation();
   return (
-    <span className={`pill ${badgeTone(badge)}`} data-badge={badge}>
-      {badgeLabel(t, badge)}
+    <span data-badge={badge}>
+      <StatusPill tone={TONES[badgeTone(badge)]}>{badgeLabel(t, badge)}</StatusPill>
     </span>
   );
 }

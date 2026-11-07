@@ -1,17 +1,24 @@
 import { ApiError } from '@machvon/api-client';
-import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../i18n/vi.json';
 import ProjectListScreen from './ProjectListScreen';
-import { MAKER, READER, client, line, mount, routeOf, world } from './test-support';
+import { MAKER, READER, client, line, mount, routeOf, word, words, world } from './test-support';
 
 const ROUTE = routeOf('PRJ-01', 'FR-PRJ-01');
 
 afterEach(cleanup);
 
-const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('tr[data-project-id]'));
-const codes = (): string[] => rows().map((row) => row.querySelector('th')?.textContent ?? '');
+// The rows of the table of the kit: the rows of the body that hold cells (the head holds column headers only).
+const rows = (): HTMLElement[] => screen.queryAllByRole('row').filter((row) => within(row).queryAllByRole('cell').length > 0 && row.closest('tbody') !== null);
+const codes = (): string[] =>
+  rows().flatMap((row) =>
+    within(row)
+      .queryAllByRole('link')
+      .slice(0, 1)
+      .map((link) => link.textContent ?? ''),
+  );
 const ready = () => waitFor(() => expect(rows().length).toBeGreaterThan(0));
 
 describe('ProjectListScreen (PRJ-01): the register of the unit tree of the caller', () => {
@@ -20,21 +27,27 @@ describe('ProjectListScreen (PRJ-01): the register of the unit tree of the calle
     await ready();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['prj.list.page.title']);
     expect(codes()).toEqual(['DA-2026-001', 'DA-2026-002']);
-    const headers = Array.from(document.querySelectorAll('th[scope="col"]')).map((cell) => cell.textContent);
+    const headers = screen.getAllByRole('columnheader').map((cell) => cell.textContent);
     expect(headers).toEqual([
-      vi_['prj.list.column.code'],
-      vi_['prj.list.column.name'],
-      vi_['prj.list.column.investor'],
-      vi_['prj.list.column.group'],
-      vi_['prj.list.column.status'],
-      vi_['prj.list.column.nationalCode'],
-      vi_['prj.list.column.stage'],
-      vi_['prj.list.column.leader'],
+      words['prj.list.column.project'],
+      words['prj.list.column.investor'],
+      words['prj.list.column.group'],
+      words['prj.list.column.status'],
+      words['prj.list.column.nationalCode'],
+      words['prj.list.column.leader'],
     ]);
     const cells = (index: number) => Array.from(rows()[index]?.querySelectorAll('td') ?? []).map((cell) => cell.textContent);
-    // The first project has no national code: the badge says so in words.
-    expect(cells(0)).toEqual(['Dự án số 1', 'Ban QLDA tỉnh', vi_['prj.list.group.none'], vi_['prj.life.open.label'], vi_['prj.nationalCode.missing.badge'], vi_['prj.stage.concept.label'], vi_['prj.list.leader.none']]);
-    expect(cells(1)).toEqual(['Dự án số 2', 'Ban QLDA tỉnh', 'B', vi_['prj.life.open.label'], '7654321', vi_['prj.stage.implementation.label'], 'Nguyễn Văn An']);
+    // The project cell reads the code, the name and the stage as a pill with its words; the first project has no national code: the badge says so in words.
+    expect(cells(0)).toEqual([
+      `DA-2026-001Dự án số 1${vi_['prj.stage.concept.label']}`,
+      'Ban QLDA tỉnh',
+      vi_['prj.list.group.none'],
+      vi_['prj.life.open.label'],
+      vi_['prj.nationalCode.missing.badge'],
+      vi_['prj.list.leader.none'],
+    ]);
+    expect(cells(1)).toEqual([`DA-2026-002Dự án số 2${vi_['prj.stage.implementation.label']}`, 'Ban QLDA tỉnh', 'B', vi_['prj.life.open.label'], '7654321', 'Nguyễn Văn An']);
+    expect(rows()[0]?.querySelector('[data-testid="stage"]')?.textContent).toBe(vi_['prj.stage.concept.label']);
     expect(rows()[0]?.querySelector('[data-testid="national-code-missing"]')?.textContent).toBe(vi_['prj.nationalCode.missing.badge']);
     expect(rows()[1]?.querySelector('[data-testid="national-code"]')?.textContent).toBe('7654321');
     expect(rows()[0]?.querySelector('a')?.getAttribute('href')).toBe(`/prj/prj-03?id=${line(1).id}`);
@@ -61,7 +74,30 @@ describe('ProjectListScreen (PRJ-01): the register of the unit tree of the calle
     fireEvent.click(screen.getByLabelText(vi_['prj.list.missingCode.label']));
     expect(codes()).toEqual(['DA-2026-001']);
     fireEvent.change(screen.getByLabelText(vi_['prj.list.stage.label']), { target: { value: 'CLOSED' } });
-    expect(screen.getByTestId('no-match').textContent).toBe(vi_['prj.list.noMatch.notice']);
+    expect(within(screen.getByTestId('projects')).getByRole('status').textContent).toContain(vi_['ui.dataTable.emptyFiltered']);
+  });
+
+  it('clears a filter that found nothing from the empty state of the table', async () => {
+    mount(<ProjectListScreen route={ROUTE} />, client(world()), { permissions: READER });
+    await ready();
+    fireEvent.change(screen.getByLabelText(vi_['prj.list.stage.label']), { target: { value: 'CLOSED' } });
+    expect(codes()).toEqual([]);
+    await userEvent.setup().click(screen.getByRole('button', { name: vi_['ui.dataTable.clearFilters'] }));
+    expect(codes()).toEqual(['DA-2026-001', 'DA-2026-002']);
+    expect((screen.getByLabelText(vi_['prj.list.stage.label']) as HTMLSelectElement).value).toBe('');
+  });
+
+  it('pages a long register inside the table and goes back to the first page when a filter changes', async () => {
+    const projects = Array.from({ length: 25 }, (_, index) => line(index + 1));
+    mount(<ProjectListScreen route={ROUTE} />, client(world({ projects })), { permissions: READER });
+    await ready();
+    expect(rows()).toHaveLength(20);
+    expect(screen.getByText(word('ui.tablePager.range').replace('{from}', '1').replace('{to}', '20').replace('{total}', '25'))).toBeTruthy();
+    await userEvent.setup().click(screen.getByRole('button', { name: word('ui.tablePager.page').replace('{page}', '2') }));
+    expect(rows()).toHaveLength(5);
+    expect(codes()[0]).toBe('DA-2026-0021');
+    fireEvent.change(screen.getByLabelText(vi_['prj.list.query.label']), { target: { value: 'số 2' } });
+    expect(screen.getByRole('button', { name: word('ui.tablePager.page').replace('{page}', '1') }).getAttribute('aria-current')).toBe('page');
   });
 
   it('offers the creation to those who may create, and not to a reader or to a tenant that is read only', async () => {

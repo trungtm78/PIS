@@ -19,6 +19,7 @@ import { ReverseDialog } from './ReverseDialog';
 import { LEDGER_PERMISSION, REVERSE_PERMISSION, TRANSACTION_READ_PERMISSION, entryPairs, figureOf, refundsFor } from './model';
 import type { Reversal } from './model';
 import '../pay.css';
+import { SectionCard } from '../../../ui';
 
 /**
  * PAY-08: reversing a payment that was settled (ST-PAY-008, PAY 3.4). The entries the payment put on the ledger are shown side by side with the entries that undid them, so a reversal can be read as
@@ -80,7 +81,7 @@ function ReversalContent({ route }: ScreenProps) {
         <StateBoundary state={state} onRetry={() => void payment.refetch()}>
           {request === null || request === undefined ? null : (
             <>
-              <article className="card" aria-label={t('pay.reversal.request')}>
+              <SectionCard title={t('pay.reversal.request')}>
                 <h2>
                   <Link to={paymentLink(request.id)} data-testid="request-no">
                     {request.requestNo ?? request.id}
@@ -124,10 +125,9 @@ function ReversalContent({ route }: ScreenProps) {
                     </button>
                   </div>
                 ) : null}
-              </article>
+              </SectionCard>
 
-              <article className="card" aria-label={t('pay.reversal.entries.title')}>
-                <h2>{t('pay.reversal.entries.title')}</h2>
+              <SectionCard title={t('pay.reversal.entries.title')}>
                 {!mayReadLedger ? (
                   <p className="callout" role="status" data-testid="no-ledger">
                     {t('pay.reversal.entries.denied')}
@@ -172,7 +172,7 @@ function ReversalContent({ route }: ScreenProps) {
                     </tbody>
                   </table>
                 )}
-              </article>
+              </SectionCard>
               {open ? <ReverseDialog request={request} refunds={refunds} onDone={reversed} onClose={() => setOpen(false)} /> : null}
             </>
           )}

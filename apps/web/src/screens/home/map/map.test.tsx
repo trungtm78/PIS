@@ -350,6 +350,10 @@ describe('HOME-05: the project map (ST-HOME-006, UI-HOME-05)', () => {
     fireEvent.change(screen.getByLabelText(word('home.map.status.label')), { target: { value: 'CONCEPT' } });
     expect(screen.getByTestId('map-nomatch').textContent).toBe(word('home.map.nomatch.notice'));
     expect(screen.queryByTestId('map-nocoords')).toBeNull();
+    // One button of the filter panel takes both narrowings away and the placing is whole again.
+    fireEvent.click(screen.getByRole('button', { name: 'Xóa bộ lọc' }));
+    await waitFor(() => expect(within(screen.getByTestId('map-nocoords')).getAllByRole('listitem')).toHaveLength(2));
+    expect(screen.queryByRole('button', { name: 'Xóa bộ lọc' })).toBeNull();
   });
 
   it('places the projects on another day when the date is changed, and tells a date that is not one', async () => {

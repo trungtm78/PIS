@@ -1,4 +1,5 @@
 import type { Translator } from '../../../i18n';
+import type { Tone } from '../../../ui';
 import type { FieldProblem } from './rules';
 import type { InvitationStatus, Lifecycle, Member, MembershipStatus, MembershipType, SeatCount } from './types';
 
@@ -48,6 +49,20 @@ export function invitationLabel(t: T, status: InvitationStatus | null): string {
       return t('adm.members.invitation.revoked');
     case null:
       return t('adm.members.invitation.none');
+  }
+}
+
+/** The tone of the status pill of the kit: active is green, waiting and suspended amber, closed grey. */
+export function statusTone(status: MembershipStatus): Tone {
+  switch (status) {
+    case 'Active':
+      return 'success';
+    case 'Invited':
+    case 'Suspended':
+      return 'warning';
+    case 'Ended':
+    case 'Expired':
+      return 'neutral';
   }
 }
 

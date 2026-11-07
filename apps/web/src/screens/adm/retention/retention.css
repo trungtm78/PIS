@@ -1,6 +1,6 @@
 /* ADM-12: the retention rules. The mockup's cards, tables and pills do the rest. */
 .adm-retention .field-error {
-  color: #a03e3e;
+  color: var(--mv-color-danger);
 }
 .adm-retention .publish-panel {
   margin-top: 16px;

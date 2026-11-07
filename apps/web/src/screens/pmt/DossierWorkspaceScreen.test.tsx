@@ -12,7 +12,9 @@ const denied = () => new ApiError({ status: 403, code: 'SCOPE_DENIED', correlati
 
 afterEach(cleanup);
 
-const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('tr[data-dossier-id]'));
+// A dossier is the row of the table of the kit that holds the cell carrying its id.
+const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('td [data-dossier-id]')).flatMap((node) => (node.closest('tr') === null ? [] : [node.closest('tr') as HTMLElement]));
+const idOf = (row: HTMLElement | undefined): string | null | undefined => row?.querySelector('[data-dossier-id]')?.getAttribute('data-dossier-id');
 const ready = () => waitFor(() => expect(rows().length).toBeGreaterThan(0));
 const open = (state = world(), permissions: readonly string[] | undefined = OFFICER, path = '/', command?: (operation: string, input: unknown) => unknown) => {
   const h = client(state, command);
@@ -26,7 +28,7 @@ describe('DossierWorkspaceScreen (PMT-01): the legal dossier of each project', (
     await ready();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['pmt.dossier.page.title']);
     expect(document.querySelector('[data-screen-id="PMT-01"]')).toBeTruthy();
-    expect(rows().map((row) => row.getAttribute('data-dossier-id'))).toEqual([dossierId(1), dossierId(2)]);
+    expect(rows().map((row) => idOf(row))).toEqual([dossierId(1), dossierId(2)]);
     expect(screen.getByTestId('unconfirmed-banner').textContent).toBe(vi_['pmt.dossier.banner.unconfirmed'].replace('{count}', '1'));
     expect(screen.getByTestId('pick-dossier').textContent).toBe(vi_['pmt.dossier.pick.text']);
     // Only the project without a dossier can be opened.
@@ -48,7 +50,7 @@ describe('DossierWorkspaceScreen (PMT-01): the legal dossier of each project', (
     await userEvent.setup().click(within(rows()[1] as HTMLElement).getByRole('button', { name: vi_['pmt.dossier.select.action'] }));
     const permits = await screen.findByTestId('dossier-permits');
     expect(within(permits).getByText('SEVEN')).toBeTruthy();
-    expect(rows()[1]?.getAttribute('data-selected')).toBe('true');
+    expect(rows()[1]?.querySelector('[data-selected]')?.getAttribute('data-selected')).toBe('true');
   });
 
   it('says so when the dossier named in the address is not there or is out of scope', async () => {

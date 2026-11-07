@@ -5,15 +5,28 @@
   margin-top: 4px;
   overflow: hidden;
   border-radius: 4px;
-  background: #e8e3e5;
+  background: var(--mv-color-neutral-soft);
 }
 
 .adm-delegation .delegation-bar-fill {
   height: 100%;
   max-width: 100%;
-  background: #1f6f3a;
+  background: var(--mv-color-success);
 }
 
 .adm-delegation .delegation-permission {
   display: block;
+}
+
+.adm-delegation .adm-delegation-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mv-space-8);
+  margin-bottom: var(--mv-space-16);
+}
+
+.adm-delegation .adm-delegation-tabs [role='tab'][aria-selected='true'] {
+  background: var(--mv-color-primary);
+  border-color: var(--mv-color-primary);
+  color: var(--mv-color-surface);
 }

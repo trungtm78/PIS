@@ -7,11 +7,14 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { FilterPanel, SectionCard } from '../../ui';
+import { KitTable } from '../adm/KitTable';
 import { useTenantList } from './tenants/hooks';
 import { statusLabel } from './tenants/labels';
 import { TenantRow } from './tenants/TenantRow';
 import { MANAGE_TENANTS_PERMISSION, TENANT_STATUSES } from './tenants/types';
 import type { TenantSummary } from './tenants/types';
+import '../adm/adm-kit.css';
 import './tenants/sas.css';
 
 interface Filter {
@@ -52,20 +55,27 @@ export default function TenantListScreen({ route }: ScreenProps) {
         </div>
         {canManage && create !== undefined && state !== 'denied' && state !== 'signedOut' ? (
           <div className="actions">
-            <Link className="button-link primary" to={create.path}>
+            <Link className="ui-button ui-button--primary" to={create.path}>
               {t('sas.tenants.create.action')}
             </Link>
           </div>
         ) : null}
       </div>
       <StateBoundary state={state} onRetry={() => void list.refetch()}>
-        <div className="card">
-          <form className="filters" onSubmit={submit}>
-            <div>
+        <form className="adm-kit-form" onSubmit={submit} aria-label={t('sas.tenants.filter.action')}>
+          <FilterPanel
+            applied={[applied.text, applied.status].filter((value) => value !== '').length}
+            actions={
+              <button type="submit" className="ui-button ui-button--primary">
+                {t('sas.tenants.filter.action')}
+              </button>
+            }
+          >
+            <div className="field">
               <label htmlFor="tenant-search">{t('sas.tenants.search.label')}</label>
               <input id="tenant-search" type="search" value={draft.text} placeholder={t('sas.tenants.search.placeholder')} onChange={(event) => setDraft({ ...draft, text: event.target.value })} />
             </div>
-            <div>
+            <div className="field">
               <label htmlFor="tenant-status">{t('sas.tenants.status.label')}</label>
               <select id="tenant-status" value={draft.status} onChange={(event) => setDraft({ ...draft, status: event.target.value })}>
                 <option value="">{t('sas.tenants.status.all')}</option>
@@ -76,37 +86,40 @@ export default function TenantListScreen({ route }: ScreenProps) {
                 ))}
               </select>
             </div>
-            <button type="submit">{t('sas.tenants.filter.action')}</button>
-          </form>
-          <div className="tablewrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>{t('sas.tenants.col.tenant')}</th>
-                  <th>{t('sas.tenants.col.plan')}</th>
-                  <th>{t('sas.tenants.col.isolation')}</th>
-                  <th>{t('sas.tenants.col.status')}</th>
-                  <th>{t('sas.tenants.col.license')}</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
-                {shown.map((tenant) => (
-                  <TenantRow key={tenant.id} tenant={tenant} canManage={canManage} />
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {shown.length === 0 ? <p className="muted">{t('sas.tenants.filtered.empty')}</p> : null}
-          <div className="row between gap tiny muted">
+          </FilterPanel>
+        </form>
+        <SectionCard title={t('sas.tenants.page.title')}>
+          <KitTable caption={t('w2sas.tenants.table.caption')}>
+            <thead>
+              <tr>
+                <th>{t('sas.tenants.col.tenant')}</th>
+                <th>{t('sas.tenants.col.plan')}</th>
+                <th>{t('sas.tenants.col.isolation')}</th>
+                <th>{t('sas.tenants.col.status')}</th>
+                <th>{t('sas.tenants.col.license')}</th>
+                <th>{t('ui.stickyActions.label')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {shown.map((tenant) => (
+                <TenantRow key={tenant.id} tenant={tenant} canManage={canManage} />
+              ))}
+            </tbody>
+          </KitTable>
+          {shown.length === 0 ? (
+            <p className="adm-kit-empty" role="status">
+              {t('sas.tenants.filtered.empty')}
+            </p>
+          ) : null}
+          <div className="adm-kit-foot">
             <span>{t('sas.tenants.count.text', { count: shown.length })}</span>
             {list.hasNextPage ? (
-              <button type="button" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
+              <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
                 {t('sas.tenants.more.action')}
               </button>
             ) : null}
           </div>
-        </div>
+        </SectionCard>
       </StateBoundary>
       <p className="prototype-note">{t('sas.tenants.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>

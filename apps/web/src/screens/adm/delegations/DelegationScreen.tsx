@@ -5,13 +5,16 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { SectionCard, StatusPill } from '../../../ui';
 import { Field } from '../../dgv/components';
 import { CommandFrame } from '../../qms/CommandFrame';
+import { KitTable } from '../KitTable';
 import { useUnits } from '../members/hooks';
 import { useCreateDelegation, useDelegates, useDelegations, useRevokeDelegation } from './hooks';
-import { defectLabel, endReasonLabel, formProblemMessage, problemMessage, scopeKindLabel, statusLabel, statusTone } from './labels';
+import { defectLabel, endReasonLabel, formProblemMessage, problemMessage, scopeKindLabel, statusKitTone, statusLabel } from './labels';
 import { CREATE_PERMISSION, MAX_DAYS, READ_PERMISSION, REASON_MIN, SCOPE_KINDS, barShare, daysOf, describeProblem, emptyForm, formProblems, latestEnd, offeredPermissions, readDefects, toBody } from './model';
 import type { DelegationView, Form, FormProblem } from './model';
+import '../adm-kit.css';
 import './delegations.css';
 
 /**
@@ -57,24 +60,22 @@ function DelegationContent({ route }: ScreenProps) {
           <p>{t('adm.delegation.subtitle')}</p>
         </div>
         {mayCreate ? (
-          <button type="button" className="primary" data-action="new" onClick={() => setCreating(true)}>
+          <button type="button" className="ui-button ui-button--primary" data-action="new" onClick={() => setCreating(true)}>
             {t('adm.delegation.new.action')}
           </button>
         ) : null}
       </div>
-      <div className="card">
-        <div role="tablist" aria-label={t('adm.delegation.tabs')}>
-          <button type="button" role="tab" aria-selected={tab === 'given'} data-tab="given" onClick={() => setTab('given')}>
-            {t('adm.delegation.tab.given')}
-          </button>{' '}
-          <button type="button" role="tab" aria-selected={tab === 'received'} data-tab="received" onClick={() => setTab('received')}>
-            {t('adm.delegation.tab.received')}
-          </button>
-        </div>
+      <div className="adm-delegation-tabs" role="tablist" aria-label={t('adm.delegation.tabs')}>
+        <button type="button" className="ui-button ui-button--outline" role="tab" aria-selected={tab === 'given'} data-tab="given" onClick={() => setTab('given')}>
+          {t('adm.delegation.tab.given')}
+        </button>
+        <button type="button" className="ui-button ui-button--outline" role="tab" aria-selected={tab === 'received'} data-tab="received" onClick={() => setTab('received')}>
+          {t('adm.delegation.tab.received')}
+        </button>
       </div>
       <StateBoundary state={state} onRetry={() => void delegations.refetch()}>
-        <div className="card">
-          <table className="table" data-testid="delegations">
+        <SectionCard title={tab === 'given' ? t('adm.delegation.tab.given') : t('adm.delegation.tab.received')}>
+          <KitTable caption={t('w2adm.delegation.table.caption')} testId="delegations">
             <thead>
               <tr>
                 <th scope="col">{tab === 'given' ? t('adm.delegation.column.delegate') : t('adm.delegation.column.delegator')}</th>
@@ -83,9 +84,7 @@ function DelegationContent({ route }: ScreenProps) {
                 <th scope="col">{t('adm.delegation.column.window')}</th>
                 <th scope="col">{t('adm.delegation.column.reason')}</th>
                 <th scope="col">{t('adm.delegation.column.status')}</th>
-                <th scope="col">
-                  <span className="sr-only">{t('adm.delegation.column.actions')}</span>
-                </th>
+                <th scope="col">{t('adm.delegation.column.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -102,14 +101,14 @@ function DelegationContent({ route }: ScreenProps) {
                   </td>
                   <td>{row.status === 'Revoked' && row.revokeReason !== null ? row.revokeReason : row.reason}</td>
                   <td>
-                    <span className={`pill ${statusTone(row.status)}`} data-testid="status">
-                      {statusLabel(t, row.status)}
+                    <span data-testid="status">
+                      <StatusPill tone={statusKitTone(row.status)}>{statusLabel(t, row.status)}</StatusPill>
                     </span>
-                    {row.endReason === null ? null : <span className="sub"> {endReasonLabel(t, row.endReason)}</span>}
+                    {row.endReason === null ? null : <span className="adm-kit-sub">{endReasonLabel(t, row.endReason)}</span>}
                   </td>
                   <td>
                     {row.mayRevoke && mode !== 'READ_ONLY' ? (
-                      <button type="button" data-action="revoke" onClick={() => setRevoking(row)}>
+                      <button type="button" className="ui-button ui-button--outline ui-button--small" data-action="revoke" onClick={() => setRevoking(row)}>
                         {t('adm.delegation.revoke.action')}
                       </button>
                     ) : null}
@@ -117,8 +116,8 @@ function DelegationContent({ route }: ScreenProps) {
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+          </KitTable>
+        </SectionCard>
       </StateBoundary>
       {creating ? <CreateDialog onClose={() => setCreating(false)} /> : null}
       {revoking === undefined ? null : <RevokeDialog delegation={revoking} onClose={() => setRevoking(undefined)} />}

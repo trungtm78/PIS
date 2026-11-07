@@ -12,6 +12,7 @@ import { QualityPill } from '../components';
 import { useDecideProduct, useProducts } from './hooks';
 import { CERTIFY_PERMISSION, EMPTY_DECISION, badgeOf, decisionBody, decisionsAfter, describeDecision, hasRunOut, holds, readinessOf, validateDecision } from './model';
 import type { Decision, DecisionField, DecisionForm, DecisionProblem, FormProblem, ProductDatasetView, ProductStatus, ProductView, Readiness } from './model';
+import '../dgv-kit.css';
 
 type T = Translator['t'];
 
@@ -245,7 +246,7 @@ function DecisionPanel({ product, decision, onDone }: { product: ProductView; de
         </Field>
       ) : null}
       <div className="formfooter">
-        <button type="submit" className="primary" disabled={send.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={send.isPending}>
           {t('dgv.product.form.submit.action')}
         </button>
         <button type="button" onClick={onDone}>

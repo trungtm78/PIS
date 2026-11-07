@@ -1,7 +1,7 @@
 import { Fragment, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../i18n';
-import { Field } from './components';
+import { Field, Pill } from './components';
 import { useRetirePermitType } from './hooks';
 import { applicabilityText, categoryLabel, fieldProblemMessage, phaseLabel, problemMessage } from './labels';
 import { canRetire, describeProblem, phaseOf, validateRetireDate } from './model';
@@ -26,9 +26,9 @@ function LegalBasis({ type }: { type: PermitTypeView }) {
       {type.cxnRef === null ? null : (
         <>
           {' '}
-          <span className="pill warn" data-testid="unconfirmed">
+          <Pill tone="warn" data-testid="unconfirmed">
             {t('pmt.type.unconfirmed.text', { cxn: type.cxnRef })}
-          </span>
+          </Pill>
         </>
       )}
     </>
@@ -81,7 +81,7 @@ export function PermitTypeTable({ groups, today, mayRetire }: PermitTypeTablePro
                 <td>{applicabilityText(t, current.appliesTo)}</td>
                 <td>{current.exemptionAllowed ? t('pmt.type.exempt.yes.text') : t('pmt.type.exempt.no.text')}</td>
                 <td>
-                  <span className={phase === 'inForce' ? 'pill green' : 'pill gray'}>{phaseLabel(t, phase)}</span>
+                  <Pill tone={phase === 'inForce' ? 'green' : 'gray'}>{phaseLabel(t, phase)}</Pill>
                 </td>
                 <td className="row-actions">
                   <button type="button" aria-expanded={history === group.code} onClick={() => setHistory((previous) => (previous === group.code ? undefined : group.code))}>

@@ -17,8 +17,12 @@ import { MATCH_PAYMENT_PERMISSION, MAX_REASON, describeProblem, isReasonValid, o
 import { TenantPicker } from './subscription/TenantPicker';
 import { useTenantChoice } from './subscription/hooks';
 import { toneClass } from './tenants/labels';
+import { SectionCard, StatusPill } from '../../ui';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 import './tenants/sas.css';
 import './billing/billing.css';
+import { toneOfPill } from '../adm/kit-tone';
 
 interface Matching {
   payment: PaymentView;
@@ -105,8 +109,7 @@ function PaymentsContent({ route }: ScreenProps) {
         </div>
       </div>
       <StateBoundary state={state} onRetry={() => void queue.refetch()}>
-        <div className="card">
-          <h2>{t('sas.payments.queue.title')}</h2>
+        <SectionCard title={t('sas.payments.queue.title')} unit={t('dis.wr.unit')}>
           {done ? (
             <p className="callout" role="status">
               {t('sas.payments.done')}
@@ -117,7 +120,7 @@ function PaymentsContent({ route }: ScreenProps) {
               {t('sas.payments.queue.none')}
             </p>
           ) : (
-            <table className="table" data-payments>
+            <KitTable caption={t('w2sas.payments.table.queue')} data-payments>
               <thead>
                 <tr>
                   <th scope="col">{t('sas.payments.column.received')}</th>
@@ -146,11 +149,11 @@ function PaymentsContent({ route }: ScreenProps) {
                     <td className="amount">{money(payment.amountVnd)}</td>
                     <td>{payment.memo === '' ? '—' : payment.memo}</td>
                     <td>
-                      <span className={toneClass(paymentStatusTone(payment.status))}>{paymentStatusLabel(t, payment.status)}</span>
+                      <StatusPill tone={toneOfPill(toneClass(paymentStatusTone(payment.status)))}>{paymentStatusLabel(t, payment.status)}</StatusPill>
                     </td>
                     <td>
                       {canMatch && payment.canMatch ? (
-                        <button type="button" onClick={() => open(payment)}>
+                        <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => open(payment)}>
                           {t('sas.payments.match.action')}
                         </button>
                       ) : null}
@@ -158,7 +161,7 @@ function PaymentsContent({ route }: ScreenProps) {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </KitTable>
           )}
           {queue.hasNextPage ? (
             <div className="row gap">
@@ -203,23 +206,22 @@ function PaymentsContent({ route }: ScreenProps) {
                 ) : null}
               </div>
               <div className="row gap">
-                <button type="submit" className="primary" disabled={match.isPending}>
+                <button type="submit" className="ui-button ui-button--primary" disabled={match.isPending}>
                   {t('sas.payments.match.confirm.action')}
                 </button>
-                <button type="button" onClick={() => setMatching(undefined)}>
+                <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setMatching(undefined)}>
                   {t('sas.payments.match.abort.action')}
                 </button>
               </div>
             </form>
           )}
-        </div>
-        <div className="card">
-          <h2>{t('sas.payments.invoices.title')}</h2>
+        </SectionCard>
+        <SectionCard title={t('sas.payments.invoices.title')} unit={t('dis.wr.unit')}>
           {matching === undefined ? <TenantPicker id="payments-tenant" label={t('sas.payments.tenant.label')} moreLabel={t('sas.payments.tenant.more.action')} choice={choice} /> : null}
           {invoices.isError ? (
             <div className="callout warning" role="alert">
               <p>{t('sas.payments.invoices.error')}</p>
-              <button type="button" onClick={() => void invoices.refetch()}>
+              <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => void invoices.refetch()}>
                 {t('sas.payments.invoices.retry.action')}
               </button>
             </div>
@@ -232,7 +234,7 @@ function PaymentsContent({ route }: ScreenProps) {
               {t('sas.payments.invoices.none')}
             </p>
           ) : (
-            <table className="table" data-invoices>
+            <KitTable caption={t('w2sas.payments.table.invoices')} data-invoices>
               <thead>
                 <tr>
                   <th scope="col">{t('sas.payments.invoice.column.invoice')}</th>
@@ -264,7 +266,7 @@ function PaymentsContent({ route }: ScreenProps) {
                       )}
                     </td>
                     <td>
-                      <span className={toneClass(invoiceStatusTone(invoice.status))}>{invoiceStatusLabel(t, invoice.status)}</span>
+                      <StatusPill tone={toneOfPill(toneClass(invoiceStatusTone(invoice.status)))}>{invoiceStatusLabel(t, invoice.status)}</StatusPill>
                     </td>
                     <td className="amount">{money(invoice.totalVnd)}</td>
                     <td data-match-status>
@@ -273,7 +275,7 @@ function PaymentsContent({ route }: ScreenProps) {
                       ) : (
                         invoice.payments.map((payment) => (
                           <div key={payment.id}>
-                            <span className={toneClass(paymentStatusTone(payment.status))}>{paymentStatusLabel(t, payment.status)}</span> <small className="sub">{money(payment.amountVnd)}</small>
+                            <StatusPill tone={toneOfPill(toneClass(paymentStatusTone(payment.status)))}>{paymentStatusLabel(t, payment.status)}</StatusPill> <small className="sub">{money(payment.amountVnd)}</small>
                           </div>
                         ))
                       )}
@@ -281,7 +283,7 @@ function PaymentsContent({ route }: ScreenProps) {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </KitTable>
           )}
           {invoices.hasNextPage ? (
             <div className="row gap">
@@ -290,7 +292,7 @@ function PaymentsContent({ route }: ScreenProps) {
               </button>
             </div>
           ) : null}
-        </div>
+        </SectionCard>
       </StateBoundary>
     </section>
   );

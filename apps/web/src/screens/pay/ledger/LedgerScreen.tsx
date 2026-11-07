@@ -1,14 +1,17 @@
-import { Fragment, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { DataTable, FilterPanel, SectionCard, StatusPill } from '../../../ui';
+import type { DataTableColumn } from '../../../ui';
+import { ScopeBar } from '../../ctr/kit';
 import { useLedger } from './hooks';
 import { entryKindLabel } from './labels';
 import { availableVnd, dateTimeText, filterOptions, isReversal, signedAmountText } from './model';
-import type { Balance, Ledger, LedgerLine } from './model';
+import type { Ledger, LedgerEntry, LedgerLine } from './model';
 import '../pay.css';
 
 /**
@@ -23,7 +26,7 @@ export default function LedgerScreen({ route }: ScreenProps) {
 }
 
 function LedgerContent({ route }: ScreenProps) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const [search, setSearch] = useSearchParams();
   const contractId = search.get('contract');
   const itemId = search.get('item');
@@ -46,6 +49,7 @@ function LedgerContent({ route }: ScreenProps) {
     else next.set(name, value);
     setSearch(next, { replace: true });
   };
+  const none = t('w2pay.pay.ledger.ctx.none');
 
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
@@ -55,6 +59,14 @@ function LedgerContent({ route }: ScreenProps) {
           <p>{t('pay.ledger.subtitle')}</p>
         </div>
       </div>
+      <ScopeBar
+        money
+        extra={[
+          { label: t('w2pay.pay.ledger.ctx.contract'), value: query.ledger?.contract.code ?? none },
+          { label: t('w2pay.pay.ledger.ctx.asOf'), value: query.ledger === undefined ? none : dateTimeText(query.ledger.asOf, locale) },
+        ]}
+        stale={query.isRefetchError}
+      />
       {contractId === null ? (
         <p className="callout" role="status" data-testid="no-contract">
           {t('pay.ledger.none.notice')}
@@ -68,6 +80,12 @@ function LedgerContent({ route }: ScreenProps) {
               items={[...seen.current.items].map(([id, label]) => ({ id, label }))}
               acceptances={[...seen.current.acceptances].map(([id, label]) => ({ id, label }))}
               onFilter={setFilter}
+              onClear={() => {
+                const next = new URLSearchParams(search);
+                next.delete('item');
+                next.delete('acceptance');
+                setSearch(next, { replace: true });
+              }}
               more={{ available: query.hasNextPage, loading: query.isFetchingNextPage, load: () => void query.fetchNextPage() }}
             />
           )}
@@ -84,10 +102,11 @@ interface ContentProps {
   items: Array<{ id: string; label: string }>;
   acceptances: Array<{ id: string; label: string }>;
   onFilter: (name: 'item' | 'acceptance', value: string) => void;
+  onClear: () => void;
   more: { available: boolean; loading: boolean; load: () => void };
 }
 
-function Content({ ledger, filter, items, acceptances, onFilter, more }: ContentProps) {
+function Content({ ledger, filter, items, acceptances, onFilter, onClear, more }: ContentProps) {
   const { t, locale } = useTranslation();
   const [open, setOpen] = useState<ReadonlySet<string>>(new Set());
   const money = (amount: string): string => signedAmountText(amount, locale) ?? amount;
@@ -99,16 +118,52 @@ function Content({ ledger, filter, items, acceptances, onFilter, more }: Content
     });
   const { contract } = ledger;
   const filtered = filter.itemId !== null || filter.acceptanceId !== null;
+  const unit = t('w2pay.ctx.unit');
+  const figure = (testId: string, value: string) => <span data-testid={testId}>{money(value)}</span>;
+  const columns: DataTableColumn<LedgerLine>[] = [
+    {
+      key: 'item',
+      header: t('pay.ledger.column.item'),
+      pinned: true,
+      render: (line) => (
+        <span data-line={line.id} data-item={line.boqItemId}>
+          <strong data-testid="item">{line.boqItemKey}</strong>
+          <small className="sub"> {line.description}</small>
+        </span>
+      ),
+    },
+    { key: 'acceptance', header: t('pay.ledger.column.acceptance'), render: (line) => <span data-testid="acceptance">{line.acceptanceNo ?? ''}</span> },
+    { key: 'accepted', header: t('pay.ledger.column.accepted'), align: 'right', render: (line) => figure('accepted', line.acceptedVnd) },
+    { key: 'requested', header: t('pay.ledger.column.requested'), align: 'right', render: (line) => figure('requested', line.requestedVnd) },
+    { key: 'paid', header: t('pay.ledger.column.paid'), align: 'right', render: (line) => figure('paid', line.paidVnd) },
+    { key: 'recovered', header: t('pay.ledger.column.recovered'), align: 'right', render: (line) => figure('recovered', line.advanceRecoveredVnd) },
+    { key: 'held', header: t('pay.ledger.column.held'), align: 'right', render: (line) => figure('held', line.retentionHeldVnd) },
+    { key: 'available', header: t('pay.ledger.column.available'), align: 'right', render: (line) => figure('available', availableVnd(line)) },
+    {
+      key: 'entries',
+      header: t('pay.ledger.column.entries'),
+      render: (line) => (
+        <button type="button" className="ui-button ui-button--outline ui-button--small" aria-expanded={open.has(line.id)} onClick={() => toggle(line.id)} data-entries={line.id}>
+          {open.has(line.id) ? t('pay.ledger.entries.hide') : t('pay.ledger.entries.show', { count: line.entries.length })}
+        </button>
+      ),
+    },
+  ];
+  const opened = ledger.items.filter((line) => open.has(line.id));
 
   return (
     <>
-      <article className="card" aria-label={t('pay.ledger.contract.title')}>
-        <h2>{t('pay.ledger.contract.title')}</h2>
-        <p>
-          <strong data-testid="contract-code">{contract.code}</strong>{' '}
-          <span className={ledger.reconciled ? 'pay-badge' : 'pay-badge warning'} role="status" data-testid="reconciled" data-reconciled={String(ledger.reconciled)}>
-            {ledger.reconciled ? t('pay.ledger.reconciled.yes') : t('pay.ledger.reconciled.no')}
+      <SectionCard
+        title={t('pay.ledger.contract.title')}
+        unit={unit}
+        status={
+          <span data-testid="reconciled" data-reconciled={String(ledger.reconciled)} role="status">
+            <StatusPill tone={ledger.reconciled ? 'success' : 'warning'}>{ledger.reconciled ? t('pay.ledger.reconciled.yes') : t('pay.ledger.reconciled.no')}</StatusPill>
           </span>
+        }
+      >
+        <p>
+          <strong data-testid="contract-code">{contract.code}</strong>
         </p>
         <dl className="pay-facts">
           <dt>{t('pay.ledger.contract.value')}</dt>
@@ -126,10 +181,20 @@ function Content({ ledger, filter, items, acceptances, onFilter, more }: Content
           <dt>{t('pay.ledger.contract.retentionReleased')}</dt>
           <dd data-testid="contract-retention-released">{money(contract.retentionReleasedVnd)}</dd>
         </dl>
-      </article>
-      <article className="card" aria-label={t('pay.ledger.filter.title')}>
-        <h2>{t('pay.ledger.filter.title')}</h2>
-        <div className="pay-form-grid">
+      </SectionCard>
+      <FilterPanel
+        unitLabel={unit}
+        applied={[filter.itemId, filter.acceptanceId].filter((value) => value !== null).length}
+        updatedAt={dateTimeText(ledger.asOf, locale)}
+        actions={
+          filtered ? (
+            <button type="button" className="ui-button ui-button--outline" onClick={onClear}>
+              {t('ui.dataTable.clearFilters')}
+            </button>
+          ) : undefined
+        }
+      >
+        <div className="pay-form-grid" role="group" aria-label={t('pay.ledger.filter.title')}>
           <label>
             {t('pay.ledger.filter.item')}
             <select value={filter.itemId ?? ''} onChange={(event) => onFilter('item', event.target.value)} data-testid="filter-item">
@@ -153,172 +218,84 @@ function Content({ ledger, filter, items, acceptances, onFilter, more }: Content
             </select>
           </label>
         </div>
-      </article>
-      <article className="card" aria-label={t('pay.ledger.list.title')}>
-        <h2>{t('pay.ledger.list.title')}</h2>
+      </FilterPanel>
+      <SectionCard title={t('pay.ledger.list.title')} unit={unit}>
         {ledger.items.length === 0 ? (
           <p className="sub" data-testid="no-lines">
             {t('pay.ledger.list.empty')}
           </p>
         ) : (
-          <table className="table" data-testid="ledger">
-            <thead>
-              <tr>
-                <th scope="col">{t('pay.ledger.column.item')}</th>
-                <th scope="col">{t('pay.ledger.column.acceptance')}</th>
-                <th scope="col" className="pay-amount">
-                  {t('pay.ledger.column.accepted')}
-                </th>
-                <th scope="col" className="pay-amount">
-                  {t('pay.ledger.column.requested')}
-                </th>
-                <th scope="col" className="pay-amount">
-                  {t('pay.ledger.column.paid')}
-                </th>
-                <th scope="col" className="pay-amount">
-                  {t('pay.ledger.column.recovered')}
-                </th>
-                <th scope="col" className="pay-amount">
-                  {t('pay.ledger.column.held')}
-                </th>
-                <th scope="col" className="pay-amount">
-                  {t('pay.ledger.column.available')}
-                </th>
-                <th scope="col">
-                  <span className="sr-only">{t('pay.ledger.column.entries')}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {ledger.items.map((line) => (
-                <Row key={line.id} line={line} open={open.has(line.id)} onToggle={() => toggle(line.id)} money={money} locale={locale} />
-              ))}
-            </tbody>
-            <tfoot>
-              <tr data-testid="total">
-                <th scope="row" colSpan={2}>
-                  {filtered ? t('pay.ledger.total.filtered') : t('pay.ledger.total.all')}
-                </th>
-                <Cells balance={ledger.total} money={money} />
-                <td />
-              </tr>
-            </tfoot>
-          </table>
+          <div data-testid="ledger">
+            <DataTable
+              caption={t('pay.ledger.list.title')}
+              columns={columns}
+              rows={ledger.items}
+              rowKey={(line) => line.id}
+              totalsLabel={filtered ? t('pay.ledger.total.filtered') : t('pay.ledger.total.all')}
+              totals={{
+                accepted: figure('accepted', ledger.total.acceptedVnd),
+                requested: figure('requested', ledger.total.requestedVnd),
+                paid: figure('paid', ledger.total.paidVnd),
+                recovered: figure('recovered', ledger.total.advanceRecoveredVnd),
+                held: figure('held', ledger.total.retentionHeldVnd),
+                available: figure('available', availableVnd(ledger.total)),
+              }}
+            />
+          </div>
         )}
         {more.available ? (
           <div className="pay-row-actions">
-            <button type="button" onClick={more.load} disabled={more.loading} data-testid="more">
+            <button type="button" className="ui-button ui-button--outline" onClick={more.load} disabled={more.loading} data-testid="more">
               {t('pay.ledger.more.action')}
             </button>
           </div>
         ) : null}
-      </article>
+      </SectionCard>
+      {opened.map((line) => (
+        <div key={line.id} data-entries-of={line.id}>
+          <SectionCard title={t('pay.ledger.entries.title', { item: line.boqItemKey })} unit={unit}>
+            <Entries line={line} money={money} locale={locale} />
+          </SectionCard>
+        </div>
+      ))}
     </>
   );
 }
 
-/** The five amounts of a balance and what is still free to request, in the columns of the table. */
-function Cells({ balance, money }: { balance: Balance; money: (amount: string) => string }) {
-  return (
-    <>
-      <td className="pay-amount" data-testid="accepted">
-        {money(balance.acceptedVnd)}
-      </td>
-      <td className="pay-amount" data-testid="requested">
-        {money(balance.requestedVnd)}
-      </td>
-      <td className="pay-amount" data-testid="paid">
-        {money(balance.paidVnd)}
-      </td>
-      <td className="pay-amount" data-testid="recovered">
-        {money(balance.advanceRecoveredVnd)}
-      </td>
-      <td className="pay-amount" data-testid="held">
-        {money(balance.retentionHeldVnd)}
-      </td>
-      <td className="pay-amount" data-testid="available">
-        {money(availableVnd(balance))}
-      </td>
-    </>
-  );
-}
-
-interface RowProps {
+interface EntriesProps {
   line: LedgerLine;
-  open: boolean;
-  onToggle: () => void;
   money: (amount: string) => string;
   locale: string;
 }
 
-function Row({ line, open, onToggle, money, locale }: RowProps) {
+/** The entries behind one balance, oldest first as the server keeps them; an entry that reverses another is marked in words. */
+function Entries({ line, money, locale }: EntriesProps) {
   const { t } = useTranslation();
-  return (
-    <Fragment>
-      <tr data-line={line.id} data-item={line.boqItemId}>
-        <td>
-          <strong data-testid="item">{line.boqItemKey}</strong>
-          <small className="sub"> {line.description}</small>
-        </td>
-        <td data-testid="acceptance">{line.acceptanceNo ?? ''}</td>
-        <Cells balance={line} money={money} />
-        <td>
-          <button type="button" aria-expanded={open} onClick={onToggle} data-entries={line.id}>
-            {open ? t('pay.ledger.entries.hide') : t('pay.ledger.entries.show', { count: line.entries.length })}
-          </button>
-        </td>
-      </tr>
-      {open ? (
-        <tr data-entries-of={line.id}>
-          <td colSpan={9}>
-            <table className="table pay-entries" aria-label={t('pay.ledger.entries.title', { item: line.boqItemKey })}>
-              <thead>
-                <tr>
-                  <th scope="col">{t('pay.ledger.entries.column.kind')}</th>
-                  <th scope="col">{t('pay.ledger.entries.column.postedAt')}</th>
-                  <th scope="col" className="pay-amount">
-                    {t('pay.ledger.column.accepted')}
-                  </th>
-                  <th scope="col" className="pay-amount">
-                    {t('pay.ledger.column.requested')}
-                  </th>
-                  <th scope="col" className="pay-amount">
-                    {t('pay.ledger.column.paid')}
-                  </th>
-                  <th scope="col" className="pay-amount">
-                    {t('pay.ledger.column.recovered')}
-                  </th>
-                  <th scope="col" className="pay-amount">
-                    {t('pay.ledger.column.held')}
-                  </th>
-                  <th scope="col" className="pay-amount">
-                    {t('pay.ledger.entries.column.outstanding')}
-                  </th>
-                  <th scope="col">{t('pay.ledger.entries.column.reason')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {line.entries.map((entry) => (
-                  <tr key={entry.id} data-entry={entry.id} data-kind={entry.kind}>
-                    <td>
-                      {entryKindLabel(t, entry.kind)}
-                      {isReversal(entry) ? <span className="pay-badge warning"> {t('pay.ledger.entry.reverses')}</span> : null}
-                    </td>
-                    <td>{dateTimeText(entry.postedAt, locale)}</td>
-                    <td className="pay-amount">{money(entry.acceptedDeltaVnd)}</td>
-                    <td className="pay-amount">{money(entry.requestedDeltaVnd)}</td>
-                    <td className="pay-amount">{money(entry.paidDeltaVnd)}</td>
-                    <td className="pay-amount">{money(entry.advanceRecoveryDeltaVnd)}</td>
-                    <td className="pay-amount">{money(entry.retentionDeltaVnd)}</td>
-                    <td className="pay-amount">{money(entry.advanceOutstandingAfterVnd)}</td>
-                    <td>{entry.reason ?? ''}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </td>
-        </tr>
-      ) : null}
-    </Fragment>
-  );
+  const columns: DataTableColumn<LedgerEntry>[] = [
+    {
+      key: 'kind',
+      header: t('pay.ledger.entries.column.kind'),
+      pinned: true,
+      render: (entry) => (
+        <span data-entry={entry.id} data-kind={entry.kind}>
+          {entryKindLabel(t, entry.kind)}
+          {isReversal(entry) ? (
+            <>
+              {' '}
+              <StatusPill tone="warning">{t('pay.ledger.entry.reverses')}</StatusPill>
+            </>
+          ) : null}
+        </span>
+      ),
+    },
+    { key: 'postedAt', header: t('pay.ledger.entries.column.postedAt'), render: (entry) => dateTimeText(entry.postedAt, locale) },
+    { key: 'accepted', header: t('pay.ledger.column.accepted'), align: 'right', render: (entry) => money(entry.acceptedDeltaVnd) },
+    { key: 'requested', header: t('pay.ledger.column.requested'), align: 'right', render: (entry) => money(entry.requestedDeltaVnd) },
+    { key: 'paid', header: t('pay.ledger.column.paid'), align: 'right', render: (entry) => money(entry.paidDeltaVnd) },
+    { key: 'recovered', header: t('pay.ledger.column.recovered'), align: 'right', render: (entry) => money(entry.advanceRecoveryDeltaVnd) },
+    { key: 'held', header: t('pay.ledger.column.held'), align: 'right', render: (entry) => money(entry.retentionDeltaVnd) },
+    { key: 'outstanding', header: t('pay.ledger.entries.column.outstanding'), align: 'right', render: (entry) => money(entry.advanceOutstandingAfterVnd) },
+    { key: 'reason', header: t('pay.ledger.entries.column.reason'), render: (entry) => entry.reason ?? '' },
+  ];
+  return <DataTable caption={t('pay.ledger.entries.title', { item: line.boqItemKey })} columns={columns} rows={line.entries} rowKey={(entry) => entry.id} />;
 }

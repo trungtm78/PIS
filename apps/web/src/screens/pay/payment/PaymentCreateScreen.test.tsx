@@ -1,5 +1,5 @@
 import { ApiError } from '@machvon/api-client';
-import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../../i18n/vi.json';
 import PaymentCreateScreen from './PaymentCreateScreen';
@@ -142,5 +142,13 @@ describe('PaymentCreateScreen (PAY-02): draw up a payment request', () => {
     cleanup();
     open(world(), { mode: 'READ_ONLY' });
     expect(await screen.findByTestId('no-right')).toBeTruthy();
+  });
+  it('keeps the actions of the form on one bar: the submit as the primary action and the way back as the secondary one', async () => {
+    open(world());
+    await screen.findByTestId('form');
+    const bar = screen.getByRole('group', { name: vi_['ui.stickyActions.label'] });
+    expect(within(bar).getByRole('button', { name: vi_['pay.payment.create.submit'] }).className).toContain('ui-button--primary');
+    expect(within(bar).getByRole('link', { name: vi_['pay.payment.create.cancel'] }).getAttribute('href')).toBe('/pay/pay-01');
+    expect(screen.getAllByRole('heading', { level: 2 }).length).toBeGreaterThanOrEqual(2);
   });
 });

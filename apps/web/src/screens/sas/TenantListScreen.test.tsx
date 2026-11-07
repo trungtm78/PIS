@@ -73,6 +73,22 @@ describe('SAS-01 tenant list', () => {
     expect(screen.getByText('7 tenant')).toBeTruthy();
   });
 
+  it('draws each status as a pill of the kit (settled green, waiting amber, failed red, closed grey) and counts the applied filters', async () => {
+    mount(<TenantListScreen route={ROUTE} />, harness(answer));
+    await screen.findByRole('table');
+    const pillOf = (status: (typeof STATUSES)[number]): string =>
+      (within(document.querySelector(`tr[data-tenant-id="${idOf(status)}"]`) as HTMLElement).getAllByText(LABEL[status])[0]?.closest('.ui-pill') as HTMLElement).className;
+    expect(pillOf('Active')).toContain('ui-tone-success');
+    expect(pillOf('Provisioning')).toContain('ui-tone-warning');
+    expect(pillOf('Failed')).toContain('ui-tone-danger');
+    expect(pillOf('Archived')).toContain('ui-tone-neutral');
+    expect(screen.getByRole('button', { name: vi_['ui.filterPanel.toggle'] })).toBeTruthy();
+    const user = userEvent.setup();
+    await user.selectOptions(screen.getByLabelText(vi_['sas.tenants.status.label']), 'Active');
+    await user.click(screen.getByRole('button', { name: vi_['sas.tenants.filter.action'] }));
+    expect(screen.getByRole('button', { name: vi_['ui.filterPanel.toggleApplied'].replace('{count}', '1') })).toBeTruthy();
+  });
+
   it('shows the step of a provisioning tenant and the failed step of a failed one', async () => {
     mount(<TenantListScreen route={ROUTE} />, harness(answer));
     await screen.findByRole('table');

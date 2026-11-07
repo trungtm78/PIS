@@ -8,6 +8,9 @@ import { useTickets } from './support/hooks';
 import { categoryLabel, priorityLabel, statusLabel } from './support/labels';
 import { SUPPORT_CREATE_PERMISSION, formatInstant, isOverdue } from './support/model';
 import { TicketForm } from './support/TicketForm';
+import { SectionCard, StatusPill } from '../../ui';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 
 // A member without a ticket yet still has the form to raise the first: that is not the "empty" state of the screen.
 const NEVER_EMPTY = (): boolean => false;
@@ -49,14 +52,13 @@ function SupportContent({ route }: ScreenProps) {
               {justRaised === undefined ? t('iam.support.raised.notice') : t('iam.support.raised.code.notice', { code: justRaised.code })}
             </p>
           )}
-          <div className="card">
-            <h2>{t('iam.support.list.title')}</h2>
+          <SectionCard title={t('iam.support.list.title')}>
             {list.length === 0 ? (
               <p className="sub" data-testid="no-tickets">
                 {t('iam.support.list.empty.text')}
               </p>
             ) : (
-              <table className="table" data-testid="tickets" aria-label={t('iam.support.list.aria')}>
+              <KitTable caption={t('w2iam.support.table.caption')} data-testid="tickets" aria-label={t('iam.support.list.aria')}>
                 <thead>
                   <tr>
                     <th scope="col">{t('iam.support.column.code')}</th>
@@ -84,14 +86,16 @@ function SupportContent({ route }: ScreenProps) {
                           </small>
                         </td>
                         <td>{priorityLabel(t, ticket.priority)}</td>
-                        <td>{statusLabel(t, ticket.status)}</td>
+                        <td>
+                          <StatusPill tone={ticket.status === 'Closed' ? 'neutral' : ticket.status === 'Resolved' ? 'success' : ticket.status === 'WaitingCustomer' ? 'warning' : 'info'}>{statusLabel(t, ticket.status)}</StatusPill>
+                        </td>
                         <td>
                           {formatInstant(ticket.slaDueAt)}
                           {overdue ? (
                             <>
                               <br />
-                              <span className="pill warning" data-testid="overdue">
-                                {t('iam.support.overdue.label')}
+                              <span data-testid="overdue">
+                                <StatusPill tone="warning">{t('iam.support.overdue.label')}</StatusPill>
                               </span>
                             </>
                           ) : null}
@@ -100,9 +104,9 @@ function SupportContent({ route }: ScreenProps) {
                     );
                   })}
                 </tbody>
-              </table>
+              </KitTable>
             )}
-          </div>
+          </SectionCard>
           {mayRaise ? <TicketForm onRaised={setRaised} /> : <p className="sub">{t('iam.support.readonly.text')}</p>}
           <p className="sub" data-testid="privacy">
             {t('iam.support.privacy.text')}

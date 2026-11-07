@@ -12,3 +12,20 @@
 .home-queue-note { margin: 0 0 var(--mv-space-12); padding: var(--mv-space-12) var(--mv-space-16); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-card); background: var(--mv-color-surface2); }
 .home-queue-note--warn { border-color: var(--mv-color-warning); background: var(--mv-color-warning-soft); }
 .home-context { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8) var(--mv-space-16); margin-bottom: var(--mv-space-16); }
+
+/* The screens converted in wave 2 (drill, funding, warnings, profile, ranking, map): layout only, tokens only. */
+.home-trail ol { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-4) var(--mv-space-8); margin: 0; padding: 0; list-style: none; }
+.home-trail li + li::before { content: '\203A'; margin-right: var(--mv-space-8); color: var(--mv-color-text-secondary); }
+.home-notice { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8) var(--mv-space-12); padding: var(--mv-space-8) var(--mv-space-12); border: 1px solid var(--mv-color-warning); border-radius: var(--mv-radius-control); background: var(--mv-color-warning-soft); color: var(--mv-color-ink); }
+.home-lines { display: grid; gap: var(--mv-space-4); margin: 0; padding-left: var(--mv-space-20); }
+.home-inline-field { display: inline-flex; align-items: center; gap: var(--mv-space-8); font-size: 12px; color: var(--mv-color-text-secondary); }
+.home-more { display: flex; justify-content: center; margin-top: var(--mv-space-12); }
+.home-actions { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); }
+.home-badges { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8); }
+.home-excluded { margin-top: var(--mv-space-16); }
+.home-excluded h3 { margin: 0 0 var(--mv-space-8); font-size: 14px; }
+.home-dialog { display: grid; gap: var(--mv-space-12); padding: var(--mv-space-16) var(--mv-space-20); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-card); background: var(--mv-color-surface); color: var(--mv-color-ink); }
+.home-dialog h2 { margin: 0; font-size: 16px; }
+.home-fund-tile { min-width: 0; }
+.home-fund-line { display: block; font-size: 12px; color: var(--mv-color-text-secondary); overflow-wrap: anywhere; }
+.home-fund-line small { font-size: 12px; }

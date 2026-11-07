@@ -11,6 +11,8 @@ import { useChange, useCreateChange, useHistory, useRecordByKey, useRecords, use
 import { fieldProblemMessage, problemMessage, recordStatusLabel } from './labels';
 import { PROPOSE_PERMISSION, describeProblem, namespaceOf, recordLink, validateRetire } from './model';
 import type { RecordView, RetireField, RetireForm } from './model';
+import { SectionCard } from '../../ui';
+import '../adm/adm-kit.css';
 
 const APPROVAL_PATH = '/mdm/mdm-32';
 const DETAIL_PATH = '/mdm/mdm-27';
@@ -168,10 +170,10 @@ function Retire({ record }: { record: RecordView }) {
             <textarea id="retire-reason" rows={2} value={form.reason} aria-invalid={error('reason') !== undefined} onChange={(event) => setField('reason', event.target.value)} />
           </Field>
         </fieldset>
-        <div className="formfooter">
+        <div className="adm-kit-actions">
           <span className="sub">{t('mdm.retire.form.hint')}</span>
           {canPropose && opened === undefined ? (
-            <button type="submit" className="primary" disabled={create.isPending || !ready}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending || !ready}>
               {t('mdm.retire.save.action')}
             </button>
           ) : null}
@@ -179,9 +181,10 @@ function Retire({ record }: { record: RecordView }) {
       </form>
       <div>
         {opened === undefined ? (
-          <aside className="card" aria-label={t('mdm.detail.usage.title')}>
-            <h2>{t('mdm.detail.usage.title')}</h2>
+          <aside aria-label={t('mdm.detail.usage.title')}>
+          <SectionCard title={t('mdm.detail.usage.title')}>
             {usage.data === undefined || usage.data === null ? <p className="muted">{t('mdm.detail.usage.loading')}</p> : <ImpactTable impact={usage.data} />}
+          </SectionCard>
           </aside>
         ) : (
           <>

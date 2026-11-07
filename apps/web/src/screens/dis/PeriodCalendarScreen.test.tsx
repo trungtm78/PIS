@@ -12,10 +12,11 @@ const PATH = '/dis/dis-14';
 
 afterEach(cleanup);
 
-const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('tr[data-period-code]'));
+const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('[data-period-code]'));
 const codes = (): string[] => rows().map((row) => row.getAttribute('data-period-code') ?? '');
 const ready = () => waitFor(() => expect(rows().length).toBeGreaterThan(0));
-const row = (n: number): HTMLElement => document.querySelector(`tr[data-period-id="00000000-0000-4000-8000-0003${String(n).padStart(8, '0')}"]`) as HTMLElement;
+const marker = (n: number): HTMLElement => document.querySelector(`[data-period-id="00000000-0000-4000-8000-0003${String(n).padStart(8, '0')}"]`) as HTMLElement;
+const row = (n: number): HTMLElement => marker(n).closest('tr') as HTMLElement;
 const moveButton = (n: number, move: 'softClose' | 'lock'): HTMLElement | null => row(n).querySelector(`button[data-move="${move}"]`);
 const refusal = (code: string, detail?: string): ApiError => new ApiError({ status: 409, code, correlationId: 'c', retryAfterSeconds: undefined, detail, extensions: {} });
 const text = (key: keyof typeof vi_, params: Record<string, string | number> = {}): string => Object.entries(params).reduce((message, [name, value]) => message.replace(`{${name}}`, String(value)), vi_[key]);
@@ -43,9 +44,9 @@ describe('PeriodCalendarScreen (DIS-14): the calendar of the reporting periods (
     await ready();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['dis.calendar.page.title']);
     expect(codes()).toEqual(CALENDAR.map((item) => item.code));
-    const pill = (n: number): string => (row(n).querySelector('.pill') as HTMLElement).textContent ?? '';
+    const pill = (n: number): string => (row(n).querySelector('.ui-pill') as HTMLElement).textContent ?? '';
     expect([1, 2, 3, 4].map(pill)).toEqual([vi_['dis.calendar.status.open.text'], vi_['dis.calendar.status.softClosed.text'], vi_['dis.calendar.status.locked.text'], vi_['dis.calendar.status.open.text']]);
-    expect(row(2).getAttribute('data-status')).toBe('SOFT_CLOSED');
+    expect(marker(2).getAttribute('data-status')).toBe('SOFT_CLOSED');
     expect(row(2).textContent).toContain(text('dis.calendar.softClosedAt.text', { when: '2026-10-02 10:05' }));
     // The deadline and the lock time are shown in Vietnam time (UTC+7), the instant itself stays in the element.
     expect(row(1).querySelector('time')?.textContent).toBe('2020-01-10 10:00');
@@ -84,7 +85,7 @@ describe('PeriodCalendarScreen (DIS-14): the calendar of the reporting periods (
     expect(screen.queryByRole('form', { name: vi_['dis.calendar.generate.title'] })).toBeNull();
     expect(row(1).textContent).not.toContain(vi_['dis.calendar.beforeDeadline.hint']);
     expect(row(4).textContent).not.toContain(vi_['dis.calendar.beforeDeadline.hint']);
-    expect([1, 2, 3].map((n) => (row(n).querySelector('.pill') as HTMLElement).textContent)).toEqual([
+    expect([1, 2, 3].map((n) => (row(n).querySelector('.ui-pill') as HTMLElement).textContent)).toEqual([
       vi_['dis.calendar.status.open.text'],
       vi_['dis.calendar.status.softClosed.text'],
       vi_['dis.calendar.status.locked.text'],
@@ -134,7 +135,7 @@ describe('PeriodCalendarScreen (DIS-14): the calendar of the reporting periods (
       await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
       expect(h.command).toHaveBeenCalledTimes(1);
       expect(h.command).toHaveBeenCalledWith('softCloseReportingPeriod', expect.objectContaining({ path: { id: CALENDAR[0]?.id }, body: { reason: 'The deadline has passed' }, ifMatchVersion: 1 }));
-      await waitFor(() => expect((row(1).querySelector('.pill') as HTMLElement).textContent).toBe(vi_['dis.calendar.status.softClosed.text']));
+      await waitFor(() => expect((row(1).querySelector('.ui-pill') as HTMLElement).textContent).toBe(vi_['dis.calendar.status.softClosed.text']));
       expect(moveButton(1, 'softClose')).toBeNull();
       expect(moveButton(1, 'lock')).not.toBeNull();
     });
@@ -158,7 +159,7 @@ describe('PeriodCalendarScreen (DIS-14): the calendar of the reporting periods (
       await user.click(within(dialog).getByRole('button', { name: vi_['dis.calendar.lock.confirm.action'] }));
       await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
       expect(h.command).toHaveBeenCalledWith('lockReportingPeriod', expect.objectContaining({ path: { id: CALENDAR[1]?.id }, body: { reason: 'Locked after the review' }, ifMatchVersion: 2 }));
-      await waitFor(() => expect((row(2).querySelector('.pill') as HTMLElement).textContent).toBe(vi_['dis.calendar.status.locked.text']));
+      await waitFor(() => expect((row(2).querySelector('.ui-pill') as HTMLElement).textContent).toBe(vi_['dis.calendar.status.locked.text']));
       expect(row(2).querySelectorAll('time')[1]?.textContent).toBe('2026-10-02 10:10');
       expect(row(2).querySelectorAll('button')).toHaveLength(0);
     });
@@ -305,6 +306,18 @@ describe('PeriodCalendarScreen (DIS-14): the calendar of the reporting periods (
       mount(<PeriodCalendarScreen route={ROUTE} />, client(world({ periods: [] })), MAKER, PATH);
       expect((await screen.findByTestId('empty-periods')).textContent).toBe(text('dis.calendar.empty.text', { year: CURRENT_YEAR }));
       expect(screen.getByTestId('count').textContent).toBe(text('dis.calendar.count.text', { total: 0, open: 0, softClosed: 0, locked: 0 }));
+    });
+
+    it('counts the status that is applied in the filter panel and takes it off with one button, back to the whole year', async () => {
+      mount(<PeriodCalendarScreen route={ROUTE} />, client(world({ periods: [period(1)] })), MAKER, PATH);
+      await ready();
+      expect(screen.queryByRole('button', { name: vi_['dis.reports.filter.clear.action'] })).toBeNull();
+      const user = userEvent.setup();
+      await user.selectOptions(screen.getByLabelText(vi_['dis.calendar.filter.status.label']), 'LOCKED');
+      await user.click(await screen.findByRole('button', { name: vi_['dis.reports.filter.clear.action'] }));
+      expect((screen.getByLabelText(vi_['dis.calendar.filter.status.label']) as HTMLSelectElement).value).toBe('');
+      expect(screen.queryByTestId('empty-periods')).toBeNull();
+      expect(codes()).toHaveLength(1);
     });
 
     it('ignores a row that does not have the shape of a period', async () => {

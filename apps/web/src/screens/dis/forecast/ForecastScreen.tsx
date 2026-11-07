@@ -5,13 +5,16 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { ContextBar, DataTable, FilterPanel, KpiStrip, KpiTile, SectionCard, StatusPill } from '../../../ui';
+import type { DataTableColumn, Tone } from '../../../ui';
 import '../dis.css';
 import { DefinitionBadge, NONE, SnapshotPicker, money, signedVnd } from '../rates/components';
 import { useFrozenSnapshots } from '../rates/hooks';
+import '../rates/rates.css';
 import './forecast.css';
 import { useForecast } from './hooks';
 import { CHART, chartGeometry, describeForecast } from './model';
-import type { Coverage, CurvePoint, Estimate, Forecast, Source } from './model';
+import type { Coverage, CurvePoint, Estimate, Forecast, ProjectEstimate, Source } from './model';
 
 type T = Translator['t'];
 
@@ -20,10 +23,10 @@ const sourceLabel = (t: T, source: Source): string =>
 const coverageLabel = (t: T, coverage: Coverage): string => (coverage === 'COMPLETE' ? t('dis.forecast.coverage.complete') : coverage === 'PARTIAL' ? t('dis.forecast.coverage.partial') : t('dis.forecast.coverage.none'));
 
 /** What the estimate says about reallocation, in words: a candidate, not a candidate, or not enough to say. */
-function verdict(t: T, estimate: Estimate, threshold: number): { tone: string; text: string } {
-  if (estimate.reallocationCandidate === true) return { tone: 'warn', text: t('dis.forecast.candidate.yes', { pct: String(threshold) }) };
-  if (estimate.reallocationCandidate === false) return { tone: 'green', text: t('dis.forecast.candidate.no', { pct: String(threshold) }) };
-  return { tone: 'gray', text: estimate.eacVnd === null ? t('dis.forecast.candidate.noData') : t('dis.forecast.candidate.unknown') };
+function verdict(t: T, estimate: Estimate, threshold: number): { tone: Tone; text: string } {
+  if (estimate.reallocationCandidate === true) return { tone: 'warning', text: t('dis.forecast.candidate.yes', { pct: String(threshold) }) };
+  if (estimate.reallocationCandidate === false) return { tone: 'success', text: t('dis.forecast.candidate.no', { pct: String(threshold) }) };
+  return { tone: 'neutral', text: estimate.eacVnd === null ? t('dis.forecast.candidate.noData') : t('dis.forecast.candidate.unknown') };
 }
 
 /**
@@ -94,6 +97,7 @@ export default function ForecastScreen({ route }: ScreenProps) {
 
 function ForecastContent({ route }: ScreenProps) {
   const { t } = useTranslation();
+  const { tenant } = useSession();
   const [params, setParams] = useSearchParams();
   const snapshotId = params.get('snapshot') ?? '';
   const frozen = useFrozenSnapshots();
@@ -102,6 +106,7 @@ function ForecastContent({ route }: ScreenProps) {
   const first = forecast.data?.pages[0];
   const projects = (forecast.data?.pages ?? []).flatMap((page) => page?.projects ?? []);
   const failure = forecast.isError ? describeForecast(forecast.error) : undefined;
+  const refused = failure === 'notFound' || failure === 'notFrozen' || failure === 'validation';
   const choose = (next: string): void => {
     const value = new URLSearchParams(params);
     if (next === '') value.delete('snapshot');
@@ -118,61 +123,62 @@ function ForecastContent({ route }: ScreenProps) {
         </div>
         {first === undefined ? null : <DefinitionBadge definition={first.definition} />}
       </div>
-      <div className="card">
+      <ContextBar
+        items={[
+          { label: t('dis.wr.ctx.scope'), value: tenant?.name ?? t('dis.wr.ctx.scope.all') },
+          { label: t('w2dis.forecast.ctx.year'), value: first === undefined ? NONE : String(first.planYear) },
+          { label: t('dis.rates.fact.cutoff'), value: first === undefined ? NONE : first.cutoffDate },
+        ]}
+        unit={t('dis.wr.unit')}
+      />
+      <FilterPanel unitLabel={t('dis.wr.unit')} applied={snapshotId === '' ? 0 : 1}>
         <div className="dis-filters">
           <SnapshotPicker id="forecast-snapshot" value={snapshotId} onChange={choose} snapshots={frozen.data ?? []} />
         </div>
-      </div>
-      {failure === 'notFound' || failure === 'notFrozen' || failure === 'validation' ? (
-        <p className="callout warning" role="alert" data-testid="forecast-refusal">
+      </FilterPanel>
+      {refused ? (
+        <p className="w2dis-banner" role="alert" data-testid="forecast-refusal">
           {failure === 'notFound' ? t('dis.forecast.problem.notFound') : failure === 'notFrozen' ? t('dis.forecast.problem.notFrozen') : t('dis.forecast.problem.validation')}
         </p>
       ) : null}
-      <StateBoundary state={failure === 'notFound' || failure === 'notFrozen' || failure === 'validation' ? 'default' : state} onRetry={() => void forecast.refetch()}>
+      <StateBoundary state={refused ? 'default' : state} onRetry={() => void forecast.refetch()}>
         {first === undefined ? null : (
-          <>
-            <section className="card" aria-labelledby="forecast-total-title">
-              <h2 id="forecast-total-title">{t('dis.forecast.total.title', { year: String(first.planYear) })}</h2>
-              <p className="sub" data-testid="forecast-cutoff">
-                {t('dis.forecast.cutoff.text', { cutoff: first.cutoffDate })}
-              </p>
-              <dl className="dis-forecast-tiles" data-testid="forecast-tiles">
-                <div>
-                  <dt>{t('dis.forecast.tile.disbursed')}</dt>
-                  <dd data-tile="disbursed">{money(first.disbursedVnd)}</dd>
-                </div>
-                <div>
-                  <dt>{t('dis.forecast.tile.eac')}</dt>
-                  <dd data-tile="eac">{money(first.eacVnd)}</dd>
-                  <dd>
-                    <span className={`pill ${first.coverage === 'COMPLETE' ? 'green' : 'gray'}`} data-testid="forecast-coverage">
-                      {coverageLabel(t, first.coverage)}
-                    </span>
-                  </dd>
-                </div>
-                <div>
-                  <dt>{t('dis.forecast.tile.plan')}</dt>
-                  <dd data-tile="plan">{money(first.planTotalVnd)}</dd>
-                </div>
-                <div>
-                  <dt>{t('dis.forecast.tile.gap')}</dt>
-                  <dd data-tile="gap">{first.gapVnd === null ? NONE : signedVnd(first.gapVnd)}</dd>
-                  <dd className="sub">{first.ratioPct === null ? null : t('dis.forecast.ratio.text', { value: first.ratioPct })}</dd>
-                </div>
-              </dl>
-              {overall === undefined ? null : (
-                <p data-testid="forecast-verdict">
-                  <span className={`pill ${overall.tone}`}>{overall.text}</span> <span className="sub">{t('dis.forecast.assumption.note')}</span>
+          <div className="w2dis-stack">
+            <SectionCard title={t('dis.forecast.total.title', { year: String(first.planYear) })} unit={t('dis.wr.unit')}>
+              <div className="w2dis-stack">
+                <p className="w2dis-note" data-testid="forecast-cutoff">
+                  {t('dis.forecast.cutoff.text', { cutoff: first.cutoffDate })}
                 </p>
-              )}
-              {first.coverage === 'COMPLETE' ? null : (
-                <p className="callout" role="note" data-testid="forecast-partial-note">
-                  {first.eacVnd === null ? t('dis.forecast.partial.noData') : t('dis.forecast.partial.note')}
-                </p>
-              )}
-            </section>
-            <section className="card" aria-labelledby="forecast-curve-title">
-              <h2 id="forecast-curve-title">{t('dis.forecast.curve.title')}</h2>
+                <div data-testid="forecast-tiles">
+                  <KpiStrip label={t('dis.forecast.total.title', { year: String(first.planYear) })}>
+                    <KpiTile label={t('dis.forecast.tile.disbursed')} value={money(first.disbursedVnd)} />
+                    <KpiTile
+                      label={t('dis.forecast.tile.eac')}
+                      value={money(first.eacVnd)}
+                      tone="info"
+                      sub={
+                        <span data-testid="forecast-coverage">
+                          <StatusPill tone={first.coverage === 'COMPLETE' ? 'success' : first.coverage === 'PARTIAL' ? 'warning' : 'neutral'}>{coverageLabel(t, first.coverage)}</StatusPill>
+                        </span>
+                      }
+                    />
+                    <KpiTile label={t('dis.forecast.tile.plan')} value={money(first.planTotalVnd)} />
+                    <KpiTile label={t('dis.forecast.tile.gap')} value={first.gapVnd === null ? NONE : signedVnd(first.gapVnd)} sub={first.ratioPct === null ? undefined : t('dis.forecast.ratio.text', { value: first.ratioPct })} />
+                  </KpiStrip>
+                </div>
+                {overall === undefined ? null : (
+                  <p className="w2dis-verdict" data-testid="forecast-verdict">
+                    <StatusPill tone={overall.tone}>{overall.text}</StatusPill> <span className="w2dis-note">{t('dis.forecast.assumption.note')}</span>
+                  </p>
+                )}
+                {first.coverage === 'COMPLETE' ? null : (
+                  <p className="w2dis-banner w2dis-banner--info" role="note" data-testid="forecast-partial-note">
+                    {first.eacVnd === null ? t('dis.forecast.partial.noData') : t('dis.forecast.partial.note')}
+                  </p>
+                )}
+              </div>
+            </SectionCard>
+            <SectionCard title={t('dis.forecast.curve.title')} unit={t('dis.wr.unit')}>
               <CashFlowChart curve={first.curve} plan={first.planTotalVnd} t={t} />
               <div className="tablewrap">
                 <table className="table" aria-label={t('dis.forecast.curve.aria')} data-testid="forecast-curve-table">
@@ -231,63 +237,57 @@ function ForecastContent({ route }: ScreenProps) {
                   </tbody>
                 </table>
               </div>
-            </section>
-            <section className="card" aria-labelledby="forecast-projects-title">
-              <h2 id="forecast-projects-title">{t('dis.forecast.projects.title')}</h2>
-              <div className="tablewrap">
-                <table className="table" aria-label={t('dis.forecast.projects.aria')} data-testid="forecast-projects">
-                  <thead>
-                    <tr>
-                      <th scope="col">{t('dis.forecast.projects.col.project')}</th>
-                      <th scope="col" className="num">
-                        {t('dis.forecast.tile.disbursed')}
-                      </th>
-                      <th scope="col" className="num">
-                        {t('dis.forecast.tile.eac')}
-                      </th>
-                      <th scope="col" className="num">
-                        {t('dis.forecast.tile.plan')}
-                      </th>
-                      <th scope="col" className="num">
-                        {t('dis.forecast.tile.gap')}
-                      </th>
-                      <th scope="col">{t('dis.forecast.projects.col.verdict')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {projects.map((project) => {
-                      const said = verdict(t, project, first.thresholdPct);
-                      return (
-                        <tr key={project.projectId} data-project={project.projectId} data-candidate={String(project.reallocationCandidate)}>
-                          <td>
-                            {project.projectCode}
-                            <span className="dis-code">{project.projectName}</span>
-                          </td>
-                          <td className="num">{money(project.disbursedVnd)}</td>
-                          <td className="num">{money(project.eacVnd)}</td>
-                          <td className="num">{money(project.planTotalVnd)}</td>
-                          <td className="num">{project.gapVnd === null ? NONE : signedVnd(project.gapVnd)}</td>
-                          <td>
-                            <span className={`pill ${said.tone}`}>{said.text}</span> <span className="sub">{coverageLabel(t, project.coverage)}</span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+            </SectionCard>
+            <SectionCard title={t('dis.forecast.projects.title')} unit={t('dis.wr.unit')}>
+              <ProjectTable projects={projects} threshold={first.thresholdPct} />
               {forecast.hasNextPage ? (
-                <p>
-                  <button type="button" disabled={forecast.isFetchingNextPage} onClick={() => void forecast.fetchNextPage()}>
+                <p className="w2dis-more">
+                  <button type="button" className="ui-button ui-button--outline" disabled={forecast.isFetchingNextPage} onClick={() => void forecast.fetchNextPage()}>
                     {t('dis.forecast.projects.more.action')}
                   </button>
                 </p>
               ) : null}
-            </section>
-          </>
+            </SectionCard>
+          </div>
         )}
       </StateBoundary>
       <p className="prototype-note">{t('dis.forecast.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
   );
+}
+
+/** A row for each project: what was paid, the estimate, the plan, the gap and what the estimate says about reallocation (a word on a pill and the coverage, never colour alone). */
+function ProjectTable({ projects, threshold }: { projects: readonly ProjectEstimate[]; threshold: number }) {
+  const { t } = useTranslation();
+  const columns: DataTableColumn<ProjectEstimate>[] = [
+    {
+      key: 'project',
+      header: t('dis.forecast.projects.col.project'),
+      pinned: true,
+      render: (project) => (
+        <>
+          <strong>{project.projectCode}</strong>
+          <span className="dis-code">{project.projectName}</span>
+        </>
+      ),
+    },
+    { key: 'disbursed', header: t('dis.forecast.tile.disbursed'), align: 'right', render: (project) => money(project.disbursedVnd) },
+    { key: 'eac', header: t('dis.forecast.tile.eac'), align: 'right', render: (project) => money(project.eacVnd) },
+    { key: 'plan', header: t('dis.forecast.tile.plan'), align: 'right', render: (project) => money(project.planTotalVnd) },
+    { key: 'gap', header: t('dis.forecast.tile.gap'), align: 'right', render: (project) => (project.gapVnd === null ? NONE : signedVnd(project.gapVnd)) },
+    {
+      key: 'verdict',
+      header: t('dis.forecast.projects.col.verdict'),
+      render: (project) => {
+        const said = verdict(t, project, threshold);
+        return (
+          <>
+            <StatusPill tone={said.tone}>{said.text}</StatusPill>
+            <span className="w2dis-sub">{coverageLabel(t, project.coverage)}</span>
+          </>
+        );
+      },
+    },
+  ];
+  return <DataTable caption={t('dis.forecast.projects.aria')} columns={columns} rows={[...projects]} rowKey={(project) => project.projectId} />;
 }

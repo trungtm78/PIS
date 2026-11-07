@@ -7,7 +7,7 @@ import vi_ from '../../i18n/vi.json';
 import { createTranslator, translator } from '../../i18n';
 import { routeOf } from '../doc/test-support';
 import { ConnectorsWorkspace } from './ConnectorsWorkspace';
-import { adapterPill, connectorStatusLabel, connectorStatusPill, fieldMessage, modeLabel, problemMessage } from './connectors/labels';
+import { adapterPill, adapterTone, connectorStatusLabel, connectorStatusPill, connectorStatusTone, fieldMessage, modeLabel, problemMessage } from './connectors/labels';
 import { toConnector } from './connectors/model';
 import type { ConnectorView } from './connectors/model';
 import { SECOND_TENANT, harness, mountInSession } from './security/test-support';
@@ -54,11 +54,11 @@ describe('ConnectorsWorkspace (ADM-09)', () => {
     expect(screen.getByTestId('honesty-note').textContent).toBe(vi_['adm.connectors.honesty.note']);
     expect([...document.querySelectorAll('[data-connector-id]')].map((row) => row.getAttribute('data-connector-id'))).toEqual(['c-verified', 'c-proposed', 'c-mock', 'c-missing'].sort((a, b) => (CONNECTORS.find((c) => c.id === a)?.connectorCode ?? '').localeCompare(CONNECTORS.find((c) => c.id === b)?.connectorCode ?? '')));
     const mock = within(rowOf('c-mock')).getByText(vi_['mdm.cursor.adapter.mock.pill']);
-    expect(mock.className).toBe('pill red');
+    expect(mock.closest('.ui-pill')?.className).toContain('ui-tone-danger');
     const proposed = within(rowOf('c-proposed')).getByText(vi_['mdm.cursor.adapter.proposed.pill']);
-    expect(proposed.className).toBe('pill warn');
-    expect(within(rowOf('c-verified')).getByText(vi_['mdm.cursor.adapter.verified.pill']).className).toBe('pill');
-    expect(within(rowOf('c-missing')).getByText(vi_['mdm.cursor.adapter.missing.pill']).className).toBe('pill gray');
+    expect(proposed.closest('.ui-pill')?.className).toContain('ui-tone-warning');
+    expect(within(rowOf('c-verified')).getByText(vi_['mdm.cursor.adapter.verified.pill']).closest('.ui-pill')?.className).toContain('ui-tone-success');
+    expect(within(rowOf('c-missing')).getByText(vi_['mdm.cursor.adapter.missing.pill']).closest('.ui-pill')?.className).toContain('ui-tone-neutral');
   });
 
   it('shows the mode, the names of the configuration (never its values), the mapping version, the vault reference and the status', () => {
@@ -68,13 +68,13 @@ describe('ConnectorsWorkspace (ADM-09)', () => {
     expect(within(verified).getByText('directory')).toBeTruthy();
     expect(within(verified).getByText('v2')).toBeTruthy();
     expect(within(verified).getByText('secret://production/budget')).toBeTruthy();
-    expect(within(verified).getByText(vi_['adm.connectors.status.active']).className).toBe('pill');
+    expect(within(verified).getByText(vi_['adm.connectors.status.active']).closest('.ui-pill')?.className).toContain('ui-tone-success');
     expect(screen.queryByText('/inbox')).toBeNull();
     const missing = rowOf('c-missing');
     expect(within(missing).getByText(vi_['adm.connectors.config.none'])).toBeTruthy();
     expect(within(missing).getByText(vi_['adm.connectors.mapping.none'])).toBeTruthy();
     expect(within(missing).getByText(vi_['adm.connectors.credential.none'])).toBeTruthy();
-    expect(within(missing).getByText(vi_['adm.connectors.status.disabled']).className).toBe('pill gray');
+    expect(within(missing).getByText(vi_['adm.connectors.status.disabled']).closest('.ui-pill')?.className).toContain('ui-tone-neutral');
   });
 
   it('offers to activate only a connector whose adapter can ever run, and says why it does not for the others (BR-ADM-10)', () => {
@@ -167,7 +167,7 @@ describe('ConnectorsWorkspace (ADM-09)', () => {
       await open('c-mock', vi_['adm.connectors.activate.action']);
       const panel = screen.getByTestId('move-panel');
       expect(within(panel).getByText('procurement-mock')).toBeTruthy();
-      expect(within(panel).getByText(vi_['mdm.cursor.adapter.mock.pill']).className).toBe('pill red');
+      expect(within(panel).getByText(vi_['mdm.cursor.adapter.mock.pill']).closest('.ui-pill')?.className).toContain('ui-tone-danger');
       const user = userEvent.setup();
       await user.click(within(panel).getByRole('button', { name: vi_['adm.connectors.move.confirm.action'] }));
       expect(await within(panel).findByText(vi_['adm.connectors.move.reason.error'])).toBeTruthy();
@@ -261,5 +261,10 @@ describe('the words of ADM-09', () => {
   it('colours the pills: MOCK red, PROPOSED yellow, the plain pill for VERIFIED and a draft amber', () => {
     expect([adapterPill('VERIFIED'), adapterPill('MOCK'), adapterPill('PROPOSED'), adapterPill('MISSING')]).toEqual(['pill', 'pill red', 'pill warn', 'pill gray']);
     expect([connectorStatusPill('Draft'), connectorStatusPill('Active'), connectorStatusPill('Disabled')]).toEqual(['pill warn', 'pill', 'pill gray']);
+  });
+
+  it('gives the same verdicts to the status pills of the kit', () => {
+    expect([adapterTone('VERIFIED'), adapterTone('MOCK'), adapterTone('PROPOSED'), adapterTone('MISSING')]).toEqual(['success', 'danger', 'warning', 'neutral']);
+    expect([connectorStatusTone('Draft'), connectorStatusTone('Active'), connectorStatusTone('Disabled')]).toEqual(['warning', 'success', 'neutral']);
   });
 });

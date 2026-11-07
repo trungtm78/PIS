@@ -14,6 +14,7 @@ import { vietnamDay } from '../llm-model';
 import { useCompareRuns } from './hooks';
 import { DATASET_READ_PERMISSION, METRICS, PROFILE_READ_PERMISSION, RUN_READ_PERMISSION, durationSeconds, groupByRoute, metricCell } from './model';
 import type { CompareRun, RouteGroup } from './model';
+import '../llm-kit.css';
 
 const holds = (permissions: readonly string[] | undefined, permission: string): boolean => permissions === undefined || permissions.includes(permission);
 

@@ -6,6 +6,8 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { download } from '../mdm/catalogues';
+import { DataTable, FilterPanel, StatusPill } from '../../ui';
+import type { DataTableColumn } from '../../ui';
 import { useCloseRegister, useLedgerRead, useRegisterEntries, useRegisters } from './registers/hooks';
 import type { RegisterFilter } from './registers/hooks';
 import { directionLabel, entryStatusLabel, fieldProblemMessage, modeLabel, problemMessage, statusLabel } from './registers/labels';
@@ -13,7 +15,7 @@ import { buildLedgerFile } from './registers/ledger-export';
 import { describeProblem } from './registers/problems';
 import { closeReasonProblem } from './registers/rules';
 import { DIRECTIONS, MANAGE_REGISTERS_PERMISSION, REGISTER_STATUSES } from './registers/types';
-import type { Direction, Register, RegisterStatus } from './registers/types';
+import type { Direction, RegisterEntry, Register, RegisterStatus } from './registers/types';
 import './registers/doc.css';
 
 const YEARS_BACK = 3;
@@ -108,6 +110,69 @@ function NumberRegistersContent({ route }: ScreenProps) {
     );
   };
 
+  const columns: DataTableColumn<Register>[] = [
+    {
+      key: 'register',
+      header: t('doc.registers.col.register'),
+      pinned: true,
+      render: (register) => (
+        <span data-register-id={register.id}>
+          <strong>{register.registerCode}</strong>
+          <div className="sub">
+            {register.name} · {modeLabel(t, register.mode)}
+          </div>
+        </span>
+      ),
+    },
+    { key: 'year', header: t('doc.registers.col.year'), render: (register) => register.year },
+    { key: 'direction', header: t('doc.registers.col.direction'), render: (register) => directionLabel(t, register.direction) },
+    {
+      key: 'counter',
+      header: t('doc.registers.col.counter'),
+      align: 'right',
+      render: (register) => (
+        <>
+          {register.lastNumber}
+          <div className="sub">{t('doc.registers.next.text', { number: register.nextNumber })}</div>
+        </>
+      ),
+    },
+    {
+      key: 'status',
+      header: t('doc.registers.col.status'),
+      render: (register) => <StatusPill tone={register.status === 'OPEN' ? 'success' : 'neutral'}>{statusLabel(t, register.status)}</StatusPill>,
+    },
+    {
+      key: 'actions',
+      header: t('w2doc.registers.col.actions'),
+      render: (register) => (
+        <span className="row-actions">
+          <button type="button" className="ui-button ui-button--outline ui-button--small" aria-pressed={register.id === openId} aria-label={t('doc.registers.entries.label', { code: register.registerCode })} onClick={() => setOpenId(register.id === openId ? undefined : register.id)}>
+            {t('doc.registers.entries.action')}
+          </button>
+          {canManage && register.status === 'OPEN' ? (
+            <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('doc.registers.close.label', { code: register.registerCode })} onClick={() => startClosing(register)}>
+              {t('doc.registers.close.action')}
+            </button>
+          ) : null}
+        </span>
+      ),
+    },
+  ];
+  const entryColumns: DataTableColumn<RegisterEntry>[] = [
+    { key: 'number', header: t('doc.registers.entries.col.number'), render: (entry) => <span data-entry-number={entry.number}>{entry.displayNumber}</span> },
+    { key: 'symbol', header: t('doc.registers.entries.col.symbol'), render: (entry) => entry.symbol },
+    { key: 'issuedOn', header: t('doc.registers.entries.col.issuedOn'), render: (entry) => entry.issuedOn },
+    { key: 'status', header: t('doc.registers.entries.col.status'), render: (entry) => entryStatusLabel(t, entry.status) },
+  ];
+  const appliedCount = [applied.text, applied.status, applied.year, applied.direction].filter((value) => value !== '').length;
+  const clearFilters = (): void => {
+    const none: Filter = { text: '', status: '', year: '', direction: '' };
+    setDraft(none);
+    setApplied(none);
+    setOpenId(undefined);
+  };
+
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       <div className="heading">
@@ -126,8 +191,8 @@ function NumberRegistersContent({ route }: ScreenProps) {
           {t('doc.registers.closed.notice', { code: closed })}
         </p>
       )}
-      <div className="card">
-        <form className="filters" onSubmit={submit}>
+      <FilterPanel applied={appliedCount}>
+        <form className="doc-filter-form" onSubmit={submit}>
           <div>
             <label htmlFor="register-search">{t('doc.registers.search.label')}</label>
             <input id="register-search" type="search" value={draft.text} placeholder={t('doc.registers.search.placeholder')} onChange={(event) => setDraft({ ...draft, text: event.target.value })} />
@@ -165,62 +230,33 @@ function NumberRegistersContent({ route }: ScreenProps) {
               ))}
             </select>
           </div>
-          <button type="submit">{t('doc.registers.filter.action')}</button>
+          <button type="submit" className="ui-button ui-button--outline">
+            {t('doc.registers.filter.action')}
+          </button>
         </form>
+      </FilterPanel>
+      <div className="card">
         {frozen ? (
           <p className="callout warning" role="status">
             {t('doc.registers.frozen.notice')}
           </p>
         ) : null}
         <StateBoundary state={state} onRetry={() => void list.refetch()}>
-          <div className="tablewrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>{t('doc.registers.col.register')}</th>
-                  <th>{t('doc.registers.col.year')}</th>
-                  <th>{t('doc.registers.col.direction')}</th>
-                  <th>{t('doc.registers.col.counter')}</th>
-                  <th>{t('doc.registers.col.status')}</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
-                {shown.map((register) => (
-                  <tr key={register.id} data-register-id={register.id} className={register.id === openId ? 'selected' : undefined}>
-                    <td>
-                      <strong>{register.registerCode}</strong>
-                      <div className="sub">
-                        {register.name} · {modeLabel(t, register.mode)}
-                      </div>
-                    </td>
-                    <td>{register.year}</td>
-                    <td>{directionLabel(t, register.direction)}</td>
-                    <td>
-                      {register.lastNumber}
-                      <div className="sub">{t('doc.registers.next.text', { number: register.nextNumber })}</div>
-                    </td>
-                    <td>{statusLabel(t, register.status)}</td>
-                    <td className="row-actions">
-                      <button type="button" aria-label={t('doc.registers.entries.label', { code: register.registerCode })} onClick={() => setOpenId(register.id === openId ? undefined : register.id)}>
-                        {t('doc.registers.entries.action')}
-                      </button>
-                      {canManage && register.status === 'OPEN' ? (
-                        <button type="button" aria-label={t('doc.registers.close.label', { code: register.registerCode })} onClick={() => startClosing(register)}>
-                          {t('doc.registers.close.action')}
-                        </button>
-                      ) : null}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {shown.length === 0 ? <p className="muted">{t('doc.registers.filtered.empty')}</p> : null}
+          {shown.length === 0 ? null : <DataTable caption={t('w2doc.registers.table.caption')} columns={columns} rows={shown} rowKey={(register) => register.id} />}
+          {shown.length === 0 ? (
+            <div className="row gap">
+              <p className="muted">{t('doc.registers.filtered.empty')}</p>
+              {appliedCount > 0 ? (
+                <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={clearFilters}>
+                  {t('w2doc.registers.filter.clear')}
+                </button>
+              ) : null}
+            </div>
+          ) : null}
           <div className="row between gap tiny muted">
             <span>{t('doc.registers.count.text', { count: shown.length })}</span>
             {list.hasNextPage ? (
-              <button type="button" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
+              <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
                 {t('doc.registers.more.action')}
               </button>
             ) : null}
@@ -246,10 +282,10 @@ function NumberRegistersContent({ route }: ScreenProps) {
             </p>
           )}
           <div className="row gap">
-            <button type="submit" className="primary" disabled={close.isPending}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={close.isPending}>
               {t('doc.registers.close.confirm.action')}
             </button>
-            <button type="button" onClick={() => setClosing(undefined)}>
+            <button type="button" className="ui-button ui-button--outline" onClick={() => setClosing(undefined)}>
               {t('doc.registers.close.cancel.action')}
             </button>
           </div>
@@ -259,7 +295,7 @@ function NumberRegistersContent({ route }: ScreenProps) {
         <div className="card" data-entries-of={opened.id}>
           <div className="row between gap">
             <h2>{t('doc.registers.entries.title', { code: opened.registerCode, year: opened.year })}</h2>
-            <button type="button" disabled={ledger.isPending} onClick={() => exportLedger(opened)}>
+            <button type="button" className="ui-button ui-button--outline" disabled={ledger.isPending} onClick={() => exportLedger(opened)}>
               {t('doc.registers.export.action')}
             </button>
           </div>
@@ -284,28 +320,7 @@ function NumberRegistersContent({ route }: ScreenProps) {
           ) : rows.length === 0 ? (
             <p className="muted">{t('doc.registers.entries.empty')}</p>
           ) : (
-            <div className="tablewrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>{t('doc.registers.entries.col.number')}</th>
-                    <th>{t('doc.registers.entries.col.symbol')}</th>
-                    <th>{t('doc.registers.entries.col.issuedOn')}</th>
-                    <th>{t('doc.registers.entries.col.status')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((entry) => (
-                    <tr key={entry.allocationId} data-entry-number={entry.number}>
-                      <td>{entry.displayNumber}</td>
-                      <td>{entry.symbol}</td>
-                      <td>{entry.issuedOn}</td>
-                      <td>{entryStatusLabel(t, entry.status)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <DataTable caption={t('w2doc.registers.entries.caption')} columns={entryColumns} rows={rows} rowKey={(entry) => entry.allocationId} />
           )}
           {entries.hasNextPage ? (
             <button type="button" disabled={entries.isFetchingNextPage} onClick={() => void entries.fetchNextPage()}>

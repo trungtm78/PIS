@@ -10,8 +10,10 @@ const HOUR_MS = 3_600_000;
 
 afterEach(cleanup);
 
-const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('tr[data-dataset-id]'));
-const rowOf = (code: string): HTMLElement => document.querySelector(`tr[data-dataset-code="${code}"]`) as HTMLElement;
+/** The rows of the table of datasets (the message rows of the table are not datasets). */
+const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('tr.ui-table__row:not(.ui-table__row--message)'));
+const codeOf = (row: HTMLElement): string | null => row.querySelector('code')?.textContent ?? null;
+const rowOf = (code: string): HTMLElement => screen.getByText(code, { selector: 'code' }).closest('tr') as HTMLElement;
 const cells = (code: string): string[] => Array.from(rowOf(code).querySelectorAll('td')).map((cell) => cell.textContent ?? '');
 const ready = () => waitFor(() => expect(rows().length).toBeGreaterThan(0));
 const ago = (hours: number): string => new Date(Date.now() - hours * HOUR_MS).toISOString();
@@ -36,8 +38,8 @@ describe('QualityDashboardScreen (DGV-01): data quality control (UI-DGV-01)', ()
     expect(never[2]).not.toMatch(/\b0\b/);
     expect(never[3]).toBe(vi_['dgv.dashboard.freshness.none.text'].replace('{slo}', '1 ngày'));
     expect(never[5]).toBe(vi_['dgv.badge.notAssessed.text']);
-    expect(rowOf('DS-AI-USAGE').getAttribute('data-badge')).toBe('NOT_ASSESSED');
-    expect(rowOf('DS-AI-USAGE').querySelector('.pill')?.className).toBe('pill gray');
+    expect(rowOf('DS-AI-USAGE').querySelector('[data-badge]')?.getAttribute('data-badge')).toBe('NOT_ASSESSED');
+    expect(rowOf('DS-AI-USAGE').querySelector('.ui-pill')?.className).toBe('ui-pill ui-tone-neutral');
 
     const stale = cells('DS-DISB');
     expect(stale[2]).toBe('80.00');
@@ -87,7 +89,7 @@ describe('QualityDashboardScreen (DGV-01): data quality control (UI-DGV-01)', ()
     mount(<QualityDashboardScreen route={ROUTE} />, qualityClient(qualityWorld({ datasets: DATASETS, summary: SUMMARY })), DASHBOARD_READER, '/dgv/dgv-01');
     await ready();
     const link = within(rowOf('DS-PAY')).getByRole('link', { name: vi_['dgv.dashboard.detail.link'] });
-    expect(link.getAttribute('href')).toBe(`/dgv/dgv-07?dataset=${rowOf('DS-PAY').getAttribute('data-dataset-id')}`);
+    expect(link.getAttribute('href')).toBe(`/dgv/dgv-07?dataset=${(DATASETS[2] as { id: string }).id}`);
   });
 
   it('filters by domain on the server, reads the summary of the same filter, and clears the filter', async () => {
@@ -99,7 +101,7 @@ describe('QualityDashboardScreen (DGV-01): data quality control (UI-DGV-01)', ()
     expect(h.read).toHaveBeenCalledWith('searchCatalog', { query: { limit: 1 } });
     fireEvent.change(screen.getByLabelText(vi_['dgv.dashboard.filter.domain.label']), { target: { value: ' LAND ' } });
     await user.click(screen.getByRole('button', { name: vi_['dgv.dashboard.filter.apply.action'] }));
-    await waitFor(() => expect(rows().map((row) => row.getAttribute('data-dataset-code'))).toEqual(['DS-LAND']));
+    await waitFor(() => expect(rows().map(codeOf)).toEqual(['DS-LAND']));
     expect(h.readAll).toHaveBeenLastCalledWith('searchCatalog', { query: { domain: 'LAND' } });
     expect(h.read).toHaveBeenLastCalledWith('searchCatalog', { query: { domain: 'LAND', limit: 1 } });
     expect(screen.getByTestId('count').textContent).toBe(vi_['dgv.dashboard.count.text'].replace('{count}', '1'));
@@ -109,6 +111,20 @@ describe('QualityDashboardScreen (DGV-01): data quality control (UI-DGV-01)', ()
     expect((await screen.findByTestId('empty-dashboard')).textContent).toBe(vi_['dgv.dashboard.noMatch.text']);
     await user.click(screen.getByRole('button', { name: vi_['dgv.dashboard.filter.clear.action'] }));
     await waitFor(() => expect(rows()).toHaveLength(4));
+  });
+
+  it('puts the seven figures in a strip of KPI tiles, names the scope and the number of datasets in the context bar, and counts the applied filter', async () => {
+    mount(<QualityDashboardScreen route={ROUTE} />, qualityClient(qualityWorld({ datasets: DATASETS, summary: SUMMARY })), DASHBOARD_READER, '/dgv/dgv-01');
+    await ready();
+    const strip = screen.getByRole('group', { name: vi_['dgv.dashboard.tiles.aria'] });
+    expect(within(strip).getAllByRole('article')).toHaveLength(7);
+    const bar = screen.getByRole('group', { name: vi_['ui.contextBar.label'] });
+    expect(within(bar).getByText('Số bộ dữ liệu đang hiện')).toBeTruthy();
+    expect(within(bar).getByText('4')).toBeTruthy();
+    expect(screen.getByRole('button', { name: vi_['ui.filterPanel.toggle'] })).toBeTruthy();
+    fireEvent.change(screen.getByLabelText(vi_['dgv.dashboard.filter.domain.label']), { target: { value: 'LAND' } });
+    await userEvent.setup().click(screen.getByRole('button', { name: vi_['dgv.dashboard.filter.apply.action'] }));
+    expect(await screen.findByRole('button', { name: vi_['ui.filterPanel.toggleApplied'].replace('{count}', '1') })).toBeTruthy();
   });
 
   it('says there is nothing to show when no dataset is visible, and does not tell that something is hidden', async () => {

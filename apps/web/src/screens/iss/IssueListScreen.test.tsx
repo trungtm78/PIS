@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
+import { t } from '../../i18n';
 import vi_ from '../../i18n/vi.json';
 import IssueListScreen from './IssueListScreen';
 import { READER, REPORTER, client, issue, mountIssue, person, routeOf, world } from './test-support';
@@ -10,9 +11,10 @@ const ROUTE = routeOf('ISS-01', 'FR-ISS-01');
 
 afterEach(cleanup);
 
-const cards = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('article[data-issue-id]'));
+/** One row of the table per issue; the first link of a row is the code of the issue. */
+const cards = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('tbody tr.ui-table__row')).filter((row) => row.querySelector('a') !== null);
 const ready = () => waitFor(() => expect(cards().length).toBeGreaterThan(0));
-const column = (status: string): HTMLElement => document.querySelector<HTMLElement>(`section[data-status="${status}"]`) as HTMLElement;
+const rowOf = (code: string): HTMLElement => screen.getByRole('link', { name: code }).closest('tr') as HTMLElement;
 const show = (overrides: Partial<World> = {}, permissions: readonly string[] | undefined = READER) =>
   mountIssue(<IssueListScreen route={ROUTE} />, client(world(overrides)), { permissions, path: '/iss/iss-01' });
 
@@ -23,38 +25,56 @@ const ISSUES = [
 ];
 
 describe('IssueListScreen (ISS-01): the issues in the scope of the signed-in member', () => {
-  it('shows a column for every status with the issues in it, and on each card the fields of the screen (UI-ISS-01)', async () => {
+  it('shows a row for every issue, in the order of the states, with the fields of the screen (UI-ISS-01)', async () => {
     show({ issues: ISSUES });
     await ready();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['iss.list.page.title']);
-    const headings = Array.from(document.querySelectorAll('.iss-column h2')).map((heading) => heading.textContent);
-    expect(headings).toEqual([
-      `${vi_['iss.status.open.text']} (1)`,
-      `${vi_['iss.status.assigned.text']} (1)`,
-      `${vi_['iss.status.inProgress.text']} (1)`,
-      `${vi_['iss.status.escalated.text']} (0)`,
-      `${vi_['iss.status.pendingVerification.text']} (0)`,
-      `${vi_['iss.status.closed.text']} (0)`,
-      `${vi_['iss.status.reopened.text']} (0)`,
-    ]);
-    expect(within(column('ESCALATED')).getByText(vi_['iss.list.column.empty'])).toBeTruthy();
-    const assigned = within(column('ASSIGNED'));
+    expect(cards().map((row) => within(row).getAllByRole('link')[0]?.textContent)).toEqual(['VM-2026-000001', 'VM-2026-000002', 'VM-2026-000003']);
+    expect(cards().map((row) => within(row).getByTestId('status').getAttribute('data-status'))).toEqual(['OPEN', 'ASSIGNED', 'IN_PROGRESS']);
+    const assigned = within(rowOf('VM-2026-000002'));
     expect(assigned.getByRole('link', { name: 'VM-2026-000002' }).getAttribute('href')).toBe('/iss/iss-03?id=00000000-0000-4000-8000-a20000000002');
     expect(assigned.getByText('Giấy phép xây dựng hết hạn')).toBeTruthy();
     expect(assigned.getByTestId('severity').textContent).toBe(vi_['iss.severity.critical.text']);
     expect(assigned.getByText(/Nguyễn Văn B/)).toBeTruthy();
     expect(assigned.getByText(vi_['iss.list.card.source'].replace('{source}', vi_['iss.source.pmt.text']), { exact: false })).toBeTruthy();
-    expect(within(column('OPEN')).getByText(vi_['iss.list.card.unassigned'], { exact: false })).toBeTruthy();
+    expect(within(rowOf('VM-2026-000001')).getByText(vi_['iss.list.card.unassigned'], { exact: false })).toBeTruthy();
     expect(screen.getByTestId('count').textContent).toBe(vi_['iss.list.count.text'].replace('{count}', '3'));
   });
 
-  it('tells the deadline in words and keeps the days overdue and the level of escalation on the card', async () => {
+  it('tells the deadline in words, keeps the days overdue and the level of escalation, and marks an issue that is overdue or escalated with the stripe', async () => {
     show({ issues: ISSUES });
     await ready();
-    const late = within(column('IN_PROGRESS'));
+    const late = within(rowOf('VM-2026-000003'));
     expect(late.getByTestId('due-state').textContent).toBe(`${vi_['iss.due.overdue.badge']} · ${vi_['iss.due.overdueDays.text'].replace('{count}', '3')}`);
     expect(late.getByText(vi_['iss.escalation.level.text'].replace('{level}', '2'), { exact: false })).toBeTruthy();
-    expect(within(column('OPEN')).getByTestId('due-state').textContent).toBe(vi_['iss.due.onTrack.badge']);
+    expect(late.getByText(vi_['alerts.deadline.late'].replace('{days}', '3'))).toBeTruthy();
+    expect(within(rowOf('VM-2026-000001')).getByTestId('due-state').textContent).toBe(vi_['iss.due.onTrack.badge']);
+    expect(rowOf('VM-2026-000003').getAttribute('data-severity')).toBe('ACTION');
+    expect(rowOf('VM-2026-000001').getAttribute('data-severity')).toBeNull();
+    expect(within(rowOf('VM-2026-000003')).getByText(vi_['ui.dataTable.severityPrefix'].replace('{label}', vi_['ui.dataTable.severity.action']), { exact: false })).toBeTruthy();
+  });
+
+  it('counts the open, the overdue and the escalated issues of the scope above the table', async () => {
+    show({ issues: ISSUES });
+    await ready();
+    const strip = within(screen.getByRole('group', { name: t('w2iss.list.kpi.label') }));
+    expect(strip.getByText(t('w2iss.list.kpi.open')).closest('div')?.textContent).toContain('3');
+    expect(strip.getByText(t('w2iss.list.kpi.overdue')).closest('div')?.textContent).toContain('1');
+    expect(strip.getByText(t('w2iss.list.kpi.escalated')).closest('div')?.textContent).toContain('1');
+  });
+
+  it('pages the rows, and goes back to the first page when a filter narrows the list', async () => {
+    const many = Array.from({ length: 25 }, (_, n) => issue(n + 10, { title: `Vướng mắc số ${n + 10}` }));
+    show({ issues: many });
+    await ready();
+    const user = userEvent.setup();
+    expect(cards()).toHaveLength(20);
+    expect(screen.getByText(vi_['ui.tablePager.range'].replace('{from}', '1').replace('{to}', '20').replace('{total}', '25'))).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: vi_['ui.tablePager.next'] }));
+    expect(cards()).toHaveLength(5);
+    fireEvent.change(screen.getByLabelText(vi_['iss.list.query.label']), { target: { value: 'số 10' } });
+    expect(cards()).toHaveLength(1);
+    expect(screen.getByText(vi_['ui.tablePager.range'].replace('{from}', '1').replace('{to}', '1').replace('{total}', '1'))).toBeTruthy();
   });
 
   it('filters by status, severity, the person it is given to, the overdue ones and a search text', async () => {

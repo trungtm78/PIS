@@ -1,6 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { t as i18nText } from '../../../i18n';
 import vi_ from '../../../i18n/vi.json';
 import { contractId } from '../../ctr/test-support';
 import DiaryCatalogueScreen from './DiaryCatalogueScreen';
@@ -38,7 +39,11 @@ const submit = (name: string): void => {
   fireEvent.click(within(dialog()).getByRole('button', { name }));
 };
 const rows = (): string[] => Array.from(document.querySelectorAll('[data-diary]')).map((row) => row.getAttribute('data-diary') as string);
-const row = (id: string): HTMLElement => document.querySelector(`[data-diary="${id}"]`) as HTMLElement;
+/** The catalogue marks the cell of the diary and the row is the table row around it; the review list marks its row itself. */
+const row = (id: string): HTMLElement => {
+  const marked = document.querySelector(`[data-diary="${id}"]`) as HTMLElement;
+  return (marked.closest('tr') ?? marked) as HTMLElement;
+};
 type Sent = { path?: { id?: string }; body: Record<string, unknown>; ifMatchVersion?: number };
 const commandsOf = (h: ReturnType<typeof client>, operation: string): Sent[] => h.command.mock.calls.filter((call) => call[0] === operation).map((call) => call[1] as Sent);
 const readsOf = (h: ReturnType<typeof client>, operation: string): Array<{ query?: Record<string, unknown> }> => h.read.mock.calls.filter((call) => call[0] === operation).map((call) => call[1] as { query?: Record<string, unknown> });
@@ -96,6 +101,18 @@ describe('DiaryCatalogueScreen (QMS-01): the site diaries', () => {
     expect((await screen.findByTestId('no-diaries')).textContent).toBe(word('qms.diary.none.notice'));
     const last = readsOf(h, 'get_resources_site_diary').at(-1)?.query;
     expect(last).toEqual({ limit: 50, status: 'DRAFT', from: '2026-10-23', to: '2026-10-22' });
+  });
+
+  it('offers to clear the filters only while some are applied, and clearing shows every diary again', async () => {
+    catalogue(world({ diaries: [diary(1), diary(2, { status: 'CONTRACTOR_SIGNED' }), diary(3)] }));
+    await screen.findByTestId('diaries');
+    expect(screen.queryByRole('button', { name: i18nText('w2iss.qms.filter.clear') })).toBeNull();
+    pick('diary-filter-status', 'DRAFT');
+    await waitFor(() => expect(rows()).toEqual([diaryId(1), diaryId(3)]));
+    fireEvent.click(screen.getByRole('button', { name: i18nText('w2iss.qms.filter.clear') }));
+    await waitFor(() => expect(rows()).toEqual([diaryId(1), diaryId(2), diaryId(3)]));
+    expect((document.getElementById('diary-filter-status') as HTMLSelectElement).value).toBe('');
+    expect(screen.queryByRole('button', { name: i18nText('w2iss.qms.filter.clear') })).toBeNull();
   });
 
   it('reads the list a page at a time', async () => {

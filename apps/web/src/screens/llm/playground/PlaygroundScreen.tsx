@@ -17,6 +17,7 @@ import { useTryPrompt } from './hooks';
 import { problemMessage, reasonMessage } from './labels';
 import { EMPTY_FORM, INVOKE_PERMISSION, MAX_INPUT, PROFILE_READ_PERMISSION, TRACE_PATH, describeProblem, validate } from './model';
 import type { Answer, FormErrors, PlaygroundForm } from './model';
+import '../llm-kit.css';
 
 const holds = (permissions: readonly string[] | undefined, permission: string): boolean => permissions === undefined || permissions.includes(permission);
 
@@ -114,7 +115,7 @@ function Playground() {
             {reasonMessage(t, describeProblem(attempt.error))}
           </p>
         ) : null}
-        <button type="submit" className="primary" disabled={attempt.isPending || mode === 'READ_ONLY'}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={attempt.isPending || mode === 'READ_ONLY'}>
           {t('llm.playground.submit.action')}
         </button>
       </form>

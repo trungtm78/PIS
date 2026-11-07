@@ -5,6 +5,7 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { ContextBar, SectionCard, StatusPill } from '../../ui';
 import { Field } from '../mne/components';
 import '../dis/dis.css';
 import { useDatasetVersions, useDatasets, useExplain, useMetrics, useRefreshContext, useRunQuery } from './hooks';
@@ -12,6 +13,7 @@ import { dimensionLabel, queryProblemMessage } from './labels';
 import { DIMENSIONS, describeQueryProblem } from './query-model';
 import type { Group, QueryResult } from './query-model';
 import { GroupTable, Reconciliation, ResultLabels } from './QueryResultView';
+import './bi-kit.css';
 
 interface Level {
   result: QueryResult;
@@ -32,6 +34,7 @@ export default function WorkbenchScreen({ route }: ScreenProps) {
 
 function WorkbenchContent({ route }: ScreenProps) {
   const { t } = useTranslation();
+  const { tenant } = useSession();
   const [params] = useSearchParams();
   const metrics = useMetrics();
   const datasets = useDatasets();
@@ -100,6 +103,13 @@ function WorkbenchContent({ route }: ScreenProps) {
           <p>{t('bi.workbench.page.subtitle')}</p>
         </div>
       </div>
+      <ContextBar
+        items={[
+          { label: t('bi.workbench.ctx.scope'), value: tenant?.name ?? t('bi.workbench.ctx.scope.all') },
+          { label: t('bi.workbench.ctx.period'), value: served.find((version) => version.id === chosenSnapshot)?.asOfPeriod ?? t('bi.workbench.ctx.none') },
+          { label: t('bi.workbench.ctx.snapshot'), value: chosenSnapshot === '' ? t('bi.workbench.ctx.none') : chosenSnapshot.slice(0, 8) },
+        ]}
+      />
       <StateBoundary
         state={state}
         onRetry={() => {
@@ -108,8 +118,8 @@ function WorkbenchContent({ route }: ScreenProps) {
           void versions.refetch();
         }}
       >
+        <SectionCard title={t('bi.workbench.form.title')}>
         <form
-          className="card"
           aria-label={t('bi.workbench.form.title')}
           onSubmit={(event) => {
             event.preventDefault();
@@ -146,16 +156,17 @@ function WorkbenchContent({ route }: ScreenProps) {
             </Field>
           </div>
           <div className="mne-actions">
-            <button type="submit" className="btn" disabled={busy || chosenMetric === '' || chosenSnapshot === ''}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={busy || chosenMetric === '' || chosenSnapshot === ''}>
               {t('bi.workbench.run')}
             </button>
           </div>
         </form>
+        </SectionCard>
         {problem === undefined ? null : (
           <p className="callout warning" role="alert" data-testid="query-refused" data-reason={problem.reason}>
             {queryProblemMessage(t, problem.reason, problem.field)}
             {problem.reason === 'expired' || problem.reason === 'token' ? (
-              <button type="button" className="btn" onClick={renew} disabled={busy || levels.length === 0}>
+              <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={renew} disabled={busy || levels.length === 0}>
                 {t('bi.workbench.renew')}
               </button>
             ) : null}
@@ -166,23 +177,23 @@ function WorkbenchContent({ route }: ScreenProps) {
             {t('bi.workbench.empty')}
           </p>
         ) : (
-          <section className="card" aria-labelledby="wb-result-title" data-testid="workbench-result">
+          <div data-testid="workbench-result" className="bi-result">
+          <SectionCard title={current.result.metricCode}>
             <nav aria-label={t('bi.workbench.path')} data-testid="breadcrumb">
               <ol className="mne-lines">
                 {levels.map((level, index) => (
                   <li key={`${level.result.dimension}-${index}`}>
-                    <button type="button" className="btn" disabled={busy || index === levels.length - 1} onClick={() => setLevels(levels.slice(0, index + 1))}>
+                    <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={busy || index === levels.length - 1} onClick={() => setLevels(levels.slice(0, index + 1))}>
                       {level.from === null ? dimensionLabel(t, level.result.dimension ?? '') : `${level.from} › ${dimensionLabel(t, level.result.dimension ?? '')}`}
                     </button>
                   </li>
                 ))}
               </ol>
             </nav>
-            <h2 id="wb-result-title">{current.result.metricCode}</h2>
             {current.result.newDataAvailable ? (
               <p className="callout" role="status" data-testid="new-data-banner">
                 {t('bi.workbench.newData')}{' '}
-                <button type="button" className="btn" onClick={renew} disabled={busy}>
+                <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={renew} disabled={busy}>
                   {t('bi.workbench.renew')}
                 </button>
               </p>
@@ -202,11 +213,12 @@ function WorkbenchContent({ route }: ScreenProps) {
             ) : null}
             <Reconciliation result={current.result} />
             {current.result.truncated ? (
-              <p className="pill warn" data-testid="truncated">
-                {t('bi.query.truncated')}
+              <p data-testid="truncated">
+                <StatusPill tone="warning">{t('bi.query.truncated')}</StatusPill>
               </p>
             ) : null}
-          </section>
+          </SectionCard>
+          </div>
         )}
       </StateBoundary>
     </section>

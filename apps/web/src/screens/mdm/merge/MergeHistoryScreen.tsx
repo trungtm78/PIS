@@ -6,11 +6,14 @@ import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { Field } from '../components';
+import { KitTable } from '../../adm/KitTable';
+import '../../adm/adm-kit.css';
 import '../mdm.css';
 import { useMerges, useUnmerge } from './hooks';
 import { byLabel, mergeStatusLabel, problemMessage, sideLabel, strategyLabel } from './labels';
 import { MERGE_PERMISSION, describeMergeProblem } from './model';
 import type { Merge, UnmergeAnswer } from './model';
+import { StatusPill } from '../../../ui';
 
 const holds = (permissions: readonly string[] | undefined, permission: string, mode: string | undefined): boolean =>
   mode !== 'READ_ONLY' && (permissions === undefined || permissions.includes(permission));
@@ -64,7 +67,7 @@ function MergeCard({ merge, mayUnmerge }: { merge: Merge; mayUnmerge: boolean })
         <div>
           <dt>{t('mdm.merge.col.status')}</dt>
           <dd>
-            <span className={`pill ${merge.status === 'APPLIED' ? 'green' : 'gray'}`}>{mergeStatusLabel(t, merge.status)}</span>
+            <StatusPill tone={merge.status === 'APPLIED' ? 'success' : 'neutral'}>{mergeStatusLabel(t, merge.status)}</StatusPill>
           </dd>
         </div>
         <div>
@@ -92,8 +95,7 @@ function MergeCard({ merge, mayUnmerge }: { merge: Merge; mayUnmerge: boolean })
           </div>
         ) : null}
       </dl>
-      <div className="tablewrap">
-        <table className="table" data-testid="decisions" aria-label={t('mdm.merge.history.decisions')}>
+      <KitTable caption={t('w2mdm.mergeHistory.table.caption')} data-testid="decisions" aria-label={t('mdm.merge.history.decisions')}>
           <thead>
             <tr>
               <th scope="col">{t('mdm.merge.col.attribute')}</th>
@@ -114,8 +116,7 @@ function MergeCard({ merge, mayUnmerge }: { merge: Merge; mayUnmerge: boolean })
               </tr>
             ))}
           </tbody>
-        </table>
-      </div>
+        </KitTable>
       {mayUnmerge && merge.status === 'APPLIED' ? <UnmergePanel merge={merge} /> : null}
     </section>
   );
@@ -171,8 +172,8 @@ function UnmergePanel({ merge }: { merge: Merge }) {
           {problemMessage(t, failure)}
         </p>
       )}
-      <div className="formfooter">
-        <button type="submit" className="primary" disabled={send.isPending || unanswered.length > 0}>
+      <div className="adm-kit-actions">
+        <button type="submit" className="ui-button ui-button--primary" disabled={send.isPending || unanswered.length > 0}>
           {t('mdm.merge.history.unmerge.submit')}
         </button>
       </div>

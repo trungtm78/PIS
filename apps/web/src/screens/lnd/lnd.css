@@ -1,9 +1,8 @@
 .lnd-filters {
   display: grid;
   gap: 12px;
-  grid-template-columns: minmax(0, 2fr) repeat(auto-fit, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
   align-items: end;
-  margin-bottom: 12px;
 }
 .lnd-back-link {
   margin: 0 0 17px;
@@ -12,18 +11,18 @@
 }
 .lnd-back-link a {
   font-size: 11px;
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }
 .lnd-badge {
   display: inline-block;
   padding: 2px 8px;
-  border: 1px solid var(--shell-line, #e4e0e6);
+  border: 1px solid var(--mv-color-border);
   border-radius: 999px;
   font-size: 12px;
   white-space: nowrap;
 }
 .lnd-badge.warning {
-  border-color: var(--shell-warning, #b45309);
+  border-color: var(--mv-color-warning);
 }
 .lnd-dialog-body {
   padding: 16px;
@@ -52,7 +51,7 @@
   display: grid;
   gap: 4px;
   padding: 12px;
-  border: 1px solid var(--shell-line, #e4e0e6);
+  border: 1px solid var(--mv-color-border);
   border-radius: 8px;
 }
 .lnd-tile strong {
@@ -60,5 +59,34 @@
   font-variant-numeric: tabular-nums;
 }
 .lnd-late {
-  color: #b3261e;
+  color: var(--mv-color-danger);
+}
+
+.lnd-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+.lnd-sub {
+  display: block;
+  margin-top: 4px;
+}
+.lnd-stack {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.lnd-line {
+  display: block;
+}
+.lnd-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.lnd-tile-wrap {
+  display: grid;
+  min-width: 0;
 }

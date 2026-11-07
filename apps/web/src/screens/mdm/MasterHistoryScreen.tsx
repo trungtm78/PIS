@@ -9,6 +9,9 @@ import { useChange, useHistory, useRecordByKey } from './hooks';
 import { changeKindLabel, changeStatusLabel } from './labels';
 import { changedFields, fieldValue, namespaceOf, recordLink } from './model';
 import type { ChangedField, RecordView, VersionView } from './model';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
+import { StatusPill } from '../../ui';
 
 const DETAIL_PATH = '/mdm/mdm-27';
 const APPROVAL_PATH = '/mdm/mdm-32';
@@ -71,7 +74,7 @@ function VersionRow({ version, before }: { version: VersionView; before: Version
     <tr data-revision={version.revision}>
       <td>#{version.revision}</td>
       <td>
-        {before === undefined ? <span className="pill gray">{t('mdm.history.created.text')}</span> : null}
+        {before === undefined ? <StatusPill tone="neutral">{t('mdm.history.created.text')}</StatusPill> : null}
         {fields.length === 0 ? (
           <span className="muted">{t('mdm.history.unchanged.text')}</span>
         ) : (
@@ -122,7 +125,7 @@ function History({ record }: { record: RecordView }) {
       ) : versions.length === 0 ? (
         <p className="muted">{t('mdm.history.empty.text')}</p>
       ) : (
-        <table className="table">
+        <KitTable caption={t('w2mdm.history.table.caption')}>
           <thead>
             <tr>
               <th>{t('mdm.history.col.version')}</th>
@@ -136,9 +139,9 @@ function History({ record }: { record: RecordView }) {
               <VersionRow key={version.id} version={version} before={versions[index - 1]} />
             ))}
           </tbody>
-        </table>
+        </KitTable>
       )}
-      <div className="formfooter">
+      <div className="adm-kit-actions">
         <Link to={recordLink(DETAIL_PATH, record.masterType, record.businessKey, record.namespace)}>{t('mdm.history.detail.link')}</Link>
       </div>
     </article>

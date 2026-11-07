@@ -8,6 +8,7 @@ import { EMPTY_GATE_FORM, FIELD_OF_DETAIL, GATE_CODES, REQUIREMENTS, describeGat
 import type { GateCode, GateField, GateRuleForm as GateFormValue, GateRuleView, Requirement } from './gate-model';
 import { fieldProblemMessage } from './labels';
 import type { FormErrors, TypeGroup } from './model';
+import { SectionCard, StickyActions } from '../../ui';
 
 export interface GateRuleFormProps {
   /** The Vietnam date a rule that takes over from another may begin on or after. */
@@ -76,62 +77,65 @@ export function GateRuleForm({ today, types, rules }: GateRuleFormProps) {
   );
 
   return (
-    <form className="card" onSubmit={save} noValidate aria-label={t('pmt.gate.form.aria')}>
-      <h2>{t('pmt.gate.form.title')}</h2>
-      <p className="sub">{t('pmt.gate.form.hint')}</p>
-      {refused === undefined || refusedField !== undefined ? null : (
-        <p className="callout warning" role="alert" data-testid="problem">
-          {gateProblemMessage(t, refused)}
-        </p>
-      )}
-      {saved ? (
-        <p className="callout" role="status" data-testid="saved">
-          {t('pmt.gate.form.saved')}
-        </p>
-      ) : null}
-      <Field id="gate-code" label={t('pmt.gate.form.gate.label')} error={error('gateCode')}>
-        <select id="gate-code" value={form.gateCode} onChange={(event) => setField('gateCode', event.target.value as GateCode)}>
-          {GATE_CODES.map((code) => (
-            <option key={code} value={code}>
-              {gateLabel(t, code)}
-            </option>
-          ))}
-        </select>
-      </Field>
-      <Field id="gate-type" label={t('pmt.gate.form.type.label')} error={error('permitTypeId')}>
-        <select id="gate-type" value={form.permitTypeId} aria-invalid={error('permitTypeId') !== undefined} onChange={(event) => setField('permitTypeId', event.target.value)}>
-          <option value="">{t('pmt.gate.form.type.placeholder')}</option>
-          {types.map((group) => (
-            <option key={group.code} value={group.current.id}>
-              {group.code} · {group.current.name}
-            </option>
-          ))}
-        </select>
-      </Field>
-      <Field id="gate-requirement" label={t('pmt.gate.form.requirement.label')} error={error('requirement')}>
-        <select id="gate-requirement" value={form.requirement} onChange={(event) => setField('requirement', event.target.value as Requirement)}>
-          {REQUIREMENTS.map((requirement) => (
-            <option key={requirement} value={requirement}>
-              {requirementLabel(t, requirement)}
-            </option>
-          ))}
-        </select>
-      </Field>
-      {text('milestoneCode', 'gate-milestone', t('pmt.gate.form.milestone.label'), t('pmt.gate.form.milestone.hint'))}
-      {text('projectGroupKeys', 'gate-groups', t('pmt.gate.form.groups.label'), t('pmt.gate.form.groups.hint'))}
-      {text('workTypes', 'gate-works', t('pmt.gate.form.works.label'))}
-      {number('minInvestment', 'gate-min', t('pmt.gate.form.min.label'))}
-      {number('maxInvestment', 'gate-max', t('pmt.gate.form.max.label'))}
-      <Field id="gate-basis" label={t('pmt.gate.form.basis.label')} error={error('legalBasis')} hint={t('pmt.gate.form.basis.hint')}>
-        <textarea id="gate-basis" value={form.legalBasis} aria-invalid={error('legalBasis') !== undefined} onChange={(event) => setField('legalBasis', event.target.value)} />
-      </Field>
-      {date('effectiveFrom', 'gate-from', t('pmt.gate.form.from.label'), takenOver ? t('pmt.gate.form.revision.hint') : undefined)}
-      {date('effectiveUntil', 'gate-until', t('pmt.gate.form.until.label'))}
-      <div className="formfooter">
-        <button type="submit" className="button primary" disabled={publish.isPending}>
-          {publish.isPending ? t('pmt.gate.form.saving') : t('pmt.gate.form.save.action')}
-        </button>
-      </div>
+    <form onSubmit={save} noValidate aria-label={t('pmt.gate.form.aria')}>
+      <SectionCard title={t('pmt.gate.form.title')}>
+        <p className="sub">{t('pmt.gate.form.hint')}</p>
+        {refused === undefined || refusedField !== undefined ? null : (
+          <p className="callout warning" role="alert" data-testid="problem">
+            {gateProblemMessage(t, refused)}
+          </p>
+        )}
+        {saved ? (
+          <p className="callout" role="status" data-testid="saved">
+            {t('pmt.gate.form.saved')}
+          </p>
+        ) : null}
+        <Field id="gate-code" label={t('pmt.gate.form.gate.label')} error={error('gateCode')}>
+          <select id="gate-code" value={form.gateCode} onChange={(event) => setField('gateCode', event.target.value as GateCode)}>
+            {GATE_CODES.map((code) => (
+              <option key={code} value={code}>
+                {gateLabel(t, code)}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field id="gate-type" label={t('pmt.gate.form.type.label')} error={error('permitTypeId')}>
+          <select id="gate-type" value={form.permitTypeId} aria-invalid={error('permitTypeId') !== undefined} onChange={(event) => setField('permitTypeId', event.target.value)}>
+            <option value="">{t('pmt.gate.form.type.placeholder')}</option>
+            {types.map((group) => (
+              <option key={group.code} value={group.current.id}>
+                {group.code} · {group.current.name}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field id="gate-requirement" label={t('pmt.gate.form.requirement.label')} error={error('requirement')}>
+          <select id="gate-requirement" value={form.requirement} onChange={(event) => setField('requirement', event.target.value as Requirement)}>
+            {REQUIREMENTS.map((requirement) => (
+              <option key={requirement} value={requirement}>
+                {requirementLabel(t, requirement)}
+              </option>
+            ))}
+          </select>
+        </Field>
+        {text('milestoneCode', 'gate-milestone', t('pmt.gate.form.milestone.label'), t('pmt.gate.form.milestone.hint'))}
+        {text('projectGroupKeys', 'gate-groups', t('pmt.gate.form.groups.label'), t('pmt.gate.form.groups.hint'))}
+        {text('workTypes', 'gate-works', t('pmt.gate.form.works.label'))}
+        {number('minInvestment', 'gate-min', t('pmt.gate.form.min.label'))}
+        {number('maxInvestment', 'gate-max', t('pmt.gate.form.max.label'))}
+        <Field id="gate-basis" label={t('pmt.gate.form.basis.label')} error={error('legalBasis')} hint={t('pmt.gate.form.basis.hint')}>
+          <textarea id="gate-basis" value={form.legalBasis} aria-invalid={error('legalBasis') !== undefined} onChange={(event) => setField('legalBasis', event.target.value)} />
+        </Field>
+        {date('effectiveFrom', 'gate-from', t('pmt.gate.form.from.label'), takenOver ? t('pmt.gate.form.revision.hint') : undefined)}
+        {date('effectiveUntil', 'gate-until', t('pmt.gate.form.until.label'))}
+        <StickyActions
+          primary={
+            <button type="submit" className="ui-button ui-button--primary" disabled={publish.isPending}>
+              {publish.isPending ? t('pmt.gate.form.saving') : t('pmt.gate.form.save.action')}
+            </button>
+          }
+        />
+      </SectionCard>
     </form>
   );
 }

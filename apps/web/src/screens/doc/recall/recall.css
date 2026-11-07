@@ -1,6 +1,6 @@
 /* DOC-19: recall and void. The shared cards, tables, pills and callouts do the rest. */
 .field-error {
-  color: #a22b22;
+  color: var(--mv-color-danger);
 }
 
 .doc-recall .back-link {
@@ -11,7 +11,7 @@
 
 .doc-recall .back-link a {
   font-size: 11px;
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }
 
 .recall-form,

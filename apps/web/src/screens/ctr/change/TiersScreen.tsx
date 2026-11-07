@@ -14,6 +14,7 @@ import { formProblemMessage, problemMessage, stageLabel } from './labels';
 import { TIER_COUNTS, chainLink, describeProblem, emptyTiers, stagesOf, tiersBody, validateTiers } from './model';
 import type { Chain, TiersForm } from './model';
 import '../ctr.css';
+import { SectionCard } from '../../../ui';
 
 /**
  * CTR-20: the number of tiers of the chain of changes of a project (ST-CTR-006, BR-CTR-07). The business owner sets it to one, two or three, as often as they like until the first
@@ -79,8 +80,7 @@ function Tiers({ chain, readOnly }: { chain: Chain; readOnly: boolean }) {
   };
 
   return (
-    <article className="card" aria-label={t('ctr.change.tiers.form.title')}>
-      <h2>{t('ctr.change.tiers.form.title')}</h2>
+    <SectionCard title={t('ctr.change.tiers.form.title')}>
       {locked && config !== undefined ? (
         <p className="callout warning" role="status" data-testid="locked-notice">
           {t('ctr.change.tiers.locked.notice', { count: config.tierCount, code: config.lockedBy?.code ?? config.lockedBy?.id ?? t('ctr.change.none.text') })}
@@ -127,6 +127,6 @@ function Tiers({ chain, readOnly }: { chain: Chain; readOnly: boolean }) {
           ) : null}
         </div>
       </form>
-    </article>
+    </SectionCard>
   );
 }

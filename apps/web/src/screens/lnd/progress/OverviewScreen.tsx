@@ -4,6 +4,8 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { ContextBar, DataTable, KpiStrip, KpiTile, SectionCard, StatusPill } from '../../../ui';
+import type { DataTableColumn } from '../../../ui';
 import { parcelStatusLabel } from '../labels';
 import { PARCEL_STATUSES } from '../model';
 import type { ParcelStatus } from '../model';
@@ -11,7 +13,7 @@ import { useProjectOptions } from '../read-hooks';
 import { executorKindLabel, stageLabel, stageStatusLabel } from './labels';
 import { useOverview } from './hooks';
 import { PROGRESS_PATH, lateStages } from './model';
-import type { Overview } from './model';
+import type { Overview, SectionLine, StageLine } from './model';
 import { ProjectPicker } from './ProjectPicker';
 import '../lnd.css';
 
@@ -28,6 +30,7 @@ export default function OverviewScreen({ route }: ScreenProps) {
 
 function OverviewContent({ route }: ScreenProps) {
   const { t } = useTranslation();
+  const { tenant } = useSession();
   const [params, setParams] = useSearchParams();
   const projectId = params.get('project') ?? undefined;
   const projects = useProjectOptions();
@@ -41,6 +44,12 @@ function OverviewContent({ route }: ScreenProps) {
           <p>{t('lnd.overview.page.subtitle')}</p>
         </div>
       </div>
+      <ContextBar
+        items={[
+          { label: t('w2iss.ctx.scope'), value: tenant?.name ?? t('w2iss.ctx.scope.all') },
+          { label: t('w2iss.lnd.ctx.project'), value: (projects.data ?? []).find((project) => project.id === projectId)?.code ?? t('w2iss.lnd.ctx.project.none') },
+        ]}
+      />
       <ProjectPicker id="overview-project" projects={projects.data ?? []} value={projectId} onChange={(id) => setParams(id === '' ? {} : { project: id })} />
       {projectId === undefined ? (
         <p className="callout" role="status" data-testid="choose-project">
@@ -56,11 +65,10 @@ function OverviewContent({ route }: ScreenProps) {
   );
 }
 
-function Tile({ id, label, value }: { id: string; label: string; value: string }) {
+function Tile({ id, label, value, unit, tone }: { id: string; label: string; value: string; unit?: string; tone?: 'danger' | 'default' }) {
   return (
-    <div className="lnd-tile" data-testid={`tile-${id}`}>
-      <span className="sub">{label}</span>
-      <strong>{value}</strong>
+    <div className="lnd-tile-wrap" data-testid={`tile-${id}`}>
+      <KpiTile label={label} value={value} {...(unit === undefined ? {} : { unit })} {...(tone === undefined ? {} : { tone })} />
     </div>
   );
 }
@@ -72,100 +80,76 @@ function Figures({ overview, projectId }: { overview: Overview; projectId: strin
   const sectionCode = (id: string): string => overview.sections.find((section) => section.id === id)?.code ?? '';
   const statuses = PARCEL_STATUSES.filter((status) => overview.parcelsByStatus.some((row) => row.status === status && row.count > 0));
   const countOf = (status: ParcelStatus): number => overview.parcelsByStatus.find((row) => row.status === status)?.count ?? 0;
+  const stageColumns: DataTableColumn<StageLine>[] = [
+    { key: 'section', header: t('lnd.progress.column.section'), pinned: true, render: (stage) => <span data-stage-id={stage.id}>{sectionCode(stage.sectionId)}</span> },
+    { key: 'stage', header: t('lnd.progress.column.stage'), render: (stage) => stageLabel(t, stage.stageCode) },
+    { key: 'executor', header: t('lnd.progress.column.executor'), render: (stage) => <span data-testid="executor">{`${stage.executorUnitName} (${executorKindLabel(t, stage.executorKind)})`}</span> },
+    { key: 'plannedEnd', header: t('lnd.progress.column.plannedEnd'), render: (stage) => stage.plannedEnd ?? '' },
+    { key: 'status', header: t('lnd.progress.column.status'), render: (stage) => <StatusPill tone="warning">{stageStatusLabel(t, stage.status)}</StatusPill> },
+  ];
+  const sectionColumns: DataTableColumn<SectionLine>[] = [
+    { key: 'section', header: t('lnd.progress.column.section'), pinned: true, render: (section) => <span data-section-id={section.id}>{`${section.code} · ${section.name}`}</span> },
+    { key: 'parcels', header: t('lnd.overview.column.parcels'), align: 'right', render: (section) => String(section.parcels) },
+    { key: 'noticed', header: t('lnd.overview.column.noticed'), align: 'right', render: (section) => String(section.parcelsNoticed) },
+    { key: 'paid', header: t('lnd.overview.column.paid'), align: 'right', render: (section) => String(section.parcelsPaid) },
+    { key: 'area', header: t('lnd.overview.column.area'), align: 'right', render: (section) => `${section.handedAreaM2} / ${section.requiredAreaM2}` },
+    { key: 'target', header: t('lnd.overview.column.target'), render: (section) => section.targetDate ?? '' },
+  ];
   return (
     <>
       <p className="sub" data-testid="as-of">
         {t('lnd.overview.asOf.text', { at: overview.asOf ?? '' })}
       </p>
-      <div className="lnd-tiles" data-testid="tiles">
-        <Tile id="parcels" label={t('lnd.overview.tile.parcels')} value={String(totals.parcels)} />
-        <Tile id="households" label={t('lnd.overview.tile.households')} value={String(totals.households)} />
-        <Tile id="noticed" label={t('lnd.overview.tile.noticed')} value={`${totals.parcelsNoticed} / ${totals.parcels}`} />
-        <Tile id="paid" label={t('lnd.overview.tile.paid')} value={`${totals.parcelsPaid} / ${totals.parcels}`} />
-        <Tile id="area" label={t('lnd.overview.tile.area')} value={`${totals.handedAreaM2} / ${totals.requiredAreaM2}`} />
-        <Tile id="late" label={t('lnd.overview.tile.late')} value={String(totals.lateStages)} />
+      <div data-testid="tiles">
+        <KpiStrip label={t('w2iss.lnd.kpi.label')}>
+          <Tile id="parcels" label={t('lnd.overview.tile.parcels')} value={String(totals.parcels)} />
+          <Tile id="households" label={t('lnd.overview.tile.households')} value={String(totals.households)} />
+          <Tile id="noticed" label={t('lnd.overview.tile.noticed')} value={`${totals.parcelsNoticed} / ${totals.parcels}`} />
+          <Tile id="paid" label={t('lnd.overview.tile.paid')} value={`${totals.parcelsPaid} / ${totals.parcels}`} />
+          <Tile id="area" label={t('lnd.overview.tile.area')} value={`${totals.handedAreaM2} / ${totals.requiredAreaM2}`} unit={t('w2iss.lnd.unit')} />
+          <Tile id="late" label={t('lnd.overview.tile.late')} value={String(totals.lateStages)} tone={totals.lateStages > 0 ? 'danger' : 'default'} />
+        </KpiStrip>
       </div>
-      <div className="card" data-testid="late-stages">
-        <h2>{t('lnd.overview.late.title')}</h2>
-        {late.length === 0 ? (
-          <p className="callout" role="status" data-testid="no-late">
-            {t('lnd.overview.late.none')}
-          </p>
-        ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th scope="col">{t('lnd.progress.column.section')}</th>
-                <th scope="col">{t('lnd.progress.column.stage')}</th>
-                <th scope="col">{t('lnd.progress.column.executor')}</th>
-                <th scope="col">{t('lnd.progress.column.plannedEnd')}</th>
-                <th scope="col">{t('lnd.progress.column.status')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {late.map((stage) => (
-                <tr key={stage.id} data-stage-id={stage.id}>
-                  <th scope="row">{sectionCode(stage.sectionId)}</th>
-                  <td>{stageLabel(t, stage.stageCode)}</td>
-                  <td data-testid="executor">{`${stage.executorUnitName} (${executorKindLabel(t, stage.executorKind)})`}</td>
-                  <td>{stage.plannedEnd ?? ''}</td>
-                  <td>
-                    <span className="lnd-badge warning">{stageStatusLabel(t, stage.status)}</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-        <p>
-          <Link to={`${PROGRESS_PATH}?project=${projectId}`}>{t('lnd.overview.board.link')}</Link>
-        </p>
-      </div>
-      <div className="card" data-testid="sections">
-        <h2>{t('lnd.overview.sections.title')}</h2>
-        {overview.sections.length === 0 ? (
-          <p className="callout" role="status" data-testid="no-sections">
-            {t('lnd.overview.sections.none')}
-          </p>
-        ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th scope="col">{t('lnd.progress.column.section')}</th>
-                <th scope="col">{t('lnd.overview.column.parcels')}</th>
-                <th scope="col">{t('lnd.overview.column.noticed')}</th>
-                <th scope="col">{t('lnd.overview.column.paid')}</th>
-                <th scope="col">{t('lnd.overview.column.area')}</th>
-                <th scope="col">{t('lnd.overview.column.target')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {overview.sections.map((section) => (
-                <tr key={section.id} data-section-id={section.id}>
-                  <th scope="row">{`${section.code} · ${section.name}`}</th>
-                  <td className="lnd-numeric">{section.parcels}</td>
-                  <td className="lnd-numeric">{section.parcelsNoticed}</td>
-                  <td className="lnd-numeric">{section.parcelsPaid}</td>
-                  <td className="lnd-numeric">{`${section.handedAreaM2} / ${section.requiredAreaM2}`}</td>
-                  <td>{section.targetDate ?? ''}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-      {statuses.length === 0 ? null : (
-        <div className="card" data-testid="by-status">
-          <h2>{t('lnd.overview.status.title')}</h2>
-          <ul>
-            {statuses.map((status) => (
-              <li key={status} data-status={status}>
-                {`${parcelStatusLabel(t, status)}: ${countOf(status)}`}
-              </li>
-            ))}
-          </ul>
+      <div className="lnd-stack">
+        <div data-testid="late-stages">
+          <SectionCard title={t('lnd.overview.late.title')}>
+            {late.length === 0 ? (
+              <p className="callout" role="status" data-testid="no-late">
+                {t('lnd.overview.late.none')}
+              </p>
+            ) : (
+              <DataTable caption={t('lnd.overview.late.title')} columns={stageColumns} rows={late} rowKey={(stage) => stage.id} />
+            )}
+            <p>
+              <Link to={`${PROGRESS_PATH}?project=${projectId}`}>{t('lnd.overview.board.link')}</Link>
+            </p>
+          </SectionCard>
         </div>
-      )}
+        <div data-testid="sections">
+          <SectionCard title={t('lnd.overview.sections.title')} unit={t('w2iss.lnd.unit')}>
+            {overview.sections.length === 0 ? (
+              <p className="callout" role="status" data-testid="no-sections">
+                {t('lnd.overview.sections.none')}
+              </p>
+            ) : (
+              <DataTable caption={t('lnd.overview.sections.title')} columns={sectionColumns} rows={overview.sections} rowKey={(section) => section.id} />
+            )}
+          </SectionCard>
+        </div>
+        {statuses.length === 0 ? null : (
+          <div data-testid="by-status">
+            <SectionCard title={t('lnd.overview.status.title')}>
+              <ul>
+                {statuses.map((status) => (
+                  <li key={status} data-status={status}>
+                    {`${parcelStatusLabel(t, status)}: ${countOf(status)}`}
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+          </div>
+        )}
+      </div>
     </>
   );
 }

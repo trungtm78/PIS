@@ -15,8 +15,12 @@ import { useChangePlan, usePreviewPlanChange, useTenantChoice, useTenantSubscrip
 import { effectiveLabel, problemMessage, statusLabel, statusTone } from './subscription/labels';
 import { MANAGE_SUBSCRIPTION_PERMISSION, MAX_REASON, describeProblem, formatVnd, isReasonValid, mayChangeNow } from './subscription/model';
 import type { Effective, PreviewResult } from './subscription/model';
+import { SectionCard, StatusPill } from '../../ui';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 import './tenants/sas.css';
 import './subscription/subscription.css';
+import { toneOfPill } from '../adm/kit-tone';
 
 type Context = 'preview' | 'change';
 
@@ -142,8 +146,8 @@ function PlanChangeContent({ route }: ScreenProps) {
           </div>
         ) : (
           <>
-            <div className="card" data-subscription-id={live.id} data-version={live.version}>
-              <h2>{t('sas.planChange.current.title')}</h2>
+            <SectionCard title={t('sas.planChange.current.title')}>
+              <div data-subscription-id={live.id} data-version={live.version}>
               <dl className="sas-detail-fields">
                 <div className="sas-detail-row">
                   <dt>{t('sas.planChange.field.current')}</dt>
@@ -155,7 +159,7 @@ function PlanChangeContent({ route }: ScreenProps) {
                 <div className="sas-detail-row">
                   <dt>{t('sas.subscription.field.status')}</dt>
                   <dd>
-                    <span className={toneClass(statusTone(live.status))}>{statusLabel(t, live.status)}</span>
+                    <StatusPill tone={toneOfPill(toneClass(statusTone(live.status)))}>{statusLabel(t, live.status)}</StatusPill>
                   </dd>
                 </div>
                 <div className="sas-detail-row">
@@ -169,11 +173,11 @@ function PlanChangeContent({ route }: ScreenProps) {
                   </div>
                 )}
               </dl>
-            </div>
+              </div>
+            </SectionCard>
 
             {canManage ? (
-              <div className="card">
-                <h2>{t('sas.planChange.form.title')}</h2>
+              <SectionCard title={t('sas.planChange.form.title')}>
                 <div className="formgrid">
                   <div className="field">
                     <label htmlFor="plan-change-target">{t('sas.planChange.field.target')}</label>
@@ -200,11 +204,11 @@ function PlanChangeContent({ route }: ScreenProps) {
                   </fieldset>
                 </div>
                 <div className="row gap">
-                  <button type="button" className="primary" disabled={targetPlan === undefined || previewing.isPending} onClick={ask}>
+                  <button type="button" className="ui-button ui-button--primary" disabled={targetPlan === undefined || previewing.isPending} onClick={ask}>
                     {t('sas.planChange.preview.action')}
                   </button>
                 </div>
-              </div>
+              </SectionCard>
             ) : (
               <p className="callout warning" role="status">
                 {t('sas.planChange.form.denied')}
@@ -212,8 +216,8 @@ function PlanChangeContent({ route }: ScreenProps) {
             )}
 
             {preview === undefined || targetPlan === undefined || current === undefined ? null : (
-              <div className="card" data-testid="preview" data-preview-hash={preview.previewHash}>
-                <h2>{t('sas.planChange.preview.title')}</h2>
+              <SectionCard title={t('sas.planChange.preview.title')}>
+                <div data-testid="preview" data-preview-hash={preview.previewHash}>
                 <dl className="sas-detail-fields">
                   <div className="sas-detail-row">
                     <dt>{t('sas.planChange.field.current')}</dt>
@@ -244,8 +248,7 @@ function PlanChangeContent({ route }: ScreenProps) {
                 ) : (
                   <>
                     <p className="callout warning">{t('sas.planChange.violations.rule')}</p>
-                    <div className="tablewrap">
-                      <table aria-label={t('sas.planChange.violations.title')}>
+                      <KitTable caption={t('w2sas.planChange.table.violations')} aria-label={t('sas.planChange.violations.title')}>
                         <thead>
                           <tr>
                             <th>{t('sas.planChange.violations.col.feature')}</th>
@@ -265,8 +268,7 @@ function PlanChangeContent({ route }: ScreenProps) {
                             </tr>
                           ))}
                         </tbody>
-                      </table>
-                    </div>
+                      </KitTable>
                   </>
                 )}
                 {canManage ? (
@@ -290,12 +292,13 @@ function PlanChangeContent({ route }: ScreenProps) {
                         </small>
                       ) : null}
                     </div>
-                    <button type="submit" className="primary" disabled={changing.isPending}>
+                    <button type="submit" className="ui-button ui-button--primary" disabled={changing.isPending}>
                       {t('sas.planChange.apply.action')}
                     </button>
                   </form>
                 ) : null}
-              </div>
+                </div>
+              </SectionCard>
             )}
 
             {notice ? (
@@ -309,15 +312,13 @@ function PlanChangeContent({ route }: ScreenProps) {
               </div>
             )}
 
-            <div className="card">
-              <h2>{t('sas.planChange.history.title')}</h2>
+            <SectionCard title={t('sas.planChange.history.title')}>
               {data.changes.length === 0 ? (
                 <p className="sub" role="status">
                   {t('sas.planChange.history.empty')}
                 </p>
               ) : (
-                <div className="tablewrap">
-                  <table aria-label={t('sas.planChange.history.title')}>
+                  <KitTable caption={t('w2sas.planChange.table.history')} aria-label={t('sas.planChange.history.title')}>
                     <thead>
                       <tr>
                         <th>{t('sas.planChange.history.col.requested')}</th>
@@ -343,10 +344,9 @@ function PlanChangeContent({ route }: ScreenProps) {
                         </tr>
                       ))}
                     </tbody>
-                  </table>
-                </div>
+                  </KitTable>
               )}
-            </div>
+            </SectionCard>
           </>
         )}
       </StateBoundary>

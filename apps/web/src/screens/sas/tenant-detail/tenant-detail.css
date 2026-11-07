@@ -21,11 +21,11 @@
   justify-content: space-between;
   gap: 16px;
   padding: 13px 0;
-  border-bottom: 1px solid var(--border, #e8e3e5);
+  border-bottom: 1px solid var(--mv-color-border);
 }
 
 .sas-detail-fields dt {
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }
 
 .sas-detail-fields dd {

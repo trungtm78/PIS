@@ -7,6 +7,7 @@ import { READ_PERMISSION } from '../../ast/handover/model';
 import { ViewFrame } from './ViewFrame';
 import { useHandovers, useViewScope } from './hooks';
 import { acceptedHandovers, ownerLink } from './model';
+import { SectionCard } from '../../../ui';
 
 /**
  * CTR-15: the completion and handover of a contract, read-only (ST-CTR-017, CTR section 7). AST owns the handovers and their minutes (AST-01, AST-02). The completion of a contract needs an
@@ -38,7 +39,7 @@ function HandoverContent({ route }: ScreenProps) {
           <p className="callout" role="status" data-testid="accepted">
             {t('ctr.handoverView.accepted.notice', { accepted: acceptedHandovers(data).length, total: data.length })}
           </p>
-          <article className="card" aria-label={t('ctr.handoverView.table.label')}>
+          <SectionCard title={t('ctr.handoverView.table.label')}>
             <table className="table" data-testid="handovers">
               <thead>
                 <tr>
@@ -81,7 +82,7 @@ function HandoverContent({ route }: ScreenProps) {
                 ))}
               </tbody>
             </table>
-          </article>
+          </SectionCard>
         </>
       )}
     </ViewFrame>

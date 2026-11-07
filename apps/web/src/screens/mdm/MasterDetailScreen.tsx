@@ -10,6 +10,9 @@ import { useChange, useHistory, useRecordByKey, useUsage } from './hooks';
 import { recordStatusLabel } from './labels';
 import { PROPOSE_PERMISSION, namespaceOf, recordLink } from './model';
 import type { RecordView } from './model';
+import { SectionCard } from '../../ui';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 
 const EDIT_PATH = '/mdm/mdm-26';
 const HISTORY_PATH = '/mdm/mdm-28';
@@ -99,7 +102,7 @@ function Detail({ record }: { record: RecordView }) {
         {current === undefined || Object.keys(current.attributes).length === 0 ? (
           <p className="muted">{t('mdm.detail.attributes.none')}</p>
         ) : (
-          <table className="table" data-testid="attributes">
+          <KitTable caption={t('w2mdm.detail.table.caption')} data-testid="attributes">
             <tbody>
               {Object.entries(current.attributes).map(([name, value]) => (
                 <tr key={name}>
@@ -108,7 +111,7 @@ function Detail({ record }: { record: RecordView }) {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </KitTable>
         )}
         {record.openChangeRequestId === null ? null : (
           <p className="callout" role="status" data-testid="pending">
@@ -116,7 +119,7 @@ function Detail({ record }: { record: RecordView }) {
           </p>
         )}
         {draft === undefined ? null : <SubmitWithImpact change={draft} canSubmit={canPropose} onSubmitted={() => setSubmitted(draft.version)} />}
-        <div className="formfooter">
+        <div className="adm-kit-actions">
           <Link to={recordLink(HISTORY_PATH, record.masterType, record.businessKey, record.namespace)}>{t('mdm.detail.history.action')}</Link>
           {canEdit ? <Link to={recordLink(RETIRE_PATH, record.masterType, record.businessKey, record.namespace)}>{t('mdm.detail.retire.action')}</Link> : null}
           {canEdit ? (
@@ -126,8 +129,8 @@ function Detail({ record }: { record: RecordView }) {
           ) : null}
         </div>
       </article>
-      <aside className="card" aria-label={t('mdm.detail.usage.title')}>
-        <h2>{t('mdm.detail.usage.title')}</h2>
+      <aside aria-label={t('mdm.detail.usage.title')}>
+      <SectionCard title={t('mdm.detail.usage.title')}>
         {usage.isError ? (
           <p className="callout warning" role="alert">
             {t('mdm.detail.usage.error')}
@@ -151,6 +154,7 @@ function Detail({ record }: { record: RecordView }) {
             )}
           </>
         )}
+      </SectionCard>
       </aside>
     </div>
   );

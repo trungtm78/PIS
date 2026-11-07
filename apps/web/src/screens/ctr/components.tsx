@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
+import { StatusPill } from '../../ui';
+import type { Tone } from '../../ui';
 import { errorIdOf, hintIdOf, wireControl } from '../field-wiring';
 import { statusLabel } from './labels';
 import type { ContractStatus } from './model';
@@ -54,12 +56,32 @@ export function Fact({ label, children }: { label: string; children: ReactNode }
   );
 }
 
-/** The status of a contract as a word, never as a colour alone. */
+/** The tone of the status of a contract: what is being drawn up is neutral, what is waiting or in force is info, what is done is green, what is stopped is amber and what is ended early is red. */
+export function contractTone(status: ContractStatus): Tone {
+  switch (status) {
+    case 'DRAFT':
+    case 'CLOSED':
+      return 'neutral';
+    case 'IN_REVIEW':
+    case 'SIGNED':
+    case 'ACTIVE':
+      return 'info';
+    case 'COMPLETED':
+      return 'success';
+    case 'SUSPENDED':
+      return 'warning';
+    case 'TERMINATED':
+    case 'CANCELLED':
+      return 'danger';
+  }
+}
+
+/** The status of a contract as a word on a pill, never as a colour alone. */
 export function StatusBadge({ status }: { status: ContractStatus }) {
   const { t } = useTranslation();
   return (
-    <span className={status === 'CANCELLED' || status === 'TERMINATED' ? 'ctr-badge warning' : 'ctr-badge'} data-testid="status">
-      {statusLabel(t, status)}
+    <span data-testid="status">
+      <StatusPill tone={contractTone(status)}>{statusLabel(t, status)}</StatusPill>
     </span>
   );
 }

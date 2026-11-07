@@ -8,7 +8,7 @@
   display: grid;
   gap: 12px;
   padding: 12px;
-  border: 1px solid var(--shell-line, #e4e0e6);
+  border: 1px solid var(--mv-color-border);
   border-radius: 8px;
 }
 .ast-lane h2 {

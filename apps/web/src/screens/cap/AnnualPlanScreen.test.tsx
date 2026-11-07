@@ -9,7 +9,8 @@ const ROUTE = routeOf('CAP-03', 'FR-CAP-03');
 
 afterEach(cleanup);
 
-const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('tr[data-line-id]'));
+// A line is the row of the table of the kit that holds a cell carrying its id.
+const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('[data-line-id]')).flatMap((node) => (node.closest('tr') === null ? [] : [node.closest('tr') as HTMLElement]));
 const ready = () => waitFor(() => expect(rows().length).toBeGreaterThan(0));
 const cell = (row: HTMLElement | undefined, index: number): string => row?.querySelectorAll('th, td')[index]?.textContent ?? '';
 
@@ -56,10 +57,11 @@ describe('AnnualPlanScreen (CAP-03): the lines of an annual plan', () => {
     expect(header.textContent).toContain('CP-2026');
     expect(header.textContent).toContain(vi_['cap.planStatus.draft.label']);
     expect(header.textContent).toContain(vi_['cap.planHeader.noDecision.notice']);
-    expect(within(screen.getByLabelText(vi_['cap.planChooser.label'])).getAllByRole('option').map((option) => option.textContent)).toEqual([
-      'CP-2026 · 2026 · Nháp',
-      'CP-2025 · 2025 · Đã công bố',
-    ]);
+    expect(
+      within(screen.getByLabelText(vi_['cap.planChooser.label']))
+        .getAllByRole('option')
+        .map((option) => option.textContent),
+    ).toEqual(['CP-2026 · 2026 · Nháp', 'CP-2025 · 2025 · Đã công bố']);
   });
 
   it('opens another plan from the chooser and cites the decision of a published one', async () => {

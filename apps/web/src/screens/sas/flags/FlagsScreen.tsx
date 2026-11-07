@@ -8,6 +8,10 @@ import { NavigationDialog } from '../../../shell/NavigationDialog';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { Field } from '../../prj/components';
+import { StatusPill } from '../../../ui';
+import { KitTable } from '../../adm/KitTable';
+import { toneOfPill } from '../../adm/kit-tone';
+import '../../adm/adm-kit.css';
 import '../../prj/prj.css';
 import { useFlags, useUpdateFlag } from './hooks';
 import { RELEASE_PERMISSION, STATUSES, describeFlag, flagBody, formOfFlag, holds, isChangeable, validateFlag } from './model';
@@ -80,8 +84,7 @@ export default function FlagsScreen({ route }: ScreenProps) {
         </p>
       )}
       <StateBoundary state={state} onRetry={() => void list.refetch()}>
-        <div className="tablewrap">
-          <table className="table" aria-label={t('sas.flags.list.aria')} data-testid="flags">
+          <KitTable caption={t('w2sas.flags.table.caption')} aria-label={t('sas.flags.list.aria')} data-testid="flags">
             <thead>
               <tr>
                 <th scope="col">{t('sas.flags.col.flag')}</th>
@@ -89,7 +92,7 @@ export default function FlagsScreen({ route }: ScreenProps) {
                 <th scope="col">{t('sas.flags.col.rollout')}</th>
                 <th scope="col">{t('sas.flags.col.revision')}</th>
                 <th scope="col">
-                  <span className="sr-only">{t('sas.flags.col.actions')}</span>
+                  {t('sas.flags.col.actions')}
                 </th>
               </tr>
             </thead>
@@ -101,8 +104,8 @@ export default function FlagsScreen({ route }: ScreenProps) {
                     <span className="prj-code">{flag.description}</span>
                   </td>
                   <td>
-                    <span className={`pill ${statusTone(flag.status)}`} data-status={flag.status}>
-                      {statusLabel(t, flag.status)}
+                    <span data-status={flag.status}>
+                      <StatusPill tone={toneOfPill(`pill ${statusTone(flag.status)}`)}>{statusLabel(t, flag.status)}</StatusPill>
                     </span>
                   </td>
                   <td data-testid="rollout">{flag.status === 'Rollout' ? rolloutText(t, flag) : NONE}</td>
@@ -112,7 +115,7 @@ export default function FlagsScreen({ route }: ScreenProps) {
                   </td>
                   <td>
                     {mayChange && isChangeable(flag) ? (
-                      <button type="button" onClick={() => setEditing(flag)}>
+                      <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setEditing(flag)}>
                         {t('sas.flags.edit.action')}
                       </button>
                     ) : null}
@@ -120,8 +123,7 @@ export default function FlagsScreen({ route }: ScreenProps) {
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+          </KitTable>
       </StateBoundary>
       {editing === undefined ? null : <FlagDialog flag={editing} onClose={() => setEditing(undefined)} />}
       <p className="prototype-note">{t('sas.flags.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
@@ -197,11 +199,11 @@ function FlagDialog({ flag, onClose }: { flag: FlagView; onClose(): void }) {
           <Field id="flag-reason" label={t('sas.flags.field.reason.label')} error={fieldMessage(t, problems.reason)} hint={t('sas.flags.field.reason.hint')}>
             <textarea id="flag-reason" rows={3} value={form.reason} onChange={(event) => set({ reason: event.target.value })} />
           </Field>
-          <div className="formfooter">
-            <button type="button" onClick={onClose}>
+          <div className="adm-kit-actions">
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={onClose}>
               {t('sas.flags.dialog.cancel.action')}
             </button>
-            <button type="submit" className="primary" disabled={send.isPending}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={send.isPending}>
               {t('sas.flags.edit.submit.action')}
             </button>
           </div>

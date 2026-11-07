@@ -14,8 +14,12 @@ import { problemMessage, runStatusLabel, statusLabel, statusTone, stepLabel, ton
 import { describeProblem } from './tenants/problems';
 import { MANAGE_TENANTS_PERMISSION, canRetry, failedStepOf } from './tenants/types';
 import type { RunStep } from './tenants/types';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 import './tenants/sas.css';
 import './tenant-detail/tenant-detail.css';
+import { StatusPill } from '../../ui';
+import { toneOfPill } from '../adm/kit-tone';
 
 const ARROW = '←';
 const STEP_TONE: Readonly<Record<string, 'ok' | 'warn' | 'red' | 'gray'>> = { DONE: 'ok', RUNNING: 'warn', FAILED: 'red', COMPENSATED: 'gray', PENDING: 'gray' };
@@ -67,7 +71,7 @@ function RetryPanel({ tenantId, version, onStarted }: RetryProps) {
         </p>
       ) : null}
       <div className="row">
-        <button type="submit" className="primary" disabled={retry.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={retry.isPending}>
           {t('sas.tenants.retry.submit')}
         </button>
       </div>
@@ -83,7 +87,7 @@ function StepRow({ step, current }: { step: RunStep; current: boolean }) {
         <b>{stepLabel(t, step.step)}</b>
       </td>
       <td>
-        <span className={toneClass(STEP_TONE[step.status] ?? 'gray')}>{runStatusLabel(t, step.status)}</span>
+        <StatusPill tone={toneOfPill(toneClass(STEP_TONE[step.status] ?? 'gray'))}>{runStatusLabel(t, step.status)}</StatusPill>
       </td>
       <td>{step.attempts}</td>
       <td>{step.errorCode ?? t('sas.tenants.none')}</td>
@@ -139,9 +143,9 @@ export default function ProvisioningRunScreen({ route }: ScreenProps) {
             <div className="card" data-tenant-id={tenant.id}>
               <div className="row between gap">
                 <h2>{t('sas.provisioning.card.title', { code: tenant.code })}</h2>
-                <span className={toneClass(statusTone(tenant.status))} data-tenant-status={tenant.status}>
+                <span data-tenant-status={tenant.status}><StatusPill tone={toneOfPill(toneClass(statusTone(tenant.status)))}>
                   {statusLabel(t, tenant.status)}
-                </span>
+                </StatusPill></span>
               </div>
               {run === undefined ? (
                 <p className="callout" role="status">
@@ -155,8 +159,7 @@ export default function ProvisioningRunScreen({ route }: ScreenProps) {
                       {t('sas.provisioning.failed.notice', { step: stepLabel(t, failed.step), code: failed.errorCode ?? t('sas.tenants.none') })}
                     </p>
                   )}
-                  <div className="tablewrap">
-                    <table>
+                    <KitTable caption={t('w2sas.provisioning.table.caption')}>
                       <thead>
                         <tr>
                           <th>{t('sas.provisioning.col.step')}</th>
@@ -171,8 +174,7 @@ export default function ProvisioningRunScreen({ route }: ScreenProps) {
                           <StepRow key={step.step} step={step} current={step.step === run.currentStep} />
                         ))}
                       </tbody>
-                    </table>
-                  </div>
+                    </KitTable>
                   {retried ? (
                     <p className="callout" role="status">
                       {t('sas.provisioning.retry.started.notice')}

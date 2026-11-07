@@ -61,7 +61,7 @@ const row = async (id = 'conversation-1'): Promise<HTMLElement> =>
   (await waitFor(() => {
     const found = document.querySelector(`[data-conversation-id="${id}"]`) as HTMLElement | null;
     if (found === null) throw new Error('not yet');
-    return found;
+    return found.closest('tr') as HTMLElement;
   })) as HTMLElement;
 
 describe('OMNI-01 the unified inbox (UI-OMNI-01)', () => {
@@ -282,5 +282,16 @@ describe('OMNI-01 the unified inbox (UI-OMNI-01)', () => {
       expect(describeProblem(new Error('x'))).toEqual({ reason: 'general' });
       expect(describeProblem(problem('SOMETHING_NEW'))).toEqual({ reason: 'general' });
     });
+  });
+
+  it('tells the state of a conversation on a pill with its words, counts the filters that apply on the filter panel and keeps the first column pinned', async () => {
+    open(SUPERVISOR, { list: () => page([conversation(), conversation({ id: 'conversation-2', status: 'InProgress', assignee_name: 'An', assignee_membership_id: 'member-1' })]) });
+    const first = await row();
+    expect(within(first).getByText(vi_['omni.inbox.status.new']).closest('.ui-pill')?.className).toContain('ui-tone-info');
+    expect(within(await row('conversation-2')).getByText(vi_['omni.inbox.status.inProgress']).closest('.ui-pill')?.className).toContain('ui-tone-success');
+    expect(first.querySelector('td')?.className).toContain('ui-table__cell--pinned');
+    expect(screen.getByRole('button', { name: vi_['ui.filterPanel.toggle'] })).toBeTruthy();
+    fireEvent.change(document.getElementById('inbox-status') as HTMLElement, { target: { value: 'New' } });
+    await waitFor(() => expect(screen.getByRole('button', { name: vi_['ui.filterPanel.toggleApplied'].replace('{count}', '1') })).toBeTruthy());
   });
 });

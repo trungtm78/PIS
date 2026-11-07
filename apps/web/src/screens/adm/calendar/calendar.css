@@ -9,7 +9,7 @@
 }
 
 .adm-calendar .field-error {
-  color: #a22b22;
+  color: var(--mv-color-danger);
 }
 
 .adm-calendar .row-actions {
@@ -20,7 +20,7 @@
 }
 
 .adm-calendar .scope-types {
-  border: 1px solid var(--border, #e8e3e5);
+  border: 1px solid var(--mv-color-border);
   border-radius: 9px;
   padding: 10px 14px;
   margin: 12px 0;
@@ -58,7 +58,7 @@
 
 .cal-month th {
   font-weight: 500;
-  color: var(--muted, #6b6468);
+  color: var(--mv-color-text-secondary);
   text-align: center;
 }
 
@@ -87,19 +87,19 @@ button.cal-day {
 }
 
 .cal-day.off {
-  color: var(--muted, #8a8286);
-  background: #f3f0f1;
+  color: var(--mv-color-text-secondary);
+  background: var(--mv-color-surface2);
 }
 
 .cal-day.holiday {
-  background: #f9dcd9;
-  color: #8a1f17;
+  background: var(--mv-color-danger-soft);
+  color: var(--mv-color-danger);
   text-decoration: line-through;
 }
 
 .cal-day.compensated {
-  border: 2px solid #1d6b3a;
-  color: #1d6b3a;
+  border: 2px solid var(--mv-color-success);
+  color: var(--mv-color-success);
   font-weight: 600;
 }
 

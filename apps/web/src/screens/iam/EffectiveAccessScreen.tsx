@@ -14,13 +14,17 @@ import { NO_FILTER, filterGrants, groupGrants, isScopeKind, isStale, permissionR
 import type { GrantFilter } from './effective-access/model';
 import { SCOPE_KINDS } from './effective-access/types';
 import type { AccessGrant, EffectiveAccessView } from './effective-access/types';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 import '../sas/tenants/sas.css';
+import { SectionCard, StatusPill } from '../../ui';
+import { toneOfPill } from '../adm/kit-tone';
 
 function GrantSection({ title, grants, emptyText }: { title: string; grants: readonly AccessGrant[]; emptyText: string }) {
   return (
     <section aria-label={title} data-grant-section>
       <h3>
-        {title} <span className="pill gray">{grants.length}</span>
+        {title} <StatusPill tone="neutral">{grants.length}</StatusPill>
       </h3>
       {grants.length === 0 ? <p className="muted tiny">{emptyText}</p> : grants.map((grant) => <GrantCard key={grant.id} grant={grant} />)}
     </section>
@@ -77,14 +81,13 @@ export default function EffectiveAccessScreen({ route }: ScreenProps) {
       {stale ? (
         <div className="callout warning" role="status" data-stale-banner>
           <span>{t('iam.effectiveAccess.stale.banner')}</span>{' '}
-          <button type="button" onClick={() => (query.data === undefined ? undefined : setPinned({ owner, view: query.data }))}>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => (query.data === undefined ? undefined : setPinned({ owner, view: query.data }))}>
             {t('iam.effectiveAccess.stale.reload')}
           </button>
         </div>
       ) : null}
       <div className="two">
-        <div className="card">
-          <h2>{t('iam.effectiveAccess.card.title')}</h2>
+        <SectionCard title={t('iam.effectiveAccess.card.title')}>
           <StateBoundary state={state} onRetry={() => void query.refetch()}>
             {access === undefined || summary === undefined ? null : (
               <>
@@ -142,8 +145,7 @@ export default function EffectiveAccessScreen({ route }: ScreenProps) {
                   {rows.length === 0 ? (
                     <p className="muted tiny">{t('iam.effectiveAccess.permissions.empty')}</p>
                   ) : (
-                    <div className="tablewrap">
-                      <table>
+                    <KitTable caption={t('w2iam.effectiveAccess.table.permissions')}>
                         <thead>
                           <tr>
                             <th>{t('iam.effectiveAccess.permissions.col.permission')}</th>
@@ -160,8 +162,7 @@ export default function EffectiveAccessScreen({ route }: ScreenProps) {
                             </tr>
                           ))}
                         </tbody>
-                      </table>
-                    </div>
+                      </KitTable>
                   )}
                 </section>
 
@@ -170,8 +171,7 @@ export default function EffectiveAccessScreen({ route }: ScreenProps) {
                   {access.delegations.length === 0 ? (
                     <p className="muted tiny">{t('iam.effectiveAccess.delegations.empty')}</p>
                   ) : (
-                    <div className="tablewrap">
-                      <table>
+                    <KitTable caption={t('w2iam.effectiveAccess.table.delegations')}>
                         <thead>
                           <tr>
                             <th>{t('iam.effectiveAccess.delegations.col.permissions')}</th>
@@ -189,21 +189,20 @@ export default function EffectiveAccessScreen({ route }: ScreenProps) {
                                 {dayOf(delegation.validFrom)} → {dayOf(delegation.validUntil)}
                               </td>
                               <td>
-                                <span className={statePill(delegation.state)}>{stateLabel(t, delegation.state)}</span>
+                                <StatusPill tone={toneOfPill(statePill(delegation.state))}>{stateLabel(t, delegation.state)}</StatusPill>
                               </td>
                             </tr>
                           ))}
                         </tbody>
-                      </table>
-                    </div>
+                      </KitTable>
                   )}
                 </section>
               </>
             )}
           </StateBoundary>
-        </div>
-        <div className="card" data-plan-card>
-          <h2>{t('iam.effectiveAccess.plan.title')}</h2>
+        </SectionCard>
+        <SectionCard title={t('iam.effectiveAccess.plan.title')}>
+          <div data-plan-card>
           {plan.isLoading ? (
             <p className="muted tiny" role="status">
               {t('iam.effectiveAccess.plan.loading')}
@@ -211,7 +210,7 @@ export default function EffectiveAccessScreen({ route }: ScreenProps) {
           ) : plan.error !== null && plan.error !== undefined ? (
             <p className="callout warning" role="alert">
               {t('iam.effectiveAccess.plan.error')}{' '}
-              <button type="button" onClick={() => void plan.refetch()}>
+              <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => void plan.refetch()}>
                 {t('states.retry.action')}
               </button>
             </p>
@@ -222,7 +221,7 @@ export default function EffectiveAccessScreen({ route }: ScreenProps) {
               {features.map((feature) => (
                 <li key={feature.featureCode} className="row between" data-feature={feature.featureCode}>
                   <span>{featureLabel(t, feature.featureCode)}</span>
-                  <span className={toneClass(modeTone(feature.mode))}>{modeLabel(t, feature.mode)}</span>
+                  <StatusPill tone={toneOfPill(toneClass(modeTone(feature.mode)))}>{modeLabel(t, feature.mode)}</StatusPill>
                 </li>
               ))}
             </ul>
@@ -232,7 +231,8 @@ export default function EffectiveAccessScreen({ route }: ScreenProps) {
               {t('iam.effectiveAccess.plan.hash')}: <code>{access.entitlementHash}</code>
             </p>
           )}
-        </div>
+          </div>
+        </SectionCard>
       </div>
       <p className="prototype-note">{t('iam.effectiveAccess.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>

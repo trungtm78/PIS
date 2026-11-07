@@ -19,7 +19,7 @@
 
 .back-link a {
   font-size: 11px;
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }
 
 .notification-acknowledge {

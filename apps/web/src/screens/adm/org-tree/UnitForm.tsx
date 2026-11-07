@@ -176,14 +176,14 @@ export function UnitForm({ mode, unit, units, defaultParentId, readOnly, pending
       ) : (
         <div className="formfooter">
           {editing && onMove !== undefined ? (
-            <button type="button" onClick={onMove} disabled={pending}>
+            <button type="button" className="ui-button ui-button--outline" onClick={onMove} disabled={pending}>
               {t('adm.orgUnit.move.action')}
             </button>
           ) : (
             <span />
           )}
           <div className="actions">
-            <button type="submit" className="primary" disabled={pending || !dirty}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={pending || !dirty}>
               {editing ? t('adm.orgUnit.update.submit') : t('adm.orgUnit.create.submit')}
             </button>
           </div>

@@ -12,6 +12,9 @@ import { BUILDER_PATH, CHART_PATH, EMPTY_CREATE, MANAGE_DASHBOARD_PERMISSION, de
 import type { CreateForm } from './dashboard-model';
 import { useCreateDashboard, useDashboards } from './hooks';
 import { SHARE_PATH } from './share-model';
+import './bi-kit.css';
+import { StatusPill } from '../../ui';
+import { dashboardStatusTone } from './tones';
 
 /**
  * BI-01: the library of dashboards (ST-BI-005, BI F5): the dashboards of the caller and those the tenant published to its library, each with its owner, its state and the version it points to, and whether
@@ -71,7 +74,7 @@ function LibraryContent({ route }: ScreenProps) {
               <h2>{dashboard.title}</h2>
               <p className="sub">{dashboard.code}</p>
               <p>
-                <span className="pill">{dashboardStatusLabel(t, dashboard.status)}</span> <span className="pill gray">{audienceLabel(t, dashboard.audience)}</span>
+                <StatusPill tone={dashboardStatusTone(dashboard.status)}>{dashboardStatusLabel(t, dashboard.status)}</StatusPill> <StatusPill tone="neutral">{audienceLabel(t, dashboard.audience)}</StatusPill>
               </p>
               <p data-testid="owner">{dashboard.mine ? t('bi.dash.library.mine') : t('bi.dash.library.owner', { name: dashboard.ownerName ?? dashboard.ownerId })}</p>
               {dashboard.current === null ? (
@@ -119,7 +122,7 @@ function LibraryContent({ route }: ScreenProps) {
             <input id="dash-title" value={form.title} aria-invalid={problems.title !== undefined} onChange={(event) => setForm({ ...form, title: event.target.value })} />
           </Field>
           <div className="formfooter">
-            <button type="submit" className="primary" disabled={create.isPending}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending}>
               {t('bi.dash.create.submit')}
             </button>
           </div>

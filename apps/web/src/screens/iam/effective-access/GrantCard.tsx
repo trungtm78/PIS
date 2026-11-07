@@ -3,6 +3,7 @@ import { useTranslation } from '../../../i18n';
 import { customRoleName, scopeLabel, stateLabel, statePill, windowLabel } from './labels';
 import { breadcrumbText } from './model';
 import type { AccessGrant } from './types';
+import { StatusPill } from '../../../ui';
 
 /** One grant of the person: the role, where it applies (units with their place in the tree), when, and what it allows. */
 export function GrantCard({ grant }: { grant: AccessGrant }) {
@@ -17,7 +18,7 @@ export function GrantCard({ grant }: { grant: AccessGrant }) {
           {name === undefined ? null : <span className="sub"> · {name}</span>}
         </h3>
         <span className="row gap">
-          <span className="pill gray">{t('iam.effectiveAccess.grant.rank', { rank: grant.rank })}</span>
+          <StatusPill tone="neutral">{t('iam.effectiveAccess.grant.rank', { rank: grant.rank })}</StatusPill>
           <span className={statePill(grant.state)}>{stateLabel(t, grant.state)}</span>
         </span>
       </div>

@@ -5,9 +5,11 @@ import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../../i18n/vi.json';
 import { PERIOD, RATE_READER, client, mount, routeOf, world } from '../report/test-support';
 import PairedRatesScreen from './PairedRatesScreen';
+import viParts from '../../../i18n/vi.json';
 import { OTHER_SNAPSHOT, SNAPSHOT, UNIT, answerFor, figures, groupRecord, notFound, ratesRecord } from './rates-test-support';
 
 const ROUTE = routeOf('DIS-19', 'FR-DIS-19');
+const w2 = { tileSub: viParts['w2dis.rates.tile.sub'], na: viParts['w2dis.rates.tile.na'] };
 
 afterEach(cleanup);
 
@@ -45,15 +47,22 @@ describe('DIS-19 the two rates side by side', () => {
     open();
     expect(await screen.findByRole('heading', { level: 1, name: vi_['dis.paired.page.title'] })).toBeTruthy();
     const pair = await screen.findByTestId('rate-pair');
-    expect(within(pair).getByTestId('rate-pm').textContent).toBe('60.0000%');
-    expect(within(pair).getByTestId('rate-total').textContent).toBe('48.0000%');
-    expect(within(pair).getByTestId('fact-numerator').textContent).toBe('600.000.000');
-    expect(within(pair).getByTestId('fact-plan-pm').textContent).toBe('1.000.000.000');
-    expect(within(pair).getByTestId('fact-plan-total').textContent).toBe('1.250.000.000');
-    expect(within(pair).getByTestId('fact-cutoff').textContent).toBe('2027-01-10');
-    // The formula is in the tooltip of each rate, with the reference, and in the text that opens.
-    expect(pair.querySelector('[data-rate="pm"]')?.getAttribute('title')).toContain('CXN-03');
-    expect(pair.querySelector('[data-rate="total"]')?.getAttribute('title')).toContain('CXN-03');
+    const tiles = within(pair).getAllByRole('article');
+    expect(tiles).toHaveLength(2);
+    expect(within(tiles[0] as HTMLElement).getByText(vi_['dis.rates.pair.pm.label'])).toBeTruthy();
+    expect(tiles[0]?.querySelector('.ui-kpi__value')?.textContent).toBe('60.0000%');
+    expect(tiles[1]?.querySelector('.ui-kpi__value')?.textContent).toBe('48.0000%');
+    // Each tile carries its denominator, so a rate is never read without the plan it is of.
+    expect(tiles[0]?.textContent).toContain(w2.tileSub.replace('{numerator}', '600.000.000').replace('{denominator}', '1.000.000.000'));
+    expect(tiles[1]?.textContent).toContain(w2.tileSub.replace('{numerator}', '600.000.000').replace('{denominator}', '1.250.000.000'));
+    const fact = (name: string): string => within(pair).getByRole('group', { name }).querySelector('.ui-stat__value')?.textContent ?? '';
+    expect(fact(vi_['dis.rates.fact.numerator'])).toBe('600.000.000');
+    expect(fact(vi_['dis.rates.fact.planPm'])).toBe('1.000.000.000');
+    expect(fact(vi_['dis.rates.fact.planTotal'])).toBe('1.250.000.000');
+    expect(fact(vi_['dis.rates.fact.cutoff'])).toBe('2027-01-10');
+    // The formula of each rate is written under it, with the reference, and in the text that opens.
+    expect(within(tiles[0] as HTMLElement).getByText(vi_['dis.rates.formula.pm'].replace('{ref}', 'CXN-03'))).toBeTruthy();
+    expect(within(tiles[1] as HTMLElement).getByText(vi_['dis.rates.formula.total'].replace('{ref}', 'CXN-03'))).toBeTruthy();
     expect(within(pair).getByText(/CXN-03/, { selector: 'p' })).toBeTruthy();
     expect(within(pair).getByTestId('definition-pending').textContent).toBe('CHỜ KÝ D03');
     expect(within(pair).queryByTestId('rate-pm-over')).toBeNull();
@@ -61,21 +70,21 @@ describe('DIS-19 the two rates side by side', () => {
 
   it('AC-ST-DIS-010-5: never shows one rate alone: the pair, the headers and the cells of every row come together, whatever is shown', async () => {
     open();
-    const table = await screen.findByTestId('paired-table');
+    const table = await screen.findByRole('table', { name: vi_['dis.paired.table.aria'] });
     expect(within(table).getByRole('columnheader', { name: vi_['dis.rates.col.ratePm'] })).toBeTruthy();
     expect(within(table).getByRole('columnheader', { name: vi_['dis.rates.col.rateTotal'] })).toBeTruthy();
     for (const row of Array.from(table.querySelectorAll('tbody tr'))) {
       expect(row.querySelectorAll('[data-rate="pm"]')).toHaveLength(1);
       expect(row.querySelectorAll('[data-rate="total"]')).toHaveLength(1);
     }
-    const first = table.querySelector('tr[data-project="DA-2027-001"]') as HTMLElement;
+    const first = within(table).getByRole('row', { name: /DA-2027-001/ });
     expect(Array.from(first.querySelectorAll('td')).map((cell) => cell.textContent)).toEqual(['DA-2027-001Tên DA-2027-001', '1.000.000.000', '250.000.000', '600.000.000', '60.0000%', '48.0000%', vi_['dis.rates.coverage.complete']]);
   });
 
   it('AC-ST-DIS-010-3 / UAT-AC04: says "Chưa có cơ sở tính" for a project with no plan, never 0% and never an infinite rate, with the Treasury coverage of the project', async () => {
     open();
-    const table = await screen.findByTestId('paired-table');
-    const row = table.querySelector('tr[data-project="DA-2027-002"]') as HTMLElement;
+    const table = await screen.findByRole('table', { name: vi_['dis.paired.table.aria'] });
+    const row = within(table).getByRole('row', { name: /DA-2027-002/ });
     expect(row.querySelector('[data-rate="pm"]')?.textContent).toBe('Chưa có cơ sở tính');
     expect(row.querySelector('[data-rate="total"]')?.textContent).toBe('Chưa có cơ sở tính');
     expect(row.textContent).not.toMatch(/0(\.0+)?%|Infinity|NaN/);
@@ -85,17 +94,34 @@ describe('DIS-19 the two rates side by side', () => {
 
   it('says why a rate is missing in the words of the reason: no data, and a Treasury that booked nothing', async () => {
     open({ rates: answerFor(ratesRecord(figures({ numerator_disbursed_vnd: null, rate_pm_pct: null, rate_total_pct: null, rate_null_reason: 'NO_DATA', treasury_coverage: 'PARTIAL' })), []) });
-    expect((await screen.findByTestId('rate-pm')).textContent).toBe(vi_['dis.rates.reason.noData']);
-    expect(screen.getByTestId('fact-numerator').textContent).toBe('—');
+    const pairOf = async (): Promise<HTMLElement> => screen.findByTestId('rate-pair');
+    const values = (pair: HTMLElement): Array<string | null | undefined> => Array.from(pair.querySelectorAll('.ui-kpi__value')).map((value) => value.textContent);
+    expect(values(await pairOf())).toEqual([vi_['dis.rates.reason.noData'], vi_['dis.rates.reason.noData']]);
+    expect(within(screen.getByRole('group', { name: vi_['dis.rates.fact.numerator'] })).getByText('—')).toBeTruthy();
     cleanup();
     open({ rates: answerFor(ratesRecord(figures({ numerator_disbursed_vnd: null, rate_pm_pct: null, rate_total_pct: null, rate_null_reason: 'TREASURY_COVERAGE_NONE', treasury_coverage: 'NONE' })), []) });
-    expect((await screen.findByTestId('rate-total')).textContent).toBe(vi_['dis.rates.reason.noTreasury']);
+    expect(values(await pairOf())).toEqual([vi_['dis.rates.reason.noTreasury'], vi_['dis.rates.reason.noTreasury']]);
     expect(screen.getByTestId('paired-empty').textContent).toBe(vi_['dis.paired.table.empty.text']);
+  });
+
+  it('says "Không áp dụng" in the tile of a scope whose denominator is zero, with the reason under it, and shows the scope as the last row of the table, as the server added it up', async () => {
+    open({ rates: answerFor(ratesRecord(figures({ numerator_disbursed_vnd: '0', plan_pm_assigned_vnd: '0', plan_local_added_vnd: '0', plan_total_vnd: '0', rate_pm_pct: null, rate_total_pct: null, rate_null_reason: 'ZERO_DENOMINATOR' })), [groupRecord('DA-2027-001')]) });
+    const pair = await screen.findByTestId('rate-pair');
+    const tiles = within(pair).getAllByRole('article');
+    for (const tile of tiles) {
+      expect(tile.querySelector('.ui-kpi__value')?.textContent).toBe(w2.na);
+      expect(within(tile).getByText(vi_['dis.rates.reason.zeroDenominator'])).toBeTruthy();
+      expect(tile.textContent).not.toMatch(/0(\.0+)?%|Infinity|NaN/);
+    }
+    const table = screen.getByRole('table', { name: vi_['dis.paired.table.aria'] });
+    const total = table.querySelector('tfoot tr') as HTMLElement;
+    expect(within(total).getByRole('rowheader').textContent).toBe(vi_['dis.unitTotals.total.label']);
+    expect(Array.from(total.querySelectorAll('td')).slice(0, 3).map((cell) => cell.textContent)).toEqual(['0', '0', '0']);
   });
 
   it('notes that the rate on the plan of the Prime Minister can pass 100% when the province adds capital', async () => {
     open({ rates: answerFor(ratesRecord(figures({ numerator_disbursed_vnd: '1500000000', rate_pm_pct: '150.0000', rate_total_pct: '120.0000' })), []) });
-    expect((await screen.findByTestId('rate-pm')).textContent).toBe('150.0000%');
+    expect(await screen.findByText('150.0000%')).toBeTruthy();
     expect(screen.getByTestId('rate-pm-over').textContent).toBe(vi_['dis.rates.pair.over.note']);
   });
 

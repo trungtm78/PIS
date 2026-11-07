@@ -1,6 +1,9 @@
 import { useTranslation } from '../../i18n';
 import { camel } from './catalogues';
 import type { RecordView } from './model';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
+import { StatusPill } from '../../ui';
 
 type Row = Record<string, unknown>;
 
@@ -21,7 +24,7 @@ export function amountText(amount: string, locale: string): string {
 function Thresholds({ bands }: { bands: Row[] }) {
   const { t, locale } = useTranslation();
   return (
-    <table className="table" data-testid="bands">
+    <KitTable caption={t('w2mdm.rule.table.caption')} data-testid="bands">
       <thead>
         <tr>
           <th>{t('mdm.rule.bands.sector.column')}</th>
@@ -40,7 +43,7 @@ function Thresholds({ bands }: { bands: Row[] }) {
           </tr>
         ))}
       </tbody>
-    </table>
+    </KitTable>
   );
 }
 
@@ -90,7 +93,7 @@ export function RulePanel({ rules }: { rules: readonly RecordView[] }) {
           <article key={rule.id} className="rule" data-rule-type={rule.masterType} data-awaiting={awaiting ? 'true' : 'false'}>
             <h3>
               {rule.label ?? rule.businessKey}{' '}
-              {awaiting ? <span className="pill warn">{t('mdm.rule.awaiting.pill', { cxn: text(rule.attributes.cxn) })}</span> : <span className="pill green">{t('mdm.rule.confirmed.pill')}</span>}
+              {awaiting ? <StatusPill tone="warning">{t('mdm.rule.awaiting.pill', { cxn: text(rule.attributes.cxn) })}</StatusPill> : <StatusPill tone="success">{t('mdm.rule.confirmed.pill')}</StatusPill>}
             </h3>
             <Value record={rule} />
             <dl>

@@ -1,19 +1,19 @@
 .qms-badge {
   display: inline-block;
   padding: 2px 8px;
-  border: 1px solid var(--shell-line, #e4e0e6);
+  border: 1px solid var(--mv-color-border);
   border-radius: 999px;
   font-size: 12px;
   white-space: nowrap;
 }
 .qms-badge.ok {
-  border-color: var(--shell-success, #15803d);
+  border-color: var(--mv-color-success);
 }
 .qms-badge.warning {
-  border-color: var(--shell-warning, #b45309);
+  border-color: var(--mv-color-warning);
 }
 .qms-badge.danger {
-  border-color: var(--shell-danger, #b91c1c);
+  border-color: var(--mv-color-danger);
 }
 .qms-plain {
   border: 0;
@@ -25,7 +25,7 @@
   margin: 4px 0 12px;
   padding: 8px;
   overflow: auto;
-  border: 1px solid var(--shell-line, #e4e0e6);
+  border: 1px solid var(--mv-color-border);
   border-radius: 4px;
   font-size: 12px;
 }
@@ -71,7 +71,7 @@
 }
 .qms-card {
   padding: 8px 0;
-  border-top: 1px solid var(--shell-line, #e4e0e6);
+  border-top: 1px solid var(--mv-color-border);
 }
 .qms-card p {
   margin: 4px 0;
@@ -84,4 +84,27 @@
   .qms-board {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+.qms-filters {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  align-items: end;
+}
+.qms-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+.qms-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.qms-stack {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
 }

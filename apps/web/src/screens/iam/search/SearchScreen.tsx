@@ -11,6 +11,7 @@ import { classificationLabel, typeLabel } from './labels';
 import { useSearch } from './hooks';
 import { SEARCH_PERMISSION, ofType, openPath, queryProblem, typesOf } from './model';
 import type { SearchHit } from './model';
+import { StatusPill } from '../../../ui';
 
 const holds = (permissions: readonly string[] | undefined, permission: string): boolean => permissions === undefined || permissions.includes(permission);
 
@@ -98,7 +99,7 @@ function Search() {
             </select>
           </Field>
           <div>
-            <button type="submit" className="primary">
+            <button type="submit" className="ui-button ui-button--primary">
               {t('iam.search.submit.action')}
             </button>
           </div>
@@ -124,7 +125,7 @@ function Search() {
             {search.hasNextPage ? (
               <div className="formfooter">
                 <span />
-                <button type="button" onClick={() => void search.fetchNextPage()} disabled={search.isFetchingNextPage}>
+                <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => void search.fetchNextPage()} disabled={search.isFetchingNextPage}>
                   {t('iam.search.more.action')}
                 </button>
               </div>
@@ -144,7 +145,7 @@ function HitItem({ hit }: { hit: SearchHit }) {
     <li className="item" data-entity-type={hit.entityType} data-classification={hit.classification}>
       <div className="title">{path === undefined ? title : <Link to={path}>{title}</Link>}</div>
       <div className="sub">
-        {typeLabel(t, hit.entityType)} · <span className="pill gray">{classificationLabel(t, hit.classification)}</span>
+        {typeLabel(t, hit.entityType)} · <StatusPill tone="neutral">{classificationLabel(t, hit.classification)}</StatusPill>
       </div>
       {hit.snippet === null ? null : <p className="sub">{hit.snippet}</p>}
     </li>

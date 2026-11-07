@@ -10,6 +10,7 @@ import type { NcrLine } from '../../qms/nonconformance/model';
 import { ViewFrame } from './ViewFrame';
 import { useQuality, useViewScope } from './hooks';
 import { blockingNcrs, ownerLink } from './model';
+import { SectionCard } from '../../../ui';
 
 /**
  * CTR-11: the quality of the work under a contract, read-only (ST-CTR-017, CTR section 7). QMS owns the inspections (QMS-04) and the non-conformances (QMS-07). A critical non-conformance that
@@ -59,8 +60,7 @@ function QualityContent({ route }: ScreenProps) {
 function NcrTable({ rows }: { rows: NcrLine[] }) {
   const { t } = useTranslation();
   return (
-    <article className="card" aria-label={t('ctr.qualityView.ncr.title')}>
-      <h2>{t('ctr.qualityView.ncr.title')}</h2>
+    <SectionCard title={t('ctr.qualityView.ncr.title')}>
       {rows.length === 0 ? (
         <p className="sub" data-testid="no-ncrs">
           {t('ctr.qualityView.ncr.empty')}
@@ -96,15 +96,14 @@ function NcrTable({ rows }: { rows: NcrLine[] }) {
           </tbody>
         </table>
       )}
-    </article>
+    </SectionCard>
   );
 }
 
 function InspectionTable({ rows }: { rows: InspectionLine[] }) {
   const { t } = useTranslation();
   return (
-    <article className="card" aria-label={t('ctr.qualityView.inspection.title')}>
-      <h2>{t('ctr.qualityView.inspection.title')}</h2>
+    <SectionCard title={t('ctr.qualityView.inspection.title')}>
       {rows.length === 0 ? (
         <p className="sub" data-testid="no-inspections">
           {t('ctr.qualityView.inspection.empty')}
@@ -135,6 +134,6 @@ function InspectionTable({ rows }: { rows: InspectionLine[] }) {
           </tbody>
         </table>
       )}
-    </article>
+    </SectionCard>
   );
 }

@@ -5,6 +5,7 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { ContextBar } from '../../ui';
 import { DossierPermits } from './DossierPermits';
 import { DossierTable } from './DossierTable';
 import { OpenDossierForm } from './OpenDossierForm';
@@ -26,7 +27,7 @@ export default function DossierWorkspaceScreen({ route }: ScreenProps) {
 
 function DossierWorkspaceContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { permissions, mode } = useSession();
+  const { permissions, mode, tenant } = useSession();
   const [params, setParams] = useSearchParams();
   const selectedId = params.get(SELECTED) ?? undefined;
   const mayManage = (permissions === undefined || permissions.includes(MANAGE_PERMISSION)) && mode !== 'READ_ONLY';
@@ -49,6 +50,7 @@ function DossierWorkspaceContent({ route }: ScreenProps) {
         </div>
       </div>
       <StateBoundary state={state} onRetry={() => void dossiers.refetch()}>
+        <ContextBar items={[{ label: t('pmt.ctx.scope'), value: tenant?.name ?? t('pmt.ctx.scope.all') }, { label: t('pmt.ctx.dossiers'), value: String(lines.length) }]} />
         <div className="stack">
           {unconfirmed === 0 ? null : (
             <p className="callout warning" role="status" data-testid="unconfirmed-banner">

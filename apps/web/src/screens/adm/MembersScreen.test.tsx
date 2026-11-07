@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ApiClientProvider } from '../../api/ApiClientContext';
 import vi_ from '../../i18n/vi.json';
+import { translator } from '../../i18n';
 import { ALL_MODULES_VISIBLE } from '../../navigation/model';
 import { SessionContext } from '../../session/SessionContext';
 import type { SessionValue } from '../../session/SessionContext';
@@ -134,6 +135,18 @@ describe('MembersScreen (ADM-02)', () => {
     await user.type(screen.getByLabelText(vi_['adm.members.search.label']), 'nobody like this');
     await user.click(screen.getByRole('button', { name: vi_['adm.members.filter.action'] }));
     expect(screen.getByText(vi_['adm.members.filtered.empty'])).toBeTruthy();
+  });
+
+  it('shows each status as a pill of the kit and counts the filters that are applied on the panel button', async () => {
+    mount(<MembersScreen route={ROUTE} />, harness({ members: ROWS, units: UNITS }));
+    await screen.findByText('Person 2');
+    expect(within(rowOf('Person 3')).getByText(vi_['adm.members.status.suspended']).closest('.ui-pill')?.className).toContain('ui-tone-warning');
+    expect(screen.getByRole('table', { name: translator.t('w2adm.members.table.caption') })).toBeTruthy();
+    expect(screen.getByRole('button', { name: vi_['ui.filterPanel.toggle'] })).toBeTruthy();
+    const user = userEvent.setup();
+    await user.selectOptions(screen.getByLabelText(vi_['adm.members.status.label']), 'Suspended');
+    await user.click(screen.getByRole('button', { name: vi_['adm.members.filter.action'] }));
+    expect(screen.getByRole('button', { name: vi_['ui.filterPanel.toggleApplied'].replace('{count}', '1') })).toBeTruthy();
   });
 
   it('suspends a member with a reason and the version the list showed, then shows a notice', async () => {

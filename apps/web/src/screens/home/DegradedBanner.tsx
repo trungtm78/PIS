@@ -1,6 +1,7 @@
 import { useTranslation } from '../../i18n';
 import { channelLabel } from '../not/delivery/labels';
 import { useChannelHealth } from './channel-health';
+import './home.css';
 
 /** The time of a delivery on the calendar and the clock of Vietnam, in the language of the reader. */
 function momentText(iso: string, locale: string): string {
@@ -19,11 +20,11 @@ export function DegradedChannelsBanner() {
   const channels = health.data ?? [];
   if (channels.length === 0) return null;
   return (
-    <div role="status" className="card" data-testid="degraded-banner">
+    <div role="status" className="home-queue-note home-queue-note--warn" data-testid="degraded-banner">
       <p>
         <strong>{t('home.degraded.title')}</strong>
       </p>
-      <ul className="mne-lines">
+      <ul className="home-lines">
         {channels.map((entry) => {
           const channel = channelLabel(t, entry.channel);
           return (
@@ -33,7 +34,7 @@ export function DegradedChannelsBanner() {
           );
         })}
       </ul>
-      <p className="sub">{t('home.degraded.reassure')}</p>
+      <p className="home-note">{t('home.degraded.reassure')}</p>
     </div>
   );
 }

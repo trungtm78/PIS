@@ -13,6 +13,7 @@ import type { DatasetErrors, DatasetSource, DatasetValues } from './eval-model';
 import { useCreateDataset, useDatasets } from './hooks';
 import { classificationLabel, refusalMessage } from './labels';
 import { describeLlmProblem } from './llm-model';
+import './llm-kit.css';
 
 /**
  * LLM-12: the datasets that models and profiles are evaluated on (ST-LLM-004, LLM F4): each is a numbered version of synthetic or anonymised cases (a case of real data that was not made harmless is not accepted) and it has at
@@ -125,7 +126,7 @@ function DatasetForm() {
         <textarea id="dataset-cases" rows={8} value={values.cases} onChange={(event) => set('cases', event.target.value)} />
       </Field>
       <div className="mne-actions">
-        <button type="submit" className="btn" disabled={create.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending}>
           {t('llm.datasets.form.submit')}
         </button>
       </div>

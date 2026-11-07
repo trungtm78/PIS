@@ -1,0 +1,37 @@
+/* The rows of a KitTable follow the DataTable of the kit (apps/web/src/ui/ui.css): tokens only. */
+.adm-kit-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: var(--mv-space-12);
+  background: var(--mv-color-table-head);
+  color: var(--mv-color-menu-text);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--mv-color-table-head-group);
+}
+
+.adm-kit-table td {
+  min-height: 44px;
+  padding: var(--mv-space-8) var(--mv-space-12);
+  border-bottom: 1px solid var(--mv-color-border);
+  background: var(--mv-color-surface);
+  vertical-align: middle;
+}
+
+.adm-kit-table tbody tr:hover td {
+  background: var(--mv-color-surface2);
+}
+
+.adm-kit-table th.num,
+.adm-kit-table td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.adm-kit-table input,
+.adm-kit-table select {
+  min-height: 32px;
+}

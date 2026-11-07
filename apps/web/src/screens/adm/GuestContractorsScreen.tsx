@@ -5,14 +5,17 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { DataTable, FilterPanel, SectionCard, StatusPill } from '../../ui';
+import type { DataTableColumn } from '../../ui';
 import { DevAcceptanceSlot } from './members/DevAcceptanceSlot';
 import { InviteGuestDialog } from './members/InviteGuestDialog';
 import { LifecycleDialog } from './members/LifecycleDialog';
 import { RowActions } from './members/RowActions';
 import { useMembers } from './members/hooks';
-import { dayOf, lifecycleDone, statusLabel, statusPill } from './members/labels';
+import { dayOf, lifecycleDone, statusLabel, statusTone } from './members/labels';
 import { MEMBERSHIP_STATUSES, PERMISSION_INVITE_GUEST, PERMISSION_MANAGE, PERMISSION_READ } from './members/types';
 import type { Lifecycle, Member, MembershipStatus } from './members/types';
+import './adm-kit.css';
 import './members/members.css';
 
 interface Filter {
@@ -71,6 +74,34 @@ function GuestContractorsContent({ routeId, requirement }: { routeId: string; re
     setApplied(draft);
   };
 
+  const columns: DataTableColumn<Member>[] = [
+    {
+      key: 'contractor',
+      header: t('adm.guests.col.contractor'),
+      pinned: true,
+      render: (member) => (
+        <span data-member-id={member.id}>
+          <strong>{member.contractorName ?? t('adm.guests.contractor.unknown')}</strong>
+          <span className="adm-kit-sub">{member.displayName}</span>
+        </span>
+      ),
+    },
+    { key: 'email', header: t('adm.guests.col.email'), render: (member) => member.email },
+    { key: 'contracts', header: t('adm.guests.col.contracts'), render: (member) => (member.contracts.length === 0 ? t('adm.guests.contracts.none') : member.contracts.map((contract) => contract.code).join(', ')) },
+    { key: 'roles', header: t('adm.guests.col.roles'), render: (member) => (member.roleCodes.length === 0 ? t('adm.members.roles.none') : member.roleCodes.join(', ')) },
+    { key: 'validUntil', header: t('adm.guests.col.validUntil'), render: (member) => (member.validUntil === null ? t('adm.members.validUntil.open') : dayOf(member.validUntil)) },
+    { key: 'status', header: t('adm.guests.col.status'), render: (member) => <StatusPill tone={statusTone(member.status)}>{statusLabel(t, member.status)}</StatusPill> },
+    {
+      key: 'actions',
+      header: t('ui.stickyActions.label'),
+      render: (member) => (
+        <div className="members-actions">
+          <RowActions member={member} selfId={tenant?.membershipId} canManage={canManage} onAction={(action, target) => setActing({ action, member: target })} />
+        </div>
+      ),
+    },
+  ];
+
   return (
     <section data-screen-id={routeId} aria-labelledby="screen-title">
       <div className="heading">
@@ -80,7 +111,7 @@ function GuestContractorsContent({ routeId, requirement }: { routeId: string; re
         </div>
         {(state === 'default' || state === 'empty') && canInvite ? (
           <div className="actions">
-            <button type="button" className="primary" onClick={() => setInviting(true)}>
+            <button type="button" className="ui-button ui-button--primary" onClick={() => setInviting(true)}>
               {t('adm.guests.invite.action')}
             </button>
           </div>
@@ -93,13 +124,20 @@ function GuestContractorsContent({ routeId, requirement }: { routeId: string; re
             {notice.kind === 'invited' ? <DevAcceptanceSlot email={notice.email} /> : null}
           </div>
         )}
-        <div className="card">
-          <form className="filters" onSubmit={submit}>
-            <div>
+        <form className="adm-kit-form" onSubmit={submit} aria-label={t('adm.members.filter.action')}>
+          <FilterPanel
+            applied={[applied.text, applied.status].filter((value) => value !== '').length}
+            actions={
+              <button type="submit" className="ui-button ui-button--primary">
+                {t('adm.members.filter.action')}
+              </button>
+            }
+          >
+            <div className="field">
               <label htmlFor="guest-search">{t('adm.members.search.label')}</label>
               <input id="guest-search" type="search" value={draft.text} placeholder={t('adm.guests.search.placeholder')} onChange={(event) => setDraft({ ...draft, text: event.target.value })} />
             </div>
-            <div>
+            <div className="field">
               <label htmlFor="guest-status">{t('adm.members.status.label')}</label>
               <select id="guest-status" value={draft.status} onChange={(event) => setDraft({ ...draft, status: event.target.value as MembershipStatus | '' })}>
                 <option value="">{t('adm.members.status.all')}</option>
@@ -110,53 +148,25 @@ function GuestContractorsContent({ routeId, requirement }: { routeId: string; re
                 ))}
               </select>
             </div>
-            <button type="submit">{t('adm.members.filter.action')}</button>
-          </form>
-          <div className="tablewrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>{t('adm.guests.col.contractor')}</th>
-                  <th>{t('adm.guests.col.email')}</th>
-                  <th>{t('adm.guests.col.contracts')}</th>
-                  <th>{t('adm.guests.col.roles')}</th>
-                  <th>{t('adm.guests.col.validUntil')}</th>
-                  <th>{t('adm.guests.col.status')}</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
-                {shown.map((member) => (
-                  <tr key={member.id} data-member-id={member.id}>
-                    <td>
-                      <strong>{member.contractorName ?? t('adm.guests.contractor.unknown')}</strong>
-                      <div className="sub">{member.displayName}</div>
-                    </td>
-                    <td>{member.email}</td>
-                    <td>{member.contracts.length === 0 ? t('adm.guests.contracts.none') : member.contracts.map((contract) => contract.code).join(', ')}</td>
-                    <td>{member.roleCodes.length === 0 ? t('adm.members.roles.none') : member.roleCodes.join(', ')}</td>
-                    <td>{member.validUntil === null ? t('adm.members.validUntil.open') : dayOf(member.validUntil)}</td>
-                    <td>
-                      <span className={statusPill(member.status)}>{statusLabel(t, member.status)}</span>
-                    </td>
-                    <td className="members-actions">
-                      <RowActions member={member} selfId={tenant?.membershipId} canManage={canManage} onAction={(action, target) => setActing({ action, member: target })} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {shown.length === 0 ? <p className="muted">{t('adm.members.filtered.empty')}</p> : null}
-          <div className="row between gap tiny muted">
+          </FilterPanel>
+        </form>
+        <SectionCard title={t('adm.guests.page.title')}>
+          {shown.length === 0 ? (
+            <p className="adm-kit-empty" role="status">
+              {t('adm.members.filtered.empty')}
+            </p>
+          ) : (
+            <DataTable caption={t('w2adm.guests.table.caption')} columns={columns} rows={shown} rowKey={(member) => member.id} />
+          )}
+          <div className="adm-kit-foot">
             <span>{t('adm.guests.count.text', { count: shown.length })}</span>
             {list.hasNextPage ? (
-              <button type="button" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
+              <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
                 {t('adm.members.more.action')}
               </button>
             ) : null}
           </div>
-        </div>
+        </SectionCard>
       </StateBoundary>
       {inviting ? (
         <InviteGuestDialog

@@ -5,7 +5,10 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { DataTable, SectionCard, StatusPill } from '../../../ui';
+import type { DataTableColumn, Tone } from '../../../ui';
 import { StatusBadge } from '../components';
+import { ScopeBar } from '../kit';
 import { useContract } from '../hooks';
 import type { ContractView } from '../model';
 import { useMeasurements } from '../measurement/hooks';
@@ -17,6 +20,11 @@ import { statusLabel } from './labels';
 import { acceptable, canCreate, remainingVnd, signedAmountText } from './model';
 import type { Acceptance } from './model';
 import '../ctr.css';
+
+/** The tone of an acceptance: approved is green, refused or withdrawn is amber, waiting for a decision is blue and a draft is neutral. */
+function acceptanceTone(status: Acceptance['status']): Tone {
+  return status === 'APPROVED' ? 'success' : status === 'REJECTED' || status === 'REVOKED' ? 'warning' : status === 'SUBMITTED' ? 'info' : 'neutral';
+}
 
 /** The multiplication sign (U+00D7) between a quantity and its unit price. */
 const TIMES = '\u00d7';
@@ -101,12 +109,119 @@ function Acceptances({ contract, acceptances, measurements }: AcceptancesProps) 
   const first = acceptances[0];
   const accepted = first?.contract.acceptedTotalVnd ?? '0';
 
+  const columns: DataTableColumn<Acceptance>[] = [
+    {
+      key: 'no',
+      header: t('ctr.acceptance.column.no'),
+      pinned: true,
+      render: (acceptance) => (
+        <span data-testid="no" data-acceptance={acceptance.id} data-status={acceptance.status}>
+          {acceptance.acceptanceNo}
+        </span>
+      ),
+    },
+    { key: 'period', header: t('ctr.acceptance.column.period'), render: (acceptance) => <span data-testid="period">{acceptance.period.code}</span> },
+    {
+      key: 'lines',
+      header: t('ctr.acceptance.column.lines'),
+      render: (acceptance) => (
+        <ul className="ctr-lines" data-testid="lines">
+          {acceptance.lines.map((line) => (
+            <li key={line.id} data-line={line.id}>
+              <strong>{line.businessKey}</strong> · {quantityText(line.quantity, locale)} {line.unitCode} {TIMES} {quantityText(line.unitPrice, locale)} = {money(line.amountVnd)}
+            </li>
+          ))}
+        </ul>
+      ),
+    },
+    { key: 'amount', header: t('ctr.acceptance.column.amount'), align: 'right', render: (acceptance) => <span data-testid="amount">{money(acceptance.amountVnd)}</span> },
+    {
+      key: 'quality',
+      header: t('ctr.acceptance.column.quality'),
+      render: (acceptance) => (
+        <>
+          {acceptance.quality === null ? (
+            <span className="sub" data-testid="quality">
+              {contract.requiresQualityAcceptance ? t('ctr.acceptance.quality.missing') : t('ctr.acceptance.quality.notAsked')}
+            </span>
+          ) : (
+            <span data-testid="quality">{t('ctr.acceptance.quality.linked', { record: acceptance.quality.recordNo, status: acceptance.quality.status })}</span>
+          )}
+          {acceptance.openCriticalNcr > 0 && (acceptance.status === 'DRAFT' || acceptance.status === 'SUBMITTED') ? (
+            <>
+              {' '}
+              <span data-testid="ncr-open" role="status">
+                <StatusPill tone="warning">{t('ctr.acceptance.ncr.open', { count: acceptance.openCriticalNcr })}</StatusPill>
+              </span>
+            </>
+          ) : null}
+        </>
+      ),
+    },
+    {
+      key: 'status',
+      header: t('ctr.acceptance.column.status'),
+      render: (acceptance) => (
+        <>
+          <span data-testid="status">
+            <StatusPill tone={acceptanceTone(acceptance.status)}>{statusLabel(t, acceptance.status)}</StatusPill>
+          </span>
+          {acceptance.decisionReason === null ? null : (
+            <small className="sub" data-testid="decision-reason">
+              {acceptance.decisionReason}
+            </small>
+          )}
+          {acceptance.revokeReason === null ? null : (
+            <small className="sub" data-testid="revoke-reason">
+              {t('ctr.acceptance.revoked.reason', { reason: acceptance.revokeReason })}
+            </small>
+          )}
+        </>
+      ),
+    },
+    {
+      key: 'actions',
+      header: t('ctr.acceptance.column.actions'),
+      render: (acceptance) =>
+        mode === 'READ_ONLY' ? null : (
+          <div className="ctr-row-actions">
+            {acceptance.canSubmit ? (
+              <button type="button" className="ui-button ui-button--outline ui-button--small" data-submit={acceptance.id} onClick={() => setDialog({ kind: 'submit', id: acceptance.id })}>
+                {t('ctr.acceptance.submit.action')}
+              </button>
+            ) : null}
+            {acceptance.canDecide ? (
+              <button type="button" className="ui-button ui-button--primary ui-button--small" data-decide={acceptance.id} onClick={() => setDialog({ kind: 'decide', id: acceptance.id })}>
+                {t('ctr.acceptance.decide.action')}
+              </button>
+            ) : null}
+            {acceptance.canRevoke ? (
+              <button type="button" className="ui-button ui-button--outline ui-button--small" data-revoke={acceptance.id} onClick={() => setDialog({ kind: 'revoke', id: acceptance.id })}>
+                {t('ctr.acceptance.revoke.action')}
+              </button>
+            ) : null}
+          </div>
+        ),
+    },
+  ];
+
   return (
     <>
-      <article className="card" aria-label={t('ctr.acceptance.contract.title')}>
-        <h2>{t('ctr.acceptance.contract.title')}</h2>
+      <ScopeBar money extra={[{ label: t('w2pay.ctr.ctx.contract'), value: contract.code }]} />
+      <SectionCard
+        title={t('ctr.acceptance.contract.title')}
+        unit={t('w2pay.ctx.unit')}
+        status={<StatusBadge status={contract.status} />}
+        actions={
+          mayDraft ? (
+            <button type="button" className="ui-button ui-button--primary" onClick={() => setDialog({ kind: 'draft' })}>
+              {t('ctr.acceptance.draft.action')}
+            </button>
+          ) : undefined
+        }
+      >
         <p>
-          <strong data-testid="contract-code">{contract.code}</strong> <StatusBadge status={contract.status} />
+          <strong data-testid="contract-code">{contract.code}</strong>
         </p>
         <dl className="ctr-facts">
           <dt>{t('ctr.acceptance.contract.value')}</dt>
@@ -121,115 +236,23 @@ function Acceptances({ contract, acceptances, measurements }: AcceptancesProps) 
             {t('ctr.acceptance.contract.qualityRequired')}
           </p>
         ) : null}
-        {mayDraft ? (
-          <div className="ctr-row-actions">
-            <button type="button" className="primary" onClick={() => setDialog({ kind: 'draft' })}>
-              {t('ctr.acceptance.draft.action')}
-            </button>
-          </div>
-        ) : null}
-      </article>
+      </SectionCard>
       {done === undefined ? null : (
         <p className="callout" role="status" data-testid="done">
           {done}
         </p>
       )}
-      <article className="card" aria-label={t('ctr.acceptance.list.title')}>
-        <h2>{t('ctr.acceptance.list.title')}</h2>
+      <SectionCard title={t('ctr.acceptance.list.title')} unit={t('w2pay.ctx.unit')}>
         {acceptances.length === 0 ? (
           <p className="sub" data-testid="no-acceptances">
             {t('ctr.acceptance.list.empty')}
           </p>
         ) : (
-          <table className="table" data-testid="acceptances">
-            <thead>
-              <tr>
-                <th scope="col">{t('ctr.acceptance.column.no')}</th>
-                <th scope="col">{t('ctr.acceptance.column.period')}</th>
-                <th scope="col">{t('ctr.acceptance.column.lines')}</th>
-                <th scope="col" className="ctr-amount">
-                  {t('ctr.acceptance.column.amount')}
-                </th>
-                <th scope="col">{t('ctr.acceptance.column.quality')}</th>
-                <th scope="col">{t('ctr.acceptance.column.status')}</th>
-                <th scope="col">
-                  <span className="sr-only">{t('ctr.acceptance.column.actions')}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {acceptances.map((acceptance) => (
-                <tr key={acceptance.id} data-acceptance={acceptance.id} data-status={acceptance.status}>
-                  <td data-testid="no">{acceptance.acceptanceNo}</td>
-                  <td data-testid="period">{acceptance.period.code}</td>
-                  <td>
-                    <ul className="ctr-lines" data-testid="lines">
-                      {acceptance.lines.map((line) => (
-                        <li key={line.id} data-line={line.id}>
-                          <strong>{line.businessKey}</strong> · {quantityText(line.quantity, locale)} {line.unitCode} {TIMES} {quantityText(line.unitPrice, locale)} = {money(line.amountVnd)}
-                        </li>
-                      ))}
-                    </ul>
-                  </td>
-                  <td className="ctr-amount" data-testid="amount">
-                    {money(acceptance.amountVnd)}
-                  </td>
-                  <td>
-                    {acceptance.quality === null ? (
-                      <span className="sub" data-testid="quality">
-                        {contract.requiresQualityAcceptance ? t('ctr.acceptance.quality.missing') : t('ctr.acceptance.quality.notAsked')}
-                      </span>
-                    ) : (
-                      <span data-testid="quality">{t('ctr.acceptance.quality.linked', { record: acceptance.quality.recordNo, status: acceptance.quality.status })}</span>
-                    )}
-                    {acceptance.openCriticalNcr > 0 && (acceptance.status === 'DRAFT' || acceptance.status === 'SUBMITTED') ? (
-                      <span className="ctr-badge warning" data-testid="ncr-open" role="status">
-                        {t('ctr.acceptance.ncr.open', { count: acceptance.openCriticalNcr })}
-                      </span>
-                    ) : null}
-                  </td>
-                  <td>
-                    <span className={acceptance.status === 'APPROVED' ? 'ctr-badge' : acceptance.status === 'REJECTED' || acceptance.status === 'REVOKED' ? 'ctr-badge warning' : 'ctr-badge'} data-testid="status">
-                      {statusLabel(t, acceptance.status)}
-                    </span>
-                    {acceptance.decisionReason === null ? null : (
-                      <small className="sub" data-testid="decision-reason">
-                        {acceptance.decisionReason}
-                      </small>
-                    )}
-                    {acceptance.revokeReason === null ? null : (
-                      <small className="sub" data-testid="revoke-reason">
-                        {t('ctr.acceptance.revoked.reason', { reason: acceptance.revokeReason })}
-                      </small>
-                    )}
-                  </td>
-                  <td>
-                    {mode === 'READ_ONLY' ? null : (
-                      <>
-                        {acceptance.canSubmit ? (
-                          <button type="button" data-submit={acceptance.id} onClick={() => setDialog({ kind: 'submit', id: acceptance.id })}>
-                            {t('ctr.acceptance.submit.action')}
-                          </button>
-                        ) : null}
-                        {acceptance.canDecide ? (
-                          <button type="button" data-decide={acceptance.id} onClick={() => setDialog({ kind: 'decide', id: acceptance.id })}>
-                            {t('ctr.acceptance.decide.action')}
-                          </button>
-                        ) : null}
-                        {acceptance.canRevoke ? (
-                          <button type="button" data-revoke={acceptance.id} onClick={() => setDialog({ kind: 'revoke', id: acceptance.id })}>
-                            {t('ctr.acceptance.revoke.action')}
-                          </button>
-                        ) : null}
-                      </>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div data-testid="acceptances">
+            <DataTable caption={t('ctr.acceptance.list.title')} columns={columns} rows={[...acceptances]} rowKey={(acceptance) => acceptance.id} />
+          </div>
         )}
-      </article>
+      </SectionCard>
       {dialog?.kind === 'draft' ? <DraftDialog contractId={contract.id} measurements={candidates} onDone={finished(t('ctr.acceptance.done.drafted'))} onClose={close} /> : null}
       {dialog?.kind === 'submit' && subject !== undefined ? <SubmitDialog acceptance={subject} onDone={finished(t('ctr.acceptance.done.submitted'))} onClose={close} /> : null}
       {dialog?.kind === 'decide' && subject !== undefined ? <DecideDialog acceptance={subject} onDone={finished(t('ctr.acceptance.done.decided'))} onClose={close} /> : null}

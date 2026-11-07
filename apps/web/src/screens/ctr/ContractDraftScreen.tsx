@@ -30,6 +30,7 @@ import {
 } from './model';
 import type { ContractField, ContractForm, ContractView, FieldProblem, Option, ProblemView } from './model';
 import './ctr.css';
+import { SectionCard, StickyActions } from '../../ui';
 
 const NEVER_EMPTY = (): boolean => false;
 const DRAFT_STATES: readonly string[] = ['DRAFT', 'IN_REVIEW'];
@@ -265,12 +266,18 @@ function CreateDraft() {
             contractors={contractors.data ?? []}
             disabled={!canCreate || created !== undefined}
           />
-          <div className="formfooter">
-            <Link to={LIST_PATH}>{t('ctr.draft.cancel.link')}</Link>
-            <button type="submit" className="button primary" disabled={!canCreate || create.isPending || created !== undefined}>
-              {create.isPending ? t('ctr.draft.create.pending') : t('ctr.draft.create.action')}
-            </button>
-          </div>
+          <StickyActions
+            primary={
+              <button type="submit" className="ui-button ui-button--primary" disabled={!canCreate || create.isPending || created !== undefined}>
+                {create.isPending ? t('ctr.draft.create.pending') : t('ctr.draft.create.action')}
+              </button>
+            }
+            secondary={[
+              <Link key="cancel" className="ui-button ui-button--outline" to={LIST_PATH}>
+                {t('ctr.draft.cancel.link')}
+              </Link>,
+            ]}
+          />
         </form>
         <div>
           <RulesPanel />
@@ -387,12 +394,18 @@ function DraftView({ contract }: { contract: ContractView }) {
               </p>
             )}
             <DraftFields mode="revise" form={form} errors={errors} ceiling={ceiling} onChange={setField} projects={[]} contractors={[]} disabled={!editable} />
-            <div className="formfooter">
-              <Link to={LIST_PATH}>{t('ctr.draft.cancel.link')}</Link>
-              <button type="submit" className="button primary" disabled={!editable || revise.isPending}>
-                {revise.isPending ? t('ctr.draft.save.pending') : t('ctr.draft.save.action')}
-              </button>
-            </div>
+            <StickyActions
+              primary={
+                <button type="submit" className="ui-button ui-button--primary" disabled={!editable || revise.isPending}>
+                  {revise.isPending ? t('ctr.draft.save.pending') : t('ctr.draft.save.action')}
+                </button>
+              }
+              secondary={[
+                <Link key="cancel" className="ui-button ui-button--outline" to={LIST_PATH}>
+                  {t('ctr.draft.cancel.link')}
+                </Link>,
+              ]}
+            />
           </form>
           {cancellable ? (
             <div className="card">
@@ -429,8 +442,7 @@ function DraftView({ contract }: { contract: ContractView }) {
           ) : null}
         </div>
         <div>
-          <article className="card" aria-label={t('ctr.draft.facts.title')}>
-            <h2>{t('ctr.draft.facts.title')}</h2>
+          <SectionCard title={t('ctr.draft.facts.title')}>
             <dl className="ctr-facts" data-testid="facts">
               <Fact label={t('ctr.draft.fact.project')}>{`${contract.projectCode} · ${contract.projectName}`}</Fact>
               <Fact label={t('ctr.draft.fact.contractor')}>{contract.contractorName ?? contract.contractorId}</Fact>
@@ -444,9 +456,8 @@ function DraftView({ contract }: { contract: ContractView }) {
               {ceiling === undefined ? null : <Fact label={t('ctr.draft.fact.ceiling')}>{t('ctr.value.amount', { amount: amountText(ceiling, locale) })}</Fact>}
               {contract.statusReason === null ? null : <Fact label={t('ctr.draft.fact.reason')}>{contract.statusReason}</Fact>}
             </dl>
-          </article>
-          <article className="card" aria-label={t('ctr.draft.revisions.title')}>
-            <h2>{t('ctr.draft.revisions.title')}</h2>
+          </SectionCard>
+          <SectionCard title={t('ctr.draft.revisions.title')}>
             <table className="table" data-testid="revisions">
               <thead>
                 <tr>
@@ -465,16 +476,15 @@ function DraftView({ contract }: { contract: ContractView }) {
                 ))}
               </tbody>
             </table>
-          </article>
+          </SectionCard>
           {contract.statusChanges.length === 0 ? null : (
-            <article className="card" aria-label={t('ctr.draft.history.title')}>
-              <h2>{t('ctr.draft.history.title')}</h2>
+            <SectionCard title={t('ctr.draft.history.title')}>
               <ul data-testid="history">
                 {contract.statusChanges.map((change) => (
                   <li key={change.id}>{t('ctr.draft.history.entry', { from: statusText(t, change.fromStatus), to: statusText(t, change.toStatus), date: change.effectiveOn, reason: change.reason })}</li>
                 ))}
               </ul>
-            </article>
+            </SectionCard>
           )}
           <RulesPanel />
         </div>

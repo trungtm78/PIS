@@ -13,6 +13,7 @@ import { CloseDialog, ExceptionDialog, OpenDialog, RefreshDialog, SubmitDialog, 
 import { FINDINGS_PERMISSION, OPEN_PERMISSION, READ_PERMISSION, STATUSES, daysLeft, owes, settlementLink, urgencyOf, vietnamDay, vndText } from './model';
 import type { Answer, Outcome, Settlement } from './model';
 import '../pay.css';
+import { SectionCard } from '../../../ui';
 
 type Dialog = { kind: 'open' } | { kind: 'refresh' } | { kind: 'submit' } | { kind: 'verify'; outcome: Outcome } | { kind: 'exception' } | { kind: 'close' };
 
@@ -77,8 +78,7 @@ function SettlementContent({ route }: ScreenProps) {
         </p>
       ) : (
         <>
-          <article className="card" aria-label={t('pay.settlement.list.title')}>
-            <h2>{t('pay.settlement.list.title')}</h2>
+          <SectionCard title={t('pay.settlement.list.title')}>
             <div className="field">
               <label htmlFor="settlement-status">{t('pay.settlement.filter.status')}</label>
               <select id="settlement-status" value={status} onChange={(event) => setStatus(event.target.value)}>
@@ -124,7 +124,7 @@ function SettlementContent({ route }: ScreenProps) {
                 </table>
               )}
             </StateBoundary>
-          </article>
+          </SectionCard>
           {picked === null ? (
             <p className="sub" role="status" data-testid="pick">
               {t('pay.settlement.pick')}

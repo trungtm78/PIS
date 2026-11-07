@@ -11,8 +11,12 @@ import { modeLabel, problemMessage, statusLabel, statusTone } from './support/la
 import { DECIDE_PERMISSION, DEFAULT_MINUTES, MAX_MINUTES, MAX_REASON, MIN_MINUTES, MODULE_CODES, READ_PERMISSION, REQUEST_PERMISSION, approvalsGiven, approvalsNeeded, canDecide, canRevoke, describeProblem, isMinutesValid, isReasonValid, isTenantIdValid } from './support/model';
 import type { AccessMode, GrantView } from './support/model';
 import { toneClass } from './tenants/labels';
+import { SectionCard, StatusPill } from '../../ui';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 import './tenants/sas.css';
 import './billing/billing.css';
+import { toneOfPill } from '../adm/kit-tone';
 
 type Action = 'approve' | 'reject' | 'revoke';
 
@@ -150,8 +154,7 @@ function SupportContent({ route }: ScreenProps) {
         </div>
       )}
       {canRequest ? (
-        <div className="card">
-          <h2>{t('sas.support.request.title')}</h2>
+        <SectionCard title={t('sas.support.request.title')}>
           <p className="sub">{t('sas.support.request.rule')}</p>
           {sent ? (
             <p className="callout" role="status">
@@ -221,17 +224,16 @@ function SupportContent({ route }: ScreenProps) {
               ) : null}
             </div>
             <div className="row gap">
-              <button type="submit" className="primary" disabled={request.isPending}>
+              <button type="submit" className="ui-button ui-button--primary" disabled={request.isPending}>
                 {t('sas.support.request.submit.action')}
               </button>
             </div>
           </form>
-        </div>
+        </SectionCard>
       ) : null}
       {canRead ? (
         <StateBoundary state={state} onRetry={() => void grants.refetch()}>
-          <div className="card">
-            <h2>{t('sas.support.grants.title')}</h2>
+          <SectionCard title={t('sas.support.grants.title')}>
             {done === undefined ? null : (
               <p className="callout" role="status">
                 {done === 'revoke' ? t('sas.support.done.revoked') : done === 'reject' ? t('sas.support.done.rejected') : t('sas.support.done.approved')}
@@ -242,7 +244,7 @@ function SupportContent({ route }: ScreenProps) {
                 {t('sas.support.grants.none')}
               </p>
             ) : (
-              <table className="table" data-grants>
+              <KitTable caption={t('w2sas.support.table.caption')} data-grants>
                 <thead>
                   <tr>
                     <th scope="col">{t('sas.support.column.ticket')}</th>
@@ -274,22 +276,22 @@ function SupportContent({ route }: ScreenProps) {
                       </td>
                       <td>{grant.startsAt === undefined ? t('sas.support.window.minutes', { minutes: grant.durationMinutes }) : t('sas.support.window.range', { from: day(grant.startsAt), until: day(grant.expiresAt) })}</td>
                       <td>
-                        <span className={toneClass(statusTone(grant.status))}>{statusLabel(t, grant.status)}</span>
+                        <StatusPill tone={toneOfPill(toneClass(statusTone(grant.status)))}>{statusLabel(t, grant.status)}</StatusPill>
                       </td>
                       <td data-approvals>{t('sas.support.approvals.count', { given: approvalsGiven(grant), needed: approvalsNeeded(grant) })}</td>
                       <td>
                         {canDecideHere && canDecide(grant, tenant?.membershipId) ? (
                           <>
-                            <button type="button" onClick={() => open(grant, 'approve')}>
+                            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => open(grant, 'approve')}>
                               {t('sas.support.approve.action')}
                             </button>{' '}
-                            <button type="button" onClick={() => open(grant, 'reject')}>
+                            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => open(grant, 'reject')}>
                               {t('sas.support.reject.action')}
                             </button>{' '}
                           </>
                         ) : null}
                         {canDecideHere && canRevoke(grant) ? (
-                          <button type="button" onClick={() => open(grant, 'revoke')}>
+                          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => open(grant, 'revoke')}>
                             {t('sas.support.revoke.action')}
                           </button>
                         ) : null}
@@ -297,7 +299,7 @@ function SupportContent({ route }: ScreenProps) {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </KitTable>
             )}
             {grants.hasNextPage ? (
               <div className="row gap">
@@ -326,16 +328,16 @@ function SupportContent({ route }: ScreenProps) {
                   ) : null}
                 </div>
                 <div className="row gap">
-                  <button type="submit" className="primary" disabled={decide.isPending || revoke.isPending}>
+                  <button type="submit" className="ui-button ui-button--primary" disabled={decide.isPending || revoke.isPending}>
                     {t('sas.support.act.confirm.action')}
                   </button>
-                  <button type="button" onClick={() => setActing(undefined)}>
+                  <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setActing(undefined)}>
                     {t('sas.support.act.abort.action')}
                   </button>
                 </div>
               </form>
             )}
-          </div>
+          </SectionCard>
         </StateBoundary>
       ) : null}
     </section>

@@ -6,6 +6,8 @@ import { useSession } from "../../session/SessionContext";
 import { StateBoundary } from "../../states/StateBoundary";
 import { useScreenState } from "../../states/useScreenState";
 import { Field } from "./components";
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 import {
   useCreateCrosswalk,
   useCrosswalks,
@@ -46,6 +48,7 @@ import type {
   CursorView,
   FormErrors,
 } from "./model";
+import { StatusPill } from "../../ui";
 
 const NEVER_EMPTY = (): boolean => false;
 const NOT_FOUND = { reason: "notFound", field: undefined } as const;
@@ -210,8 +213,7 @@ function CrosswalkContent({ route }: ScreenProps) {
                   : t("mdm.crosswalk.empty.text")}
               </p>
             ) : (
-              <table
-                className="table"
+              <KitTable caption={t('w2mdm.crosswalk.table.caption')}
                 aria-label={t("mdm.crosswalk.table.aria")}
               >
                 <thead>
@@ -239,7 +241,7 @@ function CrosswalkContent({ route }: ScreenProps) {
                     />
                   ))}
                 </tbody>
-              </table>
+              </KitTable>
             )}
             <p className="sub" data-testid="count">
               {t("mdm.crosswalk.count.text", { count: rows.length })}
@@ -305,7 +307,9 @@ function CrosswalkRow({
         </td>
         <td>{`${row.validFrom} → ${row.validUntil ?? ""}`}</td>
         <td>{crosswalkMethodLabel(t, row.matchMethod)}</td>
-        <td>{crosswalkStatusLabel(t, row.status)}</td>
+        <td>
+          <StatusPill tone={row.status === "ACTIVE" ? "success" : "neutral"}>{crosswalkStatusLabel(t, row.status)}</StatusPill>
+        </td>
         <td className="row-actions">
           {mayRetire && row.status === "ACTIVE" ? (
             <button
@@ -353,8 +357,8 @@ function CrosswalkRow({
                   }}
                 />
               </Field>
-              <div className="formfooter">
-                <button type="button" onClick={() => setOpen(false)}>
+              <div className="adm-kit-actions">
+                <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setOpen(false)}>
                   {t("mdm.crosswalk.cancel.action")}
                 </button>
                 <button
@@ -534,9 +538,9 @@ function CreateCrosswalk() {
           {t("mdm.crosswalk.alias.note")}
         </p>
       ) : null}
-      <div className="formfooter">
+      <div className="adm-kit-actions">
         <span className="sub">{t("mdm.crosswalk.form.hint")}</span>
-        <button type="submit" className="primary" disabled={create.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending}>
           {t("mdm.crosswalk.save.action")}
         </button>
       </div>
@@ -569,7 +573,7 @@ function Connectors({
           </p>
         )
       ) : (
-        <table className="table" aria-label={t("mdm.cursor.table.aria")}>
+        <KitTable caption={t('w2mdm.crosswalk.table.cursors')} aria-label={t("mdm.cursor.table.aria")}>
           <thead>
             <tr>
               <th>{t("mdm.cursor.connector.column")}</th>
@@ -598,15 +602,7 @@ function Connectors({
                 </td>
                 <td>{cursor.sourceScope}</td>
                 <td>
-                  <span
-                    className={
-                      cursor.adapterStatus === "VERIFIED"
-                        ? "pill green"
-                        : "pill gray"
-                    }
-                  >
-                    {adapterLabel(t, cursor.adapterStatus)}
-                  </span>
+                  <StatusPill tone={cursor.adapterStatus === "VERIFIED" ? "success" : "neutral"}>{adapterLabel(t, cursor.adapterStatus)}</StatusPill>
                 </td>
                 <td>{cursorStatusLabel(t, cursor.status)}</td>
                 <td>{cursor.lastSuccessAt ?? t("mdm.cursor.never.text")}</td>
@@ -629,7 +625,7 @@ function Connectors({
               </tr>
             ))}
           </tbody>
-        </table>
+        </KitTable>
       )}
       {resetting === undefined ? null : (
         <ResetCursor
@@ -749,8 +745,8 @@ function ResetCursor({
           }}
         />
       </Field>
-      <div className="formfooter">
-        <button type="button" onClick={onDone}>
+      <div className="adm-kit-actions">
+        <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={onDone}>
           {t("mdm.crosswalk.cancel.action")}
         </button>
         <button

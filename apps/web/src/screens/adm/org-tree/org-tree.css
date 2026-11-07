@@ -8,7 +8,7 @@
 
 .unit-tree ul {
   margin-left: 20px;
-  border-left: 1px solid var(--border, #e8e3e5);
+  border-left: 1px solid var(--mv-color-border);
 }
 
 .unit-tree [role='treeitem'] {
@@ -16,7 +16,7 @@
 }
 
 .unit-tree [role='treeitem']:focus-visible {
-  outline: 2px solid var(--primary, #b4233d);
+  outline: 2px solid var(--mv-color-primary);
   outline-offset: 1px;
 }
 
@@ -29,7 +29,7 @@
 }
 
 .unit-row.selected {
-  background: var(--selected, #fff0f2);
+  background: var(--mv-color-primary-soft);
 }
 
 /* A unit that is not valid on the as-of date is dimmed, not hidden: its successor link stays readable. */
@@ -66,22 +66,22 @@
   padding: 2px 8px;
   border: 0;
   background: none;
-  color: var(--primary, #b4233d);
+  color: var(--mv-color-primary);
   font-size: 12px;
   cursor: pointer;
   text-decoration: underline;
 }
 
 .unit-form-error {
-  color: var(--danger, #a22b22);
+  color: var(--mv-color-danger);
   font-size: 12px;
   margin: 4px 0 0;
 }
 
 .unit-dialog {
-  border: 1px solid var(--border, #e8e3e5);
+  border: 1px solid var(--mv-color-border);
   border-radius: 14px;
-  background: var(--surface, #fff);
+  background: var(--mv-color-surface);
   padding: 20px;
   margin-top: 16px;
 }
@@ -89,7 +89,7 @@
 .unit-field-error input,
 .unit-field-error select,
 .unit-field-error textarea {
-  border-color: var(--danger, #a22b22);
+  border-color: var(--mv-color-danger);
 }
 
 /* The mockup card title sits at the top of the card; the as-of control hangs below it instead of pushing the title down. */

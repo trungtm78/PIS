@@ -17,6 +17,8 @@ import { toneClass } from './tenants/labels';
 import './tenants/sas.css';
 import './tenant-detail/tenant-detail.css';
 import './license/license.css';
+import { StatusPill } from '../../ui';
+import { toneOfPill } from '../adm/kit-tone';
 
 const ARROW = '←';
 
@@ -107,9 +109,9 @@ export default function LicenseActionScreen({ route }: ScreenProps) {
                 <div className="sas-detail-row">
                   <dt>{t('sas.licenseAction.field.status')}</dt>
                   <dd>
-                    <span className={toneClass(statusTone(license.status))} data-license-status={license.status}>
+                    <span data-license-status={license.status}><StatusPill tone={toneOfPill(toneClass(statusTone(license.status)))}>
                       {statusLabel(t, license.status)}
-                    </span>
+                    </StatusPill></span>
                   </dd>
                 </div>
                 <div className="sas-detail-row">

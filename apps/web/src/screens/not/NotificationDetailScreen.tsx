@@ -7,8 +7,9 @@ import type { ScreenProps } from '../../routes/types';
 import { WEB_ROUTES } from '../../routes/web-routes';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { StatusPill } from '../../ui';
 import { itemsOf, useMyNotifications, useNotificationCommands } from './inbox/hooks';
-import { acknowledgeError, categoryOf, priorityLabel, titleOf, toneOf } from './inbox/labels';
+import { acknowledgeError, categoryOf, pillToneOf, priorityLabel, titleOf } from './inbox/labels';
 import { isUnavailable, isUnread, resolveDeepLink } from './inbox/model';
 import type { NotificationItem } from './inbox/model';
 import './inbox/inbox.css';
@@ -161,7 +162,7 @@ function Detail({ item, commands }: DetailProps) {
   return (
     <>
       <div className="notification-preview-head">
-        <span className={`notification-status ${toneOf(item)}`}>{categoryOf(t, item)}</span>
+        <StatusPill tone={pillToneOf(item)}>{categoryOf(t, item)}</StatusPill>
         <span>{acknowledged ? t('not.detail.status.acknowledged') : unread ? t('not.detail.status.unread') : t('not.detail.status.read')}</span>
       </div>
       <h2>{titleOf(t, item)}</h2>

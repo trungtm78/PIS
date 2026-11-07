@@ -5,11 +5,13 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { Field } from '../mne/components';
+import { ContextBar, KpiStrip, KpiTile, SectionCard } from '../../ui';
 import '../dis/dis.css';
 import { useBudgets, useReservations, useSpend } from './hooks';
 import { budgetPeriodLabel, budgetScopeLabel, reservationStatusLabel } from './labels';
 import { groupDigits, usedPercent } from './llm-model';
 import type { ReservationEntry } from './llm-model';
+import './llm-kit.css';
 
 const dong = groupDigits;
 const count = groupDigits;
@@ -52,6 +54,14 @@ function UsageContent({ route }: ScreenProps) {
           <p>{t('llm.usage.page.subtitle')}</p>
         </div>
       </div>
+      <ContextBar
+        items={[
+          { label: t('llm.usage.ctx.scope'), value: chosen === undefined ? t('llm.usage.ctx.none') : budgetScopeLabel(t, chosen.scope) },
+          { label: t('llm.usage.ctx.period'), value: chosen === undefined ? t('llm.usage.ctx.none') : budgetPeriodLabel(t, chosen.period) },
+        ]}
+        unit={t('llm.usage.counter.unit')}
+        {...(spend.dataUpdatedAt > 0 ? { asOf: new Date(spend.dataUpdatedAt).toLocaleString('vi-VN') } : {})}
+      />
       <StateBoundary
         state={state}
         onRetry={() => {
@@ -75,22 +85,19 @@ function UsageContent({ route }: ScreenProps) {
           <p data-testid="usage-none">{t('llm.usage.none')}</p>
         ) : current === undefined ? null : (
           <>
-            <dl className="card" data-testid="usage-counter">
-              <dt>{t('llm.usage.limit')}</dt>
-              <dd>{dong(current.budget.limit)}</dd>
-              <dt>{t('llm.usage.settled')}</dt>
-              <dd>{counter === null ? t('llm.usage.notUsed') : dong(counter.settled)}</dd>
-              <dt>{t('llm.usage.held')}</dt>
-              <dd>{counter === null ? t('llm.usage.notUsed') : dong(counter.held)}</dd>
-              <dt>{t('llm.usage.available')}</dt>
-              <dd>{counter === null ? dong(current.budget.limit) : dong(counter.available)}</dd>
-              <dt>{t('llm.usage.used')}</dt>
-              <dd>{t('llm.usage.percent', { percent: usedPercent(counter, current.budget.limit) })}</dd>
-              <dt>{t('llm.usage.requests')}</dt>
-              <dd>{counter === null ? '0' : counter.requests}</dd>
-              <dt>{t('llm.usage.exceptions')}</dt>
-              <dd>{counter === null ? '0' : counter.exceptions}</dd>
-            </dl>
+            <div data-testid="usage-counter">
+              <SectionCard title={t('llm.usage.counter.title')} unit={t('llm.usage.counter.unit')}>
+                <KpiStrip label={t('llm.usage.counter.label')}>
+                  <KpiTile label={t('llm.usage.limit')} value={dong(current.budget.limit)} tone="info" />
+                  <KpiTile label={t('llm.usage.settled')} value={counter === null ? t('llm.usage.notUsed') : dong(counter.settled)} />
+                  <KpiTile label={t('llm.usage.held')} value={counter === null ? t('llm.usage.notUsed') : dong(counter.held)} />
+                  <KpiTile label={t('llm.usage.available')} value={counter === null ? dong(current.budget.limit) : dong(counter.available)} tone="success" />
+                  <KpiTile label={t('llm.usage.used')} value={t('llm.usage.percent', { percent: usedPercent(counter, current.budget.limit) })} />
+                  <KpiTile label={t('llm.usage.requests')} value={counter === null ? '0' : String(counter.requests)} />
+                  <KpiTile label={t('llm.usage.exceptions')} value={counter === null ? '0' : String(counter.exceptions)} tone={counter !== null && counter.exceptions > 0 ? 'warning' : 'default'} />
+                </KpiStrip>
+              </SectionCard>
+            </div>
             <table className="table" data-testid="usage-tokens" aria-label={t('llm.usage.tokens.aria')}>
               <thead>
                 <tr>
@@ -152,7 +159,7 @@ function ReservationList({ title, tableId, noneId, none, rows, query }: { title:
       {query.isError ? (
         <p className="callout warning" role="alert" data-testid={`${tableId}-failed`}>
           {t('llm.usage.reservations.failed')}{' '}
-          <button type="button" className="btn" onClick={() => void query.refetch()}>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => void query.refetch()}>
             {t('llm.usage.reservations.retry')}
           </button>
         </p>
@@ -184,7 +191,7 @@ function ReservationList({ title, tableId, noneId, none, rows, query }: { title:
           </table>
           {rows.length === 0 && !query.isLoading ? <p data-testid={noneId}>{none}</p> : null}
           {query.hasNextPage ? (
-            <button type="button" className="btn" disabled={query.isFetchingNextPage} onClick={() => void query.fetchNextPage()}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={query.isFetchingNextPage} onClick={() => void query.fetchNextPage()}>
               {t('llm.usage.reservations.more')}
             </button>
           ) : null}

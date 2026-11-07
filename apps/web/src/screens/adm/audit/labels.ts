@@ -1,4 +1,5 @@
 import type { Translator } from '../../../i18n';
+import type { Tone } from '../../../ui';
 import type { AuditOutcome, ExportProblem, FilterProblem, ProblemView, SealReason } from './model';
 
 type T = Translator['t'];
@@ -15,15 +16,15 @@ export function outcomeLabel(t: T, outcome: AuditOutcome): string {
   }
 }
 
-/** The pill of an outcome: a refusal is red, a failure amber, a success the plain pill. */
-export function outcomePill(outcome: AuditOutcome): string {
+/** The tone of the status pill of an outcome: a refusal is red, a failure amber, a success green. */
+export function outcomeTone(outcome: AuditOutcome): Tone {
   switch (outcome) {
     case 'SUCCESS':
-      return 'pill';
+      return 'success';
     case 'DENIED':
-      return 'pill red';
+      return 'danger';
     case 'FAILED':
-      return 'pill warn';
+      return 'warning';
   }
 }
 

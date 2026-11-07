@@ -11,6 +11,9 @@ import { useDevices, useRevokeDevice, useRevokeSession, useSessions } from './ho
 import { assuranceLabel, platformLabel, problemMessage } from './labels';
 import { MIN_REASON, describeProblem } from './model';
 import type { DeviceView, SessionView } from './model';
+import { SectionCard, StatusPill } from '../../../ui';
+import { KitTable } from '../../adm/KitTable';
+import '../../adm/adm-kit.css';
 
 type Dialog = { kind: 'session'; session: SessionView } | { kind: 'device'; device: DeviceView };
 
@@ -50,14 +53,13 @@ function SessionsContent({ route }: ScreenProps) {
           void devices.refetch();
         }}
       >
-        <div className="card">
-          <h2>{t('iam.sessions.sessions.title')}</h2>
+        <SectionCard title={t('iam.sessions.sessions.title')}>
           {sessionRows.length === 0 ? (
             <p className="sub" data-testid="no-sessions">
               {t('iam.sessions.sessions.none')}
             </p>
           ) : (
-            <table className="table" data-testid="sessions">
+            <KitTable caption={t('w2iam.sessions.table.sessions')} data-testid="sessions">
               <thead>
                 <tr>
                   <th scope="col">{t('iam.sessions.column.client')}</th>
@@ -65,7 +67,7 @@ function SessionsContent({ route }: ScreenProps) {
                   <th scope="col">{t('iam.sessions.column.started')}</th>
                   <th scope="col">{t('iam.sessions.column.lastSeen')}</th>
                   <th scope="col">
-                    <span className="sr-only">{t('iam.sessions.column.actions')}</span>
+                    {t('iam.sessions.column.actions')}
                   </th>
                 </tr>
               </thead>
@@ -81,11 +83,11 @@ function SessionsContent({ route }: ScreenProps) {
                     <td>{moment(row.lastSeenAt)}</td>
                     <td>
                       {row.current ? (
-                        <span className="pill green" data-testid="current">
-                          {t('iam.sessions.current')}
+                        <span data-testid="current">
+                          <StatusPill tone="success">{t('iam.sessions.current')}</StatusPill>
                         </span>
                       ) : acting ? (
-                        <button type="button" data-action="revoke-session" onClick={() => setDialog({ kind: 'session', session: row })}>
+                        <button type="button" className="ui-button ui-button--outline ui-button--small" data-action="revoke-session" onClick={() => setDialog({ kind: 'session', session: row })}>
                           {t('iam.sessions.revoke.action')}
                         </button>
                       ) : null}
@@ -93,24 +95,23 @@ function SessionsContent({ route }: ScreenProps) {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </KitTable>
           )}
-        </div>
-        <div className="card">
-          <h2>{t('iam.sessions.devices.title')}</h2>
+        </SectionCard>
+        <SectionCard title={t('iam.sessions.devices.title')}>
           {deviceRows.length === 0 ? (
             <p className="sub" data-testid="no-devices">
               {t('iam.sessions.devices.none')}
             </p>
           ) : (
-            <table className="table" data-testid="devices">
+            <KitTable caption={t('w2iam.sessions.table.devices')} data-testid="devices">
               <thead>
                 <tr>
                   <th scope="col">{t('iam.sessions.column.device')}</th>
                   <th scope="col">{t('iam.sessions.column.lastSeen')}</th>
                   <th scope="col">{t('iam.sessions.column.state')}</th>
                   <th scope="col">
-                    <span className="sr-only">{t('iam.sessions.column.actions')}</span>
+                    {t('iam.sessions.column.actions')}
                   </th>
                 </tr>
               </thead>
@@ -123,13 +124,13 @@ function SessionsContent({ route }: ScreenProps) {
                     </td>
                     <td>{moment(row.lastSeenAt)}</td>
                     <td>
-                      <span className={`pill ${row.revoked ? 'gray' : 'green'}`} data-testid="device-state">
-                        {row.revoked ? t('iam.sessions.device.revoked') : t('iam.sessions.device.active')}
+                      <span data-testid="device-state">
+                        <StatusPill tone={row.revoked ? 'neutral' : 'success'}>{row.revoked ? t('iam.sessions.device.revoked') : t('iam.sessions.device.active')}</StatusPill>
                       </span>
                     </td>
                     <td>
                       {row.revoked || !acting ? null : (
-                        <button type="button" data-action="revoke-device" onClick={() => setDialog({ kind: 'device', device: row })}>
+                        <button type="button" className="ui-button ui-button--outline ui-button--small" data-action="revoke-device" onClick={() => setDialog({ kind: 'device', device: row })}>
                           {t('iam.sessions.device.revoke.action')}
                         </button>
                       )}
@@ -137,9 +138,9 @@ function SessionsContent({ route }: ScreenProps) {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </KitTable>
           )}
-        </div>
+        </SectionCard>
       </StateBoundary>
       {dialog === undefined ? null : <RevokeDialog dialog={dialog} onClose={() => setDialog(undefined)} />}
       <p className="prototype-note">{t('iam.self.footer.reference', { id: route.id, req: route.req ?? '' })}</p>

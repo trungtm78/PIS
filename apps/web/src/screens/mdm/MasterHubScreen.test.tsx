@@ -2,6 +2,7 @@ import { cleanup, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../i18n/vi.json';
+import { translator } from '../../i18n';
 import MasterHubScreen from './MasterHubScreen';
 import { READER, STEWARD, change, client, mount, record, routeOf, world } from './test-support';
 
@@ -25,6 +26,17 @@ describe('MasterHubScreen (MDM-01)', () => {
     const waiting = document.querySelector('[data-status="DRAFT"]') as HTMLElement;
     expect(within(waiting).getByText(vi_['mdm.hub.pending.pill'])).toBeTruthy();
     expect(within(waiting).getByText(vi_['mdm.status.record.draft'])).toBeTruthy();
+  });
+
+  it('draws the status of each record as a pill of the kit: in force green, a draft grey, and keeps the register in a scroll region of its own', async () => {
+    const state = world({ records: [record(1), record(2, { status: 'DRAFT', open_change_request_id: 'c1' })] });
+    mount(<MasterHubScreen route={ROUTE} />, client(state), STEWARD);
+    await ready();
+    const pillOf = (status: string, label: string): string =>
+      (within(document.querySelector(`[data-status="${status}"]`) as HTMLElement).getByText(label).closest('.ui-pill') as HTMLElement).className;
+    expect(pillOf('EFFECTIVE', vi_['mdm.status.record.effective'])).toContain('ui-tone-success');
+    expect(pillOf('DRAFT', vi_['mdm.status.record.draft'])).toContain('ui-tone-neutral');
+    expect(screen.getByRole('region', { name: translator.t('w2mdm.hub.table.caption') })).toBeTruthy();
   });
 
   it('keeps only the records of the chosen type, and shows all of them again on the second click', async () => {

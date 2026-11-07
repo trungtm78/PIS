@@ -25,8 +25,24 @@ import {
   validateRenewal,
   validateRevocation,
 } from './dossier-model';
-import type { DecisionField, DecisionForm, DecisionOutcome, ExemptionField, ExemptionForm, FormErrors, MilestoneField, MilestoneForm, MilestoneStep, PermitDetailView, RenewalField, RenewalForm, RevocationField, RevocationForm } from './dossier-model';
+import type {
+  DecisionField,
+  DecisionForm,
+  DecisionOutcome,
+  ExemptionField,
+  ExemptionForm,
+  FormErrors,
+  MilestoneField,
+  MilestoneForm,
+  MilestoneStep,
+  PermitDetailView,
+  RenewalField,
+  RenewalForm,
+  RevocationField,
+  RevocationForm,
+} from './dossier-model';
 import './pmt.css';
+import { SectionCard, StickyActions } from '../../ui';
 
 const noop = (): void => undefined;
 
@@ -156,7 +172,11 @@ function MilestoneFormView({ permit, steps, today }: { permit: PermitDetailView;
     setErrors(found);
     if (Object.keys(found).length > 0) return;
     record.mutate(
-      { permitId: permit.id, version: permit.version, body: toMilestoneBody(form) },
+      {
+        permitId: permit.id,
+        version: permit.version,
+        body: toMilestoneBody(form),
+      },
       {
         onSuccess: () => {
           setValues(emptyMilestone(step));
@@ -167,42 +187,45 @@ function MilestoneFormView({ permit, steps, today }: { permit: PermitDetailView;
   };
 
   return (
-    <form className="card" onSubmit={send} noValidate aria-label={t('pmt.permit.milestone.aria')}>
-      <h2>{t('pmt.permit.milestone.title')}</h2>
-      <Outcome failure={record.isError ? record.error : undefined} notice={saved && record.isSuccess ? t('pmt.permit.milestone.saved.notice') : null} testId="milestone-saved" />
-      <Field id="milestone-step" label={t('pmt.permit.milestone.step.label')} error={undefined}>
-        <select
-          id="milestone-step"
-          value={step}
-          onChange={(event) => {
-            set('step', event.target.value as MilestoneStep);
-            setSaved(false);
-          }}
-        >
-          {steps.map((candidate) => (
-            <option key={candidate} value={candidate}>
-              {stepLabel(t, candidate)}
-            </option>
-          ))}
-        </select>
-      </Field>
-      <Field id="milestone-planned" label={t('pmt.permit.milestone.planned.label')} error={error('plannedOn')}>
-        <input id="milestone-planned" type="date" value={values.plannedOn} onChange={(event) => set('plannedOn', event.target.value)} />
-      </Field>
-      <Field id="milestone-actual" label={t('pmt.permit.milestone.actual.label')} error={error('actualOn')}>
-        <input id="milestone-actual" type="date" value={values.actualOn} max={today} onChange={(event) => set('actualOn', event.target.value)} />
-      </Field>
-      <Field id="milestone-note" label={t('pmt.permit.milestone.note.label')} error={error('note')}>
-        <textarea id="milestone-note" value={values.note} onChange={(event) => set('note', event.target.value)} />
-      </Field>
-      <Field id="milestone-scan" label={t('pmt.permit.scan.label')} error={error('documentVersionId')} hint={t('pmt.permit.scan.hint')}>
-        <input id="milestone-scan" value={values.documentVersionId} onChange={(event) => set('documentVersionId', event.target.value)} />
-      </Field>
-      <div className="formfooter">
-        <button type="submit" className="primary" disabled={record.isPending}>
-          {t('pmt.permit.milestone.save.action')}
-        </button>
-      </div>
+    <form onSubmit={send} noValidate aria-label={t('pmt.permit.milestone.aria')}>
+      <SectionCard title={t('pmt.permit.milestone.title')}>
+        <Outcome failure={record.isError ? record.error : undefined} notice={saved && record.isSuccess ? t('pmt.permit.milestone.saved.notice') : null} testId="milestone-saved" />
+        <Field id="milestone-step" label={t('pmt.permit.milestone.step.label')} error={undefined}>
+          <select
+            id="milestone-step"
+            value={step}
+            onChange={(event) => {
+              set('step', event.target.value as MilestoneStep);
+              setSaved(false);
+            }}
+          >
+            {steps.map((candidate) => (
+              <option key={candidate} value={candidate}>
+                {stepLabel(t, candidate)}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field id="milestone-planned" label={t('pmt.permit.milestone.planned.label')} error={error('plannedOn')}>
+          <input id="milestone-planned" type="date" value={values.plannedOn} onChange={(event) => set('plannedOn', event.target.value)} />
+        </Field>
+        <Field id="milestone-actual" label={t('pmt.permit.milestone.actual.label')} error={error('actualOn')}>
+          <input id="milestone-actual" type="date" value={values.actualOn} max={today} onChange={(event) => set('actualOn', event.target.value)} />
+        </Field>
+        <Field id="milestone-note" label={t('pmt.permit.milestone.note.label')} error={error('note')}>
+          <textarea id="milestone-note" value={values.note} onChange={(event) => set('note', event.target.value)} />
+        </Field>
+        <Field id="milestone-scan" label={t('pmt.permit.scan.label')} error={error('documentVersionId')} hint={t('pmt.permit.scan.hint')}>
+          <input id="milestone-scan" value={values.documentVersionId} onChange={(event) => set('documentVersionId', event.target.value)} />
+        </Field>
+        <StickyActions
+          primary={
+            <button type="submit" className="ui-button ui-button--primary" disabled={record.isPending}>
+              {t('pmt.permit.milestone.save.action')}
+            </button>
+          }
+        />
+      </SectionCard>
     </form>
   );
 }
@@ -222,72 +245,88 @@ function DecisionFormView({ permit, today, onDone }: { permit: PermitDetailView;
     if (Object.keys(found).length > 0) return;
     // The command moves the permit out of the status that offers this form, so the form may be gone when it answers: the parent is told.
     // A refusal is shown from the state of the mutation; there is nothing more to do with it here.
-    void decide.mutateAsync({ permitId: permit.id, version: permit.version, body: toDecisionBody(values) }).then(() => {
-      setValues(EMPTY_DECISION);
-      onDone();
-    }, noop);
+    void decide
+      .mutateAsync({
+        permitId: permit.id,
+        version: permit.version,
+        body: toDecisionBody(values),
+      })
+      .then(() => {
+        setValues(EMPTY_DECISION);
+        onDone();
+      }, noop);
   };
 
   return (
-    <form className="card" onSubmit={send} noValidate aria-label={t('pmt.permit.decision.aria')}>
-      <h2>{t('pmt.permit.decision.title')}</h2>
-      <Outcome failure={decide.isError ? decide.error : undefined} notice={null} testId="decision-saved" />
-      <Field id="decision-outcome" label={t('pmt.permit.decision.outcome.label')} error={undefined}>
-        <select
-          id="decision-outcome"
-          value={values.outcome}
-          onChange={(event) => {
-            set('outcome', event.target.value as DecisionOutcome);
-            setErrors({});
-          }}
-        >
-          <option value="ISSUED">{t('pmt.permit.decision.issued.option')}</option>
-          <option value="REJECTED">{t('pmt.permit.decision.rejected.option')}</option>
-        </select>
-      </Field>
-      {issued ? (
-        <>
-          <Field id="decision-number" label={t('pmt.permit.decision.number.label')} error={error('permitNo')}>
-            <input id="decision-number" value={values.permitNo} onChange={(event) => set('permitNo', event.target.value)} />
-          </Field>
-          <Field id="decision-issued-on" label={t('pmt.permit.decision.issuedOn.label')} error={error('issuedOn')}>
-            <input id="decision-issued-on" type="date" value={values.issuedOn} max={today} onChange={(event) => set('issuedOn', event.target.value)} />
-          </Field>
-          <Field id="decision-valid-from" label={t('pmt.permit.decision.validFrom.label')} error={error('validFrom')}>
-            <input id="decision-valid-from" type="date" value={values.validFrom} onChange={(event) => set('validFrom', event.target.value)} />
-          </Field>
-          <Field id="decision-valid-until" label={t('pmt.permit.decision.validUntil.label')} error={error('validUntil')} hint={t('pmt.permit.decision.validUntil.hint')}>
-            <input id="decision-valid-until" type="date" value={values.validUntil} disabled={values.noExpiry} onChange={(event) => set('validUntil', event.target.value)} />
-          </Field>
-          <div className="field">
-            <label>
-              <input
-                type="checkbox"
-                checked={values.noExpiry}
-                onChange={(event) => {
-                  // A permit without an end has no last day: the field is cleared, not kept behind the box.
-                  const noExpiry = event.target.checked;
-                  setValues((previous) => ({ ...previous, noExpiry, validUntil: noExpiry ? '' : previous.validUntil }));
-                  setErrors((previous) => ({ ...previous, validUntil: undefined }));
-                }}
-              />{' '}
-              {t('pmt.permit.decision.noExpiry.label')}
-            </label>
-          </div>
-        </>
-      ) : (
-        <Field id="decision-reason" label={t('pmt.permit.decision.reason.label')} error={error('reason')}>
-          <textarea id="decision-reason" value={values.reason} onChange={(event) => set('reason', event.target.value)} />
+    <form onSubmit={send} noValidate aria-label={t('pmt.permit.decision.aria')}>
+      <SectionCard title={t('pmt.permit.decision.title')}>
+        <Outcome failure={decide.isError ? decide.error : undefined} notice={null} testId="decision-saved" />
+        <Field id="decision-outcome" label={t('pmt.permit.decision.outcome.label')} error={undefined}>
+          <select
+            id="decision-outcome"
+            value={values.outcome}
+            onChange={(event) => {
+              set('outcome', event.target.value as DecisionOutcome);
+              setErrors({});
+            }}
+          >
+            <option value="ISSUED">{t('pmt.permit.decision.issued.option')}</option>
+            <option value="REJECTED">{t('pmt.permit.decision.rejected.option')}</option>
+          </select>
         </Field>
-      )}
-      <Field id="decision-scan" label={t('pmt.permit.scan.label')} error={error('documentVersionId')} hint={t('pmt.permit.scan.hint')}>
-        <input id="decision-scan" value={values.documentVersionId} onChange={(event) => set('documentVersionId', event.target.value)} />
-      </Field>
-      <div className="formfooter">
-        <button type="submit" className="primary" disabled={decide.isPending}>
-          {t('pmt.permit.decision.save.action')}
-        </button>
-      </div>
+        {issued ? (
+          <>
+            <Field id="decision-number" label={t('pmt.permit.decision.number.label')} error={error('permitNo')}>
+              <input id="decision-number" value={values.permitNo} onChange={(event) => set('permitNo', event.target.value)} />
+            </Field>
+            <Field id="decision-issued-on" label={t('pmt.permit.decision.issuedOn.label')} error={error('issuedOn')}>
+              <input id="decision-issued-on" type="date" value={values.issuedOn} max={today} onChange={(event) => set('issuedOn', event.target.value)} />
+            </Field>
+            <Field id="decision-valid-from" label={t('pmt.permit.decision.validFrom.label')} error={error('validFrom')}>
+              <input id="decision-valid-from" type="date" value={values.validFrom} onChange={(event) => set('validFrom', event.target.value)} />
+            </Field>
+            <Field id="decision-valid-until" label={t('pmt.permit.decision.validUntil.label')} error={error('validUntil')} hint={t('pmt.permit.decision.validUntil.hint')}>
+              <input id="decision-valid-until" type="date" value={values.validUntil} disabled={values.noExpiry} onChange={(event) => set('validUntil', event.target.value)} />
+            </Field>
+            <div className="field">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={values.noExpiry}
+                  onChange={(event) => {
+                    // A permit without an end has no last day: the field is cleared, not kept behind the box.
+                    const noExpiry = event.target.checked;
+                    setValues((previous) => ({
+                      ...previous,
+                      noExpiry,
+                      validUntil: noExpiry ? '' : previous.validUntil,
+                    }));
+                    setErrors((previous) => ({
+                      ...previous,
+                      validUntil: undefined,
+                    }));
+                  }}
+                />{' '}
+                {t('pmt.permit.decision.noExpiry.label')}
+              </label>
+            </div>
+          </>
+        ) : (
+          <Field id="decision-reason" label={t('pmt.permit.decision.reason.label')} error={error('reason')}>
+            <textarea id="decision-reason" value={values.reason} onChange={(event) => set('reason', event.target.value)} />
+          </Field>
+        )}
+        <Field id="decision-scan" label={t('pmt.permit.scan.label')} error={error('documentVersionId')} hint={t('pmt.permit.scan.hint')}>
+          <input id="decision-scan" value={values.documentVersionId} onChange={(event) => set('documentVersionId', event.target.value)} />
+        </Field>
+        <StickyActions
+          primary={
+            <button type="submit" className="ui-button ui-button--primary" disabled={decide.isPending}>
+              {t('pmt.permit.decision.save.action')}
+            </button>
+          }
+        />
+      </SectionCard>
     </form>
   );
 }
@@ -304,31 +343,40 @@ function RenewalFormView({ permit, today, onDone }: { permit: PermitDetailView; 
     const found = validateRenewal(values, permit, today);
     setErrors(found);
     if (Object.keys(found).length > 0) return;
-    void renew.mutateAsync({ permitId: permit.id, version: permit.version, body: toRenewalBody(values) }).then((answer) => {
-      setValues(EMPTY_RENEWAL);
-      onDone(answer.resource_id);
-    }, noop);
+    void renew
+      .mutateAsync({
+        permitId: permit.id,
+        version: permit.version,
+        body: toRenewalBody(values),
+      })
+      .then((answer) => {
+        setValues(EMPTY_RENEWAL);
+        onDone(answer.resource_id);
+      }, noop);
   };
 
   return (
-    <form className="card" onSubmit={send} noValidate aria-label={t('pmt.permit.renew.aria')}>
-      <h2>{t('pmt.permit.renew.title')}</h2>
-      <p className="sub">{t('pmt.permit.renew.hint')}</p>
-      <Outcome failure={renew.isError ? renew.error : undefined} notice={null} testId="renew-saved" />
-      <Field id="renew-number" label={t('pmt.permit.renew.number.label')} error={error('newPermitNo')}>
-        <input id="renew-number" value={values.newPermitNo} onChange={(event) => set('newPermitNo', event.target.value)} />
-      </Field>
-      <Field id="renew-until" label={t('pmt.permit.renew.until.label')} error={error('newValidUntil')}>
-        <input id="renew-until" type="date" value={values.newValidUntil} min={today} onChange={(event) => set('newValidUntil', event.target.value)} />
-      </Field>
-      <Field id="renew-scan" label={t('pmt.permit.scan.label')} error={error('documentVersionId')} hint={t('pmt.permit.scan.hint')}>
-        <input id="renew-scan" value={values.documentVersionId} onChange={(event) => set('documentVersionId', event.target.value)} />
-      </Field>
-      <div className="formfooter">
-        <button type="submit" className="primary" disabled={renew.isPending}>
-          {t('pmt.permit.renew.save.action')}
-        </button>
-      </div>
+    <form onSubmit={send} noValidate aria-label={t('pmt.permit.renew.aria')}>
+      <SectionCard title={t('pmt.permit.renew.title')}>
+        <p className="sub">{t('pmt.permit.renew.hint')}</p>
+        <Outcome failure={renew.isError ? renew.error : undefined} notice={null} testId="renew-saved" />
+        <Field id="renew-number" label={t('pmt.permit.renew.number.label')} error={error('newPermitNo')}>
+          <input id="renew-number" value={values.newPermitNo} onChange={(event) => set('newPermitNo', event.target.value)} />
+        </Field>
+        <Field id="renew-until" label={t('pmt.permit.renew.until.label')} error={error('newValidUntil')}>
+          <input id="renew-until" type="date" value={values.newValidUntil} min={today} onChange={(event) => set('newValidUntil', event.target.value)} />
+        </Field>
+        <Field id="renew-scan" label={t('pmt.permit.scan.label')} error={error('documentVersionId')} hint={t('pmt.permit.scan.hint')}>
+          <input id="renew-scan" value={values.documentVersionId} onChange={(event) => set('documentVersionId', event.target.value)} />
+        </Field>
+        <StickyActions
+          primary={
+            <button type="submit" className="ui-button ui-button--primary" disabled={renew.isPending}>
+              {t('pmt.permit.renew.save.action')}
+            </button>
+          }
+        />
+      </SectionCard>
     </form>
   );
 }
@@ -345,28 +393,37 @@ function ExemptionFormView({ permit, onDone }: { permit: PermitDetailView; onDon
     const found = validateExemption(values);
     setErrors(found);
     if (Object.keys(found).length > 0) return;
-    void exempt.mutateAsync({ permitId: permit.id, version: permit.version, body: toExemptionBody(values) }).then(() => {
-      setValues(EMPTY_EXEMPTION);
-      onDone();
-    }, noop);
+    void exempt
+      .mutateAsync({
+        permitId: permit.id,
+        version: permit.version,
+        body: toExemptionBody(values),
+      })
+      .then(() => {
+        setValues(EMPTY_EXEMPTION);
+        onDone();
+      }, noop);
   };
 
   return (
-    <form className="card" onSubmit={send} noValidate aria-label={t('pmt.permit.exempt.aria')}>
-      <h2>{t('pmt.permit.exempt.title')}</h2>
-      <p className="sub">{t('pmt.permit.exempt.hint.text')}</p>
-      <Outcome failure={exempt.isError ? exempt.error : undefined} notice={null} testId="exempt-saved" />
-      <Field id="exempt-basis" label={t('pmt.permit.exempt.basis.label')} error={error('basis')}>
-        <textarea id="exempt-basis" value={values.basis} onChange={(event) => set('basis', event.target.value)} />
-      </Field>
-      <Field id="exempt-scan" label={t('pmt.permit.exempt.scan.label')} error={error('decisionDocumentVersionId')} hint={t('pmt.permit.scan.hint')}>
-        <input id="exempt-scan" value={values.decisionDocumentVersionId} onChange={(event) => set('decisionDocumentVersionId', event.target.value)} />
-      </Field>
-      <div className="formfooter">
-        <button type="submit" className="primary" disabled={exempt.isPending}>
-          {t('pmt.permit.exempt.save.action')}
-        </button>
-      </div>
+    <form onSubmit={send} noValidate aria-label={t('pmt.permit.exempt.aria')}>
+      <SectionCard title={t('pmt.permit.exempt.title')}>
+        <p className="sub">{t('pmt.permit.exempt.hint.text')}</p>
+        <Outcome failure={exempt.isError ? exempt.error : undefined} notice={null} testId="exempt-saved" />
+        <Field id="exempt-basis" label={t('pmt.permit.exempt.basis.label')} error={error('basis')}>
+          <textarea id="exempt-basis" value={values.basis} onChange={(event) => set('basis', event.target.value)} />
+        </Field>
+        <Field id="exempt-scan" label={t('pmt.permit.exempt.scan.label')} error={error('decisionDocumentVersionId')} hint={t('pmt.permit.scan.hint')}>
+          <input id="exempt-scan" value={values.decisionDocumentVersionId} onChange={(event) => set('decisionDocumentVersionId', event.target.value)} />
+        </Field>
+        <StickyActions
+          primary={
+            <button type="submit" className="ui-button ui-button--primary" disabled={exempt.isPending}>
+              {t('pmt.permit.exempt.save.action')}
+            </button>
+          }
+        />
+      </SectionCard>
     </form>
   );
 }
@@ -383,27 +440,36 @@ function RevocationFormView({ permit, onDone }: { permit: PermitDetailView; onDo
     const found = validateRevocation(values);
     setErrors(found);
     if (Object.keys(found).length > 0) return;
-    void revoke.mutateAsync({ permitId: permit.id, version: permit.version, body: toRevocationBody(values) }).then(() => {
-      setValues(EMPTY_REVOCATION);
-      onDone();
-    }, noop);
+    void revoke
+      .mutateAsync({
+        permitId: permit.id,
+        version: permit.version,
+        body: toRevocationBody(values),
+      })
+      .then(() => {
+        setValues(EMPTY_REVOCATION);
+        onDone();
+      }, noop);
   };
 
   return (
-    <form className="card" onSubmit={send} noValidate aria-label={t('pmt.permit.revoke.aria')}>
-      <h2>{t('pmt.permit.revoke.title')}</h2>
-      <Outcome failure={revoke.isError ? revoke.error : undefined} notice={null} testId="revoke-saved" />
-      <Field id="revoke-reason" label={t('pmt.permit.revoke.reason.label')} error={error('reason')}>
-        <textarea id="revoke-reason" value={values.reason} onChange={(event) => set('reason', event.target.value)} />
-      </Field>
-      <Field id="revoke-scan" label={t('pmt.permit.revoke.scan.label')} error={error('decisionDocumentVersionId')} hint={t('pmt.permit.scan.hint')}>
-        <input id="revoke-scan" value={values.decisionDocumentVersionId} onChange={(event) => set('decisionDocumentVersionId', event.target.value)} />
-      </Field>
-      <div className="formfooter">
-        <button type="submit" className="primary" disabled={revoke.isPending}>
-          {t('pmt.permit.revoke.save.action')}
-        </button>
-      </div>
+    <form onSubmit={send} noValidate aria-label={t('pmt.permit.revoke.aria')}>
+      <SectionCard title={t('pmt.permit.revoke.title')}>
+        <Outcome failure={revoke.isError ? revoke.error : undefined} notice={null} testId="revoke-saved" />
+        <Field id="revoke-reason" label={t('pmt.permit.revoke.reason.label')} error={error('reason')}>
+          <textarea id="revoke-reason" value={values.reason} onChange={(event) => set('reason', event.target.value)} />
+        </Field>
+        <Field id="revoke-scan" label={t('pmt.permit.revoke.scan.label')} error={error('decisionDocumentVersionId')} hint={t('pmt.permit.scan.hint')}>
+          <input id="revoke-scan" value={values.decisionDocumentVersionId} onChange={(event) => set('decisionDocumentVersionId', event.target.value)} />
+        </Field>
+        <StickyActions
+          primary={
+            <button type="submit" className="ui-button ui-button--primary" disabled={revoke.isPending}>
+              {t('pmt.permit.revoke.save.action')}
+            </button>
+          }
+        />
+      </SectionCard>
     </form>
   );
 }

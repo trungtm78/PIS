@@ -13,6 +13,8 @@ import { useDashboard, useDashboards, useMetrics, useSubmitPublication } from '.
 import { refusalMessage, settingLabel, tileFieldLabel } from './publication-labels';
 import { INBOX_PATH, REQUEST_PERMISSION, compareVersions, describePublicationProblem, mayRequest } from './publication-model';
 import '../dis/dis.css';
+import './bi-kit.css';
+import { StatusPill } from '../../ui';
 
 const NONE = '—';
 
@@ -175,17 +177,17 @@ function Comparison({
             <ul>
               {diff.tilesAdded.map((widget) => (
                 <li key={`a-${widget.id}`} data-change="added">
-                  <span className="pill">{t('bi.cmp.tiles.added')}</span> {tileName(widget)}
+                  <StatusPill tone="success">{t('bi.cmp.tiles.added')}</StatusPill> {tileName(widget)}
                 </li>
               ))}
               {diff.tilesRemoved.map((widget) => (
                 <li key={`r-${widget.id}`} data-change="removed">
-                  <span className="pill warn">{t('bi.cmp.tiles.removed')}</span> {tileName(widget)}
+                  <StatusPill tone="warning">{t('bi.cmp.tiles.removed')}</StatusPill> {tileName(widget)}
                 </li>
               ))}
               {diff.tilesChanged.map((change) => (
                 <li key={`c-${change.id}`} data-change="changed">
-                  <span className="pill gray">{t('bi.cmp.tiles.changed')}</span> {tileName(change.after)} — {change.fields.map((field) => tileFieldLabel(t, field)).join(', ')}
+                  <StatusPill tone="neutral">{t('bi.cmp.tiles.changed')}</StatusPill> {tileName(change.after)} — {change.fields.map((field) => tileFieldLabel(t, field)).join(', ')}
                 </li>
               ))}
             </ul>
@@ -195,17 +197,17 @@ function Comparison({
             <ul>
               {diff.metricsAdded.map((id) => (
                 <li key={`a-${id}`} data-change="added">
-                  <span className="pill">{t('bi.cmp.metrics.added')}</span> {metricName(id)}
+                  <StatusPill tone="success">{t('bi.cmp.metrics.added')}</StatusPill> {metricName(id)}
                 </li>
               ))}
               {diff.metricsRemoved.map((id) => (
                 <li key={`r-${id}`} data-change="removed">
-                  <span className="pill warn">{t('bi.cmp.metrics.removed')}</span> {metricName(id)}
+                  <StatusPill tone="warning">{t('bi.cmp.metrics.removed')}</StatusPill> {metricName(id)}
                 </li>
               ))}
               {diff.metricsKept.map((id) => (
                 <li key={`k-${id}`} data-change="kept">
-                  <span className="pill gray">{t('bi.cmp.metrics.kept')}</span> {metricName(id)}
+                  <StatusPill tone="neutral">{t('bi.cmp.metrics.kept')}</StatusPill> {metricName(id)}
                 </li>
               ))}
             </ul>
@@ -249,7 +251,7 @@ function RequestPublication({ version }: { version: DashboardVersion }) {
           {t('bi.cmp.asked')}
         </p>
       ) : null}
-      <button type="button" className="primary" disabled={ask.isPending || ask.isSuccess} onClick={() => ask.mutate({ kind: 'DASHBOARD', objectId: version.id })}>
+      <button type="button" className="ui-button ui-button--primary" disabled={ask.isPending || ask.isSuccess} onClick={() => ask.mutate({ kind: 'DASHBOARD', objectId: version.id })}>
         {t('bi.cmp.request', { revision: version.revision })}
       </button>
     </div>

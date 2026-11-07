@@ -11,6 +11,9 @@ import { checkLabel, decisionLabel, kindLabel, refusalMessage, requestProblemMes
 import { EMPTY_REQUEST, KINDS, PUBLISH_PERMISSION, REQUEST_PERMISSION, STATUSES, decisionProblem, describePublicationProblem, validateRequest } from './publication-model';
 import type { Decision, PublicationRequest, RequestForm } from './publication-model';
 import '../dis/dis.css';
+import './bi-kit.css';
+import { ContextBar, FilterPanel, SectionCard, StatusPill } from '../../ui';
+import { requestStatusTone } from './tones';
 
 const ALL = 'ALL';
 const day = (stamp: string): string => stamp.slice(0, 10);
@@ -97,6 +100,14 @@ function InboxContent({ route }: ScreenProps) {
           <p>{t('bi.pub.inbox.subtitle')}</p>
         </div>
       </div>
+      <ContextBar
+        items={[
+          { label: t('bi.pub.ctx.scope'), value: tenant?.name ?? t('bi.pub.ctx.scope.all') },
+          { label: t('bi.pub.ctx.count'), value: String((list.data ?? []).length) },
+        ]}
+        {...(list.dataUpdatedAt > 0 ? { asOf: new Date(list.dataUpdatedAt).toLocaleString('vi-VN') } : {})}
+      />
+      <FilterPanel applied={status === ALL ? 0 : 1}>
       <div className="mne-filters">
         <Field id="pub-status" label={t('bi.pub.filter.status')} error={undefined}>
           <select
@@ -116,6 +127,7 @@ function InboxContent({ route }: ScreenProps) {
           </select>
         </Field>
       </div>
+      </FilterPanel>
       <StateBoundary state={state} onRetry={() => void list.refetch()}>
         <table className="table" aria-label={t('bi.pub.inbox.title')} data-testid="requests">
           <thead>
@@ -131,7 +143,7 @@ function InboxContent({ route }: ScreenProps) {
             {(list.data ?? []).map((request) => (
               <tr key={request.id} data-request={request.id} data-status={request.status}>
                 <td>
-                  <span className="pill gray">{kindLabel(t, request.kind)}</span> {request.objectCode ?? request.objectId}
+                  <StatusPill tone="neutral">{kindLabel(t, request.kind)}</StatusPill> {request.objectCode ?? request.objectId}
                   {request.objectRevision === null ? null : (
                     <span className="sub">
                       {' '}
@@ -150,13 +162,13 @@ function InboxContent({ route }: ScreenProps) {
                 </td>
                 <td>
                   {request.checks.map((check) => (
-                    <span key={check.code} className={check.passed ? 'pill' : 'pill warn'} data-check={check.code} data-passed={check.passed}>
-                      {checkLabel(t, check.code)}
+                    <span key={check.code} data-check={check.code} data-passed={check.passed}>
+                      <StatusPill tone={check.passed ? 'success' : 'warning'}>{checkLabel(t, check.code)}</StatusPill>
                     </span>
                   ))}
                 </td>
                 <td>
-                  <span className="pill">{statusLabel(t, request.status)}</span>
+                  <StatusPill tone={requestStatusTone(request.status)}>{statusLabel(t, request.status)}</StatusPill>
                   {request.decision === null ? null : (
                     <p className="sub" data-testid="decision">
                       {t('bi.pub.decided', {
@@ -180,12 +192,12 @@ function InboxContent({ route }: ScreenProps) {
         </table>
       </StateBoundary>
       {chosen === undefined ? null : (
-        <section className="card" aria-labelledby="decide-title" data-testid="decide">
-          <h2 id="decide-title">
-            {t('bi.pub.decide.title', {
-              object: chosen.objectCode ?? chosen.objectId,
-            })}
-          </h2>
+        <div data-testid="decide" className="bi-decide">
+        <SectionCard
+          title={t('bi.pub.decide.title', {
+            object: chosen.objectCode ?? chosen.objectId,
+          })}
+        >
           {refusal === undefined ? null : (
             <p className="callout warning" role="alert" data-testid="refusal" data-reason={refusal.reason}>
               {refusalMessage(t, refusal.reason, refusal.detail)}
@@ -201,7 +213,7 @@ function InboxContent({ route }: ScreenProps) {
                 <textarea id="pub-comment" value={comment} aria-invalid={rejected} onChange={(event) => setComment(event.target.value)} />
               </Field>
               <div className="formfooter">
-                <button type="button" className="primary" disabled={decide.isPending} onClick={() => settle(chosen, 'APPROVED')}>
+                <button type="button" className="ui-button ui-button--primary" disabled={decide.isPending} onClick={() => settle(chosen, 'APPROVED')}>
                   {t('bi.pub.decide.approve')}
                 </button>
                 <button type="button" disabled={decide.isPending} onClick={() => settle(chosen, 'REJECTED')}>
@@ -210,11 +222,12 @@ function InboxContent({ route }: ScreenProps) {
               </div>
             </>
           )}
-        </section>
+        </SectionCard>
+        </div>
       )}
       {mayAsk ? (
-        <form className="card" onSubmit={submit} noValidate aria-label={t('bi.pub.request.title')}>
-          <h2>{t('bi.pub.request.title')}</h2>
+        <SectionCard title={t('bi.pub.request.title')}>
+        <form onSubmit={submit} noValidate aria-label={t('bi.pub.request.title')}>
           <p className="sub">{t('bi.pub.request.help')}</p>
           {askRefusal === undefined ? null : (
             <p className="callout warning" role="alert" data-testid="request-refusal" data-reason={askRefusal.reason}>
@@ -248,11 +261,12 @@ function InboxContent({ route }: ScreenProps) {
             <input id="pub-object" value={form.objectId} aria-invalid={problems.objectId !== undefined} onChange={(event) => setForm({ ...form, objectId: event.target.value })} />
           </Field>
           <div className="formfooter">
-            <button type="submit" className="primary" disabled={ask.isPending}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={ask.isPending}>
               {t('bi.pub.request.submit')}
             </button>
           </div>
         </form>
+        </SectionCard>
       ) : null}
       <p className="prototype-note">{t('bi.dash.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>

@@ -13,6 +13,7 @@ import { actionKindLabel, decisionLabel } from './eval-labels';
 import { ROUTING_PATH } from './gateway-model';
 import { useDecisions } from './hooks';
 import { vietnamDay } from './llm-model';
+import './llm-kit.css';
 
 /**
  * LLM-20: the decisions of people about what the AI answered (ST-LLM-006, LLM F8, BR-LLM-11): nothing an AI answered writes, moves money, decides or publishes on its own, and each time a person decided, here is who, about what (the
@@ -94,7 +95,7 @@ function DecisionLogContent({ route }: ScreenProps) {
         </table>
         {rows.length === 0 ? <p data-testid="decisions-none">{t('llm.decisions.none')}</p> : null}
         {decisions.hasNextPage ? (
-          <button type="button" className="btn" data-testid="decisions-more" disabled={decisions.isFetchingNextPage} onClick={() => void decisions.fetchNextPage()}>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid="decisions-more" disabled={decisions.isFetchingNextPage} onClick={() => void decisions.fetchNextPage()}>
             {t('llm.requests.more')}
           </button>
         ) : null}

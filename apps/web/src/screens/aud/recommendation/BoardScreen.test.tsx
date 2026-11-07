@@ -2,6 +2,7 @@ import { ApiError, NETWORK_ERROR_CODE } from '@machvon/api-client';
 import { cleanup, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
+import { t } from '../../../i18n';
 import vi_ from '../../../i18n/vi.json';
 import { OTHER_PERSON, OWNER_ROLE, READER, VERIFIER_ROLE, actionRecord, boardRecord, client, engagementRecord, mount, routeOf, world } from '../test-support';
 import BoardScreen from './BoardScreen';
@@ -89,6 +90,27 @@ describe('AUD-07 follow-up of the recommendations', () => {
     expect(within(cardOf('KN-003')).getByText(vi_['aud.disputeOutcome.accepted'])).toBeTruthy();
     expect(within(cardOf('KN-002')).queryByText(vi_['aud.disputeOutcome.accepted'])).toBeNull();
     expect(within(cardOf('KN-004')).queryByTestId('return-note')).toBeNull();
+    // The card that is late carries the stripe; a disputed, a returned and a closed one do not.
+    expect(cardOf('KN-001').getAttribute('data-stripe')).toBe('ACTION');
+    expect(cardOf('KN-002').getAttribute('data-stripe')).toBeNull();
+    expect(cardOf('KN-003').getAttribute('data-stripe')).toBeNull();
+    expect(cardOf('KN-004').getAttribute('data-stripe')).toBeNull();
+  });
+
+  it('counts the recommendations being followed, the late ones and the disputed ones above the columns, and says how long is left on one that is not late', async () => {
+    open([
+      boardRecord(1, { status: 'IN_PROGRESS', due_on: '2020-01-01' }),
+      boardRecord(2, { status: 'DISPUTED', due_on: '2020-01-01' }),
+      boardRecord(3, { status: 'IN_PROGRESS', due_on: '2099-12-31' }),
+      boardRecord(4, { status: 'CLOSED' }),
+    ]);
+    await screen.findByTestId('board');
+    const strip = within(screen.getByRole('group', { name: t('w2iss.aud.board.kpi.label') }));
+    expect(strip.getByText(t('w2iss.aud.board.kpi.active')).closest('article')?.textContent).toContain('3');
+    expect(strip.getByText(t('w2iss.aud.board.kpi.late')).closest('article')?.textContent).toContain('1');
+    expect(strip.getByText(t('w2iss.aud.board.kpi.disputed')).closest('article')?.textContent).toContain('1');
+    expect(within(cardOf('KN-003')).getByText(/^Còn \d+ ngày/)).toBeTruthy();
+    expect(within(cardOf('KN-001')).queryByText(/^Còn /)).toBeNull();
   });
 
   it('offers each button to whoever may use it in the stage it fits, and none to a reader or in a tenant that is read only', async () => {

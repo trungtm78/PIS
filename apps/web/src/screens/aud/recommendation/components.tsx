@@ -1,6 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import { useSession } from '../../../session/SessionContext';
+import { DeadlineCountdown, StatusPill } from '../../../ui';
 import { concludable } from '../conclusion/model';
 import { useEngagements } from '../hooks';
 import { engagementStatusLabel } from '../labels';
@@ -37,18 +38,24 @@ export function EngagementFilter({ selected }: { selected: string | undefined })
   );
 }
 
-/** The day a recommendation is due, and how late it is: the days and the day it was due, in words and not by colour alone (BR-AUD-06). */
-export function DueDay({ item, today }: { item: Pick<BoardItem, 'dueOn' | 'status'>; today: string }) {
+/**
+ * The day a recommendation is due, and how late it is: the days and the day it was due, in words and not by colour alone (BR-AUD-06). With `countdown` an open recommendation that is not late also says
+ * how long is left, in the wording of the alert centre.
+ */
+export function DueDay({ item, today, countdown = false }: { item: Pick<BoardItem, 'dueOn' | 'status'>; today: string; countdown?: boolean }) {
   const { t } = useTranslation();
   if (item.dueOn === null) return <span>—</span>;
   const days = lateDays(item, today);
+  const active = item.status !== 'CLOSED' && item.status !== 'CANCELLED' && item.status !== 'DISPUTED';
   return (
-    <span>
+    <span className="aud-due">
       {item.dueOn}
       {days > 0 ? (
-        <span className="aud-badge warning" data-testid="late-badge">
-          {t('aud.remediation.late.text', { days, due: item.dueOn })}
+        <span data-testid="late-badge">
+          <StatusPill tone="danger">{t('aud.remediation.late.text', { days, due: item.dueOn })}</StatusPill>
         </span>
+      ) : countdown && active ? (
+        <DeadlineCountdown dueOn={item.dueOn} today={today} />
       ) : null}
     </span>
   );

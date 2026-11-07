@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
+import { StatusPill } from '../../ui';
 import { basisLabel, kindLabel, lookupSummary, statusLabel } from './labels';
 import type { ContractorLine, RestrictionView } from './model';
 import './bid.css';
@@ -44,7 +45,9 @@ export function VerificationBadge({ contractor }: { contractor: ContractorLine }
   const { t } = useTranslation();
   return (
     <span data-testid="verification">
-      <span className={`bid-badge ${contractor.verificationStatus === 'VERIFIED' ? 'ok' : contractor.verificationStatus === 'REJECTED' ? 'danger' : 'warning'}`}>{statusLabel(t, contractor.verificationStatus)}</span>
+      <StatusPill tone={contractor.verificationStatus === 'VERIFIED' ? 'success' : contractor.verificationStatus === 'REJECTED' ? 'danger' : 'warning'}>
+        {statusLabel(t, contractor.verificationStatus)}
+      </StatusPill>
       {contractor.verificationBasis === null ? null : (
         <small className="sub bid-basis" data-testid="basis">
           {basisLabel(t, contractor.verificationBasis)}
@@ -61,10 +64,12 @@ export function RestrictionBadge({ restriction }: { restriction: RestrictionView
     return <span data-testid="restriction-none">{t('bid.restriction.none.text')}</span>;
   }
   return (
-    <span className="bid-badge danger" data-testid="restriction-in-force">
-      {restriction.effectiveUntil === null
-        ? t('bid.restriction.open.badge', { kind: kindLabel(t, restriction.kind), from: restriction.effectiveFrom })
-        : t('bid.restriction.until.badge', { kind: kindLabel(t, restriction.kind), until: restriction.effectiveUntil })}
+    <span data-testid="restriction-in-force">
+      <StatusPill tone="danger">
+        {restriction.effectiveUntil === null
+          ? t('bid.restriction.open.badge', { kind: kindLabel(t, restriction.kind), from: restriction.effectiveFrom })
+          : t('bid.restriction.until.badge', { kind: kindLabel(t, restriction.kind), until: restriction.effectiveUntil })}
+      </StatusPill>
     </span>
   );
 }

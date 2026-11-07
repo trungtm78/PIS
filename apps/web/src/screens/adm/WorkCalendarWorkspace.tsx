@@ -5,7 +5,7 @@ import type { WebRoute } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { MonthGrid, weekdayNames } from './calendar/MonthGrid';
 import { useCreateCalendarDraft, usePublishCalendar } from './calendar/hooks';
-import { dayKindLabel, fieldMessage, findingMessage, problemMessage, statusLabel } from './calendar/labels';
+import { dayKindLabel, fieldMessage, findingMessage, problemMessage, statusLabel, statusTone } from './calendar/labels';
 import {
   ISO_WEEKDAYS,
   MANAGE_CALENDAR_PERMISSION,
@@ -26,6 +26,9 @@ import {
   withYear,
 } from './calendar/model';
 import type { CalendarErrors, CalendarField, CalendarValues, CalendarView, DayKind } from './calendar/model';
+import { SectionCard, StatusPill } from '../../ui';
+import { KitTable } from './KitTable';
+import './adm-kit.css';
 import './calendar/calendar.css';
 
 const MONTHS = Array.from({ length: 12 }, (_, month) => month);
@@ -191,8 +194,8 @@ function WorkspaceContent({ route, versions }: WorkCalendarWorkspaceProps) {
         {t('adm.calendar.placeholder.note')}
       </p>
       <div className="adm-calendar">
-        <div className="card" data-testid="versions">
-          <h2>{t('adm.calendar.versions.title')}</h2>
+        <SectionCard title={t('adm.calendar.versions.title')}>
+          <div data-testid="versions">
           {register.length === 0 ? <p className="muted">{t('adm.calendar.versions.empty')}</p> : null}
           {publish.isSuccess ? (
             <p className="callout" role="status">
@@ -205,7 +208,7 @@ function WorkspaceContent({ route, versions }: WorkCalendarWorkspaceProps) {
             </p>
           )}
           {register.length === 0 ? null : (
-            <table className="table">
+            <KitTable caption={t('w2adm.calendar.table.versions')}>
               <thead>
                 <tr>
                   <th>{t('adm.calendar.col.calendar')}</th>
@@ -214,7 +217,7 @@ function WorkspaceContent({ route, versions }: WorkCalendarWorkspaceProps) {
                   <th>{t('adm.calendar.col.status')}</th>
                   <th>{t('adm.calendar.col.basis')}</th>
                   <th>
-                    <span className="sr-only">{t('adm.calendar.col.actions')}</span>
+                    {t('adm.calendar.col.actions')}
                   </th>
                 </tr>
               </thead>
@@ -224,10 +227,12 @@ function WorkspaceContent({ route, versions }: WorkCalendarWorkspaceProps) {
                     <td>{version.calendarCode}</td>
                     <td>{version.year}</td>
                     <td>#{version.revision}</td>
-                    <td>{statusLabel(t, version.status)}</td>
+                    <td>
+                      <StatusPill tone={statusTone(version.status)}>{statusLabel(t, version.status)}</StatusPill>
+                    </td>
                     <td>{version.legalBasis}</td>
                     <td className="row-actions">
-                      <button type="button" onClick={() => setViewing(version.id)}>
+                      <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setViewing(version.id)}>
                         {t('adm.calendar.view.action')}
                       </button>
                       {canManage ? (
@@ -268,10 +273,10 @@ function WorkspaceContent({ route, versions }: WorkCalendarWorkspaceProps) {
                               }}
                             />
                           </Field>
-                          <button type="submit" className="primary" disabled={publish.isPending}>
+                          <button type="submit" className="ui-button ui-button--primary" disabled={publish.isPending}>
                             {t('adm.calendar.publish.confirm.action')}
                           </button>
-                          <button type="button" onClick={() => setPublishing(undefined)}>
+                          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setPublishing(undefined)}>
                             {t('adm.calendar.publish.cancel.action')}
                           </button>
                         </form>
@@ -280,11 +285,11 @@ function WorkspaceContent({ route, versions }: WorkCalendarWorkspaceProps) {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </KitTable>
           )}
           {inView === undefined || viewRules === undefined ? null : (
             <div data-testid="version-in-view" data-calendar-id={inView.id}>
-              <h2>{t('adm.calendar.inView.title', { calendar: inView.calendarCode, year: inView.year, revision: inView.revision })}</h2>
+              <h3>{t('adm.calendar.inView.title', { calendar: inView.calendarCode, year: inView.year, revision: inView.revision })}</h3>
               <Legend />
               <p className="sub">{t('adm.calendar.summary.workingDays', { count: countWorkingDays(viewRules, inView.year) })}</p>
               <div className="cal-months">
@@ -294,9 +299,10 @@ function WorkspaceContent({ route, versions }: WorkCalendarWorkspaceProps) {
               </div>
             </div>
           )}
-        </div>
-        <div className="card" data-testid="editor">
-          <h2>{t('adm.calendar.form.title')}</h2>
+          </div>
+        </SectionCard>
+        <SectionCard title={t('adm.calendar.form.title')}>
+          <div data-testid="editor">
           {!canManage ? (
             <p className="callout warning" role="status">
               {frozen ? t('adm.calendar.frozen.notice') : t('adm.calendar.readOnly.notice')}
@@ -368,7 +374,7 @@ function WorkspaceContent({ route, versions }: WorkCalendarWorkspaceProps) {
               </small>
             )}
             {values.holidays.length === 0 ? null : (
-              <table className="table" data-testid="holiday-list">
+              <KitTable caption={t('w2adm.calendar.table.holidays')} testId="holiday-list">
                 <tbody>
                   {[...values.holidays]
                     .sort((a, b) => a.date.localeCompare(b.date))
@@ -396,22 +402,23 @@ function WorkspaceContent({ route, versions }: WorkCalendarWorkspaceProps) {
                       </tr>
                     ))}
                 </tbody>
-              </table>
+              </KitTable>
             )}
             <h3>{t('adm.calendar.compensated.title')}</h3>
             <p className="muted" data-testid="compensated-list">
               {values.compensated.length === 0 ? t('adm.calendar.compensated.empty') : [...values.compensated].sort().join(', ')}
             </p>
-            <div className="formfooter">
+            <div className="adm-kit-actions">
               <span className="sub">{t('adm.calendar.form.hint')}</span>
               {canManage ? (
-                <button type="submit" className="primary" disabled={create.isPending || unchanged}>
+                <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending || unchanged}>
                   {t('adm.calendar.draft.submit.action')}
                 </button>
               ) : null}
             </div>
           </form>
-        </div>
+          </div>
+        </SectionCard>
       </div>
       <p className="prototype-note">{t('adm.calendar.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>

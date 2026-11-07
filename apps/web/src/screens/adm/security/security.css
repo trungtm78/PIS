@@ -16,7 +16,7 @@
 }
 
 .adm-security .field-error {
-  color: #a22b22;
+  color: var(--mv-color-danger);
 }
 
 .adm-security .row-actions {
@@ -35,17 +35,17 @@
 }
 
 .adm-security .badge.warning {
-  background: #fdf0c8;
-  color: #6b4b00;
+  background: var(--mv-color-warning-soft);
+  color: var(--mv-color-warning);
 }
 
 .adm-security .badge.danger {
-  background: #f9dcd9;
-  color: #8a1f17;
+  background: var(--mv-color-danger-soft);
+  color: var(--mv-color-danger);
 }
 
 .adm-security .scope-types {
-  border: 1px solid var(--border, #e8e3e5);
+  border: 1px solid var(--mv-color-border);
   border-radius: 9px;
   padding: 10px 14px;
   margin: 12px 0;

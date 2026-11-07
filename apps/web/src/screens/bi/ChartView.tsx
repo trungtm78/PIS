@@ -2,13 +2,16 @@ import { useTranslation } from '../../i18n';
 import { kindLabel } from './dashboard-labels';
 import type { WidgetKind } from './dashboard-model';
 import { formatFigure } from './query-model';
+import './bi.css';
 import type { Group, QueryResult } from './query-model';
 
 const WIDTH = 480;
 const HEIGHT = 240;
 const PAD = 32;
 const TAU = Math.PI * 2;
-const PALETTE = ['#1f6feb', '#2da44e', '#bf8700', '#cf222e', '#8250df', '#0969da', '#57606a', '#bc4c00'];
+const SERIES = 8;
+/** The class of the series of a point: its colour is a token (bi.css), the same eight in the same order for bars and slices. */
+const seriesClass = (index: number): string => `bi-series-${index % SERIES}`;
 
 export interface Point {
   label: string;
@@ -38,7 +41,7 @@ function Bars({ points }: { points: readonly Point[] }) {
   return (
     <>
       {points.map((point, index) => (
-        <rect key={point.label} data-point={point.label} x={PAD + index * band + band * 0.1} y={Math.min(y(point.value), y(0))} width={band * 0.8} height={Math.abs(y(point.value) - y(0))} fill={PALETTE[index % PALETTE.length]}>
+        <rect key={point.label} data-point={point.label} x={PAD + index * band + band * 0.1} y={Math.min(y(point.value), y(0))} width={band * 0.8} height={Math.abs(y(point.value) - y(0))} className={seriesClass(index)}>
           <title>{`${point.label}: ${point.text}`}</title>
         </rect>
       ))}
@@ -55,10 +58,10 @@ function Line({ points, area }: { points: readonly Point[]; area: boolean }) {
   const base = PAD + (max / span) * (HEIGHT - PAD * 2);
   return (
     <>
-      {area && coordinates.length > 1 ? <polygon data-area="true" points={`${PAD},${base} ${path} ${PAD + (coordinates.length - 1) * step},${base}`} fill={PALETTE[0]} opacity={0.25} /> : null}
-      <polyline points={path} fill="none" stroke={PALETTE[0]} strokeWidth={2} />
+      {area && coordinates.length > 1 ? <polygon data-area="true" points={`${PAD},${base} ${path} ${PAD + (coordinates.length - 1) * step},${base}`} className="bi-area" /> : null}
+      <polyline points={path} className="bi-line" />
       {coordinates.map(([x, y], index) => (
-        <circle key={(points[index] as Point).label} data-point={(points[index] as Point).label} cx={x} cy={y} r={3} fill={PALETTE[0]}>
+        <circle key={(points[index] as Point).label} data-point={(points[index] as Point).label} cx={x} cy={y} r={3} className="bi-dot">
           <title>{`${(points[index] as Point).label}: ${(points[index] as Point).text}`}</title>
         </circle>
       ))}
@@ -81,7 +84,7 @@ function Pie({ points }: { points: readonly Point[] }) {
         const large = sweep > Math.PI ? 1 : 0;
         const d = slices.length === 1 ? `M ${radius} 0 A ${radius} ${radius} 0 1 1 ${-radius} 0 A ${radius} ${radius} 0 1 1 ${radius} 0 Z` : `M 0 0 L ${radius * Math.cos(from)} ${radius * Math.sin(from)} A ${radius} ${radius} 0 ${large} 1 ${radius * Math.cos(angle)} ${radius * Math.sin(angle)} Z`;
         return (
-          <path key={point.label} data-point={point.label} d={d} fill={PALETTE[index % PALETTE.length]}>
+          <path key={point.label} data-point={point.label} d={d} className={seriesClass(index)}>
             <title>{`${point.label}: ${point.text}`}</title>
           </path>
         );
@@ -100,7 +103,7 @@ export function ChartView({ kind, result }: { kind: Exclude<WidgetKind, 'TABLE'>
   if (kind === 'KPI') {
     return (
       <p>
-        <strong data-testid="kpi-value">{formatFigure(result.total, result.aggregationType === 'ratio' ? 'percent' : result.unit, locale, words)}</strong>
+        <strong className="bi-kpi-value" data-testid="kpi-value">{formatFigure(result.total, result.aggregationType === 'ratio' ? 'percent' : result.unit, locale, words)}</strong>
       </p>
     );
   }
@@ -122,7 +125,7 @@ export function ChartView({ kind, result }: { kind: Exclude<WidgetKind, 'TABLE'>
     );
   }
   return (
-    <svg role="img" aria-label={summary} viewBox={`0 0 ${WIDTH} ${HEIGHT}`} width="100%" data-testid="chart" data-kind={kind}>
+    <svg role="img" aria-label={summary} viewBox={`0 0 ${WIDTH} ${HEIGHT}`} width="100%" className="bi-chart" data-testid="chart" data-kind={kind}>
       <title>{summary}</title>
       {kind === 'BAR' ? <Bars points={points} /> : kind === 'PIE' ? <Pie points={points} /> : <Line points={points} area={kind === 'AREA'} />}
     </svg>

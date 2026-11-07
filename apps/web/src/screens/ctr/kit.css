@@ -1,0 +1,85 @@
+/* The kit blocks of the PAY, CTR and BID screens stand one under the other with the rhythm of the cards they replace. */
+[data-screen-id] .ui-context,
+[data-screen-id] .ui-filter,
+[data-screen-id] .ui-kpi-strip,
+[data-screen-id] .ui-section,
+[data-screen-id] .ui-table-wrap {
+  margin: 0 0 var(--mv-space-16);
+}
+[data-screen-id] .ui-section__body > .ui-table-wrap:last-child,
+[data-screen-id] .ui-section__body > div > .ui-table-wrap:last-child,
+[data-screen-id] .ui-section__body > .ui-section:last-child {
+  margin-bottom: 0;
+}
+.ctr-grid > div {
+  display: grid;
+  gap: var(--mv-space-16);
+  align-content: start;
+  min-width: 0;
+}
+.ctr-grid > div > .ui-section {
+  margin: 0;
+}
+
+/* The tables that are not on the kit yet take its head, its rhythm and its figures, and scroll inside their card instead of the page. */
+[data-screen-id] .card {
+  overflow-x: auto;
+}
+[data-screen-id] table.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+[data-screen-id] table.table thead th {
+  padding: var(--mv-space-8) var(--mv-space-12);
+  background: var(--mv-color-table-head);
+  color: var(--mv-color-menu-text);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+}
+[data-screen-id] table.table tbody th,
+[data-screen-id] table.table tbody td,
+[data-screen-id] table.table tfoot th,
+[data-screen-id] table.table tfoot td {
+  padding: var(--mv-space-8) var(--mv-space-12);
+  border-bottom: 1px solid var(--mv-color-border);
+  vertical-align: top;
+  text-align: left;
+}
+[data-screen-id] table.table .num,
+[data-screen-id] table.table .pay-amount,
+[data-screen-id] table.table .ctr-amount {
+  text-align: right;
+}
+[data-screen-id] table.table tfoot th,
+[data-screen-id] table.table tfoot td {
+  background: var(--mv-color-surface2);
+  font-weight: 600;
+}
+
+/* The buttons that are not on the kit yet: primary is the solid teal one, the others are outlined. */
+[data-screen-id] .button.primary,
+[data-screen-id] button.primary {
+  min-height: 36px;
+  border: 1px solid var(--mv-color-primary);
+  border-radius: var(--mv-radius-control);
+  background: var(--mv-color-primary);
+  color: var(--mv-color-surface);
+}
+[data-screen-id] .button.primary:hover,
+[data-screen-id] button.primary:hover:not(:disabled) {
+  background: var(--mv-color-primary-hover);
+}
+[data-screen-id] .button:not(.primary) {
+  min-height: 36px;
+  border: 1px solid var(--mv-color-primary);
+  border-radius: var(--mv-radius-control);
+  background: var(--mv-color-surface);
+  color: var(--mv-color-primary);
+}
+[data-screen-id] .button:focus-visible,
+[data-screen-id] button.primary:focus-visible {
+  outline: 2px solid var(--mv-color-focus);
+  outline-offset: 2px;
+}

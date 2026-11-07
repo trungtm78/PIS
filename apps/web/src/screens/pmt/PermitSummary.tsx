@@ -4,6 +4,8 @@ import { permitStatusLabel } from './dossier-labels';
 import { statusTone } from './dossier-model';
 import type { PermitDetailView } from './dossier-model';
 import './pmt.css';
+import { Pill } from './components';
+import { SectionCard } from '../../ui';
 
 function Fact({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -22,18 +24,18 @@ export function PermitSummary({ permit }: { permit: PermitDetailView }) {
   const { t } = useTranslation();
   const none = t('pmt.permit.fact.none.text');
   return (
-    <div className="card" data-testid="permit-summary" data-permit-id={permit.id}>
-      <h2>{t('pmt.permit.summary.title', { code: permit.permitTypeCode })}</h2>
+    <div data-testid="permit-summary" data-permit-id={permit.id}>
+      <SectionCard title={t('pmt.permit.summary.title', { code: permit.permitTypeCode })}>
       <p>
-        <span className={`pill ${statusTone(permit.status)}`} data-testid="permit-status">
+        <Pill tone={statusTone(permit.status)} data-testid="permit-status">
           {permitStatusLabel(t, permit.status)}
-        </span>
+        </Pill>
         {permit.cxnRef === null ? null : (
           <>
             {' '}
-            <span className="pill warn" data-testid="unconfirmed">
+            <Pill tone="warn" data-testid="unconfirmed">
               {t('pmt.type.unconfirmed.text', { cxn: permit.cxnRef })}
-            </span>
+            </Pill>
           </>
         )}
       </p>
@@ -56,6 +58,7 @@ export function PermitSummary({ permit }: { permit: PermitDetailView }) {
         {permit.revokeReason === null ? null : <Fact label={t('pmt.permit.fact.revoked.label')}>{permit.revokeReason}</Fact>}
         {permit.exemptionBasis === null ? null : <Fact label={t('pmt.permit.fact.exempted.label')}>{permit.exemptionBasis}</Fact>}
       </dl>
+      </SectionCard>
     </div>
   );
 }

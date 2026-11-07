@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../i18n';
+import { SectionCard, StickyActions } from '../../ui';
 import { Field } from './components';
 import { useReopenProjects, useRequestReopen } from './hooks';
 import { reopenFieldMessage, reopenProblemMessage, reopenScopeLabel } from './labels';
@@ -61,85 +62,88 @@ export function ReopenRequestForm({ periods }: ReopenRequestFormProps) {
   };
 
   return (
-    <form className="card" onSubmit={submit} noValidate aria-label={t('dis.reopen.form.title')} data-testid="reopen-form">
-      <h2>{t('dis.reopen.form.title')}</h2>
-      <p className="sub">{t('dis.reopen.form.approver.hint')}</p>
-      {refused === undefined ? null : (
-        <p className="callout warning" role="alert" data-testid="reopen-problem">
-          {reopenProblemMessage(t, refused)}
-        </p>
-      )}
-      {done ? (
-        <p className="callout" role="status" data-testid="reopen-done">
-          {t('dis.reopen.form.done.notice')}
-        </p>
-      ) : null}
-      <div className="dis-reopen-grid">
-        <Field id="reopen-period" label={t('dis.reopen.form.period.label')} error={problemText('periodId')}>
-          <select id="reopen-period" value={form.periodId} aria-invalid={problems.periodId !== undefined} onChange={(event) => change({ periodId: event.target.value }, 'periodId')}>
-            <option value="">{t('dis.reopen.form.period.placeholder')}</option>
-            {choices.map((period) => (
-              <option key={period.id} value={period.id}>
-                {t('dis.reopen.form.period.option', { code: period.code, start: period.startDate, end: period.endDate })}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field id="reopen-hours" label={t('dis.reopen.form.hours.label')} error={problemText('windowHours')} hint={t('dis.reopen.form.hours.help', { max: MAX_WINDOW_HOURS })}>
-          <input id="reopen-hours" inputMode="numeric" value={form.windowHours} aria-invalid={problems.windowHours !== undefined} onChange={(event) => change({ windowHours: event.target.value }, 'windowHours')} />
-        </Field>
-      </div>
-      <fieldset className="dis-scope">
-        <legend>{t('dis.reopen.form.scope.label')}</legend>
-        {SCOPES.map((scope) => (
-          <label key={scope} className="dis-radio">
-            <input type="radio" name="reopen-scope" value={scope} checked={form.scope === scope} onChange={() => change({ scope, projectIds: [] }, 'projects')} />
-            {reopenScopeLabel(t, scope)}
-          </label>
-        ))}
-        <small className="sub">{forProjects ? t('dis.reopen.form.projectsScope.help') : t('dis.reopen.form.periodScope.help')}</small>
-      </fieldset>
-      {forProjects ? (
-        <fieldset className="dis-projects" aria-invalid={problems.projects !== undefined}>
-          <legend>{t('dis.reopen.form.projects.label')}</legend>
-          <Field id="reopen-project-filter" label={t('dis.reopen.projects.filter.label')} error={undefined}>
-            <input id="reopen-project-filter" type="search" value={filter} onChange={(event) => setFilter(event.target.value)} />
+    <form onSubmit={submit} noValidate aria-label={t('dis.reopen.form.title')} data-testid="reopen-form">
+      <SectionCard title={t('dis.reopen.form.title')}>
+        <p className="dis-w2-note">{t('dis.reopen.form.approver.hint')}</p>
+        {refused === undefined ? null : (
+          <p className="dis-w2-banner" role="alert" data-testid="reopen-problem">
+            {reopenProblemMessage(t, refused)}
+          </p>
+        )}
+        {done ? (
+          <p className="dis-w2-banner dis-w2-banner--info" role="status" data-testid="reopen-done">
+            {t('dis.reopen.form.done.notice')}
+          </p>
+        ) : null}
+        <div className="dis-reopen-grid">
+          <Field id="reopen-period" label={t('dis.reopen.form.period.label')} error={problemText('periodId')}>
+            <select id="reopen-period" value={form.periodId} aria-invalid={problems.periodId !== undefined} onChange={(event) => change({ periodId: event.target.value }, 'periodId')}>
+              <option value="">{t('dis.reopen.form.period.placeholder')}</option>
+              {choices.map((period) => (
+                <option key={period.id} value={period.id}>
+                  {t('dis.reopen.form.period.option', { code: period.code, start: period.startDate, end: period.endDate })}
+                </option>
+              ))}
+            </select>
           </Field>
-          {projects.isLoading ? <p className="muted">{t('dis.reopen.projects.loading.text')}</p> : null}
-          {projects.isError ? (
-            <p className="callout warning" role="alert">
-              {t('dis.reopen.projects.error.text')}{' '}
-              <button type="button" onClick={() => void projects.refetch()}>
-                {t('dis.reopen.projects.retry.action')}
-              </button>
-            </p>
-          ) : null}
-          {projects.isSuccess && shown.length === 0 ? <p className="muted">{t('dis.reopen.projects.empty.text')}</p> : null}
-          <ul className="dis-project-list">
-            {shown.map((project) => (
-              <li key={project.id}>
-                <label className="dis-radio">
-                  <input type="checkbox" value={project.id} checked={form.projectIds.includes(project.id)} onChange={(event) => toggle(project.id, event.target.checked)} />
-                  <span>{project.code}</span> <small className="sub">{project.name}</small>
-                </label>
-              </li>
-            ))}
-          </ul>
-          {problems.projects === undefined ? null : (
-            <small role="alert" className="field-error">
-              {problemText('projects')}
-            </small>
-          )}
+          <Field id="reopen-hours" label={t('dis.reopen.form.hours.label')} error={problemText('windowHours')} hint={t('dis.reopen.form.hours.help', { max: MAX_WINDOW_HOURS })}>
+            <input id="reopen-hours" inputMode="numeric" value={form.windowHours} aria-invalid={problems.windowHours !== undefined} onChange={(event) => change({ windowHours: event.target.value }, 'windowHours')} />
+          </Field>
+        </div>
+        <fieldset className="dis-scope">
+          <legend>{t('dis.reopen.form.scope.label')}</legend>
+          {SCOPES.map((scope) => (
+            <label key={scope} className="dis-radio">
+              <input type="radio" name="reopen-scope" value={scope} checked={form.scope === scope} onChange={() => change({ scope, projectIds: [] }, 'projects')} />
+              {reopenScopeLabel(t, scope)}
+            </label>
+          ))}
+          <small className="sub">{forProjects ? t('dis.reopen.form.projectsScope.help') : t('dis.reopen.form.periodScope.help')}</small>
         </fieldset>
-      ) : null}
-      <Field id="reopen-reason" label={t('dis.reopen.form.reason.label')} error={problemText('reason')} hint={t('dis.reopen.form.reason.help')}>
-        <textarea id="reopen-reason" rows={3} value={form.reason} aria-invalid={problems.reason !== undefined} onChange={(event) => change({ reason: event.target.value }, 'reason')} />
-      </Field>
-      <div className="formfooter">
-        <button type="submit" className="primary" disabled={send.isPending}>
-          {t('dis.reopen.form.submit.action')}
-        </button>
-      </div>
+        {forProjects ? (
+          <fieldset className="dis-projects" aria-invalid={problems.projects !== undefined}>
+            <legend>{t('dis.reopen.form.projects.label')}</legend>
+            <Field id="reopen-project-filter" label={t('dis.reopen.projects.filter.label')} error={undefined}>
+              <input id="reopen-project-filter" type="search" value={filter} onChange={(event) => setFilter(event.target.value)} />
+            </Field>
+            {projects.isLoading ? <p className="muted">{t('dis.reopen.projects.loading.text')}</p> : null}
+            {projects.isError ? (
+              <p className="dis-w2-banner" role="alert">
+                {t('dis.reopen.projects.error.text')}{' '}
+                <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => void projects.refetch()}>
+                  {t('dis.reopen.projects.retry.action')}
+                </button>
+              </p>
+            ) : null}
+            {projects.isSuccess && shown.length === 0 ? <p className="muted">{t('dis.reopen.projects.empty.text')}</p> : null}
+            <ul className="dis-project-list">
+              {shown.map((project) => (
+                <li key={project.id}>
+                  <label className="dis-radio">
+                    <input type="checkbox" value={project.id} checked={form.projectIds.includes(project.id)} onChange={(event) => toggle(project.id, event.target.checked)} />
+                    <span>{project.code}</span> <small className="sub">{project.name}</small>
+                  </label>
+                </li>
+              ))}
+            </ul>
+            {problems.projects === undefined ? null : (
+              <small role="alert" className="field-error">
+                {problemText('projects')}
+              </small>
+            )}
+          </fieldset>
+        ) : null}
+        <Field id="reopen-reason" label={t('dis.reopen.form.reason.label')} error={problemText('reason')} hint={t('dis.reopen.form.reason.help')}>
+          <textarea id="reopen-reason" rows={3} value={form.reason} aria-invalid={problems.reason !== undefined} onChange={(event) => change({ reason: event.target.value }, 'reason')} />
+        </Field>
+        <StickyActions
+          primary={
+            <button type="submit" className="ui-button ui-button--primary" disabled={send.isPending}>
+              {t('dis.reopen.form.submit.action')}
+            </button>
+          }
+        />
+      </SectionCard>
     </form>
   );
 }

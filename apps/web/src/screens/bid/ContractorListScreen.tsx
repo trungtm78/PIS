@@ -5,11 +5,14 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { DataTable, FilterPanel } from '../../ui';
+import type { DataTableColumn } from '../../ui';
+import { ScopeBar } from '../ctr/kit';
 import { RestrictionBadge, VerificationBadge } from './components';
 import { useContractors } from './hooks';
 import { statusLabel } from './labels';
 import { EMPTY_FILTER, MANAGE_PERMISSION, VERIFICATION_STATUSES, filterContractors, profileLink } from './model';
-import type { ListFilter, VerificationStatus } from './model';
+import type { ContractorLine, ListFilter, VerificationStatus } from './model';
 import RegisterPanel from './RegisterPanel';
 import './bid.css';
 
@@ -29,8 +32,35 @@ function ContractorListContent({ route }: ScreenProps) {
   const mayRegister = (permissions === undefined || permissions.includes(MANAGE_PERMISSION)) && mode !== 'READ_ONLY';
   const contractors = useContractors();
   const [filter, setFilter] = useState<ListFilter>(EMPTY_FILTER);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(20);
   const state = useScreenState({ isLoading: contractors.isLoading, error: contractors.error, data: contractors.data });
   const shown = useMemo(() => filterContractors(contractors.data ?? [], filter), [contractors.data, filter]);
+  const applied = (filter.query.trim() === '' ? 0 : 1) + (filter.status === '' ? 0 : 1) + (filter.restrictedOnly ? 1 : 0);
+  const change = (next: ListFilter): void => {
+    setFilter(next);
+    setPageIndex(0);
+  };
+  const from = pageIndex * pageSize + 1;
+  const rows = shown.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
+  const columns: DataTableColumn<ContractorLine>[] = [
+    {
+      key: 'taxId',
+      header: t('bid.list.column.taxId'),
+      pinned: true,
+      render: (contractor) => (
+        <span data-contractor-id={contractor.id}>
+          <Link to={profileLink(contractor.id)}>
+            <code>{contractor.taxIdentifier}</code>
+          </Link>
+        </span>
+      ),
+    },
+    { key: 'name', header: t('bid.list.column.name'), render: (contractor) => contractor.legalName },
+    { key: 'contracts', header: t('bid.list.column.contracts'), align: 'right', render: (contractor) => contractor.contractCount },
+    { key: 'verification', header: t('bid.list.column.verification'), render: (contractor) => <VerificationBadge contractor={contractor} /> },
+    { key: 'restriction', header: t('bid.list.column.restriction'), render: (contractor) => <RestrictionBadge restriction={contractor.restrictionInForce} /> },
+  ];
 
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
@@ -40,16 +70,21 @@ function ContractorListContent({ route }: ScreenProps) {
           <p>{t('bid.list.page.subtitle')}</p>
         </div>
       </div>
+      <ScopeBar
+        extra={[{ label: t('w2pay.bid.ctx.verification'), value: filter.status === '' ? t('w2pay.pay.ctx.all') : statusLabel(t, filter.status) }]}
+        updatedAt={contractors.dataUpdatedAt}
+        stale={contractors.isRefetchError}
+      />
       <StateBoundary state={state} onRetry={() => void contractors.refetch()}>
-        <div className="card">
+        <FilterPanel applied={applied}>
           <form className="bid-filters" role="search" aria-label={t('bid.list.filters.title')} onSubmit={(event) => event.preventDefault()}>
             <div className="field">
               <label htmlFor="contractor-query">{t('bid.list.query.label')}</label>
-              <input id="contractor-query" value={filter.query} onChange={(event) => setFilter({ ...filter, query: event.target.value })} />
+              <input id="contractor-query" value={filter.query} onChange={(event) => change({ ...filter, query: event.target.value })} />
             </div>
             <div className="field">
               <label htmlFor="contractor-status">{t('bid.list.status.label')}</label>
-              <select id="contractor-status" value={filter.status} onChange={(event) => setFilter({ ...filter, status: event.target.value as VerificationStatus | '' })}>
+              <select id="contractor-status" value={filter.status} onChange={(event) => change({ ...filter, status: event.target.value as VerificationStatus | '' })}>
                 <option value="">{t('bid.list.status.all')}</option>
                 {VERIFICATION_STATUSES.map((status) => (
                   <option key={status} value={status}>
@@ -59,48 +94,43 @@ function ContractorListContent({ route }: ScreenProps) {
               </select>
             </div>
             <label className="check">
-              <input type="checkbox" checked={filter.restrictedOnly} onChange={(event) => setFilter({ ...filter, restrictedOnly: event.target.checked })} />
+              <input type="checkbox" checked={filter.restrictedOnly} onChange={(event) => change({ ...filter, restrictedOnly: event.target.checked })} />
               {t('bid.list.restricted.label')}
             </label>
           </form>
-          {shown.length === 0 ? (
+        </FilterPanel>
+        {shown.length === 0 ? (
+          <div className="bid-row-actions">
             <p className="callout" role="status" data-testid="no-match">
               {t('bid.list.noMatch.notice')}
             </p>
-          ) : (
-            <table className="table" data-testid="contractors">
-              <thead>
-                <tr>
-                  <th scope="col">{t('bid.list.column.taxId')}</th>
-                  <th scope="col">{t('bid.list.column.name')}</th>
-                  <th scope="col">{t('bid.list.column.contracts')}</th>
-                  <th scope="col">{t('bid.list.column.verification')}</th>
-                  <th scope="col">{t('bid.list.column.restriction')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {shown.map((contractor) => (
-                  <tr key={contractor.id} data-contractor-id={contractor.id}>
-                    <th scope="row">
-                      <Link to={profileLink(contractor.id)}>
-                        <code>{contractor.taxIdentifier}</code>
-                      </Link>
-                    </th>
-                    <td>{contractor.legalName}</td>
-                    <td>{contractor.contractCount}</td>
-                    <td>
-                      <VerificationBadge contractor={contractor} />
-                    </td>
-                    <td>
-                      <RestrictionBadge restriction={contractor.restrictionInForce} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-          <p className="sub">{t('bid.list.count.text', { count: shown.length })}</p>
-        </div>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => change(EMPTY_FILTER)}>
+              {t('ui.dataTable.clearFilters')}
+            </button>
+          </div>
+        ) : (
+          <div data-testid="contractors">
+            <DataTable
+              caption={t('bid.list.page.title')}
+              columns={columns}
+              rows={rows}
+              rowKey={(contractor) => contractor.id}
+              page={{
+                from,
+                to: from + rows.length - 1,
+                total: shown.length,
+                size: pageSize,
+                index: pageIndex,
+                onPage: setPageIndex,
+                onSize: (size) => {
+                  setPageSize(size);
+                  setPageIndex(0);
+                },
+              }}
+            />
+          </div>
+        )}
+        <p className="sub">{t('bid.list.count.text', { count: shown.length })}</p>
       </StateBoundary>
       {mayRegister ? <RegisterPanel /> : null}
       <p className="prototype-note">{t('bid.list.footer.reference', { id: route.id, req: route.req ?? '' })}</p>

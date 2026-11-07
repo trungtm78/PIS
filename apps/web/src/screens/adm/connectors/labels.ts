@@ -1,4 +1,5 @@
 import type { Translator } from '../../../i18n';
+import type { Tone } from '../../../ui';
 import type { AdapterStatus } from '../../mdm/model';
 import type { ConnectorMode, ConnectorProblem, ConnectorStatus, ProblemView } from './model';
 
@@ -96,5 +97,31 @@ export function problemMessage(t: T, problem: ProblemView): string {
       return t('adm.connectors.problem.session');
     case 'general':
       return t('adm.connectors.problem.general');
+  }
+}
+
+/** The tone of the status pill of an adapter: the verdict is honest, a mock adapter is red and a proposed one amber. */
+export function adapterTone(status: AdapterStatus): Tone {
+  switch (status) {
+    case 'VERIFIED':
+      return 'success';
+    case 'MOCK':
+      return 'danger';
+    case 'PROPOSED':
+      return 'warning';
+    case 'MISSING':
+      return 'neutral';
+  }
+}
+
+/** The tone of the status pill of a connector. */
+export function connectorStatusTone(status: ConnectorStatus): Tone {
+  switch (status) {
+    case 'Draft':
+      return 'warning';
+    case 'Active':
+      return 'success';
+    case 'Disabled':
+      return 'neutral';
   }
 }

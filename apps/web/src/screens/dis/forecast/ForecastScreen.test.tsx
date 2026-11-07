@@ -61,8 +61,8 @@ describe('DIS-23 disbursement forecast and year-end estimate', () => {
     open();
     expect(await screen.findByRole('heading', { level: 1, name: vi_['dis.forecast.page.title'] })).toBeTruthy();
     const tiles = await screen.findByTestId('forecast-tiles');
-    const tile = (name: string): string => tiles.querySelector(`[data-tile="${name}"]`)?.textContent ?? '';
-    expect([tile('disbursed'), tile('eac'), tile('plan'), tile('gap')]).toEqual(['400.000.000', '650.000.000', '1.000.000.000', '-350.000.000']);
+    const tile = (label: string): string => within(tiles).getByText(label).closest('article')?.querySelector('.ui-kpi__value')?.textContent ?? '';
+    expect([tile(vi_['dis.forecast.tile.disbursed']), tile(vi_['dis.forecast.tile.eac']), tile(vi_['dis.forecast.tile.plan']), tile(vi_['dis.forecast.tile.gap'])]).toEqual(['400.000.000', '650.000.000', '1.000.000.000', '-350.000.000']);
     expect(tiles.textContent).toContain(vi_['dis.forecast.ratio.text'].replace('{value}', '65.0'));
     expect(screen.getByTestId('forecast-coverage').textContent).toBe(vi_['dis.forecast.coverage.complete']);
     expect(screen.getByTestId('forecast-verdict').textContent).toContain(vi_['dis.forecast.candidate.yes'].replace('{pct}', '80'));
@@ -120,19 +120,21 @@ describe('DIS-23 disbursement forecast and year-end estimate', () => {
     open(forecastRecord({ disbursed_vnd: null, eac_vnd: null, gap_vnd: null, ratio_pct: null, coverage: 'NONE', reallocation_candidate: null, method: 'NO_TREASURY_DATA', curve: [], projects: [] }));
     expect((await screen.findByTestId('forecast-verdict')).textContent).toContain(vi_['dis.forecast.candidate.noData']);
     expect(screen.getByTestId('forecast-partial-note').textContent).toBe(vi_['dis.forecast.partial.noData']);
-    expect(screen.getByTestId('forecast-tiles').querySelector('[data-tile="eac"]')?.textContent).toBe('—');
+    expect(within(screen.getByTestId('forecast-tiles')).getByText(vi_['dis.forecast.tile.eac']).closest('article')?.querySelector('.ui-kpi__value')?.textContent).toBe('—');
     cleanup();
     open(forecastRecord({ reallocation_candidate: false, projects: [{ project: { id: '00000000-0000-4000-8000-0000000000a3', code: 'P-A-003', name: 'Cầu' }, ...estimate({ reallocation_candidate: false }) }] }));
     expect((await screen.findByTestId('forecast-verdict')).textContent).toContain(vi_['dis.forecast.candidate.no'].replace('{pct}', '80'));
-    expect(screen.getByTestId('forecast-projects').querySelector('tr[data-candidate="false"]')).toBeTruthy();
+    const row = within(screen.getByRole('table', { name: vi_['dis.forecast.projects.aria'] })).getByRole('row', { name: /P-A-003/ });
+    expect(within(row).getByText(vi_['dis.forecast.candidate.no'].replace('{pct}', '80'))).toBeTruthy();
   });
 
   it('lists the projects with their estimate, loads more by cursor, and asks for the snapshot that was chosen', async () => {
     const h = open((query) => (query.cursor === undefined ? forecastRecord({ next_cursor: 'next' }) : forecastRecord({ projects: [{ project: { id: '00000000-0000-4000-8000-0000000000a9', code: 'P-A-009', name: 'Kè' }, ...estimate() }], next_cursor: null })));
-    const table = await screen.findByTestId('forecast-projects');
-    expect(table.querySelectorAll('tbody tr')).toHaveLength(1);
+    const projectsTable = (): HTMLElement => screen.getByRole('table', { name: vi_['dis.forecast.projects.aria'] });
+    await screen.findByRole('table', { name: vi_['dis.forecast.projects.aria'] });
+    expect(projectsTable().querySelectorAll('tbody tr')).toHaveLength(1);
     fireEvent.click(await screen.findByRole('button', { name: vi_['dis.forecast.projects.more.action'] }));
-    await waitFor(() => expect(screen.getByTestId('forecast-projects').querySelectorAll('tbody tr')).toHaveLength(2));
+    await waitFor(() => expect(projectsTable().querySelectorAll('tbody tr')).toHaveLength(2));
     // The next page asks for the snapshot the first page was of, so that a snapshot frozen in the meantime cannot slip into the list.
     expect(asked(h)).toEqual([{ limit: 50 }, { limit: 50, snapshot_id: SNAPSHOT, cursor: 'next' }]);
     cleanup();

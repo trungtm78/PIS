@@ -1,4 +1,5 @@
 import { useTranslation } from '../../../i18n';
+import { SectionCard } from '../../../ui';
 import { groupPermissions } from './permission-groups';
 import type { RoleView } from './types';
 
@@ -11,8 +12,7 @@ export function RolePreview({ role }: RolePreviewProps) {
   const { t } = useTranslation();
   const groups = role === undefined ? [] : groupPermissions(role.permissions);
   return (
-    <div className="card">
-      <h2>{t('adm.roles.preview.title')}</h2>
+    <SectionCard title={t('adm.roles.preview.title')}>
       <div className="callout">{t('adm.roles.preview.rule')}</div>
       <div className="paper">
         <div className="eyebrow">{t('adm.roles.preview.eyebrow')}</div>
@@ -31,6 +31,6 @@ export function RolePreview({ role }: RolePreviewProps) {
           </>
         )}
       </div>
-    </div>
+    </SectionCard>
   );
 }

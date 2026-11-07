@@ -6,12 +6,14 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { ContextBar, FilterPanel, SectionCard } from '../../ui';
 import { Field, QualityPill } from './components';
 import { NO_FILTER, useCatalog } from './hooks';
 import type { CatalogFilter } from './hooks';
 import { classificationLabel, freshnessLabel } from './labels';
 import { CATALOG_MANAGE_PERMISSION, CLASSIFICATION_LIST } from './model';
 import type { Classification } from './model';
+import './dgv-kit.css';
 
 const NEVER_EMPTY = (): boolean => false;
 const OWNERS_PATH = '/dgv/dgv-03';
@@ -28,7 +30,7 @@ export default function CatalogScreen({ route }: ScreenProps) {
 
 function CatalogContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { permissions } = useSession();
+  const { permissions, tenant } = useSession();
   // A link from another screen (BI-07) names the entry it means: that row is marked as the current one.
   const selected = useSearchParams()[0].get('dataset');
   const [draft, setDraft] = useState<CatalogFilter>(NO_FILTER);
@@ -56,13 +58,20 @@ function CatalogContent({ route }: ScreenProps) {
           <p>{t('dgv.catalog.page.subtitle')}</p>
         </div>
         {mayManage ? (
-          <Link className="button" to={OWNERS_PATH}>
+          <Link className="ui-button ui-button--outline" to={OWNERS_PATH}>
             {t('dgv.catalog.manage.link')}
           </Link>
         ) : null}
       </div>
+      <ContextBar
+        items={[
+          { label: t('dgv.catalog.ctx.scope'), value: tenant?.name ?? t('dgv.catalog.ctx.scope.all') },
+          { label: t('dgv.catalog.ctx.datasets'), value: String(rows.length) },
+        ]}
+        {...(datasets.dataUpdatedAt > 0 ? { asOf: new Date(datasets.dataUpdatedAt).toLocaleString('vi-VN') } : {})}
+      />
       <StateBoundary state={state} onRetry={() => void datasets.refetch()}>
-        <div className="card">
+        <FilterPanel applied={[applied.text.trim() !== '', applied.domain !== '', applied.classification !== ''].filter(Boolean).length}>
           <form className="dgv-filters" role="search" onSubmit={apply} aria-label={t('dgv.catalog.filter.title')}>
             <Field id="catalog-text" label={t('dgv.catalog.filter.text.label')} error={undefined}>
               <input id="catalog-text" type="search" value={draft.text} placeholder={t('dgv.catalog.filter.text.placeholder')} onChange={(event) => setDraft({ ...draft, text: event.target.value })} />
@@ -81,19 +90,22 @@ function CatalogContent({ route }: ScreenProps) {
               </select>
             </Field>
             <div className="formfooter">
-              <button type="button" onClick={clear}>
+              <button type="button" className="ui-button ui-button--outline" onClick={clear}>
                 {t('dgv.catalog.filter.clear.action')}
               </button>
-              <button type="submit" className="primary">
+              <button type="submit" className="ui-button ui-button--primary">
                 {t('dgv.catalog.filter.apply.action')}
               </button>
             </div>
           </form>
+        </FilterPanel>
+        <SectionCard title={t('dgv.catalog.section.title')}>
           {rows.length === 0 ? (
             <p className="muted" data-testid="empty-catalog">
               {filtering ? t('dgv.catalog.noMatch.text') : t('dgv.catalog.empty.text')}
             </p>
           ) : (
+            <div className="tablewrap">
             <table className="table" aria-label={t('dgv.catalog.table.aria')}>
               <thead>
                 <tr>
@@ -129,12 +141,13 @@ function CatalogContent({ route }: ScreenProps) {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
           <p className="sub" data-testid="count">
             {t('dgv.catalog.count.text', { count: rows.length })}
           </p>
           <p className="sub">{t('dgv.catalog.visibility.note')}</p>
-        </div>
+        </SectionCard>
       </StateBoundary>
       <p className="prototype-note">{t('dgv.catalog.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>

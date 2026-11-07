@@ -133,8 +133,8 @@ describe('SAS-13 license detail', () => {
     current = license({ signature_check: check });
     open(`/sas/sas-13?license=${LICENSE}`);
     const badge = await screen.findByText(vi_[key]);
-    expect(badge.getAttribute('data-signature-check')).toBe(check);
-    expect(badge.className).toBe(check === 'VALID' ? 'pill' : 'pill red');
+    expect(badge.closest('[data-signature-check]')?.getAttribute('data-signature-check')).toBe(check);
+    expect(badge.closest('.ui-pill')?.className).toContain(check === 'VALID' ? 'ui-tone-success' : 'ui-tone-danger');
   });
 
   it('shows the signed-claims text the server gave for a state it does not know, and a dash for what the revision lacks', async () => {

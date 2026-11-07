@@ -3,6 +3,8 @@ import { toneClass } from '../tenants/labels';
 import { mismatchLabel } from './labels';
 import { clock } from './model';
 import type { ReportView } from './model';
+import { StatusPill } from '../../../ui';
+import { toneOfPill } from '../../adm/kit-tone';
 
 interface Props {
   report: ReportView;
@@ -41,7 +43,7 @@ export function ReportPanel({ report, reference, restoredTo, day }: Props) {
         <dd data-rto>{t('sas.restore.report.against', { measured: clock(report.rtoSeconds), target: clock(report.rtoTargetSeconds) })}</dd>
         <dt>{t('sas.restore.report.targets')}</dt>
         <dd data-targets>
-          <span className={toneClass(report.withinTargets ? 'ok' : 'warn')}>{report.withinTargets ? t('sas.restore.report.within') : t('sas.restore.report.outside')}</span>
+          <StatusPill tone={toneOfPill(toneClass(report.withinTargets ? 'ok' : 'warn'))}>{report.withinTargets ? t('sas.restore.report.within') : t('sas.restore.report.outside')}</StatusPill>
         </dd>
         <dt>{t('sas.restore.report.reference')}</dt>
         <dd data-reference>{reference === undefined ? '—' : <code>{reference}</code>}</dd>
@@ -72,10 +74,10 @@ export function ReportPanel({ report, reference, restoredTo, day }: Props) {
               </td>
               <td className="amount" data-rows-match={table.rowsMatch}>
                 {t('sas.restore.report.rowsOf', { restored: count(table.restoredRows), expected: count(table.expectedRows) })}
-                <span className={toneClass(table.rowsMatch ? 'ok' : 'red')}>{table.rowsMatch ? t('sas.restore.report.match') : t('sas.restore.report.differ')}</span>
+                <StatusPill tone={toneOfPill(toneClass(table.rowsMatch ? 'ok' : 'red'))}>{table.rowsMatch ? t('sas.restore.report.match') : t('sas.restore.report.differ')}</StatusPill>
               </td>
               <td data-checksum-match={table.checksumMatch}>
-                <span className={toneClass(table.checksumMatch ? 'ok' : 'red')}>{table.checksumMatch ? t('sas.restore.report.match') : t('sas.restore.report.differ')}</span>
+                <StatusPill tone={toneOfPill(toneClass(table.checksumMatch ? 'ok' : 'red'))}>{table.checksumMatch ? t('sas.restore.report.match') : t('sas.restore.report.differ')}</StatusPill>
               </td>
               <td>
                 {table.money.length === 0
@@ -83,7 +85,7 @@ export function ReportPanel({ report, reference, restoredTo, day }: Props) {
                   : table.money.map((money) => (
                       <div key={money.column} data-money-column={money.column} data-match={money.match}>
                         <code>{money.column}</code> {t('sas.restore.report.moneyOf', { restored: money.restored === '' ? '—' : money.restored, expected: money.expected === '' ? '—' : money.expected })}{' '}
-                        <span className={toneClass(money.match ? 'ok' : 'red')}>{money.match ? t('sas.restore.report.match') : t('sas.restore.report.differ')}</span>
+                        <StatusPill tone={toneOfPill(toneClass(money.match ? 'ok' : 'red'))}>{money.match ? t('sas.restore.report.match') : t('sas.restore.report.differ')}</StatusPill>
                       </div>
                     ))}
               </td>

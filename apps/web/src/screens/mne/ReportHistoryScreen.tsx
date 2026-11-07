@@ -17,6 +17,8 @@ import { shortHash } from './report-model';
 import { READ_PERMISSION } from './types';
 import type { Translator } from '../../i18n';
 import './mne.css';
+import './mne-kit.css';
+import { StatusPill } from '../../ui';
 
 type T = Translator['t'];
 const MEMBER_READ_PERMISSION = 'membership.read';
@@ -60,7 +62,7 @@ function HistoryContent({ route }: ScreenProps) {
           <p>{t('mne.history.page.subtitle')}</p>
         </div>
         {reportId === '' || !readable ? null : (
-          <button type="button" className="btn" onClick={() => setParams({})}>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setParams({})}>
             {t('mne.history.back.action')}
           </button>
         )}
@@ -132,7 +134,7 @@ function HistoryPicker({ onOpen }: { onOpen: (id: string) => void }) {
                   </td>
                   <td>{reportStatusLabel(t, item.status)}</td>
                   <td>
-                    <button type="button" className="btn" onClick={() => onOpen(item.reportId)}>
+                    <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => onOpen(item.reportId)}>
                       {t('mne.history.picker.open', { period: item.periodLabel })}
                     </button>
                   </td>
@@ -143,7 +145,7 @@ function HistoryPicker({ onOpen }: { onOpen: (id: string) => void }) {
         </div>
         {list.hasNextPage ? (
           <div className="mne-actions">
-            <button type="button" className="btn" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
               {t('mne.calendar.more.action')}
             </button>
           </div>
@@ -233,8 +235,8 @@ function HistoryRow({ entry, opened, against, onOpen, onCompare }: RowProps) {
     <tr data-revision-id={entry.id} data-revision={entry.revision} data-opened={opened} data-against={against}>
       <th scope="row">
         {t('mne.history.revision.title', { revision: entry.revision })}
-        {opened ? <span className="pill"> {t('mne.history.revision.opened')}</span> : null}
-        {against ? <span className="pill"> {t('mne.history.revision.against')}</span> : null}
+        {opened ? <StatusPill tone="info">{t('mne.history.revision.opened')}</StatusPill> : null}
+        {against ? <StatusPill tone="neutral">{t('mne.history.revision.against')}</StatusPill> : null}
       </th>
       <td>{reportStatusLabel(t, entry.status)}</td>
       <td>{entry.correctionReason ?? <span className="sub">{t('mne.history.reason.none')}</span>}</td>
@@ -242,10 +244,10 @@ function HistoryRow({ entry, opened, against, onOpen, onCompare }: RowProps) {
       <td>
         {opened ? null : (
           <>
-            <button type="button" className="btn" onClick={() => onCompare(entry.id)}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => onCompare(entry.id)}>
               {t('mne.history.compare.action', { revision: entry.revision })}
             </button>{' '}
-            <button type="button" className="btn" onClick={() => onOpen(entry.id)}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => onOpen(entry.id)}>
               {t('mne.history.open.action', { revision: entry.revision })}
             </button>
           </>
@@ -304,7 +306,7 @@ function Compared({ pair, names }: { pair: [Revision, Revision]; names: Readonly
                 <td data-testid={`before-${row.key}`}>{row.before ?? <span className="sub">{t('mne.history.diff.empty')}</span>}</td>
                 <td data-testid={`after-${row.key}`}>{row.after ?? <span className="sub">{t('mne.history.diff.empty')}</span>}</td>
                 <td>
-                  <span className={row.change === 'same' ? 'pill' : 'pill warn'}>{changeLabel(t, row.change)}</span>
+                  <StatusPill tone={row.change === 'same' ? 'neutral' : 'warning'}>{changeLabel(t, row.change)}</StatusPill>
                 </td>
               </tr>
             ))}

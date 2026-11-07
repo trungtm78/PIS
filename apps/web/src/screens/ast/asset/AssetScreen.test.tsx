@@ -29,7 +29,8 @@ const pick = (id: string, value: string): void => {
   fireEvent.change(document.getElementById(id) as HTMLElement, { target: { value } });
 };
 const rows = (): string[] => Array.from(document.querySelectorAll('[data-asset]')).map((row) => row.getAttribute('data-asset') as string);
-const row = (id: string): HTMLElement => document.querySelector(`[data-asset="${id}"]`) as HTMLElement;
+/** The code of the asset is marked in its cell; the row is the table row around it. */
+const row = (id: string): HTMLElement => (document.querySelector(`[data-asset="${id}"]`) as HTMLElement).closest('tr') as HTMLElement;
 const submit = (name: string): void => {
   fireEvent.click(within(dialog()).getByRole('button', { name }));
 };

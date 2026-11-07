@@ -19,3 +19,54 @@
 .theme-settings > button {
   margin-top: 6px;
 }
+
+/* The blocks of the screen in the card of the component kit (tokens only; the contrast check and the palette rules are not touched). */
+.theme-settings,
+.theme-preview-panel {
+  background: var(--mv-color-surface);
+  border: 1px solid var(--mv-color-border);
+  border-radius: var(--mv-radius-card);
+  padding: var(--mv-space-20);
+  min-width: 0;
+}
+
+.theme-settings h2,
+.theme-fields h2 {
+  margin: 0 0 var(--mv-space-12);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mv-color-text-secondary);
+}
+
+.theme-help,
+.theme-preview-note,
+.theme-logo-info {
+  font-size: 12px;
+  color: var(--mv-color-text-secondary);
+}
+
+.theme-validation.invalid {
+  border-left: 4px solid var(--mv-color-danger);
+  padding-left: var(--mv-space-12);
+  color: var(--mv-color-danger);
+}
+
+.theme-version {
+  padding: var(--mv-space-12) 0;
+  border-bottom: 1px solid var(--mv-color-border);
+}
+
+.theme-editor-actions,
+.theme-review-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mv-space-8);
+}
+
+.theme-settings button:focus-visible,
+.theme-review-dialog button:focus-visible {
+  outline: 2px solid var(--mv-color-focus);
+  outline-offset: 2px;
+}

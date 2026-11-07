@@ -1,0 +1,39 @@
+/*
+ * DGV: the screens of this module that are not rebuilt on the component kit (ui/) take the look of the kit through the tokens of design.md:
+ * card, table head, pills, buttons, callouts, focus. The scope is the screen id, so nothing outside the module changes. Tokens only, never a hex.
+ */
+section[data-screen-id^='DGV-'] .heading h1 { font-size: var(--mv-font-title); letter-spacing: 0; font-style: normal; color: var(--mv-color-ink); }
+section[data-screen-id^='DGV-'] .heading p { font-size: var(--mv-font-body); color: var(--mv-color-text-secondary); }
+section[data-screen-id^='DGV-'] .card { background: var(--mv-color-surface); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-card); }
+section[data-screen-id^='DGV-'] .card > h2 { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mv-color-text-secondary); font-weight: 700; }
+section[data-screen-id^='DGV-'] .sub, section[data-screen-id^='DGV-'] .muted { color: var(--mv-color-text-secondary); }
+section[data-screen-id^='DGV-'] .sub, section[data-screen-id^='DGV-'] small, section[data-screen-id^='DGV-'] .tiny { font-size: 12px; }
+section[data-screen-id^='DGV-'] .tablewrap { overflow-x: auto; max-width: 100%; }
+section[data-screen-id^='DGV-'] table { font-size: var(--mv-font-body); }
+section[data-screen-id^='DGV-'] th:not(.ui-table__head) { background: var(--mv-color-table-head); color: var(--mv-color-menu-text); font-size: 12px; font-weight: 600; letter-spacing: 0.02em; }
+section[data-screen-id^='DGV-'] td:not(.ui-table__cell) { border-bottom: 1px solid var(--mv-color-border); font-variant-numeric: tabular-nums; vertical-align: top; }
+section[data-screen-id^='DGV-'] tbody th[scope='row']:not(.ui-table__head) { background: var(--mv-color-surface2); color: var(--mv-color-ink); }
+section[data-screen-id^='DGV-'] tfoot th:not(.ui-table__head), section[data-screen-id^='DGV-'] tfoot td:not(.ui-table__cell) { background: var(--mv-color-surface2); color: var(--mv-color-ink); font-weight: 700; }
+section[data-screen-id^='DGV-'] tr.selected td:not(.ui-table__cell) { background: var(--mv-color-primary-soft); }
+section[data-screen-id^='DGV-'] .num { text-align: right; font-variant-numeric: tabular-nums; }
+section[data-screen-id^='DGV-'] .pill { display: inline-flex; align-items: center; border-radius: var(--mv-radius-pill); border: 1px solid var(--mv-color-success); background: var(--mv-color-success-soft); color: var(--mv-color-success); font-size: 12px; font-weight: 600; padding: 2px 10px; }
+section[data-screen-id^='DGV-'] .pill.warn { border-color: var(--mv-color-warning); background: var(--mv-color-warning-soft); color: var(--mv-color-warning); }
+section[data-screen-id^='DGV-'] .pill.gray { border-color: var(--mv-color-neutral); background: var(--mv-color-neutral-soft); color: var(--mv-color-neutral); }
+section[data-screen-id^='DGV-'] .pill.red { border-color: var(--mv-color-danger); background: var(--mv-color-danger-soft); color: var(--mv-color-danger); }
+section[data-screen-id^='DGV-'] .callout { background: var(--mv-color-primary-soft); border-left-color: var(--mv-color-primary); border-radius: var(--mv-radius-control); color: var(--mv-color-ink); }
+section[data-screen-id^='DGV-'] .callout.warning { background: var(--mv-color-warning-soft); border-left-color: var(--mv-color-warning); }
+section[data-screen-id^='DGV-'] .field-error, section[data-screen-id^='DGV-'] small[role='alert'] { color: var(--mv-color-danger); }
+section[data-screen-id^='DGV-'] input, section[data-screen-id^='DGV-'] select, section[data-screen-id^='DGV-'] textarea { border-color: var(--mv-color-border); border-radius: var(--mv-radius-control); }
+section[data-screen-id^='DGV-'] button:not(.ui-button):not(.primary):not(.danger) { border-color: var(--mv-color-primary); color: var(--mv-color-primary); background: var(--mv-color-surface); border-radius: var(--mv-radius-control); min-height: 32px; }
+section[data-screen-id^='DGV-'] button:not(.ui-button):not(.primary):not(.danger):hover:not(:disabled) { background: var(--mv-color-primary-soft); border-color: var(--mv-color-primary-hover); }
+section[data-screen-id^='DGV-'] button.primary { background: var(--mv-color-primary); border-color: var(--mv-color-primary); color: var(--mv-color-surface); border-radius: var(--mv-radius-control); min-height: 32px; }
+section[data-screen-id^='DGV-'] button.primary:hover:not(:disabled) { background: var(--mv-color-primary-hover); border-color: var(--mv-color-primary-hover); }
+section[data-screen-id^='DGV-'] button.danger { border-color: var(--mv-color-danger); color: var(--mv-color-danger); background: var(--mv-color-surface); border-radius: var(--mv-radius-control); min-height: 32px; }
+section[data-screen-id^='DGV-'] button:disabled { opacity: 0.6; cursor: not-allowed; }
+section[data-screen-id^='DGV-'] a:not(.ui-button) { color: var(--mv-color-primary); text-decoration: underline; text-underline-offset: 2px; }
+section[data-screen-id^='DGV-'] a.button { text-decoration: none; }
+section[data-screen-id^='DGV-'] :focus-visible { outline: 3px solid var(--mv-color-focus); outline-offset: 2px; }
+@media (max-width: 599px) {
+  section[data-screen-id^='DGV-'] .heading { flex-wrap: wrap; }
+  section[data-screen-id^='DGV-'] .card { padding: var(--mv-space-16); }
+}

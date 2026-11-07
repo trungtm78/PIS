@@ -39,34 +39,36 @@ const open = (glossary: Array<Record<string, unknown>>, failing?: Error) => {
   return h;
 };
 
+const rowOfTerm = (table: HTMLElement, code: string): HTMLElement => table.querySelector(`[data-term="${code}"]`)?.closest('tr') as HTMLElement;
+
 describe('DIS-25 metric definitions and the golden fixtures', () => {
   it('AC-ST-DIS-011-1 / UAT-AC257 / UI-DIS-25: shows the definitions with the label that they await the sign-off of D03, each with its formula, and the seven fixtures with their expected numbers', async () => {
     open(allTerms('IN_REVIEW'));
     expect(await screen.findByRole('heading', { level: 1, name: vi_['dis.definitions.page.title'] })).toBeTruthy();
     expect((await screen.findByTestId('definitions-pending')).textContent).toBe('CHỜ KÝ D03');
     expect(screen.queryByTestId('definitions-signed')).toBeNull();
-    const table = screen.getByTestId('definitions-table');
+    const table = screen.getByRole('table', { name: vi_['dis.definitions.terms.aria'] });
     expect(within(table).getAllByRole('row').slice(1)).toHaveLength(DISBURSEMENT_REQUIRED_TERMS.length);
-    const ytd = table.querySelector('tr[data-term="GIAI_NGAN_YTD"]') as HTMLElement;
-    expect(ytd.getAttribute('data-status')).toBe('IN_REVIEW');
+    const ytd = rowOfTerm(table, 'GIAI_NGAN_YTD');
+    expect(table.querySelector('[data-term="GIAI_NGAN_YTD"]')?.getAttribute('data-status')).toBe('IN_REVIEW');
     expect(within(ytd).getByText('formula(GIAI_NGAN_YTD)')).toBeTruthy();
     expect(within(ytd).getByText(vi_['dis.definitions.term.inReview'])).toBeTruthy();
     expect(within(ytd).getByText('Chờ ký D03')).toBeTruthy();
-    const fixtures = screen.getByTestId('fixtures-table');
-    expect(Array.from(fixtures.querySelectorAll('tbody tr')).map((row) => row.getAttribute('data-fixture'))).toEqual(['FX-DIS-001', 'FX-DIS-002', 'FX-DIS-003', 'FX-DIS-004', 'FX-DIS-005', 'FX-DIS-006', 'FX-DIS-007']);
+    const fixtures = screen.getByRole('table', { name: vi_['dis.definitions.fixtures.aria'] });
+    expect(Array.from(fixtures.querySelectorAll('[data-fixture]')).map((row) => row.getAttribute('data-fixture'))).toEqual(['FX-DIS-001', 'FX-DIS-002', 'FX-DIS-003', 'FX-DIS-004', 'FX-DIS-005', 'FX-DIS-006', 'FX-DIS-007']);
     expect(screen.getByTestId('expected-FX-DIS-004').textContent).toBe('{"rate_pm_pct":"60.0000","rate_total_pct":"48.0000"}');
     expect(screen.getByTestId('expected-FX-DIS-001').textContent).toContain('"total_vnd":"420000000"');
     expect(screen.getByTestId('expected-FX-DIS-001').textContent).toContain('"ctmtqg_vnd":"40000000"');
     expect(screen.getByTestId('expected-FX-DIS-003').textContent).toContain('"unit_rate_pm_pct":"14.0000"');
     // Each fixture carries the label too, and the sentence of the case in words.
-    expect(within(fixtures.querySelector('tr[data-fixture="FX-DIS-005"]') as HTMLElement).getByText('CHỜ KÝ D03')).toBeTruthy();
+    expect(within(fixtures.querySelector('[data-fixture="FX-DIS-005"]')?.closest('tr') as HTMLElement).getByText('CHỜ KÝ D03')).toBeTruthy();
     expect(within(fixtures).getByText(vi_['dis.definitions.fixture.fx007'])).toBeTruthy();
     for (const fixture of DIS_GOLDEN) expect(screen.getByTestId(`given-${fixture.id}`).textContent).toBe(JSON.stringify(fixture.given));
   });
 
   it('AC-ST-DIS-011-3: has no control that edits, approves or signs: only a link to the glossary where the owner does it, and the same once everything is signed', async () => {
     open(allTerms('IN_REVIEW'));
-    await screen.findByTestId('definitions-table');
+    await screen.findByRole('table', { name: vi_['dis.definitions.terms.aria'] });
     expect(screen.queryAllByRole('button')).toHaveLength(0);
     expect(document.querySelectorAll('input, textarea, select, form')).toHaveLength(0);
     expect(screen.getByRole('link', { name: vi_['dis.definitions.glossary.link'] }).getAttribute('href')).toBe('/mdm/mdm-34');
@@ -82,9 +84,9 @@ describe('DIS-25 metric definitions and the golden fixtures', () => {
   it('says a term is not proposed when the glossary has none, and does not count the definitions as signed while one is short of being published', async () => {
     const published = DISBURSEMENT_REQUIRED_TERMS.slice(1).map((code, n) => term(n + 10, code, 'PUBLISHED'));
     open(published);
-    const table = await screen.findByTestId('definitions-table');
-    const missing = table.querySelector(`tr[data-term="${DISBURSEMENT_REQUIRED_TERMS[0]}"]`) as HTMLElement;
-    expect(missing.getAttribute('data-status')).toBe('MISSING');
+    const table = await screen.findByRole('table', { name: vi_['dis.definitions.terms.aria'] });
+    const missing = rowOfTerm(table, DISBURSEMENT_REQUIRED_TERMS[0] as string);
+    expect(table.querySelector(`[data-term="${DISBURSEMENT_REQUIRED_TERMS[0]}"]`)?.getAttribute('data-status')).toBe('MISSING');
     expect(within(missing).getByText(vi_['dis.definitions.term.none'])).toBeTruthy();
     expect(within(missing).getByText(vi_['dis.definitions.term.missing'])).toBeTruthy();
     expect(screen.getByTestId('definitions-pending').textContent).toBe('CHỜ KÝ D03');
@@ -98,12 +100,12 @@ describe('DIS-25 metric definitions and the golden fixtures', () => {
       ...rest.map((code, n) => term(n + 3, code, 'PUBLISHED')),
       term(20, 'OTHER_TERM', 'IN_REVIEW', { domain: 'OTHER' }),
     ]);
-    const table = await screen.findByTestId('definitions-table');
-    const row = table.querySelector(`tr[data-term="${first}"]`) as HTMLElement;
+    const table = await screen.findByRole('table', { name: vi_['dis.definitions.terms.aria'] });
+    const row = rowOfTerm(table, first as string);
     expect(within(row).getByText('Bản đã ký.')).toBeTruthy();
     expect(within(row).queryByText('Bản mới đang chờ duyệt.')).toBeNull();
     expect(screen.getByTestId('definitions-signed')).toBeTruthy();
-    expect(table.querySelector('tr[data-term="OTHER_TERM"]')).toBeNull();
+    expect(table.querySelector('[data-term="OTHER_TERM"]')).toBeNull();
   });
 
   it('is in each of the states of a screen: loading while the glossary is read, an error that can be tried again, and a refusal for a person who may not read it', async () => {
@@ -114,7 +116,7 @@ describe('DIS-25 metric definitions and the golden fixtures', () => {
     expect(await screen.findByRole('button', { name: vi_['states.retry.action'] })).toBeTruthy();
     cleanup();
     open(allTerms('IN_REVIEW'));
-    expect(screen.queryByTestId('definitions-table')).toBeNull();
-    expect(await screen.findByTestId('definitions-table')).toBeTruthy();
+    expect(screen.queryByRole('table', { name: vi_['dis.definitions.terms.aria'] })).toBeNull();
+    expect(await screen.findByRole('table', { name: vi_['dis.definitions.terms.aria'] })).toBeTruthy();
   });
 });

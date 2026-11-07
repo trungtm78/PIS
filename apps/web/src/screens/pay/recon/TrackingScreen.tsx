@@ -8,6 +8,7 @@ import { instantText } from '../model';
 import { useTracking } from './hooks';
 import { TRANSACTION_READ_PERMISSION, boardLink, differenceText, vndText } from './model';
 import '../pay.css';
+import { SectionCard } from '../../../ui';
 
 /**
  * PAY-09: where each project stands with the Treasury (ST-PAY-007, PAY 3.3). For every project that has anything with the Treasury: the Treasury code (the code of the project, which is what the
@@ -42,7 +43,7 @@ function TrackingContent({ route }: ScreenProps) {
         </p>
       ) : (
         <StateBoundary state={state} onRetry={() => void tracking.refetch()}>
-          <article className="card" aria-label={t('pay.track.title')}>
+          <SectionCard title={t('pay.track.title')}>
             {rows.length === 0 ? (
               <p className="sub" data-testid="nothing">
                 {t('pay.track.empty')}
@@ -101,7 +102,7 @@ function TrackingContent({ route }: ScreenProps) {
                 </tbody>
               </table>
             )}
-          </article>
+          </SectionCard>
         </StateBoundary>
       )}
       <p className="prototype-note">{t('pay.track.footer', { id: route.id, req: route.req ?? '' })}</p>

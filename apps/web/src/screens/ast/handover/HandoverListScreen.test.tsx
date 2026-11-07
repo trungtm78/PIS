@@ -32,7 +32,8 @@ const pick = (id: string, value: string): void => {
   fireEvent.change(document.getElementById(id) as HTMLElement, { target: { value } });
 };
 const rows = (): string[] => Array.from(document.querySelectorAll('[data-handover]')).map((row) => row.getAttribute('data-handover') as string);
-const row = (id: string): HTMLElement => document.querySelector(`[data-handover="${id}"]`) as HTMLElement;
+/** The number of the handover is marked in its cell; the row is the table row around it. */
+const row = (id: string): HTMLElement => (document.querySelector(`[data-handover="${id}"]`) as HTMLElement).closest('tr') as HTMLElement;
 const submit = (name: string): void => {
   fireEvent.click(within(dialog()).getByRole('button', { name }));
 };

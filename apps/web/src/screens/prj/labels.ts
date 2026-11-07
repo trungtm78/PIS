@@ -1,4 +1,5 @@
 import type { useTranslation } from '../../i18n';
+import type { Tone } from '../../ui';
 import type { Classification, FieldProblem, ProblemView, ProjectStatus } from './model';
 
 type Translate = ReturnType<typeof useTranslation>['t'];
@@ -28,6 +29,28 @@ export function stageLabel(t: Translate, status: ProjectStatus): string {
       return t('prj.stage.rejected.label');
     case 'CANCELLED':
       return t('prj.stage.cancelled.label');
+  }
+}
+
+/** The tone of the pill that names the stage: a halt is amber, a rejection is red, a stage under way or finished is blue or green; the label always says it in words. */
+export function stageTone(status: ProjectStatus): Tone {
+  switch (status) {
+    case 'CONCEPT':
+    case 'CLOSED':
+    case 'CANCELLED':
+      return 'neutral';
+    case 'APPRAISAL':
+    case 'PIPELINE':
+    case 'BUDGETED':
+      return 'info';
+    case 'IMPLEMENTATION':
+    case 'COMPLETED':
+    case 'SETTLED':
+      return 'success';
+    case 'SUSPENDED':
+      return 'warning';
+    case 'REJECTED':
+      return 'danger';
   }
 }
 

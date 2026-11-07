@@ -15,6 +15,7 @@ import { formName, formStatusLabel } from './labels';
 import { FORM_CODES, boardLink, formsMissing, standingForms } from './model';
 import type { FormCode } from './model';
 import '../pay.css';
+import { SectionCard } from '../../../ui';
 
 /** The day in Vietnam, for the check that the day the file was sent is not to come. */
 const vietnamToday = (): string => new Date(Date.now() + 7 * 3_600_000).toISOString().slice(0, 10);
@@ -75,7 +76,7 @@ function FormsContent({ route }: ScreenProps) {
         <StateBoundary state={state} onRetry={() => void Promise.all([payment.refetch(), forms.refetch()])}>
           {request === null || request === undefined ? null : (
             <>
-              <article className="card" aria-label={t('pay.forms.request')}>
+              <SectionCard title={t('pay.forms.request')}>
                 <h2>
                   <Link to={paymentLink(request.id)} data-testid="request-no">
                     {request.requestNo ?? request.id}
@@ -131,13 +132,13 @@ function FormsContent({ route }: ScreenProps) {
                     {t('pay.forms.missing', { forms: missing.join(', ') })}
                   </p>
                 ) : null}
-              </article>
+              </SectionCard>
               {done === undefined ? null : (
                 <p className="callout" role="status" data-testid="done">
                   {done}
                 </p>
               )}
-              <article className="card" aria-label={t('pay.forms.forms')}>
+              <SectionCard title={t('pay.forms.forms')}>
                 <table className="table" data-testid="forms">
                   <thead>
                     <tr>
@@ -177,10 +178,9 @@ function FormsContent({ route }: ScreenProps) {
                     })}
                   </tbody>
                 </table>
-              </article>
+              </SectionCard>
               {history.length === 0 ? null : (
-                <article className="card" aria-label={t('pay.forms.history')}>
-                  <h2>{t('pay.forms.history')}</h2>
+                <SectionCard title={t('pay.forms.history')}>
                   <ul data-testid="history">
                     {history.map((form) => (
                       <li key={form.id} data-form-id={form.id}>
@@ -188,7 +188,7 @@ function FormsContent({ route }: ScreenProps) {
                       </li>
                     ))}
                   </ul>
-                </article>
+                </SectionCard>
               )}
               {dialog?.kind === 'generate' ? <GenerateDialog request={request} codes={dialog.codes} onDone={finished(t('pay.forms.done.generated'))} onClose={() => setDialog(undefined)} /> : null}
               {dialog?.kind === 'send' ? <SendDialog request={request} forms={all} today={vietnamToday()} onDone={finished(t('pay.forms.done.sent'))} onClose={() => setDialog(undefined)} /> : null}

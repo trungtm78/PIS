@@ -10,7 +10,7 @@
 }
 
 .members-error {
-  color: #a22b22;
+  color: var(--mv-color-danger);
 }
 
 .members-actions {
@@ -21,7 +21,7 @@
 
 /* The contracts a guest may be given: one box with a check per contract. */
 .members-contracts {
-  border: 1px solid var(--border, #e8e3e5);
+  border: 1px solid var(--mv-color-border);
   border-radius: 9px;
   padding: 10px 14px;
   margin: 12px 0;
@@ -34,4 +34,9 @@
   display: inline-flex;
   gap: 6px;
   align-items: center;
+}
+
+.members-actions .danger {
+  color: var(--mv-color-danger);
+  border-color: var(--mv-color-danger);
 }

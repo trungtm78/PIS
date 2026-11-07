@@ -21,7 +21,7 @@ function open(state: World, options: { path?: string; permissions?: readonly str
   return h;
 }
 
-const rowOf = (id: string): HTMLElement => document.querySelector(`tr[data-advance="${id}"]`) as HTMLElement;
+const rowOf = (id: string): HTMLElement => (document.querySelector(`[data-advance="${id}"]`)?.closest('tr') ?? null) as HTMLElement;
 const dialog = (): HTMLElement => screen.getByRole('dialog');
 const field = (id: string): HTMLInputElement & HTMLSelectElement => document.getElementById(id) as HTMLInputElement & HTMLSelectElement;
 const type = (id: string, value: string): void => {
@@ -43,7 +43,7 @@ describe('AdvanceListScreen (PAY-07): advances and recovery', () => {
     expect(within(first).getByTestId('tranche').textContent).toBe(text('pay.advance.tranche', { no: 1, kind: vi_['pay.advance.kind.gpmb'] }));
     expect(within(first).getByTestId('member').textContent).toBe('Nhà thầu A');
     expect(within(first).getByTestId('status').textContent).toBe(vi_['pay.advance.status.recovering']);
-    expect(within(first).getByTestId('status').className).toContain('warning');
+    expect(within(first).getByTestId('status').querySelector('.ui-tone-warning')).not.toBeNull();
     expect(within(first).getByTestId('paid').textContent).toBe('2.000.000.000');
     expect(within(first).getByTestId('recovered').textContent).toBe('750.000.000');
     expect(within(first).getByTestId('outstanding').textContent).toBe('1.250.000.000');
@@ -51,7 +51,7 @@ describe('AdvanceListScreen (PAY-07): advances and recovery', () => {
     expect(within(first).getByTestId('threshold').textContent).toBe(text('pay.advance.threshold', { pct: '80' }));
     expect(within(first).getByTestId('overdue').textContent).toBe('12');
     const planned = rowOf(advanceId(2));
-    expect(within(planned).getByTestId('status').className).not.toContain('warning');
+    expect(within(planned).getByTestId('status').querySelector('.ui-tone-warning')).toBeNull();
     expect(within(planned).getByTestId('overdue').textContent).toBe('');
     expect(within(planned).getByTestId('deadline').textContent).toBe('');
   });
@@ -61,7 +61,7 @@ describe('AdvanceListScreen (PAY-07): advances and recovery', () => {
     await screen.findByTestId('advances');
     const row = rowOf(advanceId(1));
     expect(within(row).getByTestId('member').textContent).toBe('SOLE');
-    expect(within(row).getByTestId('status').className).toContain('warning');
+    expect(within(row).getByTestId('status').querySelector('.ui-tone-warning')).not.toBeNull();
   });
 
   it('narrows the list by contract and by status', async () => {

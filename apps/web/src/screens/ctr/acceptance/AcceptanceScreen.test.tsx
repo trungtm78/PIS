@@ -30,7 +30,7 @@ const type = (id: string, value: string): void => {
 const press = (name: string): void => {
   fireEvent.click(within(dialog()).getByRole('button', { name }));
 };
-const rowOf = (id: string): HTMLElement => document.querySelector(`tr[data-acceptance="${id}"]`) as HTMLElement;
+const rowOf = (id: string): HTMLElement => document.querySelector(`[data-acceptance="${id}"]`)?.closest('tr') as HTMLElement;
 const commandsOf = (h: ReturnType<typeof client>, operation: string): Array<{ path?: { id?: string }; body: Record<string, unknown>; ifMatchVersion?: number }> =>
   h.command.mock.calls.filter((call) => call[0] === operation).map((call) => call[1] as { path?: { id?: string }; body: Record<string, unknown>; ifMatchVersion?: number });
 
@@ -79,8 +79,8 @@ describe('AcceptanceScreen (CTR-12): the acceptance of work', () => {
     expect(within(rowOf(acceptanceId(2))).queryByTestId('ncr-open')).toBeNull();
     expect(within(rowOf(acceptanceId(2))).getByTestId('decision-reason').textContent).toBe('Đã đối chiếu');
     expect(within(rowOf(acceptanceId(3))).getByTestId('revoke-reason').textContent).toBe(text('ctr.acceptance.revoked.reason', { reason: 'Đo lại' }));
-    expect(within(rowOf(acceptanceId(3))).getByTestId('status').className).toContain('warning');
-    expect(within(rowOf(acceptanceId(4))).getByTestId('status').className).toContain('warning');
+    expect(within(rowOf(acceptanceId(3))).getByTestId('status').querySelector('.ui-tone-warning')).not.toBeNull();
+    expect(within(rowOf(acceptanceId(4))).getByTestId('status').querySelector('.ui-tone-warning')).not.toBeNull();
     expect(screen.queryByTestId('quality-required')).toBeNull();
     expect(within(rowOf(acceptanceId(4))).getByTestId('quality').textContent).toBe(vi_['ctr.acceptance.quality.notAsked']);
   });

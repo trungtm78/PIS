@@ -15,6 +15,7 @@ import { useDraftProfile, useModels, useProfiles, usePrompts } from './hooks';
 import { classificationLabel, refusalMessage, routeLabel } from './labels';
 import { CLASSIFICATIONS, ROUTES, describeLlmProblem } from './llm-model';
 import type { Classification, ModelEntry, Route } from './llm-model';
+import './llm-kit.css';
 
 /**
  * LLM-04: the model profiles of the AI tasks (ST-LLM-004, LLM F3): for each task the model it uses, the models it may fall back to, the effort and the caps on what it reads and gives, the tools it may call (only tools that
@@ -139,7 +140,7 @@ function ProfileForm({ profiles, models, prompts, loading, failed, onRetry }: { 
       {failed === undefined || failed === null ? null : (
         <p className="callout warning" role="alert" data-testid="profile-sources-failed">
           {t('llm.profiles.form.sourcesFailed')}{' '}
-          <button type="button" className="btn" onClick={onRetry}>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={onRetry}>
             {t('llm.profiles.form.sourcesRetry')}
           </button>
         </p>
@@ -253,7 +254,7 @@ function ProfileForm({ profiles, models, prompts, loading, failed, onRetry }: { 
         <textarea id="profile-schema" rows={3} value={values.outputSchema} onChange={(event) => set('outputSchema', event.target.value)} />
       </Field>
       <div className="mne-actions">
-        <button type="submit" className="btn" disabled={draft.isPending || unavailable}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={draft.isPending || unavailable}>
           {t('llm.profiles.form.submit')}
         </button>
       </div>

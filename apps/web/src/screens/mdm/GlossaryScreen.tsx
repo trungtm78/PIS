@@ -21,6 +21,10 @@ import {
   validateGlossary,
 } from './model';
 import type { FieldProblem, FormErrors, GlossaryField, GlossaryForm, GlossaryStatus, GlossaryTermView } from './model';
+import { SectionCard, StatusPill } from '../../ui';
+import { KitTable } from '../adm/KitTable';
+import { toneOfPill } from '../adm/kit-tone';
+import '../adm/adm-kit.css';
 
 const NEVER_EMPTY = (): boolean => false;
 const OWNER_ID_SHOWN = 8;
@@ -90,15 +94,16 @@ function GlossaryContent({ route }: ScreenProps) {
       </div>
       <StateBoundary state={state} onRetry={() => void terms.refetch()}>
         {definitions === undefined ? null : (
-          <div className="card" data-testid="definition-badge" data-state={definitions.signed ? 'SIGNED' : 'PENDING'}>
-            <h2>{t('mdm.glossary.badge.title')}</h2>
+          <SectionCard title={t('mdm.glossary.badge.title')}>
+            <div data-testid="definition-badge" data-state={definitions.signed ? 'SIGNED' : 'PENDING'}>
             <p>
               <span className={definitions.signed ? 'pill' : 'pill warn'}>{definitions.signed ? t('mdm.glossary.badge.signed.pill') : t('mdm.glossary.badge.pending.pill')}</span>
             </p>
             <p className="sub">
               {definitions.signed ? t('mdm.glossary.badge.signed.text') : t('mdm.glossary.badge.pending.text', { count: definitions.missing.length, terms: definitions.missing.join(', ') })}
             </p>
-          </div>
+            </div>
+          </SectionCard>
         )}
         <div className="card">
           <form className="mdm-filters" role="search" onSubmit={(event) => event.preventDefault()} aria-label={t('mdm.glossary.filter.title')}>
@@ -130,7 +135,7 @@ function GlossaryContent({ route }: ScreenProps) {
               {filtering ? t('mdm.glossary.noMatch.text') : t('mdm.glossary.empty.text')}
             </p>
           ) : (
-            <table className="table" aria-label={t('mdm.glossary.table.aria')}>
+            <KitTable caption={t('w2mdm.glossary.table.caption')} aria-label={t('mdm.glossary.table.aria')}>
               <thead>
                 <tr>
                   <th>{t('mdm.glossary.code.column')}</th>
@@ -142,7 +147,7 @@ function GlossaryContent({ route }: ScreenProps) {
                   <th>{t('mdm.glossary.effective.column')}</th>
                   <th>{t('mdm.glossary.formula.column')}</th>
                   <th>
-                    <span className="sr-only">{t('mdm.glossary.actions.column')}</span>
+                    {t('mdm.glossary.actions.column')}
                   </th>
                 </tr>
               </thead>
@@ -151,7 +156,7 @@ function GlossaryContent({ route }: ScreenProps) {
                   <TermRow key={term.id} term={term} mayPropose={mayPropose} mayApprove={mayApprove} onRevise={(term) => { setSaved(false); setRevising(term); }} />
                 ))}
               </tbody>
-            </table>
+            </KitTable>
           )}
           <p className="sub" data-testid="count">
             {t('mdm.glossary.count.text', { count: rows.length })}
@@ -231,7 +236,7 @@ function TermRow({ term, mayPropose, mayApprove, onRevise }: { term: GlossaryTer
         <td>{term.domain}</td>
         <td>{term.revision}</td>
         <td>
-          <span className={STATUS_PILL[term.status]}>{glossaryStatusLabel(t, term.status)}</span>
+          <StatusPill tone={toneOfPill(STATUS_PILL[term.status])}>{glossaryStatusLabel(t, term.status)}</StatusPill>
         </td>
         <td>
           <code title={term.ownerMembershipId}>{term.ownerMembershipId.slice(0, OWNER_ID_SHOWN)}</code>
@@ -240,7 +245,7 @@ function TermRow({ term, mayPropose, mayApprove, onRevise }: { term: GlossaryTer
         <td>{term.formulaRef === null ? null : <code>{term.formulaRef}</code>}</td>
         <td className="row-actions">
           {mayPropose && term.status === 'DRAFT' ? (
-            <button type="button" onClick={sendSubmit} disabled={busy}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={sendSubmit} disabled={busy}>
               {t('mdm.glossary.submit.action')}
             </button>
           ) : null}
@@ -257,12 +262,12 @@ function TermRow({ term, mayPropose, mayApprove, onRevise }: { term: GlossaryTer
             </button>
           ) : null}
           {mayApprove && term.status === 'APPROVED' ? (
-            <button type="button" onClick={sendPublish} disabled={busy}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={sendPublish} disabled={busy}>
               {t('mdm.glossary.publish.action')}
             </button>
           ) : null}
           {mayPropose && term.status === 'PUBLISHED' ? (
-            <button type="button" onClick={() => onRevise(term)}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => onRevise(term)}>
               {t('mdm.glossary.revise.action')}
             </button>
           ) : null}
@@ -300,8 +305,8 @@ function TermRow({ term, mayPropose, mayApprove, onRevise }: { term: GlossaryTer
                   }}
                 />
               </Field>
-              <div className="formfooter">
-                <button type="button" onClick={() => setDeciding(false)}>
+              <div className="adm-kit-actions">
+                <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setDeciding(false)}>
                   {t('mdm.approval.cancel.action')}
                 </button>
                 {DECISIONS.map((decision) => (
@@ -410,13 +415,13 @@ function ProposeTerm({ revising, saved, onSaved, onDone }: { revising: GlossaryT
           onChange={(event) => setField('definition', event.target.value)}
         />
       </Field>
-      <div className="formfooter">
+      <div className="adm-kit-actions">
         {revising === undefined ? null : (
-          <button type="button" onClick={onDone}>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={onDone}>
             {t('mdm.glossary.revise.cancel.action')}
           </button>
         )}
-        <button type="submit" className="primary" disabled={propose.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={propose.isPending}>
           {t('mdm.glossary.save.action')}
         </button>
       </div>

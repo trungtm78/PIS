@@ -19,6 +19,7 @@ import { actionLabel, dayLabel, guaranteeLabel, impactLabel, submitLabel } from 
 import { GUARANTEE_ACTIONS, emptyHalt, haltBody, validateHalt } from './model';
 import type { GuaranteeAction, HaltForm } from './model';
 import '../ctr.css';
+import { SectionCard } from '../../../ui';
 
 /**
  * CTR-22: suspend, resume or terminate a contract (ST-CTR-005, CTR 3.2). The person chooses among the actions that apply to the status of the contract and that they may take, says why,
@@ -102,8 +103,7 @@ function Halt({ summary, locale, today, readOnly, done, onDone }: HaltProps) {
   return (
     <div className="ctr-grid">
       <div>
-        <article className="card" aria-label={t('ctr.halt.contract.title')}>
-          <h2>{t('ctr.halt.contract.title')}</h2>
+        <SectionCard title={t('ctr.halt.contract.title')}>
           <p>
             <strong data-testid="contract-code">{contract.code}</strong> · {contract.title ?? t('ctr.workspace.none.text')} <StatusBadge status={contract.status} />
           </p>
@@ -117,7 +117,7 @@ function Halt({ summary, locale, today, readOnly, done, onDone }: HaltProps) {
             <dt>{t('ctr.workspace.fact.due')}</dt>
             <dd>{contract.completionDue ?? t('ctr.workspace.none.text')}</dd>
           </dl>
-        </article>
+        </SectionCard>
         {done ? (
           <p className="callout" role="status" data-testid="done">
             {t('ctr.halt.done.notice')}
@@ -131,8 +131,7 @@ function Halt({ summary, locale, today, readOnly, done, onDone }: HaltProps) {
           </p>
         </article>
       ) : (
-        <article className="card" aria-label={t('ctr.halt.form.title')}>
-          <h2>{t('ctr.halt.form.title')}</h2>
+        <SectionCard title={t('ctr.halt.form.title')}>
           <form onSubmit={send} noValidate>
             {halt.isError ? (
               <p className="callout warning" role="alert" data-testid="refusal">
@@ -224,7 +223,7 @@ function Halt({ summary, locale, today, readOnly, done, onDone }: HaltProps) {
               </>
             )}
           </form>
-        </article>
+        </SectionCard>
       )}
     </div>
   );

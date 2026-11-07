@@ -27,6 +27,9 @@ import {
 } from './quality-labels';
 import { QUALITY_RUN_PERMISSION, describeQualityProblem, instantText, validateRunSnapshot } from './quality-model';
 import type { DimensionView, RunProblem, RunView, ScoredRuleView, ScorecardView } from './quality-model';
+import './dgv-kit.css';
+import { StatusPill } from '../../ui';
+import { pillTone } from './pill-tone';
 
 const NEVER_EMPTY = (): boolean => false;
 const DATASET_PARAM = 'dataset';
@@ -107,7 +110,7 @@ function Scorecard({ card, contractId }: { card: ScorecardView; contractId: stri
               <code className="dgv-code">{card.datasetCode}</code>
             </h2>
             <QualityPill badge={card.badge} />
-            {card.hardFail === true ? <span className="pill red">{t('dgv.score.hardFail.pill')}</span> : null}
+            {card.hardFail === true ? <StatusPill tone="danger">{t('dgv.score.hardFail.pill')}</StatusPill> : null}
           </div>
           <div className="dgv-score" data-testid="score">
             <span className="sub">{t('dgv.score.score.label')}</span>
@@ -267,7 +270,7 @@ function RuleTable({ rules }: { rules: ScoredRuleView[] }) {
                   <span className="sub">{severityLabel(t, rule.severity)}</span>
                 </td>
                 <td>
-                  <span className={`pill ${resultTone(rule.result)}`}>{resultLabel(t, rule.result)}</span>
+                  <StatusPill tone={pillTone(resultTone(rule.result))}>{resultLabel(t, rule.result)}</StatusPill>
                   {rule.result === 'ERROR' ? <span className="sub">{ruleErrorLabel(t, rule.errorCode)}</span> : null}
                 </td>
               </tr>
@@ -336,7 +339,7 @@ function RunChecks({ contractId }: { contractId: string | null }) {
         />
       </Field>
       <div className="formfooter">
-        <button type="submit" className="primary" disabled={run.isPending || contractId === null}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={run.isPending || contractId === null}>
           {t('dgv.score.run.start.action')}
         </button>
       </div>

@@ -28,8 +28,12 @@ import {
 } from './plan/model';
 import type { BillingCycle, ExpiredBehavior, FeatureField, FeatureForm, FormField, FormProblems, GraceBehavior, LimitKind, PlanForm, PlanRow, VatCategory } from './plan/model';
 import { featureLabel, toneClass } from './tenants/labels';
+import { SectionCard, StatusPill } from '../../ui';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 import './tenants/sas.css';
 import './plan/plan.css';
+import { toneOfPill } from '../adm/kit-tone';
 
 type Context = 'create' | 'publish';
 interface Notice {
@@ -164,11 +168,9 @@ function PlanContent({ route }: ScreenProps) {
         </div>
       </div>
       <div className="plan-grid">
-        <div className="card">
-          <h2>{t('sas.plan.list.title')}</h2>
+        <SectionCard title={t('sas.plan.list.title')} unit={t('dis.wr.unit')}>
           <StateBoundary state={state} onRetry={() => void plans.refetch()}>
-            <div className="tablewrap">
-              <table aria-label={t('sas.plan.list.title')}>
+              <KitTable caption={t('w2sas.plan.table.list')} aria-label={t('sas.plan.list.title')}>
                 <thead>
                   <tr>
                     <th>{t('sas.plan.col.plan')}</th>
@@ -190,19 +192,19 @@ function PlanContent({ route }: ScreenProps) {
                       <td>{row.billingCycles.map((cycle) => cycleLabel(t, cycle)).join(', ')}</td>
                       <td>{vatLabel(t, row.vatCategory)}</td>
                       <td>
-                        <span className={toneClass(row.status === 'Published' ? 'ok' : row.status === 'Draft' ? 'warn' : 'gray')}>{statusLabel(t, row.status)}</span>
+                        <StatusPill tone={toneOfPill(toneClass(row.status === 'Published' ? 'ok' : row.status === 'Draft' ? 'warn' : 'gray'))}>{statusLabel(t, row.status)}</StatusPill>
                       </td>
                       <td className="plan-actions">
                         <button type="button" aria-pressed={matrixOf?.id === row.id} onClick={() => setChosen(row.id)}>
                           {t('sas.plan.row.features.action')}
                         </button>
                         {canManage ? (
-                          <button type="button" onClick={() => revise(row)}>
+                          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => revise(row)}>
                             {t('sas.plan.row.revise.action')}
                           </button>
                         ) : null}
                         {canManage && row.status === 'Draft' ? (
-                          <button type="button" className="primary" disabled={publish.isPending} onClick={() => setPublishing({ plan: row, reason: '', tooShort: false })}>
+                          <button type="button" className="ui-button ui-button--primary" disabled={publish.isPending} onClick={() => setPublishing({ plan: row, reason: '', tooShort: false })}>
                             {t('sas.plan.row.publish.action')}
                           </button>
                         ) : null}
@@ -210,8 +212,7 @@ function PlanContent({ route }: ScreenProps) {
                     </tr>
                   ))}
                 </tbody>
-              </table>
-            </div>
+              </KitTable>
           </StateBoundary>
           {notice === undefined ? null : (
             <p className="callout" role="status">
@@ -244,10 +245,10 @@ function PlanContent({ route }: ScreenProps) {
                 ) : null}
               </div>
               <div className="row gap">
-                <button type="submit" className="primary" disabled={publish.isPending}>
+                <button type="submit" className="ui-button ui-button--primary" disabled={publish.isPending}>
                   {t('sas.plan.publish.confirm.action')}
                 </button>
-                <button type="button" onClick={() => setPublishing(undefined)}>
+                <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setPublishing(undefined)}>
                   {t('sas.plan.publish.cancel.action')}
                 </button>
               </div>
@@ -328,8 +329,7 @@ function PlanContent({ route }: ScreenProps) {
                   {fieldError('features')}
                 </small>
               )}
-              <div className="tablewrap">
-                <table aria-label={t('sas.plan.form.features.title')} className="plan-feature-editor">
+                <KitTable caption={t('w2sas.plan.table.features')} aria-label={t('sas.plan.form.features.title')} className="plan-feature-editor">
                   <thead>
                     <tr>
                       <th>{t('sas.plan.matrix.col.feature')}</th>
@@ -407,23 +407,22 @@ function PlanContent({ route }: ScreenProps) {
                           )}
                         </td>
                         <td>
-                          <button type="button" onClick={() => removeFeature(feature.key)}>
+                          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => removeFeature(feature.key)}>
                             {t('sas.plan.edit.remove.action', { row: index + 1 })}
                           </button>
                         </td>
                       </tr>
                     ))}
                   </tbody>
-                </table>
-              </div>
+                </KitTable>
               <div className="row gap">
-                <button type="button" onClick={addFeature}>
+                <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={addFeature}>
                   {t('sas.plan.edit.add.action')}
                 </button>
-                <button type="submit" className="primary" disabled={create.isPending}>
+                <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending}>
                   {t('sas.plan.form.submit.action')}
                 </button>
-                <button type="button" onClick={reset}>
+                <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={reset}>
                   {t('sas.plan.form.reset.action')}
                 </button>
               </div>
@@ -433,17 +432,15 @@ function PlanContent({ route }: ScreenProps) {
               {t('sas.plan.form.denied')}
             </p>
           )}
-        </div>
+        </SectionCard>
 
-        <div className="card" aria-label={t('sas.plan.matrix.title')}>
-          <h2>{t('sas.plan.matrix.title')}</h2>
+        <SectionCard title={t('sas.plan.matrix.title')}>
           {matrixOf === undefined ? (
             <p className="sub">{t('sas.plan.matrix.none')}</p>
           ) : (
             <div data-testid="matrix" data-plan-id={matrixOf.id}>
               <p className="sub">{t('sas.plan.matrix.of', { name: planName(t, matrixOf.name), code: matrixOf.planCode, revision: matrixOf.revision })}</p>
-              <div className="tablewrap">
-                <table aria-label={t('sas.plan.matrix.title')}>
+                <KitTable caption={t('w2sas.plan.table.matrix')} aria-label={t('sas.plan.matrix.title')}>
                   <thead>
                     <tr>
                       <th>{t('sas.plan.matrix.col.feature')}</th>
@@ -467,11 +464,10 @@ function PlanContent({ route }: ScreenProps) {
                       </tr>
                     ))}
                   </tbody>
-                </table>
-              </div>
+                </KitTable>
             </div>
           )}
-        </div>
+        </SectionCard>
       </div>
       <p className="prototype-note">{t('sas.plan.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>

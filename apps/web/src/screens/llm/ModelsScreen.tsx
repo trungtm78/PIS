@@ -12,6 +12,9 @@ import { useApproveModel, useModels, useProviders, useRegisterModel } from './ho
 import { capabilityLabel, classificationLabel, modelStatusLabel, problemMessage, refusalMessage } from './labels';
 import { CAPABILITIES, CLASSIFICATIONS, EMPTY_MODEL, PROVIDER_APPROVE, PROVIDER_MANAGE, describeLlmProblem, validateModel } from './llm-model';
 import type { Capability, Classification, ModelEntry, ModelErrors, ModelValues, Provider } from './llm-model';
+import { modelStatusTone } from './tones';
+import { ContextBar, FilterPanel, StatusPill } from '../../ui';
+import './llm-kit.css';
 
 /**
  * LLM-03: the catalogue of the models (ST-LLM-001, LLM F2): for each model the provider that serves it, the window it reads and the output it gives, the most sensitive class of data it may be sent (never above its
@@ -25,7 +28,7 @@ export default function ModelsScreen({ route }: ScreenProps) {
 
 function ModelsContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { permissions, mode } = useSession();
+  const { permissions, mode, tenant } = useSession();
   const may = (permissions === undefined || permissions.includes(PROVIDER_MANAGE)) && mode !== 'READ_ONLY';
   const mayApprove = (permissions === undefined || permissions.includes(PROVIDER_APPROVE)) && mode !== 'READ_ONLY';
   const [params, setParams] = useSearchParams();
@@ -47,6 +50,13 @@ function ModelsContent({ route }: ScreenProps) {
           <p>{t('llm.models.page.subtitle')}</p>
         </div>
       </div>
+      <ContextBar
+        items={[
+          { label: t('llm.models.ctx.scope'), value: tenant?.name ?? t('llm.models.ctx.scope.all') },
+          { label: t('llm.models.ctx.count'), value: String(shown.length) },
+        ]}
+        {...(models.dataUpdatedAt > 0 ? { asOf: new Date(models.dataUpdatedAt).toLocaleString('vi-VN') } : {})}
+      />
       <StateBoundary
         state={state}
         onRetry={() => {
@@ -54,7 +64,7 @@ function ModelsContent({ route }: ScreenProps) {
           void models.refetch();
         }}
       >
-        <div className="card">
+        <FilterPanel applied={asked === '' ? 0 : 1}>
           <Field id="models-provider" label={t('llm.models.filter')} error={undefined}>
             <select id="models-provider" value={asked} onChange={(event) => setParams(event.target.value === '' ? {} : { provider: event.target.value }, { replace: true })}>
               <option value="">{t('llm.models.filterAll')}</option>
@@ -68,7 +78,7 @@ function ModelsContent({ route }: ScreenProps) {
           <p className="sub" data-testid="models-usable-note">
             {t('llm.models.usableNote')}
           </p>
-        </div>
+        </FilterPanel>
         <table className="table" data-testid="model-table" aria-label={t('llm.models.table.aria')}>
           <thead>
             <tr>
@@ -94,7 +104,7 @@ function ModelsContent({ route }: ScreenProps) {
                 <td>{classificationLabel(t, model.maxClassification)}</td>
                 <td>{model.capabilities.length === 0 ? t('llm.models.none') : model.capabilities.map((capability) => capabilityLabel(t, capability)).join(', ')}</td>
                 <td>
-                  {modelStatusLabel(t, model.status)}
+                  <StatusPill tone={modelStatusTone(model.status)}>{modelStatusLabel(t, model.status)}</StatusPill>
                   {model.status === 'APPROVED' ? null : <span className="sub"> · {t('llm.models.notUsable')}</span>}
                 </td>
                 <td>{mayApprove && (model.status === 'PROPOSED' || model.status === 'EVAL_PENDING') ? <ApproveModel model={model} /> : null}</td>
@@ -115,7 +125,7 @@ function ApproveModel({ model }: { model: ModelEntry }) {
   const refused = approve.isError ? describeLlmProblem(approve.error) : undefined;
   return (
     <>
-      <button type="button" className="btn" disabled={approve.isPending} onClick={() => approve.mutate({ modelId: model.id, version: model.version })}>
+      <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={approve.isPending} onClick={() => approve.mutate({ modelId: model.id, version: model.version })}>
         {t('llm.models.approve')}
       </button>
       {refused === undefined ? null : (
@@ -202,7 +212,7 @@ function ModelForm({ providers }: { providers: readonly Provider[] }) {
         ))}
       </fieldset>
       <div className="mne-actions">
-        <button type="submit" className="btn" disabled={register.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={register.isPending}>
           {t('llm.models.form.submit')}
         </button>
       </div>

@@ -27,6 +27,7 @@ import {
   withDimension,
 } from './quality-model';
 import type { Comparator, Operator, RuleErrors, RuleField, RuleForm, RuleTextField, RuleView, Severity, WritableDimension } from './quality-model';
+import './dgv-kit.css';
 
 const NEVER_EMPTY = (): boolean => false;
 const DATASET_PARAM = 'dataset';
@@ -169,7 +170,7 @@ function RuleLine({ rule, mayApprove, own }: { rule: RuleView; mayApprove: boole
         </td>
         <td className="row-actions">
           {rule.status === 'DRAFT' && mayApprove && !own ? (
-            <button type="button" className="primary" disabled={approve.isPending} onClick={() => approve.mutate({ id: rule.id, version: rule.version })}>
+            <button type="button" className="ui-button ui-button--primary" disabled={approve.isPending} onClick={() => approve.mutate({ id: rule.id, version: rule.version })}>
               {t('dgv.rules.approve.action')}
             </button>
           ) : null}
@@ -310,7 +311,7 @@ function CreateRule({ contractId }: { contractId: string | null }) {
       </div>
       <div className="formfooter">
         <span className="sub">{t('dgv.rules.form.hint.text')}</span>
-        <button type="submit" className="primary" disabled={create.isPending || contractId === null}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending || contractId === null}>
           {t('dgv.rules.form.save.action')}
         </button>
       </div>

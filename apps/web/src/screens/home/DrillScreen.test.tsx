@@ -63,16 +63,27 @@ const drillCalls = (h: Harness): Array<Record<string, string | number>> => h.rea
 
 afterEach(cleanup);
 
+/** The scope line under the title: the place and the day of the figure are read from it. */
+const contextBar = (): HTMLElement => screen.getByRole('group', { name: vi_['ui.contextBar.label'] });
+
 describe('HOME-10 trace of a figure (ST-HOME-002, HOME 3 F2)', () => {
   it('AC-ST-HOME-002-1: UAT-AC266 shows the formula, the snapshot and the day, and the children that add up to the figure, with the proof', async () => {
     mount(<DrillScreen route={ROUTE} />, client(() => drillBody()), { permissions: READER }, OPEN);
     const figure = await screen.findByTestId('drill-figure');
-    expect(within(figure).getByTestId('drill-value').textContent).toBe(fill(vi_['home.tile.value.vnd'], { value: '1.750.000.000.000' }));
+    expect(within(figure).getByText(fill(vi_['home.tile.value.vnd'], { value: '1.750.000.000.000' }))).toBeTruthy();
     expect(within(figure).getByTestId('drill-formula').textContent).toContain('plan_pm_assigned_vnd');
     expect(within(figure).getByTestId('drill-snapshot').getAttribute('title')).toBe(S40);
-    expect(within(figure).getByTestId('drill-as-of').textContent).toBe('2027-10-12');
+    expect(within(contextBar()).getByText('2027-10-12')).toBeTruthy();
     expect(screen.getByTestId(`child-value-${NORTH}`).textContent).toBe(fill(vi_['home.tile.value.vnd'], { value: '1.250.000.000.000' }));
     expect(screen.getByTestId('drill-reconciliation').textContent).toBe(vi_['home.drill.reconcile.ok']);
+  });
+
+  it('says "not applicable" with the reason on the tile of a figure that cannot be given, and never writes 0', async () => {
+    mount(<DrillScreen route={ROUTE} />, client(() => drillBody({ value: null, null_reason: 'ZERO_DENOMINATOR', children: [] })), { permissions: READER }, OPEN);
+    const figure = await screen.findByTestId('drill-figure');
+    expect(within(figure).getByText('Không áp dụng')).toBeTruthy();
+    expect(within(figure).getByText(vi_['home.tile.nullReason.zeroDenominator'])).toBeTruthy();
+    expect(figure.textContent).not.toMatch(/(^|s)0(s|$)/);
   });
 
   it('says a ratio is not added, and gives the numerator and the denominator of each child', async () => {
@@ -91,7 +102,7 @@ describe('HOME-10 trace of a figure (ST-HOME-002, HOME 3 F2)', () => {
     expect(screen.getByTestId('drill-numerator').textContent).toBe('700.000.000.000');
     expect(screen.getByTestId('drill-denominator').textContent).toBe('1.400.000.000.000');
     expect(screen.getByTestId('drill-reconciliation').textContent).toBe(vi_['home.drill.reconcile.ratio']);
-    const row = document.querySelector(`tr[data-child-id="${NORTH}"]`) as HTMLElement;
+    const row = document.querySelector(`[data-child-id="${NORTH}"]`)?.closest('tr') as HTMLElement;
     expect(row.textContent).toContain('60.0000%');
     expect(row.textContent).toContain('600.000.000.000');
     expect(row.textContent).toContain('1.000.000.000.000');
@@ -131,15 +142,15 @@ describe('HOME-10 trace of a figure (ST-HOME-002, HOME 3 F2)', () => {
     mount(<DrillScreen route={ROUTE} />, h, { permissions: READER }, OPEN);
     await screen.findByTestId('drill-figure');
     await user.click(screen.getByRole('button', { name: fill(vi_['home.drill.open'], { name: 'BQL-N' }) }));
-    await waitFor(() => expect(screen.getByTestId('drill-place').textContent).toBe('Ban Bắc'));
+    await waitFor(() => expect(within(contextBar()).getByText('Ban Bắc')).toBeTruthy());
     await user.click(screen.getByRole('button', { name: fill(vi_['home.drill.open'], { name: 'HD-001' }) }));
-    await waitFor(() => expect(screen.getByTestId('drill-place').textContent).toBe('HD-001 Cầu Bến Lức'));
+    await waitFor(() => expect(within(contextBar()).getByText('HD-001 Cầu Bến Lức')).toBeTruthy());
     const trail = screen.getByTestId('drill-breadcrumb');
     expect(within(trail).getAllByRole('listitem')).toHaveLength(3);
     expect(drillCalls(h).map((query) => query.context_token)).toEqual(['token-start', `token-${NORTH}`, `token-${PROJECT}`]);
     // Back to the unit: the page of the unit again, with nothing deeper kept.
     await user.click(within(trail).getAllByRole('button')[1] as HTMLElement);
-    await waitFor(() => expect(screen.getByTestId('drill-place').textContent).toBe('Ban Bắc'));
+    await waitFor(() => expect(within(contextBar()).getByText('Ban Bắc')).toBeTruthy());
     expect(within(screen.getByTestId('drill-breadcrumb')).getAllByRole('listitem')).toHaveLength(2);
   });
 
@@ -153,7 +164,7 @@ describe('HOME-10 trace of a figure (ST-HOME-002, HOME 3 F2)', () => {
     mount(<DrillScreen route={ROUTE} />, h, { permissions: READER }, OPEN);
     await screen.findByTestId('drill-figure');
     await user.click(screen.getByRole('button', { name: fill(vi_['home.drill.open'], { name: 'BQL-N' }) }));
-    await waitFor(() => expect(screen.getByTestId('drill-place').textContent).toBe('Ban Bắc'));
+    await waitFor(() => expect(within(contextBar()).getByText('Ban Bắc')).toBeTruthy());
     revoked = true;
     await user.click(within(screen.getByTestId('drill-breadcrumb')).getAllByRole('button')[0] as HTMLElement);
     expect(await screen.findByTestId('drill-denied')).toBeTruthy();
@@ -213,7 +224,7 @@ describe('HOME-10 trace of a figure (ST-HOME-002, HOME 3 F2)', () => {
     await screen.findByTestId('drill-sources');
     await user.click(screen.getByRole('button', { name: vi_['home.drill.more'] }));
     await waitFor(() => expect(screen.getByTestId('drill-sources').querySelectorAll('[data-source="treasury"]')).toHaveLength(2));
-    expect(document.querySelectorAll(`tr[data-child-id="${LINE}"]`)).toHaveLength(1);
+    expect(document.querySelectorAll(`tr [data-child-id="${LINE}"]`)).toHaveLength(1);
   });
 
   it('starts the reading again, and does not merge, when a later page is read under another scope than the first', async () => {
@@ -231,7 +242,7 @@ describe('HOME-10 trace of a figure (ST-HOME-002, HOME 3 F2)', () => {
     await waitFor(() => expect(drillCalls(h).map((query) => query.context_token)).toContain('token-renewed'));
     await waitFor(() => expect(screen.queryByTestId(`child-value-${SOUTH}`)).toBeNull());
     expect(screen.getByTestId(`child-value-${NORTH}`)).toBeTruthy();
-    expect(screen.getByTestId('drill-value').textContent).toBe(fill(vi_['home.tile.value.vnd'], { value: '1.250.000.000.000' }));
+    expect(within(screen.getByTestId('drill-figure')).getByText(fill(vi_['home.tile.value.vnd'], { value: '1.250.000.000.000' }))).toBeTruthy();
     expect(screen.queryByTestId('scope-changed')).toBeNull();
   });
 
@@ -287,7 +298,7 @@ describe('HOME-10 trace of a figure (ST-HOME-002, HOME 3 F2)', () => {
     let refused = false;
     const h = client(() => (refused ? failure(403, 'SCOPE_DENIED') : drillBody({ scope_changed: true, context_token: '', scope: { unit_name: 'Ban Bắc', project_code: null, project_name: null } })));
     mount(<DrillScreen route={ROUTE} />, h, { permissions: READER }, OPEN);
-    await screen.findByTestId('drill-place');
+    await screen.findByRole('group', { name: vi_['ui.contextBar.label'] });
     refused = true;
     await user.click(screen.getByRole('button', { name: vi_['home.drill.refresh'] }));
     expect(await screen.findByTestId('drill-denied')).toBeTruthy();

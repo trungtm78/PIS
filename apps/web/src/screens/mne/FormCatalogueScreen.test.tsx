@@ -19,7 +19,7 @@ const ROWS = [
 ];
 
 const rowOf = (code: string): HTMLElement => {
-  const row = document.querySelector(`tr[data-form-code="${code}"]`);
+  const row = within(screen.getByRole('table', { name: vi_['mne.forms.table.aria'] })).getByText(code, { selector: 'strong' }).closest('tr');
   if (row === null) throw new Error(`no row for ${code}`);
   return row as HTMLElement;
 };
@@ -257,6 +257,31 @@ describe('MNE-02 form catalogue (ST-MNE-001, MNE F1, BR-MNE-01)', () => {
       fireEvent.change(screen.getByLabelText(vi_['mne.forms.filter.effectiveOn.label']), { target: { value: '2026-06-30' } });
       await user.click(screen.getByRole('button', { name: vi_['mne.forms.filter.action'] }));
       await waitFor(() => expect(lastFormsRead()).toEqual(['listMneForms', { query: { report_kind: 'EVALUATION', effective_on: '2026-06-30' } }]));
+    });
+  });
+
+  describe('the kit', () => {
+    it('writes the number of revisions in the context bar, and counts the applied conditions on the button of the filter panel once they are applied', async () => {
+      const user = userEvent.setup();
+      mount(<FormCatalogueScreen route={ROUTE} />, formsClient(() => ROWS), { permissions: READER });
+      await screen.findByText('TT44-M02');
+      const bar = screen.getByRole('group', { name: vi_['ui.contextBar.label'] });
+      expect(within(bar).getByText('Số phiên bản đang hiện')).toBeTruthy();
+      expect(within(bar).getByText('5')).toBeTruthy();
+      expect(screen.getByRole('button', { name: vi_['ui.filterPanel.toggle'] })).toBeTruthy();
+      await user.selectOptions(screen.getByLabelText(vi_['mne.forms.filter.kind.label']), 'EVALUATION');
+      // The count follows the filter that was applied, not the one that is being written.
+      expect(screen.getByRole('button', { name: vi_['ui.filterPanel.toggle'] })).toBeTruthy();
+      await user.click(screen.getByRole('button', { name: vi_['mne.forms.filter.action'] }));
+      expect(await screen.findByRole('button', { name: fill(vi_['ui.filterPanel.toggleApplied'], { count: 1 }) })).toBeTruthy();
+    });
+
+    it('shows the lifecycle and the phase of a revision as pills with their text', async () => {
+      mount(<FormCatalogueScreen route={ROUTE} />, formsClient(() => ROWS), { permissions: READER });
+      await screen.findByText('TT44-M02');
+      const pill = within(rowOf('TT44-M05')).getByText(vi_['mne.forms.state.retired']).closest('.ui-pill');
+      expect(pill).not.toBeNull();
+      expect(pill?.className).toContain('ui-tone-neutral');
     });
   });
 

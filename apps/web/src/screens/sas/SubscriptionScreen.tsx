@@ -31,6 +31,8 @@ import {
 import type { FormField, PaymentMethod, SubscriptionForm } from './subscription/model';
 import './tenants/sas.css';
 import './subscription/subscription.css';
+import { StatusPill } from '../../ui';
+import { toneOfPill } from '../adm/kit-tone';
 
 type Context = 'create' | 'cancel';
 
@@ -177,7 +179,7 @@ function SubscriptionContent({ route }: ScreenProps) {
               <div className="sas-detail-row">
                 <dt>{t('sas.subscription.field.status')}</dt>
                 <dd>
-                  <span className={toneClass(statusTone(live.status))}>{statusLabel(t, live.status)}</span>
+                  <StatusPill tone={toneOfPill(toneClass(statusTone(live.status)))}>{statusLabel(t, live.status)}</StatusPill>
                   {live.cancelAtPeriodEnd ? <small className="sub"> {t('sas.subscription.cancelAtEnd.text', { day: date(live.currentPeriodEnd) })}</small> : null}
                 </dd>
               </div>

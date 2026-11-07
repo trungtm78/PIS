@@ -1,3 +1,4 @@
+@import '../ctr/kit.css';
 .pay-facts {
   display: grid;
   grid-template-columns: max-content 1fr;
@@ -15,15 +16,31 @@
   margin-bottom: 12px;
 }
 .pay-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border: 1px solid var(--shell-line, #e4e0e6);
-  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--mv-space-12);
+  border: 1px solid var(--mv-color-neutral);
+  border-radius: var(--mv-radius-pill);
+  background: var(--mv-color-neutral-soft);
+  color: var(--mv-color-neutral);
   font-size: 12px;
+  font-weight: 600;
   white-space: nowrap;
 }
+.pay-badge.ok {
+  border-color: var(--mv-color-success);
+  background: var(--mv-color-success-soft);
+  color: var(--mv-color-success);
+}
 .pay-badge.warning {
-  border-color: var(--shell-warning, #b45309);
+  border-color: var(--mv-color-warning);
+  background: var(--mv-color-warning-soft);
+  color: var(--mv-color-warning);
+}
+.pay-badge.danger {
+  border-color: var(--mv-color-danger);
+  background: var(--mv-color-danger-soft);
+  color: var(--mv-color-danger);
 }
 .pay-badge.warning::before {
   content: '! ';
@@ -36,12 +53,12 @@
 }
 .pay-counts div {
   padding: 8px 12px;
-  border: 1px solid var(--shell-line, #e4e0e6);
+  border: 1px solid var(--mv-color-border);
   border-radius: 8px;
 }
 .pay-counts dt {
   font-size: 12px;
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }
 .pay-counts dd {
   margin: 0;

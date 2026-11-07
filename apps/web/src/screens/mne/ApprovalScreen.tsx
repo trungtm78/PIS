@@ -5,13 +5,16 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { SectionCard, StatusPill } from '../../ui';
 import { ConfirmationLabel, Field } from './components';
 import { useDecideReport, useObligations, useReport, useRequestIssue } from './hooks';
 import { docStageLabel, reportProblemMessage, reportStatusLabel } from './labels';
 import { vietnamToday, yearsAround } from './model';
 import { DOC_STAGES, describeReportProblem, docStageOf, hasReason, isOwnReport, mayDecide, mayRequestIssue, shown } from './report-model';
+import { reportStatusTone } from './tones';
 import type { ReportStatus, ReportView } from './types';
 import './mne.css';
+import './mne-kit.css';
 
 type Done = 'approved' | 'returned' | 'requested';
 
@@ -37,7 +40,7 @@ function ApprovalContent({ route }: ScreenProps) {
           <p>{t('mne.approval.page.subtitle')}</p>
         </div>
         {reportId === '' ? null : (
-          <button type="button" className="btn" onClick={() => setParams({})}>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setParams({})}>
             {t('mne.approval.back')}
           </button>
         )}
@@ -100,7 +103,7 @@ function ReviewPicker({ onOpen }: { onOpen: (id: string) => void }) {
                   <td>{item.dueDate}</td>
                   <td>{reportStatusLabel(t, item.status)}</td>
                   <td>
-                    <button type="button" className="btn" onClick={() => onOpen(item.reportId)}>
+                    <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => onOpen(item.reportId)}>
                       {t('mne.approval.picker.open')}
                     </button>
                   </td>
@@ -111,7 +114,7 @@ function ReviewPicker({ onOpen }: { onOpen: (id: string) => void }) {
         </div>
         {list.hasNextPage ? (
           <div className="mne-actions">
-            <button type="button" className="btn" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
+            <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
               {t('mne.calendar.more.action')}
             </button>
           </div>
@@ -182,8 +185,8 @@ function ReviewBody({ report, done, actions }: { report: ReportView; done: Done 
     <div className="card" data-report-status={report.status}>
       <div className="mne-badges">
         <strong>{report.formTitle}</strong>
-        <span className="pill" data-testid="report-status">
-          {reportStatusLabel(t, report.status)}
+        <span data-testid="report-status">
+          <StatusPill tone={reportStatusTone(report.status)}>{reportStatusLabel(t, report.status)}</StatusPill>
         </span>
         <ConfirmationLabel awaiting={report.awaitingConfirmation} cxnRefs={report.cxnRefs} />
       </div>
@@ -220,8 +223,7 @@ function ReviewBody({ report, done, actions }: { report: ReportView; done: Done 
       )}
 
       {report.status === 'IN_REVIEW' ? (
-        <div className="card" aria-label={t('mne.approval.decision.title')}>
-          <h2>{t('mne.approval.decision.title')}</h2>
+        <SectionCard title={t('mne.approval.decision.title')}>
           {isOwnReport(report, memberId) ? (
             <p className="callout warning" role="status" data-testid="decision-own">
               {t('mne.approval.decision.own')}
@@ -233,10 +235,10 @@ function ReviewBody({ report, done, actions }: { report: ReportView; done: Done 
                 <textarea id="decision-reason" rows={3} value={reason} onChange={(event) => setReason(event.target.value)} />
               </Field>
               <div className="mne-actions">
-                <button type="button" className="btn" disabled={actions.busy} onClick={() => decide('return')}>
+                <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={actions.busy} onClick={() => decide('return')}>
                   {t('mne.approval.decision.return')}
                 </button>
-                <button type="button" className="btn primary" disabled={actions.busy} onClick={() => decide('approve')}>
+                <button type="button" className="ui-button ui-button--primary" disabled={actions.busy} onClick={() => decide('approve')}>
                   {t('mne.approval.decision.approve')}
                 </button>
               </div>
@@ -246,12 +248,11 @@ function ReviewBody({ report, done, actions }: { report: ReportView; done: Done 
               {frozen ? t('mne.approval.notice.frozen') : t('mne.approval.notice.readonly')}
             </p>
           )}
-        </div>
+        </SectionCard>
       ) : null}
 
       {report.status === 'APPROVED' || report.status === 'ISSUING' || report.status === 'ISSUED' ? (
-        <div className="card" aria-label={t('mne.approval.issue.title')}>
-          <h2>{t('mne.approval.issue.title')}</h2>
+        <SectionCard title={t('mne.approval.issue.title')}>
           {report.payloadSha256 === null ? null : (
             <p className="sub" data-testid="issue-hash">
               {t('mne.approval.issue.hash', { hash: report.payloadSha256 })}
@@ -274,7 +275,7 @@ function ReviewBody({ report, done, actions }: { report: ReportView; done: Done 
           )}
           {canIssue ? (
             <div className="mne-actions">
-              <button type="button" className="btn primary" disabled={actions.busy} onClick={() => actions.requestIssue(report)}>
+              <button type="button" className="ui-button ui-button--primary" disabled={actions.busy} onClick={() => actions.requestIssue(report)}>
                 {t('mne.approval.issue.action')}
               </button>
             </div>
@@ -283,7 +284,7 @@ function ReviewBody({ report, done, actions }: { report: ReportView; done: Done 
               {frozen ? t('mne.approval.notice.frozen') : t('mne.approval.notice.readonly')}
             </p>
           ) : null}
-        </div>
+        </SectionCard>
       ) : null}
 
       <div aria-label={t('mne.approval.timeline.title')} role="group">

@@ -13,6 +13,7 @@ import type { PromptEntry, PromptErrors, PromptValues } from './eval-model';
 import { useApprovePrompt, useCreatePrompt, usePrompts, useRevisePrompt } from './hooks';
 import { refusalMessage } from './labels';
 import { describeLlmProblem } from './llm-model';
+import './llm-kit.css';
 
 /**
  * LLM-10: the prompts of the AI gateway (ST-LLM-004, LLM F4): a prompt is kept as a version (the template is held in the document store and only its hash is here) that is a draft until another person approves it; once
@@ -90,12 +91,12 @@ function PromptRow({ entry, mayManage, mayApprove }: { entry: PromptEntry; mayMa
           {draft && (mayManage || mayApprove) ? (
             <div className="mne-actions">
               {mayManage ? (
-                <button type="button" className="btn" aria-expanded={editing} onClick={() => setEditing(!editing)}>
+                <button type="button" className="ui-button ui-button--outline ui-button--small" aria-expanded={editing} onClick={() => setEditing(!editing)}>
                   {t('llm.prompts.revise')}
                 </button>
               ) : null}
               {mayApprove ? (
-                <button type="button" className="btn" disabled={approve.isPending} onClick={() => approve.mutate({ promptId: entry.id, version: entry.version })}>
+                <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={approve.isPending} onClick={() => approve.mutate({ promptId: entry.id, version: entry.version })}>
                   {t('llm.prompts.approve')}
                 </button>
               ) : null}
@@ -186,7 +187,7 @@ function PromptCreateForm() {
       ) : null}
       <PromptFields idPrefix="prompt" values={values} errors={errors} set={set} />
       <div className="mne-actions">
-        <button type="submit" className="btn" disabled={create.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending}>
           {t('llm.prompts.form.submit')}
         </button>
       </div>
@@ -222,7 +223,7 @@ function PromptReviseForm({ entry, onDone }: { entry: PromptEntry; onDone: () =>
       )}
       <PromptFields idPrefix={`revise-${entry.id}`} values={values} errors={errors} set={set} />
       <div className="mne-actions">
-        <button type="submit" className="btn" disabled={revise.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={revise.isPending}>
           {t('llm.prompts.revise.submit')}
         </button>
       </div>

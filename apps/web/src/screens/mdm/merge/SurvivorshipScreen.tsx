@@ -6,11 +6,14 @@ import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { Field } from '../components';
+import { KitTable } from '../../adm/KitTable';
+import '../../adm/adm-kit.css';
 import '../mdm.css';
 import { useDraftRule, usePublishRule, useRules } from './hooks';
 import { problemMessage, ruleStatusLabel, strategyLabel } from './labels';
 import { EMPTY_RULE, RULE_APPROVE_PERMISSION, RULE_MANAGE_PERMISSION, STRATEGIES, addSource, describeMergeProblem, moveSource, usesSources, validateRule } from './model';
 import type { FormProblem, Rule, RuleField, RuleForm } from './model';
+import { StatusPill } from '../../../ui';
 
 const holds = (permissions: readonly string[] | undefined, permission: string, mode: string | undefined): boolean =>
   mode !== 'READ_ONLY' && (permissions === undefined || permissions.includes(permission));
@@ -45,8 +48,7 @@ function SurvivorshipContent({ route }: ScreenProps) {
             {t('mdm.merge.rules.none')}
           </p>
         ) : (
-          <div className="tablewrap">
-            <table className="table" data-testid="rules" aria-label={t('mdm.merge.rules.table')}>
+          <KitTable caption={t('w2mdm.survivorship.table.caption')} data-testid="rules" aria-label={t('mdm.merge.rules.table')}>
               <thead>
                 <tr>
                   <th scope="col">{t('mdm.merge.col.type')}</th>
@@ -64,8 +66,7 @@ function SurvivorshipContent({ route }: ScreenProps) {
                   <RuleRow key={rule.id} rule={rule} mayPublish={holds(permissions, RULE_APPROVE_PERMISSION, mode)} />
                 ))}
               </tbody>
-            </table>
-          </div>
+            </KitTable>
         )}
         {holds(permissions, RULE_MANAGE_PERMISSION, mode) ? <DraftPanel /> : null}
       </StateBoundary>
@@ -88,12 +89,12 @@ function RuleRow({ rule, mayPublish }: { rule: Rule; mayPublish: boolean }) {
       <td>{rule.sources.length === 0 ? '—' : rule.sources.map((source, index) => `${index + 1}. ${source}`).join(' › ')}</td>
       <td>{rule.revision}</td>
       <td>
-        <span className={`pill ${rule.status === 'PUBLISHED' ? 'green' : 'gray'}`}>{ruleStatusLabel(t, rule.status)}</span>
+        <StatusPill tone={rule.status === 'PUBLISHED' ? 'success' : 'neutral'}>{ruleStatusLabel(t, rule.status)}</StatusPill>
       </td>
       <td>{rule.effectiveFrom}</td>
       <td>
         {mayPublish && rule.status === 'DRAFT' ? (
-          <button type="button" className="primary" disabled={publish.isPending} onClick={() => publish.mutate({ id: rule.id, version: rule.version })}>
+          <button type="button" className="ui-button ui-button--primary" disabled={publish.isPending} onClick={() => publish.mutate({ id: rule.id, version: rule.version })}>
             {t('mdm.merge.rule.publish', { attribute: rule.attribute })}
           </button>
         ) : null}
@@ -169,7 +170,7 @@ function DraftPanel() {
                 <button type="button" disabled={index === form.sources.length - 1} onClick={() => set({ sources: moveSource(form.sources, index, 1) })}>
                   {t('mdm.merge.draft.down', { source: name })}
                 </button>
-                <button type="button" onClick={() => set({ sources: form.sources.filter((item) => item !== name) })}>
+                <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => set({ sources: form.sources.filter((item) => item !== name) })}>
                   {t('mdm.merge.draft.remove', { source: name })}
                 </button>
               </li>
@@ -202,8 +203,8 @@ function DraftPanel() {
           {t('mdm.merge.draft.saved')}
         </p>
       ) : null}
-      <div className="formfooter">
-        <button type="submit" className="primary" disabled={send.isPending}>
+      <div className="adm-kit-actions">
+        <button type="submit" className="ui-button ui-button--primary" disabled={send.isPending}>
           {t('mdm.merge.draft.submit')}
         </button>
       </div>

@@ -5,11 +5,15 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { ContextBar, DataTable, FilterPanel, StatusPill } from '../../ui';
+import type { DataTableColumn } from '../../ui';
 import { CreateDialog } from './dialogs';
 import { useEngagements } from './hooks';
 import type { EngagementFilter } from './hooks';
 import { authorityKindLabel, engagementStatusLabel, engagementTypeLabel, holdStatusLabel } from './labels';
 import { ENGAGEMENT_PATH, ENGAGEMENT_STATUSES, ENGAGEMENT_TYPES, canManage, engagementsMatching } from './model';
+import type { EngagementLine } from './model';
+import { engagementTone } from './tones';
 import './aud.css';
 
 /**
@@ -24,7 +28,7 @@ export default function EngagementListScreen({ route }: ScreenProps) {
 
 function EngagementListContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { permissions, mode } = useSession();
+  const { permissions, mode, tenant } = useSession();
   const navigate = useNavigate();
   const [filter, setFilter] = useState<EngagementFilter>({ status: '', type: '' });
   const [words, setWords] = useState('');
@@ -44,16 +48,17 @@ function EngagementListContent({ route }: ScreenProps) {
         </div>
         {mayManage ? (
           <div className="actions">
-            <button type="button" className="primary" onClick={() => setCreating(true)}>
+            <button type="button" className="ui-button ui-button--primary" onClick={() => setCreating(true)}>
               {t('aud.engagements.register.action')}
             </button>
           </div>
         ) : null}
       </div>
+      <ContextBar items={[{ label: t('w2iss.ctx.scope'), value: tenant?.name ?? t('w2iss.ctx.scope.all') }]} />
       <p className="callout" data-testid="confidential-note">
         {t('aud.engagements.confidential.note')}
       </p>
-      <div className="card">
+      <FilterPanel applied={[words.trim() !== '', filter.status !== '', filter.type !== ''].filter(Boolean).length}>
         <div className="aud-filters">
           <div className="field">
             <label htmlFor="engagement-search">{t('aud.engagements.search.label')}</label>
@@ -82,60 +87,56 @@ function EngagementListContent({ route }: ScreenProps) {
             </select>
           </div>
         </div>
-        <StateBoundary state={state} onRetry={() => void list.refetch()}>
-          {shown.length === 0 ? (
-            <p className="muted" data-testid="no-engagements">
-              {t('aud.engagements.none.text')}
-            </p>
-          ) : (
-            <div className="tablewrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>{t('aud.engagements.col.code')}</th>
-                    <th>{t('aud.engagements.col.type')}</th>
-                    <th>{t('aud.engagements.col.authority')}</th>
-                    <th>{t('aud.engagements.col.period')}</th>
-                    <th>{t('aud.engagements.col.status')}</th>
-                    <th>{t('aud.engagements.col.coordinator')}</th>
-                    <th>{t('aud.engagements.col.hold')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {shown.map((engagement) => (
-                    <tr key={engagement.id} data-engagement-id={engagement.id}>
-                      <td>
-                        <Link to={`${ENGAGEMENT_PATH}?engagement=${engagement.id}`}>
-                          <strong>{engagement.code}</strong>
-                        </Link>
-                        <div className="sub">{engagement.title}</div>
-                      </td>
-                      <td>{engagementTypeLabel(t, engagement.type)}</td>
-                      <td>
-                        {engagement.authorityName}
-                        <div className="sub">{authorityKindLabel(t, engagement.authorityKind)}</div>
-                      </td>
-                      <td>{t('aud.engagements.period.text', { from: engagement.periodFrom, to: engagement.periodTo })}</td>
-                      <td>
-                        <span className="aud-badge">{engagementStatusLabel(t, engagement.status)}</span>
-                      </td>
-                      <td>{engagement.coordinatorName}</td>
-                      <td>
-                        <span className={engagement.holdStatus === 'Active' ? 'aud-badge warning' : 'aud-badge'}>{holdStatusLabel(t, engagement.holdStatus)}</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-          <p className="sub" data-testid="engagement-count">
-            {t('aud.engagements.count.text', { count: shown.length })}
+      </FilterPanel>
+      <StateBoundary state={state} onRetry={() => void list.refetch()}>
+        {shown.length === 0 ? (
+          <p className="muted" data-testid="no-engagements">
+            {t('aud.engagements.none.text')}
           </p>
-        </StateBoundary>
-      </div>
+        ) : (
+          <EngagementTable engagements={shown} />
+        )}
+        <p className="sub" data-testid="engagement-count">
+          {t('aud.engagements.count.text', { count: shown.length })}
+        </p>
+      </StateBoundary>
       {creating ? <CreateDialog onClose={() => setCreating(false)} onCreated={(id) => navigate(`${ENGAGEMENT_PATH}?engagement=${id}`)} /> : null}
       <p className="prototype-note">{t('aud.engagements.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
   );
+}
+
+function EngagementTable({ engagements }: { engagements: EngagementLine[] }) {
+  const { t } = useTranslation();
+  const columns: DataTableColumn<EngagementLine>[] = [
+    {
+      key: 'code',
+      header: t('aud.engagements.col.code'),
+      pinned: true,
+      render: (engagement) => (
+        <>
+          <Link to={`${ENGAGEMENT_PATH}?engagement=${engagement.id}`}>
+            <strong>{engagement.code}</strong>
+          </Link>
+          <span className="aud-sub">{engagement.title}</span>
+        </>
+      ),
+    },
+    { key: 'type', header: t('aud.engagements.col.type'), render: (engagement) => engagementTypeLabel(t, engagement.type) },
+    {
+      key: 'authority',
+      header: t('aud.engagements.col.authority'),
+      render: (engagement) => (
+        <>
+          {engagement.authorityName}
+          <span className="aud-sub">{authorityKindLabel(t, engagement.authorityKind)}</span>
+        </>
+      ),
+    },
+    { key: 'period', header: t('aud.engagements.col.period'), render: (engagement) => t('aud.engagements.period.text', { from: engagement.periodFrom, to: engagement.periodTo }) },
+    { key: 'status', header: t('aud.engagements.col.status'), render: (engagement) => <StatusPill tone={engagementTone(engagement.status)}>{engagementStatusLabel(t, engagement.status)}</StatusPill> },
+    { key: 'coordinator', header: t('aud.engagements.col.coordinator'), render: (engagement) => engagement.coordinatorName },
+    { key: 'hold', header: t('aud.engagements.col.hold'), render: (engagement) => <StatusPill tone={engagement.holdStatus === 'Active' ? 'warning' : 'neutral'}>{holdStatusLabel(t, engagement.holdStatus)}</StatusPill> },
+  ];
+  return <DataTable caption={t('w2iss.aud.engagements.aria')} columns={columns} rows={engagements} rowKey={(engagement) => engagement.id} />;
 }

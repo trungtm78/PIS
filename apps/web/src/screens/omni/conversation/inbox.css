@@ -1,0 +1,6 @@
+/* OMNI-01: the actions of a row sit side by side and wrap under 360 px. */
+.omni-row-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

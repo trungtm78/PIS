@@ -23,6 +23,8 @@ const ROWS = [
 
 const page = (items: unknown[], cursor: string | null = null) => ({ items, next_cursor: cursor, as_of: '2026-10-24' });
 const answer = (reply: unknown) => (operation: string) => (operation === 'listMneObligations' ? reply : new Error(`unexpected read ${operation}`));
+/** The row of an obligation of the table of its month: found by the code of its unit, which the rows of the fixture do not share. */
+const rowOf = (n: number): HTMLElement => screen.getByText(`CDT-${n}`).closest('tr') as HTMLElement;
 const lastQuery = (h: ReturnType<typeof harness>): Record<string, unknown> | undefined => (h.read.mock.calls.at(-1)?.[1] as { query?: Record<string, unknown> } | undefined)?.query;
 
 afterEach(cleanup);
@@ -35,8 +37,7 @@ describe('MNE-01 obligation calendar (ST-MNE-001, MNE F2, BR-MNE-02, BR-MNE-03)'
     // The months of the due dates, in the order of the calendar.
     const headings = screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent);
     expect(headings).toEqual([fill(vi_['mne.calendar.month.heading'], { month: '07', year: '2026' }), fill(vi_['mne.calendar.month.heading'], { month: '02', year: '2027' })]);
-    const first = document.querySelector(`tr[data-report-id="${(ROWS[0] as { mne_report_id: string }).mne_report_id}"]`) as HTMLElement;
-    const row = within(first);
+    const row = within(rowOf(1));
     expect(row.getByText('TT44-M02')).toBeTruthy();
     expect(row.getByText('Báo cáo giám sát, đánh giá tổng thể 6 tháng')).toBeTruthy();
     expect(row.getByText(vi_['mne.calendar.role.investor'])).toBeTruthy();
@@ -47,7 +48,8 @@ describe('MNE-01 obligation calendar (ST-MNE-001, MNE F2, BR-MNE-02, BR-MNE-03)'
     expect(row.getByText('Thông tư 44/2026/TT-BTC, báo cáo trước ngày 10 tháng 7 [CXN-10]')).toBeTruthy();
     expect(row.getByText(fill(vi_['mne.forms.confirmation.pending'], { tags: '[CXN-10]' }))).toBeTruthy();
     expect(row.getByText(vi_['mne.calendar.status.draft'])).toBeTruthy();
-    const yearly = within(document.querySelector('tr[data-due-date="2027-02-10"]') as HTMLElement);
+    const yearly = within(rowOf(5));
+    expect(yearly.getByText('2027-02-10')).toBeTruthy();
     expect(yearly.getByText('YEAR-2026')).toBeTruthy();
     expect(yearly.getByText('TT44-M03')).toBeTruthy();
   });
@@ -55,7 +57,7 @@ describe('MNE-01 obligation calendar (ST-MNE-001, MNE F2, BR-MNE-02, BR-MNE-03)'
   it('shows a confirmed obligation as confirmed, and the level of the committee', async () => {
     mount(<ObligationCalendarScreen route={ROUTE} />, harness(answer(page(ROWS))), { permissions: READER });
     await screen.findByText('CDT-4');
-    const row = within(document.querySelector(`tr[data-report-id="${(ROWS[3] as { mne_report_id: string }).mne_report_id}"]`) as HTMLElement);
+    const row = within(rowOf(4));
     expect(row.getByText(vi_['mne.calendar.role.provincialPeopleCommittee'])).toBeTruthy();
     expect(row.getByText('Bộ Tài chính')).toBeTruthy();
     expect(row.getByText(vi_['mne.forms.confirmation.confirmed'])).toBeTruthy();
@@ -65,12 +67,15 @@ describe('MNE-01 obligation calendar (ST-MNE-001, MNE F2, BR-MNE-02, BR-MNE-03)'
   it('says how late a report is with a text and a count, never with a colour alone', async () => {
     mount(<ObligationCalendarScreen route={ROUTE} />, harness(answer(page(ROWS))), { permissions: READER });
     await screen.findByText('CDT-2');
-    const late = within(document.querySelector(`tr[data-report-id="${(ROWS[1] as { mne_report_id: string }).mne_report_id}"]`) as HTMLElement);
+    const late = within(rowOf(2));
     expect(late.getByText(fill(vi_['mne.calendar.late.text'], { days: 5 }))).toBeTruthy();
-    const filed = within(document.querySelector(`tr[data-report-id="${(ROWS[2] as { mne_report_id: string }).mne_report_id}"]`) as HTMLElement);
+    const filed = within(rowOf(3));
     expect(filed.getByText(vi_['mne.calendar.status.submittedExternal'])).toBeTruthy();
     expect(filed.getByText(vi_['mne.calendar.late.unknown'])).toBeTruthy();
-    expect(within(document.querySelector(`tr[data-report-id="${(ROWS[0] as { mne_report_id: string }).mne_report_id}"]`) as HTMLElement).queryByText(/Trễ|Nộp trễ/)).toBeNull();
+    expect(within(rowOf(1)).queryByText(/Trễ|Nộp trễ/)).toBeNull();
+    // The late row carries the stripe of the table, and says so for assistive technology, not by colour alone.
+    expect(rowOf(2).getAttribute('data-severity')).toBe('URGENT');
+    expect(rowOf(1).getAttribute('data-severity')).toBeNull();
     expect(screen.getByTestId('count').textContent).toBe(fill(vi_['mne.calendar.count.text'], { total: 5, late: 1 }));
   });
 
@@ -85,6 +90,18 @@ describe('MNE-01 obligation calendar (ST-MNE-001, MNE F2, BR-MNE-02, BR-MNE-03)'
       await waitFor(() => expect(lastQuery(h)).toEqual({ report_year: String(YEAR + 1), limit: 100 }));
       await user.selectOptions(screen.getByLabelText(vi_['mne.calendar.filter.status.label']), 'APPROVED');
       await waitFor(() => expect(lastQuery(h)).toEqual({ report_year: String(YEAR + 1), limit: 100, status: 'APPROVED' }));
+    });
+
+    it('names the scope and the year of the calendar in the context bar, and counts the applied filter on the button of the panel', async () => {
+      const user = userEvent.setup();
+      mount(<ObligationCalendarScreen route={ROUTE} />, harness(answer(page(ROWS))), { permissions: READER });
+      await screen.findByText('CDT-1');
+      const bar = screen.getByRole('group', { name: vi_['ui.contextBar.label'] });
+      expect(within(bar).getByText('Năm báo cáo')).toBeTruthy();
+      expect(within(bar).getByText(String(YEAR))).toBeTruthy();
+      expect(screen.getByRole('button', { name: vi_['ui.filterPanel.toggle'] })).toBeTruthy();
+      await user.selectOptions(screen.getByLabelText(vi_['mne.calendar.filter.status.label']), 'APPROVED');
+      expect(await screen.findByRole('button', { name: fill(vi_['ui.filterPanel.toggleApplied'], { count: 1 }) })).toBeTruthy();
     });
 
     it('loads the next page with the cursor of the last one', async () => {

@@ -77,6 +77,7 @@ const choosePeriod = async (user: ReturnType<typeof userEvent.setup>): Promise<v
   await user.selectOptions(await screen.findByLabelText(vi_['dis.snapshot.year.label']), '2027');
   await user.selectOptions(screen.getByLabelText(vi_['dis.snapshot.period.label']), PERIOD_LOCKED);
 };
+const linesTable = (): Promise<HTMLElement> => screen.findByRole('table', { name: vi_['dis.snapshot.lines.aria'] });
 const sent = (h: { command: { mock: { calls: unknown[][] } } }, call = 0) => h.command.mock.calls[call] as [string, { body?: Record<string, unknown>; path?: { id: string }; ifMatchVersion?: number }];
 
 describe('DIS-21 close and freeze the figures of a period', () => {
@@ -92,17 +93,16 @@ describe('DIS-21 close and freeze the figures of a period', () => {
     const user = userEvent.setup();
     open({ snapshots: listOf([snapshotRecord(FROZEN), buildingRecord({ definition_status: 'SIGNED' })]) });
     await choosePeriod(user);
-    const table = await screen.findByTestId('snapshots');
-    const rows = within(table).getAllByRole('row').slice(1);
+    const table = await screen.findByRole('table', { name: vi_['dis.snapshot.list.aria'] });
+    const rows = Array.from(table.querySelectorAll<HTMLElement>('tbody tr'));
     expect(rows).toHaveLength(2);
-    const frozen = rows.find((row) => row.getAttribute('data-snapshot') === FROZEN) as HTMLElement;
+    const frozen = within(table).getByRole('row', { name: /Đã đóng băng/ });
     expect(within(frozen).getByText(vi_['dis.snapshot.status.frozen'])).toBeTruthy();
     expect(within(frozen).getByText('2027-01-17')).toBeTruthy();
-    expect(within(frozen).getByText('ab12cd34').getAttribute('class')).toBeNull();
-    expect(within(frozen).getByText('ab12cd34').closest('td')?.getAttribute('title')).toBe(HASH);
+    expect(within(frozen).getByText('ab12cd34').getAttribute('title')).toBe(HASH);
     expect(within(frozen).getByTestId('definition-pending').textContent).toBe(vi_['dis.snapshot.definition.pending']);
     expect(vi_['dis.snapshot.definition.pending']).toBe('CHỜ KÝ D03');
-    const building = rows.find((row) => row.getAttribute('data-snapshot') === BUILDING) as HTMLElement;
+    const building = within(table).getByRole('row', { name: /Đã dựng/ });
     expect(within(building).getByTestId('definition-signed').textContent).toBe(vi_['dis.snapshot.definition.signed']);
     // A snapshot that was not frozen has no hash to show.
     expect(within(building).queryByText('ab12cd34')).toBeNull();
@@ -132,20 +132,23 @@ describe('DIS-21 close and freeze the figures of a period', () => {
     await user.click(screen.getByRole('button', { name: vi_['dis.snapshot.build.action'] }));
     await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
     expect(sent(h)).toEqual(['buildPeriodSnapshot', expect.objectContaining({ body: { period_id: PERIOD_LOCKED, snapshot_kind: 'ADHOC', treasury_cutoff_date: '2027-01-18' } })]);
-    expect((await screen.findByTestId('lines')).querySelectorAll('tbody tr')).toHaveLength(1);
+    expect((await linesTable()).querySelectorAll('tbody tr')).toHaveLength(1);
   });
 
   it('AC-ST-DIS-009-4: freezes only after a confirmation that says what the freeze does, under the version the list showed, and never offers it for what is frozen already', async () => {
     const user = userEvent.setup();
     const h = open({ snapshots: listOf([snapshotRecord(FROZEN), buildingRecord()]), command: () => ({ status: 'FROZEN', resource_version: 2, resource_id: BUILDING }) });
     await choosePeriod(user);
-    const table = await screen.findByTestId('snapshots');
-    const rowOf = (id: string) => table.querySelector(`tr[data-snapshot="${id}"]`) as HTMLElement;
+    const table = await screen.findByRole('table', { name: vi_['dis.snapshot.list.aria'] });
+    const rowOf = (id: string) => within(table).getByRole('row', { name: id === FROZEN ? /Đã đóng băng/ : /Đã dựng/ });
     expect(within(rowOf(FROZEN)).queryByRole('button', { name: vi_['dis.snapshot.freeze.action'] })).toBeNull();
     await user.click(within(rowOf(BUILDING)).getByRole('button', { name: vi_['dis.snapshot.freeze.action'] }));
     const dialog = await screen.findByRole('dialog');
+    // The dialog names the figures, the period, the state and the effect of the freeze before it asks.
     expect(within(dialog).getByText(vi_['dis.snapshot.freeze.dialog.body'])).toBeTruthy();
-    expect(within(dialog).getByTestId('freeze-definition-note').textContent).toBe(vi_['dis.snapshot.freeze.dialog.definition']);
+    expect(within(dialog).getByText(vi_['dis.snapshot.freeze.dialog.definition'])).toBeTruthy();
+    expect(within(dialog).getByText(vi_['dis.snapshot.freeze.dialog.title'].replace('{kind}', vi_['dis.snapshot.kind.periodClose']).replace('{cutoff}', '2027-01-18'))).toBeTruthy();
+    expect(within(dialog).getByText('2027-W02')).toBeTruthy();
     // Cancelling sends nothing.
     await user.click(within(dialog).getByRole('button', { name: vi_['dis.snapshot.dialog.cancel.action'] }));
     expect(screen.queryByRole('dialog')).toBeNull();
@@ -201,7 +204,7 @@ describe('DIS-21 close and freeze the figures of a period', () => {
     open({ snapshots: listOf([snapshotRecord(FROZEN)]), lines: { [FROZEN]: { '': { snapshot: snapshotRecord(FROZEN), items: [lineRecord(1), none, rise], next_cursor: null } } } });
     await choosePeriod(user);
     await user.click(await screen.findByRole('button', { name: /Xem dòng số liệu/ }));
-    const table = await screen.findByTestId('lines');
+    const table = await linesTable();
     const rows = Array.from(table.querySelectorAll('tbody tr'));
     const cells = (row: Element) => Array.from(row.querySelectorAll('td')).map((cell) => cell.textContent);
     expect(cells(rows[0] as Element)).toEqual(['DA-2027-001', 'Kế hoạch năm · Trung ương', '500.000.000', '300.000.000', '250.000.000', '100.000.000', '-20.000.000', '50.0000%', '31.2500%', 'Một phần']);
@@ -225,7 +228,7 @@ describe('DIS-21 close and freeze the figures of a period', () => {
     await user.click(await screen.findByRole('button', { name: /Xem dòng số liệu/ }));
     const more = await screen.findByRole('button', { name: vi_['dis.snapshot.lines.more.action'] });
     await user.click(more);
-    await waitFor(() => expect(screen.getByTestId('lines').querySelectorAll('tbody tr')).toHaveLength(2));
+    await waitFor(() => expect(screen.getByRole('table', { name: vi_['dis.snapshot.lines.aria'] }).querySelectorAll('tbody tr')).toHaveLength(2));
     expect(screen.queryByRole('button', { name: vi_['dis.snapshot.lines.more.action'] })).toBeNull();
   });
 

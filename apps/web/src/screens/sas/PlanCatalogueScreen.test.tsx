@@ -2,6 +2,7 @@ import { ApiError } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../i18n/vi.json';
+import { translator } from '../../i18n';
 import PlanCatalogueScreen from './PlanCatalogueScreen';
 import { harness, mount, routeOf } from './test-support';
 
@@ -105,6 +106,15 @@ describe('PlanCatalogueScreen (SAS-06): the plan catalogue', () => {
     expect(cellText(exported, 2)).toBe(vi_['sas.plan.limit.on']);
     expect(cellText(exported, 3)).toBe(vi_['sas.plan.grace.allow']);
     expect(cellText(exported, 4)).toBe(vi_['sas.plan.expired.exportOnly']);
+  });
+
+  it('draws the state of each version as a pill of the kit, a draft amber and a published one green, in a scroll region of its own', async () => {
+    mount(<PlanCatalogueScreen route={ROUTE} />, client({ plans: [draft, standard] }), BILLING);
+    await ready();
+    const pillOf = (label: string): string => (screen.getAllByText(label)[0]?.closest('.ui-pill') as HTMLElement).className;
+    expect(pillOf(vi_['sas.plan.status.draft'])).toContain('ui-tone-warning');
+    expect(pillOf(vi_['sas.plan.status.published'])).toContain('ui-tone-success');
+    expect(screen.getByRole('region', { name: translator.t('w2sas.plan.table.list') })).toBeTruthy();
   });
 
   it('shows the matrix of the version chosen, with the quota, the switch that is off and the seat label', async () => {

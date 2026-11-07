@@ -291,6 +291,18 @@ describe('the model of the publication requests (ST-BI-006)', () => {
 });
 
 describe('BI-11 inbox of the requests to publish (ST-BI-006)', () => {
+  it('says how many requests are shown in the context bar, writes the state of a request as a pill and counts the applied filter on the button of the panel', async () => {
+    const h = client({ requests: [request(R1), request(R2, { object_kind: 'DASHBOARD', object_code: 'D-3', object_revision: 2, checks: [] })] });
+    mount(<PublicationInboxScreen route={INBOX} />, h, { permissions: APPROVE });
+    const table = await screen.findByTestId('requests');
+    const bar = screen.getByRole('group', { name: vi_['ui.contextBar.label'] });
+    expect(within(bar).getByText('Số đề nghị đang hiện')).toBeTruthy();
+    expect(within(bar).getByText('2')).toBeTruthy();
+    const pill = within(table).getAllByText(vi_['bi.pub.status.pending'])[0]?.closest('.ui-pill');
+    expect(pill?.className).toContain('ui-tone-info');
+    expect(screen.getByRole('button', { name: vi_['ui.filterPanel.toggleApplied'].replace('{count}', '1') })).toBeTruthy();
+  });
+
   it('lists the pending requests with what they are about, who asked and the checks, and reads the pending ones first', async () => {
     const h = client({
       requests: [
@@ -326,12 +338,14 @@ describe('BI-11 inbox of the requests to publish (ST-BI-006)', () => {
     expect(
       within(rows[0] as HTMLElement)
         .getByText(vi_['bi.pub.check.formula'])
-        .getAttribute('data-passed'),
+        .closest('[data-check]')
+        ?.getAttribute('data-passed'),
     ).toBe('true');
     expect(
       within(rows[0] as HTMLElement)
         .getByText(vi_['bi.pub.check.rows'])
-        .getAttribute('data-passed'),
+        .closest('[data-check]')
+        ?.getAttribute('data-passed'),
     ).toBe('false');
     expect(within(rows[0] as HTMLElement).getByText('SOMETHING_NEW')).toBeTruthy();
     expect(within(rows[1] as HTMLElement).getByText(vi_['bi.pub.kind.dashboard'])).toBeTruthy();

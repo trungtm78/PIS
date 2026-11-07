@@ -8,10 +8,12 @@ import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { listItems, useDraftList } from './drafts/hooks';
 import type { DraftFilter } from './drafts/hooks';
-import { effectLabel, statusLabel, statusMark } from './drafts/labels';
+import { DataTable, FilterPanel, StatusPill } from '../../ui';
+import type { DataTableColumn } from '../../ui';
+import { effectLabel, statusLabel, statusMark, statusTone } from './drafts/labels';
 import { nextRoute } from './drafts/rules';
 import { CREATE_DOCUMENT_PERMISSION, DOCUMENT_STATUSES, EDIT_DOCUMENT_PERMISSION, REVIEW_DOCUMENT_PERMISSION } from './drafts/types';
-import type { DocumentStatus, DraftRow } from './drafts/types';
+import type { DraftRow } from './drafts/types';
 import './drafts/drafts.css';
 
 const YEARS_BACK = 3;
@@ -69,6 +71,53 @@ function OutgoingListContent({ route }: ScreenProps) {
     }
   };
 
+  const columns: DataTableColumn<DraftRow>[] = [
+    {
+      key: 'number',
+      header: t('doc.list.col.number'),
+      pinned: true,
+      render: (row) => (
+        <>
+          {row.symbol === null ? <span className="muted">{t('doc.list.number.pending')}</span> : <strong>{row.symbol}</strong>}
+          <div className="sub">{row.docTypeCode}</div>
+        </>
+      ),
+    },
+    { key: 'summary', header: t('doc.list.col.summary'), render: (row) => row.title },
+    {
+      key: 'status',
+      header: t('doc.list.col.status'),
+      render: (row) => (
+        <StatusPill tone={statusTone(row.status)} icon={statusMark(row.status)}>
+          {statusLabel(t, row.status)}
+        </StatusPill>
+      ),
+    },
+    { key: 'drafter', header: t('doc.list.col.drafter'), render: (row) => <span title={row.drafterUserId}>{shortId(row.drafterUserId)}</span> },
+    { key: 'signer', header: t('doc.list.col.signer'), render: (row) => <span title={row.signerUserId ?? undefined}>{shortId(row.signerUserId)}</span> },
+    { key: 'issuedOn', header: t('doc.list.col.issuedOn'), render: (row) => row.issuedOn ?? '' },
+    { key: 'effect', header: t('doc.list.col.effect'), render: (row) => (row.effectStatus === 'PENDING' ? '' : effectLabel(t, row.effectStatus)) },
+    { key: 'source', header: t('doc.list.col.source'), render: (row) => row.sourceModule ?? '' },
+    {
+      key: 'actions',
+      header: t('w2doc.list.col.actions'),
+      render: (row) => {
+        const open = target(row);
+        return open === undefined ? null : (
+          <Link to={`${open.path}?doc=${row.id}`} aria-label={t('doc.list.open.label', { title: row.title })}>
+            {open.label}
+          </Link>
+        );
+      },
+    },
+  ];
+  const filtered = applied.status !== '' || applied.docTypeCode !== '' || applied.year !== '';
+  const clear = (): void => {
+    const none: DraftFilter = { status: '', docTypeCode: '', year: '' };
+    setDraft(none);
+    setApplied(none);
+  };
+
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title" className="doc-drafts">
       <div className="heading">
@@ -78,14 +127,14 @@ function OutgoingListContent({ route }: ScreenProps) {
         </div>
         <div className="actions">
           {canCreate ? (
-            <Link className="button primary" to={EDITOR_PATH}>
+            <Link className="ui-button ui-button--primary" to={EDITOR_PATH}>
               {t('doc.list.create.action')}
             </Link>
           ) : null}
         </div>
       </div>
-      <div className="card">
-        <form className="filters" onSubmit={submit}>
+      <FilterPanel applied={[applied.status, applied.docTypeCode, applied.year].filter((value) => value !== '').length}>
+        <form className="doc-filter-form" onSubmit={submit}>
           <div>
             <label htmlFor="draft-status">{t('doc.list.status.label')}</label>
             <select id="draft-status" value={draft.status} onChange={(event) => setDraft({ ...draft, status: event.target.value })}>
@@ -112,79 +161,28 @@ function OutgoingListContent({ route }: ScreenProps) {
               ))}
             </select>
           </div>
-          <button type="submit">{t('doc.list.filter.action')}</button>
+          <button type="submit" className="ui-button ui-button--outline">
+            {t('doc.list.filter.action')}
+          </button>
         </form>
-        {frozen ? (
-          <p className="callout warning" role="status">
-            {t('doc.list.frozen.notice')}
-          </p>
-        ) : null}
-        <StateBoundary state={state} onRetry={() => void list.refetch()}>
-          <div className="tablewrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>{t('doc.list.col.number')}</th>
-                  <th>{t('doc.list.col.summary')}</th>
-                  <th>{t('doc.list.col.status')}</th>
-                  <th>{t('doc.list.col.drafter')}</th>
-                  <th>{t('doc.list.col.signer')}</th>
-                  <th>{t('doc.list.col.issuedOn')}</th>
-                  <th>{t('doc.list.col.effect')}</th>
-                  <th>{t('doc.list.col.source')}</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => {
-                  const open = target(row);
-                  return (
-                    <tr key={row.id} data-document-id={row.id} data-status={row.status}>
-                      <td>
-                        {row.symbol === null ? <span className="muted">{t('doc.list.number.pending')}</span> : <strong>{row.symbol}</strong>}
-                        <div className="sub">{row.docTypeCode}</div>
-                      </td>
-                      <td>{row.title}</td>
-                      <td>
-                        <span className={`pill ${pillOf(row.status)}`}>
-                          <span aria-hidden="true">{statusMark(row.status)}</span> {statusLabel(t, row.status)}
-                        </span>
-                      </td>
-                      <td title={row.drafterUserId}>{shortId(row.drafterUserId)}</td>
-                      <td title={row.signerUserId ?? undefined}>{shortId(row.signerUserId)}</td>
-                      <td>{row.issuedOn ?? ''}</td>
-                      <td>{row.effectStatus === 'PENDING' ? '' : effectLabel(t, row.effectStatus)}</td>
-                      <td>{row.sourceModule ?? ''}</td>
-                      <td className="row-actions">
-                        {open === undefined ? null : (
-                          <Link to={`${open.path}?doc=${row.id}`} aria-label={t('doc.list.open.label', { title: row.title })}>
-                            {open.label}
-                          </Link>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          <div className="row between gap tiny muted">
-            <span>{t('doc.list.count.text', { count: rows.length })}</span>
-            {list.hasNextPage ? (
-              <button type="button" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
-                {t('doc.list.more.action')}
-              </button>
-            ) : null}
-          </div>
-        </StateBoundary>
-      </div>
+      </FilterPanel>
+      {frozen ? (
+        <p className="callout warning" role="status">
+          {t('doc.list.frozen.notice')}
+        </p>
+      ) : null}
+      <StateBoundary state={state} onRetry={() => void list.refetch()}>
+        <DataTable caption={t('w2doc.list.table.caption')} columns={columns} rows={rows} rowKey={(row) => row.id} emptyKind={filtered ? 'filtered' : 'none'} onClearFilters={clear} />
+        <div className="row between gap tiny muted doc-list-foot">
+          <span>{t('doc.list.count.text', { count: rows.length })}</span>
+          {list.hasNextPage ? (
+            <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
+              {t('doc.list.more.action')}
+            </button>
+          ) : null}
+        </div>
+      </StateBoundary>
       <p className="prototype-note">{t('doc.list.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
   );
-}
-
-function pillOf(status: DocumentStatus): string {
-  if (status === 'CANCELLED' || status === 'RECALLED') return 'gray';
-  if (status === 'DRAFT' || status === 'IN_REVIEW' || status === 'SUBMITTED') return 'warn';
-  return '';
 }

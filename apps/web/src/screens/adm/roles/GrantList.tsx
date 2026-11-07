@@ -1,4 +1,7 @@
 import { useTranslation } from '../../../i18n';
+import { StatusPill } from '../../../ui';
+import type { Tone } from '../../../ui';
+import { KitTable } from '../KitTable';
 import { scopeLabel, statusLabel, windowLabel } from './labels';
 import type { GrantView } from './types';
 
@@ -9,15 +12,14 @@ export interface GrantListProps {
   onRevoke(grant: GrantView): void;
 }
 
-const STATUS_PILL: Readonly<Record<GrantView['status'], string>> = { Active: 'pill', Revoked: 'pill gray', Expired: 'pill warn' };
+const STATUS_TONE: Readonly<Record<GrantView['status'], Tone>> = { Active: 'success', Revoked: 'neutral', Expired: 'warning' };
 
 /** The grants of the caller's scope as the prototype's table: role, scope, grantor, reason, validity, status. */
 export function GrantList({ grants, canRevoke, onRevoke }: GrantListProps) {
   const { t } = useTranslation();
   if (grants.length === 0) return <p className="muted">{t('adm.roles.grants.empty')}</p>;
   return (
-    <div className="tablewrap">
-      <table>
+    <KitTable caption={t('w2adm.roles.grants.table.caption')}>
         <thead>
           <tr>
             <th>{t('adm.roles.grants.col.role')}</th>
@@ -51,12 +53,12 @@ export function GrantList({ grants, canRevoke, onRevoke }: GrantListProps) {
               <td>{grant.grant_reason}</td>
               <td>{windowLabel(t, grant)}</td>
               <td>
-                <span className={STATUS_PILL[grant.status]}>{statusLabel(t, grant.status)}</span>
+                <StatusPill tone={STATUS_TONE[grant.status]}>{statusLabel(t, grant.status)}</StatusPill>
               </td>
               {canRevoke ? (
                 <td>
                   {grant.status === 'Active' ? (
-                    <button type="button" className="danger" onClick={() => onRevoke(grant)}>
+                    <button type="button" className="ui-button ui-button--outline ui-button--small danger" onClick={() => onRevoke(grant)}>
                       {t('adm.roles.grants.revoke.action')}
                     </button>
                   ) : null}
@@ -65,7 +67,6 @@ export function GrantList({ grants, canRevoke, onRevoke }: GrantListProps) {
             </tr>
           ))}
         </tbody>
-      </table>
-    </div>
+    </KitTable>
   );
 }

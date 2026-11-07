@@ -1,4 +1,5 @@
 import type { Translator } from '../../../i18n';
+import type { Tone } from '../../../ui';
 import type { CertificateKind, CertificateStatus, FieldProblem, PolicyStatus, ProblemView } from './model';
 
 type T = Translator['t'];
@@ -110,5 +111,30 @@ export function policyProblemMessage(t: T, problem: ProblemView): string {
       return t('adm.securityPolicy.error.session');
     default:
       return t('adm.securityPolicy.error.general');
+  }
+}
+
+/** The tone of the status pill of a certificate. */
+export function certificateTone(status: CertificateStatus): Tone {
+  switch (status) {
+    case 'Active':
+      return 'success';
+    case 'Expired':
+    case 'Revoked':
+      return 'danger';
+    case 'Suspended':
+      return 'warning';
+  }
+}
+
+/** The tone of the status pill of a version of the security policy. */
+export function policyStatusTone(status: PolicyStatus): Tone {
+  switch (status) {
+    case 'Draft':
+      return 'warning';
+    case 'Published':
+      return 'success';
+    case 'Superseded':
+      return 'neutral';
   }
 }

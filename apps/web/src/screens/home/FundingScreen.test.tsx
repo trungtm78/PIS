@@ -66,8 +66,8 @@ describe('HOME-07 funding structure (ST-HOME-005, HOME 3 F6)', () => {
     // The lines could not be read: the capital published still shows, and the part says no data.
     await waitFor(() => expect(screen.getByTestId('subset-NSTW').textContent).toBe(vi_['home.funding.subset.none']));
     // Origins that have nothing published say so, one card each, none of them zero.
-    expect(screen.getByTestId('origin-CARRYOVER').textContent).toBe(vi_['home.funding.card.none']);
-    expect(screen.getByTestId('origin-REVENUE_INCREASE').textContent).toBe(vi_['home.funding.card.none']);
+    expect(within(screen.getByTestId('origin-CARRYOVER')).getByText(vi_['home.funding.card.none'])).toBeTruthy();
+    expect(within(screen.getByTestId('origin-REVENUE_INCREASE')).getByText(vi_['home.funding.card.none'])).toBeTruthy();
     expect(screen.getByTestId('origin-PM_ASSIGNED').textContent).toContain(fill(vi_['home.funding.card.amount'], { value: '550' }));
     expect(document.body.textContent).not.toMatch(/\b0 tỷ/);
   });
@@ -88,8 +88,8 @@ describe('HOME-07 funding structure (ST-HOME-005, HOME 3 F6)', () => {
   it('opens on the year in the address, and says no data for a year that has no capital', async () => {
     mount(<FundingScreen route={OVERVIEW} />, client(normal()), { permissions: READER }, '/?year=2031');
     expect(await screen.findByRole('heading', { name: fill(vi_['home.funding.total.title'], { year: 2031 }) })).toBeTruthy();
-    expect(screen.getByTestId('funding-total-amount').textContent).toBe(vi_['home.funding.card.none']);
-    expect(screen.getByTestId('source-NSTW').textContent).toBe(vi_['home.funding.card.none']);
+    expect(within(screen.getByTestId('funding-total-amount')).getByText(vi_['home.funding.card.none'])).toBeTruthy();
+    expect(within(screen.getByTestId('source-NSTW')).getByText(vi_['home.funding.card.none'])).toBeTruthy();
   });
 
   it('takes back the CTMTQG part when a later read of the allocation lines fails, and does not keep showing the figure it read before', async () => {
@@ -144,9 +144,10 @@ describe('HOME-08 sources and the scope of the calculation (ST-HOME-005)', () =>
   it('AC-ST-HOME-005-1: UAT-AC269 shows CTMTQG under NSTW as "Tập con của NSTW" with its cut-off, and the total row does not add it', async () => {
     mount(<FundingDetailScreen route={DETAIL} />, client(normal()), { permissions: READER });
     const table = await screen.findByTestId('funding-table');
-    await waitFor(() => expect(table.querySelector('[data-subset="true"]')).toBeTruthy());
+    await waitFor(() => expect(within(table).getAllByText(vi_['home.funding.detail.relation.subset'])).toHaveLength(1));
     const rows = [...table.querySelectorAll('tbody tr')];
-    expect(rows.map((row) => row.getAttribute('data-subset'))).toEqual(['false', 'true', 'false', 'false']);
+    // The relation column tells the part of NSTW from the independent sources: only the second row is a part.
+    expect(rows.map((row) => within(row as HTMLElement).queryByText(vi_['home.funding.detail.relation.subset']) !== null)).toEqual([false, true, false, false]);
     const subset = rows[1] as HTMLElement;
     expect(within(subset).getByText(vi_['home.funding.detail.relation.subset'])).toBeTruthy();
     expect(within(subset).getByText('2026-01-15')).toBeTruthy();
@@ -156,7 +157,8 @@ describe('HOME-08 sources and the scope of the calculation (ST-HOME-005)', () =>
     expect(within(table).getByRole('columnheader', { name: vi_['home.funding.detail.column.relation'] })).toBeTruthy();
     expect(within(table).getByRole('columnheader', { name: vi_['home.funding.detail.column.cutoff'] })).toBeTruthy();
     // 500 + 100 + 50 = 650; the 40 is not in it.
-    expect(screen.getByTestId('funding-table-total').textContent).toContain('650.000.000.000');
+    const totalRow = within(table).getByRole('rowheader', { name: vi_['home.funding.detail.total'] }).closest('tr') as HTMLElement;
+    expect(totalRow.textContent).toContain('650.000.000.000');
     expect(screen.getByTestId('funding-scope').textContent).toContain(fill(vi_['home.funding.scope.published'], { year: 2026 }));
   });
 

@@ -9,6 +9,7 @@ import { kindLabel, statusLabel } from '../../pay/advance/labels';
 import { listLink, recoveredShare, scheduleLink, signedAmountText } from '../../pay/advance/model';
 import { BackLink } from '../components';
 import '../ctr.css';
+import { SectionCard } from '../../../ui';
 
 /**
  * CTR-06: the advances of a contract and the schedule of their recovery (ST-PAY-004, PAY 3.2, BR-PAY-04, BR-PAY-10). For each advance: its value, what has come back and what is still owed, the
@@ -55,7 +56,7 @@ function ScheduleContent({ route }: ScreenProps) {
               {t('ctr.advance.awaiting', { cxn: awaiting.capRuleCxn ?? '' })}
             </p>
           )}
-          <article className="card" aria-label={t('ctr.advance.advances')}>
+          <SectionCard title={t('ctr.advance.advances')} unit={t('w2pay.ctx.unit')}>
             {list.length === 0 ? (
               <p className="sub" data-testid="no-advances">
                 {t('ctr.advance.empty')}
@@ -112,10 +113,9 @@ function ScheduleContent({ route }: ScreenProps) {
                 </tbody>
               </table>
             )}
-          </article>
+          </SectionCard>
           {inView === undefined ? null : (
-            <article className="card" aria-label={t('ctr.advance.schedule')}>
-              <h2>{t('ctr.advance.schedule')}</h2>
+            <SectionCard title={t('ctr.advance.schedule')} unit={t('w2pay.ctx.unit')}>
               {plan.data === null || plan.data === undefined ? (
                 <p className="sub" data-testid="no-plan">
                   {plan.isLoading ? t('ctr.advance.loading') : t('ctr.advance.noPlan')}
@@ -167,7 +167,7 @@ function ScheduleContent({ route }: ScreenProps) {
                   </table>
                 </>
               )}
-            </article>
+            </SectionCard>
           )}
         </StateBoundary>
       )}

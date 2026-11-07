@@ -2,6 +2,8 @@ import { useTranslation } from '../../i18n';
 import { isCalendarDate } from './model';
 import { calendarOf, periodsFrom } from './reporting-calendar';
 import type { ReportingPeriod } from './reporting-calendar';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 
 export const PREVIEW_PERIODS = 8;
 
@@ -9,7 +11,7 @@ export const PREVIEW_PERIODS = 8;
 export function PeriodTable({ periods, now }: { periods: readonly ReportingPeriod[]; now: number | undefined }) {
   const { t } = useTranslation();
   return (
-    <table className="table" data-testid="periods">
+    <KitTable caption={t('w2mdm.calendarPreview.table.caption')} data-testid="periods">
       <thead>
         <tr>
           <th>{t('mdm.calendar.year.column')}</th>
@@ -36,7 +38,7 @@ export function PeriodTable({ periods, now }: { periods: readonly ReportingPerio
           </tr>
         ))}
       </tbody>
-    </table>
+    </KitTable>
   );
 }
 

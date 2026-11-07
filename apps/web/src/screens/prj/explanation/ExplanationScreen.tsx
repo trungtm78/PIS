@@ -7,6 +7,8 @@ import { useSession } from '../../../session/SessionContext';
 import { NavigationDialog } from '../../../shell/NavigationDialog';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { DataTable, FilterPanel, SectionCard, StatusPill } from '../../../ui';
+import type { DataTableColumn, Tone } from '../../../ui';
 import { useMemberOptions } from '../accountability-reads';
 import { Field } from '../components';
 import { useProjects, useUnits } from '../hooks';
@@ -82,7 +84,7 @@ function statusLabel(t: T, status: Status): string {
   }
 }
 
-const statusTone = (status: Status): 'green' | 'warn' | 'gray' | 'blue' => (status === 'ACCEPTED' ? 'green' : status === 'OVERDUE' || status === 'RETURNED' ? 'warn' : status === 'CANCELLED' ? 'gray' : 'blue');
+const statusTone = (status: Status): Tone => (status === 'ACCEPTED' ? 'success' : status === 'OVERDUE' || status === 'RETURNED' ? 'warning' : status === 'CANCELLED' ? 'neutral' : 'info');
 const fieldMessage = (t: T, problem: FormProblem | undefined): string | undefined =>
   problem === undefined ? undefined : problem === 'required' ? t('prj.explanation.field.required.error') : problem === 'past' ? t('prj.explanation.field.past.error') : t('prj.explanation.field.invalid.error');
 
@@ -110,13 +112,87 @@ function ExplanationContent({ route }: ScreenProps) {
   const [concluding, setConcluding] = useState<ExplanationView | undefined>(undefined);
   const list = useExplanations(status);
   const items = (list.data?.pages ?? []).flatMap((page) => page.items);
-  const state = useScreenState({ isLoading: list.isLoading, error: list.error, data: list.data === undefined ? undefined : items, isEmpty: () => items.length === 0 && status === '' });
+  const state = useScreenState({
+    isLoading: list.isLoading,
+    error: list.error,
+    data: list.data === undefined ? undefined : items,
+    isEmpty: () => items.length === 0 && status === '',
+  });
   const me = tenant?.membershipId;
   const request = holds(permissions, REQUEST_PERMISSION, mode);
   const respond = holds(permissions, RESPOND_PERMISSION, mode);
   const review = holds(permissions, REVIEW_PERMISSION, mode);
   const now = new Date();
   const shown = items.find((item) => item.id === viewing);
+  const columns: DataTableColumn<ExplanationView>[] = [
+    {
+      key: 'subject',
+      header: t('prj.explanation.col.subject'),
+      pinned: true,
+      render: (item) => subjectText(t, item),
+    },
+    {
+      key: 'basis',
+      header: t('prj.explanation.col.basis'),
+      render: (item) => (item.warningId === null ? (item.triggerCode === 'MANUAL' ? t('prj.explanation.basis.manual') : item.triggerCode) : t('prj.explanation.basis.warning', { rule: item.triggerCode })),
+    },
+    {
+      key: 'question',
+      header: t('prj.explanation.col.question'),
+      render: (item) => item.question,
+    },
+    {
+      key: 'due',
+      header: t('prj.explanation.col.due'),
+      render: (item) => {
+        const past = isPastDue(item, now);
+        return (
+          <span data-overdue={past ? 'true' : 'false'}>
+            {t('prj.explanation.due.text', { date: dayOf(item.dueAt) })}
+            {past ? <StatusPill tone="warning">{t('prj.explanation.due.overdue')}</StatusPill> : null}
+            {item.dueAt !== item.originalDueAt ? (
+              <span className="prj-code">
+                {t('prj.explanation.due.original', {
+                  date: dayOf(item.originalDueAt),
+                })}
+              </span>
+            ) : null}
+          </span>
+        );
+      },
+    },
+    {
+      key: 'status',
+      header: t('prj.explanation.col.status'),
+      render: (item) => (
+        <span className="prj-pills" data-status={item.status}>
+          <StatusPill tone={statusTone(item.status)}>{statusLabel(t, item.status)}</StatusPill>
+          {item.isLate ? <StatusPill tone="warning">{t('prj.explanation.late.label')}</StatusPill> : null}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      header: t('prj.explanation.col.actions'),
+      render: (item) => (
+        <span className="prj-row-actions">
+          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setViewing(viewing === item.id ? undefined : item.id)}>
+            {t('prj.explanation.view.action')}
+          </button>
+          {respond && canAnswer(item, me) ? (
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setAnswering(item)}>
+              {t('prj.explanation.answer.action')}
+            </button>
+          ) : null}
+          {review && canConclude(item, me) ? (
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setConcluding(item)}>
+              {t('prj.explanation.review.action')}
+            </button>
+          ) : null}
+        </span>
+      ),
+    },
+  ];
   const readable = holds(permissions, READ_PERMISSION, undefined);
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
@@ -126,53 +202,28 @@ function ExplanationContent({ route }: ScreenProps) {
           <p>{t('prj.explanation.page.subtitle')}</p>
         </div>
         {request ? (
-          <button type="button" className="primary" onClick={() => setAsking(true)}>
+          <button type="button" className="ui-button ui-button--primary" onClick={() => setAsking(true)}>
             {t('prj.explanation.request.open.action')}
           </button>
         ) : null}
       </div>
-      <div className="prj-filters">
-        <label htmlFor="explanation-status">{t('prj.explanation.filter.status.label')}</label>
-        <select id="explanation-status" value={status} onChange={(event) => setStatus(event.target.value)}>
-          <option value="">{t('prj.explanation.filter.status.all')}</option>
-          {STATUSES.map((value) => (
-            <option key={value} value={value}>
-              {statusLabel(t, value)}
-            </option>
-          ))}
-        </select>
-      </div>
+      <FilterPanel applied={status === '' ? 0 : 1}>
+        <div className="prj-filters">
+          <label htmlFor="explanation-status">{t('prj.explanation.filter.status.label')}</label>
+          <select id="explanation-status" value={status} onChange={(event) => setStatus(event.target.value)}>
+            <option value="">{t('prj.explanation.filter.status.all')}</option>
+            {STATUSES.map((value) => (
+              <option key={value} value={value}>
+                {statusLabel(t, value)}
+              </option>
+            ))}
+          </select>
+        </div>
+      </FilterPanel>
       <StateBoundary state={state} onRetry={() => void list.refetch()}>
         {readable || items.length > 0 ? (
-          <div className="tablewrap">
-            <table className="table" aria-label={t('prj.explanation.list.aria')} data-testid="explanations">
-              <thead>
-                <tr>
-                  <th scope="col">{t('prj.explanation.col.subject')}</th>
-                  <th scope="col">{t('prj.explanation.col.basis')}</th>
-                  <th scope="col">{t('prj.explanation.col.question')}</th>
-                  <th scope="col">{t('prj.explanation.col.due')}</th>
-                  <th scope="col">{t('prj.explanation.col.status')}</th>
-                  <th scope="col">
-                    <span className="sr-only">{t('prj.explanation.col.actions')}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item) => (
-                  <Row
-                    key={item.id}
-                    item={item}
-                    now={now}
-                    answer={respond && canAnswer(item, me)}
-                    conclude={review && canConclude(item, me)}
-                    onView={() => setViewing(viewing === item.id ? undefined : item.id)}
-                    onAnswer={() => setAnswering(item)}
-                    onConclude={() => setConcluding(item)}
-                  />
-                ))}
-              </tbody>
-            </table>
+          <div data-testid="explanations">
+            <DataTable caption={t('prj.explanation.list.aria')} columns={columns} rows={items} rowKey={(item) => item.id} emptyKind={status === '' ? 'none' : 'filtered'} onClearFilters={() => setStatus('')} />
           </div>
         ) : null}
         {list.hasNextPage ? (
@@ -187,7 +238,12 @@ function ExplanationContent({ route }: ScreenProps) {
       {asking ? <RequestDialog onClose={() => setAsking(false)} /> : null}
       {answering === undefined ? null : <AnswerDialog item={answering} onClose={() => setAnswering(undefined)} />}
       {concluding === undefined ? null : <ReviewDialog item={concluding} onClose={() => setConcluding(undefined)} />}
-      <p className="prototype-note">{t('prj.explanation.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
+      <p className="prototype-note">
+        {t('prj.explanation.footer.reference', {
+          id: route.id,
+          req: route.req ?? '',
+        })}
+      </p>
     </section>
   );
 }
@@ -196,99 +252,57 @@ function subjectText(t: T, item: ExplanationView): string {
   return item.subject === 'PROJECT' ? `${item.subjectCode ?? ''} ${item.subjectName}`.trim() : `${t('prj.explanation.subject.unit')} ${item.subjectName}`.trim();
 }
 
-interface RowProps {
-  item: ExplanationView;
-  now: Date;
-  answer: boolean;
-  conclude: boolean;
-  onView(): void;
-  onAnswer(): void;
-  onConclude(): void;
-}
-
-function Row({ item, now, answer, conclude, onView, onAnswer, onConclude }: RowProps) {
-  const { t } = useTranslation();
-  const past = isPastDue(item, now);
-  const moved = item.dueAt !== item.originalDueAt;
-  return (
-    <tr data-request={item.id} data-status={item.status} data-overdue={past ? 'true' : 'false'}>
-      <td>{subjectText(t, item)}</td>
-      <td>{item.warningId === null ? (item.triggerCode === 'MANUAL' ? t('prj.explanation.basis.manual') : item.triggerCode) : t('prj.explanation.basis.warning', { rule: item.triggerCode })}</td>
-      <td>{item.question}</td>
-      <td>
-        {t('prj.explanation.due.text', { date: dayOf(item.dueAt) })}
-        {past ? <span className="pill warn">{t('prj.explanation.due.overdue')}</span> : null}
-        {moved ? <span className="prj-code">{t('prj.explanation.due.original', { date: dayOf(item.originalDueAt) })}</span> : null}
-      </td>
-      <td>
-        <span className={`pill ${statusTone(item.status)}`} data-status={item.status}>
-          {statusLabel(t, item.status)}
-        </span>
-        {item.isLate ? <span className="pill warn">{t('prj.explanation.late.label')}</span> : null}
-      </td>
-      <td>
-        <button type="button" onClick={onView}>
-          {t('prj.explanation.view.action')}
-        </button>{' '}
-        {answer ? (
-          <button type="button" onClick={onAnswer}>
-            {t('prj.explanation.answer.action')}
-          </button>
-        ) : null}{' '}
-        {conclude ? (
-          <button type="button" onClick={onConclude}>
-            {t('prj.explanation.review.action')}
-          </button>
-        ) : null}
-      </td>
-    </tr>
-  );
-}
-
 /** The question beside the answer, and the conclusion under them. */
 function Detail({ item, onClose }: { item: ExplanationView; onClose(): void }) {
   const { t } = useTranslation();
   return (
-    <section className="card" aria-labelledby="explanation-detail-title" data-testid="explanation-detail">
-      <div className="heading">
-        <h2 id="explanation-detail-title">{t('prj.explanation.detail.title', { subject: subjectText(t, item) })}</h2>
-        <button type="button" onClick={onClose}>
-          {t('prj.explanation.detail.close.action')}
-        </button>
-      </div>
-      <div className="prj-compare">
-        <div>
-          <h3>{t('prj.explanation.detail.question.title')}</h3>
-          <p data-testid="detail-question">{item.question}</p>
-        </div>
-        <div>
-          <h3>{t('prj.explanation.detail.response.title')}</h3>
-          {item.responseText === null ? (
-            <p className="muted" data-testid="detail-response">
-              {t('prj.explanation.detail.response.none')}
-            </p>
-          ) : (
-            <>
-              <p data-testid="detail-response">{item.responseText}</p>
-              <p className="sub">
-                {t('prj.explanation.detail.responded', { at: item.respondedAt === null ? NONE : dayOf(item.respondedAt) })}
-                {item.isLate ? ` · ${t('prj.explanation.late.label')}` : ''}
+    <div data-testid="explanation-detail">
+      <SectionCard
+        title={t('prj.explanation.detail.title', {
+          subject: subjectText(t, item),
+        })}
+        actions={
+          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={onClose}>
+            {t('prj.explanation.detail.close.action')}
+          </button>
+        }
+      >
+        <div className="prj-compare">
+          <div>
+            <h3>{t('prj.explanation.detail.question.title')}</h3>
+            <p data-testid="detail-question">{item.question}</p>
+          </div>
+          <div>
+            <h3>{t('prj.explanation.detail.response.title')}</h3>
+            {item.responseText === null ? (
+              <p className="muted" data-testid="detail-response">
+                {t('prj.explanation.detail.response.none')}
               </p>
-            </>
-          )}
+            ) : (
+              <>
+                <p data-testid="detail-response">{item.responseText}</p>
+                <p className="sub">
+                  {t('prj.explanation.detail.responded', {
+                    at: item.respondedAt === null ? NONE : dayOf(item.respondedAt),
+                  })}
+                  {item.isLate ? ` · ${t('prj.explanation.late.label')}` : ''}
+                </p>
+              </>
+            )}
+          </div>
         </div>
-      </div>
-      <h3>{t('prj.explanation.detail.conclusion.title')}</h3>
-      {item.reviewNote === null ? (
-        <p className="muted" data-testid="detail-conclusion">
-          {t('prj.explanation.detail.conclusion.none')}
-        </p>
-      ) : (
-        <p data-testid="detail-conclusion">
-          {statusLabel(t, item.status)}: {item.reviewNote}
-        </p>
-      )}
-    </section>
+        <h3>{t('prj.explanation.detail.conclusion.title')}</h3>
+        {item.reviewNote === null ? (
+          <p className="muted" data-testid="detail-conclusion">
+            {t('prj.explanation.detail.conclusion.none')}
+          </p>
+        ) : (
+          <p data-testid="detail-conclusion">
+            {statusLabel(t, item.status)}: {item.reviewNote}
+          </p>
+        )}
+      </SectionCard>
+    </div>
   );
 }
 
@@ -429,7 +443,12 @@ function AnswerDialog({ item, onClose }: { item: ExplanationView; onClose(): voi
     send.mutate({ id: item.id, version: item.version, text }, { onSuccess: onClose });
   };
   return (
-    <Dialog title={t('prj.explanation.answer.title', { subject: subjectText(t, item) })} onClose={onClose}>
+    <Dialog
+      title={t('prj.explanation.answer.title', {
+        subject: subjectText(t, item),
+      })}
+      onClose={onClose}
+    >
       <form className="dis-dialog-body" onSubmit={submit} noValidate>
         <p data-testid="answer-question">{item.question}</p>
         <Refusal problem={refusal} testId="answer-refusal" />
@@ -464,7 +483,12 @@ function ReviewDialog({ item, onClose }: { item: ExplanationView; onClose(): voi
     send.mutate({ id: item.id, version: item.version, body: reviewBody(form) }, { onSuccess: onClose });
   };
   return (
-    <Dialog title={t('prj.explanation.review.title', { subject: subjectText(t, item) })} onClose={onClose}>
+    <Dialog
+      title={t('prj.explanation.review.title', {
+        subject: subjectText(t, item),
+      })}
+      onClose={onClose}
+    >
       <form className="dis-dialog-body" onSubmit={submit} noValidate>
         <p data-testid="review-question">{item.question}</p>
         <p data-testid="review-response">{item.responseText}</p>

@@ -5,12 +5,14 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { ContextBar, DataTable, FilterPanel, StatusPill } from '../../../ui';
+import type { DataTableColumn } from '../../../ui';
 import { amountText } from '../../ctr/model';
 import { useHandovers } from '../handover/hooks';
 import { useAssets } from './hooks';
 import { basisLabel, statusLabel } from './labels';
 import { canRegister, remainingVnd } from './model';
-import type { AssetLine } from './model';
+import type { AssetLine, AssetStatus } from './model';
 import { RegisterDialog, TransferDialog } from './AssetDialogs';
 import '../../qms/qms.css';
 
@@ -29,7 +31,7 @@ type Dialog = { kind: 'register' } | { kind: 'transfer'; asset: AssetLine };
 
 function AssetContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
-  const { permissions, mode } = useSession();
+  const { permissions, mode, tenant } = useSession();
   const [search, setSearch] = useSearchParams();
   const handovers = useHandovers('');
   // Whoever may read assets and not the handovers still reads them: only the filter and the choice of a handover are missing.
@@ -54,14 +56,15 @@ function AssetContent({ route }: ScreenProps) {
         </div>
         {canRegister(permissions, mode) && accepted.length > 0 ? (
           <div className="actions">
-            <button type="button" className="primary" onClick={() => setDialog({ kind: 'register' })}>
+            <button type="button" className="ui-button ui-button--primary" onClick={() => setDialog({ kind: 'register' })}>
               {t('ast.asset.register.action')}
             </button>
           </div>
         ) : null}
       </div>
+      <ContextBar items={[{ label: t('w2iss.ctx.scope'), value: tenant?.name ?? t('w2iss.ctx.scope.all') }]} unit={t('w2iss.ast.unit')} />
       {accepted.length === 0 ? null : (
-        <div className="card">
+        <FilterPanel applied={handoverId === '' ? 0 : 1}>
           <div className="field">
             <label htmlFor="assets-handover">{t('ast.asset.filter.handover')}</label>
             <select id="assets-handover" value={handoverId} onChange={(event) => choose(event.target.value)}>
@@ -73,85 +76,112 @@ function AssetContent({ route }: ScreenProps) {
               ))}
             </select>
           </div>
-        </div>
+        </FilterPanel>
       )}
       <StateBoundary state={state} onRetry={() => void assets.refetch()}>
-        <div className="card">
-          {lines.length === 0 ? (
-            <p className="callout" role="status" data-testid="no-assets">
-              {t('ast.asset.none.notice')}
-            </p>
-          ) : (
-            <table className="table" data-testid="assets">
-              <thead>
-                <tr>
-                  <th scope="col">{t('ast.asset.column.asset')}</th>
-                  <th scope="col">{t('ast.asset.column.handover')}</th>
-                  <th scope="col">{t('ast.asset.column.unit')}</th>
-                  <th scope="col">{t('ast.asset.column.value')}</th>
-                  <th scope="col">{t('ast.asset.column.external')}</th>
-                  <th scope="col">{t('ast.asset.column.status')}</th>
-                  <th scope="col">
-                    <span className="sr-only">{t('ast.asset.column.actions')}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {lines.map((line) => {
-                  const left = remainingVnd(line);
-                  return (
-                    <tr key={line.id} data-asset={line.id} data-status={line.status}>
-                      <td>
-                        <strong data-testid="code">{line.assetCode}</strong> <span data-testid="name">{line.name ?? ''}</span>
-                        {line.warrantyUntil === null ? null : <small className="sub qms-regime">{t('ast.asset.warranty.until', { day: line.warrantyUntil })}</small>}
-                      </td>
-                      <td data-testid="handover">{`${line.handover.handoverNo ?? ''} · ${line.contract.code}`}</td>
-                      <td data-testid="unit">{line.recipientUnit.name}</td>
-                      <td data-testid="value">
-                        {money(line.valueVnd)}
-                        {line.valueBasis === null ? null : <small className="sub qms-regime">{basisLabel(t, line.valueBasis)}</small>}
-                        {left === undefined ? null : (
-                          <small className="sub qms-regime" data-testid="remaining">
-                            {t('ast.asset.remaining.label', { left: amountText(left, locale), contract: amountText(line.contract.valueVnd ?? '0', locale) })}
-                          </small>
-                        )}
-                      </td>
-                      <td data-testid="external">
-                        {line.externalAssetId ?? (
-                          <span className="qms-badge warning" role="status">
-                            {t('ast.asset.external.manual')}
-                          </span>
-                        )}
-                      </td>
-                      <td>
-                        <span className={line.status === 'TRANSFERRED' || line.status === 'IN_OPERATION' ? 'qms-badge ok' : 'qms-badge'} data-testid="status">
-                          {statusLabel(t, line.status)}
-                        </span>
-                        {line.transferredOn === null ? null : <small className="sub qms-regime">{t('ast.asset.transferred.on', { day: line.transferredOn })}</small>}
-                      </td>
-                      <td>
-                        {line.status === 'TRANSFERRED' || line.status === 'IN_OPERATION' ? (
-                          <Link to={`/ast/ast-06?id=${line.id}`} data-om-link={line.id}>
-                            {t('ast.asset.omlink.action')}
-                          </Link>
-                        ) : null}
-                        {writable && line.canTransfer ? (
-                          <button type="button" data-transfer={line.id} onClick={() => setDialog({ kind: 'transfer', asset: line })}>
-                            {t('ast.asset.transfer.action')}
-                          </button>
-                        ) : null}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
-        </div>
+        {lines.length === 0 ? (
+          <p className="callout" role="status" data-testid="no-assets">
+            {t('ast.asset.none.notice')}
+          </p>
+        ) : (
+          <div data-testid="assets">
+            <AssetTable lines={lines} writable={writable} money={money} onTransfer={(asset) => setDialog({ kind: 'transfer', asset })} />
+          </div>
+        )}
       </StateBoundary>
       {dialog?.kind === 'register' ? <RegisterDialog handovers={accepted} initialHandoverId={handoverId} onClose={() => setDialog(undefined)} /> : null}
       {dialog?.kind === 'transfer' ? <TransferDialog asset={dialog.asset} onClose={() => setDialog(undefined)} /> : null}
       <p className="prototype-note">{t('ast.asset.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
   );
+}
+
+const STATUS_TONE: Readonly<Record<AssetStatus, 'neutral' | 'info' | 'success' | 'warning'>> = {
+  DRAFT: 'neutral',
+  REGISTERED: 'info',
+  TRANSFERRED: 'success',
+  IN_OPERATION: 'success',
+  DISPOSED: 'neutral',
+};
+
+interface AssetTableProps {
+  lines: AssetLine[];
+  writable: boolean;
+  money(value: string | null): string;
+  onTransfer(asset: AssetLine): void;
+}
+
+/** The assets as a table: the code and the name, the handover, the unit that receives the asset, the value (right aligned, in dong) with its basis and what is left of the contract, the code in the public assets system, the status. */
+function AssetTable({ lines, writable, money, onTransfer }: AssetTableProps) {
+  const { t, locale } = useTranslation();
+  const columns: DataTableColumn<AssetLine>[] = [
+    {
+      key: 'asset',
+      header: t('ast.asset.column.asset'),
+      pinned: true,
+      render: (line) => (
+        <span data-asset={line.id}>
+          <strong data-testid="code">{line.assetCode}</strong> <span data-testid="name">{line.name ?? ''}</span>
+          {line.warrantyUntil === null ? null : <small className="sub qms-regime">{t('ast.asset.warranty.until', { day: line.warrantyUntil })}</small>}
+        </span>
+      ),
+    },
+    { key: 'handover', header: t('ast.asset.column.handover'), render: (line) => <span data-testid="handover">{`${line.handover.handoverNo ?? ''} · ${line.contract.code}`}</span> },
+    { key: 'unit', header: t('ast.asset.column.unit'), render: (line) => <span data-testid="unit">{line.recipientUnit.name}</span> },
+    {
+      key: 'value',
+      header: t('ast.asset.column.value'),
+      align: 'right',
+      render: (line) => {
+        const left = remainingVnd(line);
+        return (
+          <span data-testid="value">
+            {money(line.valueVnd)}
+            {line.valueBasis === null ? null : <small className="sub qms-regime">{basisLabel(t, line.valueBasis)}</small>}
+            {left === undefined ? null : (
+              <small className="sub qms-regime" data-testid="remaining">
+                {t('ast.asset.remaining.label', { left: amountText(left, locale), contract: amountText(line.contract.valueVnd ?? '0', locale) })}
+              </small>
+            )}
+          </span>
+        );
+      },
+    },
+    {
+      key: 'external',
+      header: t('ast.asset.column.external'),
+      render: (line) => <span data-testid="external">{line.externalAssetId ?? <StatusPill tone="warning">{t('ast.asset.external.manual')}</StatusPill>}</span>,
+    },
+    {
+      key: 'status',
+      header: t('ast.asset.column.status'),
+      render: (line) => (
+        <>
+          <span data-testid="status" data-status={line.status}>
+            <StatusPill tone={STATUS_TONE[line.status]}>{statusLabel(t, line.status)}</StatusPill>
+          </span>
+          {line.transferredOn === null ? null : <small className="sub qms-regime">{t('ast.asset.transferred.on', { day: line.transferredOn })}</small>}
+        </>
+      ),
+    },
+    {
+      key: 'actions',
+      header: t('ast.asset.column.actions'),
+      render: (line) => (
+        <span className="qms-row-actions">
+          {line.status === 'TRANSFERRED' || line.status === 'IN_OPERATION' ? (
+            <Link to={`/ast/ast-06?id=${line.id}`} data-om-link={line.id}>
+              {t('ast.asset.omlink.action')}
+            </Link>
+          ) : null}
+          {writable && line.canTransfer ? (
+            <button type="button" className="ui-button ui-button--outline ui-button--small" data-transfer={line.id} onClick={() => onTransfer(line)}>
+              {t('ast.asset.transfer.action')}
+            </button>
+          ) : null}
+        </span>
+      ),
+    },
+  ];
+  return <DataTable caption={t('w2iss.ast.assets.aria')} columns={columns} rows={lines} rowKey={(line) => line.id} />;
 }

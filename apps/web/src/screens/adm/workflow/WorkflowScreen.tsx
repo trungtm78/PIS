@@ -11,6 +11,10 @@ import { useCreateDraft, usePublish, useUpdateDraft, useVersions } from './hooks
 import { businessTypeLabel, defectLabel, diffLabel, problemMessage, ruleTypeLabel, statusLabel, statusTone, stepProblemMessage, timeoutLabel } from './labels';
 import { BUSINESS_TYPES, MANAGE_PERMISSION, PUBLISH_PERMISSION, READ_PERMISSION, RULE_TYPES, TIMEOUTS, commandsOf, describeProblem, diffDefinitions, emptyStep, fromDefinition, localProblems, readDefects, toDefinition } from './model';
 import type { StepForm, VersionView } from './model';
+import { FilterPanel, SectionCard, StatusPill } from '../../../ui';
+import { KitTable } from '../KitTable';
+import { toneOfPill } from '../kit-tone';
+import '../adm-kit.css';
 
 type Editing = { kind: 'new' } | { kind: 'draft'; version: VersionView };
 
@@ -51,12 +55,12 @@ function WorkflowContent({ route }: ScreenProps) {
           <p>{t('adm.workflow.subtitle')}</p>
         </div>
         {mayWrite ? (
-          <button type="button" className="primary" data-action="new" onClick={() => setEditing({ kind: 'new' })}>
+          <button type="button" className="ui-button ui-button--primary" data-action="new" onClick={() => setEditing({ kind: 'new' })}>
             {t('adm.workflow.new.action')}
           </button>
         ) : null}
       </div>
-      <div className="card">
+      <FilterPanel>
         <div className="field">
           <label htmlFor="workflow-type">{t('adm.workflow.field.businessType')}</label>
           <select
@@ -75,25 +79,24 @@ function WorkflowContent({ route }: ScreenProps) {
             ))}
           </select>
         </div>
-        {inForce === undefined ? (
-          <p className="callout warning" role="status" data-testid="not-configured">
-            {t('adm.workflow.notConfigured')}
-          </p>
-        ) : (
-          <p className="sub" data-testid="in-force">
-            {t('adm.workflow.inForce', { revision: inForce.revision, at: moment(inForce.publishedAt) })}
-          </p>
-        )}
-      </div>
+      </FilterPanel>
+      {inForce === undefined ? (
+        <p className="callout warning" role="status" data-testid="not-configured">
+          {t('adm.workflow.notConfigured')}
+        </p>
+      ) : (
+        <p className="adm-kit-sub" data-testid="in-force">
+          {t('adm.workflow.inForce', { revision: inForce.revision, at: moment(inForce.publishedAt) })}
+        </p>
+      )}
       <StateBoundary state={state} onRetry={() => void versions.refetch()}>
-        <div className="card">
-          <h2>{t('adm.workflow.versions.title')}</h2>
+        <SectionCard title={t('adm.workflow.versions.title')}>
           {list.length === 0 ? (
             <p className="sub" data-testid="no-versions">
               {t('adm.workflow.versions.none')}
             </p>
           ) : (
-            <table className="table" data-testid="versions">
+            <KitTable caption={t('w2adm.workflow.table.caption')} testId="versions">
               <thead>
                 <tr>
                   <th scope="col">{t('adm.workflow.column.revision')}</th>
@@ -101,7 +104,7 @@ function WorkflowContent({ route }: ScreenProps) {
                   <th scope="col">{t('adm.workflow.column.steps')}</th>
                   <th scope="col">{t('adm.workflow.column.published')}</th>
                   <th scope="col">
-                    <span className="sr-only">{t('adm.workflow.column.actions')}</span>
+                    {t('adm.workflow.column.actions')}
                   </th>
                 </tr>
               </thead>
@@ -110,8 +113,8 @@ function WorkflowContent({ route }: ScreenProps) {
                   <tr key={entry.id} data-version={entry.id} data-selected={entry.id === selected?.id ? 'yes' : 'no'}>
                     <td>{entry.revision}</td>
                     <td>
-                      <span className={`pill ${statusTone(entry.status)}`} data-testid="status">
-                        {statusLabel(t, entry.status)}
+                      <span data-testid="status">
+                        <StatusPill tone={toneOfPill(`pill ${statusTone(entry.status)}`)}>{statusLabel(t, entry.status)}</StatusPill>
                       </span>
                     </td>
                     <td>{fromDefinition(entry.definition).length}</td>
@@ -126,7 +129,7 @@ function WorkflowContent({ route }: ScreenProps) {
                         </button>
                       ) : null}{' '}
                       {entry.status === 'Draft' && mayPublish ? (
-                        <button type="button" className="primary" data-action="publish" onClick={() => setPublishing(entry)}>
+                        <button type="button" className="ui-button ui-button--primary" data-action="publish" onClick={() => setPublishing(entry)}>
                           {t('adm.workflow.publish.action')}
                         </button>
                       ) : null}
@@ -134,9 +137,9 @@ function WorkflowContent({ route }: ScreenProps) {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </KitTable>
           )}
-        </div>
+        </SectionCard>
         {selected === undefined ? null : (
           <div className="card" data-testid="detail">
             <h2>{t('adm.workflow.detail.title', { revision: selected.revision })}</h2>

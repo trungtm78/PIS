@@ -11,6 +11,8 @@ import { useChange, useCreateChange, useHistory, useRecordByKey, useRecords } fr
 import { fieldProblemMessage, problemMessage, recordStatusLabel } from './labels';
 import { PROPOSE_PERMISSION, describeProblem, namespaceOf, parseAttributes, recordLink, validateEdit } from './model';
 import type { EditField, EditForm, RecordView } from './model';
+import { SectionCard } from '../../ui';
+import '../adm/adm-kit.css';
 
 const APPROVAL_PATH = '/mdm/mdm-32';
 const HISTORY_PATH = '/mdm/mdm-28';
@@ -192,10 +194,10 @@ function EditForm({ record }: { record: RecordView }) {
                 <textarea id="edit-reason" rows={2} value={form.reason} aria-invalid={error('reason') !== undefined} onChange={(event) => setField('reason', event.target.value)} />
               </Field>
             </fieldset>
-            <div className="formfooter">
+            <div className="adm-kit-actions">
               <span className="sub">{t('mdm.edit.form.hint')}</span>
               {canPropose && opened === undefined ? (
-                <button type="submit" className="primary" disabled={create.isPending}>
+                <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending}>
                   {t('mdm.edit.save.action')}
                 </button>
               ) : null}
@@ -205,10 +207,9 @@ function EditForm({ record }: { record: RecordView }) {
       </form>
       <div>
         {opened === undefined ? (
-          <aside className="card">
-            <h2>{t('mdm.impact.step.title')}</h2>
+          <SectionCard title={t('mdm.impact.step.title')}>
             <p className="muted">{t('mdm.create.impact.waiting.text')}</p>
-          </aside>
+          </SectionCard>
         ) : (
           <>
             <p className="callout" role="status">

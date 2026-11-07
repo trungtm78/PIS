@@ -5,6 +5,7 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { ContextBar, SectionCard, StatusPill } from '../../ui';
 import { Field } from '../mne/components';
 import '../dis/dis.css';
 import { ChartView } from './ChartView';
@@ -16,6 +17,7 @@ import { dimensionLabel, queryProblemMessage } from './labels';
 import { DIMENSIONS, describeQueryProblem } from './query-model';
 import type { QueryResult } from './query-model';
 import { GroupTable, ResultLabels } from './QueryResultView';
+import './bi-kit.css';
 
 /**
  * BI-04: the builder of a chart (ST-BI-005, BI F3, UAT-AC32): a certified metric over a frozen version of the dataset, cut by a dimension and drawn as bars, a line, an area, a pie or a figure. A ratio is the
@@ -30,6 +32,7 @@ export default function ChartBuilderScreen({ route }: ScreenProps) {
 
 function ChartContent({ route }: ScreenProps) {
   const { t } = useTranslation();
+  const { tenant } = useSession();
   const metrics = useMetrics();
   const datasets = useDatasets();
   const disbursement = (datasets.data ?? []).find((dataset) => dataset.sourceKind === 'PERIOD_SNAPSHOT');
@@ -68,6 +71,13 @@ function ChartContent({ route }: ScreenProps) {
           <p>{t('bi.chart.page.subtitle')}</p>
         </div>
       </div>
+      <ContextBar
+        items={[
+          { label: t('bi.chart.ctx.scope'), value: tenant?.name ?? t('bi.chart.ctx.scope.all') },
+          { label: t('bi.chart.ctx.period'), value: frozen.find((version) => version.id === chosenSnapshot)?.asOfPeriod ?? t('bi.chart.ctx.none') },
+          { label: t('bi.chart.ctx.snapshot'), value: chosenSnapshot === '' ? t('bi.chart.ctx.none') : chosenSnapshot.slice(0, 8) },
+        ]}
+      />
       <StateBoundary
         state={state}
         onRetry={() => {
@@ -76,8 +86,8 @@ function ChartContent({ route }: ScreenProps) {
           void versions.refetch();
         }}
       >
+        <SectionCard title={t('bi.chart.form.title')}>
         <form
-          className="card"
           aria-label={t('bi.chart.form.title')}
           onSubmit={(event) => {
             event.preventDefault();
@@ -123,30 +133,32 @@ function ChartContent({ route }: ScreenProps) {
             </Field>
           </div>
           <div className="formfooter">
-            <button type="submit" className="primary" disabled={run.isPending || chosenMetric === '' || chosenSnapshot === ''}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={run.isPending || chosenMetric === '' || chosenSnapshot === ''}>
               {t('bi.chart.draw')}
             </button>
           </div>
           {chosenSnapshot === '' ? <p data-testid="chart-no-period">{t('bi.board.noPeriod')}</p> : null}
         </form>
+        </SectionCard>
         {problem === undefined ? null : (
           <p className="callout warning" role="alert" data-testid="chart-problem" data-reason={problem.reason}>
             {queryProblemMessage(t, problem.reason, problem.field)}
           </p>
         )}
         {shown === undefined ? null : (
-          <section className="card" aria-labelledby="chart-result-title" data-testid="chart-result">
-            <h2 id="chart-result-title">{t('bi.chart.result', { code: shown.result.metricCode })}</h2>
+          <div data-testid="chart-result" className="bi-result">
+          <SectionCard title={t('bi.chart.result', { code: shown.result.metricCode })}>
             {shown.result.truncated ? (
-              <p className="pill warn" data-testid="truncated">
-                {t('bi.query.truncated')}
+              <p data-testid="truncated">
+                <StatusPill tone="warning">{t('bi.query.truncated')}</StatusPill>
               </p>
             ) : null}
             {shown.kind === 'TABLE' ? null : <ChartView kind={shown.kind} result={shown.result} />}
             <ResultLabels result={shown.result} />
             <GroupTable result={shown.result} />
             <Link to={`${BUILDER_PATH}?metric=${shown.result.metricId}&kind=${shown.kind}${shown.result.dimension === null ? '' : `&dimension=${shown.result.dimension}`}`}>{t('bi.chart.toDashboard')}</Link>
-          </section>
+          </SectionCard>
+          </div>
         )}
       </StateBoundary>
       <p className="prototype-note">{t('bi.dash.footer.reference', { id: route.id, req: route.req ?? '' })}</p>

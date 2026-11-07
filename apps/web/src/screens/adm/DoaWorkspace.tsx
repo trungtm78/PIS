@@ -3,12 +3,14 @@ import type { FormEvent, ReactNode } from 'react';
 import { useTranslation } from '../../i18n';
 import type { WebRoute } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
+import { AuditLine, DataTable, MakerCheckerBadge, SectionCard, StatusPill, StickyActions } from '../../ui';
+import type { DataTableColumn } from '../../ui';
 import { BandChart } from './doa/BandChart';
 import { resolveDoa, unitPathsOf } from './doa/engine';
 import type { DoaMatrixRecord } from './doa/engine';
 import { useCreateMatrixDraft, useDecideMatrix, useSubmitMatrix, useUpdateMatrixDraft } from './doa/hooks';
 import type { DecisionKind, RoleOption } from './doa/hooks';
-import { fieldMessage, findingMessage, previewFailureMessage, problemMessage, statusLabel } from './doa/labels';
+import { fieldMessage, findingMessage, previewFailureMessage, problemMessage, statusLabel, statusTone } from './doa/labels';
 import {
   APPROVE_DOA_PERMISSION,
   LEVELS,
@@ -27,6 +29,7 @@ import {
 } from './doa/model';
 import type { DoaMatrixView, DoaValues, HeaderErrors, RuleErrors, RuleValue } from './doa/model';
 import type { OrgUnit } from './org-tree/types';
+import './adm-kit.css';
 import './doa/doa.css';
 
 interface FieldProps {
@@ -52,6 +55,7 @@ function Field({ id, label, error, hint, children }: FieldProps) {
   );
 }
 
+const shortId = (id: string): string => id.slice(0, 8);
 const VIETNAM_ZONE = 'Asia/Ho_Chi_Minh';
 /** Today in Vietnam, as the first day a new matrix would start. */
 const todayInVietnam = (): string => new Date().toLocaleDateString('en-CA', { timeZone: VIETNAM_ZONE });
@@ -188,6 +192,91 @@ function WorkspaceContent({ route, matrices, units, roles }: DoaWorkspaceProps) 
     return own === undefined ? undefined : fieldMessage(t, own);
   };
 
+  const periodOf = (matrix: DoaMatrixView): string =>
+    matrix.effectiveUntil === null ? t('adm.doa.period.open', { from: matrix.effectiveFrom }) : t('adm.doa.period.closed', { from: matrix.effectiveFrom, until: matrix.effectiveUntil });
+  const small = 'ui-button ui-button--outline ui-button--small';
+  const columns: DataTableColumn<DoaMatrixView>[] = [
+    {
+      key: 'revision',
+      header: t('adm.doa.col.revision'),
+      pinned: true,
+      render: (matrix) => (
+        <span data-matrix-id={matrix.id} data-status={matrix.status} aria-current={inView?.id === matrix.id ? 'true' : undefined}>
+          #{matrix.revision}
+        </span>
+      ),
+    },
+    { key: 'status', header: t('adm.doa.col.status'), render: (matrix) => <StatusPill tone={statusTone(matrix.status)}>{statusLabel(t, matrix.status)}</StatusPill> },
+    { key: 'period', header: t('adm.doa.col.period'), render: periodOf },
+    { key: 'basis', header: t('adm.doa.col.basis'), render: (matrix) => matrix.legalBasis },
+    { key: 'rules', header: t('adm.doa.col.rules'), align: 'right', render: (matrix) => matrix.rules.length },
+    {
+      key: 'actions',
+      header: t('adm.doa.col.actions'),
+      render: (matrix) => {
+        const ownWork = matrix.createdBy === tenant?.membershipId || matrix.lastEditedBy === tenant?.membershipId;
+        return (
+          <div className="row-actions">
+            <button type="button" className={small} onClick={() => setViewing(matrix.id)}>
+              {t('adm.doa.view.action')}
+            </button>
+            {canManage && matrix.status === 'Draft' ? (
+              <button type="button" className={small} onClick={() => startFrom(matrix, true)}>
+                {t('adm.doa.edit.action')}
+              </button>
+            ) : null}
+            {canManage ? (
+              <button type="button" className={small} onClick={() => startFrom(matrix, false)}>
+                {t('adm.doa.copy.action')}
+              </button>
+            ) : null}
+            {canManage && matrix.status === 'Draft' ? (
+              <button type="button" className={small} onClick={() => openPanel({ id: matrix.id, kind: 'submit' })}>
+                {t('adm.doa.submit.action')}
+              </button>
+            ) : null}
+            {canApprove && matrix.status === 'PendingApproval' ? (
+              <>
+                <button type="button" className={small} disabled={ownWork} title={ownWork ? t('adm.doa.approve.selfApproval.hint') : undefined} onClick={() => openPanel({ id: matrix.id, kind: 'approve' })}>
+                  {t('adm.doa.approve.action')}
+                </button>
+                <button type="button" className={small} onClick={() => openPanel({ id: matrix.id, kind: 'return' })}>
+                  {t('adm.doa.return.action')}
+                </button>
+                <button type="button" className={small} onClick={() => openPanel({ id: matrix.id, kind: 'reject' })}>
+                  {t('adm.doa.reject.action')}
+                </button>
+              </>
+            ) : null}
+            {panel?.id === matrix.id && (panel.kind === 'submit' ? canManage : canApprove) ? (
+              <form onSubmit={(event) => confirmPanel(event, matrix)} noValidate aria-label={t('adm.doa.panel.title')}>
+                <Field id={`panel-reason-${matrix.id}`} label={t('adm.doa.panel.reason.label')} error={reasonError ? t('adm.doa.field.required') : undefined}>
+                  <input
+                    id={`panel-reason-${matrix.id}`}
+                    value={reason}
+                    aria-invalid={reasonError}
+                    onChange={(event) => {
+                      setReason(event.target.value);
+                      setReasonError(false);
+                    }}
+                  />
+                </Field>
+                <div className="row-actions">
+                  <button type="submit" className="ui-button ui-button--primary ui-button--small" disabled={submit.isPending || decide.isPending}>
+                    {t('adm.doa.panel.confirm.action')}
+                  </button>
+                  <button type="button" className={small} onClick={() => setPanel(undefined)}>
+                    {t('adm.doa.panel.cancel.action')}
+                  </button>
+                </div>
+              </form>
+            ) : null}
+          </div>
+        );
+      },
+    },
+  ];
+
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       <div className="heading">
@@ -197,8 +286,8 @@ function WorkspaceContent({ route, matrices, units, roles }: DoaWorkspaceProps) 
         </div>
       </div>
       <div className="adm-doa">
-        <div className="card" data-testid="versions">
-          <h2>{t('adm.doa.versions.title')}</h2>
+        <SectionCard title={t('adm.doa.versions.title')}>
+          <div data-testid="versions" className="adm-kit-stack">
           {register.length === 0 ? <p className="muted">{t('adm.doa.versions.empty')}</p> : null}
           {rowProblem === undefined ? null : (
             <div className="callout warning" role="alert">
@@ -222,95 +311,20 @@ function WorkspaceContent({ route, matrices, units, roles }: DoaWorkspaceProps) 
               {t('adm.doa.decision.accepted.notice')}
             </p>
           ) : null}
-          {register.length === 0 ? null : (
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>{t('adm.doa.col.revision')}</th>
-                  <th>{t('adm.doa.col.status')}</th>
-                  <th>{t('adm.doa.col.period')}</th>
-                  <th>{t('adm.doa.col.basis')}</th>
-                  <th>{t('adm.doa.col.rules')}</th>
-                  <th>
-                    <span className="sr-only">{t('adm.doa.col.actions')}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {register.map((matrix) => {
-                  const ownWork = matrix.createdBy === tenant?.membershipId || matrix.lastEditedBy === tenant?.membershipId;
-                  return (
-                    <tr key={matrix.id} data-matrix-id={matrix.id} data-status={matrix.status} aria-current={inView?.id === matrix.id ? 'true' : undefined}>
-                      <td>#{matrix.revision}</td>
-                      <td>{statusLabel(t, matrix.status)}</td>
-                      <td>{matrix.effectiveUntil === null ? t('adm.doa.period.open', { from: matrix.effectiveFrom }) : t('adm.doa.period.closed', { from: matrix.effectiveFrom, until: matrix.effectiveUntil })}</td>
-                      <td>{matrix.legalBasis}</td>
-                      <td>{matrix.rules.length}</td>
-                      <td className="row-actions">
-                        <button type="button" onClick={() => setViewing(matrix.id)}>
-                          {t('adm.doa.view.action')}
-                        </button>
-                        {canManage && matrix.status === 'Draft' ? (
-                          <button type="button" onClick={() => startFrom(matrix, true)}>
-                            {t('adm.doa.edit.action')}
-                          </button>
-                        ) : null}
-                        {canManage ? (
-                          <button type="button" onClick={() => startFrom(matrix, false)}>
-                            {t('adm.doa.copy.action')}
-                          </button>
-                        ) : null}
-                        {canManage && matrix.status === 'Draft' ? (
-                          <button type="button" onClick={() => openPanel({ id: matrix.id, kind: 'submit' })}>
-                            {t('adm.doa.submit.action')}
-                          </button>
-                        ) : null}
-                        {canApprove && matrix.status === 'PendingApproval' ? (
-                          <>
-                            <button type="button" disabled={ownWork} title={ownWork ? t('adm.doa.approve.selfApproval.hint') : undefined} onClick={() => openPanel({ id: matrix.id, kind: 'approve' })}>
-                              {t('adm.doa.approve.action')}
-                            </button>
-                            <button type="button" onClick={() => openPanel({ id: matrix.id, kind: 'return' })}>
-                              {t('adm.doa.return.action')}
-                            </button>
-                            <button type="button" onClick={() => openPanel({ id: matrix.id, kind: 'reject' })}>
-                              {t('adm.doa.reject.action')}
-                            </button>
-                          </>
-                        ) : null}
-                        {panel?.id === matrix.id && (panel.kind === 'submit' ? canManage : canApprove) ? (
-                          <form onSubmit={(event) => confirmPanel(event, matrix)} noValidate aria-label={t('adm.doa.panel.title')}>
-                            <Field id={`panel-reason-${matrix.id}`} label={t('adm.doa.panel.reason.label')} error={reasonError ? t('adm.doa.field.required') : undefined}>
-                              <input
-                                id={`panel-reason-${matrix.id}`}
-                                value={reason}
-                                aria-invalid={reasonError}
-                                onChange={(event) => {
-                                  setReason(event.target.value);
-                                  setReasonError(false);
-                                }}
-                              />
-                            </Field>
-                            <button type="submit" className="primary" disabled={submit.isPending || decide.isPending}>
-                              {t('adm.doa.panel.confirm.action')}
-                            </button>
-                            <button type="button" onClick={() => setPanel(undefined)}>
-                              {t('adm.doa.panel.cancel.action')}
-                            </button>
-                          </form>
-                        ) : null}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
+          {register.length === 0 ? null : <DataTable caption={t('w2adm.doa.table.caption')} columns={columns} rows={[...register]} rowKey={(matrix) => matrix.id} />}
           {inView === undefined ? null : (
             <div data-testid="matrix-in-view" data-matrix-id={inView.id}>
-              <h2>{t('adm.doa.inView.title', { revision: inView.revision })}</h2>
+              <h3>{t('adm.doa.inView.title', { revision: inView.revision })}</h3>
+              <AuditLine
+                items={[
+                  { label: t('adm.doa.col.revision'), value: `#${inView.revision}` },
+                  { label: t('adm.doa.col.period'), value: periodOf(inView) },
+                  ...(inView.publishedAt === null ? [] : [{ label: t('w2adm.doa.audit.publishedAt'), value: inView.publishedAt.slice(0, 10) }]),
+                ]}
+              />
+              <MakerCheckerBadge maker={shortId(inView.createdBy)} checker={inView.approvedBy === null ? null : shortId(inView.approvedBy)} />
               <BandChart rules={inView.rules} unitLabel={unitLabel} roleLabel={roleLabel} />
-              <h3>{t('adm.doa.preview.title')}</h3>
+              <h4>{t('adm.doa.preview.title')}</h4>
               <div className="formgrid" data-testid="preview">
                 <Field id="preview-type" label={t('adm.doa.preview.documentType.label')} error={undefined}>
                   <select id="preview-type" value={previewType} onChange={(event) => setPreviewInput((current) => ({ ...current, documentType: event.target.value }))}>
@@ -352,9 +366,10 @@ function WorkspaceContent({ route, matrices, units, roles }: DoaWorkspaceProps) 
               )}
             </div>
           )}
-        </div>
-        <div className="card" data-testid="editor">
-          <h2>{editing === undefined ? t('adm.doa.form.title') : t('adm.doa.form.editing.title')}</h2>
+          </div>
+        </SectionCard>
+        <SectionCard title={editing === undefined ? t('adm.doa.form.title') : t('adm.doa.form.editing.title')}>
+          <div data-testid="editor">
           {!canManage ? (
             <p className="callout warning" role="status">
               {frozen ? t('adm.doa.frozen.notice') : t('adm.doa.readOnly.notice')}
@@ -395,6 +410,7 @@ function WorkspaceContent({ route, matrices, units, roles }: DoaWorkspaceProps) 
                 {header('rules')}
               </small>
             )}
+            <div className="adm-kit-scroll" role="region" aria-label={t('adm.doa.rules.title')} tabIndex={0}>
             <table className="table doa-rules" data-testid="rule-rows">
               <thead>
                 <tr>
@@ -463,7 +479,7 @@ function WorkspaceContent({ route, matrices, units, roles }: DoaWorkspaceProps) 
                     </td>
                     <td className="row-actions">
                       {canManage ? (
-                        <button type="button" aria-label={t('adm.doa.rule.remove.row', { row: index + 1 })} onClick={() => removeRule(rule.key)}>
+                        <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('adm.doa.rule.remove.row', { row: index + 1 })} onClick={() => removeRule(rule.key)}>
                           {t('adm.doa.rule.remove.action')}
                         </button>
                       ) : null}
@@ -472,8 +488,9 @@ function WorkspaceContent({ route, matrices, units, roles }: DoaWorkspaceProps) 
                 ))}
               </tbody>
             </table>
+            </div>
             {canManage ? (
-              <button type="button" onClick={addRule}>
+              <button type="button" className="ui-button ui-button--outline" onClick={addRule}>
                 {t('adm.doa.rules.add.action')}
               </button>
             ) : null}
@@ -497,16 +514,19 @@ function WorkspaceContent({ route, matrices, units, roles }: DoaWorkspaceProps) 
                 </div>
               )}
             </div>
-            <div className="formfooter">
-              <span className="sub">{t('adm.doa.form.hint')}</span>
-              {canManage ? (
-                <button type="submit" className="primary" disabled={busy || unchanged}>
-                  {editing === undefined ? t('adm.doa.draft.save.action') : t('adm.doa.draft.update.action')}
-                </button>
-              ) : null}
-            </div>
+            <p className="adm-kit-sub">{t('adm.doa.form.hint')}</p>
+            {canManage ? (
+              <StickyActions
+                primary={
+                  <button type="submit" className="ui-button ui-button--primary" disabled={busy || unchanged}>
+                    {editing === undefined ? t('adm.doa.draft.save.action') : t('adm.doa.draft.update.action')}
+                  </button>
+                }
+              />
+            ) : null}
           </form>
-        </div>
+          </div>
+        </SectionCard>
       </div>
       <p className="prototype-note">{t('adm.doa.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>

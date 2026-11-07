@@ -44,8 +44,8 @@ afterEach(cleanup);
 describe('BI-05 catalogue of metrics (ST-BI-001, BI 3 F1)', () => {
   it('AC-ST-BI-001-1: UAT-AC471 lists a metric of the platform with its formula, its unit and the commit it came from, says it is read-only, and opens its definition', async () => {
     mount(<MetricCatalogueScreen route={route('BI-05')} />, client({ rows: [platform, tenantDraft] }), { permissions: READER });
-    const table = await screen.findByTestId('metric-table');
-    const row = table.querySelector(`[data-metric-id="${ID}"]`) as HTMLElement;
+    const table = await screen.findByRole('table', { name: vi_['bi.catalogue.table.aria'] });
+    const row = within(table).getByRole('link', { name: fill(vi_['bi.catalogue.open.aria'], { code: platform.code, revision: platform.revision }) }).closest('tr') as HTMLElement;
     expect(within(row).getByText('SUM(GIAI_NGAN) / SUM(KE_HOACH_TTG)')).toBeTruthy();
     expect(within(row).getByText('c1a2b3c')).toBeTruthy();
     expect(within(row).getByText('percent')).toBeTruthy();
@@ -60,11 +60,11 @@ describe('BI-05 catalogue of metrics (ST-BI-001, BI 3 F1)', () => {
   it('narrows the list by origin and says so when the origin has none', async () => {
     const user = userEvent.setup();
     mount(<MetricCatalogueScreen route={route('BI-05')} />, client({ rows: [platform] }), { permissions: READER });
-    await screen.findByTestId('metric-table');
+    await screen.findByRole('table', { name: vi_['bi.catalogue.table.aria'] });
     await user.selectOptions(screen.getByLabelText(vi_['bi.catalogue.filter.origin']), 'TENANT_UI');
     expect((await screen.findByTestId('metric-no-rows')).textContent).toBe(vi_['bi.catalogue.noRows']);
     await user.selectOptions(screen.getByLabelText(vi_['bi.catalogue.filter.origin']), 'PLATFORM_CODE');
-    expect(document.querySelector(`[data-metric-id="${ID}"]`)).toBeTruthy();
+    expect(screen.getByRole('link', { name: fill(vi_['bi.catalogue.open.aria'], { code: platform.code, revision: platform.revision }) })).toBeTruthy();
   });
 
   it('offers to draft a metric to whoever may, and to nobody else, and to nobody while the tenant is read-only', async () => {
@@ -72,11 +72,11 @@ describe('BI-05 catalogue of metrics (ST-BI-001, BI 3 F1)', () => {
     expect((await screen.findByRole('link', { name: vi_['bi.catalogue.create.link'] })).getAttribute('href')).toBe('/bi/bi-06');
     cleanup();
     mount(<MetricCatalogueScreen route={route('BI-05')} />, client({ rows: [platform] }), { permissions: READER });
-    await screen.findByTestId('metric-table');
+    await screen.findByRole('table', { name: vi_['bi.catalogue.table.aria'] });
     expect(screen.queryByRole('link', { name: vi_['bi.catalogue.create.link'] })).toBeNull();
     cleanup();
     mount(<MetricCatalogueScreen route={route('BI-05')} />, client({ rows: [platform] }), { permissions: MANAGER, mode: 'READ_ONLY' });
-    await screen.findByTestId('metric-table');
+    await screen.findByRole('table', { name: vi_['bi.catalogue.table.aria'] });
     expect(screen.queryByRole('link', { name: vi_['bi.catalogue.create.link'] })).toBeNull();
     expect(screen.getByRole('link', { name: vi_['bi.catalogue.registration.link'] }).getAttribute('href')).toBe('/bi/bi-15');
   });
@@ -105,7 +105,7 @@ describe('BI-05 catalogue of metrics (ST-BI-001, BI 3 F1)', () => {
       expect(await screen.findByText(vi_['states.error.title'])).toBeTruthy();
       world.rows = [platform];
       await userEvent.setup().click(screen.getByRole('button', { name: vi_['states.retry.action'] }));
-      expect(await screen.findByTestId('metric-table')).toBeTruthy();
+      expect(await screen.findByRole('table', { name: vi_['bi.catalogue.table.aria'] })).toBeTruthy();
     });
   });
 });

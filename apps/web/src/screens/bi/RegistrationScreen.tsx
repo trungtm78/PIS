@@ -8,6 +8,7 @@ import { useScreenState } from '../../states/useScreenState';
 import '../dis/dis.css';
 import { CATALOGUE_PATH, registrationsOf } from './bi-model';
 import { useMetrics } from './hooks';
+import './bi-kit.css';
 
 /**
  * BI-15: what the files of the repository brought into the registry (ST-BI-001, BI 3 F1): for each commit that did, how many metrics it added, how many revisions it made, how many of what it brought
@@ -32,7 +33,7 @@ function RegistrationContent({ route }: ScreenProps) {
           <h1 id="screen-title">{t('bi.registration.page.title')}</h1>
           <p>{t('bi.registration.page.subtitle')}</p>
         </div>
-        <Link className="button" to={CATALOGUE_PATH}>
+        <Link className="ui-button ui-button--outline" to={CATALOGUE_PATH}>
           {t('bi.registration.back')}
         </Link>
       </div>

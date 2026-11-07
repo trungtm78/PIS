@@ -11,6 +11,8 @@ import { useCatalogue } from './hooks';
 import { PROPOSE_PERMISSION, recordLink } from './model';
 import type { RecordView } from './model';
 import { calendarOf, reportingPeriods } from './reporting-calendar';
+import { SectionCard, StatusPill } from '../../ui';
+import '../adm/adm-kit.css';
 
 const HISTORY_PATH = '/mdm/mdm-28';
 const EDIT_PATH = '/mdm/mdm-26';
@@ -89,9 +91,9 @@ function CalendarContent({ route }: ScreenProps) {
               <h2>
                 {t('mdm.calendar.rule.title')}{' '}
                 {record.attributes.awaiting_confirmation === true ? (
-                  <span className="pill warn">{t('mdm.rule.awaiting.pill', { cxn: String(record.attributes.cxn ?? '') })}</span>
+                  <StatusPill tone="warning">{t('mdm.rule.awaiting.pill', { cxn: String(record.attributes.cxn ?? '') })}</StatusPill>
                 ) : (
-                  <span className="pill green">{t('mdm.rule.confirmed.pill')}</span>
+                  <StatusPill tone="success">{t('mdm.rule.confirmed.pill')}</StatusPill>
                 )}
               </h2>
               <p data-testid="calendar-text">
@@ -110,7 +112,7 @@ function CalendarContent({ route }: ScreenProps) {
                 <dt>{t('mdm.calendar.version.label')}</dt>
                 <dd>{record.revision === null ? '' : t('mdm.calendar.version.text', { revision: record.revision })}</dd>
               </dl>
-              <div className="formfooter">
+              <div className="adm-kit-actions">
                 <Link to={recordLink(HISTORY_PATH, record.masterType, record.businessKey, record.namespace)}>{t('mdm.calendar.history.action')}</Link>
                 {canEdit ? (
                   <Link className="button primary" to={recordLink(EDIT_PATH, record.masterType, record.businessKey, record.namespace)}>
@@ -124,8 +126,8 @@ function CalendarContent({ route }: ScreenProps) {
                 </p>
               ) : null}
             </section>
-            <section className="card" aria-label={t('mdm.calendar.periods.title')}>
-              <h2>{t('mdm.calendar.periods.title')}</h2>
+            <section aria-label={t('mdm.calendar.periods.title')}>
+            <SectionCard title={t('mdm.calendar.periods.title')}>
               <div className="mdm-filters">
                 <div className="field">
                   <label htmlFor="calendar-year">{t('mdm.calendar.year.label')}</label>
@@ -151,6 +153,7 @@ function CalendarContent({ route }: ScreenProps) {
               <p className="sub" data-testid="period-count">
                 {t('mdm.calendar.count.text', { shown: shown.length, total: periods.length })}
               </p>
+            </SectionCard>
             </section>
           </>
         )}

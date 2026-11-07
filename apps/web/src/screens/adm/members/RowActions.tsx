@@ -19,7 +19,7 @@ export function RowActions({ member, selfId, canManage, onAction }: RowActionsPr
   return (
     <>
       {lifecycleOptions(member.status).map((action) => (
-        <button key={action} type="button" className={action === 'end' ? 'danger' : undefined} aria-label={lifecycleRowLabel(t, action, member)} onClick={() => onAction(action, member)}>
+        <button key={action} type="button" className={action === 'end' ? 'ui-button ui-button--outline ui-button--small danger' : 'ui-button ui-button--outline ui-button--small'} aria-label={lifecycleRowLabel(t, action, member)} onClick={() => onAction(action, member)}>
           {lifecycleAction(t, action)}
         </button>
       ))}

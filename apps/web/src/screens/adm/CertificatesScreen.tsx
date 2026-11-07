@@ -5,8 +5,10 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { SectionCard, StatusPill, StickyActions } from '../../ui';
+import { KitTable } from './KitTable';
 import { useCertificates, useMemberOptions, useRegisterCertificate, useRevokeCertificate, useUnitOptions } from './security/hooks';
-import { certificateFieldMessage, certificateProblemMessage, certificateStatusLabel, kindLabel } from './security/labels';
+import { certificateFieldMessage, certificateProblemMessage, certificateStatusLabel, certificateTone, kindLabel } from './security/labels';
 import {
   CERTIFICATE_KINDS,
   EMPTY_CERTIFICATE_VALUES,
@@ -21,6 +23,7 @@ import {
   validateCertificate,
 } from './security/model';
 import type { CertificateErrors, CertificateField, CertificateValues, CertificateView } from './security/model';
+import './adm-kit.css';
 import './security/security.css';
 
 const NEVER_EMPTY = (): boolean => false;
@@ -114,12 +117,18 @@ function CertificatesContent({ route }: ScreenProps) {
     const expiry = expiryState(certificate, now);
     if (expiry === 'expiring') {
       return (
-        <span className="badge warning" data-expiry="expiring">
-          {t('adm.certificates.expiry.warning', { days: Math.max(daysUntil(certificate.validUntil, now), 0) })}
+        <span data-expiry="expiring">
+          <StatusPill tone="warning">{t('adm.certificates.expiry.warning', { days: Math.max(daysUntil(certificate.validUntil, now), 0) })}</StatusPill>
         </span>
       );
     }
-    if (expiry === 'expired') return <span className="badge danger" data-expiry="expired">{t('adm.certificates.expiry.expired')}</span>;
+    if (expiry === 'expired') {
+      return (
+        <span data-expiry="expired">
+          <StatusPill tone="danger">{t('adm.certificates.expiry.expired')}</StatusPill>
+        </span>
+      );
+    }
     return null;
   };
 
@@ -133,13 +142,12 @@ function CertificatesContent({ route }: ScreenProps) {
       </div>
       <StateBoundary state={state} onRetry={() => void list.refetch()}>
         <div className="adm-security">
-          <div className="card">
+          <SectionCard title={t('adm.certificates.list.title')}>
             {expiring.length > 0 ? (
               <p className="callout warning" role="status" data-testid="expiry-banner">
                 {t('adm.certificates.expiring.banner', { count: expiring.length, days: EXPIRY_WARNING_DAYS })}
               </p>
             ) : null}
-            <h2>{t('adm.certificates.list.title')}</h2>
             {certificates.length === 0 ? <p className="muted">{t('adm.certificates.list.empty')}</p> : null}
             {revokeProblem === undefined ? null : (
               <p className="callout warning" role="alert">
@@ -147,7 +155,7 @@ function CertificatesContent({ route }: ScreenProps) {
               </p>
             )}
             {certificates.length === 0 ? null : (
-              <table className="table">
+              <KitTable caption={t('w2adm.certificates.table.caption')}>
                 <thead>
                   <tr>
                     <th>{t('adm.certificates.col.subject')}</th>
@@ -155,9 +163,7 @@ function CertificatesContent({ route }: ScreenProps) {
                     <th>{t('adm.certificates.col.provider')}</th>
                     <th>{t('adm.certificates.col.validUntil')}</th>
                     <th>{t('adm.certificates.col.status')}</th>
-                    <th>
-                      <span className="sr-only">{t('adm.certificates.col.actions')}</span>
-                    </th>
+                    <th>{t('adm.certificates.col.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -174,10 +180,12 @@ function CertificatesContent({ route }: ScreenProps) {
                       <td>
                         {dateOf(certificate.validUntil)} {expiryCell(certificate)}
                       </td>
-                      <td>{certificateStatusLabel(t, certificate.status)}</td>
+                      <td>
+                        <StatusPill tone={certificateTone(certificate.status)}>{certificateStatusLabel(t, certificate.status)}</StatusPill>
+                      </td>
                       <td className="row-actions">
                         {canManage && certificate.status !== 'Revoked' && revoking !== certificate.id ? (
-                          <button type="button" onClick={() => { setRevoking(certificate.id); setReason(''); setReasonError(false); }}>
+                          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => { setRevoking(certificate.id); setReason(''); setReasonError(false); }}>
                             {t('adm.certificates.revoke.action')}
                           </button>
                         ) : null}
@@ -186,10 +194,10 @@ function CertificatesContent({ route }: ScreenProps) {
                             <Field id={`revoke-reason-${certificate.id}`} label={t('adm.certificates.revoke.reason.label')} error={reasonError ? t('adm.certificates.field.tooShort') : undefined}>
                               <input id={`revoke-reason-${certificate.id}`} value={reason} aria-invalid={reasonError} onChange={(event) => { setReason(event.target.value); setReasonError(false); }} />
                             </Field>
-                            <button type="submit" className="primary" disabled={revoke.isPending}>
+                            <button type="submit" className="ui-button ui-button--primary ui-button--small" disabled={revoke.isPending}>
                               {t('adm.certificates.revoke.confirm.action')}
                             </button>
-                            <button type="button" onClick={() => setRevoking(undefined)}>
+                            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setRevoking(undefined)}>
                               {t('adm.certificates.revoke.cancel.action')}
                             </button>
                           </form>
@@ -198,12 +206,12 @@ function CertificatesContent({ route }: ScreenProps) {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </KitTable>
             )}
-          </div>
-          <aside className="card" aria-label={t('adm.certificates.register.title')}>
-            <h2>{t('adm.certificates.register.title')}</h2>
-            <p className="sub">{t('adm.certificates.register.hint')}</p>
+          </SectionCard>
+          <aside aria-label={t('adm.certificates.register.title')}>
+            <SectionCard title={t('adm.certificates.register.title')}>
+            <p className="adm-kit-sub">{t('adm.certificates.register.hint')}</p>
             {!canManage ? (
               <p className="callout warning" role="status">
                 {frozen ? t('adm.certificates.frozen.notice') : t('adm.certificates.readOnly.notice')}
@@ -258,14 +266,17 @@ function CertificatesContent({ route }: ScreenProps) {
               <Field id="cert-certificatePem" label={t('adm.certificates.pem.label')} error={fieldError('certificatePem')} hint={t('adm.certificates.pem.hint')}>
                 <textarea id="cert-certificatePem" rows={8} spellCheck={false} value={values.certificatePem} aria-invalid={fieldError('certificatePem') !== undefined} onChange={(event) => set('certificatePem', event.target.value)} />
               </Field>
-              <div className="formfooter">
-                {canManage ? (
-                  <button type="submit" className="primary" disabled={register.isPending}>
-                    {t('adm.certificates.register.submit.action')}
-                  </button>
-                ) : null}
-              </div>
+              {canManage ? (
+                <StickyActions
+                  primary={
+                    <button type="submit" className="ui-button ui-button--primary" disabled={register.isPending}>
+                      {t('adm.certificates.register.submit.action')}
+                    </button>
+                  }
+                />
+              ) : null}
             </form>
+            </SectionCard>
           </aside>
         </div>
       </StateBoundary>

@@ -32,6 +32,7 @@ import {
   textProblem,
 } from './thread/model';
 import type { Conversation, Draft, Purpose, ThreadMessage } from './thread/model';
+import { StatusPill } from '../../ui';
 import './thread/thread.css';
 
 /**
@@ -165,8 +166,8 @@ function MessageRow({ message }: { message: ThreadMessage }) {
     <li className="message" data-message-id={message.id} data-direction={message.direction}>
       <strong>{directionLabel(t, message.direction)}</strong> · <small>{instantText(locale, message.createdAt)}</small>
       {message.deliveryStatus === undefined ? null : (
-        <span className={message.deliveryStatus === 'Failed' ? 'pill red' : 'pill'} data-delivery>
-          {deliveryLabel(t, message.deliveryStatus)}
+        <span data-delivery>
+          <StatusPill tone={message.deliveryStatus === 'Failed' ? 'danger' : 'neutral'}>{deliveryLabel(t, message.deliveryStatus)}</StatusPill>
         </span>
       )}
       {shown ? (

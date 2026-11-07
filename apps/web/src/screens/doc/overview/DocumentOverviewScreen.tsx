@@ -4,6 +4,8 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { ContextBar } from '../../../ui';
+import type { Tone } from '../../../ui';
 import { useOverview } from './hooks';
 import { tileLabel } from './labels';
 import { TEMPLATE_CXN, tileLink } from './model';
@@ -23,6 +25,7 @@ export default function DocumentOverviewScreen({ route }: ScreenProps) {
 
 function OverviewContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
+  const { tenant } = useSession();
   const overview = useOverview();
   const state = useScreenState({ isLoading: overview.isLoading, error: overview.error, data: overview.data, isEmpty: () => overview.data?.tiles.length === 0 });
   const asOf = overview.data === undefined || overview.data.asOf === '' ? undefined : new Intl.DateTimeFormat(locale, { dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date(overview.data.asOf));
@@ -40,13 +43,14 @@ function OverviewContent({ route }: ScreenProps) {
               {t('doc.overview.asOf', { time: asOf })}
             </span>
           )}
-          <button type="button" disabled={overview.isFetching} onClick={() => void overview.refetch()}>
+          <button type="button" className="ui-button ui-button--outline" disabled={overview.isFetching} onClick={() => void overview.refetch()}>
             {t('doc.overview.refresh')}
           </button>
         </div>
       </div>
+      <ContextBar items={[{ label: t('w2doc.overview.ctx.scope'), value: tenant?.name ?? t('w2doc.overview.ctx.scopeMine') }]} />
       <StateBoundary state={state} onRetry={() => void overview.refetch()}>
-        <ul className="overview-grid" data-testid="tiles">
+        <ul className="overview-grid ui-kpi-strip" data-testid="tiles">
           {(overview.data?.tiles ?? []).map((tile) => (
             <TileView key={tile.key} tile={tile} />
           ))}
@@ -57,28 +61,40 @@ function OverviewContent({ route }: ScreenProps) {
   );
 }
 
+/** A queue that holds work is told by its words and number, and tinted: errors red, overdue letters amber, the rest plain. */
+function toneOf(tile: Tile): Tone {
+  if (tile.count === null || tile.count === 0) return 'default';
+  if (tile.key === 'interop_errors') return 'danger';
+  if (tile.key === 'overdue_incoming') return 'warning';
+  return 'default';
+}
+
 function TileView({ tile }: { tile: Tile }) {
   const { t } = useTranslation();
   const link = tileLink(tile.key);
   return (
-    <li className="overview-tile" data-tile={tile.key} data-testid={`tile-${tile.key}`}>
-      <strong>{tileLabel(t, tile.key)}</strong>
-      {tile.count === null ? (
-        <span className="overview-count none sub" data-testid="count">
-          {t('doc.overview.notPermitted')}
-        </span>
-      ) : (
-        <span className="overview-count" data-testid="count">
-          {tile.count}
-        </span>
-      )}
-      {tile.key === 'templates_pending_confirmation' ? <small className="sub">{t('doc.overview.templates.cxn', { cxn: TEMPLATE_CXN })}</small> : null}
-      {tile.key === 'interop_errors' ? <small className="sub">{t('doc.overview.interop.note')}</small> : null}
-      {link === undefined || tile.count === null ? null : (
-        <Link className="button" to={link}>
-          {t('doc.overview.open')}
-        </Link>
-      )}
+    <li className={`overview-tile ui-kpi ui-tone-${toneOf(tile)}`} data-tile={tile.key} data-testid={`tile-${tile.key}`}>
+      <div className="ui-kpi__body">
+        <strong className="ui-kpi__label">{tileLabel(t, tile.key)}</strong>
+        {tile.count === null ? (
+          <span className="overview-count none sub" data-testid="count">
+            {t('doc.overview.notPermitted')}
+          </span>
+        ) : (
+          <span className="ui-kpi__figure">
+            <span className="overview-count ui-kpi__value" data-testid="count">
+              {tile.count}
+            </span>
+          </span>
+        )}
+        {tile.key === 'templates_pending_confirmation' ? <small className="ui-kpi__sub">{t('doc.overview.templates.cxn', { cxn: TEMPLATE_CXN })}</small> : null}
+        {tile.key === 'interop_errors' ? <small className="ui-kpi__sub">{t('doc.overview.interop.note')}</small> : null}
+        {link === undefined || tile.count === null ? null : (
+          <Link className="ui-button ui-button--outline ui-button--small overview-open" to={link}>
+            {t('doc.overview.open')}
+          </Link>
+        )}
+      </div>
     </li>
   );
 }

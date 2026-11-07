@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
+import { DeadlineCountdown, StatusPill } from '../../ui';
 import { dueLabel, eventLabel, statusLabel } from './issue-labels';
-import { dueStateOf } from './issue-model';
+import { businessDay, dueStateOf, dueToneOf, severityToneOf, statusToneOf } from './issue-model';
 import type { IssueEventView, IssueLine, IssueStatus, PersonView } from './issue-model';
 import { severityLabel } from './labels';
 import type { Severity } from './model';
@@ -33,8 +34,8 @@ export function BackLink({ to, children }: { to: string; children: ReactNode }) 
 export function StatusBadge({ status }: { status: IssueStatus }) {
   const { t } = useTranslation();
   return (
-    <span className="iss-badge" data-testid="status" data-status={status}>
-      {statusLabel(t, status)}
+    <span data-testid="status" data-status={status}>
+      <StatusPill tone={statusToneOf(status)}>{statusLabel(t, status)}</StatusPill>
     </span>
   );
 }
@@ -42,8 +43,8 @@ export function StatusBadge({ status }: { status: IssueStatus }) {
 export function SeverityBadge({ severity }: { severity: Severity }) {
   const { t } = useTranslation();
   return (
-    <span className="iss-badge" data-testid="severity" data-severity={severity}>
-      {severityLabel(t, severity)}
+    <span data-testid="severity" data-severity={severity}>
+      <StatusPill tone={severityToneOf(severity)}>{severityLabel(t, severity)}</StatusPill>
     </span>
   );
 }
@@ -52,16 +53,24 @@ export function SeverityBadge({ severity }: { severity: Severity }) {
 export function DueBadge({ line, now }: { line: Pick<IssueLine, 'status' | 'dueAt' | 'overdueSince' | 'overdueDays'>; now: Date }) {
   const { t } = useTranslation();
   const state = dueStateOf(line, now);
+  const days =
+    state === 'overdue' && line.overdueSince !== null
+      ? line.overdueDays === null
+        ? ` · ${t('iss.due.overdueUnknown.text')}`
+        : ` · ${t('iss.due.overdueDays.text', { count: line.overdueDays })}`
+      : '';
   return (
-    <span className={state === 'overdue' ? 'iss-badge warning' : 'iss-badge'} data-testid="due-state" data-state={state}>
-      {dueLabel(t, state)}
-      {state === 'overdue' && line.overdueSince !== null
-        ? line.overdueDays === null
-          ? ` · ${t('iss.due.overdueUnknown.text')}`
-          : ` · ${t('iss.due.overdueDays.text', { count: line.overdueDays })}`
-        : ''}
+    <span data-testid="due-state" data-state={state}>
+      <StatusPill tone={dueToneOf(state)}>{`${dueLabel(t, state)}${days}`}</StatusPill>
     </span>
   );
+}
+
+/** The time left to the deadline in the wording of the alert centre ("Còn 2 ngày · 09/11", "Quá hạn 3 ngày"); an issue that is closed has no time left to count. */
+export function DeadlineLine({ line, now }: { line: Pick<IssueLine, 'status' | 'dueAt' | 'overdueDays'>; now: Date }) {
+  if (line.status === 'CLOSED') return null;
+  const dueOn = businessDay(line.dueAt);
+  return <DeadlineCountdown dueOn={dueOn === '' ? null : dueOn} today={businessDay(now)} {...(line.overdueDays !== null && line.overdueDays > 0 ? { daysLate: line.overdueDays } : {})} />;
 }
 
 export function PersonText({ person }: { person: PersonView | null }) {

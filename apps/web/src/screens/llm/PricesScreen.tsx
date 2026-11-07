@@ -12,6 +12,7 @@ import { useModels, usePrices, useRegisterPrice } from './hooks';
 import { cachedSemanticsLabel, financeProblemMessage, refusalMessage } from './labels';
 import { CACHED_SEMANTICS, EMPTY_PRICE, FINOPS, describeLlmProblem, validatePrice, vietnamDay } from './llm-model';
 import type { CachedSemantics, ModelEntry, PriceEntry, PriceErrors, PriceValues } from './llm-model';
+import './llm-kit.css';
 
 /**
  * LLM-08: the price versions of the models and their exchange rates (ST-LLM-003, LLM BR-LLM-04, BR-LLM-13): for each model the price per million tokens of the input, the cached input and the output, whether the cached tokens
@@ -207,7 +208,7 @@ function PriceForm({ models, modelsError }: { models: readonly ModelEntry[]; mod
         <input id="price-reasoning" type="checkbox" checked={values.reasoningInOutput} onChange={(event) => set('reasoningInOutput', event.target.checked)} /> {t('llm.prices.form.reasoning')}
       </label>
       <div className="mne-actions">
-        <button type="submit" className="btn" disabled={register.isPending || chosen === undefined}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={register.isPending || chosen === undefined}>
           {t('llm.prices.form.submit')}
         </button>
       </div>

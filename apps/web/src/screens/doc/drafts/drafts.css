@@ -1,6 +1,6 @@
 /* DOC-02, DOC-03 and DOC-04: the list, the editor and the review, in the language of the shared screen classes. */
 .doc-drafts .field-error {
-  color: #a22b22;
+  color: var(--mv-color-danger);
 }
 
 .doc-drafts .row-actions {
@@ -66,11 +66,22 @@
 }
 
 .doc-drafts tr.selected {
-  background: #fbf3f5;
+  background: var(--mv-color-primary-soft);
 }
 
 @media (max-width: 1000px) {
   .doc-drafts .review-layout {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+.doc-drafts .doc-filter-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px 16px;
+  align-items: end;
+}
+
+.doc-drafts .doc-list-foot {
+  margin-top: 12px;
 }

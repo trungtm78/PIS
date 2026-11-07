@@ -4,13 +4,15 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { AuditLine, SectionCard } from '../../ui';
 import { AuditFilterBar } from './audit/AuditFilterBar';
 import { AuditTable } from './audit/AuditTable';
 import { ExportPanel } from './audit/ExportPanel';
-import { SealBanner } from './audit/SealBanner';
+import { SealBanner, instantText } from './audit/SealBanner';
 import { useAuditEvents } from './audit/hooks';
 import { EMPTY_FILTER, EXPORT_AUDIT_PERMISSION, READ_AUDIT_PERMISSION, filterQuery, hasFilter } from './audit/model';
 import type { FilterValues } from './audit/model';
+import './adm-kit.css';
 import './audit/audit.css';
 
 /**
@@ -18,7 +20,7 @@ import './audit/audit.css';
  * carries the kept verdict of the seal verification; the export asks for a sealed slice of at most 366 days.
  */
 export default function AuditLogScreen({ route }: ScreenProps) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const { permissions, mode } = useSession();
   const canRead = permissions === undefined || permissions.includes(READ_AUDIT_PERMISSION);
   // A suspended tenant (READ_ONLY mode) is read-only for everyone: an export writes a file and an audit row.
@@ -50,28 +52,41 @@ export default function AuditLogScreen({ route }: ScreenProps) {
         </div>
         {usable && canExport ? (
           <div className="actions">
-            <button type="button" className="primary" aria-expanded={exporting} onClick={() => setExporting(true)}>
+            <button type="button" className="ui-button ui-button--primary" aria-expanded={exporting} onClick={() => setExporting(true)}>
               {t('adm.audit.export.open.action')}
             </button>
           </div>
         ) : null}
       </div>
       {seal === undefined ? null : <SealBanner seal={seal} />}
+      {seal === undefined || seal.checkedAt === null ? null : (
+        <AuditLine
+          items={[
+            { label: t('w2adm.audit.line.checkedAt'), value: instantText(locale, seal.checkedAt) },
+            ...(seal.seals === null ? [] : [{ label: t('w2adm.audit.line.seals'), value: String(seal.seals) }]),
+          ]}
+        />
+      )}
       {exporting && canExport ? <ExportPanel onClose={() => setExporting(false)} /> : null}
       {usable || state === 'loading' ? <AuditFilterBar onApply={setApplied} /> : null}
       <StateBoundary state={state} onRetry={() => void list.refetch()}>
-        <div className="card">
-          <AuditTable events={events} />
-          {events.length === 0 ? <p className="muted">{t('adm.audit.filtered.empty')}</p> : null}
-          <div className="row between gap tiny muted">
+        <SectionCard title={t('w2adm.audit.section.title')}>
+          {events.length === 0 ? (
+            <p className="adm-kit-empty" role="status">
+              {t('adm.audit.filtered.empty')}
+            </p>
+          ) : (
+            <AuditTable events={events} />
+          )}
+          <div className="adm-kit-foot">
             <span>{t('adm.audit.count.text', { count: events.length })}</span>
             {list.hasNextPage ? (
-              <button type="button" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
+              <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
                 {t('adm.audit.more.action')}
               </button>
             ) : null}
           </div>
-        </div>
+        </SectionCard>
       </StateBoundary>
       <p className="prototype-note">{t('adm.audit.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>

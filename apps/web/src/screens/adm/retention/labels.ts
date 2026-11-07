@@ -1,4 +1,5 @@
 import type { Translator } from '../../../i18n';
+import type { Tone } from '../../../ui';
 import type { DraftProblem, EndAction, FindingCode, HoldKind, HoldScopeKind, PolicyStatus, ProblemView, RecordKind, RetentionBasis } from './model';
 
 type T = Translator['t'];
@@ -161,5 +162,17 @@ export function problemMessage(t: T, problem: ProblemView): string {
       return t('adm.retention.problem.session');
     case 'general':
       return t('adm.retention.problem.general');
+  }
+}
+
+/** The tone of the status pill of a version of the policy: a draft waits (amber), the version in force is green, a replaced one grey. */
+export function statusTone(status: PolicyStatus): Tone {
+  switch (status) {
+    case 'Draft':
+      return 'warning';
+    case 'Published':
+      return 'success';
+    case 'Superseded':
+      return 'neutral';
   }
 }

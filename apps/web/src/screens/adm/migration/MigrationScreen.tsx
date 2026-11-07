@@ -9,6 +9,9 @@ import { useApply, useBatch, useBatches, useDryRun, useRegister, useRollback, us
 import { problemMessage, statusLabel } from './labels';
 import { APPROVE_PERMISSION, EMPTY_REGISTER, MANAGE_PERMISSION, MAPPINGS, canApply, canDryRun, canRollback, describeProblem, errorsCsv, isWorking, reasonProblem, validateRegister } from './model';
 import type { Batch, FormProblem, RegisterField, RegisterForm, Totals, UploadedFile } from './model';
+import { SectionCard, StatusPill } from '../../../ui';
+import { KitTable } from '../KitTable';
+import '../adm-kit.css';
 
 const holds = (permissions: readonly string[] | undefined, permission: string, mode: string | undefined): boolean =>
   mode !== 'READ_ONLY' && (permissions === undefined || permissions.includes(permission));
@@ -67,12 +70,11 @@ function MigrationContent({ route }: ScreenProps) {
       <StateBoundary state={state} onRetry={() => void batches.refetch()}>
         {holds(permissions, MANAGE_PERMISSION, mode) ? <RegisterPanel /> : null}
         {list.length === 0 ? (
-          <p className="card" data-testid="no-batches">
+          <p className="adm-kit-empty" role="status" data-testid="no-batches">
             {t('adm.migration.none')}
           </p>
         ) : (
-          <div className="tablewrap">
-            <table className="table" data-testid="batches" aria-label={t('adm.migration.table')}>
+          <KitTable caption={t('w2adm.migration.table.batches')} label={t('adm.migration.table')} testId="batches">
               <thead>
                 <tr>
                   <th scope="col">{t('adm.migration.col.entity')}</th>
@@ -97,20 +99,19 @@ function MigrationContent({ route }: ScreenProps) {
                     <td>{batch.rowCount}</td>
                     <td>{batch.errorCount}</td>
                     <td>
-                      <span className={`pill ${batch.status === 'Applied' ? 'green' : batch.status === 'Failed' || batch.status === 'DryRunFailed' ? 'red' : 'gray'}`} data-testid="status">
-                        {statusLabel(t, batch.status)}
+                      <span data-testid="status">
+                        <StatusPill tone={batch.status === 'Applied' ? 'success' : batch.status === 'Failed' || batch.status === 'DryRunFailed' ? 'danger' : 'neutral'}>{statusLabel(t, batch.status)}</StatusPill>
                       </span>
                     </td>
                     <td>
-                      <button type="button" onClick={() => setOpened(batch.id)}>
+                      <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setOpened(batch.id)}>
                         {t('adm.migration.open.action', { entity: batch.targetEntity })}
                       </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+            </KitTable>
         )}
         {opened === undefined ? null : <BatchPanel key={opened} id={opened} onClose={() => setOpened(undefined)} />}
       </StateBoundary>
@@ -160,8 +161,8 @@ function RegisterPanel() {
   };
 
   return (
-    <form className="card" onSubmit={submit} noValidate aria-label={t('adm.migration.register.title')}>
-      <h2>{t('adm.migration.register.title')}</h2>
+    <SectionCard title={t('adm.migration.register.title')}>
+    <form onSubmit={submit} noValidate aria-label={t('adm.migration.register.title')}>
       <Field id="migration-source" label={t('adm.migration.register.source')} error={message(problems.sourceSystem, t('adm.migration.register.source.invalid'))}>
         <input id="migration-source" value={form.sourceSystem} aria-invalid={problems.sourceSystem !== undefined} onChange={(event) => set({ sourceSystem: event.target.value })} />
       </Field>
@@ -214,12 +215,13 @@ function RegisterPanel() {
           {t('adm.migration.register.saved')}
         </p>
       ) : null}
-      <div className="formfooter">
-        <button type="submit" className="primary" disabled={send.isPending || upload.isPending}>
+      <div className="adm-kit-actions">
+        <button type="submit" className="ui-button ui-button--primary" disabled={send.isPending || upload.isPending}>
           {t('adm.migration.register.submit')}
         </button>
       </div>
     </form>
+    </SectionCard>
   );
 }
 
@@ -239,18 +241,21 @@ function BatchPanel({ id, onClose }: { id: string; onClose: () => void }) {
   const detail = useBatch(id);
   const state = useScreenState({ isLoading: detail.isLoading, error: detail.error, data: detail.data, isEmpty: (batch) => batch === undefined });
   return (
-    <section className="card" aria-label={t('adm.migration.detail.title')} data-testid="batch-detail">
-      <div className="heading">
-        <h2>{t('adm.migration.detail.title')}</h2>
-        <button type="button" onClick={onClose}>
-          {t('adm.migration.detail.close')}
-        </button>
-      </div>
+    <section aria-label={t('adm.migration.detail.title')} data-testid="batch-detail">
+      <SectionCard
+        title={t('adm.migration.detail.title')}
+        actions={
+          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={onClose}>
+            {t('adm.migration.detail.close')}
+          </button>
+        }
+      >
       <StateBoundary state={state} onRetry={() => void detail.refetch()}>
         {detail.data === undefined ? null : (
           <BatchDetail batch={detail.data} mayManage={holds(permissions, MANAGE_PERMISSION, mode)} mayApprove={holds(permissions, APPROVE_PERMISSION, mode)} me={tenant?.membershipId} />
         )}
       </StateBoundary>
+      </SectionCard>
     </section>
   );
 }
@@ -284,8 +289,8 @@ function BatchDetail({ batch, mayManage, mayApprove, me }: { batch: Batch; mayMa
         <div>
           <dt>{t('adm.migration.col.status')}</dt>
           <dd>
-            <span className="pill gray" data-testid="detail-status">
-              {statusLabel(t, batch.status)}
+            <span data-testid="detail-status">
+              <StatusPill tone="neutral">{statusLabel(t, batch.status)}</StatusPill>
             </span>
           </dd>
         </div>
@@ -325,8 +330,7 @@ function BatchDetail({ batch, mayManage, mayApprove, me }: { batch: Batch; mayMa
         <p data-testid="no-errors">{t('adm.migration.errors.none')}</p>
       ) : (
         <>
-          <div className="tablewrap">
-            <table className="table" data-testid="errors" aria-label={t('adm.migration.detail.errors')}>
+          <KitTable caption={t('w2adm.migration.table.errors')} label={t('adm.migration.detail.errors')} testId="errors">
               <thead>
                 <tr>
                   <th scope="col">{t('adm.migration.errors.row')}</th>
@@ -349,9 +353,8 @@ function BatchDetail({ batch, mayManage, mayApprove, me }: { batch: Batch; mayMa
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
-          <button type="button" onClick={() => downloadCsv(`migration-${batch.id}-errors.csv`, errorsCsv(batch.errors))}>
+            </KitTable>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => downloadCsv(`migration-${batch.id}-errors.csv`, errorsCsv(batch.errors))}>
             {t('adm.migration.errors.download')}
           </button>
         </>
@@ -381,19 +384,19 @@ function BatchDetail({ batch, mayManage, mayApprove, me }: { batch: Batch; mayMa
               {problemMessage(t, failure)}
             </p>
           )}
-          <div className="formfooter">
+          <div className="adm-kit-actions">
             {showDryRun ? (
-              <button type="button" disabled={pending} onClick={() => run(dryRun)}>
+              <button type="button" className="ui-button ui-button--outline" disabled={pending} onClick={() => run(dryRun)}>
                 {t('adm.migration.action.dryrun')}
               </button>
             ) : null}
             {showApply ? (
-              <button type="button" className="primary" disabled={pending || registeredByMe} onClick={() => run(apply)}>
+              <button type="button" className="ui-button ui-button--primary" disabled={pending || registeredByMe} onClick={() => run(apply)}>
                 {t('adm.migration.action.apply')}
               </button>
             ) : null}
             {showRollback ? (
-              <button type="button" disabled={pending} onClick={() => run(rollback)}>
+              <button type="button" className="ui-button ui-button--outline" disabled={pending} onClick={() => run(rollback)}>
                 {t('adm.migration.action.rollback')}
               </button>
             ) : null}

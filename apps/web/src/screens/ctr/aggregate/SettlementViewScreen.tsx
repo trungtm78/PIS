@@ -9,6 +9,7 @@ import { READ_PERMISSION as SETTLEMENT_READ, settlementLink } from '../../pay/se
 import { amountText } from '../model';
 import { ViewFrame } from './ViewFrame';
 import { useSettlementView, useViewScope } from './hooks';
+import { SectionCard } from '../../../ui';
 
 /**
  * CTR-17: the settlement of a contract and of its project, read-only (ST-CTR-017, CTR section 7). PAY owns the settlement (PAY-15) and the payment requests (PAY-03): it computes the figures,
@@ -41,8 +42,7 @@ function SettlementContent({ route }: ScreenProps) {
     >
       {({ data, financial }) => (
         <>
-          <article className="card" aria-label={t('ctr.settlementView.settlements.title')}>
-            <h2>{t('ctr.settlementView.settlements.title')}</h2>
+          <SectionCard title={t('ctr.settlementView.settlements.title')} unit={t('w2pay.ctx.unit')}>
             {data.settlements.length === 0 ? (
               <p className="sub" data-testid="no-settlements">
                 {t('ctr.settlementView.settlements.empty')}
@@ -109,9 +109,8 @@ function SettlementContent({ route }: ScreenProps) {
                 </tbody>
               </table>
             )}
-          </article>
-          <article className="card" aria-label={t('ctr.settlementView.finals.title')}>
-            <h2>{t('ctr.settlementView.finals.title')}</h2>
+          </SectionCard>
+          <SectionCard title={t('ctr.settlementView.finals.title')} unit={t('w2pay.ctx.unit')}>
             {data.finals.length === 0 ? (
               <p className="sub" data-testid="no-finals">
                 {t('ctr.settlementView.finals.empty')}
@@ -162,7 +161,7 @@ function SettlementContent({ route }: ScreenProps) {
                 </tbody>
               </table>
             )}
-          </article>
+          </SectionCard>
         </>
       )}
     </ViewFrame>

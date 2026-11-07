@@ -66,7 +66,7 @@ vi.setConfig({ testTimeout: 20_000 });
 afterEach(cleanup);
 
 describe('HOME-02 my work: the full queue of the alert source (ST-HOME-004)', () => {
-  it('shows the rows of the queue with their severity, deadline, escalation and actions, and names the page', async () => {
+  it('AC-ST-HOME-004-1: UAT-AC272 shows the rows of the queue with their severity, deadline, escalation and actions, and names the page', async () => {
     const items = [
       item(E1, 'URGENT', { title: 'Giấy phép hết hạn', due_on: '2000-01-01', days_late: 3, overdue: true, escalation: { level: 2, of: 3, next_at: null, chain: ['Trưởng phòng', 'Giám đốc'] } }),
       item(E2, 'ACTION', { title: 'Báo cáo tuần 40' }),
@@ -85,7 +85,7 @@ describe('HOME-02 my work: the full queue of the alert source (ST-HOME-004)', ()
     expect(within(rows()[1] as HTMLElement).getByRole('button', { name: tr('alerts.action.snooze') })).toBeTruthy();
   });
 
-  it('reads "mine" first and the scope when the tab is chosen, from the same two operations as the bell', async () => {
+  it('AC-ST-HOME-004-2: UAT-AC272 reads "mine" first and the scope when the tab is chosen, from the same two operations as the bell', async () => {
     const user = userEvent.setup();
     const mine = [item(E1, 'ACTION', { title: 'Của tôi' })];
     const scope = [item(E1, 'ACTION', { title: 'Của tôi' }), item(E2, 'URGENT', { title: 'Của đơn vị khác' })];

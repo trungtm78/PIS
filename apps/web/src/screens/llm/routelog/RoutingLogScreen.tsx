@@ -13,6 +13,7 @@ import { classificationLabel, routeLabel } from '../labels';
 import { CLASSIFICATIONS, FINOPS, ROUTES, vietnamDay } from '../llm-model';
 import { money } from './model';
 import { ReconcileSection } from './ReconcileSection';
+import '../llm-kit.css';
 
 const holds = (permissions: readonly string[] | undefined, permission: string): boolean => permissions === undefined || permissions.includes(permission);
 
@@ -153,7 +154,7 @@ function RoutingLog() {
         </div>
         {rows.length === 0 ? <p data-testid="log-none">{t('llm.requests.none')}</p> : null}
         {requests.hasNextPage ? (
-          <button type="button" className="btn" data-testid="log-more" disabled={requests.isFetchingNextPage} onClick={() => void requests.fetchNextPage()}>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid="log-more" disabled={requests.isFetchingNextPage} onClick={() => void requests.fetchNextPage()}>
             {t('llm.requests.more')}
           </button>
         ) : null}

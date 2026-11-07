@@ -7,6 +7,8 @@ import { useSession } from '../../../session/SessionContext';
 import { NavigationDialog } from '../../../shell/NavigationDialog';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { ContextBar, DataTable, FilterPanel, SectionCard, StatusPill, StickyActions } from '../../../ui';
+import type { DataTableColumn, Tone } from '../../../ui';
 import { Field } from '../components';
 import { formatVnd } from '../report/money';
 import '../dis.css';
@@ -57,7 +59,9 @@ function metricLabel(t: T, metric: Metric): string {
 }
 
 const severityLabel = (t: T, severity: Severity): string => (severity === 'CRITICAL' ? t('dis.warning.severity.critical') : severity === 'WARNING' ? t('dis.warning.severity.warning') : t('dis.warning.severity.info'));
-const severityTone = (severity: Severity): 'warn' | 'gray' => (severity === 'INFO' ? 'gray' : 'warn');
+const severityTone = (severity: Severity): Tone => (severity === 'CRITICAL' ? 'danger' : severity === 'WARNING' ? 'warning' : 'info');
+const ruleTone = (status: RuleView['status']): Tone => (status === 'PUBLISHED' ? 'success' : status === 'DRAFT' ? 'warning' : 'neutral');
+const warningTone = (status: WarningView['status']): Tone => (status === 'RESOLVED' ? 'success' : status === 'DISMISSED' ? 'neutral' : status === 'ACKNOWLEDGED' ? 'info' : 'warning');
 
 function statusLabel(t: T, status: WarningView['status']): string {
   switch (status) {
@@ -128,11 +132,12 @@ export default function WarningScreen({ route }: ScreenProps) {
 
 function WarningContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { permissions, mode } = useSession();
+  const { permissions, mode, tenant } = useSession();
   const rules = useRules();
   const [editing, setEditing] = useState<RuleForm | undefined>(undefined);
   const state = useScreenState({ isLoading: rules.isLoading, error: rules.error, data: rules.data, isEmpty: () => false });
   const manage = holds(permissions, MANAGE_PERMISSION, mode);
+  const inForce = (rules.data ?? []).filter((rule) => rule.status === 'PUBLISHED').length;
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       <div className="heading">
@@ -141,11 +146,17 @@ function WarningContent({ route }: ScreenProps) {
           <p>{t('dis.warning.page.subtitle')}</p>
         </div>
         {manage ? (
-          <button type="button" className="primary" onClick={() => setEditing({ ...EMPTY_RULE_FORM })}>
+          <button type="button" className="ui-button ui-button--primary" onClick={() => setEditing({ ...EMPTY_RULE_FORM })}>
             {t('dis.warning.rule.new.action')}
           </button>
         ) : null}
       </div>
+      <ContextBar
+        items={[
+          { label: t('dis.wr.ctx.scope'), value: tenant?.name ?? t('dis.wr.ctx.scope.all') },
+          { label: t('w2dis.warning.ctx.inForce'), value: rules.data === undefined ? NONE : String(inForce) },
+        ]}
+      />
       <StateBoundary state={state} onRetry={() => void rules.refetch()}>
         <Rules rules={rules.data ?? []} onRevise={(rule) => setEditing(reviseForm(rule))} manage={manage} approve={holds(permissions, APPROVE_PERMISSION, mode)} />
         {editing === undefined ? null : <RuleEditor key={editing.ruleCode} initial={editing} onClose={() => setEditing(undefined)} />}
@@ -161,75 +172,76 @@ function Rules({ rules, onRevise, manage, approve }: { rules: RuleView[]; onRevi
   const publish = usePublishRule();
   const [target, setTarget] = useState<string | undefined>(undefined);
   const refusal = publish.isError ? describeWarning(publish.error) : undefined;
+  const columns: DataTableColumn<RuleView>[] = [
+    {
+      key: 'rule',
+      header: t('dis.warning.rule.col.rule'),
+      pinned: true,
+      render: (rule) => (
+        <span data-rule={rule.id} data-status={rule.status}>
+          <strong>
+            {rule.ruleCode} · {t('dis.warning.rule.revision', { revision: rule.revision })}
+          </strong>
+          <span className="dis-code">{rule.name}</span>
+          <span className="dis-code" title={rule.legalBasis}>
+            {rule.legalBasis}
+          </span>
+        </span>
+      ),
+    },
+    { key: 'metric', header: t('dis.warning.rule.col.metric'), render: (rule) => metricLabel(t, rule.metric) },
+    {
+      key: 'threshold',
+      header: t('dis.warning.rule.col.threshold'),
+      render: (rule) => (
+        <>
+          {thresholdText(t, rule)}
+          {rule.autoExplanation ? <span className="dis-code">{t('dis.warning.rule.autoExplanation')}</span> : null}
+        </>
+      ),
+    },
+    { key: 'severity', header: t('dis.warning.rule.col.severity'), render: (rule) => <StatusPill tone={severityTone(rule.severity)}>{severityLabel(t, rule.severity)}</StatusPill> },
+    { key: 'status', header: t('dis.warning.rule.col.status'), render: (rule) => <StatusPill tone={ruleTone(rule.status)}>{ruleStatusLabel(t, rule.status)}</StatusPill> },
+    {
+      key: 'preview',
+      header: t('dis.warning.rule.col.preview'),
+      align: 'right',
+      render: (rule) => <span data-testid={`preview-${rule.id}`}>{rule.wouldOpen === null ? NONE : t('dis.warning.rule.preview.text', { count: rule.wouldOpen })}</span>,
+    },
+    {
+      key: 'actions',
+      header: t('dis.warning.rule.col.actions'),
+      render: (rule) => (
+        <span className="dis-w2-actions">
+          {rule.status === 'DRAFT' && approve ? (
+            <button type="button" className="ui-button ui-button--primary ui-button--small" disabled={publish.isPending && target === rule.id} onClick={() => (setTarget(rule.id), publish.mutate({ rule }))}>
+              {t('dis.warning.rule.publish.action')}
+            </button>
+          ) : null}
+          {manage && rule.status !== 'RETIRED' ? (
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => onRevise(rule)}>
+              {t('dis.warning.rule.revise.action')}
+            </button>
+          ) : null}
+        </span>
+      ),
+    },
+  ];
   return (
-    <section className="card" aria-labelledby="rules-title">
-      <h2 id="rules-title">{t('dis.warning.rules.title')}</h2>
+    <SectionCard title={t('dis.warning.rules.title')}>
       {refusal === undefined ? null : (
-        <p className="callout warning" role="alert" data-testid="publish-refusal">
+        <p className="dis-w2-banner" role="alert" data-testid="publish-refusal">
           {problemMessage(t, refusal)}
         </p>
       )}
       {rules.length === 0 ? (
-        <p className="muted" data-testid="rules-none">
+        <p className="dis-w2-empty" data-testid="rules-none">
           {t('dis.warning.rules.empty.text')}
         </p>
       ) : (
-        <div className="tablewrap">
-          <table className="table" aria-label={t('dis.warning.rules.aria')} data-testid="rules">
-            <thead>
-              <tr>
-                <th scope="col">{t('dis.warning.rule.col.rule')}</th>
-                <th scope="col">{t('dis.warning.rule.col.metric')}</th>
-                <th scope="col">{t('dis.warning.rule.col.threshold')}</th>
-                <th scope="col">{t('dis.warning.rule.col.severity')}</th>
-                <th scope="col">{t('dis.warning.rule.col.status')}</th>
-                <th scope="col">{t('dis.warning.rule.col.preview')}</th>
-                <th scope="col">
-                  <span className="sr-only">{t('dis.warning.rule.col.actions')}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rules.map((rule) => (
-                <tr key={rule.id} data-rule={rule.id} data-status={rule.status}>
-                  <td>
-                    {rule.ruleCode} · {t('dis.warning.rule.revision', { revision: rule.revision })}
-                    <span className="dis-code">{rule.name}</span>
-                    <span className="dis-code" title={rule.legalBasis}>
-                      {rule.legalBasis}
-                    </span>
-                  </td>
-                  <td>{metricLabel(t, rule.metric)}</td>
-                  <td>
-                    {thresholdText(t, rule)}
-                    {rule.autoExplanation ? <span className="dis-code">{t('dis.warning.rule.autoExplanation')}</span> : null}
-                  </td>
-                  <td>
-                    <span className={`pill ${severityTone(rule.severity)}`}>{severityLabel(t, rule.severity)}</span>
-                  </td>
-                  <td>
-                    <span className={`pill ${rule.status === 'PUBLISHED' ? 'green' : rule.status === 'DRAFT' ? 'warn' : 'gray'}`}>{ruleStatusLabel(t, rule.status)}</span>
-                  </td>
-                  <td data-testid={`preview-${rule.id}`}>{rule.wouldOpen === null ? NONE : t('dis.warning.rule.preview.text', { count: rule.wouldOpen })}</td>
-                  <td>
-                    {rule.status === 'DRAFT' && approve ? (
-                      <button type="button" disabled={publish.isPending && target === rule.id} onClick={() => (setTarget(rule.id), publish.mutate({ rule }))}>
-                        {t('dis.warning.rule.publish.action')}
-                      </button>
-                    ) : null}{' '}
-                    {manage && rule.status !== 'RETIRED' ? (
-                      <button type="button" onClick={() => onRevise(rule)}>
-                        {t('dis.warning.rule.revise.action')}
-                      </button>
-                    ) : null}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable caption={t('dis.warning.rules.aria')} columns={columns} rows={rules} rowKey={(rule) => rule.id} />
       )}
-    </section>
+    </SectionCard>
   );
 }
 
@@ -240,6 +252,7 @@ function RuleEditor({ initial, onClose }: { initial: RuleForm; onClose(): void }
   const [problems, setProblems] = useState<Partial<Record<RuleField, FieldProblem>>>({});
   const refusal = create.isError ? describeWarning(create.error) : undefined;
   const serverField = create.isError ? fieldOf(create.error) : undefined;
+  const title = initial.ruleCode === '' ? t('dis.warning.editor.title.new') : t('dis.warning.editor.title.revise', { code: initial.ruleCode });
   const set = <K extends keyof RuleForm>(key: K, value: RuleForm[K]): void => setForm((current) => ({ ...current, [key]: value }));
   const submit = (event: FormEvent): void => {
     event.preventDefault();
@@ -254,63 +267,68 @@ function RuleEditor({ initial, onClose }: { initial: RuleForm; onClose(): void }
     </Field>
   );
   return (
-    <form className="card" onSubmit={submit} noValidate aria-labelledby="rule-form-title" data-testid="rule-form">
-      <h2 id="rule-form-title">{initial.ruleCode === '' ? t('dis.warning.editor.title.new') : t('dis.warning.editor.title.revise', { code: initial.ruleCode })}</h2>
-      <p className="sub">{t('dis.warning.editor.note')}</p>
-      {refusal === undefined || serverField !== undefined ? null : (
-        <p className="callout warning" role="alert" data-testid="create-refusal">
-          {problemMessage(t, refusal)}
-        </p>
-      )}
-      <div className="formgrid">
-        {initial.ruleCode === '' ? text('ruleCode', 'ruleCode', t('dis.warning.field.code.label'), { hint: t('dis.warning.field.code.hint') }) : null}
-        {text('name', 'name', t('dis.warning.field.name.label'))}
-        <Field id="rule-metric" label={t('dis.warning.field.metric.label')} error={undefined}>
-          <select id="rule-metric" value={form.metric} onChange={(event) => set('metric', event.target.value as Metric)}>
-            {METRICS.map((metric) => (
-              <option key={metric} value={metric}>
-                {metricLabel(t, metric)}
-              </option>
-            ))}
-          </select>
-        </Field>
-        {form.metric === 'YTD_RATE_GAP' ? (
-          <>
-            {text('points', 'points', t('dis.warning.field.points.label'), { hint: t('dis.warning.field.points.hint') })}
-            {text('criticalPoints', 'criticalPoints', t('dis.warning.field.critical.label'), { hint: t('dis.warning.field.critical.hint') })}
-          </>
-        ) : null}
-        {form.metric === 'REPORT_OVERDUE' ? (
-          <>
-            {text('graceDays', 'graceDays', t('dis.warning.field.grace.label'))}
-            {text('explanationDueDays', 'explanationDueDays', t('dis.warning.field.due.label'))}
-          </>
-        ) : null}
-        <Field id="rule-severity" label={t('dis.warning.field.severity.label')} error={undefined}>
-          <select id="rule-severity" value={form.severity} onChange={(event) => set('severity', event.target.value as Severity)}>
-            {SEVERITIES.map((severity) => (
-              <option key={severity} value={severity}>
-                {severityLabel(t, severity)}
-              </option>
-            ))}
-          </select>
-        </Field>
-        {text('effectiveFrom', 'effectiveFrom', t('dis.warning.field.from.label'), { type: 'date' })}
-        {text('effectiveUntil', 'effectiveUntil', t('dis.warning.field.until.label'), { type: 'date' })}
-        {text('legalBasis', 'legalBasis', t('dis.warning.field.legal.label'), { hint: t('dis.warning.field.legal.hint') })}
-        <label className="dis-radio">
-          <input type="checkbox" checked={form.autoExplanation} onChange={(event) => set('autoExplanation', event.target.checked)} />
-          {t('dis.warning.field.auto.label')}
-        </label>
-      </div>
-      <div className="formfooter">
-        <button type="button" onClick={onClose}>
-          {t('dis.warning.dialog.cancel.action')}
-        </button>
-        <button type="submit" className="primary" disabled={create.isPending}>
-          {create.isPending ? t('dis.warning.editor.pending') : t('dis.warning.editor.save.action')}
-        </button>
-      </div>
+    <form onSubmit={submit} noValidate aria-label={title} data-testid="rule-form">
+      <SectionCard title={title}>
+        <p className="dis-w2-note">{t('dis.warning.editor.note')}</p>
+        {refusal === undefined || serverField !== undefined ? null : (
+          <p className="dis-w2-banner" role="alert" data-testid="create-refusal">
+            {problemMessage(t, refusal)}
+          </p>
+        )}
+        <div className="formgrid">
+          {initial.ruleCode === '' ? text('ruleCode', 'ruleCode', t('dis.warning.field.code.label'), { hint: t('dis.warning.field.code.hint') }) : null}
+          {text('name', 'name', t('dis.warning.field.name.label'))}
+          <Field id="rule-metric" label={t('dis.warning.field.metric.label')} error={undefined}>
+            <select id="rule-metric" value={form.metric} onChange={(event) => set('metric', event.target.value as Metric)}>
+              {METRICS.map((metric) => (
+                <option key={metric} value={metric}>
+                  {metricLabel(t, metric)}
+                </option>
+              ))}
+            </select>
+          </Field>
+          {form.metric === 'YTD_RATE_GAP' ? (
+            <>
+              {text('points', 'points', t('dis.warning.field.points.label'), { hint: t('dis.warning.field.points.hint') })}
+              {text('criticalPoints', 'criticalPoints', t('dis.warning.field.critical.label'), { hint: t('dis.warning.field.critical.hint') })}
+            </>
+          ) : null}
+          {form.metric === 'REPORT_OVERDUE' ? (
+            <>
+              {text('graceDays', 'graceDays', t('dis.warning.field.grace.label'))}
+              {text('explanationDueDays', 'explanationDueDays', t('dis.warning.field.due.label'))}
+            </>
+          ) : null}
+          <Field id="rule-severity" label={t('dis.warning.field.severity.label')} error={undefined}>
+            <select id="rule-severity" value={form.severity} onChange={(event) => set('severity', event.target.value as Severity)}>
+              {SEVERITIES.map((severity) => (
+                <option key={severity} value={severity}>
+                  {severityLabel(t, severity)}
+                </option>
+              ))}
+            </select>
+          </Field>
+          {text('effectiveFrom', 'effectiveFrom', t('dis.warning.field.from.label'), { type: 'date' })}
+          {text('effectiveUntil', 'effectiveUntil', t('dis.warning.field.until.label'), { type: 'date' })}
+          {text('legalBasis', 'legalBasis', t('dis.warning.field.legal.label'), { hint: t('dis.warning.field.legal.hint') })}
+          <label className="dis-radio">
+            <input type="checkbox" checked={form.autoExplanation} onChange={(event) => set('autoExplanation', event.target.checked)} />
+            {t('dis.warning.field.auto.label')}
+          </label>
+        </div>
+        <StickyActions
+          primary={
+            <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending}>
+              {create.isPending ? t('dis.warning.editor.pending') : t('dis.warning.editor.save.action')}
+            </button>
+          }
+          secondary={[
+            <button type="button" className="ui-button ui-button--outline" onClick={onClose} key="cancel">
+              {t('dis.warning.dialog.cancel.action')}
+            </button>,
+          ]}
+        />
+      </SectionCard>
     </form>
   );
 }
@@ -322,104 +340,119 @@ function Warnings({ handle, ruleCodes }: { handle: boolean; ruleCodes: string[] 
   const warnings = useWarnings(filter);
   const state = useScreenState({ isLoading: warnings.isLoading, error: warnings.error, data: warnings.data, isEmpty: (data) => (data as { pages: Array<{ items: unknown[] }> }).pages.every((page) => page.items.length === 0) });
   const items = (warnings.data?.pages ?? []).flatMap((page) => page.items);
+  const applied = [filter.status, filter.severity, filter.ruleCode].filter((value) => value !== '').length;
+  const clear = (): void => setFilter({ status: '', severity: '', ruleCode: '' });
+  const columns: DataTableColumn<WarningView>[] = [
+    {
+      key: 'rule',
+      header: t('dis.warning.col.rule'),
+      pinned: true,
+      render: (warning) => (
+        <span data-warning={warning.id} data-status={warning.status}>
+          <strong>{warning.ruleCode}</strong>
+          <span className="dis-code">{warning.ruleName}</span>
+        </span>
+      ),
+    },
+    {
+      key: 'project',
+      header: t('dis.warning.col.project'),
+      render: (warning) => (
+        <>
+          <strong>{warning.projectCode ?? NONE}</strong>
+          <span className="dis-code">{warning.projectName}</span>
+        </>
+      ),
+    },
+    { key: 'severity', header: t('dis.warning.col.severity'), render: (warning) => <StatusPill tone={severityTone(warning.severity)}>{severityLabel(t, warning.severity)}</StatusPill> },
+    { key: 'observed', header: t('dis.warning.col.observed'), render: (warning) => observedText(t, warning) },
+    {
+      key: 'status',
+      header: t('dis.warning.col.status'),
+      render: (warning) => (
+        <>
+          <StatusPill tone={warningTone(warning.status)}>{statusLabel(t, warning.status)}</StatusPill>
+          {warning.resolutionReason === null ? null : <span className="dis-code">{warning.resolutionReason === 'AUTO_CLEARED' ? t('dis.warning.resolution.autoCleared') : warning.resolutionReason}</span>}
+        </>
+      ),
+    },
+    { key: 'opened', header: t('dis.warning.col.opened'), render: (warning) => warning.openedAt.slice(0, 10) },
+    {
+      key: 'actions',
+      header: t('dis.warning.col.actions'),
+      render: (warning) => (
+        <span className="dis-w2-actions">
+          {handle && canAcknowledge(warning) ? (
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setActing({ warning, action: 'acknowledge' })}>
+              {t('dis.warning.acknowledge.action')}
+            </button>
+          ) : null}
+          {handle && canDismiss(warning) ? (
+            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setActing({ warning, action: 'dismiss' })}>
+              {t('dis.warning.dismiss.action')}
+            </button>
+          ) : null}
+        </span>
+      ),
+    },
+  ];
   return (
-    <section className="card" aria-labelledby="warnings-title">
-      <h2 id="warnings-title">{t('dis.warning.list.title')}</h2>
-      <div className="dis-filters" role="group" aria-label={t('dis.warning.filter.title')}>
-        <Field id="warning-status" label={t('dis.warning.filter.status')} error={undefined}>
-          <select id="warning-status" value={filter.status} onChange={(event) => setFilter({ ...filter, status: event.target.value })}>
-            <option value="">{t('dis.warning.filter.all')}</option>
-            {WARNING_STATUSES.map((status) => (
-              <option key={status} value={status}>
-                {statusLabel(t, status)}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field id="warning-severity" label={t('dis.warning.filter.severity')} error={undefined}>
-          <select id="warning-severity" value={filter.severity} onChange={(event) => setFilter({ ...filter, severity: event.target.value })}>
-            <option value="">{t('dis.warning.filter.all')}</option>
-            {SEVERITIES.map((severity) => (
-              <option key={severity} value={severity}>
-                {severityLabel(t, severity)}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field id="warning-rule" label={t('dis.warning.filter.rule')} error={undefined}>
-          <select id="warning-rule" value={filter.ruleCode} onChange={(event) => setFilter({ ...filter, ruleCode: event.target.value })}>
-            <option value="">{t('dis.warning.filter.all')}</option>
-            {ruleCodes.map((code) => (
-              <option key={code} value={code}>
-                {code}
-              </option>
-            ))}
-          </select>
-        </Field>
-      </div>
-      <StateBoundary state={state} onRetry={() => void warnings.refetch()}>
-        <div className="tablewrap">
-          <table className="table" aria-label={t('dis.warning.list.aria')} data-testid="warnings">
-            <thead>
-              <tr>
-                <th scope="col">{t('dis.warning.col.rule')}</th>
-                <th scope="col">{t('dis.warning.col.project')}</th>
-                <th scope="col">{t('dis.warning.col.severity')}</th>
-                <th scope="col">{t('dis.warning.col.observed')}</th>
-                <th scope="col">{t('dis.warning.col.status')}</th>
-                <th scope="col">{t('dis.warning.col.opened')}</th>
-                <th scope="col">
-                  <span className="sr-only">{t('dis.warning.col.actions')}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((warning) => (
-                <tr key={warning.id} data-warning={warning.id} data-status={warning.status}>
-                  <td>
-                    {warning.ruleCode}
-                    <span className="dis-code">{warning.ruleName}</span>
-                  </td>
-                  <td>
-                    {warning.projectCode ?? NONE}
-                    <span className="dis-code">{warning.projectName}</span>
-                  </td>
-                  <td>
-                    <span className={`pill ${severityTone(warning.severity)}`}>{severityLabel(t, warning.severity)}</span>
-                  </td>
-                  <td>{observedText(t, warning)}</td>
-                  <td>
-                    <span className="pill gray">{statusLabel(t, warning.status)}</span>
-                    {warning.resolutionReason === null ? null : <span className="dis-code">{warning.resolutionReason === 'AUTO_CLEARED' ? t('dis.warning.resolution.autoCleared') : warning.resolutionReason}</span>}
-                  </td>
-                  <td>{warning.openedAt.slice(0, 10)}</td>
-                  <td>
-                    {handle && canAcknowledge(warning) ? (
-                      <button type="button" onClick={() => setActing({ warning, action: 'acknowledge' })}>
-                        {t('dis.warning.acknowledge.action')}
-                      </button>
-                    ) : null}{' '}
-                    {handle && canDismiss(warning) ? (
-                      <button type="button" onClick={() => setActing({ warning, action: 'dismiss' })}>
-                        {t('dis.warning.dismiss.action')}
-                      </button>
-                    ) : null}
-                  </td>
-                </tr>
+    <SectionCard title={t('dis.warning.list.title')}>
+      <FilterPanel
+        applied={applied}
+        actions={
+          applied === 0 ? undefined : (
+            <button type="button" className="ui-button ui-button--outline" onClick={clear}>
+              {t('dis.reports.filter.clear.action')}
+            </button>
+          )
+        }
+      >
+        <div className="dis-filters" role="group" aria-label={t('dis.warning.filter.title')}>
+          <Field id="warning-status" label={t('dis.warning.filter.status')} error={undefined}>
+            <select id="warning-status" value={filter.status} onChange={(event) => setFilter({ ...filter, status: event.target.value })}>
+              <option value="">{t('dis.warning.filter.all')}</option>
+              {WARNING_STATUSES.map((status) => (
+                <option key={status} value={status}>
+                  {statusLabel(t, status)}
+                </option>
               ))}
-            </tbody>
-          </table>
+            </select>
+          </Field>
+          <Field id="warning-severity" label={t('dis.warning.filter.severity')} error={undefined}>
+            <select id="warning-severity" value={filter.severity} onChange={(event) => setFilter({ ...filter, severity: event.target.value })}>
+              <option value="">{t('dis.warning.filter.all')}</option>
+              {SEVERITIES.map((severity) => (
+                <option key={severity} value={severity}>
+                  {severityLabel(t, severity)}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field id="warning-rule" label={t('dis.warning.filter.rule')} error={undefined}>
+            <select id="warning-rule" value={filter.ruleCode} onChange={(event) => setFilter({ ...filter, ruleCode: event.target.value })}>
+              <option value="">{t('dis.warning.filter.all')}</option>
+              {ruleCodes.map((code) => (
+                <option key={code} value={code}>
+                  {code}
+                </option>
+              ))}
+            </select>
+          </Field>
         </div>
+      </FilterPanel>
+      <StateBoundary state={state === 'empty' ? 'default' : state} onRetry={() => void warnings.refetch()}>
+        <DataTable caption={t('dis.warning.list.aria')} columns={columns} rows={items} rowKey={(warning) => warning.id} emptyKind={applied === 0 ? 'none' : 'filtered'} onClearFilters={clear} />
         {warnings.hasNextPage ? (
-          <p>
-            <button type="button" disabled={warnings.isFetchingNextPage} onClick={() => void warnings.fetchNextPage()}>
+          <p className="dis-w2-more">
+            <button type="button" className="ui-button ui-button--outline" disabled={warnings.isFetchingNextPage} onClick={() => void warnings.fetchNextPage()}>
               {t('dis.warning.list.more.action')}
             </button>
           </p>
         ) : null}
       </StateBoundary>
       {acting === undefined ? null : <ReasonDialog warning={acting.warning} action={acting.action} onClose={() => setActing(undefined)} />}
-    </section>
+    </SectionCard>
   );
 }
 
@@ -453,8 +486,22 @@ function ReasonDialog({ warning, action, onClose }: { warning: WarningView; acti
         </div>
         <form className="dis-dialog-body" onSubmit={submit} noValidate>
           <p>{action === 'acknowledge' ? t('dis.warning.acknowledge.dialog.body') : t('dis.warning.dismiss.dialog.body')}</p>
+          <dl className="ui-dialog__context">
+            <div className="ui-dialog__row">
+              <dt>{t('dis.warning.col.rule')}</dt>
+              <dd>{`${warning.ruleCode} · ${warning.ruleName}`}</dd>
+            </div>
+            <div className="ui-dialog__row">
+              <dt>{t('dis.warning.col.project')}</dt>
+              <dd>{warning.projectCode === null ? NONE : `${warning.projectCode} · ${warning.projectName ?? ''}`}</dd>
+            </div>
+            <div className="ui-dialog__row">
+              <dt>{t('dis.warning.col.status')}</dt>
+              <dd>{statusLabel(t, warning.status)}</dd>
+            </div>
+          </dl>
           {refusal === undefined ? null : (
-            <p className="callout warning" role="alert" data-testid="action-refusal">
+            <p className="dis-w2-banner" role="alert" data-testid="action-refusal">
               {problemMessage(t, refusal)}
             </p>
           )}
@@ -462,10 +509,10 @@ function ReasonDialog({ warning, action, onClose }: { warning: WarningView; acti
             <textarea id="warning-reason" rows={3} value={reason} onChange={(event) => (setReason(event.target.value), setProblem(undefined))} />
           </Field>
           <div className="formfooter">
-            <button type="button" onClick={onClose}>
+            <button type="button" className="ui-button ui-button--outline" onClick={onClose}>
               {t('dis.warning.dialog.cancel.action')}
             </button>
-            <button type="submit" className="primary" disabled={send.isPending}>
+            <button type="submit" className="ui-button ui-button--primary" disabled={send.isPending}>
               {action === 'acknowledge' ? t('dis.warning.acknowledge.confirm.action') : t('dis.warning.dismiss.confirm.action')}
             </button>
           </div>

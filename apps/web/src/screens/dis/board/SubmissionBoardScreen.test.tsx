@@ -19,41 +19,57 @@ const open = (path: string, board: World['board'] = answerWith({}), permissions 
   mount(<SubmissionBoardScreen route={ROUTE} />, h, { permissions, path });
   return h;
 };
-const asked = (h: ReturnType<typeof client>): Array<Record<string, unknown>> => h.read.mock.calls.filter((call) => call[0] === 'getSubmissionProgress').map((call) => (call[1] as { query?: Record<string, unknown> }).query ?? {});
+const boardTable = (): Promise<HTMLElement> => screen.findByRole('table', { name: vi_['dis.board.table.aria'] });
+const drillTable = (): Promise<HTMLElement> => screen.findByRole('table', { name: vi_['dis.board.drill.aria'] });
+const rowOf = (table: HTMLElement, unit: string): HTMLElement => table.querySelector(`[data-unit="${unit}"]`)?.closest('tr') as HTMLElement;
+const totalRow = (table: HTMLElement): HTMLElement => table.querySelector('tfoot tr') as HTMLElement;
+const asked =(h: ReturnType<typeof client>): Array<Record<string, unknown>> => h.read.mock.calls.filter((call) => call[0] === 'getSubmissionProgress').map((call) => (call[1] as { query?: Record<string, unknown> }).query ?? {});
 
 describe('DIS-15 submission progress board', () => {
   it('AC-ST-DIS-015-1 / UAT-AC263: shows for U-BQL1 must report 10, submitted 7 (1 of them late), draft 2, not started 1 and overdue 3, with a total row, and says the deadline has passed', async () => {
     open(`${PATH}?period=${PERIOD_ID}`);
     expect(await screen.findByRole('heading', { level: 1, name: vi_['dis.board.page.title'] })).toBeTruthy();
-    const table = await screen.findByTestId('board-table');
-    const row = table.querySelector(`tr[data-unit="${UNIT_ID}"]`) as HTMLElement;
+    const table = await boardTable();
+    const row = rowOf(table, UNIT_ID);
     const cell = (key: string): string => row.querySelector(`[data-cell="${key}"]`)?.textContent ?? '';
     expect([cell('MUST_REPORT'), cell('DRAFT'), cell('NOT_STARTED'), cell('OVERDUE')]).toEqual(['10', '2', '1', '3']);
     expect(cell('SUBMITTED')).toBe(`7${vi_['dis.board.late.note'].replace('{count}', '1')}`);
     const late = vi_['dis.board.late.note'].replace('{count}', '1');
-    expect(Array.from(screen.getByTestId('board-total').querySelectorAll('td')).map((td) => td.textContent)).toEqual(['12', `9${late}`, '2', '1', '3']);
+    expect(Array.from(totalRow(table).querySelectorAll('td')).map((td) => td.textContent)).toEqual(['12', `9${late}`, '2', '1', '3']);
     expect(screen.getByTestId('board-deadline').textContent).toBe(vi_['dis.board.deadline.passed'].replace('{deadline}', '2027-10-05'));
+  });
+
+  it('reads the whole scope in five tiles before the table: the submitted ones against those that had to report, and no rate where nothing had to be reported', async () => {
+    open(`${PATH}?period=${PERIOD_ID}`);
+    const tiles = await screen.findByRole('group', { name: 'Tổng số dự án của kỳ theo tình trạng nộp' });
+    expect(Array.from(tiles.querySelectorAll('.ui-kpi__value')).map((value) => value.textContent)).toEqual(['12', '9', '2', '1', '3']);
+    expect(within(tiles).getByText('75% số dự án phải nộp, trong đó 1 nộp trễ')).toBeTruthy();
+    cleanup();
+    open(`${PATH}?period=${PERIOD_ID}`, () => boardRecord({ total: { must_report: 0, submitted: 0, submitted_late: 0, draft: 0, not_started: 0, overdue: 0 } }));
+    const none = await screen.findByRole('group', { name: 'Tổng số dự án của kỳ theo tình trạng nộp' });
+    expect(within(none).getByText('Không áp dụng: kỳ này không có dự án phải nộp')).toBeTruthy();
+    expect(within(none).queryByText(/%/)).toBeNull();
   });
 
   it('every number leads to the exact projects it counted: the link carries the period, the unit and the state, and a zero is not a link', async () => {
     open(`${PATH}?period=${PERIOD_ID}`);
-    const table = await screen.findByTestId('board-table');
-    const link = (unit: string, key: string): string | null => table.querySelector(`tr[data-unit="${unit}"] [data-cell="${key}"] a`)?.getAttribute('href') ?? null;
+    const table = await boardTable();
+    const link = (unit: string, key: string): string | null => rowOf(table, unit).querySelector(`[data-cell="${key}"] a`)?.getAttribute('href') ?? null;
     expect(link(UNIT_ID, 'OVERDUE')).toBe(`${PATH}?period=${PERIOD_ID}&state=OVERDUE&unit=${UNIT_ID}`);
     expect(link(UNIT_ID, 'MUST_REPORT')).toBe(`${PATH}?period=${PERIOD_ID}&state=MUST_REPORT&unit=${UNIT_ID}`);
     expect(link(OTHER_UNIT_ID, 'DRAFT')).toBeNull();
     expect(link(OTHER_UNIT_ID, 'OVERDUE')).toBeNull();
     // The late ones have a drill of their own: the unit row and the total row each lead to exactly the projects that came in late.
-    expect(table.querySelector(`tr[data-unit="${UNIT_ID}"] [data-late-note] a`)?.getAttribute('href')).toBe(`${PATH}?period=${PERIOD_ID}&state=LATE_SUBMITTED&unit=${UNIT_ID}`);
-    expect(table.querySelector(`tr[data-unit="${OTHER_UNIT_ID}"] [data-late-note]`)).toBeNull();
-    expect(screen.getByTestId('board-total').querySelector('[data-late-note] a')?.getAttribute('href')).toBe(`${PATH}?period=${PERIOD_ID}&state=LATE_SUBMITTED`);
-    expect(screen.getByTestId('board-total').querySelector('[data-cell="DRAFT"] a')?.getAttribute('href')).toBe(`${PATH}?period=${PERIOD_ID}&state=DRAFT`);
+    expect(rowOf(table, UNIT_ID).querySelector('[data-late-note] a')?.getAttribute('href')).toBe(`${PATH}?period=${PERIOD_ID}&state=LATE_SUBMITTED&unit=${UNIT_ID}`);
+    expect(rowOf(table, OTHER_UNIT_ID).querySelector('[data-late-note]')).toBeNull();
+    expect(totalRow(table).querySelector('[data-late-note] a')?.getAttribute('href')).toBe(`${PATH}?period=${PERIOD_ID}&state=LATE_SUBMITTED`);
+    expect(totalRow(table).querySelector('[data-cell="DRAFT"] a')?.getAttribute('href')).toBe(`${PATH}?period=${PERIOD_ID}&state=DRAFT`);
   });
 
   it('opens the list of the number that was chosen with the exact projects, their state and flags, and a link to the report', async () => {
     const h = open(`${PATH}?period=${PERIOD_ID}&state=OVERDUE&unit=${UNIT_ID}`, answerWith({ OVERDUE: [projectRow('PB-0007'), projectRow('PB-0009', { state: 'NOT_STARTED', report: null })] }));
-    const list = await screen.findByTestId('drill-table');
-    const rows = Array.from(list.querySelectorAll('tbody tr')) as HTMLElement[];
+    const list = await drillTable();
+    const rows =Array.from(list.querySelectorAll('tbody tr')) as HTMLElement[];
     expect(rows).toHaveLength(2);
     expect(within(rows[0] as HTMLElement).getByText(vi_['dis.board.state.draft'])).toBeTruthy();
     expect(within(rows[0] as HTMLElement).getByText(vi_['dis.board.flag.overdue'])).toBeTruthy();
@@ -66,7 +82,7 @@ describe('DIS-15 submission progress board', () => {
   it('marks a project that came in late as submitted and late, not overdue, and loads more by cursor', async () => {
     const late = projectRow('PB-0001', { state: 'SUBMITTED', is_late: true, overdue: false, report: { id: '00000000-0000-4000-8000-0000000b0001', status: 'ACCEPTED', submitted_at: '2027-10-06T03:00:00Z' } });
     const h = open(`${PATH}?period=${PERIOD_ID}&state=SUBMITTED`, answerWith({ SUBMITTED: [late] }, { SUBMITTED: 'next' }));
-    const list = await screen.findByTestId('drill-table');
+    const list = await drillTable();
     expect(within(list).getByText(vi_['dis.board.flag.late'])).toBeTruthy();
     expect(within(list).queryByText(vi_['dis.board.flag.overdue'])).toBeNull();
     fireEvent.click(await screen.findByRole('button', { name: vi_['dis.board.drill.more.action'] }));
@@ -86,7 +102,7 @@ describe('DIS-15 submission progress board', () => {
       throw new ApiError({ status: 403, code: 'FORBIDDEN', correlationId: 'c' });
     };
     mount(<SubmissionBoardScreen route={ROUTE} />, h, { permissions: ['report.read'], path: `${PATH}?period=${PERIOD_ID}` });
-    expect(await screen.findByTestId('board-table')).toBeTruthy();
+    expect(await boardTable()).toBeTruthy();
     expect((screen.getByLabelText(vi_['dis.board.period.label']) as HTMLSelectElement).value).toBe(PERIOD_ID);
     cleanup();
     const bare = client(world({ board: answerWith({}) }));
@@ -99,7 +115,7 @@ describe('DIS-15 submission progress board', () => {
 
   it('opens on the period that has started most recently when none is chosen', async () => {
     const h = open(PATH);
-    await screen.findByTestId('board-table');
+    await boardTable();
     expect(h.read.mock.calls.some((call) => call[0] === 'getSubmissionProgress' && (call[1] as { path: { id: string } }).path.id === PERIOD_ID)).toBe(true);
   });
 

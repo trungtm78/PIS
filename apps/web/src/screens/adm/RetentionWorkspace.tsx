@@ -4,7 +4,7 @@ import { useTranslation } from '../../i18n';
 import type { WebRoute } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { useCreateRetentionDraft, usePublishRetention } from './retention/hooks';
-import { basisLabel, endActionLabel, findingMessage, holdKindLabel, holdScopeLabel, kindLabel, problemMessage, problemOfDraft, statusLabel, statusPill } from './retention/labels';
+import { basisLabel, endActionLabel, findingMessage, holdKindLabel, holdScopeLabel, kindLabel, problemMessage, problemOfDraft, statusLabel, statusTone } from './retention/labels';
 import {
   APPROVE_RETENTION_PERMISSION,
   BUSINESS_CLASSES,
@@ -25,6 +25,9 @@ import {
 } from './retention/model';
 import type { DraftErrors, DraftField, DraftValues, HoldView, PolicyView, ReviewItemView } from './retention/model';
 import { instantText } from './audit/SealBanner';
+import { SectionCard, StatusPill } from '../../ui';
+import { KitTable } from './KitTable';
+import './adm-kit.css';
 import './retention/retention.css';
 
 const SHORT_ID = 8;
@@ -157,8 +160,7 @@ function WorkspaceContent({ route, policies, review, holds }: RetentionWorkspace
       </p>
       <div className="two">
         <div>
-          <div className="card">
-            <h2>{t('adm.retention.policy.title')}</h2>
+          <SectionCard title={t('adm.retention.policy.title')}>
             {register.length === 0 ? <p className="muted">{t('adm.retention.policy.empty')}</p> : null}
             {publishProblem === undefined ? null : (
               <p className="callout warning" role="alert" data-testid="publish-problem">
@@ -166,8 +168,7 @@ function WorkspaceContent({ route, policies, review, holds }: RetentionWorkspace
               </p>
             )}
             {register.length === 0 ? null : (
-              <div className="tablewrap">
-                <table>
+              <KitTable caption={t('w2adm.retention.table.policies')}>
                   <thead>
                     <tr>
                       <th>{t('adm.retention.col.class')}</th>
@@ -178,7 +179,7 @@ function WorkspaceContent({ route, policies, review, holds }: RetentionWorkspace
                       <th>{t('adm.retention.col.effective')}</th>
                       <th>{t('adm.retention.col.status')}</th>
                       <th>
-                        <span className="sr-only">{t('adm.retention.col.actions')}</span>
+                        {t('adm.retention.col.actions')}
                       </th>
                     </tr>
                   </thead>
@@ -199,7 +200,7 @@ function WorkspaceContent({ route, policies, review, holds }: RetentionWorkspace
                         <td>{policy.legalBasisRef}</td>
                         <td>{policy.effectiveFrom}</td>
                         <td>
-                          <span className={statusPill(policy.status)}>{statusLabel(t, policy.status)}</span>
+                          <StatusPill tone={statusTone(policy.status)}>{statusLabel(t, policy.status)}</StatusPill>
                         </td>
                         <td className="row-actions">
                           {policy.status !== 'Draft' || !canApprove ? null : policy.createdBy === tenant?.membershipId ? (
@@ -207,7 +208,7 @@ function WorkspaceContent({ route, policies, review, holds }: RetentionWorkspace
                               {t('adm.retention.publish.own.hint')}
                             </span>
                           ) : (
-                            <button type="button" onClick={() => (setPublishing(policy.id), setReason(''), setReasonError(false))}>
+                            <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => (setPublishing(policy.id), setReason(''), setReasonError(false))}>
                               {t('adm.retention.publish.action')}
                             </button>
                           )}
@@ -215,8 +216,7 @@ function WorkspaceContent({ route, policies, review, holds }: RetentionWorkspace
                       </tr>
                     ))}
                   </tbody>
-                </table>
-              </div>
+                </KitTable>
             )}
             {target === undefined ? null : (
               <form className="publish-panel" onSubmit={confirmPublish} aria-label={t('adm.retention.publish.title')} data-testid="publish-panel">
@@ -227,25 +227,24 @@ function WorkspaceContent({ route, policies, review, holds }: RetentionWorkspace
                 <Field id="publish-reason" label={t('adm.retention.publish.reason.label')} error={reasonError ? t('adm.retention.publish.reason.error') : undefined}>
                   <textarea id="publish-reason" value={reason} onChange={(event) => setReason(event.target.value)} />
                 </Field>
-                <div className="formfooter">
-                  <button type="submit" className="primary" disabled={publish.isPending}>
+                <div className="adm-kit-actions">
+                  <button type="submit" className="ui-button ui-button--primary" disabled={publish.isPending}>
                     {t('adm.retention.publish.confirm.action')}
                   </button>
-                  <button type="button" onClick={() => setPublishing(undefined)}>
+                  <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setPublishing(undefined)}>
                     {t('adm.retention.publish.cancel.action')}
                   </button>
                 </div>
               </form>
             )}
-          </div>
+          </SectionCard>
 
-          <div className="card" data-testid="holds">
-            <h2>{t('adm.retention.hold.title')}</h2>
+          <SectionCard title={t('adm.retention.hold.title')}>
+            <div data-testid="holds">
             <p className="sub">{t('adm.retention.hold.hint')}</p>
             {activeHolds.length === 0 ? <p className="muted">{t('adm.retention.hold.empty')}</p> : null}
             {activeHolds.length === 0 ? null : (
-              <div className="tablewrap">
-                <table>
+              <KitTable caption={t('w2adm.retention.table.holds')}>
                   <thead>
                     <tr>
                       <th>{t('adm.retention.hold.col.kind')}</th>
@@ -269,18 +268,17 @@ function WorkspaceContent({ route, policies, review, holds }: RetentionWorkspace
                       </tr>
                     ))}
                   </tbody>
-                </table>
-              </div>
+                </KitTable>
             )}
-          </div>
+            </div>
+          </SectionCard>
 
-          <div className="card" data-testid="review">
-            <h2>{t('adm.retention.review.title')}</h2>
+          <SectionCard title={t('adm.retention.review.title')}>
+            <div data-testid="review">
             <p className="sub">{t('adm.retention.review.hint')}</p>
             {review.length === 0 ? <p className="muted">{t('adm.retention.review.empty')}</p> : null}
             {review.length === 0 ? null : (
-              <div className="tablewrap">
-                <table>
+              <KitTable caption={t('w2adm.retention.table.review')}>
                   <thead>
                     <tr>
                       <th>{t('adm.retention.review.col.class')}</th>
@@ -303,15 +301,15 @@ function WorkspaceContent({ route, policies, review, holds }: RetentionWorkspace
                       </tr>
                     ))}
                   </tbody>
-                </table>
-              </div>
+                </KitTable>
             )}
-          </div>
+            </div>
+          </SectionCard>
         </div>
 
         {canManage ? (
-          <aside className="card" aria-label={t('adm.retention.draft.title')}>
-            <h2>{t('adm.retention.draft.title')}</h2>
+          <aside aria-label={t('adm.retention.draft.title')}>
+          <SectionCard title={t('adm.retention.draft.title')}>
             <p className="sub">{t('adm.retention.draft.hint')}</p>
             <form onSubmit={saveDraft} noValidate>
               <Field id="draft-class" label={t('adm.retention.draft.class.label')} error={errors.recordClass === undefined ? undefined : problemOfDraft(t, errors.recordClass)}>
@@ -382,12 +380,13 @@ function WorkspaceContent({ route, policies, review, holds }: RetentionWorkspace
                   {t('adm.retention.draft.saved.text')}
                 </p>
               ) : null}
-              <div className="formfooter">
-                <button type="submit" className="primary" disabled={create.isPending}>
+              <div className="adm-kit-actions">
+                <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending}>
                   {t('adm.retention.draft.submit.action')}
                 </button>
               </div>
             </form>
+          </SectionCard>
           </aside>
         ) : null}
       </div>

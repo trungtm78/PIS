@@ -12,7 +12,8 @@ const answer = { operation_id: 'o', status: 'DRAFT', resource_version: 5, resour
 
 afterEach(cleanup);
 
-const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('tr[data-line-id]'));
+// A line is the row of the table of the kit that holds a cell carrying its id.
+const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('[data-line-id]')).flatMap((node) => (node.closest('tr') === null ? [] : [node.closest('tr') as HTMLElement]));
 const ready = () => waitFor(() => expect(rows().length).toBeGreaterThan(0));
 const amountInput = (code: string): HTMLInputElement => screen.getByLabelText(`Số tiền của dự án ${code} (triệu đồng)`) as HTMLInputElement;
 const ctmtqgInput = (code: string): HTMLInputElement => screen.getByLabelText(`Phần CTMTQG của dự án ${code} (triệu đồng)`) as HTMLInputElement;
@@ -100,7 +101,9 @@ describe('AllocationGridScreen (CAP-06): the allocation grid of a plan', () => {
     expect(operation).toBe('draftCapitalAllocation');
     expect(input.path).toEqual({ id: ANNUAL_ID });
     expect(input.ifMatchVersion).toBe(4);
-    expect(input.body).toEqual({ lines: [{ project_id: expect.any(String), appropriation_id: expect.any(String), bucket: 'CURRENT_YEAR', source_year: 2026, amount_vnd: '1500000000', ctmtqg_subset_vnd: '600000000' }] });
+    expect(input.body).toEqual({
+      lines: [{ project_id: expect.any(String), appropriation_id: expect.any(String), bucket: 'CURRENT_YEAR', source_year: 2026, amount_vnd: '1500000000', ctmtqg_subset_vnd: '600000000' }],
+    });
     await waitFor(() => expect(screen.getByTestId('saved')).toBeTruthy());
   });
 
@@ -108,7 +111,7 @@ describe('AllocationGridScreen (CAP-06): the allocation grid of a plan', () => {
     const h = open(planWorld(), () => answer);
     await ready();
     fireEvent.click(within(rows()[1] as HTMLElement).getByRole('button', { name: vi_['cap.grid.remove.action'] }));
-    expect(rows()[1]?.getAttribute('data-removed')).toBe('true');
+    expect(rows()[1]?.querySelector('[data-removed]')?.getAttribute('data-removed')).toBe('true');
     expect(available(0)).toBe('6.000');
     expect(amountInput('DA-02').disabled).toBe(true);
     expect(screen.getByTestId('total').textContent).toBe('1.000');
@@ -123,7 +126,7 @@ describe('AllocationGridScreen (CAP-06): the allocation grid of a plan', () => {
     await ready();
     fireEvent.click(within(rows()[1] as HTMLElement).getByRole('button', { name: vi_['cap.grid.remove.action'] }));
     fireEvent.click(within(rows()[1] as HTMLElement).getByRole('button', { name: vi_['cap.grid.restore.action'] }));
-    expect(rows()[1]?.getAttribute('data-removed')).toBe('false');
+    expect(rows()[1]?.querySelector('[data-removed]')?.getAttribute('data-removed')).toBe('false');
     expect(save().disabled).toBe(true);
   });
 

@@ -29,6 +29,9 @@ import {
   validateStart,
 } from './model';
 import type { Assessment, CriterionScore, EvidenceRow, FormProblem, RecordField, RecordForm, StartField, StartForm } from './model';
+import '../dgv-kit.css';
+import { StatusPill } from '../../../ui';
+import { pillTone } from '../pill-tone';
 
 const NONE = '—';
 const holds = (permissions: readonly string[] | undefined, permission: string, mode: string | undefined): boolean =>
@@ -118,7 +121,7 @@ function AssessmentView({ assessment }: { assessment: Assessment }) {
         <div>
           <dt>{t('dgv.maturity.assess.status')}</dt>
           <dd>
-            <span className={`pill ${assessment.status === 'PUBLISHED' ? 'green' : assessment.status === 'REJECTED' ? 'red' : 'gray'}`}>{assessmentStatusLabel(t, assessment.status)}</span>
+            <StatusPill tone={pillTone(assessment.status === 'PUBLISHED' ? 'green' : assessment.status === 'REJECTED' ? 'red' : 'gray')}>{assessmentStatusLabel(t, assessment.status)}</StatusPill>
           </dd>
         </div>
         <div>
@@ -402,7 +405,7 @@ function RecordPanel({ assessment, row, onDone }: { assessment: Assessment; row:
         </p>
       )}
       <div className="formfooter">
-        <button type="submit" className="primary" disabled={send.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={send.isPending}>
           {t('dgv.maturity.record.submit')}
         </button>
       </div>
@@ -436,7 +439,7 @@ function ReviewPanel({ row }: { row: EvidenceRow }) {
         </p>
       )}
       <div className="formfooter">
-        <button type="button" className="primary" disabled={send.isPending} onClick={() => decide('ACCEPTED')}>
+        <button type="button" className="ui-button ui-button--primary" disabled={send.isPending} onClick={() => decide('ACCEPTED')}>
           {t('dgv.maturity.review.accept', { criterion: row.criterionCode })}
         </button>
         <button type="button" disabled={send.isPending} onClick={() => decide('REJECTED')}>
@@ -473,7 +476,7 @@ function DecidePanel({ assessment }: { assessment: Assessment }) {
         </p>
       )}
       <div className="formfooter">
-        <button type="button" className="primary" disabled={send.isPending} onClick={() => decide('approve')}>
+        <button type="button" className="ui-button ui-button--primary" disabled={send.isPending} onClick={() => decide('approve')}>
           {t('dgv.maturity.decide.approve')}
         </button>
         <button type="button" disabled={send.isPending} onClick={() => decide('return')}>
@@ -582,7 +585,7 @@ function StartPanel({
         </p>
       ) : null}
       <div className="formfooter">
-        <button type="submit" className="primary" disabled={send.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={send.isPending}>
           {t('dgv.maturity.start.submit')}
         </button>
       </div>

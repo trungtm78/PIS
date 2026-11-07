@@ -2,6 +2,7 @@ import { ApiError } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../../i18n/vi.json';
+import { translator } from '../../../i18n';
 import { mountInSession } from '../../doc/test-support';
 import { routeOf } from '../../dgv/test-support';
 import { harness as baseHarness } from '../../sas/test-support';
@@ -93,6 +94,18 @@ describe('ApprovalMonitorScreen (ADM-18): the approvals that run', () => {
     expect(within(document.querySelector(`[data-task="${uuid(1)}"]`) as HTMLElement).getByTestId('status').textContent).toBe(word('adm.monitor.status.pending'));
     expect(within(document.querySelector(`[data-task="${uuid(3)}"]`) as HTMLElement).getByTestId('escalated').textContent).toBe(word('adm.monitor.status.escalated'));
     expect(screen.getByTestId('counts').textContent).toBe(word('adm.monitor.counts').replace('{open}', '3').replace('{late}', '1'));
+  });
+
+  it('states the late status on a pill of the kit as well as in the stripe, and the filter panel counts the conditions that are on', async () => {
+    open({ tasks: [task(1), task(2, { due_at: FAR_PAST, overdue: true })] });
+    await screen.findByTestId('tasks');
+    const late = document.querySelector(`[data-task="${uuid(2)}"]`) as HTMLElement;
+    expect(within(late).getByTestId('status').querySelector('.ui-pill')?.className).toContain('ui-tone-danger');
+    expect((document.querySelector(`[data-task="${uuid(1)}"]`) as HTMLElement).querySelector('[data-testid="status"] .ui-pill')?.className).toContain('ui-tone-neutral');
+    expect(screen.getByRole('region', { name: translator.t('w2adm.monitor.table.caption') })).toBeTruthy();
+    expect(screen.getByRole('button', { name: word('ui.filterPanel.toggle') })).toBeTruthy();
+    fireEvent.click(document.getElementById('monitor-late') as HTMLElement);
+    expect(screen.getByRole('button', { name: word('ui.filterPanel.toggleApplied').replace('{count}', '1') })).toBeTruthy();
   });
 
   it('filters by business type and by late, and says when nothing matches', async () => {

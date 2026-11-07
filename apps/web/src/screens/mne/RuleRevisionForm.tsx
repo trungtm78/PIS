@@ -115,7 +115,7 @@ export function RuleRevisionForm({ onDone, onCancel }: RuleRevisionFormProps) {
         <input id="rule-reference" value={values.legalConfirmationRef} aria-invalid={errors.legalConfirmationRef !== undefined} onChange={(event) => set('legalConfirmationRef', event.target.value)} />
       </Field>
       <div className="row gap">
-        <button type="submit" className="primary" disabled={create.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={create.isPending}>
           {t('mne.rules.create.submit.action')}
         </button>
         <button type="button" onClick={onCancel}>

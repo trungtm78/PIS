@@ -5,7 +5,7 @@
 }
 .iss-back-link a {
   font-size: 11px;
-  color: var(--shell-muted, #68616c);
+  color: var(--mv-color-text-secondary);
 }
 .iss-grid {
   display: grid;
@@ -21,9 +21,19 @@
 .iss-filters {
   display: grid;
   gap: 12px;
-  grid-template-columns: minmax(0, 2fr) repeat(auto-fit, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
   align-items: end;
-  margin-bottom: 12px;
+}
+.iss-sub {
+  display: block;
+  font-size: 12px;
+  color: var(--mv-color-text-secondary);
+}
+.iss-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
 }
 .iss-board {
   display: grid;
@@ -33,8 +43,9 @@
 }
 .iss-column {
   padding: 8px;
-  border: 1px solid var(--shell-line, #e4e0e6);
-  border-radius: 8px;
+  border: 1px solid var(--mv-color-border);
+  border-radius: var(--mv-radius-control);
+  background: var(--mv-color-surface2);
 }
 .iss-column h2 {
   margin: 0 0 8px;
@@ -44,24 +55,31 @@
   display: grid;
   gap: 4px;
   margin: 0 0 8px;
-  padding: 8px;
-  border: 1px solid var(--shell-line, #e4e0e6);
-  border-radius: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--mv-color-border);
+  border-radius: var(--mv-radius-control);
+  background: var(--mv-color-surface);
   font-size: 12px;
 }
 .iss-card p {
   margin: 0;
 }
+.iss-card[data-stripe='URGENT'] {
+  border-left: 4px solid var(--mv-color-danger);
+}
+.iss-card[data-stripe='ACTION'] {
+  border-left: 4px solid var(--mv-color-warning);
+}
 .iss-badge {
   display: inline-block;
   padding: 2px 8px;
-  border: 1px solid var(--shell-line, #e4e0e6);
+  border: 1px solid var(--mv-color-border);
   border-radius: 999px;
   font-size: 12px;
   white-space: nowrap;
 }
 .iss-badge.warning {
-  border-color: var(--shell-warning, #b45309);
+  border-color: var(--mv-color-warning);
 }
 .iss-facts {
   display: grid;
@@ -81,4 +99,21 @@
 }
 .iss-note {
   white-space: pre-wrap;
+}
+
+.iss-stack {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.iss-record-head[data-stripe] {
+  padding-left: 12px;
+  border-left: 4px solid var(--mv-color-warning);
+}
+.iss-record-head[data-stripe='URGENT'] {
+  border-left-color: var(--mv-color-danger);
+}
+.iss-chips > p,
+p.iss-chips {
+  margin: 4px 0 0;
 }

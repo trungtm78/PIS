@@ -16,6 +16,7 @@ import { useAllSettlements, useGenerateSettlementForms, useSettlement, useSettle
 import { scopeLabel } from './labels';
 import { READ_PERMISSION, settlementLink, vietnamDay } from './model';
 import type { Settlement } from './model';
+import { SectionCard } from '../../../ui';
 
 /**
  * PAY-16: the forms of a settlement and the calendar of its verification (ST-PAY-012, PAY 3.5 steps 3 and 4, CXN-09, UAT-AC340). The calendar lists the settlements that were sent and wait for their verification by the
@@ -69,8 +70,7 @@ function SettlementFormsContent({ route }: ScreenProps) {
         </p>
       ) : (
         <StateBoundary state={state} onRetry={() => void list.refetch()}>
-          <article className="card" aria-label={t('pay.sform.calendar.title')}>
-            <h2>{t('pay.sform.calendar.title')}</h2>
+          <SectionCard title={t('pay.sform.calendar.title')}>
             {calendar.length === 0 ? (
               <p className="sub" role="status" data-testid="calendar-empty">
                 {t('pay.sform.calendar.empty')}
@@ -113,9 +113,8 @@ function SettlementFormsContent({ route }: ScreenProps) {
                 </tbody>
               </table>
             )}
-          </article>
-          <article className="card" aria-label={t('pay.sform.forms.title')}>
-            <h2>{t('pay.sform.forms.title')}</h2>
+          </SectionCard>
+          <SectionCard title={t('pay.sform.forms.title')}>
             <div className="field">
               <label htmlFor="sform-settlement">{t('pay.sform.forms.pick')}</label>
               <select id="sform-settlement" value={picked ?? ''} onChange={(event) => choose(event.target.value)}>
@@ -202,7 +201,7 @@ function SettlementFormsContent({ route }: ScreenProps) {
                 ) : null}
               </>
             )}
-          </article>
+          </SectionCard>
         </StateBoundary>
       )}
       {asking && current !== undefined && mayGenerate ? (

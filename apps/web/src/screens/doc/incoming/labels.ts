@@ -1,4 +1,5 @@
 import type { useTranslation } from '../../../i18n';
+import type { Tone } from '../../../ui';
 import type { Channel, FormProblem, IncomingStatus, Problem, Urgency } from './model';
 
 type Translate = ReturnType<typeof useTranslation>['t'];
@@ -19,6 +20,23 @@ export function statusLabel(t: Translate, status: IncomingStatus): string {
       return t('doc.incoming.status.filed');
     case 'REJECTED':
       return t('doc.incoming.status.rejected');
+  }
+}
+
+/** The tone of the pill of a state of a letter: received and registered are plain, in work is blue, done is green, refused is red. */
+export function statusTone(status: IncomingStatus): Tone {
+  switch (status) {
+    case 'RECEIVED':
+    case 'REGISTERED':
+    case 'FILED':
+      return 'neutral';
+    case 'ASSIGNED':
+    case 'PROCESSING':
+      return 'info';
+    case 'RESOLVED':
+      return 'success';
+    case 'REJECTED':
+      return 'danger';
   }
 }
 

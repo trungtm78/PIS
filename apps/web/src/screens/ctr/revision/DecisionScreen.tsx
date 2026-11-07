@@ -25,6 +25,7 @@ import { decisionLabel, decisionProblemMessage, decisionSubmitLabel, lineChangeL
 import { DECISIONS, decisionBody, diffLines, emptyDecision, validateDecision, versionsLink } from './model';
 import type { Decision, DecisionBody, DecisionForm, LineDiff } from './model';
 import '../ctr.css';
+import { SectionCard } from '../../../ui';
 
 /**
  * CTR-08: compare a change order with the contract and decide it (ST-CTR-007, CTR 3.3 step 4). The screen sets what the change does to the value and the schedule beside what the contract
@@ -110,8 +111,7 @@ function Decision({ request, contract, locale, readOnly, done, decide, onSend }:
         <Compare request={request} contract={contract} locale={locale} />
         {request.resultingRevisionId === null ? null : <Lines request={request} contract={contract} locale={locale} />}
       </div>
-      <article className="card" aria-label={t('ctr.revision.form.title')}>
-        <h2>{t('ctr.revision.form.title')}</h2>
+      <SectionCard title={t('ctr.revision.form.title')}>
         {done === undefined ? null : (
           <p className="callout" role="status" data-testid="done">
             {t('ctr.revision.done.notice', { decision: decisionLabel(t, done) })}
@@ -135,7 +135,7 @@ function Decision({ request, contract, locale, readOnly, done, decide, onSend }:
             {readOnly ? t('ctr.revision.readOnly.notice') : request.status === 'EVALUATED' ? t('ctr.revision.noCommand.notice') : t('ctr.revision.notEvaluated.notice')}
           </p>
         ) : null}
-      </article>
+      </SectionCard>
     </div>
   );
 }
@@ -154,8 +154,7 @@ function Compare({ request, contract, locale }: { request: ChangeRequest; contra
     return shown === null ? t('ctr.revision.none.text') : t('ctr.value.amount', { amount: shown });
   };
   return (
-    <article className="card" aria-label={t('ctr.revision.compare.title')}>
-      <h2>{t('ctr.revision.compare.title')}</h2>
+    <SectionCard title={t('ctr.revision.compare.title')}>
       <p>
         <strong data-testid="request-code">{request.code ?? request.id}</strong> · {stageLabel(t, request.stage)} <ChangeBadge status={request.status} /> ·{' '}
         <Link to={versionsLink(contract.id)}>{contract.code}</Link>
@@ -219,7 +218,7 @@ function Compare({ request, contract, locale }: { request: ChangeRequest; contra
           {scope}
         </p>
       )}
-    </article>
+    </SectionCard>
   );
 }
 
@@ -239,8 +238,7 @@ function Lines({ request, contract, locale }: { request: ChangeRequest; contract
           lines.data.filter((line) => line.revisionId === made.id),
         );
   return (
-    <article className="card" aria-label={t('ctr.revision.lines.title')}>
-      <h2>{t('ctr.revision.lines.title')}</h2>
+    <SectionCard title={t('ctr.revision.lines.title')}>
       <StateBoundary state={state} onRetry={() => void lines.refetch()}>
         <table className="table" data-testid="lines">
           <thead>
@@ -271,7 +269,7 @@ function Lines({ request, contract, locale }: { request: ChangeRequest; contract
           </tbody>
         </table>
       </StateBoundary>
-    </article>
+    </SectionCard>
   );
 }
 

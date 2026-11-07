@@ -14,6 +14,7 @@ import { formProblemMessage, mappingStatusLabel, mappingStatusTone, problemMessa
 import { MAPPING_STATUSES, UNITS, decideBody, describeProblem, emptyDecide, emptyPropose, proposeBody, validatePropose } from './model';
 import type { DecideForm, MappingView, ProposeForm } from './model';
 import '../dgv.css';
+import '../dgv-kit.css';
 
 type Dialog = { kind: 'propose' } | { kind: 'decide'; mapping: MappingView; decision: DecideForm['decision'] };
 
@@ -48,7 +49,7 @@ function MappingContent({ route }: ScreenProps) {
           <p>{t('dgv.source.subtitle')}</p>
         </div>
         {acting ? (
-          <button type="button" className="primary" data-action="propose" onClick={() => setDialog({ kind: 'propose' })}>
+          <button type="button" className="ui-button ui-button--primary" data-action="propose" onClick={() => setDialog({ kind: 'propose' })}>
             {t('dgv.source.propose.action')}
           </button>
         ) : null}
@@ -120,7 +121,7 @@ function MappingContent({ route }: ScreenProps) {
                     <td>
                       {acting && row.canDecide ? (
                         <>
-                          <button type="button" className="primary" data-action="confirm" onClick={() => setDialog({ kind: 'decide', mapping: row, decision: 'CONFIRMED' })}>
+                          <button type="button" className="ui-button ui-button--primary" data-action="confirm" onClick={() => setDialog({ kind: 'decide', mapping: row, decision: 'CONFIRMED' })}>
                             {t('dgv.source.confirm.action')}
                           </button>{' '}
                           <button type="button" data-action="reject" onClick={() => setDialog({ kind: 'decide', mapping: row, decision: 'REJECTED' })}>

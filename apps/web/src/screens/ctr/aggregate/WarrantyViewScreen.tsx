@@ -8,6 +8,7 @@ import { amountText } from '../model';
 import { ViewFrame } from './ViewFrame';
 import { useViewScope, useWarranties } from './hooks';
 import { ownerLink, runningWarranties } from './model';
+import { SectionCard } from '../../../ui';
 
 /**
  * CTR-16: the warranty of the work of a contract and the defects left to put right, read-only (ST-CTR-017, CTR section 7). AST owns the obligations and their claims (AST-04, AST-05). The
@@ -40,7 +41,7 @@ function WarrantyContent({ route }: ScreenProps) {
           <p className="callout" role="status" data-testid="running">
             {t('ctr.warrantyView.running.notice', { running: runningWarranties(data).length, total: data.length })}
           </p>
-          <article className="card" aria-label={t('ctr.warrantyView.table.label')}>
+          <SectionCard title={t('ctr.warrantyView.table.label')}>
             <table className="table" data-testid="warranties">
               <thead>
                 <tr>
@@ -99,7 +100,7 @@ function WarrantyContent({ route }: ScreenProps) {
                 ))}
               </tbody>
             </table>
-          </article>
+          </SectionCard>
           <p className="sub" data-testid="release-note">
             {t('ctr.warrantyView.release.notice')}
           </p>

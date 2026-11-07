@@ -5,6 +5,9 @@ import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { useTypePolicies } from './hooks';
 import { scopeExplanation, scopeLabel } from './labels';
+import { SectionCard } from '../../ui';
+import { KitTable } from '../adm/KitTable';
+import '../adm/adm-kit.css';
 import './mdm.css';
 import type { TypeScope } from './model';
 
@@ -30,7 +33,7 @@ function MasterScopeContent({ route }: ScreenProps) {
       </div>
       <StateBoundary state={state} onRetry={() => void policies.refetch()}>
         <div className="card">
-          <table className="table">
+          <KitTable caption={t('w2mdm.scope.table.caption')}>
             <thead>
               <tr>
                 <th>{t('mdm.scope.col.type')}</th>
@@ -58,10 +61,9 @@ function MasterScopeContent({ route }: ScreenProps) {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </KitTable>
         </div>
-        <div className="card" aria-label={t('mdm.scope.legend.title')}>
-          <h2>{t('mdm.scope.legend.title')}</h2>
+        <SectionCard title={t('mdm.scope.legend.title')}>
           <dl>
             {SCOPES.map((scope) => (
               <div key={scope}>
@@ -71,7 +73,7 @@ function MasterScopeContent({ route }: ScreenProps) {
             ))}
           </dl>
           <p className="sub">{t('mdm.scope.alias.note')}</p>
-        </div>
+        </SectionCard>
       </StateBoundary>
       <p className="prototype-note">{t('mdm.scope.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>

@@ -11,6 +11,9 @@ import { useDraftRubric, usePublishRubric, useRubrics } from './hooks';
 import { pillarLabel, problemMessage, rubricStatusLabel } from './labels';
 import { EMPTY_RUBRIC, MANAGE_PERMISSION, PUBLISH_PERMISSION, describeMaturityProblem, personName, rubricTemplate, validateRubric } from './model';
 import type { FormProblem, Rubric, RubricField, RubricForm } from './model';
+import '../dgv-kit.css';
+import { StatusPill } from '../../../ui';
+import { pillTone } from '../pill-tone';
 
 const holds = (permissions: readonly string[] | undefined, permission: string, mode: string | undefined): boolean =>
   mode !== 'READ_ONLY' && (permissions === undefined || permissions.includes(permission));
@@ -78,7 +81,7 @@ function RubricView({ rubric, mayPublish }: { rubric: Rubric; mayPublish: boolea
         <div>
           <dt>{t('dgv.maturity.rubric.status')}</dt>
           <dd>
-            <span className={`pill ${rubric.status === 'PUBLISHED' ? 'green' : 'gray'}`}>{rubricStatusLabel(t, rubric.status)}</span>
+            <StatusPill tone={pillTone(rubric.status === 'PUBLISHED' ? 'green' : 'gray')}>{rubricStatusLabel(t, rubric.status)}</StatusPill>
           </dd>
         </div>
         <div>
@@ -151,7 +154,7 @@ function RubricView({ rubric, mayPublish }: { rubric: Rubric; mayPublish: boolea
       )}
       {mayPublish && rubric.status === 'DRAFT' ? (
         <div className="formfooter">
-          <button type="button" className="primary" disabled={publish.isPending} onClick={() => publish.mutate({ id: rubric.id, version: rubric.version })}>
+          <button type="button" className="ui-button ui-button--primary" disabled={publish.isPending} onClick={() => publish.mutate({ id: rubric.id, version: rubric.version })}>
             {t('dgv.maturity.rubric.publish')}
           </button>
         </div>
@@ -221,7 +224,7 @@ function DraftPanel() {
         <button type="button" onClick={() => set({ frameworkRefs: rubricTemplate().frameworkRefs, pillars: rubricTemplate().pillars })}>
           {t('dgv.maturity.draft.template')}
         </button>
-        <button type="submit" className="primary" disabled={send.isPending}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={send.isPending}>
           {t('dgv.maturity.draft.submit')}
         </button>
       </div>

@@ -4,6 +4,7 @@ import type { WebRoute } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { holds } from './model';
+import '../dgv-kit.css';
 
 /** The page of a governance view: its heading, what it reads and where it stands, with the footer that names the screen. */
 export function Frame({ route, title, subtitle, children }: { route: WebRoute; title: string; subtitle: string; children: ReactNode }) {

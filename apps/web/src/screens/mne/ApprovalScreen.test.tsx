@@ -60,6 +60,13 @@ afterEach(cleanup);
 
 describe('MNE-05 review, approval and issue (ST-MNE-003)', () => {
   describe('AC-ST-MNE-003-3: UI-MNE-05 the content, the decision and the document', () => {
+    it('writes the state of the report as a pill with its word and puts the decision in a section card with its own title', async () => {
+      mount(<ApprovalScreen route={ROUTE} />, client(reportBody()), { permissions: REVIEW }, OPEN);
+      await screen.findByText('Báo cáo giám sát, đánh giá tổng thể 6 tháng');
+      expect(within(screen.getByTestId('report-status')).getByText(vi_['mne.calendar.status.inReview']).closest('.ui-pill')?.className).toContain('ui-tone-info');
+      expect(screen.getByRole('heading', { level: 2, name: vi_['mne.approval.decision.title'] })).toBeTruthy();
+    });
+
     it('AC-ST-MNE-003-3: UI-MNE-05 shows the report, its snapshot, its cells and the label of the confirmation it waits for', async () => {
       mount(<ApprovalScreen route={ROUTE} />, client(reportBody()), { permissions: REVIEW }, OPEN);
       expect(await screen.findByText('Báo cáo giám sát, đánh giá tổng thể 6 tháng')).toBeTruthy();
