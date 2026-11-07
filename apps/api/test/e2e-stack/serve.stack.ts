@@ -56,6 +56,7 @@ import { PermissionResourceAccess } from '../../src/notifications/resource-acces
 import { FileService } from '../../src/modules/files';
 import { DOCUMENT_FILE_PORT } from '../../src/modules/doc/file-port';
 import { DOC_REVOCATION, DOC_SIGNING_PORT, DOC_TRUST_STORE } from '../../src/modules/doc/tokens';
+import { seedDocsSigning } from './docs-signing';
 import { seedOutgoingDocuments } from './outgoing-seed';
 import type { OutgoingSeed } from './outgoing-seed';
 import { createOutboxConsumers } from '../../src/workers/outbox-consumers';
@@ -1766,7 +1767,11 @@ describe('e2e API stack', () => {
       await seedPlacement(database);
       // Outgoing documents of tenant A with a signed PDF, a certificate authority of the test and a signing adapter that approves by itself.
       const outgoing: OutgoingSeed = DOCS
-        ? ({ documents: { visualSubmitted: '', flowSubmitted: '', visualSigned: '' } } as unknown as OutgoingSeed)
+        ? ({
+            // The guide stack holds no document, but DOC issues them through its real chain: it needs the signing infrastructure (a test authority and two certificates).
+            ...(await seedDocsSigning({ database, tenantId: fixtures.tenants.A, signerMembershipId: userKey('capApprover').membershipId, organizationUnitId: unitId(1) })),
+            documents: { visualSubmitted: '', flowSubmitted: '', visualSigned: '' },
+          } as unknown as OutgoingSeed)
         : await seedOutgoingDocuments({
         database,
         tenants,

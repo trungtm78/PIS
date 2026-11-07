@@ -40,7 +40,9 @@ const config: PlaywrightTestConfig = {
     { name: 'dang-nhap', testMatch: '01-*.hdsd.ts' },
     { name: 'dia-ban', testMatch: '02-*.hdsd.ts', dependencies: ['dang-nhap'] },
     { name: 'du-an', testMatch: '03-*.hdsd.ts', dependencies: ['dia-ban'] },
-    { name: 'tham-quan', testMatch: 'tours.hdsd.ts', dependencies: ['du-an'], fullyParallel: true },
+    // Not a clip: the business data every other screen of the tours shows, made through the commands of the product (e2e/hdsd/seed).
+    { name: 'du-lieu', testMatch: '04-*.hdsd.ts', dependencies: ['du-an'] },
+    { name: 'tham-quan', testMatch: 'tours.hdsd.ts', dependencies: ['du-lieu'], fullyParallel: true },
   ],
   // A chapter that failed is filmed once more (a service that was busy, a page that was slow); a chapter that still fails does not stop the others.
   retries: 1,

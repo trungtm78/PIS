@@ -229,7 +229,7 @@ export const sameBounds = (left, right) => left !== undefined && right !== undef
 /** A text typed with `adb shell input text`: the spaces become %s and the signs the shell reads are escaped. Only ASCII can be typed this way. */
 export function inputTextOf(text) {
   if (/[^\x20-\x7e]/u.test(text)) throw new Error(`only ASCII can be typed with input text: ${text}`);
-  return text.replace(/([\\"'`$&|;<>()*?#~[\]{}!^])/gu, '\$1').replace(/ /gu, '%s');
+  return text.replace(/([\\"'`$&|;<>()*?#~[\]{}!^])/gu, '\\$1').replace(/ /gu, '%s');
 }
 
 /**

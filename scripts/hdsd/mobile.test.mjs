@@ -66,7 +66,7 @@ test('a node is the same when it has not moved; text for the keyboard is escaped
   assert.equal(sameBounds(a, { bounds: { ...a.bounds } }), true);
   assert.equal(sameBounds(a, { bounds: { ...a.bounds, top: 9 } }), false);
   assert.equal(sameBounds(a, undefined), false);
-  assert.equal(inputTextOf('Km3 & (ghi chu)'), 'Km3%s\&%s\(ghi%schu\)');
+  assert.equal(inputTextOf('Km3 & (ghi chu)'), 'Km3%s\\&%s\\(ghi%schu\\)');
   assert.throws(() => inputTextOf('Đường'), /only ASCII/u);
 });
 

@@ -38,3 +38,11 @@ docs/hdsd/machvon/clips/
 docs/hdsd/machvon/img/
 docs/hdsd/machvon/*.html
 docs/hdsd/Huong-dan-su-dung-MACHVON.html
+
+# Generated outputs of the guide builder (rebuilt by scripts/hdsd; the scripts and the flow sources stay tracked).
+docs/hdsd/machvon/*.timeline.json
+docs/hdsd/machvon/*.vtt
+docs/hdsd/Huong-dan-su-dung-*.html
+apps/mobile/qa/device/results/
+test-results/
+diag-tmp/
