@@ -20,7 +20,7 @@ export interface Flow {
   steps: FlowStep[];
 }
 
-interface AudioIndex {
+export interface AudioIndex {
   steps: Record<string, { durationMs: number }>;
 }
 
@@ -113,6 +113,31 @@ export class Ui {
   wait(ms: number): Promise<void> {
     return this.page.waitForTimeout(ms);
   }
+
+  /** Scrolls the part of the screen that scrolls, slowly from its top to its end over `ms`, so that the person sees all of it while the voice speaks. */
+  async scrollThrough(ms: number): Promise<void> {
+    const steps = Math.max(1, Math.floor(ms / 250));
+    const distance = await this.page.evaluate(() => {
+      const candidates = [document.scrollingElement, ...Array.from(document.querySelectorAll('main, [data-screen-id], .workspace-main, .page-content'))].filter((element): element is Element => element !== null);
+      const scroller = candidates.reduce((best, element) => (element.scrollHeight - element.clientHeight > best.scrollHeight - best.clientHeight ? element : best), candidates[0] as Element);
+      (window as unknown as { __hdsdScroller: Element }).__hdsdScroller = scroller;
+      scroller.scrollTop = 0;
+      return Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+    });
+    if (distance < 40) {
+      await this.page.waitForTimeout(ms);
+      return;
+    }
+    for (let index = 1; index <= steps; index += 1) {
+      await this.page.evaluate((top) => ((window as unknown as { __hdsdScroller: Element }).__hdsdScroller.scrollTop = top), Math.round((distance * index) / steps));
+      await this.page.waitForTimeout(250);
+    }
+  }
+}
+
+/** What a step is told: how long the voice of the step lasts, so that the action can be paced to it. */
+export interface StepContext {
+  budgetMs: number;
 }
 
 /** One recording: a browser context that films, the steps of the flow in order, and the timeline the clip is cut and captioned from. */
@@ -124,17 +149,18 @@ export class Clip {
   private page: Page | undefined;
   private context: BrowserContext | undefined;
 
-  constructor(readonly flow: Flow, private readonly browser: Browser) {
-    this.audio = loadAudio(flow.id);
+  /** `recording` false is a replay: the actions run (so that the data they make exists) without film, voice, pauses or pictures. */
+  constructor(readonly flow: Flow, private readonly browser: Browser, audio?: AudioIndex, private readonly recording = true) {
+    this.audio = audio ?? (recording ? loadAudio(flow.id) : { steps: {} });
     this.dir = join(CACHE, 'rec', flow.id);
-    mkdirSync(join(this.dir, 'shots'), { recursive: true });
+    if (recording) mkdirSync(join(this.dir, 'shots'), { recursive: true });
   }
 
   async open(): Promise<Ui> {
     this.context = await this.browser.newContext({
       viewport: VIEWPORT,
       locale: 'vi-VN',
-      recordVideo: { dir: join(this.dir, 'raw'), size: VIEWPORT },
+      ...(this.recording ? { recordVideo: { dir: join(this.dir, 'raw'), size: VIEWPORT } } : {}),
     });
     await this.context.addInitScript(CURSOR_SCRIPT);
     this.startedAt = Date.now();
@@ -148,12 +174,16 @@ export class Clip {
   }
 
   /** Runs one step: the action, then waiting until the voice has said everything the step says. */
-  async step(id: string, act: (ui: Ui) => Promise<void>): Promise<void> {
+  async step(id: string, act: (ui: Ui, context: StepContext) => Promise<void>): Promise<void> {
+    if (!this.recording) {
+      await act(new Ui(this.currentPage), { budgetMs: 0 });
+      return;
+    }
     const step = this.flow.steps.find((candidate) => candidate.id === id);
     const audio = this.audio.steps[id];
     if (step === undefined || audio === undefined) throw new Error(`the step ${id} is not in the flow or has no voice: run scripts/hdsd/tts.mjs first`);
     const startMs = Date.now() - this.startedAt;
-    await act(new Ui(this.currentPage));
+    await act(new Ui(this.currentPage), { budgetMs: audio.durationMs + VOICE_DELAY_MS });
     const voiceMs = startMs + VOICE_DELAY_MS;
     const wanted = voiceMs + audio.durationMs + TAIL_MS;
     const now = Date.now() - this.startedAt;
@@ -165,6 +195,10 @@ export class Clip {
 
   /** Closes the recording and keeps the video and the timeline where the next stage finds them. */
   async finish(): Promise<void> {
+    if (!this.recording) {
+      await this.context?.close();
+      return;
+    }
     const video = this.currentPage.video();
     await this.context?.close();
     if (video === null) throw new Error('the page was not recorded');

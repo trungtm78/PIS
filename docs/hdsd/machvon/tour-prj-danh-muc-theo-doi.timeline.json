@@ -1,0 +1,115 @@
+{
+  "flow": "tour-prj-danh-muc-theo-doi",
+  "timeline": [
+    {
+      "id": "prj-01",
+      "heading": "Danh sách dự án",
+      "screens": [
+        "PRJ-01"
+      ],
+      "startMs": 78,
+      "endMs": 24712,
+      "voiceMs": 478
+    },
+    {
+      "id": "prj-02",
+      "heading": "Tạo dự án",
+      "screens": [
+        "PRJ-02"
+      ],
+      "startMs": 24712,
+      "endMs": 48407,
+      "voiceMs": 25112
+    },
+    {
+      "id": "prj-03",
+      "heading": "Không gian dự án",
+      "screens": [
+        "PRJ-03"
+      ],
+      "startMs": 48407,
+      "endMs": 56386,
+      "voiceMs": 48807
+    },
+    {
+      "id": "prj-07",
+      "heading": "Tiến độ và mốc",
+      "screens": [
+        "PRJ-07"
+      ],
+      "startMs": 56386,
+      "endMs": 71394,
+      "voiceMs": 56786
+    },
+    {
+      "id": "prj-08",
+      "heading": "Nhóm thực hiện",
+      "screens": [
+        "PRJ-08"
+      ],
+      "startMs": 71394,
+      "endMs": 88173,
+      "voiceMs": 71794
+    },
+    {
+      "id": "prj-13",
+      "heading": "Theo dõi dự án tháng",
+      "screens": [
+        "PRJ-13"
+      ],
+      "startMs": 88173,
+      "endMs": 103567,
+      "voiceMs": 88573
+    },
+    {
+      "id": "prj-14",
+      "heading": "Ngân hàng dự án và vòng đời PIMA",
+      "screens": [
+        "PRJ-14"
+      ],
+      "startMs": 103567,
+      "endMs": 127765,
+      "voiceMs": 103967
+    },
+    {
+      "id": "prj-16",
+      "heading": "Sổ đăng ký rủi ro dự án",
+      "screens": [
+        "PRJ-16"
+      ],
+      "startMs": 127765,
+      "endMs": 155222,
+      "voiceMs": 128165
+    },
+    {
+      "id": "prj-17",
+      "heading": "Phân công lãnh đạo phụ trách",
+      "screens": [
+        "PRJ-17"
+      ],
+      "startMs": 155222,
+      "endMs": 175971,
+      "voiceMs": 155622
+    },
+    {
+      "id": "prj-18",
+      "heading": "Tổ công tác đôn đốc giải ngân",
+      "screens": [
+        "PRJ-18"
+      ],
+      "startMs": 175971,
+      "endMs": 194503,
+      "voiceMs": 176371
+    },
+    {
+      "id": "prj-21",
+      "heading": "Mã dự án trên Hệ thống TTQG về ĐTC",
+      "screens": [
+        "PRJ-21"
+      ],
+      "startMs": 194503,
+      "endMs": 226332,
+      "voiceMs": 194903
+    }
+  ]
+}

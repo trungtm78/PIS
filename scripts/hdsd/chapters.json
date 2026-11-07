@@ -1,0 +1,1078 @@
+[
+  {
+    "id": "01-dang-nhap",
+    "kind": "flow"
+  },
+  {
+    "id": "tour-iam-khong-gian-ca-nhan",
+    "kind": "tour",
+    "module": "IAM",
+    "group": "Không gian cá nhân",
+    "title": "Truy cập và cá nhân: Không gian cá nhân",
+    "screens": [
+      "IAM-04",
+      "IAM-05",
+      "IAM-06",
+      "IAM-09"
+    ]
+  },
+  {
+    "id": "tour-iam-tra-cuu-ho-tro",
+    "kind": "tour",
+    "module": "IAM",
+    "group": "Tra cứu & hỗ trợ",
+    "title": "Truy cập và cá nhân: Tra cứu & hỗ trợ",
+    "screens": [
+      "IAM-07",
+      "IAM-08"
+    ]
+  },
+  {
+    "id": "tour-iam-truy-cap",
+    "kind": "tour",
+    "module": "IAM",
+    "group": "Truy cập",
+    "title": "Truy cập và cá nhân: Truy cập",
+    "screens": [
+      "IAM-01",
+      "IAM-02",
+      "IAM-03"
+    ]
+  },
+  {
+    "id": "tour-adm-to-chuc-con-nguoi",
+    "kind": "tour",
+    "module": "ADM",
+    "group": "Tổ chức & con người",
+    "title": "Quản trị tenant: Tổ chức & con người",
+    "screens": [
+      "ADM-01",
+      "ADM-02",
+      "ADM-03",
+      "ADM-04",
+      "ADM-15",
+      "ADM-16",
+      "ADM-17"
+    ]
+  },
+  {
+    "id": "tour-adm-quy-trinh-cau-hinh",
+    "kind": "tour",
+    "module": "ADM",
+    "group": "Quy trình & cấu hình",
+    "title": "Quản trị tenant: Quy trình & cấu hình",
+    "screens": [
+      "ADM-05",
+      "ADM-06",
+      "ADM-07",
+      "ADM-08",
+      "ADM-18"
+    ]
+  },
+  {
+    "id": "tour-adm-tich-hop-an-toan",
+    "kind": "tour",
+    "module": "ADM",
+    "group": "Tích hợp & an toàn",
+    "title": "Quản trị tenant: Tích hợp & an toàn",
+    "screens": [
+      "ADM-09",
+      "ADM-10",
+      "ADM-11",
+      "ADM-12",
+      "ADM-13",
+      "ADM-14"
+    ]
+  },
+  {
+    "id": "tour-mdm-to-chuc-dau-tu",
+    "kind": "tour",
+    "module": "MDM",
+    "group": "Tổ chức & đầu tư",
+    "title": "Dữ liệu chủ và danh mục: Tổ chức & đầu tư",
+    "screens": [
+      "MDM-01",
+      "MDM-02",
+      "MDM-03",
+      "MDM-04",
+      "MDM-05",
+      "MDM-06",
+      "MDM-07",
+      "MDM-08",
+      "MDM-09",
+      "MDM-37"
+    ]
+  },
+  {
+    "id": "tour-mdm-nghiep-vu-quy-uoc",
+    "kind": "tour",
+    "module": "MDM",
+    "group": "Nghiệp vụ & quy ước",
+    "title": "Dữ liệu chủ và danh mục: Nghiệp vụ & quy ước",
+    "screens": [
+      "MDM-10",
+      "MDM-11",
+      "MDM-12",
+      "MDM-13",
+      "MDM-14",
+      "MDM-15",
+      "MDM-16",
+      "MDM-17",
+      "MDM-18",
+      "MDM-19",
+      "MDM-20"
+    ]
+  },
+  {
+    "id": "tour-mdm-lien-thong-chinh-sach",
+    "kind": "tour",
+    "module": "MDM",
+    "group": "Liên thông & chính sách",
+    "title": "Dữ liệu chủ và danh mục: Liên thông & chính sách",
+    "screens": [
+      "MDM-21",
+      "MDM-22",
+      "MDM-23",
+      "MDM-24",
+      "MDM-33"
+    ]
+  },
+  {
+    "id": "tour-mdm-vong-doi-danh-muc",
+    "kind": "tour",
+    "module": "MDM",
+    "group": "Vòng đời danh mục",
+    "title": "Dữ liệu chủ và danh mục: Vòng đời danh mục",
+    "screens": [
+      "MDM-25",
+      "MDM-26",
+      "MDM-27",
+      "MDM-28",
+      "MDM-29",
+      "MDM-30",
+      "MDM-31",
+      "MDM-32",
+      "MDM-34",
+      "MDM-35",
+      "MDM-36"
+    ]
+  },
+  {
+    "id": "tour-sas-tenant-thuong-hieu",
+    "kind": "tour",
+    "module": "SAS",
+    "group": "Tenant & thương hiệu",
+    "title": "SaaS và tenant: Tenant & thương hiệu",
+    "screens": [
+      "SAS-01",
+      "SAS-02",
+      "SAS-03",
+      "SAS-04",
+      "SAS-05",
+      "SAS-22"
+    ]
+  },
+  {
+    "id": "tour-sas-thuong-mai-thue-bao",
+    "kind": "tour",
+    "module": "SAS",
+    "group": "Thương mại & thuê bao",
+    "title": "SaaS và tenant: Thương mại & thuê bao",
+    "screens": [
+      "SAS-06",
+      "SAS-07",
+      "SAS-08",
+      "SAS-09",
+      "SAS-10",
+      "SAS-11",
+      "SAS-24"
+    ]
+  },
+  {
+    "id": "tour-sas-license-quyen-su-dung",
+    "kind": "tour",
+    "module": "SAS",
+    "group": "License & quyền sử dụng",
+    "title": "SaaS và tenant: License & quyền sử dụng",
+    "screens": [
+      "SAS-12",
+      "SAS-13",
+      "SAS-14",
+      "SAS-15",
+      "SAS-16",
+      "SAS-25"
+    ]
+  },
+  {
+    "id": "tour-sas-van-hanh-nen-tang",
+    "kind": "tour",
+    "module": "SAS",
+    "group": "Vận hành nền tảng",
+    "title": "SaaS và tenant: Vận hành nền tảng",
+    "screens": [
+      "SAS-17",
+      "SAS-18",
+      "SAS-19",
+      "SAS-20",
+      "SAS-21",
+      "SAS-23"
+    ]
+  },
+  {
+    "id": "tour-prj-danh-muc-theo-doi",
+    "kind": "tour",
+    "module": "PRJ",
+    "group": "Danh mục & theo dõi",
+    "title": "Danh mục dự án: Danh mục & theo dõi",
+    "screens": [
+      "PRJ-01",
+      "PRJ-02",
+      "PRJ-03",
+      "PRJ-07",
+      "PRJ-08",
+      "PRJ-13",
+      "PRJ-14",
+      "PRJ-16",
+      "PRJ-17",
+      "PRJ-18",
+      "PRJ-21"
+    ]
+  },
+  {
+    "id": "tour-prj-chuan-bi-dau-tu",
+    "kind": "tour",
+    "module": "PRJ",
+    "group": "Chuẩn bị đầu tư",
+    "title": "Danh mục dự án: Chuẩn bị đầu tư",
+    "screens": [
+      "PRJ-04",
+      "PRJ-09",
+      "PRJ-10",
+      "PRJ-15"
+    ]
+  },
+  {
+    "id": "tour-prj-thuc-hien-ket-thuc",
+    "kind": "tour",
+    "module": "PRJ",
+    "group": "Thực hiện & kết thúc",
+    "title": "Danh mục dự án: Thực hiện & kết thúc",
+    "screens": [
+      "PRJ-05",
+      "PRJ-06",
+      "PRJ-11",
+      "PRJ-12",
+      "PRJ-19",
+      "PRJ-20"
+    ]
+  },
+  {
+    "id": "tour-cap-ke-hoach-von",
+    "kind": "tour",
+    "module": "CAP",
+    "group": "Kế hoạch vốn",
+    "title": "Kế hoạch và nguồn vốn: Kế hoạch vốn",
+    "screens": [
+      "CAP-01",
+      "CAP-02",
+      "CAP-03",
+      "CAP-10",
+      "CAP-15",
+      "CAP-21"
+    ]
+  },
+  {
+    "id": "tour-cap-nguon-phan-bo",
+    "kind": "tour",
+    "module": "CAP",
+    "group": "Nguồn & phân bổ",
+    "title": "Kế hoạch và nguồn vốn: Nguồn & phân bổ",
+    "screens": [
+      "CAP-04",
+      "CAP-05",
+      "CAP-06",
+      "CAP-07",
+      "CAP-09",
+      "CAP-14",
+      "CAP-16",
+      "CAP-17",
+      "CAP-18",
+      "CAP-19"
+    ]
+  },
+  {
+    "id": "tour-cap-dieu-hanh-theo-ky",
+    "kind": "tour",
+    "module": "CAP",
+    "group": "Điều hành theo kỳ",
+    "title": "Kế hoạch và nguồn vốn: Điều hành theo kỳ",
+    "screens": [
+      "CAP-08",
+      "CAP-11",
+      "CAP-12",
+      "CAP-13",
+      "CAP-20"
+    ]
+  },
+  {
+    "id": "tour-bid-nha-thau-lua-chon",
+    "kind": "tour",
+    "module": "BID",
+    "group": "Nhà thầu & lựa chọn",
+    "title": "Nhà thầu và phân tích AI: Nhà thầu & lựa chọn",
+    "screens": [
+      "BID-01",
+      "BID-02",
+      "BID-03",
+      "BID-15",
+      "BID-16",
+      "BID-17",
+      "BID-18",
+      "BID-19",
+      "BID-20",
+      "BID-21"
+    ]
+  },
+  {
+    "id": "tour-bid-chuan-bi-phan-tich",
+    "kind": "tour",
+    "module": "BID",
+    "group": "Chuẩn bị phân tích",
+    "title": "Nhà thầu và phân tích AI: Chuẩn bị phân tích",
+    "screens": [
+      "BID-04",
+      "BID-05",
+      "BID-06",
+      "BID-07",
+      "BID-08"
+    ]
+  },
+  {
+    "id": "tour-bid-tham-tra-ket-qua",
+    "kind": "tour",
+    "module": "BID",
+    "group": "Thẩm tra & kết quả",
+    "title": "Nhà thầu và phân tích AI: Thẩm tra & kết quả",
+    "screens": [
+      "BID-09",
+      "BID-10",
+      "BID-11",
+      "BID-12",
+      "BID-13",
+      "BID-14"
+    ]
+  },
+  {
+    "id": "tour-ctr-hop-dong-dieu-khoan",
+    "kind": "tour",
+    "module": "CTR",
+    "group": "Hợp đồng & điều khoản",
+    "title": "Hợp đồng và thực hiện: Hợp đồng & điều khoản",
+    "screens": [
+      "CTR-01",
+      "CTR-02",
+      "CTR-03",
+      "CTR-04",
+      "CTR-05",
+      "CTR-06",
+      "CTR-20",
+      "CTR-21",
+      "CTR-25",
+      "CTR-26"
+    ]
+  },
+  {
+    "id": "tour-ctr-thuc-hien-thay-doi",
+    "kind": "tour",
+    "module": "CTR",
+    "group": "Thực hiện & thay đổi",
+    "title": "Hợp đồng và thực hiện: Thực hiện & thay đổi",
+    "screens": [
+      "CTR-07",
+      "CTR-08",
+      "CTR-09",
+      "CTR-10",
+      "CTR-11",
+      "CTR-14",
+      "CTR-19",
+      "CTR-22"
+    ]
+  },
+  {
+    "id": "tour-ctr-nghiem-thu-ket-thuc",
+    "kind": "tour",
+    "module": "CTR",
+    "group": "Nghiệm thu & kết thúc",
+    "title": "Hợp đồng và thực hiện: Nghiệm thu & kết thúc",
+    "screens": [
+      "CTR-12",
+      "CTR-13",
+      "CTR-15",
+      "CTR-16",
+      "CTR-17",
+      "CTR-18",
+      "CTR-23",
+      "CTR-24"
+    ]
+  },
+  {
+    "id": "tour-dis-lap-gui-bao-cao",
+    "kind": "tour",
+    "module": "DIS",
+    "group": "Lập & gửi báo cáo",
+    "title": "Báo cáo giải ngân: Lập & gửi báo cáo",
+    "screens": [
+      "DIS-01",
+      "DIS-02",
+      "DIS-03",
+      "DIS-04",
+      "DIS-05",
+      "DIS-06",
+      "DIS-07",
+      "DIS-08",
+      "DIS-09",
+      "DIS-10",
+      "DIS-18"
+    ]
+  },
+  {
+    "id": "tour-dis-tong-hop-phan-tich",
+    "kind": "tour",
+    "module": "DIS",
+    "group": "Tổng hợp & phân tích",
+    "title": "Báo cáo giải ngân: Tổng hợp & phân tích",
+    "screens": [
+      "DIS-11",
+      "DIS-12",
+      "DIS-13",
+      "DIS-16",
+      "DIS-17",
+      "DIS-19",
+      "DIS-23",
+      "DIS-24"
+    ]
+  },
+  {
+    "id": "tour-dis-quan-ly-ky-bao-cao",
+    "kind": "tour",
+    "module": "DIS",
+    "group": "Quản lý kỳ báo cáo",
+    "title": "Báo cáo giải ngân: Quản lý kỳ báo cáo",
+    "screens": [
+      "DIS-14",
+      "DIS-15",
+      "DIS-20",
+      "DIS-21",
+      "DIS-22",
+      "DIS-25"
+    ]
+  },
+  {
+    "id": "tour-mne-lich-bieu-mau",
+    "kind": "tour",
+    "module": "MNE",
+    "group": "Lịch & biểu mẫu",
+    "title": "Giám sát, đánh giá đầu tư: Lịch & biểu mẫu",
+    "screens": [
+      "MNE-01",
+      "MNE-02"
+    ]
+  },
+  {
+    "id": "tour-mne-lap-phat-hanh",
+    "kind": "tour",
+    "module": "MNE",
+    "group": "Lập & phát hành",
+    "title": "Giám sát, đánh giá đầu tư: Lập & phát hành",
+    "screens": [
+      "MNE-03",
+      "MNE-04",
+      "MNE-07",
+      "MNE-08",
+      "MNE-05",
+      "MNE-06"
+    ]
+  },
+  {
+    "id": "tour-mne-theo-doi-lich-su",
+    "kind": "tour",
+    "module": "MNE",
+    "group": "Theo dõi & lịch sử",
+    "title": "Giám sát, đánh giá đầu tư: Theo dõi & lịch sử",
+    "screens": [
+      "MNE-09",
+      "MNE-10"
+    ]
+  },
+  {
+    "id": "tour-pay-ho-so-thanh-toan",
+    "kind": "tour",
+    "module": "PAY",
+    "group": "Hồ sơ thanh toán",
+    "title": "Thanh toán và Kho bạc: Hồ sơ thanh toán",
+    "screens": [
+      "PAY-01",
+      "PAY-02",
+      "PAY-03",
+      "PAY-04",
+      "PAY-11"
+    ]
+  },
+  {
+    "id": "tour-pay-doi-soat-kiem-soat",
+    "kind": "tour",
+    "module": "PAY",
+    "group": "Đối soát & kiểm soát",
+    "title": "Thanh toán và Kho bạc: Đối soát & kiểm soát",
+    "screens": [
+      "PAY-05",
+      "PAY-06",
+      "PAY-07",
+      "PAY-08",
+      "PAY-10",
+      "PAY-12"
+    ]
+  },
+  {
+    "id": "tour-pay-theo-doi-lien-thong",
+    "kind": "tour",
+    "module": "PAY",
+    "group": "Theo dõi liên thông",
+    "title": "Thanh toán và Kho bạc: Theo dõi liên thông",
+    "screens": [
+      "PAY-09",
+      "PAY-13",
+      "PAY-14",
+      "PAY-17"
+    ]
+  },
+  {
+    "id": "tour-pay-quyet-toan",
+    "kind": "tour",
+    "module": "PAY",
+    "group": "Quyết toán",
+    "title": "Thanh toán và Kho bạc: Quyết toán",
+    "screens": [
+      "PAY-15",
+      "PAY-16"
+    ]
+  },
+  {
+    "id": "tour-iss-tiep-nhan-xu-ly",
+    "kind": "tour",
+    "module": "ISS",
+    "group": "Tiếp nhận & xử lý",
+    "title": "Vướng mắc và hiện trường: Tiếp nhận & xử lý",
+    "screens": [
+      "ISS-01",
+      "ISS-02",
+      "ISS-03",
+      "ISS-04",
+      "ISS-07",
+      "ISS-09",
+      "ISS-10"
+    ]
+  },
+  {
+    "id": "tour-iss-giam-sat-hien-truong",
+    "kind": "tour",
+    "module": "ISS",
+    "group": "Giám sát hiện trường",
+    "title": "Vướng mắc và hiện trường: Giám sát hiện trường",
+    "screens": [
+      "ISS-05",
+      "ISS-06",
+      "ISS-08",
+      "ISS-11"
+    ]
+  },
+  {
+    "id": "tour-qms-nhat-ky-thi-cong",
+    "kind": "tour",
+    "module": "QMS",
+    "group": "Nhật ký thi công",
+    "title": "Chất lượng, nhật ký thi công, nghiệm thu: Nhật ký thi công",
+    "screens": [
+      "QMS-01",
+      "QMS-02",
+      "QMS-03",
+      "QMS-11"
+    ]
+  },
+  {
+    "id": "tour-qms-chat-luong-nghiem-thu",
+    "kind": "tour",
+    "module": "QMS",
+    "group": "Chất lượng & nghiệm thu",
+    "title": "Chất lượng, nhật ký thi công, nghiệm thu: Chất lượng & nghiệm thu",
+    "screens": [
+      "QMS-04",
+      "QMS-05",
+      "QMS-06",
+      "QMS-07",
+      "QMS-08"
+    ]
+  },
+  {
+    "id": "tour-lnd-tong-quan-thua-dat",
+    "kind": "tour",
+    "module": "LND",
+    "group": "Tổng quan & thửa đất",
+    "title": "GPMB, bồi thường, TĐC: Tổng quan & thửa đất",
+    "screens": [
+      "LND-01",
+      "LND-02",
+      "LND-03"
+    ]
+  },
+  {
+    "id": "tour-lnd-kiem-dem-phuong-an",
+    "kind": "tour",
+    "module": "LND",
+    "group": "Kiểm đếm & phương án",
+    "title": "GPMB, bồi thường, TĐC: Kiểm đếm & phương án",
+    "screens": [
+      "LND-04",
+      "LND-05",
+      "LND-06",
+      "LND-07"
+    ]
+  },
+  {
+    "id": "tour-lnd-xu-ly-ban-giao",
+    "kind": "tour",
+    "module": "LND",
+    "group": "Xử lý & bàn giao",
+    "title": "GPMB, bồi thường, TĐC: Xử lý & bàn giao",
+    "screens": [
+      "LND-08",
+      "LND-09",
+      "LND-10",
+      "LND-11"
+    ]
+  },
+  {
+    "id": "tour-lnd-tai-dinh-cu-du-lieu-ca-nhan",
+    "kind": "tour",
+    "module": "LND",
+    "group": "Tái định cư & dữ liệu cá nhân",
+    "title": "GPMB, bồi thường, TĐC: Tái định cư & dữ liệu cá nhân",
+    "screens": [
+      "LND-12",
+      "LND-13"
+    ]
+  },
+  {
+    "id": "tour-ast-ban-giao-tai-san",
+    "kind": "tour",
+    "module": "AST",
+    "group": "Bàn giao tài sản",
+    "title": "Bàn giao tài sản và bảo hành: Bàn giao tài sản",
+    "screens": [
+      "AST-01",
+      "AST-02",
+      "AST-03"
+    ]
+  },
+  {
+    "id": "tour-ast-bao-hanh-van-hanh",
+    "kind": "tour",
+    "module": "AST",
+    "group": "Bảo hành & vận hành",
+    "title": "Bàn giao tài sản và bảo hành: Bảo hành & vận hành",
+    "screens": [
+      "AST-04",
+      "AST-05",
+      "AST-06",
+      "AST-07"
+    ]
+  },
+  {
+    "id": "tour-pmt-ho-so-canh-bao",
+    "kind": "tour",
+    "module": "PMT",
+    "group": "Hồ sơ & cảnh báo",
+    "title": "Hồ sơ pháp lý & giấy phép: Hồ sơ & cảnh báo",
+    "screens": [
+      "PMT-01",
+      "PMT-02",
+      "PMT-05"
+    ]
+  },
+  {
+    "id": "tour-pmt-danh-muc-quy-tac",
+    "kind": "tour",
+    "module": "PMT",
+    "group": "Danh mục & quy tắc",
+    "title": "Hồ sơ pháp lý & giấy phép: Danh mục & quy tắc",
+    "screens": [
+      "PMT-03",
+      "PMT-04",
+      "PMT-06"
+    ]
+  },
+  {
+    "id": "tour-doc-tong-quan-soan-thao",
+    "kind": "tour",
+    "module": "DOC",
+    "group": "Tổng quan & soạn thảo",
+    "title": "Văn bản và báo cáo theo chuẩn nhà nước: Tổng quan & soạn thảo",
+    "screens": [
+      "DOC-01",
+      "DOC-02",
+      "DOC-03"
+    ]
+  },
+  {
+    "id": "tour-doc-trinh-ky-phat-hanh",
+    "kind": "tour",
+    "module": "DOC",
+    "group": "Trình ký & phát hành",
+    "title": "Văn bản và báo cáo theo chuẩn nhà nước: Trình ký & phát hành",
+    "screens": [
+      "DOC-04",
+      "DOC-05",
+      "DOC-06",
+      "DOC-07",
+      "DOC-08",
+      "DOC-09",
+      "DOC-10"
+    ]
+  },
+  {
+    "id": "tour-doc-van-ban-den",
+    "kind": "tour",
+    "module": "DOC",
+    "group": "Văn bản đến",
+    "title": "Văn bản và báo cáo theo chuẩn nhà nước: Văn bản đến",
+    "screens": [
+      "DOC-11",
+      "DOC-12",
+      "DOC-13"
+    ]
+  },
+  {
+    "id": "tour-doc-mau-the-thuc-luu-tru",
+    "kind": "tour",
+    "module": "DOC",
+    "group": "Mẫu, thể thức & lưu trữ",
+    "title": "Văn bản và báo cáo theo chuẩn nhà nước: Mẫu, thể thức & lưu trữ",
+    "screens": [
+      "DOC-14",
+      "DOC-15",
+      "DOC-16",
+      "DOC-17",
+      "DOC-18",
+      "DOC-19",
+      "DOC-20",
+      "DOC-21"
+    ]
+  },
+  {
+    "id": "tour-aud-cuoc-thanh-tra-kiem-toan",
+    "kind": "tour",
+    "module": "AUD",
+    "group": "Cuộc thanh tra, kiểm toán",
+    "title": "Thanh tra, kiểm toán và theo dõi khắc phục: Cuộc thanh tra, kiểm toán",
+    "screens": [
+      "AUD-01",
+      "AUD-02",
+      "AUD-03",
+      "AUD-04"
+    ]
+  },
+  {
+    "id": "tour-aud-phat-hien-kien-nghi",
+    "kind": "tour",
+    "module": "AUD",
+    "group": "Phát hiện & kiến nghị",
+    "title": "Thanh tra, kiểm toán và theo dõi khắc phục: Phát hiện & kiến nghị",
+    "screens": [
+      "AUD-05",
+      "AUD-06",
+      "AUD-07",
+      "AUD-11"
+    ]
+  },
+  {
+    "id": "tour-aud-khac-phuc-bao-cao",
+    "kind": "tour",
+    "module": "AUD",
+    "group": "Khắc phục & báo cáo",
+    "title": "Thanh tra, kiểm toán và theo dõi khắc phục: Khắc phục & báo cáo",
+    "screens": [
+      "AUD-08",
+      "AUD-09",
+      "AUD-10"
+    ]
+  },
+  {
+    "id": "tour-not-cua-toi",
+    "kind": "tour",
+    "module": "NOT",
+    "group": "Của tôi",
+    "title": "Notification Center: Của tôi",
+    "screens": [
+      "NOT-01",
+      "NOT-02",
+      "NOT-03",
+      "NOT-17"
+    ]
+  },
+  {
+    "id": "tour-not-thiet-ke-dieu-phoi",
+    "kind": "tour",
+    "module": "NOT",
+    "group": "Thiết kế & điều phối",
+    "title": "Notification Center: Thiết kế & điều phối",
+    "screens": [
+      "NOT-06",
+      "NOT-07",
+      "NOT-08",
+      "NOT-09",
+      "NOT-10",
+      "NOT-16"
+    ]
+  },
+  {
+    "id": "tour-not-theo-doi-van-hanh",
+    "kind": "tour",
+    "module": "NOT",
+    "group": "Theo dõi vận hành",
+    "title": "Notification Center: Theo dõi vận hành",
+    "screens": [
+      "NOT-04",
+      "NOT-11",
+      "NOT-12",
+      "NOT-13"
+    ]
+  },
+  {
+    "id": "tour-not-kenh-kiem-soat",
+    "kind": "tour",
+    "module": "NOT",
+    "group": "Kênh & kiểm soát",
+    "title": "Notification Center: Kênh & kiểm soát",
+    "screens": [
+      "NOT-05",
+      "NOT-14",
+      "NOT-15"
+    ]
+  },
+  {
+    "id": "tour-omni-hoi-thoai-lien-he",
+    "kind": "tour",
+    "module": "OMNI",
+    "group": "Hội thoại & liên hệ",
+    "title": "Tương tác đa kênh: Hội thoại & liên hệ",
+    "screens": [
+      "OMNI-01",
+      "OMNI-02",
+      "OMNI-03",
+      "OMNI-04",
+      "OMNI-09",
+      "OMNI-11"
+    ]
+  },
+  {
+    "id": "tour-omni-kenh-van-hanh",
+    "kind": "tour",
+    "module": "OMNI",
+    "group": "Kênh & vận hành",
+    "title": "Tương tác đa kênh: Kênh & vận hành",
+    "screens": [
+      "OMNI-05",
+      "OMNI-06",
+      "OMNI-07",
+      "OMNI-08",
+      "OMNI-10"
+    ]
+  },
+  {
+    "id": "tour-bi-kham-pha-thiet-ke",
+    "kind": "tour",
+    "module": "BI",
+    "group": "Khám phá & thiết kế",
+    "title": "BI và dashboard động: Khám phá & thiết kế",
+    "screens": [
+      "BI-01",
+      "BI-02",
+      "BI-03",
+      "BI-04",
+      "BI-09",
+      "BI-10"
+    ]
+  },
+  {
+    "id": "tour-bi-chi-tieu-du-lieu",
+    "kind": "tour",
+    "module": "BI",
+    "group": "Chỉ tiêu & dữ liệu",
+    "title": "BI và dashboard động: Chỉ tiêu & dữ liệu",
+    "screens": [
+      "BI-05",
+      "BI-06",
+      "BI-07",
+      "BI-08",
+      "BI-14",
+      "BI-15",
+      "BI-18"
+    ]
+  },
+  {
+    "id": "tour-bi-cong-bo-van-hanh",
+    "kind": "tour",
+    "module": "BI",
+    "group": "Công bố & vận hành",
+    "title": "BI và dashboard động: Công bố & vận hành",
+    "screens": [
+      "BI-11",
+      "BI-12",
+      "BI-13",
+      "BI-16",
+      "BI-17"
+    ]
+  },
+  {
+    "id": "tour-home-buc-tranh-tong-the",
+    "kind": "tour",
+    "module": "HOME",
+    "group": "Bức tranh tổng thể",
+    "title": "Tổng quan điều hành: Bức tranh tổng thể",
+    "screens": [
+      "HOME-01",
+      "HOME-05",
+      "HOME-07",
+      "HOME-08",
+      "HOME-09",
+      "HOME-10"
+    ]
+  },
+  {
+    "id": "tour-home-cong-viec-canh-bao",
+    "kind": "tour",
+    "module": "HOME",
+    "group": "Công việc & cảnh báo",
+    "title": "Tổng quan điều hành: Công việc & cảnh báo",
+    "screens": [
+      "HOME-02",
+      "HOME-03",
+      "HOME-04",
+      "HOME-06"
+    ]
+  },
+  {
+    "id": "tour-dgv-nen-tang-du-lieu",
+    "kind": "tour",
+    "module": "DGV",
+    "group": "Nền tảng dữ liệu",
+    "title": "Quản trị và trưởng thành dữ liệu: Nền tảng dữ liệu",
+    "screens": [
+      "DGV-01",
+      "DGV-02",
+      "DGV-03",
+      "DGV-04",
+      "DGV-05"
+    ]
+  },
+  {
+    "id": "tour-dgv-chat-luong-kiem-soat",
+    "kind": "tour",
+    "module": "DGV",
+    "group": "Chất lượng & kiểm soát",
+    "title": "Quản trị và trưởng thành dữ liệu: Chất lượng & kiểm soát",
+    "screens": [
+      "DGV-06",
+      "DGV-07",
+      "DGV-08",
+      "DGV-09",
+      "DGV-10",
+      "DGV-12"
+    ]
+  },
+  {
+    "id": "tour-dgv-lien-thong-bao-ve",
+    "kind": "tour",
+    "module": "DGV",
+    "group": "Liên thông & bảo vệ",
+    "title": "Quản trị và trưởng thành dữ liệu: Liên thông & bảo vệ",
+    "screens": [
+      "DGV-11",
+      "DGV-13",
+      "DGV-14",
+      "DGV-15",
+      "DGV-19",
+      "DGV-20"
+    ]
+  },
+  {
+    "id": "tour-dgv-truong-thanh-gia-tri",
+    "kind": "tour",
+    "module": "DGV",
+    "group": "Trưởng thành & giá trị",
+    "title": "Quản trị và trưởng thành dữ liệu: Trưởng thành & giá trị",
+    "screens": [
+      "DGV-16",
+      "DGV-17",
+      "DGV-18",
+      "DGV-21"
+    ]
+  },
+  {
+    "id": "tour-llm-dieu-hanh-ai",
+    "kind": "tour",
+    "module": "LLM",
+    "group": "Điều hành AI",
+    "title": "Quản trị AI và LLM: Điều hành AI",
+    "screens": [
+      "LLM-01",
+      "LLM-14",
+      "LLM-18"
+    ]
+  },
+  {
+    "id": "tour-llm-model-dinh-tuyen",
+    "kind": "tour",
+    "module": "LLM",
+    "group": "Model & định tuyến",
+    "title": "Quản trị AI và LLM: Model & định tuyến",
+    "screens": [
+      "LLM-02",
+      "LLM-03",
+      "LLM-04",
+      "LLM-05",
+      "LLM-06",
+      "LLM-19",
+      "LLM-21"
+    ]
+  },
+  {
+    "id": "tour-llm-chi-phi-su-dung",
+    "kind": "tour",
+    "module": "LLM",
+    "group": "Chi phí & sử dụng",
+    "title": "Quản trị AI và LLM: Chi phí & sử dụng",
+    "screens": [
+      "LLM-07",
+      "LLM-08",
+      "LLM-09"
+    ]
+  },
+  {
+    "id": "tour-llm-chat-luong-phat-hanh",
+    "kind": "tour",
+    "module": "LLM",
+    "group": "Chất lượng & phát hành",
+    "title": "Quản trị AI và LLM: Chất lượng & phát hành",
+    "screens": [
+      "LLM-10",
+      "LLM-11",
+      "LLM-12",
+      "LLM-13",
+      "LLM-15",
+      "LLM-16",
+      "LLM-17",
+      "LLM-20"
+    ]
+  }
+]

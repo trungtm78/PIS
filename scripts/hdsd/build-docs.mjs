@@ -1,6 +1,7 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadChapters } from './chapters.mjs';
 import { REPO_ROOT, loadFlow } from './lib.mjs';
 import { chapterHtml, coverageOf, indexHtml, screensById, screensHtml } from './site.mjs';
 
@@ -13,11 +14,10 @@ export function build(root = REPO_ROOT, log = console.log) {
   mkdirSync(out, { recursive: true });
   const catalogue = JSON.parse(readFileSync(join(root, CATALOGUE), 'utf8'));
   const screens = screensById(catalogue);
-  const ids = readdirSync(join(root, 'scripts', 'hdsd', 'flows'))
-    .filter((name) => name.endsWith('.json'))
-    .map((name) => name.replace(/\.json$/u, ''))
-    .sort();
-  const flows = ids.map((id) => loadFlow(id, root)).filter((flow) => existsSync(join(out, `${flow.id}.timeline.json`)));
+  // The chapters follow the order of the work (scripts/hdsd/chapters.json); a chapter that was not filmed yet is not in the guide.
+  const flows = loadChapters(root)
+    .filter((chapter) => existsSync(join(out, `${chapter.id}.timeline.json`)))
+    .map((chapter) => loadFlow(chapter.id, root));
   const timelines = new Map(flows.map((flow) => [flow.id, JSON.parse(readFileSync(join(out, `${flow.id}.timeline.json`), 'utf8')).timeline]));
   const coverage = coverageOf(catalogue, flows, timelines);
   const reasonsFile = join(root, 'scripts', 'hdsd', 'not-filmed.json');

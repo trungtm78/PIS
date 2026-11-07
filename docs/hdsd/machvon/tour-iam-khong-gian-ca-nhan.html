@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Truy cập và cá nhân: Không gian cá nhân · Hướng dẫn sử dụng MACHVON</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top"><a href="../Huong-dan-su-dung-MACHVON.html">← Mục lục</a></header>
+<main class="chapter">
+  <h1><span class="num">2</span>Truy cập và cá nhân: Không gian cá nhân</h1>
+  <p class="meta"><strong>Dành cho:</strong> Tất cả người dùng (nhân sự và khách nhà thầu)<br><strong>Bạn sẽ làm được:</strong> Biết mỗi màn hình của nhóm Không gian cá nhân dùng để làm gì, ai dùng, có những thông tin và thao tác nào.</p>
+  <figure class="player">
+    <video id="clip" controls preload="metadata" playsinline poster="img/tour-iam-khong-gian-ca-nhan/poster.jpg" src="clips/tour-iam-khong-gian-ca-nhan.mp4" aria-label="Clip hướng dẫn: Truy cập và cá nhân: Không gian cá nhân">
+      <track kind="captions" srclang="vi" label="Tiếng Việt" src="clips/tour-iam-khong-gian-ca-nhan.vi.vtt" default>
+    </video>
+    <figcaption>Clip có giọng đọc tiếng Việt và phụ đề. Bấm vào mốc thời gian bên dưới để nhảy tới đúng đoạn.</figcaption>
+  </figure>
+  <h2>Các bước trong clip (4)</h2>
+  <ol class="steps">
+<li class="step" id="iam-04">
+  <button class="at" data-seek="0.5" aria-label="Phát từ 00:00">▶ 00:00</button>
+  <div class="step-body">
+    <h3>1. Chọn tổ chức</h3>
+    <p class="screens">Màn hình: <a class="chip" href="man-hinh.html#IAM-04" title="Chọn tổ chức">IAM-04 · Chọn tổ chức</a></p>
+    <p>Chọn tổ chức. Đây là các thẻ thông tin, dành cho Tất cả người dùng (nhân sự, khách nhà thầu). Chỉ liệt kê membership Active của chính người dùng; selectTenantContext cấp token gắn tid/mid/scope_version; tenant Suspended hiển thị chế độ chỉ đọc; đổi tenant thu hồi token cũ và xóa dữ liệu cục bộ mobile. Trên màn hình có: Cao Bằng. Các thao tác chính: Chọn Cao Bằng. Lúc quay, màn hình đang có 1 dòng dữ liệu.</p>
+    <p class="note">Thiết kế còn nêu các thông tin: Tenant, Đơn vị, Vai trò, Loại membership và Trạng thái tenant. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó.</p>
+    <img loading="lazy" src="img/tour-iam-khong-gian-ca-nhan/iam-04.png" alt="Màn hình ở bước: Chọn tổ chức">
+  </div>
+</li>
+<li class="step" id="iam-05">
+  <button class="at" data-seek="30.7" aria-label="Phát từ 00:30">▶ 00:30</button>
+  <div class="step-body">
+    <h3>2. Hồ sơ cá nhân</h3>
+    <p class="screens">Màn hình: <a class="chip" href="man-hinh.html#IAM-05" title="Hồ sơ cá nhân">IAM-05 · Hồ sơ cá nhân</a></p>
+    <p>Hồ sơ cá nhân. Đây là biểu mẫu để nhập thông tin, dành cho Tất cả người dùng (nhân sự, khách nhà thầu). updateMyProfile bắt buộc If-Match; email do IdP quản lý; người dùng không tự sửa đơn vị/vai trò. Trên màn hình có: Email, Ngôn ngữ, Múi giờ và Số điện thoại. Các thao tác chính: Lưu thay đổi.</p>
+    <p class="note">Thiết kế còn nêu các thông tin: Họ tên và Phiên bản. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó.</p>
+    <img loading="lazy" src="img/tour-iam-khong-gian-ca-nhan/iam-05.png" alt="Màn hình ở bước: Hồ sơ cá nhân">
+  </div>
+</li>
+<li class="step" id="iam-06">
+  <button class="at" data-seek="54.7" aria-label="Phát từ 00:54">▶ 00:54</button>
+  <div class="step-body">
+    <h3>3. Phiên và thiết bị</h3>
+    <p class="screens">Màn hình: <a class="chip" href="man-hinh.html#IAM-06" title="Phiên và thiết bị">IAM-06 · Phiên và thiết bị</a></p>
+    <p>Phiên và thiết bị. Đây là danh sách, dành cho Tất cả người dùng (nhân sự, khách nhà thầu). revokeMySession/revokeMyDevice có hiệu lực ≤60 giây (deny-list Redis + backchannel logout); gỡ thiết bị xóa push token. Trên màn hình có: Phiên đăng nhập và Thiết bị.</p>
+    <p class="note">Thiết kế còn nêu các thông tin: Đăng nhập cuối, Trạng thái, Mức xác thực và Thu hồi phiên. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó.</p>
+    <img loading="lazy" src="img/tour-iam-khong-gian-ca-nhan/iam-06.png" alt="Màn hình ở bước: Phiên và thiết bị">
+  </div>
+</li>
+<li class="step" id="iam-09">
+  <button class="at" data-seek="74.5" aria-label="Phát từ 01:14">▶ 01:14</button>
+  <div class="step-body">
+    <h3>4. Phạm vi quyền hiệu lực của tôi</h3>
+    <p class="screens">Màn hình: <a class="chip" href="man-hinh.html#IAM-09" title="Phạm vi quyền hiệu lực của tôi">IAM-09 · Phạm vi quyền hiệu lực của tôi</a></p>
+    <p>Phạm vi quyền hiệu lực của tôi. Đây là màn hình xem chi tiết, dành cho Tất cả người dùng (nhân sự, khách nhà thầu). getMyEffectiveAccess; hiển thị membership ∩ role/scope ∩ entitlement; không lộ grant của người khác. Trên màn hình có: Vai trò, Phạm vi, Hiệu lực, Ủy quyền nhận và Quyền lợi gói. Lúc quay, màn hình đang có 127 dòng dữ liệu.</p>
+    
+    <img loading="lazy" src="img/tour-iam-khong-gian-ca-nhan/iam-09.png" alt="Màn hình ở bước: Phạm vi quyền hiệu lực của tôi">
+  </div>
+</li>
+  </ol>
+  <nav class="pager"><a href="01-dang-nhap.html">← Đăng nhập, chọn tổ chức và làm quen với màn hình chính</a><a href="tour-prj-danh-muc-theo-doi.html">Danh mục dự án: Danh mục &amp; theo dõi →</a></nav>
+</main>
+<script>
+document.querySelectorAll('button.at').forEach((button) => button.addEventListener('click', () => {
+  const clip = document.getElementById('clip');
+  clip.currentTime = Number(button.dataset.seek);
+  clip.play();
+  clip.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}));
+</script>
+</body>
+</html>
