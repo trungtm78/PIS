@@ -91,6 +91,27 @@ describe('E2eIdentityProvider', () => {
     expect(claims).toMatchObject({ acr: 'aal2', amr: ['pwd', 'otp'] });
   });
 
+  it('signs in the person the settings name when the request names nobody, and the first user when they name nobody known', async () => {
+    let next: string | undefined = 'auditor';
+    const own = await E2eIdentityProvider.start({ users: USERS, clientId: CLIENT, port: 0, nextUser: () => next });
+    const idOf = async (): Promise<unknown> => {
+      const verifier = base64url(Buffer.from(randomUUID() + randomUUID()));
+      const url = new URL(`${own.issuer}/protocol/openid-connect/auth`);
+      for (const [key, value] of Object.entries({ response_type: 'code', client_id: CLIENT, redirect_uri: REDIRECT, scope: 'openid', state: 'st-1', nonce: 'no-1', code_challenge: base64url(createHash('sha256').update(verifier).digest()), code_challenge_method: 'S256' })) url.searchParams.set(key, value);
+      const code = new URL((await fetch(url, { redirect: 'manual' })).headers.get('location') ?? '').searchParams.get('code') ?? '';
+      const body = new URLSearchParams({ grant_type: 'authorization_code', code, code_verifier: verifier, client_id: CLIENT, redirect_uri: REDIRECT });
+      const token = (await (await fetch(`${own.issuer}/protocol/openid-connect/token`, { method: 'POST', body })).json()) as { id_token: string };
+      return claimsOf(token.id_token).sub;
+    };
+    try {
+      expect(await idOf()).toBe('sub-auditor');
+      next = undefined;
+      expect(await idOf()).toBe('sub-owner');
+    } finally {
+      await own.stop();
+    }
+  });
+
   it('gives every sign-in its own session id', async () => {
     const a = await login();
     const b = await login();

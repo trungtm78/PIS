@@ -17,6 +17,8 @@ export interface IdpOptions {
   clientId: string;
   /** Listening port; 0 picks a free one. */
   port?: number;
+  /** The key of the person who signs in when the request names nobody (a native client sends no `login_hint`); the first user when it says nothing. */
+  nextUser?: () => string | undefined;
 }
 
 interface IssuedCode {
@@ -117,7 +119,7 @@ export class E2eIdentityProvider {
     if (param('response_type') !== 'code' || param('client_id') !== this.options.clientId || param('code_challenge_method') !== 'S256' || challenge === null || redirectUri === null || state === null) {
       return this.refuse(response, 'invalid_request');
     }
-    const user = this.options.users.find((candidate) => candidate.key === (param('login_hint') ?? this.options.users[0]?.key));
+    const user = this.options.users.find((candidate) => candidate.key === (param('login_hint') ?? this.options.nextUser?.() ?? this.options.users[0]?.key));
     if (user === undefined) return this.refuse(response, 'unknown_user');
     const code = randomUUID();
     this.codes.set(code, {

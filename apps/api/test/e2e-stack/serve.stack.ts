@@ -1807,7 +1807,15 @@ describe('e2e API stack', () => {
       );
       // Real sign-in: the test identity provider signs in the fixture people, the production guard verifies the tenant tokens the API issues.
       idp = await E2eIdentityProvider.start({
-        users: fixtures.users.filter((user) => user.audience !== 'control').map((user) => ({ key: user.key, subject: `e2e-${user.membershipId}`, name: user.displayName })),
+        users: fixtures.users.filter((user) => user.audience !== 'control').map((user) => ({ key: user.key, subject: `e2e-${user.membershipId}`, name: DOCS_PEOPLE.find((person) => person.key === user.key)?.name ?? user.displayName })),
+        // A native client sends no login_hint: the person who signs in is the one the clip names in a file next to the info of the stack (the first person when there is none).
+        nextUser: () => {
+          try {
+            return readFileSync(`${required('E2E_STACK_INFO')}.user`, 'utf8').trim() || undefined;
+          } catch {
+            return undefined;
+          }
+        },
         clientId: IDENTITY_AUDIENCE,
         port: Number(process.env.E2E_IDP_PORT ?? 0),
       });
