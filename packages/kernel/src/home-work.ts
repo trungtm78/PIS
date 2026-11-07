@@ -2,7 +2,22 @@
  * The work of a person in one list (ST-HOME-004, HOME 3 F5, HOME-02): what is asked of them in each module, ordered as it is looked at: what is late, then what is near its day, then the rest; inside each the earliest
  * day first, then the kind that comes first, then the id, so that the same list is always in the same order. The reads are of the modules; the order is here.
  */
-export const WORK_KINDS = ['APPROVAL', 'EXPLANATION', 'REPORT_RETURNED', 'REPORT_DRAFT_OVERDUE', 'EXPLANATION_REVIEW', 'MNE_OBLIGATION'] as const;
+export const WORK_KINDS = [
+  'APPROVAL',
+  'EXPLANATION',
+  'REPORT_RETURNED',
+  'REPORT_DRAFT_OVERDUE',
+  'EXPLANATION_REVIEW',
+  'MNE_OBLIGATION',
+  // The alert centre adds what the other modules ask for: the warnings of DIS, the advances of PAY, the permits of PMT, the recommendations of AUD, the issues of ISS, the diaries of QMS and the guarantees of CTR.
+  'EARLY_WARNING',
+  'ADVANCE_OVERDUE',
+  'PERMIT_EXPIRY',
+  'AUDIT_RECOMMENDATION_OVERDUE',
+  'ISSUE_SLA_BREACH',
+  'SITE_DIARY_MISSING',
+  'GUARANTEE_EXPIRING',
+] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export type WorkBucket = 'OVERDUE' | 'NEAR' | 'LATER';
 
@@ -10,7 +25,21 @@ export type WorkBucket = 'OVERDUE' | 'NEAR' | 'LATER';
 export const NEAR_DAYS = 7;
 
 /** Which kind comes first when two tasks have the same day: an approval that waits for the person, then an explanation they owe, then a report that came back, and so on. */
-const PRIORITY: Readonly<Record<WorkKind, number>> = { APPROVAL: 1, EXPLANATION: 2, REPORT_RETURNED: 3, REPORT_DRAFT_OVERDUE: 4, EXPLANATION_REVIEW: 5, MNE_OBLIGATION: 6 };
+const PRIORITY: Readonly<Record<WorkKind, number>> = {
+  APPROVAL: 1,
+  EXPLANATION: 2,
+  REPORT_RETURNED: 3,
+  REPORT_DRAFT_OVERDUE: 4,
+  EXPLANATION_REVIEW: 5,
+  MNE_OBLIGATION: 6,
+  EARLY_WARNING: 7,
+  ADVANCE_OVERDUE: 8,
+  PERMIT_EXPIRY: 9,
+  AUDIT_RECOMMENDATION_OVERDUE: 10,
+  ISSUE_SLA_BREACH: 11,
+  SITE_DIARY_MISSING: 12,
+  GUARANTEE_EXPIRING: 13,
+};
 
 export interface WorkItem {
   id: string;

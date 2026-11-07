@@ -2413,6 +2413,18 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/incoming-documents/${t.incomingId}/filing`, ifMatch: '"1"', body: { dossier_id: t.dossierId } }),
   },
+  assignWork: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/work-actions/assign', body: { source: 'EARLY_WARNING', source_id: 'matrix-probe', assignee_id: '00000000-0000-4000-8000-0000000000e7', due_on: '2999-01-01' } }),
+  },
+  claimWork: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/work-actions/claim', body: { source: 'EARLY_WARNING', source_id: 'matrix-probe' } }),
+  },
+  snoozeWork: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/work-actions/snooze', body: { source: 'EARLY_WARNING', source_id: 'matrix-probe', snooze_until: '2999-01-01T00:00:00.000Z' } }),
+  },
   assignQualityIncident: {
     referencesTenantIds: true,
     build: (t) => ({
