@@ -1,0 +1,65 @@
+{
+  "id": "tour-sas-tenant-thuong-hieu",
+  "group": "SAS",
+  "title": "SaaS và tenant: Tenant & thương hiệu",
+  "audience": "quản trị hệ thống, người vận hành nền tảng, chủ sở hữu tổ chức và quản trị hệ thống:",
+  "outcome": "Biết mỗi màn hình của nhóm Tenant & thương hiệu dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "sas-01",
+      "screens": [
+        "SAS-01"
+      ],
+      "heading": "Danh sách tenant",
+      "text": "Danh sách tenant. Đây là danh sách, dành cho quản trị hệ thống, người vận hành nền tảng và chủ sở hữu tổ chức. Sở/ban/chủ đầu tư/xã là đơn vị bên trong, không phải tổ chức.",
+      "note": "Thiết kế còn nêu các thông tin: Tenant ID, Gói, Vùng, Trạng thái, Loại cơ quan chủ quản, Mô hình cách ly và Trạng thái license. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-02",
+      "screens": [
+        "SAS-02"
+      ],
+      "heading": "Khởi tạo tenant",
+      "text": "Khởi tạo tenant. Đây là biểu mẫu để nhập thông tin, dành cho quản trị hệ thống, người vận hành nền tảng và chủ sở hữu tổ chức. Trên màn hình có: Tên, Vùng dữ liệu, Mô hình cách ly, Gói, Mã, Loại cơ quan, Mã ĐVHC và Tên đơn vị gốc. Các thao tác chính: Gửi đề nghị cấp phát.",
+      "note": "Thiết kế còn nêu các thông tin: Owner. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-03",
+      "screens": [
+        "SAS-03"
+      ],
+      "heading": "Chi tiết tenant",
+      "text": "Chi tiết tenant. Đây là màn hình xem chi tiết, dành cho quản trị hệ thống, người vận hành nền tảng và chủ sở hữu tổ chức.",
+      "note": "Thiết kế còn nêu các thông tin: Đơn vị, Usage, License, Tích hợp, Sức khỏe, Vòng đời, Lý do trạng thái và Owner. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-04",
+      "screens": [
+        "SAS-04"
+      ],
+      "heading": "Theme & thương hiệu tenant",
+      "text": "Theme & thương hiệu tenant. Đây là màn hình, dành cho quản trị hệ thống: và quản trị tổ chức: chỉ đọc published của mình. Trên màn hình có: Tenant, Logo, Tên hệ thống, Header, Footer, Địa chỉ, Email và Điện thoại. Các thao tác chính: Bỏ logo, Ruby, Navy và Emerald.",
+      "note": "Thiết kế còn nêu các thông tin: Màu menu, Review thay đổi và Lịch sử & khôi phục. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-05",
+      "screens": [
+        "SAS-05"
+      ],
+      "heading": "Tên miền và xác minh",
+      "text": "Tên miền và xác minh. Đây là biểu mẫu để nhập thông tin, dành cho quản trị hệ thống, người vận hành nền tảng và chủ sở hữu tổ chức.",
+      "note": "Thiết kế còn nêu các thông tin: Domain, TXT verification, TLS, Trạng thái, Loại tên miền và Hạn TLS. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-22",
+      "screens": [
+        "SAS-22"
+      ],
+      "heading": "Tiến trình khởi tạo tenant",
+      "text": "Tiến trình khởi tạo tenant. Đây là dòng thời gian, dành cho quản trị hệ thống, người vận hành nền tảng và chủ sở hữu tổ chức.",
+      "note": "Thiết kế còn nêu các thông tin: Bước, Trạng thái bước, Số lần thử, Mã lỗi và Bù trừ. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

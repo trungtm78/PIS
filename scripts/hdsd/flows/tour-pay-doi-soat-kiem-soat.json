@@ -1,0 +1,65 @@
+{
+  "id": "tour-pay-doi-soat-kiem-soat",
+  "group": "PAY",
+  "title": "Thanh toán và Kho bạc: Đối soát & kiểm soát",
+  "audience": "Kế toán, cán bộ đối soát và kế toán trưởng",
+  "outcome": "Biết mỗi màn hình của nhóm Đối soát & kiểm soát dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "pay-05",
+      "screens": [
+        "PAY-05"
+      ],
+      "heading": "Đối soát giao dịch",
+      "text": "Đối soát giao dịch. Đây là màn hình, dành cho Kế toán và cán bộ đối soát. Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch. Trên màn hình có: Chênh lệch và Hạn xử lý. Lúc quay, màn hình đang có 2 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Số báo cáo, Số xác nhận, Tệp nguồn và mã băm và Chủ xử lý. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "pay-06",
+      "screens": [
+        "PAY-06"
+      ],
+      "heading": "Xử lý sai lệch",
+      "text": "Xử lý sai lệch. Đây là biểu mẫu để nhập thông tin, dành cho Kế toán và cán bộ đối soát.",
+      "note": "Thiết kế còn nêu các thông tin: Loại sai lệch, Bằng chứng và Người xử lý. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "pay-07",
+      "screens": [
+        "PAY-07"
+      ],
+      "heading": "Tạm ứng và thu hồi",
+      "text": "Tạm ứng và thu hồi. Đây là bảng dữ liệu, dành cho Kế toán và cán bộ đối soát. Trên màn hình có: Hợp đồngTất cả. Lúc quay, màn hình đang có 2 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Đã tạm ứng, Đã thu hồi, Còn lại, Hạn thu hồi, Ngưỡng 80% theo thành viên và Số ngày quá hạn. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "pay-08",
+      "screens": [
+        "PAY-08"
+      ],
+      "heading": "Đảo và điều chỉnh giao dịch",
+      "text": "Đảo và điều chỉnh giao dịch. Đây là màn hình, dành cho Kế toán và cán bộ đối soát.",
+      "note": "Thiết kế còn nêu các thông tin: Giao dịch gốc, Lý do và Giá trị đảo. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "pay-10",
+      "screens": [
+        "PAY-10"
+      ],
+      "heading": "Sổ lũy kế hợp đồng × dòng BOQ × nghiệm thu",
+      "text": "Sổ lũy kế hợp đồng × dòng BOQ × nghiệm thu. Đây là màn hình, dành cho Kế toán, kế toán trưởng và cán bộ đối soát.",
+      "note": "Thiết kế còn nêu các thông tin: Hợp đồng, Dòng BOQ, Nghiệm thu, Đã nghiệm thu, Đã đề nghị, Đã thanh toán, Tạm ứng còn lại và Giữ lại. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "pay-12",
+      "screens": [
+        "PAY-12"
+      ],
+      "heading": "Cảnh báo tạm ứng quá hạn và thu hồi",
+      "text": "Cảnh báo tạm ứng quá hạn và thu hồi. Đây là màn hình, dành cho Kế toán, kế toán trưởng và cán bộ đối soát. Lúc quay, màn hình đang có 2 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Hợp đồng, Thành viên, Còn lại, Hạn thu hồi, Số ngày quá hạn, Mức cảnh báo và Người xử lý. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

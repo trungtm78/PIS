@@ -1,0 +1,74 @@
+{
+  "id": "tour-sas-thuong-mai-thue-bao",
+  "group": "SAS",
+  "title": "SaaS và tenant: Thương mại & thuê bao",
+  "audience": "quản trị hệ thống, người vận hành thanh toán dịch vụ và chủ sở hữu tổ chức",
+  "outcome": "Biết mỗi màn hình của nhóm Thương mại & thuê bao dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "sas-06",
+      "screens": [
+        "SAS-06"
+      ],
+      "heading": "Gói sản phẩm và tính năng",
+      "text": "Gói sản phẩm và tính năng. Đây là bảng dữ liệu, dành cho quản trị hệ thống, người vận hành thanh toán dịch vụ và chủ sở hữu tổ chức. Published bất biến. Trên màn hình có: Gói, Giá, Chu kỳ, Hành vi khi hết hạn và Thuế GTGT. Các thao tác chính: Bỏ dòng 1, Thêm tính năng, Ghi bản nháp và Nhập lại. Lúc quay, màn hình đang có 1 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Module, Quota và Hành vi khi grace. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-07",
+      "screens": [
+        "SAS-07"
+      ],
+      "heading": "Đăng ký và dùng thử",
+      "text": "Đăng ký và dùng thử. Đây là biểu mẫu để nhập thông tin, dành cho quản trị hệ thống, người vận hành thanh toán dịch vụ và chủ sở hữu tổ chức. Trên màn hình có: Tenant.",
+      "note": "Thiết kế còn nêu các thông tin: Gói, Số ghế, Ngày bắt đầu, Điều khoản, Hợp đồng mua sắm, Ngày hết dùng thử và Điều khoản thanh toán. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-08",
+      "screens": [
+        "SAS-08"
+      ],
+      "heading": "Nâng hạ gói",
+      "text": "Nâng hạ gói. Đây là màn hình so sánh, dành cho quản trị hệ thống, người vận hành thanh toán dịch vụ và chủ sở hữu tổ chức. Trên màn hình có: Tenant.",
+      "note": "Thiết kế còn nêu các thông tin: Gói hiện tại, Gói mới, Hiệu lực, Tính phí, Proration, Quota vượt và Mã xem trước. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-09",
+      "screens": [
+        "SAS-09"
+      ],
+      "heading": "Thuê bao và kỳ thanh toán",
+      "text": "Thuê bao và kỳ thanh toán. Đây là danh sách, dành cho quản trị hệ thống, người vận hành thanh toán dịch vụ và chủ sở hữu tổ chức. Trên màn hình có: Tenant.",
+      "note": "Thiết kế còn nêu các thông tin: Subscription, Chu kỳ, Gia hạn, Trạng thái, Kỳ hiện tại và Quá hạn từ. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-10",
+      "screens": [
+        "SAS-10"
+      ],
+      "heading": "Hóa đơn và đối soát",
+      "text": "Hóa đơn và đối soát. Đây là bảng dữ liệu, dành cho quản trị hệ thống, người vận hành thanh toán dịch vụ và chủ sở hữu tổ chức.",
+      "note": "Thiết kế còn nêu các thông tin: Kỳ, Usage, Thuế, Tổng, Thanh toán, Ký hiệu mẫu số, Ký hiệu, Số hóa đơn, Mã CQT, Loại và Trạng thái đối soát. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-11",
+      "screens": [
+        "SAS-11"
+      ],
+      "heading": "Đo mức sử dụng",
+      "text": "Đo mức sử dụng. Đây là màn hình, dành cho quản trị hệ thống, người vận hành thanh toán dịch vụ và chủ sở hữu tổ chức.",
+      "note": "Thiết kế còn nêu các thông tin: Seats, Storage, AI, Messages, BI queries, Meter, Nguồn sự kiện và Hạn mức. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-24",
+      "screens": [
+        "SAS-24"
+      ],
+      "heading": "Hóa đơn điều chỉnh/thay thế",
+      "text": "Hóa đơn điều chỉnh/thay thế. Đây là biểu mẫu để nhập thông tin, dành cho quản trị hệ thống, người vận hành thanh toán dịch vụ và chủ sở hữu tổ chức. Trên màn hình có: Tenant.",
+      "note": "Thiết kế còn nêu các thông tin: Hóa đơn gốc, Loại xử lý, Lý do, Văn bản thỏa thuận, Dòng điều chỉnh và Tổng sau điều chỉnh. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

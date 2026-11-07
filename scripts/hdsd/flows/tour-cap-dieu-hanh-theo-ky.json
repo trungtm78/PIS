@@ -1,0 +1,56 @@
+{
+  "id": "tour-cap-dieu-hanh-theo-ky",
+  "group": "CAP",
+  "title": "Kế hoạch và nguồn vốn: Điều hành theo kỳ",
+  "audience": "Kế hoạch và Sở Tài chính",
+  "outcome": "Biết mỗi màn hình của nhóm Điều hành theo kỳ dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "cap-08",
+      "screens": [
+        "CAP-08"
+      ],
+      "heading": "Đăng ký giải ngân tháng",
+      "text": "Đăng ký giải ngân tháng. Đây là bảng dữ liệu, dành cho Kế hoạch và Sở Tài chính. Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Tháng, Vốn năm, Vốn kéo dài và Vốn khác. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "cap-11",
+      "screens": [
+        "CAP-11"
+      ],
+      "heading": "Chuyển nguồn và khóa năm",
+      "text": "Chuyển nguồn và khóa năm. Đây là biểu mẫu để nhập thông tin, dành cho Kế hoạch và Sở Tài chính. Trên màn hình có: Năm kế hoạch, Trạng thái và Các năm đã có kiểm soát. Các thao tác chính: Đóng sơ bộ và Khóa sổ năm.",
+      "note": "Thiết kế còn nêu các thông tin: Năm nguồn, Năm đích, Căn cứ và Giá trị. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "cap-12",
+      "screens": [
+        "CAP-12"
+      ],
+      "heading": "Kế hoạch ước giải ngân",
+      "text": "Kế hoạch ước giải ngân. Đây là bảng dữ liệu, dành cho Kế hoạch và Sở Tài chính. Trên màn hình có: Kỳ, Dự án, Ước thực hiện, Đăng ký, Thực tế và Chênh lệch. Lúc quay, màn hình đang có 13 dòng dữ liệu.",
+      "note": ""
+    },
+    {
+      "id": "cap-13",
+      "screens": [
+        "CAP-13"
+      ],
+      "heading": "Nhập ước giải ngân",
+      "text": "Nhập ước giải ngân. Đây là biểu mẫu để nhập thông tin, dành cho Kế hoạch và Sở Tài chính. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Dự án, Tháng, Nguồn, Ước cuối kỳ, Giả định và Lý do điều chỉnh. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "cap-20",
+      "screens": [
+        "CAP-20"
+      ],
+      "heading": "Kéo dài thời gian giải ngân vốn",
+      "text": "Kéo dài thời gian giải ngân vốn. Đây là biểu mẫu để nhập thông tin, dành cho Kế hoạch và Sở Tài chính. Trên màn hình có: Dòng vốn, Số tiền kéo dài, Kéo dài đến và Lý do. Các thao tác chính: Gửi đề nghị.",
+      "note": "Thiết kế còn nêu các thông tin: Năm kế hoạch gốc và Văn bản cho phép. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

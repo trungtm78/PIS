@@ -1,0 +1,110 @@
+{
+  "id": "tour-mdm-nghiep-vu-quy-uoc",
+  "group": "MDM",
+  "title": "Dữ liệu chủ và danh mục: Nghiệp vụ & quy ước",
+  "audience": "người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục",
+  "outcome": "Biết mỗi màn hình của nhóm Nghiệp vụ & quy ước dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "mdm-10",
+      "screens": [
+        "MDM-10"
+      ],
+      "heading": "Loại quyết định và văn bản",
+      "text": "Loại quyết định và văn bản. Đây là bảng dữ liệu, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có xem trước tác động, phiên bản và phê duyệt. Trên màn hình có: Mã, Tên, Trường bắt buộc và Mẫu. Các thao tác chính: Xuất. Lúc quay, màn hình đang có 4 dòng dữ liệu.",
+      "note": ""
+    },
+    {
+      "id": "mdm-11",
+      "screens": [
+        "MDM-11"
+      ],
+      "heading": "Năm ngân sách và lịch kỳ",
+      "text": "Năm ngân sách và lịch kỳ. Đây là lịch, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Năm, Kỳ, Ngày bắt đầu, Ngày kết thúc, Hạn và Khóa. Các thao tác chính: Xem cả năm (52 kỳ). Lúc quay, màn hình đang có 8 dòng dữ liệu.",
+      "note": ""
+    },
+    {
+      "id": "mdm-12",
+      "screens": [
+        "MDM-12"
+      ],
+      "heading": "Đơn vị tính và tiền tệ",
+      "text": "Đơn vị tính và tiền tệ. Đây là bảng dữ liệu, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Mã, Tên, Hệ số, Scale và Quy tắc làm tròn. Các thao tác chính: Xuất. Lúc quay, màn hình đang có 12 dòng dữ liệu.",
+      "note": ""
+    },
+    {
+      "id": "mdm-13",
+      "screens": [
+        "MDM-13"
+      ],
+      "heading": "Loại hồ sơ và chứng từ",
+      "text": "Loại hồ sơ và chứng từ. Đây là bảng dữ liệu, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Mã, Tên, Checklist và MIME. Các thao tác chính: Xuất. Lúc quay, màn hình đang có 5 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Kích thước tối đa. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-14",
+      "screens": [
+        "MDM-14"
+      ],
+      "heading": "Loại hợp đồng và phụ lục",
+      "text": "Loại hợp đồng và phụ lục. Đây là bảng dữ liệu, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Mã, Tên, Trường bắt buộc và Chính sách phiên bản. Các thao tác chính: Xuất. Lúc quay, màn hình đang có 4 dòng dữ liệu.",
+      "note": ""
+    },
+    {
+      "id": "mdm-15",
+      "screens": [
+        "MDM-15"
+      ],
+      "heading": "Loại thanh toán và tạm ứng",
+      "text": "Loại thanh toán và tạm ứng. Đây là bảng dữ liệu, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Mã, Tên, Điều kiện và Bộ quy tắc. Các thao tác chính: Xuất. Lúc quay, màn hình đang có 4 dòng dữ liệu.",
+      "note": ""
+    },
+    {
+      "id": "mdm-16",
+      "screens": [
+        "MDM-16"
+      ],
+      "heading": "Cơ quan Kho bạc và mã liên kết",
+      "text": "Cơ quan Kho bạc và mã liên kết. Đây là bảng dữ liệu, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Tìm kiếm và Trạng thái. Các thao tác chính: Xuất.",
+      "note": "Thiết kế còn nêu các thông tin: Mã nội bộ, Mã Kho bạc, Địa bàn và Hiệu lực. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-17",
+      "screens": [
+        "MDM-17"
+      ],
+      "heading": "Nhóm vướng mắc và nguyên nhân",
+      "text": "Nhóm vướng mắc và nguyên nhân. Đây là sơ đồ dạng cây, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Tìm kiếm và Trạng thái. Các thao tác chính: Xuất.",
+      "note": "Thiết kế còn nêu các thông tin: Mã, Nhóm cha, Đơn vị xử lý và SLA. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-18",
+      "screens": [
+        "MDM-18"
+      ],
+      "heading": "Mức độ ưu tiên và SLA",
+      "text": "Mức độ ưu tiên và SLA. Đây là bảng dữ liệu, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Mức, Thời hạn, Lịch làm việc và Chuyển cấp. Các thao tác chính: Xuất. Lúc quay, màn hình đang có 4 dòng dữ liệu.",
+      "note": ""
+    },
+    {
+      "id": "mdm-19",
+      "screens": [
+        "MDM-19"
+      ],
+      "heading": "Tiêu chí đánh giá nhà thầu",
+      "text": "Tiêu chí đánh giá nhà thầu. Đây là màn hình, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Mã, Tên, Loại, Thang điểm, Bằng chứng và Phiên bản. Các thao tác chính: Xuất. Lúc quay, màn hình đang có 5 dòng dữ liệu.",
+      "note": ""
+    },
+    {
+      "id": "mdm-20",
+      "screens": [
+        "MDM-20"
+      ],
+      "heading": "Vai trò chuyên gia và năng lực",
+      "text": "Vai trò chuyên gia và năng lực. Đây là bảng dữ liệu, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Mã, Chuyên môn, Điều kiện và Hiệu lực. Các thao tác chính: Xuất. Lúc quay, màn hình đang có 3 dòng dữ liệu.",
+      "note": ""
+    }
+  ]
+}

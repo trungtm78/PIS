@@ -1,0 +1,110 @@
+{
+  "id": "tour-mdm-vong-doi-danh-muc",
+  "group": "MDM",
+  "title": "Dữ liệu chủ và danh mục: Vòng đời danh mục",
+  "audience": "người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục",
+  "outcome": "Biết mỗi màn hình của nhóm Vòng đời danh mục dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "mdm-25",
+      "screens": [
+        "MDM-25"
+      ],
+      "heading": "Thêm bản ghi danh mục",
+      "text": "Thêm bản ghi danh mục. Đây là biểu mẫu để nhập thông tin, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có xem trước tác động, phiên bản và phê duyệt. Trên màn hình có: Loại danh mục, Mã, Tên, Cấp cha, Hiệu lực và Căn cứ. Các thao tác chính: Lưu nháp và xem độ ảnh hưởng.",
+      "note": ""
+    },
+    {
+      "id": "mdm-26",
+      "screens": [
+        "MDM-26"
+      ],
+      "heading": "Sửa bản ghi và hiệu lực",
+      "text": "Sửa bản ghi và hiệu lực. Đây là biểu mẫu để nhập thông tin, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục.",
+      "note": "Thiết kế còn nêu các thông tin: Mã, Tên, Ngày hiệu lực mới, Lý do và Căn cứ. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-27",
+      "screens": [
+        "MDM-27"
+      ],
+      "heading": "Chi tiết và nơi đang sử dụng",
+      "text": "Chi tiết và nơi đang sử dụng. Đây là màn hình xem chi tiết, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục.",
+      "note": "Thiết kế còn nêu các thông tin: Mã, Thuộc tính, Phiên bản và Số hồ sơ tham chiếu. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-28",
+      "screens": [
+        "MDM-28"
+      ],
+      "heading": "Lịch sử thay đổi danh mục",
+      "text": "Lịch sử thay đổi danh mục. Đây là màn hình so sánh, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục.",
+      "note": "Thiết kế còn nêu các thông tin: Phiên bản, Trước, Sau, Người duyệt và Hiệu lực. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-29",
+      "screens": [
+        "MDM-29"
+      ],
+      "heading": "Nhập danh mục hàng loạt",
+      "text": "Nhập danh mục hàng loạt. Đây là màn hình nhập dữ liệu từ tệp, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Tiếp nhận và kiểm tra tài liệu, Loại danh mục, Tệp danh mục, Chế độ, Nguyên tử (ATOMIC) và Từng phần (PARTIAL). Các thao tác chính: Xuất và Tải lên và đọc cột.",
+      "note": "Thiết kế còn nêu các thông tin: Mapping, Dry run, Dòng lỗi và Phê duyệt. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-30",
+      "screens": [
+        "MDM-30"
+      ],
+      "heading": "Hợp nhất mã trùng",
+      "text": "Hợp nhất mã trùng. Đây là màn hình rà soát, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Loại danh mục, Bản ghi giữ lại, Bản ghi được gộp vào và Lý do. Các thao tác chính: Hợp nhất.",
+      "note": "Thiết kế còn nêu các thông tin: Mã nguồn, Mã đích, Hồ sơ bị ảnh hưởng, Ngày hiệu lực, Quy tắc survivorship và Có thể tách lại. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-31",
+      "screens": [
+        "MDM-31"
+      ],
+      "heading": "Ngừng dùng danh mục",
+      "text": "Ngừng dùng danh mục. Đây là màn hình, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục.",
+      "note": "Thiết kế còn nêu các thông tin: Mã, Lý do, Ngày ngừng và Đối tượng thay thế. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-32",
+      "screens": [
+        "MDM-32"
+      ],
+      "heading": "Duyệt và công bố danh mục",
+      "text": "Duyệt và công bố danh mục. Đây là màn hình phê duyệt, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Chờ duyệt và Chờ công bố.",
+      "note": "Thiết kế còn nêu các thông tin: Batch, Độ ảnh hưởng, Phiên bản và Ngày hiệu lực. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-34",
+      "screens": [
+        "MDM-34"
+      ],
+      "heading": "Thuật ngữ nghiệp vụ và phê duyệt",
+      "text": "Thuật ngữ nghiệp vụ và phê duyệt. Đây là màn hình phê duyệt, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Mã thuật ngữ, Định nghĩa, Công thức liên kết, Chủ sở hữu, Căn cứ và Trạng thái. Các thao tác chính: Đề xuất thuật ngữ.",
+      "note": "Thiết kế còn nêu các thông tin: Phiên bản. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-35",
+      "screens": [
+        "MDM-35"
+      ],
+      "heading": "Bản ghi chủ, crosswalk và tách/hợp nhất",
+      "text": "Bản ghi chủ, crosswalk và tách/hợp nhất. Đây là màn hình so sánh, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục.",
+      "note": "Thiết kế còn nêu các thông tin: Bản ghi giữ lại, Bản ghi bị hợp nhất, Alias, Mã ngoài, Thuộc tính chọn và Hoàn tác. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-36",
+      "screens": [
+        "MDM-36"
+      ],
+      "heading": "Quy tắc survivorship theo thuộc tính",
+      "text": "Quy tắc survivorship theo thuộc tính. Đây là màn hình, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Loại danh mục, Thuộc tính, Chiến lược, Thứ tự nguồn và Hiệu lực. Các thao tác chính: Thêm nguồn và Soạn bản nháp.",
+      "note": ""
+    }
+  ]
+}

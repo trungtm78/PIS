@@ -1,0 +1,83 @@
+{
+  "id": "tour-ctr-thuc-hien-thay-doi",
+  "group": "CTR",
+  "title": "Hợp đồng và thực hiện: Thực hiện & thay đổi",
+  "audience": "Chuyên viên được phân công, người duyệt theo thẩm quyền, Chuyên viên hợp đồng và nhà thầu khách trong phạm vi hợp đồng",
+  "outcome": "Biết mỗi màn hình của nhóm Thực hiện & thay đổi dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "ctr-07",
+      "screens": [
+        "CTR-07"
+      ],
+      "heading": "Yêu cầu thay đổi và phát sinh",
+      "text": "Yêu cầu thay đổi và phát sinh. Đây là biểu mẫu để nhập thông tin, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền. Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản. Không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc. Người lập khác người duyệt theo thẩm quyền. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Hợp đồng, Nội dung, Khối lượng, Chi phí, Ảnh hưởng tiến độ và Căn cứ. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-08",
+      "screens": [
+        "CTR-08"
+      ],
+      "heading": "So sánh và duyệt phụ lục",
+      "text": "So sánh và duyệt phụ lục. Đây là màn hình so sánh, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền.",
+      "note": "Thiết kế còn nêu các thông tin: Phiên bản hợp đồng, Giá trị, Phạm vi, Mốc hoàn thành và Tác động vốn. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-09",
+      "screens": [
+        "CTR-09"
+      ],
+      "heading": "Nhật ký công trường",
+      "text": "Nhật ký công trường. Đây là bảng dữ liệu, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền.",
+      "note": "Thiết kế còn nêu các thông tin: Ngày, Dự án, Hạng mục, Nhân lực, Thiết bị và Sự kiện. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-10",
+      "screens": [
+        "CTR-10"
+      ],
+      "heading": "Ghi nhận khối lượng thực hiện",
+      "text": "Ghi nhận khối lượng thực hiện. Đây là biểu mẫu để nhập thông tin, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền.",
+      "note": "Thiết kế còn nêu các thông tin: Hợp đồng, Hạng mục BOQ, Kỳ, Khối lượng lũy kế và Bằng chứng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-11",
+      "screens": [
+        "CTR-11"
+      ],
+      "heading": "Kiểm tra chất lượng và NCR",
+      "text": "Kiểm tra chất lượng và NCR. Đây là biểu mẫu để nhập thông tin, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền.",
+      "note": "Thiết kế còn nêu các thông tin: Hạng mục, Tiêu chuẩn, Kết quả, Không phù hợp, Biện pháp và Hạn khắc phục. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-14",
+      "screens": [
+        "CTR-14"
+      ],
+      "heading": "Chậm tiến độ và yêu cầu bồi hoàn",
+      "text": "Chậm tiến độ và yêu cầu bồi hoàn. Đây là biểu mẫu để nhập thông tin, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Hợp đồng, Nguyên nhân, Ngày chậm, Trách nhiệm, Hồ sơ claim và Quyết định. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-19",
+      "screens": [
+        "CTR-19"
+      ],
+      "heading": "Chuỗi thay đổi ChangeEvent → PCO → CO",
+      "text": "Chuỗi thay đổi ChangeEvent → PCO → CO. Đây là màn hình, dành cho Chuyên viên hợp đồng, người duyệt theo thẩm quyền và nhà thầu khách trong phạm vi hợp đồng. Trên màn hình có: Số tầng của chuỗi. Lúc quay, màn hình đang có 1 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Mã, Hợp đồng, Giá trị ước tính, Giá trị thẩm định, Giá trị duyệt, Ảnh hưởng tiến độ và Trạng thái. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-22",
+      "screens": [
+        "CTR-22"
+      ],
+      "heading": "Tạm dừng, tiếp tục và chấm dứt hợp đồng",
+      "text": "Tạm dừng, tiếp tục và chấm dứt hợp đồng. Đây là màn hình, dành cho Chuyên viên hợp đồng, người duyệt theo thẩm quyền và nhà thầu khách trong phạm vi hợp đồng.",
+      "note": "Thiết kế còn nêu các thông tin: Hợp đồng, Hành động, Lý do, Văn bản quyết định, Ngày hiệu lực, Xử lý bảo lãnh và Ảnh hưởng thanh toán. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

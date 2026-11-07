@@ -1,0 +1,101 @@
+{
+  "id": "tour-mdm-to-chuc-dau-tu",
+  "group": "MDM",
+  "title": "Dữ liệu chủ và danh mục: Tổ chức & đầu tư",
+  "audience": "người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục",
+  "outcome": "Biết mỗi màn hình của nhóm Tổ chức & đầu tư dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "mdm-01",
+      "screens": [
+        "MDM-01"
+      ],
+      "heading": "Trung tâm danh mục",
+      "text": "Trung tâm danh mục. Đây là các thẻ thông tin, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có xem trước tác động, phiên bản và phê duyệt. Trên màn hình có: Mọi bản ghi, Loại, Mã, Tên, Trạng thái và Hiệu lực. Lúc quay, màn hình đang có 155 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Tổ chức, Nguồn vốn, Dự án, Báo cáo và Tích hợp. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-02",
+      "screens": [
+        "MDM-02"
+      ],
+      "heading": "Địa bàn và lịch sử sáp nhập",
+      "text": "Địa bàn và lịch sử sáp nhập. Đây là sơ đồ dạng cây, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Tên, Cấp, Hiệu lực, Đơn vị kế thừa, Loại kế thừa và Căn cứ cải cách 2025. Các thao tác chính: Xem cơ cấu. Lúc quay, màn hình đang có 37 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Mã địa bàn. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-03",
+      "screens": [
+        "MDM-03"
+      ],
+      "heading": "Cơ quan và chủ đầu tư",
+      "text": "Cơ quan và chủ đầu tư. Đây là bảng dữ liệu, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Cơ cấu tại ngày và Chỉ đơn vị đang hiệu lực.",
+      "note": "Thiết kế còn nêu các thông tin: Mã đơn vị, Tên pháp lý, Loại, Cấp cha, Đơn vị kế thừa và Hiệu lực đến. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-04",
+      "screens": [
+        "MDM-04"
+      ],
+      "heading": "Nguồn vốn và cây phân loại",
+      "text": "Nguồn vốn và cây phân loại. Đây là sơ đồ dạng cây, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Quan hệ bao hàm và Hiệu lực. Các thao tác chính: Xuất. Lúc quay, màn hình đang có 9 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Mã nguồn, NSTW hoặc NSĐP và Nguồn cha. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-05",
+      "screens": [
+        "MDM-05"
+      ],
+      "heading": "Chương trình và CTMTQG",
+      "text": "Chương trình và CTMTQG. Đây là bảng dữ liệu, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Tên, Giai đoạn, Nguồn và Căn cứ. Các thao tác chính: Xuất. Lúc quay, màn hình đang có 3 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Mã chương trình. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-06",
+      "screens": [
+        "MDM-06"
+      ],
+      "heading": "Lĩnh vực đầu tư",
+      "text": "Lĩnh vực đầu tư. Đây là bảng dữ liệu, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Mã, Tên, Cấp cha và Hiệu lực. Các thao tác chính: Xuất. Lúc quay, màn hình đang có 8 dòng dữ liệu.",
+      "note": ""
+    },
+    {
+      "id": "mdm-07",
+      "screens": [
+        "MDM-07"
+      ],
+      "heading": "Nhóm và loại dự án",
+      "text": "Nhóm và loại dự án. Đây là bảng dữ liệu, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Mã, Tên và Tiêu chí. Các thao tác chính: Xuất. Lúc quay, màn hình đang có 14 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Phiên bản căn cứ. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-08",
+      "screens": [
+        "MDM-08"
+      ],
+      "heading": "Giai đoạn và trạng thái dự án",
+      "text": "Giai đoạn và trạng thái dự án. Đây là bảng dữ liệu, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Mã, Tên, Chuyển bước cho phép và Hiệu lực. Các thao tác chính: Xuất. Lúc quay, màn hình đang có 13 dòng dữ liệu.",
+      "note": ""
+    },
+    {
+      "id": "mdm-09",
+      "screens": [
+        "MDM-09"
+      ],
+      "heading": "Cấp quyết định và thẩm quyền",
+      "text": "Cấp quyết định và thẩm quyền. Đây là bảng dữ liệu, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Cơ quan, Loại quyết định, Phạm vi và Hiệu lực. Các thao tác chính: Xuất. Lúc quay, màn hình đang có 5 dòng dữ liệu.",
+      "note": ""
+    },
+    {
+      "id": "mdm-37",
+      "screens": [
+        "MDM-37"
+      ],
+      "heading": "Kế thừa đơn vị hành chính và cơ quan 2025",
+      "text": "Kế thừa đơn vị hành chính và cơ quan 2025. Đây là sơ đồ dạng cây, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Loại kế thừa, Ngày hiệu lực và Căn cứ. Các thao tác chính: Lưu nháp kế thừa.",
+      "note": "Thiết kế còn nêu các thông tin: Đơn vị trước, Đơn vị sau và Tỷ lệ chia. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

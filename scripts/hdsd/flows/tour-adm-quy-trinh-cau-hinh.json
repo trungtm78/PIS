@@ -1,0 +1,56 @@
+{
+  "id": "tour-adm-quy-trinh-cau-hinh",
+  "group": "ADM",
+  "title": "Quản trị tenant: Quy trình & cấu hình",
+  "audience": "quản trị tổ chức, quản trị đơn vị và kiểm toán viên",
+  "outcome": "Biết mỗi màn hình của nhóm Quy trình & cấu hình dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "adm-05",
+      "screens": [
+        "ADM-05"
+      ],
+      "heading": "Danh mục dùng chung",
+      "text": "Danh mục dùng chung. Đây là bảng dữ liệu, dành cho quản trị tổ chức, quản trị đơn vị và kiểm toán viên.  Trên màn hình có: Loại, Mã, Tên, Hiệu lực, Namespace và Phiên bản. Lúc quay, màn hình đang có 155 dòng dữ liệu.",
+      "note": ""
+    },
+    {
+      "id": "adm-06",
+      "screens": [
+        "ADM-06"
+      ],
+      "heading": "Dựng quy trình phê duyệt",
+      "text": "Dựng quy trình phê duyệt. Đây là màn hình, dành cho quản trị tổ chức, quản trị đơn vị và kiểm toán viên. Trên màn hình có: Loại nghiệp vụ và Phiên bản. Các thao tác chính: Soạn bản nháp mới.",
+      "note": "Thiết kế còn nêu các thông tin: Trạng thái, Chuyển bước, Vai trò, SLA, Quy tắc người duyệt, Số người duyệt và Trả lại về bước. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "adm-07",
+      "screens": [
+        "ADM-07"
+      ],
+      "heading": "Lịch công tác và ngày nghỉ",
+      "text": "Lịch công tác và ngày nghỉ. Đây là lịch, dành cho quản trị tổ chức, quản trị đơn vị và kiểm toán viên. Trên màn hình có: Ngày nghỉ, Năm, Ngày làm bù, Căn cứ và Phiên bản. Các thao tác chính: 2026-01-01, Ngày làm việc, 2026-01-02, Ngày làm việc, 2026-01-03, Ngày nghỉ hằng tuần, 2026-01-04, Ngày nghỉ hằng tuần và 2026-01-05, Ngày làm việc. Lúc quay, màn hình đang có 63 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Giờ làm việc và Hạn mặc định. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "adm-08",
+      "screens": [
+        "ADM-08"
+      ],
+      "heading": "Chữ ký số",
+      "text": "Chữ ký số. Đây là màn hình, dành cho quản trị tổ chức, quản trị đơn vị và kiểm toán viên.",
+      "note": "Thiết kế còn nêu các thông tin: Nhà cung cấp, Chứng thư, Hiệu lực, Người ký, Loại, Vân tay chứng thư và Trạng thái. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "adm-18",
+      "screens": [
+        "ADM-18"
+      ],
+      "heading": "Theo dõi quy trình phê duyệt",
+      "text": "Theo dõi quy trình phê duyệt. Đây là bảng dữ liệu, dành cho quản trị tổ chức, quản trị đơn vị và kiểm toán viên. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Hồ sơ, Loại, Số tiền, Bước hiện tại, Người xử lý, Hạn SLA, Phiên bản quy trình và Trạng thái. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

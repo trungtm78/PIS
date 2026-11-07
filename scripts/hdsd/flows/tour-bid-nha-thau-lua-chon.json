@@ -1,0 +1,101 @@
+{
+  "id": "tour-bid-nha-thau-lua-chon",
+  "group": "BID",
+  "title": "Nhà thầu và phân tích AI: Nhà thầu & lựa chọn",
+  "audience": "Tổ chuyên gia, bên mời thầu, Chuyên viên được phân công và người duyệt theo thẩm quyền",
+  "outcome": "Biết mỗi màn hình của nhóm Nhà thầu & lựa chọn dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "bid-01",
+      "screens": [
+        "BID-01"
+      ],
+      "heading": "Danh sách nhà thầu",
+      "text": "Danh sách nhà thầu. Đây là danh sách, dành cho Tổ chuyên gia và bên mời thầu. AI hỗ trợ có dẫn chứng. Không gộp theo tên gần giống. Trên màn hình có: Mã số thuế và Tên. Các thao tác chính: Đăng ký. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Năng lực, Hợp đồng, Trạng thái xác minh và Hạn chế còn hiệu lực. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bid-02",
+      "screens": [
+        "BID-02"
+      ],
+      "heading": "Hồ sơ nhà thầu",
+      "text": "Hồ sơ nhà thầu. Đây là màn hình xem chi tiết, dành cho Tổ chuyên gia và bên mời thầu.",
+      "note": "Thiết kế còn nêu các thông tin: Pháp lý, Nhân sự, Kinh nghiệm, Lịch sử thực hiện, Thẻ điểm thực hiện hợp đồng và Cấm/đình chỉ. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bid-03",
+      "screens": [
+        "BID-03"
+      ],
+      "heading": "Gói thầu và đề án",
+      "text": "Gói thầu và đề án. Đây là danh sách, dành cho Tổ chuyên gia và bên mời thầu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Gói thầu, Dự án, Giai đoạn, Hạn, KHLCNT và Nguồn vốn. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bid-15",
+      "screens": [
+        "BID-15"
+      ],
+      "heading": "Kế hoạch lựa chọn nhà thầu",
+      "text": "Kế hoạch lựa chọn nhà thầu. Đây là bảng dữ liệu, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Gói thầu, Dự toán, Phương thức, Thời gian, Trạng thái và Quyết định phê duyệt. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bid-16",
+      "screens": [
+        "BID-16"
+      ],
+      "heading": "Lập và điều chỉnh kế hoạch thầu",
+      "text": "Lập và điều chỉnh kế hoạch thầu. Đây là biểu mẫu để nhập thông tin, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền. Trên màn hình có: Dự án, Gói thầu, Giá gói thầu, Căn cứ, Phương thức, Loại hợp đồng và Hình thức. Các thao tác chính: Bỏ gói thầu, Thêm gói thầu và Lập kế hoạch.",
+      "note": "Thiết kế còn nêu các thông tin: Nguồn vốn. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bid-17",
+      "screens": [
+        "BID-17"
+      ],
+      "heading": "Theo dõi mời thầu và mốc lựa chọn",
+      "text": "Theo dõi mời thầu và mốc lựa chọn. Đây là dòng thời gian, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Gói thầu, Ngày mời, Đóng thầu, Làm rõ, Mở thầu và Nguồn mốc. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bid-18",
+      "screens": [
+        "BID-18"
+      ],
+      "heading": "Phê duyệt kết quả lựa chọn",
+      "text": "Phê duyệt kết quả lựa chọn. Đây là màn hình phê duyệt, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Gói thầu, Báo cáo chuyên gia, Nhà thầu, Giá trúng, Quyết định và Kết quả. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bid-19",
+      "screens": [
+        "BID-19"
+      ],
+      "heading": "Liên kết cổng đấu thầu và đối soát",
+      "text": "Liên kết cổng đấu thầu và đối soát. Đây là màn hình nhập dữ liệu từ tệp, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền. Trên màn hình có: Trạng thái đối soát. Lúc quay, màn hình đang có 1 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Mã gói thầu ngoài, Nguồn, Lần đồng bộ, Sai lệch, Băm tệp và Chế độ dry-run/apply. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bid-20",
+      "screens": [
+        "BID-20"
+      ],
+      "heading": "Kiến nghị và xung đột lợi ích",
+      "text": "Kiến nghị và xung đột lợi ích. Đây là biểu mẫu để nhập thông tin, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Gói thầu, Người liên quan, Khai báo, Kiến nghị, Hạn xử lý và Quyết định xử lý xung đột. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bid-21",
+      "screens": [
+        "BID-21"
+      ],
+      "heading": "Hạn chế tham gia lựa chọn nhà thầu",
+      "text": "Hạn chế tham gia lựa chọn nhà thầu. Đây là bảng dữ liệu, dành cho Chuyên viên đấu thầu. Trên màn hình có: Mã định danh của nhà thầu.",
+      "note": "Thiết kế còn nêu các thông tin: Loại hạn chế, Nguồn, Hiệu lực và Quyết định. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

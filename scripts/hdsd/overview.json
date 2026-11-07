@@ -1,0 +1,531 @@
+{
+  "valueTitle": "Hệ thống mang lại gì cho đơn vị và lãnh đạo",
+  "valueLead": "MACHVON gom toàn bộ công việc quản lý đầu tư công của một tỉnh, thành phố hoặc bộ ngành vào một nơi: từ khi hình thành dự án, bố trí vốn, chọn nhà thầu, thi công, thanh toán qua Kho bạc cho đến quyết toán, bàn giao và bảo hành. Mọi con số và mọi quyết định đều có người chịu trách nhiệm, có phiên bản, có dấu vết và có thể truy ngược về hồ sơ gốc. Các mục tiêu dưới đây là mục tiêu thiết kế và tiêu chí nghiệm thu của hệ thống; kết quả thực tế được đo trong giai đoạn chạy thử cùng khách hàng.",
+  "values": [
+    {
+      "title": "Một nguồn số liệu duy nhất cho điều hành",
+      "text": "Chủ đầu tư nhập báo cáo một lần; Sở Tài chính tổng hợp trên cùng dữ liệu; lãnh đạo xem trung tâm điều hành với hai tỷ lệ giải ngân đặt cạnh nhau. Con số nào cũng cho biết tính từ phạm vi nào, chốt ngày nào và từ hồ sơ nào, và bấm vào là thấy bản ghi nguồn. Mục tiêu thiết kế: giảm ít nhất 40% thời gian lập báo cáo so với cách làm hiện hành và đạt ít nhất 95% báo cáo đúng hạn trong giai đoạn chạy thử."
+    },
+    {
+      "title": "Phát hiện sớm dự án chậm và có người chịu trách nhiệm",
+      "text": "Cảnh báo sớm, xếp hạng giải ngân theo đơn vị, yêu cầu giải trình có hạn, vướng mắc được giao người và leo thang ba cấp (đơn vị, lãnh đạo phụ trách, tổ công tác) giúp việc chậm không bị bỏ quên. Vốn có thể được đề xuất điều chuyển từ dự án chậm sang dự án nhanh, kèm căn cứ là số liệu đã chốt."
+    },
+    {
+      "title": "Kiểm soát tiền chặt chẽ",
+      "text": "Mỗi khoản thanh toán gắn với khối lượng đã nghiệm thu và giá trị hợp đồng; hệ thống không cho thanh toán trùng một lần nghiệm thu, không cho tổng đề nghị vượt giá trị được duyệt; sai sót được sửa bằng bút toán đảo chứ không xóa. Số tiền được tính chính xác theo từng đồng. Số giải ngân dùng để báo cáo là số Kho bạc đã xác nhận."
+    },
+    {
+      "title": "Phân quyền rõ, tách người lập và người duyệt",
+      "text": "Quyền được cấp theo đơn vị, dự án hoặc hợp đồng, không theo cấp hành chính cứng. Ma trận thẩm quyền cho biết ai được duyệt đến mức tiền nào. Người lập hồ sơ không tự duyệt hồ sơ của mình; thao tác nhạy cảm yêu cầu xác thực lần hai; nhà thầu chỉ thấy hợp đồng của họ."
+    },
+    {
+      "title": "Mọi thay đổi để lại dấu vết",
+      "text": "Mọi thao tác làm đổi trạng thái đều được ghi vào nhật ký kiểm toán chỉ ghi thêm, không sửa. Hồ sơ đã gửi không bị xóa hay sửa âm thầm: điều chỉnh tạo phiên bản mới có lý do. Kỳ báo cáo được khóa sổ; muốn mở lại phải có lý do, phạm vi, thời hạn và người duyệt khác người đề nghị."
+    },
+    {
+      "title": "Làm đúng quy định, và quy định đổi thì đổi dữ liệu",
+      "text": "Mẫu biểu, ngưỡng, thời hạn và công thức theo văn bản pháp lý được lưu như dữ liệu có căn cứ pháp lý và thời hạn hiệu lực. Khi văn bản đổi, đơn vị cập nhật dữ liệu có phê duyệt thay vì chờ sửa phần mềm, và hồ sơ cũ vẫn giữ phiên bản đã áp dụng. Văn bản, quyết định, công văn được soạn, trình ký, cấp số và lưu theo thể thức nhà nước ngay trong hệ thống."
+    },
+    {
+      "title": "Dữ liệu của mỗi tổ chức được cách ly",
+      "text": "Mỗi tỉnh hoặc bộ ngành là một tổ chức riêng với dữ liệu, người dùng, thương hiệu và gói dịch vụ riêng. Người của tổ chức này không bao giờ thấy dữ liệu của tổ chức khác. Dữ liệu, bản sao lưu và nhật ký được lưu trong nước."
+    },
+    {
+      "title": "AI hỗ trợ nhưng không thay người quyết định",
+      "text": "AI giúp đọc hồ sơ dự thầu, tóm tắt và dự báo, luôn kèm dẫn chứng hoặc ghi rõ thiếu bằng chứng. AI không tự loại nhà thầu hay tự phê duyệt. Dữ liệu mật, quan trọng và cá nhân chỉ đến mô hình đặt trong nước; chi phí AI bị chặn khi vượt ngân sách đã duyệt."
+    }
+  ],
+  "lifecycleTitle": "Chuỗi nghiệp vụ toàn trình",
+  "lifecycleLead": "Dưới đây là hành trình của một dự án đầu tư công qua hệ thống, theo đúng thứ tự công việc. Mỗi bước nêu ai làm, làm gì, hệ thống kiểm soát điều gì và kết quả để lại. Các chương clip của tài liệu được sắp theo thứ tự này, nên dữ liệu ở bước trước là đầu vào của bước sau.",
+  "lifecycle": [
+    {
+      "name": "Chuẩn bị nền: tổ chức, người dùng và danh mục dùng chung",
+      "modules": [
+        "SAS",
+        "IAM",
+        "ADM",
+        "MDM"
+      ],
+      "who": "Nhà cung cấp, quản trị tổ chức, người quản lý danh mục",
+      "does": "Khởi tạo tổ chức và thương hiệu; dựng cây đơn vị; mời người dùng và cấp vai trò; khai báo loại văn bản; công bố danh mục dùng chung như địa bàn, nguồn vốn, lĩnh vực, loại dự án.",
+      "control": "Danh mục chỉ có hiệu lực sau khi được duyệt và công bố với văn bản căn cứ; người đề xuất không tự duyệt.",
+      "result": "Một tổ chức sẵn sàng làm việc với dữ liệu nền thống nhất."
+    },
+    {
+      "name": "Lập dự án và thẩm định",
+      "modules": [
+        "PRJ",
+        "DOC"
+      ],
+      "who": "Ban quản lý dự án, chủ đầu tư, người thẩm định",
+      "does": "Lập dự án ở giai đoạn Ý tưởng, đề xuất chủ trương, chấm điểm thẩm định theo bộ tiêu chí, hệ thống gợi ý nhóm dự án theo mức đầu tư, gắn mã dự án trên Hệ thống thông tin quốc gia về đầu tư công, phân công lãnh đạo phụ trách.",
+      "control": "Dự án chỉ chuyển giai đoạn khi đủ điều kiện; dự án chưa có mã quốc gia được gắn nhãn Thiếu mã và bị chặn bố trí vốn.",
+      "result": "Danh mục dự án có vòng đời rõ ràng và người chịu trách nhiệm từng dự án."
+    },
+    {
+      "name": "Bố trí kế hoạch vốn",
+      "modules": [
+        "CAP",
+        "DOC"
+      ],
+      "who": "Sở Tài chính, chuyên viên tổng hợp, lãnh đạo",
+      "does": "Lập kế hoạch trung hạn và kế hoạch năm, ghi nhận vốn được giao theo nguồn, phân bổ cho dự án theo quyết định, theo dõi số dư, điều chỉnh và điều chuyển vốn.",
+      "control": "Không phân bổ vượt nguồn, không giảm dưới số đã cam kết; sổ cái vốn chỉ ghi thêm; kế hoạch được duyệt và công bố mới có hiệu lực.",
+      "result": "Mỗi dự án biết rõ mình có bao nhiêu vốn, từ nguồn nào, theo quyết định nào."
+    },
+    {
+      "name": "Giải phóng mặt bằng và giấy phép",
+      "modules": [
+        "LND",
+        "PMT"
+      ],
+      "who": "Ban giải phóng mặt bằng, chuyên viên pháp lý dự án",
+      "does": "Theo dõi thửa đất, hộ bị ảnh hưởng, kiểm đếm, phương án bồi thường và tái định cư, chi trả, bàn giao mặt bằng; theo dõi hồ sơ pháp lý, giấy phép và thời hạn hiệu lực.",
+      "control": "Dữ liệu cá nhân của hộ dân được bảo vệ theo căn cứ xử lý và thời hạn lưu; giấy phép sắp hết hạn tự phát cảnh báo; thiếu giấy phép thì không qua được cổng nghiệm thu.",
+      "result": "Mặt bằng và thủ tục pháp lý sẵn sàng cho thi công, và nếu vướng thì có vướng mắc được giao người xử lý."
+    },
+    {
+      "name": "Lựa chọn nhà thầu",
+      "modules": [
+        "BID",
+        "LLM"
+      ],
+      "who": "Chủ đầu tư, tổ chuyên gia, người có thẩm quyền phê duyệt",
+      "does": "Lập và trình kế hoạch lựa chọn nhà thầu, tiếp nhận và khóa phiên bản hồ sơ dự thầu, phân tích có AI hỗ trợ, so sánh có nguồn, chuyên gia kiểm tra, làm rõ, lập biên bản và phê duyệt kết quả.",
+      "control": "Tiêu chí được duyệt trước và khóa phiên bản; AI chỉ gợi ý có dẫn chứng, không tự loại nhà thầu hay sửa trọng số; người duyệt khác người trình.",
+      "result": "Kết quả lựa chọn có căn cứ, truy vết được từng nhận xét về trang nguồn."
+    },
+    {
+      "name": "Ký kết và quản lý hợp đồng",
+      "modules": [
+        "CTR",
+        "DOC"
+      ],
+      "who": "Chuyên viên hợp đồng, chủ đầu tư, nhà thầu khách",
+      "does": "Soạn và ký hợp đồng, lập bảng khối lượng và mốc thanh toán, bảo lãnh, tạm ứng; quản lý thay đổi và phụ lục qua chuỗi yêu cầu thay đổi, tạm dừng hoặc chấm dứt khi cần.",
+      "control": "Hợp đồng có phiên bản theo ngày hiệu lực; không thanh toán theo đơn giá của phụ lục chưa hiệu lực; không giảm giá trị dưới khối lượng đã nghiệm thu; bảo lãnh sắp hết hạn được cảnh báo.",
+      "result": "Hợp đồng và các lần thay đổi được ghi nhận minh bạch, nhà thầu chỉ thấy phạm vi của mình."
+    },
+    {
+      "name": "Thi công, chất lượng và vướng mắc hiện trường",
+      "modules": [
+        "QMS",
+        "ISS",
+        "OMNI",
+        "MOB"
+      ],
+      "who": "Giám sát, nhà thầu, cán bộ hiện trường, đơn vị xử lý vướng mắc",
+      "does": "Ghi nhật ký thi công điện tử, kiểm tra chất lượng và lập biên bản nghiệm thu chất lượng, ghi nhận vướng mắc từ điện thoại kèm ảnh và vị trí, giao người xử lý, trao đổi với chủ đầu tư và nhà thầu trên một hộp thư chung.",
+      "control": "Nhật ký ký bằng chữ ký gắn với nội dung, điều chỉnh phải có lý do; vướng mắc có hạn xử lý theo mức độ và tự leo thang khi quá hạn; sự việc không đạt phải được đóng bằng chứng.",
+      "result": "Chất lượng và tiến độ hiện trường được ghi nhận có bằng chứng, vướng mắc không bị trôi."
+    },
+    {
+      "name": "Báo cáo giải ngân tuần và tháng",
+      "modules": [
+        "DIS",
+        "MOB"
+      ],
+      "who": "Chủ đầu tư, Ban quản lý dự án, chuyên viên Sở Tài chính",
+      "does": "Chọn kỳ và dự án, nhập khối lượng, nhập giải ngân lũy kế theo nguồn vốn, đăng ký giải ngân tháng sau, rà soát và gửi; đơn vị tổng hợp kiểm tra, trả lại hoặc xác nhận; có thể nhập nháp ngay từ điện thoại.",
+      "control": "Số lũy kế là ảnh chụp tại thời điểm, không cộng nhiều ảnh chụp; báo cáo đã gửi không sửa âm thầm, điều chỉnh có phiên bản; kỳ được khóa sổ, mở lại cần lý do và người duyệt khác.",
+      "result": "Số liệu giải ngân của toàn tỉnh được chốt thành một ảnh chụp thống nhất, đúng hạn."
+    },
+    {
+      "name": "Điều hành, cảnh báo và thông báo",
+      "modules": [
+        "HOME",
+        "BI",
+        "NOT",
+        "DGV"
+      ],
+      "who": "Lãnh đạo UBND và sở, chuyên viên tổng hợp",
+      "does": "Xem trung tâm điều hành với hai tỷ lệ giải ngân, xếp hạng đơn vị, cảnh báo sớm, hồ sơ cảnh báo từng dự án, bản đồ dự án; mở sâu từ con số xuống bản ghi nguồn; dựng dashboard riêng; nhận nhắc việc đúng người, đúng kênh.",
+      "control": "Con số chỉ lấy từ ảnh chụp đã chốt và luôn kèm phạm vi, định nghĩa, độ mới; mở sâu giữ nguyên phạm vi quyền; dữ liệu chưa đánh giá chất lượng được ghi rõ chứ không giả định.",
+      "result": "Lãnh đạo thấy ngay đơn vị nào chậm, dự án nào cần quyết định và ai chịu trách nhiệm."
+    },
+    {
+      "name": "Nghiệm thu, thanh toán và đối soát Kho bạc",
+      "modules": [
+        "CTR",
+        "PAY"
+      ],
+      "who": "Kế toán, kế toán trưởng, người duyệt thanh toán, cán bộ đối soát",
+      "does": "Nghiệm thu khối lượng, lập đề nghị tạm ứng và thanh toán, theo dõi gửi Kho bạc, nhập sao kê, đối soát giao dịch và xử lý sai lệch, thu hồi tạm ứng, đảo hoặc điều chỉnh giao dịch khi có sai sót.",
+      "control": "Một lần nghiệm thu chỉ gắn với một đề nghị còn hiệu lực; tổng thanh toán không vượt khối lượng nghiệm thu hay giá trị hợp đồng; tạm ứng có trần và thời hạn thu hồi; sổ lũy kế chống trùng ngay ở tầng dữ liệu.",
+      "result": "Số tiền thanh toán đúng, có truy vết từ đề nghị đến giao dịch Kho bạc."
+    },
+    {
+      "name": "Giám sát, đánh giá, thanh tra và kiểm toán",
+      "modules": [
+        "MNE",
+        "AUD"
+      ],
+      "who": "Chủ đầu tư, cơ quan chủ quản, đầu mối thanh tra và kiểm toán",
+      "does": "Lập báo cáo giám sát, đánh giá đầu tư theo mẫu pháp định và xuất tệp nộp lên hệ thống quốc gia; tiếp nhận kết luận thanh tra, kiểm toán, ghi nhận phát hiện, giao và theo dõi thực hiện kiến nghị, đối chiếu khoản thu hồi.",
+      "control": "Hồ sơ đang bị thanh tra hoặc kiểm toán được giữ lại theo yêu cầu pháp lý, không thể xóa hay ẩn danh; kiến nghị quá hạn tự leo thang; báo cáo đúng mẫu có hiệu lực.",
+      "result": "Đơn vị chủ động, có hồ sơ đầy đủ khi được thanh tra, kiểm toán, và khắc phục kiến nghị có bằng chứng."
+    },
+    {
+      "name": "Quyết toán, bàn giao tài sản và bảo hành",
+      "modules": [
+        "PAY",
+        "AST",
+        "PRJ"
+      ],
+      "who": "Kế toán, đơn vị tiếp nhận, chủ đầu tư",
+      "does": "Quyết toán niên độ và dự án hoàn thành, lập hồ sơ bàn giao kèm danh sách tồn tại, ghi nhận tài sản hình thành và chuyển giao, theo dõi nghĩa vụ và yêu cầu bảo hành, giải tỏa khoản giữ lại.",
+      "control": "Không giải tỏa khoản giữ lại hay bảo lãnh khi còn yêu cầu bảo hành mở; tồn tại phải được xác nhận độc lập; hồ sơ quyết toán có hạn thẩm tra theo nhóm dự án.",
+      "result": "Dự án được đóng hồ sơ đầy đủ, tài sản được ghi nhận đúng giá trị và đơn vị."
+    }
+  ],
+  "governanceTitle": "Cơ chế quản trị và kiểm soát",
+  "governanceLead": "Quản trị trong MACHVON không phải là một màn hình riêng, mà là các nguyên tắc được cài vào cách hệ thống làm việc. Bảng dưới đây liệt kê từng cơ chế, ý nghĩa với người lãnh đạo, và nơi bạn có thể nhìn thấy nó trong hệ thống.",
+  "governance": [
+    {
+      "name": "Cách ly dữ liệu giữa các tổ chức",
+      "what": "Mỗi tổ chức có ranh giới dữ liệu riêng được áp dụng ở tầng cơ sở dữ liệu, bộ nhớ đệm, tìm kiếm, tệp và xuất dữ liệu.",
+      "forLeader": "Dữ liệu của tỉnh mình không thể bị đọc nhầm hay chủ đích bởi tổ chức khác; việc tổng hợp, xếp hạng, điều chuyển vốn diễn ra trọn vẹn trong một tổ chức.",
+      "see": [
+        "IAM-04",
+        "SAS-03"
+      ]
+    },
+    {
+      "name": "Phân quyền theo phạm vi",
+      "what": "Quyền được cấp cho từng người theo toàn tổ chức, cây đơn vị, dự án hoặc hợp đồng; nhà thầu là thành viên khách chỉ thấy hợp đồng của mình.",
+      "forLeader": "Mỗi cán bộ chỉ thấy và làm đúng phần việc của mình; người quản trị không mặc nhiên đọc được hồ sơ mật.",
+      "see": [
+        "ADM-03",
+        "ADM-17",
+        "IAM-09"
+      ]
+    },
+    {
+      "name": "Ma trận thẩm quyền và quy trình phê duyệt",
+      "what": "Tổ chức tự cấu hình ai được duyệt loại việc nào đến mức tiền nào, và các bước phê duyệt của từng loại hồ sơ.",
+      "forLeader": "Thẩm quyền ký duyệt được số hóa và kiểm soát, không phụ thuộc thói quen; thay đổi quy trình cũng phải được duyệt.",
+      "see": [
+        "ADM-15",
+        "ADM-06",
+        "ADM-18"
+      ]
+    },
+    {
+      "name": "Người lập khác người duyệt",
+      "what": "Với hồ sơ cần hai người, người tạo không thể tự duyệt hồ sơ của chính mình; nút duyệt không hiện ra cho họ.",
+      "forLeader": "Giảm rủi ro một người quyết định mọi khâu, nhất là với danh mục, kế hoạch vốn và thanh toán.",
+      "see": [
+        "MDM-32",
+        "CAP-10",
+        "ADM-14"
+      ]
+    },
+    {
+      "name": "Nhật ký kiểm toán không thể sửa",
+      "what": "Mọi thao tác làm đổi trạng thái được ghi cùng lúc vào nhật ký chỉ ghi thêm; định kỳ nhật ký được niêm phong bằng chuỗi băm để phát hiện việc sửa.",
+      "forLeader": "Khi cần biết ai làm gì, lúc nào, vì sao, có thể tra cứu và xuất bản có nguồn phục vụ thanh tra, kiểm toán.",
+      "see": [
+        "ADM-11"
+      ]
+    },
+    {
+      "name": "Phiên bản và không xóa vật lý",
+      "what": "Hồ sơ đã gửi không bị xóa; chỉnh sửa tạo phiên bản mới có lý do, phiên bản cũ vẫn xem lại và so sánh được.",
+      "forLeader": "Không có chuyện số liệu hay hồ sơ bị đổi âm thầm sau khi đã báo cáo.",
+      "see": [
+        "DIS-08",
+        "DIS-11",
+        "CTR-26"
+      ]
+    },
+    {
+      "name": "Khóa sổ kỳ báo cáo",
+      "what": "Kỳ báo cáo có ba trạng thái: đang mở, khóa mềm và đã khóa. Mở lại kỳ đã khóa cần lý do, phạm vi, thời hạn và người duyệt khác người đề nghị.",
+      "forLeader": "Số liệu đã chốt cho kỳ nào thì giữ nguyên cho kỳ đó; mọi lần mở lại đều có người chịu trách nhiệm.",
+      "see": [
+        "DIS-14",
+        "DIS-21",
+        "DIS-22"
+      ]
+    },
+    {
+      "name": "Số liệu luôn kèm ngữ cảnh",
+      "what": "Mỗi chỉ tiêu cho biết phạm vi, định nghĩa, ngày chốt, nguồn và độ mới; lũy kế là ảnh chụp, không cộng dồn nhiều ảnh chụp; hai tỷ lệ giải ngân luôn hiển thị song song.",
+      "forLeader": "Lãnh đạo tin được con số vì biết nó tính từ đâu, và có thể mở sâu đến bản ghi nguồn mà không mất phạm vi quyền.",
+      "see": [
+        "HOME-01",
+        "HOME-10",
+        "DIS-19"
+      ]
+    },
+    {
+      "name": "Kiểm soát vốn và thanh toán",
+      "what": "Không phân bổ vượt nguồn vốn; vốn được giữ trước khi cam kết; thanh toán đi qua sổ lũy kế theo hợp đồng, dòng khối lượng và nghiệm thu; sai sót sửa bằng bút toán đảo.",
+      "forLeader": "Ngăn thanh toán trùng và thanh toán vượt, để lại dấu vết cho kiểm toán, và bảo đảm báo cáo giải ngân dựa trên số Kho bạc xác nhận.",
+      "see": [
+        "CAP-17",
+        "CAP-18",
+        "PAY-10",
+        "PAY-08"
+      ]
+    },
+    {
+      "name": "Cảnh báo sớm, leo thang và giải trình",
+      "what": "Quy tắc cảnh báo giải ngân chậm; yêu cầu giải trình có hạn; vướng mắc có hạn xử lý theo mức độ và leo thang ba cấp; kiến nghị thanh tra quá hạn tự leo thang.",
+      "forLeader": "Việc chậm hiện ra sớm, có tên người chịu trách nhiệm và hạn xử lý, thay vì chỉ lộ ra khi đã trễ.",
+      "see": [
+        "HOME-03",
+        "PRJ-19",
+        "ISS-10",
+        "AUD-11"
+      ]
+    },
+    {
+      "name": "Xác thực mạnh và quản lý thiết bị",
+      "what": "Đăng nhập qua trang xác thực của tổ chức; thao tác nhạy cảm như chọn vai trò quản trị hay đổi quyền yêu cầu xác thực lần hai; phiên và thiết bị được liệt kê để người dùng tự thu hồi.",
+      "forLeader": "Giảm rủi ro lộ tài khoản; có thể khóa thiết bị mất ngay.",
+      "see": [
+        "IAM-02",
+        "IAM-06"
+      ]
+    },
+    {
+      "name": "Quy định pháp lý là dữ liệu có phiên bản",
+      "what": "Mẫu biểu, ngưỡng nhóm dự án, hạn báo cáo, trần tạm ứng... lưu cùng căn cứ pháp lý và thời hạn hiệu lực; hồ sơ giữ phiên bản đã áp dụng.",
+      "forLeader": "Văn bản pháp luật đổi thì cập nhật dữ liệu có phê duyệt, không phải chờ phát hành lại phần mềm, và hồ sơ cũ không bị tính lại sai.",
+      "see": [
+        "DOC-14",
+        "DOC-16",
+        "MDM-33"
+      ]
+    },
+    {
+      "name": "Giữ hồ sơ theo yêu cầu pháp lý và lưu trữ",
+      "what": "Thời hạn lưu trữ là chính sách có dữ liệu; hồ sơ thuộc diện thanh tra, kiểm toán hoặc khiếu nại bị giữ lại, không bị xóa hay ẩn danh cho đến khi gỡ giữ có lý do.",
+      "forLeader": "Bảo vệ hồ sơ làm chứng cứ và đồng thời tuân thủ quy định bảo vệ dữ liệu cá nhân.",
+      "see": [
+        "ADM-12",
+        "AUD-03"
+      ]
+    },
+    {
+      "name": "Quản trị AI có kiểm soát",
+      "what": "Mỗi yêu cầu AI mang phân loại dữ liệu; dữ liệu mật và cá nhân chỉ đến mô hình trong nước; có ngân sách, định tuyến, phê duyệt phát hành và dừng khẩn cấp; quyết định cuối cùng ghi nhận là của con người.",
+      "forLeader": "Dùng được lợi ích của AI mà không đưa dữ liệu nhà nước ra ngoài, không phát sinh chi phí ngoài ngân sách.",
+      "see": [
+        "LLM-07",
+        "LLM-19",
+        "LLM-20",
+        "LLM-18"
+      ]
+    },
+    {
+      "name": "Quản trị chất lượng dữ liệu",
+      "what": "Mỗi bộ dữ liệu có chủ sở hữu, hợp đồng dữ liệu, quy tắc chất lượng, kết quả kiểm tra, đường truy nguồn và đánh giá mức trưởng thành dựa trên bằng chứng.",
+      "forLeader": "Biết dữ liệu nào đáng tin để điều hành, ai chịu trách nhiệm cải thiện, và dữ liệu chưa đánh giá được ghi rõ là chưa đánh giá.",
+      "see": [
+        "DGV-01"
+      ]
+    },
+    {
+      "name": "Thông báo có đồng ý và có kiểm soát",
+      "what": "Thông báo gửi đúng người, đúng kênh, tôn trọng giờ yên lặng; tin gửi tới liên hệ cá nhân cần đồng ý theo mục đích; chiến dịch diện rộng phải qua người duyệt khác người tạo.",
+      "forLeader": "Nhắc việc hiệu quả mà vẫn tuân thủ quy định bảo vệ dữ liệu cá nhân.",
+      "see": [
+        "NOT-17",
+        "NOT-09",
+        "NOT-04"
+      ]
+    }
+  ],
+  "modulesTitle": "Các phân hệ của hệ thống",
+  "modulesLead": "Hệ thống gồm 25 phân hệ nghiệp vụ và nền tảng. Mỗi thẻ dưới đây nói phân hệ làm gì, ai dùng, nó đóng góp gì cho quản trị, và dẫn đến các chương clip hướng dẫn.",
+  "modules": [
+    {
+      "code": "HOME",
+      "does": "Trung tâm điều hành: tổng quan giải ngân, việc của tôi, cảnh báo sớm, xếp hạng đơn vị, bản đồ dự án, cơ cấu nguồn vốn, và mở sâu từ con số xuống bản ghi nguồn.",
+      "users": "Lãnh đạo, chuyên viên tổng hợp",
+      "governance": "Chỉ hiển thị số liệu của ảnh chụp đã chốt, kèm phạm vi, định nghĩa và độ mới."
+    },
+    {
+      "code": "IAM",
+      "does": "Đăng nhập, xác thực hai bước, khôi phục truy cập, chọn tổ chức và vai trò, hồ sơ cá nhân, phiên và thiết bị, tìm kiếm toàn hệ thống, trợ giúp và yêu cầu hỗ trợ.",
+      "users": "Mọi người dùng",
+      "governance": "Xác thực mạnh cho thao tác nhạy cảm; người dùng tự quản thiết bị; xem được phạm vi quyền hiệu lực của mình."
+    },
+    {
+      "code": "PRJ",
+      "does": "Danh mục dự án, tạo dự án, không gian dự án, vòng đời từ ý tưởng đến đóng hồ sơ, chấm điểm thẩm định, WBS và tiến độ, rủi ro, phân công lãnh đạo phụ trách, tổ công tác đôn đốc, giải trình, mã dự án quốc gia.",
+      "users": "Ban quản lý dự án, chủ đầu tư, lãnh đạo",
+      "governance": "Dự án chỉ chuyển giai đoạn khi đủ điều kiện; có người chịu trách nhiệm và yêu cầu giải trình có hạn."
+    },
+    {
+      "code": "CAP",
+      "does": "Kế hoạch vốn trung hạn và hằng năm, nguồn vốn, quyết định giao vốn, phân bổ, điều chỉnh và điều chuyển, đăng ký giải ngân tháng, kiểm soát hạn mức khả dụng, giữ vốn, đề xuất điều chuyển từ dự án chậm sang nhanh, sổ cái vốn.",
+      "users": "Sở Tài chính, chuyên viên kế hoạch, lãnh đạo",
+      "governance": "Không phân bổ vượt nguồn; kế hoạch phải được duyệt và công bố; sổ cái vốn chỉ ghi thêm."
+    },
+    {
+      "code": "DIS",
+      "does": "Báo cáo giải ngân tuần và tháng: chọn kỳ và dự án, nhập khối lượng và giải ngân theo nguồn, đăng ký tháng sau, rà soát và gửi, tổng hợp, lịch kỳ và khóa sổ, tiến độ nộp, cảnh báo sớm, dự báo ước cuối năm.",
+      "users": "Chủ đầu tư, Ban quản lý dự án, chuyên viên Sở Tài chính",
+      "governance": "Lũy kế là ảnh chụp; báo cáo có phiên bản; kỳ được khóa sổ và mở lại có kiểm soát."
+    },
+    {
+      "code": "PAY",
+      "does": "Đề nghị thanh toán và tạm ứng, chứng từ, theo dõi gửi Kho bạc, nhập sao kê, đối soát và xử lý sai lệch, thu hồi tạm ứng, đảo và điều chỉnh giao dịch, quyết toán niên độ và dự án hoàn thành.",
+      "users": "Kế toán, kế toán trưởng, người duyệt thanh toán, cán bộ đối soát",
+      "governance": "Chống thanh toán trùng và vượt ngay ở tầng dữ liệu; sửa sai bằng bút toán đảo."
+    },
+    {
+      "code": "CTR",
+      "does": "Danh mục và vòng đời hợp đồng, bảng khối lượng, bảo lãnh, thay đổi và phụ lục, ghi nhận khối lượng, nghiệm thu, giữ lại, bàn giao, bảo hành, quyết toán hợp đồng, bảng điểm nhà thầu.",
+      "users": "Chuyên viên hợp đồng, chủ đầu tư, nhà thầu khách",
+      "governance": "Hợp đồng có phiên bản và hiệu lực theo ngày; chuỗi thay đổi có tầng duyệt cố định."
+    },
+    {
+      "code": "BID",
+      "does": "Kế hoạch lựa chọn nhà thầu, gói thầu, hồ sơ nhà thầu, tiếp nhận hồ sơ dự thầu, phân tích có AI hỗ trợ, so sánh có nguồn, thẩm tra của chuyên gia, làm rõ, biên bản, kết quả và kiến nghị.",
+      "users": "Chủ đầu tư, tổ chuyên gia, bên mời thầu",
+      "governance": "Tiêu chí được duyệt và khóa; AI không tự quyết; kiểm soát xung đột lợi ích."
+    },
+    {
+      "code": "ISS",
+      "does": "Ghi nhận và xử lý vướng mắc: giao người, hạn xử lý theo mức độ, chuyển cấp và gia hạn, kiểm tra hiện trường, xác nhận hoàn tất, ma trận vướng mắc theo tuần.",
+      "users": "Cán bộ hiện trường, đơn vị xử lý, lãnh đạo phụ trách",
+      "governance": "Vướng mắc có hạn, tự leo thang ba cấp và chỉ đóng khi có xác nhận độc lập."
+    },
+    {
+      "code": "LND",
+      "does": "Giải phóng mặt bằng, bồi thường, hỗ trợ và tái định cư: thửa đất, hộ bị ảnh hưởng, kiểm đếm, phương án, niêm yết, chi trả, khiếu nại, cưỡng chế, bàn giao mặt bằng.",
+      "users": "Ban giải phóng mặt bằng, Trung tâm phát triển quỹ đất, UBND xã phường",
+      "governance": "Dữ liệu cá nhân của hộ dân có căn cứ xử lý và thời hạn lưu; từng bước đều có mốc thời gian pháp định."
+    },
+    {
+      "code": "PMT",
+      "does": "Hồ sơ pháp lý và giấy phép của dự án: danh mục loại giấy phép, hồ sơ, mốc xử lý, cấp, từ chối, cấp lại, thu hồi, cảnh báo hết hạn, miễn trừ.",
+      "users": "Chuyên viên pháp lý dự án, lãnh đạo phụ trách",
+      "governance": "Thiếu hoặc hết hạn giấy phép bị chặn ở cổng nghiệm thu và có cảnh báo trước hạn."
+    },
+    {
+      "code": "QMS",
+      "does": "Nhật ký thi công điện tử, kiểm tra chất lượng, biên bản nghiệm thu chất lượng, sự việc không phù hợp và khắc phục, ảnh hiện trường.",
+      "users": "Giám sát, nhà thầu, chủ đầu tư",
+      "governance": "Nhật ký ký bằng chữ ký gắn nội dung, khóa theo ngày, điều chỉnh có lý do."
+    },
+    {
+      "code": "AST",
+      "does": "Hồ sơ bàn giao công trình, danh sách tồn tại, ghi nhận và chuyển giao tài sản, nghĩa vụ và yêu cầu bảo hành, giải tỏa khoản giữ lại.",
+      "users": "Đơn vị tiếp nhận, chủ đầu tư, kế toán tài sản",
+      "governance": "Không giải tỏa khoản giữ lại khi còn yêu cầu bảo hành mở."
+    },
+    {
+      "code": "DOC",
+      "does": "Văn bản và báo cáo theo chuẩn nhà nước: soạn thảo, rà soát và trình ký, ký số, cấp số, phát hành, văn bản đến, mẫu và thể thức, hồ sơ và lưu trữ, thu hồi và đính chính, liên thông.",
+      "users": "Văn thư, chuyên viên soạn thảo, lãnh đạo ký",
+      "governance": "Số văn bản cấp sau khi ký, không trùng; mẫu có căn cứ pháp lý và hiệu lực; chữ ký số được xác minh."
+    },
+    {
+      "code": "MNE",
+      "does": "Báo cáo giám sát và đánh giá đầu tư theo mẫu pháp định: lịch nghĩa vụ, lập, rà soát, phát hành, xuất tệp nộp hệ thống quốc gia, theo dõi tiến độ nộp, đính chính.",
+      "users": "Chủ đầu tư, cơ quan chủ quản",
+      "governance": "Mẫu biểu có hiệu lực theo văn bản; hạn nộp được nhắc và theo dõi."
+    },
+    {
+      "code": "AUD",
+      "does": "Thanh tra, kiểm toán và theo dõi khắc phục: cuộc thanh tra, kết luận, phát hiện, kiến nghị tài chính và phi tài chính, thực hiện kiến nghị, đối chiếu thu hồi, bằng chứng khắc phục.",
+      "users": "Đầu mối thanh tra và kiểm toán, đơn vị được thanh tra",
+      "governance": "Hồ sơ bị giữ theo yêu cầu pháp lý; kiến nghị quá hạn tự leo thang."
+    },
+    {
+      "code": "BI",
+      "does": "Thư viện và trình dựng dashboard, danh mục chỉ tiêu có định nghĩa và phiên bản, phân quyền dòng và cột, lịch xuất, chia sẻ, nhật ký truy vấn, đường truy nguồn.",
+      "users": "Lãnh đạo, chuyên viên phân tích",
+      "governance": "Mỗi chỉ tiêu có định nghĩa, kỳ và ảnh chụp dữ liệu; tôn trọng quyền đọc của từng người."
+    },
+    {
+      "code": "NOT",
+      "does": "Hộp thông báo, tùy chọn kênh và giờ yên lặng, đồng ý nhận tin, danh mục sự kiện, mẫu thông báo, chiến dịch, theo dõi gửi và chi phí.",
+      "users": "Mọi người dùng; quản trị thông báo",
+      "governance": "Tôn trọng đồng ý và mục đích; chiến dịch diện rộng cần người duyệt khác người tạo."
+    },
+    {
+      "code": "OMNI",
+      "does": "Hộp thư hợp nhất cho trao đổi với chủ đầu tư, nhà thầu và người dân qua nhiều kênh: phân công, hạn phản hồi, danh bạ, đồng ý, mẫu trả lời nhanh, chuyển hội thoại thành vướng mắc.",
+      "users": "Cán bộ tiếp nhận, giám sát hội thoại",
+      "governance": "Trao đổi gắn với hồ sơ, có hạn phản hồi và không mất khi cán bộ nghỉ việc."
+    },
+    {
+      "code": "LLM",
+      "does": "Quản trị AI: nhà cung cấp và mô hình, định tuyến, khóa, ngân sách và hạn mức, bảng giá, prompt có phiên bản, bộ đánh giá, guardrail, phê duyệt phát hành, sự cố và dừng khẩn cấp, nhật ký định tuyến.",
+      "users": "Quản trị AI, quản trị chi phí",
+      "governance": "Phân loại dữ liệu quyết định tuyến; chặn vượt ngân sách trước khi gọi; ghi nhận quyết định của con người."
+    },
+    {
+      "code": "ADM",
+      "does": "Quản trị tổ chức: cây đơn vị, người dùng và khách nhà thầu, vai trò và quyền, ủy quyền, ma trận thẩm quyền, quy trình phê duyệt, lịch làm việc, chữ ký số, tích hợp, nhật ký kiểm toán, chính sách lưu trữ, nhập chuyển đổi, cấu hình an toàn.",
+      "users": "Quản trị tổ chức, kiểm toán viên",
+      "governance": "Là nơi cấu hình các kiểm soát nội bộ và tra cứu nhật ký kiểm toán."
+    },
+    {
+      "code": "SAS",
+      "does": "Vận hành nền tảng: khởi tạo tổ chức, thương hiệu, tên miền, gói và thuê bao, hóa đơn, đo mức sử dụng, cấp và gia hạn license, sức khỏe nền tảng, sao lưu và khôi phục, xuất dữ liệu khi kết thúc dịch vụ.",
+      "users": "Quản trị hệ thống của nhà cung cấp",
+      "governance": "Cấp quyền theo license; hỗ trợ truy cập nội dung tổ chức chỉ khi được chấp thuận, có thời hạn và ghi nhật ký."
+    },
+    {
+      "code": "MDM",
+      "does": "Dữ liệu chủ và danh mục dùng chung: địa bàn, cơ quan và chủ đầu tư, nguồn vốn, chương trình, lĩnh vực, loại dự án, lịch kỳ, thuật ngữ, ánh xạ mã liên hệ thống, hợp nhất mã trùng, vòng đời danh mục.",
+      "users": "Người quản lý danh mục, người duyệt danh mục",
+      "governance": "Danh mục có hiệu lực theo thời gian, có độ ảnh hưởng, người duyệt khác người đề xuất, mã đã dùng không xóa."
+    },
+    {
+      "code": "DGV",
+      "does": "Quản trị dữ liệu: danh mục dữ liệu, hợp đồng dữ liệu, quy tắc chất lượng, kết quả kiểm tra, sự cố chất lượng, đường truy nguồn, bảo vệ dữ liệu cá nhân, đánh giá trưởng thành.",
+      "users": "Chủ sở hữu dữ liệu, người quản lý dữ liệu, cán bộ bảo vệ dữ liệu",
+      "governance": "Dữ liệu có chủ sở hữu và chất lượng được đo; dữ liệu chưa đánh giá được ghi rõ."
+    },
+    {
+      "code": "MOB",
+      "does": "Ứng dụng điện thoại cho lãnh đạo và cán bộ: xem điều hành, duyệt, nhập nháp báo cáo, ghi vướng mắc hiện trường kèm ảnh và vị trí, nhật ký công trường, theo dõi thanh toán, thông báo, hội thoại, hoạt động ngoại tuyến.",
+      "users": "Lãnh đạo, cán bộ hiện trường, cán bộ báo cáo",
+      "governance": "Dữ liệu ngoại tuyến chỉ là bản nháp; phê duyệt và quyền được kiểm tra lại trên máy chủ."
+    }
+  ],
+  "phoneTitle": "Ứng dụng điện thoại",
+  "phoneLead": "Ứng dụng điện thoại dùng chung một mã nguồn cho Android và iOS, phục vụ những việc cần làm mọi lúc mọi nơi. Phần cấu hình nặng như dựng dashboard, bảng giá AI, nhập danh mục hàng loạt và quản trị nền tảng ở lại trên web. Ứng dụng có năm thẻ ở thanh dưới cùng: Trang chủ, Dự án, Phê duyệt, Thông báo và Cá nhân.",
+  "phoneItems": [
+    {
+      "who": "Lãnh đạo",
+      "does": "Xem trang chủ lãnh đạo, cơ cấu nguồn vốn, dự án chưa nộp báo cáo, vướng mắc theo tuần, bản đồ hiện trường; phê duyệt và ký ngay trên điện thoại sau khi xác thực."
+    },
+    {
+      "who": "Cán bộ báo cáo",
+      "does": "Chọn kỳ, nhập khối lượng và giải ngân theo nguồn, đính kèm chứng từ, rà soát và gửi báo cáo; có danh sách nháp để làm tiếp."
+    },
+    {
+      "who": "Cán bộ hiện trường",
+      "does": "Ghi vướng mắc, chụp ảnh có chú thích, định vị và kiểm tra hiện trường, ghi nhật ký công trường, ghi nhận khối lượng và bằng chứng, kiểm tra chất lượng, nhận nhiệm vụ giải phóng mặt bằng."
+    },
+    {
+      "who": "Kế toán và chuyên gia",
+      "does": "Theo dõi tiến trình thanh toán và đối soát Kho bạc, đọc tóm tắt phân tích nhà thầu và hỏi đáp có nguồn từ AI."
+    },
+    {
+      "who": "Mọi người dùng",
+      "does": "Nhận thông báo, trao đổi theo hồ sơ, tìm kiếm trong hệ thống, xem hàng đợi gửi khi mất mạng, quản lý thiết bị và sinh trắc học, gửi phản hồi."
+    }
+  ],
+  "flowModules": {
+    "01-dang-nhap": [
+      "IAM"
+    ],
+    "02-danh-muc-dia-ban": [
+      "MDM",
+      "DOC"
+    ],
+    "03-tao-du-an": [
+      "PRJ"
+    ]
+  }
+}

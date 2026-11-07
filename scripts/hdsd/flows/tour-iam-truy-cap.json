@@ -1,0 +1,38 @@
+{
+  "id": "tour-iam-truy-cap",
+  "group": "IAM",
+  "title": "Truy cập và cá nhân: Truy cập",
+  "audience": "Người dùng hệ thống",
+  "outcome": "Biết mỗi màn hình của nhóm Truy cập dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "iam-01",
+      "screens": [
+        "IAM-01"
+      ],
+      "heading": "Đăng nhập",
+      "text": "Đăng nhập. Đây là màn hình xác thực. Khóa 15 phút sau 5 lần sai. Thông điệp lỗi không xác nhận tài khoản tồn tại.",
+      "note": "Thiết kế còn nêu các thông tin: Tài khoản, Mật khẩu, Nhà cung cấp định danh và Thông báo phiên hết hạn. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "iam-02",
+      "screens": [
+        "IAM-02"
+      ],
+      "heading": "Xác thực hai bước",
+      "text": "Xác thực hai bước. Đây là màn hình xác thực. Trên màn hình có: Mã xác thực, Phương thức và Thiết bị tin cậy. Các thao tác chính: Xác thực tại nhà cung cấp định danh.",
+      "note": ""
+    },
+    {
+      "id": "iam-03",
+      "screens": [
+        "IAM-03"
+      ],
+      "heading": "Khôi phục truy cập",
+      "text": "Khôi phục truy cập. Đây là biểu mẫu để nhập thông tin.",
+      "note": "Thiết kế còn nêu các thông tin: Email công vụ, Mã xác minh và Kênh nhận mã. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

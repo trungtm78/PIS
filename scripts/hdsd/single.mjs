@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'no
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadChapters } from './chapters.mjs';
+import { overviewHtml } from './overview.mjs';
 import { REPO_ROOT, cacheDir, loadFlow, mmss } from './lib.mjs';
 import { coverageOf, screensById } from './site.mjs';
 import { FFMPEG } from './tts.mjs';
@@ -146,7 +147,8 @@ if (find) find.addEventListener('input', () => {
 `;
 
 /** The whole guide in one page: nothing outside it is needed to read it or to play the clips. */
-export function guideHtml({ intro, content, chapters, screens, assets, catalogue, coverage, reasons, built }) {
+export function guideHtml({ intro, content, overview, chapters, screens, assets, catalogue, coverage, reasons, built }) {
+  const about = overview === undefined ? undefined : overviewHtml(overview, { catalogue, screens, chapters });
   const groups = new Map();
   chapters.forEach((chapter, index) => groups.set(chapter.group ?? 'Khác', [...(groups.get(chapter.group ?? 'Khác') ?? []), { ...chapter, number: index + 1 }]));
   const toc = [...groups]
@@ -169,15 +171,21 @@ export function guideHtml({ intro, content, chapters, screens, assets, catalogue
 <style>${readFileSync(join(REPO_ROOT, 'docs', 'hdsd', 'machvon', 'style.css'), 'utf8')}
 .top nav{display:inline-flex;gap:16px;margin-left:24px;flex-wrap:wrap}.top a{text-decoration:none}
 section[id]{scroll-margin-top:60px}h4{margin:1.2em 0 .3em}details.steps>summary,details.faq>summary{cursor:pointer;font-weight:600;margin:6px 0}details.faq{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 14px;margin:8px 0}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px}.card h4{margin:.1em 0 .4em}.card small{color:#6b6b6b;font-weight:400}ol.chain{list-style:none;counter-reset:chain;padding:0}ol.chain>li{counter-increment:chain;position:relative;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px 8px 58px;margin:12px 0}ol.chain>li::before{content:counter(chain);position:absolute;left:14px;top:14px;width:32px;height:32px;border-radius:50%;background:#b3213e;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}ol.chain h4{margin:.1em 0 .3em}.mods{margin:.2em 0}
 .chapter-block{background:#fbfaf9;border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:26px 0}.chapter-block h3{font-size:22px;margin:.2em 0 .5em}
 #find{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:8px;font-size:16px;margin:10px 0}dt{font-weight:700;margin-top:.8em}dd{margin:0 0 0 1em}
 </style>
 </head>
 <body>
-<header class="top"><strong>MACHVON</strong><nav><a href="#gioi-thieu">Giới thiệu</a><a href="#vai-tro">Vai trò</a><a href="#muc-luc">Các chương</a><a href="#thuc-don">Thực đơn</a><a href="#tra-cuu">Tra cứu màn hình</a><a href="#hoi-dap">Hỏi đáp</a><a href="#thuat-ngu">Thuật ngữ</a></nav></header>
+<header class="top"><strong>MACHVON</strong><nav><a href="#gioi-thieu">Giới thiệu</a>${about === undefined ? '' : '<a href="#gia-tri">Giá trị</a><a href="#chuoi-nghiep-vu">Nghiệp vụ</a><a href="#quan-tri">Quản trị</a><a href="#phan-he">Phân hệ</a>'}<a href="#vai-tro">Vai trò</a><a href="#muc-luc">Các chương</a><a href="#thuc-don">Thực đơn</a><a href="#tra-cuu">Tra cứu màn hình</a><a href="#hoi-dap">Hỏi đáp</a><a href="#thuat-ngu">Thuật ngữ</a></nav></header>
 <main class="chapter home">
 <section class="hero"><h1>${escapeHtml(intro.title)}</h1><p>${escapeHtml(intro.lead)}</p><span class="badge">${chapters.length} clip hướng dẫn · ${coverage.covered}/${coverage.total} màn hình · bản ${escapeHtml(built)}</span></section>
 <section id="gioi-thieu"><h2>Giới thiệu</h2>${intro.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('\n')}</section>
+${about?.values ?? ''}
+${about?.chain ?? ''}
+${about?.governance ?? ''}
+${about?.modules ?? ''}
+${about?.phone ?? ''}
 ${roles}
 <section id="bat-dau"><h2>Bắt đầu nhanh</h2><ol>${intro.quickStart.map((item) => `<li>${escapeHtml(item)}</li>`).join('\n')}</ol></section>
 <section id="muc-luc"><h2>Các chương theo thứ tự công việc</h2>${toc}</section>
@@ -207,13 +215,15 @@ export function buildSingle({ root = REPO_ROOT, cache = cacheDir(), out, log = c
     .map((chapter) => {
       const flow = loadFlow(chapter.id, root);
       const timeline = JSON.parse(readFileSync(join(machvon, `${chapter.id}.timeline.json`), 'utf8')).timeline;
-      return { id: flow.id, title: flow.title, audience: flow.audience, group: flow.group, flow, timeline, durationMs: Math.max(...timeline.map((entry) => entry.endMs)) };
+      return { id: flow.id, title: flow.title, audience: flow.audience, group: flow.group, module: chapter.module, flow, timeline, durationMs: Math.max(...timeline.map((entry) => entry.endMs)) };
     });
   const timelines = new Map(chapters.map((chapter) => [chapter.id, chapter.timeline]));
   const coverage = coverageOf(catalogue, chapters.map((chapter) => chapter.flow), timelines);
   const reasonsFile = join(root, 'scripts', 'hdsd', 'not-filmed.json');
   const reasons = new Map(existsSync(reasonsFile) ? Object.entries(JSON.parse(readFileSync(reasonsFile, 'utf8'))) : []);
   const intro = JSON.parse(readFileSync(join(root, 'scripts', 'hdsd', 'site.json'), 'utf8'));
+  const overviewFile = join(root, 'scripts', 'hdsd', 'overview.json');
+  const overview = existsSync(overviewFile) ? JSON.parse(readFileSync(overviewFile, 'utf8')) : undefined;
   const contentFile = join(root, 'scripts', 'hdsd', 'content.json');
   const content = { roles: [], rolesIntro: '', menu: [], faq: [], glossary: [], notes: [], ...(existsSync(contentFile) ? JSON.parse(readFileSync(contentFile, 'utf8')) : {}) };
   if (content.menu.length === 0) {
@@ -227,7 +237,7 @@ export function buildSingle({ root = REPO_ROOT, cache = cacheDir(), out, log = c
     poster: (id) => dataUri('image/jpeg', readFileSync(packImage(join(machvon, 'img', id, 'poster.jpg'), join(cache, 'pack', id, 'poster.jpg')))),
     image: (id, step) => dataUri('image/jpeg', readFileSync(packImage(join(machvon, 'img', id, `${step}.png`), join(cache, 'pack', id, `${step}.jpg`)))),
   };
-  const html = guideHtml({ intro, content, chapters, screens, assets, catalogue, coverage, reasons, built: new Date().toISOString().slice(0, 10) });
+  const html = guideHtml({ intro, content, overview, chapters, screens, assets, catalogue, coverage, reasons, built: new Date().toISOString().slice(0, 10) });
   const target = out ?? join(docs, 'Huong-dan-su-dung-MACHVON.html');
   writeFileSync(target, html);
   const megabytes = statSync(target).size / 1_048_576;

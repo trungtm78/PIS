@@ -1,0 +1,83 @@
+{
+  "id": "tour-dis-tong-hop-phan-tich",
+  "group": "DIS",
+  "title": "Báo cáo giải ngân: Tổng hợp & phân tích",
+  "audience": "Chủ đầu tư, chuyên viên tổng hợp và Sở Tài chính",
+  "outcome": "Biết mỗi màn hình của nhóm Tổng hợp & phân tích dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "dis-11",
+      "screens": [
+        "DIS-11"
+      ],
+      "heading": "Lịch sử và so sánh",
+      "text": "Lịch sử và so sánh. Đây là màn hình so sánh, dành cho Chủ đầu tư và chuyên viên tổng hợp. Lũy kế là ảnh chụp số liệu không cộng giữa các tuần.",
+      "note": "Thiết kế còn nêu các thông tin: Phiên bản A, Phiên bản B và Người sửa. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-12",
+      "screens": [
+        "DIS-12"
+      ],
+      "heading": "Tổng hợp theo chủ đầu tư",
+      "text": "Tổng hợp theo chủ đầu tư. Đây là bảng dữ liệu, dành cho Chủ đầu tư và chuyên viên tổng hợp. Trên màn hình có: Số liệu đã chốt.",
+      "note": "Thiết kế còn nêu các thông tin: Đơn vị, Tổng kế hoạch, Lũy kế, Tỷ lệ, Tỷ lệ theo KH TTg giao, Tỷ lệ theo KH gồm địa phương giao thêm và Ngày chốt Kho bạc. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-13",
+      "screens": [
+        "DIS-13"
+      ],
+      "heading": "Báo cáo thuyết minh tháng",
+      "text": "Báo cáo thuyết minh tháng. Đây là biểu mẫu để nhập thông tin, dành cho Chủ đầu tư và chuyên viên tổng hợp. Trên màn hình có: Tháng báo cáo và Dự án. Các thao tác chính: Bắt đầu báo cáo tháng.",
+      "note": "Thiết kế còn nêu các thông tin: Kết quả, Nguyên nhân và Giải pháp. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-16",
+      "screens": [
+        "DIS-16"
+      ],
+      "heading": "Bảng số liệu đầy đủ và cấu hình cột",
+      "text": "Bảng số liệu đầy đủ và cấu hình cột. Đây là bảng dữ liệu, dành cho Chủ đầu tư và chuyên viên tổng hợp. Trên màn hình có: Số liệu đã chốt. Các thao tác chính: Cấu hình cột. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Dự án, Vốn giao, Khối lượng, Nghiệm thu, Đã gửi KBNN, Lũy kế, Đăng ký, Tỷ lệ theo KH TTg giao và Tỷ lệ theo KH gồm địa phương giao thêm. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-17",
+      "screens": [
+        "DIS-17"
+      ],
+      "heading": "Xem trước xuất báo cáo",
+      "text": "Xem trước xuất báo cáo. Đây là màn hình rà soát, dành cho Chủ đầu tư và chuyên viên tổng hợp. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Phạm vi, Kỳ, Snapshot, Đơn vị tính, Cột và Định dạng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-19",
+      "screens": [
+        "DIS-19"
+      ],
+      "heading": "Hai tỷ lệ giải ngân song song",
+      "text": "Hai tỷ lệ giải ngân song song. Đây là bảng dữ liệu, dành cho Chủ đầu tư, chuyên viên tổng hợp và Sở Tài chính. Trên màn hình có: Số liệu đã chốt và Nguồn vốn.",
+      "note": "Thiết kế còn nêu các thông tin: Phạm vi, KH TTg giao, KH địa phương giao thêm, Đã giải ngân, Tỷ lệ theo KH TTg giao, Tỷ lệ theo KH gồm giao thêm và Độ phủ Kho bạc. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-23",
+      "screens": [
+        "DIS-23"
+      ],
+      "heading": "Dự báo dòng tiền và ước cuối năm (EAC)",
+      "text": "Dự báo dòng tiền và ước cuối năm (EAC). Đây là biểu đồ, dành cho Chủ đầu tư, chuyên viên tổng hợp và Sở Tài chính. Trên màn hình có: Số liệu đã chốt.",
+      "note": "Thiết kế còn nêu các thông tin: Dự án/đơn vị, Đã giải ngân, Dự báo theo tháng, Ước cuối năm, Chênh lệch so kế hoạch và Phương pháp. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-24",
+      "screens": [
+        "DIS-24"
+      ],
+      "heading": "Kế hoạch giải ngân tuần theo dự án",
+      "text": "Kế hoạch giải ngân tuần theo dự án. Đây là bảng dữ liệu, dành cho Chủ đầu tư, chuyên viên tổng hợp và Sở Tài chính. Trên màn hình có: Năm kế hoạch. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Tuần, Dự án, Kế hoạch tuần, Thực hiện, Chênh lệch và Lãnh đạo phụ trách. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

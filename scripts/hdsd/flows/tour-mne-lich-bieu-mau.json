@@ -1,0 +1,29 @@
+{
+  "id": "tour-mne-lich-bieu-mau",
+  "group": "MNE",
+  "title": "Giám sát, đánh giá đầu tư: Lịch & biểu mẫu",
+  "audience": "Chủ đầu tư, cơ quan chủ quản và Sở Tài chính",
+  "outcome": "Biết mỗi màn hình của nhóm Lịch & biểu mẫu dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "mne-01",
+      "screens": [
+        "MNE-01"
+      ],
+      "heading": "Lịch nghĩa vụ báo cáo giám sát",
+      "text": "Lịch nghĩa vụ báo cáo giám sát. Đây là lịch, dành cho Chủ đầu tư, cơ quan chủ quản và Sở Tài chính.  Trên màn hình có: Năm báo cáo, Trạng thái, Sinh nghĩa vụ của năm và Năm. Các thao tác chính: Sinh nghĩa vụ. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Mẫu biểu, Cấp báo cáo, Kỳ, Hạn nộp, Nơi nhận và Căn cứ. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mne-02",
+      "screens": [
+        "MNE-02"
+      ],
+      "heading": "Danh mục mẫu biểu giám sát",
+      "text": "Danh mục mẫu biểu giám sát. Đây là bảng dữ liệu, dành cho Chủ đầu tư, cơ quan chủ quản và Sở Tài chính. Trên màn hình có: Loại báo cáo, Hiệu lực vào ngày và Quy tắc nghĩa vụ báo cáo. Các thao tác chính: Soạn bản mới, Lọc và Soạn quy tắc. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Mã mẫu, Tên, Căn cứ, Mẫu DOC và Định dạng xuất. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

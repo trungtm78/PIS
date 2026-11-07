@@ -1,0 +1,65 @@
+{
+  "id": "tour-prj-thuc-hien-ket-thuc",
+  "group": "PRJ",
+  "title": "Danh mục dự án: Thực hiện & kết thúc",
+  "audience": "Chủ đầu tư và Sở Tài chính",
+  "outcome": "Biết mỗi màn hình của nhóm Thực hiện & kết thúc dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "prj-05",
+      "screens": [
+        "PRJ-05"
+      ],
+      "heading": "Cấu phần và WBS",
+      "text": "Cấu phần và WBS. Đây là sơ đồ dạng cây, dành cho Chủ đầu tư và Sở Tài chính. Quản lý vòng đời dự án và phân cấp tổ chức hiệu lực theo thời gian. Trên màn hình có: Mã cấu phần, Cấp cha và Giá trị. Các thao tác chính: Thêm cấu phần.",
+      "note": ""
+    },
+    {
+      "id": "prj-06",
+      "screens": [
+        "PRJ-06"
+      ],
+      "heading": "Điều chỉnh dự án",
+      "text": "Điều chỉnh dự án. Đây là màn hình so sánh, dành cho Chủ đầu tư và Sở Tài chính. Trên màn hình có: Nội dung cũ, Nội dung mới, Căn cứ và Ngày hiệu lực. Lúc quay, màn hình đang có 1 dòng dữ liệu.",
+      "note": ""
+    },
+    {
+      "id": "prj-11",
+      "screens": [
+        "PRJ-11"
+      ],
+      "heading": "Bàn giao tài sản",
+      "text": "Bàn giao tài sản. Đây là biểu mẫu để nhập thông tin, dành cho Chủ đầu tư và Sở Tài chính. Trên màn hình có: Dự án. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Tài sản, Đơn vị tiếp nhận và Ngày bàn giao. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "prj-12",
+      "screens": [
+        "PRJ-12"
+      ],
+      "heading": "Quyết toán dự án",
+      "text": "Quyết toán dự án. Đây là màn hình xem chi tiết, dành cho Chủ đầu tư và Sở Tài chính. Trên màn hình có: Dự án.",
+      "note": "Thiết kế còn nêu các thông tin: Giá trị đề nghị, Giá trị phê duyệt và Chênh lệch. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "prj-19",
+      "screens": [
+        "PRJ-19"
+      ],
+      "heading": "Yêu cầu và phản hồi giải trình",
+      "text": "Yêu cầu và phản hồi giải trình. Đây là màn hình rà soát, dành cho Chủ đầu tư và Sở Tài chính. Trên màn hình có: Trạng thái. Các thao tác chính: Yêu cầu giải trình. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Đối tượng, Căn cứ yêu cầu, Câu hỏi, Hạn, Nội dung giải trình, Tệp và Kết luận. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "prj-20",
+      "screens": [
+        "PRJ-20"
+      ],
+      "heading": "Chuyển dự án giữa đơn vị",
+      "text": "Chuyển dự án giữa đơn vị. Đây là biểu mẫu để nhập thông tin, dành cho Chủ đầu tư và Sở Tài chính. Trên màn hình có: Dự án, Đơn vị hiện tại, Đơn vị nhận, Phạm vi chuyển, Ngày hiệu lực và Căn cứ. Các thao tác chính: Gửi đề nghị.",
+      "note": ""
+    }
+  ]
+}

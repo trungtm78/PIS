@@ -1,0 +1,101 @@
+{
+  "id": "tour-cap-nguon-phan-bo",
+  "group": "CAP",
+  "title": "Kế hoạch và nguồn vốn: Nguồn & phân bổ",
+  "audience": "Kế hoạch và Sở Tài chính",
+  "outcome": "Biết mỗi màn hình của nhóm Nguồn & phân bổ dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "cap-04",
+      "screens": [
+        "CAP-04"
+      ],
+      "heading": "Nguồn vốn",
+      "text": "Nguồn vốn. Đây là sơ đồ dạng cây, dành cho Kế hoạch và Sở Tài chính. Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: NSTW, NSĐP, CTMTQG, Hiệu lực và ODA. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "cap-05",
+      "screens": [
+        "CAP-05"
+      ],
+      "heading": "Quyết định giao vốn",
+      "text": "Quyết định giao vốn. Đây là màn hình, dành cho Kế hoạch và Sở Tài chính. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Số quyết định, Cơ quan, Ngày và Giá trị. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "cap-06",
+      "screens": [
+        "CAP-06"
+      ],
+      "heading": "Phân bổ vốn",
+      "text": "Phân bổ vốn. Đây là màn hình, dành cho Kế hoạch và Sở Tài chính. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Dự án, Nguồn, Số tiền, Số dư khả dụng, Đã cam kết, Đã giữ vốn và Ngưỡng AVC. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "cap-07",
+      "screens": [
+        "CAP-07"
+      ],
+      "heading": "Điều chỉnh và điều chuyển",
+      "text": "Điều chỉnh và điều chuyển. Đây là màn hình so sánh, dành cho Kế hoạch và Sở Tài chính. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Nguồn giảm, Nguồn tăng, Giá trị và Căn cứ. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "cap-09",
+      "screens": [
+        "CAP-09"
+      ],
+      "heading": "Mô phỏng phân bổ",
+      "text": "Mô phỏng phân bổ. Đây là màn hình, dành cho Kế hoạch và Sở Tài chính. Trên màn hình có: Lập kịch bản mô phỏng, Mã kịch bản, Kế hoạch gốc, Số liệu giải ngân đã chốt, Giới hạn và Dòng cho đi giữ lại tối thiểu (đồng). Các thao tác chính: Thêm khoản chuyển và Tạo kịch bản.",
+      "note": "Thiết kế còn nêu các thông tin: Trần vốn, Ưu tiên và Ràng buộc. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "cap-14",
+      "screens": [
+        "CAP-14"
+      ],
+      "heading": "Vốn hỗ trợ và tăng thu",
+      "text": "Vốn hỗ trợ và tăng thu. Đây là bảng dữ liệu, dành cho Kế hoạch và Sở Tài chính. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Loại nguồn, Quyết định, Phạm vi, Giá trị và Đã phân bổ. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "cap-16",
+      "screens": [
+        "CAP-16"
+      ],
+      "heading": "Sổ dự toán và nguồn được giao",
+      "text": "Sổ dự toán và nguồn được giao. Đây là bảng dữ liệu, dành cho Kế hoạch và Sở Tài chính. Các thao tác chính: Ghi nguồn được giao. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Nguồn vốn, Năm kế hoạch, Loại giao, Cấp ngân sách, Văn bản giao, Giá trị, Đã phân bổ và Còn lại. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "cap-17",
+      "screens": [
+        "CAP-17"
+      ],
+      "heading": "Kiểm soát hạn mức khả dụng (AVC)",
+      "text": "Kiểm soát hạn mức khả dụng (AVC). Đây là màn hình, dành cho Kế hoạch và Sở Tài chính. Trên màn hình có: Phạm vi, Đối tượng kiểm soát, Ngưỡng cảnh báo %, Ngưỡng chặn %, Căn cứ và Hiệu lực. Các thao tác chính: Lưu bản nháp và Xóa nội dung. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": ""
+    },
+    {
+      "id": "cap-18",
+      "screens": [
+        "CAP-18"
+      ],
+      "heading": "Giữ vốn trước cam kết",
+      "text": "Giữ vốn trước cam kết. Đây là bảng dữ liệu, dành cho Kế hoạch và Sở Tài chính. Trên màn hình có: Mục đích, Số tiền và Trạng thái. Các thao tác chính: Giữ vốn. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Dòng vốn, Dự án và Hết hạn. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "cap-19",
+      "screens": [
+        "CAP-19"
+      ],
+      "heading": "Đề xuất điều chuyển vốn chậm sang nhanh",
+      "text": "Đề xuất điều chuyển vốn chậm sang nhanh. Đây là màn hình so sánh, dành cho Kế hoạch và Sở Tài chính. Trên màn hình có: Dự án tăng, Số tiền và Căn cứ. Các thao tác chính: Thêm dòng và Lưu bản nháp.",
+      "note": "Thiết kế còn nêu các thông tin: Dự án giảm, Tỷ lệ giải ngân, Dự báo cuối năm và Văn bản quyết định. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

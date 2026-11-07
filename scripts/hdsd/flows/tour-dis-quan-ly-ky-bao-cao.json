@@ -1,0 +1,65 @@
+{
+  "id": "tour-dis-quan-ly-ky-bao-cao",
+  "group": "DIS",
+  "title": "Báo cáo giải ngân: Quản lý kỳ báo cáo",
+  "audience": "Chủ đầu tư, chuyên viên tổng hợp và Sở Tài chính",
+  "outcome": "Biết mỗi màn hình của nhóm Quản lý kỳ báo cáo dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "dis-14",
+      "screens": [
+        "DIS-14"
+      ],
+      "heading": "Lịch kỳ và khóa sổ",
+      "text": "Lịch kỳ và khóa sổ. Đây là lịch, dành cho Chủ đầu tư và chuyên viên tổng hợp. Lũy kế là ảnh chụp số liệu không cộng giữa các tuần. Trên màn hình có: Kỳ và Trạng thái kỳ. Các thao tác chính: Sinh kỳ.",
+      "note": "Thiết kế còn nêu các thông tin: Bắt đầu, Kết thúc, Hạn nộp, Khóa sổ và Lịch sử mở lại. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-15",
+      "screens": [
+        "DIS-15"
+      ],
+      "heading": "Tiến độ nộp báo cáo",
+      "text": "Tiến độ nộp báo cáo. Đây là bảng dữ liệu, dành cho Chủ đầu tư và chuyên viên tổng hợp. Trên màn hình có: Kỳ báo cáo. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Đơn vị, Dự án phải báo cáo, Đã gửi, Nháp, Chưa lập và Quá hạn. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-20",
+      "screens": [
+        "DIS-20"
+      ],
+      "heading": "Quy tắc cảnh báo sớm",
+      "text": "Quy tắc cảnh báo sớm. Đây là màn hình, dành cho Chủ đầu tư, chuyên viên tổng hợp và Sở Tài chính. Trên màn hình có: Mã quy tắc, Chỉ tiêu, Ngưỡng và Mức độ. Các thao tác chính: Tạo quy tắc, Công bố và Tạo bản mới. Lúc quay, màn hình đang có 4 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Căn cứ và Hiệu lực. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-21",
+      "screens": [
+        "DIS-21"
+      ],
+      "heading": "Chốt và đóng băng số liệu kỳ",
+      "text": "Chốt và đóng băng số liệu kỳ. Đây là bảng dữ liệu, dành cho Chủ đầu tư, chuyên viên tổng hợp và Sở Tài chính. Trên màn hình có: Năm và Kỳ báo cáo.",
+      "note": "Thiết kế còn nêu các thông tin: Thời điểm chốt, Ngày chốt Kho bạc, Trạng thái snapshot, Định nghĩa và Số dòng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-22",
+      "screens": [
+        "DIS-22"
+      ],
+      "heading": "Mở lại kỳ có lý do",
+      "text": "Mở lại kỳ có lý do. Đây là màn hình phê duyệt, dành cho Chủ đầu tư, chuyên viên tổng hợp và Sở Tài chính. Trên màn hình có: Kỳ và Lý do. Các thao tác chính: Gửi đề nghị.",
+      "note": "Thiết kế còn nêu các thông tin: Phạm vi dự án, Thời hạn mở và Người duyệt. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-25",
+      "screens": [
+        "DIS-25"
+      ],
+      "heading": "Định nghĩa chỉ tiêu kỳ/YTD/lũy kế và bộ số golden",
+      "text": "Định nghĩa chỉ tiêu kỳ/YTD/lũy kế và bộ số golden. Đây là màn hình, dành cho Chủ đầu tư, chuyên viên tổng hợp và Sở Tài chính. Trên màn hình có: Chỉ tiêu, Công thức và Trạng thái ký. Lúc quay, màn hình đang có 12 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Basis và Fixture golden. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "tour-prj-chuan-bi-dau-tu",
+  "group": "PRJ",
+  "title": "Danh mục dự án: Chuẩn bị đầu tư",
+  "audience": "Chủ đầu tư và Sở Tài chính",
+  "outcome": "Biết mỗi màn hình của nhóm Chuẩn bị đầu tư dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "prj-04",
+      "screens": [
+        "PRJ-04"
+      ],
+      "heading": "Hồ sơ pháp lý",
+      "text": "Hồ sơ pháp lý. Đây là màn hình, dành cho Chủ đầu tư và Sở Tài chính. Quản lý vòng đời dự án và phân cấp tổ chức hiệu lực theo thời gian. Trên màn hình có: Dự án. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Số quyết định, Ngày hiệu lực và Phiên bản. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "prj-09",
+      "screens": [
+        "PRJ-09"
+      ],
+      "heading": "Đề xuất chủ trương",
+      "text": "Đề xuất chủ trương. Đây là biểu mẫu để nhập thông tin, dành cho Chủ đầu tư và Sở Tài chính.",
+      "note": "Thiết kế còn nêu các thông tin: Mục tiêu, Quy mô, Nguồn vốn và Hiệu quả. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "prj-10",
+      "screens": [
+        "PRJ-10"
+      ],
+      "heading": "Thẩm định và quyết định",
+      "text": "Thẩm định và quyết định. Đây là màn hình phê duyệt, dành cho Chủ đầu tư và Sở Tài chính.",
+      "note": "Thiết kế còn nêu các thông tin: Tiêu chí, Ý kiến, Căn cứ, Điểm thẩm định và Khuyến nghị. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "prj-15",
+      "screens": [
+        "PRJ-15"
+      ],
+      "heading": "Chấm điểm thẩm định",
+      "text": "Chấm điểm thẩm định. Đây là màn hình, dành cho Chủ đầu tư và Sở Tài chính.",
+      "note": "Thiết kế còn nêu các thông tin: Bộ tiêu chí, Trọng số, Điểm 0–5, Bằng chứng, Tổng điểm và Khuyến nghị. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

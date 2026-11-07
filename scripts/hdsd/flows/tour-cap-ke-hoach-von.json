@@ -1,0 +1,65 @@
+{
+  "id": "tour-cap-ke-hoach-von",
+  "group": "CAP",
+  "title": "Kế hoạch và nguồn vốn: Kế hoạch vốn",
+  "audience": "Kế hoạch và Sở Tài chính",
+  "outcome": "Biết mỗi màn hình của nhóm Kế hoạch vốn dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "cap-01",
+      "screens": [
+        "CAP-01"
+      ],
+      "heading": "Kế hoạch trung hạn",
+      "text": "Kế hoạch trung hạn. Đây là danh sách, dành cho Kế hoạch và Sở Tài chính. Kế hoạch trung hạn, năm và điều chuyển phải có quyết định và phiên bản. Các thao tác chính: Tạo kế hoạch. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Giai đoạn, Nguồn vốn và Trần vốn. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "cap-02",
+      "screens": [
+        "CAP-02"
+      ],
+      "heading": "Lập phương án vốn",
+      "text": "Lập phương án vốn. Đây là biểu mẫu để nhập thông tin, dành cho Kế hoạch và Sở Tài chính. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Dự án, Nhu cầu, Nguồn và Năm. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "cap-03",
+      "screens": [
+        "CAP-03"
+      ],
+      "heading": "Kế hoạch năm",
+      "text": "Kế hoạch năm. Đây là bảng dữ liệu, dành cho Kế hoạch và Sở Tài chính. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Năm, Dự án, Vốn năm, Vốn kéo dài, Năm nguồn, Kéo dài đến, Văn bản cho phép kéo dài và Trong đó CTMTQG. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "cap-10",
+      "screens": [
+        "CAP-10"
+      ],
+      "heading": "Phê duyệt kế hoạch",
+      "text": "Phê duyệt kế hoạch. Đây là màn hình phê duyệt, dành cho Kế hoạch và Sở Tài chính. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Phiên bản, Tác động, Người duyệt và Văn bản quyết định. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "cap-15",
+      "screens": [
+        "CAP-15"
+      ],
+      "heading": "Theo dõi kế hoạch vốn",
+      "text": "Theo dõi kế hoạch vốn. Đây là bảng dữ liệu, dành cho Kế hoạch và Sở Tài chính. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Quyết định, Dự án, Giao đầu năm, Điều chỉnh, Hiện hành và Giải ngân. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "cap-21",
+      "screens": [
+        "CAP-21"
+      ],
+      "heading": "Sổ cái vốn và tra cứu theo thời điểm",
+      "text": "Sổ cái vốn và tra cứu theo thời điểm. Đây là bảng dữ liệu, dành cho Kế hoạch và Sở Tài chính. Trên màn hình có: Bộ lọc và ngày xem, Dự án, Nguồn vốn (mã định danh), Dòng vốn (mã định danh) và Xem tại ngày. Các thao tác chính: Xem. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Bút toán, Loại, Số tiền, Chứng từ nguồn, Thời điểm và Đảo của. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

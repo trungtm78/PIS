@@ -1,0 +1,56 @@
+{
+  "id": "tour-mdm-lien-thong-chinh-sach",
+  "group": "MDM",
+  "title": "Dữ liệu chủ và danh mục: Liên thông & chính sách",
+  "audience": "người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục",
+  "outcome": "Biết mỗi màn hình của nhóm Liên thông & chính sách dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "mdm-21",
+      "screens": [
+        "MDM-21"
+      ],
+      "heading": "Loại sự kiện và mục đích liên hệ",
+      "text": "Loại sự kiện và mục đích liên hệ. Đây là bảng dữ liệu, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Mã đã tham chiếu không xóa vật lý. Thay đổi cấu trúc và hiệu lực phải có xem trước tác động, phiên bản và phê duyệt. Trên màn hình có: Mã, Consent và Mức bảo mật. Các thao tác chính: Xuất. Lúc quay, màn hình đang có 3 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Mục đích. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-22",
+      "screens": [
+        "MDM-22"
+      ],
+      "heading": "Ngôn ngữ và nội dung dùng chung",
+      "text": "Ngôn ngữ và nội dung dùng chung. Đây là bảng dữ liệu, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Ngôn ngữ khác và Phiên bản. Các thao tác chính: Xuất. Lúc quay, màn hình đang có 2 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Key và Tiếng Việt. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-23",
+      "screens": [
+        "MDM-23"
+      ],
+      "heading": "Phân loại bảo mật và lưu trữ",
+      "text": "Phân loại bảo mật và lưu trữ. Đây là màn hình, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Mức, Thời hạn và Legal hold. Các thao tác chính: Xuất. Lúc quay, màn hình đang có 5 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Loại dữ liệu. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mdm-24",
+      "screens": [
+        "MDM-24"
+      ],
+      "heading": "Ánh xạ mã liên hệ thống",
+      "text": "Ánh xạ mã liên hệ thống. Đây là bảng dữ liệu, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Hệ thống, Loại mã, Mã ngoài, Mã trong và Hiệu lực. Các thao tác chính: Thêm ánh xạ và Đặt lại vị trí. Lúc quay, màn hình đang có 4 dòng dữ liệu.",
+      "note": ""
+    },
+    {
+      "id": "mdm-33",
+      "screens": [
+        "MDM-33"
+      ],
+      "heading": "Phạm vi danh mục toàn hệ thống và tenant",
+      "text": "Phạm vi danh mục toàn hệ thống và tenant. Đây là màn hình, dành cho người quản lý dữ liệu, quản trị tổ chức và người duyệt danh mục. Trên màn hình có: Loại, Platform baseline, Tenant override và Khóa chính sách. Lúc quay, màn hình đang có 35 dòng dữ liệu.",
+      "note": ""
+    }
+  ]
+}

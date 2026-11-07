@@ -1,0 +1,65 @@
+{
+  "id": "tour-sas-license-quyen-su-dung",
+  "group": "SAS",
+  "title": "SaaS và tenant: License & quyền sử dụng",
+  "audience": "quản trị hệ thống, người vận hành nền tảng, chủ sở hữu tổ chức và người vận hành thanh toán dịch vụ",
+  "outcome": "Biết mỗi màn hình của nhóm License & quyền sử dụng dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "sas-12",
+      "screens": [
+        "SAS-12"
+      ],
+      "heading": "Cấp license",
+      "text": "Cấp license. Đây là màn hình, dành cho quản trị hệ thống, người vận hành nền tảng và chủ sở hữu tổ chức. Seats > 0. Tổ chức Admin/người chịu trách nhiệm bị 403.",
+      "note": "Thiết kế còn nêu các thông tin: Tenant, Gói quyền, Số ghế, Hiệu lực, Hết hạn, Grace period, Ấn bản, Khóa ký và Thuê offline. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-13",
+      "screens": [
+        "SAS-13"
+      ],
+      "heading": "Chi tiết license",
+      "text": "Chi tiết license. Đây là màn hình xem chi tiết, dành cho quản trị hệ thống, người vận hành nền tảng và chủ sở hữu tổ chức. Trên màn hình có: Tenant.",
+      "note": "Thiết kế còn nêu các thông tin: License ID, Serial, Entitlements, Trạng thái, Chữ ký, Revision, Supersedes và Hiệu lực [from,until). Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-14",
+      "screens": [
+        "SAS-14"
+      ],
+      "heading": "Gia hạn và thay đổi license",
+      "text": "Gia hạn và thay đổi license. Đây là màn hình so sánh, dành cho quản trị hệ thống, người vận hành nền tảng và chủ sở hữu tổ chức.",
+      "note": "Thiết kế còn nêu các thông tin: Hạn cũ, Hạn mới, Quyền thay đổi, Lý do, Grace mới và Entitlement mới. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-15",
+      "screens": [
+        "SAS-15"
+      ],
+      "heading": "Tạm khóa và thu hồi license",
+      "text": "Tạm khóa và thu hồi license. Đây là màn hình, dành cho quản trị hệ thống, người vận hành nền tảng và chủ sở hữu tổ chức.",
+      "note": "Thiết kế còn nêu các thông tin: Phạm vi, Ngày hiệu lực, Lý do, Phương án dữ liệu, Hành động và SLO lan truyền. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-16",
+      "screens": [
+        "SAS-16"
+      ],
+      "heading": "Lịch sử license",
+      "text": "Lịch sử license. Đây là dòng thời gian, dành cho quản trị hệ thống, người vận hành nền tảng và chủ sở hữu tổ chức. Trên màn hình có: Tenant.",
+      "note": "Thiết kế còn nêu các thông tin: Người cấp, Sự kiện, Trước, Sau, Revision và Mã sự kiện. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-25",
+      "screens": [
+        "SAS-25"
+      ],
+      "heading": "Quyền lợi hiệu lực và ghi đè",
+      "text": "Quyền lợi hiệu lực và ghi đè. Đây là bảng dữ liệu, dành cho quản trị hệ thống, người vận hành thanh toán dịch vụ và chủ sở hữu tổ chức. Trên màn hình có: Tính năng, Nguồn, Hạn mức, Đã dùng và Chế độ khi grace. Lúc quay, màn hình đang có 5 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Hiệu lực ghi đè và Người duyệt. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

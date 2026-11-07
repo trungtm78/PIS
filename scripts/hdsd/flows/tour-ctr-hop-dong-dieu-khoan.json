@@ -1,0 +1,101 @@
+{
+  "id": "tour-ctr-hop-dong-dieu-khoan",
+  "group": "CTR",
+  "title": "Hợp đồng và thực hiện: Hợp đồng & điều khoản",
+  "audience": "Chuyên viên được phân công, người duyệt theo thẩm quyền, Chuyên viên hợp đồng và nhà thầu khách trong phạm vi hợp đồng",
+  "outcome": "Biết mỗi màn hình của nhóm Hợp đồng & điều khoản dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "ctr-01",
+      "screens": [
+        "CTR-01"
+      ],
+      "heading": "Danh mục hợp đồng",
+      "text": "Danh mục hợp đồng. Đây là bảng dữ liệu, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền. Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản. Không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc. Người lập khác người duyệt theo thẩm quyền. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Mã hợp đồng, Dự án, Nhà thầu, Giá trị và Hiệu lực. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-02",
+      "screens": [
+        "CTR-02"
+      ],
+      "heading": "Soạn và ký kết hợp đồng",
+      "text": "Soạn và ký kết hợp đồng. Đây là biểu mẫu để nhập thông tin, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền. Trên màn hình có: Gói thầu, Nhà thầu, Loại hợp đồng, Giá trị, Giá trần gói thầu, Nhóm áp trần tạm ứng và Liên danh. Các thao tác chính: Tạo hợp đồng nháp.",
+      "note": "Thiết kế còn nêu các thông tin: Ngày ký, Hiệu lực và Hợp đồng yêu cầu nghiệm thu chất lượng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-03",
+      "screens": [
+        "CTR-03"
+      ],
+      "heading": "Không gian thực hiện hợp đồng",
+      "text": "Không gian thực hiện hợp đồng. Đây là màn hình xem chi tiết, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền.",
+      "note": "Thiết kế còn nêu các thông tin: Hợp đồng, Giá trị gốc, Phụ lục, Đã nghiệm thu và Đã thanh toán. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-04",
+      "screens": [
+        "CTR-04"
+      ],
+      "heading": "BOQ và mốc thanh toán",
+      "text": "BOQ và mốc thanh toán. Đây là màn hình, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền.",
+      "note": "Thiết kế còn nêu các thông tin: Hạng mục, Đơn vị tính, Khối lượng, Đơn giá, Thành tiền, Mốc, Tỷ lệ giữ lại, Quy tắc làm tròn và Thành viên liên danh. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-05",
+      "screens": [
+        "CTR-05"
+      ],
+      "heading": "Bảo lãnh và bảo hiểm",
+      "text": "Bảo lãnh và bảo hiểm. Đây là bảng dữ liệu, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền. Trên màn hình có: Loại bảo lãnh, Đơn vị phát hành, Trạng thái xác minh và Số bảo lãnh. Các thao tác chính: Tất cả bảo lãnh và Sắp hết hạn.",
+      "note": "Thiết kế còn nêu các thông tin: Giá trị, Hết hạn, Giải tỏa, Thành viên liên danh và Mức cảnh báo hết hạn. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-06",
+      "screens": [
+        "CTR-06"
+      ],
+      "heading": "Tạm ứng và lịch thu hồi",
+      "text": "Tạm ứng và lịch thu hồi. Đây là màn hình, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền.",
+      "note": "Thiết kế còn nêu các thông tin: Hợp đồng, Giá trị tạm ứng, Đã thu hồi, Còn phải thu, Hạn, Ngưỡng thu hồi hết, Trần theo loại hợp đồng và Thành viên liên danh. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-20",
+      "screens": [
+        "CTR-20"
+      ],
+      "heading": "Cấu hình số tầng thay đổi của dự án",
+      "text": "Cấu hình số tầng thay đổi của dự án. Đây là màn hình, dành cho Chuyên viên hợp đồng, người duyệt theo thẩm quyền và nhà thầu khách trong phạm vi hợp đồng. Trên màn hình có: Cấu hình số tầng, Số tầng của chuỗi, 1 tầng: CO, 2 tầng: PCO → CO và 3 tầng: ChangeEvent → PCO → CO. Các thao tác chính: Lưu số tầng. Lúc quay, màn hình đang có 1 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Dự án, Đã khóa, Thay đổi đầu tiên và Người đặt. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-21",
+      "screens": [
+        "CTR-21"
+      ],
+      "heading": "Giữ lại theo dòng BOQ và giải tỏa",
+      "text": "Giữ lại theo dòng BOQ và giải tỏa. Đây là màn hình, dành cho Chuyên viên hợp đồng, người duyệt theo thẩm quyền và nhà thầu khách trong phạm vi hợp đồng.",
+      "note": "Thiết kế còn nêu các thông tin: Dòng BOQ, Giữ lại lũy kế, Điều kiện giải tỏa, Ngày sớm nhất, Đã giải tỏa, Còn giữ và Người duyệt. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-25",
+      "screens": [
+        "CTR-25"
+      ],
+      "heading": "Thành viên liên danh và phạm vi",
+      "text": "Thành viên liên danh và phạm vi. Đây là bảng dữ liệu, dành cho Chuyên viên hợp đồng, người duyệt theo thẩm quyền và nhà thầu khách trong phạm vi hợp đồng.",
+      "note": "Thiết kế còn nêu các thông tin: Thành viên, Vai trò, Tỷ lệ phần việc, Giá trị phần việc, Tạm ứng được cấp, Đã thu hồi và Bảo lãnh. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-26",
+      "screens": [
+        "CTR-26"
+      ],
+      "heading": "Phiên bản hợp đồng và hiệu lực",
+      "text": "Phiên bản hợp đồng và hiệu lực. Đây là dòng thời gian, dành cho Chuyên viên hợp đồng, người duyệt theo thẩm quyền và nhà thầu khách trong phạm vi hợp đồng. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Phiên bản, Loại, Hiệu lực từ, Giá trị, Nguồn thay đổi, Hồi tố và Trạng thái. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

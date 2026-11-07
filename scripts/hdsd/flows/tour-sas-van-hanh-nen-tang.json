@@ -1,0 +1,65 @@
+{
+  "id": "tour-sas-van-hanh-nen-tang",
+  "group": "SAS",
+  "title": "SaaS và tenant: Vận hành nền tảng",
+  "audience": "quản trị hệ thống, người vận hành nền tảng, chủ sở hữu tổ chức và cán bộ hỗ trợ đề nghị",
+  "outcome": "Biết mỗi màn hình của nhóm Vận hành nền tảng dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "sas-17",
+      "screens": [
+        "SAS-17"
+      ],
+      "heading": "Xuất dữ liệu và kết thúc dịch vụ",
+      "text": "Xuất dữ liệu và kết thúc dịch vụ. Đây là màn hình rà soát, dành cho quản trị hệ thống, người vận hành nền tảng và chủ sở hữu tổ chức. Giữ lại theo yêu cầu pháp lý chặn purge. Archive cần export Delivered hoặc hết cửa sổ. Trên màn hình có: Xuất dữ liệu của tenant, Phạm vi, Toàn bộ dữ liệu, Chỉ dữ liệu nghiệp vụ, Khóa công khai của bạn (tùy chọn) và Lý do. Các thao tác chính: Yêu cầu xuất.",
+      "note": "Thiết kế còn nêu các thông tin: Bản xuất, Hạn tải, Thời hạn xóa, Manifest SHA-256, Số tệp, Số dòng theo bảng và Legal hold. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-18",
+      "screens": [
+        "SAS-18"
+      ],
+      "heading": "Sức khỏe toàn nền tảng",
+      "text": "Sức khỏe toàn nền tảng. Đây là bảng điều hành, dành cho quản trị hệ thống, người vận hành nền tảng và chủ sở hữu tổ chức. Các thao tác chính: Đọc lại. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Tenant, SLO, Sự cố, Năng lực, Độ trễ lan truyền license, Tuổi outbox và Inbox lỗi. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-19",
+      "screens": [
+        "SAS-19"
+      ],
+      "heading": "Hỗ trợ truy cập có kiểm soát",
+      "text": "Hỗ trợ truy cập có kiểm soát. Đây là màn hình phê duyệt, dành cho cán bộ hỗ trợ đề nghị, chủ sở hữu tổ chức và quản trị tổ chức chấp thuận. Trên màn hình có: Yêu cầu truy cập, Mã tenant, Mã phiếu hỗ trợ, Phân hệ cần truy cập, ADM và AST. Các thao tác chính: Gửi yêu cầu.",
+      "note": "Thiết kế còn nêu các thông tin: Tenant đồng ý, Ticket, Phạm vi, Thời hạn, Người duyệt thứ hai và Bắt đầu. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-20",
+      "screens": [
+        "SAS-20"
+      ],
+      "heading": "Cờ tính năng và phát hành",
+      "text": "Cờ tính năng và phát hành. Đây là màn hình, dành cho quản trị hệ thống, người vận hành nền tảng và chủ sở hữu tổ chức.",
+      "note": "Thiết kế còn nêu các thông tin: Tenant, Cohort, Phiên bản, Rollback, Trạng thái cờ và Tỷ lệ rollout. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-21",
+      "screens": [
+        "SAS-21"
+      ],
+      "heading": "Sao lưu và khôi phục tenant",
+      "text": "Sao lưu và khôi phục tenant. Đây là biểu mẫu để nhập thông tin, dành cho quản trị hệ thống, người vận hành nền tảng và chủ sở hữu tổ chức.",
+      "note": "Thiết kế còn nêu các thông tin: Điểm khôi phục, Phạm vi, Môi trường thử, Người duyệt, Mục tiêu và Báo cáo xác minh. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "sas-23",
+      "screens": [
+        "SAS-23"
+      ],
+      "heading": "Nâng cấp cách ly silo",
+      "text": "Nâng cấp cách ly silo. Đây là màn hình, dành cho quản trị hệ thống, người vận hành nền tảng và chủ sở hữu tổ chức.",
+      "note": "Thiết kế còn nêu các thông tin: Placement đích, Cửa sổ đóng băng ghi, Kết quả đối chiếu, Người duyệt cutover và Trạng thái. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

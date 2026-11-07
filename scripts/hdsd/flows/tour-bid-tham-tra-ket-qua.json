@@ -1,0 +1,65 @@
+{
+  "id": "tour-bid-tham-tra-ket-qua",
+  "group": "BID",
+  "title": "Nhà thầu và phân tích AI: Thẩm tra & kết quả",
+  "audience": "Tổ chuyên gia và bên mời thầu",
+  "outcome": "Biết mỗi màn hình của nhóm Thẩm tra & kết quả dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "bid-09",
+      "screens": [
+        "BID-09"
+      ],
+      "heading": "Bàn phân tích có dẫn chứng",
+      "text": "Bàn phân tích có dẫn chứng. Đây là màn hình, dành cho Tổ chuyên gia và bên mời thầu. AI hỗ trợ có dẫn chứng. Không tự quyết định kết quả lựa chọn Nhận xét quan trọng phải có trang nguồn hoặc cờ thiếu nguồn.",
+      "note": "Thiết kế còn nêu các thông tin: Tiêu chí, Nhận xét AI, Trang nguồn, Độ chắc chắn, Trạng thái bằng chứng và Trích dẫn đã kiểm. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bid-10",
+      "screens": [
+        "BID-10"
+      ],
+      "heading": "So sánh đề án",
+      "text": "So sánh đề án. Đây là màn hình so sánh, dành cho Tổ chuyên gia và bên mời thầu. Trên màn hình có: Tiêu chí và Phiên bản tiêu chí dùng chung. Các thao tác chính: Áp dụng.",
+      "note": "Thiết kế còn nêu các thông tin: Nhà thầu A, Nhà thầu B và Rủi ro. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bid-11",
+      "screens": [
+        "BID-11"
+      ],
+      "heading": "Làm rõ hồ sơ",
+      "text": "Làm rõ hồ sơ. Đây là màn hình, dành cho Tổ chuyên gia và bên mời thầu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Câu hỏi, Căn cứ, Hạn trả lời, Người nhận, Trạng thái và Văn bản trả lời. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bid-12",
+      "screens": [
+        "BID-12"
+      ],
+      "heading": "Thẩm tra chuyên gia",
+      "text": "Thẩm tra chuyên gia. Đây là màn hình rà soát, dành cho Tổ chuyên gia và bên mời thầu.",
+      "note": "Thiết kế còn nêu các thông tin: Nhận xét, Điều chỉnh, Lý do, Xung đột lợi ích và Lịch sử thẩm tra. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bid-13",
+      "screens": [
+        "BID-13"
+      ],
+      "heading": "Biên bản đánh giá",
+      "text": "Biên bản đánh giá. Đây là màn hình, dành cho Tổ chuyên gia và bên mời thầu.",
+      "note": "Thiết kế còn nêu các thông tin: Phiên bản, Chữ ký, Kết luận, Ý kiến khác và Trạng thái DOC. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bid-14",
+      "screens": [
+        "BID-14"
+      ],
+      "heading": "Hợp đồng và thay đổi",
+      "text": "Hợp đồng và thay đổi. Đây là bảng dữ liệu, dành cho Tổ chuyên gia và bên mời thầu. Trên màn hình có: Mã định danh của nhà thầu.",
+      "note": "Thiết kế còn nêu các thông tin: Hợp đồng, Giá trị, Tiến độ và Phụ lục. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

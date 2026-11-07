@@ -1,0 +1,110 @@
+{
+  "id": "tour-dis-lap-gui-bao-cao",
+  "group": "DIS",
+  "title": "Báo cáo giải ngân: Lập & gửi báo cáo",
+  "audience": "Chủ đầu tư và chuyên viên tổng hợp",
+  "outcome": "Biết mỗi màn hình của nhóm Lập & gửi báo cáo dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "dis-01",
+      "screens": [
+        "DIS-01"
+      ],
+      "heading": "Danh sách báo cáo tuần",
+      "text": "Danh sách báo cáo tuần. Đây là danh sách, dành cho Chủ đầu tư và chuyên viên tổng hợp. Lũy kế là ảnh chụp số liệu không cộng giữa các tuần. Trên màn hình có: Năm, Tuần báo cáo và Dự án. Các thao tác chính: Trang trước và Trang sau.",
+      "note": "Thiết kế còn nêu các thông tin: Kế hoạch năm. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-02",
+      "screens": [
+        "DIS-02"
+      ],
+      "heading": "Chọn kỳ và dự án",
+      "text": "Chọn kỳ và dự án. Đây là biểu mẫu để nhập thông tin, dành cho Chủ đầu tư và chuyên viên tổng hợp. Trên màn hình có: Năm, Tuần báo cáo và Dự án. Các thao tác chính: Tạo bản nháp.",
+      "note": "Thiết kế còn nêu các thông tin: Kế hoạch năm. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-03",
+      "screens": [
+        "DIS-03"
+      ],
+      "heading": "Nhập khối lượng",
+      "text": "Nhập khối lượng. Đây là biểu mẫu để nhập thông tin, dành cho Chủ đầu tư và chuyên viên tổng hợp.",
+      "note": "Thiết kế còn nêu các thông tin: Khối lượng thi công, Khối lượng nghiệm thu, Đã gửi KBNN và Hồ sơ đang hoàn thiện. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-04",
+      "screens": [
+        "DIS-04"
+      ],
+      "heading": "Nhập giải ngân theo nguồn",
+      "text": "Nhập giải ngân theo nguồn. Đây là màn hình, dành cho Chủ đầu tư và chuyên viên tổng hợp.",
+      "note": "Thiết kế còn nêu các thông tin: Vốn năm NSTW, Vốn năm NSĐP, Kéo dài NSTW, Kéo dài NSĐP, Vốn khác NSTW, Vốn khác NSĐP và Trong đó CTMTQG. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-05",
+      "screens": [
+        "DIS-05"
+      ],
+      "heading": "Đăng ký tháng sau",
+      "text": "Đăng ký tháng sau. Đây là màn hình, dành cho Chủ đầu tư và chuyên viên tổng hợp.",
+      "note": "Thiết kế còn nêu các thông tin: Tháng, Vốn năm, Vốn kéo dài, Vốn khác và Trong đó CTMTQG. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-06",
+      "screens": [
+        "DIS-06"
+      ],
+      "heading": "Rà soát và gửi báo cáo",
+      "text": "Rà soát và gửi báo cáo. Đây là màn hình rà soát, dành cho Chủ đầu tư và chuyên viên tổng hợp.",
+      "note": "Thiết kế còn nêu các thông tin: Cảnh báo, Chênh lệch, Tệp đính kèm và Ghi chú. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-07",
+      "screens": [
+        "DIS-07"
+      ],
+      "heading": "Chi tiết báo cáo",
+      "text": "Chi tiết báo cáo. Đây là màn hình xem chi tiết, dành cho Chủ đầu tư và chuyên viên tổng hợp.",
+      "note": "Thiết kế còn nêu các thông tin: Phiên bản, Trạng thái, Nguồn số liệu và Thời điểm. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-08",
+      "screens": [
+        "DIS-08"
+      ],
+      "heading": "Sửa và bổ sung báo cáo",
+      "text": "Sửa và bổ sung báo cáo. Đây là màn hình so sánh, dành cho Chủ đầu tư và chuyên viên tổng hợp.",
+      "note": "Thiết kế còn nêu các thông tin: Phiên bản trước, Lý do sửa và Giá trị mới. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-09",
+      "screens": [
+        "DIS-09"
+      ],
+      "heading": "Xác nhận xóa nháp",
+      "text": "Xác nhận xóa nháp. Đây là màn hình, dành cho Chủ đầu tư và chuyên viên tổng hợp.",
+      "note": "Thiết kế còn nêu các thông tin: Mã báo cáo, Kỳ và Lý do. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-10",
+      "screens": [
+        "DIS-10"
+      ],
+      "heading": "Nhập dữ liệu hàng loạt",
+      "text": "Nhập dữ liệu hàng loạt. Đây là màn hình nhập dữ liệu từ tệp, dành cho Chủ đầu tư và chuyên viên tổng hợp. Trên màn hình có: Tệp và kỳ báo cáo, Năm, Kỳ báo cáo, Mẫu cột và Tệp bảng tính (CSV hoặc XLSX). Các thao tác chính: Chạy thử.",
+      "note": "Thiết kế còn nêu các thông tin: Ánh xạ cột và Dòng lỗi. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dis-18",
+      "screens": [
+        "DIS-18"
+      ],
+      "heading": "Lưu nháp thành công",
+      "text": "Lưu nháp thành công. Đây là màn hình, dành cho Chủ đầu tư và chuyên viên tổng hợp.",
+      "note": "Thiết kế còn nêu các thông tin: Mã nháp, Kỳ, Dự án và Tiếp tục nhập. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

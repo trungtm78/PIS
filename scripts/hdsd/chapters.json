@@ -1085,18 +1085,22 @@
   },
   {
     "id": "m01-dang-nhap-dien-thoai",
-    "kind": "mobile"
+    "kind": "mobile",
+    "module": "MOB"
   },
   {
     "id": "m02-trang-chu-du-an-dien-thoai",
-    "kind": "mobile"
+    "kind": "mobile",
+    "module": "MOB"
   },
   {
     "id": "m03-thong-bao-dien-thoai",
-    "kind": "mobile"
+    "kind": "mobile",
+    "module": "MOB"
   },
   {
     "id": "m04-tai-khoan-dien-thoai",
-    "kind": "mobile"
+    "kind": "mobile",
+    "module": "MOB"
   }
 ]

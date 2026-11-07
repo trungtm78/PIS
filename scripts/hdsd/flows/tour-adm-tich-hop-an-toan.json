@@ -1,0 +1,65 @@
+{
+  "id": "tour-adm-tich-hop-an-toan",
+  "group": "ADM",
+  "title": "Quản trị tenant: Tích hợp & an toàn",
+  "audience": "quản trị tổ chức, quản trị đơn vị và kiểm toán viên",
+  "outcome": "Biết mỗi màn hình của nhóm Tích hợp & an toàn dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "adm-09",
+      "screens": [
+        "ADM-09"
+      ],
+      "heading": "Tích hợp và ánh xạ",
+      "text": "Tích hợp và ánh xạ. Đây là biểu mẫu để nhập thông tin, dành cho quản trị tổ chức, quản trị đơn vị và kiểm toán viên.  Trên màn hình có: Connector của tổ chức, Khai báo connector, Mã connector, Chế độ, Trạng thái bộ chuyển đổi và Cấu hình (JSON). Các thao tác chính: Khai báo.",
+      "note": "Thiết kế còn nêu các thông tin: Hệ thống, Endpoint, Mapping, Credential reference và Trạng thái adapter. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "adm-10",
+      "screens": [
+        "ADM-10"
+      ],
+      "heading": "Giám sát đồng bộ",
+      "text": "Giám sát đồng bộ. Đây là bảng dữ liệu, dành cho quản trị tổ chức, quản trị đơn vị và kiểm toán viên. Trên màn hình có: Lỗi, Sự kiện inbox và Trạng thái xử lý. Lúc quay, màn hình đang có 5 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Job, Offset, Độ trễ và Phát lại. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "adm-11",
+      "screens": [
+        "ADM-11"
+      ],
+      "heading": "Nhật ký kiểm toán",
+      "text": "Nhật ký kiểm toán. Đây là danh sách, dành cho kiểm toán viên và quản trị tổ chức. Trên màn hình có: Chủ thể, Hành động, Đối tượng, Thời điểm và Kết quả. Các thao tác chính: Xuất có niêm phong, Lọc và Bỏ lọc. Lúc quay, màn hình đang có 20 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Người mạo danh/thay mặt và Seal hash. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "adm-12",
+      "screens": [
+        "ADM-12"
+      ],
+      "heading": "Chính sách lưu trữ",
+      "text": "Chính sách lưu trữ. Đây là màn hình, dành cho quản trị tổ chức, quản trị đơn vị và kiểm toán viên. Trên màn hình có: Legal hold, Lớp hồ sơ, Căn cứ pháp lý, Hành động khi hết hạn và Legal hold đang hiệu lực. Các thao tác chính: Lưu bản nháp.",
+      "note": "Thiết kế còn nêu các thông tin: Loại dữ liệu, Thời hạn và Xóa. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "adm-13",
+      "screens": [
+        "ADM-13"
+      ],
+      "heading": "Nhập chuyển đổi dữ liệu",
+      "text": "Nhập chuyển đổi dữ liệu. Đây là màn hình nhập dữ liệu từ tệp, dành cho quản trị tổ chức, quản trị đơn vị và kiểm toán viên. Trên màn hình có: Đăng ký tệp chuyển đổi, Hệ thống nguồn, Thực thể đích, Tải tệp lên, Mã tệp đã tải lên và Phiên bản ánh xạ. Các thao tác chính: Đăng ký.",
+      "note": "Thiết kế còn nêu các thông tin: Nguồn cũ, Mapping, Đối soát, Batch, SHA-256 tệp, Dry-run, Tổng kiểm soát và Người duyệt. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "adm-14",
+      "screens": [
+        "ADM-14"
+      ],
+      "heading": "Cấu hình an toàn",
+      "text": "Cấu hình an toàn. Đây là màn hình, dành cho quản trị tổ chức, quản trị đơn vị và kiểm toán viên. Trên màn hình có: Phiên và IP. Các thao tác chính: Lưu bản nháp.",
+      "note": "Thiết kế còn nêu các thông tin: MFA, Phân loại dữ liệu, Vai trò bắt buộc MFA, Thời hạn phiên, TTL tải xuống và Watermark xuất. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

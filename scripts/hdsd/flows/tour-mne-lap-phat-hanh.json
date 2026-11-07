@@ -1,0 +1,65 @@
+{
+  "id": "tour-mne-lap-phat-hanh",
+  "group": "MNE",
+  "title": "Giám sát, đánh giá đầu tư: Lập & phát hành",
+  "audience": "Chủ đầu tư, cơ quan chủ quản và Sở Tài chính",
+  "outcome": "Biết mỗi màn hình của nhóm Lập & phát hành dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "mne-03",
+      "screens": [
+        "MNE-03"
+      ],
+      "heading": "Lập báo cáo giám sát tổng thể định kỳ",
+      "text": "Lập báo cáo giám sát tổng thể định kỳ. Đây là biểu mẫu để nhập thông tin, dành cho Chủ đầu tư, cơ quan chủ quản và Sở Tài chính. Không nhập tay chỉ tiêu tài chính đã có nguồn. Thuyết minh bắt buộc. Trên màn hình có: Chọn báo cáo để lập và Năm báo cáo. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Kỳ, Phạm vi, Snapshot, Mẫu biểu, Số liệu tự động và Thuyết minh. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mne-04",
+      "screens": [
+        "MNE-04"
+      ],
+      "heading": "Báo cáo giám sát theo dự án",
+      "text": "Báo cáo giám sát theo dự án. Đây là biểu mẫu để nhập thông tin, dành cho Chủ đầu tư, cơ quan chủ quản và Sở Tài chính. Trên màn hình có: Chọn báo cáo dự án và Năm báo cáo. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Loại báo cáo, Mốc, Số liệu và Kiến nghị. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mne-07",
+      "screens": [
+        "MNE-07"
+      ],
+      "heading": "Báo cáo nhanh tuần",
+      "text": "Báo cáo nhanh tuần. Đây là bảng dữ liệu, dành cho Chủ đầu tư, cơ quan chủ quản và Sở Tài chính. Trên màn hình có: Năm báo cáo. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Tuần, Hai tỷ lệ, Đơn vị, Dự án chậm và Kiến nghị. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mne-08",
+      "screens": [
+        "MNE-08"
+      ],
+      "heading": "Đánh giá đầu tư",
+      "text": "Đánh giá đầu tư. Đây là biểu mẫu để nhập thông tin, dành cho Chủ đầu tư, cơ quan chủ quản và Sở Tài chính. Trên màn hình có: Dự án và Trạng thái. Các thao tác chính: Lập kế hoạch đánh giá.",
+      "note": "Thiết kế còn nêu các thông tin: Loại đánh giá, Đơn vị đánh giá, Phát hiện, Kết luận và Kiến nghị. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mne-05",
+      "screens": [
+        "MNE-05"
+      ],
+      "heading": "Rà soát, phê duyệt và phát hành",
+      "text": "Rà soát, phê duyệt và phát hành. Đây là màn hình phê duyệt, dành cho Chủ đầu tư, cơ quan chủ quản và Sở Tài chính. Trên màn hình có: Báo cáo cần rà soát hoặc phát hành và Năm báo cáo. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Phiên bản, Người lập, Người duyệt, Văn bản DOC và Trạng thái ký. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mne-06",
+      "screens": [
+        "MNE-06"
+      ],
+      "heading": "Xuất tệp và xác nhận nộp Hệ thống TTQG",
+      "text": "Xuất tệp và xác nhận nộp Hệ thống TTQG. Đây là màn hình, dành cho Chủ đầu tư, cơ quan chủ quản và Sở Tài chính. Trên màn hình có: Báo cáo đã phát hành và Năm báo cáo. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Định dạng, Hash tệp, Trạng thái adapter, Số tiếp nhận và Thời điểm nộp. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

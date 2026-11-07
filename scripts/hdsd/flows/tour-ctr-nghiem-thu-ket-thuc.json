@@ -1,0 +1,83 @@
+{
+  "id": "tour-ctr-nghiem-thu-ket-thuc",
+  "group": "CTR",
+  "title": "Hợp đồng và thực hiện: Nghiệm thu & kết thúc",
+  "audience": "Chuyên viên được phân công, người duyệt theo thẩm quyền, Chuyên viên hợp đồng và nhà thầu khách trong phạm vi hợp đồng",
+  "outcome": "Biết mỗi màn hình của nhóm Nghiệm thu & kết thúc dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "ctr-12",
+      "screens": [
+        "CTR-12"
+      ],
+      "heading": "Nghiệm thu khối lượng",
+      "text": "Nghiệm thu khối lượng. Đây là màn hình phê duyệt, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền. Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản. Không đồng nhất khối lượng, nghiệm thu, đề nghị thanh toán và giải ngân Kho bạc. Người lập khác người duyệt theo thẩm quyền.",
+      "note": "Thiết kế còn nêu các thông tin: Hợp đồng, Khối lượng kỳ, Lũy kế, Biên bản, Người ký, Biên bản nghiệm thu chất lượng QMS và Phiên bản hợp đồng áp dụng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-13",
+      "screens": [
+        "CTR-13"
+      ],
+      "heading": "Bảng xác định giá trị thanh toán",
+      "text": "Bảng xác định giá trị thanh toán. Đây là màn hình, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền.",
+      "note": "Thiết kế còn nêu các thông tin: Khối lượng nghiệm thu, Đơn giá hiệu lực, Thu hồi tạm ứng, Giữ lại, Thuế và Đề nghị thanh toán. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-15",
+      "screens": [
+        "CTR-15"
+      ],
+      "heading": "Hoàn thành và bàn giao",
+      "text": "Hoàn thành và bàn giao. Đây là màn hình rà soát, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền.",
+      "note": "Thiết kế còn nêu các thông tin: Hạng mục, Danh sách tồn tại, Biên bản bàn giao, Đơn vị nhận và Tài sản. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-16",
+      "screens": [
+        "CTR-16"
+      ],
+      "heading": "Bảo hành và khắc phục tồn tại",
+      "text": "Bảo hành và khắc phục tồn tại. Đây là màn hình, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền.",
+      "note": "Thiết kế còn nêu các thông tin: Hạng mục, Thời hạn bảo hành, Tồn tại, Người xử lý và Bằng chứng đóng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-17",
+      "screens": [
+        "CTR-17"
+      ],
+      "heading": "Quyết toán hợp đồng và dự án",
+      "text": "Quyết toán hợp đồng và dự án. Đây là màn hình rà soát, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền.",
+      "note": "Thiết kế còn nêu các thông tin: Hợp đồng, Giá trị quyết toán, Công nợ, Tạm ứng chưa thu và Kết luận kiểm toán. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-18",
+      "screens": [
+        "CTR-18"
+      ],
+      "heading": "Hồ sơ tài sản và chuyển giao vận hành",
+      "text": "Hồ sơ tài sản và chuyển giao vận hành. Đây là màn hình xem chi tiết, dành cho Chuyên viên được phân công và người duyệt theo thẩm quyền.",
+      "note": "Thiết kế còn nêu các thông tin: Mã tài sản, Nguồn hình thành, Giá trị ghi nhận, Đơn vị tiếp nhận, Bảo hành và Tài liệu vận hành. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-23",
+      "screens": [
+        "CTR-23"
+      ],
+      "heading": "Bảng điểm nhà thầu và nhật ký vi phạm",
+      "text": "Bảng điểm nhà thầu và nhật ký vi phạm. Đây là bảng dữ liệu, dành cho Chuyên viên hợp đồng, người duyệt theo thẩm quyền và nhà thầu khách trong phạm vi hợp đồng. Trên màn hình có: Nhà thầu. Các thao tác chính: Xem bảng điểm. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Hợp đồng, Chất lượng, Tiến độ, An toàn – môi trường, Hợp tác, Tài chính, Điểm tổng, Xếp hạng và Vi phạm. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ctr-24",
+      "screens": [
+        "CTR-24"
+      ],
+      "heading": "Xuất hồ sơ nhà thầu cho cơ sở dữ liệu quốc gia",
+      "text": "Xuất hồ sơ nhà thầu cho cơ sở dữ liệu quốc gia. Đây là màn hình nhập dữ liệu từ tệp, dành cho Chuyên viên hợp đồng, người duyệt theo thẩm quyền và nhà thầu khách trong phạm vi hợp đồng. Trên màn hình có: Nội dung xuất, Từ ngày, Đến ngày, Định dạng và Các lần xuất. Các thao tác chính: Tạo tệp.",
+      "note": "Thiết kế còn nêu các thông tin: Phạm vi, Kỳ từ – đến, Số dòng, Mã băm SHA-256, Trạng thái nộp và Mã biên nhận. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

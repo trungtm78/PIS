@@ -1,0 +1,56 @@
+{
+  "id": "tour-bid-chuan-bi-phan-tich",
+  "group": "BID",
+  "title": "Nhà thầu và phân tích AI: Chuẩn bị phân tích",
+  "audience": "Tổ chuyên gia và bên mời thầu",
+  "outcome": "Biết mỗi màn hình của nhóm Chuẩn bị phân tích dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "bid-04",
+      "screens": [
+        "BID-04"
+      ],
+      "heading": "Tiêu chí đánh giá",
+      "text": "Tiêu chí đánh giá. Đây là màn hình, dành cho Tổ chuyên gia và bên mời thầu. AI hỗ trợ có dẫn chứng. Không tự quyết định kết quả lựa chọn Σ trọng số = 100. Tiêu chí cấm (tên, đặc tính cá nhân không liên quan) bị từ chối. Khóa khi đã có lượt phân tích. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Tiêu chí, Trọng số, Ngưỡng, Bằng chứng yêu cầu, Trạng thái duyệt và Σ trọng số. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bid-05",
+      "screens": [
+        "BID-05"
+      ],
+      "heading": "Tiếp nhận hồ sơ",
+      "text": "Tiếp nhận hồ sơ. Đây là màn hình nhập dữ liệu từ tệp, dành cho Tổ chuyên gia và bên mời thầu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Nhà thầu, Tệp, Phiên bản, Phân loại bảo mật, Thời điểm mở quyền xem và Giá dự thầu. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bid-06",
+      "screens": [
+        "BID-06"
+      ],
+      "heading": "Kiểm tra OCR",
+      "text": "Kiểm tra OCR. Đây là màn hình, dành cho Tổ chuyên gia và bên mời thầu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Trang, Độ tin cậy, Nội dung gốc, Nội dung nhận dạng và Trạng thái xác nhận. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bid-07",
+      "screens": [
+        "BID-07"
+      ],
+      "heading": "Cấu hình lượt phân tích",
+      "text": "Cấu hình lượt phân tích. Đây là biểu mẫu để nhập thông tin, dành cho Tổ chuyên gia và bên mời thầu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Bộ tiêu chí, Phiên bản hồ sơ, Profile AI, Hạn chi phí, Phân loại dữ liệu và Tuyến model được phép. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bid-08",
+      "screens": [
+        "BID-08"
+      ],
+      "heading": "Tiến trình phân tích",
+      "text": "Tiến trình phân tích. Đây là dòng thời gian, dành cho Tổ chuyên gia và bên mời thầu.",
+      "note": "Thiết kế còn nêu các thông tin: Trích xuất, Đối chiếu, Kiểm chứng, Hoàn tất, Bước thất bại và Chi phí đã dùng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

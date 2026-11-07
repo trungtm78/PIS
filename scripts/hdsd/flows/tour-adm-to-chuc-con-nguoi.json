@@ -1,0 +1,74 @@
+{
+  "id": "tour-adm-to-chuc-con-nguoi",
+  "group": "ADM",
+  "title": "Quản trị tenant: Tổ chức & con người",
+  "audience": "quản trị tổ chức, quản trị đơn vị và kiểm toán viên",
+  "outcome": "Biết mỗi màn hình của nhóm Tổ chức & con người dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "adm-01",
+      "screens": [
+        "ADM-01"
+      ],
+      "heading": "Cây tổ chức",
+      "text": "Cây tổ chức. Đây là sơ đồ dạng cây, dành cho quản trị tổ chức, quản trị đơn vị và kiểm toán viên. Cây ≤8 cấp, không vòng. Mã duy nhất trong đơn vị đang hiệu lực. Hiệu lực [from,until). Trên màn hình có: Cây tổ chức, Xem tại ngày và Thông tin đơn vị. Các thao tác chính: + Thêm đơn vị, CB-HQ Ủy ban nhân dân tỉnh Cao Bằng, Mở hoặc thu gọn Sở Kế hoạch và Đầu tư, CB-SKHDT Sở Kế hoạch và Đầu tư và CB-SKHDT-QLDA Ban Quản lý dự án. Lúc quay, màn hình đang có 5 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Cấp cha, Ngày hiệu lực, Đơn vị kế thừa, Loại đơn vị, Mã ĐVHC, Là chủ đầu tư, Căn cứ pháp lý và Trạng thái. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "adm-02",
+      "screens": [
+        "ADM-02"
+      ],
+      "heading": "Người dùng và mời thành viên",
+      "text": "Người dùng và mời thành viên. Đây là danh sách, dành cho quản trị tổ chức, quản trị đơn vị và kiểm toán viên. Trên màn hình có: Tài khoản, Vai trò, Đơn vị, Trạng thái, Loại thành viên, Lời mời và Hiệu lực đến. Các thao tác chính: Mời thành viên, Lọc, Tạm khóa Hoàng Thị Lan, Tạm khóa Vũ Đức Minh và Tạm khóa Đỗ Thị Hà. Lúc quay, màn hình đang có 7 dòng dữ liệu.",
+      "note": ""
+    },
+    {
+      "id": "adm-03",
+      "screens": [
+        "ADM-03"
+      ],
+      "heading": "Vai trò và quyền",
+      "text": "Vai trò và quyền. Đây là màn hình, dành cho quản trị tổ chức, quản trị đơn vị và kiểm toán viên. Trên màn hình có: Mã vai trò, Hạng, Cho khách, Loại scope, Người cấp và Lý do. Các thao tác chính: Tạo vai trò, Cấp vai trò và Thu hồi. Lúc quay, màn hình đang có 8 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Tài nguyên, Hành động, Phạm vi và Điều kiện. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "adm-04",
+      "screens": [
+        "ADM-04"
+      ],
+      "heading": "Ủy quyền có thời hạn",
+      "text": "Ủy quyền có thời hạn. Đây là biểu mẫu để nhập thông tin, dành cho quản trị tổ chức, quản trị đơn vị và kiểm toán viên. Trên màn hình có: Tôi đã ủy quyền và Tôi được ủy quyền. Các thao tác chính: Ủy quyền mới, Tôi đã ủy quyền và Tôi được ủy quyền. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Người giao, Người nhận, Phạm vi, Từ ngày, Đến ngày, Quyền ủy, Lý do, Căn cứ và Trạng thái. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "adm-15",
+      "screens": [
+        "ADM-15"
+      ],
+      "heading": "Ma trận thẩm quyền phê duyệt",
+      "text": "Ma trận thẩm quyền phê duyệt. Đây là màn hình, dành cho quản trị tổ chức, quản trị đơn vị và kiểm toán viên. Trên màn hình có: Loại hồ sơ, Đơn vị áp dụng, Gồm đơn vị con, Từ, Đến, Vai trò duyệt, Số cấp duyệt và Hiệu lực. Các thao tác chính: Xóa dòng 1, Thêm dải tiền và Lưu bản nháp. Lúc quay, màn hình đang có 1 dòng dữ liệu.",
+      "note": ""
+    },
+    {
+      "id": "adm-16",
+      "screens": [
+        "ADM-16"
+      ],
+      "heading": "Sắp xếp lại đơn vị",
+      "text": "Sắp xếp lại đơn vị. Đây là màn hình, dành cho quản trị tổ chức, quản trị đơn vị và kiểm toán viên. Các thao tác chính: Đề xuất tổ chức lại. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Loại, Đơn vị cũ, Đơn vị kế thừa, Ngày hiệu lực, Căn cứ, Ánh xạ thành viên, Ánh xạ dự án và Kết quả áp dụng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "adm-17",
+      "screens": [
+        "ADM-17"
+      ],
+      "heading": "Thành viên khách – nhà thầu",
+      "text": "Thành viên khách – nhà thầu. Đây là danh sách, dành cho quản trị tổ chức, quản trị đơn vị và kiểm toán viên. Các thao tác chính: Mời khách. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Nhà thầu, Email, Hợp đồng, Vai trò khách, Hiệu lực đến và Trạng thái. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

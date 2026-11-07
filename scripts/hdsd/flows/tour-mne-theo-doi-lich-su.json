@@ -1,0 +1,29 @@
+{
+  "id": "tour-mne-theo-doi-lich-su",
+  "group": "MNE",
+  "title": "Giám sát, đánh giá đầu tư: Theo dõi & lịch sử",
+  "audience": "Chủ đầu tư, cơ quan chủ quản và Sở Tài chính",
+  "outcome": "Biết mỗi màn hình của nhóm Theo dõi & lịch sử dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "mne-09",
+      "screens": [
+        "MNE-09"
+      ],
+      "heading": "Tiến độ nộp báo cáo giám sát",
+      "text": "Tiến độ nộp báo cáo giám sát. Đây là bảng dữ liệu, dành cho Chủ đầu tư, cơ quan chủ quản và Sở Tài chính. Không tính trễ cho nghĩa vụ đã hết hiệu lực. Trên màn hình có: Năm báo cáo và Chỉ xem báo cáo trễ. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Đơn vị, Mẫu biểu, Hạn và Trạng thái. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "mne-10",
+      "screens": [
+        "MNE-10"
+      ],
+      "heading": "Lịch sử phiên bản và đính chính báo cáo",
+      "text": "Lịch sử phiên bản và đính chính báo cáo. Đây là màn hình so sánh, dành cho Chủ đầu tư, cơ quan chủ quản và Sở Tài chính. Trên màn hình có: Chọn báo cáo đã phát hành và Năm báo cáo. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Phiên bản, Lý do đính chính, Khác biệt và Người duyệt. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

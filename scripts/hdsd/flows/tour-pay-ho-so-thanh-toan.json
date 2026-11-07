@@ -1,0 +1,56 @@
+{
+  "id": "tour-pay-ho-so-thanh-toan",
+  "group": "PAY",
+  "title": "Thanh toán và Kho bạc: Hồ sơ thanh toán",
+  "audience": "Kế toán, cán bộ đối soát và kế toán trưởng",
+  "outcome": "Biết mỗi màn hình của nhóm Hồ sơ thanh toán dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "pay-01",
+      "screens": [
+        "PAY-01"
+      ],
+      "heading": "Danh sách hồ sơ thanh toán",
+      "text": "Danh sách hồ sơ thanh toán. Đây là danh sách, dành cho Kế toán và cán bộ đối soát. Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch. Trên màn hình có: Hợp đồngTất cả. Lúc quay, màn hình đang có 2 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Số hồ sơ, Số tiền và Trạng thái. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "pay-02",
+      "screens": [
+        "PAY-02"
+      ],
+      "heading": "Tạo đề nghị thanh toán",
+      "text": "Tạo đề nghị thanh toán. Đây là biểu mẫu để nhập thông tin, dành cho Kế toán và cán bộ đối soát.",
+      "note": "Thiết kế còn nêu các thông tin: Dự án, Hợp đồng, Nghiệm thu, Tạm ứng, Thu hồi, Giá trị đề nghị, Dòng BOQ / nghiệm thu, Dòng vốn – năm kế hoạch và Hạn mức dòng vốn còn lại. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "pay-03",
+      "screens": [
+        "PAY-03"
+      ],
+      "heading": "Chi tiết và chứng từ",
+      "text": "Chi tiết và chứng từ. Đây là màn hình, dành cho Kế toán và cán bộ đối soát.",
+      "note": "Thiết kế còn nêu các thông tin: Chứng từ, Chữ ký, Checksum và Phiên bản. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "pay-04",
+      "screens": [
+        "PAY-04"
+      ],
+      "heading": "Theo dõi gửi Kho bạc",
+      "text": "Theo dõi gửi Kho bạc. Đây là dòng thời gian, dành cho Kế toán và cán bộ đối soát. Lúc quay, màn hình đang có 1 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Mã giao dịch, Ngày gửi và Phản hồi. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "pay-11",
+      "screens": [
+        "PAY-11"
+      ],
+      "heading": "Đề nghị tạm ứng",
+      "text": "Đề nghị tạm ứng. Đây là biểu mẫu để nhập thông tin, dành cho Kế toán, kế toán trưởng và cán bộ đối soát. Trên màn hình có: Hợp đồng, Thành viên, Loại tạm ứng, Số đề nghị và Nguồn vốn – năm kế hoạch. Các thao tác chính: Lập tạm ứng.",
+      "note": "Thiết kế còn nêu các thông tin: Trần cho phép và Bảo lãnh tạm ứng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}
