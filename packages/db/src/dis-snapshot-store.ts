@@ -4,6 +4,7 @@ import type { RateBasis, RateSums } from '@machvon/kernel';
 import type { DefinitionStatus, HashedLine, PlanCell, ReportedCell, SnapshotKind, SnapshotLine, SnapshotProject, TreasuryEntry } from '@machvon/kernel';
 import type { PeriodRow } from './dis-period-store.ts';
 import { DISBURSEMENT_DOMAIN, GlossaryStore } from './glossary-store.ts';
+import { PrjEvmStore } from './prj-evm-store.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -164,6 +165,8 @@ const cellKey = (bucket: string, level: string): string => `${bucket}/${level}`;
  * version in force at the end of the period split by the origin of the capital, and the Treasury up to a cutoff; then frozen with the hash of what it holds, and replaced only by a newer one.
  */
 export class DisSnapshotStore {
+  private readonly evm = new PrjEvmStore();
+
   async find(tx: TenantTx, id: string, lock = false): Promise<SnapshotRow | undefined> {
     const [row] = await tx.query<SnapshotSql>(`select ${COLUMNS} from machvon.period_snapshot s where s.id = $1::uuid${lock ? ' for update of s' : ''}`, [id]);
     return row === undefined ? undefined : toSnapshot(row);
@@ -354,6 +357,8 @@ export class DisSnapshotStore {
       [id, hash, actor, at.toISOString(), previous?.id ?? null],
     );
     if (frozen === undefined) throw new DomainError('SNAPSHOT_NOT_BUILT', 409, 'status');
+    // G1-4: the earned value of every project of a closed period is frozen with the snapshot, so the figure of the period is never recomputed from data that moved after it (hook of lane B1).
+    if (current.snapshotKind === 'PERIOD_CLOSE') await this.evm.freezeForSnapshot(tx, { id, asOfDate: current.asOfDate }, actor, at);
     return { snapshot: toSnapshot(frozen), supersededId: previous?.id ?? null };
   }
 

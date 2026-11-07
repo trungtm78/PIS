@@ -1,12 +1,15 @@
 import { randomUUID } from 'node:crypto';
-import { DomainError, isSameBuild, qualityOfVersion, versionChecksum } from '@machvon/kernel';
-import type { DatasetVersionStatus, QualityBadge, QualityRunFacts, VersionContent } from '@machvon/kernel';
+import { CONTRACT_ADAPTER, DISBURSEMENT_ADAPTER, DomainError, datasetAdapterOf, isSameBuild, qualityOfVersion, versionChecksum } from '@machvon/kernel';
+import type { DatasetSourceKind, DatasetVersionStatus, QualityBadge, QualityRunFacts, VersionContent } from '@machvon/kernel';
 import { BiLineageStore } from './bi-lineage-store.ts';
+import { hasQuerySource } from './bi-query-source.ts';
 import type { TenantTx } from './tenant-database.ts';
 import { vietnameseData } from './vietnamese-data.ts';
 
 /** The dataset of the disbursement figures, built from the frozen close snapshots of DIS (BI 3 F2). */
-export const DISBURSEMENT_DATASET_CODE = 'DS-DISB';
+export const DISBURSEMENT_DATASET_CODE = DISBURSEMENT_ADAPTER.code;
+/** The dataset of the contract portfolio, built from the frozen snapshots of the contract fact (CA-1, part 2 makes the source). */
+export const CONTRACT_DATASET_CODE = CONTRACT_ADAPTER.code;
 /** The dimensions its metrics may be cut by, and the joins that were approved for it: nothing else is reachable through it. */
 export const DISBURSEMENT_JOIN_PATHS = {
   dimensions: ['project', 'unit', 'fund_source', 'budget_level', 'bucket'],
@@ -16,7 +19,31 @@ export const DISBURSEMENT_JOIN_PATHS = {
     { from: 'period_snapshot_line.fund_source_version_id', to: 'master_record_version.id' },
   ],
 } as const;
-const DISBURSEMENT_TITLE = vietnameseData<{ 'disbursement.title': string }>('bi-dataset')['disbursement.title'];
+const DATASET_TITLES = vietnameseData<{ 'disbursement.title': string; 'contract.title': string }>('bi-dataset');
+const DISBURSEMENT_TITLE = DATASET_TITLES['disbursement.title'];
+/** The joins approved for the contract dataset: its lines are read from the contract fact and go to the project and the unit for the scope of the reader, nothing else is reachable through it. */
+export const CONTRACT_JOIN_PATHS = {
+  dimensions: ['project', 'unit', 'fund_source', 'investor', 'contractor', 'contract_status', 'contract_type'],
+  joins: [
+    { from: 'contract_fact.project_id', to: 'project.id' },
+    { from: 'contract_fact.unit_id', to: 'organization_unit.id' },
+    { from: 'contract_fact.contractor_id', to: 'contractor.id' },
+  ],
+} as const;
+
+/** What a dataset of the registry is when the catalogue of the tenant is made: its title, the grain of its lines, the joins approved for it and the kind of source it is read from. */
+interface DatasetDefinition {
+  title: string;
+  sourceKind: DatasetSourceKind;
+  grain: string;
+  joinPaths: Record<string, unknown>;
+  /** The module whose dataset in the catalogue of DGV the dataset is linked to (its data contract and its quality runs). */
+  producerModule: string;
+}
+const DEFINITIONS: Readonly<Record<string, DatasetDefinition>> = {
+  [DISBURSEMENT_DATASET_CODE]: { title: DISBURSEMENT_TITLE, sourceKind: 'PERIOD_SNAPSHOT', grain: 'project', joinPaths: DISBURSEMENT_JOIN_PATHS, producerModule: 'DIS' },
+  [CONTRACT_DATASET_CODE]: { title: DATASET_TITLES['contract.title'], sourceKind: 'CONTRACT_FACT', grain: 'contract_party', joinPaths: CONTRACT_JOIN_PATHS, producerModule: 'CTR' },
+};
 /** A build that stays BUILDING this long is taken for dead: the next build marks it FAILED and goes on. */
 const STALE_BUILD_MINUTES = 60;
 
@@ -179,24 +206,40 @@ export class BiDatasetStore {
 
   /** The dataset of the disbursement figures of the tenant: created the first time a snapshot freezes, then found. */
   async ensureDisbursementDataset(tx: TenantTx, actor: string): Promise<string> {
-    const found = await tx.query<{ id: string }>('select id from machvon.bi_dataset where dataset_code = $1', [DISBURSEMENT_DATASET_CODE]);
+    return this.ensureDataset(tx, DISBURSEMENT_DATASET_CODE, actor);
+  }
+
+  /**
+   * A dataset of the registry in the catalogue of the tenant: created the first time it is needed, then found. A dataset whose source is not registered in this build (the contract fact, until part 2 of CA-1) is
+   * refused as `DATASET_SOURCE_UNAVAILABLE`, and a code that is not in the registry is 422 on the dataset.
+   */
+  async ensureDataset(tx: TenantTx, datasetCode: string, actor: string): Promise<string> {
+    const definition = datasetAdapterOf(datasetCode) === undefined ? undefined : DEFINITIONS[datasetCode];
+    if (definition === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'dataset');
+    if (!hasQuerySource(definition.sourceKind)) throw new DomainError('DATASET_SOURCE_UNAVAILABLE', 422, 'dataset', { extensions: { dataset_code: datasetCode, source_kind: definition.sourceKind } });
+    const found = await tx.query<{ id: string }>('select id from machvon.bi_dataset where dataset_code = $1', [datasetCode]);
     if (found[0] !== undefined) return found[0].id;
     const id = randomUUID();
-    await this.lockCatalogueDataset(tx);
+    await this.lockCatalogueDataset(tx, definition.producerModule);
     await tx.query(
       `insert into machvon.bi_dataset (tenant_id, id, dataset_code, title, source_kind, grain, join_paths, dgv_dataset_id, owner_user_id, created_by, updated_by)
-       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2, $3, 'PERIOD_SNAPSHOT', 'project', $4::jsonb,
-               (select d.id from machvon.dataset d where d.producer_module = 'DIS' and d.status <> 'RETIRED' order by d.created_at limit 1), $5::uuid, $5::uuid, $5::uuid)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2, $3, $6, $7, $4::jsonb,
+               (select d.id from machvon.dataset d where d.producer_module = $8 and d.status <> 'RETIRED' order by d.created_at limit 1), $5::uuid, $5::uuid, $5::uuid)
        on conflict (tenant_id, dataset_code) do nothing`,
-      [id, DISBURSEMENT_DATASET_CODE, DISBURSEMENT_TITLE, JSON.stringify(DISBURSEMENT_JOIN_PATHS), actor],
+      [id, datasetCode, definition.title, JSON.stringify(definition.joinPaths), actor, definition.sourceKind, definition.grain, definition.producerModule],
     );
-    const stored = await tx.query<{ id: string }>('select id from machvon.bi_dataset where dataset_code = $1', [DISBURSEMENT_DATASET_CODE]);
+    const stored = await tx.query<{ id: string }>('select id from machvon.bi_dataset where dataset_code = $1', [datasetCode]);
     return (stored[0] as { id: string }).id;
   }
 
   /** The datasets built from period snapshots, which a freezing of one feeds. */
   async snapshotDatasets(tx: TenantTx): Promise<string[]> {
     return (await tx.query<{ id: string }>("select id from machvon.bi_dataset where source_kind = 'PERIOD_SNAPSHOT' and status = 'ACTIVE' order by dataset_code")).map((row) => row.id);
+  }
+
+  /** The dataset of the contract portfolio of the tenant: made the first time the contract fact is frozen, then found. */
+  async ensureContractDataset(tx: TenantTx, actor: string): Promise<string> {
+    return this.ensureDataset(tx, CONTRACT_DATASET_CODE, actor);
   }
 
   /**
@@ -206,8 +249,13 @@ export class BiDatasetStore {
   async build(tx: TenantTx, input: BuildInput): Promise<BuildResult> {
     const dataset = await this.find(tx, input.datasetId);
     if (dataset === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    if (dataset.status !== 'ACTIVE' || dataset.sourceKind !== 'PERIOD_SNAPSHOT') throw new DomainError('VALIDATION_FAILED', 422, 'dataset');
-    const snapshot = await this.snapshotOf(tx, input);
+    if (dataset.status !== 'ACTIVE' || (dataset.sourceKind !== 'PERIOD_SNAPSHOT' && dataset.sourceKind !== 'CONTRACT_FACT')) throw new DomainError('VALIDATION_FAILED', 422, 'dataset');
+    const producerModule = DEFINITIONS[dataset.datasetCode]?.producerModule ?? 'DIS';
+    const fromContractFact = dataset.sourceKind === 'CONTRACT_FACT';
+    const dis = await this.snapshotOf(tx, input);
+    // The dataset of the contracts is read from the contract fact frozen with the close snapshot of DIS: its rows and its hash are the ones of the version.
+    const fact = fromContractFact ? await this.contractFactOf(tx, dis.id) : undefined;
+    const snapshot = fact === undefined ? dis : { ...dis, payloadSha256: fact.payloadSha256, rowCount: fact.rowCount };
     const locked = await tx.query<{ locked: boolean }>(
       "select pg_try_advisory_xact_lock(hashtextextended('bi_dataset:' || current_setting('app.tenant_id', true) || ':' || $1 || ':' || $2, 0)) as locked",
       [dataset.id, snapshot.periodCode],
@@ -215,7 +263,7 @@ export class BiDatasetStore {
     if (locked[0]?.locked !== true) throw new DomainError('BUILD_ALREADY_RUNNING', 409);
     // The snapshot was read before the lock: a replacement may have been frozen since, and its own build may already have made its version. It is read again and held (a freezing of its replacement waits for this
     // transaction), so a version of a snapshot that has been replaced never takes the place of the version of the one that replaced it.
-    await this.hold(tx, snapshot.id);
+    await this.hold(tx, dis.id);
     await tx.query(
       `update machvon.bi_dataset_version set status = 'FAILED', updated_at = now(), version = version + 1
         where dataset_id = $1::uuid and as_of_period = $2 and status = 'BUILDING' and created_at < now() - make_interval(mins => $3::int)`,
@@ -227,8 +275,9 @@ export class BiDatasetStore {
     ]);
     if (running[0] !== undefined) throw new DomainError('BUILD_ALREADY_RUNNING', 409);
     // The dataset may have been made before DIS had a dataset in the catalogue of DGV: the link is made as soon as there is one.
-    const linked = dataset.dgvDatasetId ?? (await this.linkCatalogue(tx, dataset.id));
-    const quality = qualityOfVersion(await this.qualityRun(tx, { ...dataset, dgvDatasetId: linked }, snapshot.id), snapshot.payloadSha256);
+    const linked = dataset.dgvDatasetId ?? (await this.linkCatalogue(tx, dataset.id, producerModule));
+    // The quality runs of DGV are over the snapshots of DIS: the contract fact has none yet, so its versions are NOT_ASSESSED until a rule set of the producer CTR runs over it.
+    const quality = qualityOfVersion(fromContractFact ? undefined : await this.qualityRun(tx, { ...dataset, dgvDatasetId: linked }, snapshot.id, producerModule), snapshot.payloadSha256);
     const content: VersionContent = {
       datasetCode: dataset.datasetCode,
       asOfPeriod: snapshot.periodCode,
@@ -242,7 +291,7 @@ export class BiDatasetStore {
     const current = standing[0] === undefined ? undefined : toVersion(standing[0]);
     if (current !== undefined && isSameBuild(current, content)) {
       // A version built before the lineage of data was kept has no source in it: asking for the same build again tells it (what is there already is not written again).
-      await new BiLineageStore().datasetBuilt(tx, { versionId: current.id, datasetCode: dataset.datasetCode, asOfPeriod: snapshot.periodCode, sourceSnapshotId: snapshot.id, observedAt: new Date() });
+      await this.lineageOf(tx, dataset.datasetCode, current.id, snapshot, fact?.id);
       return { version: current, outcome: 'UNCHANGED', supersededId: null };
     }
     if (current !== undefined) {
@@ -270,26 +319,41 @@ export class BiDatasetStore {
     );
     const made = await tx.query<Sql>(`${VERSION_SELECT} where v.id = $1::uuid`, [id]);
     // The lineage of data is told what the version was made from: the snapshot of DIS and the projects it holds.
-    await new BiLineageStore().datasetBuilt(tx, { versionId: id, datasetCode: dataset.datasetCode, asOfPeriod: snapshot.periodCode, sourceSnapshotId: snapshot.id, observedAt: new Date() });
+    await this.lineageOf(tx, dataset.datasetCode, id, snapshot, fact?.id);
     return { version: toVersion(made[0] as Sql), outcome: 'BUILT', supersededId: current?.id ?? null };
+  }
+
+  /** The lineage of a version: from the snapshot of DIS and its projects, or, for the contract dataset, from the frozen contract fact. */
+  private async lineageOf(tx: TenantTx, datasetCode: string, versionId: string, snapshot: { id: string; periodCode: string }, factId: string | undefined): Promise<void> {
+    const lineage = new BiLineageStore();
+    if (factId === undefined) await lineage.datasetBuilt(tx, { versionId, datasetCode, asOfPeriod: snapshot.periodCode, sourceSnapshotId: snapshot.id, observedAt: new Date() });
+    else await lineage.contractFactBuilt(tx, { versionId, datasetCode, asOfPeriod: snapshot.periodCode, factSnapshotId: factId, observedAt: new Date() });
+  }
+
+  /** The contract fact frozen with a snapshot of DIS; SOURCE_SNAPSHOT_NOT_FROZEN when there is none (it is made before the version is built). */
+  private async contractFactOf(tx: TenantTx, periodSnapshotId: string): Promise<{ id: string; payloadSha256: string; rowCount: number }> {
+    const rows = await tx.query<{ id: string; payload_sha256: string; row_count: number }>('select id, payload_sha256, row_count from machvon.contract_fact_snapshot where period_snapshot_id = $1::uuid', [periodSnapshotId]);
+    const found = rows[0];
+    if (found === undefined) throw new DomainError('SOURCE_SNAPSHOT_NOT_FROZEN', 422, 'source_snapshot_id');
+    return { id: found.id, payloadSha256: found.payload_sha256.trim(), rowCount: Number(found.row_count) };
   }
 
   /**
    * The dataset DGV keeps for the producer DIS is held in share mode until this transaction ends: a breaking revision of its contract locks it for update before it reads its consumers, so a link made here either
    * waits for that publication or is committed in time to be seen by it.
    */
-  private async lockCatalogueDataset(tx: TenantTx): Promise<void> {
-    await tx.query("select d.id from machvon.dataset d where d.producer_module = 'DIS' and d.status <> 'RETIRED' order by d.created_at limit 1 for share");
+  private async lockCatalogueDataset(tx: TenantTx, producerModule: string): Promise<void> {
+    await tx.query("select d.id from machvon.dataset d where d.producer_module = $1 and d.status <> 'RETIRED' order by d.created_at limit 1 for share", [producerModule]);
   }
 
   /** Links a dataset of BI to the dataset DGV keeps for the producer DIS, if DGV has one now; the link made earlier is never changed. */
-  private async linkCatalogue(tx: TenantTx, datasetId: string): Promise<string | null> {
-    await this.lockCatalogueDataset(tx);
+  private async linkCatalogue(tx: TenantTx, datasetId: string, producerModule: string): Promise<string | null> {
+    await this.lockCatalogueDataset(tx, producerModule);
     const rows = await tx.query<{ dgv_dataset_id: string | null }>(
-      `update machvon.bi_dataset b set dgv_dataset_id = (select d.id from machvon.dataset d where d.producer_module = 'DIS' and d.status <> 'RETIRED' order by d.created_at limit 1), updated_at = now(), version = version + 1
-        where b.id = $1::uuid and b.dgv_dataset_id is null and exists (select 1 from machvon.dataset d where d.producer_module = 'DIS' and d.status <> 'RETIRED')
+      `update machvon.bi_dataset b set dgv_dataset_id = (select d.id from machvon.dataset d where d.producer_module = $2 and d.status <> 'RETIRED' order by d.created_at limit 1), updated_at = now(), version = version + 1
+        where b.id = $1::uuid and b.dgv_dataset_id is null and exists (select 1 from machvon.dataset d where d.producer_module = $2 and d.status <> 'RETIRED')
         returning b.dgv_dataset_id`,
-      [datasetId],
+      [datasetId, producerModule],
     );
     return rows[0]?.dgv_dataset_id ?? null;
   }
@@ -319,14 +383,14 @@ export class BiDatasetStore {
   }
 
   /** The latest completed quality run DGV made of this snapshot for the dataset; a dataset not yet linked to DGV takes the dataset DGV keeps for the producer of its snapshots. */
-  private async qualityRun(tx: TenantTx, dataset: BiDatasetRow, snapshotId: string): Promise<QualityRunFacts | undefined> {
+  private async qualityRun(tx: TenantTx, dataset: BiDatasetRow, snapshotId: string, producerModule: string): Promise<QualityRunFacts | undefined> {
     const rows = await tx.query<{ id: string; status: string; overall_result: string | null; certified_blocked: boolean; quarantined_count: string; snapshot_sha256: string | null }>(
       `select r.id, r.status, r.overall_result, r.certified_blocked, r.quarantined_count::text as quarantined_count, r.snapshot_sha256
          from machvon.quality_run r
         where r.snapshot_id = $1::uuid and r.status = 'COMPLETED'
-          and r.dataset_id = coalesce($2::uuid, (select d.id from machvon.dataset d where d.producer_module = 'DIS' and d.status <> 'RETIRED' order by d.created_at limit 1))
+          and r.dataset_id = coalesce($2::uuid, (select d.id from machvon.dataset d where d.producer_module = $3 and d.status <> 'RETIRED' order by d.created_at limit 1))
         order by r.finished_at desc, r.id limit 1`,
-      [snapshotId, dataset.dgvDatasetId],
+      [snapshotId, dataset.dgvDatasetId, producerModule],
     );
     const run = rows[0];
     return run === undefined

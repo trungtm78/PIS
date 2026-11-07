@@ -222,6 +222,25 @@ describe('the draft of a payment request (ST-PAY-002)', () => {
       expect(await refusal(create(approved))).toMatchObject({ code: 'ACCEPTANCE_ALREADY_CLAIMED', status: 409, extensions: { payment_request_id: made.id } });
     });
 
+    it('G1-2: a payment is built and revised only for a project on the list of the investment projects, and the refusal names the stage and the way to fix it', async () => {
+      const approved = await approvedThreeBillion();
+      const [held] = await owner<{ project_id: string; code: string }>('select c.project_id, p.code from machvon.contract c join machvon.project p on p.id = c.project_id where c.id = $1::uuid', [approved.contract.contractId]);
+      const made = await create(approved);
+      for (const stage of ['CONCEPT', 'APPRAISAL', 'REJECTED', 'CANCELLED', 'CLOSED']) {
+        await owner('update machvon.project set status = $2 where id = $1::uuid', [held?.project_id, stage]);
+        expect(await refusal(create(approved, { requestNo: `DNTT-${stage}` }))).toMatchObject({
+          code: 'DISBURSEMENT_PROJECT_NOT_LISTED',
+          status: 422,
+          detail: 'project_id',
+          extensions: { project_id: held?.project_id, project_code: held?.code, project_status: stage, fix: 'COMPLETE_STAGE_TRANSITION' },
+        });
+        expect(await refusal(as((tx) => payments.revise(tx, made.id, 1, {}, memberId(ACCOUNTANT), everything, TODAY)))).toMatchObject({ code: 'DISBURSEMENT_PROJECT_NOT_LISTED' });
+      }
+      // The stage on the system is what counts: put back on the list, the same request is built.
+      await owner('update machvon.project set status = $2 where id = $1::uuid', [held?.project_id, 'IMPLEMENTATION']);
+      expect(await create(approved, { requestNo: 'DNTT-LISTED' })).toMatchObject({ status: 'DRAFT' });
+    });
+
     it('UAT-AC342: the line of capital is of the project, in force, of a year the acceptance can be paid from and still open (BR-PAY-14)', async () => {
       const approved = await approvedThreeBillion();
       expect(await refusal(create(approved, { allocationLineId: randomUUID() }))).toMatchObject({ code: 'ALLOCATION_UNAVAILABLE', extensions: { reason: 'NOT_FOUND' } });

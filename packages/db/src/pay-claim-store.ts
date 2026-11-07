@@ -16,6 +16,8 @@ import { CtrContractStore } from './ctr-contract-store.ts';
 import { normalizeUuid } from './file-import-item-store.ts';
 import type { ContractScopes } from './ctr-contract-store.ts';
 import { PAY_LEDGER_LOCK_WAIT_METRIC, PayLedgerStore, valueExceeded } from './pay-ledger-store.ts';
+import { PayAdvanceRecoveryReads } from './pay-advance-recovery-reads.ts';
+import { PayDisbursementCheck } from './pay-disbursement-check.ts';
 import { PayPaymentStore } from './pay-payment-store.ts';
 import type { PaymentResult } from './pay-payment-store.ts';
 import { lockLedgerRows } from './ledger-lock.ts';
@@ -68,6 +70,8 @@ export interface SubmitPaymentInput {
   expectedNetVnd: string;
   /** The identifier of the command, kept on the entries it posts. */
   requestId: string;
+  /** Lane D (G4-2): what an approved exception for the capital plan line lets this request go over the room of the line by, in whole dong; absent when no exception was used (the check of the line is then exact). */
+  planWaiverVnd?: string | undefined;
 }
 
 interface HeldSql {
@@ -104,6 +108,8 @@ const LOCK_SELECT = `select pr.id, pr.request_no, pr.request_kind, pr.status, pr
 export class PayClaimStore {
   private readonly contracts = new CtrContractStore();
   private readonly payments = new PayPaymentStore();
+  private readonly advanceRecovery = new PayAdvanceRecoveryReads();
+  private readonly disbursement = new PayDisbursementCheck();
   private readonly ledger: PayLedgerStore;
   private readonly metrics: MetricsSink;
   private readonly applicationChecks: boolean;
@@ -328,6 +334,8 @@ export class PayClaimStore {
       const claim = await tx.query<{ id: string }>('select id from machvon.payment_request where acceptance_id = $1::uuid and claims_acceptance and id <> $2::uuid limit 1', [held.acceptance_id, id]);
       if (claim[0] !== undefined) throw new DomainError('ACCEPTANCE_ALREADY_CLAIMED', 409, 'acceptance_id', { extensions: { payment_request_id: claim[0].id } });
     }
+    // G1-2: a request is sent only for a project that is still on the list and still holds an approved amount on the system (the stage or the plan may have changed since the draft).
+    await this.disbursement.assertAllowed(tx, contract.project_id, today);
     if (held.allocation_line_id === null) throw new DomainError('ALLOCATION_UNAVAILABLE', 422, 'allocation_line_id', { extensions: { reason: 'NOT_FOUND' } });
     await this.payments.assertAllocation(tx, held.allocation_line_id, contract.project_id, acceptance === undefined ? null : Number(acceptance.accepted_on.slice(0, 4)), today);
 
@@ -346,13 +354,15 @@ export class PayClaimStore {
     }
     if (held.request_kind === 'ADVANCE') await this.askForAdvance(tx, held, actor);
     else await this.putOnTheBooks(tx, held, input.requestId, actor);
+    // G1-11: the final payment does not go while an advance of the contract is still owed after the recovery this very request makes (the policy of the day says whether it must be recovered in full).
+    if (held.request_kind === 'FINAL') await this.advanceRecovery.assertFinalPaymentClears(tx, held.contract_id, today);
     // The line of capital comes last in the order of the locks: what it has left, less what other requests in flight are already worth, must carry this one.
-    await this.assertLineHasRoom(tx, held.allocation_line_id, net, id);
+    await this.assertLineHasRoom(tx, held.allocation_line_id, net, id, input.planWaiverVnd === undefined ? 0n : wholeVnd(input.planWaiverVnd, 'plan_waiver_vnd'));
     return this.payments.resultOf(tx, id, held.status, []);
   }
 
   /** 422 `ALLOCATION_UNAVAILABLE` (naming what is available) unless the line of capital, locked, has room for the net of the request over what it holds disbursed and what requests in flight are worth. */
-  private async assertLineHasRoom(tx: TenantTx, lineId: string, net: bigint, requestId: string): Promise<void> {
+  private async assertLineHasRoom(tx: TenantTx, lineId: string, net: bigint, requestId: string, waiver = 0n): Promise<void> {
     const [balance] = await tx.query<{ allocated: string; disbursed: string }>(
       'select allocated_vnd::text as allocated, disbursed_vnd::text as disbursed from machvon.allocation_balance where allocation_line_id = $1::uuid for update',
       [lineId],
@@ -363,7 +373,7 @@ export class PayClaimStore {
       [lineId, requestId],
     );
     const room = BigInt(balance.allocated) - BigInt(balance.disbursed) - BigInt(flight?.net ?? '0');
-    if (net > room) throw new DomainError('ALLOCATION_UNAVAILABLE', 422, 'allocation_line_id', { extensions: { reason: 'INSUFFICIENT', available_vnd: (room < 0n ? 0n : room).toString() } });
+    if (net > room + waiver) throw new DomainError('ALLOCATION_UNAVAILABLE', 422, 'allocation_line_id', { extensions: { reason: 'INSUFFICIENT', available_vnd: (room < 0n ? 0n : room).toString() } });
   }
 
   /** The advance a request of the ADVANCE kind is for goes from planned to asked for; one that is not planned any more (another request holds it, or it was cancelled) cannot be asked for twice. */

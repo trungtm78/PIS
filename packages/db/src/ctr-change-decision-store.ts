@@ -46,6 +46,11 @@ export interface DecisionHooks {
   authorise(facts: { amountVnd: string; contractId: string; projectId: string; ownerUnit: { id: string; path: string } }): Promise<void>;
   /** Throws 422 `ALLOCATION_UNAVAILABLE` when the line of capital cannot take the increase. */
   available(allocationLineId: string, amountVnd: string): Promise<void>;
+  /**
+   * The tiers of the change orders (governance deepening G1-8): classifies the change at the amount that is being approved, refuses while the check of the project adjustment is not cleared or an increase has
+   * no source (the reserve or a cleared adjustment), and gives the amount the delegation of authority is asked for (the larger of the change and the cumulative variation). Absent, nothing is added to the checks.
+   */
+  gate?(facts: { changeId: string; contractId: string; projectId: string; deltaVnd: string }): Promise<{ authorityAmountVnd: string }>;
 }
 
 /** The decision as the command answers it, for the audit rows, the events and the answer. */
@@ -132,12 +137,14 @@ export class CtrChangeDecisionStore {
     assertNotRetroactive(effectiveOn, today);
 
     const project = await this.projectOf(tx, contract.projectId);
-    await hooks.authorise({ amountVnd: absoluteVnd(delta), contractId: contract.id, projectId: contract.projectId, ownerUnit: project.ownerUnit });
     const head = await this.revisions.head(tx, contract.id);
     assertFollowsRevision(effectiveOn, head.valid_from);
     const newValue = valueAfterChange(head.amount_vnd, delta);
     if (compareDecimal(newValue, '0') <= 0) throw invalid('approved_delta_vnd');
     assertValueAboveFloor(newValue, await this.revisions.figuresOf(tx, contract.id));
+    // The tiers of the change orders come after what is plainly wrong with the change: the check of the project adjustment, the source of an increase, then the authority for the larger of the change and the cumulative variation.
+    const gated = hooks.gate === undefined ? undefined : await hooks.gate({ changeId: row.id, contractId: contract.id, projectId: contract.projectId, deltaVnd: delta });
+    await hooks.authorise({ amountVnd: gated?.authorityAmountVnd ?? absoluteVnd(delta), contractId: contract.id, projectId: contract.projectId, ownerUnit: project.ownerUnit });
     const increase = compareDecimal(delta, '0') > 0;
     if (increase) {
       if (row.evaluation_allocation_line_id === null) throw new DomainError('ALLOCATION_UNAVAILABLE', 422, 'allocation_line_id', { extensions: { reason: 'ALLOCATION_LINE_REQUIRED' } });

@@ -8,6 +8,7 @@ import { liveRecordOfKey } from './master-types.ts';
 import { linkComplaintIssue } from './lnd-complaint-store.ts';
 import { linkStageIssue } from './lnd-stage-progress-store.ts';
 import { linkReconciliationIssue } from './pay-reconciliation-store.ts';
+import { linkTreasuryReconIssue } from './treasury-daily-recon-job.ts';
 import type { SlaSeverity } from './iss-sla-policy-store.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -134,6 +135,18 @@ export const INTAKE_SPECS: readonly IntakeSpec[] = [
     sourceRefId: commonRef,
     referenceCode: commonCode,
     link: linkWarrantyIssue,
+  },
+  {
+    // G4-4: an item of the daily reconciliation with the Treasury that is past its day (alert type TREASURY_RECON_ITEM_OVERDUE).
+    eventType: 'pay.treasury_daily_recon.item_overdue.v1',
+    sourceModule: 'PAY',
+    title: 'Daily Treasury reconciliation item overdue',
+    severity: 'MEDIUM',
+    categoryKey: INTAKE_CATEGORY_KEYS.PAY,
+    wanted: alwaysWanted,
+    sourceRefId: commonRef,
+    referenceCode: commonCode,
+    link: linkTreasuryReconIssue,
   },
 ];
 

@@ -183,7 +183,9 @@ export class CtrRetroactiveStore {
     const project = await this.source.projectRef(tx, contract.projectId);
     if (project === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     const exposure = compareDecimal(absoluteVnd(delta), absoluteVnd(total)) >= 0 ? absoluteVnd(delta) : absoluteVnd(total);
-    await hooks.authorise({ amountVnd: exposure, contractId: contract.id, projectId: contract.projectId, ownerUnit: project.ownerUnit });
+    // The tiers of the change orders: the same gate as the decision, and the authority is asked for the larger of the exposure and the cumulative variation.
+    const gated = hooks.gate === undefined ? undefined : await hooks.gate({ changeId: row.id, contractId: contract.id, projectId: contract.projectId, deltaVnd: delta });
+    await hooks.authorise({ amountVnd: gated !== undefined && compareDecimal(gated.authorityAmountVnd, exposure) > 0 ? gated.authorityAmountVnd : exposure, contractId: contract.id, projectId: contract.projectId, ownerUnit: project.ownerUnit });
     const figures = await this.revisions.figuresOf(tx, contract.id);
     const acceptedAfter = (BigInt(figures.acceptedTotalVnd) + BigInt(total)).toString();
     assertValueAboveFloor(newValue, { ...figures, acceptedTotalVnd: acceptedAfter });

@@ -23,6 +23,7 @@ import { OPEN_ISSUES_GAUGE, PENDING_ESCALATIONS_GAUGE } from './iss-sla-job.ts';
 import type { SlaPassResult } from './iss-sla-job.ts';
 import { SLA_SEVERITIES } from './iss-sla-policy-store.ts';
 import { PAY_ADVANCE_OVERDUE_METRIC } from './pay-advance-overdue-job.ts';
+import { EARLY_WARNING_SCORE_METRIC } from './analytics-score-job.ts';
 import { RETENTION_PENDING_GAUGE } from './retention-job.ts';
 import { PAYMENT_UNMATCHED_GAUGE } from './billing-payment-store.ts';
 import { EINVOICE_FAILED_GAUGE } from './billing-store.ts';
@@ -137,10 +138,16 @@ export const JOB_INTERVAL_SECONDS = {
   'dgv-maturity-sweep': 3600,
   // Hourly: an item of difference that still waits and is past its day is reported within the hour, once, and asks ISS for its issue (ST-PAY-007); the pass is idempotent.
   'reconciliation-overdue': 3600,
+  // Hourly: the days that may still change are reconciled with the Treasury by project code and fund (yesterday and the days back to the grace days); a statement that is not due yet is not judged, one that is due and missing makes the day PARTIAL once, an item past its day is reported once and asks ISS for its issue (G4-4); the pass is idempotent.
+  'treasury-daily-recon': 3600,
   // Hourly tick that works only in the 06:00 hour of Vietnam time, so the reminders of the verification deadline of a settlement go once a morning wherever the process started; the pass is idempotent (ST-PAY-009).
   'settlement-deadline': 3600,
   // Hourly tick that works only in the 06:00 hour of Vietnam time, so the advances that are owed are looked at once a morning wherever the process started: the warnings before and on the deadline, the day it became overdue with one issue, the escalation a week later (ST-PAY-011); the pass is idempotent.
   'advance-overdue': 3600,
+  // Every 15 minutes: an item of the alert centre whose reminder is due by the cadence of its severity (in working hours) is reminded, once for each reminder of its series, and one that was taken up and went silent is noticed to the next level, once for each claim; every reminder is recorded and carried by an event (G2-4, G2-2); the pass is idempotent.
+  'work-reminder': 900,
+  // Hourly: the latest frozen snapshot is read, and if the week it belongs to has no early-warning score yet, every unit is judged by the rules in force and one row with the breakdown is written for it, once for the week (G3-2); the pass is idempotent.
+  'early-warning-score': 3600,
   // Hourly tick that works only in the 06:00 hour of Vietnam time, so the working days of the month without a main diary are counted for each contract in execution once a morning wherever the process started; nothing is changed by it (ST-QMS-008).
   'diary-coverage': 3600,
   // Hourly tick that works only in the 02:00 hour of Vietnam time, so the balances of capital are compared with their ledger once a night wherever the process started; nothing is changed by it (ST-CAP-006).
@@ -352,6 +359,8 @@ export interface StandardJobDeps {
   dgvMaturitySweep?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Reports the items of difference that wait past their day, once each (ST-PAY-007), and sets the gauges of the backlog. */
   reconciliationOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
+  /** Reconciles the days that may still change with the Treasury by project code and fund, opens and clears the items of difference and reports the ones past their day (G4-4). */
+  treasuryDailyRecon?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Compares the balances of capital with their ledger, once a night, and reports a difference without correcting it (ST-CAP-006). */
   capitalBalanceReconcile?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   capitalReservationExpiry?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
@@ -362,6 +371,10 @@ export interface StandardJobDeps {
   settlementDeadline?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** Alerts the advances that are owed and not recovered in time, each level once, asks ISS for one issue and escalates it a week later (ST-PAY-011); sets the gauge of the overdue ones. */
   advanceOverdue?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ overdue: number }> };
+  /** The reminders of the alert centre (G2-4): records each reminder that is due and each notice to the next level, with its event, for the people of the tenant who may read the alert centre. */
+  workReminder?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ reminders: number; reclaimNotices: number; failed: number }> };
+  /** Scores every unit for the week of the latest frozen snapshot, once for the week, with the breakdown of the factors and the versions of the rules (G3-2); sets the gauge of the units scored. */
+  earlyWarningScore?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<{ written: number }> };
   diaryCoverage?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The pass over the virtual keys of a tenant (ST-LLM-002): a rotating key whose last day is over, and a key past its expiry, are stopped at LiteLLM and recorded as revoked. */
   llmKeySweep?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
@@ -1094,6 +1107,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
       },
     });
   }
+  const treasuryDailyRecon = deps.treasuryDailyRecon;
+  if (treasuryDailyRecon !== undefined) {
+    handlers.push({
+      name: 'treasury-daily-recon',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await treasuryDailyRecon.run(workerContext(tenantId), now)));
+      },
+    });
+  }
   const settlementDeadlines = deps.settlementDeadline;
   if (settlementDeadlines !== undefined) {
     handlers.push({
@@ -1121,6 +1144,34 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
         } finally {
           // One gauge for all the tenants: the tenants that could be read still count, and one tenant does not blank the others.
           metrics.gauge(PAY_ADVANCE_OVERDUE_METRIC, overdue);
+        }
+      },
+    });
+  }
+  const workReminder = deps.workReminder;
+  if (workReminder !== undefined) {
+    handlers.push({
+      name: 'work-reminder',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await workReminder.run(workerContext(tenantId), now)));
+      },
+    });
+  }
+  const earlyWarningScore = deps.earlyWarningScore;
+  if (earlyWarningScore !== undefined) {
+    handlers.push({
+      name: 'early-warning-score',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        const metrics = deps.metrics ?? NOOP_METRICS;
+        let units = 0;
+        try {
+          await eachTenant(await deps.tenantIds(), async (tenantId) => {
+            units += (await earlyWarningScore.run(workerContext(tenantId), now)).written;
+          });
+        } finally {
+          metrics.gauge(EARLY_WARNING_SCORE_METRIC, units);
         }
       },
     });

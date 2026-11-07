@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import { DISBURSEMENT_DIMENSIONS, DomainError } from '@machvon/kernel';
-import type { GroupSums, MeasurePlan } from '@machvon/kernel';
-import { SCOPE_FROM } from './prj-project-store.ts';
+import { DISBURSEMENT_ADAPTER, DomainError, datasetAdapterOf, datasetAdapters } from '@machvon/kernel';
+import type { DatasetAdapter, DatasetDimension, GroupSums, MeasurePlan, SeriesVersion, StageTerm } from '@machvon/kernel';
+import { hasQuerySource, querySourceOf } from './bi-query-source.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -22,6 +22,8 @@ export type PolicyNode = Record<string, unknown>;
 
 export interface AggregateInput {
   snapshotId: string;
+  /** The dataset the lines belong to: its allowlists of dimensions and the reader of its source. DS-DISB when none is named. */
+  adapter?: DatasetAdapter | undefined;
   plan: MeasurePlan;
   /** The dimension to group by; none gives the total. */
   dimension?: string | undefined;
@@ -40,6 +42,8 @@ export interface AggregateRow extends GroupSums {
 }
 
 export interface SnapshotVersion {
+  /** The code of the dataset the version belongs to. */
+  datasetCode: string;
   /** The snapshot of BI: the version of the dataset for a period. It is what a query is pinned to and what the API calls `snapshot_id`. */
   datasetVersionId: string;
   datasetId: string;
@@ -74,6 +78,7 @@ interface Sql {
   [column: string]: unknown;
   version_id: string;
   dataset_id: string;
+  dataset_code: string;
   source_snapshot_id: string;
   as_of_period: string;
   reporting_period_id: string;
@@ -112,8 +117,9 @@ export class Params {
   }
 }
 
-function dimensionOf(field: string): { column: string; kind: 'uuid' | 'text' } {
-  const dimension = DISBURSEMENT_DIMENSIONS[field];
+function dimensionOf(field: string, adapter: DatasetAdapter): DatasetDimension {
+  // An own property only: a name such as `constructor` is not a dimension.
+  const dimension = Object.prototype.hasOwnProperty.call(adapter.dimensions, field) ? adapter.dimensions[field] : undefined;
   if (dimension === undefined) throw new DomainError('DIMENSION_NOT_IN_DATASET', 422, field);
   return dimension;
 }
@@ -124,8 +130,8 @@ function valueFor(kind: 'uuid' | 'text', value: unknown, field: string): string 
 }
 
 /** A filter as the query takes it, or the refusal: the column of its dimension, the type its values have, the operator and the values cleaned (an id in lower case, a list that is not empty). */
-function normalized(filter: QueryFilter): { column: string; cast: 'uuid' | 'text'; operator: QueryFilter['operator']; value: string | string[] } {
-  const { column, kind } = dimensionOf(filter.field);
+function normalized(filter: QueryFilter, adapter: DatasetAdapter): { column: string; cast: 'uuid' | 'text'; operator: QueryFilter['operator']; value: string | string[] } {
+  const { column, kind } = dimensionOf(filter.field, adapter);
   const cast = kind === 'uuid' ? 'uuid' : 'text';
   if (filter.operator === 'eq') return { column, cast, operator: 'eq', value: valueFor(kind, filter.value, filter.field) };
   if (filter.operator === 'in') {
@@ -137,20 +143,36 @@ function normalized(filter: QueryFilter): { column: string; cast: 'uuid' | 'text
   return { column, cast: 'text', operator: filter.operator, value: valueFor(kind, filter.value, filter.field) };
 }
 
-/** Whether a filter can be run at all, before anything is kept that names it (a schedule of exports is kept and run later, so a filter it cannot run must be refused when it is made). */
-export function assertFilter(filter: QueryFilter): void {
-  normalized(filter);
+/**
+ * Whether a filter can be run at all, before anything is kept that names it (a schedule of exports is kept and run later, so a filter it cannot run must be refused when it is made). Over the dataset it will run on
+ * when that is known; otherwise it must be good for at least one dataset, and the error is the one of a dataset that has the dimension (a dataset that lacks it only says the dimension is not in it).
+ */
+export function assertFilter(filter: QueryFilter, adapter?: DatasetAdapter): void {
+  if (adapter !== undefined) {
+    normalized(filter, adapter);
+    return;
+  }
+  const errors: unknown[] = [];
+  for (const candidate of datasetAdapters()) {
+    try {
+      normalized(filter, candidate);
+      return;
+    } catch (error) {
+      errors.push(error);
+    }
+  }
+  throw errors.find((error) => !(error instanceof DomainError && error.code === 'DIMENSION_NOT_IN_DATASET')) ?? errors[0];
 }
 
-function filterSql(filter: QueryFilter, params: Params): string {
-  const found = normalized(filter);
+function filterSql(filter: QueryFilter, params: Params, adapter: DatasetAdapter): string {
+  const found = normalized(filter, adapter);
   if (found.operator === 'eq') return `l.${found.column} = $${params.add(found.value)}::${found.cast}`;
   if (found.operator === 'in') return `l.${found.column} = any($${params.add(found.value)}::${found.cast}[])`;
   return `l.${found.column} ${found.operator === 'gte' ? '>=' : '<='} $${params.add(found.value)}::text`;
 }
 
 /** A predicate of a policy as a condition on the lines. `unit_in_scope` is true: the scope of the reader is applied to every line anyway. */
-export function policySql(node: PolicyNode, params: Params, depth = 0): string {
+export function policySql(node: PolicyNode, params: Params, depth = 0, adapter: DatasetAdapter = DISBURSEMENT_ADAPTER): string {
   if (depth > 6) throw new DomainError('PREDICATE_NOT_ALLOWED', 422, 'row_predicate');
   const op = node.op;
   const args = Array.isArray(node.args) ? (node.args as PolicyNode[]) : [];
@@ -159,21 +181,42 @@ export function policySql(node: PolicyNode, params: Params, depth = 0): string {
       return 'true';
     case 'eq':
     case 'ne': {
-      const { column, kind } = dimensionOf(String(node.field));
+      const { column, kind } = dimensionOf(String(node.field), adapter);
       return `l.${column}${op === 'eq' ? ' = ' : ' is distinct from '}$${params.add(kind === 'uuid' ? valueFor(kind, node.value, String(node.field)) : String(node.value))}::${kind}`;
     }
     case 'in': {
-      const { column, kind } = dimensionOf(String(node.field));
+      const { column, kind } = dimensionOf(String(node.field), adapter);
       const values = (Array.isArray(node.values) ? node.values : []).map((item) => (kind === 'uuid' ? valueFor(kind, item, String(node.field)) : String(item)));
       return `l.${column} = any($${params.add(values)}::${kind}[])`;
     }
     case 'and':
     case 'or':
-      return `(${args.map((child) => policySql(child, params, depth + 1)).join(op === 'and' ? ' and ' : ' or ')})`;
+      return `(${args.map((child) => policySql(child, params, depth + 1, adapter)).join(op === 'and' ? ' and ' : ' or ')})`;
     case 'not':
-      return `not (${policySql(args[0] as PolicyNode, params, depth + 1)})`;
+      return `not (${policySql(args[0] as PolicyNode, params, depth + 1, adapter)})`;
     default:
       throw new DomainError('PREDICATE_NOT_ALLOWED', 422, 'row_predicate');
+  }
+}
+
+const MAX_SERIES_POINTS = 36;
+
+/**
+ * The SQL of one term of the second stage over the groups `g` of the first (`v` the value of a group, `k` its key, `rn` its rank by value): the multiplier and N were validated by the planner as whole numbers, and
+ * are written as numbers, never as text. The total is a sum over all the groups, and a group with no figure (null) is no group.
+ */
+function stageSql(term: StageTerm): string {
+  const times = /^[1-9][0-9]{0,6}$/.test(term.multiplier) ? term.multiplier : '1';
+  switch (term.op) {
+    case 'SUM':
+      return `(sum(v) * ${times})`;
+    case 'SUM_OF_SQUARES':
+      return `(sum(v * v) * ${times})`;
+    case 'TOTAL_SQUARED':
+      return `(sum(v) * sum(v) * ${times})`;
+    case 'TOP_N_SUM':
+      if (!Number.isInteger(term.n) || (term.n as number) < 1 || (term.n as number) > 1000) throw new DomainError('VALIDATION_FAILED', 422, 'metric_version_id');
+      return `(sum(v) filter (where rn <= ${term.n as number}) * ${times})`;
   }
 }
 
@@ -185,9 +228,13 @@ export function policySql(node: PolicyNode, params: Params, depth = 0): string {
 export class BiQueryStore {
   /** The version of the dataset a snapshot of BI names (the frozen one, or one a later build replaced, which still serves a drill that was opened on it). */
   async versionOfSnapshot(tx: TenantTx, datasetCode: string, snapshotId: string): Promise<SnapshotVersion | undefined> {
+    // A dataset the engine has no adapter for is not read; a dataset whose source is not there yet is refused as such.
+    const adapter = datasetAdapterOf(datasetCode);
+    if (adapter === undefined) return undefined;
+    const source = querySourceOf(adapter);
     const rows = await tx.query<Sql>(
-      `select v.id as version_id, v.dataset_id, v.source_snapshot_id, v.as_of_period, v.reporting_period_id, v.quality_badge, v.excluded_quarantine_rows::text as excluded, v.status, v.built_at,
-              coalesce((select ps.row_count from machvon.period_snapshot ps where ps.tenant_id = v.tenant_id and ps.id = v.source_snapshot_id), 0) as source_rows,
+      `select v.id as version_id, v.dataset_id, d.dataset_code, v.source_snapshot_id, v.as_of_period, v.reporting_period_id, v.quality_badge, v.excluded_quarantine_rows::text as excluded, v.status, v.built_at,
+              ${source.sourceRowsSql} as source_rows,
               (select nv.id from machvon.bi_dataset_version nv where nv.tenant_id = v.tenant_id and nv.dataset_id = v.dataset_id and nv.as_of_period = v.as_of_period and nv.status = 'FROZEN' and nv.id <> v.id limit 1) as newer
          from machvon.bi_dataset_version v join machvon.bi_dataset d on d.tenant_id = v.tenant_id and d.id = v.dataset_id
         where d.dataset_code = $1 and v.id = $2::uuid and v.status in ('FROZEN', 'SUPERSEDED') limit 1`,
@@ -196,6 +243,7 @@ export class BiQueryStore {
     const row = rows[0];
     if (row === undefined) return undefined;
     return {
+      datasetCode: row.dataset_code,
       datasetVersionId: row.version_id,
       datasetId: row.dataset_id,
       sourceSnapshotId: row.source_snapshot_id,
@@ -210,13 +258,40 @@ export class BiQueryStore {
     };
   }
 
-  /** The frozen version of the dataset for a period now. */
-  async latestSnapshotOfPeriod(tx: TenantTx, periodCode: string): Promise<string | undefined> {
+  /** The version of the dataset a snapshot of BI names, whichever dataset it is (the snapshot says which): none when it is not a version served, or of a dataset the engine does not read. */
+  async versionOfSnapshotAny(tx: TenantTx, snapshotId: string): Promise<SnapshotVersion | undefined> {
+    const rows = await tx.query<{ dataset_code: string }>(
+      "select d.dataset_code from machvon.bi_dataset_version v join machvon.bi_dataset d on d.tenant_id = v.tenant_id and d.id = v.dataset_id where v.id = $1::uuid and v.status in ('FROZEN', 'SUPERSEDED') limit 1",
+      [snapshotId],
+    );
+    const code = rows[0]?.dataset_code;
+    return code === undefined ? undefined : this.versionOfSnapshot(tx, code, snapshotId);
+  }
+
+  /** The frozen version of the dataset (DS-DISB when none is named) for a period now. */
+  async latestSnapshotOfPeriod(tx: TenantTx, periodCode: string, datasetCode: string = DISBURSEMENT_ADAPTER.code): Promise<string | undefined> {
     const rows = await tx.query<{ id: string }>(
-      "select v.id from machvon.bi_dataset_version v join machvon.bi_dataset d on d.tenant_id = v.tenant_id and d.id = v.dataset_id where d.dataset_code = 'DS-DISB' and v.as_of_period = $1 and v.status = 'FROZEN' limit 1",
-      [periodCode],
+      "select v.id from machvon.bi_dataset_version v join machvon.bi_dataset d on d.tenant_id = v.tenant_id and d.id = v.dataset_id where d.dataset_code = $2 and v.as_of_period = $1 and v.status = 'FROZEN' limit 1",
+      [periodCode, datasetCode],
     );
     return rows[0]?.id;
+  }
+
+  /** The frozen version of each period asked, the periods that have none left out: what a series is read from. The key a version's lines are found under is the snapshot of its source. */
+  async frozenVersionsOfPeriods(tx: TenantTx, datasetCode: string, periods: readonly string[]): Promise<SeriesVersion[]> {
+    const rows = await tx.query<{ id: string; as_of_period: string; source_snapshot_id: string | null; quality_badge: string }>(
+      `select v.id, v.as_of_period, v.source_snapshot_id, v.quality_badge
+         from machvon.bi_dataset_version v join machvon.bi_dataset d on d.tenant_id = v.tenant_id and d.id = v.dataset_id
+        where d.dataset_code = $1 and v.as_of_period = any($2::text[]) and v.status = 'FROZEN' and v.source_snapshot_id is not null
+        order by v.as_of_period`,
+      [datasetCode, [...periods]],
+    );
+    return rows.map((row) => ({ period: row.as_of_period, versionId: row.id, sourceSnapshotId: row.source_snapshot_id as string, qualityBadge: row.quality_badge }));
+  }
+
+  /** Whether the lines of a dataset can be read in this build (its source is registered). */
+  hasSource(adapter: DatasetAdapter): boolean {
+    return hasQuerySource(adapter.sourceKind);
   }
 
   /** The frozen version of a dataset (by its code) that was built last, with its period. */
@@ -229,29 +304,37 @@ export class BiQueryStore {
   }
 
   /** The frozen version of a dataset that was built last, and the snapshot it was built from. */
-  async latestFrozenOfDataset(tx: TenantTx, datasetId: string): Promise<{ versionId: string; snapshotId: string | null } | undefined> {
-    const rows = await tx.query<{ id: string; source_snapshot_id: string | null }>(
-      "select id, source_snapshot_id from machvon.bi_dataset_version where dataset_id = $1::uuid and status = 'FROZEN' order by built_at desc, id desc limit 1",
+  async latestFrozenOfDataset(tx: TenantTx, datasetId: string): Promise<{ versionId: string; snapshotId: string | null; datasetCode: string } | undefined> {
+    const rows = await tx.query<{ id: string; source_snapshot_id: string | null; dataset_code: string }>(
+      `select v.id, v.source_snapshot_id, d.dataset_code from machvon.bi_dataset_version v join machvon.bi_dataset d on d.tenant_id = v.tenant_id and d.id = v.dataset_id
+        where v.dataset_id = $1::uuid and v.status = 'FROZEN' order by v.built_at desc, v.id desc limit 1`,
       [datasetId],
     );
-    return rows[0] === undefined ? undefined : { versionId: rows[0].id, snapshotId: rows[0].source_snapshot_id };
+    return rows[0] === undefined ? undefined : { versionId: rows[0].id, snapshotId: rows[0].source_snapshot_id, datasetCode: rows[0].dataset_code };
   }
 
   /**
    * The rerun of a metric over a snapshot, over the whole tenant: the lines it finds against the rows the snapshot says it has, and whether the groups of each dimension add up to the whole (the sums the metric is made of,
    * grouped and not). A distinct count is not added, so only its rows are compared. The columns and dimensions come from the allowlists of the dataset (kernel), never from the request.
    */
-  async reproduce(tx: TenantTx, snapshotId: string, plan: MeasurePlan, dimensions: readonly string[]): Promise<{ storedRows: number; countedRows: number; reconciles: boolean } | undefined> {
-    const stored = await tx.query<{ row_count: number }>('select row_count from machvon.period_snapshot where id = $1::uuid', [snapshotId]);
+  async reproduce(
+    tx: TenantTx,
+    snapshotId: string,
+    plan: MeasurePlan,
+    dimensions: readonly string[],
+    adapter: DatasetAdapter = DISBURSEMENT_ADAPTER,
+  ): Promise<{ storedRows: number; countedRows: number; reconciles: boolean } | undefined> {
+    const source = querySourceOf(adapter);
+    const stored = await tx.query<{ row_count: number }>(source.storedRowsSql, [snapshotId]);
     if (stored[0] === undefined) return undefined;
-    const counted = await tx.query<{ n: string }>('select count(*)::text as n from machvon.period_snapshot_line where snapshot_id = $1::uuid', [snapshotId]);
+    const counted = await tx.query<{ n: string }>(source.countedRowsSql, [snapshotId]);
     let reconciles = true;
     if (plan.kind !== 'DISTINCT') {
       const second = plan.denominatorColumn === null ? 'null::numeric' : `l.${plan.denominatorColumn}`;
       for (const dimension of dimensions) {
-        const { column } = dimensionOf(dimension);
+        const { column } = dimensionOf(dimension, adapter);
         const [row] = await tx.query<{ ok: boolean }>(
-          `with line as (select l.${plan.numeratorColumn} as n, ${second} as d, l.${column} as k from machvon.period_snapshot_line l where l.snapshot_id = $1::uuid),
+          `with line as (select l.${plan.numeratorColumn} as n, ${second} as d, l.${column} as k from ${source.linesTable} l where l.${source.snapshotColumn} = $1::uuid),
                 grouped as (select sum(n) as n, sum(d) as d from line group by k)
            select (select sum(n) from line) is not distinct from (select sum(n) from grouped) and (select sum(d) from line) is not distinct from (select sum(d) from grouped) as ok`,
           [snapshotId],
@@ -262,13 +345,22 @@ export class BiQueryStore {
     return { storedRows: stored[0].row_count, countedRows: Number(counted[0]?.n ?? 0), reconciles };
   }
 
+  /** What every aggregation shares: the conditions over the lines (the snapshot, the scope of the reader, the filters, the policies), with their parameters; the scope is numbered after what the caller already put in the parameters. */
+  private conditionsOf(input: AggregateInput, adapter: DatasetAdapter, params: Params, snapshotCondition: string): string[] {
+    const scope = input.projects(params.values.length + 1);
+    for (const value of scope.params) params.add(value);
+    const conditions = [snapshotCondition, scope.sql, ...input.filters.map((filter) => filterSql(filter, params, adapter))];
+    if (input.policies.length > 0) conditions.push(`(${input.policies.map((policy) => policySql(policy, params, 0, adapter)).join(' or ')})`);
+    return conditions;
+  }
+
   /** The sums of the groups of the snapshot, one dimension at a time, in the scope of the reader. */
   async aggregate(tx: TenantTx, input: AggregateInput): Promise<AggregateRow[]> {
+    const adapter = input.adapter ?? DISBURSEMENT_ADAPTER;
+    const source = querySourceOf(adapter);
+    if (input.plan.twoStage !== undefined) throw new DomainError('VALIDATION_FAILED', 422, 'metric_version_id');
     const params = new Params([input.snapshotId]);
-    const scope = input.projects(2);
-    for (const value of scope.params) params.add(value);
-    const conditions = ['l.snapshot_id = $1::uuid', scope.sql, ...input.filters.map((filter) => filterSql(filter, params))];
-    if (input.policies.length > 0) conditions.push(`(${input.policies.map((policy) => policySql(policy, params)).join(' or ')})`);
+    const conditions = this.conditionsOf(input, adapter, params, `l.${source.snapshotColumn} = $1::uuid`);
     const { plan } = input;
     // The columns come from the allowlist of the dataset (kernel), never from the request.
     const measures =
@@ -278,29 +370,104 @@ export class BiQueryStore {
     let keyed = 'null::text as key, null::text as label';
     let grouping = '';
     if (input.dimension !== undefined) {
-      const { column } = dimensionOf(input.dimension);
-      const label = input.dimension === 'unit' ? 'min(lu.name)' : input.dimension === 'project' ? 'min(p.code)' : `l.${column}::text`;
-      keyed = `l.${column}::text as key, ${label} as label`;
+      const { column } = dimensionOf(input.dimension, adapter);
+      keyed = `l.${column}::text as key, ${source.labelSql(input.dimension, column)} as label`;
       grouping = `group by l.${column} order by l.${column}::text nulls last`;
     }
     const rows = await tx.query<Sql>(
       `select ${keyed}, ${measures}
-         from machvon.period_snapshot_line l join ${SCOPE_FROM} on p.tenant_id = l.tenant_id and p.id = l.project_id
-         left join machvon.organization_unit lu on lu.tenant_id = l.tenant_id and lu.id = l.unit_id
+         from ${source.linesTable} l ${source.joinsSql}
         where ${conditions.join(' and ')} ${grouping} limit ${(input.limit ?? MAX_ROWS) + 1}`,
       params.values,
     );
     return rows.map((row) => ({ key: row.key, label: row.label, numerator: row.numerator, denominator: row.denominator, distinct: row.distinct_count, lines: row.line_count }));
   }
 
+  /**
+   * A measure of two stages over one snapshot (R16): the lines are grouped by the dimension (the first stage sums the column in each group), and the second stage reads the groups: the sum of their squares, the sum of
+   * the N largest, the total and its square. The groups come back as rows whose numerator is the value of the group and whose denominator is the total of all the groups (their figure is their share), and the total is the
+   * second stage itself, one row. The dimension is required: it is what the groups are.
+   */
+  async aggregateTwoStage(tx: TenantTx, input: AggregateInput): Promise<{ groups: AggregateRow[]; total: AggregateRow }> {
+    const adapter = input.adapter ?? DISBURSEMENT_ADAPTER;
+    const source = querySourceOf(adapter);
+    const stage = input.plan.twoStage;
+    if (stage === undefined || !adapter.capabilities.twoStage) throw new DomainError('VALIDATION_FAILED', 422, 'metric_version_id');
+    if (input.dimension === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'dimension');
+    const params = new Params([input.snapshotId]);
+    const conditions = this.conditionsOf(input, adapter, params, `l.${source.snapshotColumn} = $1::uuid`);
+    const { column } = dimensionOf(input.dimension, adapter);
+    const first = `select l.${column} as k, ${source.labelSql(input.dimension, column)} as label, sum(l.${input.plan.numeratorColumn}) as v, count(*) as n
+         from ${source.linesTable} l ${source.joinsSql}
+        where ${conditions.join(' and ')} group by l.${column}`;
+    const limit = (input.limit ?? MAX_ROWS) + 1;
+    const groups = await tx.query<Sql>(
+      `with g as (${first})
+       select k::text as key, label, v::text as numerator, (sum(v) over ())::text as denominator, null::text as distinct_count, n::text as line_count
+         from g order by k::text nulls last limit ${limit}`,
+      params.values,
+    );
+    const total = await tx.query<Sql>(
+      `with g as (${first}), ranked as (select g.*, row_number() over (order by v desc nulls last, k::text nulls last) as rn from g)
+       select ${stageSql(stage.numerator)}::text as numerator, ${stageSql(stage.denominator)}::text as denominator, null::text as distinct_count, coalesce(sum(n), 0)::text as line_count from ranked`,
+      params.values,
+    );
+    const shape = (row: Sql): AggregateRow => ({ key: row.key, label: row.label, numerator: row.numerator, denominator: row.denominator, distinct: row.distinct_count, lines: row.line_count });
+    const only = total[0];
+    return { groups: groups.map(shape), total: only === undefined ? { key: null, label: null, numerator: null, denominator: null, distinct: null } : shape({ ...only, key: null, label: null }) };
+  }
+
+  /**
+   * The sums of one metric over several snapshots of the source at once (a series over periods): per snapshot, and per group when the plan is cut by a dimension; a measure of two stages gives the second stage of each
+   * snapshot (the dimension is then what the groups are). One query for all the periods, under the same scope and policies as a query of one. The key of a row is the group, the snapshot is in `snapshotId`.
+   */
+  async aggregateSeries(tx: TenantTx, input: Omit<AggregateInput, 'snapshotId'> & { snapshotIds: readonly string[] }): Promise<Array<{ snapshotId: string; sums: AggregateRow }>> {
+    const adapter = input.adapter ?? DISBURSEMENT_ADAPTER;
+    const source = querySourceOf(adapter);
+    if (!adapter.capabilities.periodSeries) throw new DomainError('VALIDATION_FAILED', 422, 'periods');
+    if (input.snapshotIds.length === 0) return [];
+    const params = new Params([[...input.snapshotIds]]);
+    const conditions = this.conditionsOf({ ...input, snapshotId: '' }, adapter, params, `l.${source.snapshotColumn} = any($1::uuid[])`);
+    const { plan } = input;
+    const dimension = input.dimension === undefined ? undefined : dimensionOf(input.dimension, adapter);
+    const stage = plan.twoStage;
+    if (stage !== undefined) {
+      if (dimension === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'dimension');
+      const rows = await tx.query<Sql & { sid: string }>(
+        `with g as (select l.${source.snapshotColumn} as sid, l.${dimension.column} as k, sum(l.${plan.numeratorColumn}) as v, count(*) as n
+                      from ${source.linesTable} l ${source.joinsSql}
+                     where ${conditions.join(' and ')} group by l.${source.snapshotColumn}, l.${dimension.column}),
+              ranked as (select g.*, row_number() over (partition by sid order by v desc nulls last, k::text nulls last) as rn from g)
+         select sid::text as sid, ${stageSql(stage.numerator)}::text as numerator, ${stageSql(stage.denominator)}::text as denominator, null::text as distinct_count, coalesce(sum(n), 0)::text as line_count
+           from ranked group by sid`,
+        params.values,
+      );
+      return rows.map((row) => ({ snapshotId: row.sid, sums: { key: null, label: null, numerator: row.numerator, denominator: row.denominator, distinct: null, lines: row.line_count } }));
+    }
+    const measures =
+      plan.kind === 'DISTINCT'
+        ? `null::text as numerator, null::text as denominator, case when count(l.${plan.numeratorColumn}) = 0 then null else count(distinct l.${plan.numeratorColumn})::text end as distinct_count, count(*)::text as line_count`
+        : `sum(l.${plan.numeratorColumn})::text as numerator, ${plan.denominatorColumn === null ? 'null::text' : `sum(l.${plan.denominatorColumn})::text`} as denominator, null::text as distinct_count, count(*)::text as line_count`;
+    const keyed = dimension === undefined || input.dimension === undefined ? 'null::text as key, null::text as label' : `l.${dimension.column}::text as key, ${source.labelSql(input.dimension, dimension.column)} as label`;
+    const grouping = dimension === undefined ? '' : `, l.${dimension.column}`;
+    const rows = await tx.query<Sql & { sid: string }>(
+      `select l.${source.snapshotColumn}::text as sid, ${keyed}, ${measures}
+         from ${source.linesTable} l ${source.joinsSql}
+        where ${conditions.join(' and ')} group by l.${source.snapshotColumn}${grouping} order by sid, key nulls last limit ${(input.limit ?? MAX_ROWS * MAX_SERIES_POINTS) + 1}`,
+      params.values,
+    );
+    return rows.map((row) => ({ snapshotId: row.sid, sums: { key: row.key, label: row.label, numerator: row.numerator, denominator: row.denominator, distinct: row.distinct_count, lines: row.line_count } }));
+  }
+
   /** Whether the reader may still read a unit the context names: it is in a unit they hold, or lines of projects they read are of it. */
-  async unitStillReadable(tx: TenantTx, snapshotId: string, unitId: string, projects: ScopeBuilder, units: ScopeBuilder): Promise<boolean> {
+  async unitStillReadable(tx: TenantTx, snapshotId: string, unitId: string, projects: ScopeBuilder, units: ScopeBuilder, adapter: DatasetAdapter = DISBURSEMENT_ADAPTER): Promise<boolean> {
+    const source = querySourceOf(adapter);
     const own = units(2);
     const byUnit = await tx.query('select 1 from machvon.organization_unit u where u.id = $1::uuid and ' + own.sql, [unitId, ...own.params]);
     if (byUnit.length > 0) return true;
     const scope = projects(3);
     const byProject = await tx.query(
-      `select 1 from machvon.period_snapshot_line l join ${SCOPE_FROM} on p.tenant_id = l.tenant_id and p.id = l.project_id where l.snapshot_id = $1::uuid and l.unit_id = $2::uuid and ${scope.sql} limit 1`,
+      `select 1 from ${source.linesTable} l ${source.joinsSql} where l.${source.snapshotColumn} = $1::uuid and l.unit_id = $2::uuid and ${scope.sql} limit 1`,
       [snapshotId, unitId, ...scope.params],
     );
     return byProject.length > 0;

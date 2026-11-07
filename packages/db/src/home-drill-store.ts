@@ -25,6 +25,15 @@ export interface DrillTransaction {
   reversalOfId: string | null;
 }
 
+/** An alert that is open on a project: the early warnings that still ask something of someone, and the explanations whose day is past. Ids and states only, never a name. */
+export interface DrillAlert {
+  kind: 'EARLY_WARNING' | 'EXPLANATION';
+  id: string;
+  severity: string | null;
+  status: string;
+  at: string;
+}
+
 interface TransactionSql {
   id: string;
   external_id: string;
@@ -99,5 +108,24 @@ export class HomeDrillStore {
     );
     const items = rows.slice(0, input.limit).map((row) => ({ id: row.id, externalId: row.external_id, amountVnd: row.amount_vnd, confirmedAt: row.confirmed_at, reversalOfId: row.reversal_of_id }));
     return { items, more: rows.length > input.limit };
+  }
+
+  /** The alerts open on a project the reader may open (G3-3: the last step of the drill is the records, and the alerts are among them). The caller has judged that the project is the reader's. */
+  async alerts(tx: TenantTx, projectId: string, now: Date): Promise<DrillAlert[]> {
+    const warnings = await tx.query<{ id: string; severity: string; status: string; at: string }>(
+      `select w.id, w.severity, w.status, to_char(w.opened_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as at
+         from machvon.early_warning w where w.project_id = $1::uuid and w.status in ('OPEN', 'ACKNOWLEDGED', 'EXPLANATION_REQUESTED') order by w.opened_at desc, w.id limit 50`,
+      [projectId],
+    );
+    const explanations = await tx.query<{ id: string; status: string; at: string }>(
+      `select e.id, e.status, to_char(e.due_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as at
+         from machvon.explanation_request e
+        where e.project_id = $1::uuid and (e.status = 'OVERDUE' or (e.status in ('REQUESTED', 'RETURNED', 'RESPONDED') and e.due_at < $2::timestamptz)) order by e.due_at, e.id limit 50`,
+      [projectId, now.toISOString()],
+    );
+    return [
+      ...warnings.map((row): DrillAlert => ({ kind: 'EARLY_WARNING', id: row.id, severity: row.severity, status: row.status, at: row.at })),
+      ...explanations.map((row): DrillAlert => ({ kind: 'EXPLANATION', id: row.id, severity: null, status: row.status, at: row.at })),
+    ];
   }
 }

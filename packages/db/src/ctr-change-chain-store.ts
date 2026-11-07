@@ -71,6 +71,8 @@ export interface EvaluateInput {
 /** The refusal of the capital for an increase: the store asks it of CAP through this port and takes whatever it throws (422 `ALLOCATION_UNAVAILABLE`). */
 export interface ChangeHooks {
   available(allocationLineId: string, amountVnd: string): Promise<void>;
+  /** The tiers of the change orders (G1-8): classifies the assessed change and raises the check of the project adjustment when the cumulative variation calls for it. Absent, nothing is classified. */
+  classify?(facts: { changeId: string; contractId: string; projectId: string; deltaVnd: string }): Promise<{ tier: number; cumulativePct: string | null; checkRaised: boolean }>;
 }
 
 /** A request as the commands answer it, for the audit row, the event and the answer. */
@@ -93,6 +95,10 @@ export interface ChangeResult {
   tierCount: TierCount;
   /** Set by the first request of a project: the number of tiers is fixed from now on. */
   lockedTiers: boolean;
+  /** The tier the assessment puts the change order in, the cumulative variation it comes to, and whether it raised the check of the project adjustment (set by the evaluation). */
+  tier?: number;
+  cumulativeVariationPct?: string | null;
+  adjustmentCheckRaised?: boolean;
   reason: string;
   reach: { projectId: string };
 }
@@ -133,6 +139,9 @@ export interface ChangeLine {
   resultingRevisionId: string | null;
   /** The change order was approved through the retroactive adjustment (ST-CTR-016): it applies from a day before its approval. */
   retroactive: boolean;
+  /** The tier the change order was classified in and the cumulative variation against the original price at that moment (null until it is assessed). */
+  tier: number | null;
+  cumulativeVariationPct: string | null;
 }
 
 /** A request as the database holds it: the columns of the board and of the commands. */
@@ -154,6 +163,8 @@ export interface ChangeRow {
   evaluated_delta_vnd: string | null;
   approved_delta_vnd: string | null;
   schedule_impact_days: number;
+  tier: number | null;
+  cumulative_variation_pct: string | null;
   funding_impact_note: string | null;
   scope_impact_note: string | null;
   evaluation_allocation_line_id: string | null;
@@ -169,7 +180,7 @@ export interface ChangeRow {
 
 const COLUMNS = `r.id, r.code, r.stage, r.status, r.contract_id, c.code as contract_code, c.status as contract_status, c.project_id, r.parent_id, r.event_kind, r.baseline_revision_id, r.reason,
   r.status_reason, r.estimated_delta_vnd::text as estimated_delta_vnd, r.evaluated_delta_vnd::text as evaluated_delta_vnd, r.approved_delta_vnd::text as approved_delta_vnd,
-  r.schedule_impact_days, r.funding_impact_note, r.scope_impact_note, r.evaluation_allocation_line_id, r.effective_on::text as effective_on, r.submitted_by, r.evaluated_by, r.decided_by,
+  r.schedule_impact_days, r.tier, r.cumulative_variation_pct::text as cumulative_variation_pct, r.funding_impact_note, r.scope_impact_note, r.evaluation_allocation_line_id, r.effective_on::text as effective_on, r.submitted_by, r.evaluated_by, r.decided_by,
   ${TIMESTAMP('r.created_at')} as created_at, ${TIMESTAMP('r.evaluated_at')} as evaluated_at, ${TIMESTAMP('r.decided_at')} as decided_at, r.version::text as version`;
 
 /** Where the contract lies: the units of its project, which the permissions of a caller are judged against. */
@@ -224,6 +235,8 @@ const toLine = (row: ReachSql): ChangeLine => ({
   makers: row.makers,
   resultingRevisionId: row.resulting_revision_id,
   retroactive: row.retroactive,
+  tier: row.tier,
+  cumulativeVariationPct: row.cumulative_variation_pct,
   reach: {
     contractId: row.contract_id,
     projectId: row.project_id,
@@ -399,7 +412,10 @@ export class CtrChangeChainStore {
       [id, delta, days, funding, scopeNote, line, actor],
     );
     const row: ChangeRow = { ...held.row, status: 'EVALUATED', evaluated_delta_vnd: delta, schedule_impact_days: days, evaluation_allocation_line_id: line, version: String(Number(held.row.version) + 1) };
-    return this.result(row, held.contract, { from: held.row.status, tierCount: (config?.tier_count ?? 1) as TierCount, lockedTiers: false });
+    const result = this.result(row, held.contract, { from: held.row.status, tierCount: (config?.tier_count ?? 1) as TierCount, lockedTiers: false });
+    if (hooks.classify === undefined || held.row.stage !== 'CO') return result;
+    const classified = await hooks.classify({ changeId: id, contractId: held.contract.id, projectId: held.contract.projectId, deltaVnd: delta });
+    return { ...result, tier: classified.tier, cumulativeVariationPct: classified.cumulativePct, adjustmentCheckRaised: classified.checkRaised };
   }
 
   /** Withdraws a request that is still open, with the reason; the requests above it in the chain are not touched. */

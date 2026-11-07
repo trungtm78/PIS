@@ -2,6 +2,8 @@ import { randomUUID } from 'node:crypto';
 import { DomainError, MAX_COMPONENT_DEPTH, assertComponentInput, assertMilestoneInput, assertMilestoneProgress, delayDays, formsCycle, versionConflict, wbsExceedsTotal } from '@machvon/kernel';
 import type { MilestoneStatus } from '@machvon/kernel';
 import { idOf } from './prj-accountability-support.ts';
+import { PrjBaselineStore } from './prj-baseline-store.ts';
+import type { GovernanceEffects } from './prj-baseline-store.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ProjectClassification } from './prj-project-store.ts';
 import { lockProject } from './prj-stage-support.ts';
@@ -88,6 +90,8 @@ export interface ProjectMilestoneChange {
   reason: string | null;
   delayDays: number;
   version: number;
+  /** What the governance hooks did in the same transaction (a move of a date counted, an alert to AUD, a request to appraise again); the controller writes it to the audit trail. */
+  governance?: GovernanceEffects;
 }
 
 export interface ComponentLine {
@@ -158,6 +162,8 @@ const MILESTONE_COLUMNS = `m.id, m.project_id, m.code, m.name, m.component_id, m
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
 
 export class PrjWbsStore {
+  private readonly baseline = new PrjBaselineStore();
+
   /** Adds a component under a parent of the same project that has not ended, within the depth the tree takes. The first level adding up to more than the total is reported, never refused. */
   async addComponent(tx: TenantTx, request: ComponentWrite): Promise<ComponentChange> {
     const project = await this.lockOpen(tx, request.projectId, request.scopes);
@@ -232,7 +238,12 @@ export class PrjWbsStore {
         returning ${MILESTONE_COLUMNS}`,
       [milestone.id, progress.status, progress.actualDate ?? null, progress.plannedDate ?? null, progress.reason ?? null, request.actor],
     );
-    return this.changeOf(project, required(rows[0]), milestone, milestone.depends_on_milestone_id, request.today);
+    const change = this.changeOf(project, required(rows[0]), milestone, milestone.depends_on_milestone_id, request.today);
+    // G1-3: a milestone delayed to a later day is a move of a date: counted, and the deviation from the baseline is looked at again (hook of lane B1).
+    if (progress.status === 'DELAYED' && progress.plannedDate !== undefined) {
+      change.governance = await this.baseline.afterMilestoneMove(tx, project, { milestoneId: milestone.id, code: milestone.code, fromDate: milestone.planned_date, toDate: progress.plannedDate, reason: progress.reason ?? 'DELAYED' }, request.actor, request.today);
+    }
+    return change;
   }
 
   /**

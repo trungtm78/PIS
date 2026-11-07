@@ -14,11 +14,11 @@ export interface SystemRole {
 // tenant: its owner holds it, so that the owner can grant it (a role cannot hold what its maker does not), and the plane of the token keeps an owner from using it.
 // TENANT_OWNER holds "all tenant-plane permissions"; system-roles.test.ts proves the list covers the whole catalogue.
 const TENANT_PLANE_PREFIXES: readonly string[] = [
-  'acceptance', 'adm', 'advance', 'advance_ledger_entry', 'ai', 'ai_eval_run', 'allocation_line', 'analysis_finding', 'analysis_run',
+  'acceptance', 'adm', 'advance', 'advance_ledger_entry', 'ai', 'ai_eval_run', 'allocation_line', 'analysis_finding', 'analysis_run', 'analytics',
   'approval', 'approval_task', 'asset', 'asset_record', 'aud', 'audit', 'audit_event', 'bi', 'bid', 'boq', 'boq_line', 'budget_reservation',
   'capital', 'change', 'change_request', 'channel_account', 'channel_message', 'contact', 'contact_consent', 'contract', 'contract_revision',
   'contractor', 'conversation', 'criteria_version', 'dashboard_version', 'data', 'data_contract_version', 'dataset_contract',
-  'delivery_attempt', 'device_registration', 'diary', 'disbursement', 'doc', 'document_version', 'drill_context', 'evaluation', 'explanation',
+  'delivery_attempt', 'device_registration', 'diary', 'directive', 'disbursement', 'doc', 'document_version', 'drill_context', 'evaluation', 'explanation',
   'funding_snapshot_line', 'glossary', 'guarantee', 'handover', 'home', 'iam', 'inspection', 'integration', 'integration_cursor', 'internal', 'invitation',
   'invoice_line', 'issue', 'land', 'ledger', 'legal_hold', 'license_revision', 'llm', 'llm_attempt', 'lnd', 'master', 'master_record_version',
   'material', 'maturity_assessment', 'maturity_evidence', 'measurement', 'membership', 'metric_definition', 'mne', 'model_profile_version',
@@ -43,7 +43,7 @@ export const SYSTEM_ROLES: readonly SystemRole[] = [
   { code: 'SECURITY_ADMIN', name: key('SECURITY_ADMIN'), rank: 85, permissions: ['adm.security.*', 'audit.*', 'legal_hold.manage'], guestAllowed: false },
   { code: 'UNIT_ADMIN', name: key('UNIT_ADMIN'), rank: 70, permissions: ['iam.member.*', 'iam.role.grant', 'iam.unit.manage'], guestAllowed: false },
   // PENDING SIGN-OFF: "read business records within scope" names no permission.
-  { code: 'LEADER', name: key('LEADER'), rank: 60, permissions: ['approval.decide'], guestAllowed: false },
+  { code: 'LEADER', name: key('LEADER'), rank: 60, permissions: ['approval.decide', 'directive.read'], guestAllowed: false },
   { code: 'NOTIFICATION_ADMIN', name: key('NOTIFICATION_ADMIN'), rank: 50, permissions: ['notification.*', 'notification_template_version.read', 'delivery_attempt.read', 'channel_account.read'], guestAllowed: false },
   { code: 'OMNI_SUPERVISOR', name: key('OMNI_SUPERVISOR'), rank: 50, permissions: ['omni.*', 'channel_account.read', 'contact.read', 'contact_consent.read', 'conversation.read', 'channel_message.read', 'adm.integration.read', 'adm.integration.operate'], guestAllowed: false },
   // PENDING SIGN-OFF: "appraise, return/accept" names no permission.
@@ -52,7 +52,7 @@ export const SYSTEM_ROLES: readonly SystemRole[] = [
   // PENDING SIGN-OFF: "create/edit/submit records (maker)" names no permission.
   { code: 'INVESTOR_OFFICER', name: key('INVESTOR_OFFICER'), rank: 30, permissions: [], guestAllowed: false },
   // PENDING SIGN-OFF: "read/export" names no permission besides audit.read.
-  { code: 'AUDITOR', name: key('AUDITOR'), rank: 25, permissions: ['audit.read'], guestAllowed: false },
+  { code: 'AUDITOR', name: key('AUDITOR'), rank: 25, permissions: ['audit.read', 'directive.read'], guestAllowed: false },
   { code: 'BILLING_VIEWER', name: key('BILLING_VIEWER'), rank: 20, permissions: ['subscription.read', 'invoice_line.read'], guestAllowed: false },
   // PENDING SIGN-OFF: sending diaries, quantities and payment files names no permission.
   { code: 'GUEST_CONTRACTOR', name: key('GUEST_CONTRACTOR'), rank: 10, permissions: ['contract.read'], guestAllowed: true },

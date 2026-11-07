@@ -1,9 +1,19 @@
-import { workBucket } from '@machvon/kernel';
-import type { WorkItem, WorkKind } from '@machvon/kernel';
-import { HomeWorkActionStore, NO_ACTION_STATE, actionKey } from './home-work-action-store.ts';
-import type { WorkActionState } from './home-work-action-store.ts';
+import { EXISTING_CLOCKS, itemClocks, reminderState, workBucket } from '@machvon/kernel';
+import type { ExistingClock, ItemClocks, PauseSpan, ReminderKind, ReminderState, WorkItem, WorkKind } from '@machvon/kernel';
+import { HomeWorkActionStore, NO_ACTION_STATE, actionKey, freshActionState } from './home-work-action-store.ts';
+import type { SnoozeDetail, WorkActionState } from './home-work-action-store.ts';
+import { HomeClockSources, HomeWorkCalendars, WORK_CALENDAR_CODE } from './home-work-clock-store.ts';
+import { WorkPolicyReader } from './home-work-policy.ts';
+import type { WorkPolicies } from './home-work-policy.ts';
+import { HomeWorkReminderStore } from './home-work-reminder-store.ts';
 import { CONSEQUENCES, DEFAULT_SEVERITY_RULES, SEVERITY_RANK, SOURCE_OF_KIND, furtherLifecycle, severityOf } from './home-work-rules.ts';
 import type { SeverityRules, WorkEscalation, WorkLifecycle, WorkSeverity, WorkSource } from './home-work-rules.ts';
+import { HomeDirectiveSources } from './home-directive-sources.ts';
+import { HomeIntegritySources } from './home-integrity-sources.ts';
+import { HomePrcSources } from './home-prc-sources.ts';
+import { HomeMoneySources } from './home-money-sources.ts';
+import { applyAlertTypes } from './home-work-alert-types.ts';
+import type { AlertTypeReading } from './home-work-alert-types.ts';
 import { HomeCrossSources, Params, SOURCE_LIMIT, VIETNAM_DAY } from './home-work-sources.ts';
 import type { SourceContext, SourceRow } from './home-work-sources.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
@@ -25,6 +35,25 @@ export interface WorkRow extends WorkItem {
   assignee: { id: string; name: string; dueOn: string | null } | null;
   /** When an item that somebody put off comes back, while that is still in the future. */
   snoozedUntil: string | null;
+  /** The moment the item became something to act on, when its module says it. */
+  startedAt: string | null;
+  /** What a native clock says is expected, and its type (the source `CLOCK` only). */
+  expectedAction: string | null;
+  clockType: string | null;
+  /** The postponement that still holds, how many there are in a row, the first and the latest time somebody took the item up, and every pause of its clocks. */
+  snooze: SnoozeDetail | null;
+  consecutiveSnoozes: number;
+  firstClaimAt: string | null;
+  lastClaimAt: string | null;
+  pauses: PauseSpan[];
+  /** Only in the mode `rows` (a count does not need them): the two clocks, the reminders, the notices to the next level, the clock the module already keeps and the version of the policy that judged. */
+  clocks: ItemClocks | null;
+  reminders: (ReminderState & { sent: number; lastAt: string | null }) | null;
+  notices: Array<{ kind: ReminderKind; at: string }>;
+  existingClock: ExistingClock | null;
+  policyVersion: string | null;
+  /** The alert type the item has in the registry (G0-3): its owner, the response time and the version of the rule; the consequence above comes from it. */
+  alertType?: AlertTypeReading | null;
 }
 
 /** The most a source gives (a person with more than this has a list that says it is cut: the counts are then a lower bound). */
@@ -50,6 +79,8 @@ export interface WorkInput {
   rules?: SeverityRules;
   /** Keep the items the reader put off themselves (a command acts on them; a list does not show them). */
   includeHidden?: boolean;
+  /** Whether the reader holds a grant that carries a permission (on the whole tenant when asked): what the sources that are for a role (the auditors, the administrator of the duties, the data steward) judge their audience by. */
+  holds?: (permission: string, wholeTenant?: boolean) => boolean;
 }
 
 export interface WorkCollection {
@@ -57,13 +88,40 @@ export interface WorkCollection {
   truncated: boolean;
   /** The sources that could not be read: they are named, never shown as "no work". */
   unavailableSources: WorkSource[];
+  /** The policies the rows were judged by (only in the mode `rows`). */
+  policies: WorkPolicies | null;
 }
 
-const withoutDecisions = (row: SourceRow): WorkRow => ({ ...row, ...stateFields(NO_ACTION_STATE, row.lifecycle) });
+const withoutDecisions = (row: SourceRow): WorkRow => withState(row, NO_ACTION_STATE);
 
-function stateFields(state: WorkActionState, lifecycle: WorkLifecycle): Pick<WorkRow, 'lifecycle' | 'claimedBy' | 'assignee' | 'snoozedUntil'> {
-  return { lifecycle: furtherLifecycle(lifecycle, state.lifecycle), claimedBy: state.claimedBy, assignee: state.assignee, snoozedUntil: state.snoozedUntil };
+/** A row of a source with what people decided about it joined on; the decoration of the clocks is added after, in the mode `rows`. */
+function withState(row: SourceRow, state: WorkActionState): WorkRow {
+  // The evaluated native clock is only a hand-over to the decoration; it is not part of the row that is given out.
+  const rest: SourceRow = { ...row };
+  delete rest.native;
+  return {
+    ...rest,
+    lifecycle: furtherLifecycle(row.lifecycle, state.lifecycle),
+    claimedBy: state.claimedBy,
+    assignee: state.assignee,
+    snoozedUntil: state.snoozedUntil,
+    startedAt: row.startedAt ?? null,
+    expectedAction: row.expectedAction ?? null,
+    clockType: row.clockType ?? null,
+    snooze: state.snooze,
+    consecutiveSnoozes: state.consecutiveSnoozes,
+    firstClaimAt: state.firstClaimAt,
+    lastClaimAt: state.lastClaimAt,
+    pauses: state.pauses,
+    clocks: null,
+    reminders: null,
+    notices: [],
+    existingClock: null,
+    policyVersion: null,
+  };
 }
+
+const later = (left: Date | null, right: string | null): Date | null => (right === null ? left : left === null || Date.parse(right) > left.getTime() ? new Date(right) : left);
 
 /**
  * What is asked of one person across the modules (ST-HOME-004, HOME 3 F5, the alert centre): the approvals that wait for them (ADM), the explanations they owe and the ones they asked for and must conclude (PRJ), the reports of theirs
@@ -73,7 +131,15 @@ function stateFields(state: WorkActionState, lifecycle: WorkLifecycle): Pick<Wor
  */
 export class HomeWorkStore {
   private readonly cross = new HomeCrossSources();
+  private readonly money = new HomeMoneySources();
+  private readonly directives = new HomeDirectiveSources();
+  private readonly procurement = new HomePrcSources();
+  private readonly integrity = new HomeIntegritySources();
+  private readonly clocks = new HomeClockSources();
   private readonly actions = new HomeWorkActionStore();
+  private readonly policies = new WorkPolicyReader();
+  private readonly calendars = new HomeWorkCalendars();
+  private readonly reminders = new HomeWorkReminderStore();
 
   async collect(tx: TenantTx, input: WorkInput): Promise<WorkCollection> {
     const context: SourceContext = {
@@ -86,6 +152,7 @@ export class HomeWorkStore {
       projectScope: input.projectScope,
       rules: input.rules ?? DEFAULT_SEVERITY_RULES,
       counting: input.mode === 'count',
+      ...(input.holds === undefined ? {} : { holds: input.holds }),
     };
     const readers: Array<[WorkSource, () => Promise<SourceRow[]>]> = [
       ['APPROVAL', () => this.approvals(context)],
@@ -100,6 +167,16 @@ export class HomeWorkStore {
       ['ISSUE', () => this.cross.issues(context)],
       ['SITE_DIARY', () => this.cross.siteDiaries(context)],
       ['GUARANTEE', () => this.cross.guarantees(context)],
+      ['MONEY_CONTROL', () => this.money.items(context)],
+      ['DIRECTIVE', () => this.directives.items(context)],
+      ['CLOCK', () => this.clocks.items(context)],
+      ['PROCUREMENT_WORKFLOW', () => this.procurement.items(context)],
+      ['TREASURY_RECON', () => this.integrity.treasuryRecon(context)],
+      ['CROSS_TOTAL', () => this.integrity.crossTotal(context)],
+      ['SOD_EXCEPTION', async () => [...(await this.integrity.sodExpiring(context)), ...(await this.integrity.sodUsed(context))]],
+      ['PAYMENT_INTEGRITY', () => this.integrity.paymentIntegrity(context)],
+      ['DISBURSEMENT_EXCEPTION', () => this.integrity.disbursementExceptions(context)],
+      ['PROJECT_GOVERNANCE', () => this.integrity.projectGovernance(context)],
     ];
     const read: SourceRow[][] = [];
     const unavailableSources: WorkSource[] = [];
@@ -126,13 +203,74 @@ export class HomeWorkStore {
       input.now,
     );
     const rows: WorkRow[] = [];
+    const natives = new Map<string, NonNullable<SourceRow['native']>>();
     for (const row of merged) {
       const state = states.get(actionKey(row.source, row.id));
       // What the reader put off themselves is not on their list until it comes back.
       if (state?.hiddenForReader === true && input.includeHidden !== true) continue;
-      rows.push(state === undefined ? withoutDecisions(row) : { ...row, ...stateFields(state, row.lifecycle) });
+      if (row.native !== undefined) natives.set(actionKey(row.source, row.id), row.native);
+      rows.push(state === undefined ? withoutDecisions(row) : withState(row, state));
     }
-    return { rows, truncated, unavailableSources };
+    if (context.counting) return { rows, truncated, unavailableSources, policies: null };
+    const policies = await this.decorate(tx, rows, natives, states, input);
+    // G0-3: the consequence and the response time of an item are those of its alert type, an `ALERT_TYPE` rule read through the governance port.
+    await applyAlertTypes(tx, rows, input.today);
+    return { rows, truncated, unavailableSources, policies };
+  }
+
+  /**
+   * The clocks of each item, the reminders it has had and when the next is due, the notices that went to the next level, and the clock its module already keeps (G0-2, G2-2, G2-4): read through the policies of the governance port
+   * and the published working calendar, only when the rows are shown. A year without a published calendar leaves the clocks that need it absent and says so (`basis`); nothing is guessed.
+   */
+  private async decorate(tx: TenantTx, rows: WorkRow[], natives: ReadonlyMap<string, NonNullable<SourceRow['native']>>, states: ReadonlyMap<string, WorkActionState>, input: WorkInput): Promise<WorkPolicies> {
+    const policies = await this.policies.read(tx, input.today);
+    if (rows.length === 0) return policies;
+    const calendars = await this.calendars.load(tx, WORK_CALENDAR_CODE, input.now);
+    const keys = rows.map((row) => ({ source: row.source, sourceId: row.id }));
+    const sent = await this.reminders.summary(tx, keys, input.membershipId);
+    const notices = await this.reminders.notices(tx, keys);
+    for (const row of rows) {
+      const key = actionKey(row.source, row.id);
+      const state = states.get(key) ?? freshActionState();
+      const native = natives.get(key);
+      const started = row.startedAt === null ? null : new Date(row.startedAt);
+      let clocks = itemClocks({
+        severity: row.severity,
+        now: input.now,
+        startedAt: started,
+        dueOn: native === undefined ? row.dueOn : null,
+        firstClaimAt: state.firstClaimAt === null ? null : new Date(state.firstClaimAt),
+        lastClaimAt: state.lastClaimAt === null ? null : new Date(state.lastClaimAt),
+        lifecycle: row.lifecycle,
+        pauses: state.pauses,
+        policy: policies.clock,
+        calendars,
+      });
+      // A native clock keeps the end it was given (moved by its pauses); the claim clock still counts from its start.
+      if (native !== undefined) clocks = { ...clocks, resolve: native.resolve, paused: native.paused };
+      const summary = sent.get(key);
+      let anchor = later(started, state.lastClaimAt);
+      for (const span of state.pauses) anchor = later(anchor, span.resumedAt ?? span.until);
+      if (state.snooze !== null) anchor = later(anchor, state.snooze.until);
+      anchor = later(anchor, summary?.lastAt ?? null);
+      const reminder = reminderState({
+        severity: row.severity,
+        now: input.now,
+        anchorAt: anchor,
+        sent: summary?.sent ?? 0,
+        snoozedUntil: state.snooze === null ? null : new Date(state.snooze.until),
+        paused: clocks.paused !== null,
+        lifecycle: row.lifecycle,
+        policy: policies.reminder,
+        calendars,
+      });
+      row.clocks = clocks;
+      row.reminders = { ...reminder, sent: summary?.sent ?? 0, lastAt: summary?.lastAt ?? null };
+      row.notices = notices.get(key) ?? [];
+      row.existingClock = EXISTING_CLOCKS.find((clock) => clock.source === row.source) ?? null;
+      row.policyVersion = policies.versions.clock;
+    }
+    return policies;
   }
 
   /**

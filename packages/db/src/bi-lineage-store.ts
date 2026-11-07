@@ -39,6 +39,13 @@ export class BiLineageStore {
     await this.linkRecords(tx, { ...input, snapshotNodeId });
   }
 
+  /** The version of the contract dataset that was built: it comes from the contract fact frozen with the snapshot of DIS of its period. */
+  async contractFactBuilt(tx: TenantTx, input: { versionId: string; datasetCode: string; asOfPeriod: string; factSnapshotId: string; observedAt: Date }): Promise<void> {
+    const snapshot = node('TABLE', 'CTR', { key: `contract_fact_snapshot:${input.factSnapshotId}` }, `Contract fact ${input.asOfPeriod}`);
+    const version = node('DATASET_VERSION', 'BI', { id: input.versionId }, `${input.datasetCode} ${input.asOfPeriod}`);
+    await this.lineage.link(tx, snapshot, version, { runId: input.versionId, transformVersion: BI_BUILD_TRANSFORM, observedAt: input.observedAt });
+  }
+
   /** A metric that was read over a version of a dataset: the figure comes from that version, by that revision of the formula. */
   async metricRead(
     tx: TenantTx,

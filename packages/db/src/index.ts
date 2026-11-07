@@ -1358,20 +1358,39 @@ export type { PromoteResult as ScenarioPromoteResult, ScenarioChange, ScenarioRo
 export { HOME_OPEN_WARNING_STATUSES, HomeStore } from './home-store.ts';
 export type { HomeCountInput, HomeCounts } from './home-store.ts';
 export { HomeDrillStore } from './home-drill-store.ts';
-export type { DrillProject, DrillRevision, DrillTransaction } from './home-drill-store.ts';
+export type { DrillAlert, DrillProject, DrillRevision, DrillTransaction } from './home-drill-store.ts';
 export { HomeReadStore } from './home-reads-store.ts';
 export type { HomeExplanation, HomeLeader, HomeRankingRow, HomeRule } from './home-reads-store.ts';
 export { HomeWorkStore, WORK_SOURCE_LIMIT } from './home-work-store.ts';
 export type { WorkCollection, WorkInput, WorkRow, WorkView } from './home-work-store.ts';
 export { HomeWorkActionStore } from './home-work-action-store.ts';
-export type { WorkActionInput, WorkActionKind, WorkActionState } from './home-work-action-store.ts';
+export type { SnoozeDetail, WorkActionInput, WorkActionKind, WorkActionState } from './home-work-action-store.ts';
+export { actionKey, freshActionState } from './home-work-action-store.ts';
+// The clocks of the alert centre (lane GOV-2): the policies through the governance port, the native clocks and the calendars they count on, the reminders.
+export { WorkPolicyReader, policyVersionOf } from './home-work-policy.ts';
+export type { WorkPolicies } from './home-work-policy.ts';
+export { HomeClockSources, HomeWorkCalendars, HomeWorkClockStore, WORK_CALENDAR_CODE } from './home-work-clock-store.ts';
+export type { WorkClockInput, WorkClockRow } from './home-work-clock-store.ts';
+export { HomeWorkReminderStore, reminderSeriesKey } from './home-work-reminder-store.ts';
+export type { ReminderAudience, ReminderRecord, ReminderSummary } from './home-work-reminder-store.ts';
+export { GovernancePolicyPort } from './governance-policy-port.ts';
+export { GovernanceRuleStore, phaseOf as governanceRulePhaseOf } from './governance-rule-store.ts';
+export type { ApprovalOutcome as GovernanceRuleApproval, CatalogCode as GovernanceCatalogCode, CatalogType as GovernanceCatalogType, GovernanceRuleDiff, GovernanceRuleDraft, GovernanceRuleFilter, GovernanceRulePhase, GovernanceRuleRow } from './governance-rule-store.ts';
 export { AUDIT_ESCALATION_DAYS, CONSEQUENCES, DEFAULT_SEVERITY_RULES, SEVERITY_RANK, WORK_SEVERITIES, WORK_SOURCES, severityOf } from './home-work-rules.ts';
 export type { SeverityRules, WorkEscalation, WorkLifecycle, WorkSeverity, WorkSource } from './home-work-rules.ts';
 export { HomeChannelHealthStore } from './home-channel-health-store.ts';
+export { AnalyticsGovernanceStore } from './analytics-governance-store.ts';
+export type { CertLogEntry, CertPerson, CertificationView, DatasetCertification, MetricCertification } from './analytics-governance-store.ts';
+export { AnalyticsRagStore } from './analytics-rag-store.ts';
+export type { OverrideLine, StoredScore, UnitReadingInput } from './analytics-rag-store.ts';
+export { EARLY_WARNING_SCORED_EVENT, EARLY_WARNING_SCORE_METRIC, EarlyWarningScoreJob, evaluateUnits } from './analytics-score-job.ts';
+export type { EarlyWarningScoreResult, UnitEvaluation } from './analytics-score-job.ts';
 export type { DegradedChannel } from './home-channel-health-store.ts';
-export { BiDatasetStore, DISBURSEMENT_DATASET_CODE, DISBURSEMENT_JOIN_PATHS } from './bi-dataset-store.ts';
+export { BiDatasetStore, CONTRACT_DATASET_CODE, CONTRACT_JOIN_PATHS, DISBURSEMENT_DATASET_CODE, DISBURSEMENT_JOIN_PATHS } from './bi-dataset-store.ts';
 export type { BiDatasetRow, BuildInput, BuildResult, DatasetVersionFilter, DatasetVersionRow } from './bi-dataset-store.ts';
 export { BiQueryStore, UNCLASSIFIED_KEY, assertFilter } from './bi-query-store.ts';
+export { PERIOD_SNAPSHOT_SOURCE, hasQuerySource, querySourceOf } from './bi-query-source.ts';
+export type { QuerySource } from './bi-query-source.ts';
 export { BiQueryJobStore, QUERY_RUN_STATUSES } from './bi-query-job-store.ts';
 export type { QueryJob, QueryJobInput, QueryJobOutcome, QueryRunFilter, QueryRunLine, QueryRunStatus } from './bi-query-job-store.ts';
 export type { AggregateInput, AggregateRow, ContextRow, FilterOperator, PolicyNode, QueryFilter, SnapshotVersion } from './bi-query-store.ts';
@@ -1556,3 +1575,84 @@ export { KNOWLEDGE_COLLECTION_RESOURCE, KNOWLEDGE_ITEM_RESOURCE, LlmKnowledgeSto
 export type { ChunkToStore, EmbeddingModel, IndexTarget, KnowledgeCollection, KnowledgeItem, KnowledgePage, RetrievedChunk } from './llm-knowledge-store.ts';
 export { INVOICE_RECONCILIATION_RESOURCE, LlmReconcileStore } from './llm-reconcile-store.ts';
 export type { BudgetDecisionOutcome, InvoiceReconciliation, ReconcileOutcome, ReconciliationPage } from './llm-reconcile-store.ts';
+export { resolveGovD } from './gov-d-policy.ts';
+export type { GovDFallback, GovDRule } from './gov-d-policy.ts';
+export { CONTRACT_PRICES_EAC, CapContractAvcStore } from './cap-contract-avc-store.ts';
+export type { ChangeOrderAvailability, ContractAvcStatement, EacProvider, ProjectEacStatement } from './cap-contract-avc-store.ts';
+export { MoneyPolicyReader } from './money-policy-reader.ts';
+export type { ApprovedRuleSource } from './money-policy-reader.ts';
+export { PrjReserveStore } from './prj-reserve-store.ts';
+export type { DrawdownDecisionInput, DrawdownRequestInput, DrawdownView, ExposureInput, FundInput, ProjectReserveView, ReserveCommandResult, ReserveEntryView, ReserveFundView, RiskExposureLine } from './prj-reserve-store.ts';
+// The lifecycle and the earned value (governance deepening, lane B1: G1-2, G1-3, G1-4, G1-5).
+export { DEFAULT_B1_READER, GovernanceB1Reader, b1PolicyOf } from './b1-policy-reader.ts';
+export { PayDisbursementCheck } from './pay-disbursement-check.ts';
+export type { DisbursementCheckView } from './pay-disbursement-check.ts';
+export { BASELINE_RESOURCE, GOVERNANCE_ALERT_RESOURCE, PrjBaselineStore, REAPPRAISAL_RESOURCE, firstLevelTotal, loadProjectFacts, noEffects, projectFinishOf } from './prj-baseline-store.ts';
+export type {
+  AlertAcknowledgement,
+  BaselineCapture,
+  BaselineLineView,
+  BaselinePolicyView,
+  BaselineVersionView,
+  BaselineView,
+  GovernanceAlertView,
+  GovernanceEffects,
+  ReappraisalDecision,
+  ReappraisalView,
+  RescheduleEventView,
+} from './prj-baseline-store.ts';
+export { COMPONENT_CONTRACT_RESOURCE, PrjEvmStore } from './prj-evm-store.ts';
+export type { BaselineSelection, ComponentContractLink, EvmPolicyView, EvmQuery, EvmRow, EvmScope, EvmView, SCurveView } from './prj-evm-store.ts';
+export { CtrChangeTierStore } from './ctr-change-tier-store.ts';
+export type { AdjustmentCheckView, ClearInput as CtrClearAdjustmentInput, ClearResult as CtrClearAdjustmentResult, TierFacts, TierOutcome } from './ctr-change-tier-store.ts';
+export { PayAdvanceRecoveryReads } from './pay-advance-recovery-reads.ts';
+export type { AdvancePolicyTier, AdvancePolicyVersion, AdvanceRecoveryTable, ContractAdvancePosition } from './pay-advance-recovery-reads.ts';
+export { HomeMoneySources } from './home-money-sources.ts';
+
+// The directives of the steering meetings (lane DIR-1).
+export { DIRECTIVE_FROM, DIRECTIVE_READ_LIMIT, DirDirectiveStore, dayBefore, directiveScope, directiveUnitScope, holdsDirectivePermission, meetingScope } from './dir-directive-store.ts';
+export type { AssignInput, CloseInput, DirectiveCommandResult, DirectiveCounts, DirectiveDetail, DirectiveEventView, DirectiveFilter, DirectiveInput, DirectiveLine, DirectiveSummary, EvidenceView, ExtensionInput, ExtensionView, MeetingCommandResult, MeetingDetail, MeetingInput, MeetingLine, ProgressInput, ReportItem, ReportView, UnitRef } from './dir-directive-store.ts';
+export { DirectivePolicyReader } from './dir-policy-reader.ts';
+export type { ApprovedDirectiveRuleSource } from './dir-policy-reader.ts';
+export { HomeDirectiveSources } from './home-directive-sources.ts';
+export { AUDIENCE_PERMISSIONS, HomeIntegritySources } from './home-integrity-sources.ts';
+// The separation of duties checked at commit (lane D, G4-1).
+export { SodGuard, SodRefusal, SodStore } from './gov-d-sod-store.ts';
+export type { SodApprovalRow, SodExceptionRow, SodListFilter, SodMatrixReading, SodPassed, SodRequestInput, SodSubjectKind, SodTake, SodUseRow } from './gov-d-sod-store.ts';
+// The checks of a payment request before money goes out and the exceptions to the ceilings of disbursement (lane D, G4-2 and G4-5).
+export { PAY_INTEGRITY_RUN_METRIC, PayIntegrityStore } from './gov-d-integrity-store.ts';
+export type { IntegrityEvaluateInput, IntegrityFindingFilter, IntegrityFindingLine, IntegrityEvaluation, IntegrityFindingView, IntegrityRunView, IntegrityTrigger } from './gov-d-integrity-store.ts';
+export { DisbursementExceptionStore } from './gov-d-exception-store.ts';
+export type { DisbursementException, ExceptionFilter, ExceptionResult, ExceptionStatus, ExceptionView, RequestExceptionInput } from './gov-d-exception-store.ts';
+// The daily reconciliation with the Treasury and the cross-total control (lane D, G4-4 and G4-5).
+export {
+  DAILY_RECON_RESOLUTIONS,
+  TREASURY_DAILY_RECON_OPEN_METRIC,
+  TREASURY_DAILY_RECON_OVERDUE_EVENT,
+  TREASURY_DAILY_RECON_OVERDUE_METRIC,
+  TREASURY_DAILY_RECON_PARTIAL_METRIC,
+  TREASURY_DAILY_RECON_RUN_EVENT,
+  TREASURY_RECON_ALERT_TYPE,
+  TREASURY_RECON_ITEM_RESOURCE,
+  TREASURY_RECON_RUN_RESOURCE,
+  TreasuryDailyReconStore,
+  reconRunRecord,
+} from './pay-treasury-daily-recon-store.ts';
+export type { DailyReconResolution, DaySides, ItemChange as DailyReconItemChange, ItemFilter as DailyReconItemFilter, ReconItemView, ReconLineView, ReconRule, ReconRunView, RunOutcome as DailyReconRunOutcome } from './pay-treasury-daily-recon-store.ts';
+export { TreasuryDailyReconJob, linkTreasuryReconIssue } from './treasury-daily-recon-job.ts';
+export type { DailyReconJobResult } from './treasury-daily-recon-job.ts';
+export { CROSS_TOTAL_ALERT_TYPE, CROSS_TOTAL_EVENT, CROSS_TOTAL_KEEP_KEYS, CROSS_TOTAL_RESOURCE, DisCrossTotalStore, crossTotalRecord } from './dis-cross-total-store.ts';
+export type { CrossTotalOrigin, CrossTotalView } from './dis-cross-total-store.ts';
+// FIN-1: the investment appraisals (inputs answered for, results computed by the server, frozen at approval).
+export { FinAppraisalStore, appraisalScope, modelOf as appraisalModelOf } from './fin-appraisal-store.ts';
+export type { AppraisalAssumptionView, AppraisalCommandResult, AppraisalCreate, AppraisalInputs, AppraisalLineView, AppraisalListFilter, AppraisalListItem, AppraisalView, CriteriaInForce, StoredResults } from './fin-appraisal-store.ts';
+// PRC-1: the workflow of a procurement package (docs/bid-workflow.md).
+export { BidWorkflowStore, MAX_EVIDENCE_PER_ITEM } from './bid-workflow-store.ts';
+export type { EvidenceInput as BidWorkflowEvidenceInput, WorkflowResult as BidWorkflowResult } from './bid-workflow-store.ts';
+export { BidWorkflowReads, WORKFLOW_READ_LIMIT } from './bid-workflow-reads.ts';
+export type { NodeOverview as BidWorkflowNodeOverview, PackageLinks as BidWorkflowLinks, PackageWorkflowDetail as BidWorkflowDetail, WorkflowBoard as BidWorkflowBoard, WorkflowFilter as BidWorkflowFilter, WorkflowPackageRow as BidWorkflowPackageRow, WorkflowPeriod as BidWorkflowPeriod, WorkflowStatistics as BidWorkflowStatistics, WorkflowSummary as BidWorkflowSummary } from './bid-workflow-reads.ts';
+export { PayIntegrityAlertSource } from './gov-d-integrity-alerts.ts';
+export type { IntegrityAlertItem, IntegrityAlertType } from './gov-d-integrity-alerts.ts';
+// CA-1, part 2: the contract fact, its frozen snapshots and the reader of the portfolio and the reports.
+export { CONTRACT_STATUS_VALUES, CONTRACT_TYPE_VALUES, CtrFactStore, FACT_SORTS, linesOfContract } from './ctr-fact-store.ts';
+export type { FactCursor, FactFilters, FactGroupSums, FactPage, FactQuery, FactSnapshotRow, FactSource, SnapshotLine, SortKind } from './ctr-fact-store.ts';

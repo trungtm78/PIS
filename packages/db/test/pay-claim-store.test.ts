@@ -258,6 +258,18 @@ describe('sending, checking and returning a payment request (ST-PAY-003)', () =>
       expect(await requestRow(ended.id)).toMatchObject({ status: 'DRAFT', claims_acceptance: false });
     });
 
+    it('G1-2: a draft is not sent for a project that has gone off the list of the investment projects since, naming the stage and the way to fix it, and nothing moves', async () => {
+      const target = await ready();
+      const [held] = await owner<{ project_id: string }>('select project_id from machvon.contract where id = $1::uuid', [target.approved.contract.contractId]);
+      await owner("update machvon.project set status = 'CLOSED' where id = $1::uuid", [held?.project_id]);
+      await expect(submit(target)).rejects.toMatchObject({ code: 'DISBURSEMENT_PROJECT_NOT_LISTED', status: 422, extensions: { project_status: 'CLOSED', fix: 'COMPLETE_STAGE_TRANSITION' } });
+      expect(await requestRow(target.id)).toMatchObject({ status: 'DRAFT', claims_acceptance: false });
+      expect(await entriesOf(target.id)).toHaveLength(0);
+      await owner("update machvon.project set status = 'IMPLEMENTATION' where id = $1::uuid", [held?.project_id]);
+      await submit(target);
+      expect(await requestRow(target.id)).toMatchObject({ status: 'SUBMITTED' });
+    });
+
     it('is refused for a request that is not a draft, for an acceptance that was revoked since, and for a line of capital with too little left', async () => {
       const target = await ready();
       await submit(target);

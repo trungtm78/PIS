@@ -23,7 +23,7 @@ const open = (request: IntakeRequest, eventId: string = randomUUID(), at: Date =
 
 describe('readIntake: the contract of the events that ask for an issue (TK-ISS-005-2)', () => {
   it('knows the events of CTR, PMT, PAY, LND and AST, each filed under a category of its source', () => {
-    expect(INTAKE_EVENT_TYPES).toEqual(['ctr.guarantee.expired.v1', 'pmt.permit.expired.v1', 'pay.advance.overdue.v1', 'pay.reconciliation.overdue.v1', 'pay.settlement.overdue.v1', 'lnd.complaint.filed.v1', 'lnd.deadline.breached.v1', 'lnd.stage.late.v1', 'ast.warranty_claim.overdue.v1']);
+    expect(INTAKE_EVENT_TYPES).toEqual(['ctr.guarantee.expired.v1', 'pmt.permit.expired.v1', 'pay.advance.overdue.v1', 'pay.reconciliation.overdue.v1', 'pay.settlement.overdue.v1', 'lnd.complaint.filed.v1', 'lnd.deadline.breached.v1', 'lnd.stage.late.v1', 'ast.warranty_claim.overdue.v1', 'pay.treasury_daily_recon.item_overdue.v1']);
     expect(INTAKE_SPECS.map((spec) => [spec.sourceModule, spec.categoryKey])).toEqual([
       ['CTR', INTAKE_CATEGORY_KEYS.CTR],
       ['PMT', INTAKE_CATEGORY_KEYS.PMT],
@@ -34,6 +34,7 @@ describe('readIntake: the contract of the events that ask for an issue (TK-ISS-0
       ['LND', INTAKE_CATEGORY_KEYS.LND],
       ['LND', INTAKE_CATEGORY_KEYS.LND],
       ['AST', INTAKE_CATEGORY_KEYS.AST],
+      ['PAY', INTAKE_CATEGORY_KEYS.PAY],
     ]);
   });
 

@@ -17,6 +17,7 @@ import type { AdvanceTranche, DocumentKind, DraftMoney, MoneyLine, PartyAdvance,
 import { CtrContractStore, SCOPE_FROM as CONTRACT_SCOPE_FROM, TIMESTAMP } from './ctr-contract-store.ts';
 import type { ContractPlace, ContractScopes } from './ctr-contract-store.ts';
 import { MasterRules } from './master-rules.ts';
+import { PayDisbursementCheck } from './pay-disbursement-check.ts';
 import { nationalCodeReading } from './prj-stage-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -45,7 +46,7 @@ const textOf = (value: string, field: string, max = MAX_TEXT): string => {
 
 /** A thing the caller should know about a request that was accepted: it is shown, never a refusal. */
 export interface PaymentWarning {
-  code: 'OTHER_DRAFTS_FOR_ACCEPTANCE' | 'NATIONAL_CODE_MISSING' | 'DUPLICATE_INVOICE_OTHER_CONTRACT';
+  code: 'OTHER_DRAFTS_FOR_ACCEPTANCE' | 'NATIONAL_CODE_MISSING' | 'DUPLICATE_INVOICE_OTHER_CONTRACT' | 'REAPPRAISAL_OPEN';
   detail: Record<string, unknown>;
 }
 
@@ -361,6 +362,7 @@ interface Build {
 export class PayPaymentStore {
   private readonly contracts = new CtrContractStore();
   private readonly rules = new MasterRules();
+  private readonly disbursement = new PayDisbursementCheck();
 
   /** Draws up a request from an approved acceptance (or from a planned advance), priced by the server. */
   async create(tx: TenantTx, input: CreatePaymentInput, actor: string, scopes: ContractScopes, today: string): Promise<PaymentResult> {
@@ -715,6 +717,8 @@ export class PayPaymentStore {
     },
   ): Promise<Build> {
     const warnings: PaymentWarning[] = [];
+    // G1-2: the project must be on the list and hold an approved amount in the capital plan before anything else is looked at; the number on the system wins over paper.
+    for (const warning of await this.disbursement.assertAllowed(tx, input.contract.project_id, input.today)) warnings.push({ code: warning, detail: { project_id: input.contract.project_id } });
     const acceptance = input.acceptanceId === null ? undefined : await this.acceptanceOf(tx, input.acceptanceId, input.contract.id);
     assertContractAllows({ status: input.contract.status, suspendedFrom: input.contract.suspended_from, terminatedOn: input.contract.terminated_on }, input.kind, acceptance?.approved_on ?? null);
     if (input.settlementId !== null) await this.assertSettlement(tx, input.settlementId, input.contract.id);

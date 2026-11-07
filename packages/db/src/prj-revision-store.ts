@@ -2,6 +2,8 @@ import { randomUUID } from 'node:crypto';
 import { DomainError, assertRevisionDecision, assertRevisionProposal, versionConflict } from '@machvon/kernel';
 import type { ProjectRevisionStatus, RevisionKind } from '@machvon/kernel';
 import { idOf } from './prj-accountability-support.ts';
+import { PrjBaselineStore } from './prj-baseline-store.ts';
+import type { GovernanceEffects } from './prj-baseline-store.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ProjectClassification, ProjectStatus } from './prj-project-store.ts';
 import { lockProject, usableDocumentId } from './prj-stage-support.ts';
@@ -58,6 +60,8 @@ export interface RevisionChange {
   decisionReason: string | null;
   effectiveFrom: string | null;
   supersededRevisionId: string | null;
+  /** What the governance hooks did in the same transaction (the next version of the baseline, a move of a date counted, an alert to AUD, a request to appraise again). */
+  governance?: GovernanceEffects;
 }
 
 export interface PersonRef {
@@ -133,6 +137,8 @@ interface ProjectFigures {
 }
 
 export class PrjRevisionStore {
+  private readonly baseline = new PrjBaselineStore();
+
   /**
    * Proposes a revision of the project under the version of the project the proposer saw (409 `VERSION_CONFLICT`). It is refused in a stage that takes no revision (409 `STAGE_TRANSITION_DENIED`) and while
    * another revision waits for its decision (409 `REVISION_PENDING_EXISTS`). The revision records what the project holds now and what it would hold after it.
@@ -197,7 +203,10 @@ export class PrjRevisionStore {
     const approved = await this.write(tx, current.id, 'APPROVED', request.actor, decision.reason, documentId, decision.effectiveFrom ?? null, supersedes);
     const version = project.version + 1;
     await this.apply(tx, project.id, approved, request.actor, version);
-    return changeOf(project, approved, version, supersedes);
+    const change = changeOf(project, approved, version, supersedes);
+    // G1-3: an approved revision of the total or the schedule adds the next version of the baseline, counts a pushed-back end year as a move of a date and looks at the deviation again (hook of lane B1).
+    change.governance = await this.baseline.afterRevisionApproved(tx, project, { id: approved.id, kind: approved.change_kind, before: approved.before_json, after: approved.after_json, decisionReason: decision.reason }, request.actor, request.today);
+    return change;
   }
 
   /**
