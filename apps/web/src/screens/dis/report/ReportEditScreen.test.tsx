@@ -2,6 +2,7 @@ import { ApiError, NETWORK_ERROR_CODE } from '@machvon/api-client';
 import { cleanup, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
+import { t } from '../../../i18n';
 import vi_ from '../../../i18n/vi.json';
 import { MAKER, PLAN_VERSION, READER, REPORT, client, fxCells, mount, reportRecord, routeOf, world } from './test-support';
 import ReportEditScreen from './ReportEditScreen';
@@ -47,7 +48,10 @@ describe('DIS-04 enter disbursement by source', () => {
     // The source that has no CTMTQG has no row for it.
     expect(document.getElementById('ctmtqg-OTHER:CENTRAL')).toBeNull();
     expect(document.getElementById('ctmtqg-OTHER:LOCAL')).toBeNull();
-    expect(screen.getAllByText(vi_['dis.reportEdit.ctmtqg.note']).length).toBeGreaterThanOrEqual(3);
+    // The CTMTQG has a block of its own in each of the two sources that take it, and the third source says it does not apply.
+    expect(screen.getAllByRole('heading', { name: vi_['dis.reportEdit.ctmtqg.label'] })).toHaveLength(2);
+    expect(screen.getAllByText(t('ui.fundMatrix.na'))).toHaveLength(1);
+    expect(screen.getByText(vi_['dis.reportEdit.ctmtqg.note'])).toBeTruthy();
   });
 
   it('adds up as it is typed: the total moves with the cells and never with the CTMTQG', async () => {

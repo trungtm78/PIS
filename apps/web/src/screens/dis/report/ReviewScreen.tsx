@@ -4,18 +4,22 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
+import { ConfirmDialog, SectionCard, StickyActions } from '../../../ui';
 import { Field } from '../components';
 import '../dis.css';
 import type { Attachment } from './detail-parts';
 import { ReportFacts } from './components';
-import { useSaveDraft, useUploadReportFile } from './hooks';
+import { ReceiptCard, StatusStrip, useDeadlineOf } from './entry-parts';
+import { useSaveDraft, useSubmitReport, useUploadReportFile } from './hooks';
 import { cellLabel, findingMessage, reportProblemMessage } from './labels';
-import { CELLS, canEdit, describeReport } from './model';
+import { CELLS, EDIT_PATH, REPORTS_PATH, canEdit, describeReport } from './model';
 import type { ReportDetail } from './model';
 import { formatVnd } from './money';
 import { StepFrame } from './StepFrame';
 import { NOTE_FIELDS, attachmentsBody, notesBody, notesFormOf, stepLink, stepOfFinding, validateNotes } from './step-model';
 import type { NoteField, NotesForm } from './step-model';
+import { canSubmit, dueMoment, receiptOf } from './weekly-model';
+import type { Receipt } from './weekly-model';
 
 /**
  * DIS-06: the review of the draft before it is sent (ST-DIS-004, DIS 3 F1 step 7, BR-DIS-07): every error that would stop the sending and every warning that would not, all at once and each with the
@@ -46,9 +50,16 @@ export default function ReviewScreen({ route }: ScreenProps) {
 function Review({ detail }: { detail: ReportDetail }) {
   const { t } = useTranslation();
   const { permissions, mode } = useSession();
+  const submit = useSubmitReport();
+  const [confirming, setConfirming] = useState(false);
+  const [sent, setSent] = useState<{ receipt: Receipt | undefined } | undefined>(undefined);
+  const [failure, setFailure] = useState<unknown>(undefined);
+  const dueAt = useDeadlineOf(detail.period.id);
   const editable = canEdit(permissions, mode, detail.status);
   const review = detail.review;
   const reportId = detail.id;
+  // A report is handed in from here once the review has no error; a warning does not stop it.
+  const sendable = canSubmit(permissions, mode, detail.status) && review !== null && !review.blocking;
   const fixLink = (finding: { code: string; field: string; values: Record<string, string | null> }) => {
     const path = stepOfFinding(finding);
     return path === undefined ? null : (
@@ -57,52 +68,111 @@ function Review({ detail }: { detail: ReportDetail }) {
       </Link>
     );
   };
+  const send = async (): Promise<void> => {
+    setFailure(undefined);
+    try {
+      const done = await submit.mutateAsync({ detail });
+      setSent({ receipt: receiptOf(done) });
+    } catch (error) {
+      setFailure(error);
+    } finally {
+      setConfirming(false);
+    }
+  };
+  const refused = failure === undefined ? undefined : describeReport(failure);
 
+  if (sent !== undefined) return <ReceiptCard detail={detail} receipt={sent.receipt} />;
   return (
-    <div className="card">
-      <ReportFacts detail={detail} />
-      {review === null ? (
-        <p className="callout" role="status" data-testid="review-status">
-          {t('dis.review.status.sent')}
+    <div className="dis-wr-stack">
+      <StatusStrip detail={detail} />
+      {refused === undefined ? null : (
+        <p className="callout warning" role="alert" data-testid="send-refusal">
+          {reportProblemMessage(t, refused.problem)}
         </p>
-      ) : (
-        <>
-          <p className={review.blocking ? 'callout warning' : 'callout'} role="status" data-testid="review-status">
+      )}
+      <SectionCard title={t('dis.wr.section.info')}>
+        <ReportFacts detail={detail} />
+        {review === null ? (
+          <p className="callout" role="status" data-testid="review-status">
+            {t('dis.review.status.sent')}
+          </p>
+        ) : (
+          <p className={review.blocking ? 'callout warning' : 'callout'} role="status" data-testid="review-status" id="review-status">
             {review.blocking ? t('dis.review.status.blocking') : t('dis.review.status.ready')}
           </p>
-          <h2>{t('dis.review.errors.title')}</h2>
-          {review.errors.length === 0 ? (
-            <p className="muted" data-testid="review-errors-none">
-              {t('dis.review.none.text')}
-            </p>
-          ) : (
-            <ul className="dis-findings" data-testid="review-errors">
-              {review.errors.map((finding) => (
-                <li key={`${finding.code}:${finding.field}`} data-code={finding.code}>
-                  {findingMessage(t, finding)} {fixLink(finding)}
-                </li>
-              ))}
-            </ul>
-          )}
-          <h2>{t('dis.review.warnings.title')}</h2>
-          {review.warnings.length === 0 ? (
-            <p className="muted" data-testid="review-warnings-none">
-              {t('dis.review.none.text')}
-            </p>
-          ) : (
-            <ul className="dis-findings" data-testid="review-warnings">
-              {review.warnings.map((finding) => (
-                <li key={`${finding.code}:${finding.field}`} data-code={finding.code}>
-                  {findingMessage(t, finding)} {fixLink(finding)}
-                </li>
-              ))}
-            </ul>
-          )}
+        )}
+      </SectionCard>
+      {review === null ? null : (
+        <>
+          <SectionCard title={t('dis.review.errors.title')}>
+            {review.errors.length === 0 ? (
+              <p className="muted" data-testid="review-errors-none">
+                {t('dis.review.none.text')}
+              </p>
+            ) : (
+              <ul className="dis-findings" data-testid="review-errors">
+                {review.errors.map((finding) => (
+                  <li key={`${finding.code}:${finding.field}`} data-code={finding.code}>
+                    {findingMessage(t, finding)} {fixLink(finding)}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </SectionCard>
+          <SectionCard title={t('dis.review.warnings.title')}>
+            {review.warnings.length === 0 ? (
+              <p className="muted" data-testid="review-warnings-none">
+                {t('dis.review.none.text')}
+              </p>
+            ) : (
+              <ul className="dis-findings" data-testid="review-warnings">
+                {review.warnings.map((finding) => (
+                  <li key={`${finding.code}:${finding.field}`} data-code={finding.code}>
+                    {findingMessage(t, finding)} {fixLink(finding)}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </SectionCard>
         </>
       )}
       <Differences detail={detail} />
       <Notes detail={detail} editable={editable} />
       <Files detail={detail} editable={editable} />
+      {review === null ? null : (
+        <StickyActions
+          primary={
+            <button type="button" className="ui-button ui-button--primary" disabled={!sendable || submit.isPending} aria-describedby="review-status" onClick={() => setConfirming(true)}>
+              {t('dis.wr.send.action')}
+            </button>
+          }
+          secondary={[
+            <Link key="back" className="ui-button ui-button--outline" to={REPORTS_PATH}>
+              {t('dis.wr.back.action')}
+            </Link>,
+            <Link key="edit" className="ui-button ui-button--outline" to={stepLink(EDIT_PATH, reportId)}>
+              {t('dis.wr.review.edit.action')}
+            </Link>,
+          ]}
+        />
+      )}
+      <ConfirmDialog
+        open={confirming}
+        title={t('dis.wr.send.title')}
+        context={[
+          { label: t('dis.wr.send.project'), value: `${detail.project.code} · ${detail.project.name}` },
+          { label: t('dis.wr.send.period'), value: t('dis.reportEdit.period.value', { code: detail.period.code, start: detail.period.startDate, end: detail.period.endDate }) },
+          { label: t('dis.wr.send.total'), value: t('dis.wr.send.total.value', { amount: formatVnd(detail.totals.cumulativeVnd) }) },
+          { label: t('dis.wr.send.ctmtqg'), value: t('dis.wr.send.total.value', { amount: formatVnd(detail.totals.ctmtqgVnd) }) },
+          ...(review !== null && review.warnings.length > 0 ? [{ label: t('dis.wr.send.warnings'), value: t('dis.wr.send.warnings.value', { count: review.warnings.length }) }] : []),
+          ...(dueAt === undefined ? [] : [{ label: t('dis.wr.send.deadline'), value: dueMoment(dueAt) }]),
+        ]}
+        confirmLabel={t('dis.wr.send.confirm')}
+        cancelLabel={t('dis.wr.send.cancel')}
+        pending={submit.isPending}
+        onConfirm={() => void send()}
+        onCancel={() => setConfirming(false)}
+      />
     </div>
   );
 }
@@ -112,8 +182,7 @@ function Differences({ detail }: { detail: ReportDetail }) {
   const { t } = useTranslation();
   const compared = detail.cells.some((cell) => cell.previousCumulativeVnd !== null);
   return (
-    <section aria-labelledby="review-diff-title">
-      <h2 id="review-diff-title">{t('dis.review.diff.title')}</h2>
+    <SectionCard title={t('dis.review.diff.title')}>
       {compared ? (
         <div className="tablewrap">
           <table className="table dis-matrix" aria-label={t('dis.review.diff.aria')}>
@@ -154,7 +223,7 @@ function Differences({ detail }: { detail: ReportDetail }) {
           {t('dis.review.diff.none.text')}
         </p>
       )}
-    </section>
+    </SectionCard>
   );
 }
 
@@ -184,27 +253,28 @@ function Notes({ detail, editable }: { detail: ReportDetail; editable: boolean }
     save.mutate({ detail, body: notesBody(detail, form) });
   };
   return (
-    <form onSubmit={submit} noValidate aria-labelledby="review-notes-title">
-      <h2 id="review-notes-title">{t('dis.review.notes.title')}</h2>
-      <p className="sub">{t('dis.review.notes.help')}</p>
-      {described === undefined ? null : (
-        <p className="callout warning" role="alert" data-testid="notes-refusal">
-          {reportProblemMessage(t, described.problem)}
-        </p>
-      )}
-      {NOTE_FIELDS.map((field) => (
-        <Field key={field} id={`note-${field}`} label={label(field)} error={submitted && problems[field] !== undefined ? t('dis.review.notes.tooLong.error') : undefined}>
-          <textarea id={`note-${field}`} rows={3} value={form[field]} disabled={!editable} onChange={(event: ChangeEvent<HTMLTextAreaElement>) => setForm({ ...form, [field]: event.target.value })} />
-        </Field>
-      ))}
-      {editable ? (
-        <div className="formfooter">
-          <button type="submit" disabled={save.isPending}>
-            {save.isPending ? t('dis.review.notes.save.pending') : t('dis.review.notes.save.action')}
-          </button>
-        </div>
-      ) : null}
-    </form>
+    <SectionCard title={t('dis.review.notes.title')}>
+      <form onSubmit={submit} noValidate aria-label={t('dis.review.notes.title')}>
+        <p className="sub">{t('dis.review.notes.help')}</p>
+        {described === undefined ? null : (
+          <p className="callout warning" role="alert" data-testid="notes-refusal">
+            {reportProblemMessage(t, described.problem)}
+          </p>
+        )}
+        {NOTE_FIELDS.map((field) => (
+          <Field key={field} id={`note-${field}`} label={label(field)} error={submitted && problems[field] !== undefined ? t('dis.review.notes.tooLong.error') : undefined}>
+            <textarea id={`note-${field}`} rows={3} value={form[field]} disabled={!editable} onChange={(event: ChangeEvent<HTMLTextAreaElement>) => setForm({ ...form, [field]: event.target.value })} />
+          </Field>
+        ))}
+        {editable ? (
+          <div className="formfooter">
+            <button type="submit" disabled={save.isPending}>
+              {save.isPending ? t('dis.review.notes.save.pending') : t('dis.review.notes.save.action')}
+            </button>
+          </div>
+        ) : null}
+      </form>
+    </SectionCard>
   );
 }
 
@@ -240,8 +310,7 @@ function Files({ detail, editable }: { detail: ReportDetail; editable: boolean }
   };
 
   return (
-    <section aria-labelledby="review-files-title">
-      <h2 id="review-files-title">{t('dis.review.files.title')}</h2>
+    <SectionCard title={t('dis.review.files.title')}>
       <p className="sub">{t('dis.review.files.help')}</p>
       {described === undefined ? null : (
         <p className="callout warning" role="alert" data-testid="files-refusal">
@@ -277,6 +346,6 @@ function Files({ detail, editable }: { detail: ReportDetail; editable: boolean }
           ))}
         </ul>
       )}
-    </section>
+    </SectionCard>
   );
 }

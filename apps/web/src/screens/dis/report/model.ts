@@ -164,6 +164,8 @@ export interface ReportDetail {
   measurementBasis: Basis;
   negativeDeltaExplanation: string | null;
   submittedBy: string | null;
+  /** The last time the report was changed, as the server holds it. */
+  updatedAt: string | null;
   acceptedBy: string | null;
   acceptedAt: string | null;
   returnedReason: string | null;
@@ -247,6 +249,7 @@ export function toReportDetail(raw: unknown): ReportDetail | undefined {
     measurementBasis: basis,
     negativeDeltaExplanation: nullableText(row.negative_delta_explanation),
     submittedBy: nullableText(row.submitted_by),
+    updatedAt: nullableText(row.updated_at),
     acceptedBy: nullableText(row.accepted_by),
     acceptedAt: nullableText(row.accepted_at),
     returnedReason: nullableText(row.returned_reason),
@@ -421,9 +424,11 @@ export interface FilterState {
   periodId: string;
   planId: string;
   projectId: string;
+  /** The shortcut above the list ("not sent" is the drafts, "returned" the reports sent back); empty lets every status through. */
+  status: '' | ReportStatus;
 }
 
-export const NO_FILTER: FilterState = { year: '', periodId: '', planId: '', projectId: '' };
+export const NO_FILTER: FilterState = { year: '', periodId: '', planId: '', projectId: '', status: '' };
 
 export type ReportProblem =
   | 'draftExists'
@@ -503,8 +508,9 @@ export function queryOf(filter: FilterState, cursor: string | undefined): Record
     ...(filter.periodId === '' ? {} : { period_id: filter.periodId }),
     ...(filter.planId === '' ? {} : { plan_id: filter.planId }),
     ...(filter.projectId === '' ? {} : { project_id: filter.projectId }),
+    ...(filter.status === '' ? {} : { status: filter.status }),
     ...(cursor === undefined ? {} : { cursor }),
   };
 }
 
-export const isFiltered = (filter: FilterState): boolean => filter.year !== '' || filter.periodId !== '' || filter.planId !== '' || filter.projectId !== '';
+export const isFiltered = (filter: FilterState): boolean => filter.year !== '' || filter.periodId !== '' || filter.planId !== '' || filter.projectId !== '' || filter.status !== '';

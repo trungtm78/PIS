@@ -17,12 +17,15 @@ import type { Basis, FilterState, FundingForm, ReportDetail, ReportDraftBody, Re
 
 const root = (tenantId: string | undefined) => ['dis', tenantId, 'reports'] as const;
 
+/** The rows of a page of the list when the person has not chosen another size. */
+export const PAGE_SIZE = 25;
+
 /** One page of the list of reports with the figures of the filter and of the whole scope; the cursor of the page is part of the key, so a page is read once. */
-export function useReportPage(filter: FilterState, cursor: string | undefined) {
+export function useReportPage(filter: FilterState, cursor: string | undefined, size = PAGE_SIZE) {
   const client = useApiClient();
   const { tenant } = useSession();
   return useQuery<ReportPage>({
-    queryKey: [...root(tenant?.id), 'page', filter, cursor ?? ''],
+    queryKey: [...root(tenant?.id), 'page', filter, cursor ?? '', size],
     queryFn: async () => {
       const query = queryOf(filter, cursor);
       const year = query.fiscal_year;
@@ -31,7 +34,7 @@ export function useReportPage(filter: FilterState, cursor: string | undefined) {
           query: {
             ...query,
             ...(year === undefined ? {} : { fiscal_year: Number(year) }),
-            limit: 25,
+            limit: size,
           },
         }),
       );
@@ -155,6 +158,16 @@ export function useUploadReportFile() {
     onSuccess: () => attempts.current.done(),
     onError: (error) => attempts.current.ended(error),
   });
+}
+
+export interface SubmitInput {
+  detail: ReportDetail;
+}
+
+/** Hands a draft in under the version the screen showed (If-Match): the server validates, seals the report with a hash and judges the lateness against the calendar; the answer is the receipt. */
+export function useSubmitReport() {
+  const client = useApiClient();
+  return useCommand<SubmitInput>((input, attempt) => client.command('post_reports_id_submit', { path: { id: input.detail.id }, ifMatchVersion: input.detail.version, attempt }));
 }
 
 export interface DecideInput {

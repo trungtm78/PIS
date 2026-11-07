@@ -249,9 +249,9 @@ describe('what is sent', () => {
 
   it('asks the list for the filters that are set, and nothing for the ones that are not', () => {
     expect(queryOf(NO_FILTER, undefined)).toEqual({});
-    expect(queryOf({ year: '2027', periodId: PERIOD, planId: 'p', projectId: PROJECT }, 'c1')).toEqual({ fiscal_year: '2027', period_id: PERIOD, plan_id: 'p', project_id: PROJECT, cursor: 'c1' });
+    expect(queryOf({ year: '2027', periodId: PERIOD, planId: 'p', projectId: PROJECT, status: 'RETURNED' }, 'c1')).toEqual({ fiscal_year: '2027', period_id: PERIOD, plan_id: 'p', project_id: PROJECT, status: 'RETURNED', cursor: 'c1' });
     expect(isFiltered(NO_FILTER)).toBe(false);
-    for (const filter of [{ ...NO_FILTER, year: '2027' }, { ...NO_FILTER, periodId: 'x' }, { ...NO_FILTER, planId: 'x' }, { ...NO_FILTER, projectId: 'x' }]) expect(isFiltered(filter)).toBe(true);
+    for (const filter of [{ ...NO_FILTER, year: '2027' }, { ...NO_FILTER, periodId: 'x' }, { ...NO_FILTER, planId: 'x' }, { ...NO_FILTER, projectId: 'x' }, { ...NO_FILTER, status: 'DRAFT' as const }]) expect(isFiltered(filter)).toBe(true);
   });
 
   it('reads the id of the report a command made', () => {
