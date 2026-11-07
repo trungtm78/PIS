@@ -22,6 +22,7 @@ final class Tile {
     required this.formula,
     required this.definitionStatus,
     this.value,
+    this.displayValue,
     this.numerator,
     this.denominator,
     this.nullReason,
@@ -29,6 +30,9 @@ final class Tile {
 
   final String metricCode;
   final String? value;
+
+  /// The text of the figure as the web and the Excel file write it (`display_value` of the API, the KPI register's decimals): the phone shows these digits, never its own rounding.
+  final String? displayValue;
   final String? numerator;
   final String? denominator;
   final String? nullReason;
@@ -106,6 +110,7 @@ Tile? _tile(Object? raw) {
     formula: formula,
     definitionStatus: text(row['definition_status']) ?? '',
     value: text(row['value']),
+    displayValue: text(row['display_value']),
     numerator: text(row['numerator']),
     denominator: text(row['denominator']),
     nullReason: text(row['null_reason']),

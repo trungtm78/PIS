@@ -8,6 +8,7 @@ import 'attachments/attachments_feature.dart' as f_attachments;
 import 'conversations/conversations_feature.dart' as f_conversations;
 import 'dashboard/dashboard_feature.dart' as f_dashboard;
 import 'diary_hub/diary_hub_feature.dart' as f_diary_hub;
+import 'directives/directives_feature.dart' as f_directives;
 import 'doc_approval/doc_approval_feature.dart' as f_doc_approval;
 import 'doc_incoming/doc_incoming_feature.dart' as f_doc_incoming;
 import 'document_signing/document_signing_feature.dart' as f_document_signing;
@@ -21,6 +22,7 @@ import 'payment_tracking/payment_tracking_feature.dart' as f_payment_tracking;
 import 'permissions/permissions_feature.dart' as f_permissions;
 import 'personal_bi/personal_bi_feature.dart' as f_personal_bi;
 import 'phone_search/phone_search_feature.dart' as f_phone_search;
+import 'procurement_workflow/procurement_workflow_feature.dart' as f_procurement_workflow;
 import 'project_views/project_views_feature.dart' as f_project_views;
 import 'read_support/read_support_feature.dart' as f_read_support;
 import 'release/release_feature.dart' as f_release;
@@ -41,6 +43,7 @@ final List<MobileFeature> kAllFeatures = <MobileFeature>[
   f_conversations.feature,
   f_dashboard.feature,
   f_diary_hub.feature,
+  f_directives.feature,
   f_doc_approval.feature,
   f_doc_incoming.feature,
   f_document_signing.feature,
@@ -54,6 +57,7 @@ final List<MobileFeature> kAllFeatures = <MobileFeature>[
   f_permissions.feature,
   f_personal_bi.feature,
   f_phone_search.feature,
+  f_procurement_workflow.feature,
   f_project_views.feature,
   f_read_support.feature,
   f_release.feature,

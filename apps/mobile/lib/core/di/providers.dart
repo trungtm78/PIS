@@ -7,9 +7,11 @@ import 'package:go_router/go_router.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 
 import '../../app/app_config.dart';
+import '../../app/edition_seam.dart';
 import '../../features/registry.generated.dart';
 import '../api/dart_io_transport.dart';
 import '../connectivity/reachability.dart';
+import '../edition/edition.dart';
 import '../l10n/core_strings.dart';
 import '../l10n/string_table.dart';
 import '../navigation/deep_link_guard.dart';
@@ -42,14 +44,22 @@ final NotifierProvider<LocaleNotifier, Locale> localeProvider = NotifierProvider
 /// The features of the application. Tests override it to try a screen on its own.
 final Provider<List<MobileFeature>> featuresProvider = Provider<List<MobileFeature>>((Ref ref) => kAllFeatures);
 
-/// The strings of the core and of every feature.
+/// The edition this build runs as (ENT-0, R20): the title of the application and the terminology overlay. Public unless the configuration says otherwise.
+final Provider<EditionProfile> editionProfileProvider = Provider<EditionProfile>(
+  (Ref ref) => editionProfileFor(ref.watch(appConfigProvider).edition),
+);
+
+/// The strings of the core and of every feature, with the terminology overlay of the edition over them.
 final Provider<StringCatalogue> stringCatalogueProvider = Provider<StringCatalogue>((Ref ref) {
   final List<MobileFeature> features = ref.watch(featuresProvider);
-  return StringCatalogue(<StringTable>[
-    kCoreStrings,
-    for (final MobileFeature feature in features)
-      if (feature.strings != null) feature.strings!,
-  ]);
+  return StringCatalogue(
+    <StringTable>[
+      kCoreStrings,
+      for (final MobileFeature feature in features)
+        if (feature.strings != null) feature.strings!,
+    ],
+    overlay: ref.watch(editionProfileProvider).overlay,
+  );
 });
 
 final Provider<RouteTable> routeTableProvider = Provider<RouteTable>(

@@ -69,6 +69,42 @@ void main() {
       expect(pm.right, lessThan(total.left));
     });
 
+    testWidgets('G0-4: the phone shows the digits the API gives as display_value (the text of the web and of the Excel file), not its own rounding', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer()
+        ..on(
+          'GET',
+          '/home/command-center',
+          (_) => commandCenter(tiles: <Map<String, Object?>>[
+            tile('DISBURSEMENT_RATE_PM', value: '14.0000', displayValue: '14.00', numerator: '140000000', denominator: '1000000000'),
+            tile('DISBURSEMENT_RATE_TOTAL', value: '12.5000', displayValue: '12.50', numerator: '140000000', denominator: '1120000000'),
+          ]),
+        );
+      await _open(tester, server, '/home');
+
+      expect(find.text('14,00%'), findsOneWidget);
+      expect(find.text('12,50%'), findsOneWidget);
+      expect(find.text('14,0000%'), findsNothing);
+    });
+
+    testWidgets('G3-1: a figure whose definition is not certified is held back by the server and the phone says so, not "no data" and not 0', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer()
+        ..on(
+          'GET',
+          '/home/command-center',
+          (_) => commandCenter(tiles: <Map<String, Object?>>[
+            tile('DISBURSEMENT_RATE_PM', nullReason: 'NOT_CERTIFIED'),
+            tile('DISBURSEMENT_RATE_TOTAL', nullReason: 'OBSOLETE'),
+          ]),
+        );
+      await _open(tester, server, '/home');
+
+      expect(find.text('Chưa chứng nhận'), findsOneWidget);
+      expect(find.text('Định nghĩa đã lỗi thời'), findsOneWidget);
+      expect(find.textContaining('0%'), findsNothing);
+    });
+
     testWidgets('the scope is the one the server read in: the number of its projects, the day and the snapshot', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer()..on('GET', '/home/command-center', (_) => commandCenter(projects: 2, unitId: 'u-bql1'));

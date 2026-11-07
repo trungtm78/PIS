@@ -20,10 +20,13 @@ final class StringTable {
 }
 
 /// All string tables of the application merged. A key declared twice is a programming error and fails at start.
+///
+/// An [overlay] is the terminology of a product edition (ENT-0): its texts replace the texts of the same keys. It never adds a key; a key the base
+/// strings do not declare fails at start, so the base stays the reference of both languages.
 final class StringCatalogue {
-  StringCatalogue(Iterable<StringTable> tables)
-      : _vi = _merge(tables.map((StringTable table) => table.vi)),
-        _en = _merge(tables.map((StringTable table) => table.en));
+  StringCatalogue(Iterable<StringTable> tables, {StringTable? overlay})
+      : _vi = _overlaid(_merge(tables.map((StringTable table) => table.vi)), overlay?.vi),
+        _en = _overlaid(_merge(tables.map((StringTable table) => table.en)), overlay?.en);
 
   final Map<String, String> _vi;
   final Map<String, String> _en;
@@ -33,6 +36,16 @@ final class StringCatalogue {
 
   Set<String> get viKeys => _vi.keys.toSet();
   Set<String> get enKeys => _en.keys.toSet();
+
+  static Map<String, String> _overlaid(Map<String, String> base, Map<String, String>? overlay) {
+    if (overlay == null || overlay.isEmpty) return base;
+    for (final String key in overlay.keys) {
+      if (!base.containsKey(key)) {
+        throw StateError('overlay key is not declared by the base strings: $key');
+      }
+    }
+    return <String, String>{...base, ...overlay};
+  }
 
   static Map<String, String> _merge(Iterable<Map<String, String>> maps) {
     final Map<String, String> merged = <String, String>{};

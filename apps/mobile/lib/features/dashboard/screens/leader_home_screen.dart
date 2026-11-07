@@ -237,7 +237,7 @@ class _CommandBlock extends StatelessWidget {
     final String label = metricLabel(context, tile.metricCode);
     final String value = tile.value == null
         ? _nullReasonText(context, tile.nullReason)
-        : context.t('mob.home.tile.value.percent', <String, Object>{'value': formatPercent(tile.value!, AppStrings.of(context).language)});
+        : context.t('mob.home.tile.value.percent', <String, Object>{'value': formatPercent(tile.displayValue ?? tile.value!, AppStrings.of(context).language)});
     final String line = tile.hasSums && tile.value != null
         ? context.t('mob.home.command.rate.line', <String, Object>{'label': label, 'value': value, 'numerator': millionsLabel(context, tile.numerator), 'denominator': millionsLabel(context, tile.denominator)})
         : '$label: $value';
@@ -333,6 +333,10 @@ String _nullReasonText(BuildContext context, String? reason) {
       return context.t('mob.home.tile.nullReason.zeroDenominator');
     case 'TREASURY_COVERAGE_NONE':
       return context.t('mob.home.tile.nullReason.treasuryNone');
+    case 'NOT_CERTIFIED':
+      return context.t('mob.home.tile.nullReason.notCertified');
+    case 'OBSOLETE':
+      return context.t('mob.home.tile.nullReason.obsolete');
     default:
       return context.t('mob.home.tile.nullReason.other');
   }
@@ -497,7 +501,7 @@ class MetricTileCard extends StatelessWidget {
     final String? value = tile.value;
     if (value == null) return _nullReasonText(context, tile.nullReason);
     if (tile.unit == TileUnit.percent) {
-      return context.t('mob.home.tile.value.percent', <String, Object>{'value': formatPercent(value, AppStrings.of(context).language)});
+      return context.t('mob.home.tile.value.percent', <String, Object>{'value': formatPercent(tile.displayValue ?? value, AppStrings.of(context).language)});
     }
     return millionsLabel(context, value);
   }

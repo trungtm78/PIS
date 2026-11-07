@@ -171,6 +171,7 @@ const List<MapEntry<String, String>> kProjectWorkLinks = <MapEntry<String, Strin
   MapEntry<String, String>('mob.prj.list.work.handover', 'MOB-66'),
   MapEntry<String, String>('mob.prj.list.work.qa', 'MOB-37'),
   MapEntry<String, String>('mob.prj.list.work.findings', 'MOB-38'),
+  MapEntry<String, String>('mob.prj.list.work.directives', 'DIR-06'),
 ];
 
 /// The way in to the screens of the work of the field and of the reports, which have no other entrance: one group, closed until the

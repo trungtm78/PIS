@@ -41,6 +41,7 @@ void _healthy(ScriptedServer server, {List<Map<String, Object?>>? alerts}) {
     ..on('GET', '/home/my-work/counts', (_) => alertCounts(urgent: 1, action: 2, watch: 1))
     ..on('POST', '/home/work-actions/claim', (_) => <String, Object?>{'operation_id': 'o', 'status': 'Claimed'})
     ..on('POST', '/home/work-actions/assign', (_) => <String, Object?>{'operation_id': 'o', 'status': 'Assigned'})
+    ..on('GET', '/home/work-clocks/policies', (_) => workClockPolicies())
     ..on('POST', '/home/work-actions/snooze', (_) => <String, Object?>{'operation_id': 'o', 'status': 'Snoozed'});
 }
 
@@ -244,7 +245,10 @@ void main() {
       await tester.tap(find.text('Nhắc lại sau'));
       await tester.pumpAndSettle();
       expect(find.text('Không đổi hạn nghiệp vụ và không dừng việc leo thang.'), findsOneWidget);
+      await tester.tap(find.text('Chờ thêm thông tin'));
       await tester.tap(find.text('Sau 1 giờ'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Hoãn việc'));
       await tester.pumpAndSettle();
 
       final List<HttpCall> snoozes = server.callsTo('POST', '/home/work-actions/snooze');
@@ -252,6 +256,8 @@ void main() {
       final Map<String, Object?> body = jsonDecode(snoozes.single.body!) as Map<String, Object?>;
       expect(body['source_id'], 'a-1');
       expect(body['snooze_until'], kNow.add(const Duration(hours: 1)).toIso8601String());
+      expect(body['reason_code'], 'WAITING_INFORMATION');
+      expect(body.containsKey('reason'), isFalse, reason: 'no note was written');
       expect(find.textContaining('Hạn nghiệp vụ và việc leo thang không đổi'), findsOneWidget);
     });
 

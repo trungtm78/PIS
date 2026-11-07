@@ -1,7 +1,8 @@
 /// The golden fixtures of the home reads: the same figures as the DIS fixtures FX-DIS-001 and FX-DIS-003.
-Map<String, Object?> tile(String metric, {String? value, String? numerator, String? denominator, String? nullReason, String unit = 'PERCENT', String definition = 'PROPOSED_PENDING_SIGNOFF'}) => <String, Object?>{
+Map<String, Object?> tile(String metric, {String? value, String? displayValue, String? numerator, String? denominator, String? nullReason, String unit = 'PERCENT', String definition = 'PROPOSED_PENDING_SIGNOFF'}) => <String, Object?>{
       'metric_code': metric,
       'value': value,
+      'display_value': displayValue,
       'numerator': numerator,
       'denominator': denominator,
       'null_reason': nullReason,
@@ -93,6 +94,7 @@ Map<String, Object?> alertItem(
   Map<String, Object?>? escalation,
   String? consequence,
   String screen = 'ADM-06',
+  Map<String, Object?>? extra,
 }) =>
     <String, Object?>{
       'id': id,
@@ -114,6 +116,7 @@ Map<String, Object?> alertItem(
       'escalation': escalation,
       'consequence': consequence,
       'snoozed_until': null,
+      ...?extra,
     };
 
 Map<String, Object?> alertWork(List<Map<String, Object?>> items, {List<String> unavailable = const <String>[], String view = 'scope'}) => <String, Object?>{
@@ -136,4 +139,30 @@ Map<String, Object?> alertCounts({int urgent = 0, int action = 0, int watch = 0}
       'counts': <String, Object?>{'urgent': urgent, 'action': action, 'watch': watch, 'total': urgent + action + watch},
       'unavailable_sources': <String>[],
       'as_of': '2026-11-03T03:00:00Z',
+    };
+
+/// The answer of `getWorkClockPolicies`: the snooze policy (and a clock policy beside it, as the server sends both).
+Map<String, Object?> workClockPolicies({
+  List<String> reasons = const <String>['WAITING_INFORMATION', 'WAITING_THIRD_PARTY', 'SCHEDULED_ACTION', 'BLOCKED_BY_OTHER_WORK', 'ON_LEAVE', 'OTHER'],
+  List<String> noteRequiredFor = const <String>['OTHER'],
+  Map<String, Object?> maxDays = const <String, Object?>{'URGENT': 0, 'ACTION': 5, 'WATCH': 14},
+  int maxConsecutive = 2,
+  bool finalNotifies = true,
+}) =>
+    <String, Object?>{
+      'policies': <Object?>[
+        <String, Object?>{'type': 'CLOCK_POLICY', 'version': 1, 'unverified': true, 'params': <String, Object?>{'claim_hours': 4}},
+        <String, Object?>{
+          'type': 'SNOOZE_POLICY',
+          'version': 3,
+          'unverified': true,
+          'params': <String, Object?>{
+            'reasons': reasons,
+            'note_required_for': noteRequiredFor,
+            'max_days_by_severity': maxDays,
+            'max_consecutive': maxConsecutive,
+            'final_notifies_next_level': finalNotifies,
+          },
+        },
+      ],
     };

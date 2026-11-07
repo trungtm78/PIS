@@ -57,6 +57,137 @@ AlertEscalation? _escalation(Object? raw) {
   return AlertEscalation(level: level, of: whole(row['of']) ?? (chain > 0 ? chain : level), nextAt: filled(row['next_at']));
 }
 
+/// What the server says about the snooze an alert is under: who, until when, why, and the place in the run (`ordinal` of `of`).
+final class AlertSnooze {
+  const AlertSnooze({required this.ordinal, required this.of, required this.isFinal, this.by, this.until, this.reasonCode, this.note, this.policyVersion});
+
+  final AlertPerson? by;
+  final String? until;
+  final String? reasonCode;
+  final String? note;
+  final int ordinal;
+  final int of;
+
+  /// The last snooze the policy allows: the next level up is told.
+  final bool isFinal;
+  final int? policyVersion;
+}
+
+AlertSnooze? _snooze(Object? raw) {
+  final Json? row = asRecord(raw);
+  final int? ordinal = whole(row?['ordinal']);
+  if (row == null || ordinal == null) return null;
+  final int of = whole(row['of']) ?? ordinal;
+  return AlertSnooze(
+    by: _person(row['by']),
+    until: filled(row['until']),
+    reasonCode: filled(row['reason_code']),
+    note: filled(row['note']),
+    ordinal: ordinal,
+    of: of,
+    isFinal: row['final'] == true,
+    policyVersion: whole(row['policy_version']),
+  );
+}
+
+/// The state of a clock of an obligation: the time to take the item up (`claim`) or to resolve it (`resolve`), in working hours.
+enum ClockState { running, paused, met, metLate, breached }
+
+const Map<String, ClockState> _clockStates = <String, ClockState>{
+  'RUNNING': ClockState.running,
+  'PAUSED': ClockState.paused,
+  'MET': ClockState.met,
+  'MET_LATE': ClockState.metLate,
+  'BREACHED': ClockState.breached,
+};
+
+final class AlertClock {
+  const AlertClock({required this.state, this.startedAt, this.dueAt, this.metAt});
+
+  final ClockState state;
+  final String? startedAt;
+
+  /// The due instant (ISO 8601), already counted in working hours by the server.
+  final String? dueAt;
+  final String? metAt;
+}
+
+AlertClock? _clock(Object? raw) {
+  final Json? row = asRecord(raw);
+  final ClockState? state = _clockStates[row?['state']];
+  if (row == null || state == null) return null;
+  return AlertClock(state: state, startedAt: filled(row['started_at']), dueAt: filled(row['due_at']), metAt: filled(row['met_at']));
+}
+
+/// Where the clocks come from: the published working calendar, no calendar yet, or no starting point.
+enum ClockBasis { workingTime, calendarUnavailable, noStart }
+
+const Map<String, ClockBasis> _clockBases = <String, ClockBasis>{
+  'WORKING_TIME': ClockBasis.workingTime,
+  'CALENDAR_UNAVAILABLE': ClockBasis.calendarUnavailable,
+  'NO_START': ClockBasis.noStart,
+};
+
+final class AlertClocks {
+  const AlertClocks({required this.basis, this.claim, this.resolve, this.paused = false, this.needsReclaim = false});
+
+  final ClockBasis basis;
+  final AlertClock? claim;
+  final AlertClock? resolve;
+  final bool paused;
+  final bool needsReclaim;
+}
+
+AlertClocks? _clocks(Object? raw) {
+  final Json? row = asRecord(raw);
+  final ClockBasis? basis = _clockBases[row?['basis']];
+  if (row == null || basis == null) return null;
+  return AlertClocks(basis: basis, claim: _clock(row['claim']), resolve: _clock(row['resolve']), paused: row['paused'] == true, needsReclaim: row['needs_reclaim'] == true);
+}
+
+/// A pause of the clocks the server granted (the web grants it; the phone only shows it).
+final class AlertPause {
+  const AlertPause({this.from, this.until, this.resumedAt, this.reasonCode, this.reason, this.allowedBy});
+
+  final String? from;
+  final String? until;
+  final String? resumedAt;
+  final String? reasonCode;
+  final String? reason;
+  final AlertPerson? allowedBy;
+
+  bool get active => resumedAt == null;
+}
+
+AlertPause? _pause(Object? raw) {
+  final Json? row = asRecord(raw);
+  if (row == null || row.isEmpty) return null;
+  return AlertPause(
+    from: filled(row['from']),
+    until: filled(row['until']),
+    resumedAt: filled(row['resumed_at']),
+    reasonCode: filled(row['reason_code']),
+    reason: filled(row['reason']),
+    allowedBy: _person(row['allowed_by']),
+  );
+}
+
+/// The reminders sent for an alert and when the next one is due.
+final class AlertReminders {
+  const AlertReminders({required this.sent, required this.due, required this.exhausted, this.nextAt});
+
+  final int sent;
+  final String? nextAt;
+  final bool due;
+  final bool exhausted;
+}
+
+AlertReminders? _reminders(Object? raw) {
+  final Json? row = asRecord(raw);
+  if (row == null || row.isEmpty) return null;
+  return AlertReminders(sent: count(row['sent']), nextAt: filled(row['next_at']), due: row['due'] == true, exhausted: row['exhausted'] == true);
+}
+
 /// One thing the server asks of the person (`getMyWork`), in the vocabulary of the alert centre.
 final class AlertItem {
   const AlertItem({
@@ -76,6 +207,14 @@ final class AlertItem {
     this.assignee,
     this.escalation,
     this.snoozedUntil,
+    this.startedAt,
+    this.expectedAction,
+    this.needsReclaim = false,
+    this.snooze,
+    this.snoozeCount = 0,
+    this.pause,
+    this.clocks,
+    this.reminders,
   });
 
   final String id;
@@ -97,6 +236,20 @@ final class AlertItem {
   final AlertEscalation? escalation;
   final String? snoozedUntil;
 
+  /// When the obligation started and what the server expects of the person (null from an older server).
+  final String? startedAt;
+  final String? expectedAction;
+
+  /// Taken up and then silent: the person must take it up again.
+  final bool needsReclaim;
+  final AlertSnooze? snooze;
+
+  /// How many snoozes in a row the alert has had.
+  final int snoozeCount;
+  final AlertPause? pause;
+  final AlertClocks? clocks;
+  final AlertReminders? reminders;
+
   bool get isUrgent => severity == AlertSeverity.urgent;
 
   /// Nobody has taken it yet.
@@ -104,6 +257,15 @@ final class AlertItem {
 
   /// An urgent alert cannot be snoozed (the server refuses it too).
   bool get canSnooze => !isUrgent;
+
+  /// It can be taken: nobody has it, or it was taken and went silent.
+  bool get canClaim => unclaimed || needsReclaim;
+
+  /// The snoozes used in a row: the count the server gives, or the place of the snooze it reports.
+  int get snoozesUsed => snoozeCount > (snooze?.ordinal ?? 0) ? snoozeCount : (snooze?.ordinal ?? 0);
+
+  /// Until when the clocks are paused, while the pause lasts.
+  String? get pausedUntil => pause != null && pause!.active ? pause!.until : null;
 }
 
 AlertItem? _alertItem(Object? raw) {
@@ -113,6 +275,7 @@ AlertItem? _alertItem(Object? raw) {
   final String? screen = filled(target?['screen']);
   if (row == null || id == null || screen == null) return null;
   final AlertLifecycle lifecycle = _lifecycles[row['lifecycle']] ?? AlertLifecycle.fresh;
+  final AlertClocks? clocks = _clocks(row['clocks']);
   return AlertItem(
     id: id,
     source: filled(row['source']) ?? filled(row['kind']) ?? '',
@@ -130,6 +293,14 @@ AlertItem? _alertItem(Object? raw) {
     assignee: _person(row['assignee']),
     escalation: _escalation(row['escalation']),
     snoozedUntil: filled(row['snoozed_until']),
+    startedAt: filled(row['started_at']),
+    expectedAction: filled(row['expected_action']),
+    needsReclaim: row['needs_reclaim'] == true || clocks?.needsReclaim == true,
+    snooze: _snooze(row['snooze']),
+    snoozeCount: count(row['snooze_count']),
+    pause: _pause(row['pause']),
+    clocks: clocks,
+    reminders: _reminders(row['reminders']),
   );
 }
 
@@ -303,6 +474,11 @@ AlertDue describeDue(AlertItem item, DateTime now) {
     if (days == 0) return AlertDue(AlertDueKind.today, day: day);
     return AlertDue(AlertDueKind.overdueDays, amount: -days, day: day);
   }
+  return describeInstant(due, now);
+}
+
+/// The countdown to an instant (ISO 8601) at [now]: hours under a day, else days; late the same way. Never seconds.
+AlertDue describeInstant(String due, DateTime now) {
   final DateTime? instant = DateTime.tryParse(due);
   if (instant == null) return const AlertDue(AlertDueKind.none);
   final String moment = formatMoment(due);

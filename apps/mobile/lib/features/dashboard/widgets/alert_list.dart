@@ -126,7 +126,7 @@ class _AlertsPanelState extends ConsumerState<AlertsPanel> {
     return context.t('mob.alert.action.error.refused', <String, Object>{'code': result.code ?? ''});
   }
 
-  Future<void> _claim(AlertItem item) => _run(item, () => _commands.claim(item), (BuildContext c) => c.t('mob.alert.action.claim.done', <String, Object>{'title': item.title}));
+  Future<void> _claim(AlertItem item) => _run(item, () => _commands.claim(item), (BuildContext c) => item.needsReclaim ? c.t('mob.alert.action.reclaim.done', <String, Object>{'title': item.title}) : c.t('mob.alert.action.claim.done', <String, Object>{'title': item.title}));
 
   Future<void> _assign(AlertItem item) async {
     final AssignChoice? choice = await showAssignSheet(context, now: _now());
@@ -139,9 +139,19 @@ class _AlertsPanelState extends ConsumerState<AlertsPanel> {
   }
 
   Future<void> _snooze(AlertItem item) async {
-    final String? until = await showSnoozeSheet(context, now: _now());
-    if (until == null || !mounted) return;
-    await _run(item, () => _commands.snooze(item, until: until), (BuildContext c) => c.t('mob.alert.action.snooze.done', <String, Object>{'title': item.title, 'time': formatMoment(until)}));
+    if (_busy.contains(item.id)) return;
+    // The sheet sends the snooze itself and stays open on a refusal, saying why; it closes with the choice once it was recorded.
+    final SnoozeChoice? done = await showSnoozeSheet(
+      context,
+      item: item,
+      now: _now(),
+      send: (SnoozeChoice choice) => _commands.snooze(item, until: choice.until, reasonCode: choice.reasonCode, note: choice.note),
+    );
+    if (done == null || !mounted) return;
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(SnackBar(content: Text(context.t('mob.alert.action.snooze.done', <String, Object>{'title': item.title, 'time': formatMoment(done.until)}))));
+    ref.read(alertsChangedProvider.notifier).bump();
   }
 
   @override

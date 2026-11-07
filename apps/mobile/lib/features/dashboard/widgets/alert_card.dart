@@ -95,10 +95,55 @@ String alertSourceLabel(BuildContext context, String source) {
       return context.t('mob.alert.source.diary.label');
     case 'GUARANTEE':
       return context.t('mob.alert.source.guarantee.label');
-    default:
+    case 'CLOCK':
+      return context.t('mob.alert.source.clock.label');
+    case 'MONEY_CONTROL':
+      return context.t('mob.alert.source.moneyControl.label');
+    case 'DIRECTIVE':
+      return context.t('mob.alert.source.directive.label');
+    case 'PROCUREMENT_WORKFLOW':
+      return context.t('mob.alert.source.procurementWorkflow.label');
+    case 'TREASURY_RECON':
+      return context.t('mob.alert.source.treasuryRecon.label');
+    case 'CROSS_TOTAL':
+      return context.t('mob.alert.source.crossTotal.label');
+    case 'SOD_EXCEPTION':
+      return context.t('mob.alert.source.sodException.label');
+    case 'PAYMENT_INTEGRITY':
+      return context.t('mob.alert.source.paymentIntegrity.label');
+    case 'DISBURSEMENT_EXCEPTION':
+      return context.t('mob.alert.source.disbursementException.label');
+    case 'PROJECT_GOVERNANCE':
+      return context.t('mob.alert.source.projectGovernance.label');
+    case '':
       return context.t('mob.alert.source.other.label');
+    default:
+      // A source this phone does not know yet is shown with its code, never hidden.
+      return context.t('mob.alert.source.unknown.label', <String, Object>{'code': source});
   }
 }
+
+/// The words of a snooze reason code; a code this phone has no words for is shown as the server sent it.
+String snoozeReasonLabel(BuildContext context, String code) {
+  switch (code) {
+    case 'WAITING_INFORMATION':
+      return context.t('mob.alert.snooze.reasonWaitingInformation.label');
+    case 'WAITING_THIRD_PARTY':
+      return context.t('mob.alert.snooze.reasonWaitingThirdParty.label');
+    case 'SCHEDULED_ACTION':
+      return context.t('mob.alert.snooze.reasonScheduledAction.label');
+    case 'BLOCKED_BY_OTHER_WORK':
+      return context.t('mob.alert.snooze.reasonBlockedByOtherWork.label');
+    case 'ON_LEAVE':
+      return context.t('mob.alert.snooze.reasonOnLeave.label');
+    case 'OTHER':
+      return context.t('mob.alert.snooze.reasonOther.label');
+    default:
+      return code;
+  }
+}
+
+String _lowerFirst(String value) => value.isEmpty ? value : value[0].toLowerCase() + value.substring(1);
 
 String _lifecycleLabel(BuildContext context, AlertLifecycle lifecycle) {
   switch (lifecycle) {
@@ -166,18 +211,21 @@ class AlertCard extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final ({Color ink, Color fill, IconData icon}) look = _look(item.severity);
     final AlertDue due = describeDue(item, now);
-    final bool canClaim = onClaim != null && item.unclaimed;
+    final bool canClaim = onClaim != null && item.canClaim;
+    final String claimLabel = item.needsReclaim ? context.t('mob.alert.action.reclaim.label') : context.t('mob.alert.action.claim.label');
     final bool canSnooze = onSnooze != null && item.canSnooze;
     final bool hasMenu = canClaim || onAssign != null || canSnooze;
     final String owner = _ownerLine(context);
     final String? escalation = _escalationLine(context);
+    final String? snooze = _snoozeLine(context);
+    final String? reminders = _remindersLine(context);
     final String title = item.title.isEmpty ? alertSourceLabel(context, item.source) : item.title;
     final Widget? primary = onOpen != null
         ? FilledButton(
             onPressed: busy ? null : onOpen,
             child: Text(context.t('mob.alert.action.open.label')),
           )
-        : (canClaim ? FilledButton(onPressed: busy ? null : onClaim, child: Text(context.t('mob.alert.action.claim.label'))) : null);
+        : (canClaim ? FilledButton(onPressed: busy ? null : onClaim, child: Text(claimLabel)) : null);
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space4),
       shape: RoundedRectangleBorder(
@@ -199,6 +247,7 @@ class AlertCard extends StatelessWidget {
                     children: <Widget>[
                       SeverityChip(severity: item.severity),
                       if (item.lifecycle != AlertLifecycle.fresh) _Pill(label: _lifecycleLabel(context, item.lifecycle)),
+                      if (item.needsReclaim) _Pill(label: context.t('mob.alert.card.reclaim.chip'), icon: Icons.replay, ink: MachvonColors.warning, fill: MachvonColors.warningSoft),
                     ],
                   ),
                 ),
@@ -213,7 +262,7 @@ class AlertCard extends StatelessWidget {
                       if (action == 'snooze') onSnooze?.call();
                     },
                     itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                      if (canClaim) PopupMenuItem<String>(value: 'claim', child: Text(context.t('mob.alert.action.claim.label'))),
+                      if (canClaim) PopupMenuItem<String>(value: 'claim', child: Text(claimLabel)),
                       if (onAssign != null) PopupMenuItem<String>(value: 'assign', child: Text(context.t('mob.alert.action.assign.label'))),
                       if (canSnooze) PopupMenuItem<String>(value: 'snooze', child: Text(context.t('mob.alert.action.snooze.label'))),
                     ],
@@ -233,6 +282,8 @@ class AlertCard extends StatelessWidget {
                     style: theme.textTheme.bodySmall,
                   ),
                   const SizedBox(height: MachvonSpace.space4),
+                  // Without a published working calendar the due time is unknown, never "no due day": the clock line says so.
+                  if (!(item.clocks?.basis == ClockBasis.calendarUnavailable && due.kind == AlertDueKind.none))
                   MergeSemantics(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,8 +299,13 @@ class AlertCard extends StatelessWidget {
                       ],
                     ),
                   ),
+                  ..._clockLines(context),
                   Text(owner, style: theme.textTheme.bodySmall),
+                  if (snooze != null) Text(snooze, style: theme.textTheme.bodySmall),
+                  if (item.pausedUntil != null) Text(context.t('mob.alert.card.paused.line', <String, Object>{'at': formatMoment(item.pausedUntil!)}), style: theme.textTheme.bodySmall),
+                  if (reminders != null) Text(reminders, style: theme.textTheme.bodySmall),
                   if (escalation != null) Text(escalation, style: theme.textTheme.bodySmall),
+                  if (item.expectedAction != null) Text(context.t('mob.alert.card.expected.line', <String, Object>{'text': item.expectedAction!}), style: theme.textTheme.bodySmall),
                   if (item.consequence != null) Text(context.t('mob.alert.card.consequence.line', <String, Object>{'text': item.consequence!}), style: theme.textTheme.bodySmall),
                   if (primary != null) ...<Widget>[
                     const SizedBox(height: MachvonSpace.space8),
@@ -280,6 +336,83 @@ class AlertCard extends StatelessWidget {
     return context.t('mob.alert.owner.none.line');
   }
 
+  /// "Hoãn lần 1/2 · Chờ thêm thông tin · đến 03/11/2026 17:00": the snooze the alert is under, with its place in the run.
+  String? _snoozeLine(BuildContext context) {
+    final AlertSnooze? snooze = item.snooze;
+    if (snooze == null) return null;
+    final String? code = snooze.reasonCode;
+    final Map<String, Object> values = <String, Object>{
+      'n': snooze.ordinal,
+      'of': snooze.of,
+      'reason': code == null ? '' : snoozeReasonLabel(context, code),
+      'at': snooze.until == null ? '' : formatMoment(snooze.until!),
+    };
+    final String line = snooze.until == null ? context.t('mob.alert.card.snooze.line', values) : context.t('mob.alert.card.snoozeUntil.line', values);
+    return snooze.isFinal ? '$line · ${context.t('mob.alert.card.snoozeFinal.text')}' : line;
+  }
+
+  String? _remindersLine(BuildContext context) {
+    final AlertReminders? reminders = item.reminders;
+    if (reminders == null || (reminders.sent == 0 && !reminders.exhausted)) return null;
+    final Map<String, Object> values = <String, Object>{'sent': reminders.sent, 'at': reminders.nextAt == null ? '' : formatMoment(reminders.nextAt!)};
+    if (reminders.exhausted) return context.t('mob.alert.card.remindersExhausted.line', values);
+    return reminders.nextAt == null ? context.t('mob.alert.card.remindersSent.line', values) : context.t('mob.alert.card.reminders.line', values);
+  }
+
+  /// The two clocks, one line each, with an icon and a word for the state; or the sentence that says why there is no due time.
+  List<Widget> _clockLines(BuildContext context) {
+    final AlertClocks? clocks = item.clocks;
+    if (clocks == null) return const <Widget>[];
+    final AlertClock? claim = clocks.claim;
+    final AlertClock? resolve = clocks.resolve;
+    final List<Widget> lines = <Widget>[
+      if (claim != null) _clockLine(context, context.t('mob.alert.clock.claim.label'), claim),
+      if (resolve != null) _clockLine(context, context.t('mob.alert.clock.resolve.label'), resolve),
+    ];
+    if (lines.isNotEmpty) return lines;
+    switch (clocks.basis) {
+      case ClockBasis.calendarUnavailable:
+        return <Widget>[_ClockLine(icon: Icons.event_busy_outlined, color: MachvonColors.warning, text: context.t('mob.alert.clock.calendar.line'))];
+      case ClockBasis.noStart:
+        return <Widget>[_ClockLine(icon: Icons.hourglass_empty, color: MachvonColors.neutral, text: context.t('mob.alert.clock.noStart.line'))];
+      case ClockBasis.workingTime:
+        return const <Widget>[];
+    }
+  }
+
+  Widget _clockLine(BuildContext context, String label, AlertClock clock) {
+    final AlertDue? due = clock.dueAt == null ? null : describeInstant(clock.dueAt!, now);
+    final String at = clock.dueAt == null ? '' : formatMoment(clock.dueAt!);
+    final String metAt = clock.metAt == null ? '' : formatMoment(clock.metAt!);
+    final IconData icon;
+    final Color color;
+    final String state;
+    switch (clock.state) {
+      case ClockState.running:
+        final bool late = due != null && due.isOverdue;
+        icon = late ? Icons.error_outline : Icons.timer_outlined;
+        color = late ? MachvonColors.danger : MachvonColors.neutral;
+        state = due == null || due.kind == AlertDueKind.none ? context.t('mob.alert.clock.running.text') : _lowerFirst(dueLine(context, due));
+      case ClockState.paused:
+        icon = Icons.pause_circle_outline;
+        color = MachvonColors.neutral;
+        state = clock.dueAt == null ? context.t('mob.alert.clock.pausedNoDue.text') : context.t('mob.alert.clock.paused.text', <String, Object>{'at': at});
+      case ClockState.met:
+        icon = Icons.check_circle_outline;
+        color = MachvonColors.success;
+        state = clock.metAt == null ? context.t('mob.alert.clock.metNoTime.text') : context.t('mob.alert.clock.met.text', <String, Object>{'at': metAt});
+      case ClockState.metLate:
+        icon = Icons.watch_later_outlined;
+        color = MachvonColors.warning;
+        state = clock.metAt == null ? context.t('mob.alert.clock.metLateNoTime.text') : context.t('mob.alert.clock.metLate.text', <String, Object>{'at': metAt});
+      case ClockState.breached:
+        icon = Icons.error_outline;
+        color = MachvonColors.danger;
+        state = due != null && due.isOverdue ? _lowerFirst(dueLine(context, due)) : context.t('mob.alert.clock.breached.text');
+    }
+    return _ClockLine(icon: icon, color: color, text: context.t('mob.alert.clock.state.line', <String, Object>{'label': label, 'state': state}));
+  }
+
   String? _escalationLine(BuildContext context) {
     final AlertEscalation? escalation = item.escalation;
     if (escalation == null) return null;
@@ -288,18 +421,54 @@ class AlertCard extends StatelessWidget {
   }
 }
 
+/// A state as a word on a soft ground; with an [icon] it is an icon and a word, so the meaning never rests on the colour alone.
 class _Pill extends StatelessWidget {
-  const _Pill({required this.label});
+  const _Pill({required this.label, this.icon, this.ink = MachvonColors.neutral, this.fill = MachvonColors.neutralSoft});
 
   final String label;
+  final IconData? icon;
+  final Color ink;
+  final Color fill;
 
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: const BoxDecoration(color: MachvonColors.neutralSoft, borderRadius: BorderRadius.all(Radius.circular(MachvonRadius.pill))),
+      decoration: BoxDecoration(color: fill, borderRadius: const BorderRadius.all(Radius.circular(MachvonRadius.pill))),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space8, vertical: MachvonSpace.space4),
-        child: Text(label, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: MachvonColors.neutral)),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            if (icon != null) ...<Widget>[ExcludeSemantics(child: Icon(icon, size: 16, color: ink)), const SizedBox(width: MachvonSpace.space4)],
+            Flexible(child: Text(label, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: ink, fontWeight: icon == null ? null : FontWeight.w700))),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// One line of a clock: an icon and the words, read as one sentence.
+class _ClockLine extends StatelessWidget {
+  const _ClockLine({required this.icon, required this.color, required this.text});
+
+  final IconData icon;
+  final Color color;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return MergeSemantics(
+      child: Padding(
+        padding: const EdgeInsets.only(top: MachvonSpace.space4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Icon(icon, size: 16, color: color),
+            const SizedBox(width: MachvonSpace.space4),
+            Expanded(child: Text(text, style: Theme.of(context).textTheme.bodySmall)),
+          ],
+        ),
       ),
     );
   }
