@@ -17,7 +17,7 @@ Decision trail: D-B11 (binding mockups and tokens), CR-06-13 (palette moves from
 | Sidebar / app bar | `sidebar` · `menuText` · `menuMuted` | `#102E3B` · `#FFFFFF` · `#C4D5DC` |
 | Workspace card, command block | `workspaceCard` | `#1C3B48` |
 | Selected item | `selected` · `selectedBar` | `#1C4A52` · `#2FB5A8` |
-| Primary action | `primary` · `primaryHover` · `primarySoft` | `#007D77` · `#00635E` · `#E7F3EF` |
+| Primary action | `primary` · `primaryHover` · `primarySoft` | `#007D77` · `#00635E` · `#EDF7F5` |
 | Table head | `tableHead` · `tableHeadGroup` | `#173D48` · `#102E3B` (text white) |
 | Surfaces | `background` · `surface` · `surface2` | `#F3F6F5` · `#FFFFFF` · `#F4F7F6` |
 | Text / lines | `ink` · `textSecondary` · `border` | `#122D3B` · `#5B6E77` · `#DDE6E7` |

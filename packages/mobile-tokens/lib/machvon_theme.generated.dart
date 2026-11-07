@@ -21,7 +21,7 @@ abstract final class MachvonColors {
   static const Color menuMuted = Color(0xFFC4D5DC);
   static const Color workspaceCard = Color(0xFF1C3B48);
   static const Color selectedBar = Color(0xFF2FB5A8);
-  static const Color primarySoft = Color(0xFFE7F3EF);
+  static const Color primarySoft = Color(0xFFEDF7F5);
   static const Color surface2 = Color(0xFFF4F7F6);
   static const Color tableHead = Color(0xFF173D48);
   static const Color tableHeadGroup = Color(0xFF102E3B);
@@ -30,7 +30,7 @@ abstract final class MachvonColors {
   static const Color focusOnDark = Color(0xFF7FE0D6);
   static const Color warning = Color(0xFF9A5B00);
   static const Color neutral = Color(0xFF4F616A);
-  static const Color successSoft = Color(0xFFE5F3EB);
+  static const Color successSoft = Color(0xFFEEF7F1);
   static const Color warningSoft = Color(0xFFFFF3DB);
   static const Color dangerSoft = Color(0xFFFBE9E9);
   static const Color infoSoft = Color(0xFFE6F0F8);
