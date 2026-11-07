@@ -6,6 +6,7 @@ import { DomainError, NOOP_METRICS, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, MetricsSink, PdfRenderer, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import type { CommandScope } from '../../command-scope';
+import { enforceSod } from '../../sod-gate';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
@@ -103,6 +104,7 @@ export class PaymentFormController {
       scopesFor(access, SEND_PERMISSION, now),
       vietnamDateOf(now),
     );
+    await enforceSod(scope, this.database, { taking: 'payment.approve', subjectKind: 'payment_request', recordId: done.id, command: 'markPaymentSentToTreasury' }, now);
     await recordPayment(scope, done, 'payment_request.sent_treasury', 'pay.payment_request.sent_treasury.v1', now, undefined, {
       facts: { treasury_submitted_on: body.treasury_submitted_on, treasury_ref: body.treasury_ref?.trim() ?? null, form_instance_ids: body.form_instance_ids.map((formId) => formId.toLowerCase()) },
     });

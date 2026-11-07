@@ -13,6 +13,7 @@ import { TENANT_A, id, memberId, roleId, unitId } from '../../../../packages/db/
 import { asSuperuser } from '../../../../packages/db/test/support/ncr-fixtures';
 import { seedAs, seedContractor } from '../../../../packages/db/test/support/bid-proposal-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
+import { coverChange } from './reserve-cover';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
 import type { RunningApp } from '../isolation/test-app';
 
@@ -134,6 +135,8 @@ describe('the chain of changes over HTTP (ST-CTR-006)', () => {
     const co = (await promote(OFFICER, pco)).json.resource_id as string;
     const done = await evaluate(EVALUATOR, co, 1, BigInt(delta) > 0n ? { evaluated_delta_vnd: delta, allocation_line_id: of.lineId } : { evaluated_delta_vnd: delta });
     expect(done.status).toBe(200);
+    // An increase is approved only with a source (lane B2, G1-8): the contingency of the project is drawn for exactly this change order.
+    if (BigInt(delta) > 0n) await coverChange(rows, { tenantId: TENANT_A, projectId: of.projectId, changeId: co, amountVnd: delta, authorityDocumentVersionId: cleanVersion, requester: memberId(OFFICER), approver: memberId(OWNER) });
     return { of, target, request: co, version: done.json.resource_version as number };
   }
   const revisionsOf = (contractId: string) =>

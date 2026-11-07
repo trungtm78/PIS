@@ -16,6 +16,7 @@ import { AcceptanceWorld } from '../../../../packages/db/test/support/acceptance
 import type { ApprovedAcceptance, SeededContract } from '../../../../packages/db/test/support/acceptance-fixtures';
 import { everything, seedAs } from '../../../../packages/db/test/support/bid-proposal-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
+import { clearAdjustmentCheck, coverChange } from './reserve-cover';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
 import type { RunningApp } from '../isolation/test-app';
 
@@ -93,6 +94,8 @@ describe('the retroactive adjustment of a change order over HTTP (ST-CTR-016)', 
       (tx) => chain.evaluate(tx, co.id, 1, { evaluatedDeltaVnd: delta, scheduleImpactDays: 12, fundingImpactNote: 'Paid from the plan.', ...(BigInt(delta) > 0n ? { allocationLineId: fixtures.lineId } : {}) }, memberId(EVALUATOR), contractScopes, { available: async () => undefined }),
       EVALUATOR,
     );
+    // An increase is approved only with a source (lane B2, G1-8): the contingency of the project is drawn for exactly this change order.
+    if (BigInt(delta) > 0n) await coverChange(rows, { tenantId: TENANT_A, projectId: fixtures.projectId, changeId: co.id, amountVnd: delta, authorityDocumentVersionId: VERSION, requester: memberId(MAKER), approver: memberId(EVALUATOR) });
     return { contract, approved, request: co.id, version: evaluated.version };
   }
 
@@ -187,6 +190,8 @@ describe('the retroactive adjustment of a change order over HTTP (ST-CTR-016)', 
 
     it('AC-ST-CTR-016-1: lets a price fall take the contract below the accepted total it had when the adjusted total fits: 200, the accepted total and the value follow, and the ledger reconciles', async () => {
       const target = await scenario('-8040000000');
+      // A fall of this size is a cumulative variation far above the threshold: the check of the project adjustment is cleared first (lane B2, G1-8).
+      await clearAdjustmentCheck(rows, { tenantId: TENANT_A, projectId: fixtures.projectId, contractId: target.contract.contractId, changeId: target.request, cumulativePct: '99.00', documentVersionId: VERSION, requiredBy: memberId(MAKER), clearedBy: memberId(APPROVER) });
       const before = await contractRow(target.contract.contractId);
       const done = await adjust(APPROVER, target, { boq_lines: boq('1900000', '1') });
       expect(done).toMatchObject({ status: 200, json: { status: 'APPROVED' } });

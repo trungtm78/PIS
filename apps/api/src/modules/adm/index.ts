@@ -7,6 +7,7 @@ import { AuditExportsController } from './audit-export.controller';
 import { SigningCertificateReadsController, SigningCertificatesController } from './certificates.controller';
 import { DelegationCommandsController, DelegationReadsController } from './delegation.controller';
 import { DoaMatricesController, DoaMatrixReadsController } from './doa-matrix.controller';
+import { GovernanceRuleReadsController, GovernanceRulesController, AlertTypeReadsController } from './governance-rule.controller';
 import { GuestContractorController } from './guest-contractor.controller';
 import { INVITATION_MAILER, MockInvitationMailer } from './invitation-mailer';
 import { IntegrationConnectorsController } from './integration-connector.controller';
@@ -18,6 +19,7 @@ import { MigrationBatchReadsController, MigrationBatchesController } from './mig
 import { RetentionPoliciesController } from './retention-policy.controller';
 import { RetentionPolicyReadsController, RetentionReviewReadsController } from './retention-reads.controller';
 import { SecurityPoliciesController, SecurityPolicyReadsController } from './security-policy.controller';
+import { SodAuditReadsController, SodExceptionsController, SodReadsController } from './sod.controller';
 import { ADM_ENVIRONMENT, ADM_INBOX_HANDLERS, ADM_INBOX_PROCESSOR } from './tokens';
 import { REORGANIZATION_PROJECT_PORT, UnboundProjectTransferPort } from './unit-reorganization.port';
 import { UnitReorganizationCommandsController, UnitReorganizationReadsController } from './unit-reorganization.controller';
@@ -49,10 +51,16 @@ export const admModule = defineModule({
     SigningCertificateReadsController,
     SecurityPoliciesController,
     SecurityPolicyReadsController,
+    SodExceptionsController,
+    SodReadsController,
+    SodAuditReadsController,
     WorkCalendarsController,
     WorkCalendarReadsController,
     DoaMatricesController,
     DoaMatrixReadsController,
+    GovernanceRulesController,
+    GovernanceRuleReadsController,
+    AlertTypeReadsController,
     ApprovalCommandsController,
     WorkflowVersionReadsController,
     WorkflowInstanceReadsController,

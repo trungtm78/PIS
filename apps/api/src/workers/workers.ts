@@ -8,6 +8,7 @@ import { UnboundProjectTransferPort } from '../modules/adm/unit-reorganization.p
 import { BillingJob } from '../modules/sas/billing.job';
 import { effectsOf } from '../modules/sas/payment-effects';
 import { UnitReorganizationJob } from '../modules/adm/unit-reorganization.job';
+import { runWorkReminders } from '../modules/home/work-reminder.job';
 import { AdmMigrationJob } from '../modules/adm/migration.job';
 import { MockEmbeddingPort, OcrDocumentTextPort } from '../modules/llm/knowledge-ports';
 import type { AiEmbeddingPort } from '../modules/llm/knowledge-ports';
@@ -66,6 +67,8 @@ import {
   MneExportExpiryJob,
   NotificationCampaignStore,
   PayReconciliationOverdueJob,
+  TreasuryDailyReconJob,
+  EarlyWarningScoreJob,
   PayAdvanceOverdueJob,
   PaySettlementDeadlineJob,
   PmtPermitExpiry,
@@ -208,6 +211,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const dgvProducts = new DgvProductExpiryJob(audit, deps.metrics);
   const dgvMaturity = new DgvMaturityJob(audit, deps.metrics);
   const reconciliationOverdue = new PayReconciliationOverdueJob(audit, deps.metrics);
+  const treasuryDailyRecon = new TreasuryDailyReconJob(audit, deps.metrics);
   const capitalBalances = new CapBalanceReconcileJob(audit, deps.metrics);
   const fundReservationExpiry = new CapReservationExpiryJob(audit, deps.metrics);
   const evaluationDue = new AstEvaluationDueJob(audit, deps.metrics);
@@ -215,6 +219,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const audRecoveries = new AudRecoveryReconcileJob(audit, deps.metrics);
   const settlementDeadlines = new PaySettlementDeadlineJob(audit, deps.metrics);
   const advanceOverdue = new PayAdvanceOverdueJob(audit);
+  const earlyWarningScore = new EarlyWarningScoreJob(audit);
   const diaryCoverage = new QmsDiaryCoverageJob(deps.metrics);
   const retention = new RetentionJob(deps.tenants, { ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }), ...(deps.payloads === undefined ? {} : { payloads: deps.payloads }) });
   const inbox =
@@ -325,8 +330,11 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     },
     handoverDue: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => remindHandoverDue(tx, ctx.tenantId, now, { audit, ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) })) },
     reconciliationOverdue: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => reconciliationOverdue.run(tx, ctx.membershipId, now)) },
+    treasuryDailyRecon: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => treasuryDailyRecon.run(tx, ctx.membershipId, now)) },
     settlementDeadline: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => settlementDeadlines.run(tx, ctx.membershipId, now)) },
     advanceOverdue: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => advanceOverdue.run(tx, ctx.membershipId, now)) },
+    workReminder: { run: (ctx, now) => runWorkReminders(deps.tenants, ctx, now, deps.metrics === undefined ? {} : { metrics: deps.metrics }) },
+    earlyWarningScore: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => earlyWarningScore.run(tx, ctx.membershipId, now)) },
     diaryCoverage: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => diaryCoverage.run(tx, now)) },
     capitalBalanceReconcile: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => capitalBalances.run(tx, ctx.membershipId, now)) },
     capitalReservationExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => fundReservationExpiry.run(tx, ctx.membershipId, now)) },

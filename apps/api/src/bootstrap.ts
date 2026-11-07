@@ -18,10 +18,11 @@ import {
 } from '@machvon/db';
 import type { DeliveryEngine, InboxHandlerRegistry } from '@machvon/db';
 import { ConsoleSpanExporter, NoopSpanExporter, OtlpHttpSpanExporter, Tracer, loadErrorRegistry } from '@machvon/kernel';
-import type { AlertSink, LiteLlmAdminPort, SecretVaultPort, SpanExporter, TimerPort } from '@machvon/kernel';
+import type { AlertSink, EditionManifest, LiteLlmAdminPort, SecretVaultPort, SpanExporter, TimerPort } from '@machvon/kernel';
 import { Pool } from 'pg';
 import { createAlertSink } from './alerts/alert-sinks';
 import { AppModule } from './app.module';
+import { loadEditionManifest } from './editions/load-edition';
 import type { AuthGuardOptions } from './auth/auth.guard';
 import { HttpJwksSource, discoverJwksUri } from './auth/jwks-source';
 import { JwksTokenVerifier } from './auth/jwks-token-verifier';
@@ -94,6 +95,8 @@ export interface BootstrapOverrides {
   provisioningPorts?: ProvisioningPorts;
   /** Runs the provisioning workflows; defaults to the in-process runner. Shutdown waits for it to be idle before the pools close. */
   workflowRunner?: WorkflowRunner;
+  /** Replaces the manifest loaded for `config.edition` (tests); the default loads the public manifest, or the enterprise package for the enterprise edition. */
+  edition?: EditionManifest;
 }
 
 export interface RunningApi {
@@ -153,6 +156,8 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
   // The provisioning sagas run detached from the relay tick that delivered their event: shutdown has to wait for them itself.
   const workflowRunner = overrides.workflowRunner ?? new InProcessWorkflowRunner();
   try {
+    // The edition is loaded before anything listens: an enterprise process without its package fails here, naming the edition.
+    const edition = overrides.edition ?? (await loadEditionManifest(config.edition));
     const tenants = new TenantDatabase(pools.app);
     const control = new ControlDatabase(pools.control);
     const authzCache = new InMemoryAuthzCache();
@@ -195,6 +200,7 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
           tenantState: { runtime: tenantRuntime, entitlementCache, authzCache },
           // The drill tokens of BI are signed from a configured secret, so that every replica and every restart reads them.
           biDrillSecret: config.outboxSigningKey,
+          edition,
         }),
       ],
       controllers: [HealthController],

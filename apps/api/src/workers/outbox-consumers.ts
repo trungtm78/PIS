@@ -5,6 +5,7 @@ import { InProcessEntitlementPush } from '../entitlements/entitlement-push';
 import type { EntitlementPushPort } from '../entitlements/entitlement-push';
 import { TenantStatusChangedConsumer, TENANT_STATUS_CONSUMER } from '../modules/sas/tenant-status-consumer';
 import { DatasetBuildConsumer } from '../modules/bi/dataset.consumer';
+import { ContractFactConsumer, CTR_FACT_CONSUMER } from '../modules/ctr/fact.consumer';
 import { DGV_SNAPSHOT_FROZEN_CONSUMER, SnapshotFrozenConsumer } from '../modules/dgv/snapshot-frozen.consumer';
 import { DIS_RANKING_COMPUTE_CONSUMER, RankingComputeConsumer } from '../modules/dis/ranking-compute.consumer';
 import { DIS_REGISTRATION_CONSUMER, RegistrationConsumer } from '../modules/dis/registration.consumer';
@@ -93,6 +94,7 @@ export function createOutboxConsumers(deps: OutboxConsumersDeps): OutboxConsumer
   const issIntake = new IssIntakeConsumer({ database: tenants, security });
   const snapshotFrozen = new SnapshotFrozenConsumer({ database: tenants, security });
   const datasetBuild = new DatasetBuildConsumer({ database: tenants, security });
+  const contractFact = new ContractFactConsumer({ database: tenants, security });
   const warningEvaluate = new WarningEvaluateConsumer({ database: tenants, security });
   const rankingCompute = new RankingComputeConsumer({ database: tenants, security });
   const registration = new RegistrationConsumer({ database: tenants, security });
@@ -112,6 +114,7 @@ export function createOutboxConsumers(deps: OutboxConsumersDeps): OutboxConsumer
     { name: ISS_INTAKE_CONSUMER, handle: (delivery) => issIntake.handle(delivery) },
     { name: DGV_SNAPSHOT_FROZEN_CONSUMER, handle: (delivery) => snapshotFrozen.handle(delivery) },
     { name: datasetBuild.name, handle: (delivery) => datasetBuild.handle(delivery) },
+    { name: CTR_FACT_CONSUMER, handle: (delivery) => contractFact.handle(delivery) },
     { name: DIS_WARNING_EVALUATE_CONSUMER, handle: (delivery) => warningEvaluate.handle(delivery) },
     { name: DIS_RANKING_COMPUTE_CONSUMER, handle: (delivery) => rankingCompute.handle(delivery) },
     { name: DIS_REGISTRATION_CONSUMER, handle: (delivery) => registration.handle(delivery) },

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { CtrAcceptanceStore, TenantDatabase, contractScope } from '@machvon/db';
 import type { ContractScopes, CtrAcceptanceResult } from '@machvon/db';
@@ -8,6 +8,7 @@ import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
+import { enforceSod } from '../../sod-gate';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
@@ -38,6 +39,9 @@ const scopesFor = (access: EffectiveAccess, permission: string, now: Date): Cont
 @Controller()
 export class AcceptanceController {
   private readonly acceptances = new CtrAcceptanceStore();
+
+  /** For the trace of a refused attempt of the separation-of-duties gate (G4-1); without it the refusal is still enforced, only its separate trace is not written. */
+  constructor(@Optional() @Inject(TenantDatabase) private readonly database?: TenantDatabase) {}
 
   @Post('contracts/:id/acceptances')
   @HttpCode(200)
@@ -83,6 +87,8 @@ export class AcceptanceController {
       scopesFor(access, DECIDE_PERMISSION, now),
     );
     // Approving tells PAY (once: the event key is the version it was approved at); rejecting and giving back are audited, with the reason, and send no event.
+    // G4-1: deciding is the approval duty of the separation-of-duties matrix (a refusal rolls the decision back).
+    await enforceSod(scope, this.database, { taking: 'acceptance.approve', subjectKind: 'acceptance', recordId: done.id, command: 'post_acceptances_id_decision' }, now);
     const action = done.decision === 'approve' ? 'approved' : done.decision === 'return' ? 'returned' : 'rejected';
     await this.written(scope, done, `acceptance.${action}`, done.decision === 'approve' ? 'ctr.acceptance.approved.v1' : undefined, now, { decision: done.decision, evidence_ids: done.evidenceIds }, done.reason);
     return commandResult(scope, done.status, done.version, done.id);

@@ -7,6 +7,7 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { HOME_CLOCK } from './tokens';
+import { clockFields } from './work-action-view';
 import { canReadScope, workScopes } from './work-scope';
 
 const DEFAULT_LIMIT = 50;
@@ -105,19 +106,21 @@ export class MyWorkController {
     const view = viewOf(viewQuery);
     const now = this.clock();
     const today = vietnamDateOf(now);
-    const { rows, truncated, unavailableSources } = await this.read(tenant, access, view, now, 'rows');
+    const { rows, truncated, unavailableSources, policies } = await this.read(tenant, access, view, now, 'rows');
     const ordered = [...rows].sort((left, right) => compareAlert(left, right, today));
     // The page goes on after the place the cursor names, which a task done meanwhile does not take away.
     const rest = from === undefined ? ordered : ordered.filter((row) => compareAlert(row, from, today) > 0);
     const shown = rest.slice(0, page);
     const last = shown[shown.length - 1];
-    const counts: Record<string, number> = { total: ordered.length, overdue: 0, urgent: 0, action: 0, watch: 0 };
+    const counts: Record<string, number> = { total: ordered.length, overdue: 0, urgent: 0, action: 0, watch: 0, needs_reclaim: 0, snoozed: 0 };
     for (const kind of WORK_KINDS) counts[kind] = 0;
     for (const row of ordered) {
       counts[row.kind] = (counts[row.kind] ?? 0) + 1;
       const key = SEVERITY_KEY[row.severity];
       counts[key] = (counts[key] ?? 0) + 1;
       if (workBucket(row, today) === 'OVERDUE') counts.overdue = (counts.overdue ?? 0) + 1;
+      if (row.clocks?.needsReclaim != null) counts.needs_reclaim = (counts.needs_reclaim ?? 0) + 1;
+      if (row.snooze !== null) counts.snoozed = (counts.snoozed ?? 0) + 1;
     }
     const item = (row: WorkRow): Record<string, unknown> => {
       const bucket = workBucket(row, today);
@@ -140,7 +143,13 @@ export class MyWorkController {
         assignee: row.assignee === null ? null : { id: row.assignee.id, name: row.assignee.name, due_on: row.assignee.dueOn },
         escalation: row.escalation === null ? null : { level: row.escalation.level, of: row.escalation.of, next_at: row.escalation.nextAt, chain: row.escalation.chain },
         consequence: row.consequence,
+        // G0-3: the alert type of the item in the registry (who owns it, how fast it must be answered, which version of the rule said so).
+        alert_type:
+          row.alertType === undefined || row.alertType === null
+            ? null
+            : { code: row.alertType.code, owner: row.alertType.owner, expected_action: row.alertType.expectedAction, response_hours: row.alertType.responseHours, version: row.alertType.version, source: row.alertType.source, review_overdue: row.alertType.reviewOverdue },
         snoozed_until: row.snoozedUntil,
+        ...clockFields(row, policies),
       };
     };
     return {

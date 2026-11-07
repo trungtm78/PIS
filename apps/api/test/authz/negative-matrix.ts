@@ -109,6 +109,9 @@ export interface MatrixTargets {
   /** A DoA matrix draft and one waiting for approval of tenant A, both made by someone other than the callers (version 1). */
   doaDraftId: string;
   doaPendingId: string;
+  /** A governance rule draft and one submitted for approval of tenant A, both made and submitted by someone other than the callers (row version 1). */
+  governanceDraftId: string;
+  governanceSubmittedId: string;
   /** An outgoing document of tenant A in SUBMITTED (version 1) and an open leader signing session of it (version 1). */
   outgoingDocumentId: string;
   signingSessionId: string;
@@ -489,6 +492,57 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   decideDoaMatrix: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/doa-matrices/${t.doaPendingId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON, evidence_ids: [] } }),
+  },
+  // The separation of duties (lane D, G4-1): a caller that is refused asks for no exception, approves none, rejects none and revokes none.
+  requestSodException: {
+    referencesTenantIds: true,
+    build: (t) => ({
+      method: 'POST',
+      path: '/sod-exceptions',
+      body: { action_a: 'payment.request', action_b: 'payment.verify', scope: 'SAME_RECORD', subject_id: t.legalHoldId, member_id: t.recipientMembershipId, reason: REASON, valid_from: '2999-01-01', valid_to: '2999-01-02' },
+    }),
+  },
+  approveSodException: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/sod-exceptions/${t.legalHoldId}/approve`, ifMatch: '"1"', body: {} }),
+  },
+  rejectSodException: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/sod-exceptions/${t.legalHoldId}/reject`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  revokeSodException: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/sod-exceptions/${t.legalHoldId}/revoke`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  createGovernanceRuleDraft: {
+    referencesTenantIds: false,
+    build: () => ({
+      method: 'POST',
+      path: '/governance-rules',
+      body: {
+        rule_type: 'REMINDER_POLICY',
+        code: 'MATRIX_PROBE',
+        params: { every_working_hours: { URGENT: 4, ACTION: 8, WATCH: 40 }, max_per_item: { URGENT: 40, ACTION: 20, WATCH: 8 } },
+        effective_from: '2999-01-01',
+        reason: REASON,
+      },
+    }),
+  },
+  submitGovernanceRule: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/governance-rules/${t.governanceDraftId}/submit`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  withdrawGovernanceRule: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/governance-rules/${t.governanceSubmittedId}/withdraw`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  approveGovernanceRule: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/governance-rules/${t.governanceSubmittedId}/approve`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  retireGovernanceRule: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/governance-rules/${t.governanceDraftId}/retire`, ifMatch: '"1"', body: { reason: REASON } }),
   },
   createWorkCalendarVersion: {
     referencesTenantIds: false,
@@ -1199,6 +1253,115 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/project-risks/${t.legalHoldId}/closure`, ifMatch: '"1"', body: { status: 'CLOSED', closed_reason: REASON } }),
   },
+  // The money control (lane B2): a caller that is refused fills no reserve, draws nothing, decides no drawdown, sets no exposure and clears no check of the project adjustment.
+  setRiskExposure: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/project-risks/${t.legalHoldId}/exposure`, body: { probability_pct: '10', cost_impact_vnd: '1000000' } }),
+  },
+  fundProjectReserve: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/reserve-funds`, body: { kind: 'CONTINGENCY', amount_vnd: '1000000', authority_document_version_id: t.documentVersionId, reason: REASON } }),
+  },
+  requestReserveDrawdown: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/reserve-drawdowns`, body: { kind: 'CONTINGENCY', amount_vnd: '1000', risk_id: t.legalHoldId, reason: REASON } }),
+  },
+  decideReserveDrawdown: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/reserve-drawdowns/${t.legalHoldId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON } }),
+  },
+  clearChangeAdjustmentCheck: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/change-requests/${t.changeRequestId}/adjustment-check`, ifMatch: '"1"', body: { basis: REASON, decision_document_version_id: t.documentVersionId } }),
+  },
+  // The investment appraisal (lane FIN-1): a caller that is refused opens no appraisal, changes no input, computes nothing, submits, approves, returns or exports nothing.
+  createInvestmentAppraisal: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/investment-appraisals', body: { title: 'Matrix attempt to open an appraisal', kind: 'FINANCIAL', owner_unit_id: t.unit2 } }),
+  },
+  updateInvestmentAppraisalInputs: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/investment-appraisals/${t.legalHoldId}/inputs`, ifMatch: '"1"', body: { title: 'Matrix attempt', period_unit: 'YEAR', discount_rate_pct: '10', convention: 'END', lines: [{ period: 0, capex: '100' }], assumptions: [], scenarios: [], scores: [] } }),
+  },
+  runInvestmentAppraisal: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/investment-appraisals/${t.legalHoldId}/runs`, ifMatch: '"1"', body: {} }),
+  },
+  submitInvestmentAppraisal: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/investment-appraisals/${t.legalHoldId}/submission`, ifMatch: '"1"', body: {} }),
+  },
+  approveInvestmentAppraisal: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/investment-appraisals/${t.legalHoldId}/approval`, ifMatch: '"1"', body: {} }),
+  },
+  returnInvestmentAppraisal: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/investment-appraisals/${t.legalHoldId}/return`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  exportInvestmentAppraisal: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/investment-appraisals/${t.legalHoldId}/export`, body: { format: 'CSV' } }),
+  },
+  // The directives of the steering meetings (lane DIR-1): a caller that is refused records no meeting, gives no directive, notes no progress, asks for or decides no extension, and neither closes, cancels nor reopens one.
+  createSteeringMeeting: {
+    // A unit that does not exist in the caller's tenant is a 422 (like a missing reference of any command), not a 404; the meeting is written in the caller's own tenant otherwise.
+    referencesTenantIds: false,
+    build: (t) => ({ method: 'POST', path: '/steering-meetings', body: { meeting_date: '2026-11-03', meeting_type: 'WEEKLY', title: 'Matrix attempt to record a meeting', unit_id: t.unit2 } }),
+  },
+  attachMeetingMinutes: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/steering-meetings/${t.legalHoldId}/minutes`, ifMatch: '"1"', body: { document_version_id: t.documentVersionId } }),
+  },
+  addDirective: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/steering-meetings/${t.legalHoldId}/directives`, body: { scope_kind: 'PROJECT', project_id: t.projectId, text: 'Matrix attempt to give a directive', assignee_unit_id: t.unit2, due_on: '2026-12-31' } }),
+  },
+  assignDirective: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/directives/${t.legalHoldId}/assignment`, ifMatch: '"1"', body: { assignee_unit_id: t.unit2 } }),
+  },
+  recordDirectiveProgress: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/directives/${t.legalHoldId}/progress`, body: { note: 'Matrix attempt to note progress' } }),
+  },
+  requestDirectiveExtension: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/directives/${t.legalHoldId}/extension-requests`, body: { proposed_due_on: '2027-01-15', reason: REASON } }),
+  },
+  decideDirectiveExtension: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/directive-extensions/${t.legalHoldId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: REASON } }),
+  },
+  closeDirective: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/directives/${t.legalHoldId}/closure`, ifMatch: '"1"', body: { note: 'Matrix attempt to close a directive', evidence_document_version_ids: [t.documentVersionId] } }),
+  },
+  cancelDirective: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/directives/${t.legalHoldId}/cancellation`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  reopenDirective: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/directives/${t.legalHoldId}/reopening`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  // The lifecycle and the earned value (lane B1): a caller that is refused takes no baseline, decides no re-appraisal, acknowledges no alert and links no contract to a work package.
+  captureProjectBaseline: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/baseline`, body: {} }),
+  },
+  decideReappraisalRequest: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/project-reappraisals/${t.legalHoldId}/decision`, ifMatch: '"1"', body: { decision: 'WAIVE', reason: REASON } }),
+  },
+  acknowledgeGovernanceAlert: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/project-governance-alerts/${t.legalHoldId}/acknowledgement`, ifMatch: '"1"', body: { note: REASON } }),
+  },
+  linkContractComponent: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/component-contracts`, body: { contract_id: t.contractId, component_id: null } }),
+  },
   decideProjectTransfer: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/project-transfers/${t.legalHoldId}/decision`, ifMatch: '"1"', body: { decision: 'approve', reason: 'Matrix attempt to decide a transfer' } }),
@@ -1276,6 +1439,23 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   freezePeriodSnapshot: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/period-snapshots/${t.legalHoldId}/freeze`, ifMatch: '"1"', body: {} }),
+  },
+  // The daily reconciliation with the Treasury and the cross-total control (lane D, G4-4, G4-5): a caller that is refused runs no pass, assigns and resolves no item and writes no check.
+  runTreasuryDailyRecon: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/treasury-daily-recon/runs', body: { recon_date: '2026-01-05' } }),
+  },
+  assignTreasuryDailyReconItem: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/treasury-daily-recon/items/${t.reconciliationItemId}/assign`, ifMatch: '"1"', body: { owner_membership_id: t.paymentRequestId, due_on: '2030-01-01' } }),
+  },
+  resolveTreasuryDailyReconItem: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/treasury-daily-recon/items/${t.reconciliationItemId}/resolve`, ifMatch: '"1"', body: { resolution: 'EXPLAINED', note: REASON } }),
+  },
+  evaluateCrossTotal: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/period-snapshots/${t.legalHoldId}/cross-total-checks`, body: {} }),
   },
   restoreDraftReport: {
     referencesTenantIds: true,
@@ -2423,7 +2603,32 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   },
   snoozeWork: {
     referencesTenantIds: true,
-    build: () => ({ method: 'POST', path: '/home/work-actions/snooze', body: { source: 'EARLY_WARNING', source_id: 'matrix-probe', snooze_until: '2999-01-01T00:00:00.000Z' } }),
+    build: () => ({ method: 'POST', path: '/home/work-actions/snooze', body: { source: 'EARLY_WARNING', source_id: 'matrix-probe', reason_code: 'WAITING_INFORMATION', snooze_until: '2999-01-01T00:00:00.000Z' } }),
+  },
+  pauseWorkClock: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/work-actions/pause', body: { source: 'EARLY_WARNING', source_id: 'matrix-probe', reason_code: 'FORCE_MAJEURE', reason: 'Matrix probe, nothing is paused.', allowed_by_id: '00000000-0000-4000-8000-0000000000e7', paused_until: '2999-01-01T00:00:00.000Z' } }),
+  },
+  resumeWorkClock: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/work-actions/resume', body: { source: 'EARLY_WARNING', source_id: 'matrix-probe' } }),
+  },
+  transitionAnalyticsCertification: {
+    // The subject is a built-in metric of every tenant, not an id of tenant A: a caller of another tenant meets the state of its own certification (409), and tenant A must stay untouched.
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/bi/certifications/transitions', body: { subject: 'KPI', key: 'DISBURSEMENT_RATE_PM', version: 1, to: 'CONFIRMED' } }),
+  },
+  setRagOverride: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/rag/overrides', body: { unit_id: '00000000-0000-4000-8000-0000000000e8', band: 'RED', reason: 'Matrix probe: no unit', until: '2999-01-01' } }),
+  },
+  revokeRagOverride: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/home/rag/overrides/revoke', body: { unit_id: '00000000-0000-4000-8000-0000000000e8', reason: 'Matrix probe: no unit' } }),
+  },
+  scoreEarlyWarningWeek: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'POST', path: '/home/rag/scores', body: undefined }),
   },
   assignQualityIncident: {
     referencesTenantIds: true,
@@ -2614,6 +2819,18 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/procurement-petitions/${t.petitionId}/resolution`, ifMatch: '"1"', body: { outcome: 'RESOLVED', resolution_document_id: t.documentVersionId } }),
   },
+  // PRC-1: the workflow of a procurement package; a caller who is refused moves nothing.
+  startPackageWorkflow: { referencesTenantIds: true, build: (t) => ({ method: 'POST', path: `/procurement-packages/${t.criteriaPackageId}/workflow`, body: {} }) },
+  completePackageChecklistItem: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/package-checklist-items/00000000-0000-4000-8000-0000000000f1/completion', body: { evidence: [{ kind: 'ATTESTATION', note: 'Matrix completion of a refused call.' }] } }) },
+  assignPackageChecklistItem: { referencesTenantIds: true, build: (t) => ({ method: 'POST', path: '/package-checklist-items/00000000-0000-4000-8000-0000000000f1/owner', body: { owner_id: t.recipientMembershipId } }) },
+  advancePackageStep: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/package-workflows/00000000-0000-4000-8000-0000000000f1/advance', ifMatch: '"1"', body: {} }) },
+  returnPackageStep: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/package-workflows/00000000-0000-4000-8000-0000000000f1/return', ifMatch: '"1"', body: { to_step: 'DOC_PREPARE', reason: REASON } }) },
+  holdPackageWorkflow: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/package-workflows/00000000-0000-4000-8000-0000000000f1/hold', ifMatch: '"1"', body: { reason: REASON } }) },
+  resumePackageWorkflow: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/package-workflows/00000000-0000-4000-8000-0000000000f1/resume', ifMatch: '"1"', body: {} }) },
+  assignPackageWorkflowOwner: { referencesTenantIds: true, build: (t) => ({ method: 'POST', path: '/package-workflows/00000000-0000-4000-8000-0000000000f1/owner', ifMatch: '"1"', body: { owner_id: t.recipientMembershipId } }) },
+  requestPackageStepException: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/package-workflows/00000000-0000-4000-8000-0000000000f1/exceptions', body: { kind: 'SKIP_ITEMS', reason: REASON } }) },
+  decidePackageStepException: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/package-step-exceptions/00000000-0000-4000-8000-0000000000f1/decision', body: { decision: 'REJECT', note: REASON } }) },
+  cancelPackageWorkflow: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/package-workflows/00000000-0000-4000-8000-0000000000f1/cancel', ifMatch: '"1"', body: { reason: REASON } }) },
   decideProcurementResult: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/procurement-results/${t.resultId}/decision`, ifMatch: '"1"', body: { decision: 'REJECT', comment: 'Matrix decision of a refused call.' } }),
@@ -3541,6 +3758,27 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   returnPaymentRequest: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/payment-requests/${t.paymentRequestId}/return`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  // The payment integrity checks and the exceptions to the ceilings of disbursement (lane D, G4-2, G4-5): a caller that is refused checks nothing, asks for no exception and decides none.
+  checkPaymentIntegrity: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/payment-requests/${t.paymentRequestId}/integrity-checks`, body: {} }),
+  },
+  requestDisbursementException: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/payment-requests/${t.paymentRequestId}/disbursement-exceptions`, body: { ceiling: 'EXCEEDS_PLAN', allowed_amount_vnd: '1000', valid_to: '2099-12-31', reason: REASON } }),
+  },
+  approveDisbursementException: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/disbursement-exceptions/${t.legalHoldId}/approve`, ifMatch: '"1"', body: {} }),
+  },
+  rejectDisbursementException: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/disbursement-exceptions/${t.legalHoldId}/reject`, ifMatch: '"1"', body: { reason: REASON } }),
+  },
+  revokeDisbursementException: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/disbursement-exceptions/${t.legalHoldId}/revoke`, ifMatch: '"1"', body: { reason: REASON } }),
   },
   withdrawChangeRequest: {
     referencesTenantIds: true,

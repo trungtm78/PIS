@@ -2,6 +2,7 @@ import { createHmac, randomBytes } from 'node:crypto';
 import { defineModule } from '../module-descriptor';
 import { ORCHESTRATION_OPTIONS } from '../orchestration';
 import type { OrchestrationOptions } from '../orchestration';
+import { AnalyticsCertificationController } from './certification.controller';
 import { DashboardController, DashboardReadsController, DashboardVersionReadsController } from './dashboard.controller';
 import { DatasetBuildController, DatasetReadsController } from './dataset.controller';
 import { PolicyController } from './policy.controller';
@@ -35,6 +36,7 @@ export const biModule = defineModule({
     BiQueryLogController,
     BiQueryRunController,
     BiLineageController,
+    AnalyticsCertificationController,
   ],
   providers: [
     {

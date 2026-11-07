@@ -9,6 +9,7 @@ import { assertWithinDelegation } from '../../doa-delegation';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
+import { enforceSod } from '../../sod-gate';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
@@ -173,6 +174,8 @@ export class ContractLifecycleController {
         { authorise: this.delegation(scope, access, SIGN_PERMISSION, now) },
       ),
     );
+    // G4-1: signing is the approval duty of the separation-of-duties matrix (refused here, the signing rolls back).
+    await enforceSod(scope, this.database, { taking: 'contract.approve', subjectKind: 'contract', recordId: done.id, command: 'recordContractSigning' }, now);
     await this.written(scope, done, 'contract.signed', 'ctr.contract.signed.v1', now, {
       signed_on: done.signedOn,
       signed_document_version_id: done.signedDocumentVersionId,
@@ -209,6 +212,7 @@ export class ContractLifecycleController {
         hooks,
       ),
     );
+    await enforceSod(scope, this.database, { taking: 'contract.approve', subjectKind: 'contract', recordId: done.id, command: 'post_contracts_id_activate' }, now);
     await this.written(
       scope,
       done,

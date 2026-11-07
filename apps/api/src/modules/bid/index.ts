@@ -17,6 +17,7 @@ import { ReportController } from './report.controller';
 import { ResultController } from './result.controller';
 import { ReviewController } from './review.controller';
 import { CONTRACTOR_IDENTITY_PORT } from './tokens';
+import { PackageWorkflowController, PackageWorkflowReadsController } from './workflow.controller';
 
 /**
  * BID, procurement: the contractor registry with the tax id verified on evidence and the restrictions on participation (ST-BID-002), and the
@@ -29,6 +30,6 @@ import { CONTRACTOR_IDENTITY_PORT } from './tokens';
  */
 export const bidModule = defineModule({
   code: 'BID',
-  controllers: [ContractorController, ContractorReadsController, ContractorHistoryController, ProcurementPlanController, ProcurementPlanReadsController, ProcurementPackageReadsController, CriteriaVersionController, CriteriaVersionReadsController, MilestoneController, MilestoneReadsController, ProcurementImportController, ProposalController, ProposalReadsController, ConflictController, OcrController, AnalysisController, ReviewController, ClarificationController, ReportController, ResultController, PetitionController],
+  controllers: [ContractorController, ContractorReadsController, ContractorHistoryController, ProcurementPlanController, ProcurementPlanReadsController, ProcurementPackageReadsController, CriteriaVersionController, CriteriaVersionReadsController, MilestoneController, MilestoneReadsController, ProcurementImportController, ProposalController, ProposalReadsController, ConflictController, OcrController, AnalysisController, ReviewController, ClarificationController, ReportController, ResultController, PetitionController, PackageWorkflowController, PackageWorkflowReadsController],
   providers: [{ provide: CONTRACTOR_IDENTITY_PORT, useValue: new UnboundIdentityPort() }, BidAnalysisService],
 });

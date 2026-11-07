@@ -4,8 +4,12 @@ import { ORCHESTRATION_OPTIONS } from '../orchestration';
 import type { OrchestrationOptions } from '../orchestration';
 import { CommandCenterController } from './command-center.controller';
 import { ChannelHealthController } from './channel-health.controller';
+import { HomeChangesController } from './changes.controller';
 import { HomeDrillController } from './drill.controller';
+import { KpiRegisterController } from './kpi-register.controller';
+import { RagController } from './rag.controller';
 import { MyWorkController } from './my-work.controller';
+import { WorkActionClockController } from './work-action-clock.controller';
 import { WorkActionController } from './work-action.controller';
 import { HomeRankingsController } from './rankings.controller';
 import { HomeWarningsController } from './warnings.controller';
@@ -17,7 +21,7 @@ import { HOME_CONTEXT_KEY } from './tokens';
  */
 export const homeModule = defineModule({
   code: 'HOME',
-  controllers: [ChannelHealthController, CommandCenterController, HomeDrillController, HomeWarningsController, HomeRankingsController, MyWorkController, WorkActionController],
+  controllers: [ChannelHealthController, CommandCenterController, HomeChangesController, HomeDrillController, KpiRegisterController, RagController, HomeWarningsController, HomeRankingsController, MyWorkController, WorkActionController, WorkActionClockController],
   providers: [
     {
       provide: HOME_CONTEXT_KEY,

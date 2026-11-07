@@ -175,6 +175,7 @@ describe('maker-checker and MFA replay cases', () => {
       'publishSecurityPolicy',
       'publishAvcPolicy',
       'decideDoaMatrix',
+      'approveGovernanceRule',
       'decideMasterChangeRequest',
       'post_master_records_id_publish',
       'decideMasterImport',
@@ -207,6 +208,8 @@ describe('maker-checker and MFA replay cases', () => {
       'TENANT_ADMIN',
       'TENANT_ADMIN',
       'TENANT_ADMIN',
+      'TENANT_ADMIN',
+      'TENANT_OWNER',
       'TENANT_OWNER',
       'TENANT_OWNER',
       'TENANT_OWNER',
@@ -684,6 +687,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
     const workCalendarId = id(0xa0, 1);
     const doaDraftId = id(0xa1, 1);
     const doaPendingId = id(0xa1, 2);
+    const governanceDraftId = id(0xa4, 1);
+    const governanceSubmittedId = id(0xa4, 2);
     const outgoingDocumentId = id(0x78, 3);
     const signingSessionId = id(0x78, 4);
     const distributionId = id(0x78, 5);
@@ -723,6 +728,12 @@ describe('negative authorization matrix against the real application (ST-IAM-004
         [TENANT_A, doaDraftId, unitId(2), doaPendingId],
       ],
       ["update machvon.doa_matrix_version set status = 'PendingApproval' where id = $1", [doaPendingId]],
+      [
+        `insert into machvon.governance_rule (tenant_id, id, rule_type, code, version, status, params, effective_from, reason, created_by, submitted_by, submitted_at)
+         values ($1, $2, 'REMINDER_POLICY', 'MATRIX_FIXTURE_DRAFT', 1, 'DRAFT', '{"every_working_hours":{"URGENT":4,"ACTION":8,"WATCH":40},"max_per_item":{"URGENT":40,"ACTION":20,"WATCH":8}}'::jsonb, date '2999-01-01', 'Matrix fixture rule', $4, null, null),
+                ($1, $3, 'REMINDER_POLICY', 'MATRIX_FIXTURE_SUBMITTED', 1, 'SUBMITTED', '{"every_working_hours":{"URGENT":4,"ACTION":8,"WATCH":40},"max_per_item":{"URGENT":40,"ACTION":20,"WATCH":8}}'::jsonb, date '2999-01-01', 'Matrix fixture rule', $4, $4, now())`,
+        [TENANT_A, governanceDraftId, governanceSubmittedId, memberId(RECIPIENT)],
+      ],
       [
         `insert into machvon.outgoing_document (tenant_id, id, document_id, layout_profile_id, status, drafting_unit_id, drafter_user_id, signer_user_id, created_by, updated_by)
          values ($1, $2, $3, $4, 'SUBMITTED', $5, $6, $6, $6, $6)`,
@@ -1437,6 +1448,8 @@ describe('negative authorization matrix against the real application (ST-IAM-004
       doaDraftId,
       doaPendingId,
       outgoingDocumentId,
+      governanceDraftId,
+      governanceSubmittedId,
       signingSessionId,
       distributionId,
       unit2: unitId(2),

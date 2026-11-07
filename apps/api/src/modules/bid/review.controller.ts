@@ -9,6 +9,7 @@ import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
+import { enforceSod } from '../../sod-gate';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
@@ -130,6 +131,8 @@ export class ReviewController {
       scope.tenant.membershipId,
     );
     const { finding, review } = reviewed;
+    // G4-1: reviewing a finding is the evaluation duty (scoring) of the separation-of-duties matrix.
+    await enforceSod(scope, this.database, { taking: 'bid.evaluate', subjectKind: 'bid_finding', recordId: finding.id, command: permission === PERMISSIONS.reviewAnalysisFinding ? 'reviewAnalysisFinding' : 'post_findings_id_review' }, now);
     await this.decisions.markApplied(scope.tx, reviewed.decisionRecordId, scope.requestId, finding.version);
     // The audit row and the event say who decided what about which finding and why; the text of the finding and the pages it rests on stay in the analysis.
     const facts = {

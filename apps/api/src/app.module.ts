@@ -5,7 +5,7 @@ import type { TenantTokenIssuer } from './auth/tenant-token-issuer';
 import { SUPPORT_TOKEN_ISSUER } from './modules/sas/support-token.controller';
 import { ControlDatabase, EntitlementStore, LicenseStore, TenantDatabase, TenantRegistry } from '@machvon/db';
 import type { AuthzCache, EntitlementCache } from '@machvon/db';
-import type { RegisteredError } from '@machvon/kernel';
+import type { EditionManifest, RegisteredError } from '@machvon/kernel';
 import { AuthModule } from './auth/auth.module';
 import type { AuthGuardOptions } from './auth/auth.guard';
 import { CommandModule } from './command.module';
@@ -62,6 +62,11 @@ export interface AppModuleOptions {
   supportIssuer?: TenantTokenIssuer;
   /** The secret the drill tokens of BI are signed from (at least 32 bytes); every replica must be given the same, or a token made by one is refused by another. */
   biDrillSecret?: Buffer;
+  /**
+   * The manifest of the product edition this process serves (ENT-0). The module registry mounts only the modules the manifest lists; omit it
+   * for the public edition, which lists them all, so every caller that knows nothing of editions is unchanged.
+   */
+  edition?: EditionManifest;
 }
 
 /**

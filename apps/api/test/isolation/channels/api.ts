@@ -480,6 +480,17 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   },
   { operation: 'decideProjectRevision', method: 'POST', id: REVISION_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'reject', reason: 'Isolation foreign decision attempt' } },
   { operation: 'listProjectRevisions', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
+  // The lifecycle and the earned value (lane B1): a project, a request to appraise again and an alert of another tenant are not found, whatever is asked of them.
+  { operation: 'getProjectBaseline', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
+  { operation: 'captureProjectBaseline', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, body: {} },
+  { operation: 'decideReappraisalRequest', method: 'POST', id: REVISION_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'WAIVE', reason: 'Isolation foreign decision attempt' } },
+  { operation: 'acknowledgeGovernanceAlert', method: 'POST', id: REVISION_FIXTURES['TNT-B'].id, versioned: true, body: { note: 'Isolation foreign acknowledgement attempt' } },
+  { operation: 'listProjectComponentContracts', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
+  { operation: 'linkContractComponent', method: 'POST', id: PROJECT_FIXTURES['TNT-B'].id, body: { contract_id: '00000000-0000-4000-b0fd-000000000010', component_id: null } },
+  { operation: 'getProjectEvm', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
+  { operation: 'getProjectSCurve', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
+  { operation: 'exportProjectSCurve', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
+  { operation: 'checkProjectDisbursement', method: 'GET', id: PROJECT_FIXTURES['TNT-B'].id },
   {
     operation: 'registerProjectRisk',
     method: 'POST',

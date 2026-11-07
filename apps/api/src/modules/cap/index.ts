@@ -4,6 +4,7 @@ import { AppropriationController, AppropriationReadsController } from './appropr
 import { FiscalYearController, FiscalYearReadsController } from './fiscal-year.controller';
 import { AvcPolicyController } from './avc-policy.controller';
 import { CapitalAvailabilityController } from './availability.controller';
+import { ContractAvcController } from './contract-avc.controller';
 import { CapitalLedgerController } from './ledger.controller';
 import { FundReservationController } from './reservation.controller';
 import { CapitalCommitments } from './commitment.port';
@@ -23,7 +24,7 @@ import { AllocationLineReadsController, CapitalPlanController, CapitalPlanLinesC
  */
 export const capModule = defineModule({
   code: 'CAP',
-  controllers: [CapitalLedgerController, FundReservationController, AppropriationController, AppropriationReadsController, CapitalPlanController, CapitalPlanApprovalController, CapitalPlanRevisionController, ReallocationController, ScenarioController, CapitalPlanLinesController, PlanVersionReadsController, AllocationLineReadsController, DisbursementScheduleController, AvcPolicyController, CapitalAvailabilityController, AllocationExtensionController, AllocationExtensionReadsController, FiscalYearController, FiscalYearReadsController],
+  controllers: [CapitalLedgerController, FundReservationController, AppropriationController, AppropriationReadsController, CapitalPlanController, CapitalPlanApprovalController, CapitalPlanRevisionController, ReallocationController, ScenarioController, CapitalPlanLinesController, PlanVersionReadsController, AllocationLineReadsController, DisbursementScheduleController, AvcPolicyController, CapitalAvailabilityController, ContractAvcController, AllocationExtensionController, AllocationExtensionReadsController, FiscalYearController, FiscalYearReadsController],
   // The port the spending modules commit capital through (ST-CAP-005).
   providers: [CapitalCommitments],
 });

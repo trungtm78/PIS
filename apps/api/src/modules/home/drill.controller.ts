@@ -2,7 +2,7 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { Controller, Get, Inject, Optional, Query } from '@nestjs/common';
 import { AuditWriter, DisSnapshotStore, HomeDrillStore, HomeStore, TenantDatabase, projectScope, scopePredicate } from '@machvon/db';
 import type { PeriodSnapshotLineRow as SnapshotLineRow, ScopeBuilder } from '@machvon/db';
-import { DomainError, addSums, drillChildTile, drillDimensions, drillLevelOf, expiredHomeContext, parseHomeContext, reconcileChildren, signHomeContext } from '@machvon/kernel';
+import { DomainError, addSums, dragPoints, drillChildTile, drillDimensions, drillLevelOf, expiredHomeContext, orderByDrag, parseHomeContext, reconcileChildren, signHomeContext } from '@machvon/kernel';
 import type { DrillDimension, EffectiveAccess, HomeContext, HomeTile, RateSums, SignedHomeContext, TenantContext } from '@machvon/kernel';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
@@ -12,6 +12,7 @@ import { HOME_CLOCK, HOME_CONTEXT_KEY } from './tokens';
 
 const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 200;
+const DRILL_STEP = { SCOPE: 1, UNIT: 2, PROJECT: 3, CELL: 3 } as const;
 const DRILL_DENIED_ACTION = 'home.drill_denied';
 const RESOURCE_TYPE = 'home_drill';
 const ISO_INSTANT = /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}([.][0-9]{1,6})?Z$/;
@@ -99,7 +100,9 @@ export class HomeDrillController {
     @Query('child_dimension') childDimension?: unknown,
     @Query('cursor') cursor?: unknown,
     @Query('limit') limit?: unknown,
+    @Query('order') order?: unknown,
   ): Promise<Record<string, unknown>> {
+    if (order !== undefined && order !== 'code' && order !== 'drag') throw invalid('order');
     if (typeof contextToken !== 'string' || contextToken === '') throw invalid('context_token');
     const page = limitOf(limit);
     const now = this.clock();
@@ -155,7 +158,9 @@ export class HomeDrillController {
           ? { items: [], more: false }
           : await this.drill.transactions(tx, { projectId: project.id, fiscalYear, cutoffDate: snapshot.treasuryCutoffDate, observedAt: snapshot.createdAt, limit: page, after: pagesChildren || after === undefined ? undefined : { confirmedAt: after[0] ?? '', id: after[1] ?? '' } });
       const unit = context.unitId === null ? undefined : await this.home.unitName(tx, context.unitId);
-      return { denied: false as const, snapshot, project, unit, line, lines, parentSums, groups, revisions, transactions };
+      // G3-3: the last step goes to the records, and the alerts open on the project are among them.
+      const alerts = project === undefined ? [] : await this.drill.alerts(tx, project.id, now);
+      return { denied: false as const, snapshot, project, unit, line, lines, parentSums, groups, revisions, transactions, alerts };
     });
 
     if (read.denied) {
@@ -186,6 +191,13 @@ export class HomeDrillController {
       }
     }
     children.sort((left, right) => left.code.localeCompare(right.code, 'en') || left.id.localeCompare(right.id, 'en'));
+    // A ratio is pulled up or down by each of its parts in proportion to the share of the denominator and how far the part's own ratio is from the whole's (percentage points, exact, from whole dong): the part that drags
+    // it down most is told first when the reader asks for that order (`order=drag`); the order of the codes stays the default, so the pages and the cursors of a reading do not change under a reader.
+    const pulls = new Map(children.map((child) => [`${child.code}|${child.id}`, parent.unit === 'PERCENT' ? dragPoints({ id: child.id, numerator: child.tile.numerator, denominator: child.tile.denominator }, { numerator: parent.numerator, denominator: parent.denominator }) : null]));
+    if (order === 'drag') {
+      const ranked = orderByDrag(children.map((child) => ({ id: `${child.code}|${child.id}`, numerator: child.tile.numerator, denominator: child.tile.denominator, child })), { numerator: parent.numerator, denominator: parent.denominator });
+      children.splice(0, children.length, ...ranked.map((entry) => entry.child));
+    }
     // The check is over every child, whatever page is shown: the server says whether they add up (BR-HOME-03).
     const reconciliation = reconcileChildren(parent.unit, parent.value, children.map((child) => child.tile.value));
     const start = !pagesChildren || after === undefined ? 0 : Math.max(children.findIndex((child) => child.code === after[0] && child.id === after[1]) + 1, 0);
@@ -205,6 +217,10 @@ export class HomeDrillController {
       context_token: mint({ unitId: context.unitId, unitExact: context.unitExact, projectId: context.projectId, lineId: context.lineId }, context.metricCode),
       metric_code: context.metricCode,
       level,
+      // The three steps of the drill (G3-3): the figure by unit, then the unit by project, then the records (the sources and the alerts).
+      step: DRILL_STEP[level],
+      steps_total: 3,
+      order: order ?? 'code',
       snapshot_id: snapshot.id,
       as_of_date: snapshot.asOfDate,
       treasury_cutoff_date: snapshot.treasuryCutoffDate,
@@ -232,12 +248,14 @@ export class HomeDrillController {
         numerator: child.tile.numerator,
         denominator: child.tile.denominator,
         null_reason: child.tile.nullReason,
+        drag_points: pulls.get(`${child.code}|${child.id}`) ?? null,
         context_token: mint(child.context, context.metricCode),
       })),
       // A cell has no children to add up; there is nothing that fails to.
       reconciles_to_parent: children.length === 0 ? true : reconciliation.reconcilesToParent,
       non_additive_reason: reconciliation.nonAdditiveReason,
       source_records: sources,
+      alerts: cursor === undefined ? read.alerts.map((alert) => ({ kind: alert.kind, id: alert.id, severity: alert.severity, status: alert.status, at: alert.at })) : [],
       next_cursor: nextCursor,
     };
   }

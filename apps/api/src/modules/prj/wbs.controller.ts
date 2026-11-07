@@ -12,6 +12,7 @@ import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
+import { recordGovernanceEffects } from './governance-effects';
 
 const READ_PERMISSION = PERMISSIONS.get_resources_project;
 const WRITE_PERMISSION = PERMISSIONS.addProjectComponent;
@@ -122,6 +123,8 @@ export class ProjectWbsController {
       today: vietnamDateOf(now),
     });
     await this.record(scope, 'project.milestone_progress', change, now);
+    // G1-3: a date moved to a later day is counted, an alert goes to AUD at the third move and a re-appraisal is asked for when the deviation passes the threshold (hook of lane B1).
+    await recordGovernanceEffects(scope, { id: change.projectId, code: change.projectCode, classification: change.classification }, change.governance, now);
     return this.answer(scope, change);
   }
 

@@ -1,14 +1,16 @@
 import { Body, Controller, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { PayClaimStore, contractScope } from '@machvon/db';
+import { PayClaimStore, TenantDatabase, contractScope } from '@machvon/db';
 import type { ContractScopes } from '@machvon/db';
 import { NOOP_METRICS, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, MetricsSink } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import type { CommandScope } from '../../command-scope';
+import { enforceSod } from '../../sod-gate';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
+import { PaymentIntegrityGuard } from './payment-integrity.controller';
 import { answer, recordPayment } from './payment-record';
 import type { PaymentCommandResult } from './payment-record';
 import { PAY_METRICS } from './tokens';
@@ -28,8 +30,9 @@ const scopesFor = (access: EffectiveAccess, permission: string, now: Date): Cont
 @Controller()
 export class PaymentClaimController {
   private readonly claims: PayClaimStore;
+  private readonly integrity = new PaymentIntegrityGuard();
 
-  constructor(@Optional() @Inject(PAY_METRICS) metrics?: MetricsSink) {
+  constructor(@Optional() @Inject(PAY_METRICS) metrics?: MetricsSink, @Optional() @Inject(TenantDatabase) private readonly database?: TenantDatabase) {
     this.claims = new PayClaimStore(metrics ?? NOOP_METRICS);
   }
 
@@ -39,15 +42,20 @@ export class PaymentClaimController {
   @Command({ operation: 'post_payment_requests_id_submit', versioned: true })
   async submit(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['PayPaymentSubmit']): Promise<PaymentCommandResult> {
     const now = new Date();
+    // G4-2: the payment integrity checks run first, in this transaction; a blocking finding commits its run and refuses (the request stays a draft).
+    const checked = await this.integrity.beforeSubmit(scope, access, id.toLowerCase(), now);
+    if (checked.blocked !== undefined) return checked.blocked;
     const done = await this.claims.submit(
       scope.tx,
       id.toLowerCase(),
       scope.expectedVersion ?? 0,
-      { expectedGrossVnd: body.expected_gross_vnd, expectedNetVnd: body.expected_net_vnd, requestId: scope.requestId },
+      { expectedGrossVnd: body.expected_gross_vnd, expectedNetVnd: body.expected_net_vnd, requestId: scope.requestId, planWaiverVnd: checked.planWaiverVnd },
       scope.tenant.membershipId,
       scopesFor(access, SUBMIT_PERMISSION, now),
       vietnamDateOf(now),
     );
+    // G4-1: sending a request is the requesting duty of the separation-of-duties matrix (a refusal rolls the submission back).
+    await enforceSod(scope, this.database, { taking: done.requestKind === 'ADVANCE' ? 'advance.request' : 'payment.request', subjectKind: 'payment_request', recordId: done.id, command: 'post_payment_requests_id_submit' }, now);
     await recordPayment(scope, done, 'payment_request.submitted', 'pay.payment_request.submitted.v1', now);
     return answer(scope, done);
   }
@@ -59,6 +67,7 @@ export class PaymentClaimController {
   async verify(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['PayVerifyPaymentRequest']): Promise<PaymentCommandResult> {
     const now = new Date();
     const done = await this.claims.verify(scope.tx, id.toLowerCase(), scope.expectedVersion ?? 0, body.note, scope.tenant.membershipId, scopesFor(access, VERIFY_PERMISSION, now));
+    await enforceSod(scope, this.database, { taking: done.requestKind === 'ADVANCE' ? 'advance.approve' : 'payment.verify', subjectKind: 'payment_request', recordId: done.id, command: 'verifyPaymentRequest' }, now);
     await recordPayment(scope, done, 'payment_request.verified', 'pay.payment_request.verified.v1', now, body.note?.trim());
     return answer(scope, done);
   }

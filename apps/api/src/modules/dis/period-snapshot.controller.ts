@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { DIS_SNAPSHOT_BUILD_METRIC, DIS_SNAPSHOT_FREEZE_METRIC, DisPeriodStore, DisSnapshotStore, SNAPSHOT_RESOURCE, TenantDatabase, projectScope } from '@machvon/db';
+import { DIS_SNAPSHOT_BUILD_METRIC, DIS_SNAPSHOT_FREEZE_METRIC, DisCrossTotalStore, DisPeriodStore, DisSnapshotStore, SNAPSHOT_RESOURCE, TenantDatabase, crossTotalRecord, projectScope } from '@machvon/db';
 import type { PeriodSnapshotLineRow, PeriodSnapshotRow } from '@machvon/db';
 import { DomainError, NOOP_METRICS, SNAPSHOT_KINDS, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, MetricsSink, SnapshotKind, TenantContext } from '@machvon/kernel';
@@ -85,6 +85,7 @@ function dayOf(value: unknown, field: string): string {
 export class PeriodSnapshotController {
   private readonly snapshots = new DisSnapshotStore();
   private readonly periods = new DisPeriodStore();
+  private readonly crossTotals = new DisCrossTotalStore();
   private readonly clock: () => Date;
   private readonly metrics: MetricsSink;
 
@@ -164,13 +165,32 @@ export class PeriodSnapshotController {
     const now = this.clock();
     // Freezing makes a figure official and replaces the one frozen before: it is for a person whose permission covers the whole tenant.
     if (projectScope(access, FREEZE_PERMISSION, now)(1).sql !== 'true') throw new DomainError('SCOPE_DENIED', 403, 'scope');
+    // The cross-total control (G4-5): the indicator is not published unless the disbursed money added up by unit, by fund and by project is one number to the dong. It is judged once the snapshot is known to be freezable (the
+    // version and the state keep their own answers), and the check is kept whether or not it agrees; a refusal commits the check and the audit row and answers CROSS_TOTAL_MISMATCH naming the dimension that disagrees.
+    const pending = await this.snapshots.find(scope.tx, id, true);
+    let crossTotalCheckId: string | null = null;
+    if (pending !== undefined && pending.status === 'BUILDING' && pending.version === (scope.expectedVersion ?? 0)) {
+      const check = await this.crossTotals.evaluate(scope.tx, id, scope.tenant.membershipId, 'FREEZE_GATE');
+      const record = crossTotalRecord(check, scope.tenant.tenantId, scope.tenant.membershipId, now);
+      await scope.audit(record.audit);
+      await scope.emit(record.event);
+      if (!check.published) {
+        scope.refuseAfterCommit(
+          new DomainError('CROSS_TOTAL_MISMATCH', 422, 'dimension', {
+            extensions: { cross_total_check_id: check.id, snapshot_id: id, disagreeing: check.disagreeing, agreeing: check.agreeing, totals: { unit: check.totals.UNIT, fund: check.totals.FUND, project: check.totals.PROJECT }, offset_vnd: check.offsetVnd, unattributed_fund_vnd: check.unattributedFundVnd },
+          }),
+        );
+        return commandResult(scope, pending.status, pending.version, id);
+      }
+      crossTotalCheckId = check.id;
+    }
     const done = await this.snapshots.freeze(scope.tx, id, scope.expectedVersion ?? 0, scope.tenant.membershipId, now);
     const { snapshot } = done;
     await scope.audit({
       action: 'dis.snapshot_frozen',
       resourceType: SNAPSHOT_RESOURCE,
       resourceId: id,
-      diff: { period_id: snapshot.periodId, snapshot_kind: snapshot.snapshotKind, payload_sha256: snapshot.payloadSha256, row_count: snapshot.rowCount, definition_status: snapshot.definitionStatus, supersedes_id: done.supersededId, version: snapshot.version },
+      diff: { period_id: snapshot.periodId, snapshot_kind: snapshot.snapshotKind, payload_sha256: snapshot.payloadSha256, row_count: snapshot.rowCount, definition_status: snapshot.definitionStatus, supersedes_id: done.supersededId, cross_total_check_id: crossTotalCheckId, version: snapshot.version },
     });
     await scope.emit({
       aggregateType: SNAPSHOT_RESOURCE,

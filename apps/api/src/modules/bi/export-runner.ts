@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { BiDatasetStore, BiExportStore, BiQueryStore, assertFilter } from '@machvon/db';
 import type { BiExportJobRow, TenantTx } from '@machvon/db';
-import { BI_DIMENSION_LABELS, BI_EXPORT_ROW_CAP, BI_EXPORT_TTL_DAYS, DomainError, PDF_ROW_CAP, activeGrants, buildBiExportDocument, csvOf, figureOf, holdsPermission, xlsxOf } from '@machvon/kernel';
+import { BI_DIMENSION_LABELS, BI_EXPORT_ROW_CAP, BI_EXPORT_TTL_DAYS, DomainError, PDF_ROW_CAP, activeGrants, buildBiExportDocument, csvOf, datasetAdapterOf, figureOf, holdsPermission, xlsxOf } from '@machvon/kernel';
 import type { BiExportFormat, EffectiveAccess, TenantContext } from '@machvon/kernel';
 import type { FileService } from '../files/file.service';
 import { pdfOf } from '../dis/export-pdf';
@@ -42,6 +42,8 @@ export interface ExportSpec {
   filters: Array<{ field: string; operator: 'eq' | 'in' | 'gte' | 'lte'; value: unknown }>;
   snapshotId: string | undefined;
   asOfPeriod: string | undefined;
+  /** The dataset the period (or the latest version) is of; DS-DISB when none is named. A snapshot names its own dataset. */
+  datasetCode?: string | undefined;
 }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -51,7 +53,7 @@ const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAIL
 export function parseExportSpec(raw: unknown, asOfPeriod: string | undefined, snapshotId: string | undefined): ExportSpec {
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) throw invalid('query_spec');
   const spec = raw as Record<string, unknown>;
-  const allowed = new Set(['metric_version_id', 'dimensions', 'filters', 'as_of_period', 'snapshot_id']);
+  const allowed = new Set(['metric_version_id', 'dimensions', 'filters', 'as_of_period', 'snapshot_id', 'dataset_code']);
   for (const key of Object.keys(spec)) if (!allowed.has(key)) throw invalid(`query_spec.${key}`);
   if (typeof spec.metric_version_id !== 'string' || !UUID.test(spec.metric_version_id)) throw invalid('query_spec.metric_version_id');
   const dimensions = spec.dimensions ?? [];
@@ -75,6 +77,7 @@ export function parseExportSpec(raw: unknown, asOfPeriod: string | undefined, sn
     assertFilter(parsed);
     return parsed;
   });
+  if (spec.dataset_code !== undefined && (typeof spec.dataset_code !== 'string' || datasetAdapterOf(spec.dataset_code) === undefined)) throw invalid('query_spec.dataset_code');
   const inner = { period: spec.as_of_period, snapshot: spec.snapshot_id };
   if (inner.period !== undefined && (typeof inner.period !== 'string' || inner.period.length < 4 || inner.period.length > 20)) throw invalid('query_spec.as_of_period');
   if (inner.snapshot !== undefined && (typeof inner.snapshot !== 'string' || !UUID.test(inner.snapshot))) throw invalid('query_spec.snapshot_id');
@@ -84,6 +87,7 @@ export function parseExportSpec(raw: unknown, asOfPeriod: string | undefined, sn
     filters: parsed,
     snapshotId: ((snapshotId ?? inner.snapshot) as string | undefined)?.toLowerCase(),
     asOfPeriod: asOfPeriod ?? (inner.period as string | undefined),
+    ...(spec.dataset_code === undefined ? {} : { datasetCode: spec.dataset_code as string }),
   };
 }
 
@@ -132,7 +136,10 @@ export class BiExportRunner {
   /** The version of the dataset the export reads: the one named, the latest frozen of the period, or the latest frozen of all. */
   private async resolveVersion(tx: TenantTx, spec: ExportSpec): Promise<string> {
     const found =
-      spec.snapshotId ?? (spec.asOfPeriod === undefined ? (await this.queries.latestFrozenVersion(tx, DATASET_CODE))?.versionId : await this.queries.latestSnapshotOfPeriod(tx, spec.asOfPeriod));
+      spec.snapshotId ??
+      (spec.asOfPeriod === undefined
+        ? (await this.queries.latestFrozenVersion(tx, spec.datasetCode ?? DATASET_CODE))?.versionId
+        : await this.queries.latestSnapshotOfPeriod(tx, spec.asOfPeriod, spec.datasetCode ?? DATASET_CODE));
     if (found === undefined) throw new DomainError('SNAPSHOT_NOT_FOUND', 422, 'snapshot_id');
     return found;
   }
@@ -140,8 +147,10 @@ export class BiExportRunner {
   async run(tx: TenantTx, tenant: TenantContext, input: RunInput): Promise<Outcome> {
     const { spec, now } = input;
     const versionId = await this.resolveVersion(tx, spec);
-    const version = await this.queries.versionOfSnapshot(tx, DATASET_CODE, versionId);
+    // A snapshot belongs to its own dataset; a dataset the spec names must be that one.
+    const version = await this.queries.versionOfSnapshotAny(tx, versionId);
     if (version === undefined) throw new DomainError('SNAPSHOT_NOT_FOUND', 422, 'snapshot_id');
+    if (spec.datasetCode !== undefined && version.datasetCode !== spec.datasetCode) throw new DomainError('VALIDATION_FAILED', 422, 'query_spec.dataset_code');
     // A snapshot that is named and a period that is named are the same period.
     if (spec.snapshotId !== undefined && spec.asOfPeriod !== undefined && version.periodCode !== spec.asOfPeriod) throw new DomainError('VALIDATION_FAILED', 422, 'as_of_period');
     const cap = input.format === 'PDF' ? PDF_ROW_CAP : BI_EXPORT_ROW_CAP;

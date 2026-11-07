@@ -12,7 +12,7 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { BiQueryCache } from './query-cache';
-import { BiQueryEngine, DATASET_CODE, FILTER_FIELDS, QUERY_PERMISSION } from './query-engine';
+import { BiQueryEngine, FILTER_FIELDS, QUERY_PERMISSION } from './query-engine';
 import type { Answer, Reading } from './query-engine';
 import { specOf } from './query-jobs';
 import { BI_CLOCK, BI_DRILL_KEY, BI_QUERY_COST_LIMIT } from './tokens';
@@ -140,7 +140,7 @@ export class BiQueryController {
       metricCode: read.metricCode,
       metricRevision: read.metricRevision,
       versionId: read.version.datasetVersionId,
-      datasetCode: DATASET_CODE,
+      datasetCode: read.version.datasetCode,
       asOfPeriod: read.version.periodCode,
       runId: contextId,
       observedAt: now,
@@ -293,7 +293,8 @@ export class BiQueryController {
     // An old token may be renewed (that is what it is for); one that is not the member's own is not.
     const old = await this.queries.findContext(tx, claims.ctx_id);
     if (old === undefined || old.createdBy !== tenant.membershipId) return this.refusedToken(scope, 'bi.drill_refresh_denied', 'context');
-    const latest = await this.queries.latestSnapshotOfPeriod(tx, old.asOfPeriod);
+    // The newest version of the period is the newest of the dataset the old snapshot belongs to.
+    const latest = await this.queries.latestSnapshotOfPeriod(tx, old.asOfPeriod, (await this.queries.versionOfSnapshotAny(tx, old.snapshotId))?.datasetCode);
     if (latest === undefined) throw new DomainError('SNAPSHOT_NOT_FOUND', 422);
     const reading = await this.engine.read(tx, tenant.membershipId, access, old.metricVersionId, latest, now, true);
     if (reading.denied !== undefined) throw new DomainError(reading.denied, 403);
@@ -483,7 +484,7 @@ export class BiQueryController {
     const projects = projectScope(access, QUERY_PERMISSION, now);
     const units = (first: number) => scopePredicate(access, QUERY_PERMISSION, now, { unitPath: 'u.path', unitId: 'u.id' }, first);
     for (const filter of filters) {
-      if (filter.field === 'unit' && filter.operator === 'eq' && !(await this.queries.unitStillReadable(tx, read.version.sourceSnapshotId, String(filter.value), projects, units))) return true;
+      if (filter.field === 'unit' && filter.operator === 'eq' && !(await this.queries.unitStillReadable(tx, read.version.sourceSnapshotId, String(filter.value), projects, units, read.adapter))) return true;
     }
     return false;
   }

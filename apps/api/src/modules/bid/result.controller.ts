@@ -8,6 +8,7 @@ import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
+import { enforceSod } from '../../sod-gate';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { assertWithinDelegation } from '../../doa-delegation';
@@ -67,6 +68,8 @@ export class ResultController {
       projectScope(access, SUBMIT_PERMISSION, now),
       now,
     );
+    // G4-1: proposing the result of a package is the award duty of the separation-of-duties matrix.
+    await enforceSod(scope, this.database, { taking: 'bid.award', subjectKind: 'bid_result', recordId: made.id, command: 'submitProcurementResult' }, now);
     const facts = {
       package_id: made.packageId,
       project_id: made.projectId,
@@ -105,6 +108,8 @@ export class ResultController {
       now,
       { authorise: (facts) => this.limit(scope, access, facts, now) },
     );
+    // Deciding the result is the sign-off duty of the matrix.
+    await enforceSod(scope, this.database, { taking: 'bid.sign_off', subjectKind: 'bid_result', recordId: done.id, command: 'decideProcurementResult' }, now);
     const facts = {
       package_id: done.packageId,
       project_id: done.projectId,

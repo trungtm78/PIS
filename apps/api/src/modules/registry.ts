@@ -1,3 +1,4 @@
+import { PUBLIC_EDITION_MANIFEST, moduleInEdition } from '@machvon/kernel';
 import type { Provider, Type } from '@nestjs/common';
 import type { AppModuleOptions } from '../app.module';
 import type { ModuleDescriptor } from './module-descriptor';
@@ -9,6 +10,7 @@ import { bidModule } from './bid';
 import { capModule } from './cap';
 import { ctrModule } from './ctr';
 import { dgvModule } from './dgv';
+import { dirModule } from './dir';
 import { disModule } from './dis';
 import { docModule } from './doc';
 import { iamModule } from './iam';
@@ -31,7 +33,7 @@ import { sasModule } from './sas';
 import { searchModule } from './search';
 
 /** Every business module of the API, sorted by code. A slice adds one line here (one import and one entry). */
-export const MODULES: readonly ModuleDescriptor[] = [admModule, astModule, audModule, biModule, bidModule, capModule, ctrModule, dgvModule, disModule, docModule, filesModule, homeModule, iamModule, issModule, llmModule, lndModule, mdmModule, mneModule, mobModule, notificationsModule, omniModule, orchestrationModule, payModule, pmtModule, prjModule, qmsModule, sasModule, searchModule];
+export const MODULES: readonly ModuleDescriptor[] = [admModule, astModule, audModule, biModule, bidModule, capModule, ctrModule, dgvModule, dirModule, disModule, docModule, filesModule, homeModule, iamModule, issModule, llmModule, lndModule, mdmModule, mneModule, mobModule, notificationsModule, omniModule, orchestrationModule, payModule, pmtModule, prjModule, qmsModule, sasModule, searchModule];
 
 function activeModules(options: AppModuleOptions, modules: readonly ModuleDescriptor[]): ModuleDescriptor[] {
   const codes = new Set<string>();
@@ -39,7 +41,14 @@ function activeModules(options: AppModuleOptions, modules: readonly ModuleDescri
     if (codes.has(module.code)) throw new Error(`module ${module.code} is registered twice`);
     codes.add(module.code);
   }
-  return modules.filter((module) => module.enabled?.(options) ?? true);
+  return modules.filter((module) => (module.enabled?.(options) ?? true) && existsInEdition(module, options));
+}
+
+/** Whether the module exists in the edition of the options (the public one when they name none): its own list of editions and the manifest's module list both say yes. */
+function existsInEdition(module: ModuleDescriptor, options: AppModuleOptions): boolean {
+  const manifest = options.edition ?? PUBLIC_EDITION_MANIFEST;
+  if (module.editions !== undefined && !module.editions.includes(manifest.edition)) return false;
+  return moduleInEdition(manifest, module.code);
 }
 
 /** The controllers of the active modules, in registry order; the control-plane part of a module only with the control plane. */

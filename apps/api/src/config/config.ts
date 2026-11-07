@@ -1,6 +1,8 @@
 import { createPrivateKey } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { DEFAULT_EDITION, isEdition } from '@machvon/kernel';
+import type { Edition } from '@machvon/kernel';
 
 const FIELD_KEY_BYTES = 32;
 
@@ -45,6 +47,8 @@ export interface Config {
   workersEnabled: boolean;
   /** Where the license signing key (the provisioning saga issues the pilot license with it) is read from; the key is read when first needed. */
   licenseKeys: { keyId: string | undefined; keyPath: string | undefined; retiredKeyId: string | undefined; retiredPublicKeyPath: string | undefined };
+  /** The product edition this process serves (`MACHVON_EDITION`; public when unset): which modules are mounted (ENT-0). */
+  edition: Edition;
 }
 
 export interface ConfigProblem {
@@ -210,6 +214,8 @@ export function loadConfig(env: Env, io: ConfigIo = fileIo): Config {
     return word === 'false' || word === '0' ? false : undefined;
   });
 
+  const edition = optional<Edition>('MACHVON_EDITION', DEFAULT_EDITION, 'public or enterprise', (value) => (isEdition(value) ? value : undefined));
+
   const alertWebhookUrl = read('ALERT_WEBHOOK_URL');
   if (alertWebhookUrl !== undefined && !urlWith(alertWebhookUrl, ['https:', 'http:'])) fail('ALERT_WEBHOOK_URL', 'malformed', 'an http(s) URL of the alert webhook');
 
@@ -237,5 +243,6 @@ export function loadConfig(env: Env, io: ConfigIo = fileIo): Config {
       retiredKeyId: read('LICENSE_RETIRED_KEY_ID'),
       retiredPublicKeyPath: read('LICENSE_RETIRED_KEY_PUBLIC_PEM_PATH'),
     },
+    edition,
   };
 }

@@ -5,7 +5,7 @@ import { BI_JOB_BATCH, BI_RESULT_TTL_SECONDS, DomainError, NOOP_METRICS } from '
 import type { MetricsSink, TenantContext } from '@machvon/kernel';
 import { holdsNow, isDatabaseError } from './export-runner';
 import { BiQueryCache } from './query-cache';
-import { BiQueryEngine, DATASET_CODE, FILTER_FIELDS, QUERY_PERMISSION } from './query-engine';
+import { BiQueryEngine, FILTER_FIELDS, QUERY_PERMISSION } from './query-engine';
 
 export const QUERY_JOB_DONE_METRIC = 'bi_query_job_completed_total';
 export const QUERY_JOB_REFUSED_METRIC = 'bi_query_job_refused_total';
@@ -116,7 +116,7 @@ async function runOne(tx: TenantTx, tenant: TenantContext, engine: BiQueryEngine
     metricCode: read.metricCode,
     metricRevision: read.metricRevision,
     versionId: read.version.datasetVersionId,
-    datasetCode: DATASET_CODE,
+    datasetCode: read.version.datasetCode,
     asOfPeriod: read.version.periodCode,
     runId: job.id,
     observedAt: now,

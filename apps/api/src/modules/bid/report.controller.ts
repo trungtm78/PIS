@@ -8,6 +8,7 @@ import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
+import { enforceSod } from '../../sod-gate';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
@@ -93,6 +94,8 @@ export class ReportController {
       scope.tenant.membershipId,
     );
     const { report } = made;
+    // G4-1: drawing up the evaluation report is the evaluation duty of the separation-of-duties matrix.
+    await enforceSod(scope, this.database, { taking: 'bid.evaluate', subjectKind: 'bid_report', recordId: report.id, command: 'createEvaluationReport' }, now);
     const facts = {
       package_id: report.package.id,
       package_code: report.package.code,
@@ -129,6 +132,7 @@ export class ReportController {
       scope.tenant.membershipId,
     );
     const { report } = signed;
+    await enforceSod(scope, this.database, { taking: 'bid.evaluate', subjectKind: 'bid_report', recordId: report.id, command: 'signOffEvaluationReport' }, now);
     const signatures = report.signedOffBy.length;
     const facts = {
       package_id: report.package.id,

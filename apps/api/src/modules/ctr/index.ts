@@ -1,4 +1,5 @@
 import { defineModule } from '../module-descriptor';
+import { ContractAnalyticsController } from './analytics.controller';
 import { AcceptanceController, AcceptanceReadsController } from './acceptance.controller';
 import { BoqController, BoqLineReadsController } from './boq.controller';
 import { ChangeChainController, ChangeRequestReadsController } from './change.controller';
@@ -47,5 +48,6 @@ export const ctrModule = defineModule({
     ScorecardReadsController,
     ContractorExportController,
     ContractorExportReadsController,
+    ContractAnalyticsController,
   ],
 });

@@ -72,6 +72,8 @@ export function changeRequestView(line: CtrChangeLine, rights: ChangeRights, act
     effective_on: line.effectiveOn,
     resulting_revision_id: line.resultingRevisionId,
     retroactive: line.retroactive,
+    tier: line.tier,
+    cumulative_variation_pct: line.cumulativeVariationPct,
     submitted_by: line.submittedBy,
     evaluated_by: line.evaluatedBy,
     decided_by: line.decidedBy,

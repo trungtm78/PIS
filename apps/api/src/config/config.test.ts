@@ -50,6 +50,7 @@ describe('loadConfig', () => {
       tenantToken: { issuer: 'https://api.example.test', keyId: 'k1', retired: undefined },
       telemetry: { exporter: 'none', otlpEndpoint: undefined, serviceName: 'machvon-api' },
       workersEnabled: true,
+      edition: 'public',
       licenseKeys: { keyId: undefined, keyPath: undefined, retiredKeyId: undefined, retiredPublicKeyPath: undefined },
     });
     expect(config.outboxSigningKey).toHaveLength(32);
@@ -190,6 +191,18 @@ describe('loadConfig', () => {
 
   it('refuses a WORKERS_ENABLED that is not a boolean, instead of guessing', () => {
     expect(failure({ ...GOOD, WORKERS_ENABLED: 'yes' }).problems).toEqual([expect.objectContaining({ name: 'WORKERS_ENABLED', problem: 'malformed' })]);
+  });
+
+  it('serves the public edition unless MACHVON_EDITION says enterprise (blank is unset)', () => {
+    expect(loadConfig({ ...GOOD, MACHVON_EDITION: 'enterprise' }, io).edition).toBe('enterprise');
+    expect(loadConfig({ ...GOOD, MACHVON_EDITION: ' public ' }, io).edition).toBe('public');
+    expect(loadConfig({ ...GOOD, MACHVON_EDITION: '  ' }, io).edition).toBe('public');
+  });
+
+  it('refuses an edition that is neither public nor enterprise, naming the variable and not the value', () => {
+    const error = failure({ ...GOOD, MACHVON_EDITION: 'Enterprise-Plus' });
+    expect(error.problems).toEqual([expect.objectContaining({ name: 'MACHVON_EDITION', problem: 'malformed' })]);
+    expect(error.message).not.toContain('Enterprise-Plus');
   });
 
   it('passes the license signing key settings through for the provisioning saga to read lazily', () => {

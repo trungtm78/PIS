@@ -366,6 +366,17 @@ export const APPROVER_COMMANDS: readonly ApproverCommand[] = [
     seedMadeBy: (objectId, maker) => [seedDoaMatrix(objectId, maker), []],
   },
   {
+    operationId: 'approveGovernanceRule',
+    build: (objectId) => ({ method: 'POST', path: `/governance-rules/${objectId}/approve`, ifMatch: '"1"', body: { reason: 'maker-checker matrix approval' } }),
+    // A version submitted by its own maker: the maker (and the submitter) may not approve it.
+    seedMadeBy: (objectId, maker) => [
+      `insert into machvon.governance_rule (tenant_id, id, rule_type, code, version, status, params, effective_from, reason, created_by, submitted_by, submitted_at)
+       values (current_setting('app.tenant_id')::uuid, $1::uuid, 'REMINDER_POLICY', 'MX_' || upper(replace($1::text, '-', '')), 1, 'SUBMITTED',
+               '{"every_working_hours":{"URGENT":4,"ACTION":8,"WATCH":40},"max_per_item":{"URGENT":40,"ACTION":20,"WATCH":8}}'::jsonb, date '2999-01-01', 'Maker-checker matrix rule', $2::uuid, $2::uuid, now())`,
+      [objectId, maker],
+    ],
+  },
+  {
     operationId: 'decideMasterChangeRequest',
     build: (objectId) => ({
       method: 'POST',

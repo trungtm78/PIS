@@ -5,8 +5,10 @@ import type { EffectiveAccess } from '@machvon/kernel';
 import { HOME_READ_PERMISSION } from './scope-hash';
 
 /** The units and the projects the reader may read in HOME, as the predicates the work sources are compiled over. */
-export function workScopes(access: EffectiveAccess, now: Date): { unitScope: ScopeBuilder; projectScope: ScopeBuilder } {
+export function workScopes(access: EffectiveAccess, now: Date): { unitScope: ScopeBuilder; projectScope: ScopeBuilder; holds: (permission: string, wholeTenant?: boolean) => boolean } {
   return {
+    // The sources that are for a role judge their audience by the permission of the role: through any grant, or only through a grant on the whole tenant for the records that belong to no unit.
+    holds: (permission, wholeTenant = false) => activeGrants(access, now).some((grant) => (!wholeTenant || grant.scope.kind === 'TENANT') && grant.permissions.some((held) => permissionMatches(held, permission))),
     unitScope: (first) => scopePredicate(access, HOME_READ_PERMISSION, now, { unitPath: 'u.path', unitId: 'u.id' }, first),
     projectScope: projectScope(access, HOME_READ_PERMISSION, now),
   };

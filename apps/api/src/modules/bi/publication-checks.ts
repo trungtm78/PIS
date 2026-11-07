@@ -1,7 +1,7 @@
 import { BiDashboardStore, BiMetricStore, BiPolicyStore, BiQueryStore } from '@machvon/db';
 import type { DashboardRecord, DashboardVersionRecord, MetricRow, PolicyRow, TenantTx } from '@machvon/db';
-import { DISBURSEMENT_DIMENSIONS, DomainError, failedCheck, measurePlanOf, reproductionChecks } from '@machvon/kernel';
-import type { MeasurePlan, MetricAggregation, PublicationCheck, PublicationKind } from '@machvon/kernel';
+import { DISBURSEMENT_ADAPTER, DomainError, datasetAdapterOf, failedCheck, measurePlanOf, reproductionChecks } from '@machvon/kernel';
+import type { DatasetAdapter, MeasurePlan, MetricAggregation, PublicationCheck, PublicationKind } from '@machvon/kernel';
 
 export type Subject =
   | { kind: 'METRIC'; metric: MetricRow }
@@ -42,15 +42,17 @@ export class PublicationChecks {
     if (metric === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     // The metrics of the platform are certified by the review of the repository; a revision that is certified, superseded or retired is not asked for again.
     if (metric.origin !== 'TENANT_UI' || (metric.status !== 'DRAFT' && metric.status !== 'IN_REVIEW')) throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'status');
+    // The fields and dimensions a metric may use are those of the dataset it is a metric of (the latest frozen version of that dataset is what it is rerun over); a metric of a dataset the engine does not read has none.
+    const frozen = metric.datasetId === null ? undefined : await this.queries.latestFrozenOfDataset(tx, metric.datasetId);
+    const adapter: DatasetAdapter = (frozen === undefined ? undefined : datasetAdapterOf(frozen.datasetCode)) ?? DISBURSEMENT_ADAPTER;
     let plan: MeasurePlan | undefined;
     try {
-      plan = measurePlanOf({ aggregationType: metric.aggregationType as MetricAggregation, expressionAst: metric.expressionAst, numeratorAst: metric.numeratorAst, denominatorAst: metric.denominatorAst });
+      plan = measurePlanOf({ aggregationType: metric.aggregationType as MetricAggregation, expressionAst: metric.expressionAst, numeratorAst: metric.numeratorAst, denominatorAst: metric.denominatorAst }, adapter);
     } catch (error) {
       if (!(error instanceof DomainError)) throw error;
     }
-    const frozen = plan === undefined || metric.datasetId === null ? undefined : await this.queries.latestFrozenOfDataset(tx, metric.datasetId);
-    const known = metric.dimensionCodes.filter((code) => code in DISBURSEMENT_DIMENSIONS);
-    const reproduction = plan === undefined || frozen?.snapshotId == null ? undefined : await this.queries.reproduce(tx, frozen.snapshotId, plan, known.length > 0 ? known : [DEFAULT_DIMENSION]);
+    const known = metric.dimensionCodes.filter((code) => Object.prototype.hasOwnProperty.call(adapter.dimensions, code));
+    const reproduction = plan === undefined || frozen?.snapshotId == null ? undefined : await this.queries.reproduce(tx, frozen.snapshotId, plan, known.length > 0 ? known : [DEFAULT_DIMENSION], adapter);
     const checks = reproductionChecks(plan !== undefined, reproduction);
     const failed = failedCheck(checks);
     if (failed !== undefined) throw new DomainError('REPRODUCIBILITY_CHECK_FAILED', 422, failed.code, { extensions: { checks } });

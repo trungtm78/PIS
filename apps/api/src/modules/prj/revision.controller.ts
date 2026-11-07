@@ -12,6 +12,7 @@ import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
+import { recordGovernanceEffects } from './governance-effects';
 import { SHARED_PIPELINE_CACHE } from './pipeline-cache';
 import type { PipelineCache } from './pipeline-cache';
 import { reaches } from './reach';
@@ -131,6 +132,8 @@ export class ProjectRevisionController {
         eventKey: `project:${change.projectId}:revised:${change.id}`,
       });
       scope.afterCommit(() => this.cache.invalidate(scope.tenant.tenantId));
+      // G1-3: the next version of the baseline, a pushed-back end year counted as a move of a date, and the request to appraise again when the deviation passes the threshold (hook of lane B1).
+      await recordGovernanceEffects(scope, { id: change.projectId, code: change.projectCode, classification: change.classification }, change.governance, now);
     }
     return this.answer(scope, change);
   }

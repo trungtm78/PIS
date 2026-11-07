@@ -1,4 +1,5 @@
 import type { Provider, Type } from '@nestjs/common';
+import type { Edition } from '@machvon/kernel';
 import type { AppModuleOptions } from '../app.module';
 
 const MODULE_CODE = /^[A-Z]{2,6}$/;
@@ -15,6 +16,11 @@ export interface ModuleDescriptor {
   providers?: readonly Provider[];
   /** Whether the module is active for these application options; default: always. */
   enabled?(options: AppModuleOptions): boolean;
+  /**
+   * The editions the module exists in (ENT-0); default: all of them. A module of one edition only lists it, so the other edition mounts none of its
+   * controllers or providers. The manifest of the edition (`options.edition`) can switch a module off as well, by its code.
+   */
+  editions?: readonly Edition[];
   /**
    * What the module adds only where the application options carry the control plane (`options.control`). The controllers
    * and providers above stay active without it, so a read that needs no control database is never switched off by it.

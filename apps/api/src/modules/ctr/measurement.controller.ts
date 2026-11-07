@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { CtrMeasurementStore, TenantDatabase, contractScope } from '@machvon/db';
 import type { ContractScopes, CtrMeasurementResult } from '@machvon/db';
@@ -8,6 +8,7 @@ import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
 import type { CommandScope } from '../../command-scope';
+import { enforceSod } from '../../sod-gate';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
@@ -38,6 +39,9 @@ const scopesFor = (access: EffectiveAccess, permission: string, now: Date): Cont
 @Controller()
 export class MeasurementController {
   private readonly measurements = new CtrMeasurementStore();
+
+  /** For the trace of a refused attempt of the separation-of-duties gate (G4-1); without it the refusal is still enforced, only its separate trace is not written. */
+  constructor(@Optional() @Inject(TenantDatabase) private readonly database?: TenantDatabase) {}
 
   @Post('contracts/:id/measurements')
   @HttpCode(200)
@@ -95,6 +99,8 @@ export class MeasurementController {
       scope.tenant.membershipId,
       scopesFor(access, DECIDE_PERMISSION, now),
     );
+    // G4-1: deciding is the approval duty of the separation-of-duties matrix (a refusal rolls the decision back).
+    await enforceSod(scope, this.database, { taking: 'measurement.approve', subjectKind: 'measurement', recordId: done.id, command: 'post_measurements_id_decision' }, now);
     const action = done.decision === 'approve' ? 'approved' : done.decision === 'return' ? 'returned' : 'rejected';
     await this.written(scope, done, `measurement.${action}`, `ctr.measurement.${action}.v1`, now, { decision: done.decision, evidence_ids: done.evidenceIds }, done.reason);
     return commandResult(scope, done.status, done.version, done.id);

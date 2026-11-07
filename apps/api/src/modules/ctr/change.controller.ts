@@ -1,6 +1,7 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { BidContractorStore, CtrChangeChainStore, CtrChangeDecisionStore, CtrContractSource, CtrRetroactiveStore, DoaMatrixStore, TenantDatabase, contractScope, projectScope } from '@machvon/db';
+import { BidContractorStore, CtrChangeChainStore, CtrChangeDecisionStore, CtrChangeTierStore, CtrContractSource, CtrRetroactiveStore, DoaMatrixStore, TenantDatabase, contractScope, projectScope } from '@machvon/db';
+import type { TierOutcome } from '@machvon/db';
 import type { ContractScopes, CtrChangeResult, CtrDecisionResult, CtrRetroactiveResult, CtrSetTiersResult } from '@machvon/db';
 import { CHANGE_DOA_DOCUMENT_TYPE, DomainError, asUuid, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
@@ -27,6 +28,8 @@ const WITHDRAW_PERMISSION = PERMISSIONS.withdrawChangeRequest;
 const DECIDE_PERMISSION = PERMISSIONS.post_contract_changes_id_decision;
 const ADJUST_PERMISSION = PERMISSIONS.approveRetroactiveAdjustment;
 const CHAIN_READ_PERMISSION = PERMISSIONS.getChangeChain;
+const CLEAR_ADJUSTMENT_PERMISSION = PERMISSIONS.clearChangeAdjustmentCheck;
+const ADJUSTMENT_RESOURCE = 'change_adjustment_check';
 const REQUEST_READ_PERMISSION = PERMISSIONS.get_resources_change_request;
 const CONFIG_RESOURCE = 'change_chain_config';
 const REVISION_RESOURCE = 'contract_revision';
@@ -56,6 +59,7 @@ export class ChangeChainController {
   private readonly retroactive = new CtrRetroactiveStore(this.source);
   private readonly contractors = new BidContractorStore();
   private readonly doa = new DoaMatrixStore();
+  private readonly tiers = new CtrChangeTierStore();
 
   constructor(
     @Inject(TenantDatabase) private readonly database: TenantDatabase,
@@ -129,9 +133,17 @@ export class ChangeChainController {
       },
       scope.tenant.membershipId,
       scopesFor(access, EVALUATE_PERMISSION, now),
-      { available: (allocationLineId, amountVnd) => this.commitments.assertCanAbsorb(scope, allocationLineId, amountVnd) },
+      {
+        available: (allocationLineId, amountVnd) => this.commitments.assertCanAbsorb(scope, allocationLineId, amountVnd),
+        // The tier of the change order by the thresholds of the policy of the day; a cumulative variation at the threshold raises the check of the project adjustment.
+        classify: async (facts) => {
+          const outcome = await this.tiers.classify(scope.tx, facts, scope.tenant.membershipId, vietnamDateOf(now));
+          if (outcome.checkRaised) await this.checkRaised(scope, outcome, now);
+          return { tier: outcome.classification.tier, cumulativePct: outcome.classification.cumulativePct, checkRaised: outcome.checkRaised };
+        },
+      },
     );
-    await this.written(scope, done, 'change.evaluated', 'ctr.change.evaluated.v1', now, {});
+    await this.written(scope, done, 'change.evaluated', 'ctr.change.evaluated.v1', now, { tier: done.tier ?? null, cumulative_variation_pct: done.cumulativeVariationPct ?? null });
     return commandResult(scope, done.status, done.version, done.id);
   }
 
@@ -181,10 +193,96 @@ export class ChangeChainController {
             unconfigured: 'ALLOW',
           }),
         available: (allocationLineId, amountVnd) => this.commitments.assertCanAbsorb(scope, allocationLineId, amountVnd),
+        // The tiers of the change orders (G1-8): the check of the project adjustment, the source of an increase, and the authority asked for the larger of the change and the cumulative variation.
+        gate: (facts: { changeId: string; contractId: string; projectId: string; deltaVnd: string }) =>
+          this.tiers.gate(scope.tx, facts, scope.tenant.membershipId, vietnamDateOf(now)).then((outcome) => ({ authorityAmountVnd: outcome.classification.authorityAmountVnd })),
       },
     );
     await this.decided(scope, done, now);
     return commandResult(scope, done.status, done.version, done.id);
+  }
+
+  @Post('change-requests/:id/adjustment-check')
+  @HttpCode(200)
+  @OperationId('clearChangeAdjustmentCheck')
+  @Command({ operation: 'clearChangeAdjustmentCheck', versioned: true })
+  async clearAdjustment(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['CtrClearAdjustmentCheck']): Promise<CommandResult & Record<string, unknown>> {
+    const now = new Date();
+    const done = await this.tiers.clear(
+      scope.tx,
+      id.toLowerCase(),
+      scope.expectedVersion ?? 0,
+      { basis: body.basis, decisionDocumentVersionId: body.decision_document_version_id },
+      scope.tenant.membershipId,
+      scopesFor(access, CLEAR_ADJUSTMENT_PERMISSION, now),
+      vietnamDateOf(now),
+    );
+    const facts = { change_request_id: done.changeId, contract_id: done.contractId, project_id: done.projectId, cumulative_pct: done.cumulativePct, decision_document_version_id: body.decision_document_version_id };
+    await scope.audit({ action: 'change.adjustment_check_cleared', resourceType: ADJUSTMENT_RESOURCE, resourceId: done.checkId, classification: CLASSIFICATION, reason: body.basis, diff: facts });
+    await scope.emit({
+      aggregateType: ADJUSTMENT_RESOURCE,
+      aggregateId: done.checkId,
+      aggregateVersion: done.version,
+      type: 'ctr.change.adjustment_check_cleared.v1',
+      schemaVersion: 1,
+      payload: { tenant_id: scope.tenant.tenantId, ...facts, version: done.version, actor_id: scope.tenant.membershipId, occurred_at: now.toISOString() },
+      eventKey: `${ADJUSTMENT_RESOURCE}:${done.checkId}:${done.version}`,
+    });
+    return { ...commandResult(scope, 'CLEARED', done.version, done.checkId), change_request_id: done.changeId };
+  }
+
+  /** The tier of a change order, where an increase is paid from and the check of the project adjustment (CTR-19, CTR-26), in the scope of the caller. */
+  @Get('change-requests/:id/tier')
+  @OperationId('getChangeTier')
+  async tier(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string): Promise<Record<string, unknown>> {
+    const now = new Date();
+    const found = await this.database.withTenant(tenant, async (tx) => {
+      const outcome = await this.tiers.view(tx, id.toLowerCase(), contractScope(access, CHAIN_READ_PERMISSION, now), vietnamDateOf(now));
+      if (outcome === undefined) return undefined;
+      const project = await this.source.projectRef(tx, outcome.projectId);
+      return { outcome, project };
+    });
+    // A request in another tenant or outside the scope of the caller is indistinguishable from one that does not exist.
+    if (found === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    const { outcome } = found;
+    const refs = found.project === undefined ? [] : refsOf(found.project, outcome.projectId, outcome.contractId);
+    const { classification, funding, policy, check } = outcome;
+    return {
+      change_id: outcome.changeId,
+      code: outcome.code,
+      stage: outcome.stage,
+      status: outcome.status,
+      version: outcome.version,
+      contract_id: outcome.contractId,
+      project_id: outcome.projectId,
+      tier: classification.tier,
+      cumulative_after_vnd: classification.cumulativeAfterVnd,
+      cumulative_pct: classification.cumulativePct,
+      delta_pct: classification.deltaPct,
+      forces_adjustment: classification.forcesAdjustment,
+      authority_amount_vnd: classification.authorityAmountVnd,
+      funding: { needs_cover: funding.needsCover, covered: funding.covered, covered_by: funding.coveredBy, shortfall_vnd: funding.shortfallVnd, approved_drawdown_vnd: outcome.approvedDrawdownVnd, contingency_balance_vnd: outcome.contingencyBalanceVnd },
+      check:
+        check === null
+          ? null
+          : {
+              id: check.id,
+              status: check.status,
+              cumulative_pct: check.cumulativePct,
+              threshold_pct: check.thresholdPct,
+              basis: check.basis,
+              decision_document_version_id: check.decisionDocumentVersionId,
+              required_at: check.requiredAt,
+              cleared_by: check.clearedBy,
+              cleared_at: check.clearedAt,
+              audit_notified_at: check.auditNotifiedAt,
+            },
+      policy: { version: policy.version, source: policy.source, project_adjustment_pct: policy.projectAdjustmentPct, require_reserve_cover: policy.requireReserveCover },
+      actions: {
+        clear_adjustment: outcome.stage === 'CO' && outcome.status === 'EVALUATED' && classification.forcesAdjustment && check?.status !== 'CLEARED' && reaches(access, CLEAR_ADJUSTMENT_PERMISSION, refs, now),
+      },
+      as_of: now.toISOString(),
+    };
   }
 
   @Post('change-requests/:id/retroactive-adjustment')
@@ -221,6 +319,9 @@ export class ChangeChainController {
             unconfigured: 'ALLOW',
           }),
         available: (allocationLineId, amountVnd) => this.commitments.assertCanAbsorb(scope, allocationLineId, amountVnd),
+        // The tiers of the change orders (G1-8): the check of the project adjustment, the source of an increase, and the authority asked for the larger of the change and the cumulative variation.
+        gate: (facts: { changeId: string; contractId: string; projectId: string; deltaVnd: string }) =>
+          this.tiers.gate(scope.tx, facts, scope.tenant.membershipId, vietnamDateOf(now)).then((outcome) => ({ authorityAmountVnd: outcome.classification.authorityAmountVnd })),
       },
     );
     await this.adjusted(scope, done, now);
@@ -258,6 +359,30 @@ export class ChangeChainController {
     // A project of another tenant, or one the caller does not reach, is indistinguishable from one that does not exist.
     if (view === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     return view;
+  }
+
+  /** The audit row and the event that tell the audit a cumulative variation reached the threshold of the policy and a check of the project adjustment is required (G1-8). */
+  private async checkRaised(scope: CommandScope, outcome: TierOutcome, now: Date): Promise<void> {
+    const facts = {
+      change_request_id: outcome.changeId,
+      contract_id: outcome.contractId,
+      project_id: outcome.projectId,
+      cumulative_pct: outcome.classification.cumulativePct,
+      threshold_pct: outcome.policy.projectAdjustmentPct,
+      tier: outcome.classification.tier,
+      tier_rule_version: outcome.policy.version,
+    };
+    const checkId = outcome.check?.id ?? outcome.changeId;
+    await scope.audit({ action: 'change.adjustment_check_required', resourceType: ADJUSTMENT_RESOURCE, resourceId: checkId, classification: CLASSIFICATION, diff: facts });
+    await scope.emit({
+      aggregateType: ADJUSTMENT_RESOURCE,
+      aggregateId: checkId,
+      aggregateVersion: 1,
+      type: 'ctr.change.adjustment_check_required.v1',
+      schemaVersion: 1,
+      payload: { tenant_id: scope.tenant.tenantId, ...facts, actor_id: scope.tenant.membershipId, occurred_at: now.toISOString() },
+      eventKey: `${ADJUSTMENT_RESOURCE}:${checkId}:required`,
+    });
   }
 
   private async configured(scope: CommandScope, done: CtrSetTiersResult, now: Date): Promise<void> {
