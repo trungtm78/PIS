@@ -1,0 +1,72 @@
+{
+  "id": "01-dang-nhap",
+  "group": "Làm quen",
+  "title": "Đăng nhập, chọn tổ chức và làm quen với màn hình chính",
+  "audience": "Mọi người dùng",
+  "outcome": "Đăng nhập an toàn vào hệ thống, chọn đúng tổ chức, nhận biết các phần của màn hình chính và đọc nhanh các con số điều hành.",
+  "persona": "owner",
+  "steps": [
+    {
+      "id": "mo-he-thong",
+      "screens": [],
+      "heading": "Mở hệ thống",
+      "text": "Mở địa chỉ hệ thống do đơn vị cấp. Khi bạn chưa đăng nhập, hoặc phiên làm việc đã hết hạn, màn hình hiện thông báo Phiên làm việc đã hết hạn cùng nút Đăng nhập. Hãy bấm nút này để bắt đầu.",
+      "note": "Đây là cổng vào hệ thống, chưa phải một màn hình nghiệp vụ. Dữ liệu bạn đang nhập dở trong biểu mẫu được giữ lại khi phiên hết hạn."
+    },
+    {
+      "id": "dang-nhap",
+      "screens": [
+        "IAM-01"
+      ],
+      "heading": "Bấm Đăng nhập",
+      "text": "Hệ thống chuyển sang trang xác thực của tổ chức, nơi bạn nhập tài khoản và mật khẩu. Mật khẩu chỉ được nhập ở đó, hệ thống MACHVON không bao giờ nhìn thấy mật khẩu của bạn. Xác thực xong, bạn được đưa trở lại hệ thống.",
+      "note": "Trong môi trường quay clip, nhà cung cấp xác thực thử đăng nhập ngay nên không hiện trang nhập mật khẩu. Hệ thống thật hiện trang đăng nhập của tổ chức bạn."
+    },
+    {
+      "id": "chon-to-chuc",
+      "screens": [
+        "IAM-04"
+      ],
+      "heading": "Chọn tổ chức",
+      "text": "Màn hình Chọn tổ chức liệt kê từng tổ chức mà tài khoản của bạn thuộc về. Mỗi thẻ cho biết tên tổ chức, loại tài khoản và tình trạng. Tổ chức đang tạm ngừng chỉ cho xem và xuất dữ liệu, không cho thay đổi.",
+      "note": "Nếu bạn chỉ thuộc một tổ chức thì vẫn qua màn hình này một lần để xác nhận nơi làm việc."
+    },
+    {
+      "id": "xac-thuc-lan-hai",
+      "screens": [
+        "IAM-02",
+        "IAM-04"
+      ],
+      "heading": "Xác thực lần hai",
+      "text": "Chọn tổ chức Cao Bằng. Vai trò của bạn cần xác thực mạnh hơn, nên hệ thống hiện hộp thoại Cần xác thực lần hai. Bấm Xác thực, rồi chọn lại tổ chức.",
+      "note": "Các thao tác nhạy cảm yêu cầu bạn đã xác thực lần hai trong 15 phút gần nhất."
+    },
+    {
+      "id": "man-hinh-chinh",
+      "screens": [
+        "HOME-01"
+      ],
+      "heading": "Màn hình Tổng quan điều hành",
+      "text": "Đây là màn hình Tổng quan điều hành của tổ chức bạn vừa chọn. Phía trên là bộ chọn Đơn vị, năm của số liệu và ngày số liệu đến. Phần Ngữ cảnh của số liệu cho biết phạm vi, ngày chốt và ảnh chụp số liệu đang xem. Tiếp theo là hai tỷ lệ giải ngân.",
+      "note": "Mọi con số đều kèm ngữ cảnh: phạm vi, ngày chốt và ảnh chụp số liệu, để bạn biết con số này tính từ đâu."
+    },
+    {
+      "id": "thuc-don",
+      "screens": [
+        "HOME-01"
+      ],
+      "heading": "Thực đơn bên trái",
+      "text": "Thực đơn bên trái chia chức năng theo nhóm. Đầu tiên là Tổng quan, Việc của tôi và Thông báo. Tiếp theo là các nghiệp vụ: Dự án, Kế hoạch vốn, Giải ngân, Thanh toán, Nhà thầu, và Báo cáo. Bấm vào tên nhóm để mở các màn hình con. Mục Đã ghim lưu những màn hình bạn hay dùng.",
+      "note": "Thực đơn chỉ hiện những chức năng mà vai trò của bạn được phép dùng."
+    },
+    {
+      "id": "goc-tren",
+      "screens": [
+        "HOME-01"
+      ],
+      "heading": "Góc trên và tài khoản",
+      "text": "Ở góc trên bên phải, ngôi sao dùng để ghim màn hình đang xem vào mục Đã ghim, và dấu hỏi mở trợ giúp. Tên tài khoản và vai trò của bạn nằm ở cuối thực đơn bên trái.",
+      "note": "Bấm vào tên tài khoản để mở hồ sơ cá nhân, phiên làm việc và đăng xuất."
+    }
+  ]
+}

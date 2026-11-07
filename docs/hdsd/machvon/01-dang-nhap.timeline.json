@@ -1,0 +1,74 @@
+{
+  "flow": "01-dang-nhap",
+  "timeline": [
+    {
+      "id": "mo-he-thong",
+      "heading": "Mở hệ thống",
+      "screens": [],
+      "startMs": 122,
+      "endMs": 13585,
+      "voiceMs": 522
+    },
+    {
+      "id": "dang-nhap",
+      "heading": "Bấm Đăng nhập",
+      "screens": [
+        "IAM-01"
+      ],
+      "startMs": 13585,
+      "endMs": 29662,
+      "voiceMs": 13985
+    },
+    {
+      "id": "chon-to-chuc",
+      "heading": "Chọn tổ chức",
+      "screens": [
+        "IAM-04"
+      ],
+      "startMs": 29662,
+      "endMs": 44337,
+      "voiceMs": 30062
+    },
+    {
+      "id": "xac-thuc-lan-hai",
+      "heading": "Xác thực lần hai",
+      "screens": [
+        "IAM-02",
+        "IAM-04"
+      ],
+      "startMs": 44337,
+      "endMs": 56276,
+      "voiceMs": 44737
+    },
+    {
+      "id": "man-hinh-chinh",
+      "heading": "Màn hình Tổng quan điều hành",
+      "screens": [
+        "HOME-01"
+      ],
+      "startMs": 56276,
+      "endMs": 74413,
+      "voiceMs": 56676
+    },
+    {
+      "id": "thuc-don",
+      "heading": "Thực đơn bên trái",
+      "screens": [
+        "HOME-01"
+      ],
+      "startMs": 74413,
+      "endMs": 96087,
+      "voiceMs": 74813
+    },
+    {
+      "id": "goc-tren",
+      "heading": "Góc trên và tài khoản",
+      "screens": [
+        "HOME-01"
+      ],
+      "startMs": 96087,
+      "endMs": 107979,
+      "voiceMs": 96487
+    }
+  ]
+}

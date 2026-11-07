@@ -1,0 +1,16 @@
+{
+  "title": "Hướng dẫn sử dụng hệ thống MACHVON",
+  "lead": "Tài liệu giới thiệu và hướng dẫn sử dụng toàn bộ hệ thống quản lý đầu tư công MACHVON: trang web trên máy tính và ứng dụng trên điện thoại. Mỗi luồng nghiệp vụ có một clip quay trên hệ thống chạy thật, kèm giọng đọc tiếng Việt, phụ đề và các bước có mốc thời gian.",
+  "paragraphs": [
+    "MACHVON giúp sở, ban, ngành và các chủ đầu tư quản lý dự án đầu tư công từ khi lập kế hoạch đến khi bàn giao: danh mục dự án, kế hoạch và nguồn vốn, hợp đồng và nhà thầu, báo cáo giải ngân hằng tuần, thanh toán và đối soát với Kho bạc, chất lượng và nghiệm thu, giám sát, thanh tra và báo cáo cho lãnh đạo.",
+    "Mỗi người dùng có một vai trò, và thực đơn chỉ hiện những chức năng mà vai trò đó được phép dùng. Mỗi tổ chức (tenant) có dữ liệu riêng, người của tổ chức này không bao giờ thấy dữ liệu của tổ chức khác.",
+    "Các clip đi theo đúng thứ tự công việc thật: thiết lập, nhập dự án, kế hoạch vốn, hợp đồng, báo cáo giải ngân, thanh toán, rồi bảng điều hành của lãnh đạo. Dữ liệu ở clip trước là đầu vào của clip sau, nên con số mà lãnh đạo xem ở cuối là con số do chính các clip trước đã nhập."
+  ],
+  "quickStart": [
+    "Mở địa chỉ hệ thống do đơn vị cấp và bấm Đăng nhập. Tài khoản và mật khẩu được nhập ở trang xác thực của tổ chức (chương 1).",
+    "Nếu bạn thuộc nhiều tổ chức, chọn tổ chức cần làm việc. Vai trò nhạy cảm sẽ được hỏi xác thực lần hai.",
+    "Thực đơn bên trái chia chức năng theo nhóm; bấm vào tên nhóm để mở các màn hình con.",
+    "Chuông ở thực đơn báo thông báo mới; tên tài khoản của bạn nằm cuối thực đơn.",
+    "Xong việc, đăng xuất, nhất là trên máy dùng chung."
+  ]
+}
