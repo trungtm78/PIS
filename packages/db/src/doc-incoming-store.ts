@@ -271,9 +271,22 @@ export class DocIncomingStore {
     }
   }
 
-  /** REGISTERED: the letter has its register (the number was allocated by the register in the same transaction). */
-  async markRegistered(tx: TenantTx, id: string, input: { expectedVersion: number; registerId: string; actor: string }): Promise<void> {
+  /**
+   * REGISTERED: the letter has its register (the number was allocated by the register in the same transaction, and the document has its register number, year, symbol and date). Being in the register is what puts a letter that carries its
+   * original symbol and original issue date in force as a record: its document becomes EFFECTIVE in the same transaction, so that the modules that point at a document (`DocumentReferencePort`) accept it. A letter without them stays PENDING.
+   * Returns whether the document is in force now.
+   */
+  async markRegistered(tx: TenantTx, id: string, input: { expectedVersion: number; registerId: string; actor: string }): Promise<{ documentInForce: boolean }> {
     await this.advance(tx, id, input.expectedVersion, 'register', 'register_id = $3::uuid', [input.registerId], input.actor);
+    const put = await tx.query<{ id: string }>(
+      `update machvon.document d set effect_status = 'EFFECTIVE', updated_at = now(), updated_by = $2::uuid, version = d.version + 1
+         from machvon.incoming_document i
+        where i.id = $1::uuid and d.tenant_id = i.tenant_id and d.id = i.document_id and d.effect_status = 'PENDING'
+          and i.original_symbol is not null and i.original_issued_on is not null and d.document_number is not null and d.number_year is not null and d.symbol is not null and d.issued_on is not null
+        returning d.id`,
+      [id, input.actor],
+    );
+    return { documentInForce: put.length > 0 };
   }
 
   /** ASSIGNED (or reassigned): the unit, the handler, the directive and the deadline, with a row of history. A new assignment starts the clock again: the letter is not overdue until the new deadline passes. */

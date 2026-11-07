@@ -1,7 +1,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { APP_FILTER } from '@nestjs/core';
 import { Client } from 'pg';
-import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
+import { DocIncomingStore, DocumentStore, EffectiveAccessStore, InMemoryAuthzCache, NumberRegisterStore, TenantDatabase } from '@machvon/db';
 import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { CommandModule } from '../../src/command.module';
 import { audModule } from '../../src/modules/aud';
@@ -9,7 +9,7 @@ import { AuditEngagementController, AuditEngagementReadsController } from '../..
 import { MODULES } from '../../src/modules/registry';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
-import { AuthzHarness, TENANT_A, TENANT_B, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
+import { ACTOR, AuthzHarness, TENANT_A, TENANT_B, contextFor, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
 import type { RunningApp } from '../isolation/test-app';
@@ -236,6 +236,46 @@ describe('audit and inspection engagements over HTTP (ST-AUD-001, AUD-02, AUD-03
       const second = await start(MANAGER, engagementId, 2, { place_legal_hold: false });
       expect([second.status, second.json.code]).toEqual([409, 'ENGAGEMENT_STATE_INVALID']);
       expect((await audits(engagementId)).filter((entry) => entry.action === 'aud.engagement_started')).toHaveLength(1);
+    });
+
+    it('opens on a letter that the incoming register took in (it is in force once registered with its original symbol and date), and refuses one that is only received', async () => {
+      const tenant = harness.tenants as TenantDatabase;
+      const context = contextFor(TENANT_A, memberId(MANAGER));
+      const registers = new NumberRegisterStore();
+      const incoming = new DocIncomingStore();
+      const documents = new DocumentStore();
+      const register = await tenant.withTenant(context, (tx) =>
+        registers.openRegister(tx, { registerCode: 'DEN-AUD', name: 'Incoming', direction: 'INCOMING', organizationUnitId: unitId(DEPARTMENT), year: 2026, mode: 'MANAGED', scopeDocTypes: [], actor: ACTOR }),
+      );
+      // The letter as the receive step leaves it, then (for the second one) as the registration step leaves it.
+      const letter = (registered: boolean) =>
+        tenant.withTenant(context, async (tx) => {
+          const document = await documents.insertDocument(tx, { docKind: 'INCOMING', docTypeCode: 'QD', title: 'Decision to inspect, received by letter', classification: 'INTERNAL', createdBy: memberId(MANAGER) });
+          const record = await incoming.insert(tx, {
+            documentId: document.id,
+            channel: 'UPLOAD',
+            receivedAt: new Date('2026-10-20T03:00:00Z'),
+            receivedBy: memberId(MANAGER),
+            originalSymbol: `${randomUUID().slice(0, 6)}/TTCP`,
+            originalIssuedOn: '2026-10-19',
+            senderName: 'Provincial Inspectorate',
+            urgency: 'NORMAL',
+            duplicateOfId: undefined,
+            duplicateOverrideReason: undefined,
+          });
+          if (registered) {
+            await registers.allocateNumber(tx, { registerId: register.id, documentId: document.id, issuedAt: new Date('2026-10-20T03:00:00Z'), symbolPattern: '{number}/{unit}', parts: { unit: register.registerCode }, allocatedBy: memberId(MANAGER) });
+            await incoming.markRegistered(tx, record.id, { expectedVersion: 1, registerId: register.id, actor: memberId(MANAGER) });
+          }
+          return document.id;
+        });
+      const received = await letter(false);
+      const taken = await letter(true);
+      const refused = await create(MANAGER, { decision_document_id: received });
+      expect([refused.status, refused.json.code]).toEqual([422, 'DECISION_DOCUMENT_NOT_EFFECTIVE']);
+      const opened = await create(MANAGER, { decision_document_id: taken });
+      expect(opened.status).toBe(200);
+      expect((await rows<{ decision_document_id: string }>('select decision_document_id from machvon.audit_engagement where id = $1', [idOf(opened)]))[0]?.decision_document_id).toBe(taken);
     });
 
     it('refuses what the register cannot take: a decision that is not in force, a scope that is not in the tenant or is of nothing, a coordinator who is not a member, and a bad window', async () => {

@@ -68,6 +68,7 @@ The module matches `source_ref` **and** `payload_sha256` of its own record; an e
 
 - the document must exist for the tenant of the transaction (404 otherwise, another tenant's included);
 - its effect must be `EFFECTIVE`, or `CORRECTED` (a corrected document stays in force; the answer lists the correction in `relations`);
+- an incoming letter is in force (`EFFECTIVE`) once the incoming register has numbered it (`registerIncomingDocument`) and it carries its original symbol and original issue date; a letter that is only received (`RECEIVED`), or that has no original symbol or date, stays `PENDING`;
 - `PENDING`, `RECALLED`, `REPLACED`, `EXPIRED` answer 422 `DOCUMENT_NOT_EFFECTIVE` with `reason: NOT_EFFECTIVE`, `effect_status` and the `relations` (the documents that replaced or recalled it);
 - a document of a kind the module does not accept answers 422 `DOCUMENT_NOT_EFFECTIVE` with `reason: DOC_TYPE_NOT_ALLOWED`.
 

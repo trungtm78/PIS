@@ -4,7 +4,7 @@ import { markOverdueIncoming } from '../../src/modules/doc/incoming-jobs';
 import { eicarBytes } from '../../src/modules/files/mock-scan';
 import { DocumentStore, loadAccessIn } from '@machvon/db';
 import { PermissionResourceAccess } from '../../src/notifications/resource-access-port';
-import { ACTOR, ADMIN, DocApp, INCOMING_CHIEF, INCOMING_CLERK, INCOMING_OUTSIDE, INCOMING_STAFF, INCOMING_STAFF_TWO, NOBODY, TENANT_A, TENANT_B, memberId, unitId } from './doc-app';
+import { ACTOR, ADMIN, DocApp, INCOMING_CHIEF, INCOMING_CLERK, INCOMING_OUTSIDE, INCOMING_STAFF, INCOMING_STAFF_TWO, NOBODY, REFERENCER, TENANT_A, TENANT_B, memberId, unitId } from './doc-app';
 import { contextFor } from '../../../../packages/db/test/support/authz-fixtures';
 
 jest.setTimeout(240_000);
@@ -232,6 +232,25 @@ describe('incoming documents over HTTP (ST-DOC-011)', () => {
       )
     )[0];
     expect(row).toMatchObject({ doc_kind: 'INCOMING', stage: 'RECEIVED_SCAN', scan_status: 'CLEAN', page_count: 1, checksum: good.sha });
+  });
+
+  it('puts the letter in force as a record when it is registered with its original symbol and date, and only then', async () => {
+    const usability = (documentId: string) => app.call('GET', `/documents/${documentId}/usability`, { member: REFERENCER });
+    const letter = await received();
+    const documentId = letter.reply.json.document_id as string;
+    // Received, not yet registered: the document is pending and cannot be relied on.
+    expect(await usability(documentId)).toMatchObject({ status: 422, json: { code: 'DOCUMENT_NOT_EFFECTIVE', reason: 'NOT_EFFECTIVE', effect_status: 'PENDING' } });
+    const registered = await register(INCOMING_CLERK, letter.id, 1);
+    expect(registered.status).toBe(200);
+    const [row] = await owner<{ effect_status: string; document_number: number; number_year: number; symbol: string; issued_on: string }>('select effect_status, document_number, number_year, symbol, issued_on::text from machvon.document where id = $1', [documentId]);
+    expect(row).toMatchObject({ effect_status: 'EFFECTIVE', document_number: registered.json.number, number_year: 2026, symbol: registered.json.symbol });
+    expect(await usability(documentId)).toMatchObject({ status: 200, json: { effect_status: 'EFFECTIVE', symbol: registered.json.symbol } });
+    // A letter without its original date or symbol is registered as before and its document stays pending.
+    for (const missing of ['original_symbol', 'original_issued_on']) {
+      const bare = await received({ [missing]: undefined });
+      expect((await register(INCOMING_CLERK, bare.id, 1)).status).toBe(200);
+      expect(await usability(bare.reply.json.document_id as string)).toMatchObject({ status: 422, json: { code: 'DOCUMENT_NOT_EFFECTIVE', reason: 'NOT_EFFECTIVE', effect_status: 'PENDING' } });
+    }
   });
 
   it('refuses a registration with no register, a register that is closed, one of another direction or outside the scope, and gives the number back when it fails', async () => {
