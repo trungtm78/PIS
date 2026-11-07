@@ -19,6 +19,8 @@ export interface SidebarProps {
   favourites: readonly string[];
   /** Unread notifications for the badge next to the notifications link; 0 or undefined shows none. */
   unreadNotifications?: number;
+  /** Count badges by destination id (for example the open work of `HOME-02`); 0 or a missing id shows none. */
+  counts?: Readonly<Record<string, number>>;
   onManageFavourites(): void;
   routeTitle(id: string): string | undefined;
   routePath(id: string): string | undefined;
@@ -103,6 +105,7 @@ export function Sidebar(props: SidebarProps) {
     const label = labelText(t, link.label);
     const shortcuts = navigation.shortcuts.get(link.module) ?? [];
     const activeNumber = route?.module === link.module ? Number(route.id.split('-')[1]) : -1;
+    const count = link.id === NOTIFICATIONS ? (props.unreadNotifications ?? 0) : (props.counts?.[link.id] ?? 0);
     const leaf = route !== undefined && route.module === link.module && activeNumber > 1 && !shortcuts.some((shortcut) => shortcut.id === route.id) ? route : undefined;
     return (
       <div key={link.id}>
@@ -121,7 +124,7 @@ export function Sidebar(props: SidebarProps) {
           >
             <Icon name={link.icon} />
             <span>{label}</span>
-            {link.id === NOTIFICATIONS && (props.unreadNotifications ?? 0) > 0 ? <span className="nav-count">{props.unreadNotifications}</span> : null}
+            {count > 0 ? <span className="nav-count">{count}</span> : null}
           </Link>
           {link.expandable ? (
             <button
@@ -165,7 +168,21 @@ export function Sidebar(props: SidebarProps) {
       onKeyDown={props.open ? trapTab : undefined}
       {...modalProps}
     >
-      <div className="tenant-identity">
+      <div className="sidebar-brand">
+        <Link to={props.homePath} className="sidebar-brand-link" aria-label={t('shell.brand.home.label')}>
+          <span className="sidebar-brand-mark" aria-hidden="true">
+            M
+          </span>
+          <span className="sidebar-brand-copy">
+            <strong>{t('shell.brand.name.text')}</strong>
+            <small>{t('shell.brand.tagline.text')}</small>
+          </span>
+        </Link>
+        <button type="button" className="workspace-drawer-close" ref={props.closeButton} onClick={props.onClose} aria-label={t('shell.nav.close.label')}>
+          <Icon name="close" />
+        </button>
+      </div>
+      <div className="tenant-identity workspace-card">
         {/* The name starts with the letters the link shows, so that the visible label is in the accessible name (WCAG 2.5.3). */}
         <Link to={props.homePath} className="tenant-monogram" aria-label={t('shell.tenant.home.label', { monogram: tenant?.monogram ?? '·', name: tenant?.name ?? '' })}>
           {tenant?.monogram ?? '·'}
@@ -178,9 +195,6 @@ export function Sidebar(props: SidebarProps) {
           </span>
         </Link>
         <TenantSwitcher tenants={props.tenants} current={tenant} onSwitch={props.onSwitchTenant} />
-        <button type="button" className="workspace-drawer-close" ref={props.closeButton} onClick={props.onClose} aria-label={t('shell.nav.close.label')}>
-          <Icon name="close" />
-        </button>
       </div>
       <nav className="single-sidebar-scroll" aria-label={t('shell.nav.main.label')}>
         <div className="personal-navigation">{navigation.personal.map(renderLink)}</div>

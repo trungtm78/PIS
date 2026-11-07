@@ -7,6 +7,7 @@ import { routeById, routeByPath } from '../routes/registry';
 import { WEB_ROUTES } from '../routes/web-routes';
 import { useUnreadBadge } from '../screens/not/inbox/badge';
 import { useSession } from '../session/SessionContext';
+import { useAlertCounts } from '../ui/alerts';
 import { AppLibrary } from './AppLibrary';
 import type { LibraryScope } from './AppLibrary';
 import { FavouritesDialog } from './FavouritesDialog';
@@ -23,6 +24,8 @@ const HOME = 'HOME-01';
 const ACCOUNT = 'IAM-05';
 const TENANT_CHOOSER = 'IAM-04';
 const HELP = 'IAM-08';
+const SEARCH = 'IAM-07';
+const TASKS = 'HOME-02';
 const FALLBACK_PATH = '/';
 
 const isWebScreen = (id: string): boolean => routeById(id) !== undefined;
@@ -77,6 +80,9 @@ export function Shell() {
   const tenantName = session.tenant?.name ?? '';
   // The badge follows the inbox once it is loaded; until then the session's own figure stands.
   const unreadNotifications = useUnreadBadge(session.user?.unreadNotifications);
+  // The work waiting for the person is the badge of the task list; it reads the same counts as the alert bell (one query).
+  const alertCounts = useAlertCounts('mine');
+  const counts = useMemo(() => ({ [TASKS]: alertCounts.data?.counts.total ?? 0 }), [alertCounts.data]);
 
   return (
     <div className="app workspace-app" id="screen-capture">
@@ -88,6 +94,7 @@ export function Shell() {
         user={session.user}
         favourites={favourites}
         unreadNotifications={unreadNotifications}
+        counts={counts}
         onManageFavourites={() => setOverlay({ kind: 'favourites' })}
         routeTitle={titleOf}
         routePath={pathOf}
@@ -109,6 +116,9 @@ export function Shell() {
           screenId={route?.id}
           pinned={route !== undefined && isPinned(route.id)}
           helpPath={pathOf(HELP)}
+          searchPath={pathOf(SEARCH)}
+          accountPath={pathOf(ACCOUNT)}
+          user={session.user}
           period={String(new Date().getFullYear())}
           drawerOpen={drawerOpen}
           menuButton={menuButton}

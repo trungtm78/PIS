@@ -1,0 +1,11 @@
+{
+  "shell.brand.name.text": "MACHVON",
+  "shell.brand.tagline.text": "Public investment management",
+  "shell.brand.home.label": "MACHVON: home",
+  "shell.search.field.label": "Quick record search",
+  "shell.search.field.placeholder": "Quick record search",
+  "shell.search.field.hint": "Ctrl K",
+  "shell.search.link.label": "Quick record search",
+  "shell.topbar.account.label": "{initials}: account of {name}",
+  "shell.topbar.actions.label": "Page tools"
+}

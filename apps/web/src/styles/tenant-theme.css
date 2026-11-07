@@ -21,7 +21,12 @@
 [data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .all-applications,
 [data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .favorite-link,
 [data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .sidebar-context a:not([aria-current]),
-[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .single-sidebar-footer > button {
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .single-sidebar-footer > button,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .sidebar-brand-copy strong,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .tenant-name strong,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .account-link,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .account-link strong,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .workspace-drawer-close {
   color: var(--mv-theme-menu-text);
 }
 
@@ -54,11 +59,6 @@
   color: var(--mv-theme-title-color);
 }
 
-[data-mv-tenant-theme][data-mv-theme-keys~="primary"] .workspace-sidebar .destination-active > .sidebar-link,
-[data-mv-tenant-theme][data-mv-theme-keys~="primary"] .workspace-sidebar .sidebar-context a[aria-current] {
-  box-shadow: inset 3px 0 var(--mv-theme-primary);
-}
-
 [data-mv-tenant-theme][data-mv-theme-keys~="primary"] .workspace-app .heading .actions .primary,
 [data-mv-tenant-theme][data-mv-theme-keys~="primary"] .workspace-app button.primary,
 [data-mv-tenant-theme][data-mv-theme-keys~="primary"] .tenant-monogram {
@@ -78,4 +78,87 @@
 
 [data-mv-tenant-theme][data-mv-theme-keys~="footerText"] .tenant-live-footer {
   color: var(--mv-theme-footer-text);
+}
+
+/*
+ * What the dark sidebar draws with its own tokens (the workspace card, the muted text, the hover surface, the lines) follows
+ * the menu text colour when a tenant sets it, so that a light menu keeps readable text: the card and the hover are a
+ * tint of the text colour over the menu, the muted text is the text colour at 78%.
+ */
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .tenant-identity,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .sidebar-destination:not(.destination-active) > .sidebar-link:hover,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .all-applications:hover,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .favorite-link:not([aria-current]):hover,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .sidebar-context a:not([aria-current]):hover,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .single-sidebar-footer > button:hover,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .sidebar-expand:hover {
+  background: color-mix(in srgb, var(--mv-theme-menu-text) 10%, transparent);
+}
+
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .sidebar-destination:not(.destination-active) .sidebar-link svg,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .sidebar-expand,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .all-applications > svg:last-child,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .favorite-link svg,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .favorites-manage,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .favorites-empty,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .sidebar-section h2,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .sidebar-brand-copy small,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .tenant-name > span,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .account-link small,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .account-link > span:last-child {
+  color: color-mix(in srgb, var(--mv-theme-menu-text) 78%, transparent);
+}
+
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .sidebar-context,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .single-sidebar-footer,
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .account-link {
+  border-color: color-mix(in srgb, var(--mv-theme-menu-text) 18%, transparent);
+}
+
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] .workspace-sidebar .tenant-switcher {
+  background: transparent;
+  color: var(--mv-theme-menu-text);
+  border-color: color-mix(in srgb, var(--mv-theme-menu-text) 40%, transparent);
+}
+
+/* The page title block and the top bar icons follow the header text colour. */
+[data-mv-tenant-theme][data-mv-theme-keys~="headerText"] .workspace-topbar .page-utilities button,
+[data-mv-tenant-theme][data-mv-theme-keys~="headerText"] .workspace-topbar .page-utilities a,
+[data-mv-tenant-theme][data-mv-theme-keys~="headerText"] .workspace-topbar .period-label {
+  color: var(--mv-theme-header-text);
+}
+
+/* The primary button keeps a visible hover: a darker shade of the tenant's own primary colour. */
+[data-mv-tenant-theme][data-mv-theme-keys~="primary"] .workspace-app .heading .actions .primary:hover,
+[data-mv-tenant-theme][data-mv-theme-keys~="primary"] .workspace-app button.primary:hover {
+  background: color-mix(in srgb, var(--mv-theme-primary) 82%, black);
+  border-color: color-mix(in srgb, var(--mv-theme-primary) 82%, black);
+}
+
+/*
+ * Derived tokens (design.md): the shell and the components read these before the base --mv-color-* tokens, so a tenant
+ * theme recolours them without a screen naming a colour. Each one is derived from the colour that already passed the
+ * contrast check of SAS-04 against the surface it sits on:
+ *   selectedBar  - the selected text colour (contrasts with the selected surface);
+ *   tableHead    - the title colour (contrasts with white, so white head text keeps the same ratio), group tier 20% darker;
+ *   focus        - the primary colour at 60% over black (a ring of at least 3:1 on white surfaces);
+ *   focusOnDark  - the menu text colour (contrasts with the menu surface);
+ *   primaryHover - the primary colour at 82% over black.
+ */
+[data-mv-tenant-theme][data-mv-theme-keys~="selectedText"] {
+  --mv-derived-selected-bar: var(--mv-theme-selected-text);
+}
+
+[data-mv-tenant-theme][data-mv-theme-keys~="titleColor"] {
+  --mv-derived-table-head: var(--mv-theme-title-color);
+  --mv-derived-table-head-group: color-mix(in srgb, var(--mv-theme-title-color) 80%, black);
+}
+
+[data-mv-tenant-theme][data-mv-theme-keys~="primary"] {
+  --mv-derived-focus: color-mix(in srgb, var(--mv-theme-primary) 60%, black);
+  --mv-derived-primary-hover: color-mix(in srgb, var(--mv-theme-primary) 82%, black);
+}
+
+[data-mv-tenant-theme][data-mv-theme-keys~="menuText"] {
+  --mv-derived-focus-on-dark: var(--mv-theme-menu-text);
 }
