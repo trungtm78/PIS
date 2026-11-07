@@ -5,9 +5,9 @@
       "id": "mo-he-thong",
       "heading": "Mở hệ thống",
       "screens": [],
-      "startMs": 122,
-      "endMs": 13585,
-      "voiceMs": 522
+      "startMs": 115,
+      "endMs": 13568,
+      "voiceMs": 515
     },
     {
       "id": "dang-nhap",
@@ -15,9 +15,9 @@
       "screens": [
         "IAM-01"
       ],
-      "startMs": 13585,
-      "endMs": 29662,
-      "voiceMs": 13985
+      "startMs": 13568,
+      "endMs": 29658,
+      "voiceMs": 13968
     },
     {
       "id": "chon-to-chuc",
@@ -25,9 +25,9 @@
       "screens": [
         "IAM-04"
       ],
-      "startMs": 29662,
-      "endMs": 44337,
-      "voiceMs": 30062
+      "startMs": 29658,
+      "endMs": 44365,
+      "voiceMs": 30058
     },
     {
       "id": "xac-thuc-lan-hai",
@@ -36,9 +36,9 @@
         "IAM-02",
         "IAM-04"
       ],
-      "startMs": 44337,
-      "endMs": 56276,
-      "voiceMs": 44737
+      "startMs": 44365,
+      "endMs": 56309,
+      "voiceMs": 44765
     },
     {
       "id": "man-hinh-chinh",
@@ -46,9 +46,9 @@
       "screens": [
         "HOME-01"
       ],
-      "startMs": 56276,
-      "endMs": 74413,
-      "voiceMs": 56676
+      "startMs": 56309,
+      "endMs": 74427,
+      "voiceMs": 56709
     },
     {
       "id": "thuc-don",
@@ -56,9 +56,9 @@
       "screens": [
         "HOME-01"
       ],
-      "startMs": 74413,
-      "endMs": 96087,
-      "voiceMs": 74813
+      "startMs": 74427,
+      "endMs": 96106,
+      "voiceMs": 74827
     },
     {
       "id": "goc-tren",
@@ -66,9 +66,9 @@
       "screens": [
         "HOME-01"
       ],
-      "startMs": 96087,
-      "endMs": 107979,
-      "voiceMs": 96487
+      "startMs": 96106,
+      "endMs": 108022,
+      "voiceMs": 96506
     }
   ]
 }

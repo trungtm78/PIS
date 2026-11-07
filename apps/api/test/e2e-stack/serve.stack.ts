@@ -30,6 +30,7 @@ import {
 import type { DeliveryEngine, ThemeConfig } from '@machvon/db';
 import { startMigratedTestDatabase } from '@machvon/db/src/migrated-test-database';
 import type { TestDatabase } from '@machvon/db/src/test-database';
+import { PERMISSIONS } from '@machvon/contracts';
 import { DomainError, METRIC_SET_VERSION, STANDARD_FEATURES, buildLines, loadErrorRegistry, verifyTenantContext } from '@machvon/kernel';
 import type { SnapshotProject } from '@machvon/kernel';
 import { Client, Pool } from 'pg';
@@ -1170,8 +1171,10 @@ const DOCS_PEOPLE: DocsPerson[] = JSON.parse(readFileSync(resolve(REPO_ROOT, 'ap
 /** The roles of a unit made from the permissions the tests use: the staff of the project board do the work, the leader decides, the accountant pays. */
 function docsRoles(): Array<{ n: number; code: string; permissions: string[]; rank: number }> {
   const unique = (roles: ReadonlyArray<{ permissions: readonly string[] }>): string[] => [...new Set(roles.flatMap((role) => role.permissions))];
-  const everything = unique(E2E_ROLES);
-  const deciding = (permission: string): boolean => /approve|publish|decide|certify|sign/.test(permission);
+  // The permissions of the product's own catalogue, but not the ones of the platform (tenants, licences, models): a unit of a tenant does not hold those.
+  const platform = /^(system|llm|license|subscription|support|control|internal|edge)./;
+  const everything = [...new Set([...unique(E2E_ROLES), ...Object.values(PERMISSIONS)])].filter((permission) => !platform.test(permission));
+  const deciding = (permission: string): boolean => /approve|publish|decide|certify|sign|review|accept|confirm/.test(permission);
   return [
     { n: 901, code: 'CAN_BO_BAN_QLDA', permissions: everything.filter((permission) => !deciding(permission)), rank: 45 },
     { n: 902, code: 'LANH_DAO_SO', permissions: everything.filter((permission) => deciding(permission) || permission.endsWith('.read')), rank: 65 },

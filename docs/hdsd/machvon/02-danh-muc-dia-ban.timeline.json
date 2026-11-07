@@ -1,0 +1,75 @@
+{
+  "flow": "02-danh-muc-dia-ban",
+  "timeline": [
+    {
+      "id": "khai-bao-loai-van-ban",
+      "heading": "Khai báo loại văn bản",
+      "screens": [
+        "DOC-21"
+      ],
+      "startMs": 115,
+      "endMs": 24349,
+      "voiceMs": 515
+    },
+    {
+      "id": "nhan-van-ban",
+      "heading": "Tiếp nhận văn bản quyết định",
+      "screens": [
+        "DOC-11"
+      ],
+      "startMs": 24349,
+      "endMs": 44899,
+      "voiceMs": 24749
+    },
+    {
+      "id": "van-ban-trong-so",
+      "heading": "Văn bản nằm trong sổ văn bản đến",
+      "screens": [
+        "DOC-12"
+      ],
+      "startMs": 44899,
+      "endMs": 63210,
+      "voiceMs": 45299
+    },
+    {
+      "id": "de-xuat-dia-ban",
+      "heading": "Đề xuất địa bàn mới vào danh mục",
+      "screens": [
+        "MDM-25"
+      ],
+      "startMs": 63210,
+      "endMs": 89929,
+      "voiceMs": 63610
+    },
+    {
+      "id": "gui-duyet",
+      "heading": "Xem độ ảnh hưởng và gửi duyệt",
+      "screens": [
+        "MDM-25"
+      ],
+      "startMs": 89929,
+      "endMs": 106335,
+      "voiceMs": 90329
+    },
+    {
+      "id": "duyet-ban-ghi",
+      "heading": "Lãnh đạo duyệt các đề xuất",
+      "screens": [
+        "MDM-32"
+      ],
+      "startMs": 106335,
+      "endMs": 128157,
+      "voiceMs": 106735
+    },
+    {
+      "id": "cong-bo",
+      "heading": "Công bố để dùng chung",
+      "screens": [
+        "MDM-32"
+      ],
+      "startMs": 128157,
+      "endMs": 143755,
+      "voiceMs": 128557
+    }
+  ]
+}

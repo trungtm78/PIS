@@ -1,5 +1,5 @@
 {
-  "id": "02-tao-du-an",
+  "id": "03-tao-du-an",
   "group": "Dự án",
   "title": "Lập dự án mới: tạo, kiểm tra nhóm dự án và mở không gian dự án",
   "audience": "Cán bộ Ban quản lý dự án, chủ đầu tư",
@@ -8,49 +8,73 @@
   "steps": [
     {
       "id": "danh-sach-du-an",
-      "screens": ["PRJ-01"],
+      "screens": [
+        "PRJ-01"
+      ],
       "heading": "Danh sách dự án",
       "text": "Mở nhóm Dự án trên thực đơn và chọn Danh sách dự án. Màn hình liệt kê các dự án của đơn vị bạn và các đơn vị con: mã dự án, tên dự án, chủ đầu tư, nhóm, trạng thái, mã dự án quốc gia, giai đoạn và lãnh đạo phụ trách. Muốn lập dự án mới, bấm Tạo dự án.",
       "note": "Có thể tìm theo mã hoặc tên, lọc theo giai đoạn, hoặc chỉ xem các dự án còn thiếu mã dự án quốc gia."
     },
     {
       "id": "mo-bieu-mau",
-      "screens": ["PRJ-02"],
+      "screens": [
+        "PRJ-02"
+      ],
       "heading": "Mở biểu mẫu tạo dự án",
       "text": "Biểu mẫu Tạo dự án hiện ra. Cần nhập năm thông tin bắt buộc: mã dự án, tên dự án, đơn vị quản lý dự án, địa bàn và tổng mức đầu tư dự kiến. Lĩnh vực và loại dự án giúp phân loại dự án về sau.",
       "note": "Mã dự án không được trùng với dự án đã có."
     },
     {
       "id": "kiem-tra-bat-buoc",
-      "screens": ["PRJ-02"],
+      "screens": [
+        "PRJ-02"
+      ],
       "heading": "Hệ thống kiểm tra trước khi gửi",
       "text": "Nếu bấm Tạo dự án khi chưa điền gì, hệ thống không gửi gì lên máy chủ mà báo ngay từng ô còn thiếu bằng dòng chữ: Trường này là bắt buộc.",
       "note": "Dữ liệu chưa hợp lệ không bao giờ được lưu."
     },
     {
       "id": "dien-thong-tin",
-      "screens": ["PRJ-02"],
+      "screens": [
+        "PRJ-02"
+      ],
       "heading": "Điền thông tin dự án",
       "text": "Nhập mã dự án DA-DT205, và tên dự án là Cải tạo, nâng cấp đường tỉnh 205, đoạn từ ki-lô-mét 0 đến ki-lô-mét 12. Chọn đơn vị quản lý dự án là Ban Quản lý dự án, địa bàn là Thành phố Cao Bằng, lĩnh vực Giao thông. Tổng mức đầu tư dự kiến là 150 tỷ đồng, nhập theo đơn vị đồng.",
       "note": "Số tiền phải là số đồng nguyên, không có phần lẻ."
     },
     {
       "id": "ket-qua",
-      "screens": ["PRJ-02"],
+      "screens": [
+        "PRJ-02"
+      ],
       "heading": "Dự án đã được tạo",
       "text": "Bấm Tạo dự án. Hệ thống báo Đã tạo dự án ở giai đoạn Ý tưởng, phiên bản 1. Hệ thống còn gợi ý nhóm dự án theo bảng ngưỡng tổng mức đầu tư đang có hiệu lực: với 150 tỷ đồng là nhóm B. Nhãn Chờ ký cho biết quy tắc ngưỡng này còn chờ người có thẩm quyền xác nhận.",
       "note": "Nhóm dự án chỉ là gợi ý; nhóm chính thức do người có thẩm quyền quyết định."
     },
     {
+      "id": "them-du-an-khac",
+      "screens": [
+        "PRJ-02",
+        "PRJ-01"
+      ],
+      "heading": "Lập thêm các dự án khác",
+      "text": "Ban quản lý dự án lập tiếp hai dự án nữa theo cách tương tự: Trường Tiểu học phường Nùng Trí Cao thuộc lĩnh vực giáo dục, và Trạm y tế phường Tân Giang thuộc lĩnh vực y tế. Danh sách dự án bây giờ có ba dự án, thuộc ba lĩnh vực và ba địa bàn khác nhau.",
+      "note": "Mỗi dự án được tạo ở giai đoạn Ý tưởng; các giai đoạn sau được mở dần qua các chương tiếp theo."
+    },
+    {
       "id": "tim-trong-danh-sach",
-      "screens": ["PRJ-01"],
+      "screens": [
+        "PRJ-01"
+      ],
       "heading": "Tìm dự án trong danh sách",
       "text": "Quay lại Danh sách dự án, dự án mới đã có ở giai đoạn Ý tưởng, kèm nhãn Thiếu mã dự án quốc gia. Gõ mã dự án vào ô tìm kiếm, danh sách chỉ còn đúng dự án đó.",
       "note": "Nhãn Thiếu mã dự án quốc gia nhắc bạn bổ sung mã khi có."
     },
     {
       "id": "khong-gian-du-an",
-      "screens": ["PRJ-03"],
+      "screens": [
+        "PRJ-03"
+      ],
       "heading": "Mở không gian dự án",
       "text": "Bấm vào mã dự án để mở Không gian dự án: nơi gom mọi thông tin của một dự án, gồm kế hoạch, giải ngân và vướng mắc, để các chương sau cùng làm việc trên dự án này.",
       "note": "Các chương tiếp theo dùng lại dự án DA-DT205 vừa tạo."

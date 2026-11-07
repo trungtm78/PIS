@@ -1,0 +1,73 @@
+{
+  "id": "02-danh-muc-dia-ban",
+  "group": "Dữ liệu nền",
+  "title": "Chuẩn bị dữ liệu nền: loại văn bản, văn bản căn cứ và danh mục địa bàn",
+  "audience": "Cán bộ Ban quản lý dự án, lãnh đạo, người quản lý danh mục",
+  "outcome": "Khai báo loại văn bản, tiếp nhận văn bản quyết định làm căn cứ, đề xuất các địa bàn mới vào danh mục, xem độ ảnh hưởng, duyệt và công bố để dùng khi lập dự án.",
+  "persona": "projectManager",
+  "steps": [
+    {
+      "id": "khai-bao-loai-van-ban",
+      "screens": [
+        "DOC-21"
+      ],
+      "heading": "Khai báo loại văn bản",
+      "text": "Trước khi tiếp nhận văn bản, tổ chức cần khai báo các loại văn bản mà mình dùng. Mở màn hình Cấu hình sổ cấp số và loại văn bản. Nhập mã loại, tên loại, viết tắt, chọn nhóm ký hiệu và mẫu ký hiệu, ghi mã sổ cấp số và căn cứ pháp lý, rồi chọn ngày bắt đầu có hiệu lực. Bấm Khai báo loại văn bản. Ở đây khai báo loại Quyết định.",
+      "note": "Phiên bản mới của một loại văn bản có hiệu lực từ ngày chọn và khép phiên bản đang mở."
+    },
+    {
+      "id": "nhan-van-ban",
+      "screens": [
+        "DOC-11"
+      ],
+      "heading": "Tiếp nhận văn bản quyết định",
+      "text": "Mọi thay đổi của danh mục dùng chung đều cần một văn bản làm căn cứ. Cán bộ Ban quản lý dự án mở màn hình Tiếp nhận văn bản đến. Chọn tệp PDF của quyết định, nhập trích yếu, chọn loại văn bản và kênh nhận, rồi khai cơ quan gửi, ký hiệu gốc, ngày ban hành và độ khẩn. Bấm Tiếp nhận.",
+      "note": "Hệ thống kiểm tra loại tệp, quét virus và báo nếu văn bản có vẻ trùng với văn bản đã có."
+    },
+    {
+      "id": "van-ban-trong-so",
+      "screens": [
+        "DOC-12"
+      ],
+      "heading": "Văn bản nằm trong sổ văn bản đến",
+      "text": "Văn bản vừa tiếp nhận được ghi vào Sổ văn bản đến. Mỗi văn bản có số đến, người gửi, thời điểm nhận, trạng thái và hạn xử lý. Mở văn bản để xem chi tiết: ở đó có mã văn bản. Mã này sẽ được dùng làm căn cứ khi công bố danh mục.",
+      "note": "Mã của văn bản sẽ được dùng ở bước công bố danh mục, làm căn cứ cho quyết định."
+    },
+    {
+      "id": "de-xuat-dia-ban",
+      "screens": [
+        "MDM-25"
+      ],
+      "heading": "Đề xuất địa bàn mới vào danh mục",
+      "text": "Mở màn hình Thêm bản ghi danh mục. Chọn loại danh mục là địa bàn. Nền tảng đã công bố sẵn các tỉnh và thành phố; tổ chức chỉ thêm các đơn vị nhỏ hơn của mình, nên chọn cấp cha là tỉnh Cao Bằng. Nhập mã, tên phường và ngày bắt đầu có hiệu lực, rồi ghi lý do đề xuất. Bản ghi chưa có hiệu lực ngay: nó phải được duyệt và công bố. Bấm Lưu nháp và xem độ ảnh hưởng.",
+      "note": "Các tỉnh do nền tảng công bố, tổ chức không sửa được; tổ chức chỉ thêm đơn vị con của chúng."
+    },
+    {
+      "id": "gui-duyet",
+      "screens": [
+        "MDM-25"
+      ],
+      "heading": "Xem độ ảnh hưởng và gửi duyệt",
+      "text": "Sau khi lưu nháp, hệ thống cho biết bản ghi này ảnh hưởng đến những nơi nào. Với địa bàn mới thì chưa có nơi nào đang dùng. Đánh dấu là đã đọc độ ảnh hưởng rồi bấm gửi duyệt. Hai phường còn lại được đề xuất theo cách tương tự.",
+      "note": "Người đề xuất không tự duyệt được bản ghi của chính mình."
+    },
+    {
+      "id": "duyet-ban-ghi",
+      "screens": [
+        "MDM-32"
+      ],
+      "heading": "Lãnh đạo duyệt các đề xuất",
+      "text": "Lãnh đạo mở màn hình Duyệt và công bố danh mục. Hàng chờ liệt kê các đề xuất đang chờ rà soát. Bấm Rà soát ở từng đề xuất, ghi lý do duyệt rồi chọn Duyệt.",
+      "note": "Người đề xuất chỉ thấy hàng chờ, không có nút duyệt trên bản ghi của mình."
+    },
+    {
+      "id": "cong-bo",
+      "screens": [
+        "MDM-32"
+      ],
+      "heading": "Công bố để dùng chung",
+      "text": "Bản ghi đã duyệt chuyển sang phần chờ công bố. Bấm Công bố, nhập mã của văn bản quyết định làm căn cứ rồi xác nhận. Từ lúc này phường có hiệu lực và xuất hiện trong danh sách chọn địa bàn khi lập dự án.",
+      "note": "Mỗi lần công bố đều ghi lại ai duyệt, ai công bố và căn cứ nào."
+    }
+  ]
+}

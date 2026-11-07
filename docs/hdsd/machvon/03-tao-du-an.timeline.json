@@ -1,5 +1,5 @@
 {
-  "flow": "02-tao-du-an",
+  "flow": "03-tao-du-an",
   "timeline": [
     {
       "id": "danh-sach-du-an",
@@ -7,9 +7,9 @@
       "screens": [
         "PRJ-01"
       ],
-      "startMs": 109,
-      "endMs": 20193,
-      "voiceMs": 509
+      "startMs": 76,
+      "endMs": 20119,
+      "voiceMs": 476
     },
     {
       "id": "mo-bieu-mau",
@@ -17,9 +17,9 @@
       "screens": [
         "PRJ-02"
       ],
-      "startMs": 20193,
-      "endMs": 35967,
-      "voiceMs": 20593
+      "startMs": 20119,
+      "endMs": 35872,
+      "voiceMs": 20519
     },
     {
       "id": "kiem-tra-bat-buoc",
@@ -27,9 +27,9 @@
       "screens": [
         "PRJ-02"
       ],
-      "startMs": 35967,
-      "endMs": 45425,
-      "voiceMs": 36367
+      "startMs": 35872,
+      "endMs": 45313,
+      "voiceMs": 36272
     },
     {
       "id": "dien-thong-tin",
@@ -37,9 +37,9 @@
       "screens": [
         "PRJ-02"
       ],
-      "startMs": 45425,
-      "endMs": 67855,
-      "voiceMs": 45825
+      "startMs": 45313,
+      "endMs": 67711,
+      "voiceMs": 45713
     },
     {
       "id": "ket-qua",
@@ -47,9 +47,20 @@
       "screens": [
         "PRJ-02"
       ],
-      "startMs": 67855,
-      "endMs": 85853,
-      "voiceMs": 68255
+      "startMs": 67711,
+      "endMs": 85690,
+      "voiceMs": 68111
+    },
+    {
+      "id": "them-du-an-khac",
+      "heading": "Lập thêm các dự án khác",
+      "screens": [
+        "PRJ-02",
+        "PRJ-01"
+      ],
+      "startMs": 85690,
+      "endMs": 101651,
+      "voiceMs": 86090
     },
     {
       "id": "tim-trong-danh-sach",
@@ -57,9 +68,9 @@
       "screens": [
         "PRJ-01"
       ],
-      "startMs": 85853,
-      "endMs": 98483,
-      "voiceMs": 86253
+      "startMs": 101651,
+      "endMs": 114251,
+      "voiceMs": 102051
     },
     {
       "id": "khong-gian-du-an",
@@ -67,9 +78,9 @@
       "screens": [
         "PRJ-03"
       ],
-      "startMs": 98483,
-      "endMs": 109616,
-      "voiceMs": 98883
+      "startMs": 114251,
+      "endMs": 125380,
+      "voiceMs": 114651
     }
   ]
 }
