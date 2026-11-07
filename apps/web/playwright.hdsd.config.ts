@@ -33,8 +33,15 @@ const servers = (Array.isArray(base.webServer) ? base.webServer : base.webServer
 const config: PlaywrightTestConfig = {
   ...base,
   testDir: './e2e/hdsd',
-  testMatch: '**/*.hdsd.ts',
   timeout: 600_000,
+  // The clips that make the data run one after the other (each needs what the one before made); the tours only read it, so two of them are filmed at a time.
+  workers: 2,
+  projects: [
+    { name: 'dang-nhap', testMatch: '01-*.hdsd.ts' },
+    { name: 'dia-ban', testMatch: '02-*.hdsd.ts', dependencies: ['dang-nhap'] },
+    { name: 'du-an', testMatch: '03-*.hdsd.ts', dependencies: ['dia-ban'] },
+    { name: 'tham-quan', testMatch: 'tours.hdsd.ts', dependencies: ['du-an'], fullyParallel: true },
+  ],
   // A chapter that failed is filmed once more (a service that was busy, a page that was slow); a chapter that still fails does not stop the others.
   retries: 1,
   reporter: [['list']],

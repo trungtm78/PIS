@@ -18,14 +18,17 @@ const chapters = (JSON.parse(readFileSync(join(ROOT, 'scripts', 'hdsd', 'chapter
 const wanted = (process.env.HDSD_CHAPTERS ?? '').split(',').filter((id) => id !== '');
 const catalogue = new Map((JSON.parse(readFileSync(join(ROOT, 'Design', 'MACHVON_Design', '03_Engineering', 'screen_catalog.json'), 'utf8')) as CatalogueScreen[]).map((screen) => [screen.id, screen]));
 const paths = new Map(((JSON.parse(readFileSync(join(ROOT, 'apps', 'web', 'src', 'routes', 'routes.generated.json'), 'utf8')) as { routes: { id: string; path: string }[] }).routes).map((route) => [route.id, route.path]));
-const PERSONA = 'owner';
+/** The people of a unit in the order they are tried: the one who does the work, the leader who decides, the one who pays, the administrator, the owner. A screen is shown with the first who may open it. */
+const PERSONAS = ['projectManager', 'capApprover', 'treasuryMaker', 'unitAdmin', 'owner'];
+/** The person each screen is shown with (found while the screens are looked at). */
+const personaOf = new Map<string, string>();
 
 const idOfPath = new Map([...paths].map(([id, path]) => [path, id]));
 /** Where a record of a screen is opened: the links the other screens show (a row of a list leads to the workspace of its record), kept for the whole run. */
 const harvested = new Map<string, string>();
 
-const withUser = (url: string): string => `${url}${url.includes('?') ? '&' : '?'}devUser=${PERSONA}`;
-const urlOf = (id: string, opened?: string): string => withUser(opened ?? paths.get(id) ?? '/');
+const withUser = (url: string, persona: string): string => `${url}${url.includes('?') ? '&' : '?'}devUser=${persona}`;
+const urlOf = (id: string, opened?: string, persona = personaOf.get(id) ?? PERSONAS[0] ?? 'owner'): string => withUser(opened ?? paths.get(id) ?? '/', persona);
 
 /** The links in a screen to the other screens of the system, so that a screen that needs a record can be opened with one. */
 async function harvest(page: Page): Promise<void> {
@@ -106,11 +109,16 @@ for (const chapter of chapters.filter((candidate) => (wanted.length === 0 || wan
     const facts = new Map<string, Facts>();
     const opened = new Map<string, string>();
     for (const screen of screens) {
-      await page.goto(urlOf(screen.id));
-      await settle(page);
-      await choose(page);
-      await harvest(page);
-      facts.set(screen.id, await probe(page));
+      for (const persona of PERSONAS) {
+        await page.goto(urlOf(screen.id, undefined, persona));
+        await settle(page);
+        await choose(page);
+        await harvest(page);
+        const seen = await probe(page);
+        facts.set(screen.id, seen);
+        personaOf.set(screen.id, persona);
+        if (!seen.denied) break;
+      }
     }
     // A screen that waits for a record is opened again with one, from a link that another screen showed.
     for (const screen of screens) {
