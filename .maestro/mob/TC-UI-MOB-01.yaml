@@ -12,7 +12,7 @@ tags: [P0, S2]
 - takeScreenshot: TC-UI-MOB-01-given
 - tapOn: 'Đổi tổ chức'
 - takeScreenshot: TC-UI-MOB-01-when
-- assertVisible: 'Chào mừng đến MACHVON'   # 1. screen identity
+- assertVisible: 'Chào mừng đến Hệ thống quản lý đầu tư công'   # 1. screen identity
 - assertVisible: 'Mã tổ chức hoặc tên miền'   # 2. the field of the tenant
 - assertVisible: 'Tiếp tục'   # 3. the action
 - takeScreenshot: TC-UI-MOB-01-then

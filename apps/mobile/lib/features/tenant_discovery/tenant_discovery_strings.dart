@@ -3,7 +3,7 @@ import '../../core/l10n/string_table.dart';
 /// The strings of the welcome screen MOB-01.
 const StringTable tenantDiscoveryStrings = StringTable(
   vi: <String, String>{
-    'mob.welcome.title.text': 'Chào mừng đến MACHVON',
+    'mob.welcome.title.text': 'Chào mừng đến Hệ thống quản lý đầu tư công',
     'mob.welcome.body.text': 'Nhập mã tổ chức hoặc tên miền để ứng dụng tải đúng cấu hình đăng nhập và giao diện của tổ chức bạn.',
     'mob.welcome.field.label': 'Mã tổ chức hoặc tên miền',
     'mob.welcome.field.hint': 'ví dụ minh-ha hoặc minhha.machvon.vn',
@@ -12,11 +12,11 @@ const StringTable tenantDiscoveryStrings = StringTable(
     'mob.welcome.rateLimited.text': 'Bạn đã thử quá nhiều lần. Thử lại sau {seconds} giây.',
     'mob.welcome.submit.action': 'Tiếp tục',
     'mob.welcome.last.action': 'Dùng lại {code}',
-    'mob.welcome.logo.label': 'Biểu trưng MACHVON',
+    'mob.welcome.logo.label': 'Biểu trưng Hệ thống quản lý đầu tư công',
     'mob.welcome.domain.label': 'Tên miền',
   },
   en: <String, String>{
-    'mob.welcome.title.text': 'Welcome to MACHVON',
+    'mob.welcome.title.text': 'Welcome to the Public Investment Management System',
     'mob.welcome.body.text': 'Enter your organisation code or domain so the app loads the right sign-in settings and look for your organisation.',
     'mob.welcome.field.label': 'Organisation code or domain',
     'mob.welcome.field.hint': 'for example minh-ha or minhha.machvon.vn',
@@ -25,7 +25,7 @@ const StringTable tenantDiscoveryStrings = StringTable(
     'mob.welcome.rateLimited.text': 'Too many attempts. Try again in {seconds} seconds.',
     'mob.welcome.submit.action': 'Continue',
     'mob.welcome.last.action': 'Use {code} again',
-    'mob.welcome.logo.label': 'MACHVON logo',
+    'mob.welcome.logo.label': 'Public Investment Management System logo',
     'mob.welcome.domain.label': 'Domain',
   },
 );

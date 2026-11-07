@@ -166,7 +166,7 @@ void main() {
       final _Directory directory = _Directory((String q) async => _found(theme: theme));
       final ProviderContainer container = await _pumpWelcome(tester, world, directory, location: '/mob-01?return=%2Fapproval');
 
-      expect(find.text('Chào mừng đến MACHVON'), findsOneWidget);
+      expect(find.text('Chào mừng đến Hệ thống quản lý đầu tư công'), findsOneWidget);
       expect(find.text('Tiếp tục'), findsOneWidget);
       await tester.enterText(find.byType(TextField), 'Minh-Ha');
       await tapText(tester, 'Tiếp tục');
@@ -227,7 +227,7 @@ void main() {
     testWidgets('UI-MOB-01 screen contract at the three devices and at 200 percent text', (WidgetTester tester) async {
       await expectScreenContract(tester, () async {
         await _pumpWelcome(tester, world, _Directory((String q) async => _found()));
-        expect(find.text('Chào mừng đến MACHVON'), findsOneWidget);
+        expect(find.text('Chào mừng đến Hệ thống quản lý đầu tư công'), findsOneWidget);
       });
     });
   });

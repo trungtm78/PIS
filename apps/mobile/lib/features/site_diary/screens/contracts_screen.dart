@@ -130,6 +130,20 @@ class _ContractCard extends StatelessWidget {
           context.t('mob.dry.contract.diary.hint'),
           style: theme.textTheme.bodySmall,
         ),
+        const SizedBox(height: MachvonSpace.space8),
+        Wrap(
+          spacing: MachvonSpace.space8,
+          children: <Widget>[
+            OutlinedButton(
+              onPressed: () => openScreen(context, 'MOB-63', pathSuffix: '/${contract.id}', stacked: true),
+              child: Text(context.t('mob.dry.contract.quantity.action')),
+            ),
+            OutlinedButton(
+              onPressed: () => openScreen(context, 'MOB-64', pathSuffix: '/${contract.id}', stacked: true),
+              child: Text(context.t('mob.dry.contract.inspection.action')),
+            ),
+          ],
+        ),
       ],
     );
   }

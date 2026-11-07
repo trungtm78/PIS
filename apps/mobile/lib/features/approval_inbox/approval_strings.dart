@@ -6,6 +6,7 @@ import '../../core/l10n/string_table.dart';
 const StringTable approvalStrings = StringTable(
   vi: <String, String>{
     'mob.apv.inbox.title': 'Danh sách phê duyệt',
+    'mob.apv.inbox.acceptance.action': 'Duyệt nghiệm thu',
     'mob.apv.inbox.signDocs.action': 'Duyệt và ký văn bản',
     'mob.apv.inbox.incomingDocs.action': 'Văn bản đến cần xử lý',
     'mob.apv.inbox.counts': '{open} việc chờ quyết định, {late} quá hạn',
@@ -110,6 +111,7 @@ const StringTable approvalStrings = StringTable(
   },
   en: <String, String>{
     'mob.apv.inbox.title': 'Approvals',
+    'mob.apv.inbox.acceptance.action': 'Approve acceptance',
     'mob.apv.inbox.signDocs.action': 'Approve and sign documents',
     'mob.apv.inbox.incomingDocs.action': 'Incoming letters to handle',
     'mob.apv.inbox.counts': '{open} waiting for a decision, {late} late',

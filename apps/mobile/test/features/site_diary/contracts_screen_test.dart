@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
+import 'package:machvon_mobile/core/di/providers.dart' show routerProvider;
 import 'package:machvon_mobile/features/site_diary/contract_models.dart';
 
 import '../../support/harness.dart';
@@ -111,6 +112,17 @@ void main() {
 
       await tapText(tester, 'Thử lại');
       expect(find.text('Hợp đồng này chưa có mốc nào.'), findsOneWidget);
+    });
+
+    testWidgets('a contract opens the quantity and the quality check of its site, with its id in the path', (WidgetTester tester) async {
+      useDevice(tester, kTall);
+      final FieldWorld world = await _open(tester, _guestSees);
+      await tapText(tester, 'Ghi nhận khối lượng');
+      expect(currentLocation(world.container), '/projects/mob-63/c-1');
+      world.container.read(routerProvider).pop();
+      await tester.pumpAndSettle();
+      await tapText(tester, 'Kiểm tra chất lượng');
+      expect(currentLocation(world.container), '/projects/mob-64/c-1');
     });
 
     testWidgets('a contract opens the site diary', (WidgetTester tester) async {

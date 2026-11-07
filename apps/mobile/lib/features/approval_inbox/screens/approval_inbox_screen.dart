@@ -38,6 +38,7 @@ class _ApprovalInboxScreenState extends ConsumerState<ApprovalInboxScreen> {
     return ScreenFrame(
       title: context.t('mob.apv.inbox.title'),
       actions: <Widget>[
+        IconButton(tooltip: context.t('mob.apv.inbox.acceptance.action'), icon: const Icon(Icons.fact_check_outlined), onPressed: () => openScreen(context, 'MOB-65', stacked: true)),
         IconButton(tooltip: context.t('mob.apv.inbox.signDocs.action'), icon: const Icon(Icons.draw_outlined), onPressed: () => openScreen(context, 'DOC-22', stacked: true)),
         IconButton(tooltip: context.t('mob.apv.inbox.incomingDocs.action'), icon: const Icon(Icons.move_to_inbox_outlined), onPressed: () => openScreen(context, 'DOC-23', stacked: true)),
       ],

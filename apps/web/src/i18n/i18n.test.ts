@@ -88,9 +88,9 @@ describe('useTranslation', () => {
   it('renders Vietnamese first and re-renders when the locale changes', () => {
     const { result } = renderHook(() => useTranslation());
     expect(result.current.locale).toBe('vi');
-    expect(result.current.t('shell.app.tagline.text')).toBe(viCatalogue['shell.app.tagline.text']);
+    expect(result.current.t('shell.app.name.title')).toBe(viCatalogue['shell.app.name.title']);
     act(() => result.current.setLocale('en'));
     expect(result.current.locale).toBe('en');
-    expect(result.current.t('shell.app.tagline.text')).toBe(en['shell.app.tagline.text']);
+    expect(result.current.t('shell.app.name.title')).toBe(en['shell.app.name.title']);
   });
 });

@@ -696,7 +696,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.textContaining('Chưa bật được'), findsOneWidget);
       expect(await world.vault.biometricUnlock(), isFalse);
-      expect(world.biometrics.prompts, <String>['Bật mở khóa MACHVON bằng sinh trắc học']);
+      expect(world.biometrics.prompts, <String>['Bật mở khóa Hệ thống quản lý đầu tư công bằng sinh trắc học']);
 
       world.biometrics.answer = true;
       await tester.tap(find.byType(Switch).first);

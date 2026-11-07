@@ -130,11 +130,11 @@ function AppSession({ children }: { children: ReactNode }) {
 
 const queryClient = new QueryClient();
 
-/** The browser tab title: the application name and tagline in the current language. */
+/** The browser tab title: the application name in the current language. */
 function DocumentTitle() {
   const { t, locale } = useTranslation();
   useEffect(() => {
-    document.title = `${t('shell.app.name.title')} · ${t('shell.app.tagline.text')}`;
+    document.title = t('shell.app.name.title');
   }, [t, locale]);
   return null;
 }

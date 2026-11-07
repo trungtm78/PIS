@@ -4,10 +4,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_mobile/core/connectivity/reachability.dart';
 import 'package:machvon_mobile/core/l10n/string_table.dart';
 import 'package:machvon_mobile/core/navigation/feature.dart';
+import 'package:machvon_mobile/core/navigation/mobile_routes.generated.dart';
+import 'package:machvon_mobile/core/navigation/route_catalogue.dart';
 import 'package:machvon_mobile/features/project_views/labels.dart';
 import 'package:machvon_mobile/features/project_views/map_models.dart';
 import 'package:machvon_mobile/features/project_views/project_views_feature.dart' as project_views;
 import 'package:machvon_mobile/features/project_views/project_views_strings.dart';
+import 'package:machvon_mobile/features/project_views/screens/project_list_screen.dart' show kProjectWorkLinks;
 
 import '../../support/harness.dart';
 import '../../support/widget_host.dart';
@@ -21,6 +24,79 @@ Future<ProviderContainer> _open(WidgetTester tester, ScriptedServer server, Stri
 void _register(ScriptedServer server, [List<Map<String, Object?>>? projects]) => server.on('GET', '/resources/project', (_) => page(projects ?? twoProjects));
 
 void main() {
+  group('UI-MOB-09 MOB-09 the way in to the screens that have no other entrance', () {
+    const Map<String, String> entrances = <String, String>{
+      'Báo cáo tháng': '/projects/mob-13',
+      'Theo dõi thanh toán': '/projects/mob-27',
+      'Đối soát Kho bạc': '/projects/mob-60',
+      'Hợp đồng và nhật ký công trường': '/projects/mob-61',
+      'Ghi nhận vướng mắc hiện trường': '/projects/mob-28',
+      'Giải phóng mặt bằng hiện trường': '/projects/mob-68',
+      'Bàn giao và bảo hành': '/projects/mob-66',
+      'Hỏi đáp có nguồn về hồ sơ': '/projects/mob-37',
+      'Phân tích nhà thầu': '/projects/mob-38',
+    };
+
+    testWidgets('the group is closed until it is opened, and the projects stay the first thing on the page', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _register(server);
+      await _open(tester, server, '/projects');
+
+      expect(find.text('Báo cáo và công việc hiện trường'), findsOneWidget);
+      for (final String label in entrances.keys) {
+        expect(find.text(label), findsNothing, reason: label);
+      }
+      expect(find.text('DA-001 · Đường vành đai 1'), findsOneWidget);
+
+      await tester.tap(find.text('Báo cáo và công việc hiện trường'));
+      await tester.pumpAndSettle();
+      for (final String label in entrances.keys) {
+        expect(find.text(label), findsOneWidget, reason: label);
+      }
+    });
+
+    for (final MapEntry<String, String> entrance in entrances.entries) {
+      testWidgets('"${entrance.key}" opens ${entrance.value}', (WidgetTester tester) async {
+        useDevice(tester, kTallDevice);
+        final ScriptedServer server = ScriptedServer();
+        _register(server);
+        final ProviderContainer container = await _open(tester, server, '/projects');
+
+        await tester.tap(find.text('Báo cáo và công việc hiện trường'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(entrance.key));
+        await tester.pumpAndSettle();
+
+        expect(currentLocation(container), entrance.value);
+      });
+    }
+
+    test('every entrance names a screen of the Projects tab that the catalogue knows', () {
+      final Map<String, MobileRoute> byId = <String, MobileRoute>{for (final MobileRoute route in kMobileRoutes) route.id: route};
+      for (final MapEntry<String, String> link in kProjectWorkLinks) {
+        expect(byId[link.value]?.tab, AppTab.projects, reason: link.value);
+        expect(entrances.values, contains('/projects/${link.value.toLowerCase()}'));
+      }
+      expect(kProjectWorkLinks, hasLength(entrances.length));
+    });
+
+    testWidgets('a search that finds nothing keeps the group reachable and the page does not overflow with the group open', (WidgetTester tester) async {
+      useDevice(tester, kDeviceSizes.first);
+      final ScriptedServer server = ScriptedServer();
+      _register(server);
+      await _open(tester, server, '/projects');
+
+      await tester.enterText(find.byType(TextField), 'khong co');
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Báo cáo và công việc hiện trường'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Báo cáo tháng'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
   group('AC-ST-MOB-010-1 UI-MOB-09 MOB-09 the project list', () {
     testWidgets('shows only the projects the server returned for the scope, each row with its as_of', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);

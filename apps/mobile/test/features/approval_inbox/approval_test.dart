@@ -71,6 +71,17 @@ void main() {
       expect(server.callsTo('GET', '/resources/approval_task').single.url.queryParameters, containsPair('mine', 'true'));
     });
 
+    testWidgets('the inbox is the way in to the acceptance of works (MOB-65), the signing of documents and the incoming letters', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _reads(server);
+      final ProviderContainer container = await _open(tester, server, '/approval');
+
+      await tester.tap(find.byTooltip('Duyệt nghiệm thu'));
+      await tester.pumpAndSettle();
+      expect(currentLocation(container), '/approval/mob-65');
+    });
+
     testWidgets('the badge goes to zero when the last task is decided and the inbox reads empty', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();

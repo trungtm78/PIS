@@ -114,12 +114,15 @@ class _ProjectList extends StatelessWidget {
       _LinkRow(label: context.t('mob.prj.list.link.capital'), screenId: 'MOB-12'),
       _LinkRow(label: context.t('mob.prj.list.link.unreported'), screenId: 'MOB-57'),
       _LinkRow(label: context.t('mob.prj.list.link.issues'), screenId: 'MOB-59'),
+      const _WorkLinks(),
     ];
     if (shown.isEmpty) {
-      return Column(
+      // The group of work links can be open, so the page scrolls; the empty state keeps a fixed height under it.
+      return ListView(
         children: <Widget>[
           ...header,
-          Expanded(
+          SizedBox(
+            height: 360,
             child: EmptyStateView(
               activeFilters: <String>[
                 if (filter.query.trim().isNotEmpty) filter.query.trim(),
@@ -153,6 +156,38 @@ class _LinkRow extends StatelessWidget {
       semanticLabel: label,
       onTap: () => openScreen(context, screenId),
       child: Row(children: <Widget>[Expanded(child: Text(label)), const ExcludeSemantics(child: Icon(Icons.chevron_right))]),
+    );
+  }
+}
+
+/// The words of the row and the screen it opens, in the order of the work: reports, money, the site, the paperwork of the end, the analysis.
+const List<MapEntry<String, String>> kProjectWorkLinks = <MapEntry<String, String>>[
+  MapEntry<String, String>('mob.prj.list.work.report', 'MOB-13'),
+  MapEntry<String, String>('mob.prj.list.work.payment', 'MOB-27'),
+  MapEntry<String, String>('mob.prj.list.work.treasury', 'MOB-60'),
+  MapEntry<String, String>('mob.prj.list.work.contracts', 'MOB-61'),
+  MapEntry<String, String>('mob.prj.list.work.issue', 'MOB-28'),
+  MapEntry<String, String>('mob.prj.list.work.clearance', 'MOB-68'),
+  MapEntry<String, String>('mob.prj.list.work.handover', 'MOB-66'),
+  MapEntry<String, String>('mob.prj.list.work.qa', 'MOB-37'),
+  MapEntry<String, String>('mob.prj.list.work.findings', 'MOB-38'),
+];
+
+/// The way in to the screens of the work of the field and of the reports, which have no other entrance: one group, closed until the
+/// person opens it, so the list of projects stays the first thing on the page. Each row opens one screen of the Projects tab.
+class _WorkLinks extends StatelessWidget {
+  const _WorkLinks();
+
+  @override
+  Widget build(BuildContext context) {
+    return Theme(
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: ExpansionTile(
+        tilePadding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16),
+        childrenPadding: EdgeInsets.zero,
+        title: Text(context.t('mob.prj.list.work.title')),
+        children: <Widget>[for (final MapEntry<String, String> link in kProjectWorkLinks) _LinkRow(label: context.t(link.key), screenId: link.value)],
+      ),
     );
   }
 }

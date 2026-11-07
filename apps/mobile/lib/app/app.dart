@@ -18,7 +18,7 @@ class MachvonApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
-      onGenerateTitle: (BuildContext context) => 'MACHVON',
+      onGenerateTitle: (BuildContext context) => 'Hệ thống quản lý đầu tư công',
       debugShowCheckedModeBanner: false,
       theme: ref.watch(appThemeProvider),
       routerConfig: ref.watch(routerProvider),

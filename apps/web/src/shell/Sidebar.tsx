@@ -175,7 +175,6 @@ export function Sidebar(props: SidebarProps) {
           </span>
           <span className="sidebar-brand-copy">
             <strong>{t('shell.brand.name.text')}</strong>
-            <small>{t('shell.brand.tagline.text')}</small>
           </span>
         </Link>
         <button type="button" className="workspace-drawer-close" ref={props.closeButton} onClick={props.onClose} aria-label={t('shell.nav.close.label')}>

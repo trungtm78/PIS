@@ -20,12 +20,12 @@ describe('App', () => {
     expect(await screen.findByText('Nguyễn An')).toBeInTheDocument();
   });
 
-  it('sets the tab title from the application name and tagline, and follows the locale', async () => {
+  it('sets the tab title from the application name, and follows the locale', async () => {
     render(<App />);
     await screen.findByRole('heading', { level: 1, name: 'Tổng quan điều hành' });
-    expect(document.title).toBe(`${viCatalogue['shell.app.name.title']} · ${viCatalogue['shell.app.tagline.text']}`);
+    expect(document.title).toBe(viCatalogue['shell.app.name.title']);
     act(() => translator.setLocale('en'));
-    expect(document.title).toBe(`${en['shell.app.name.title']} · ${en['shell.app.tagline.text']}`);
+    expect(document.title).toBe(en['shell.app.name.title']);
     expect(screen.getByRole('navigation', { name: en['shell.nav.main.label'] })).toBeInTheDocument();
   });
 

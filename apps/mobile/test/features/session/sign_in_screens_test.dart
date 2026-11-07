@@ -119,7 +119,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(currentLocation(container), '/home');
       expect(container.read(sessionProvider).locked, isFalse);
-      expect(world.biometrics.prompts.last, 'Mở khóa MACHVON');
+      expect(world.biometrics.prompts.last, 'Mở khóa Hệ thống quản lý đầu tư công');
     });
 
     testWidgets('the app locked after it stayed in the background, and the guard sends every location to the unlock', (WidgetTester tester) async {

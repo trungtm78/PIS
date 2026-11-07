@@ -17,7 +17,7 @@ const StringTable accountStrings = StringTable(
         'Máy này chưa cài sinh trắc học hoặc mã khóa màn hình.',
     'mob.account.biometric.failed':
         'Chưa bật được. Hãy xác nhận bằng sinh trắc học khi được hỏi.',
-    'mob.account.biometric.reason': 'Bật mở khóa MACHVON bằng sinh trắc học',
+    'mob.account.biometric.reason': 'Bật mở khóa Hệ thống quản lý đầu tư công bằng sinh trắc học',
     'mob.account.push.title': 'Thông báo đẩy',
     'mob.account.push.granted': 'Đang bật',
     'mob.account.push.blocked': 'Bị chặn trong cài đặt của máy',
@@ -89,7 +89,7 @@ const StringTable accountStrings = StringTable(
         'This phone has no biometrics or screen lock set up.',
     'mob.account.biometric.failed':
         'Could not turn it on. Confirm with biometrics when asked.',
-    'mob.account.biometric.reason': 'Turn on biometric unlock for MACHVON',
+    'mob.account.biometric.reason': 'Turn on biometric unlock for the Public Investment Management System',
     'mob.account.push.title': 'Push notifications',
     'mob.account.push.granted': 'On',
     'mob.account.push.blocked': 'Blocked in the phone settings',
