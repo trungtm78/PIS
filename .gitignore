@@ -32,3 +32,9 @@ coverage/
 
 # Lane locks of the test runs (scripts/lane.mjs)
 .test-locks/
+
+# The user guide: its films, pictures and pages are made by scripts/hdsd (the words and the measured times stay in git).
+docs/hdsd/machvon/clips/
+docs/hdsd/machvon/img/
+docs/hdsd/machvon/*.html
+docs/hdsd/Huong-dan-su-dung-MACHVON.html
