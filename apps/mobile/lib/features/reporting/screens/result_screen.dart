@@ -97,12 +97,10 @@ class _Result extends StatelessWidget {
             runSpacing: MachvonSpace.space8,
             children: <Widget>[
               FilledButton(
-                style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
                 onPressed: () => openScreen(context, 'MOB-09'),
                 child: Text(context.t('mob.rep.result.projects.action')),
               ),
               OutlinedButton(
-                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
                 onPressed: () => openScreen(context, 'MOB-41', stacked: true),
                 child: Text(context.t('mob.rep.result.queue.action')),
               ),

@@ -242,13 +242,11 @@ class _Footer extends StatelessWidget {
       runSpacing: MachvonSpace.space8,
       children: <Widget>[
         OutlinedButton(
-          style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
           onPressed: () => context.canPop() ? context.pop() : openScreen(context, 'MOB-22'),
           child: Text(context.t('mob.rep.step.back.action')),
         ),
         if (next != null)
           FilledButton(
-            style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
             onPressed: () => openStep(context, next, draftId),
             child: Text(context.t('mob.rep.step.next.action')),
           ),

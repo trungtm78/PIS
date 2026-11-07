@@ -4,6 +4,7 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../api/problem.dart';
 import '../l10n/app_strings.dart';
+import '../theme/machvon_semantic.dart';
 import 'screen_state.dart';
 import 'state_card.dart';
 
@@ -25,6 +26,7 @@ class ProblemStateView extends StatelessWidget {
     final String? reference = problem.correlationId;
     return StateCard(
       icon: _iconOf(problem.state),
+      tone: _toneOf(problem.state),
       title: _titleOf(context),
       body: _bodyOf(context),
       announcement: <String>[
@@ -85,6 +87,22 @@ class ProblemStateView extends StatelessWidget {
       case ScreenState.empty:
       case ScreenState.error:
         return context.t('mob.states.error.body');
+    }
+  }
+
+  MachvonTone _toneOf(ScreenState state) {
+    switch (state) {
+      case ScreenState.denied:
+      case ScreenState.expired:
+      case ScreenState.signedOut:
+        return MachvonTone.warning;
+      case ScreenState.offline:
+        return MachvonTone.neutral;
+      case ScreenState.defaultState:
+      case ScreenState.loading:
+      case ScreenState.empty:
+      case ScreenState.error:
+        return MachvonTone.danger;
     }
   }
 

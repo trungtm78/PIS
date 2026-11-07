@@ -238,7 +238,6 @@ class _ReviewState extends ConsumerState<_Review> {
             action: _existingReportId == null
                 ? null
                 : TextButton(
-                    style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
                     onPressed: _openExisting,
                     child: Text(context.t('mob.rep.start.existing.action')),
                   ),
@@ -276,7 +275,6 @@ class _ReviewState extends ConsumerState<_Review> {
         const SizedBox(height: 16),
         if (errors.isNotEmpty) Text(context.t('mob.rep.review.blocked.body'), style: Theme.of(context).textTheme.bodyMedium),
         FilledButton(
-          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
           onPressed: canSubmit ? _submit : null,
           child: Text(_busy ? context.t('mob.rep.review.submit.pending') : context.t('mob.rep.review.submit.action')),
         ),
@@ -333,7 +331,6 @@ class _SendStatus extends StatelessWidget {
           error: true,
           text: '${context.t('mob.rep.send.conflict.body')}$codeLine',
           action: TextButton(
-            style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
             onPressed: () => openScreen(context, 'MOB-42', pathSuffix: '/${status.command!.id}', stacked: true),
             child: Text(context.t('mob.rep.send.compare.action')),
           ),
@@ -345,8 +342,8 @@ class _SendStatus extends StatelessWidget {
   Widget _actions(BuildContext context, String? primary, {bool queue = true}) => Wrap(
         spacing: MachvonSpace.space8,
         children: <Widget>[
-          if (primary != null) TextButton(style: TextButton.styleFrom(minimumSize: const Size(48, 48)), onPressed: busy ? null : onCheck, child: Text(primary)),
-          if (queue) TextButton(style: TextButton.styleFrom(minimumSize: const Size(48, 48)), onPressed: () => openScreen(context, 'MOB-41', stacked: true), child: Text(context.t('mob.rep.pending.queue.action'))),
+          if (primary != null) TextButton(onPressed: busy ? null : onCheck, child: Text(primary)),
+          if (queue) TextButton(onPressed: () => openScreen(context, 'MOB-41', stacked: true), child: Text(context.t('mob.rep.pending.queue.action'))),
         ],
       );
 }
@@ -368,7 +365,6 @@ class _FindingRow extends StatelessWidget {
           Text(findingMessage(context, finding)),
           if (screen != null)
             TextButton(
-              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
               onPressed: () => openStep(context, screen, draftId),
               child: Text(context.t('mob.rep.review.fix.action')),
             ),
@@ -478,7 +474,6 @@ class _Files extends ConsumerWidget {
         Align(
           alignment: Alignment.centerLeft,
           child: TextButton(
-            style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
             onPressed: () => openStep(context, 'MOB-19', draftId),
             child: Text(context.t('mob.rep.files.manage.action')),
           ),

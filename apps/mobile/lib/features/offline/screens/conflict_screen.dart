@@ -142,7 +142,6 @@ class _ConflictScreenState extends ConsumerState<ConflictScreen> {
         if (remaining > 0) Semantics(liveRegion: true, child: Text(context.t('mob.conflict.remaining.label', <String, Object>{'count': remaining}))),
         const SizedBox(height: 8),
         FilledButton(
-          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
           onPressed: remaining > 0 || _saving ? null : () => _save(loaded),
           child: Text(context.t('mob.conflict.save.action')),
         ),
@@ -167,7 +166,7 @@ class _BulkButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Align(
         alignment: AlignmentDirectional.centerStart,
-        child: TextButton(style: TextButton.styleFrom(minimumSize: const Size(48, 48)), onPressed: onPressed, child: Text(label)),
+        child: TextButton(onPressed: onPressed, child: Text(label)),
       );
 }
 

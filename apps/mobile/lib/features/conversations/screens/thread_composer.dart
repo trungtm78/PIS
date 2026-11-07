@@ -76,7 +76,7 @@ class _ThreadComposerState extends State<ThreadComposer> {
     final String channel = channelLabel(context, conversation.channel);
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-      color: _external ? null : MachvonColors.selected,
+      color: _external ? null : MachvonColors.primarySoft,
       child: Padding(
         padding: const EdgeInsets.all(MachvonSpace.space16),
         child: Semantics(

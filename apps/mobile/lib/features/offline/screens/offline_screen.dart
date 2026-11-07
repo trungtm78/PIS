@@ -105,7 +105,6 @@ class _Guide extends ConsumerWidget {
           ),
         const SizedBox(height: 8),
         TextButton(
-          style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
           onPressed: () => context.push(ref.read(routeTableProvider).locationOf('MOB-41')),
           child: Text(context.t('mob.offline.queue.link.action', <String, Object>{'count': waiting})),
         ),

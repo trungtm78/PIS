@@ -28,7 +28,7 @@ class NoticeLine extends StatelessWidget {
         liveRegion: true,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: error ? theme.colorScheme.errorContainer : MachvonColors.selected,
+            color: error ? theme.colorScheme.errorContainer : MachvonColors.surface2,
             borderRadius: const BorderRadius.all(Radius.circular(MachvonRadius.control)),
           ),
           child: Padding(
@@ -90,7 +90,6 @@ class DraftNotices extends StatelessWidget {
             icon: Icons.sync,
             text: context.t('mob.rep.pending.notice.body'),
             action: TextButton(
-              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
               onPressed: () => openScreen(context, 'MOB-41', stacked: true),
               child: Text(context.t('mob.rep.pending.queue.action')),
             ),

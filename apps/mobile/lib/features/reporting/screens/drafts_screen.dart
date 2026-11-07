@@ -181,13 +181,11 @@ class _DraftTile extends StatelessWidget {
               spacing: 8,
               children: <Widget>[
                 TextButton(
-                  style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
                   onPressed: () => pending ? openScreen(context, 'MOB-20', pathSuffix: '/${snapshot.id}', stacked: true) : openScreen(context, 'MOB-14', pathSuffix: '/${snapshot.id}', stacked: true),
                   child: Text(pending ? context.t('mob.rep.drafts.status.action') : context.t('mob.rep.drafts.open.action')),
                 ),
                 if (!pending)
                   TextButton(
-                    style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
                     onPressed: onDiscard,
                     child: Text(context.t('mob.rep.drafts.discard.action')),
                   ),

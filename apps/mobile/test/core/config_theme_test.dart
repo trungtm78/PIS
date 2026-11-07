@@ -50,8 +50,14 @@ void main() {
         (TargetPlatform.iOS, 44),
       ]) {
         final ThemeData theme = buildAppTheme(platform: platform);
-        final Size? size = theme.elevatedButtonTheme.style?.minimumSize?.resolve(<WidgetState>{});
-        expect(size, Size(minimum, minimum), reason: platform.name);
+        for (final ButtonStyle? style in <ButtonStyle?>[
+          theme.filledButtonTheme.style,
+          theme.elevatedButtonTheme.style,
+          theme.outlinedButtonTheme.style,
+          theme.textButtonTheme.style,
+        ]) {
+          expect(style?.minimumSize?.resolve(<WidgetState>{}), Size(minimum, minimum), reason: platform.name);
+        }
       }
     });
 

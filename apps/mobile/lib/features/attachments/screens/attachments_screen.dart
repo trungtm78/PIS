@@ -232,5 +232,5 @@ class _Action extends StatelessWidget {
   final VoidCallback onPressed;
 
   @override
-  Widget build(BuildContext context) => TextButton(style: TextButton.styleFrom(minimumSize: const Size(48, 48)), onPressed: onPressed, child: Text(label));
+  Widget build(BuildContext context) => TextButton(onPressed: onPressed, child: Text(label));
 }

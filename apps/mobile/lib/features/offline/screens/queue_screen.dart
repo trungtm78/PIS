@@ -172,7 +172,6 @@ class _Summary extends StatelessWidget {
             ],
             const SizedBox(height: 12),
             FilledButton(
-              style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
               onPressed: working || pending.isEmpty ? null : onSend,
               child: Text(working ? context.t('mob.queue.sending.label') : context.t('mob.queue.send.action')),
             ),
@@ -255,7 +254,6 @@ class _Action extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => TextButton(
-        style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
         onPressed: onPressed,
         child: Text(label),
       );

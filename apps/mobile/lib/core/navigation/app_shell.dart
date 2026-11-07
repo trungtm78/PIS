@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../l10n/app_strings.dart';
 import '../state/status_banners.dart';
@@ -52,17 +53,31 @@ class AppShell extends ConsumerWidget {
             ],
           ),
         ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: navigationShell.currentIndex,
-          onDestinationSelected: (int index) => navigationShell.goBranch(index, initialLocation: index == navigationShell.currentIndex),
-          destinations: <Widget>[
-            for (final AppTab tab in AppTab.values)
-              NavigationDestination(
-                icon: _badged(context, tab, badges[tab] ?? 0, _icons[tab]!),
-                selectedIcon: _badged(context, tab, badges[tab] ?? 0, _selectedIcons[tab]!),
-                label: _labelOf(context, tab),
-              ),
-          ],
+        // The bar itself is themed (white, teal selected, danger badges); the 1 px line above it is the only separator.
+        bottomNavigationBar: DecoratedBox(
+          decoration: const BoxDecoration(
+            border: Border(top: BorderSide(color: MachvonColors.border)),
+          ),
+          child: NavigationBar(
+            selectedIndex: navigationShell.currentIndex,
+            onDestinationSelected: (int index) => navigationShell.goBranch(
+              index,
+              initialLocation: index == navigationShell.currentIndex,
+            ),
+            destinations: <Widget>[
+              for (final AppTab tab in AppTab.values)
+                NavigationDestination(
+                  icon: _badged(context, tab, badges[tab] ?? 0, _icons[tab]!),
+                  selectedIcon: _badged(
+                    context,
+                    tab,
+                    badges[tab] ?? 0,
+                    _selectedIcons[tab]!,
+                  ),
+                  label: _labelOf(context, tab),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -71,8 +86,13 @@ class AppShell extends ConsumerWidget {
   Widget _badged(BuildContext context, AppTab tab, int count, IconData icon) {
     if (count <= 0) return Icon(icon);
     return Semantics(
-      label: context.t('mob.shell.badge.pending', <String, Object>{'count': count}),
-      child: Badge(label: Text('$count'), child: Icon(icon)),
+      label: context.t('mob.shell.badge.pending', <String, Object>{
+        'count': count,
+      }),
+      child: Badge(
+        label: Text(count > 99 ? '99+' : '$count'),
+        child: Icon(icon),
+      ),
     );
   }
 

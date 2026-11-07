@@ -187,7 +187,7 @@ class _KindBanner extends StatelessWidget {
     final String kind = kindLabel(context, conversation);
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-      color: conversation.isExternal ? null : MachvonColors.selected,
+      color: conversation.isExternal ? null : MachvonColors.primarySoft,
       child: Padding(
         padding: const EdgeInsets.all(MachvonSpace.space16),
         child: Semantics(

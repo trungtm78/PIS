@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
-import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../core/api/problem.dart';
 import '../../core/connectivity/reachability.dart';
@@ -10,6 +9,7 @@ import '../../core/l10n/app_strings.dart';
 import '../../core/session/session.dart';
 import '../../core/state/screen_state.dart';
 import '../../core/state/state_boundary.dart';
+import '../../core/widgets/context_bar.dart';
 import '../release/telemetry.dart';
 import 'amounts.dart';
 import 'clock.dart';
@@ -51,6 +51,8 @@ class DataView<T> extends ConsumerStatefulWidget {
     this.reloadKey,
     this.keepCopy = true,
     this.onLoaded,
+    this.scopeLabel,
+    this.closingLabel,
     super.key,
   });
 
@@ -80,6 +82,10 @@ class DataView<T> extends ConsumerStatefulWidget {
   /// Called every time a read succeeds with the data that is then shown, an empty result included (the builder is not run for the
   /// empty state, so a screen that publishes a figure from the data, such as a tab badge, does it here). It runs outside the build.
   final void Function(Loaded<T> data)? onLoaded;
+
+  /// The scope the figures describe ("Toàn công ty · Năm 2026") and their closing date, shown in the context bar above the content.
+  final String? scopeLabel;
+  final String? closingLabel;
   final Widget Function(BuildContext context, Loaded<T> data) builder;
 
   @override
@@ -236,7 +242,7 @@ class _DataViewState<T> extends ConsumerState<DataView<T>> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        if (showsData) FreshnessBar(data: data, ttl: widget.ttl, onRefresh: _refreshing ? null : _load),
+        if (showsData) FreshnessBar(data: data, ttl: widget.ttl, onRefresh: _refreshing ? null : _load, scope: widget.scopeLabel, closing: widget.closingLabel),
         if (_refreshing) const _RefreshingBar(),
         Expanded(
           child: StateBoundary(
@@ -267,18 +273,20 @@ class _RefreshingBar extends StatelessWidget {
   }
 }
 
-/// Says where the data came from and the moment it describes. A copy kept on the device says so, says the amounts are
-/// reference data that cannot be edited, and says when it is out of date. Never says the data is the newest.
+/// The context bar of a screen that reads (design.md "ContextBar"): the scope the figures describe, their closing date, where
+/// the data came from and the moment it describes. A copy kept on the device says so, says the amounts are reference data that
+/// cannot be edited, and says when it is out of date ("Số liệu cũ"). Never says the data is the newest.
 class FreshnessBar extends StatelessWidget {
-  const FreshnessBar({required this.data, required this.ttl, this.onRefresh, super.key});
+  const FreshnessBar({required this.data, required this.ttl, this.onRefresh, this.scope, this.closing, super.key});
 
   final Loaded<Object?> data;
   final Duration ttl;
   final VoidCallback? onRefresh;
+  final String? scope;
+  final String? closing;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     final String? asOf = data.asOf;
     final String line;
     if (data.fromCache) {
@@ -290,37 +298,20 @@ class FreshnessBar extends StatelessWidget {
           ? context.t('mob.read.fetched.line', <String, Object>{'time': formatFetched(data.fetchedAt)})
           : context.t('mob.read.asOf.line', <String, Object>{'time': asOfLabel(asOf)});
     }
+    final bool stale = data.fromCache && data.stale;
     final List<String> notes = <String>[
       if (data.fromCache) context.t('mob.read.saved.readOnly'),
-      if (data.fromCache && data.stale) context.t('mob.read.stale.line', <String, Object>{'hours': ttl.inHours}),
+      if (stale) context.t('mob.read.stale.line', <String, Object>{'hours': ttl.inHours}),
     ];
-    return Semantics(
-      container: true,
-      liveRegion: data.fromCache,
-      child: ColoredBox(
-        color: data.fromCache ? MachvonColors.selected : Colors.transparent,
-        child: Padding(
-          padding: const EdgeInsets.only(left: MachvonSpace.space16, right: MachvonSpace.space4, top: MachvonSpace.space4, bottom: MachvonSpace.space4),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(line, style: theme.textTheme.bodySmall),
-                    for (final String note in notes) Text(note, style: theme.textTheme.bodySmall),
-                  ],
-                ),
-              ),
-              IconButton(
-                onPressed: onRefresh,
-                tooltip: context.t('mob.read.refresh.action'),
-                icon: const Icon(Icons.refresh),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return ContextBar(
+      scope: scope,
+      closing: closing,
+      freshness: line,
+      stale: stale,
+      notes: notes,
+      highlighted: data.fromCache,
+      onRefresh: onRefresh,
+      refreshTooltip: context.t('mob.read.refresh.action'),
     );
   }
 }

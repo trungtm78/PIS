@@ -176,7 +176,6 @@ class _EstimateState extends ConsumerState<_Estimate> {
         ),
         const SizedBox(height: 8),
         FilledButton(
-          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
           // A phone flagged offline by the very attempt whose answer was lost must still be able to send it again: that request is the probe.
           onPressed: !enabled || (offline && !_lost) ? null : _send,
           child: Text(_busy ? context.t('mob.rep.estimate.send.pending') : context.t('mob.rep.estimate.send.action')),

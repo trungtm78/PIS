@@ -70,7 +70,7 @@ class _MessageTileState extends ConsumerState<MessageTile> {
         margin: const EdgeInsets.only(bottom: MachvonSpace.space8),
         padding: const EdgeInsets.all(MachvonSpace.space12),
         decoration: BoxDecoration(
-          color: message.isNote ? MachvonColors.selected : null,
+          color: message.isNote ? MachvonColors.primarySoft : null,
           border: Border.all(color: MachvonColors.border),
           borderRadius: const BorderRadius.all(Radius.circular(MachvonRadius.control)),
         ),

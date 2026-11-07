@@ -201,7 +201,7 @@ class _PageText extends StatelessWidget {
         style: base,
         children: <InlineSpan>[
           TextSpan(text: text.substring(0, at.start)),
-          TextSpan(text: text.substring(at.start, at.end), style: base?.copyWith(backgroundColor: MachvonColors.selected, fontWeight: FontWeight.w700, color: MachvonColors.ink)),
+          TextSpan(text: text.substring(at.start, at.end), style: base?.copyWith(backgroundColor: MachvonColors.primarySoft, fontWeight: FontWeight.w700, color: MachvonColors.ink)),
           TextSpan(text: text.substring(at.end)),
         ],
       ),

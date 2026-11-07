@@ -223,13 +223,11 @@ class _StartFormState extends ConsumerState<_StartForm> {
         Text(context.t('mob.rep.start.plan.body'), style: Theme.of(context).textTheme.bodyMedium),
         const SizedBox(height: 16),
         FilledButton(
-          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
           onPressed: readOnly || _busy ? null : _create,
           child: Text(_busy ? context.t('mob.rep.start.create.pending') : context.t('mob.rep.start.create.action')),
         ),
         const SizedBox(height: 8),
         OutlinedButton(
-          style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
           onPressed: () => openScreen(context, 'MOB-22', stacked: true),
           child: Text(context.t('mob.rep.start.drafts.action')),
         ),

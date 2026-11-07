@@ -66,7 +66,6 @@ class _Registration extends StatelessWidget {
         Align(
           alignment: Alignment.centerLeft,
           child: TextButton(
-            style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
             onPressed: () => openScreen(context, 'MOB-56', pathSuffix: '/${session.snapshot.id}', stacked: true),
             child: Text(context.t('mob.rep.registration.estimate.action')),
           ),

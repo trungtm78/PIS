@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
+import '../../core/l10n/app_strings.dart';
+import '../../core/theme/app_theme.dart';
+
+export '../../core/theme/machvon_semantic.dart' show MachvonTone;
+export '../../core/widgets/status_pill.dart';
+
 /// The frame of a screen that reads: a title bar (with the back button when the screen was opened from another) and the
 /// body under it.
 class ScreenFrame extends StatelessWidget {
@@ -20,8 +26,11 @@ class ScreenFrame extends StatelessWidget {
 }
 
 /// A titled block of a screen. The title is a heading for a screen reader, so the blocks can be walked through by heading.
+///
+/// With [uppercase] the title is the 12 px section label of the design (uppercase, spaced); with [unit] an "ĐVT: ..." chip sits
+/// at the end of the title line, for the blocks that hold money. The title line wraps at a large text scale.
 class SectionCard extends StatelessWidget {
-  const SectionCard({required this.title, required this.children, this.semanticLabel, super.key});
+  const SectionCard({required this.title, required this.children, this.semanticLabel, this.unit, this.uppercase = false, super.key});
 
   final String title;
   final List<Widget> children;
@@ -29,9 +38,21 @@ class SectionCard extends StatelessWidget {
   /// Read instead of the visible texts when the block is one fact to a screen reader.
   final String? semanticLabel;
 
+  /// The unit of the figures in the block ("tỷ đồng"); shown as the chip "ĐVT: tỷ đồng".
+  final String? unit;
+
+  /// Draws the title as the uppercase section label instead of a sentence-case heading.
+  final bool uppercase;
+
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final Widget heading = Semantics(
+      header: true,
+      child: uppercase
+          ? Text(title.toUpperCase(), style: theme.textTheme.labelMedium?.copyWith(color: MachvonColors.textSecondary, letterSpacing: 0.72))
+          : Text(title, style: theme.textTheme.titleMedium),
+    );
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
       child: Padding(
@@ -42,12 +63,44 @@ class SectionCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Semantics(header: true, child: Text(title, style: theme.textTheme.titleMedium)),
+              if (unit == null)
+                heading
+              else
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Flexible(child: heading),
+                    const SizedBox(width: MachvonSpace.space8),
+                    Flexible(child: UnitChip(unit: unit!)),
+                  ],
+                ),
               const SizedBox(height: MachvonSpace.space8),
               ...children,
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// The chip "ĐVT: tỷ đồng" that names the unit of the figures beside it.
+class UnitChip extends StatelessWidget {
+  const UnitChip({required this.unit, super.key});
+
+  final String unit;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: MachvonColors.surface2,
+        borderRadius: BorderRadius.all(Radius.circular(MachvonRadius.pill)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space8, vertical: MachvonSpace.space4),
+        child: Text(context.t('mob.unit.chip.label', <String, Object>{'unit': unit}), style: Theme.of(context).textTheme.labelMedium?.copyWith(color: MachvonColors.textSecondary)),
       ),
     );
   }
@@ -70,32 +123,9 @@ class FactLine extends StatelessWidget {
           spacing: MachvonSpace.space8,
           children: <Widget>[
             Text('$label:', style: theme.textTheme.bodySmall),
-            Text(value, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+            Text(value, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, fontFeatures: kTabularFigures)),
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// A short status in a rounded box (a state, a priority, a kind).
-class StatusPill extends StatelessWidget {
-  const StatusPill({required this.label, this.warn = false, super.key});
-
-  final String label;
-  final bool warn;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: warn ? MachvonColors.selected : MachvonColors.border,
-        borderRadius: const BorderRadius.all(Radius.circular(MachvonRadius.control)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space8, vertical: MachvonSpace.space4),
-        child: Text(label, style: theme.textTheme.labelMedium?.copyWith(color: MachvonColors.ink)),
       ),
     );
   }

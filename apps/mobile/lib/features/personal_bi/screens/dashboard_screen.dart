@@ -299,7 +299,7 @@ class _NewDataBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-      color: MachvonColors.selected,
+      color: MachvonColors.primarySoft,
       child: Padding(
         padding: const EdgeInsets.all(MachvonSpace.space16),
         child: Semantics(
