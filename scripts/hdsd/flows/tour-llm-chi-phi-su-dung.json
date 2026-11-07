@@ -1,0 +1,38 @@
+{
+  "id": "tour-llm-chi-phi-su-dung",
+  "group": "LLM",
+  "title": "Quản trị AI và LLM: Chi phí & sử dụng",
+  "audience": "quản trị AI, cán bộ quản lý chi phí và an toàn dữ liệu",
+  "outcome": "Biết mỗi màn hình của nhóm Chi phí & sử dụng dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "llm-07",
+      "screens": [
+        "LLM-07"
+      ],
+      "heading": "Ngân sách và quota",
+      "text": "Ngân sách và quota. Đây là màn hình, dành cho quản trị AI, cán bộ quản lý chi phí và an toàn dữ liệu. ",
+      "note": "Thiết kế còn nêu các thông tin: Tenant, Đơn vị, Dự án, Người dùng, Trần, Đã settle, Đang giữ chỗ, Quota/ngày và Đồng thời tối đa. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "llm-08",
+      "screens": [
+        "LLM-08"
+      ],
+      "heading": "Bảng giá và tỷ giá",
+      "text": "Bảng giá và tỷ giá. Đây là bảng dữ liệu, dành cho quản trị AI, cán bộ quản lý chi phí và an toàn dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Model, Input, Cached input, Output, Ngày hiệu lực, Tỷ giá, Ngữ nghĩa cached, Nguồn giá và Người xác minh. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "llm-09",
+      "screens": [
+        "LLM-09"
+      ],
+      "heading": "Chi tiết usage và đối soát",
+      "text": "Chi tiết usage và đối soát. Đây là màn hình, dành cho quản trị AI, cán bộ quản lý chi phí và an toàn dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Request ID, Model thực tế, Token, Giá, Trạng thái đối soát, Tuyến, Loại attempt và Hóa đơn đối soát. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

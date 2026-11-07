@@ -143,7 +143,7 @@ function MilestonesContent({ route }: ScreenProps) {
         <StateBoundary state={state} onRetry={() => void list.refetch()}>
           {mayWrite ? <AddMilestonePanel projectId={projectId} /> : null}
           <div data-testid="milestones">
-            <DataTable caption={t('prj.mile.list.aria')} columns={columns} rows={items} rowKey={(item) => item.id} />
+            <DataTable caption={t('prj.mile.list.aria')} columns={columns} rows={items} rowKey={(item) => item.id} rowAttrs={(item) => ({ 'data-milestone': item.id, 'data-status': item.status, 'data-delayed': String(item.delayed) })} />
           </div>
         </StateBoundary>
       )}

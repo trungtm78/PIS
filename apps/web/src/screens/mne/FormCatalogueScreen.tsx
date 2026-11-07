@@ -146,7 +146,7 @@ function FormCatalogueContent({ route }: ScreenProps) {
         </p>
       )}
       <StateBoundary state={state} onRetry={() => void forms.refetch()}>
-        <DataTable caption={t('mne.forms.table.aria')} columns={columns} rows={rows} rowKey={(form) => form.id} />
+        <DataTable caption={t('mne.forms.table.aria')} columns={columns} rows={rows} rowKey={(form) => form.id} rowAttrs={(form) => ({ 'data-form-id': form.id, 'data-form-code': form.formCode, 'data-phase': phaseOf(form, today) })} />
         <p className="muted tiny mne-count" data-testid="count">
           {t('mne.forms.count.text', { count: rows.length })}
         </p>
@@ -245,7 +245,9 @@ function formColumns(t: Translate, today: string, context: Parameters<typeof act
         const phase = phaseOf(form, today);
         return (
           <div className="mne-badges">
-            <StatusPill tone={formStatusTone(form.status)}>{formStatusLabel(t, form.status)}</StatusPill>
+            <span data-lifecycle={form.status}>
+              <StatusPill tone={formStatusTone(form.status)}>{formStatusLabel(t, form.status)}</StatusPill>
+            </span>
             <StatusPill tone={phase === 'inForce' ? 'success' : 'neutral'}>{phaseLabel(t, phase)}</StatusPill>
           </div>
         );

@@ -1,0 +1,47 @@
+{
+  "id": "tour-qms-nhat-ky-thi-cong",
+  "group": "QMS",
+  "title": "Chất lượng, nhật ký thi công, nghiệm thu: Nhật ký thi công",
+  "audience": "Nhà thầu, tư vấn giám sát và chủ đầu tư",
+  "outcome": "Biết mỗi màn hình của nhóm Nhật ký thi công dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "qms-01",
+      "screens": [
+        "QMS-01"
+      ],
+      "heading": "Danh mục nhật ký thi công điện tử",
+      "text": "Danh mục nhật ký thi công điện tử. Đây là bảng dữ liệu, dành cho Nhà thầu, tư vấn giám sát và chủ đầu tư. Một nhật ký chính mỗi hợp đồng mỗi ngày. Điều chỉnh sau khóa bằng bản điều chỉnh. Trên màn hình có: Ngày, Hợp đồng và Trạng thái ký. Các thao tác chính: Lập nhật ký.",
+      "note": "Thiết kế còn nêu các thông tin: Ý kiến giám sát, Xung đột đồng bộ và Số ảnh. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "qms-02",
+      "screens": [
+        "QMS-02"
+      ],
+      "heading": "Lập và ký nhật ký ngày",
+      "text": "Lập và ký nhật ký ngày. Đây là biểu mẫu để nhập thông tin, dành cho Nhà thầu, tư vấn giám sát và chủ đầu tư.",
+      "note": "Thiết kế còn nêu các thông tin: Ngày, Thời tiết, Nhân lực, Thiết bị, Công việc theo BOQ, Sự kiện, Ảnh và Chữ ký nhà thầu. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "qms-03",
+      "screens": [
+        "QMS-03"
+      ],
+      "heading": "Ý kiến giám sát và xác nhận chủ đầu tư",
+      "text": "Ý kiến giám sát và xác nhận chủ đầu tư. Đây là màn hình rà soát, dành cho Nhà thầu, tư vấn giám sát và chủ đầu tư. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Nhật ký, Ý kiến giám sát, Chữ ký giám sát, Xác nhận chủ đầu tư và Khóa. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "qms-11",
+      "screens": [
+        "QMS-11"
+      ],
+      "heading": "Độ phủ nhật ký và cảnh báo thiếu nhật ký",
+      "text": "Độ phủ nhật ký và cảnh báo thiếu nhật ký. Đây là lịch, dành cho Nhà thầu, tư vấn giám sát và chủ đầu tư. Trên màn hình có: Mã định danh của hợp đồng và Tháng.",
+      "note": "Thiết kế còn nêu các thông tin: Ngày làm việc, Có nhật ký, Đã ký, Thiếu, Ký muộn và Xung đột. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

@@ -311,7 +311,7 @@ function WorkspaceContent({ route, matrices, units, roles }: DoaWorkspaceProps) 
               {t('adm.doa.decision.accepted.notice')}
             </p>
           ) : null}
-          {register.length === 0 ? null : <DataTable caption={t('w2adm.doa.table.caption')} columns={columns} rows={[...register]} rowKey={(matrix) => matrix.id} />}
+          {register.length === 0 ? null : <DataTable caption={t('w2adm.doa.table.caption')} columns={columns} rows={[...register]} rowKey={(matrix) => matrix.id} rowAttrs={(matrix) => ({ 'data-matrix-id': matrix.id, 'data-status': matrix.status, 'aria-current': inView?.id === matrix.id ? 'true' : undefined })} />}
           {inView === undefined ? null : (
             <div data-testid="matrix-in-view" data-matrix-id={inView.id}>
               <h3>{t('adm.doa.inView.title', { revision: inView.revision })}</h3>

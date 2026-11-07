@@ -1,0 +1,56 @@
+{
+  "id": "tour-qms-chat-luong-nghiem-thu",
+  "group": "QMS",
+  "title": "Chất lượng, nhật ký thi công, nghiệm thu: Chất lượng & nghiệm thu",
+  "audience": "Nhà thầu, tư vấn giám sát và chủ đầu tư",
+  "outcome": "Biết mỗi màn hình của nhóm Chất lượng & nghiệm thu dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "qms-04",
+      "screens": [
+        "QMS-04"
+      ],
+      "heading": "Đề nghị kiểm tra, nghiệm thu",
+      "text": "Đề nghị kiểm tra, nghiệm thu. Đây là biểu mẫu để nhập thông tin, dành cho Nhà thầu, tư vấn giám sát và chủ đầu tư. Quy chế áp dụng theo ngày đề nghị.",
+      "note": "Thiết kế còn nêu các thông tin: Hợp đồng, Hạng mục BOQ, Loại kiểm tra, Vị trí, Ngày đề nghị và Nhật ký liên quan. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "qms-05",
+      "screens": [
+        "QMS-05"
+      ],
+      "heading": "Biên bản nghiệm thu chất lượng",
+      "text": "Biên bản nghiệm thu chất lượng. Đây là màn hình phê duyệt, dành cho Nhà thầu, tư vấn giám sát và chủ đầu tư.",
+      "note": "Thiết kế còn nêu các thông tin: Biên bản, Phạm vi, Vai trò phải ký, Đã ký, NCR nghiêm trọng và Quyết định. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "qms-06",
+      "screens": [
+        "QMS-06"
+      ],
+      "heading": "Thí nghiệm vật liệu",
+      "text": "Thí nghiệm vật liệu. Đây là bảng dữ liệu, dành cho Nhà thầu, tư vấn giám sát và chủ đầu tư.",
+      "note": "Thiết kế còn nêu các thông tin: Mẫu, Vật liệu, Phòng thí nghiệm, Tiêu chuẩn, Kết quả, Báo cáo và NCR. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "qms-07",
+      "screens": [
+        "QMS-07"
+      ],
+      "heading": "Không phù hợp và hành động khắc phục",
+      "text": "Không phù hợp và hành động khắc phục. Đây là màn hình, dành cho Nhà thầu, tư vấn giám sát và chủ đầu tư.",
+      "note": "Thiết kế còn nêu các thông tin: NCR, Mức độ, Chủ khắc phục, Hạn, Bằng chứng, Người xác nhận và Trạng thái. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "qms-08",
+      "screens": [
+        "QMS-08"
+      ],
+      "heading": "Kho ảnh hiện trường có định vị",
+      "text": "Kho ảnh hiện trường có định vị. Đây là bản đồ, dành cho Nhà thầu, tư vấn giám sát và chủ đầu tư. Trên màn hình có: Hợp đồng và Kết quả rà soát.",
+      "note": "Thiết kế còn nêu các thông tin: Ảnh, Thời gian chụp, Thời gian nhận, Vị trí, Độ chính xác, Cờ kiểm tra và Liên kết. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

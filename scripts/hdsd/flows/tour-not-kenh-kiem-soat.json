@@ -1,0 +1,38 @@
+{
+  "id": "tour-not-kenh-kiem-soat",
+  "group": "NOT",
+  "title": "Notification Center: Kênh & kiểm soát",
+  "audience": "quản trị thông báo và người duyệt chiến dịch thông báo",
+  "outcome": "Biết mỗi màn hình của nhóm Kênh & kiểm soát dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "not-05",
+      "screens": [
+        "NOT-05"
+      ],
+      "heading": "Danh mục sự kiện",
+      "text": "Danh mục sự kiện. Đây là bảng dữ liệu, dành cho quản trị thông báo và người duyệt chiến dịch thông báo. Tổ chức chỉ bật/tắt. Schema có phiên bản.",
+      "note": "Thiết kế còn nêu các thông tin: Sự kiện, Schema, Chủ sở hữu, Phiên bản, Mục đích cho phép và Phân loại dữ liệu. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "not-14",
+      "screens": [
+        "NOT-14"
+      ],
+      "heading": "Thiết bị push",
+      "text": "Thiết bị push. Đây là bảng dữ liệu, dành cho quản trị thông báo và người duyệt chiến dịch thông báo. Trên màn hình có: Trạng thái và Nền tảng.",
+      "note": "Thiết kế còn nêu các thông tin: Token ẩn, Lần hoạt động, Thu hồi, Quyền thông báo và Phiên bản ứng dụng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "not-15",
+      "screens": [
+        "NOT-15"
+      ],
+      "heading": "Hạn mức và chi phí kênh",
+      "text": "Hạn mức và chi phí kênh. Đây là màn hình, dành cho quản trị thông báo và người duyệt chiến dịch thông báo. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Kênh, Ngân sách, Đã dùng, Còn lại, Hạn mức/ngày và Ngân sách VND/tháng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

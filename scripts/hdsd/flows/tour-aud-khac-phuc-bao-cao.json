@@ -1,0 +1,38 @@
+{
+  "id": "tour-aud-khac-phuc-bao-cao",
+  "group": "AUD",
+  "title": "Thanh tra, kiểm toán và theo dõi khắc phục: Khắc phục & báo cáo",
+  "audience": "Kế toán, đầu mối, người chủ trì kiến nghị và auditor",
+  "outcome": "Biết mỗi màn hình của nhóm Khắc phục & báo cáo dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "aud-08",
+      "screens": [
+        "AUD-08"
+      ],
+      "heading": "Thu hồi tài chính và đối chiếu PAY",
+      "text": "Thu hồi tài chính và đối chiếu PAY. Đây là màn hình, dành cho Kế toán và đầu mối. Σ thu hồi ≤ số kiến nghị (khóa hàng). Sửa sai bằng dòng đảo. Trên màn hình có: Cuộc thanh tra, kiểm toán.",
+      "note": "Thiết kế còn nêu các thông tin: Kiến nghị, Nguồn, Số tiền, Ngày, Lũy kế, Còn lại và Đảo. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "aud-09",
+      "screens": [
+        "AUD-09"
+      ],
+      "heading": "Bằng chứng khắc phục",
+      "text": "Bằng chứng khắc phục. Đây là màn hình, dành cho người chủ trì kiến nghị và auditor. Trên màn hình có: Cuộc thanh tra, kiểm toán. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Đối tượng, Tài liệu, Ghi chú, Người gắn và Thời điểm. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "aud-10",
+      "screens": [
+        "AUD-10"
+      ],
+      "heading": "Báo cáo kết quả thực hiện kiến nghị",
+      "text": "Báo cáo kết quả thực hiện kiến nghị. Đây là màn hình phê duyệt, dành cho Đầu mối và lãnh đạo. Trên màn hình có: Cuộc thanh tra, kiểm toán.",
+      "note": "Thiết kế còn nêu các thông tin: As-of, Số liệu tổng hợp, Băm payload, Trạng thái DOC và Người duyệt. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

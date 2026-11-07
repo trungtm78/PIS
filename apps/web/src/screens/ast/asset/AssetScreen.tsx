@@ -120,10 +120,10 @@ function AssetTable({ lines, writable, money, onTransfer }: AssetTableProps) {
       header: t('ast.asset.column.asset'),
       pinned: true,
       render: (line) => (
-        <span data-asset={line.id}>
+        <>
           <strong data-testid="code">{line.assetCode}</strong> <span data-testid="name">{line.name ?? ''}</span>
           {line.warrantyUntil === null ? null : <small className="sub qms-regime">{t('ast.asset.warranty.until', { day: line.warrantyUntil })}</small>}
-        </span>
+        </>
       ),
     },
     { key: 'handover', header: t('ast.asset.column.handover'), render: (line) => <span data-testid="handover">{`${line.handover.handoverNo ?? ''} · ${line.contract.code}`}</span> },
@@ -183,5 +183,5 @@ function AssetTable({ lines, writable, money, onTransfer }: AssetTableProps) {
       ),
     },
   ];
-  return <DataTable caption={t('w2iss.ast.assets.aria')} columns={columns} rows={lines} rowKey={(line) => line.id} />;
+  return <DataTable caption={t('w2iss.ast.assets.aria')} columns={columns} rows={lines} rowKey={(line) => line.id} rowAttrs={(line) => ({ 'data-asset': line.id, 'data-status': line.status })} />;
 }

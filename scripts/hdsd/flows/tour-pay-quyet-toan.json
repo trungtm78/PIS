@@ -1,0 +1,29 @@
+{
+  "id": "tour-pay-quyet-toan",
+  "group": "PAY",
+  "title": "Thanh toán và Kho bạc: Quyết toán",
+  "audience": "Kế toán, kế toán trưởng và cán bộ đối soát",
+  "outcome": "Biết mỗi màn hình của nhóm Quyết toán dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "pay-15",
+      "screens": [
+        "PAY-15"
+      ],
+      "heading": "Quyết toán niên độ và dự án hoàn thành",
+      "text": "Quyết toán niên độ và dự án hoàn thành. Đây là màn hình rà soát, dành cho Kế toán, kế toán trưởng và cán bộ đối soát. Đóng khi còn công nợ/tạm ứng cần phê duyệt ngoại lệ. Hạn thẩm tra theo nhóm dự án. Trên màn hình có: Hồ sơ quyết toán và Trạng thái. Các thao tác chính: Mở hồ sơ quyết toán. Lúc quay, màn hình đang có 1 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Phạm vi, Nhóm dự án, Giá trị quyết toán, Công nợ, Tạm ứng chưa thu, Hạn thẩm tra và Ngoại lệ đóng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "pay-16",
+      "screens": [
+        "PAY-16"
+      ],
+      "heading": "Biểu mẫu quyết toán và hạn thẩm tra",
+      "text": "Biểu mẫu quyết toán và hạn thẩm tra. Đây là lịch, dành cho Kế toán, kế toán trưởng và cán bộ đối soát. Trên màn hình có: Lịch hạn thẩm tra, Biểu mẫu của hồ sơ và Hồ sơ đã thẩm tra. Lúc quay, màn hình đang có 2 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Mẫu 01–05/QTNĐ, Mẫu 01–12/QTDA, Quyết định 10/QTDA, Ngày nộp và Số ngày còn lại. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

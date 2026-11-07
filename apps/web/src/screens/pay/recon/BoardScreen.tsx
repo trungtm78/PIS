@@ -66,7 +66,7 @@ function BoardContent({ route }: ScreenProps) {
       header: t('pay.recon.pending.column.voucher'),
       pinned: true,
       render: (transaction) => (
-        <span data-testid="voucher" data-transaction={transaction.id}>
+        <span data-testid="voucher">
           {transaction.documentNo ?? transaction.id}
         </span>
       ),
@@ -200,7 +200,7 @@ function BoardContent({ route }: ScreenProps) {
             </p>
           ) : (
             <div data-testid="pending">
-              <DataTable caption={t('pay.recon.pending.title')} columns={pendingColumns} rows={waiting} rowKey={(transaction) => transaction.id} />
+              <DataTable caption={t('pay.recon.pending.title')} columns={pendingColumns} rows={waiting} rowKey={(transaction) => transaction.id} rowAttrs={(transaction) => ({ 'data-transaction': transaction.id })} />
             </div>
           )}
         </SectionCard>
@@ -232,7 +232,7 @@ function BoardContent({ route }: ScreenProps) {
               </p>
             ) : (
               <div data-testid="items">
-                <DataTable caption={t('pay.recon.items.title')} columns={itemColumns} rows={rows} rowKey={(item) => item.id} emptyKind={status === '' ? 'none' : 'filtered'} onClearFilters={() => setStatus('')} />
+                <DataTable caption={t('pay.recon.items.title')} columns={itemColumns} rows={rows} rowKey={(item) => item.id} rowAttrs={(item) => ({ 'data-item': item.id, 'data-status': item.status, 'data-overdue': item.overdue ? 'yes' : 'no' })} emptyKind={status === '' ? 'none' : 'filtered'} onClearFilters={() => setStatus('')} />
               </div>
             )}
           </SectionCard>

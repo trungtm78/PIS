@@ -92,7 +92,7 @@ function DashboardContent({ route }: ScreenProps) {
               {filtering ? t('dgv.dashboard.noMatch.text') : t('dgv.dashboard.empty.text')}
             </p>
           ) : (
-            <DataTable caption={t('dgv.dashboard.table.aria')} columns={columns} rows={rows} rowKey={(row) => row.id} />
+            <DataTable caption={t('dgv.dashboard.table.aria')} columns={columns} rows={rows} rowKey={(row) => row.id} rowAttrs={(row) => ({ 'data-dataset-id': row.id, 'data-dataset-code': row.datasetCode, 'data-badge': row.qualityBadge })} />
           )}
           <p className="sub" data-testid="count">
             {t('dgv.dashboard.count.text', { count: rows.length })}
@@ -149,7 +149,7 @@ function datasetColumns(t: Translate, now: number): DataTableColumn<DatasetView>
       ),
     },
     { key: 'domain', header: t('dgv.dashboard.domain.column'), render: (row) => row.domain },
-    { key: 'quality', header: t('dgv.dashboard.quality.column'), align: 'right', render: (row) => (row.qualityScore === null ? t('dgv.dashboard.score.none') : row.qualityScore) },
+    { key: 'quality', header: t('dgv.dashboard.quality.column'), align: 'right', render: (row) => <span data-testid="score">{row.qualityScore === null ? t('dgv.dashboard.score.none') : row.qualityScore}</span> },
     { key: 'freshness', header: t('dgv.dashboard.freshness.column'), render: (row) => freshnessText(t, row, now) },
     { key: 'incidents', header: t('dgv.dashboard.incidents.column'), render: (row) => t('dgv.dashboard.incidents.text', { open: row.openIncidents, overdue: row.overdueIncidents }) },
     {

@@ -1,0 +1,74 @@
+{
+  "id": "tour-bi-chi-tieu-du-lieu",
+  "group": "BI",
+  "title": "BI và dashboard động: Chỉ tiêu & dữ liệu",
+  "audience": "Nhà phân tích, quản trị dữ liệu, chủ sở hữu dữ liệu và Quản trị dữ liệu",
+  "outcome": "Biết mỗi màn hình của nhóm Chỉ tiêu & dữ liệu dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "bi-05",
+      "screens": [
+        "BI-05"
+      ],
+      "heading": "Danh mục chỉ tiêu",
+      "text": "Danh mục chỉ tiêu. Đây là bảng dữ liệu, dành cho Nhà phân tích và quản trị dữ liệu. Chỉ tiêu có định nghĩa phiên bản. Trên màn hình có: Nguồn. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Mã chỉ tiêu, Công thức, Đơn vị, Chủ sở hữu, Commit và Thuật ngữ MDM. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bi-06",
+      "screens": [
+        "BI-06"
+      ],
+      "heading": "Định nghĩa chỉ tiêu",
+      "text": "Định nghĩa chỉ tiêu. Đây là biểu mẫu để nhập thông tin, dành cho Nhà phân tích và quản trị dữ liệu. Trên màn hình có: Công thức, Grain, Loại cộng dồn và Hiệu lực. Các thao tác chính: Lưu bản nháp.",
+      "note": "Thiết kế còn nêu các thông tin: Mẫu số, Null, Phiên bản, Tử số và Chính sách null. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bi-07",
+      "screens": [
+        "BI-07"
+      ],
+      "heading": "Nguồn và mô hình dữ liệu",
+      "text": "Nguồn và mô hình dữ liệu. Đây là sơ đồ dạng cây, dành cho Nhà phân tích và quản trị dữ liệu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Nguồn, Bảng, Quan hệ, Lịch làm mới, Join đã duyệt và Catalog DGV. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bi-08",
+      "screens": [
+        "BI-08"
+      ],
+      "heading": "Phân quyền dòng và cột",
+      "text": "Phân quyền dòng và cột. Đây là màn hình, dành cho Nhà phân tích và quản trị dữ liệu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Vai trò, Phạm vi, Cột ẩn, Điều kiện, Trạng thái chính sách và Xem thử dưới vai người dùng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bi-14",
+      "screens": [
+        "BI-14"
+      ],
+      "heading": "Lineage và chất lượng dữ liệu",
+      "text": "Lineage và chất lượng dữ liệu. Đây là sơ đồ dạng cây, dành cho Nhà phân tích và quản trị dữ liệu. Trên màn hình có: Chỉ tiêu, Hướng và Số bước. Các thao tác chính: Xem lineage.",
+      "note": "Thiết kế còn nêu các thông tin: Nguồn gốc, Kiểm tra, Độ mới, Lần chạy chất lượng và Số dòng quarantine bị loại. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bi-15",
+      "screens": [
+        "BI-15"
+      ],
+      "heading": "Đăng ký chỉ tiêu từ mã nguồn",
+      "text": "Đăng ký chỉ tiêu từ mã nguồn. Đây là bảng dữ liệu, dành cho chủ sở hữu dữ liệu và quản trị dữ liệu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Commit, Băm gói, Chỉ tiêu thêm, Chỉ tiêu sửa, Chỉ tiêu ngừng, Trạng thái và Lỗi. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bi-18",
+      "screens": [
+        "BI-18"
+      ],
+      "heading": "Bộ dữ liệu và ảnh chụp kỳ",
+      "text": "Bộ dữ liệu và ảnh chụp kỳ. Đây là bảng dữ liệu, dành cho Quản trị dữ liệu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Dataset, Kỳ, Snapshot nguồn, Thời điểm dựng, Số dòng, Huy hiệu chất lượng và Trạng thái. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

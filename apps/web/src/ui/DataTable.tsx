@@ -30,6 +30,8 @@ export interface DataTableProps<T> {
   totals?: Record<string, ReactNode>;
   totalsLabel?: string;
   severity?: (row: T) => Severity | null;
+  /** Attributes of the row itself (`data-*` hooks that the browser flows and the tests find a record by). */
+  rowAttrs?: (row: T) => Record<string, string | undefined>;
   page?: DataTablePage;
   state?: UiState;
   emptyKind?: 'none' | 'filtered' | 'noPeriod';
@@ -76,7 +78,7 @@ function headRows<T>(columns: DataTableColumn<T>[]): { top: HeadCell[]; bottom: 
 }
 
 /** The table of every list: two-tier sticky head, right-aligned numbers, a pinned first column, a totals row, a severity stripe and the pager. */
-export function DataTable<T>({ columns, rows, rowKey, totals, totalsLabel, severity, page, state = 'ready', emptyKind = 'none', onClearFilters, onRetry, caption }: DataTableProps<T>) {
+export function DataTable<T>({ columns, rows, rowKey, totals, totalsLabel, severity, rowAttrs, page, state = 'ready', emptyKind = 'none', onClearFilters, onRetry, caption }: DataTableProps<T>) {
   const { t } = useTranslation();
   const { top, bottom } = headRows(columns);
   const count = columns.length;
@@ -147,7 +149,7 @@ export function DataTable<T>({ columns, rows, rowKey, totals, totalsLabel, sever
               rows.map((row) => {
                 const level = severity?.(row) ?? null;
                 return (
-                  <tr className="ui-table__row" key={rowKey(row)} data-severity={level ?? undefined}>
+                  <tr {...rowAttrs?.(row)} className="ui-table__row" key={rowKey(row)} data-severity={level ?? undefined}>
                     {columns.map((column, position) => (
                       <td className={cellClass(column, 'ui-table__cell')} key={column.key}>
                         {position === 0 && level !== null && <span className="ui-sr-only">{t('ui.dataTable.severityPrefix', { label: severityLabel(level) })}. </span>}

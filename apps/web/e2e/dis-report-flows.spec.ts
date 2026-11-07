@@ -117,7 +117,8 @@ test.describe('DIS-01, DIS-02, DIS-04, DIS-18 weekly report of the disbursement'
     await open(page, 'reportMaker', '/dis/dis-02');
     await expect(page.getByRole('heading', { level: 1, name: vi['dis.reportCreate.page.title'] })).toBeVisible();
     await page.getByRole('button', { name: vi['dis.reportCreate.submit.action'] }).click();
-    await expect(page.getByText(vi['dis.reportCreate.period.required'])).toBeVisible();
+    // The summary above the form repeats the message after the name of the field: the field's own message is the exact one.
+    await expect(page.getByText(vi['dis.reportCreate.period.required'], { exact: true })).toBeVisible();
     expect(await reportsOf()).toEqual([]);
 
     await page.getByLabel(vi['dis.reportCreate.year.label'], { exact: true }).selectOption(String(YEAR));
@@ -137,7 +138,8 @@ test.describe('DIS-01, DIS-02, DIS-04, DIS-18 weekly report of the disbursement'
     for (const { key, amount } of CELLS) await cell(page, key).fill(amount);
     await ctmtqg(page, 'CURRENT_YEAR:CENTRAL').fill('120.000.000');
     await page.getByRole('button', { name: vi['dis.reportEdit.save.action'] }).click();
-    await expect(page.getByText(vi['dis.reportProblem.cell.exceeds'])).toBeVisible();
+    // The error summary on top repeats the message after the name of the cell; the message of the cell itself is the exact one.
+    await expect(page.getByText(vi['dis.reportProblem.cell.exceeds'], { exact: true })).toBeVisible();
     await expect(ctmtqg(page, 'CURRENT_YEAR:CENTRAL')).toHaveAttribute('aria-invalid', 'true');
     // The draft was drawn with its six cells at nothing, and the refused save changed none of them.
     expect((await linesOf(reportId)).map((line) => line.cumulative)).toEqual(['0', '0', '0', '0', '0', '0']);
@@ -186,13 +188,14 @@ test.describe('DIS-01, DIS-02, DIS-04, DIS-18 weekly report of the disbursement'
     const [report] = await reportsOf();
     await open(page, 'reportReader', '/dis/dis-01');
     await expect(page.getByRole('heading', { level: 1, name: vi['dis.reports.page.title'] })).toBeVisible();
-    await expect(page.getByRole('link', { name: vi['dis.reports.create.action'] })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: vi['dis.wr.create.action'] })).toHaveCount(0);
     const row = page.getByRole('row').filter({ hasText: PROJECT_CODE });
     await expect(row).toContainText(PERIOD_CODE);
     await expect(row).toContainText(vi['dis.reportStatus.draft']);
     await expect(row).toContainText('420.000.000');
     await expect(row).toContainText('40.000.000');
-    await expect(page.getByTestId('kpi-filtered-money')).toContainText('420.000.000');
+    await expect(page.getByTestId('kpis')).toContainText(vi['dis.wr.kpi.exact'].replace('{amount}', '420.000.000'));
+    await expect(page.getByTestId('kpis')).toContainText(vi['dis.wr.kpi.exact'].replace('{amount}', '40.000.000'));
 
     await row.getByRole('link', { name: vi['dis.reports.open.action'].replace('{code}', PROJECT_CODE) }).click();
     await expect(page).toHaveURL(new RegExp(`/dis/dis-04\\?report=${report?.id}`));
@@ -203,6 +206,6 @@ test.describe('DIS-01, DIS-02, DIS-04, DIS-18 weekly report of the disbursement'
 
   test('a maker sees the list with the button that starts a report', async ({ page }) => {
     await open(page, 'reportMaker', '/dis/dis-01');
-    await expect(page.getByRole('link', { name: vi['dis.reports.create.action'], exact: true })).toHaveAttribute('href', '/dis/dis-02');
+    await expect(page.getByRole('link', { name: vi['dis.wr.create.action'], exact: true })).toHaveAttribute('href', '/dis/dis-02');
   });
 });

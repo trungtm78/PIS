@@ -249,7 +249,7 @@ function Acceptances({ contract, acceptances, measurements }: AcceptancesProps) 
           </p>
         ) : (
           <div data-testid="acceptances">
-            <DataTable caption={t('ctr.acceptance.list.title')} columns={columns} rows={[...acceptances]} rowKey={(acceptance) => acceptance.id} />
+            <DataTable caption={t('ctr.acceptance.list.title')} columns={columns} rows={[...acceptances]} rowKey={(acceptance) => acceptance.id} rowAttrs={(acceptance) => ({ 'data-acceptance': acceptance.id, 'data-status': acceptance.status })} />
           </div>
         )}
       </SectionCard>

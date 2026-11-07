@@ -99,7 +99,7 @@ test.describe('ISS-01 and ISS-03: automatic issues from LND and PMT without pers
 
     // The board shows it under its status with the source it came from; the workspace shows who opened it, and keeps the text of a land complaint from a reader who may not read households.
     await open(page, 'issueCoordinator', '/iss/iss-01');
-    const card = page.locator('section[data-status="OPEN"] article', { hasText: 'LC-E2E-001' });
+    const card = page.locator('tr[data-status="OPEN"]', { hasText: 'LC-E2E-001' });
     await expect(card).toBeVisible();
     await expect(card).toContainText(vi['iss.source.lnd.text']);
     await open(page, 'issueCoordinator', `/iss/iss-03?id=${issue?.id ?? ''}`);

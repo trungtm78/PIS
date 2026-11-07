@@ -1,0 +1,56 @@
+{
+  "id": "tour-omni-kenh-van-hanh",
+  "group": "OMNI",
+  "title": "Tương tác đa kênh: Kênh & vận hành",
+  "audience": "nhân viên hỗ trợ khách xử lý, giám sát viên hỗ trợ khách cấu hình và giám sát",
+  "outcome": "Biết mỗi màn hình của nhóm Kênh & vận hành dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "omni-05",
+      "screens": [
+        "OMNI-05"
+      ],
+      "heading": "Kết nối kênh",
+      "text": "Kết nối kênh. Đây là các thẻ thông tin, dành cho nhân viên hỗ trợ khách xử lý và giám sát viên hỗ trợ khách cấu hình và giám sát. Kênh chưa xác minh không gửi. Trên màn hình có: Trạng thái, Kênh, Kết nối tài khoản mới, Loại kênh cần kết nối, Mã tài khoản ở nhà cung cấp và Tên hiển thị. Các thao tác chính: Kết nối.",
+      "note": "Thiết kế còn nêu các thông tin: Zalo OA, WhatsApp Business, Email và Xác minh lúc. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "omni-06",
+      "screens": [
+        "OMNI-06"
+      ],
+      "heading": "Cấu hình kênh",
+      "text": "Cấu hình kênh. Đây là biểu mẫu để nhập thông tin, dành cho nhân viên hỗ trợ khách xử lý và giám sát viên hỗ trợ khách cấu hình và giám sát.",
+      "note": "Thiết kế còn nêu các thông tin: Nhà cung cấp, Credential reference, Webhook, Phạm vi, Tên hiển thị và Tự trả lời ngoài giờ. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "omni-07",
+      "screens": [
+        "OMNI-07"
+      ],
+      "heading": "Phân công và SLA",
+      "text": "Phân công và SLA. Đây là màn hình, dành cho nhân viên hỗ trợ khách xử lý và giám sát viên hỗ trợ khách cấu hình và giám sát. Trên màn hình có: Hạn và Phiên bản. Các thao tác chính: Thêm quy tắc và Lưu bản nháp. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Hàng đợi, Đơn vị, Ưu tiên, Phút phản hồi đầu và Giờ giải quyết. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "omni-08",
+      "screens": [
+        "OMNI-08"
+      ],
+      "heading": "Mẫu trả lời",
+      "text": "Mẫu trả lời. Đây là bảng dữ liệu, dành cho nhân viên hỗ trợ khách xử lý và giám sát viên hỗ trợ khách cấu hình và giám sát. Trên màn hình có: Mẫu, Kênh và Phân loại. Các thao tác chính: Lưu mẫu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Ngôn ngữ và Trạng thái duyệt. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "omni-10",
+      "screens": [
+        "OMNI-10"
+      ],
+      "heading": "Thống kê tương tác",
+      "text": "Thống kê tương tác. Đây là bảng điều hành, dành cho nhân viên hỗ trợ khách xử lý và giám sát viên hỗ trợ khách cấu hình và giám sát. Trên màn hình có: SLA, Kênh, Đơn vị và Kỳ.",
+      "note": "Thiết kế còn nêu các thông tin: Thời gian phản hồi và Mẫu số. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

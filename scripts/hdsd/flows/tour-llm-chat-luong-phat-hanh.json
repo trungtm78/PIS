@@ -1,0 +1,83 @@
+{
+  "id": "tour-llm-chat-luong-phat-hanh",
+  "group": "LLM",
+  "title": "Quản trị AI và LLM: Chất lượng & phát hành",
+  "audience": "quản trị AI, cán bộ quản lý chi phí, an toàn dữ liệu và auditor",
+  "outcome": "Biết mỗi màn hình của nhóm Chất lượng & phát hành dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "llm-10",
+      "screens": [
+        "LLM-10"
+      ],
+      "heading": "Prompt và phiên bản",
+      "text": "Prompt và phiên bản. Đây là màn hình, dành cho quản trị AI, cán bộ quản lý chi phí và an toàn dữ liệu. ",
+      "note": "Thiết kế còn nêu các thông tin: Tác vụ, Prompt, Phiên bản, Nhãn phát hành, Schema vào/ra và Người duyệt. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "llm-11",
+      "screens": [
+        "LLM-11"
+      ],
+      "heading": "Playground có kiểm soát",
+      "text": "Playground có kiểm soát. Đây là màn hình, dành cho quản trị AI, cán bộ quản lý chi phí và an toàn dữ liệu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Profile, Tài liệu thử, Đầu vào, Ước tính chi phí, Phân loại dữ liệu thử và Tuyến sẽ dùng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "llm-12",
+      "screens": [
+        "LLM-12"
+      ],
+      "heading": "Bộ dữ liệu đánh giá",
+      "text": "Bộ dữ liệu đánh giá. Đây là bảng dữ liệu, dành cho quản trị AI, cán bộ quản lý chi phí và an toàn dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Ca kiểm thử, Kỳ vọng, Phân loại, Phiên bản, Nguồn và Ca injection. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "llm-13",
+      "screens": [
+        "LLM-13"
+      ],
+      "heading": "So sánh đánh giá model",
+      "text": "So sánh đánh giá model. Đây là màn hình so sánh, dành cho quản trị AI, cán bộ quản lý chi phí và an toàn dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Model, Điểm dẫn chứng, Sai sót, Chi phí, Độ trễ, Tuyến và Ngưỡng đạt. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "llm-15",
+      "screens": [
+        "LLM-15"
+      ],
+      "heading": "Guardrail và dữ liệu",
+      "text": "Guardrail và dữ liệu. Đây là màn hình, dành cho quản trị AI, cán bộ quản lý chi phí và an toàn dữ liệu. Trên màn hình có: Lưu trữ, Nội dung truy xuất là dữ liệu không tin cậy và Trích dẫn bắt buộc. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Che PII, Cho phép công cụ và Vùng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "llm-16",
+      "screens": [
+        "LLM-16"
+      ],
+      "heading": "Tri thức và chỉ mục",
+      "text": "Tri thức và chỉ mục. Đây là màn hình, dành cho quản trị AI, cán bộ quản lý chi phí và an toàn dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Tập tài liệu, ACL, Phiên bản, Trạng thái index, Băm ACL và Phân loại tối đa. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "llm-17",
+      "screens": [
+        "LLM-17"
+      ],
+      "heading": "Phê duyệt phát hành AI",
+      "text": "Phê duyệt phát hành AI. Đây là màn hình phê duyệt, dành cho quản trị AI, cán bộ quản lý chi phí và an toàn dữ liệu. Trên màn hình có: Profile.",
+      "note": "Thiết kế còn nêu các thông tin: Kết quả eval, Người duyệt, Rollback, Eval trên tuyến trong nước và Eval trên tuyến quốc tế. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "llm-20",
+      "screens": [
+        "LLM-20"
+      ],
+      "heading": "Bản ghi quyết định của con người",
+      "text": "Bản ghi quyết định của con người. Đây là danh sách, dành cho quản trị AI, auditor và chủ nghiệp vụ.",
+      "note": "Thiết kế còn nêu các thông tin: Đối tượng, Loại hành động, Quyết định, Lý do, Người quyết định, Lệnh đã thực thi và Băm đầu ra AI. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

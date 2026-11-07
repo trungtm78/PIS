@@ -139,7 +139,7 @@ test.describe('the handover of a work', () => {
     const [drafted] = await handoversOf(seeded.contractId);
     expect(drafted).toMatchObject({ handover_no: 'BG-001', status: 'DRAFT', handover_kind: 'COMPLETION', open_critical_punch_count: 0, version: '1' });
     const id = drafted?.id ?? '';
-    await expect(page.locator(`[data-handover="${id}"]`).getByTestId('status')).toHaveText(vi['ast.handover.status.draft']);
+    await expect(page.locator(`tr[data-handover="${id}"]`).getByTestId('status')).toHaveText(vi['ast.handover.status.draft']);
 
     // The handover is opened, and the defects are listed: a critical one and a minor one.
     await page.locator(`[data-open="${id}"]`).click();

@@ -1,0 +1,47 @@
+{
+  "id": "tour-not-cua-toi",
+  "group": "NOT",
+  "title": "Notification Center: Của tôi",
+  "audience": "Người nhận thông báo",
+  "outcome": "Biết mỗi màn hình của nhóm Của tôi dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "not-01",
+      "screens": [
+        "NOT-01"
+      ],
+      "heading": "Hộp thông báo cá nhân",
+      "text": "Hộp thông báo cá nhân. Đây là danh sách, dành cho Người nhận thông báo.  Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Chưa đọc, Loại, Ưu tiên, Hồ sơ, Đã đọc lúc và Cần xác nhận. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "not-02",
+      "screens": [
+        "NOT-02"
+      ],
+      "heading": "Chi tiết thông báo",
+      "text": "Chi tiết thông báo. Đây là màn hình xem chi tiết, dành cho Người nhận thông báo. Trên màn hình có: Không tìm thấy thông báo.",
+      "note": "Thiết kế còn nêu các thông tin: Nội dung, Hành động, Hạn, Xác nhận và Xác nhận lúc. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "not-03",
+      "screens": [
+        "NOT-03"
+      ],
+      "heading": "Tùy chọn nhận tin",
+      "text": "Tùy chọn nhận tin. Đây là màn hình, dành cho Người nhận thông báo. Trên màn hình có: Kênh, Sự kiện, Giờ yên lặng, Gộp tin và Múi giờ. Các thao tác chính: Thêm và Lưu tùy chọn. Lúc quay, màn hình đang có 1 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Kênh bắt buộc. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "not-17",
+      "screens": [
+        "NOT-17"
+      ],
+      "heading": "Lịch sử đồng ý nhận tin",
+      "text": "Lịch sử đồng ý nhận tin. Đây là danh sách, dành cho Người nhận thông báo. Trên màn hình có: Kênh và Mục đích. Các thao tác chính: Đồng ý nhận. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Trạng thái, Thời điểm, Phiên bản điều khoản và Rút đồng ý. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

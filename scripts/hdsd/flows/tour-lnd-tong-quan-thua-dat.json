@@ -1,0 +1,38 @@
+{
+  "id": "tour-lnd-tong-quan-thua-dat",
+  "group": "LND",
+  "title": "GPMB, bồi thường, TĐC: Tổng quan & thửa đất",
+  "audience": "Trung tâm phát triển quỹ đất, phường và chủ đầu tư",
+  "outcome": "Biết mỗi màn hình của nhóm Tổng quan & thửa đất dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "lnd-01",
+      "screens": [
+        "LND-01"
+      ],
+      "heading": "Tổng quan GPMB theo dự án",
+      "text": "Tổng quan GPMB theo dự án. Đây là bảng điều hành, dành cho Trung tâm phát triển quỹ đất, phường và chủ đầu tư. Số liệu theo ảnh chụp số liệu. Tiến độ hiển thị kể cả khi Trung tâm quỹ đất thực hiện. Trên màn hình có: Dự án, Giai đoạn trễ hạn và Các đoạn bàn giao.",
+      "note": "Thiết kế còn nêu các thông tin: Số thửa, Số hộ, Đã niêm yết, Đã chi trả, Diện tích đã bàn giao và Đơn vị thực hiện. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "lnd-02",
+      "screens": [
+        "LND-02"
+      ],
+      "heading": "Thửa đất và ranh giới",
+      "text": "Thửa đất và ranh giới. Đây là bản đồ, dành cho Trung tâm phát triển quỹ đất, phường và chủ đầu tư. Trên màn hình có: Thửa và Trạng thái. Các thao tác chính: Tạo đoạn bàn giao, Khai báo thửa đất, Tải lên và kiểm tra và Nhập vào dự án. Lúc quay, màn hình đang có 1 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Địa bàn, Nhóm đất, Diện tích, Diện tích thu hồi và Thông báo thu hồi. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "lnd-03",
+      "screens": [
+        "LND-03"
+      ],
+      "heading": "Hộ bị ảnh hưởng",
+      "text": "Hộ bị ảnh hưởng. Đây là bảng dữ liệu, dành cho Trung tâm phát triển quỹ đất, phường và chủ đầu tư. Trên màn hình có: Mã hộ và Trạng thái. Các thao tác chính: Đăng ký hộ.",
+      "note": "Thiết kế còn nêu các thông tin: Chủ hộ, CCCD, Thửa và Căn cứ xử lý dữ liệu. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

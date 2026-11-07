@@ -1,0 +1,65 @@
+{
+  "id": "tour-dgv-chat-luong-kiem-soat",
+  "group": "DGV",
+  "title": "Quản trị và trưởng thành dữ liệu: Chất lượng & kiểm soát",
+  "audience": "chủ sở hữu dữ liệu, người quản lý dữ liệu và kỹ sư dữ liệu",
+  "outcome": "Biết mỗi màn hình của nhóm Chất lượng & kiểm soát dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "dgv-06",
+      "screens": [
+        "DGV-06"
+      ],
+      "heading": "Quy tắc chất lượng",
+      "text": "Quy tắc chất lượng. Đây là biểu mẫu để nhập thông tin, dành cho chủ sở hữu dữ liệu, người quản lý dữ liệu và kỹ sư dữ liệu. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Người duyệt khác người soạn. Trên màn hình có: Dataset.",
+      "note": "Thiết kế còn nêu các thông tin: Trường, Loại kiểm tra, Ngưỡng, Hành động, Chiều chất lượng, Trọng số trọng yếu và Người duyệt. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dgv-07",
+      "screens": [
+        "DGV-07"
+      ],
+      "heading": "Profiling và điểm chất lượng",
+      "text": "Profiling và điểm chất lượng. Đây là biểu đồ, dành cho chủ sở hữu dữ liệu, người quản lý dữ liệu và kỹ sư dữ liệu. Trên màn hình có: Dataset.",
+      "note": "Thiết kế còn nêu các thông tin: Completeness, Uniqueness, Validity, Consistency, Timeliness, Lần chạy và Integrity. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dgv-08",
+      "screens": [
+        "DGV-08"
+      ],
+      "heading": "Sự cố dữ liệu",
+      "text": "Sự cố dữ liệu. Đây là bảng công việc theo cột, dành cho chủ sở hữu dữ liệu, người quản lý dữ liệu và kỹ sư dữ liệu. Trên màn hình có: Mức độ và Hạn.",
+      "note": "Thiết kế còn nêu các thông tin: Domain, Owner, Assignee, Nguyên nhân, Khắc phục và Người xác minh. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dgv-09",
+      "screens": [
+        "DGV-09"
+      ],
+      "heading": "Đối soát và số kiểm soát",
+      "text": "Đối soát và số kiểm soát. Đây là màn hình, dành cho chủ sở hữu dữ liệu, người quản lý dữ liệu và kỹ sư dữ liệu. Trên màn hình có: Kết quả. Các thao tác chính: Chạy đối soát.",
+      "note": "Thiết kế còn nêu các thông tin: Nguồn A, Nguồn B, Số dòng, Tổng tiền, Sai lệch, Basis, Dung sai và Phân loại chênh lệch. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dgv-10",
+      "screens": [
+        "DGV-10"
+      ],
+      "heading": "Quản trị dữ liệu trùng",
+      "text": "Quản trị dữ liệu trùng. Đây là màn hình rà soát, dành cho chủ sở hữu dữ liệu, người quản lý dữ liệu và kỹ sư dữ liệu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Ứng viên, Độ tương đồng, Golden record và Tác động. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dgv-12",
+      "screens": [
+        "DGV-12"
+      ],
+      "heading": "Duyệt sửa dữ liệu trọng yếu",
+      "text": "Duyệt sửa dữ liệu trọng yếu. Đây là màn hình phê duyệt, dành cho chủ sở hữu dữ liệu, người quản lý dữ liệu và kỹ sư dữ liệu. Trên màn hình có: Trạng thái và Loại dữ liệu chủ. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Trước, Sau, Căn cứ và Người duyệt. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

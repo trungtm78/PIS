@@ -93,7 +93,7 @@ export function DossierTable({ dossiers, selectedId, onSelect }: DossierTablePro
   ];
   return (
     <div data-testid="dossiers">
-      <DataTable caption={t('pmt.dossier.table.aria')} columns={columns} rows={[...dossiers]} rowKey={(dossier) => dossier.id} />
+      <DataTable caption={t('pmt.dossier.table.aria')} columns={columns} rows={[...dossiers]} rowKey={(dossier) => dossier.id} rowAttrs={(dossier) => ({ 'data-dossier-id': dossier.id, 'data-selected': String(dossier.id === selectedId) })} />
     </div>
   );
 }

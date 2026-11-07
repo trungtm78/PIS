@@ -132,7 +132,7 @@ function AnnualContent({ route }: ScreenProps) {
         ) : (
           <SectionCard title={t('cap.annual.table.aria')} unit={t('cap.ctx.unit')}>
             <div data-testid="lines">
-              <DataTable caption={t('cap.annual.table.caption')} columns={columns} rows={lines} rowKey={(line) => line.id} />
+              <DataTable caption={t('cap.annual.table.caption')} columns={columns} rows={lines} rowKey={(line) => line.id} rowAttrs={(line) => ({ 'data-line-id': line.id, 'data-bucket': line.bucket })} />
             </div>
             <dl className="cap-totals" data-testid="totals">
               <div>

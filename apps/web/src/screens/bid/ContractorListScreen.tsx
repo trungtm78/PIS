@@ -49,7 +49,7 @@ function ContractorListContent({ route }: ScreenProps) {
       header: t('bid.list.column.taxId'),
       pinned: true,
       render: (contractor) => (
-        <span data-contractor-id={contractor.id}>
+        <span>
           <Link to={profileLink(contractor.id)}>
             <code>{contractor.taxIdentifier}</code>
           </Link>
@@ -115,6 +115,7 @@ function ContractorListContent({ route }: ScreenProps) {
               columns={columns}
               rows={rows}
               rowKey={(contractor) => contractor.id}
+              rowAttrs={(contractor) => ({ 'data-contractor-id': contractor.id })}
               page={{
                 from,
                 to: from + rows.length - 1,

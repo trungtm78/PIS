@@ -1,0 +1,47 @@
+{
+  "id": "tour-lnd-xu-ly-ban-giao",
+  "group": "LND",
+  "title": "GPMB, bồi thường, TĐC: Xử lý & bàn giao",
+  "audience": "Trung tâm phát triển quỹ đất, phường và chủ đầu tư",
+  "outcome": "Biết mỗi màn hình của nhóm Xử lý & bàn giao dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "lnd-08",
+      "screens": [
+        "LND-08"
+      ],
+      "heading": "Khiếu nại",
+      "text": "Khiếu nại. Đây là màn hình, dành cho Trung tâm phát triển quỹ đất, phường và chủ đầu tư.  Trên màn hình có: Dự án và Trạng thái. Các thao tác chính: Nhận khiếu nại.",
+      "note": "Thiết kế còn nêu các thông tin: Mã, Hộ, Nội dung, Hạn giải quyết và Vướng mắc liên kết. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "lnd-09",
+      "screens": [
+        "LND-09"
+      ],
+      "heading": "Cưỡng chế",
+      "text": "Cưỡng chế. Đây là màn hình, dành cho Trung tâm phát triển quỹ đất, phường và chủ đầu tư. Trên màn hình có: Dự án. Các thao tác chính: Mở hồ sơ cưỡng chế.",
+      "note": "Thiết kế còn nêu các thông tin: Thửa, Bước, Cơ quan, Quyết định, Ngày dự kiến và Ngày thực hiện. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "lnd-10",
+      "screens": [
+        "LND-10"
+      ],
+      "heading": "Bàn giao mặt bằng theo đoạn/km",
+      "text": "Bàn giao mặt bằng theo đoạn/km. Đây là bảng dữ liệu, dành cho Trung tâm phát triển quỹ đất, phường và chủ đầu tư. Trên màn hình có: Dự án. Các thao tác chính: Tạo đoạn.",
+      "note": "Thiết kế còn nêu các thông tin: Đoạn, Từ km – đến km, Diện tích cần, Đã bàn giao, Hợp đồng nhận, Hạn mục tiêu và Trạng thái. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "lnd-11",
+      "screens": [
+        "LND-11"
+      ],
+      "heading": "Theo dõi tiến độ khi Trung tâm quỹ đất thực hiện",
+      "text": "Theo dõi tiến độ khi Trung tâm quỹ đất thực hiện. Đây là màn hình, dành cho Trung tâm phát triển quỹ đất, phường và chủ đầu tư. Trên màn hình có: Dự án.",
+      "note": "Thiết kế còn nêu các thông tin: Giai đoạn, Đơn vị thực hiện, Chế độ, Số thửa xong / tổng, Tiến độ %, Hạn và Trạng thái. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

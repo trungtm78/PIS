@@ -278,6 +278,7 @@ function PlanListContent({ route }: ScreenProps) {
             columns={columns}
             rows={pageRows}
             rowKey={(plan) => plan.id}
+            rowAttrs={(plan) => ({ 'data-plan-id': plan.id, 'data-kind': plan.planKind })}
             emptyKind={kind === '' ? 'none' : 'filtered'}
             onClearFilters={() => setKind('')}
             page={{

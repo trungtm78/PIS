@@ -126,7 +126,7 @@ function Content({ ledger, filter, items, acceptances, onFilter, onClear, more }
       header: t('pay.ledger.column.item'),
       pinned: true,
       render: (line) => (
-        <span data-line={line.id} data-item={line.boqItemId}>
+        <span>
           <strong data-testid="item">{line.boqItemKey}</strong>
           <small className="sub"> {line.description}</small>
         </span>
@@ -231,6 +231,7 @@ function Content({ ledger, filter, items, acceptances, onFilter, onClear, more }
               columns={columns}
               rows={ledger.items}
               rowKey={(line) => line.id}
+              rowAttrs={(line) => ({ 'data-line': line.id, 'data-item': line.boqItemId })}
               totalsLabel={filtered ? t('pay.ledger.total.filtered') : t('pay.ledger.total.all')}
               totals={{
                 accepted: figure('accepted', ledger.total.acceptedVnd),
@@ -297,5 +298,5 @@ function Entries({ line, money, locale }: EntriesProps) {
     { key: 'outstanding', header: t('pay.ledger.entries.column.outstanding'), align: 'right', render: (entry) => money(entry.advanceOutstandingAfterVnd) },
     { key: 'reason', header: t('pay.ledger.entries.column.reason'), render: (entry) => entry.reason ?? '' },
   ];
-  return <DataTable caption={t('pay.ledger.entries.title', { item: line.boqItemKey })} columns={columns} rows={line.entries} rowKey={(entry) => entry.id} />;
+  return <DataTable caption={t('pay.ledger.entries.title', { item: line.boqItemKey })} columns={columns} rows={line.entries} rowKey={(entry) => entry.id} rowAttrs={(entry) => ({ 'data-entry': entry.id, 'data-kind': entry.kind })} />;
 }

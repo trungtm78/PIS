@@ -13,7 +13,7 @@ const created = { operation_id: 'o', status: 'DRAFT', resource_version: 1, resou
 afterEach(cleanup);
 
 // A plan is the row of the table of the kit that holds a cell carrying its id.
-const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('[data-plan-id]')).flatMap((node) => (node.closest('tr') === null ? [] : [node.closest('tr') as HTMLElement]));
+const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('td [data-plan-id]')).flatMap((node) => (node.closest('tr') === null ? [] : [node.closest('tr') as HTMLElement]));
 const planOf = (row: HTMLElement | undefined): string | null | undefined => row?.querySelector('[data-plan-id]')?.getAttribute('data-plan-id');
 const ready = () => waitFor(() => expect(rows().length).toBeGreaterThan(0));
 const cell = (row: HTMLElement | undefined, index: number): string => row?.querySelectorAll('th, td')[index]?.textContent ?? '';

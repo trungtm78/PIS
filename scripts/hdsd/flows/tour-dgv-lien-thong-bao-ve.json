@@ -1,0 +1,65 @@
+{
+  "id": "tour-dgv-lien-thong-bao-ve",
+  "group": "DGV",
+  "title": "Quản trị và trưởng thành dữ liệu: Liên thông & bảo vệ",
+  "audience": "chủ sở hữu dữ liệu, người quản lý dữ liệu, kỹ sư dữ liệu và Owner consumer",
+  "outcome": "Biết mỗi màn hình của nhóm Liên thông & bảo vệ dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "dgv-11",
+      "screens": [
+        "DGV-11"
+      ],
+      "heading": "Lưu trữ và legal hold",
+      "text": "Lưu trữ và legal hold. Đây là màn hình, dành cho chủ sở hữu dữ liệu, người quản lý dữ liệu và kỹ sư dữ liệu. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Trên màn hình có: Loại dữ liệu và Legal hold. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Retention và Xóa. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dgv-13",
+      "screens": [
+        "DGV-13"
+      ],
+      "heading": "Data contract và schema",
+      "text": "Data contract và schema. Đây là màn hình, dành cho chủ sở hữu dữ liệu, người quản lý dữ liệu và kỹ sư dữ liệu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Producer, Consumer, Schema, Version, Compatibility, Phiên bản ODCS, Băm bản phát hành và Chấp thuận consumer. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dgv-14",
+      "screens": [
+        "DGV-14"
+      ],
+      "heading": "Pipeline và mapping",
+      "text": "Pipeline và mapping. Đây là màn hình, dành cho chủ sở hữu dữ liệu, người quản lý dữ liệu và kỹ sư dữ liệu. Trên màn hình có: Dataset, Kết quả, Các lô đã qua cổng và Mapping pipeline đang dùng.",
+      "note": "Thiết kế còn nêu các thông tin: Nguồn, Validation, Quarantine, Publish và Mapping đã xác nhận. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dgv-15",
+      "screens": [
+        "DGV-15"
+      ],
+      "heading": "Phân loại và quyền dữ liệu",
+      "text": "Phân loại và quyền dữ liệu. Đây là màn hình, dành cho chủ sở hữu dữ liệu, người quản lý dữ liệu và kỹ sư dữ liệu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Classification, PII, Row policy, Column policy và Phân loại 5 mức. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dgv-19",
+      "screens": [
+        "DGV-19"
+      ],
+      "heading": "Chấp thuận thay đổi hợp đồng dữ liệu",
+      "text": "Chấp thuận thay đổi hợp đồng dữ liệu. Đây là màn hình phê duyệt, dành cho Owner consumer và chủ sở hữu dữ liệu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Hợp đồng, Mức tương thích, Consumer, Quyết định, Cửa sổ dual-run và Diff schema. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dgv-20",
+      "screens": [
+        "DGV-20"
+      ],
+      "heading": "Mapping trường nguồn (D04)",
+      "text": "Mapping trường nguồn (D04). Đây là bảng dữ liệu, dành cho người quản lý dữ liệu và chủ sở hữu dữ liệu. Trên màn hình có: Dataset và Trạng thái. Các thao tác chính: Đề xuất mapping.",
+      "note": "Thiết kế còn nêu các thông tin: Hệ thống nguồn, Trường nguồn, Trường đích, Biến đổi và Đơn vị. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

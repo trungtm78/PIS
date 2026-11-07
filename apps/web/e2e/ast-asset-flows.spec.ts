@@ -127,7 +127,7 @@ test.describe('the asset dossier', () => {
     const [first] = await assetsOf(seeded.handoverId);
     expect(first).toMatchObject({ asset_code: 'TS-001', name: 'Trạm bơm số 1', status: 'REGISTERED', value_vnd: '700000', value_basis: 'CONTRACT_VALUE', external_asset_id: null, version: '1' });
     const id = first?.id ?? '';
-    const line = page.locator(`[data-asset="${id}"]`);
+    const line = page.locator(`tr[data-asset="${id}"]`);
     await expect(line.getByTestId('status')).toHaveText(vi['ast.asset.status.registered']);
     await expect(line.getByTestId('external')).toHaveText(vi['ast.asset.external.manual']);
     await expect(line.getByTestId('remaining')).toContainText('500.000');

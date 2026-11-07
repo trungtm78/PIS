@@ -103,7 +103,7 @@ function PeriodCalendarContent({ route }: ScreenProps) {
               {status === '' ? t('dis.calendar.empty.text', { year }) : t('dis.calendar.noMatch.text')}
             </p>
           ) : (
-            <DataTable caption={t('dis.calendar.table.aria')} columns={periodColumns(t, now, rights, setMoving)} rows={rows} rowKey={(period) => period.id} />
+            <DataTable caption={t('dis.calendar.table.aria')} columns={periodColumns(t, now, rights, setMoving)} rows={rows} rowKey={(period) => period.id} rowAttrs={(period) => ({ 'data-period-id': period.id, 'data-period-code': period.code, 'data-status': period.status })} />
           )}
           <p className="dis-w2-note" data-testid="count">
             {t('dis.calendar.count.text', { total: counts.OPEN + counts.SOFT_CLOSED + counts.LOCKED, open: counts.OPEN, softClosed: counts.SOFT_CLOSED, locked: counts.LOCKED })}
@@ -126,10 +126,10 @@ function periodColumns(t: Translate, now: number, rights: { manage: boolean; loc
       header: t('dis.calendar.period.column'),
       pinned: true,
       render: (period) => (
-        <span data-period-id={period.id} data-period-code={period.code} data-status={period.status}>
+        <>
           <strong>{period.code}</strong>
           <span className="dis-code">{t('dis.calendar.version.text', { revision: period.calendarRevision })}</span>
-        </span>
+        </>
       ),
     },
     { key: 'start', header: t('dis.calendar.startsOn.column'), render: (period) => period.startDate },

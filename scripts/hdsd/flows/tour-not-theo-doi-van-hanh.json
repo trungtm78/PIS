@@ -1,0 +1,47 @@
+{
+  "id": "tour-not-theo-doi-van-hanh",
+  "group": "NOT",
+  "title": "Notification Center: Theo dõi vận hành",
+  "audience": "quản trị thông báo và người duyệt chiến dịch thông báo",
+  "outcome": "Biết mỗi màn hình của nhóm Theo dõi vận hành dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "not-04",
+      "screens": [
+        "NOT-04"
+      ],
+      "heading": "Tổng quan vận hành thông báo",
+      "text": "Tổng quan vận hành thông báo. Đây là bảng điều hành, dành cho quản trị thông báo và người duyệt chiến dịch thông báo.  Trên màn hình có: Kỳ xem. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Đã gửi, Lỗi, Độ trễ, Chi phí, Tỷ lệ giao và Unknown cần đối soát. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "not-11",
+      "screens": [
+        "NOT-11"
+      ],
+      "heading": "Hàng đợi gửi",
+      "text": "Hàng đợi gửi. Đây là bảng dữ liệu, dành cho quản trị thông báo và người duyệt chiến dịch thông báo. Trên màn hình có: Trạng thái. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Thông báo, Kênh, Lần thử, Kênh dự phòng và Hết hạn. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "not-12",
+      "screens": [
+        "NOT-12"
+      ],
+      "heading": "Chi tiết hành trình gửi",
+      "text": "Chi tiết hành trình gửi. Đây là dòng thời gian, dành cho quản trị thông báo và người duyệt chiến dịch thông báo.",
+      "note": "Thiết kế còn nêu các thông tin: Đưa vào hàng đợi, Chấp nhận, Giao, Đọc, Xác nhận, Lần thử, Mã nhà cung cấp và Lý do loại trừ. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "not-13",
+      "screens": [
+        "NOT-13"
+      ],
+      "heading": "Hàng đợi lỗi và phát lại",
+      "text": "Hàng đợi lỗi và phát lại. Đây là danh sách, dành cho quản trị thông báo và người duyệt chiến dịch thông báo. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Mã lỗi, Có thể thử lại, Số lần, Lần tới và Cần đối soát. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

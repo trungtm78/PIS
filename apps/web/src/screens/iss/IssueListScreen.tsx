@@ -219,5 +219,5 @@ function IssueTable({ lines, now, page }: { lines: IssueLine[]; now: Date; page:
       ),
     },
   ];
-  return <DataTable caption={t('w2iss.list.table.aria')} columns={columns} rows={lines} rowKey={(line) => line.id} severity={(line) => stripeOf(line, now)} page={page} />;
+  return <DataTable caption={t('w2iss.list.table.aria')} columns={columns} rows={lines} rowKey={(line) => line.id} rowAttrs={(line) => ({ 'data-issue-id': line.id, 'data-status': line.status })} severity={(line) => stripeOf(line, now)} page={page} />;
 }

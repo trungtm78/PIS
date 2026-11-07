@@ -148,7 +148,7 @@ test.describe('ISS-01 to ISS-03 issues', () => {
     await expect(page.getByTestId('created')).toBeVisible();
     expect(await issueByTitle(second)).toMatchObject({ geo_consent: false, geo_lat: null, geo_lng: null, geo_accuracy_m: null });
     await open(page, 'issueCoordinator', '/iss/iss-01');
-    await expect(page.locator(`section[data-status="OPEN"] article`, { hasText: title })).toHaveCount(2);
+    await expect(page.locator(`tr[data-status="OPEN"]`, { hasText: title })).toHaveCount(2);
   });
 
   test('the coordinator, who cannot read the member directory, is offered only the people who can work the issue and gives it to a worker; the worker starts it and comments; the coordinator moves it to another unit and the deadline and the days overdue stay (AC-ST-ISS-002-1)', async ({ page }) => {
@@ -220,7 +220,7 @@ test.describe('ISS-01 to ISS-03 issues', () => {
     await open(page, 'issueReader', '/iss/iss-01');
     await expect(page.getByRole('heading', { level: 1, name: vi['iss.list.page.title'] })).toBeVisible();
     await expect(page.getByRole('link', { name: vi['iss.list.create.action'] })).toHaveCount(0);
-    await expect(page.locator('article[data-issue-id]', { hasText: issue?.title ?? '' })).toBeVisible();
+    await expect(page.locator('tr[data-issue-id]', { hasText: issue?.title ?? '' })).toBeVisible();
 
     await open(page, 'issueReader', `/iss/iss-03?id=${issue?.id ?? ''}`);
     await expect(page.getByTestId('summary')).toBeVisible();

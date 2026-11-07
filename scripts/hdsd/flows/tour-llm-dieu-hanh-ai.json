@@ -1,0 +1,38 @@
+{
+  "id": "tour-llm-dieu-hanh-ai",
+  "group": "LLM",
+  "title": "Quản trị AI và LLM: Điều hành AI",
+  "audience": "quản trị AI, cán bộ quản lý chi phí và an toàn dữ liệu",
+  "outcome": "Biết mỗi màn hình của nhóm Điều hành AI dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "llm-01",
+      "screens": [
+        "LLM-01"
+      ],
+      "heading": "Tổng quan AI",
+      "text": "Tổng quan AI. Đây là bảng điều hành, dành cho quản trị AI, cán bộ quản lý chi phí và an toàn dữ liệu. ",
+      "note": "Thiết kế còn nêu các thông tin: Lượt gọi, Token, Chi phí, Độ trễ, Tỷ lệ theo tuyến và Yêu cầu bị chặn theo chính sách. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "llm-14",
+      "screens": [
+        "LLM-14"
+      ],
+      "heading": "Trace và lỗi",
+      "text": "Trace và lỗi. Đây là danh sách, dành cho quản trị AI, cán bộ quản lý chi phí và an toàn dữ liệu. Trên màn hình có: Tác vụ và Tuyến.",
+      "note": "Thiết kế còn nêu các thông tin: Trace ID, Model, Latency, Error, Phân loại và Mã chặn. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "llm-18",
+      "screens": [
+        "LLM-18"
+      ],
+      "heading": "Sự cố và dừng khẩn cấp",
+      "text": "Sự cố và dừng khẩn cấp. Đây là màn hình, dành cho quản trị AI, cán bộ quản lý chi phí và an toàn dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Phạm vi dừng, Lý do, Người duyệt, Request bị ảnh hưởng và Người gỡ. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

@@ -95,6 +95,8 @@ test.describe('BID-01 and BID-02 contractor registry', () => {
     await open(page, '/bid/bid-01', 'bidManager');
     await expect(page.getByRole('heading', { level: 1, name: vi['bid.list.page.title'] })).toBeVisible();
     // The contractor that the stack seeds is verified and shown with its full tax id to a caller who holds the full right to read.
+    // The list pages at twenty rows: the tax id in the query box brings the contractor to the first page whatever else the stack holds.
+    await page.getByLabel(vi['bid.list.query.label'], { exact: true }).fill(SEEDED_TAX_ID);
     const seeded = rowOf(page, SEEDED_TAX_ID);
     await expect(seeded.getByTestId('verification')).toContainText(vi['bid.status.verified.label']);
     await expect(seeded.getByTestId('restriction-none')).toHaveText(vi['bid.restriction.none.text']);
@@ -127,6 +129,7 @@ test.describe('BID-01 and BID-02 contractor registry', () => {
     ]);
     const [first, second] = claims;
     if (first === undefined || second === undefined) throw new Error('the two registrations are missing');
+    await page.getByLabel(vi['bid.list.query.label'], { exact: true }).fill(tax);
     await expect(rowOf(page, tax)).toHaveCount(2);
     await expect(rowOf(page, tax).first().getByTestId('verification')).toContainText(vi['bid.status.unverified.label']);
 
@@ -239,7 +242,9 @@ test.describe('BID-01 and BID-02 contractor registry', () => {
 
     // The registry lists it as restricted, and the filter for restricted contractors finds it.
     await open(page, '/bid/bid-01', 'bidVerifier');
+    await page.getByLabel(vi['bid.list.query.label'], { exact: true }).fill(tax);
     await expect(rowOf(page, tax).getByTestId('restriction-in-force')).toHaveText(badge);
+    await page.getByLabel(vi['bid.list.query.label'], { exact: true }).fill('');
     await page.getByLabel(vi['bid.list.restricted.label'], { exact: true }).check();
     await expect(rowOf(page, tax)).toBeVisible();
     await expect(rowOf(page, SEEDED_TAX_ID)).toHaveCount(0);
@@ -256,6 +261,7 @@ test.describe('BID-01 and BID-02 contractor registry', () => {
 
     await open(page, '/bid/bid-01', 'bidReader');
     await expect(page.getByRole('heading', { level: 1, name: vi['bid.list.page.title'] })).toBeVisible();
+    await page.getByLabel(vi['bid.list.query.label'], { exact: true }).fill(tax);
     await expect(page.locator(`tr[data-contractor-id="${contractor.id}"]`)).toBeVisible();
     await expect(page.locator(`tr[data-contractor-id="${contractor.id}"] code`)).not.toHaveText(tax);
     await expect(page.getByTestId('register-panel')).toHaveCount(0);

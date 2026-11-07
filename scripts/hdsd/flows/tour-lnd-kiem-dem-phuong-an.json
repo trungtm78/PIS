@@ -1,0 +1,47 @@
+{
+  "id": "tour-lnd-kiem-dem-phuong-an",
+  "group": "LND",
+  "title": "GPMB, bồi thường, TĐC: Kiểm đếm & phương án",
+  "audience": "Trung tâm phát triển quỹ đất, phường và chủ đầu tư",
+  "outcome": "Biết mỗi màn hình của nhóm Kiểm đếm & phương án dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "lnd-04",
+      "screens": [
+        "LND-04"
+      ],
+      "heading": "Kiểm đếm",
+      "text": "Kiểm đếm. Đây là biểu mẫu để nhập thông tin, dành cho Trung tâm phát triển quỹ đất, phường và chủ đầu tư. Đơn giá phải theo quyết định giá còn hiệu lực. Trên màn hình có: Dự án và Hộ.",
+      "note": "Thiết kế còn nêu các thông tin: Thửa, Loại tài sản, Số lượng, Đơn giá, Thành tiền và Hộ xác nhận. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "lnd-05",
+      "screens": [
+        "LND-05"
+      ],
+      "heading": "Phương án bồi thường, hỗ trợ, tái định cư",
+      "text": "Phương án bồi thường, hỗ trợ, tái định cư. Đây là màn hình phê duyệt, dành cho Trung tâm phát triển quỹ đất, phường và chủ đầu tư. Trên màn hình có: Dự án và Trạng thái. Các thao tác chính: Lập phương án.",
+      "note": "Thiết kế còn nêu các thông tin: Phương án, Đơn vị thực hiện, Tổng bồi thường, Tổng hỗ trợ, Tổng tái định cư, Tổng cộng và Quyết định. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "lnd-06",
+      "screens": [
+        "LND-06"
+      ],
+      "heading": "Niêm yết 30 ngày và ý kiến",
+      "text": "Niêm yết 30 ngày và ý kiến. Đây là dòng thời gian, dành cho Trung tâm phát triển quỹ đất, phường và chủ đầu tư. Trên màn hình có: Dự án.",
+      "note": "Thiết kế còn nêu các thông tin: Phương án, Bắt đầu niêm yết, Kết thúc tối thiểu, Ý kiến, Đã xử lý và Mốc còn lại. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "lnd-07",
+      "screens": [
+        "LND-07"
+      ],
+      "heading": "Chi trả bồi thường",
+      "text": "Chi trả bồi thường. Đây là màn hình, dành cho Trung tâm phát triển quỹ đất, phường và chủ đầu tư. Trên màn hình có: Dự án.",
+      "note": "Thiết kế còn nêu các thông tin: Hộ, Số tiền, Hạn chi trả, Ngày chi, Phương thức, Chứng từ và Tạm ứng GPMB liên quan. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

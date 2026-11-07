@@ -156,7 +156,7 @@ function GuestContractorsContent({ routeId, requirement }: { routeId: string; re
               {t('adm.members.filtered.empty')}
             </p>
           ) : (
-            <DataTable caption={t('w2adm.guests.table.caption')} columns={columns} rows={shown} rowKey={(member) => member.id} />
+            <DataTable caption={t('w2adm.guests.table.caption')} columns={columns} rows={shown} rowKey={(member) => member.id} rowAttrs={(member) => ({ 'data-member-id': member.id })} />
           )}
           <div className="adm-kit-foot">
             <span>{t('adm.guests.count.text', { count: shown.length })}</span>

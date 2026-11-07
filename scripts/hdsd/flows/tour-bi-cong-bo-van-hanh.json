@@ -1,0 +1,56 @@
+{
+  "id": "tour-bi-cong-bo-van-hanh",
+  "group": "BI",
+  "title": "BI và dashboard động: Công bố & vận hành",
+  "audience": "Nhà phân tích, quản trị dữ liệu, lãnh đạo và Chủ dashboard",
+  "outcome": "Biết mỗi màn hình của nhóm Công bố & vận hành dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "bi-11",
+      "screens": [
+        "BI-11"
+      ],
+      "heading": "Phê duyệt công bố",
+      "text": "Phê duyệt công bố. Đây là màn hình phê duyệt, dành cho Nhà phân tích và quản trị dữ liệu. Chỉ tiêu có định nghĩa phiên bản. Quyền dữ liệu áp dụng khi truy vấn và xuất Người duyệt khác người đề nghị. Trên màn hình có: Trạng thái, Đề nghị công bố, Loại đối tượng và Mã định danh của đối tượng. Các thao tác chính: Gửi đề nghị.",
+      "note": "Thiết kế còn nêu các thông tin: Phiên bản, Người duyệt, Kết quả kiểm tái tạo và Người đề nghị. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bi-12",
+      "screens": [
+        "BI-12"
+      ],
+      "heading": "Lịch xuất và phân phối",
+      "text": "Lịch xuất và phân phối. Đây là lịch, dành cho Nhà phân tích và quản trị dữ liệu. Trên màn hình có: Lịch, Định dạng và Người nhận. Các thao tác chính: Tạo lịch. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Kênh và Phạm vi từng người nhận. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bi-13",
+      "screens": [
+        "BI-13"
+      ],
+      "heading": "Nhật ký truy vấn và hiệu năng",
+      "text": "Nhật ký truy vấn và hiệu năng. Đây là danh sách, dành cho Nhà phân tích và quản trị dữ liệu. Trên màn hình có: Trạng thái và Kỳ dữ liệu. Các thao tác chính: Áp dụng. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Truy vấn, Thời gian, Dung lượng, Từ cache và Bị từ chối. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bi-16",
+      "screens": [
+        "BI-16"
+      ],
+      "heading": "Xuất dữ liệu và phạm vi",
+      "text": "Xuất dữ liệu và phạm vi. Đây là danh sách, dành cho Nhà phân tích và lãnh đạo. Trên màn hình có: Yêu cầu xuất, Chỉ tiêu, Kỳ, Chiều và Định dạng. Các thao tác chính: Xuất. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Truy vấn, Kỳ và snapshot, Mô tả phạm vi, Số dòng/trần, Trạng thái và Tải xuống. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bi-17",
+      "screens": [
+        "BI-17"
+      ],
+      "heading": "Chia sẻ dashboard",
+      "text": "Chia sẻ dashboard. Đây là biểu mẫu để nhập thông tin, dành cho Chủ dashboard. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Người/nhóm/đơn vị nhận, Quyền, Cảnh báo quyền dữ liệu và Thu hồi. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

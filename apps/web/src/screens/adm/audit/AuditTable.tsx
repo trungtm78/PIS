@@ -83,5 +83,5 @@ export function AuditTable({ events }: { events: readonly AuditEventView[] }) {
         ),
     },
   ];
-  return <DataTable caption={t('w2adm.audit.table.caption')} columns={columns} rows={[...events]} rowKey={(event) => event.id} />;
+  return <DataTable caption={t('w2adm.audit.table.caption')} columns={columns} rows={[...events]} rowKey={(event) => event.id} rowAttrs={(event) => ({ 'data-event-id': event.id, 'data-outcome': event.outcome })} />;
 }

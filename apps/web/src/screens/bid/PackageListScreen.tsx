@@ -135,6 +135,7 @@ function PackageListContent({ route }: ScreenProps) {
               columns={columns}
               rows={rows}
               rowKey={(item) => item.id}
+              rowAttrs={(item) => ({ 'data-package-id': item.id })}
               page={{
                 from,
                 to: from + rows.length - 1,

@@ -90,7 +90,7 @@ function BoardContent({ route }: ScreenProps) {
           </p>
         ) : (
           <div data-testid="board">
-            <DataTable caption={t('pay.board.title')} columns={columns} rows={onTheWay} rowKey={(request) => request.id} />
+            <DataTable caption={t('pay.board.title')} columns={columns} rows={onTheWay} rowKey={(request) => request.id} rowAttrs={(request) => ({ 'data-request': request.id, 'data-status': request.status })} />
           </div>
         )}
       </StateBoundary>

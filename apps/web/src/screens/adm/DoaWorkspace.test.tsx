@@ -171,7 +171,7 @@ describe('DoaWorkspace (ADM-15)', () => {
 
   it('lists the versions newest first with their period, and says so when there is none', () => {
     mount();
-    expect([...document.querySelectorAll('[data-matrix-id][data-status]')].map((row) => row.getAttribute('data-matrix-id'))).toEqual(['m4', 'm3', 'm2', 'm1']);
+    expect([...document.querySelectorAll('tr[data-matrix-id][data-status]')].map((row) => row.getAttribute('data-matrix-id'))).toEqual(['m4', 'm3', 'm2', 'm1']);
     expect(within(rowOf('m3')).getByText(vi_['adm.doa.period.closed'].replace('{from}', '2027-06-01').replace('{until}', '2028-01-01'))).toBeTruthy();
     expect(within(rowOf('m1')).getByText(vi_['adm.doa.period.open'].replace('{from}', '2026-01-01'))).toBeTruthy();
     expect(within(rowOf('m2')).getByText(vi_['adm.doa.status.pendingApproval'])).toBeTruthy();

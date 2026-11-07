@@ -1,0 +1,65 @@
+{
+  "id": "tour-home-buc-tranh-tong-the",
+  "group": "HOME",
+  "title": "Tổng quan điều hành: Bức tranh tổng thể",
+  "audience": "Lãnh đạo và chuyên viên",
+  "outcome": "Biết mỗi màn hình của nhóm Bức tranh tổng thể dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "home-01",
+      "screens": [
+        "HOME-01"
+      ],
+      "heading": "Tổng quan điều hành",
+      "text": "Tổng quan điều hành. Đây là bảng điều hành, dành cho Lãnh đạo và chuyên viên. Theo dõi vốn, việc và rủi ro theo phạm vi quyền. Trên màn hình có: Đơn vị và Chưa có ảnh chụp số liệu nào được chốt.",
+      "note": "Thiết kế còn nêu các thông tin: Năm, Nguồn vốn, Thời điểm số liệu và Công thức. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "home-05",
+      "screens": [
+        "HOME-05"
+      ],
+      "heading": "Bản đồ dự án",
+      "text": "Bản đồ dự án. Đây là bản đồ, dành cho Lãnh đạo và chuyên viên. Trên màn hình có: Địa bàn, Lĩnh vực và Trạng thái. Lúc quay, màn hình đang có 3 dòng dữ liệu.",
+      "note": ""
+    },
+    {
+      "id": "home-07",
+      "screens": [
+        "HOME-07"
+      ],
+      "heading": "Cơ cấu các nguồn vốn",
+      "text": "Cơ cấu các nguồn vốn. Đây là các thẻ thông tin, dành cho Lãnh đạo và chuyên viên. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Vốn Thủ tướng giao, Vốn kéo dài, Vốn hỗ trợ, Vốn tăng thu NSTW, Vốn ODA và Vốn địa phương giao thêm. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "home-08",
+      "screens": [
+        "HOME-08"
+      ],
+      "heading": "Chi tiết nguồn và phạm vi tính",
+      "text": "Chi tiết nguồn và phạm vi tính. Đây là bảng dữ liệu, dành cho Lãnh đạo và chuyên viên. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Nguồn, Thời điểm chốt, Dự án, Giá trị và Quan hệ bao hàm. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "home-09",
+      "screens": [
+        "HOME-09"
+      ],
+      "heading": "Trung tâm điều hành giải ngân",
+      "text": "Trung tâm điều hành giải ngân. Đây là bảng điều hành, dành cho Lãnh đạo và chuyên viên. Trên màn hình có: Chưa có ảnh chụp số liệu nào được chốt.",
+      "note": "Thiết kế còn nêu các thông tin: Hai tỷ lệ, Xếp hạng đơn vị, Cảnh báo mở, Giải trình quá hạn, Đề xuất điều chuyển và Thời điểm số liệu. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "home-10",
+      "screens": [
+        "HOME-10"
+      ],
+      "heading": "Ngữ cảnh số liệu và truy nguồn",
+      "text": "Ngữ cảnh số liệu và truy nguồn. Đây là màn hình xem chi tiết, dành cho Lãnh đạo và chuyên viên.",
+      "note": "Thiết kế còn nêu các thông tin: Phạm vi, as_of/Snapshot, Công thức, Tử số, Mẫu số, Loại trừ và Bản ghi nguồn. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

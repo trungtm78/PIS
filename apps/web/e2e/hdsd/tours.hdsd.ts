@@ -79,8 +79,14 @@ async function probe(page: Page): Promise<Facts> {
     const clean = (text: string | null | undefined): string => (text ?? '').replace(/\s+/g, ' ').trim();
     const unique = (items: string[]): string[] => [...new Set(items.filter((item) => item !== ''))];
     const labels = unique(Array.from(root.querySelectorAll('label, th, [role="columnheader"], dt, legend, h2, h3, [role="tab"]')).map((element) => clean(element.textContent)).filter((text) => text.length <= 60));
-    const buttons = unique(Array.from(root.querySelectorAll('button, [role="button"], [role="tab"]')).map((element) => clean(element.getAttribute('aria-label') ?? element.textContent)));
-    const rows = root.querySelectorAll('tbody tr, [role="treeitem"], [role="listitem"], article').length;
+    // Only what a person can see is an action of the screen (the filter button of the kit is hidden on a desktop width and opens the panel on a phone).
+    const buttons = unique(
+      Array.from(root.querySelectorAll('button, [role="button"], [role="tab"]'))
+        .filter((element) => element.getClientRects().length > 0)
+        .map((element) => clean(element.getAttribute('aria-label') ?? element.textContent)),
+    );
+    // A record is a row of a table (not the row that carries the empty or the error message of the kit's table), a tree item, a list item or a card; the figure tiles of the kit are cards too but not records.
+    const rows = root.querySelectorAll('tbody tr:not(.ui-table__row--message), [role="treeitem"], [role="listitem"], article:not(.ui-kpi)').length;
     const text = clean(root.textContent);
     const alert = clean(root.querySelector('[role="alert"]')?.textContent);
     return {

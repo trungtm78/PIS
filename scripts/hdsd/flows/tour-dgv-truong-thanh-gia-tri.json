@@ -1,0 +1,47 @@
+{
+  "id": "tour-dgv-truong-thanh-gia-tri",
+  "group": "DGV",
+  "title": "Quản trị và trưởng thành dữ liệu: Trưởng thành & giá trị",
+  "audience": "chủ sở hữu dữ liệu, người quản lý dữ liệu, kỹ sư dữ liệu và người đánh giá",
+  "outcome": "Biết mỗi màn hình của nhóm Trưởng thành & giá trị dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "dgv-16",
+      "screens": [
+        "DGV-16"
+      ],
+      "heading": "Đánh giá trưởng thành dữ liệu",
+      "text": "Đánh giá trưởng thành dữ liệu. Đây là màn hình, dành cho chủ sở hữu dữ liệu, người quản lý dữ liệu và kỹ sư dữ liệu. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Điểm tổng chỉ khi coverage ≥ ngưỡng rubric. Trên màn hình có: Bắt đầu kỳ đánh giá mới, Rubric đã phát hành, Kỳ, Phạm vi, Người đánh giá và Người review. Các thao tác chính: Bắt đầu.",
+      "note": "Thiết kế còn nêu các thông tin: Trụ cột, Mức hiện tại, Bằng chứng, Mục tiêu, Trạng thái đánh giá và Coverage. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dgv-17",
+      "screens": [
+        "DGV-17"
+      ],
+      "heading": "Lộ trình trưởng thành",
+      "text": "Lộ trình trưởng thành. Đây là dòng thời gian, dành cho chủ sở hữu dữ liệu, người quản lý dữ liệu và kỹ sư dữ liệu. Trên màn hình có: Mốc, Owner, Tiêu chí thoát và Bằng chứng. Các thao tác chính: Thêm mốc.",
+      "note": "Thiết kế còn nêu các thông tin: Trạng thái mốc. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dgv-18",
+      "screens": [
+        "DGV-18"
+      ],
+      "heading": "Data product và chứng nhận",
+      "text": "Data product và chứng nhận. Đây là các thẻ thông tin, dành cho chủ sở hữu dữ liệu, người quản lý dữ liệu và kỹ sư dữ liệu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Báo cáo vốn, Actual Kho bạc, Hồ sơ AI, Usage SaaS, Hạn chứng nhận và Người chứng nhận. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dgv-21",
+      "screens": [
+        "DGV-21"
+      ],
+      "heading": "Rubric trưởng thành dữ liệu",
+      "text": "Rubric trưởng thành dữ liệu. Đây là màn hình, dành cho chủ sở hữu dữ liệu và người đánh giá. Trên màn hình có: Trụ cột và Tiêu chí. Các thao tác chính: Nạp mẫu và Soạn bản nháp.",
+      "note": "Thiết kế còn nêu các thông tin: Mô tả mức 1–5, Trọng số, Ánh xạ DCAM/DMM, Coverage tối thiểu và Hạn bằng chứng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

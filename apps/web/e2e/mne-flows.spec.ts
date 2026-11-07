@@ -549,8 +549,8 @@ test.describe('MNE-01 filing calendar', () => {
       await expect(row.locator('[data-confirmation="pending"]')).toHaveText(withParams(vi['mne.forms.confirmation.pending'], { tags: '[CXN-10]' }));
       await expect(row).toContainText(vi['mne.calendar.status.draft']);
       // Past its due date and not filed, the row says how many days late; before it, it says nothing of the kind.
-      if (lateDays > 0) await expect(row.locator('.pill.red')).toHaveText(withParams(vi['mne.calendar.late.text'], { days: String(lateDays) }));
-      else await expect(row.locator('.pill.red')).toHaveCount(0);
+      if (lateDays > 0) await expect(row.locator('.ui-pill.ui-tone-danger')).toHaveText(withParams(vi['mne.calendar.late.text'], { days: String(lateDays) }));
+      else await expect(row.locator('.ui-pill.ui-tone-danger')).toHaveCount(0);
     }
     for (const unit of owners) {
       const row = unitRow(annual, unit);
@@ -559,7 +559,7 @@ test.describe('MNE-01 filing calendar', () => {
       await expect(row).toContainText(`YEAR-${YEAR}`);
       await expect(row.locator('time')).toHaveAttribute('datetime', `${YEAR + 1}-02-10`);
       await expect(row.locator('[data-confirmation="pending"]')).toHaveText(withParams(vi['mne.forms.confirmation.pending'], { tags: '[CXN-13]' }));
-      await expect(row.locator('.pill.red')).toHaveCount(0);
+      await expect(row.locator('.ui-pill.ui-tone-danger')).toHaveCount(0);
     }
     await expect(page.locator('[data-month]', { has: unitRow(half, investors[0] ?? '') })).toHaveAttribute('data-month', `${YEAR}-07`);
     await expect(page.getByRole('heading', { level: 2, name: withParams(vi['mne.calendar.month.heading'], { month: '07', year: String(YEAR) }) })).toBeVisible();

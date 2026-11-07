@@ -103,7 +103,8 @@ test.describe('DIS-03, DIS-05, DIS-06 volumes, registration and review of the we
     await expect(page.getByRole('heading', { level: 1, name: vi['dis.progress.page.title'] })).toBeVisible();
     await expect(page.getByTestId('basis-pending')).toHaveText(vi['dis.progress.basis.pending']);
     await page.getByRole('button', { name: vi['dis.progress.save.action'] }).click();
-    await expect(page.getByText(vi['dis.progress.problem.required'])).toHaveCount(4);
+    // The error summary on top names each field before its message; the four fields' own messages are the exact ones.
+    await expect(page.getByText(vi['dis.progress.problem.required'], { exact: true })).toHaveCount(4);
     expect(await sql('select 1 from machvon.progress_snapshot where report_revision_id = $1', [report.id])).toEqual([]);
 
     await page.locator('#volume-construction').fill('1.019.000.000');

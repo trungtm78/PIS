@@ -166,7 +166,7 @@ interface TableProps {
 function HouseholdTable({ households, canLink, canOpen, requestTo, onLink, onReveal }: TableProps) {
   const { t } = useTranslation();
   const columns: DataTableColumn<HouseholdLine>[] = [
-    { key: 'code', header: t('lnd.households.column.code'), pinned: true, render: (household) => <span data-household-id={household.id}>{household.householdCode}</span> },
+    { key: 'code', header: t('lnd.households.column.code'), pinned: true, render: (household) => household.householdCode },
     { key: 'head', header: t('lnd.households.column.head'), render: (household) => <span data-testid="head">{household.headNameMasked}</span> },
     { key: 'nationalId', header: t('lnd.households.column.nationalId'), render: (household) => <span data-testid="national-id">{household.nationalIdMasked ?? t('lnd.households.nationalId.none')}</span> },
     {
@@ -249,5 +249,5 @@ function HouseholdTable({ households, canLink, canOpen, requestTo, onLink, onRev
       },
     },
   ];
-  return <DataTable caption={t('w2iss.lnd.households.aria')} columns={columns} rows={households} rowKey={(household) => household.id} />;
+  return <DataTable caption={t('w2iss.lnd.households.aria')} columns={columns} rows={households} rowKey={(household) => household.id} rowAttrs={(household) => ({ 'data-household-id': household.id })} />;
 }

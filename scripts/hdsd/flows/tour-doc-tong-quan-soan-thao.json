@@ -1,0 +1,38 @@
+{
+  "id": "tour-doc-tong-quan-soan-thao",
+  "group": "DOC",
+  "title": "Văn bản và báo cáo theo chuẩn nhà nước: Tổng quan & soạn thảo",
+  "audience": "Văn thư, chuyên viên soạn thảo, lãnh đạo ký và Chuyên viên soạn thảo",
+  "outcome": "Biết mỗi màn hình của nhóm Tổng quan & soạn thảo dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "doc-01",
+      "screens": [
+        "DOC-01"
+      ],
+      "heading": "Tổng quan văn bản",
+      "text": "Tổng quan văn bản. Đây là bảng điều hành, dành cho Văn thư, chuyên viên soạn thảo và lãnh đạo ký. Số đếm theo phạm vi đơn vị của người xem. Các thao tác chính: Tải lại.",
+      "note": "Thiết kế còn nêu các thông tin: Dự thảo chờ rà soát, Chờ ký lãnh đạo, Chờ cấp số, Chờ đóng dấu cơ quan, Văn bản đến quá hạn, Lỗi liên thông và Mẫu chờ xác nhận pháp lý. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "doc-02",
+      "screens": [
+        "DOC-02"
+      ],
+      "heading": "Soạn thảo văn bản đi",
+      "text": "Soạn thảo văn bản đi. Đây là màn hình, dành cho Chuyên viên soạn thảo và trưởng đơn vị. Trên màn hình có: Loại văn bản, Mẫu và revision, Trích yếu, Nội dung theo tham số, Nơi nhận và Người ký và hình thức ký. Các thao tác chính: Thêm nơi nhận, Lưu dự thảo và Xem trước PDF.",
+      "note": "Thiết kế còn nêu các thông tin: Xem trước PDF có watermark. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "doc-03",
+      "screens": [
+        "DOC-03"
+      ],
+      "heading": "Danh sách văn bản đi",
+      "text": "Danh sách văn bản đi. Đây là bảng dữ liệu, dành cho Văn thư, chuyên viên soạn thảo và lãnh đạo ký. Trên màn hình có: Trạng thái, Loại văn bản và Năm soạn. Các thao tác chính: Lọc. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Số và ký hiệu, Trích yếu, Người soạn, Người ký, Ngày ban hành, Hiệu lực và Nguồn. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

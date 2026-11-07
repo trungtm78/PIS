@@ -1,0 +1,38 @@
+{
+  "id": "tour-pmt-danh-muc-quy-tac",
+  "group": "PMT",
+  "title": "Hồ sơ pháp lý & giấy phép: Danh mục & quy tắc",
+  "audience": "Chuyên viên pháp lý dự án và lãnh đạo phụ trách",
+  "outcome": "Biết mỗi màn hình của nhóm Danh mục & quy tắc dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "pmt-03",
+      "screens": [
+        "PMT-03"
+      ],
+      "heading": "Danh mục loại giấy phép",
+      "text": "Danh mục loại giấy phép. Đây là màn hình, dành cho Chuyên viên pháp lý dự án và lãnh đạo phụ trách. Không sửa bản đang dùng. Trên màn hình có: Mã, Tên, Nhóm, Căn cứ pháp lý và Hiệu lực. Các thao tác chính: Xuất bản.",
+      "note": "Thiết kế còn nêu các thông tin: Điều kiện áp dụng và Được miễn. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "pmt-04",
+      "screens": [
+        "PMT-04"
+      ],
+      "heading": "Quy tắc cổng chặn mốc",
+      "text": "Quy tắc cổng chặn mốc. Đây là màn hình, dành cho Chuyên viên pháp lý dự án và lãnh đạo phụ trách. Trên màn hình có: Cổng, Loại giấy phép, Yêu cầu và Hiệu lực. Các thao tác chính: Xuất bản quy tắc.",
+      "note": "Thiết kế còn nêu các thông tin: Mốc PRJ bị chặn và Điều kiện áp dụng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "pmt-06",
+      "screens": [
+        "PMT-06"
+      ],
+      "heading": "Miễn giấy phép và miễn trừ cổng",
+      "text": "Miễn giấy phép và miễn trừ cổng. Đây là biểu mẫu để nhập thông tin, dành cho Chuyên viên pháp lý dự án và lãnh đạo phụ trách. Trên màn hình có: Giấy phép và Văn bản. Các thao tác chính: Cấp miễn trừ.",
+      "note": "Thiết kế còn nêu các thông tin: Căn cứ miễn, Người duyệt và Miễn trừ cổng đến ngày. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

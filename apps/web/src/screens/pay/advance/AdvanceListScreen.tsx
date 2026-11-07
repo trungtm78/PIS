@@ -184,6 +184,7 @@ function AdvanceListContent({ route }: ScreenProps) {
               columns={columns}
               rows={rows}
               rowKey={(advance) => advance.id}
+              rowAttrs={(advance) => ({ 'data-advance': advance.id, 'data-status': advance.status })}
               totalsLabel={t('w2pay.pay.advance.totals')}
               totals={{
                 paid: money(sumAmounts(standing.map((advance) => advance.paidVnd))),

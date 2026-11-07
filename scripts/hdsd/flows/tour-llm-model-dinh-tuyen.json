@@ -1,0 +1,74 @@
+{
+  "id": "tour-llm-model-dinh-tuyen",
+  "group": "LLM",
+  "title": "Quản trị AI và LLM: Model & định tuyến",
+  "audience": "quản trị AI, cán bộ quản lý chi phí, an toàn dữ liệu và cán bộ an ninh thông tin",
+  "outcome": "Biết mỗi màn hình của nhóm Model & định tuyến dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "llm-02",
+      "screens": [
+        "LLM-02"
+      ],
+      "heading": "Nhà cung cấp",
+      "text": "Nhà cung cấp. Đây là các thẻ thông tin, dành cho quản trị AI, cán bộ quản lý chi phí và an toàn dữ liệu. ",
+      "note": "Thiết kế còn nêu các thông tin: Provider, Vùng, Hợp đồng dữ liệu, Trạng thái, Tuyến và Phê duyệt D07. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "llm-03",
+      "screens": [
+        "LLM-03"
+      ],
+      "heading": "Kho model và khả năng",
+      "text": "Kho model và khả năng. Đây là bảng dữ liệu, dành cho quản trị AI, cán bộ quản lý chi phí và an toàn dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Model ID, Context, Effort hỗ trợ, Đầu ra, Giá, Phân loại tối đa và Trạng thái eval. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "llm-04",
+      "screens": [
+        "LLM-04"
+      ],
+      "heading": "Profile model theo tác vụ",
+      "text": "Profile model theo tác vụ. Đây là biểu mẫu để nhập thông tin, dành cho quản trị AI, cán bộ quản lý chi phí và an toàn dữ liệu. Trên màn hình có: Tác vụ và Model. Các thao tác chính: Tải lại và Lưu bản nháp.",
+      "note": "Thiết kế còn nêu các thông tin: Effort, Max output, Timeout, JSON schema, Phân loại tối đa, Bắt buộc trích dẫn và Profile rollback. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "llm-05",
+      "screens": [
+        "LLM-05"
+      ],
+      "heading": "Routing và fallback",
+      "text": "Routing và fallback. Đây là màn hình, dành cho quản trị AI, cán bộ quản lý chi phí và an toàn dữ liệu. Trên màn hình có: Yêu cầu. Các thao tác chính: Tải lại.",
+      "note": "Thiết kế còn nêu các thông tin: Phân loại dữ liệu, Model chính, Model dự phòng, Giới hạn, Phiên bản chính sách và Tuyến bị cấm. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "llm-06",
+      "screens": [
+        "LLM-06"
+      ],
+      "heading": "Khóa ảo và bí mật",
+      "text": "Khóa ảo và bí mật. Đây là màn hình, dành cho quản trị AI, cán bộ quản lý chi phí và an toàn dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Key ID, Phạm vi, Hạn, Secret reference, Fingerprint và Trạng thái xoay khóa. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "llm-19",
+      "screens": [
+        "LLM-19"
+      ],
+      "heading": "Chính sách phân loại dữ liệu và định tuyến AI",
+      "text": "Chính sách phân loại dữ liệu và định tuyến AI. Đây là màn hình, dành cho quản trị AI, cán bộ an ninh thông tin và cán bộ bảo vệ dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Phân loại, Tuyến trong nước, Tuyến tự host, Tuyến quốc tế, Điều kiện, Phiên bản và Người duyệt. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "llm-21",
+      "screens": [
+        "LLM-21"
+      ],
+      "heading": "Nhật ký định tuyến AI",
+      "text": "Nhật ký định tuyến AI. Đây là bảng dữ liệu, dành cho quản trị AI, cán bộ an ninh thông tin và auditor. Trên màn hình có: Tác vụ và Tuyến/provider/model. Các thao tác chính: Chạy đối soát.",
+      "note": "Thiết kế còn nêu các thông tin: Request, Phân loại và căn cứ, Chính sách áp dụng, Attempt và Kết quả. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

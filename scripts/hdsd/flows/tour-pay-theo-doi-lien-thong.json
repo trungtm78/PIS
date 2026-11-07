@@ -1,0 +1,47 @@
+{
+  "id": "tour-pay-theo-doi-lien-thong",
+  "group": "PAY",
+  "title": "Thanh toán và Kho bạc: Theo dõi liên thông",
+  "audience": "Kế toán, cán bộ đối soát và kế toán trưởng",
+  "outcome": "Biết mỗi màn hình của nhóm Theo dõi liên thông dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "pay-09",
+      "screens": [
+        "PAY-09"
+      ],
+      "heading": "Theo dõi dự án Kho bạc",
+      "text": "Theo dõi dự án Kho bạc. Đây là bảng dữ liệu, dành cho Kế toán và cán bộ đối soát. Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch. Lúc quay, màn hình đang có 1 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Dự án, Mã Kho bạc, Hồ sơ gửi, Đã xác nhận, Sai lệch và Lần đồng bộ. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "pay-13",
+      "screens": [
+        "PAY-13"
+      ],
+      "heading": "Nhập sao kê Kho bạc",
+      "text": "Nhập sao kê Kho bạc. Đây là màn hình nhập dữ liệu từ tệp, dành cho Kế toán, kế toán trưởng và cán bộ đối soát. Trên màn hình có: Tệp và Ngày sao kê. Các thao tác chính: Nạp tệp.",
+      "note": "Thiết kế còn nêu các thông tin: Mã băm SHA-256, Dòng mới, Dòng trùng, Dòng xung đột, Dòng lỗi và Trạng thái. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "pay-14",
+      "screens": [
+        "PAY-14"
+      ],
+      "heading": "Biểu mẫu thanh toán Kho bạc",
+      "text": "Biểu mẫu thanh toán Kho bạc. Đây là màn hình, dành cho Kế toán, kế toán trưởng và cán bộ đối soát.",
+      "note": "Thiết kế còn nêu các thông tin: Mẫu, Phiên bản mẫu, Căn cứ pháp lý, Trạng thái xác nhận, Tệp sinh và Ngày gửi. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "pay-17",
+      "screens": [
+        "PAY-17"
+      ],
+      "heading": "Truy vết chuỗi thanh toán",
+      "text": "Truy vết chuỗi thanh toán. Đây là sơ đồ dạng cây, dành cho Kế toán, kế toán trưởng và cán bộ đối soát. Trên màn hình có: Dự án, Hợp đồng, Khối lượng, Nghiệm thu, Thanh toán, Kho bạc và Quyết toán. Lúc quay, màn hình đang có 8 dòng dữ liệu.",
+      "note": ""
+    }
+  ]
+}

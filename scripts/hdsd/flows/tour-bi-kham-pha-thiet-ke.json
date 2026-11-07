@@ -1,0 +1,65 @@
+{
+  "id": "tour-bi-kham-pha-thiet-ke",
+  "group": "BI",
+  "title": "BI và dashboard động: Khám phá & thiết kế",
+  "audience": "Nhà phân tích và quản trị dữ liệu",
+  "outcome": "Biết mỗi màn hình của nhóm Khám phá & thiết kế dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "bi-01",
+      "screens": [
+        "BI-01"
+      ],
+      "heading": "Thư viện dashboard",
+      "text": "Thư viện dashboard. Đây là các thẻ thông tin, dành cho Nhà phân tích và quản trị dữ liệu. Chỉ tiêu có định nghĩa phiên bản. Quyền dữ liệu áp dụng khi truy vấn và xuất Thư viện chỉ hiện bảng điều hành được chia sẻ hoặc thuộc thư viện tổ chức. Chia sẻ không cấp quyền dữ liệu. Trên màn hình có: Tạo dashboard, Mã dashboard và Tiêu đề. Các thao tác chính: Tạo dashboard. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Chủ sở hữu, Vai trò, Công bố và Trạng thái chứng nhận chỉ tiêu. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bi-02",
+      "screens": [
+        "BI-02"
+      ],
+      "heading": "Dashboard của tôi",
+      "text": "Dashboard của tôi. Đây là bảng điều hành, dành cho Nhà phân tích và quản trị dữ liệu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Kỳ, Nguồn vốn, Đơn vị, Kỳ dữ liệu, Snapshot và Huy hiệu chất lượng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bi-03",
+      "screens": [
+        "BI-03"
+      ],
+      "heading": "Trình dựng dashboard",
+      "text": "Trình dựng dashboard. Đây là màn hình, dành cho Nhà phân tích và quản trị dữ liệu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Lưới, Widget, Bộ lọc, Thiết bị và Chính sách phiên bản dữ liệu. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bi-04",
+      "screens": [
+        "BI-04"
+      ],
+      "heading": "Trình dựng biểu đồ",
+      "text": "Trình dựng biểu đồ. Đây là biểu đồ, dành cho Nhà phân tích và quản trị dữ liệu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Chiều phân tích, Chỉ tiêu, Loại biểu đồ, Định dạng và Tử số/mẫu số. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bi-09",
+      "screens": [
+        "BI-09"
+      ],
+      "heading": "Trình phân tích dữ liệu",
+      "text": "Trình phân tích dữ liệu. Đây là bảng dữ liệu, dành cho Nhà phân tích và quản trị dữ liệu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Chiều, Chỉ tiêu, Drill down, Bộ lọc, Kỳ dữ liệu, Snapshot, Σ con = cha và Lý do không cộng được. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "bi-10",
+      "screens": [
+        "BI-10"
+      ],
+      "heading": "So sánh phiên bản dashboard",
+      "text": "So sánh phiên bản dashboard. Đây là màn hình so sánh, dành cho Nhà phân tích và quản trị dữ liệu. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Phiên bản cũ, Phiên bản mới, Khác biệt và Khác biệt chỉ tiêu. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

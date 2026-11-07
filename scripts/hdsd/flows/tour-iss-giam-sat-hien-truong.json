@@ -1,0 +1,47 @@
+{
+  "id": "tour-iss-giam-sat-hien-truong",
+  "group": "ISS",
+  "title": "Vướng mắc và hiện trường: Giám sát hiện trường",
+  "audience": "đơn vị xử lý, lãnh đạo phụ trách và tổ công tác",
+  "outcome": "Biết mỗi màn hình của nhóm Giám sát hiện trường dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "iss-05",
+      "screens": [
+        "ISS-05"
+      ],
+      "heading": "Kiểm tra hiện trường",
+      "text": "Kiểm tra hiện trường. Đây là bản đồ, dành cho đơn vị xử lý.  Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Vị trí, Checklist, Thời điểm và Người kiểm tra. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "iss-06",
+      "screens": [
+        "ISS-06"
+      ],
+      "heading": "Tiến độ xử lý theo tuần",
+      "text": "Tiến độ xử lý theo tuần. Đây là bảng dữ liệu, dành cho đơn vị xử lý. Trên màn hình có: Tuần (năm-Wsố tuần) và Đơn vị. Các thao tác chính: Tuần trước và Tuần sau.",
+      "note": "Thiết kế còn nêu các thông tin: Mới, Quá hạn và Đã đóng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "iss-08",
+      "screens": [
+        "ISS-08"
+      ],
+      "heading": "Ma trận vướng mắc theo tuần",
+      "text": "Ma trận vướng mắc theo tuần. Đây là bảng dữ liệu, dành cho đơn vị xử lý. Trên màn hình có: Tuần và Đơn vị. Các thao tác chính: Tuần trước và Tuần sau.",
+      "note": "Thiết kế còn nêu các thông tin: Nhóm vướng mắc, Phát sinh, Tồn đầu, Đã xử lý và Tồn cuối. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "iss-11",
+      "screens": [
+        "ISS-11"
+      ],
+      "heading": "Vướng mắc phát sinh từ GPMB, giấy phép, chất lượng",
+      "text": "Vướng mắc phát sinh từ GPMB, giấy phép, chất lượng. Đây là danh sách, dành cho đơn vị xử lý, lãnh đạo phụ trách và tổ công tác. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Mã, Nguồn, Đối tượng nguồn, Mức độ, Hạn và Đơn vị. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

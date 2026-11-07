@@ -1,6 +1,6 @@
 /** A small, valid one-page PDF with a few lines of text: the file a person would scan or receive for a decision, made here so the clips need no file of the test data. */
 export function pdfWithText(lines: readonly string[]): Buffer {
-  const escape = (text: string): string => text.replace(/[\()]/gu, (character) => `\${character}`).replace(/[^\x20-\x7e]/gu, '?');
+  const escape = (text: string): string => text.replace(/[\\()]/gu, (character) => `\\${character}`).replace(/[^\x20-\x7e]/gu, '?');
   const content = `BT /F1 14 Tf 60 780 Td 20 TL ${lines.map((line) => `(${escape(line)}) Tj T*`).join(' ')} ET`;
   const objects = [
     '<< /Type /Catalog /Pages 2 0 R >>',

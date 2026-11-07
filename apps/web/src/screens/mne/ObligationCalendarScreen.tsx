@@ -97,6 +97,7 @@ function ObligationCalendarContent({ route }: ScreenProps) {
                 columns={columns}
                 rows={group.items}
                 rowKey={(item) => item.reportId}
+                rowAttrs={(item) => ({ 'data-report-id': item.reportId, 'data-due-date': item.dueDate })}
                 severity={(item) => (isOverdue(item) ? 'URGENT' : null)}
               />
             </SectionCard>

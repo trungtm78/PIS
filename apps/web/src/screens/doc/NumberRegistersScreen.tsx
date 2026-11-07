@@ -242,7 +242,7 @@ function NumberRegistersContent({ route }: ScreenProps) {
           </p>
         ) : null}
         <StateBoundary state={state} onRetry={() => void list.refetch()}>
-          {shown.length === 0 ? null : <DataTable caption={t('w2doc.registers.table.caption')} columns={columns} rows={shown} rowKey={(register) => register.id} />}
+          {shown.length === 0 ? null : <DataTable caption={t('w2doc.registers.table.caption')} columns={columns} rows={shown} rowKey={(register) => register.id} rowAttrs={(register) => ({ 'data-register-id': register.id })} />}
           {shown.length === 0 ? (
             <div className="row gap">
               <p className="muted">{t('doc.registers.filtered.empty')}</p>

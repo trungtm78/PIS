@@ -146,10 +146,10 @@ describe('AuditLogScreen (ADM-11)', () => {
         : page([row(1), row(2)]);
     });
     mountInSession(<AuditLogScreen route={ROUTE} />, h, { permissions: AUDITOR });
-    await waitFor(() => expect(document.querySelectorAll('[data-event-id]')).toHaveLength(2));
+    await waitFor(() => expect(document.querySelectorAll('tr[data-event-id]')).toHaveLength(2));
     await userEvent.setup().selectOptions(screen.getByLabelText(vi_['adm.audit.filter.outcome.label']), 'DENIED');
     await userEvent.setup().click(screen.getByRole('button', { name: vi_['adm.audit.filter.apply.action'] }));
-    await waitFor(() => expect(document.querySelectorAll('[data-event-id]')).toHaveLength(1));
+    await waitFor(() => expect(document.querySelectorAll('tr[data-event-id]')).toHaveLength(1));
     const denied = document.querySelector('[data-event-id="e9"]')?.closest('tr') as HTMLElement;
     expect((denied.querySelector('[data-event-id]') as HTMLElement).getAttribute('data-outcome')).toBe('DENIED');
     fireEvent.click(within(denied).getByText(vi_['adm.audit.diff.show.action']));
@@ -160,7 +160,7 @@ describe('AuditLogScreen (ADM-11)', () => {
   it('sends the other filters as the server reads them and clears them again', async () => {
     const h = harness(() => page([row(1)]));
     mountInSession(<AuditLogScreen route={ROUTE} />, h, { permissions: AUDITOR });
-    await waitFor(() => expect(document.querySelectorAll('[data-event-id]')).toHaveLength(1));
+    await waitFor(() => expect(document.querySelectorAll('tr[data-event-id]')).toHaveLength(1));
     const user = userEvent.setup();
     await user.type(screen.getByLabelText(vi_['adm.audit.filter.actor.label']), '0000000a-0000-4000-8000-000000000001');
     await user.type(screen.getByLabelText(vi_['adm.audit.filter.action.label']), 'widget.change.1');
@@ -178,7 +178,7 @@ describe('AuditLogScreen (ADM-11)', () => {
   it('refuses a filter the server would refuse without asking it', async () => {
     const h = harness(() => page([row(1)]));
     mountInSession(<AuditLogScreen route={ROUTE} />, h, { permissions: AUDITOR });
-    await waitFor(() => expect(document.querySelectorAll('[data-event-id]')).toHaveLength(1));
+    await waitFor(() => expect(document.querySelectorAll('tr[data-event-id]')).toHaveLength(1));
     const calls = h.read.mock.calls.length;
     const user = userEvent.setup();
     await user.type(screen.getByLabelText(vi_['adm.audit.filter.actor.label']), 'not-a-uuid');
@@ -193,7 +193,7 @@ describe('AuditLogScreen (ADM-11)', () => {
   it('says so in the table when a filter matches nothing, and keeps the filters in reach', async () => {
     const h = harness((_operation, input) => ((input as { query: Query }).query.outcome === 'FAILED' ? page([]) : page([row(1)])));
     mountInSession(<AuditLogScreen route={ROUTE} />, h, { permissions: AUDITOR });
-    await waitFor(() => expect(document.querySelectorAll('[data-event-id]')).toHaveLength(1));
+    await waitFor(() => expect(document.querySelectorAll('tr[data-event-id]')).toHaveLength(1));
     await userEvent.setup().selectOptions(screen.getByLabelText(vi_['adm.audit.filter.outcome.label']), 'FAILED');
     await userEvent.setup().click(screen.getByRole('button', { name: vi_['adm.audit.filter.apply.action'] }));
     expect(await screen.findByText(vi_['adm.audit.filtered.empty'])).toBeTruthy();
@@ -204,7 +204,7 @@ describe('AuditLogScreen (ADM-11)', () => {
     const h = harness((_operation, input) => ((input as { query: Query }).query.cursor === 'c1' ? page([row(3)]) : page([row(1), row(2)], { next_cursor: 'c1' })));
     mountInSession(<AuditLogScreen route={ROUTE} />, h, { permissions: AUDITOR });
     await userEvent.setup().click(await screen.findByRole('button', { name: vi_['adm.audit.more.action'] }));
-    await waitFor(() => expect(document.querySelectorAll('[data-event-id]')).toHaveLength(3));
+    await waitFor(() => expect(document.querySelectorAll('tr[data-event-id]')).toHaveLength(3));
     expect(queryOf(h, 1)).toEqual({ limit: 50, cursor: 'c1' });
     expect(screen.getByText(vi_['adm.audit.count.text'].replace('{count}', '3'))).toBeTruthy();
     expect(screen.queryByRole('button', { name: vi_['adm.audit.more.action'] })).toBeNull();
@@ -244,13 +244,13 @@ describe('AuditLogScreen (ADM-11)', () => {
     const h = harness(() => (++calls === 1 ? new ApiError({ status: 500, code: 'INTERNAL_ERROR', correlationId: 'c' }) : page([row(1)])));
     mountInSession(<AuditLogScreen route={ROUTE} />, h, { permissions: AUDITOR });
     await userEvent.setup().click(await screen.findByRole('button', { name: vi_['states.retry.action'] }));
-    await waitFor(() => expect(document.querySelectorAll('[data-event-id]')).toHaveLength(1));
+    await waitFor(() => expect(document.querySelectorAll('tr[data-event-id]')).toHaveLength(1));
   });
 
   it('reads the trail of the other tenant after a switch, never keeping the first tenant rows', async () => {
     const h = harness(() => page([row(1)]));
     const view = mountInSession(<AuditLogScreen route={ROUTE} />, h, { permissions: AUDITOR });
-    await waitFor(() => expect(document.querySelectorAll('[data-event-id]')).toHaveLength(1));
+    await waitFor(() => expect(document.querySelectorAll('tr[data-event-id]')).toHaveLength(1));
     const before = h.read.mock.calls.length;
     view.rerenderWith({ permissions: AUDITOR, tenant: SECOND_TENANT });
     await waitFor(() => expect(h.read.mock.calls.length).toBeGreaterThan(before));
@@ -260,7 +260,7 @@ describe('AuditLogScreen (ADM-11)', () => {
     translator.setLocale('en');
     mountInSession(<AuditLogScreen route={ROUTE} />, harness(() => page([row(1)])), { permissions: AUDITOR });
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(en_['adm.audit.page.title']);
-    await waitFor(() => expect(document.querySelectorAll('[data-event-id]')).toHaveLength(1));
+    await waitFor(() => expect(document.querySelectorAll('tr[data-event-id]')).toHaveLength(1));
     expect(screen.getByText(en_['adm.audit.col.seal'])).toBeTruthy();
   });
 
@@ -281,7 +281,7 @@ describe('AuditLogScreen (ADM-11)', () => {
       expect(screen.getByTestId('export-panel')).toBeTruthy();
       cleanup();
       mountInSession(<AuditLogScreen route={ROUTE} />, harness(() => page([row(1)])), { permissions: EXPORTER, mode: 'READ_ONLY' });
-      await waitFor(() => expect(document.querySelectorAll('[data-event-id]')).toHaveLength(1));
+      await waitFor(() => expect(document.querySelectorAll('tr[data-event-id]')).toHaveLength(1));
       expect(screen.queryByRole('button', { name: vi_['adm.audit.export.open.action'] })).toBeNull();
     });
 

@@ -172,7 +172,7 @@ function OutgoingListContent({ route }: ScreenProps) {
         </p>
       ) : null}
       <StateBoundary state={state} onRetry={() => void list.refetch()}>
-        <DataTable caption={t('w2doc.list.table.caption')} columns={columns} rows={rows} rowKey={(row) => row.id} emptyKind={filtered ? 'filtered' : 'none'} onClearFilters={clear} />
+        <DataTable caption={t('w2doc.list.table.caption')} columns={columns} rows={rows} rowKey={(row) => row.id} rowAttrs={(row) => ({ 'data-document-id': row.id, 'data-status': row.status })} emptyKind={filtered ? 'filtered' : 'none'} onClearFilters={clear} />
         <div className="row between gap tiny muted doc-list-foot">
           <span>{t('doc.list.count.text', { count: rows.length })}</span>
           {list.hasNextPage ? (

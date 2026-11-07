@@ -216,7 +216,7 @@ test.describe('DIS-22 reasoned reopening of a locked period', () => {
     try {
       await open(page, 'reopenApprover');
       await expect(rowOf(page, id)).toHaveAttribute('data-status', 'EXPIRED');
-      await expect(rowOf(page, id).locator('.pill[data-status]')).toHaveText(vi['dis.calendar.reopenStatus.expired.text']);
+      await expect(rowOf(page, id).locator('.ui-pill')).toHaveText(vi['dis.calendar.reopenStatus.expired.text']);
       await expect(rowOf(page, id).getByTestId('window-chip')).toHaveCount(0);
       await expect(rowOf(page, id).locator('[data-decision]')).toHaveCount(0);
       // The calendar of DIS-14 tells the same.

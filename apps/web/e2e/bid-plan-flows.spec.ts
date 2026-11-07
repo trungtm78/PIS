@@ -265,6 +265,8 @@ test.describe('BID-03, BID-15 and BID-16 procurement plans', () => {
     await expect(page.getByRole('link', { name: vi['bid.plans.create.link'] })).toHaveCount(0);
 
     await open(page, '/bid/bid-03', 'bidPlanReader');
+    // The list pages at twenty rows: the code in the query box brings the package to the first page whatever else the stack holds.
+    await page.getByLabel(vi['bid.packages.query.label'], { exact: true }).fill('GT-30');
     const row = page.locator('tr[data-package-id]', { hasText: 'GT-30' });
     await expect(row).toContainText(project.code);
     await expect(row.getByTestId('plan-status')).toHaveText(vi['bid.planStatus.approved.label']);
@@ -278,8 +280,10 @@ test.describe('BID-03, BID-15 and BID-16 procurement plans', () => {
     const project = await seedProject();
     await draftPlan(page, 'bidPlanner', project, [{ code: 'GT-40', title: 'Gói thầu đang soạn', budget: String(2 * BILLION) }]);
     await open(page, '/bid/bid-03', 'bidPlanReader');
+    await page.getByLabel(vi['bid.packages.query.label'], { exact: true }).fill('GT-40');
     await expect(page.locator('tr[data-package-id]', { hasText: 'GT-40' })).toHaveCount(0);
     await open(page, '/bid/bid-03', 'bidPlanner');
+    await page.getByLabel(vi['bid.packages.query.label'], { exact: true }).fill('GT-40');
     await expect(page.locator('tr[data-package-id]', { hasText: 'GT-40' })).toHaveCount(1);
   });
 });

@@ -1,0 +1,47 @@
+{
+  "id": "tour-ast-bao-hanh-van-hanh",
+  "group": "AST",
+  "title": "Bàn giao tài sản và bảo hành: Bảo hành & vận hành",
+  "audience": "đơn vị tiếp nhận và kế toán tài sản",
+  "outcome": "Biết mỗi màn hình của nhóm Bảo hành & vận hành dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "ast-04",
+      "screens": [
+        "AST-04"
+      ],
+      "heading": "Bảo hành và giữ lại",
+      "text": "Bảo hành và giữ lại. Đây là bảng dữ liệu, dành cho đơn vị tiếp nhận và kế toán tài sản. Hết hạn và hết yêu cầu mở mới đóng và cho giải tỏa.",
+      "note": "Thiết kế còn nêu các thông tin: Nghĩa vụ bảo hành, Phạm vi, Bắt đầu – kết thúc, Bảo lãnh bảo hành, Giữ lại và Trạng thái. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ast-05",
+      "screens": [
+        "AST-05"
+      ],
+      "heading": "Yêu cầu bảo hành",
+      "text": "Yêu cầu bảo hành. Đây là màn hình, dành cho đơn vị tiếp nhận và kế toán tài sản.",
+      "note": "Thiết kế còn nêu các thông tin: Yêu cầu, Mức độ, Nhà thầu, Hạn phản hồi, Bằng chứng, Trạng thái và Chi phí chịu. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ast-06",
+      "screens": [
+        "AST-06"
+      ],
+      "heading": "Liên kết vận hành bảo trì",
+      "text": "Liên kết vận hành bảo trì. Đây là màn hình xem chi tiết, dành cho đơn vị tiếp nhận và kế toán tài sản. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Tài sản, Đơn vị vận hành, Kế hoạch O&M, Hợp đồng O&M, Chu kỳ bảo trì và Hạn bảo trì kế. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ast-07",
+      "screens": [
+        "AST-07"
+      ],
+      "heading": "Kích hoạt đánh giá sau đầu tư",
+      "text": "Kích hoạt đánh giá sau đầu tư. Đây là màn hình, dành cho đơn vị tiếp nhận và kế toán tài sản. Trên màn hình có: Dự án, Loại kích hoạt, Bàn giao nguồn và Ngày đến hạn. Các thao tác chính: Đặt mốc.",
+      "note": "Thiết kế còn nêu các thông tin: Trạng thái và Đánh giá MNE. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

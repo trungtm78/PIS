@@ -195,4 +195,10 @@ describe('DataTable pager', () => {
     render(<DataTable {...baseProps} page={page({ size: 25 })} />);
     expect(screen.getByRole('combobox', { name: 'Số dòng mỗi trang' })).toHaveValue('25');
   });
+  it('puts the attributes of a row on the row itself, so a record is found by them', () => {
+    render(<DataTable {...baseProps} rowAttrs={(row) => ({ 'data-project-id': row.id })} />);
+    const row = document.querySelector('tr[data-project-id="b"]');
+    expect(row).not.toBeNull();
+    expect(within(row as HTMLElement).getByText('Dự án B')).toBeInTheDocument();
+  });
 });

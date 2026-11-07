@@ -135,6 +135,7 @@ function ContractListContent({ route }: ScreenProps) {
               columns={columns}
               rows={rows}
               rowKey={(contract) => contract.id}
+              rowAttrs={(contract) => ({ 'data-contract-id': contract.id })}
               totalsLabel={t('w2pay.ctr.list.totals')}
               totals={{ value: t('ctr.value.amount', { amount: amountText(sumAmounts(standing.map((contract) => contract.contractValueVnd)), locale) }) }}
               page={{

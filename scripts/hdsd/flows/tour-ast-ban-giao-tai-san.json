@@ -1,0 +1,38 @@
+{
+  "id": "tour-ast-ban-giao-tai-san",
+  "group": "AST",
+  "title": "Bàn giao tài sản và bảo hành: Bàn giao tài sản",
+  "audience": "đơn vị tiếp nhận và kế toán tài sản",
+  "outcome": "Biết mỗi màn hình của nhóm Bàn giao tài sản dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "ast-01",
+      "screens": [
+        "AST-01"
+      ],
+      "heading": "Danh sách bàn giao",
+      "text": "Danh sách bàn giao. Đây là danh sách, dành cho đơn vị tiếp nhận và kế toán tài sản. Hiển thị số tồn tại trọng yếu chưa đóng.",
+      "note": "Thiết kế còn nêu các thông tin: Số bàn giao, Hợp đồng, Loại, Đơn vị nhận, Tồn tại trọng yếu và Trạng thái. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ast-02",
+      "screens": [
+        "AST-02"
+      ],
+      "heading": "Biên bản bàn giao và tồn tại",
+      "text": "Biên bản bàn giao và tồn tại. Đây là màn hình rà soát, dành cho đơn vị tiếp nhận và kế toán tài sản.",
+      "note": "Thiết kế còn nêu các thông tin: Tồn tại, Mức độ, Nhà thầu xử lý, Hạn, Bằng chứng, Xác nhận và Quyết định nhận. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "ast-03",
+      "screens": [
+        "AST-03"
+      ],
+      "heading": "Hồ sơ tài sản",
+      "text": "Hồ sơ tài sản. Đây là màn hình xem chi tiết, dành cho đơn vị tiếp nhận và kế toán tài sản.",
+      "note": "Thiết kế còn nêu các thông tin: Mã tài sản, Tên, Nhóm, Nguồn hình thành, Giá trị ghi nhận, Đơn vị tiếp nhận và Mã tài sản ngoài. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

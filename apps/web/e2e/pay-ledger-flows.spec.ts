@@ -144,7 +144,7 @@ test.describe('the cumulative ledger of a contract', () => {
     await expect(first.getByTestId('available')).toHaveText('350.000');
     const second = page.locator(`tr[data-item="${seeded.items[1]}"]`);
     await expect(second.getByTestId('available')).toHaveText('600.000');
-    await expect(page.getByTestId('total').getByTestId('accepted')).toHaveText('1.200.000');
+    await expect(page.locator('tfoot').getByTestId('accepted')).toHaveText('1.200.000');
 
     // The entries of B01 in the order they were posted, the reversal marked and the reason kept.
     await first.getByRole('button', { name: vi['pay.ledger.entries.show'].replace('{count}', '4') }).click();
@@ -161,8 +161,8 @@ test.describe('the cumulative ledger of a contract', () => {
     // Narrowed to B02, the total follows the filter.
     await page.getByTestId('filter-item').selectOption(seeded.items[1]!);
     await expect(page.locator('tbody > tr[data-line]')).toHaveCount(1);
-    await expect(page.getByTestId('total').getByTestId('accepted')).toHaveText('600.000');
-    await expect(page.getByTestId('total')).toContainText(vi['pay.ledger.total.filtered']);
+    await expect(page.locator('tfoot').getByTestId('accepted')).toHaveText('600.000');
+    await expect(page.locator('tfoot')).toContainText(vi['pay.ledger.total.filtered']);
 
     // What the screen showed is what the database holds.
     const [sum] = await sql<{ accepted: string; entries: string }>(

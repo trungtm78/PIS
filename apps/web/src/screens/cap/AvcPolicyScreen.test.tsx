@@ -90,7 +90,7 @@ function client(current: State, command: (operation: string, input: unknown) => 
 afterEach(cleanup);
 
 // A policy is the row of the table of the kit that holds a cell carrying its id.
-const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('[data-policy-id]')).flatMap((node) => (node.closest('tr') === null ? [] : [node.closest('tr') as HTMLElement]));
+const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('td [data-policy-id]')).flatMap((node) => (node.closest('tr') === null ? [] : [node.closest('tr') as HTMLElement]));
 const ready = () => waitFor(() => expect(rows().length).toBeGreaterThan(0));
 const form = () => within(screen.getByRole('form', { name: vi_['cap.avc.form.aria'] }));
 const set = (label: string, value: string): void => {

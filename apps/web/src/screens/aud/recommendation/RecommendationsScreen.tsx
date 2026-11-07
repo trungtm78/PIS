@@ -170,5 +170,5 @@ function RecommendationTable({ items, caller, today, onDialog }: { items: BoardI
       ),
     },
   ];
-  return <DataTable caption={t('w2iss.aud.recommendations.aria')} columns={columns} rows={items} rowKey={(item) => item.id} severity={(item) => (lateDays(item, today) > 0 ? 'ACTION' : null)} />;
+  return <DataTable caption={t('w2iss.aud.recommendations.aria')} columns={columns} rows={items} rowKey={(item) => item.id} rowAttrs={(item) => ({ 'data-recommendation-id': item.id })} severity={(item) => (lateDays(item, today) > 0 ? 'ACTION' : null)} />;
 }

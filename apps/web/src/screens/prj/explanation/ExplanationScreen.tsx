@@ -223,7 +223,7 @@ function ExplanationContent({ route }: ScreenProps) {
       <StateBoundary state={state} onRetry={() => void list.refetch()}>
         {readable || items.length > 0 ? (
           <div data-testid="explanations">
-            <DataTable caption={t('prj.explanation.list.aria')} columns={columns} rows={items} rowKey={(item) => item.id} emptyKind={status === '' ? 'none' : 'filtered'} onClearFilters={() => setStatus('')} />
+            <DataTable caption={t('prj.explanation.list.aria')} columns={columns} rows={items} rowKey={(item) => item.id} rowAttrs={(item) => ({ 'data-request': item.id, 'data-status': item.status, 'data-overdue': isPastDue(item, now) ? 'true' : 'false' })} emptyKind={status === '' ? 'none' : 'filtered'} onClearFilters={() => setStatus('')} />
           </div>
         ) : null}
         {list.hasNextPage ? (

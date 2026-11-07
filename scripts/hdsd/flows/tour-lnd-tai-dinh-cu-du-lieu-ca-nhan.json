@@ -1,0 +1,29 @@
+{
+  "id": "tour-lnd-tai-dinh-cu-du-lieu-ca-nhan",
+  "group": "LND",
+  "title": "GPMB, bồi thường, TĐC: Tái định cư & dữ liệu cá nhân",
+  "audience": "Trung tâm phát triển quỹ đất, phường và chủ đầu tư",
+  "outcome": "Biết mỗi màn hình của nhóm Tái định cư & dữ liệu cá nhân dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "lnd-12",
+      "screens": [
+        "LND-12"
+      ],
+      "heading": "Tái định cư",
+      "text": "Tái định cư. Đây là biểu mẫu để nhập thông tin, dành cho Trung tâm phát triển quỹ đất, phường và chủ đầu tư. Một lô/căn chỉ gán cho một hộ tại một thời điểm. Trên màn hình có: Hộ, Loại, Mã lô/căn, Khu tái định cư và Thứ tự ưu tiên. Các thao tác chính: Phân bổ.",
+      "note": "Thiết kế còn nêu các thông tin: Ngày bàn giao. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "lnd-13",
+      "screens": [
+        "LND-13"
+      ],
+      "heading": "Yêu cầu của chủ thể dữ liệu",
+      "text": "Yêu cầu của chủ thể dữ liệu. Đây là màn hình, dành cho Trung tâm phát triển quỹ đất, phường và chủ đầu tư.",
+      "note": "Thiết kế còn nêu các thông tin: Hộ, Loại yêu cầu, Đã xác minh người yêu cầu, Kết quả và Lý do. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "id": "tour-doc-trinh-ky-phat-hanh",
+  "group": "DOC",
+  "title": "Văn bản và báo cáo theo chuẩn nhà nước: Trình ký & phát hành",
+  "audience": "Trưởng đơn vị, pháp chế, văn thư và Lãnh đạo ký",
+  "outcome": "Biết mỗi màn hình của nhóm Trình ký & phát hành dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "doc-04",
+      "screens": [
+        "DOC-04"
+      ],
+      "heading": "Rà soát và trình ký",
+      "text": "Rà soát và trình ký. Đây là màn hình phê duyệt, dành cho Trưởng đơn vị, pháp chế và văn thư. Người duyệt khác người soạn. Ký thay/ủy quyền cần delegation đang hiệu lực. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Danh mục kiểm thể thức, Ý kiến rà soát, Băm SHA-256 của PDF cuối, Thẩm quyền ký theo DoA, Hình thức ký và Quyết định. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "doc-05",
+      "screens": [
+        "DOC-05"
+      ],
+      "heading": "Ký số lãnh đạo",
+      "text": "Ký số lãnh đạo. Đây là màn hình, dành cho Lãnh đạo ký. Trên màn hình có: Kho tài liệu có phiên bản và Bản xem trước. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Trình xem PDF cuối, Hộp chữ ký lãnh đạo, Chứng thư dùng để ký, Phiên ký và hạn phiên, Trạng thái adapter ký số và Từ chối ký kèm lý do. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "doc-06",
+      "screens": [
+        "DOC-06"
+      ],
+      "heading": "Cấp số và ký số cơ quan",
+      "text": "Cấp số và ký số cơ quan. Đây là màn hình, dành cho Văn thư. Trên màn hình có: Cấp số và ký số cơ quan. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Hàng đợi chờ cấp số, Sổ cấp số và số kế tiếp, Ngày ban hành, Ký hiệu dự kiến, Con dấu/chứng thư cơ quan, Trạng thái từng bước và Hủy số kèm người duyệt. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "doc-07",
+      "screens": [
+        "DOC-07"
+      ],
+      "heading": "Xác minh chữ ký và chứng thư",
+      "text": "Xác minh chữ ký và chứng thư. Đây là màn hình rà soát, dành cho Văn thư, pháp chế và auditor. Trên màn hình có: Chọn phiên bản tài liệu, Phiên bản, Giai đoạn và Tạo lúc. Các thao tác chính: Xem kết quả xác minh của phiên bản 1. Lúc quay, màn hình đang có 1 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Danh sách chữ ký theo thứ tự, Chuỗi chứng thư và nhà cung cấp CA, Trạng thái thu hồi, Thay đổi gia tăng sau chữ ký, Dấu thời gian và Kết luận VALID/INVALID/INDETERMINATE. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "doc-08",
+      "screens": [
+        "DOC-08"
+      ],
+      "heading": "Phát hành và phân phối",
+      "text": "Phát hành và phân phối. Đây là bảng dữ liệu, dành cho Văn thư. Trên màn hình có: Phát hành và phân phối văn bản. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Nơi nhận, Kênh gửi, Trạng thái phân phối, Gửi lúc, Xác nhận nhận, Mã lỗi và Gửi lại. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "doc-09",
+      "screens": [
+        "DOC-09"
+      ],
+      "heading": "Tải lên văn bản đã ký bên ngoài",
+      "text": "Tải lên văn bản đã ký bên ngoài. Đây là màn hình nhập dữ liệu từ tệp, dành cho Văn thư. Trên màn hình có: Tệp PDF đã ký và Đăng ký. Các thao tác chính: Tải lên và kiểm tra chữ ký và Gắn tệp vào văn bản chờ ký.",
+      "note": "Thiết kế còn nêu các thông tin: Người ký khai báo, Số và ký hiệu khai báo, Kết quả xác minh chữ ký và Sổ đăng ký số. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "doc-10",
+      "screens": [
+        "DOC-10"
+      ],
+      "heading": "Sổ đăng ký văn bản đi",
+      "text": "Sổ đăng ký văn bản đi. Đây là bảng dữ liệu, dành cho Văn thư và auditor. Trên màn hình có: Sổ, Số và Trạng thái số. Các thao tác chính: Lọc. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Năm, Ký hiệu, Ngày ban hành, Trích yếu và Xuất sổ. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

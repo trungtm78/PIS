@@ -1,0 +1,38 @@
+{
+  "id": "tour-doc-van-ban-den",
+  "group": "DOC",
+  "title": "Văn bản và báo cáo theo chuẩn nhà nước: Văn bản đến",
+  "audience": "Văn thư, chánh văn phòng, lãnh đạo và Chuyên viên được giao",
+  "outcome": "Biết mỗi màn hình của nhóm Văn bản đến dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "doc-11",
+      "screens": [
+        "DOC-11"
+      ],
+      "heading": "Tiếp nhận văn bản đến",
+      "text": "Tiếp nhận văn bản đến. Đây là màn hình nhập dữ liệu từ tệp, dành cho Văn thư. Tệp quét virus trước khi liên kết. Trùng (cơ quan + ký hiệu + ngày) bị chặn trừ khi có lý do. Văn bản độ mật nhà nước không nhận. Trên màn hình có: Tệp PDF, Trích yếu, Loại văn bản, Kênh nhận, Cơ quan gửi và Ký hiệu gốc. Các thao tác chính: Tiếp nhận.",
+      "note": "Thiết kế còn nêu các thông tin: Nguồn tiếp nhận, Tệp quét/PDF, Ký hiệu và ngày trên văn bản gốc, Mức khẩn, Cảnh báo trùng và Lý do vẫn nhận. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "doc-12",
+      "screens": [
+        "DOC-12"
+      ],
+      "heading": "Sổ văn bản đến và phân công",
+      "text": "Sổ văn bản đến và phân công. Đây là bảng dữ liệu, dành cho Văn thư, chánh văn phòng và lãnh đạo. Trên màn hình có: Số đến, Trạng thái và Quá hạn. Lúc quay, màn hình đang có 1 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Cơ quan gửi, Trích yếu, Bút phê chỉ đạo, Đơn vị/người xử lý và Hạn xử lý. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "doc-13",
+      "screens": [
+        "DOC-13"
+      ],
+      "heading": "Xử lý văn bản đến",
+      "text": "Xử lý văn bản đến. Đây là màn hình xem chi tiết, dành cho Chuyên viên được giao. Trên màn hình có: Số đến, Cơ quan gửi, Ký hiệu gốc, Ngày ban hành, Kênh nhận và Độ khẩn. Các thao tác chính: Vào sổ (cấp số đến) và Từ chối.",
+      "note": "Thiết kế còn nêu các thông tin: Nội dung và tệp gốc, Bút phê, Kết quả xử lý, Văn bản trả lời liên kết, Hạn và số ngày trễ và Đưa vào hồ sơ. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

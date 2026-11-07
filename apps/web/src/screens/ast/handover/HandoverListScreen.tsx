@@ -112,7 +112,7 @@ function HandoverTable({ lines }: { lines: HandoverLine[] }) {
       header: t('ast.handover.column.no'),
       pinned: true,
       render: (line) => (
-        <span data-testid="no" data-handover={line.id}>
+        <span data-testid="no">
           {line.handoverNo}
         </span>
       ),
@@ -149,5 +149,5 @@ function HandoverTable({ lines }: { lines: HandoverLine[] }) {
       ),
     },
   ];
-  return <DataTable caption={t('w2iss.ast.handovers.aria')} columns={columns} rows={lines} rowKey={(line) => line.id} />;
+  return <DataTable caption={t('w2iss.ast.handovers.aria')} columns={columns} rows={lines} rowKey={(line) => line.id} rowAttrs={(line) => ({ 'data-handover': line.id, 'data-status': line.status })} />;
 }

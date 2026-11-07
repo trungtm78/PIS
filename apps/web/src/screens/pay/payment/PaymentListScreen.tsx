@@ -175,6 +175,7 @@ function PaymentListContent({ route }: ScreenProps) {
               columns={columns}
               rows={shown}
               rowKey={(request) => request.id}
+              rowAttrs={(request) => ({ 'data-request': request.id, 'data-status': request.status })}
               totalsLabel={t('w2pay.pay.list.totals')}
               totals={{
                 gross: money(sumAmounts(standing.map((request) => request.grossVnd))),

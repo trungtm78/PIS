@@ -136,5 +136,5 @@ function WatchTable({ engagements }: { engagements: WatchedEngagement[] }) {
       ),
     },
   ];
-  return <DataTable caption={t('w2iss.aud.watch.aria')} columns={columns} rows={engagements} rowKey={(engagement) => engagement.id} severity={(engagement) => (engagement.recommendationsOverdue > 0 ? 'ACTION' : null)} />;
+  return <DataTable caption={t('w2iss.aud.watch.aria')} columns={columns} rows={engagements} rowKey={(engagement) => engagement.id} rowAttrs={(engagement) => ({ 'data-engagement-id': engagement.id })} severity={(engagement) => (engagement.recommendationsOverdue > 0 ? 'ACTION' : null)} />;
 }

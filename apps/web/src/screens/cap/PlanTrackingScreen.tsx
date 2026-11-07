@@ -202,6 +202,7 @@ function Tracking({ found, revision }: { found: PlanAsOf; revision: PlanSummary 
           columns={columns}
           rows={found.lines}
           rowKey={(row) => row.line.id}
+          rowAttrs={(row) => ({ 'data-project': row.line.project.code })}
           totalsLabel={t('cap.tracking.total.label', {
             count: found.lines.length,
           })}

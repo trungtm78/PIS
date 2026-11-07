@@ -146,6 +146,7 @@ function ProjectListContent({ route }: ScreenProps) {
             columns={columns}
             rows={rows}
             rowKey={(project) => project.id}
+            rowAttrs={(project) => ({ 'data-project-id': project.id })}
             emptyKind={applied > 0 ? 'filtered' : 'none'}
             onClearFilters={() => change(EMPTY_FILTER)}
             page={{

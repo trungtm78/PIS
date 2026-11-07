@@ -1,0 +1,47 @@
+{
+  "id": "tour-aud-phat-hien-kien-nghi",
+  "group": "AUD",
+  "title": "Thanh tra, kiểm toán và theo dõi khắc phục: Phát hiện & kiến nghị",
+  "audience": "Đầu mối thanh tra, kiểm toán, Đầu mối và lãnh đạo",
+  "outcome": "Biết mỗi màn hình của nhóm Phát hiện & kiến nghị dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "aud-05",
+      "screens": [
+        "AUD-05"
+      ],
+      "heading": "Phát hiện",
+      "text": "Phát hiện. Đây là bảng dữ liệu, dành cho Đầu mối thanh tra và kiểm toán. Dự án/hợp đồng phải cùng tổ chức và trong phạm vi cuộc. Trên màn hình có: Cuộc thanh tra, kiểm toán.",
+      "note": "Thiết kế còn nêu các thông tin: Mã phát hiện, Nhóm, Dự án/hợp đồng, Đơn vị, Số tiền, Mức độ và Căn cứ bị vi phạm. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "aud-06",
+      "screens": [
+        "AUD-06"
+      ],
+      "heading": "Kiến nghị và phân công",
+      "text": "Kiến nghị và phân công. Đây là bảng dữ liệu, dành cho Đầu mối và lãnh đạo. Trên màn hình có: Loại, Hạn và Trạng thái.",
+      "note": "Thiết kế còn nêu các thông tin: Mã kiến nghị, Số tiền, Owner và Vướng mắc liên kết. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "aud-07",
+      "screens": [
+        "AUD-07"
+      ],
+      "heading": "Theo dõi thực hiện kiến nghị",
+      "text": "Theo dõi thực hiện kiến nghị. Đây là màn hình, dành cho Đầu mối thanh tra, kiểm toán và người chủ trì kiến nghị. Trên màn hình có: Cuộc thanh tra, kiểm toán, Đã giao 0, Đang thực hiện 0, Đang giải trình 0, Chờ xác minh 0 và Đã đóng 0.",
+      "note": "Thiết kế còn nêu các thông tin: Cột trạng thái, Thẻ kiến nghị, Hạn và số ngày trễ, Hành động khắc phục và Bằng chứng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "aud-11",
+      "screens": [
+        "AUD-11"
+      ],
+      "heading": "Cảnh báo quá hạn và leo thang",
+      "text": "Cảnh báo quá hạn và leo thang. Đây là danh sách, dành cho Lãnh đạo và đầu mối. Trên màn hình có: Hạn và Mức leo thang. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Kiến nghị, Owner, Số ngày trễ và Đã thông báo. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

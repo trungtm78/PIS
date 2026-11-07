@@ -183,7 +183,7 @@ interface ParcelTableProps {
 function ParcelTable({ parcels, today, canNotice, onNotice }: ParcelTableProps) {
   const { t } = useTranslation();
   const columns: DataTableColumn<ParcelLine>[] = [
-    { key: 'code', header: t('lnd.parcels.column.code'), pinned: true, render: (parcel) => <span data-parcel-id={parcel.id}>{parcel.parcelCode}</span> },
+    { key: 'code', header: t('lnd.parcels.column.code'), pinned: true, render: (parcel) => parcel.parcelCode },
     { key: 'unit', header: t('lnd.parcels.column.unit'), render: (parcel) => parcel.ownerUnitName },
     { key: 'landUse', header: t('lnd.parcels.column.landUse'), render: (parcel) => landUseLabel(t, parcel.landUseGroup) },
     { key: 'area', header: t('lnd.parcels.column.area'), align: 'right', render: (parcel) => parcel.areaTotalM2 },
@@ -239,5 +239,5 @@ function ParcelTable({ parcels, today, canNotice, onNotice }: ParcelTableProps) 
         ) : null,
     },
   ];
-  return <DataTable caption={t('w2iss.lnd.parcels.aria')} columns={columns} rows={parcels} rowKey={(parcel) => parcel.id} />;
+  return <DataTable caption={t('w2iss.lnd.parcels.aria')} columns={columns} rows={parcels} rowKey={(parcel) => parcel.id} rowAttrs={(parcel) => ({ 'data-parcel-id': parcel.id })} />;
 }

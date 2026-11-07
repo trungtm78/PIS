@@ -13,7 +13,7 @@ const answer = { operation_id: 'o', status: 'DRAFT', resource_version: 5, resour
 afterEach(cleanup);
 
 // A line is the row of the table of the kit that holds a cell carrying its id.
-const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('[data-line-id]')).flatMap((node) => (node.closest('tr') === null ? [] : [node.closest('tr') as HTMLElement]));
+const rows = (): HTMLElement[] => Array.from(document.querySelectorAll<HTMLElement>('td [data-line-id]')).flatMap((node) => (node.closest('tr') === null ? [] : [node.closest('tr') as HTMLElement]));
 const ready = () => waitFor(() => expect(rows().length).toBeGreaterThan(0));
 const amountInput = (code: string): HTMLInputElement => screen.getByLabelText(`Số tiền của dự án ${code} (triệu đồng)`) as HTMLInputElement;
 const ctmtqgInput = (code: string): HTMLInputElement => screen.getByLabelText(`Phần CTMTQG của dự án ${code} (triệu đồng)`) as HTMLInputElement;

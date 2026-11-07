@@ -1,0 +1,47 @@
+{
+  "id": "tour-aud-cuoc-thanh-tra-kiem-toan",
+  "group": "AUD",
+  "title": "Thanh tra, kiểm toán và theo dõi khắc phục: Cuộc thanh tra, kiểm toán",
+  "audience": "Đầu mối thanh tra, kiểm toán và người chủ trì kiến nghị",
+  "outcome": "Biết mỗi màn hình của nhóm Cuộc thanh tra, kiểm toán dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "aud-01",
+      "screens": [
+        "AUD-01"
+      ],
+      "heading": "Tổng quan thanh tra, kiểm toán",
+      "text": "Tổng quan thanh tra, kiểm toán. Đây là bảng điều hành, dành cho Đầu mối thanh tra, kiểm toán và người chủ trì kiến nghị. Tỷ lệ = Σ đã thu hồi / Σ kiến nghị tài chính trong phạm vi, hiển thị tử và mẫu. Quá hạn bằng chữ + số ngày. Trên màn hình có: Kiến nghị mở, Kiến nghị quá hạn, Tiền kiến nghị, Đã thu hồi và Tỷ lệ hoàn thành.",
+      "note": "Thiết kế còn nêu các thông tin: Cuộc đang diễn ra. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "aud-02",
+      "screens": [
+        "AUD-02"
+      ],
+      "heading": "Danh sách cuộc thanh tra, kiểm toán",
+      "text": "Danh sách cuộc thanh tra, kiểm toán. Đây là bảng dữ liệu, dành cho Đầu mối thanh tra, kiểm toán và người chủ trì kiến nghị. Trên màn hình có: Loại và Trạng thái. Các thao tác chính: Ghi nhận cuộc.",
+      "note": "Thiết kế còn nêu các thông tin: Mã cuộc, Cơ quan tiến hành, Thời kỳ, Đầu mối và Legal hold. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "aud-03",
+      "screens": [
+        "AUD-03"
+      ],
+      "heading": "Hồ sơ cuộc thanh tra, kiểm toán",
+      "text": "Hồ sơ cuộc thanh tra, kiểm toán. Đây là màn hình xem chi tiết, dành cho Đầu mối thanh tra, kiểm toán và người chủ trì kiến nghị. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Quyết định, Phạm vi, Thời kỳ, Mốc, Legal hold và Tài liệu làm việc. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "aud-04",
+      "screens": [
+        "AUD-04"
+      ],
+      "heading": "Tiếp nhận kết luận, báo cáo kiểm toán",
+      "text": "Tiếp nhận kết luận, báo cáo kiểm toán. Đây là biểu mẫu để nhập thông tin, dành cho Đầu mối thanh tra và kiểm toán. Trên màn hình có: Cuộc thanh tra, kiểm toán.",
+      "note": "Thiết kế còn nêu các thông tin: Loại kết luận, Văn bản kết luận, Ngày ban hành/nhận, Hạn thực hiện, Hạn báo cáo, Tổng kiến nghị tài chính và Công khai. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

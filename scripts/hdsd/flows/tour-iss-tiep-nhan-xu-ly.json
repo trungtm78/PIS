@@ -1,0 +1,74 @@
+{
+  "id": "tour-iss-tiep-nhan-xu-ly",
+  "group": "ISS",
+  "title": "Vướng mắc và hiện trường: Tiếp nhận & xử lý",
+  "audience": "đơn vị xử lý, lãnh đạo phụ trách và tổ công tác",
+  "outcome": "Biết mỗi màn hình của nhóm Tiếp nhận & xử lý dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "iss-01",
+      "screens": [
+        "ISS-01"
+      ],
+      "heading": "Danh sách vướng mắc",
+      "text": "Danh sách vướng mắc. Đây là bảng công việc theo cột, dành cho đơn vị xử lý.  Trên màn hình có: Mức độ, Hạn và Người xử lý.",
+      "note": "Thiết kế còn nêu các thông tin: Nhóm, Cấp leo thang và Nguồn phát sinh. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "iss-02",
+      "screens": [
+        "ISS-02"
+      ],
+      "heading": "Ghi nhận vướng mắc",
+      "text": "Ghi nhận vướng mắc. Đây là biểu mẫu để nhập thông tin, dành cho đơn vị xử lý. Trên màn hình có: Dự án, Mô tả, Nhóm, Vị trí và Đồng ý lưu vị trí. Các thao tác chính: Lấy vị trí hiện tại và Ghi nhận.",
+      "note": "Thiết kế còn nêu các thông tin: Ảnh và Nguồn phát sinh. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "iss-03",
+      "screens": [
+        "ISS-03"
+      ],
+      "heading": "Không gian xử lý",
+      "text": "Không gian xử lý. Đây là màn hình xem chi tiết, dành cho đơn vị xử lý.",
+      "note": "Thiết kế còn nêu các thông tin: Phân công, Ý kiến, Bằng chứng và SLA. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "iss-04",
+      "screens": [
+        "ISS-04"
+      ],
+      "heading": "Chuyển cấp và gia hạn",
+      "text": "Chuyển cấp và gia hạn. Đây là biểu mẫu để nhập thông tin, dành cho đơn vị xử lý.",
+      "note": "Thiết kế còn nêu các thông tin: Cấp nhận, Lý do và Hạn mới. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "iss-07",
+      "screens": [
+        "ISS-07"
+      ],
+      "heading": "Xác nhận hoàn tất",
+      "text": "Xác nhận hoàn tất. Đây là màn hình rà soát, dành cho đơn vị xử lý.",
+      "note": "Thiết kế còn nêu các thông tin: Kết quả, Bằng chứng và Người xác nhận. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "iss-09",
+      "screens": [
+        "ISS-09"
+      ],
+      "heading": "Chính sách SLA theo loại và đơn vị",
+      "text": "Chính sách SLA theo loại và đơn vị. Đây là màn hình, dành cho đơn vị xử lý, lãnh đạo phụ trách và tổ công tác. Trên màn hình có: Nhóm vướng mắc, Mức độ, Đơn vị, Lịch làm việc, Phản hồi, Xử lý và Hiệu lực. Các thao tác chính: Công bố.",
+      "note": "Thiết kế còn nêu các thông tin: Ngưỡng leo thang. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "iss-10",
+      "screens": [
+        "ISS-10"
+      ],
+      "heading": "Leo thang và tổ công tác",
+      "text": "Leo thang và tổ công tác. Đây là màn hình, dành cho đơn vị xử lý, lãnh đạo phụ trách và tổ công tác. Trên màn hình có: Cấp leo thang.",
+      "note": "Thiết kế còn nêu các thông tin: Vướng mắc, Đơn vị / tổ công tác, Hạn xác nhận, Trạng thái và Quá hạn từ. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

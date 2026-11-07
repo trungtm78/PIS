@@ -1,0 +1,65 @@
+{
+  "id": "tour-omni-hoi-thoai-lien-he",
+  "group": "OMNI",
+  "title": "Tương tác đa kênh: Hội thoại & liên hệ",
+  "audience": "nhân viên hỗ trợ khách xử lý, giám sát viên hỗ trợ khách cấu hình và giám sát",
+  "outcome": "Biết mỗi màn hình của nhóm Hội thoại & liên hệ dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "omni-01",
+      "screens": [
+        "OMNI-01"
+      ],
+      "heading": "Hộp thư hợp nhất",
+      "text": "Hộp thư hợp nhất. Đây là màn hình, dành cho nhân viên hỗ trợ khách xử lý và giám sát viên hỗ trợ khách cấu hình và giám sát. Hàng đợi theo routing chính sách. Trên màn hình có: Trạng thái và Chỉ hội thoại giao cho tôi. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Kênh, Người phụ trách, SLA, Hồ sơ và Hạn phản hồi đầu. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "omni-02",
+      "screens": [
+        "OMNI-02"
+      ],
+      "heading": "Chi tiết hội thoại",
+      "text": "Chi tiết hội thoại. Đây là màn hình, dành cho nhân viên hỗ trợ khách xử lý và giám sát viên hỗ trợ khách cấu hình và giám sát. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Tin nhắn, Tệp, Ghi chú nội bộ, Người tham gia, Loại, Cửa sổ 24h và Mục đích gửi. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "omni-03",
+      "screens": [
+        "OMNI-03"
+      ],
+      "heading": "Danh bạ và liên kết danh tính",
+      "text": "Danh bạ và liên kết danh tính. Đây là danh sách, dành cho nhân viên hỗ trợ khách xử lý và giám sát viên hỗ trợ khách cấu hình và giám sát. Trên màn hình có: Tên liên hệ, Nhóm và Kênh ưa thích. Các thao tác chính: Thêm liên hệ. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Người dùng, Zalo UID, WhatsApp, Email, Định danh đã xác minh và Gộp. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "omni-04",
+      "screens": [
+        "OMNI-04"
+      ],
+      "heading": "Xác minh và đồng ý nhận tin",
+      "text": "Xác minh và đồng ý nhận tin. Đây là biểu mẫu để nhập thông tin, dành cho nhân viên hỗ trợ khách xử lý và giám sát viên hỗ trợ khách cấu hình và giám sát. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Danh tính, Mục đích, Kênh, Bằng chứng đồng ý, Phiên bản điều khoản, Cách thu thập và Rút đồng ý. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "omni-09",
+      "screens": [
+        "OMNI-09"
+      ],
+      "heading": "Chuyển hội thoại thành việc",
+      "text": "Chuyển hội thoại thành việc. Đây là biểu mẫu để nhập thông tin, dành cho nhân viên hỗ trợ khách xử lý và giám sát viên hỗ trợ khách cấu hình và giám sát. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Dự án, Loại việc, Hạn, Người xử lý và Tóm tắt. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "omni-11",
+      "screens": [
+        "OMNI-11"
+      ],
+      "heading": "Hộp sự kiện webhook và đối soát",
+      "text": "Hộp sự kiện webhook và đối soát. Đây là bảng dữ liệu, dành cho nhân viên hỗ trợ khách xử lý và giám sát viên hỗ trợ khách cấu hình và giám sát. Trên màn hình có: Trạng thái. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Nhà cung cấp, Mã sự kiện, Chữ ký hợp lệ, Nhận lúc, Số lần xử lý và Mã lỗi. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

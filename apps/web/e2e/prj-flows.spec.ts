@@ -119,7 +119,7 @@ test.describe('PRJ-01 to PRJ-03 project register', () => {
     await expect(row.getByTestId('national-code-missing')).toHaveText(vi['prj.nationalCode.missing.badge']);
     await expect(row).toContainText('Ban Quản lý dự án');
     await field(page, vi['prj.list.query.label']).fill('khong-co-du-an-nao-ten-nhu-vay');
-    await expect(page.getByTestId('no-match')).toHaveText(vi['prj.list.noMatch.notice']);
+    await expect(page.getByTestId('projects').getByRole('status')).toContainText(vi['ui.dataTable.emptyFiltered']);
     await field(page, vi['prj.list.query.label']).fill(code.toLowerCase());
     await expect(page.locator('tr[data-project-id]')).toHaveCount(1);
     await page.getByLabel(vi['prj.list.missingCode.label']).check();

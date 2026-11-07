@@ -1,0 +1,65 @@
+{
+  "id": "tour-not-thiet-ke-dieu-phoi",
+  "group": "NOT",
+  "title": "Notification Center: Thiết kế & điều phối",
+  "audience": "quản trị thông báo và người duyệt chiến dịch thông báo",
+  "outcome": "Biết mỗi màn hình của nhóm Thiết kế & điều phối dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "not-06",
+      "screens": [
+        "NOT-06"
+      ],
+      "heading": "Dựng luồng thông báo",
+      "text": "Dựng luồng thông báo. Đây là màn hình, dành cho quản trị thông báo và người duyệt chiến dịch thông báo. ",
+      "note": "Thiết kế còn nêu các thông tin: Sự kiện, Điều kiện, Chờ, Kênh, Chuyển cấp, Ưu tiên, Ghi đè giờ yên lặng, Hết hạn sau, Cần xác nhận và Kênh dự phòng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "not-07",
+      "screens": [
+        "NOT-07"
+      ],
+      "heading": "Soạn mẫu đa kênh",
+      "text": "Soạn mẫu đa kênh. Đây là màn hình, dành cho quản trị thông báo và người duyệt chiến dịch thông báo. Trên màn hình có: Biến, Ngôn ngữ và Email. Các thao tác chính: Thêm biến và Lưu bản nháp.",
+      "note": "Thiết kế còn nêu các thông tin: Push, Zalo, WhatsApp, Mã mẫu nhà cung cấp, Trạng thái duyệt nhà cung cấp và An toàn màn hình khóa. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "not-08",
+      "screens": [
+        "NOT-08"
+      ],
+      "heading": "Xem trước và gửi thử",
+      "text": "Xem trước và gửi thử. Đây là màn hình rà soát, dành cho quản trị thông báo và người duyệt chiến dịch thông báo. Trên màn hình có: Chọn bản mẫu.",
+      "note": "Thiết kế còn nêu các thông tin: Đối tượng thử, Kênh, Nội dung, Biến thiếu và Nhãn TEST. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "not-09",
+      "screens": [
+        "NOT-09"
+      ],
+      "heading": "Nhóm người nhận",
+      "text": "Nhóm người nhận. Đây là màn hình, dành cho quản trị thông báo và người duyệt chiến dịch thông báo. Trên màn hình có: Tên chiến dịch, Mục đích, Mẫu thông báo, Đơn vị (gồm cả đơn vị con), Ủy ban nhân dân tỉnh Cao Bằng và Sở Kế hoạch và Đầu tư. Các thao tác chính: Lập chiến dịch.",
+      "note": "Thiết kế còn nêu các thông tin: Điều kiện, Loại trừ, Ước tính số người, Gồm khách nhà thầu và Loại trừ theo lý do. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "not-10",
+      "screens": [
+        "NOT-10"
+      ],
+      "heading": "Lịch gửi và chiến dịch",
+      "text": "Lịch gửi và chiến dịch. Đây là lịch, dành cho quản trị thông báo và người duyệt chiến dịch thông báo. Trên màn hình có: Trạng thái. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Thời điểm, Múi giờ, Hạn hiệu lực, Người nhận và Mã xem trước. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "not-16",
+      "screens": [
+        "NOT-16"
+      ],
+      "heading": "Phê duyệt gửi diện rộng",
+      "text": "Phê duyệt gửi diện rộng. Đây là màn hình phê duyệt, dành cho người duyệt chiến dịch thông báo. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Phạm vi, Mẫu, Số người, Người duyệt, Số loại trừ, Mã xem trước và Người tạo. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

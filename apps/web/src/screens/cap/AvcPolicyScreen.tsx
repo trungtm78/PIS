@@ -230,7 +230,7 @@ function AvcContent({ route }: ScreenProps) {
       <div className="avc-grid">
         <SectionCard title={t('cap.avc.policies.title')}>
           <StateBoundary state={state} onRetry={() => void policies.refetch()}>
-            <DataTable caption={t('cap.avc.policies.title')} columns={columns} rows={rows} rowKey={(row) => row.id} />
+            <DataTable caption={t('cap.avc.policies.title')} columns={columns} rows={rows} rowKey={(row) => row.id} rowAttrs={(row) => ({ 'data-policy-id': row.id, 'data-status': row.status })} />
           </StateBoundary>
           {notice === undefined ? null : (
             <p className="callout" role="status">

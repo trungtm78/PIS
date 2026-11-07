@@ -91,13 +91,13 @@ export function ReopenQueue({ requests, now, approve, me }: ReopenQueueProps) {
       key: 'period',
       header: t('dis.reopen.queue.period.column'),
       pinned: true,
-      render: ({ reopen, period }) => (
-        <span data-reopen-id={reopen.id} data-period-code={period.code} data-status={effectiveStatus(reopen, now)}>
+      render: ({ period }) => (
+        <>
           <strong>{period.code}</strong>
           <span className="dis-code">
             {period.startDate} – {period.endDate}
           </span>
-        </span>
+        </>
       ),
     },
     {
@@ -207,7 +207,15 @@ export function ReopenQueue({ requests, now, approve, me }: ReopenQueueProps) {
           {reopenProblemMessage(t, refused)}
         </p>
       )}
-      <DataTable caption={t('dis.reopen.queue.aria')} columns={columns} rows={[...requests]} rowKey={(request) => request.reopen.id} />
+      <div data-testid="reopen-queue">
+        <DataTable
+          caption={t('dis.reopen.queue.aria')}
+          columns={columns}
+          rows={[...requests]}
+          rowKey={(request) => request.reopen.id}
+          rowAttrs={(request) => ({ 'data-reopen-id': request.reopen.id, 'data-period-code': request.period.code, 'data-status': effectiveStatus(request.reopen, now) })}
+        />
+      </div>
       {acting === undefined || deciding === undefined ? null : (
         <div data-testid="decision-row" className="dis-w2-decision">
           <SectionCard title={acting.decision === 'approve' ? t('dis.reopen.decision.approve.title', { code: deciding.period.code }) : t('dis.reopen.decision.reject.title', { code: deciding.period.code })}>

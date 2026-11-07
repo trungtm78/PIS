@@ -238,6 +238,7 @@ function GridContent({ route }: ScreenProps) {
                 columns={columns}
                 rows={rows}
                 rowKey={(row) => row.line.id}
+                rowAttrs={(row) => ({ 'data-line-id': row.line.id, 'data-removed': row.edit.remove ? 'true' : 'false', 'data-changed': row.changed ? 'true' : 'false' })}
                 totalsLabel={t('cap.grid.total.label')}
                 totals={{
                   amount: (

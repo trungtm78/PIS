@@ -1,0 +1,47 @@
+{
+  "id": "tour-home-cong-viec-canh-bao",
+  "group": "HOME",
+  "title": "Tổng quan điều hành: Công việc & cảnh báo",
+  "audience": "Lãnh đạo và chuyên viên",
+  "outcome": "Biết mỗi màn hình của nhóm Công việc & cảnh báo dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "home-02",
+      "screens": [
+        "HOME-02"
+      ],
+      "heading": "Việc của tôi",
+      "text": "Việc của tôi. Đây là bảng công việc theo cột, dành cho Lãnh đạo và chuyên viên. Theo dõi vốn, việc và rủi ro theo phạm vi quyền. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Ưu tiên, Hạn xử lý và Người giao. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "home-03",
+      "screens": [
+        "HOME-03"
+      ],
+      "heading": "Cảnh báo sớm",
+      "text": "Cảnh báo sớm. Đây là danh sách, dành cho Lãnh đạo và chuyên viên. Trên màn hình có: Quy tắc và Mức độ. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Dự án. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "home-04",
+      "screens": [
+        "HOME-04"
+      ],
+      "heading": "Xếp hạng giải ngân",
+      "text": "Xếp hạng giải ngân. Đây là bảng xếp hạng, dành cho Lãnh đạo và chuyên viên. Trên màn hình có: Nhóm so sánh và Mẫu số.",
+      "note": "Thiết kế còn nêu các thông tin: Kỳ, Snapshot và Lý do loại khỏi xếp hạng. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "home-06",
+      "screens": [
+        "HOME-06"
+      ],
+      "heading": "Hồ sơ cảnh báo",
+      "text": "Hồ sơ cảnh báo. Đây là màn hình xem chi tiết, dành cho Lãnh đạo và chuyên viên.",
+      "note": "Thiết kế còn nêu các thông tin: Nguyên nhân, Bằng chứng và Người phụ trách. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

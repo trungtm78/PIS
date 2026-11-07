@@ -1,0 +1,56 @@
+{
+  "id": "tour-dgv-nen-tang-du-lieu",
+  "group": "DGV",
+  "title": "Quản trị và trưởng thành dữ liệu: Nền tảng dữ liệu",
+  "audience": "chủ sở hữu dữ liệu, người quản lý dữ liệu và kỹ sư dữ liệu",
+  "outcome": "Biết mỗi màn hình của nhóm Nền tảng dữ liệu dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "dgv-01",
+      "screens": [
+        "DGV-01"
+      ],
+      "heading": "Điều hành chất lượng dữ liệu",
+      "text": "Điều hành chất lượng dữ liệu. Đây là bảng điều hành, dành cho chủ sở hữu dữ liệu, người quản lý dữ liệu và kỹ sư dữ liệu. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Trên màn hình có: Miền dữ liệu. Các thao tác chính: Xóa bộ lọc và Lọc.",
+      "note": "Thiết kế còn nêu các thông tin: Domain, Chất lượng, Độ mới, Sự cố, Huy hiệu và Incident quá SLA. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dgv-02",
+      "screens": [
+        "DGV-02"
+      ],
+      "heading": "Business glossary",
+      "text": "Business glossary. Đây là bảng dữ liệu, dành cho chủ sở hữu dữ liệu, người quản lý dữ liệu và kỹ sư dữ liệu. Trên màn hình có: Dataset.",
+      "note": "Thiết kế còn nêu các thông tin: Thuật ngữ, Định nghĩa, Owner, Phiên bản và Trạng thái MDM. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dgv-03",
+      "screens": [
+        "DGV-03"
+      ],
+      "heading": "Chủ sở hữu và steward",
+      "text": "Chủ sở hữu và steward. Đây là bảng dữ liệu, dành cho chủ sở hữu dữ liệu, người quản lý dữ liệu và kỹ sư dữ liệu. Trên màn hình có: Owner, Steward, SLA và Dữ liệu trọng yếu. Các thao tác chính: Đăng ký dataset.",
+      "note": "Thiết kế còn nêu các thông tin: Domain. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dgv-04",
+      "screens": [
+        "DGV-04"
+      ],
+      "heading": "Data catalogue",
+      "text": "Data catalogue. Đây là bảng dữ liệu, dành cho chủ sở hữu dữ liệu, người quản lý dữ liệu và kỹ sư dữ liệu. Trên màn hình có: Tìm theo mã, tên hoặc grain, Miền dữ liệu và Phân loại. Các thao tác chính: Xóa bộ lọc và Tìm.",
+      "note": "Thiết kế còn nêu các thông tin: Dataset, Nguồn, Classification, Độ mới, Hợp đồng hiện hành, Owner/steward và Huy hiệu. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "dgv-05",
+      "screens": [
+        "DGV-05"
+      ],
+      "heading": "Lineage toàn hệ thống",
+      "text": "Lineage toàn hệ thống. Đây là sơ đồ dạng cây, dành cho chủ sở hữu dữ liệu, người quản lý dữ liệu và kỹ sư dữ liệu. Trên màn hình có: Loại nút, Mã định danh của đối tượng (UUID), Hướng và Số bước. Các thao tác chính: Xem lineage.",
+      "note": "Thiết kế còn nêu các thông tin: Chỉ tiêu, Transform, Dataset, Bản ghi nguồn, Run id, Phiên bản transform và Nút bị hạn chế. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

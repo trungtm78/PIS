@@ -1,0 +1,38 @@
+{
+  "id": "tour-pmt-ho-so-canh-bao",
+  "group": "PMT",
+  "title": "Hồ sơ pháp lý & giấy phép: Hồ sơ & cảnh báo",
+  "audience": "Chuyên viên pháp lý dự án và lãnh đạo phụ trách",
+  "outcome": "Biết mỗi màn hình của nhóm Hồ sơ & cảnh báo dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "pmt-01",
+      "screens": [
+        "PMT-01"
+      ],
+      "heading": "Hồ sơ pháp lý dự án",
+      "text": "Hồ sơ pháp lý dự án. Đây là bảng dữ liệu, dành cho Chuyên viên pháp lý dự án và lãnh đạo phụ trách. Danh mục bắt buộc sinh theo loại giấy phép áp dụng. Trên màn hình có: Lập hồ sơ pháp lý và Dự án. Các thao tác chính: Lập hồ sơ.",
+      "note": "Thiết kế còn nêu các thông tin: Giấy phép bắt buộc, Đã cấp, Sắp hết hạn, Cổng bị chặn và Phụ trách. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "pmt-02",
+      "screens": [
+        "PMT-02"
+      ],
+      "heading": "Chi tiết giấy phép và mốc xử lý",
+      "text": "Chi tiết giấy phép và mốc xử lý. Đây là dòng thời gian, dành cho Chuyên viên pháp lý dự án và lãnh đạo phụ trách.",
+      "note": "Thiết kế còn nêu các thông tin: Giấy phép, Số, Cơ quan, Mốc xử lý, Hiệu lực và Bản quét. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "pmt-05",
+      "screens": [
+        "PMT-05"
+      ],
+      "heading": "Cảnh báo hết hạn giấy phép",
+      "text": "Cảnh báo hết hạn giấy phép. Đây là màn hình, dành cho Chuyên viên pháp lý dự án và lãnh đạo phụ trách. Trên màn hình có: Hết hạn trong vòng.",
+      "note": "Thiết kế còn nêu các thông tin: Giấy phép, Dự án, Còn lại, Mức cảnh báo và Phụ trách. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}

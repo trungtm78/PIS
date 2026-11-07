@@ -181,7 +181,7 @@ function MembersContent({ routeId, requirement }: { routeId: string; requirement
               {t('adm.members.filtered.empty')}
             </p>
           ) : (
-            <DataTable caption={t('w2adm.members.table.caption')} columns={columns} rows={shown} rowKey={(member) => member.id} />
+            <DataTable caption={t('w2adm.members.table.caption')} columns={columns} rows={shown} rowKey={(member) => member.id} rowAttrs={(member) => ({ 'data-member-id': member.id })} />
           )}
           <div className="adm-kit-foot">
             <span>{t('adm.members.count.text', { count: shown.length })}</span>

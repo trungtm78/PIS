@@ -1,0 +1,83 @@
+{
+  "id": "tour-doc-mau-the-thuc-luu-tru",
+  "group": "DOC",
+  "title": "Văn bản và báo cáo theo chuẩn nhà nước: Mẫu, thể thức & lưu trữ",
+  "audience": "Quản trị mẫu, pháp chế, chuyên viên soạn thảo và văn thư",
+  "outcome": "Biết mỗi màn hình của nhóm Mẫu, thể thức & lưu trữ dùng để làm gì, ai dùng, có những thông tin và thao tác nào.",
+  "persona": "owner",
+  "generated": true,
+  "steps": [
+    {
+      "id": "doc-14",
+      "screens": [
+        "DOC-14"
+      ],
+      "heading": "Thư viện mẫu văn bản",
+      "text": "Thư viện mẫu văn bản. Đây là bảng dữ liệu, dành cho Quản trị mẫu, pháp chế và chuyên viên soạn thảo. Lọc theo ngày hiệu lực. Mẫu của TT 44/2026 M02–M10 có watermark tới khi pháp chế ghi xác nhận. Trên màn hình có: Nhóm và Trạng thái xác nhận pháp lý. Các thao tác chính: Lọc. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Mã mẫu, Mã biểu mẫu, Căn cứ pháp lý, Hiệu lực từ–đến và Module sở hữu. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "doc-15",
+      "screens": [
+        "DOC-15"
+      ],
+      "heading": "Chi tiết và phiên bản mẫu",
+      "text": "Chi tiết và phiên bản mẫu. Đây là màn hình so sánh, dành cho Quản trị mẫu và pháp chế.",
+      "note": "Thiết kế còn nêu các thông tin: Revision, Khác biệt nội dung, Schema payload, Căn cứ pháp lý, Hiệu lực, Người soạn/Người duyệt và Xác nhận pháp lý. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "doc-16",
+      "screens": [
+        "DOC-16"
+      ],
+      "heading": "Thể thức và bố cục theo Phụ lục I NĐ 30/2020",
+      "text": "Thể thức và bố cục theo Phụ lục I NĐ 30/2020. Đây là màn hình, dành cho Quản trị mẫu và văn thư. Trên màn hình có: Khoảng cho phép theo Phụ lục I, Thành phần, Khoảng cho phép, Mã thể thức, Phiên bản và Hiệu lực. Lúc quay, màn hình đang có 18 dòng dữ liệu.",
+      "note": "Thiết kế còn nêu các thông tin: Khổ giấy, Lề trang, Vị trí chữ ký lãnh đạo, Vị trí con dấu, Trường số/ký hiệu/ngày và Phạm vi cho phép theo luật. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "doc-17",
+      "screens": [
+        "DOC-17"
+      ],
+      "heading": "Hồ sơ và lưu trữ",
+      "text": "Hồ sơ và lưu trữ. Đây là danh sách, dành cho Văn thư và lưu trữ. Trên màn hình có: Trạng thái. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Số và ký hiệu hồ sơ, Tiêu đề, Dự án/đối tượng, Thời hạn bảo quản, Hạn nộp lưu và Legal hold. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "doc-18",
+      "screens": [
+        "DOC-18"
+      ],
+      "heading": "Quy tắc bảo quản tài liệu",
+      "text": "Quy tắc bảo quản tài liệu. Đây là màn hình, dành cho Lưu trữ và pháp chế. Trên màn hình có: Bộ quy tắc, Nhóm hồ sơ, Thời hạn và Hiệu lực. Các thao tác chính: Lưu bản nháp. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Căn cứ bắt đầu tính, Thời hạn nộp lưu và Trạng thái xác nhận. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "doc-19",
+      "screens": [
+        "DOC-19"
+      ],
+      "heading": "Thu hồi, thay thế và đính chính",
+      "text": "Thu hồi, thay thế và đính chính. Đây là dòng thời gian, dành cho Văn thư, lãnh đạo và pháp chế. Trên màn hình có: Văn bản và hiệu lực. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Văn bản gốc, Loại xử lý, Căn cứ thu hồi, Văn bản thay thế/đính chính, Thông báo nơi nhận và Dòng thời gian hiệu lực. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "doc-20",
+      "screens": [
+        "DOC-20"
+      ],
+      "heading": "Liên thông văn bản qua LGSP",
+      "text": "Liên thông văn bản qua LGSP. Đây là danh sách, dành cho Quản trị tích hợp và văn thư. Các thao tác chính: Tải lại. Lúc quay, chưa có dữ liệu nào trong màn hình này.",
+      "note": "Thiết kế còn nêu các thông tin: Hướng gửi/nhận, Mã thông điệp ngoài, Cơ quan gửi/nhận, Trạng thái, Số lần thử, Mã lỗi và Trạng thái adapter. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    },
+    {
+      "id": "doc-21",
+      "screens": [
+        "DOC-21"
+      ],
+      "heading": "Cấu hình sổ cấp số và loại văn bản",
+      "text": "Cấu hình sổ cấp số và loại văn bản. Đây là biểu mẫu để nhập thông tin, dành cho Quản trị văn thư. Trên màn hình có: Loại văn bản, Mẫu ký hiệu, Sổ cấp số, Tổ chức cấp số, Chế độ sổ và Năm. Các thao tác chính: Khai báo loại văn bản và Mở sổ.",
+      "note": "Thiết kế còn nêu các thông tin: Khóa sổ. Màn hình ở bản hiện tại chưa hiện các mục này bằng đúng tên đó."
+    }
+  ]
+}
