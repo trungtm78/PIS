@@ -95,6 +95,70 @@ jobs:
         working-directory: Design/MACHVON_Design/work/tools
         run: npm audit --audit-level=high
 
+  # The two products of one code line (plan ENT-0): every part that reads the edition switch is built and tested as `public` and as `enterprise`.
+  # The public build must carry nothing of the enterprise edition (scripts/edition-check.mjs also scans the built web bundle); the enterprise build must
+  # carry it, so that the scan cannot pass blind. MACHVON_EDITION is the API and phone switch, VITE_EDITION the web one.
+  edition-matrix:
+    name: Edition ${{ matrix.edition }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        edition: [public, enterprise]
+    env:
+      MACHVON_EDITION: ${{ matrix.edition }}
+      VITE_EDITION: ${{ matrix.edition }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install product dependencies
+        run: npm ci
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.7
+          channel: stable
+          cache: true
+
+      - name: Edition check (sources, overlays, module registry)
+        run: npm run edition:check
+
+      - name: Edition mechanism of the kernel and the enterprise package
+        run: |
+          npx jest --rootDir packages/kernel --coverage=false --testPathPatterns "src/edition.test.ts"
+          npx jest --rootDir packages/edition-enterprise --coverage=false
+
+      - name: API, the registry mounts what the edition lists
+        working-directory: apps/api
+        run: node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --coverage=false --forceExit --testPathPatterns "test/editions|src/config/config.test"
+
+      - name: Web, the shell and the routes of the edition
+        working-directory: apps/web
+        run: npx vitest run src/editions src/main.test.tsx src/i18n src/routes/registry.test.tsx src/navigation
+
+      - name: Web build of the edition
+        working-directory: apps/web
+        run: npx vite build --outDir "$RUNNER_TEMP/web-${{ matrix.edition }}"
+
+      - name: The public build carries nothing of the enterprise edition
+        if: matrix.edition == 'public'
+        run: node scripts/edition-check.mjs --public-dist "$RUNNER_TEMP/web-public"
+
+      - name: The enterprise build carries the enterprise edition
+        if: matrix.edition == 'enterprise'
+        run: node scripts/edition-check.mjs --enterprise-dist "$RUNNER_TEMP/web-enterprise"
+
+      - name: Phone, the edition switch, the title and the terminology overlay
+        working-directory: apps/mobile
+        run: flutter test --dart-define=MACHVON_EDITION=${{ matrix.edition }} --dart-define=MACHVON_API_BASE_URL=https://api.test/v1 test/core/edition_test.dart test/editions test/app
+
   # Merge gate for money, migration, authorization and similar changes: stays red until a human
   # reviewer (not the PR author, not a bot) applies review:approved:<item> after the latest push for every item the changed paths require (ci/review-rules.json).
   # Pull requests only; the local pre-push run reports this stage as skipped.

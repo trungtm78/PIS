@@ -163,3 +163,50 @@ test('the api app importing the web app is reported', async () => {
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('the web may read the edition file of the kernel and no other file of it (ENT-0)', async () => {
+  const root = layout({
+    ...BASE,
+    'packages/kernel/src/edition.ts': 'export const EDITION = 1;\n',
+    'apps/web/src/ok.ts': "import '@machvon/kernel/src/edition.ts';\n",
+    'apps/web/src/bad.ts': "import '@machvon/kernel';\nimport '@machvon/kernel/src/index.ts';\n",
+  });
+  try {
+    assert.deepEqual((await architectureCheck(root)).sort(), ['apps/web/src/bad.ts -> @machvon/kernel', 'apps/web/src/bad.ts -> @machvon/kernel/src/index.ts']);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('the enterprise edition is imported only from its homes, the loaders and the tests named for it (ENT-0)', async () => {
+  const root = layout({
+    ...BASE,
+    'packages/edition-enterprise/src/index.ts': 'export const ENTERPRISE = 1;\n',
+    'apps/web/src/editions/enterprise/index.ts': "import '@machvon/edition-enterprise';\n",
+    'apps/web/src/editions/load.ts': "export const load = () => import('./enterprise/index');\n",
+    'apps/web/src/editions/overlay.enterprise.test.ts': "import './enterprise/index';\n",
+    'apps/api/src/editions/load-enterprise.ts': "import '@machvon/edition-enterprise';\n",
+    'apps/web/src/bad.ts': "import './editions/enterprise/index';\n",
+    'apps/api/src/bad.ts': "import '@machvon/edition-enterprise';\n",
+    'packages/db/src/bad.ts': "import '@machvon/edition-enterprise';\n",
+  });
+  try {
+    assert.deepEqual((await architectureCheck(root)).sort(), [
+      'apps/api/src/bad.ts -> @machvon/edition-enterprise',
+      'apps/web/src/bad.ts -> ./editions/enterprise/index',
+      'packages/db/src/bad.ts -> @machvon/edition-enterprise',
+    ]);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('the kernel does not import the enterprise package', async () => {
+  const root = layout({ ...BASE, 'packages/edition-enterprise/src/index.ts': 'export const ENTERPRISE = 1;\n', 'packages/kernel/src/bad.ts': "import '@machvon/edition-enterprise';\n" });
+  try {
+    // Two rules say no: the kernel imports nothing from the packages, and only the homes and the loaders name the enterprise edition.
+    assert.deepEqual(await architectureCheck(root), ['packages/kernel/src/bad.ts -> @machvon/edition-enterprise', 'packages/kernel/src/bad.ts -> @machvon/edition-enterprise']);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

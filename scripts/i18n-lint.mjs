@@ -87,9 +87,14 @@ function scanFile(file, text) {
 
   const visit = (node) => {
     if (isTranslateCall(node) && node.arguments.length > 0) {
-      const first = node.arguments[0];
-      if (isStringLike(first)) keys.push(first.text);
-      else if (ts.isTemplateExpression(first)) dynamic.push({ head: first.head.text, tail: first.templateSpans[first.templateSpans.length - 1].literal.text });
+      const lookups = (expression) => {
+        // t(cond ? 'a.b.c.d' : 'a.b.c.e'): both branches are keys the screen looks up.
+        if (isStringLike(expression)) keys.push(expression.text);
+        else if (ts.isTemplateExpression(expression)) dynamic.push({ head: expression.head.text, tail: expression.templateSpans[expression.templateSpans.length - 1].literal.text });
+        else if (ts.isConditionalExpression(expression)) [expression.whenTrue, expression.whenFalse].forEach(lookups);
+        else if (ts.isParenthesizedExpression(expression) || ts.isAsExpression(expression) || ts.isNonNullExpression(expression) || ts.isSatisfiesExpression(expression)) lookups(expression.expression);
+      };
+      lookups(node.arguments[0]);
     } else if (ts.isJsxText(node)) {
       if (HAS_LETTER.test(node.text)) literal(node.pos + (node.text.length - node.text.trimStart().length), 'text');
     } else if (ts.isJsxExpression(node) && node.expression && (ts.isJsxElement(node.parent) || ts.isJsxFragment(node.parent))) {
