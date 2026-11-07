@@ -1,0 +1,235 @@
+/* Governance rule screens (ADM-19 to ADM-23, lane A1): tokens only, no hex. */
+.gova1-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mv-space-16);
+  margin: var(--mv-space-8) 0;
+}
+.gova1-callout {
+  margin: var(--mv-space-8) 0;
+  padding: var(--mv-space-12) var(--mv-space-16);
+  border: 1px solid var(--mv-color-border);
+  border-radius: var(--mv-radius-control);
+  background: var(--mv-color-surface);
+}
+.gova1-callout--error {
+  border-color: var(--mv-color-danger);
+  background: var(--mv-color-danger-soft);
+  color: var(--mv-color-danger);
+}
+.gova1-callout--ok {
+  border-color: var(--mv-color-success);
+  background: var(--mv-color-success-soft);
+}
+.gova1-callout--warn {
+  border-color: var(--mv-color-warning);
+  background: var(--mv-color-warning-soft);
+}
+.gova1-callout p,
+.gova1-callout ul {
+  margin: 0;
+}
+.gova1-callout ul {
+  padding-left: var(--mv-space-24);
+}
+.gova1-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--mv-space-4) var(--mv-space-16);
+  margin: var(--mv-space-8) 0 0;
+}
+.gova1-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.gova1-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mv-space-8);
+  align-items: center;
+}
+.gova1-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mv-space-8);
+  align-items: center;
+}
+.gova1-block {
+  display: block;
+  font-size: 12px;
+  color: var(--mv-color-text-secondary);
+  max-width: 48ch;
+}
+.gova1-path {
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.gova1-value {
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.gova1-unit {
+  color: var(--mv-color-text-secondary);
+  font-size: 12px;
+}
+.gova1-mark {
+  font-size: 12px;
+  font-weight: 600;
+}
+.gova1-mark--same {
+  color: var(--mv-color-text-secondary);
+  font-weight: 400;
+}
+.gova1-mark--differs {
+  color: var(--mv-color-warning);
+}
+.gova1-split {
+  display: grid;
+  gap: var(--mv-space-16);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  align-items: start;
+}
+/* The history of versions: a list in the order they were written, newest first. */
+.gova1-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--mv-space-12);
+}
+.gova1-timeline > li {
+  display: grid;
+  gap: var(--mv-space-8);
+  padding: var(--mv-space-12) var(--mv-space-16);
+  border: 1px solid var(--mv-color-border);
+  border-left: 4px solid var(--mv-color-border);
+  border-radius: var(--mv-radius-control);
+  background: var(--mv-color-surface);
+}
+.gova1-timeline > li[data-phase='IN_FORCE'] {
+  border-left-color: var(--mv-color-success);
+}
+.gova1-timeline > li[data-phase='SCHEDULED'] {
+  border-left-color: var(--mv-color-warning);
+}
+.gova1-timeline > li[data-phase='SUBMITTED'] {
+  border-left-color: var(--mv-color-info);
+}
+.gova1-timeline h3 {
+  margin: 0;
+  font-size: 16px;
+}
+.gova1-timeline p {
+  margin: 0;
+}
+/* The generated form. */
+.gova1-form {
+  display: grid;
+  gap: var(--mv-space-12);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  align-items: start;
+}
+.gova1-field {
+  display: grid;
+  gap: var(--mv-space-4);
+  min-width: 0;
+}
+.gova1-field label {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mv-space-4) var(--mv-space-8);
+  align-items: center;
+  font-weight: 600;
+}
+.gova1-field--check label {
+  font-weight: 400;
+}
+.gova1-field input[type='text'],
+.gova1-field input[type='date'],
+.gova1-field input[type='time'],
+.gova1-field select,
+.gova1-field textarea {
+  min-height: 36px;
+  padding: var(--mv-space-4) var(--mv-space-8);
+  border: 1px solid var(--mv-color-border);
+  border-radius: var(--mv-radius-control);
+  background: var(--mv-color-surface);
+  color: var(--mv-color-ink);
+  font: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+.gova1-field [aria-invalid='true'] {
+  border-color: var(--mv-color-danger);
+}
+.gova1-field input:focus-visible,
+.gova1-field select:focus-visible,
+.gova1-field textarea:focus-visible {
+  outline: 2px solid var(--mv-color-focus);
+  outline-offset: 2px;
+}
+.gova1-optional,
+.gova1-hint {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--mv-color-text-secondary);
+}
+.gova1-error {
+  font-size: 12px;
+  color: var(--mv-color-danger);
+}
+.gova1-group {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--mv-space-12);
+  padding: var(--mv-space-12) var(--mv-space-16);
+  border: 1px solid var(--mv-color-border);
+  border-radius: var(--mv-radius-control);
+  min-width: 0;
+}
+.gova1-group legend {
+  font-weight: 600;
+  padding: 0 var(--mv-space-4);
+}
+.gova1-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mv-space-8);
+  align-items: end;
+}
+.gova1-item > .gova1-field,
+.gova1-item > .gova1-group {
+  flex: 1 1 240px;
+}
+.gova1-head {
+  display: grid;
+  gap: var(--mv-space-12);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  align-items: start;
+  margin: var(--mv-space-8) 0;
+}
+/* Comparison of two versions: the kind of change is a word and a glyph. */
+.gova1-change {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.gova1-change--added {
+  color: var(--mv-color-success);
+}
+.gova1-change--removed {
+  color: var(--mv-color-danger);
+}
+.gova1-change--changed {
+  color: var(--mv-color-warning);
+}
+.gova1-before {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+.gova1-wrap {
+  overflow-wrap: anywhere;
+  max-width: 48ch;
+}

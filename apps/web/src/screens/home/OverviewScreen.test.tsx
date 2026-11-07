@@ -13,7 +13,11 @@ const S40 = '00000000-0000-4000-8000-0000000000f2';
 const fill = (text: string, values: Record<string, string | number>): string => Object.entries(values).reduce((out, [key, value]) => out.replace(`{${key}}`, String(value)), text);
 const failure = (status: number, code: string) => new ApiError({ status, code, correlationId: 'c' });
 
-const tile = (code: string, overrides: Record<string, unknown> = {}) => ({
+/** The text the server writes for a figure (the register's decimals: a percent with two places, money whole). */
+const shownOf = (unit: unknown, value: unknown): string | null => (typeof value !== 'string' ? null : unit === 'PERCENT' ? Number(value).toFixed(2) : value);
+
+const tile = (code: string, overrides: Record<string, unknown> = {}) => {
+  const base = {
   metric_code: code,
   value: '21.4710',
   numerator: '214710000000',
@@ -24,7 +28,9 @@ const tile = (code: string, overrides: Record<string, unknown> = {}) => ({
   definition_status: 'SIGNED',
   context_token: `token-${code}.sig`,
   ...overrides,
-});
+  };
+  return { ...base, display_value: 'display_value' in overrides ? overrides.display_value : shownOf(base.unit, base.value) };
+};
 
 const center = (overrides: Record<string, unknown> = {}) => ({
   snapshot_id: S40,
@@ -223,13 +229,14 @@ describe('HOME-01 the leader home: work first, then the numbers (decision 2A)', 
   });
 
   describe('the command block', () => {
-    it('gives the amount disbursed in billions, the ring, and the two rates side by side with their denominators', async () => {
+    it('gives the amount disbursed as the text of the server, the ring, and the two rates side by side, each with its "i"', async () => {
       mount(<OverviewScreen route={OV} />, client(), { permissions: READER });
       const hero = await screen.findByRole('region', { name: fill(tr('home.ov.hero.label'), { year: '2026' }) });
-      expect(hero.textContent).toContain('214,71');
-      expect(hero.textContent).toContain(tr('home.ov.hero.unit'));
-      expect(hero.textContent).toContain(fill(tr('home.ov.hero.chip.value'), { percent: '21,47', numerator: '214,71', denominator: '1.000,00' }));
-      expect(hero.textContent).toContain(fill(tr('home.ov.hero.chip.value'), { percent: '17,18', numerator: '214,71', denominator: '1.250,00' }));
+      // The text is the server's `display_value`: nothing is re-formatted here.
+      expect(hero.textContent).toContain('214710000000');
+      expect(hero.textContent).toContain(tr('govc.home.unit.vnd'));
+      expect(hero.textContent).toContain(fill(tr('home.tile.value.percent'), { value: '21.47' }));
+      expect(hero.textContent).toContain(fill(tr('home.tile.value.percent'), { value: '17.18' }));
       expect(hero.textContent).toContain(tr('home.ov.hero.chip.pm'));
       expect(hero.textContent).toContain(tr('home.ov.hero.chip.total'));
       expect(within(hero).getByRole('img', { name: /21%/ })).toBeTruthy();
@@ -240,13 +247,14 @@ describe('HOME-01 the leader home: work first, then the numbers (decision 2A)', 
     it('shows an amount of 0 as 0, and a missing amount as missing with the reason, never as 0', async () => {
       mount(<OverviewScreen route={OV} />, client({ center: () => center({ tiles: [tile('DISBURSEMENT_RATE_PM', { value: '0.0000', numerator: '0' }), tile('DISBURSEMENT_RATE_TOTAL', { value: '0.0000', numerator: '0' }), tile('DISBURSED_TREASURY', { unit: 'VND', value: '0', numerator: null, denominator: null })] }) }), { permissions: READER });
       const hero = await screen.findByRole('region', { name: fill(tr('home.ov.hero.label'), { year: '2026' }) });
-      expect(hero.textContent).toContain('0,00');
+      expect(hero.textContent).toContain(fill(tr('home.tile.value.percent'), { value: '0.00' }));
       expect(hero.textContent).not.toContain(tr('home.ov.hero.noData'));
       cleanup();
       mount(<OverviewScreen route={OV} />, client({ center: () => center({ tiles: [tile('DISBURSEMENT_RATE_PM', { value: null, null_reason: 'NO_DATA', numerator: null }), tile('DISBURSEMENT_RATE_TOTAL', { value: null, null_reason: 'NO_DATA', numerator: null }), tile('DISBURSED_TREASURY', { unit: 'VND', value: null, null_reason: 'NO_DATA', numerator: null, denominator: null })] }) }), { permissions: READER });
       const missing = await screen.findByRole('region', { name: fill(tr('home.ov.hero.label'), { year: '2026' }) });
       expect(missing.textContent).toContain(tr('home.ov.hero.noData'));
-      expect(missing.textContent).not.toContain('0,00');
+      expect(missing.textContent).not.toContain('0.00');
+      expect(missing.textContent).not.toMatch(/\b0\b/);
       expect(missing.textContent).toContain(tr('home.tile.nullReason.noData'));
     });
 
@@ -270,8 +278,8 @@ describe('HOME-01 the leader home: work first, then the numbers (decision 2A)', 
     it('gives the plan, the early warnings with the overdue explanations, the reallocations awaiting a decision, and the coverage of the projects', async () => {
       mount(<OverviewScreen route={OV} />, client(), { permissions: READER });
       const kpis = await screen.findByTestId('home-kpis');
-      expect(kpis.textContent).toContain('1.250,00');
-      expect(kpis.textContent).toContain(fill(tr('home.ov.kpi.plan.sub'), { pm: '1.000,00' }));
+      expect(kpis.textContent).toContain('1250000000000');
+      expect(kpis.textContent).toContain(fill(tr('govc.home.kpi.plan.sub'), { pm: '1000000000000' }));
       expect(kpis.textContent).toContain(tr('home.ov.kpi.warnings.label'));
       expect(kpis.textContent).toContain(fill(tr('home.ov.kpi.warnings.sub'), { count: 1 }));
       expect(kpis.textContent).toContain(tr('home.ov.kpi.realloc.label'));

@@ -15,9 +15,13 @@ import type { DataTableColumn } from '../../ui';
 import '../dis/dis.css';
 import './home.css';
 import { homeRoot } from './hooks';
-import { FORMULA_REFERENCE, SNAPSHOT_SCREEN_PATH, shortId, toCommandCenter } from './model';
-import { describeDrill, refreshTargetOf, toDrill, tokenOfMetric } from './drill-model';
-import type { Drill, DrillChild, DrillDimension, Step } from './drill-model';
+import { FORMULA_REFERENCE, MY_WORK_PATH, SNAPSHOT_SCREEN_PATH, shortId, toCommandCenter } from './model';
+import { describeDrill, dimensionOf, orderOf, refreshTargetOf, toDrill, tokenOfMetric } from './drill-model';
+import type { Drill, DrillAlert, DrillChild, DrillDimension, DrillOrder, Step } from './drill-model';
+import { dayText, percentOf } from './overview-model';
+import { PROFILE_PATH, SEVERITIES } from './warning-model';
+import type { Severity } from './warning-model';
+import { explanationStatusLabel, severityLabel, warningStatusLabel } from './WarningsScreen';
 
 type T = Translator['t'];
 const COMMAND_CENTER_PATH = '/home/home-09';
@@ -87,10 +91,21 @@ function DrillContent({ route }: ScreenProps) {
   const { t } = useTranslation();
   const client = useApiClient();
   const { tenant } = useSession();
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const start = params.get('token') ?? '';
   const [trail, setTrail] = useState<Step[]>(() => (start === '' ? [] : [{ token: start, label: '' }]));
-  const [dimension, setDimension] = useState<DrillDimension | ''>('');
+  // The order and the division the reader chose live in the address: they are kept when the drill goes down a step and comes back, and a copied address opens the same reading.
+  const order = orderOf(params.get('order'));
+  const dimension = dimensionOf(params.get('dim'));
+  const setQuery = (changes: Record<string, string | null>): void => {
+    const next = new URLSearchParams(params);
+    for (const [key, value] of Object.entries(changes)) {
+      if (value === null || value === '') next.delete(key);
+      else next.set(key, value);
+    }
+    setParams(next, { replace: true });
+  };
+  const setDimension = (next: DrillDimension | ''): void => setQuery({ dim: next });
   const [refreshed, setRefreshed] = useState(false);
   // The drill went on from the tile of the unit because a token below it could not be renewed one by one: the page says so.
   const [restarted, setRestarted] = useState(false);
@@ -98,10 +113,11 @@ function DrillContent({ route }: ScreenProps) {
   const token = current?.token ?? '';
 
   const query = useInfiniteQuery<Drill, Error, { pages: Drill[] }, readonly unknown[], string | undefined>({
-    queryKey: [...homeRoot(tenant?.id), 'drill', tenant?.membershipId, token, dimension],
+    // The order is part of the key: the cursor of a page belongs to one order, so a change of order starts the reading again from its first page.
+    queryKey: [...homeRoot(tenant?.id), 'drill', tenant?.membershipId, token, dimension, order],
     initialPageParam: undefined,
     queryFn: async ({ pageParam }) => {
-      const drill = toDrill(await client.read('explainHomeMetric', { query: { context_token: token, limit: PAGE_SIZE, ...(dimension === '' ? {} : { child_dimension: dimension }), ...(pageParam === undefined ? {} : { cursor: pageParam }) } }));
+      const drill = toDrill(await client.read('explainHomeMetric', { query: { context_token: token, limit: PAGE_SIZE, ...(dimension === '' ? {} : { child_dimension: dimension }), ...(order === 'drag' ? { order } : {}), ...(pageParam === undefined ? {} : { cursor: pageParam }) } }));
       if (drill === undefined) throw new Error('the drill could not be read');
       return drill;
     },
@@ -171,11 +187,12 @@ function DrillContent({ route }: ScreenProps) {
   const state = useScreenState({ isLoading: query.isLoading || waiting || laterScopeMoved, error: ownProblem ? undefined : query.error, data: ownProblem ? undefined : first });
 
   const open = (child: DrillChild): void => {
-    setDimension('');
-    setTrail((steps) => [...steps, { token: child.contextToken, label: child.code === '' ? child.name : `${child.code} ${child.name}`.trim() }]);
+    // The step that is left remembers its division, and the next one starts with its own; the order goes down with the reader.
+    setQuery({ dim: null });
+    setTrail((steps) => [...steps.slice(0, -1), ...(steps.length === 0 ? [] : [{ ...steps[steps.length - 1], dimension } as Step]), { token: child.contextToken, label: child.code === '' ? child.name : `${child.code} ${child.name}`.trim() }]);
   };
   const goTo = (index: number): void => {
-    setDimension('');
+    setQuery({ dim: trail[index]?.dimension ?? null });
     setTrail((steps) => steps.slice(0, index + 1));
   };
 
@@ -205,6 +222,8 @@ function DrillContent({ route }: ScreenProps) {
               sources={sources}
               dimension={dimension === '' ? (first.dimension ?? '') : dimension}
               onDimension={(next) => setDimension(next)}
+              order={order}
+              onOrder={(next) => setQuery({ order: next === 'code' ? null : next })}
               onOpen={open}
               onStep={goTo}
               more={query.hasNextPage === true}
@@ -221,6 +240,61 @@ function DrillContent({ route }: ScreenProps) {
         </StateBoundary>
       )}
     </section>
+  );
+}
+
+/** What a part of the whole ratio pulls it by, in percentage points ("-10,00 điểm %"); null when the figure is not a ratio. */
+function dragText(t: T, locale: string, points: string | null): string {
+  const value = points === null ? null : percentOf(points, locale);
+  return value === null ? NONE : t('govc.home.drill.drag', { value });
+}
+
+/** "Chỉ tiêu → Đơn vị → Dự án/hồ sơ": where the reader is in the three steps of the drill. The step is the server's, and it is said in words as well as by the mark. */
+function StepTrail({ step, total }: { step: number; total: number }) {
+  const { t } = useTranslation();
+  const names = [t('govc.home.drill.step.metric'), t('govc.home.drill.step.unit'), t('govc.home.drill.step.record')];
+  return (
+    <nav aria-label={t('govc.home.drill.steps.aria', { step, total })} data-testid="drill-steps">
+      <ol className="home-steps">
+        {names.map((name, index) => (
+          <li key={name} data-step={index + 1} {...(index + 1 === step ? { 'aria-current': 'step' as const } : {})} className={index + 1 === step ? 'home-steps__current' : index + 1 < step ? 'home-steps__done' : undefined}>
+            <span className="home-steps__n" aria-hidden="true">
+              {index + 1}
+            </span>
+            {name}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+
+/** The alerts on the project or the cell (early warnings and explanations): ids and words only, each with the way to where it is handled. */
+function AlertsOfRecord({ alerts }: { alerts: readonly DrillAlert[] }) {
+  const { t } = useTranslation();
+  return (
+    <div data-testid="drill-alerts">
+      <SectionCard title={t('govc.home.drill.alerts.title')}>
+        {alerts.length === 0 ? (
+          <p role="status" data-testid="drill-alerts-none">
+            {t('govc.home.drill.alerts.none')}
+          </p>
+        ) : (
+          <ul className="home-lines">
+            {alerts.map((alert) => (
+              <li key={`${alert.kind}:${alert.id}`} data-alert={alert.kind}>
+                <strong>{alert.kind === 'EARLY_WARNING' ? t('govc.home.drill.alerts.warning') : t('govc.home.drill.alerts.explanation')}</strong>
+                {alert.severity !== null && (SEVERITIES as readonly string[]).includes(alert.severity) ? ` · ${severityLabel(t, alert.severity as Severity)}` : ''} ·{' '}
+                {alert.kind === 'EARLY_WARNING' ? warningStatusLabel(t, alert.status) : explanationStatusLabel(t, alert.status)} · {dayText(alert.at.slice(0, 10))}{' '}
+                <Link to={alert.kind === 'EARLY_WARNING' ? `${PROFILE_PATH}?${new URLSearchParams({ warning: alert.id }).toString()}` : MY_WORK_PATH}>
+                  {alert.kind === 'EARLY_WARNING' ? t('govc.home.drill.alerts.linkWarning') : t('govc.home.drill.alerts.linkExplanation')}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </SectionCard>
+    </div>
   );
 }
 
@@ -266,6 +340,8 @@ interface BodyProps {
   sources: Drill['sources'];
   dimension: DrillDimension | '';
   onDimension: (dimension: DrillDimension) => void;
+  order: DrillOrder;
+  onOrder: (order: DrillOrder) => void;
   onOpen: (child: DrillChild) => void;
   onStep: (index: number) => void;
   more: boolean;
@@ -277,8 +353,8 @@ interface BodyProps {
 
 const BUTTON = 'ui-button ui-button--outline';
 
-function DrillBody({ drill, trail, metric, rows, sources, dimension, onDimension, onOpen, onStep, more, loadingMore, onMore, onRefresh, restarted }: BodyProps) {
-  const { t } = useTranslation();
+function DrillBody({ drill, trail, metric, rows, sources, dimension, onDimension, order, onOrder, onOpen, onStep, more, loadingMore, onMore, onRefresh, restarted }: BodyProps) {
+  const { t, locale } = useTranslation();
   const place = drill.scope.projectCode !== null ? `${drill.scope.projectCode} ${drill.scope.projectName ?? ''}`.trim() : drill.scope.unitName;
   const hasSums = drill.numerator !== null && drill.denominator !== null;
   // Where there can be many children (a scope, a unit) the next page is more children; below, where the way goes on to the sources, it is more transactions.
@@ -293,6 +369,7 @@ function DrillBody({ drill, trail, metric, rows, sources, dimension, onDimension
       ? [
           { key: 'numerator', header: t('home.drill.fact.numerator'), align: 'right' as const, render: (child: DrillChild) => (child.numerator === null ? NONE : formatVnd(child.numerator)) },
           { key: 'denominator', header: t('home.drill.fact.denominator'), align: 'right' as const, render: (child: DrillChild) => (child.denominator === null ? NONE : formatVnd(child.denominator)) },
+          { key: 'drag', header: t('govc.home.drill.column.drag'), align: 'right' as const, render: (child: DrillChild) => <span data-testid={`child-drag-${child.id}`}>{dragText(t, locale, child.dragPoints)}</span> },
         ]
       : []),
     {
@@ -314,6 +391,7 @@ function DrillBody({ drill, trail, metric, rows, sources, dimension, onDimension
         ]}
         {...(money ? { unit: t('dis.wr.unit') } : {})}
       />
+      <StepTrail step={drill.step} total={drill.stepsTotal} />
       <nav aria-label={t('home.drill.breadcrumb')} className="home-trail" data-testid="drill-breadcrumb">
         <ol>
           {trail.map((step, index) => (
@@ -391,18 +469,30 @@ function DrillBody({ drill, trail, metric, rows, sources, dimension, onDimension
             title={t('home.drill.children.title')}
             {...(money ? { unit: t('dis.wr.unit') } : {})}
             actions={
-              drill.dimensions.length > 1 ? (
-                <label htmlFor="drill-dimension" className="home-inline-field">
-                  {t('home.drill.dimension.label')}{' '}
-                  <select id="drill-dimension" value={dimension} onChange={(event) => onDimension(event.target.value as DrillDimension)}>
-                    {drill.dimensions.map((option) => (
-                      <option key={option} value={option}>
-                        {dimensionLabel(t, option)}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              ) : undefined
+              <span className="home-badges">
+                {percentColumns ? (
+                  <span className="home-order" role="group" aria-label={t('govc.home.drill.order.label')} data-testid="drill-order">
+                    <button type="button" className={`${BUTTON} ui-button--small`} aria-pressed={order === 'code'} onClick={() => onOrder('code')}>
+                      {t('govc.home.drill.order.code')}
+                    </button>
+                    <button type="button" className={`${BUTTON} ui-button--small`} aria-pressed={order === 'drag'} onClick={() => onOrder('drag')}>
+                      {t('govc.home.drill.order.drag')}
+                    </button>
+                  </span>
+                ) : null}
+                {drill.dimensions.length > 1 ? (
+                  <label htmlFor="drill-dimension" className="home-inline-field">
+                    {t('home.drill.dimension.label')}{' '}
+                    <select id="drill-dimension" value={dimension} onChange={(event) => onDimension(event.target.value as DrillDimension)}>
+                      {drill.dimensions.map((option) => (
+                        <option key={option} value={option}>
+                          {dimensionLabel(t, option)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ) : null}
+              </span>
             }
           >
             <DataTable caption={t('home.drill.children.title')} columns={columns} rows={rows} rowKey={(child) => `${child.dimension}:${child.id}`} />
@@ -425,6 +515,7 @@ function DrillBody({ drill, trail, metric, rows, sources, dimension, onDimension
           </SectionCard>
         </div>
       )}
+      {drill.level === 'PROJECT' || drill.level === 'CELL' ? <AlertsOfRecord alerts={drill.alerts} /> : null}
       {sources.length === 0 ? null : (
         <div data-testid="drill-sources">
           <SectionCard title={t('home.drill.sources.title')}>

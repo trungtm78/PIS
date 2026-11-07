@@ -1,0 +1,65 @@
+/* The manager application (PWA-01 to PWA-04): one column, built for 360 px and a thumb; only the tokens of the design. */
+.pwa-screen { display: flex; flex-direction: column; gap: var(--mv-space-16); max-width: 720px; margin-inline: auto; width: 100%; }
+.pwa-screen .heading h1 { font-size: 22px; margin: 0; }
+.pwa-screen .heading p { margin: var(--mv-space-4) 0 0; color: var(--mv-color-text-secondary); }
+
+/* Every control a person taps is at least 44 px high and wide (WCAG 2.2 AA asks 24; the phone guideline is 44). */
+.pwa-touch { min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; gap: var(--mv-space-8); text-decoration: none; }
+.pwa-touch:focus-visible,
+.pwa-entry:focus-visible { outline: 3px solid var(--mv-color-focus); outline-offset: 2px; }
+
+.pwa-back { align-self: flex-start; color: var(--mv-color-primary); font-weight: 600; padding-inline: var(--mv-space-8); margin-inline: calc(var(--mv-space-8) * -1); }
+
+.pwa-entries { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--mv-space-12); }
+.pwa-entry { display: flex; flex-direction: column; align-items: flex-start; gap: var(--mv-space-4); padding: var(--mv-space-16); background: var(--mv-color-surface); border: 1px solid var(--mv-color-border); border-left: 4px solid var(--mv-color-primary); border-radius: var(--mv-radius-card); color: var(--mv-color-ink); text-decoration: none; }
+.pwa-entry:hover { background: var(--mv-color-primary-soft); }
+.pwa-entry-title { font-size: 17px; font-weight: 700; }
+.pwa-entry-body { color: var(--mv-color-text-secondary); font-size: 14px; }
+
+.pwa-card-panel { display: flex; flex-direction: column; align-items: flex-start; gap: var(--mv-space-8); }
+.pwa-card-panel h2 { margin: 0; font-size: 17px; }
+.pwa-card-panel p { margin: 0; }
+.pwa-steps { margin: 0; padding-left: var(--mv-space-24); display: grid; gap: var(--mv-space-4); }
+
+.pwa-filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--mv-space-12); }
+.pwa-filters .field { flex: 1 1 200px; min-width: 0; }
+.pwa-filters select { width: 100%; min-height: 44px; }
+.pwa-check { display: inline-flex; align-items: center; gap: var(--mv-space-8); min-height: 44px; }
+.pwa-check input { width: 24px; height: 24px; }
+
+.pwa-cards { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--mv-space-12); }
+.pwa-card { display: flex; flex-direction: column; gap: var(--mv-space-12); padding: var(--mv-space-16); background: var(--mv-color-surface); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-card); }
+/* A late task carries a stripe and says "Quá hạn" in its pill, so the colour is never the only cue. */
+.pwa-card[data-overdue='yes'] { box-shadow: inset 4px 0 0 var(--mv-color-danger); }
+.pwa-card-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--mv-space-8); }
+.pwa-card-head h2 { margin: 0; font-size: 16px; flex: 1 1 160px; min-width: 0; overflow-wrap: anywhere; }
+.pwa-pills { display: inline-flex; flex-wrap: wrap; gap: var(--mv-space-4); }
+.pwa-facts { margin: 0; display: grid; grid-template-columns: minmax(96px, max-content) 1fr; gap: var(--mv-space-4) var(--mv-space-12); font-size: 14px; }
+.pwa-facts dt { color: var(--mv-color-text-secondary); }
+.pwa-facts dd { margin: 0; overflow-wrap: anywhere; }
+.pwa-unit { color: var(--mv-color-text-secondary); font-size: 12px; }
+.pwa-actions { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); }
+.pwa-actions .ui-button { flex: 1 1 120px; }
+.pwa-progress { display: inline-flex; align-items: center; gap: var(--mv-space-8); }
+.pwa-progress progress { width: 120px; height: 10px; accent-color: var(--mv-color-primary); }
+.pwa-empty h2 { margin: 0; font-size: 17px; }
+.pwa-receipt { display: flex; flex-direction: column; align-items: flex-start; gap: var(--mv-space-8); }
+
+/* The sheet a decision is made in: at the bottom on a phone, where the thumb is. */
+.pwa-sheet-form { display: flex; flex-direction: column; gap: var(--mv-space-12); }
+@media (max-width: 480px) {
+  .pwa-sheet-backdrop { place-items: end center; padding: 0; }
+  .pwa-sheet { width: 100%; border-radius: var(--mv-radius-card) var(--mv-radius-card) 0 0; max-height: 92vh; padding-bottom: calc(var(--mv-space-24) + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* The banner of a new version. It sits above the content at the bottom and never covers the controls of a sheet (z-index below the dialog). */
+.pwa-update { position: fixed; inset-inline: var(--mv-space-16); bottom: calc(var(--mv-space-16) + env(safe-area-inset-bottom, 0px)); z-index: 90; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--mv-space-8); padding: var(--mv-space-12) var(--mv-space-16); background: var(--mv-color-sidebar); color: var(--mv-color-menu-text); border-radius: var(--mv-radius-card); box-shadow: 0 8px 32px var(--mv-color-border); }
+.pwa-update p { margin: 0; flex: 1 1 200px; }
+
+@media (prefers-reduced-motion: reduce) { .pwa-entry, .pwa-card { transition: none; } }
+
+/* The funnel card of the procurement progress (PRC-1, design spec section 8). */
+.prc1-funnel { list-style: none; margin: 0 0 var(--mv-space-12); padding: 0; display: flex; flex-direction: column; gap: var(--mv-space-8); }
+.prc1-funnel__row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8); min-height: 44px; padding: var(--mv-space-8) var(--mv-space-12); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); background: var(--mv-color-surface); }
+.prc1-funnel__name { flex: 1 1 140px; font-weight: 600; }
+.prc1-funnel__count { font-variant-numeric: tabular-nums; }

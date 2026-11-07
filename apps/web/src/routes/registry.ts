@@ -1,4 +1,5 @@
 import { lazy } from 'react';
+import { routeInEdition } from '../editions/edition';
 import { NotImplementedScreen } from './NotImplementedScreen';
 import { WEB_ROUTES } from './web-routes.ts';
 import { screenModules } from './screens/index';
@@ -7,14 +8,17 @@ import type { ScreenComponent, ScreenLoader, WebRoute } from './types.ts';
 const BY_ID: ReadonlyMap<string, WebRoute> = new Map(WEB_ROUTES.map((route) => [route.id, route]));
 const BY_PATH: ReadonlyMap<string, WebRoute> = new Map(WEB_ROUTES.map((route) => [route.path, route]));
 
+/** The route of an id; a screen the edition does not have is not found (ENT-0), as if it were not in the table. */
 export function routeById(id: string): WebRoute | undefined {
-  return BY_ID.get(id);
+  const route = BY_ID.get(id);
+  return route !== undefined && routeInEdition(route) ? route : undefined;
 }
 
 /** The route of a location path; the match ignores case and a trailing slash. */
 export function routeByPath(path: string): WebRoute | undefined {
   const trimmed = path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path;
-  return BY_PATH.get(trimmed.toLowerCase());
+  const route = BY_PATH.get(trimmed.toLowerCase());
+  return route !== undefined && routeInEdition(route) ? route : undefined;
 }
 
 const loaded = new Map<ScreenLoader, ScreenComponent>();

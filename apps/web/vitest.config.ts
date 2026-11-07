@@ -14,7 +14,8 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/**/*.{ts,tsx}'],
-      exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/vite-env.d.ts'],
+      // `src/pwa/sw.ts` is the entry of the service worker, bundled by vite.pwa.ts and run only in a browser worker; its logic (sw-core.ts) is covered.
+      exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/vite-env.d.ts', 'src/pwa/sw.ts'],
       reporter: ['text'],
       thresholds: { lines: 90 },
     },

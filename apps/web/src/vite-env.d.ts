@@ -13,4 +13,8 @@ interface ImportMetaEnv {
   readonly VITE_OIDC_CLIENT_ID?: string;
   /** Passed as login_hint: a development identity provider uses it to pick the user. */
   readonly VITE_OIDC_LOGIN_HINT?: string;
+  /** The public VAPID key of the application server (base64url): the web push button of the installed application is offered only when it is set (docs/pwa.md). */
+  readonly VITE_WEBPUSH_VAPID_PUBLIC_KEY?: string;
+  /** The product edition of this build: `public` (also when unset) or `enterprise`; any other value stops the start (see editions/load.ts). */
+  readonly VITE_EDITION?: string;
 }

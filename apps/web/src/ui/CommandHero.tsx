@@ -8,7 +8,8 @@ export interface CommandHeroProps {
   unit: string;
   caption?: ReactNode;
   ratio?: { percent: number | null; label: string };
-  chips?: { label: string; value: string }[];
+  /** `info` sits after the value of the chip (the "i" of the figure and its flags, G0-4). */
+  chips?: { label: string; value: string; info?: ReactNode }[];
   actions?: ReactNode;
   state?: UiState;
   onRetry?: () => void;
@@ -92,6 +93,7 @@ export function CommandHero({ label, value, unit, caption, ratio, chips, actions
               <li className="ui-hero__chip" key={chip.label}>
                 <span className="ui-hero__chip-label">{chip.label}</span>
                 <strong className="ui-hero__chip-value">{chip.value}</strong>
+                {chip.info !== undefined && <span className="ui-hero__chip-info">{chip.info}</span>}
               </li>
             ))}
           </ul>

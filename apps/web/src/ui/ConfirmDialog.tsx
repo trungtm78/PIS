@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import type { KeyboardEvent } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from '../i18n';
 
@@ -13,13 +13,18 @@ export interface ConfirmDialogProps {
   onConfirm: (reason?: string) => void;
   onCancel: () => void;
   pending?: boolean;
-  reason?: { label: string; required?: boolean };
+  /** `minLength` (of the trimmed text) keeps the button off until the reason is long enough; `hint` says how long. */
+  reason?: { label: string; required?: boolean; minLength?: number; hint?: string };
+  /** A refusal of the action, said inside the dialog (an alert) so that it is not behind the backdrop. */
+  error?: string;
+  /** Extra controls between the context and the reason (a day to choose, a note that explains a rule). */
+  children?: ReactNode;
 }
 
 const FOCUSABLE = 'button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
 
 /** A modal that names the record and the effect before a serious action; Escape cancels, Tab stays inside, a pending action locks it against a double send. */
-export function ConfirmDialog({ open, title, context, confirmLabel, cancelLabel, onConfirm, onCancel, pending = false, reason }: ConfirmDialogProps) {
+export function ConfirmDialog({ open, title, context, confirmLabel, cancelLabel, onConfirm, onCancel, pending = false, reason, error, children }: ConfirmDialogProps) {
   const { t } = useTranslation();
   const titleId = useId();
   const reasonId = useId();
@@ -38,7 +43,7 @@ export function ConfirmDialog({ open, title, context, confirmLabel, cancelLabel,
 
   if (!open) return null;
 
-  const missingReason = reason?.required === true && text.trim() === '';
+  const missingReason = (reason?.required === true && text.trim() === '') || (reason?.minLength !== undefined && text.trim().length < reason.minLength);
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
     if (event.key === 'Escape') {
       event.stopPropagation();
@@ -73,14 +78,25 @@ export function ConfirmDialog({ open, title, context, confirmLabel, cancelLabel,
             </div>
           ))}
         </dl>
+        {children !== undefined && <div className="ui-dialog__extra">{children}</div>}
         {reason !== undefined && (
           <div className="ui-dialog__reason">
             <label htmlFor={reasonId}>
               {reason.label}
               {reason.required === true && <span className="ui-dialog__required"> ({t('ui.confirmDialog.required')})</span>}
             </label>
-            <textarea id={reasonId} ref={reasonField} rows={3} value={text} required={reason.required === true} disabled={pending} onChange={(event) => setText(event.target.value)} />
+            <textarea id={reasonId} ref={reasonField} rows={3} value={text} required={reason.required === true} disabled={pending} aria-describedby={reason.hint === undefined ? undefined : `${reasonId}-hint`} onChange={(event) => setText(event.target.value)} />
+            {reason.hint !== undefined && (
+              <span className="ui-dialog__hint" id={`${reasonId}-hint`}>
+                {reason.hint}
+              </span>
+            )}
           </div>
+        )}
+        {error !== undefined && (
+          <p className="ui-dialog__error" role="alert">
+            {error}
+          </p>
         )}
         <div className="ui-dialog__actions">
           <button type="button" className="ui-button ui-button--outline" ref={cancelButton} disabled={pending} onClick={onCancel}>

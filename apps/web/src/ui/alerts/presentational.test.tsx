@@ -8,7 +8,7 @@ import { SeverityBadge } from './SeverityBadge';
 import { clock, clockAndDay, dayMonth, daysBetween, morningOf, nextDay, todayOf } from './format';
 import { toAlertCounts, toAlertItem, toCountsAnswer, toListAnswer } from './types';
 import type { AlertItem } from './types';
-import { rawItem } from './test-support';
+import { OTHER, rawItem } from './test-support';
 
 const item = (overrides: Record<string, unknown> = {}): AlertItem => {
   const parsed = toAlertItem(rawItem('a1', overrides));
@@ -81,25 +81,40 @@ describe('AlertActions', () => {
     expect(onClaim).toHaveBeenCalledTimes(1);
     expect(onAssign).toHaveBeenCalledTimes(1);
     await user.click(screen.getByRole('button', { name: 'Nhắc lại' }));
-    expect(screen.getByRole('button', { name: 'Nhắc lại' })).toHaveAttribute('aria-expanded', 'true');
-    await user.click(screen.getByRole('button', { name: '1 giờ nữa' }));
-    expect(onSnooze).toHaveBeenLastCalledWith({ kind: 'hour' });
-    await user.click(screen.getByRole('button', { name: 'Nhắc lại' }));
-    await user.click(screen.getByRole('button', { name: 'Sáng mai' }));
-    expect(onSnooze).toHaveBeenLastCalledWith({ kind: 'tomorrow' });
+    expect(onSnooze).toHaveBeenCalledTimes(1);
+    // The snooze opens a dialog owned by the caller: there is no menu of choices here any more.
+    expect(screen.queryByRole('button', { name: '1 giờ nữa' })).toBeNull();
   });
-  it('picks a day no later than the due day', async () => {
+  it('reads "Nhận lại" for an item that went silent after it was taken up, and offers it although it is claimed', async () => {
     const user = userEvent.setup();
-    const onSnooze = vi.fn();
-    render(<AlertActions item={item({ due_on: '2999-12-31' })} can={ALL} onClaim={vi.fn()} onAssign={vi.fn()} onSnooze={onSnooze} />);
-    await user.click(screen.getByRole('button', { name: 'Nhắc lại' }));
-    await user.click(screen.getByRole('button', { name: 'Chọn ngày' }));
-    const day = screen.getByLabelText('Nhắc lại vào ngày');
-    expect(day).toHaveAttribute('max', '2999-12-31');
-    expect(screen.getByRole('button', { name: 'Đặt nhắc' })).toBeDisabled();
-    await user.type(day, '2999-12-30');
-    await user.click(screen.getByRole('button', { name: 'Đặt nhắc' }));
-    expect(onSnooze).toHaveBeenCalledWith({ kind: 'date', day: '2999-12-30' });
+    const onClaim = vi.fn();
+    render(<AlertActions item={item({ lifecycle: 'CLAIMED', needs_reclaim: true })} can={ALL} onClaim={onClaim} onAssign={vi.fn()} onSnooze={vi.fn()} />);
+    expect(screen.queryByRole('button', { name: 'Nhận xử lý' })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Nhận lại' }));
+    expect(onClaim).toHaveBeenCalledTimes(1);
+  });
+  it('offers to pause the clock of an open item that has clocks, and to run it again when it is paused', async () => {
+    const user = userEvent.setup();
+    const onPause = vi.fn();
+    const onResume = vi.fn();
+    const clocks = { basis: 'WORKING_TIME', claim: null, resolve: { state: 'RUNNING', started_at: null, due_at: '2999-01-01T01:00:00Z', met_at: null }, paused: null, needs_reclaim: null };
+    const can = { ...ALL, pause: true };
+    const { rerender } = render(<AlertActions item={item({ clocks })} can={can} onClaim={vi.fn()} onAssign={vi.fn()} onSnooze={vi.fn()} onPause={onPause} onResume={onResume} />);
+    await user.click(screen.getByRole('button', { name: 'Tạm dừng đồng hồ' }));
+    expect(onPause).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('button', { name: 'Chạy lại đồng hồ' })).toBeNull();
+    const pause = { from: '2026-11-07T01:00:00Z', until: '2999-01-01T01:00:00Z', resumed_at: null, reason_code: 'OTHER', reason: 'Chờ phản hồi', allowed_by: { id: OTHER, name: 'Trần Bình' }, by: null };
+    rerender(<AlertActions item={item({ clocks: { ...clocks, paused: pause }, pause })} can={can} onClaim={vi.fn()} onAssign={vi.fn()} onSnooze={vi.fn()} onPause={onPause} onResume={onResume} />);
+    expect(screen.queryByRole('button', { name: 'Tạm dừng đồng hồ' })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Chạy lại đồng hồ' }));
+    expect(onResume).toHaveBeenCalledTimes(1);
+  });
+  it('has no pause for an item without clocks, or when the person may not pause', () => {
+    const clocks = { basis: 'WORKING_TIME', claim: null, resolve: { state: 'RUNNING', started_at: null, due_at: '2999-01-01T01:00:00Z', met_at: null }, paused: null, needs_reclaim: null };
+    const { rerender } = render(<AlertActions item={item()} can={{ ...ALL, pause: true }} onClaim={vi.fn()} onAssign={vi.fn()} onSnooze={vi.fn()} onPause={vi.fn()} onResume={vi.fn()} />);
+    expect(screen.queryByRole('button', { name: 'Tạm dừng đồng hồ' })).toBeNull();
+    rerender(<AlertActions item={item({ clocks })} can={ALL} onClaim={vi.fn()} onAssign={vi.fn()} onSnooze={vi.fn()} onPause={vi.fn()} onResume={vi.fn()} />);
+    expect(screen.queryByRole('button', { name: 'Tạm dừng đồng hồ' })).toBeNull();
   });
   it('has no snooze for an urgent item', () => {
     render(<AlertActions item={item({ severity: 'URGENT' })} can={ALL} onClaim={vi.fn()} onAssign={vi.fn()} onSnooze={vi.fn()} />);

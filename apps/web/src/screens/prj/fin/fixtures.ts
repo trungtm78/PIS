@@ -1,0 +1,57 @@
+import { FIN_DEFAULT_SCENARIOS } from '@machvon/kernel/src/fin-defaults.ts';
+import { buildReport } from '@machvon/kernel/src/fin-analysis.ts';
+
+/** An appraisal as the API answers it, with the report made by the real formula module (so the screens are tested against the structure the server sends). */
+export const OWNER = '00000000-0000-4000-8000-000000000001';
+export const report = buildReport({
+  model: { periodUnit: 'YEAR', discountRatePct: '10', convention: 'END', lines: [{ period: 0, capex: '1000' }, { period: 1, benefit: '300' }, { period: 2, benefit: '400' }, { period: 3, benefit: '500' }, { period: 4, benefit: '600' }] },
+  scenarios: [...FIN_DEFAULT_SCENARIOS],
+});
+
+export const raw = (over: Record<string, unknown> = {}): Record<string, unknown> => ({
+  id: '00000000-0000-4000-8000-0000000000a1',
+  code: 'FIN-2026-0001',
+  revision: 1,
+  supersedes_id: null,
+  title: 'Cải tạo chiếu sáng',
+  kind: 'FINANCIAL',
+  status: 'DRAFT',
+  version: 3,
+  owner_unit: { id: '00000000-0000-4000-8000-0000000000b1', code: 'BQL1', name: 'Ban QLDA 1' },
+  project: null,
+  package: null,
+  contract: null,
+  period_unit: 'YEAR',
+  discount_rate_pct: '10',
+  convention: 'END',
+  sensitivity: null,
+  criteria_category: null,
+  lines: [{ period: 0, benefit: '0', capex: '1000', opex: '0', maintenance: '0', residual: '0' }, { period: 1, benefit: '300', capex: '0', opex: '0', maintenance: '0', residual: '0' }],
+  assumptions: [{ key: 'CAPEX', value: 'Theo dự toán', unit: 'đồng', source_kind: 'DOCUMENT', source: 'Quyết định 1', owner_id: OWNER, owner_name: 'Nguyễn Văn A' }],
+  scenarios: [],
+  scores: [],
+  required_assumptions: ['HORIZON', 'DISCOUNT_RATE', 'BENEFIT', 'CAPEX'],
+  missing_assumptions: ['HORIZON', 'DISCOUNT_RATE', 'BENEFIT'],
+  results: { report: JSON.parse(JSON.stringify(report)) as unknown, criteria: null },
+  result_hash: 'a'.repeat(64),
+  formula_version: 'fin-analysis/1.0.0',
+  computed_at: '2026-11-08T03:00:00.000Z',
+  computed_by: OWNER,
+  results_fresh: true,
+  frozen: false,
+  criteria_used: null,
+  criteria_in_force: null,
+  created_by: { id: OWNER, name: 'Nguyễn Văn A' },
+  updated_by: { id: OWNER, name: 'Nguyễn Văn A' },
+  submitted_by: null,
+  approved_by: null,
+  created_at: '2026-11-08T02:00:00.000Z',
+  updated_at: '2026-11-08T02:30:00.000Z',
+  submitted_at: null,
+  approved_at: null,
+  decision_reason: null,
+  actions: { update_inputs: true, run: true, submit: true, approve: false, return: false, export: true, revise: false },
+  as_of: '2026-11-08T03:05:00.000Z',
+  ...over,
+});
+

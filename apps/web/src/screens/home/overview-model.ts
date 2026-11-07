@@ -40,10 +40,11 @@ export interface HeroModel {
 export function heroOf(center: CommandCenter): HeroModel {
   const disbursed = tileOf(center, 'DISBURSED_TREASURY');
   const pm = tileOf(center, 'DISBURSEMENT_RATE_PM');
-  const ring = pm?.value === null || pm === undefined ? null : Number(pm.value);
+  // The ring follows the text the screen shows for the rate (the server's display text), so the ring and the number cannot disagree.
+  const ring = pm?.displayValue === null || pm === undefined ? null : Number(pm.displayValue);
   return {
-    disbursedVnd: disbursed?.value ?? null,
-    disbursedMissing: disbursed === undefined || disbursed.value === null,
+    disbursedVnd: disbursed?.displayValue ?? null,
+    disbursedMissing: disbursed === undefined || disbursed.displayValue === null,
     ringPercent: ring !== null && Number.isFinite(ring) ? Math.max(0, Math.min(100, ring)) : null,
   };
 }

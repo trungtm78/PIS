@@ -107,6 +107,25 @@ describe('ConfirmDialog', () => {
     expect(p.onConfirm).toHaveBeenCalledWith('');
   });
 
+  it('keeps confirm off until the reason has its minimum length, and says how long it must be', async () => {
+    const p = props({ reason: { label: 'Lý do', required: true, minLength: 5, hint: 'Từ 5 đến 500 ký tự' } });
+    render(<ConfirmDialog {...p} />);
+    const field = screen.getByLabelText(/Lý do/);
+    expect(field).toHaveAccessibleDescription('Từ 5 đến 500 ký tự');
+    const confirm = screen.getByRole('button', { name: 'Duyệt' });
+    await userEvent.type(field, 'abc');
+    expect(confirm).toBeDisabled();
+    await userEvent.type(field, 'de');
+    expect(confirm).toBeEnabled();
+  });
+
+  it('says a refusal inside the dialog as an alert and shows extra controls between the context and the reason', () => {
+    render(<ConfirmDialog {...props({ error: 'Người duyệt phải khác người lập', children: <p>Chọn ngày</p> })} />);
+    const dialog = screen.getByRole('dialog');
+    expect(within(dialog).getByRole('alert')).toHaveTextContent('Người duyệt phải khác người lập');
+    expect(within(dialog).getByText('Chọn ngày')).toBeInTheDocument();
+  });
+
   it('has no serious accessibility violation', async () => {
     render(<ConfirmDialog {...props({ reason: { label: 'Lý do', required: true } })} />);
     expect(describeViolations(await seriousViolations(screen.getByRole('dialog')))).toEqual([]);

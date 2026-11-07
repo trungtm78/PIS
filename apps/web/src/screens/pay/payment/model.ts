@@ -513,6 +513,8 @@ export type Problem =
   | 'valueExceeded'
   | 'advanceExceeded'
   | 'allocationUnavailable'
+  | 'disbursementNotListed'
+  | 'disbursementNoPlan'
   | 'planYear'
   | 'nationalCode'
   | 'invoiceDuplicate'
@@ -549,6 +551,10 @@ export function describeProblem(error: unknown): Problem {
       return 'advanceExceeded';
     case 'ALLOCATION_UNAVAILABLE':
       return 'allocationUnavailable';
+    case 'DISBURSEMENT_PROJECT_NOT_LISTED':
+      return 'disbursementNotListed';
+    case 'DISBURSEMENT_NO_APPROVED_PLAN':
+      return 'disbursementNoPlan';
     case 'PLAN_YEAR_MISMATCH':
       return 'planYear';
     case 'NATIONAL_CODE_REQUIRED':

@@ -1,5 +1,6 @@
 import { useTranslation } from '../../i18n';
 import { kindLabel } from './dashboard-labels';
+import { MetricFigureInfo } from './FigureInfo';
 import type { WidgetKind } from './dashboard-model';
 import { formatFigure } from './query-model';
 import './bi.css';
@@ -103,7 +104,8 @@ export function ChartView({ kind, result }: { kind: Exclude<WidgetKind, 'TABLE'>
   if (kind === 'KPI') {
     return (
       <p>
-        <strong className="bi-kpi-value" data-testid="kpi-value">{formatFigure(result.total, result.aggregationType === 'ratio' ? 'percent' : result.unit, locale, words)}</strong>
+        <strong className="bi-kpi-value" data-testid="kpi-value">{formatFigure(result.total, result.aggregationType === 'ratio' ? 'percent' : result.unit, locale, words)}</strong>{' '}
+        <MetricFigureInfo metricId={result.metricId} metricCode={result.metricCode} period={result.asOfPeriod} />
       </p>
     );
   }

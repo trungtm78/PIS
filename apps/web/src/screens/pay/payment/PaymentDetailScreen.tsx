@@ -15,6 +15,7 @@ import { reversalLink } from '../reversal/model';
 import type { PaymentAnswer, PaymentRequest, WarningCode } from './model';
 import '../pay.css';
 import { SectionCard, StatusPill } from '../../../ui';
+import { IntegrityPanel } from '../integrity/IntegrityPanel';
 
 /**
  * PAY-03: a payment request and its documents (ST-PAY-002, PAY 3.1 step 2). The figures are the server's and read-only; a draft can be revised, given documents and cancelled by those who hold
@@ -223,6 +224,7 @@ function Detail({ request }: { request: PaymentRequest }) {
           </table>
         )}
       </SectionCard>
+      <IntegrityPanel requestId={request.id} />
       {dialog === 'revise' ? <ReviseDialog request={request} onDone={finished(t('pay.payment.done.revised'))} onClose={close} /> : null}
       {dialog === 'attach' ? <AttachDialog request={request} onDone={finished(t('pay.payment.done.attached'))} onClose={close} /> : null}
       {dialog === 'cancel' ? <CancelDialog request={request} onDone={finished(t('pay.payment.done.cancelled'))} onClose={close} /> : null}

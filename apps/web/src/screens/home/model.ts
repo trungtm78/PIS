@@ -27,17 +27,61 @@ export type QualityBadge = (typeof QUALITY_BADGES)[number];
 
 const oneOf = <T extends string>(value: unknown, allowed: readonly T[]): T | undefined => (typeof value === 'string' && (allowed as readonly string[]).includes(value) ? (value as T) : undefined);
 
-/** One figure of the command center, with what makes it citable: its numerator and denominator, its formula and its signed token. */
+/** The flags that sit on a figure, most important first (G0-4): each is said in words, never by colour alone. */
+export const FIGURE_FLAGS = ['NO_DATA', 'NOT_CERTIFIED', 'OBSOLETE', 'STALE', 'PARTIAL_COVERAGE', 'UNVERIFIED_DEFINITION'] as const;
+export type FigureFlag = (typeof FIGURE_FLAGS)[number];
+export const CERT_STATUSES = ['DRAFT', 'CONFIRMED', 'CERTIFIED', 'OBSOLETE'] as const;
+export type CertStatus = (typeof CERT_STATUSES)[number];
+/** A counted figure (the waiting counts) is a figure of the register too. */
+export type FigureUnit = TileUnit | 'COUNT';
+
+export interface FigureCertification {
+  status: CertStatus;
+  version: number;
+  origin: 'PLATFORM' | 'TENANT';
+  certifiedBy: string | null;
+  at: string | null;
+}
+
+/** The definition behind a figure, as the register gives it (camelCase as the server serializes it): what the "i" of the figure opens. */
+export interface KpiInfo {
+  code: string;
+  name: string;
+  formula: string;
+  numerator: string | null;
+  denominator: string | null;
+  exclusions: string[];
+  unit: string;
+  period: string;
+  source: string;
+  owner: string;
+  allowedLagDays: number;
+  version: number;
+  effectiveFrom: string | null;
+  effectiveTo: string | null;
+  origin: 'RULE' | 'DEFAULT';
+  unverified: boolean;
+  asOf: string;
+  snapshotId: string | null;
+}
+
+/** One figure of the command center, with what makes it citable: its numerator and denominator, its formula and its signed token. `displayValue` is THE text of the figure (the server writes it once for every channel). */
 export interface Tile {
   metricCode: string;
   value: string | null;
+  /** The text every channel writes for the figure; null when there is no figure (never shown as 0). */
+  displayValue: string | null;
   numerator: string | null;
   denominator: string | null;
   nullReason: string | null;
-  unit: TileUnit;
+  unit: FigureUnit;
   formula: string;
   definitionStatus: string;
+  /** Empty for a counted figure: it has no drill. */
   contextToken: string;
+  flags: FigureFlag[];
+  certification: FigureCertification | null;
+  kpi: KpiInfo | null;
 }
 
 export interface CommandCenter {
@@ -50,11 +94,55 @@ export interface CommandCenter {
   scope: { unitId: string | null; projects: number; hash: string };
   tiles: Tile[];
   projectsWithoutData: number;
+  /** The three waiting counts as figures of the register (each with its own "i"): always the three, in this order. */
+  countTiles: Tile[];
   openWarnings: number;
   overdueExplanations: number;
   pendingReallocations: number;
   qualityBadge: QualityBadge;
 }
+
+const stringList = (value: unknown): string[] => (Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === 'string') : []);
+
+function toCertification(raw: unknown): FigureCertification | null {
+  if (!isRecord(raw)) return null;
+  const status = oneOf(raw.status, CERT_STATUSES);
+  if (status === undefined) return null;
+  return { status, version: count(raw.version), origin: raw.origin === 'TENANT' ? 'TENANT' : 'PLATFORM', certifiedBy: nullableText(raw.certified_by), at: nullableText(raw.at) };
+}
+
+/** The definition behind a figure (camelCase inside, as the server serializes it); without a code and a formula there is nothing to open. */
+export function toKpiInfo(raw: unknown): KpiInfo | null {
+  if (!isRecord(raw) || text(raw.code) === '' || text(raw.formula) === '') return null;
+  return {
+    code: text(raw.code),
+    name: text(raw.name) === '' ? text(raw.code) : text(raw.name),
+    formula: text(raw.formula),
+    numerator: nullableText(raw.numerator),
+    denominator: nullableText(raw.denominator),
+    exclusions: stringList(raw.exclusions),
+    unit: text(raw.unit),
+    period: text(raw.period),
+    source: text(raw.source),
+    owner: text(raw.owner),
+    allowedLagDays: count(raw.allowedLagDays),
+    version: count(raw.version),
+    effectiveFrom: nullableText(raw.effectiveFrom),
+    effectiveTo: nullableText(raw.effectiveTo),
+    origin: raw.origin === 'DEFAULT' ? 'DEFAULT' : 'RULE',
+    unverified: raw.unverified === true,
+    asOf: text(raw.asOf),
+    snapshotId: nullableText(raw.snapshotId),
+  };
+}
+
+/** What a figure says beyond its value: the flags the server set (the ones it names, in its order), the certification and the definition. A server that does not send them (an older one) gives none. */
+function figureExtras(raw: Raw): Pick<Tile, 'flags' | 'certification' | 'kpi'> {
+  return { flags: stringList(raw.flags).flatMap((flag) => oneOf(flag, FIGURE_FLAGS) ?? []), certification: toCertification(raw.certification), kpi: toKpiInfo(raw.kpi) };
+}
+
+/** The text of a figure as the server wrote it. An answer that has no `display_value` at all (an older server) falls back to `value`; an explicit null stays null (it is never turned into 0). */
+const displayOf = (raw: Raw): string | null => ('display_value' in raw ? nullableText(raw.display_value) : nullableText(raw.value));
 
 function toTile(raw: unknown): Tile | undefined {
   if (!isRecord(raw)) return undefined;
@@ -65,6 +153,7 @@ function toTile(raw: unknown): Tile | undefined {
   return {
     metricCode,
     value: nullableText(raw.value),
+    displayValue: displayOf(raw),
     numerator: nullableText(raw.numerator),
     denominator: nullableText(raw.denominator),
     nullReason: nullableText(raw.null_reason),
@@ -72,7 +161,49 @@ function toTile(raw: unknown): Tile | undefined {
     formula: text(raw.formula),
     definitionStatus: text(raw.definition_status),
     contextToken: text(raw.context_token),
+    ...figureExtras(raw),
   };
+}
+
+/** The three counts that wait for someone, as figures. */
+export const COUNT_CODES = ['OPEN_WARNINGS', 'OVERDUE_EXPLANATIONS', 'PENDING_REALLOCATIONS'] as const;
+export type CountCode = (typeof COUNT_CODES)[number];
+
+function toCountTile(raw: unknown, code: CountCode, fallback: number): Tile {
+  if (isRecord(raw) && raw.metric_code === code) {
+    return {
+      metricCode: code,
+      value: nullableText(raw.value),
+      displayValue: displayOf(raw),
+      numerator: nullableText(raw.numerator),
+      denominator: nullableText(raw.denominator),
+      nullReason: nullableText(raw.null_reason),
+      unit: 'COUNT',
+      formula: text(raw.formula),
+      definitionStatus: text(raw.definition_status),
+      contextToken: '',
+      ...figureExtras(raw),
+    };
+  }
+  // The server did not send this count as a figure (an older answer): it is the number it counted, with no definition behind it.
+  return { metricCode: code, value: String(fallback), displayValue: String(fallback), numerator: String(fallback), denominator: null, nullReason: null, unit: 'COUNT', formula: '', definitionStatus: '', contextToken: '', flags: [], certification: null, kpi: null };
+}
+
+/** The text a figure is shown as: exactly the server's `display_value`. When there is none it is `none` (the words of the caller: why there is no figure), never "0" and never a text made from `value`. */
+export function figureText(tile: Pick<Tile, 'displayValue'>, none = '—'): string {
+  return tile.displayValue ?? none;
+}
+
+/** Why a figure has no text, as a code: the reason the server gave, else the strongest flag that says so, else no data. */
+export function figureReason(tile: Pick<Tile, 'nullReason' | 'flags'>): string {
+  if (tile.nullReason !== null) return tile.nullReason;
+  return tile.flags.find((flag) => flag === 'NO_DATA' || flag === 'NOT_CERTIFIED' || flag === 'OBSOLETE') ?? 'NO_DATA';
+}
+
+function countTilesOf(raw: Raw): Tile[] {
+  const given = Array.isArray(raw.count_tiles) ? raw.count_tiles : [];
+  const numbers: Record<CountCode, number> = { OPEN_WARNINGS: count(raw.open_warnings), OVERDUE_EXPLANATIONS: count(raw.overdue_explanations), PENDING_REALLOCATIONS: count(raw.pending_reallocations) };
+  return COUNT_CODES.map((code) => toCountTile(given.find((entry) => isRecord(entry) && entry.metric_code === code), code, numbers[code]));
 }
 
 /** The command center as the screen reads it, or undefined when the answer lacks what makes a figure citable: the snapshot, the day, the scope or the definition. */
@@ -92,6 +223,7 @@ export function toCommandCenter(raw: unknown): CommandCenter | undefined {
     scope: { unitId: nullableText(raw.scope.unit_id), projects: count(raw.scope.projects), hash: text(raw.scope.scope_hash) },
     tiles: (Array.isArray(raw.tiles) ? raw.tiles : []).flatMap((tile) => toTile(tile) ?? []),
     projectsWithoutData: count(raw.projects_without_data),
+    countTiles: countTilesOf(raw),
     openWarnings: count(raw.open_warnings),
     overdueExplanations: count(raw.overdue_explanations),
     pendingReallocations: count(raw.pending_reallocations),
@@ -120,6 +252,9 @@ export interface WaitingCounts {
 }
 
 export const waitingOf = (center: WaitingCounts): WaitingCounts => ({ openWarnings: center.openWarnings, overdueExplanations: center.overdueExplanations, pendingReallocations: center.pendingReallocations });
+
+/** The count figure of a code among the three of a reading. */
+export const countTileOf = (tiles: readonly Tile[], code: CountCode): Tile | undefined => tiles.find((tile) => tile.metricCode === code);
 
 /** The two rates, always together: either both tiles are there or neither is shown as a pair. */
 export function ratePair(center: Pick<CommandCenter, 'tiles'>): { pm: Tile; total: Tile } | undefined {

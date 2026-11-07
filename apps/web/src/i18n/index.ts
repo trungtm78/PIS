@@ -8,10 +8,14 @@ import vi from './vi.json';
  */
 const viParts = import.meta.glob<Record<string, string>>('./parts/*.vi.json', { eager: true, import: 'default' });
 const enParts = import.meta.glob<Record<string, string>>('./parts/*.en.json', { eager: true, import: 'default' });
-/** With no part to add the catalogue itself is used, so a test that adds the title of an event type to the imported catalogue is read by the translator too. */
+/**
+ * The keys of the parts that the catalogue does not hold yet are added to the catalogue object itself (a key of the catalogue is never replaced), so the translator and a test that adds
+ * the title of an event type to the imported catalogue read the same object whether or not a part is waiting to be folded.
+ */
 const withParts = (base: Record<string, string>, parts: Record<string, Record<string, string>>): Record<string, string> => {
-  const added = Object.values(parts).filter((part) => Object.keys(part).length > 0);
-  return added.length === 0 ? base : (Object.assign({}, ...added, base) as Record<string, string>);
+  const added = Object.assign({}, ...Object.values(parts)) as Record<string, string>;
+  for (const [key, text] of Object.entries(added)) if (!(key in base)) base[key] = text;
+  return base;
 };
 const viAll = withParts(vi, viParts);
 const enAll = withParts(en, enParts);
@@ -25,6 +29,8 @@ export type TranslationParams = Readonly<Record<string, string | number>>;
 export interface TranslatorOptions {
   locale: Locale;
   catalogues: Readonly<Record<Locale, Catalogue>>;
+  /** The terminology overlay of the product edition (ENT-0), read before the catalogue; it replaces words, it never adds a key. */
+  overlay?: Readonly<Record<Locale, Catalogue>>;
   /** Throw for a key no catalogue holds (tests); otherwise return the key itself. */
   strict?: boolean;
   /** Called when a lookup fell back to Vietnamese or found nothing. */
@@ -37,6 +43,8 @@ export interface Translator {
   has(key: string): boolean;
   setLocale(locale: Locale): void;
   getLocale(): Locale;
+  /** Installs (or, with undefined, removes) the terminology overlay of the edition and tells the listeners. */
+  setOverlay(overlay: Readonly<Record<Locale, Catalogue>> | undefined): void;
   subscribe(listener: () => void): () => void;
 }
 
@@ -50,12 +58,13 @@ function interpolate(template: string, params: TranslationParams | undefined): s
 
 export function createTranslator(options: TranslatorOptions): Translator {
   let locale = options.locale;
+  let overlay = options.overlay;
   const listeners = new Set<() => void>();
 
   const lookup = (key: string, params: TranslationParams | undefined): string => {
-    const own = options.catalogues[locale][key];
+    const own = overlay?.[locale][key] ?? options.catalogues[locale][key];
     if (own !== undefined) return interpolate(own, params);
-    const fallback = options.catalogues[DEFAULT_LOCALE][key];
+    const fallback = overlay?.[DEFAULT_LOCALE][key] ?? options.catalogues[DEFAULT_LOCALE][key];
     if (fallback !== undefined) {
       options.onMissing?.(key, locale);
       return interpolate(fallback, params);
@@ -69,6 +78,10 @@ export function createTranslator(options: TranslatorOptions): Translator {
     t: lookup,
     has: (key) => options.catalogues[locale][key] !== undefined || options.catalogues[DEFAULT_LOCALE][key] !== undefined,
     getLocale: () => locale,
+    setOverlay(next) {
+      overlay = next;
+      listeners.forEach((listener) => listener());
+    },
     setLocale(next) {
       if (next === locale) return;
       locale = next;

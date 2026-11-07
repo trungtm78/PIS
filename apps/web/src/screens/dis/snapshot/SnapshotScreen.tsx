@@ -29,6 +29,8 @@ const REOPEN_PATH = '/dis/dis-22';
 
 function problemMessage(t: T, problem: SnapshotProblem): string {
   switch (problem) {
+    case 'crossTotal':
+      return t('govd.cross.snapshot.problem');
     case 'frozen':
       return t('dis.snapshot.problem.frozen');
     case 'notBuilt':
@@ -364,6 +366,14 @@ function FreezeFlow({ snapshot, period, onClose }: { snapshot: SnapshotView; per
       {refusalText === undefined ? null : (
         <p className="w2dis-banner" role="alert" data-testid="freeze-refusal">
           {refusalText}
+          {refusal === 'crossTotal' ? (
+            <>
+              {' '}
+              <Link to={`/dis/dis-26?snapshot=${snapshot.id}`} data-testid="cross-total-link">
+                {t('govd.cross.snapshot.link')}
+              </Link>
+            </>
+          ) : null}
         </p>
       )}
       <ConfirmDialog

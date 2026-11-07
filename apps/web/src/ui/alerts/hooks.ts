@@ -7,8 +7,8 @@ import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
 import { toMember } from '../../screens/dgv/model';
 import type { MemberOption } from '../../screens/dgv/model';
-import { toCountsAnswer, toListAnswer } from './types';
-import type { AlertCountsAnswer, AlertItem, AlertListAnswer, AlertView, WorkSource } from './types';
+import { toCountsAnswer, toListAnswer, toPolicies, toSnoozedAnswer } from './types';
+import type { AlertCountsAnswer, AlertItem, AlertListAnswer, AlertView, Pause, SnoozedAnswer, WorkClockPolicies, WorkSource } from './types';
 
 /** The bell asks again once a minute (design.md: bell counts refresh every 60 s, on window focus and on a new notification). */
 export const COUNTS_REFRESH_MS = 60_000;
@@ -93,6 +93,43 @@ export function useAssignees(enabled: boolean) {
   });
 }
 
+/** The policies of the snooze and of the clocks last long: they change by a published version, not by the minute. */
+export const POLICIES_STALE_MS = 10 * 60_000;
+
+/**
+ * The reasons, the longest snooze of each level, the number of snoozes in a row and the longest pause, as the policy of the tenant publishes them. The dialogs read their lists and numbers from here and never carry their own.
+ * A failure is a failure of the dialog (it says so and offers to retry), never a silent fallback to numbers of the screen.
+ */
+export function useWorkClockPolicies(enabled = true) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQuery<WorkClockPolicies>({
+    queryKey: ['alerts-policies', tenant?.id],
+    queryFn: async () => {
+      const answer = toPolicies(await client.read('getWorkClockPolicies'));
+      if (answer === undefined) throw new Error('the snooze policy could not be read');
+      return answer;
+    },
+    enabled: tenant !== undefined && enabled,
+    staleTime: POLICIES_STALE_MS,
+    retry: false,
+  });
+}
+
+/** The work that is held by a snooze in the scope of the reader (HOME-12). A reader without a scope gets 403: `denied` says so. */
+export function useSnoozedWork(enabled = true) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  const query = useQuery<SnoozedAnswer>({
+    queryKey: [...alertsRoot(tenant?.id, tenant?.membershipId), 'snoozed'],
+    queryFn: async () => toSnoozedAnswer(await client.read('getSnoozedWork')),
+    enabled: tenant !== undefined && enabled,
+    staleTime: 0,
+    retry: false,
+  });
+  return Object.assign(query, { denied: isDenied(query.error) });
+}
+
 export interface WorkTarget {
   source: WorkSource;
   source_id: string;
@@ -110,6 +147,24 @@ export interface AssignInput {
 export interface SnoozeInput {
   item: AlertItem;
   until: string;
+  /** One of the reasons of the snooze policy (required by the server). */
+  reasonCode: string;
+  /** The note; required by the server when the reason is OTHER (at least 5 characters). */
+  note?: string;
+}
+
+export interface PauseInput {
+  item: AlertItem;
+  /** Another active member of a unit the person may read: the one who allowed the pause. */
+  allowedBy: MemberOption;
+  reasonCode: string;
+  reason: string;
+  until: string;
+}
+
+export interface ResumeInput {
+  item: AlertItem;
+  reason?: string;
 }
 
 function patchItems(queryClient: QueryClient, root: readonly unknown[], id: string, patch: (item: AlertItem) => AlertItem): void {
@@ -117,7 +172,7 @@ function patchItems(queryClient: QueryClient, root: readonly unknown[], id: stri
 }
 
 /**
- * The three commands of an item. Each user intention keeps one idempotency attempt across retries; a success writes the new lifecycle into the list at once and asks the counts and the list again, so the server stays the truth.
+ * The five commands of an item (claim, assign, snooze, pause the clock, resume it). Each user intention keeps one idempotency attempt across retries; a success writes the new lifecycle into the list at once and asks the counts and the list again, so the server stays the truth.
  */
 export function useAlertAction() {
   const client = useApiClient();
@@ -127,6 +182,8 @@ export function useAlertAction() {
   const claimAttempts = useRef(new AttemptRegistry());
   const assignAttempts = useRef(new AttemptRegistry());
   const snoozeAttempts = useRef(new AttemptRegistry());
+  const pauseAttempts = useRef(new AttemptRegistry());
+  const resumeAttempts = useRef(new AttemptRegistry());
   const me = { id: tenant?.membershipId ?? '', name: user?.displayName ?? '' };
 
   const refresh = useCallback(async () => {
@@ -159,16 +216,49 @@ export function useAlertAction() {
   });
   const snooze = useMutation({
     mutationFn: (input: SnoozeInput) => {
-      const body = { ...targetOf(input.item), snooze_until: input.until };
+      const note = input.note?.trim() ?? '';
+      const body = { ...targetOf(input.item), snooze_until: input.until, reason_code: input.reasonCode, ...(note === '' ? {} : { reason: note }) };
       return client.command('snoozeWork', { body, attempt: snoozeAttempts.current.forPayload(body) });
     },
     onSuccess: async (_answer, input) => {
       snoozeAttempts.current.done();
-      patchItems(queryClient, root, input.item.id, (current) => ({ ...current, snoozed_until: input.until }));
+      const note = input.note?.trim() ?? '';
+      patchItems(queryClient, root, input.item.id, (current) => ({
+        ...current,
+        snoozed_until: input.until,
+        snooze_count: current.snooze_count + 1,
+        snooze: { id: '', by: me, until: input.until, at: new Date().toISOString(), reason_code: input.reasonCode, note: note === '' ? null : note, ordinal: current.snooze_count + 1, of: current.snooze?.of ?? null, final: false, policy_version: current.snooze?.policy_version ?? null },
+      }));
       await refresh();
     },
     onError: (error) => snoozeAttempts.current.ended(error),
   });
+  const pause = useMutation({
+    mutationFn: (input: PauseInput) => {
+      const body = { ...targetOf(input.item), reason_code: input.reasonCode, reason: input.reason.trim(), allowed_by_id: input.allowedBy.id, paused_until: input.until };
+      return client.command('pauseWorkClock', { body, attempt: pauseAttempts.current.forPayload(body) });
+    },
+    onSuccess: async (_answer, input) => {
+      pauseAttempts.current.done();
+      const made: Pause = { from: new Date().toISOString(), until: input.until, resumed_at: null, reason_code: input.reasonCode, reason: input.reason.trim(), allowed_by: input.allowedBy, by: me };
+      patchItems(queryClient, root, input.item.id, (current) => ({ ...current, pause: made, pauses: [...current.pauses, made], clocks: current.clocks === null ? null : { ...current.clocks, paused: made } }));
+      await refresh();
+    },
+    onError: (error) => pauseAttempts.current.ended(error),
+  });
+  const resume = useMutation({
+    mutationFn: (input: ResumeInput) => {
+      const note = input.reason?.trim() ?? '';
+      const body = { ...targetOf(input.item), ...(note === '' ? {} : { reason: note }) };
+      return client.command('resumeWorkClock', { body, attempt: resumeAttempts.current.forPayload(body) });
+    },
+    onSuccess: async (_answer, input) => {
+      resumeAttempts.current.done();
+      patchItems(queryClient, root, input.item.id, (current) => ({ ...current, pause: null, clocks: current.clocks === null ? null : { ...current.clocks, paused: null } }));
+      await refresh();
+    },
+    onError: (error) => resumeAttempts.current.ended(error),
+  });
 
-  return { claim, assign, snooze, me };
+  return { claim, assign, snooze, pause, resume, me };
 }

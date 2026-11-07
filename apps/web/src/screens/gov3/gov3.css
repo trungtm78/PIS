@@ -1,0 +1,50 @@
+/* Lane B1 screens (PRJ-26, PRJ-27, PAY-19): tokens only, no hex. */
+.gov3-form {
+  display: grid;
+  gap: var(--mv-space-12);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  align-items: end;
+  margin: var(--mv-space-8) 0;
+}
+.gov3-form label {
+  display: grid;
+  gap: var(--mv-space-4);
+}
+.gov3-links {
+  display: flex;
+  gap: var(--mv-space-16);
+  flex-wrap: wrap;
+  margin: var(--mv-space-8) 0;
+}
+.gov3-actions {
+  display: inline-flex;
+  gap: var(--mv-space-8);
+  flex-wrap: wrap;
+}
+.gov3-reasons {
+  display: grid;
+  gap: var(--mv-space-8);
+  margin: var(--mv-space-8) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.gov3-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--mv-space-4) var(--mv-space-16);
+  margin: var(--mv-space-8) 0 0;
+}
+.gov3-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.gov3-error {
+  border-color: var(--mv-color-danger);
+  color: var(--mv-color-danger);
+}
+.gov3-verdict {
+  display: flex;
+  align-items: center;
+  gap: var(--mv-space-12);
+  flex-wrap: wrap;
+}

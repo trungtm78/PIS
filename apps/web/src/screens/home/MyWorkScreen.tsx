@@ -1,14 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { AlertActions } from '../../ui/alerts/AlertActions';
-import type { SnoozeChoice } from '../../ui/alerts/AlertActions';
 import { AlertRow, sourceLabel } from '../../ui/alerts/AlertRow';
-import { clock, clockAndDay, dayMonth, morningOf, nextDay, severitySuffix, todayOf } from '../../ui/alerts/format';
+import { clock, clockAndDay, dayMonth, severitySuffix, todayOf } from '../../ui/alerts/format';
 import { useAlertAction, useAlertCounts, useAssignees } from '../../ui/alerts/hooks';
+import { PauseDialog } from '../../ui/alerts/PauseDialog';
+import type { PauseSubmit } from '../../ui/alerts/PauseDialog';
+import { refusalText } from '../../ui/alerts/refusals';
 import { SeverityIcon } from '../../ui/alerts/SeverityBadge';
+import { SnoozeDialog } from '../../ui/alerts/SnoozeDialog';
+import type { SnoozeSubmit } from '../../ui/alerts/SnoozeDialog';
 import { SEVERITIES } from '../../ui/alerts/types';
 import type { AlertItem, AlertView, Severity } from '../../ui/alerts/types';
 import '../dis/dis.css';
@@ -16,14 +21,6 @@ import './home.css';
 import { ofSeverity, useAlertSource } from './alert-source';
 
 type Filter = Severity | 'ALL';
-const HOUR_MS = 3_600_000;
-
-/** The moment an item comes back for a choice of the person. */
-function snoozeUntil(choice: SnoozeChoice, now: Date): string {
-  if (choice.kind === 'hour') return new Date(now.getTime() + HOUR_MS).toISOString();
-  if (choice.kind === 'tomorrow') return morningOf(nextDay(todayOf(now)));
-  return morningOf(choice.day);
-}
 
 /**
  * HOME-02: my work (ST-HOME-004). The full queue of the same source as the bell and the band of HOME-01: one list of what needs action, "mine" or "in my scope", by severity, each with its deadline, escalation and
@@ -45,6 +42,8 @@ function MyWorkContent({ route }: ScreenProps) {
   const [view, setView] = useState<AlertView>('mine');
   const [filter, setFilter] = useState<Filter>('ALL');
   const [assigning, setAssigning] = useState<AlertItem | undefined>(undefined);
+  const [snoozing, setSnoozing] = useState<AlertItem | undefined>(undefined);
+  const [pausing, setPausing] = useState<AlertItem | undefined>(undefined);
   const [receipt, setReceipt] = useState<Receipt | undefined>(undefined);
   // Whether the role reads the scope is asked once; a refusal is said, not hidden.
   const probe = useAlertCounts('scope', { refreshMs: false });
@@ -52,10 +51,10 @@ function MyWorkContent({ route }: ScreenProps) {
   const scopeKnown = probe.isSuccess || (probe.isError && !scopeDenied);
   const active: AlertView = view === 'scope' && !scopeKnown ? 'mine' : view;
   const source = useAlertSource(active);
-  const { claim, assign, snooze, me } = useAlertAction();
+  const { claim, assign, snooze, pause, resume, me } = useAlertAction();
   const today = todayOf();
   const shown = useMemo(() => ofSeverity(source.items, filter), [source.items, filter]);
-  const busyId = claim.isPending ? claim.variables?.id : assign.isPending ? assign.variables?.item.id : snooze.isPending ? snooze.variables?.item.id : undefined;
+  const busyId = claim.isPending ? claim.variables?.id : assign.isPending ? assign.variables?.item.id : snooze.isPending ? snooze.variables?.item.id : pause.isPending ? pause.variables?.item.id : resume.isPending ? resume.variables?.item.id : undefined;
   const sourcesText = source.unavailable.map((entry) => sourceLabel(t, entry)).join(', ');
   const countOf = (severity: Severity): number => (severity === 'URGENT' ? source.counts.urgent : severity === 'ACTION' ? source.counts.action : source.counts.watch);
 
@@ -64,9 +63,38 @@ function MyWorkContent({ route }: ScreenProps) {
   const claimItem = (item: AlertItem): void => {
     claim.mutate(item, { onSuccess: () => done(t('alerts.receipt.claimed', { name: me.name, time: clock(new Date()) })), onError: failed });
   };
-  const snoozeItem = (item: AlertItem, choice: SnoozeChoice): void => {
-    const until = snoozeUntil(choice, new Date());
-    snooze.mutate({ item, until }, { onSuccess: () => done(t('alerts.receipt.snoozed', { time: clockAndDay(until) })), onError: failed });
+  const openSnooze = (item: AlertItem): void => {
+    snooze.reset();
+    setSnoozing(item);
+  };
+  const openPause = (item: AlertItem): void => {
+    pause.reset();
+    setPausing(item);
+  };
+  const snoozeItem = (item: AlertItem, value: SnoozeSubmit): void => {
+    snooze.mutate(
+      { item, until: value.until, reasonCode: value.reasonCode, note: value.note },
+      {
+        onSuccess: () => {
+          setSnoozing(undefined);
+          done(t('alerts.receipt.snoozed', { time: clockAndDay(value.until) }));
+        },
+      },
+    );
+  };
+  const pauseItem = (item: AlertItem, value: PauseSubmit): void => {
+    pause.mutate(
+      { item, allowedBy: value.allowedBy, reasonCode: value.reasonCode, reason: value.reason, until: value.until },
+      {
+        onSuccess: () => {
+          setPausing(undefined);
+          done(t('alerts.receipt.paused', { time: clockAndDay(value.until) }));
+        },
+      },
+    );
+  };
+  const resumeItem = (item: AlertItem): void => {
+    resume.mutate({ item }, { onSuccess: () => done(t('alerts.receipt.resumed')), onError: (failure) => setReceipt({ tone: 'danger', text: refusalText(t, 'resume', failure) ?? t('alerts.receipt.failed') }) });
   };
   const assignItem = (item: AlertItem, assignee: { id: string; name: string }, dueOn: string): void => {
     assign.mutate(
@@ -106,6 +134,13 @@ function MyWorkContent({ route }: ScreenProps) {
           </button>
         ))}
       </div>
+      {scopeKnown ? (
+        <p className="home-queue-note" data-testid="snoozed-link">
+          <Link to="/home/home-12" className="mv-alert-link">
+            {t('home.queue.snoozedLink')}
+          </Link>
+        </p>
+      ) : null}
       {scopeDenied ? (
         <p className="home-queue-note" role="status" data-testid="scope-denied">
           {t('home.queue.scopeDenied')}
@@ -173,7 +208,7 @@ function MyWorkContent({ route }: ScreenProps) {
               item={item}
               today={today}
               detailed
-              actions={<AlertActions item={item} can={{ claim: true, assign: true, snooze: true }} busy={busyId === item.id} onClaim={() => claimItem(item)} onAssign={() => setAssigning(item)} onSnooze={(choice) => snoozeItem(item, choice)} />}
+              actions={<AlertActions item={item} can={{ claim: true, assign: true, snooze: true, pause: true }} busy={busyId === item.id} onClaim={() => claimItem(item)} onAssign={() => setAssigning(item)} onSnooze={() => openSnooze(item)} onPause={() => openPause(item)} onResume={() => resumeItem(item)} />}
             />
           ))}
         </ul>
@@ -181,6 +216,16 @@ function MyWorkContent({ route }: ScreenProps) {
       {assigning === undefined ? null : (
         <div className="mv-alert-dialog-layer">
           <AssignDialog item={assigning} pending={assign.isPending} refused={assign.isError} onCancel={() => setAssigning(undefined)} onSubmit={(assignee, dueOn) => assignItem(assigning, assignee, dueOn)} />
+        </div>
+      )}
+      {snoozing === undefined ? null : (
+        <div className="mv-alert-dialog-layer">
+          <SnoozeDialog item={snoozing} pending={snooze.isPending} error={snooze.error} onCancel={() => setSnoozing(undefined)} onSubmit={(value) => snoozeItem(snoozing, value)} />
+        </div>
+      )}
+      {pausing === undefined ? null : (
+        <div className="mv-alert-dialog-layer">
+          <PauseDialog item={pausing} pending={pause.isPending} error={pause.error} onCancel={() => setPausing(undefined)} onSubmit={(value) => pauseItem(pausing, value)} />
         </div>
       )}
     </section>

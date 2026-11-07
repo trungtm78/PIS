@@ -3,6 +3,7 @@ import { cleanup, configure, screen, waitFor, within } from '@testing-library/re
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { t as tr } from '../../i18n';
+import { policiesAnswer } from '../../ui/alerts/test-support';
 import { harness, mount, routeOf } from '../mne/test-support';
 import MyWorkScreen from './MyWorkScreen';
 import { pathOf, toWorkPage } from './work-model';
@@ -195,5 +196,53 @@ describe('the work as the screen reads it', () => {
 
   it('opens a task in the screen of its module, and says there is none where the module has no screen to open it from', () => {
     expect([pathOf({ target: { screen: 'PRJ-19', id: 'x' } }), pathOf({ target: { screen: 'DIS-03', id: 'x' } }), pathOf({ target: { screen: 'MNE-03', id: 'x' } }), pathOf({ target: { screen: 'ADM-06', id: 'x' } })]).toEqual(['/prj/prj-19', '/dis/dis-03?report=x', '/mne/mne-03?report=x', undefined]);
+  });
+});
+
+describe('HOME-02 my work: the snooze dialog, the clocks and the way to the work on hold (lane A2)', () => {
+  const withPolicy = (views: Parameters<typeof backend>[0]) => {
+    const inner = backend(views);
+    return (operation: string, input: unknown): unknown => (operation === 'getWorkClockPolicies' ? policiesAnswer() : inner(operation, input));
+  };
+  const clocks = { basis: 'WORKING_TIME', claim: null, resolve: { state: 'RUNNING', started_at: '2026-11-06T02:00:00Z', due_at: '2999-12-31T02:00:00Z', met_at: null }, paused: null, needs_reclaim: null };
+
+  it('snoozes through a dialog that asks for the reason, and sends the reason code with the moment', async () => {
+    const user = userEvent.setup();
+    const h = harness(withPolicy({ mine: { items: [item(E1, 'ACTION')] } }), () => ({}));
+    mount(<MyWorkScreen route={ROUTE} />, h, { permissions: READER });
+    await waitFor(() => expect(rows()).toHaveLength(1));
+    await user.click(within(rows()[0] as HTMLElement).getByRole('button', { name: tr('alerts.action.snooze') }));
+    const dialog = within(await screen.findByRole('dialog', { name: tr('alerts.snooze.title') }));
+    await waitFor(() => expect(dialog.getByLabelText(tr('alerts.snooze.reason'))).toBeEnabled());
+    await user.selectOptions(dialog.getByLabelText(tr('alerts.snooze.reason')), tr('alerts.snooze.reason.waitingThirdParty'));
+    await user.click(dialog.getByRole('button', { name: tr('alerts.snooze.tomorrow') }));
+    await user.click(dialog.getByRole('button', { name: tr('alerts.snooze.confirm') }));
+    await waitFor(() => expect(h.command).toHaveBeenCalled());
+    expect(h.command.mock.calls[0]?.[0]).toBe('snoozeWork');
+    expect((h.command.mock.calls[0]?.[1] as { body: Record<string, unknown> }).body).toMatchObject({ source: 'PERMIT', source_id: E1, reason_code: 'WAITING_THIRD_PARTY' });
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: tr('alerts.snooze.title') })).toBeNull());
+    await waitFor(() => expect(screen.getByTestId('queue-receipt').textContent).toContain(fill(tr('alerts.receipt.snoozed'), { time: '' }).trim()));
+  });
+
+  it('reads "Nhận lại" on the claim button of an item that went silent, shows its clocks and offers to pause them', async () => {
+    const items = [item(E1, 'ACTION', { source: 'CLOCK', due_on: null, lifecycle: 'CLAIMED', needs_reclaim: true, clocks })];
+    mount(<MyWorkScreen route={ROUTE} />, harness(withPolicy({ mine: { items } })), { permissions: READER });
+    await waitFor(() => expect(rows()).toHaveLength(1));
+    const row = rows()[0] as HTMLElement;
+    expect(within(row).getByRole('button', { name: tr('alerts.action.reclaim') })).toBeTruthy();
+    expect(within(row).queryByRole('button', { name: tr('alerts.action.claim') })).toBeNull();
+    expect(within(row).getByText(tr('alerts.clock.resolve'))).toBeTruthy();
+    expect(within(row).getByText(tr('alerts.chip.reclaim'))).toBeTruthy();
+    expect(within(row).getByRole('button', { name: tr('alerts.action.pause') })).toBeTruthy();
+  });
+
+  it('links to the work on hold only for a reader that has a scope', async () => {
+    const { unmount } = mount(<MyWorkScreen route={ROUTE} />, harness(withPolicy({ mine: { items: [item(E1, 'WATCH')] }, scope: { items: [] } })), { permissions: READER });
+    const link = await screen.findByRole('link', { name: tr('home.queue.snoozedLink') });
+    expect(link.getAttribute('href')).toBe('/home/home-12');
+    unmount();
+    mount(<MyWorkScreen route={ROUTE} />, harness(withPolicy({ mine: { items: [item(E1, 'WATCH')] } })), { permissions: READER });
+    await screen.findByTestId('scope-denied');
+    expect(screen.queryByRole('link', { name: tr('home.queue.snoozedLink') })).toBeNull();
   });
 });

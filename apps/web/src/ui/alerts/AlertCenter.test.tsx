@@ -327,25 +327,60 @@ describe('AlertCenter: actions', () => {
     await waitFor(() => expect(rows()).toHaveLength(3));
     const before = Date.now();
     await user.click(within(row('a1')).getByRole('button', { name: 'Nhắc lại' }));
-    await user.click(within(row('a1')).getByRole('button', { name: '1 giờ nữa' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Hoãn việc này' });
+    await waitFor(() => expect(within(dialog).getByLabelText('Lý do hoãn')).toBeEnabled());
+    await user.selectOptions(within(dialog).getByLabelText('Lý do hoãn'), 'Chờ bổ sung thông tin');
+    await user.click(within(dialog).getByRole('button', { name: '1 giờ nữa' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Đặt nhắc' }));
     await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
     expect(h.command.mock.calls[0]?.[0]).toBe('snoozeWork');
-    const body = (h.command.mock.calls[0]?.[1] as { body: { source: string; source_id: string; snooze_until: string } }).body;
+    const body = (h.command.mock.calls[0]?.[1] as { body: { source: string; source_id: string; snooze_until: string; reason_code: string } }).body;
     expect(body.source_id).toBe('a1');
+    expect(body.reason_code).toBe('WAITING_INFORMATION');
     const until = Date.parse(body.snooze_until);
     expect(until - before).toBeGreaterThanOrEqual(3_599_000);
     expect(until - before).toBeLessThan(3_700_000);
     expect(await screen.findByText(/^Sẽ nhắc lại lúc \d\d:\d\d \d\d\/\d\d$/)).toBeInTheDocument();
   });
 
-  it('says the action failed when the server refuses a snooze', async () => {
+  it('says in its own words why the server refused a snooze, and keeps the dialog open', async () => {
     const user = userEvent.setup();
-    const h = harness(alertsBackend({ mine: mineView }), () => failure(422, 'SNOOZE_NOT_ALLOWED'));
+    const h = harness(alertsBackend({ mine: mineView }), () => failure(422, 'WORK_SNOOZE_LIMIT'));
     mount(<Host />, h);
     await waitFor(() => expect(rows()).toHaveLength(3));
     await user.click(within(row('a1')).getByRole('button', { name: 'Nhắc lại' }));
-    await user.click(within(row('a1')).getByRole('button', { name: 'Sáng mai' }));
-    expect(await screen.findByRole('alert')).toHaveTextContent('Không thực hiện được thao tác. Hãy thử lại.');
+    const dialog = await screen.findByRole('dialog', { name: 'Hoãn việc này' });
+    await waitFor(() => expect(within(dialog).getByLabelText('Lý do hoãn')).toBeEnabled());
+    await user.selectOptions(within(dialog).getByLabelText('Lý do hoãn'), 'Đang nghỉ phép');
+    await user.click(within(dialog).getByRole('button', { name: 'Sáng mai' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Đặt nhắc' }));
+    expect(await within(dialog).findByText('Việc này đã được hoãn đủ số lần liên tiếp cho phép.')).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Hoãn việc này' })).toBeInTheDocument();
+  });
+
+  it('pauses the clock of an item that has clocks, with the person who allowed it', async () => {
+    const user = userEvent.setup();
+    const withClocks = rawItem('c1', { severity: 'ACTION', source: 'CLOCK', title: 'Nghĩa vụ có đồng hồ', due_on: null, clocks: { basis: 'WORKING_TIME', claim: null, resolve: { state: 'RUNNING', started_at: '2026-11-06T02:00:00Z', due_at: '2999-12-31T02:00:00Z', met_at: null }, paused: null, needs_reclaim: null } });
+    const view = { counts: countsAnswer(0, 1, 0), list: listAnswer([withClocks]) };
+    const h = harness(alertsBackend({ mine: view }));
+    mount(<Host />, h);
+    await waitFor(() => expect(row('c1')).toBeInTheDocument());
+    await user.click(within(row('c1')).getByRole('button', { name: 'Tạm dừng đồng hồ' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Tạm dừng đồng hồ' });
+    await waitFor(() => expect(within(dialog).getByLabelText('Lý do tạm dừng')).toBeEnabled());
+    await user.selectOptions(within(dialog).getByLabelText('Lý do tạm dừng'), 'Chờ bên ngoài');
+    await user.type(within(dialog).getByLabelText('Giải thích (bắt buộc)'), 'Chờ chủ đầu tư trả lời');
+    const select = within(dialog).getByLabelText('Người cho phép');
+    await waitFor(() => expect(within(select).getAllByRole('option').length).toBeGreaterThan(1));
+    await user.selectOptions(select, 'Lê Chi');
+    const day = within(dialog).getByLabelText('Chạy lại đồng hồ vào sáng ngày') as HTMLInputElement;
+    await user.type(day, day.min);
+    await user.click(within(dialog).getByRole('button', { name: 'Tạm dừng' }));
+    await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+    expect(h.command.mock.calls[0]?.[0]).toBe('pauseWorkClock');
+    const body = (h.command.mock.calls[0]?.[1] as { body: Record<string, unknown> }).body;
+    expect(body).toMatchObject({ source: 'CLOCK', source_id: 'c1', reason_code: 'WAITING_EXTERNAL_PARTY', reason: 'Chờ chủ đầu tư trả lời', allowed_by_id: '00000000-0000-4000-8000-0000000000ab' });
+    expect(typeof body.paused_until).toBe('string');
   });
 
   it('shows the lifecycle the server answers after an action, without the buttons that no longer apply', async () => {
@@ -417,10 +452,86 @@ describe('AlertCenter: keyboard and accessibility', () => {
     mount(<Host />, h);
     await waitFor(() => expect(rows()).toHaveLength(3));
     await user.click(within(row('a1')).getByRole('button', { name: 'Nhắc lại' }));
-    await user.click(within(row('a1')).getByRole('button', { name: 'Chọn ngày' }));
+    const snooze = await screen.findByRole('dialog', { name: 'Hoãn việc này' });
+    await waitFor(() => expect(within(snooze).getByLabelText('Lý do hoãn')).toBeEnabled());
+    await user.click(within(snooze).getByRole('button', { name: 'Chọn ngày' }));
     expect(describeViolations(await seriousViolations(document.body))).toEqual([]);
+    await user.click(within(snooze).getByRole('button', { name: 'Hủy' }));
     await user.click(within(row('w1')).getByRole('button', { name: 'Giao cho' }));
     await screen.findByRole('dialog', { name: 'Giao việc' });
     expect(describeViolations(await seriousViolations(document.body))).toEqual([]);
+  });
+});
+
+describe('AlertCenter: the work on hold (lane A2)', () => {
+  it('links to the list of work on hold for a reader that has a scope, and not for one that has none', async () => {
+    const withScope = harness(alertsBackend({ mine: mineView, scope: scopeView }));
+    const { unmount } = mount(<Host />, withScope);
+    await waitFor(() => expect(rows()).toHaveLength(3));
+    expect(await screen.findByRole('link', { name: 'Việc đang bị hoãn' })).toHaveAttribute('href', '/home/home-12');
+    unmount();
+    mount(<Host />, harness(alertsBackend({ mine: mineView })));
+    await waitFor(() => expect(rows()).toHaveLength(3));
+    expect(screen.queryByRole('link', { name: 'Việc đang bị hoãn' })).toBeNull();
+  });
+
+  it('reads "Nhận lại" for an item that went silent, with its clocks and the chips of what happened to it', async () => {
+    const silent = rawItem('r1', {
+      severity: 'ACTION',
+      source: 'CLOCK',
+      title: 'Nghĩa vụ im lặng',
+      due_on: null,
+      lifecycle: 'CLAIMED',
+      needs_reclaim: true,
+      clocks: { basis: 'WORKING_TIME', claim: null, resolve: { state: 'BREACHED', started_at: '2026-11-01T02:00:00Z', due_at: '2026-11-05T02:00:00Z', met_at: null }, paused: null, needs_reclaim: { since: '2026-11-06T02:00:00Z' } },
+      notices: [{ kind: 'RECLAIM_NOTICE', at: '2026-11-07T02:00:00Z' }],
+    });
+    const h = harness(alertsBackend({ mine: { counts: countsAnswer(0, 1, 0), list: listAnswer([silent]) } }));
+    mount(<Host />, h);
+    await waitFor(() => expect(row('r1')).toBeInTheDocument());
+    const item = within(row('r1'));
+    expect(item.getByRole('button', { name: 'Nhận lại' })).toBeInTheDocument();
+    expect(item.queryByRole('button', { name: 'Nhận xử lý' })).toBeNull();
+    expect(item.getByText('Quá hạn')).toBeInTheDocument();
+    expect(item.getByText('Cần nhận lại')).toBeInTheDocument();
+    expect(item.getByText('Đã báo lên cấp trên')).toBeInTheDocument();
+  });
+});
+
+describe('AlertCenter: running a paused clock again (lane A2)', () => {
+  const paused = { from: '2026-11-07T01:00:00Z', until: '2999-01-01T01:00:00Z', resumed_at: null, reason_code: 'DATA_CORRECTION', reason: 'Sửa số liệu', allowed_by: { id: OTHER, name: 'Trần Bình' }, by: { id: ME, name: 'Nguyễn An' } };
+  const pausedItem = rawItem('k1', {
+    severity: 'ACTION',
+    source: 'CLOCK',
+    title: 'Nghĩa vụ đang dừng',
+    due_on: null,
+    lifecycle: 'CLAIMED',
+    pause: paused,
+    clocks: { basis: 'WORKING_TIME', claim: null, resolve: { state: 'PAUSED', started_at: '2026-11-01T02:00:00Z', due_at: '2999-01-02T02:00:00Z', met_at: null }, paused, needs_reclaim: null },
+  });
+  const view = { counts: countsAnswer(0, 1, 0), list: listAnswer([pausedItem]) };
+
+  it('shows the pause and offers to run the clock again, which sends the command with the target', async () => {
+    const user = userEvent.setup();
+    const h = harness(alertsBackend({ mine: view }));
+    mount(<Host />, h);
+    await waitFor(() => expect(row('k1')).toBeInTheDocument());
+    const item = within(row('k1'));
+    expect(item.getByTestId('clock-paused')).toHaveTextContent('Đang hiệu chỉnh dữ liệu: Sửa số liệu');
+    expect(item.queryByRole('button', { name: 'Tạm dừng đồng hồ' })).toBeNull();
+    await user.click(item.getByRole('button', { name: 'Chạy lại đồng hồ' }));
+    await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+    expect(h.command.mock.calls[0]?.[0]).toBe('resumeWorkClock');
+    expect((h.command.mock.calls[0]?.[1] as { body: unknown }).body).toEqual({ source: 'CLOCK', source_id: 'k1' });
+    expect(await screen.findByText('Đồng hồ đã chạy lại')).toBeInTheDocument();
+  });
+
+  it('says the clock was not paused when the server refuses with WORK_CLOCK_NOT_PAUSED', async () => {
+    const user = userEvent.setup();
+    const h = harness(alertsBackend({ mine: view }), () => failure(409, 'WORK_CLOCK_NOT_PAUSED'));
+    mount(<Host />, h);
+    await waitFor(() => expect(row('k1')).toBeInTheDocument());
+    await user.click(within(row('k1')).getByRole('button', { name: 'Chạy lại đồng hồ' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Đồng hồ của việc này không đang tạm dừng.');
   });
 });

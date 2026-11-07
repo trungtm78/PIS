@@ -37,3 +37,6 @@ section[data-screen-id^='BI-'] :focus-visible { outline: 3px solid var(--mv-colo
   section[data-screen-id^='BI-'] .heading { flex-wrap: wrap; }
   section[data-screen-id^='BI-'] .card { padding: var(--mv-space-16); }
 }
+
+/* G0-4 and G3-1: the "i" of a number and the flag of a dataset that is not certified sit on one line next to it; they wrap at 360 px. */
+.bi-figure-info { display: inline-flex; align-items: center; flex-wrap: wrap; gap: var(--mv-space-8); vertical-align: middle; }

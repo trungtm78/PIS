@@ -13,6 +13,12 @@ export type DrillDimension = (typeof DRILL_DIMENSIONS)[number];
 
 const oneOf = <T extends string>(value: unknown, allowed: readonly T[]): T | undefined => (typeof value === 'string' && (allowed as readonly string[]).includes(value) ? (value as T) : undefined);
 
+export const DRILL_ORDERS = ['code', 'drag'] as const;
+/** How the children are listed: by code (the default) or, for a ratio, the part that pulls the whole down most first (G3-3). */
+export type DrillOrder = (typeof DRILL_ORDERS)[number];
+/** The three steps of the drill: the figure by unit, the unit by project, the records. */
+export const DRILL_STEPS = 3;
+
 export interface DrillChild {
   dimension: DrillDimension;
   id: string;
@@ -22,7 +28,18 @@ export interface DrillChild {
   numerator: string | null;
   denominator: string | null;
   nullReason: string | null;
+  /** Percentage points the part pulls the whole ratio (4 places as text, negative pulls it down); null for a figure that is not a ratio. */
+  dragPoints: string | null;
   contextToken: string;
+}
+
+/** What waits on a project or a cell (ids only, no names): an early warning or an explanation. */
+export interface DrillAlert {
+  kind: 'EARLY_WARNING' | 'EXPLANATION';
+  id: string;
+  severity: string | null;
+  status: string;
+  at: string;
 }
 
 export type DrillSource =
@@ -61,6 +78,13 @@ export interface Drill {
   reconcilesToParent: boolean;
   nonAdditiveReason: string | null;
   sources: DrillSource[];
+  /** The step of the drill the reading is at (1 to 3). */
+  step: number;
+  stepsTotal: number;
+  /** The order the children came in. */
+  order: DrillOrder;
+  /** The alerts on the project or the cell: given with the first page only. */
+  alerts: DrillAlert[];
   nextCursor: string | null;
 }
 
@@ -68,7 +92,7 @@ function toChild(raw: unknown): DrillChild | undefined {
   if (!isRecord(raw)) return undefined;
   const dimension = oneOf(raw.dimension, DRILL_DIMENSIONS);
   if (dimension === undefined || text(raw.id) === '' || text(raw.context_token) === '') return undefined;
-  return { dimension, id: text(raw.id), code: text(raw.code), name: text(raw.name), value: nullableText(raw.value), numerator: nullableText(raw.numerator), denominator: nullableText(raw.denominator), nullReason: nullableText(raw.null_reason), contextToken: text(raw.context_token) };
+  return { dimension, id: text(raw.id), code: text(raw.code), name: text(raw.name), value: nullableText(raw.value), numerator: nullableText(raw.numerator), denominator: nullableText(raw.denominator), nullReason: nullableText(raw.null_reason), dragPoints: nullableText(raw.drag_points), contextToken: text(raw.context_token) };
 }
 
 function toSource(raw: unknown): DrillSource | undefined {
@@ -77,6 +101,14 @@ function toSource(raw: unknown): DrillSource | undefined {
   if (raw.kind === 'TREASURY_TRANSACTION') return { kind: 'TREASURY_TRANSACTION', id: text(raw.id), externalId: text(raw.external_id), amountVnd: text(raw.amount_vnd), contributionVnd: text(raw.contribution_vnd) === '' ? text(raw.amount_vnd) : text(raw.contribution_vnd), confirmedAt: text(raw.confirmed_at), reversalOfId: nullableText(raw.reversal_of_id) };
   return undefined;
 }
+
+function toAlert(raw: unknown): DrillAlert | undefined {
+  if (!isRecord(raw) || text(raw.id) === '') return undefined;
+  const kind = raw.kind === 'EARLY_WARNING' || raw.kind === 'EXPLANATION' ? raw.kind : undefined;
+  return kind === undefined ? undefined : { kind, id: text(raw.id), severity: nullableText(raw.severity), status: text(raw.status), at: text(raw.at) };
+}
+
+const STEP_OF_LEVEL: Record<DrillLevel, number> = { SCOPE: 1, UNIT: 2, PROJECT: 3, CELL: 3 };
 
 /** A drill as the screen reads it, or undefined when it lacks what makes a figure citable: the snapshot, the day, the formula and the unit of measure (BR-HOME-01). */
 export function toDrill(raw: unknown): Drill | undefined {
@@ -108,6 +140,10 @@ export function toDrill(raw: unknown): Drill | undefined {
     reconcilesToParent: raw.reconciles_to_parent === true,
     nonAdditiveReason: nullableText(raw.non_additive_reason),
     sources: (Array.isArray(raw.source_records) ? raw.source_records : []).flatMap((source) => toSource(source) ?? []),
+    step: typeof raw.step === 'number' && raw.step >= 1 && raw.step <= DRILL_STEPS ? raw.step : STEP_OF_LEVEL[level],
+    stepsTotal: DRILL_STEPS,
+    order: oneOf(raw.order, DRILL_ORDERS) ?? 'code',
+    alerts: (Array.isArray(raw.alerts) ? raw.alerts : []).flatMap((alert) => toAlert(alert) ?? []),
     nextCursor: nullableText(raw.next_cursor),
   };
 }
@@ -153,7 +189,15 @@ export function refreshTargetOf(error: unknown): RefreshTarget | undefined {
 /** The token of the tile of a metric among the tiles of a reading of the center. */
 export const tokenOfMetric = (tiles: readonly Pick<Tile, 'metricCode' | 'contextToken'>[], metricCode: string): string | undefined => tiles.find((tile) => tile.metricCode === metricCode)?.contextToken;
 
+/** The order a reader asked for in the address (anything else is the default). */
+export const orderOf = (value: string | null): DrillOrder => (value === 'drag' ? 'drag' : 'code');
+
+/** The dimension a reader asked for in the address, when it is one the drill has (anything else is the default of the step). */
+export const dimensionOf = (value: string | null): DrillDimension | '' => (value === 'unit' || value === 'project' || value === 'cell' ? value : '');
+
 export interface Step {
+  /** The dimension the reader had chosen at this step when they went down: it is given back when they come back. */
+  dimension?: DrillDimension | '';
   token: string;
   /** What the breadcrumb says of the step (the metric for the first, the name of the place for the others). */
   label: string;

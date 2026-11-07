@@ -14,10 +14,11 @@ import '../dis/dis.css';
 import './home.css';
 import { MetricTile, NewDataBanner, ProblemCard, QualityBadgeLabel } from './components';
 import { DegradedChannelsBanner } from './DegradedBanner';
+import { ChangesCard, ExportActions, RagSummaryCard } from './gov-components';
 import { centerKey, homeRoot, useCommandCenter, useLatestSnapshot } from './hooks';
 import { useAlertSource } from './alert-source';
 import { amountTiles, describeCommandCenter, hasNewSnapshot, isAuthFailure, isStale, ratePair, shortId, waitingOf } from './model';
-import type { CommandCenter, WaitingCounts } from './model';
+import type { CommandCenter, Tile, WaitingCounts } from './model';
 import { clockText, dayText } from './overview-model';
 import { CashFlowCard, Causes, Hero, Kpis, RankingCard } from './overview-sections';
 import { vietnamToday } from '../mne/model';
@@ -150,7 +151,7 @@ function CenterContent({ route, variant }: ScreenProps & { variant: Variant }) {
         {center === undefined ? null : (
           <>
             {hasNewSnapshot(center.snapshotId, latest.data?.snapshotId) ? <NewDataBanner onRefresh={refresh} /> : null}
-            <CenterBody center={context ?? center} waiting={latest.data?.waiting ?? waitingOf(center)} unitId={unitId} />
+            <CenterBody center={context ?? center} waiting={latest.data?.waiting ?? waitingOf(center)} counts={latest.data?.countTiles ?? center.countTiles} unitId={unitId} />
           </>
         )}
       </StateBoundary>
@@ -168,15 +169,20 @@ function NeedsActionBand() {
   );
 }
 
-function CenterBody({ center, waiting, unitId }: { center: CommandCenter; waiting: WaitingCounts; unitId: string }) {
+function CenterBody({ center, waiting, counts, unitId }: { center: CommandCenter; waiting: WaitingCounts; counts: readonly Tile[]; unitId: string }) {
   const { t } = useTranslation();
   const pair = ratePair(center);
   const amounts = amountTiles(center);
   const year = center.asOfDate.slice(0, 4);
   return (
     <>
+      <ExportActions snapshotId={center.snapshotId} unitId={unitId} />
       <Hero center={center} year={year} />
-      <Kpis center={center} waiting={waiting} />
+      <Kpis center={center} waiting={waiting} counts={counts} />
+      <div className="home-pair">
+        <ChangesCard snapshotId={center.snapshotId} unitId={unitId} />
+        <RagSummaryCard snapshotId={center.snapshotId} unitId={unitId} />
+      </div>
       <Causes />
       <div className="home-pair">
         <CashFlowCard snapshotId={center.snapshotId} unitId={unitId} year={year} />

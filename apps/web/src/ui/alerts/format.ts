@@ -51,3 +51,22 @@ const camel = (value: string): string => value.toLowerCase().replace(/_([a-z])/g
 export const severitySuffix = (severity: string): string => camel(severity);
 export const lifecycleSuffix = (lifecycle: string): string => camel(lifecycle);
 export const sourceSuffix = (source: string): string => camel(source);
+
+/** The day `count` days after `day` (negative: before), YYYY-MM-DD. */
+export function addDays(day: string, count: number): string {
+  return new Date(Date.parse(`${day}T00:00:00Z`) + count * DAY_MS).toISOString().slice(0, 10);
+}
+
+/** The last day whose 08:00 (Vietnam) is not after `limit`: the furthest day a picker may offer when a command refuses anything past `limit`. */
+export function lastMorningBefore(limit: Date): string {
+  const day = todayOf(limit);
+  return Date.parse(morningOf(day)) <= limit.getTime() ? day : addDays(day, -1);
+}
+
+/** The last moment of a day in Vietnam. */
+export function endOfDay(day: string): Date {
+  return new Date(`${day}T23:59:59+07:00`);
+}
+
+/** The words of a reason code (WAITING_INFORMATION → waitingInformation), the last part of the key of its label. */
+export const reasonSuffix = (code: string): string => camel(code);

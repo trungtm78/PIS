@@ -1,0 +1,36 @@
+/* Lane B2 screens (CAP-22, PRJ-22, CTR-27, PAY-18): tokens only, no hex. */
+.gov4-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--mv-space-4) var(--mv-space-16);
+  margin: var(--mv-space-8) 0 0;
+}
+.gov4-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.gov4-form {
+  display: grid;
+  gap: var(--mv-space-12);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  align-items: end;
+}
+.gov4-form h3,
+.gov4-form p,
+.gov4-form .callout {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+.gov4-form label {
+  display: grid;
+  gap: var(--mv-space-4);
+}
+.gov4-actions {
+  display: inline-flex;
+  gap: var(--mv-space-8);
+  flex-wrap: wrap;
+}
+.gov4-error {
+  border-color: var(--mv-color-danger);
+  color: var(--mv-color-danger);
+}

@@ -228,6 +228,8 @@ describe('the model of the payment request (PAY-01, PAY-02, PAY-03, CTR-13)', ()
       ['VALUE_EXCEEDED', 'valueExceeded'],
       ['ADVANCE_RECOVERY_EXCEEDED', 'advanceExceeded'],
       ['ALLOCATION_UNAVAILABLE', 'allocationUnavailable'],
+      ['DISBURSEMENT_PROJECT_NOT_LISTED', 'disbursementNotListed'],
+      ['DISBURSEMENT_NO_APPROVED_PLAN', 'disbursementNoPlan'],
       ['PLAN_YEAR_MISMATCH', 'planYear'],
       ['NATIONAL_CODE_REQUIRED', 'nationalCode'],
       ['NATIONAL_CODE_FORMAT_INVALID', 'nationalCode'],

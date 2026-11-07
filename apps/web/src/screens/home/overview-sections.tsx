@@ -3,8 +3,8 @@ import { useTranslation } from '../../i18n';
 import type { Translator } from '../../i18n';
 import { CommandHero, DataTable, FlowChart, KpiStrip, KpiTile, PeriodProgress, SectionCard, StatusPill } from '../../ui';
 import type { Severity, Tone } from '../../ui';
-import { tileValue } from './components';
-import { MY_WORK_PATH, REALLOCATION_PATH, WARNINGS_PATH, drillPathOf } from './model';
+import { FigureInfo, FlagPills, figureShown, noneText } from './figure-components';
+import { MY_WORK_PATH, REALLOCATION_PATH, WARNINGS_PATH, countTileOf, drillPathOf, figureText } from './model';
 import type { CommandCenter, Tile, WaitingCounts } from './model';
 import { billionsOf, bottlenecksOf, coverageOf, dayText, hasCurve, heroOf, percentOf, tileOf, topRanked } from './overview-model';
 import type { Bottleneck, CashFlow } from './overview-model';
@@ -35,44 +35,45 @@ export function SourceError({ source, onRetry }: { source: string; onRetry: () =
   );
 }
 
-/** What one rate says in the chips of the command block: the rate with its numerator and denominator in billions, or why there is none. */
-function rateChip(t: T, locale: string, tile: Tile | undefined): string {
+/** What one rate says in the chips of the command block: the text the server wrote for it and its unit, or why there is none (never a rate made here). */
+function rateChip(t: T, tile: Tile | undefined): string {
   if (tile === undefined) return t('home.ov.kpi.missing');
-  if (tile.value === null) return tileValue(t, tile);
-  const percent = percentOf(tile.value, locale);
-  const numerator = billionsOf(tile.numerator, locale);
-  const denominator = billionsOf(tile.denominator, locale);
-  if (percent === null) return t('home.ov.kpi.missing');
-  return numerator === null || denominator === null ? t('home.tile.value.percent', { value: percent }) : t('home.ov.hero.chip.value', { percent, numerator, denominator });
+  return figureShown(t, tile);
+}
+
+/** The "i" of a figure and the flags that sit on it, side by side. */
+function FigureNotes({ tile }: { tile: Tile | undefined }) {
+  if (tile === undefined) return null;
+  return (
+    <>
+      <FigureInfo tile={tile} /> <FlagPills tile={tile} />
+    </>
+  );
 }
 
 /** The dark command block: the amount disbursed, the ring over the plan the Prime Minister gave, the two rates side by side with their denominators, and the two actions. */
 export function Hero({ center, year }: { center: CommandCenter; year: string }) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const hero = heroOf(center);
-  const amount = billionsOf(hero.disbursedVnd, locale);
   const disbursedTile = tileOf(center, 'DISBURSED_TREASURY');
   const pm = tileOf(center, 'DISBURSEMENT_RATE_PM');
   const total = tileOf(center, 'DISBURSEMENT_RATE_TOTAL');
+  const amount = disbursedTile === undefined ? null : disbursedTile.displayValue;
+  const missing = disbursedTile === undefined || disbursedTile.nullReason === null || disbursedTile.nullReason === 'NO_DATA' ? t('home.ov.hero.noData') : noneText(t, disbursedTile);
   return (
     <CommandHero
       label={t('home.ov.hero.label', { year })}
-      value={amount ?? '—'}
-      unit={t('home.ov.hero.unit')}
+      value={amount === null ? '—' : figureText({ displayValue: amount })}
+      unit={amount === null ? '' : t('govc.home.unit.vnd')}
       caption={
-        amount === null
-          ? t('home.ov.hero.noData')
-          : t('home.ov.hero.caption', {
-              date: dayText(center.treasuryCutoffDate === '' ? center.asOfDate : center.treasuryCutoffDate),
-            })
+        <>
+          {amount === null ? missing : t('home.ov.hero.caption', { date: dayText(center.treasuryCutoffDate === '' ? center.asOfDate : center.treasuryCutoffDate) })} <FigureNotes tile={disbursedTile} />
+        </>
       }
       ratio={{ percent: hero.ringPercent, label: t('home.ov.hero.ring') }}
       chips={[
-        { label: t('home.ov.hero.chip.pm'), value: rateChip(t, locale, pm) },
-        {
-          label: t('home.ov.hero.chip.total'),
-          value: rateChip(t, locale, total),
-        },
+        { label: t('home.ov.hero.chip.pm'), value: rateChip(t, pm), info: <FigureNotes tile={pm} /> },
+        { label: t('home.ov.hero.chip.total'), value: rateChip(t, total), info: <FigureNotes tile={total} /> },
       ]}
       actions={
         <>
@@ -91,44 +92,51 @@ export function Hero({ center, year }: { center: CommandCenter; year: string }) 
 }
 
 /** The four tiles under the command block: the plan, the early warnings, the reallocations awaiting a decision, and how many projects have a figure. */
-export function Kpis({ center, waiting }: { center: CommandCenter; waiting: WaitingCounts }) {
-  const { t, locale } = useTranslation();
-  const plan = billionsOf(tileOf(center, 'PLAN_TOTAL')?.value ?? null, locale);
-  const pmPlan = billionsOf(tileOf(center, 'PLAN_PM_ASSIGNED')?.value ?? null, locale);
+export function Kpis({ center, waiting, counts }: { center: CommandCenter; waiting: WaitingCounts; counts?: readonly Tile[] }) {
+  const { t } = useTranslation();
+  const planTile = tileOf(center, 'PLAN_TOTAL');
+  const pmTile = tileOf(center, 'PLAN_PM_ASSIGNED');
+  const given = counts ?? center.countTiles;
+  const warnings = countTileOf(given, 'OPEN_WARNINGS');
+  const overdue = countTileOf(given, 'OVERDUE_EXPLANATIONS');
+  const realloc = countTileOf(given, 'PENDING_REALLOCATIONS');
   const coverage = coverageOf(center.scope.projects, center.projectsWithoutData);
-  const unit = t('home.ov.hero.unit');
-  const warningTone: Tone = waiting.openWarnings > 0 ? 'warning' : 'success';
+  const warningTone: Tone = warnings === undefined || warnings.displayValue === null ? 'neutral' : waiting.openWarnings > 0 ? 'warning' : 'success';
+  const planText = planTile?.displayValue ?? null;
+  const pmText = pmTile?.displayValue ?? null;
   return (
     <div data-testid="home-kpis">
       <KpiStrip label={t('home.ov.kpi.group')}>
         <KpiTile
           label={t('home.ov.kpi.plan.label')}
-          value={plan ?? '—'}
-          unit={plan === null ? undefined : unit}
-          sub={plan === null ? t('home.ov.kpi.missing') : pmPlan === null ? t('home.ov.kpi.plan.subMissing') : t('home.ov.kpi.plan.sub', { pm: pmPlan })}
+          value={planText ?? '—'}
+          {...(planText === null ? {} : { unit: t('govc.home.unit.vnd') })}
+          sub={
+            <>
+              {planText === null ? (planTile === undefined ? t('home.ov.kpi.missing') : noneText(t, planTile)) : pmText === null ? t('home.ov.kpi.plan.subMissing') : t('govc.home.kpi.plan.sub', { pm: pmText })} <FigureNotes tile={planTile} />
+              {pmText === null ? null : <FigureNotes tile={pmTile} />}
+            </>
+          }
         />
         <KpiTile
           label={t('home.ov.kpi.warnings.label')}
-          value={String(waiting.openWarnings)}
+          value={warnings === undefined ? '—' : figureText(warnings)}
           tone={warningTone}
           sub={
             <>
-              <Link to={MY_WORK_PATH}>
-                {t('home.ov.kpi.warnings.sub', {
-                  count: waiting.overdueExplanations,
-                })}
-              </Link>{' '}
-              · <Link to={WARNINGS_PATH}>{t('home.ov.kpi.open')}</Link>
+              {warnings !== undefined && warnings.displayValue === null ? <>{noneText(t, warnings)} · </> : null}
+              <Link to={MY_WORK_PATH}>{overdue === undefined || overdue.displayValue === null ? t('govc.home.kpi.warnings.overdueNone') : t('home.ov.kpi.warnings.sub', { count: figureText(overdue) })}</Link> <FigureNotes tile={warnings} /> <FigureNotes tile={overdue} /> · <Link to={WARNINGS_PATH}>{t('home.ov.kpi.open')}</Link>
             </>
           }
         />
         <KpiTile
           label={t('home.ov.kpi.realloc.label')}
-          value={String(waiting.pendingReallocations)}
+          value={realloc === undefined ? '—' : figureText(realloc)}
           tone="neutral"
           sub={
             <>
-              {t('home.ov.kpi.realloc.sub')} · <Link to={REALLOCATION_PATH}>{t('home.ov.kpi.open')}</Link>
+              {realloc !== undefined && realloc.displayValue === null ? <>{noneText(t, realloc)} · </> : null}
+              {t('home.ov.kpi.realloc.sub')} <FigureNotes tile={realloc} /> · <Link to={REALLOCATION_PATH}>{t('home.ov.kpi.open')}</Link>
             </>
           }
         />

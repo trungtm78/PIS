@@ -14,13 +14,13 @@ export function useScopeKey(): readonly ['ctr', string | undefined, string | und
 }
 
 /** The register in the scope of the caller, in the order of the read (by contract code). */
-export function useContracts() {
+export function useContracts(enabled = true) {
   const client = useApiClient();
   const key = useScopeKey();
   return useQuery<ContractLine[]>({
     queryKey: [...key, 'contracts'],
     queryFn: async () => (await client.readAll('get_resources_contract')).flatMap((raw) => toContractLine(raw) ?? []),
-    enabled: key[1] !== undefined,
+    enabled: enabled && key[1] !== undefined,
     retry: false,
   });
 }

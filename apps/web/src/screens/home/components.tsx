@@ -4,30 +4,14 @@ import type { Translator } from '../../i18n';
 import { StatusPill } from '../../ui';
 import { formatVnd } from '../dis/report/money';
 import '../dis/dis.css';
-import { FORMULA_REFERENCE, SNAPSHOT_SCREEN_PATH, drillPathOf } from './model';
+import { FigureInfo, FlagPills, figureShown, noneText } from './figure-components';
+import { FORMULA_REFERENCE, SNAPSHOT_SCREEN_PATH, drillPathOf, figureText } from './model';
 import type { HomeProblem, QualityBadge, Tile } from './model';
 
 type T = Translator['t'];
 
-/** Why a figure is missing, in the words of the screen: a figure that cannot be given is never shown as 0. */
-function nullReasonLabel(t: T, reason: string | null): string {
-  switch (reason) {
-    case 'NO_DATA':
-      return t('home.tile.nullReason.noData');
-    case 'ZERO_DENOMINATOR':
-      return t('home.tile.nullReason.zeroDenominator');
-    case 'TREASURY_COVERAGE_NONE':
-      return t('home.tile.nullReason.treasuryNone');
-    default:
-      return t('home.tile.nullReason.other');
-  }
-}
-
-/** The value of a tile as it is read: the percent with its four decimals, whole dong with a dot between the thousands, or why there is none. */
-export function tileValue(t: T, tile: Tile): string {
-  if (tile.value === null) return nullReasonLabel(t, tile.nullReason);
-  return tile.unit === 'PERCENT' ? t('home.tile.value.percent', { value: tile.value }) : t('home.tile.value.vnd', { value: formatVnd(tile.value) });
-}
+/** The value of a tile as one string: the text the server wrote for the figure and its unit, or why there is none (never 0, never a number made here). */
+export const tileValue = (t: T, tile: Tile): string => figureShown(t, tile);
 
 function metricLabel(t: T, code: string): string {
   switch (code) {
@@ -54,7 +38,20 @@ export function MetricTile({ tile, rate }: { tile: Tile; rate?: 'pm' | 'total' }
   return (
     <div className="dis-rate-tile" data-metric={tile.metricCode} {...(rate === undefined ? {} : { 'data-rate': rate })} title={t('home.tile.formula.title', { formula: tile.formula, ref: FORMULA_REFERENCE })}>
       <span className="sub">{label}</span>
-      <strong data-testid={`tile-value-${tile.metricCode}`}>{tileValue(t, tile)}</strong>
+      <span className="home-fig-row">
+        <strong data-testid={`tile-value-${tile.metricCode}`}>
+          {tile.displayValue === null ? (
+            <span data-testid={`tile-none-${tile.metricCode}`}>{noneText(t, tile)}</span>
+          ) : (
+            <>
+              <span data-testid={`tile-figure-${tile.metricCode}`}>{figureText(tile)}</span>
+              {tile.unit === 'PERCENT' ? <span className="home-fig-unit">%</span> : tile.unit === 'VND' ? <span className="home-fig-unit"> {t('govc.home.unit.vnd')}</span> : null}
+            </>
+          )}
+        </strong>
+        <FigureInfo tile={tile} />
+      </span>
+      <FlagPills tile={tile} />
       {showSums ? (
         <small data-testid={`tile-sums-${tile.metricCode}`}>
           {t('home.tile.numerator', { value: formatVnd(tile.numerator ?? '0') })} · {t('home.tile.denominator', { value: formatVnd(tile.denominator ?? '0') })}

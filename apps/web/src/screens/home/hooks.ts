@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useApiClient } from '../../api/ApiClientContext';
 import { useSession } from '../../session/SessionContext';
 import { NEW_SNAPSHOT_POLL_MS, toCommandCenter, waitingOf } from './model';
-import type { CommandCenter, Freshness, WaitingCounts } from './model';
+import type { CommandCenter, Freshness, Tile, WaitingCounts } from './model';
 
 /** How long a reading of a snapshot stays in the cache with no one observing it. */
 const PINNED_KEEP_MS = 5 * 60_000;
@@ -51,6 +51,8 @@ export interface LatestReading {
   /** The scope the reader is reading in now: when it is not the one of the figures on the screen, their access changed and the figures are read again. */
   scopeHash: string;
   waiting: WaitingCounts;
+  /** The same counts as figures of the register, each with its definition (the "i"). */
+  countTiles: Tile[];
 }
 
 /**
@@ -64,7 +66,7 @@ export function useLatestSnapshot(enabled: boolean, unitId: string) {
     queryKey: [...homeRoot(tenant?.id), 'latest', tenant?.membershipId, unitId],
     queryFn: async () => {
       const center = toCommandCenter(await client.read('getCommandCenter', { query: unitId === '' ? {} : { unit_id: unitId } }));
-      return center === undefined ? undefined : { snapshotId: center.snapshotId, freshness: center.freshness, scopeHash: center.scope.hash, waiting: waitingOf(center) };
+      return center === undefined ? undefined : { snapshotId: center.snapshotId, freshness: center.freshness, scopeHash: center.scope.hash, waiting: waitingOf(center), countTiles: center.countTiles };
     },
     enabled: tenant !== undefined && enabled,
     refetchInterval: NEW_SNAPSHOT_POLL_MS,

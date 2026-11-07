@@ -12,6 +12,7 @@ describe('main', () => {
   });
 
   afterEach(() => {
+    vi.unstubAllEnvs();
     document.body.innerHTML = '';
     window.history.pushState({}, '', '/');
   });
@@ -20,6 +21,22 @@ describe('main', () => {
     document.body.innerHTML = '<div id="root"></div>';
     await import('./main');
     expect(await screen.findByRole('navigation', { name: viCatalogue['shell.nav.main.label'] }, { timeout: COLD_IMPORT_TIMEOUT_MS })).toBeInTheDocument();
+  }, COLD_IMPORT_TIMEOUT_MS);
+
+  it('mounts the enterprise edition under its own name when VITE_EDITION says so', async () => {
+    vi.stubEnv('VITE_EDITION', 'enterprise');
+    document.body.innerHTML = '<div id="root"></div>';
+    await import('./main');
+    expect(await screen.findByRole('navigation', { name: viCatalogue['shell.nav.main.label'] }, { timeout: COLD_IMPORT_TIMEOUT_MS })).toBeInTheDocument();
+    expect(screen.getByText('Phần mềm quản lý đầu tư xây dựng')).toBeInTheDocument();
+    const { resetEdition } = await import('./editions/edition');
+    resetEdition();
+  }, COLD_IMPORT_TIMEOUT_MS);
+
+  it('stops the start for a VITE_EDITION that is not an edition', async () => {
+    vi.stubEnv('VITE_EDITION', 'enterprise-plus');
+    document.body.innerHTML = '<div id="root"></div>';
+    await expect(import('./main')).rejects.toThrow('VITE_EDITION');
   }, COLD_IMPORT_TIMEOUT_MS);
 
   it('fails with a clear error when #root is missing', async () => {

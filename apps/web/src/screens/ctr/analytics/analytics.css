@@ -1,0 +1,120 @@
+/* The analytics of the contract portfolio (CA-1): tokens only; the tables, the filters and the context bar come from the kit. */
+.ca1-filters {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  align-items: end;
+  margin-bottom: 12px;
+}
+.ca1-notice {
+  margin: 8px 0;
+}
+.ca1-total {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.ca1-denied,
+.ca1-na {
+  color: var(--mv-color-text-secondary);
+  font-size: 12px;
+  white-space: normal;
+}
+.ca1-kpi-sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.ca1-export {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.ca1-bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.ca1-bars__row {
+  display: grid;
+  grid-template-columns: minmax(96px, 1fr) minmax(80px, 3fr) minmax(96px, auto);
+  gap: 8px;
+  align-items: center;
+}
+.ca1-bars__track {
+  height: 12px;
+  border-radius: var(--mv-radius-pill);
+  background: var(--mv-color-neutral-soft);
+  overflow: hidden;
+}
+.ca1-bars__bar {
+  display: block;
+  height: 100%;
+  background: var(--mv-color-primary);
+}
+.ca1-bars__value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 480px) {
+  .ca1-bars__row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .ca1-bars__track {
+    grid-column: 1 / -1;
+    order: 3;
+  }
+}
+.ca1-defs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.ca1-defs li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.ca1-hub {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.ca1-hub__card {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: var(--mv-space-12, 12px) 16px;
+  border: 1px solid var(--mv-color-border);
+  border-radius: var(--mv-radius-card, 8px);
+  background: var(--mv-color-surface);
+}
+.ca1-hub__card h2 {
+  margin: 0;
+  font-size: 16px;
+}
+.ca1-periods {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.ca1-dimension__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+}

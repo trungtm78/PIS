@@ -6,6 +6,7 @@ import { pathOf } from '../../screens/home/work-model';
 import { WEB_ROUTES } from '../../routes/web-routes';
 import { DeadlineCountdown } from './DeadlineCountdown';
 import { EscalationTrail } from './EscalationTrail';
+import { ClockLines } from './ItemClocks';
 import { SeverityBadge } from './SeverityBadge';
 import { clock, clockAndDay, dayMonth, lifecycleSuffix, severitySuffix, sourceSuffix } from './format';
 import type { AlertItem } from './types';
@@ -42,10 +43,12 @@ export interface AlertRowProps {
   note?: ReactNode;
   /** Shows the consequence of leaving it undone and the escalation: the drawer does, the band does not. */
   detailed?: boolean;
+  /** The moment "now" is for the time left on the clocks; tests own the clock. */
+  now?: Date;
 }
 
-/** One item of the alert centre or of the band: level, title, subtitle, source, deadline, owner, escalation, actions. */
-export function AlertRow({ item, today, actions, note, detailed = false }: AlertRowProps) {
+/** One item of the alert centre or of the band: level, title, subtitle, source, deadline (or its clocks), owner, escalation, actions. */
+export function AlertRow({ item, today, actions, note, detailed = false, now }: AlertRowProps) {
   const { t } = useTranslation();
   const path = pathOfAlert(item);
   return (
@@ -66,10 +69,12 @@ export function AlertRow({ item, today, actions, note, detailed = false }: Alert
       </div>
       {item.subtitle === null ? null : <div className="mv-alert-row__subtitle">{item.subtitle}</div>}
       <div className="mv-alert-row__meta">
-        <DeadlineCountdown dueOn={item.due_on} today={today} daysLate={item.days_late} />
+        {item.clocks === null ? <DeadlineCountdown dueOn={item.due_on} today={today} daysLate={item.days_late} /> : null}
         <span>{ownerText(t, item)}</span>
         {item.snoozed_until === null ? null : <span>{t('alerts.item.snoozed', { time: clockAndDay(item.snoozed_until) })}</span>}
       </div>
+      {detailed && item.expected_action !== null ? <div className="mv-alert-row__consequence">{t('alerts.item.expectedAction', { text: item.expected_action })}</div> : null}
+      <ClockLines item={item} detailed={detailed} {...(now === undefined ? {} : { now })} />
       {detailed && item.consequence !== null ? <div className="mv-alert-row__consequence">{t('alerts.item.consequence', { text: item.consequence })}</div> : null}
       {item.escalation === null ? null : <EscalationTrail level={item.escalation.level} of={item.escalation.of} chain={item.escalation.chain} nextAt={item.escalation.next_at} />}
       {note === undefined ? null : <div className="mv-alert-row__note">{note}</div>}

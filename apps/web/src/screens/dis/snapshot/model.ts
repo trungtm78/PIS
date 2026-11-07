@@ -164,9 +164,10 @@ export const shortHash = (hash: string | null): string => (hash === null ? '' : 
 export type SnapshotRequest = components['schemas']['DisSnapshotRequest'];
 export const buildRequest = (periodId: string, kind: SnapshotKind, cutoffDate: string): SnapshotRequest => ({ period_id: periodId, snapshot_kind: kind, treasury_cutoff_date: cutoffDate });
 
-export type SnapshotProblem = 'frozen' | 'notBuilt' | 'inProgress' | 'periodOpen' | 'versionConflict' | 'scopeDenied' | 'validation' | 'notFound' | 'general';
+export type SnapshotProblem = 'crossTotal' | 'frozen' | 'notBuilt' | 'inProgress' | 'periodOpen' | 'versionConflict' | 'scopeDenied' | 'validation' | 'notFound' | 'general';
 
 const PROBLEM_BY_CODE: Readonly<Record<string, SnapshotProblem>> = {
+  CROSS_TOTAL_MISMATCH: 'crossTotal',
   SNAPSHOT_FROZEN: 'frozen',
   SNAPSHOT_NOT_BUILT: 'notBuilt',
   SNAPSHOT_BUILD_IN_PROGRESS: 'inProgress',

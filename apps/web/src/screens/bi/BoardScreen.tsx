@@ -10,8 +10,10 @@ import { ContextBar, FilterPanel, KpiStrip, KpiTile, SectionCard } from '../../u
 import { Field } from '../mne/components';
 import '../dis/dis.css';
 import './bi.css';
+import { FigureInfo } from './FigureInfo';
 import { useDatasetVersions, useDatasets, useMetrics, useTile } from './hooks';
 import type { Metric } from './bi-model';
+import type { Dataset } from './dataset-model';
 import { queryProblemMessage } from './labels';
 import { WORKBENCH_PATH, describeQueryProblem, formatFigure } from './query-model';
 import { ResultLabels } from './QueryResultView';
@@ -80,7 +82,7 @@ function BoardContent({ route }: ScreenProps) {
           <div data-testid="board">
             <KpiStrip label={t('bi.board.strip.label')}>
               {certified.map((metric) => (
-                <Tile key={`${metric.id}:${chosen?.id ?? ''}`} metric={metric} snapshotId={chosen?.id} />
+                <Tile key={`${metric.id}:${chosen?.id ?? ''}`} metric={metric} snapshotId={chosen?.id} dataset={disbursement} />
               ))}
             </KpiStrip>
           </div>
@@ -93,7 +95,7 @@ function BoardContent({ route }: ScreenProps) {
 const NO_FIGURE = '—';
 
 /** One certified metric: the figure of the snapshot in a KPI tile, and under it the labels every number of BI carries and the way to the workbench. A tile that cannot be given says why and shows a dash, never 0. */
-function Tile({ metric, snapshotId }: { metric: Metric; snapshotId: string | undefined }) {
+function Tile({ metric, snapshotId, dataset }: { metric: Metric; snapshotId: string | undefined; dataset: Dataset | undefined }) {
   const { t, locale } = useTranslation();
   const tile = useTile(metric.id, snapshotId);
   const words = { noData: t('bi.query.noData'), notApplicable: t('bi.query.notApplicable') };
@@ -123,6 +125,7 @@ function Tile({ metric, snapshotId }: { metric: Metric; snapshotId: string | und
       <>
         <KpiTile label={metric.code} value={formatFigure(tile.data.total, tile.data.aggregationType === 'ratio' ? 'percent' : tile.data.unit, locale, words)} tone="info" />
         <div className="bi-tile__more">
+          <FigureInfo metric={metric} datasetId={metric.datasetId ?? dataset?.id} datasetCode={metric.datasetId === null ? dataset?.code : undefined} period={tile.data.asOfPeriod} />
           <ResultLabels result={tile.data} />
           <Link className="ui-button ui-button--outline ui-button--small" to={`${WORKBENCH_PATH}?metric=${metric.id}&snapshot=${tile.data.snapshotId}`} aria-label={t('bi.board.open.aria', { code: metric.code })}>
             {t('bi.board.open')}

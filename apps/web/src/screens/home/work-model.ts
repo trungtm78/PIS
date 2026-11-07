@@ -19,6 +19,29 @@ export const WORK_KINDS = [
   'ISSUE_SLA_BREACH',
   'SITE_DIARY_MISSING',
   'GUARANTEE_EXPIRING',
+  // The money control (lane B2).
+  'EAC_EXCEEDS_TMDT',
+  'RESERVE_BELOW_RISK_EV',
+  'ADVANCE_EXCEEDS_REMAINING',
+  // The directives of the steering meetings (lane DIR-1).
+  'DIRECTIVE_DUE',
+  'DIRECTIVE_OVERDUE',
+  // The native clocks of the alert centre (lane GOV-2).
+  'CLOCK_DEADLINE',
+  // The monitoring of the procurement workflow (lane PRC-1).
+  'PRC_STEP_OVERDUE',
+  'PRC_CHECKLIST_DUE',
+  'PRC_PACKAGE_STALLED',
+  'PRC_NO_OWNER',
+  // The integrity of the money and of the duties (lane D) and the alert of the baseline to the auditors (lane B1): integration GOV-INT.
+  'TREASURY_RECON_ITEM_OVERDUE',
+  'CROSS_TOTAL_MISMATCH',
+  'SOD_EXCEPTION_EXPIRING',
+  'SOD_EXCEPTION_USED',
+  'PAYMENT_INTEGRITY_BLOCKED',
+  'PAYMENT_INTEGRITY_SIGNAL',
+  'DISBURSEMENT_EXCEPTION_EXPIRING',
+  'RESCHEDULE_COUNT',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export const BUCKETS = ['OVERDUE', 'NEAR', 'LATER'] as const;
@@ -83,6 +106,24 @@ export function pathOf(item: Pick<WorkItem, 'target'>): string | undefined {
       return `/dis/dis-03?report=${item.target.id}`;
     case 'MNE-03':
       return `/mne/mne-03?report=${item.target.id}`;
+    // The money control (lane B2): the item names the project (CAP-22, PRJ-22) or the contract (PAY-18).
+    case 'CAP-22':
+      return `/cap/cap-22?project=${item.target.id}`;
+    case 'PRJ-22':
+      return `/prj/prj-22?project=${item.target.id}`;
+    case 'PAY-18':
+      return `/pay/pay-18?contract=${item.target.id}`;
+    // The directives of the steering meetings (lane DIR-1): the item names the directive.
+    case 'DIR-04':
+      return `/dir/dir-04?directive=${item.target.id}`;
+    // The integrity of the money (lane D): a payment request is opened by its id, a snapshot by its id; the registers (PAY-20, PAY-21, ADM-24, AUD-13) are opened on their own page.
+    case 'PAY-03':
+      return `/pay/pay-03?request=${item.target.id}`;
+    case 'DIS-26':
+      return `/dis/dis-26?snapshot=${item.target.id}`;
+    // The alert of the baseline (lane B1): the item names the project.
+    case 'PRJ-26':
+      return `/prj/prj-26?project=${item.target.id}`;
     default:
       return undefined;
   }

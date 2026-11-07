@@ -4,12 +4,16 @@ import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import { AlertActions } from './AlertActions';
-import type { SnoozeChoice } from './AlertActions';
 import { AlertRow, sourceLabel } from './AlertRow';
-import { clock, clockAndDay, dayMonth, morningOf, nextDay, severitySuffix, todayOf } from './format';
+import { clock, clockAndDay, dayMonth, severitySuffix, todayOf } from './format';
 import { useFocusTrap } from './focus';
 import { useAlertAction, useAlertCounts, useAlertItems, useAssignees } from './hooks';
+import { PauseDialog } from './PauseDialog';
+import { refusalText } from './refusals';
 import { SeverityIcon } from './SeverityBadge';
+import { SnoozeDialog } from './SnoozeDialog';
+import type { SnoozeSubmit } from './SnoozeDialog';
+import type { PauseSubmit } from './PauseDialog';
 import { SEVERITIES } from './types';
 import type { AlertItem, AlertView, Severity } from './types';
 import './alerts.css';
@@ -17,7 +21,8 @@ import './alerts.css';
 /** How long a claim can still be taken back: the command is sent when the time is over (there is no command to release an item). */
 export const UNDO_MS = 5000;
 const HOME_QUEUE = '/home/home-02';
-const HOUR_MS = 3_600_000;
+/** HOME-12: the work held by a snooze, for the readers that have a scope. */
+const HOME_SNOOZED = '/home/home-12';
 
 type Filter = Severity | 'ALL';
 
@@ -130,13 +135,6 @@ function AssignDialog({ item, pending, refused, onSubmit, onCancel }: AssignDial
   );
 }
 
-/** The moment an item comes back for a choice of the person. */
-function snoozeUntil(choice: SnoozeChoice, now: Date): string {
-  if (choice.kind === 'hour') return new Date(now.getTime() + HOUR_MS).toISOString();
-  if (choice.kind === 'tomorrow') return morningOf(nextDay(todayOf(now)));
-  return morningOf(choice.day);
-}
-
 export interface AlertCenterProps {
   open: boolean;
   onClose: () => void;
@@ -156,6 +154,8 @@ export function AlertCenter({ open, onClose }: AlertCenterProps) {
   const [view, setView] = useState<AlertView>('mine');
   const [filter, setFilter] = useState<Filter>('ALL');
   const [assigning, setAssigning] = useState<AlertItem | undefined>(undefined);
+  const [snoozing, setSnoozing] = useState<AlertItem | undefined>(undefined);
+  const [pausing, setPausing] = useState<AlertItem | undefined>(undefined);
   const [receipt, setReceipt] = useState<Receipt | undefined>(undefined);
   const [pendingClaims, setPendingClaims] = useState<Record<string, AlertItem>>({});
   const waiting = useRef(new Map<string, { item: AlertItem; timer: ReturnType<typeof setTimeout> }>());
@@ -167,7 +167,7 @@ export function AlertCenter({ open, onClose }: AlertCenterProps) {
   const active: AlertView = view === 'scope' && !scopeKnown ? 'mine' : view;
   const counts = useAlertCounts(active, { enabled: open });
   const items = useAlertItems(active, { enabled: open });
-  const { claim, assign, snooze, me } = useAlertAction();
+  const { claim, assign, snooze, pause, resume, me } = useAlertAction();
 
   const sendClaim = useCallback(
     (item: AlertItem): void => {
@@ -214,6 +214,8 @@ export function AlertCenter({ open, onClose }: AlertCenterProps) {
     if (!open) {
       flushClaims();
       setAssigning(undefined);
+      setSnoozing(undefined);
+      setPausing(undefined);
       setReceipt(undefined);
     }
   }, [open, flushClaims]);
@@ -223,17 +225,46 @@ export function AlertCenter({ open, onClose }: AlertCenterProps) {
   const list = useMemo(() => items.data?.items ?? [], [items.data]);
   const shown = useMemo(() => list.filter((item) => filter === 'ALL' || item.severity === filter), [list, filter]);
   const unavailable = items.data?.unavailable_sources ?? [];
-  const busyId = claim.isPending ? claim.variables?.id : assign.isPending ? assign.variables?.item.id : snooze.isPending ? snooze.variables?.item.id : undefined;
+  const busyId = claim.isPending ? claim.variables?.id : assign.isPending ? assign.variables?.item.id : snooze.isPending ? snooze.variables?.item.id : pause.isPending ? pause.variables?.item.id : resume.isPending ? resume.variables?.item.id : undefined;
 
   if (!open) return null;
 
-  const snoozeItem = (item: AlertItem, choice: SnoozeChoice): void => {
-    const until = snoozeUntil(choice, new Date());
+  const openSnooze = (item: AlertItem): void => {
+    snooze.reset();
+    setSnoozing(item);
+  };
+  const openPause = (item: AlertItem): void => {
+    pause.reset();
+    setPausing(item);
+  };
+  const snoozeItem = (item: AlertItem, value: SnoozeSubmit): void => {
     snooze.mutate(
-      { item, until },
+      { item, until: value.until, reasonCode: value.reasonCode, note: value.note },
       {
-        onSuccess: () => setReceipt({ tone: 'success', text: t('alerts.receipt.snoozed', { time: clockAndDay(until) }) }),
-        onError: () => setReceipt({ tone: 'danger', text: t('alerts.receipt.failed') }),
+        onSuccess: () => {
+          setSnoozing(undefined);
+          setReceipt({ tone: 'success', text: t('alerts.receipt.snoozed', { time: clockAndDay(value.until) }) });
+        },
+      },
+    );
+  };
+  const pauseItem = (item: AlertItem, value: PauseSubmit): void => {
+    pause.mutate(
+      { item, allowedBy: value.allowedBy, reasonCode: value.reasonCode, reason: value.reason, until: value.until },
+      {
+        onSuccess: () => {
+          setPausing(undefined);
+          setReceipt({ tone: 'success', text: t('alerts.receipt.paused', { time: clockAndDay(value.until) }) });
+        },
+      },
+    );
+  };
+  const resumeItem = (item: AlertItem): void => {
+    resume.mutate(
+      { item },
+      {
+        onSuccess: () => setReceipt({ tone: 'success', text: t('alerts.receipt.resumed') }),
+        onError: (failure) => setReceipt({ tone: 'danger', text: refusalText(t, 'resume', failure) ?? t('alerts.receipt.failed') }),
       },
     );
   };
@@ -360,7 +391,7 @@ export function AlertCenter({ open, onClose }: AlertCenterProps) {
                   }
                   actions={
                     held === undefined ? (
-                      <AlertActions item={item} can={{ claim: true, assign: true, snooze: true }} busy={busyId === item.id} onClaim={() => startClaim(item)} onAssign={() => setAssigning(item)} onSnooze={(choice) => snoozeItem(item, choice)} />
+                      <AlertActions item={item} can={{ claim: true, assign: true, snooze: true, pause: true }} busy={busyId === item.id} onClaim={() => startClaim(item)} onAssign={() => setAssigning(item)} onSnooze={() => openSnooze(item)} onPause={() => openPause(item)} onResume={() => resumeItem(item)} />
                     ) : null
                   }
                 />
@@ -372,6 +403,11 @@ export function AlertCenter({ open, onClose }: AlertCenterProps) {
 
       <footer className="mv-alert-drawer__foot">
         {items.data?.as_of == null ? null : <span className="mv-alert-muted">{t('alerts.center.asOf', { time: clock(items.data.as_of) })}</span>}
+        {scopeKnown ? (
+          <Link to={HOME_SNOOZED} className="mv-alert-link" onClick={onClose}>
+            {t('alerts.center.viewSnoozed')}
+          </Link>
+        ) : null}
         <Link to={HOME_QUEUE} className="mv-alert-link" onClick={onClose}>
           {t('alerts.center.viewAll')}
         </Link>
@@ -380,6 +416,16 @@ export function AlertCenter({ open, onClose }: AlertCenterProps) {
       {assigning === undefined ? null : (
         <div className="mv-alert-dialog-layer">
           <AssignDialog item={assigning} pending={assign.isPending} refused={assign.isError} onCancel={() => setAssigning(undefined)} onSubmit={(assignee, dueOn) => assignItem(assigning, assignee, dueOn)} />
+        </div>
+      )}
+      {snoozing === undefined ? null : (
+        <div className="mv-alert-dialog-layer">
+          <SnoozeDialog item={snoozing} pending={snooze.isPending} error={snooze.error} onCancel={() => setSnoozing(undefined)} onSubmit={(value) => snoozeItem(snoozing, value)} />
+        </div>
+      )}
+      {pausing === undefined ? null : (
+        <div className="mv-alert-dialog-layer">
+          <PauseDialog item={pausing} pending={pause.isPending} error={pause.error} onCancel={() => setPausing(undefined)} onSubmit={(value) => pauseItem(pausing, value)} />
         </div>
       )}
     </DrawerFrame>

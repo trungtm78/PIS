@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import { editionAccess, editionRoutes } from '../editions/edition';
+import { useEdition } from '../editions/EditionContext';
 import { useTranslation } from '../i18n';
 import { ARCHITECTURE } from '../navigation/architecture';
 import { buildNavigation } from '../navigation/model';
@@ -45,7 +47,8 @@ export function Shell() {
   const session = useSession();
   const location = useLocation();
   const route = routeByPath(location.pathname);
-  const navigation = useMemo(() => buildNavigation(ARCHITECTURE, WEB_ROUTES, session.access), [session.access]);
+  const { manifest } = useEdition();
+  const navigation = useMemo(() => buildNavigation(ARCHITECTURE, editionRoutes(WEB_ROUTES, manifest), editionAccess(session.access, manifest)), [session.access, manifest]);
   const { favourites, toggle, move, isPinned } = useFavourites(isWebScreen);
   const narrow = useMediaQuery(DRAWER_QUERY);
   const [drawerOpen, setDrawerOpen] = useState(false);

@@ -108,6 +108,10 @@ export function problemMessage(t: Translate, problem: Problem): string {
       return t('pay.payment.error.advanceExceeded');
     case 'allocationUnavailable':
       return t('pay.payment.error.allocationUnavailable');
+    case 'disbursementNotListed':
+      return t('govb1.pay.error.notListed');
+    case 'disbursementNoPlan':
+      return t('govb1.pay.error.noPlan');
     case 'planYear':
       return t('pay.payment.error.planYear');
     case 'nationalCode':

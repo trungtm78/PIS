@@ -41,7 +41,9 @@ describe('buildNavigation for the real architecture file', () => {
 
   it('builds the directory of a module from its task groups', () => {
     const groups = model.directory('ADM');
-    expect(groups.map((group) => group.title)).toEqual(['Tổ chức & con người', 'Quy trình & cấu hình', 'Tích hợp & an toàn']);
+    expect(groups.map((group) => group.title)).toEqual(['Tổ chức & con người', 'Quy trình & cấu hình', 'Tích hợp & an toàn', 'Quy tắc quản trị']);
+    // The governance rule screens are one group: the catalogue and the alert type registry lead, the rest hang under the catalogue.
+    expect(groups[3]?.links.map((link) => link.id)).toEqual(expect.arrayContaining(['ADM-19', 'ADM-23']));
     const first = groups[0]?.links.map((link) => link.id) ?? [];
     expect(first.slice(0, 4)).toEqual(['ADM-01', 'ADM-02', 'ADM-03', 'ADM-04']);
     expect(first).toEqual(expect.arrayContaining(['ADM-15', 'ADM-16', 'ADM-17']));

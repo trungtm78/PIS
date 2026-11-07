@@ -1,0 +1,77 @@
+/* Payment integrity (PAY-03 panel, PAY-21, AUD-12; lane D): tokens only, no hex. */
+.integrity-rule {
+  display: grid;
+  gap: var(--mv-space-4);
+  margin: var(--mv-space-8) 0;
+}
+.integrity-rule p {
+  margin: 0;
+}
+.integrity-group {
+  margin: var(--mv-space-12) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--mv-space-8);
+}
+.integrity-finding {
+  border: 1px solid var(--mv-color-border);
+  border-left-width: 4px;
+  border-radius: var(--mv-radius-card);
+  padding: var(--mv-space-8) var(--mv-space-12);
+}
+.integrity-finding--block {
+  border-left-color: var(--mv-color-danger);
+}
+.integrity-finding--signal {
+  border-left-color: var(--mv-color-warning);
+}
+.integrity-finding--excused {
+  border-left-color: var(--mv-color-success);
+}
+.integrity-finding h4 {
+  margin: 0;
+  display: flex;
+  gap: var(--mv-space-8);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.integrity-finding p {
+  margin: var(--mv-space-4) 0;
+}
+.integrity-figures {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--mv-space-4) var(--mv-space-16);
+  margin: var(--mv-space-4) 0 0;
+}
+.integrity-figures dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.integrity-form {
+  display: grid;
+  gap: var(--mv-space-12);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  align-items: end;
+  margin-top: var(--mv-space-12);
+}
+.integrity-form h4,
+.integrity-form .callout {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+.integrity-form label {
+  display: grid;
+  gap: var(--mv-space-4);
+}
+.integrity-actions {
+  display: inline-flex;
+  gap: var(--mv-space-8);
+  flex-wrap: wrap;
+  margin-top: var(--mv-space-8);
+}
+.integrity-error {
+  border-color: var(--mv-color-danger);
+  color: var(--mv-color-danger);
+}

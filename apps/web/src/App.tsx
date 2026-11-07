@@ -3,6 +3,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { lazy, Suspense, useEffect, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { applyBrand } from './editions/brand';
+import { editionRoutes } from './editions/edition';
+import { useEdition } from './editions/EditionContext';
 import { useTranslation } from './i18n';
 import { ARCHITECTURE } from './navigation/architecture';
 import { resolveScreen, routeById } from './routes/registry';
@@ -11,6 +14,8 @@ import { DocumentLink } from './routes/DocumentLink';
 import { OpaqueLink } from './routes/OpaqueLink';
 import { WEB_ROUTES } from './routes/web-routes';
 import type { ScreenLoader, WebRoute } from './routes/types';
+import { PwaRoutes } from './pwa/PwaRoutes';
+import { PwaSessionGuard } from './pwa/PwaSessionGuard';
 import { Shell } from './shell/Shell';
 import { oidcConfigFromEnv, oidcRequestedInDevelopment, CALLBACK_PATH } from './session/oidc/config';
 import OidcSessionProvider from './session/oidc/OidcSessionProvider';
@@ -80,14 +85,18 @@ function ScreenHost({ route, screenModules }: { route: WebRoute; screenModules: 
 
 /** The route tree: the shell around every screen of the route table, a redirect from the root and the not-found state. */
 export function AppRoutes({ screenModules }: AppRoutesProps) {
+  const { manifest } = useEdition();
+  const routes = useMemo(() => editionRoutes(WEB_ROUTES, manifest), [manifest]);
   return (
     <PublishedThemeProvider base={TOKENS}>
       <Routes>
         <Route element={<Shell />}>
           <Route index element={<Navigate to={routeById(HOME)?.path ?? '/'} replace />} />
-          {WEB_ROUTES.map((route) => (
+          {routes.map((route) => (
             <Route key={route.id} path={route.path} element={<ScreenHost route={route} screenModules={screenModules} />} />
           ))}
+          {/* The manager application of the installed PWA (YCK.01): its start page and three screens. */}
+          <Route path="/m/*" element={<PwaRoutes />} />
           {/* The link a push carries: it names the notification only (ST-NOT-007). */}
           <Route path="/r/:id" element={<OpaqueLink />} />
           {/* The link a message to a person carries for a file or a record: it names the version of a document only (ST-OMNI-005). */}
@@ -130,12 +139,14 @@ function AppSession({ children }: { children: ReactNode }) {
 
 const queryClient = new QueryClient();
 
-/** The browser tab title: the application name in the current language. */
+/** The browser tab title: the application name in the current language (the edition's overlay says it), and the brand of the edition in the head. */
 function DocumentTitle() {
   const { t, locale } = useTranslation();
+  const { manifest } = useEdition();
   useEffect(() => {
     document.title = t('shell.app.name.title');
-  }, [t, locale]);
+    applyBrand(document, manifest, locale);
+  }, [t, locale, manifest]);
   return null;
 }
 
@@ -144,9 +155,11 @@ export function App() {
     <QueryClientProvider client={queryClient}>
       <DocumentTitle />
       <AppSession>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
+        <PwaSessionGuard>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </PwaSessionGuard>
       </AppSession>
     </QueryClientProvider>
   );
