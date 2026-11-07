@@ -418,5 +418,11 @@
     "match": "D09",
     "cr": "CR-PLAN-02",
     "reason": "Note added: tenant definition decided (R6); the pilot tenant stays open."
+  },
+  {
+    "collection": "documents",
+    "match": "06_UI_UX_Design_System",
+    "cr": "CR-06-13",
+    "reason": "Default palette changes from Ruby / Porcelain to Xanh dầu điều hành (D-B11 kept binding); governance components, alert centre and information hierarchy added; design.md at the repo root is the locked system."
   }
 ]
