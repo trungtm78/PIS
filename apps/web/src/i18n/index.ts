@@ -2,6 +2,16 @@ import { useSyncExternalStore } from 'react';
 import en from './en.json';
 import vi from './vi.json';
 
+/**
+ * Strings added by a work in progress live in `parts/<name>.vi.json` and `parts/<name>.en.json`, so that people working in parallel never edit the one big catalogue;
+ * `scripts/fold-i18n-parts.mjs` folds them into `vi.json` and `en.json`. A part never replaces a key of the catalogue.
+ */
+const viParts = import.meta.glob<Record<string, string>>('./parts/*.vi.json', { eager: true, import: 'default' });
+const enParts = import.meta.glob<Record<string, string>>('./parts/*.en.json', { eager: true, import: 'default' });
+const withParts = (base: Record<string, string>, parts: Record<string, Record<string, string>>): Record<string, string> => Object.assign({}, ...Object.values(parts), base) as Record<string, string>;
+const viAll = withParts(vi, viParts);
+const enAll = withParts(en, enParts);
+
 export type Locale = 'vi' | 'en';
 /** The keys of the Vietnamese catalogue, the default locale and the reference for the English one. */
 export type MessageKey = keyof typeof vi;
@@ -72,7 +82,7 @@ export function createTranslator(options: TranslatorOptions): Translator {
 /** The application translator: Vietnamese by default, strict under test so an unknown key fails the test. */
 export const translator = createTranslator({
   locale: DEFAULT_LOCALE,
-  catalogues: { vi, en },
+  catalogues: { vi: viAll, en: enAll },
   strict: import.meta.env.MODE === 'test',
   onMissing: (key, locale) => {
     if (import.meta.env.DEV) console.warn(`Missing translation: ${key} [${locale}]`);
