@@ -1,0 +1,38 @@
+{
+  "id": "FIN-REF-003",
+  "title": "Two equal inflows of 60 for an outlay of 100",
+  "source": "Quadratic by hand: 60x^2 + 60x - 100 = 0 with x = 1 / (1 + r)",
+  "hand_computation": [
+    "x = (-60 + sqrt(3600 + 24000)) / 120 = 0.8844373",
+    "r = 1 / x - 1 = 0.13066239 -> 13.066239%",
+    "NPV(10%) = -100 + 54.5455 + 49.5868 = 4.1322 -> 4.13",
+    "Simple payback: cumulative -100, -40, +20 -> 1 + 40 / 60 = 1.6667",
+    "Discounted: cumulative -100, -45.4545, +4.1322 -> 1 + 45.4545 / 49.5868 = 1.9167"
+  ],
+  "input": {
+    "periodUnit": "YEAR",
+    "discountRatePct": "10",
+    "convention": "END",
+    "lines": [
+      {
+        "period": 0,
+        "capex": "100"
+      },
+      {
+        "period": 1,
+        "benefit": "60"
+      },
+      {
+        "period": 2,
+        "benefit": "60"
+      }
+    ]
+  },
+  "expected": {
+    "npv": "4.13",
+    "irr_pct": "13.066239",
+    "payback": "1.6667",
+    "discounted_payback": "1.9167"
+  },
+  "tolerance": "Exact cases are compared as text, character for character. Hand-computed cases state the result rounded the way the module rounds (half away from zero): money to 2 decimals, IRR in percent to 6, payback periods and ratios to 4. The module computes with exact rationals, so a stated value must match after that rounding; an independent floating point check of the same case is allowed a difference of 1e-6 relative."
+}

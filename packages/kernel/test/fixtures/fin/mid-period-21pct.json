@@ -1,0 +1,30 @@
+{
+  "id": "FIN-REF-010",
+  "title": "Mid-period convention at 21%: the square root of 1.21 is exactly 1.1",
+  "source": "1100 / 1.21^(1/2) = 1100 / 1.1 = 1000",
+  "hand_computation": [
+    "MID: NPV = -1000 + 1100 / 1.1 = 0 exactly",
+    "END on the same flows: -1000 + 1100 / 1.21 = -90.91"
+  ],
+  "input": {
+    "periodUnit": "YEAR",
+    "discountRatePct": "21",
+    "convention": "MID",
+    "lines": [
+      {
+        "period": 0,
+        "capex": "1000"
+      },
+      {
+        "period": 1,
+        "benefit": "1100"
+      }
+    ]
+  },
+  "expected": {
+    "npv": "0.00",
+    "discounted_payback": "1.0000",
+    "bcr": "1.0000"
+  },
+  "tolerance": "Exact cases are compared as text, character for character. Hand-computed cases state the result rounded the way the module rounds (half away from zero): money to 2 decimals, IRR in percent to 6, payback periods and ratios to 4. The module computes with exact rationals, so a stated value must match after that rounding; an independent floating point check of the same case is allowed a difference of 1e-6 relative."
+}

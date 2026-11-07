@@ -1,0 +1,41 @@
+{
+  "id": "FIN-REF-007",
+  "title": "Two sign changes with two rates that make the NPV zero (100% and 200%)",
+  "source": "The classic -1, 5, -6 pattern (multiple rates of return in the corporate finance texts), scaled by 1000",
+  "hand_computation": [
+    "NPV(100%) = -1000 + 5000 / 2 - 6000 / 4 = 0; NPV(200%) = -1000 + 5000 / 3 - 6000 / 9 = 0",
+    "Two roots: the IRR is not reported (MULTIPLE_ROOTS) and the two candidates are listed",
+    "NPV(10%) = -1000 + 4545.4545 - 4958.6777 = -1413.2231 -> -1413.22",
+    "Simple payback: cumulative -1000, +4000, -2000 -> 0 + 1000 / 5000 = 0.2, and it falls below zero again"
+  ],
+  "input": {
+    "periodUnit": "YEAR",
+    "discountRatePct": "10",
+    "convention": "END",
+    "lines": [
+      {
+        "period": 0,
+        "capex": "1000"
+      },
+      {
+        "period": 1,
+        "benefit": "5000"
+      },
+      {
+        "period": 2,
+        "opex": "6000"
+      }
+    ]
+  },
+  "expected": {
+    "npv": "-1413.22",
+    "irr_reason": "MULTIPLE_ROOTS",
+    "irr_candidates_pct": [
+      "100.000000",
+      "200.000000"
+    ],
+    "payback": "0.2000",
+    "bcr": "0.7628"
+  },
+  "tolerance": "Exact cases are compared as text, character for character. Hand-computed cases state the result rounded the way the module rounds (half away from zero): money to 2 decimals, IRR in percent to 6, payback periods and ratios to 4. The module computes with exact rationals, so a stated value must match after that rounding; an independent floating point check of the same case is allowed a difference of 1e-6 relative."
+}

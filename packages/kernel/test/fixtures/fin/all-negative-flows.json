@@ -1,0 +1,42 @@
+{
+  "id": "FIN-REF-006",
+  "title": "Only costs: no IRR, nothing to pay back",
+  "source": "Outlay 100 then two operating costs of 50 at 10%",
+  "hand_computation": [
+    "NPV = -100 - 45.4545 - 41.3223 = -186.7769 -> -186.78",
+    "No change of sign: IRR does not apply (NO_SIGN_CHANGE)",
+    "Cumulative never returns to zero: NOT_RECOVERED",
+    "B/C = 0 / 186.78 = 0"
+  ],
+  "input": {
+    "periodUnit": "YEAR",
+    "discountRatePct": "10",
+    "convention": "END",
+    "lines": [
+      {
+        "period": 0,
+        "capex": "100"
+      },
+      {
+        "period": 1,
+        "opex": "50"
+      },
+      {
+        "period": 2,
+        "opex": "50"
+      }
+    ]
+  },
+  "expected": {
+    "npv": "-186.78",
+    "irr_reason": "NO_SIGN_CHANGE",
+    "payback_reason": "NOT_RECOVERED",
+    "discounted_payback_reason": "NOT_RECOVERED",
+    "bcr": "0.0000",
+    "tco": {
+      "nominal": "200.00",
+      "present_value": "186.78"
+    }
+  },
+  "tolerance": "Exact cases are compared as text, character for character. Hand-computed cases state the result rounded the way the module rounds (half away from zero): money to 2 decimals, IRR in percent to 6, payback periods and ratios to 4. The module computes with exact rationals, so a stated value must match after that rounding; an independent floating point check of the same case is allowed a difference of 1e-6 relative."
+}

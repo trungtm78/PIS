@@ -1,0 +1,1016 @@
+# PVN-QUARTERLY-F2 v1 status=DEMO stamp=MẪU DEMO — chờ mẫu chính thức sheet=Bieu 2 scale=MILLION_VND
+# rows=60 inserted=29
+A1	TEXT	MẪU DEMO — chờ mẫu chính thức	-	-
+A2	TEXT	TẬP ĐOÀN MẪU	-	-
+W2	TEXT	Biểu: PVN-02/QUY	-	-
+A3	TEXT	TỔNG CÔNG TY MẪU (số liệu minh họa)	-	-
+A4	TEXT	BIỂU 2 - BÁO CÁO TÌNH HÌNH THỰC HIỆN KẾ HOẠCH ĐẦU TƯ XÂY DỰNG CƠ BẢN VÀ MUA SẮM TRANG THIẾT BỊ THEO QUÝ	-	-
+A5	TEXT	Quý III năm 2026	-	-
+W6	TEXT	Đơn vị tính: triệu đồng	-	-
+A7	TEXT	Kế hoạch vốn năm hiện hành (triệu đồng)	-	-
+F7	TEXT	Thực hiện trong quý (triệu đồng)	-	-
+K7	TEXT	Giải ngân trong quý (triệu đồng)	-	-
+P7	TEXT	Ước thực hiện cả năm (triệu đồng)	-	-
+T7	TEXT	Tỷ lệ ước cả năm so kế hoạch (%)	-	-
+X7	TEXT	Tỷ lệ giải ngân lũy kế (%)	-	-
+A8	NUMBER	1014051	#,##0	INDICATOR:ENT_PLAN_IN_FORCE@FULL_YEAR
+F8	NUMBER	118600	#,##0	INDICATOR:ENT_EXECUTED_PERIOD@IN_PERIOD
+K8	NUMBER	94613	#,##0	INDICATOR:ENT_DISBURSED_PERIOD@IN_PERIOD
+P8	NUMBER	919349	#,##0	INDICATOR:ENT_OUTLOOK_YEAR@FULL_YEAR
+T8	NUMBER	90.7	#,##0.0	INDICATOR:ENT_RATE_OUTLOOK_YEAR@FULL_YEAR
+X8	NUMBER	36.8	#,##0.0	INDICATOR:ENT_RATE_DISBURSED_YTD@YEAR_TO_DATE
+A11	TEXT	I. ĐẦU TƯ XÂY DỰNG CƠ BẢN	-	-
+A12	NUMBER	1	0	-
+B12	TEXT	DTXD-01	-	-
+C12	TEXT	Cải tạo hệ thống làm mát khu vực A (minh họa)	-	-
+D12	TEXT	A	-	-
+E12	NUMBER	20000	#,##0	-
+F12	NUMBER	4000	#,##0	-
+G12	NUMBER	3000	#,##0	-
+H12	NUMBER	180	#,##0	-
+I12	NUMBER	108	#,##0	-
+J12	NUMBER	180	#,##0	-
+K12	NUMBER	690	#,##0	-
+L12	NUMBER	380	#,##0	-
+M12	NUMBER	1690	#,##0	-
+N12	NUMBER	1183	#,##0	-
+O12	NUMBER	2100	#,##0	-
+P12	FORMULA	IF(G12>0,ROUND(K12/G12*100,1),"")	#,##0.0	-
+Q12	FORMULA	IF(G12>0,ROUND(L12/G12*100,1),"")	#,##0.0	-
+R12	FORMULA	IF(G12>0,ROUND(O12/G12*100,1),"")	#,##0.0	-
+S12	NUMBER	1050	#,##0	-
+T12	NUMBER	600	#,##0	-
+U12	NUMBER	1350	#,##0	-
+V12	TEXT	Đang thi công, khối lượng đạt theo kế hoạch	-	-
+W12	TEXT	Đúng tiến độ	-	-
+X12	TEXT	Thời tiết ảnh hưởng thi công	-	-
+Y12	TEXT	Vướng mắc thủ tục điều chỉnh dự toán; đã trình phê duyệt, dự kiến hoàn tất trong kỳ tới	-	-
+Z12	TEXT	Hoàn thành hạng mục chính và nghiệm thu giai đoạn	-	-
+AA12	EMPTY		-	-
+A13	NUMBER	2	0	-
+B13	TEXT	DTXD-02	-	-
+C13	TEXT	Xây dựng kho chứa vật tư số 2 (minh họa)	-	-
+D13	TEXT	B	-	-
+E13	NUMBER	27919	#,##0	-
+F13	NUMBER	9213	#,##0	-
+G13	NUMBER	10713	#,##0	-
+H13	NUMBER	964	#,##0	-
+I13	NUMBER	684	#,##0	-
+J13	NUMBER	993	#,##0	-
+K13	NUMBER	4071	#,##0	-
+L13	NUMBER	2524	#,##0	-
+M13	NUMBER	5746	#,##0	-
+N13	NUMBER	4080	#,##0	-
+O13	NUMBER	8463	#,##0	-
+P13	FORMULA	IF(G13>0,ROUND(K13/G13*100,1),"")	#,##0.0	-
+Q13	FORMULA	IF(G13>0,ROUND(L13/G13*100,1),"")	#,##0.0	-
+R13	FORMULA	IF(G13>0,ROUND(O13/G13*100,1),"")	#,##0.0	-
+S13	NUMBER	3857	#,##0	-
+T13	NUMBER	2464	#,##0	-
+U13	NUMBER	4392	#,##0	-
+V13	TEXT	Đang lựa chọn nhà thầu	-	-
+W13	TEXT	Đúng tiến độ	-	-
+X13	TEXT	Chờ phê duyệt điều chỉnh thiết kế	-	-
+Y13	EMPTY		-	-
+Z13	TEXT	Ký hợp đồng và triển khai thi công	-	-
+AA13	TEXT	Đề nghị xem xét điều chỉnh kế hoạch vốn năm	-	-
+A14	NUMBER	3	0	-
+B14	TEXT	DTXD-03	-	-
+C14	TEXT	Nâng cấp trạm biến áp 110kV (minh họa)	-	-
+D14	TEXT	C	-	-
+E14	NUMBER	35838	#,##0	-
+F14	NUMBER	16485	#,##0	-
+G14	NUMBER	16985	#,##0	-
+H14	NUMBER	2038	#,##0	-
+I14	NUMBER	1671	#,##0	-
+J14	NUMBER	2160	#,##0	-
+K14	NUMBER	9002	#,##0	-
+L14	NUMBER	6211	#,##0	-
+M14	NUMBER	11511	#,##0	-
+N14	NUMBER	8288	#,##0	-
+O14	NUMBER	14947	#,##0	-
+P14	FORMULA	IF(G14>0,ROUND(K14/G14*100,1),"")	#,##0.0	-
+Q14	FORMULA	IF(G14>0,ROUND(L14/G14*100,1),"")	#,##0.0	-
+R14	FORMULA	IF(G14>0,ROUND(O14/G14*100,1),"")	#,##0.0	-
+S14	NUMBER	6284	#,##0	-
+T14	NUMBER	4416	#,##0	-
+U14	NUMBER	6285	#,##0	-
+V14	TEXT	Đang thi công, thiếu một phần vật tư	-	-
+W14	TEXT	Chậm tiến độ	-	-
+X14	TEXT	Nhà thầu chậm cung cấp thiết bị	-	-
+Y14	TEXT	Thiếu mặt bằng thi công một phần; đang phối hợp với đơn vị liên quan để bàn giao	-	-
+Z14	TEXT	Giải ngân theo tiến độ hợp đồng	-	-
+AA14	EMPTY		-	-
+A15	NUMBER	4	0	-
+B15	TEXT	DTXD-04	-	-
+C15	TEXT	Lắp đặt hệ thống xử lý nước thải giai đoạn 2 (minh họa)	-	-
+D15	TEXT	A	-	-
+E15	NUMBER	43757	#,##0	-
+F15	NUMBER	12690	#,##0	-
+G15	NUMBER	12190	#,##0	-
+H15	NUMBER	1829	#,##0	-
+I15	NUMBER	1701	#,##0	-
+J15	NUMBER	1994	#,##0	-
+K15	NUMBER	8289	#,##0	-
+L15	NUMBER	6300	#,##0	-
+M15	NUMBER	11790	#,##0	-
+N15	NUMBER	8607	#,##0	-
+O15	NUMBER	11824	#,##0	-
+P15	FORMULA	IF(G15>0,ROUND(K15/G15*100,1),"")	#,##0.0	-
+Q15	FORMULA	IF(G15>0,ROUND(L15/G15*100,1),"")	#,##0.0	-
+R15	FORMULA	IF(G15>0,ROUND(O15/G15*100,1),"")	#,##0.0	-
+S15	NUMBER	4632	#,##0	-
+T15	NUMBER	3535	#,##0	-
+U15	NUMBER	4023	#,##0	-
+V15	TEXT	Đã hoàn thành lắp đặt, chờ nghiệm thu	-	-
+W15	TEXT	Vượt tiến độ	-	-
+X15	EMPTY		-	-
+Y15	TEXT	Giá vật tư biến động; đã đề nghị nhà thầu xác nhận lại đơn giá	-	-
+Z15	TEXT	Nghiệm thu và quyết toán hạng mục	-	-
+AA15	TEXT	Đề nghị chỉ đạo đẩy nhanh thủ tục phê duyệt	-	-
+A16	NUMBER	5	0	-
+B16	TEXT	DTXD-05	-	-
+C16	TEXT	Xây dựng nhà điều hành trung tâm (minh họa)	-	-
+D16	TEXT	B	-	-
+E16	NUMBER	51676	#,##0	-
+F16	NUMBER	21704	#,##0	-
+G16	NUMBER	23704	#,##0	-
+H16	NUMBER	4267	#,##0	-
+I16	NUMBER	2731	#,##0	-
+J16	NUMBER	4779	#,##0	-
+K16	NUMBER	8059	#,##0	-
+L16	NUMBER	6689	#,##0	-
+M16	NUMBER	12710	#,##0	-
+N16	NUMBER	9405	#,##0	-
+O16	NUMBER	25126	#,##0	-
+P16	FORMULA	IF(G16>0,ROUND(K16/G16*100,1),"")	#,##0.0	-
+Q16	FORMULA	IF(G16>0,ROUND(L16/G16*100,1),"")	#,##0.0	-
+R16	FORMULA	IF(G16>0,ROUND(O16/G16*100,1),"")	#,##0.0	-
+S16	NUMBER	9245	#,##0	-
+T16	NUMBER	7585	#,##0	-
+U16	NUMBER	6874	#,##0	-
+V16	TEXT	Đang thương thảo hợp đồng	-	-
+W16	TEXT	Đúng tiến độ	-	-
+X16	TEXT	Thủ tục thanh toán kéo dài	-	-
+Y16	EMPTY		-	-
+Z16	EMPTY		-	-
+AA16	EMPTY		-	-
+A17	NUMBER	6	0	-
+B17	TEXT	DTXD-06	-	-
+C17	TEXT	Cải tạo đường nội bộ khu vực B (minh họa)	-	-
+D17	TEXT	C	-	-
+E17	NUMBER	59595	#,##0	-
+F17	NUMBER	14899	#,##0	-
+G17	NUMBER	15899	#,##0	-
+H17	NUMBER	954	#,##0	-
+I17	NUMBER	716	#,##0	-
+J17	NUMBER	954	#,##0	-
+K17	NUMBER	7950	#,##0	-
+L17	NUMBER	7155	#,##0	-
+M17	NUMBER	13910	#,##0	-
+N17	NUMBER	10433	#,##0	-
+O17	NUMBER	11924	#,##0	-
+P17	FORMULA	IF(G17>0,ROUND(K17/G17*100,1),"")	#,##0.0	-
+Q17	FORMULA	IF(G17>0,ROUND(L17/G17*100,1),"")	#,##0.0	-
+R17	FORMULA	IF(G17>0,ROUND(O17/G17*100,1),"")	#,##0.0	-
+S17	NUMBER	6360	#,##0	-
+T17	NUMBER	5565	#,##0	-
+U17	NUMBER	3974	#,##0	-
+V17	TEXT	Đang chuẩn bị đầu tư	-	-
+W17	TEXT	Chậm tiến độ	-	-
+X17	EMPTY		-	-
+Y17	TEXT	Chậm nghiệm thu khối lượng; đã lập kế hoạch nghiệm thu theo đợt	-	-
+Z17	TEXT	Hoàn thiện hồ sơ thanh toán	-	-
+AA17	EMPTY		-	-
+A18	NUMBER	7	0	-
+B18	TEXT	DTXD-07	-	-
+C18	TEXT	Hệ thống phòng cháy chữa cháy khu kho (minh họa)	-	-
+D18	TEXT	A	-	-
+E18	NUMBER	67514	#,##0	-
+F18	NUMBER	25655	#,##0	-
+G18	NUMBER	25655	#,##0	-
+H18	NUMBER	2309	#,##0	-
+I18	NUMBER	1986	#,##0	-
+J18	NUMBER	2378	#,##0	-
+K18	NUMBER	16676	#,##0	-
+L18	NUMBER	9505	#,##0	-
+M18	NUMBER	24103	#,##0	-
+N18	NUMBER	18318	#,##0	-
+O18	NUMBER	21550	#,##0	-
+P18	FORMULA	IF(G18>0,ROUND(K18/G18*100,1),"")	#,##0.0	-
+Q18	FORMULA	IF(G18>0,ROUND(L18/G18*100,1),"")	#,##0.0	-
+R18	FORMULA	IF(G18>0,ROUND(O18/G18*100,1),"")	#,##0.0	-
+S18	NUMBER	10519	#,##0	-
+T18	NUMBER	9749	#,##0	-
+U18	NUMBER	5387	#,##0	-
+V18	TEXT	Đang thi công, khối lượng đạt theo kế hoạch	-	-
+W18	TEXT	Đúng tiến độ	-	-
+X18	TEXT	Thời tiết ảnh hưởng thi công	-	-
+Y18	TEXT	Vướng mắc thủ tục điều chỉnh dự toán; đã trình phê duyệt, dự kiến hoàn tất trong kỳ tới	-	-
+Z18	TEXT	Hoàn thành hạng mục chính và nghiệm thu giai đoạn	-	-
+AA18	EMPTY		-	-
+A19	NUMBER	8	0	-
+B19	TEXT	DTXD-08	-	-
+C19	TEXT	Xây dựng bể chứa nguyên liệu số 3 (minh họa)	-	-
+D19	TEXT	B	-	-
+E19	NUMBER	75433	#,##0	-
+F19	NUMBER	15841	#,##0	-
+G19	NUMBER	14841	#,##0	-
+H19	NUMBER	1781	#,##0	-
+I19	NUMBER	1728	#,##0	-
+J19	NUMBER	1888	#,##0	-
+K19	NUMBER	4601	#,##0	-
+L19	NUMBER	2945	#,##0	-
+M19	NUMBER	13653	#,##0	-
+N19	NUMBER	10513	#,##0	-
+O19	NUMBER	13802	#,##0	-
+P19	FORMULA	IF(G19>0,ROUND(K19/G19*100,1),"")	#,##0.0	-
+Q19	FORMULA	IF(G19>0,ROUND(L19/G19*100,1),"")	#,##0.0	-
+R19	FORMULA	IF(G19>0,ROUND(O19/G19*100,1),"")	#,##0.0	-
+S19	NUMBER	6233	#,##0	-
+T19	NUMBER	3117	#,##0	-
+U19	NUMBER	5491	#,##0	-
+V19	TEXT	Đang lựa chọn nhà thầu	-	-
+W19	TEXT	Đúng tiến độ	-	-
+X19	TEXT	Chờ phê duyệt điều chỉnh thiết kế	-	-
+Y19	EMPTY		-	-
+Z19	TEXT	Ký hợp đồng và triển khai thi công	-	-
+AA19	TEXT	Đề nghị xem xét điều chỉnh kế hoạch vốn năm	-	-
+A20	NUMBER	9	0	-
+B20	TEXT	DTXD-09	-	-
+C20	TEXT	Nâng cấp hệ thống điều khiển phân tán (minh họa)	-	-
+D20	TEXT	C	-	-
+E20	NUMBER	83352	#,##0	-
+F20	NUMBER	28340	#,##0	-
+G20	NUMBER	29840	#,##0	-
+H20	NUMBER	4476	#,##0	-
+I20	NUMBER	3044	#,##0	-
+J20	NUMBER	4879	#,##0	-
+K20	NUMBER	13726	#,##0	-
+L20	NUMBER	9745	#,##0	-
+M20	NUMBER	24562	#,##0	-
+N20	NUMBER	19158	#,##0	-
+O20	NUMBER	30437	#,##0	-
+P20	FORMULA	IF(G20>0,ROUND(K20/G20*100,1),"")	#,##0.0	-
+Q20	FORMULA	IF(G20>0,ROUND(L20/G20*100,1),"")	#,##0.0	-
+R20	FORMULA	IF(G20>0,ROUND(O20/G20*100,1),"")	#,##0.0	-
+S20	NUMBER	12831	#,##0	-
+T20	NUMBER	7162	#,##0	-
+U20	NUMBER	9847	#,##0	-
+V20	TEXT	Đang thi công, thiếu một phần vật tư	-	-
+W20	TEXT	Chậm tiến độ	-	-
+X20	TEXT	Nhà thầu chậm cung cấp thiết bị	-	-
+Y20	TEXT	Thiếu mặt bằng thi công một phần; đang phối hợp với đơn vị liên quan để bàn giao	-	-
+Z20	TEXT	Giải ngân theo tiến độ hợp đồng	-	-
+AA20	EMPTY		-	-
+A21	NUMBER	10	0	-
+B21	TEXT	DTXD-10	-	-
+C21	TEXT	Lắp đặt hệ thống camera giám sát (minh họa)	-	-
+D21	TEXT	A	-	-
+E21	NUMBER	91271	#,##0	-
+F21	NUMBER	42897	#,##0	-
+G21	NUMBER	43397	#,##0	-
+H21	NUMBER	7811	#,##0	-
+I21	NUMBER	6171	#,##0	-
+J21	NUMBER	8748	#,##0	-
+K21	NUMBER	26472	#,##0	-
+L21	NUMBER	20648	#,##0	-
+M21	NUMBER	39250	#,##0	-
+N21	NUMBER	31008	#,##0	-
+O21	NUMBER	30812	#,##0	-
+P21	FORMULA	IF(G21>0,ROUND(K21/G21*100,1),"")	#,##0.0	-
+Q21	FORMULA	IF(G21>0,ROUND(L21/G21*100,1),"")	#,##0.0	-
+R21	FORMULA	IF(G21>0,ROUND(O21/G21*100,1),"")	#,##0.0	-
+S21	NUMBER	19095	#,##0	-
+T21	NUMBER	11717	#,##0	-
+U21	NUMBER	12585	#,##0	-
+V21	TEXT	Đã hoàn thành lắp đặt, chờ nghiệm thu	-	-
+W21	TEXT	Vượt tiến độ	-	-
+X21	EMPTY		-	-
+Y21	TEXT	Giá vật tư biến động; đã đề nghị nhà thầu xác nhận lại đơn giá	-	-
+Z21	TEXT	Nghiệm thu và quyết toán hạng mục	-	-
+AA21	TEXT	Đề nghị chỉ đạo đẩy nhanh thủ tục phê duyệt	-	-
+A22	NUMBER	11	0	-
+B22	TEXT	DTXD-11	-	-
+C22	TEXT	Xây dựng nhà xưởng bảo dưỡng cơ khí (minh họa)	-	-
+D22	TEXT	B	-	-
+E22	NUMBER	99190	#,##0	-
+F22	NUMBER	29757	#,##0	-
+G22	NUMBER	29257	#,##0	-
+H22	NUMBER	1755	#,##0	-
+I22	NUMBER	1580	#,##0	-
+J22	NUMBER	1755	#,##0	-
+K22	NUMBER	7899	#,##0	-
+L22	NUMBER	6714	#,##0	-
+M22	NUMBER	22778	#,##0	-
+N22	NUMBER	18222	#,##0	-
+O22	NUMBER	23406	#,##0	-
+P22	FORMULA	IF(G22>0,ROUND(K22/G22*100,1),"")	#,##0.0	-
+Q22	FORMULA	IF(G22>0,ROUND(L22/G22*100,1),"")	#,##0.0	-
+R22	FORMULA	IF(G22>0,ROUND(O22/G22*100,1),"")	#,##0.0	-
+S22	NUMBER	13166	#,##0	-
+T22	NUMBER	8777	#,##0	-
+U22	NUMBER	7314	#,##0	-
+V22	TEXT	Đang thương thảo hợp đồng	-	-
+W22	TEXT	Đúng tiến độ	-	-
+X22	TEXT	Thủ tục thanh toán kéo dài	-	-
+Y22	EMPTY		-	-
+Z22	EMPTY		-	-
+AA22	EMPTY		-	-
+A23	NUMBER	12	0	-
+B23	TEXT	DTXD-12	-	-
+C23	TEXT	Cải tạo hệ thống cấp nước sinh hoạt (minh họa)	-	-
+D23	TEXT	C	-	-
+E23	NUMBER	107109	#,##0	-
+F23	NUMBER	46057	#,##0	-
+G23	NUMBER	48057	#,##0	-
+H23	NUMBER	4325	#,##0	-
+I23	NUMBER	2638	#,##0	-
+J23	NUMBER	4455	#,##0	-
+K23	NUMBER	20184	#,##0	-
+L23	NUMBER	18569	#,##0	-
+M23	NUMBER	37321	#,##0	-
+N23	NUMBER	30230	#,##0	-
+O23	NUMBER	42771	#,##0	-
+P23	FORMULA	IF(G23>0,ROUND(K23/G23*100,1),"")	#,##0.0	-
+Q23	FORMULA	IF(G23>0,ROUND(L23/G23*100,1),"")	#,##0.0	-
+R23	FORMULA	IF(G23>0,ROUND(O23/G23*100,1),"")	#,##0.0	-
+S23	NUMBER	22106	#,##0	-
+T23	NUMBER	15859	#,##0	-
+U23	NUMBER	10092	#,##0	-
+V23	TEXT	Đang chuẩn bị đầu tư	-	-
+W23	TEXT	Chậm tiến độ	-	-
+X23	EMPTY		-	-
+Y23	TEXT	Chậm nghiệm thu khối lượng; đã lập kế hoạch nghiệm thu theo đợt	-	-
+Z23	TEXT	Hoàn thiện hồ sơ thanh toán	-	-
+AA23	EMPTY		-	-
+A24	NUMBER	13	0	-
+B24	TEXT	DTXD-13	-	-
+C24	TEXT	Xây dựng cầu cảng nhập nguyên liệu số 2 (minh họa)	-	-
+D24	TEXT	A	-	-
+E24	NUMBER	115028	#,##0	-
+F24	NUMBER	29907	#,##0	-
+G24	NUMBER	30907	#,##0	-
+H24	NUMBER	3709	#,##0	-
+I24	NUMBER	2670	#,##0	-
+J24	NUMBER	3932	#,##0	-
+K24	NUMBER	17926	#,##0	-
+L24	NUMBER	10576	#,##0	-
+M24	NUMBER	37481	#,##0	-
+N24	NUMBER	30734	#,##0	-
+O24	NUMBER	30289	#,##0	-
+P24	FORMULA	IF(G24>0,ROUND(K24/G24*100,1),"")	#,##0.0	-
+Q24	FORMULA	IF(G24>0,ROUND(L24/G24*100,1),"")	#,##0.0	-
+R24	FORMULA	IF(G24>0,ROUND(O24/G24*100,1),"")	#,##0.0	-
+S24	NUMBER	14526	#,##0	-
+T24	NUMBER	11127	#,##0	-
+U24	NUMBER	5254	#,##0	-
+V24	TEXT	Đang thi công, khối lượng đạt theo kế hoạch	-	-
+W24	TEXT	Đúng tiến độ	-	-
+X24	TEXT	Thời tiết ảnh hưởng thi công	-	-
+Y24	TEXT	Vướng mắc thủ tục điều chỉnh dự toán; đã trình phê duyệt, dự kiến hoàn tất trong kỳ tới	-	-
+Z24	TEXT	Hoàn thành hạng mục chính và nghiệm thu giai đoạn	-	-
+AA24	EMPTY		-	-
+A25	NUMBER	14	0	-
+B25	TEXT	DTXD-14	-	-
+C25	TEXT	Nâng cấp hệ thống băng tải (minh họa)	-	-
+D25	TEXT	B	-	-
+E25	NUMBER	122947	#,##0	-
+F25	NUMBER	47949	#,##0	-
+G25	NUMBER	47949	#,##0	-
+H25	NUMBER	7192	#,##0	-
+I25	NUMBER	5969	#,##0	-
+J25	NUMBER	7839	#,##0	-
+K25	NUMBER	11028	#,##0	-
+L25	NUMBER	7278	#,##0	-
+M25	NUMBER	33158	#,##0	-
+N25	NUMBER	27521	#,##0	-
+O25	NUMBER	51305	#,##0	-
+P25	FORMULA	IF(G25>0,ROUND(K25/G25*100,1),"")	#,##0.0	-
+Q25	FORMULA	IF(G25>0,ROUND(L25/G25*100,1),"")	#,##0.0	-
+R25	FORMULA	IF(G25>0,ROUND(O25/G25*100,1),"")	#,##0.0	-
+S25	NUMBER	23016	#,##0	-
+T25	NUMBER	18700	#,##0	-
+U25	NUMBER	6233	#,##0	-
+V25	TEXT	Đang lựa chọn nhà thầu	-	-
+W25	TEXT	Đúng tiến độ	-	-
+X25	TEXT	Chờ phê duyệt điều chỉnh thiết kế	-	-
+Y25	EMPTY		-	-
+Z25	TEXT	Ký hợp đồng và triển khai thi công	-	-
+AA25	TEXT	Đề nghị xem xét điều chỉnh kế hoạch vốn năm	-	-
+A26	NUMBER	15	0	-
+B26	TEXT	DTXD-15	-	-
+C26	TEXT	Xây dựng trạm cân điện tử (minh họa)	-	-
+D26	TEXT	C	-	-
+E26	NUMBER	130866	#,##0	-
+F26	NUMBER	28791	#,##0	-
+G26	NUMBER	27791	#,##0	-
+H26	NUMBER	5002	#,##0	-
+I26	NUMBER	4702	#,##0	-
+J26	NUMBER	5602	#,##0	-
+K26	NUMBER	10838	#,##0	-
+L26	NUMBER	7912	#,##0	-
+M26	NUMBER	35703	#,##0	-
+N26	NUMBER	29991	#,##0	-
+O26	NUMBER	21121	#,##0	-
+P26	FORMULA	IF(G26>0,ROUND(K26/G26*100,1),"")	#,##0.0	-
+Q26	FORMULA	IF(G26>0,ROUND(L26/G26*100,1),"")	#,##0.0	-
+R26	FORMULA	IF(G26>0,ROUND(O26/G26*100,1),"")	#,##0.0	-
+S26	NUMBER	13618	#,##0	-
+T26	NUMBER	6114	#,##0	-
+U26	NUMBER	8059	#,##0	-
+V26	TEXT	Đang thi công, thiếu một phần vật tư	-	-
+W26	TEXT	Chậm tiến độ	-	-
+X26	TEXT	Nhà thầu chậm cung cấp thiết bị	-	-
+Y26	TEXT	Thiếu mặt bằng thi công một phần; đang phối hợp với đơn vị liên quan để bàn giao	-	-
+Z26	TEXT	Giải ngân theo tiến độ hợp đồng	-	-
+AA26	EMPTY		-	-
+A27	NUMBER	16	0	-
+B27	TEXT	DTXD-16	-	-
+C27	TEXT	Cải tạo mái và vách nhà kho thành phẩm (minh họa)	-	-
+D27	TEXT	A	-	-
+E27	NUMBER	138785	#,##0	-
+F27	NUMBER	48575	#,##0	-
+G27	NUMBER	50075	#,##0	-
+H27	NUMBER	3005	#,##0	-
+I27	NUMBER	1953	#,##0	-
+J27	NUMBER	3005	#,##0	-
+K27	NUMBER	27041	#,##0	-
+L27	NUMBER	21633	#,##0	-
+M27	NUMBER	54798	#,##0	-
+N27	NUMBER	46578	#,##0	-
+O27	NUMBER	42564	#,##0	-
+P27	FORMULA	IF(G27>0,ROUND(K27/G27*100,1),"")	#,##0.0	-
+Q27	FORMULA	IF(G27>0,ROUND(L27/G27*100,1),"")	#,##0.0	-
+R27	FORMULA	IF(G27>0,ROUND(O27/G27*100,1),"")	#,##0.0	-
+S27	NUMBER	25038	#,##0	-
+T27	NUMBER	12519	#,##0	-
+U27	NUMBER	12518	#,##0	-
+V27	TEXT	Đã hoàn thành lắp đặt, chờ nghiệm thu	-	-
+W27	TEXT	Vượt tiến độ	-	-
+X27	EMPTY		-	-
+Y27	TEXT	Giá vật tư biến động; đã đề nghị nhà thầu xác nhận lại đơn giá	-	-
+Z27	TEXT	Nghiệm thu và quyết toán hạng mục	-	-
+AA27	TEXT	Đề nghị chỉ đạo đẩy nhanh thủ tục phê duyệt	-	-
+A28	NUMBER	17	0	-
+B28	TEXT	DTXD-17	-	-
+C28	TEXT	Xây dựng hệ thống thu hồi nhiệt thải (minh họa)	-	-
+D28	TEXT	B	-	-
+E28	NUMBER	146704	#,##0	-
+F28	NUMBER	70418	#,##0	-
+G28	NUMBER	70918	#,##0	-
+H28	NUMBER	6383	#,##0	-
+I28	NUMBER	4851	#,##0	-
+J28	NUMBER	6574	#,##0	-
+K28	NUMBER	48933	#,##0	-
+L28	NUMBER	42572	#,##0	-
+M28	NUMBER	79741	#,##0	-
+N28	NUMBER	68577	#,##0	-
+O28	NUMBER	66663	#,##0	-
+P28	FORMULA	IF(G28>0,ROUND(K28/G28*100,1),"")	#,##0.0	-
+Q28	FORMULA	IF(G28>0,ROUND(L28/G28*100,1),"")	#,##0.0	-
+R28	FORMULA	IF(G28>0,ROUND(O28/G28*100,1),"")	#,##0.0	-
+S28	NUMBER	36168	#,##0	-
+T28	NUMBER	19857	#,##0	-
+U28	NUMBER	14893	#,##0	-
+V28	TEXT	Đang thương thảo hợp đồng	-	-
+W28	TEXT	Đúng tiến độ	-	-
+X28	TEXT	Thủ tục thanh toán kéo dài	-	-
+Y28	EMPTY		-	-
+Z28	EMPTY		-	-
+AA28	EMPTY		-	-
+A29	NUMBER	18	0	-
+B29	TEXT	DTXD-18	-	-
+C29	TEXT	Nâng cấp phòng thí nghiệm trung tâm (minh họa)	-	-
+D29	TEXT	C	-	-
+E29	NUMBER	154623	#,##0	-
+F29	NUMBER	47933	#,##0	-
+G29	NUMBER	47433	#,##0	-
+H29	NUMBER	5692	#,##0	-
+I29	NUMBER	4952	#,##0	-
+J29	NUMBER	6034	#,##0	-
+K29	NUMBER	16602	#,##0	-
+L29	NUMBER	15606	#,##0	-
+M29	NUMBER	50619	#,##0	-
+N29	NUMBER	44039	#,##0	-
+O29	NUMBER	48856	#,##0	-
+P29	FORMULA	IF(G29>0,ROUND(K29/G29*100,1),"")	#,##0.0	-
+Q29	FORMULA	IF(G29>0,ROUND(L29/G29*100,1),"")	#,##0.0	-
+R29	FORMULA	IF(G29>0,ROUND(O29/G29*100,1),"")	#,##0.0	-
+S29	NUMBER	24665	#,##0	-
+T29	NUMBER	14704	#,##0	-
+U29	NUMBER	8064	#,##0	-
+V29	TEXT	Đang chuẩn bị đầu tư	-	-
+W29	TEXT	Chậm tiến độ	-	-
+X29	EMPTY		-	-
+Y29	TEXT	Chậm nghiệm thu khối lượng; đã lập kế hoạch nghiệm thu theo đợt	-	-
+Z29	TEXT	Hoàn thiện hồ sơ thanh toán	-	-
+AA29	EMPTY		-	-
+A30	NUMBER	19	0	-
+B30	TEXT	DTXD-19	-	-
+C30	TEXT	Xây dựng hạ tầng công nghệ thông tin dùng chung (minh họa)	-	-
+D30	TEXT	A	-	-
+E30	NUMBER	162542	#,##0	-
+F30	NUMBER	71518	#,##0	-
+G30	NUMBER	73518	#,##0	-
+H30	NUMBER	11028	#,##0	-
+I30	NUMBER	10807	#,##0	-
+J30	NUMBER	12021	#,##0	-
+K30	NUMBER	36759	#,##0	-
+L30	NUMBER	22423	#,##0	-
+M30	NUMBER	74144	#,##0	-
+N30	NUMBER	65247	#,##0	-
+O30	NUMBER	52933	#,##0	-
+P30	FORMULA	IF(G30>0,ROUND(K30/G30*100,1),"")	#,##0.0	-
+Q30	FORMULA	IF(G30>0,ROUND(L30/G30*100,1),"")	#,##0.0	-
+R30	FORMULA	IF(G30>0,ROUND(O30/G30*100,1),"")	#,##0.0	-
+S30	NUMBER	38965	#,##0	-
+T30	NUMBER	24996	#,##0	-
+U30	NUMBER	9557	#,##0	-
+V30	TEXT	Đang thi công, khối lượng đạt theo kế hoạch	-	-
+W30	TEXT	Đúng tiến độ	-	-
+X30	TEXT	Thời tiết ảnh hưởng thi công	-	-
+Y30	TEXT	Vướng mắc thủ tục điều chỉnh dự toán; đã trình phê duyệt, dự kiến hoàn tất trong kỳ tới	-	-
+Z30	TEXT	Hoàn thành hạng mục chính và nghiệm thu giai đoạn	-	-
+AA30	EMPTY		-	-
+A31	NUMBER	20	0	-
+B31	TEXT	DTXD-20	-	-
+C31	TEXT	Cải tạo hệ thống chiếu sáng toàn khu (minh họa)	-	-
+D31	TEXT	B	-	-
+E31	NUMBER	170461	#,##0	-
+F31	NUMBER	46024	#,##0	-
+G31	NUMBER	47024	#,##0	-
+H31	NUMBER	8464	#,##0	-
+I31	NUMBER	5840	#,##0	-
+J31	NUMBER	9480	#,##0	-
+K31	NUMBER	31036	#,##0	-
+L31	NUMBER	21104	#,##0	-
+M31	NUMBER	71947	#,##0	-
+N31	NUMBER	64033	#,##0	-
+O31	NUMBER	38089	#,##0	-
+P31	FORMULA	IF(G31>0,ROUND(K31/G31*100,1),"")	#,##0.0	-
+Q31	FORMULA	IF(G31>0,ROUND(L31/G31*100,1),"")	#,##0.0	-
+R31	FORMULA	IF(G31>0,ROUND(O31/G31*100,1),"")	#,##0.0	-
+S31	NUMBER	25393	#,##0	-
+T31	NUMBER	17399	#,##0	-
+U31	NUMBER	4232	#,##0	-
+V31	TEXT	Đang lựa chọn nhà thầu	-	-
+W31	TEXT	Đúng tiến độ	-	-
+X31	TEXT	Chờ phê duyệt điều chỉnh thiết kế	-	-
+Y31	EMPTY		-	-
+Z31	TEXT	Ký hợp đồng và triển khai thi công	-	-
+AA31	TEXT	Đề nghị xem xét điều chỉnh kế hoạch vốn năm	-	-
+A32	NUMBER	21	0	-
+B32	TEXT	DTXD-21	-	-
+C32	TEXT	Xây dựng khu lưu trữ chất thải công nghiệp (minh họa)	-	-
+D32	TEXT	C	-	-
+E32	NUMBER	178380	#,##0	-
+F32	NUMBER	71352	#,##0	-
+G32	NUMBER	71352	#,##0	-
+H32	NUMBER	4281	#,##0	-
+I32	NUMBER	3425	#,##0	-
+J32	NUMBER	4281	#,##0	-
+K32	NUMBER	22833	#,##0	-
+L32	NUMBER	17125	#,##0	-
+M32	NUMBER	31752	#,##0	-
+N32	NUMBER	28577	#,##0	-
+O32	NUMBER	64217	#,##0	-
+P32	FORMULA	IF(G32>0,ROUND(K32/G32*100,1),"")	#,##0.0	-
+Q32	FORMULA	IF(G32>0,ROUND(L32/G32*100,1),"")	#,##0.0	-
+R32	FORMULA	IF(G32>0,ROUND(O32/G32*100,1),"")	#,##0.0	-
+S32	NUMBER	39244	#,##0	-
+T32	NUMBER	14270	#,##0	-
+U32	NUMBER	17838	#,##0	-
+V32	TEXT	Đang thi công, thiếu một phần vật tư	-	-
+W32	TEXT	Chậm tiến độ	-	-
+X32	TEXT	Nhà thầu chậm cung cấp thiết bị	-	-
+Y32	TEXT	Thiếu mặt bằng thi công một phần; đang phối hợp với đơn vị liên quan để bàn giao	-	-
+Z32	TEXT	Giải ngân theo tiến độ hợp đồng	-	-
+AA32	EMPTY		-	-
+A33	NUMBER	22	0	-
+B33	TEXT	DTXD-22	-	-
+C33	TEXT	Hoàn thiện hệ thống thoát nước mưa (minh họa)	-	-
+D33	TEXT	A	-	-
+E33	NUMBER	186299	#,##0	-
+F33	NUMBER	42849	#,##0	-
+G33	NUMBER	41849	#,##0	-
+H33	NUMBER	3766	#,##0	-
+I33	NUMBER	3427	#,##0	-
+J33	NUMBER	3879	#,##0	-
+K33	NUMBER	19669	#,##0	-
+L33	NUMBER	16129	#,##0	-
+M33	NUMBER	30847	#,##0	-
+N33	NUMBER	28071	#,##0	-
+O33	NUMBER	41431	#,##0	-
+P33	FORMULA	IF(G33>0,ROUND(K33/G33*100,1),"")	#,##0.0	-
+Q33	FORMULA	IF(G33>0,ROUND(L33/G33*100,1),"")	#,##0.0	-
+R33	FORMULA	IF(G33>0,ROUND(O33/G33*100,1),"")	#,##0.0	-
+S33	NUMBER	23435	#,##0	-
+T33	NUMBER	9625	#,##0	-
+U33	NUMBER	8789	#,##0	-
+V33	TEXT	Đã hoàn thành lắp đặt, chờ nghiệm thu	-	-
+W33	TEXT	Vượt tiến độ	-	-
+X33	EMPTY		-	-
+Y33	TEXT	Giá vật tư biến động; đã đề nghị nhà thầu xác nhận lại đơn giá	-	-
+Z33	TEXT	Nghiệm thu và quyết toán hạng mục	-	-
+AA33	TEXT	Đề nghị chỉ đạo đẩy nhanh thủ tục phê duyệt	-	-
+A34	TEXT	Cộng I	-	-
+E34	FORMULA	SUM(E12:E33)	#,##0	-
+F34	FORMULA	SUM(F12:F33)	#,##0	-
+G34	FORMULA	SUM(G12:G33)	#,##0	-
+H34	FORMULA	SUM(H12:H33)	#,##0	-
+I34	FORMULA	SUM(I12:I33)	#,##0	-
+J34	FORMULA	SUM(J12:J33)	#,##0	-
+K34	FORMULA	SUM(K12:K33)	#,##0	-
+L34	FORMULA	SUM(L12:L33)	#,##0	-
+M34	FORMULA	SUM(M12:M33)	#,##0	-
+N34	FORMULA	SUM(N12:N33)	#,##0	-
+O34	FORMULA	SUM(O12:O33)	#,##0	-
+P34	FORMULA	IF(G34>0,ROUND(K34/G34*100,1),"")	#,##0.0	-
+Q34	FORMULA	IF(G34>0,ROUND(L34/G34*100,1),"")	#,##0.0	-
+R34	FORMULA	IF(G34>0,ROUND(O34/G34*100,1),"")	#,##0.0	-
+S34	FORMULA	SUM(S12:S33)	#,##0	-
+T34	FORMULA	SUM(T12:T33)	#,##0	-
+U34	FORMULA	SUM(U12:U33)	#,##0	-
+A35	TEXT	II. MUA SẮM TÀI SẢN, TRANG THIẾT BỊ	-	-
+A36	NUMBER	1	0	-
+B36	TEXT	MSTB-01	-	-
+C36	TEXT	Mua sắm thiết bị đo lường và kiểm định (minh họa)	-	-
+D36	TEXT	B	-	-
+E36	NUMBER	194218	#,##0	-
+F36	NUMBER	69918	#,##0	-
+G36	NUMBER	71418	#,##0	-
+H36	NUMBER	8570	#,##0	-
+I36	NUMBER	5313	#,##0	-
+J36	NUMBER	9084	#,##0	-
+K36	NUMBER	44279	#,##0	-
+L36	NUMBER	39408	#,##0	-
+M36	NUMBER	57874	#,##0	-
+N36	NUMBER	53244	#,##0	-
+O36	NUMBER	77131	#,##0	-
+P36	FORMULA	IF(G36>0,ROUND(K36/G36*100,1),"")	#,##0.0	-
+Q36	FORMULA	IF(G36>0,ROUND(L36/G36*100,1),"")	#,##0.0	-
+R36	FORMULA	IF(G36>0,ROUND(O36/G36*100,1),"")	#,##0.0	-
+S36	NUMBER	40708	#,##0	-
+T36	NUMBER	18569	#,##0	-
+U36	NUMBER	12141	#,##0	-
+V36	TEXT	Đang thương thảo hợp đồng	-	-
+W36	TEXT	Đúng tiến độ	-	-
+X36	TEXT	Thủ tục thanh toán kéo dài	-	-
+Y36	EMPTY		-	-
+Z36	EMPTY		-	-
+AA36	EMPTY		-	-
+A37	TEXT	Cộng II	-	-
+E37	FORMULA	SUM(E36:E36)	#,##0	-
+F37	FORMULA	SUM(F36:F36)	#,##0	-
+G37	FORMULA	SUM(G36:G36)	#,##0	-
+H37	FORMULA	SUM(H36:H36)	#,##0	-
+I37	FORMULA	SUM(I36:I36)	#,##0	-
+J37	FORMULA	SUM(J36:J36)	#,##0	-
+K37	FORMULA	SUM(K36:K36)	#,##0	-
+L37	FORMULA	SUM(L36:L36)	#,##0	-
+M37	FORMULA	SUM(M36:M36)	#,##0	-
+N37	FORMULA	SUM(N36:N36)	#,##0	-
+O37	FORMULA	SUM(O36:O36)	#,##0	-
+P37	FORMULA	IF(G37>0,ROUND(K37/G37*100,1),"")	#,##0.0	-
+Q37	FORMULA	IF(G37>0,ROUND(L37/G37*100,1),"")	#,##0.0	-
+R37	FORMULA	IF(G37>0,ROUND(O37/G37*100,1),"")	#,##0.0	-
+S37	FORMULA	SUM(S36:S36)	#,##0	-
+T37	FORMULA	SUM(T36:T36)	#,##0	-
+U37	FORMULA	SUM(U36:U36)	#,##0	-
+A38	TEXT	III. MUA SẮM TÀI SẢN CỐ ĐỊNH	-	-
+A39	NUMBER	1	0	-
+B39	TEXT	MSCD-01	-	-
+C39	TEXT	Mua xe nâng hàng 5 tấn (minh họa)	-	-
+D39	TEXT	C	-	-
+E39	NUMBER	22137	#,##0	-
+F39	NUMBER	10847	#,##0	-
+G39	NUMBER	11347	#,##0	-
+H39	NUMBER	1702	#,##0	-
+I39	NUMBER	1242	#,##0	-
+J39	NUMBER	1855	#,##0	-
+K39	NUMBER	3177	#,##0	-
+L39	NUMBER	1779	#,##0	-
+M39	NUMBER	4948	#,##0	-
+N39	NUMBER	4602	#,##0	-
+O39	NUMBER	8737	#,##0	-
+P39	FORMULA	IF(G39>0,ROUND(K39/G39*100,1),"")	#,##0.0	-
+Q39	FORMULA	IF(G39>0,ROUND(L39/G39*100,1),"")	#,##0.0	-
+R39	FORMULA	IF(G39>0,ROUND(O39/G39*100,1),"")	#,##0.0	-
+S39	NUMBER	6581	#,##0	-
+T39	NUMBER	3291	#,##0	-
+U39	NUMBER	1475	#,##0	-
+V39	TEXT	Đang chuẩn bị đầu tư	-	-
+W39	TEXT	Chậm tiến độ	-	-
+X39	EMPTY		-	-
+Y39	TEXT	Chậm nghiệm thu khối lượng; đã lập kế hoạch nghiệm thu theo đợt	-	-
+Z39	TEXT	Hoàn thiện hồ sơ thanh toán	-	-
+AA39	EMPTY		-	-
+A40	NUMBER	2	0	-
+B40	TEXT	MSCD-02	-	-
+C40	TEXT	Mua máy phát điện dự phòng (minh họa)	-	-
+D40	TEXT	A	-	-
+E40	NUMBER	30056	#,##0	-
+F40	NUMBER	9618	#,##0	-
+G40	NUMBER	9118	#,##0	-
+H40	NUMBER	1641	#,##0	-
+I40	NUMBER	1378	#,##0	-
+J40	NUMBER	1838	#,##0	-
+K40	NUMBER	3921	#,##0	-
+L40	NUMBER	2470	#,##0	-
+M40	NUMBER	6626	#,##0	-
+N40	NUMBER	6228	#,##0	-
+O40	NUMBER	7841	#,##0	-
+P40	FORMULA	IF(G40>0,ROUND(K40/G40*100,1),"")	#,##0.0	-
+Q40	FORMULA	IF(G40>0,ROUND(L40/G40*100,1),"")	#,##0.0	-
+R40	FORMULA	IF(G40>0,ROUND(O40/G40*100,1),"")	#,##0.0	-
+S40	NUMBER	5380	#,##0	-
+T40	NUMBER	2918	#,##0	-
+U40	NUMBER	820	#,##0	-
+V40	TEXT	Đang thi công, khối lượng đạt theo kế hoạch	-	-
+W40	TEXT	Đúng tiến độ	-	-
+X40	TEXT	Thời tiết ảnh hưởng thi công	-	-
+Y40	TEXT	Vướng mắc thủ tục điều chỉnh dự toán; đã trình phê duyệt, dự kiến hoàn tất trong kỳ tới	-	-
+Z40	TEXT	Hoàn thành hạng mục chính và nghiệm thu giai đoạn	-	-
+AA40	EMPTY		-	-
+A41	NUMBER	3	0	-
+B41	TEXT	MSCD-03	-	-
+C41	TEXT	Mua hệ thống máy chủ trung tâm dữ liệu (minh họa)	-	-
+D41	TEXT	B	-	-
+E41	NUMBER	37975	#,##0	-
+F41	NUMBER	17089	#,##0	-
+G41	NUMBER	19089	#,##0	-
+H41	NUMBER	1145	#,##0	-
+I41	NUMBER	1088	#,##0	-
+J41	NUMBER	1145	#,##0	-
+K41	NUMBER	11263	#,##0	-
+L41	NUMBER	7884	#,##0	-
+M41	NUMBER	15061	#,##0	-
+N41	NUMBER	10543	#,##0	-
+O41	NUMBER	18135	#,##0	-
+P41	FORMULA	IF(G41>0,ROUND(K41/G41*100,1),"")	#,##0.0	-
+Q41	FORMULA	IF(G41>0,ROUND(L41/G41*100,1),"")	#,##0.0	-
+R41	FORMULA	IF(G41>0,ROUND(O41/G41*100,1),"")	#,##0.0	-
+S41	NUMBER	6681	#,##0	-
+T41	NUMBER	6681	#,##0	-
+U41	NUMBER	5727	#,##0	-
+V41	TEXT	Đang lựa chọn nhà thầu	-	-
+W41	TEXT	Đúng tiến độ	-	-
+X41	TEXT	Chờ phê duyệt điều chỉnh thiết kế	-	-
+Y41	EMPTY		-	-
+Z41	TEXT	Ký hợp đồng và triển khai thi công	-	-
+AA41	TEXT	Đề nghị xem xét điều chỉnh kế hoạch vốn năm	-	-
+A42	NUMBER	4	0	-
+B42	TEXT	MSCD-04	-	-
+C42	TEXT	Mua cẩu bánh lốp 25 tấn (minh họa)	-	-
+D42	TEXT	C	-	-
+E42	NUMBER	45894	#,##0	-
+F42	NUMBER	12850	#,##0	-
+G42	NUMBER	13850	#,##0	-
+H42	NUMBER	1247	#,##0	-
+I42	NUMBER	823	#,##0	-
+J42	NUMBER	1284	#,##0	-
+K42	NUMBER	3324	#,##0	-
+L42	NUMBER	2559	#,##0	-
+M42	NUMBER	8372	#,##0	-
+N42	NUMBER	5944	#,##0	-
+O42	NUMBER	14404	#,##0	-
+P42	FORMULA	IF(G42>0,ROUND(K42/G42*100,1),"")	#,##0.0	-
+Q42	FORMULA	IF(G42>0,ROUND(L42/G42*100,1),"")	#,##0.0	-
+R42	FORMULA	IF(G42>0,ROUND(O42/G42*100,1),"")	#,##0.0	-
+S42	NUMBER	4986	#,##0	-
+T42	NUMBER	5263	#,##0	-
+U42	NUMBER	3601	#,##0	-
+V42	TEXT	Đang thi công, thiếu một phần vật tư	-	-
+W42	TEXT	Chậm tiến độ	-	-
+X42	TEXT	Nhà thầu chậm cung cấp thiết bị	-	-
+Y42	TEXT	Thiếu mặt bằng thi công một phần; đang phối hợp với đơn vị liên quan để bàn giao	-	-
+Z42	TEXT	Giải ngân theo tiến độ hợp đồng	-	-
+AA42	EMPTY		-	-
+A43	NUMBER	5	0	-
+B43	TEXT	MSCD-05	-	-
+C43	TEXT	Mua máy bơm công suất lớn (minh họa)	-	-
+D43	TEXT	A	-	-
+E43	NUMBER	53813	#,##0	-
+F43	NUMBER	22063	#,##0	-
+G43	NUMBER	22063	#,##0	-
+H43	NUMBER	2648	#,##0	-
+I43	NUMBER	2039	#,##0	-
+J43	NUMBER	2807	#,##0	-
+K43	NUMBER	8825	#,##0	-
+L43	NUMBER	7413	#,##0	-
+M43	NUMBER	15283	#,##0	-
+N43	NUMBER	11004	#,##0	-
+O43	NUMBER	16106	#,##0	-
+P43	FORMULA	IF(G43>0,ROUND(K43/G43*100,1),"")	#,##0.0	-
+Q43	FORMULA	IF(G43>0,ROUND(L43/G43*100,1),"")	#,##0.0	-
+R43	FORMULA	IF(G43>0,ROUND(O43/G43*100,1),"")	#,##0.0	-
+S43	NUMBER	8163	#,##0	-
+T43	NUMBER	4633	#,##0	-
+U43	NUMBER	9267	#,##0	-
+V43	TEXT	Đã hoàn thành lắp đặt, chờ nghiệm thu	-	-
+W43	TEXT	Vượt tiến độ	-	-
+X43	EMPTY		-	-
+Y43	TEXT	Giá vật tư biến động; đã đề nghị nhà thầu xác nhận lại đơn giá	-	-
+Z43	TEXT	Nghiệm thu và quyết toán hạng mục	-	-
+AA43	TEXT	Đề nghị chỉ đạo đẩy nhanh thủ tục phê duyệt	-	-
+A44	NUMBER	6	0	-
+B44	TEXT	MSCD-06	-	-
+C44	TEXT	Mua thiết bị phân tích khí (minh họa)	-	-
+D44	TEXT	B	-	-
+E44	NUMBER	61732	#,##0	-
+F44	NUMBER	14816	#,##0	-
+G44	NUMBER	13816	#,##0	-
+H44	NUMBER	2072	#,##0	-
+I44	NUMBER	1823	#,##0	-
+J44	NUMBER	2258	#,##0	-
+K44	NUMBER	7599	#,##0	-
+L44	NUMBER	6915	#,##0	-
+M44	NUMBER	15624	#,##0	-
+N44	NUMBER	11406	#,##0	-
+O44	NUMBER	11329	#,##0	-
+P44	FORMULA	IF(G44>0,ROUND(K44/G44*100,1),"")	#,##0.0	-
+Q44	FORMULA	IF(G44>0,ROUND(L44/G44*100,1),"")	#,##0.0	-
+R44	FORMULA	IF(G44>0,ROUND(O44/G44*100,1),"")	#,##0.0	-
+S44	NUMBER	5250	#,##0	-
+T44	NUMBER	3316	#,##0	-
+U44	NUMBER	5250	#,##0	-
+V44	TEXT	Đang thương thảo hợp đồng	-	-
+W44	TEXT	Đúng tiến độ	-	-
+X44	TEXT	Thủ tục thanh toán kéo dài	-	-
+Y44	EMPTY		-	-
+Z44	EMPTY		-	-
+AA44	EMPTY		-	-
+A45	NUMBER	7	0	-
+B45	TEXT	MSCD-07	-	-
+C45	TEXT	Mua xe chuyên dùng chữa cháy (minh họa)	-	-
+D45	TEXT	C	-	-
+E45	NUMBER	69651	#,##0	-
+F45	NUMBER	25771	#,##0	-
+G45	NUMBER	27271	#,##0	-
+H45	NUMBER	4909	#,##0	-
+I45	NUMBER	4860	#,##0	-
+J45	NUMBER	5498	#,##0	-
+K45	NUMBER	19090	#,##0	-
+L45	NUMBER	11072	#,##0	-
+M45	NUMBER	28841	#,##0	-
+N45	NUMBER	21342	#,##0	-
+O45	NUMBER	24817	#,##0	-
+P45	FORMULA	IF(G45>0,ROUND(K45/G45*100,1),"")	#,##0.0	-
+Q45	FORMULA	IF(G45>0,ROUND(L45/G45*100,1),"")	#,##0.0	-
+R45	FORMULA	IF(G45>0,ROUND(O45/G45*100,1),"")	#,##0.0	-
+S45	NUMBER	10636	#,##0	-
+T45	NUMBER	7363	#,##0	-
+U45	NUMBER	9272	#,##0	-
+V45	TEXT	Đang chuẩn bị đầu tư	-	-
+W45	TEXT	Chậm tiến độ	-	-
+X45	EMPTY		-	-
+Y45	TEXT	Chậm nghiệm thu khối lượng; đã lập kế hoạch nghiệm thu theo đợt	-	-
+Z45	TEXT	Hoàn thiện hồ sơ thanh toán	-	-
+AA45	EMPTY		-	-
+A46	NUMBER	8	0	-
+B46	TEXT	MSCD-08	-	-
+C46	TEXT	Mua máy nén khí trục vít (minh họa)	-	-
+D46	TEXT	A	-	-
+E46	NUMBER	77570	#,##0	-
+F46	NUMBER	15514	#,##0	-
+G46	NUMBER	16014	#,##0	-
+H46	NUMBER	961	#,##0	-
+I46	NUMBER	673	#,##0	-
+J46	NUMBER	961	#,##0	-
+K46	NUMBER	5765	#,##0	-
+L46	NUMBER	3747	#,##0	-
+M46	NUMBER	17401	#,##0	-
+N46	NUMBER	13051	#,##0	-
+O46	NUMBER	16014	#,##0	-
+P46	FORMULA	IF(G46>0,ROUND(K46/G46*100,1),"")	#,##0.0	-
+Q46	FORMULA	IF(G46>0,ROUND(L46/G46*100,1),"")	#,##0.0	-
+R46	FORMULA	IF(G46>0,ROUND(O46/G46*100,1),"")	#,##0.0	-
+S46	NUMBER	6406	#,##0	-
+T46	NUMBER	4804	#,##0	-
+U46	NUMBER	4804	#,##0	-
+V46	TEXT	Đang thi công, khối lượng đạt theo kế hoạch	-	-
+W46	TEXT	Đúng tiến độ	-	-
+X46	TEXT	Thời tiết ảnh hưởng thi công	-	-
+Y46	TEXT	Vướng mắc thủ tục điều chỉnh dự toán; đã trình phê duyệt, dự kiến hoàn tất trong kỳ tới	-	-
+Z46	TEXT	Hoàn thành hạng mục chính và nghiệm thu giai đoạn	-	-
+AA46	EMPTY		-	-
+A47	NUMBER	9	0	-
+B47	TEXT	MSCD-09	-	-
+C47	TEXT	Mua thiết bị an ninh kiểm soát ra vào (minh họa)	-	-
+D47	TEXT	B	-	-
+E47	NUMBER	85489	#,##0	-
+F47	NUMBER	28211	#,##0	-
+G47	NUMBER	27711	#,##0	-
+H47	NUMBER	2494	#,##0	-
+I47	NUMBER	2020	#,##0	-
+J47	NUMBER	2569	#,##0	-
+K47	NUMBER	14133	#,##0	-
+L47	NUMBER	10176	#,##0	-
+M47	NUMBER	27811	#,##0	-
+N47	NUMBER	21136	#,##0	-
+O47	NUMBER	30205	#,##0	-
+P47	FORMULA	IF(G47>0,ROUND(K47/G47*100,1),"")	#,##0.0	-
+Q47	FORMULA	IF(G47>0,ROUND(L47/G47*100,1),"")	#,##0.0	-
+R47	FORMULA	IF(G47>0,ROUND(O47/G47*100,1),"")	#,##0.0	-
+S47	NUMBER	11362	#,##0	-
+T47	NUMBER	9145	#,##0	-
+U47	NUMBER	7204	#,##0	-
+V47	TEXT	Đang lựa chọn nhà thầu	-	-
+W47	TEXT	Đúng tiến độ	-	-
+X47	TEXT	Chờ phê duyệt điều chỉnh thiết kế	-	-
+Y47	EMPTY		-	-
+Z47	TEXT	Ký hợp đồng và triển khai thi công	-	-
+AA47	TEXT	Đề nghị xem xét điều chỉnh kế hoạch vốn năm	-	-
+A48	TEXT	Cộng III	-	-
+E48	FORMULA	SUM(E39:E47)	#,##0	-
+F48	FORMULA	SUM(F39:F47)	#,##0	-
+G48	FORMULA	SUM(G39:G47)	#,##0	-
+H48	FORMULA	SUM(H39:H47)	#,##0	-
+I48	FORMULA	SUM(I39:I47)	#,##0	-
+J48	FORMULA	SUM(J39:J47)	#,##0	-
+K48	FORMULA	SUM(K39:K47)	#,##0	-
+L48	FORMULA	SUM(L39:L47)	#,##0	-
+M48	FORMULA	SUM(M39:M47)	#,##0	-
+N48	FORMULA	SUM(N39:N47)	#,##0	-
+O48	FORMULA	SUM(O39:O47)	#,##0	-
+P48	FORMULA	IF(G48>0,ROUND(K48/G48*100,1),"")	#,##0.0	-
+Q48	FORMULA	IF(G48>0,ROUND(L48/G48*100,1),"")	#,##0.0	-
+R48	FORMULA	IF(G48>0,ROUND(O48/G48*100,1),"")	#,##0.0	-
+S48	FORMULA	SUM(S39:S47)	#,##0	-
+T48	FORMULA	SUM(T39:T47)	#,##0	-
+U48	FORMULA	SUM(U39:U47)	#,##0	-
+A49	TEXT	TỔNG CỘNG (I + II + III)	-	-
+E49	FORMULA	SUM(E12:E33,E36:E36,E39:E47)	#,##0	-
+F49	FORMULA	SUM(F12:F33,F36:F36,F39:F47)	#,##0	-
+G49	FORMULA	SUM(G12:G33,G36:G36,G39:G47)	#,##0	-
+H49	FORMULA	SUM(H12:H33,H36:H36,H39:H47)	#,##0	-
+I49	FORMULA	SUM(I12:I33,I36:I36,I39:I47)	#,##0	-
+J49	FORMULA	SUM(J12:J33,J36:J36,J39:J47)	#,##0	-
+K49	FORMULA	SUM(K12:K33,K36:K36,K39:K47)	#,##0	-
+L49	FORMULA	SUM(L12:L33,L36:L36,L39:L47)	#,##0	-
+M49	FORMULA	SUM(M12:M33,M36:M36,M39:M47)	#,##0	-
+N49	FORMULA	SUM(N12:N33,N36:N36,N39:N47)	#,##0	-
+O49	FORMULA	SUM(O12:O33,O36:O36,O39:O47)	#,##0	-
+P49	FORMULA	IF(G49>0,ROUND(K49/G49*100,1),"")	#,##0.0	-
+Q49	FORMULA	IF(G49>0,ROUND(L49/G49*100,1),"")	#,##0.0	-
+R49	FORMULA	IF(G49>0,ROUND(O49/G49*100,1),"")	#,##0.0	-
+S49	FORMULA	SUM(S12:S33,S36:S36,S39:S47)	#,##0	-
+T49	FORMULA	SUM(T12:T33,T36:T36,T39:T47)	#,##0	-
+U49	FORMULA	SUM(U12:U33,U36:U36,U39:U47)	#,##0	-
+A50	TEXT	Ghi chú: Tỷ lệ % = giá trị lũy kế từ đầu năm chia cho kế hoạch vốn năm hiện hành, nhân 100; ô tỷ lệ là công thức, tự tính lại khi sửa số.	-	-
+A51	TEXT	Ước thực hiện quý là số ước của cả quý đã đưa vào báo cáo; ước thực hiện cả năm gồm số thực hiện các tháng đã chốt và số ước của các tháng còn lại.	-	-
+A52	TEXT	Cơ cấu vốn là kế hoạch vốn năm hiện hành chia theo nguồn: vốn chủ sở hữu, vốn vay và khác; tổng ba nguồn bằng kế hoạch vốn năm hiện hành.	-	-
+A53	TEXT	Đánh giá tiến độ: đúng tiến độ, vượt tiến độ hoặc chậm tiến độ so với tiến độ trong hợp đồng và kế hoạch được duyệt.	-	-
+A54	TEXT	Biểu do hệ thống thiết kế cho giai đoạn demo, chưa phải mẫu chính thức; khi có mẫu chính thức, bố cục và tên cột sẽ theo mẫu đó.	-	-
+S55	TEXT	Hà Nội, ngày 05 tháng 10 năm 2026	-	-
+A56	TEXT	NGƯỜI LẬP BIỂU	-	-
+J56	TEXT	NGƯỜI KIỂM TRA	-	-
+S56	TEXT	NGƯỜI PHÊ DUYỆT	-	-
+A57	TEXT	(Ký, ghi rõ họ tên)	-	-
+J57	TEXT	(Ký, ghi rõ họ tên)	-	-
+S57	TEXT	(Ký, ghi rõ họ tên)	-	-
+A60	TEXT	Nguyễn Văn Mẫu	-	-
+J60	TEXT	Trần Thị Kiểm	-	-
+S60	TEXT	Lê Văn Duyệt	-	-
+merge 1:1-1:27
+merge 2:1-2:8
+merge 2:23-2:27
+merge 3:1-3:8
+merge 4:1-4:27
+merge 5:1-5:27
+merge 6:23-6:27
+merge 7:1-7:5
+merge 7:6-7:10
+merge 7:11-7:15
+merge 7:16-7:19
+merge 7:20-7:23
+merge 7:24-7:27
+merge 8:1-8:5
+merge 8:6-8:10
+merge 8:11-8:15
+merge 8:16-8:19
+merge 8:20-8:23
+merge 8:24-8:27
+merge 11:1-11:27
+merge 34:1-34:4
+merge 35:1-35:27
+merge 37:1-37:4
+merge 38:1-38:27
+merge 48:1-48:4
+merge 49:1-49:4
+merge 50:1-50:27
+merge 51:1-51:27
+merge 52:1-52:27
+merge 53:1-53:27
+merge 54:1-54:27
+merge 55:19-55:27
+merge 56:1-56:9
+merge 56:10-56:18
+merge 56:19-56:27
+merge 57:1-57:9
+merge 57:10-57:18
+merge 57:19-57:27
+merge 60:1-60:9
+merge 60:10-60:18
+merge 60:19-60:27

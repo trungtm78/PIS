@@ -17,6 +17,11 @@ export const METRIC_MAX_BUNDLE = 500;
 
 const AGGREGATE_OPS: readonly string[] = ['sum', 'count', 'count_distinct', 'min', 'max'];
 const ARITHMETIC_OPS: readonly string[] = ['add', 'sub', 'mul', 'div'];
+/** The operators of a second stage (CA-1): over the groups of the first stage, `sum_of_squares(sum(F))` is the sum of the squares of the group sums and `top_n_sum(sum(F), const N)` the sum of the N largest. */
+const GROUP_OPS: ReadonlyMap<string, number> = new Map([
+  ['sum_of_squares', 1],
+  ['top_n_sum', 2],
+]);
 const FIELD_NAME = /^[A-Za-z][A-Za-z0-9_]{0,63}$/;
 const CODE = /^[a-z][a-z0-9_]{1,79}$/;
 const DIMENSION = /^[A-Za-z][A-Za-z0-9_.]{0,63}$/;
@@ -63,7 +68,7 @@ function checkNode(value: unknown, field: string, depth: number, budget: { nodes
   if (value.op === 'const') {
     return keys.length === 2 && typeof value.value === 'number' && Number.isFinite(value.value) ? undefined : fail('EXPRESSION_NOT_ALLOWED', field);
   }
-  const arity = AGGREGATE_OPS.includes(value.op) ? 1 : ARITHMETIC_OPS.includes(value.op) ? 2 : 0;
+  const arity = AGGREGATE_OPS.includes(value.op) ? 1 : ARITHMETIC_OPS.includes(value.op) ? 2 : (GROUP_OPS.get(value.op) ?? 0);
   if (arity === 0 || keys.length !== 2 || !Array.isArray(value.args) || value.args.length !== arity) return fail('EXPRESSION_NOT_ALLOWED', field);
   for (const [index, child] of (value.args as unknown[]).entries()) {
     const problem = checkNode(child, `${field}.args[${index}]`, depth + 1, budget);

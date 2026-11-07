@@ -1,0 +1,43 @@
+{
+  "id": "FIN-REF-004",
+  "title": "Pays back simply in 2.5 periods but never recovers its capital with discounting",
+  "source": "Outlay 1000, then 400 for three periods, at 10%",
+  "hand_computation": [
+    "Simple payback: cumulative -1000, -600, -200, +200 -> 2 + 200 / 400 = 2.5",
+    "Discounted cumulative: -1000, -636.36, -305.79, -5.26: never non-negative within 3 periods",
+    "NPV = -1000 + 363.6364 + 330.5785 + 300.5259 = -5.2592 -> -5.26",
+    "IRR = 9.701026% (below the 10% rate, which is why the NPV is negative)",
+    "B/C = 994.7408 / 1000 = 0.9947"
+  ],
+  "input": {
+    "periodUnit": "YEAR",
+    "discountRatePct": "10",
+    "convention": "END",
+    "lines": [
+      {
+        "period": 0,
+        "capex": "1000"
+      },
+      {
+        "period": 1,
+        "benefit": "400"
+      },
+      {
+        "period": 2,
+        "benefit": "400"
+      },
+      {
+        "period": 3,
+        "benefit": "400"
+      }
+    ]
+  },
+  "expected": {
+    "npv": "-5.26",
+    "irr_pct": "9.701026",
+    "payback": "2.5000",
+    "discounted_payback_reason": "NOT_RECOVERED",
+    "bcr": "0.9947"
+  },
+  "tolerance": "Exact cases are compared as text, character for character. Hand-computed cases state the result rounded the way the module rounds (half away from zero): money to 2 decimals, IRR in percent to 6, payback periods and ratios to 4. The module computes with exact rationals, so a stated value must match after that rounding; an independent floating point check of the same case is allowed a difference of 1e-6 relative."
+}

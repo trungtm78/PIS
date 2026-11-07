@@ -1,0 +1,40 @@
+{
+  "id": "FIN-REF-011",
+  "title": "The cash flow of FIN-REF-001 with the mid-period convention at 10%",
+  "source": "Same flows, the flows of periods 1..4 discounted (t - 1/2) periods",
+  "hand_computation": [
+    "NPV(mid) = -1000 + sqrt(1.1) x 1388.7713 = -1000 + 1.0488088 x 1388.7713 = 456.5556 -> 456.56"
+  ],
+  "input": {
+    "periodUnit": "YEAR",
+    "discountRatePct": "10",
+    "convention": "MID",
+    "lines": [
+      {
+        "period": 0,
+        "capex": "1000"
+      },
+      {
+        "period": 1,
+        "benefit": "300"
+      },
+      {
+        "period": 2,
+        "benefit": "400"
+      },
+      {
+        "period": 3,
+        "benefit": "500"
+      },
+      {
+        "period": 4,
+        "benefit": "600"
+      }
+    ]
+  },
+  "expected": {
+    "npv": "456.56",
+    "irr_pct": "24.888336"
+  },
+  "tolerance": "Exact cases are compared as text, character for character. Hand-computed cases state the result rounded the way the module rounds (half away from zero): money to 2 decimals, IRR in percent to 6, payback periods and ratios to 4. The module computes with exact rationals, so a stated value must match after that rounding; an independent floating point check of the same case is allowed a difference of 1e-6 relative."
+}

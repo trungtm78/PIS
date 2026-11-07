@@ -1,0 +1,73 @@
+{
+  "id": "FIN-REF-012",
+  "title": "Total cost of ownership over a five period life cycle at 10%",
+  "source": "Capex 1000 today; operating 100 in each of periods 1..5; maintenance 50 in periods 2 and 4; residual value 200 in period 5",
+  "hand_computation": [
+    "Nominal: 1000 + 500 + 100 - 200 = 1400",
+    "PV: capex 1000; opex 100 x 3.790787 = 379.08; maintenance 50 / 1.21 + 50 / 1.4641 = 75.47; residual 200 / 1.61051 = 124.18",
+    "PV(TCO) = 1000 + 379.0787 + 75.4730 - 124.1843 = 1330.3674 -> 1330.37",
+    "Equivalent per period = 1330.3674 / 3.790787 = 350.9476 -> 350.95",
+    "Capex share of the gross PV = 1000 / 1454.5517 = 68.75%"
+  ],
+  "input": {
+    "periodUnit": "YEAR",
+    "discountRatePct": "10",
+    "convention": "END",
+    "lines": [
+      {
+        "period": 0,
+        "capex": "1000"
+      },
+      {
+        "period": 1,
+        "opex": "100"
+      },
+      {
+        "period": 2,
+        "opex": "100",
+        "maintenance": "50"
+      },
+      {
+        "period": 3,
+        "opex": "100"
+      },
+      {
+        "period": 4,
+        "opex": "100",
+        "maintenance": "50"
+      },
+      {
+        "period": 5,
+        "opex": "100",
+        "residual": "200"
+      }
+    ]
+  },
+  "expected": {
+    "tco": {
+      "nominal": "1400.00",
+      "present_value": "1330.37",
+      "equivalent_per_period": "350.95",
+      "capex_share_pct": "68.75",
+      "by_kind": {
+        "capex": [
+          "1000.00",
+          "1000.00"
+        ],
+        "opex": [
+          "500.00",
+          "379.08"
+        ],
+        "maintenance": [
+          "100.00",
+          "75.47"
+        ],
+        "residual": [
+          "200.00",
+          "124.18"
+        ]
+      }
+    }
+  },
+  "tolerance": "Exact cases are compared as text, character for character. Hand-computed cases state the result rounded the way the module rounds (half away from zero): money to 2 decimals, IRR in percent to 6, payback periods and ratios to 4. The module computes with exact rationals, so a stated value must match after that rounding; an independent floating point check of the same case is allowed a difference of 1e-6 relative."
+}

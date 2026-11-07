@@ -17,6 +17,30 @@ export const WORK_KINDS = [
   'ISSUE_SLA_BREACH',
   'SITE_DIARY_MISSING',
   'GUARANTEE_EXPIRING',
+  // The money control (governance deepening, lane B2): the estimate above the approved total, the contingency below the open risks, an advance the payments left cannot recover.
+  'EAC_EXCEEDS_TMDT',
+  'RESERVE_BELOW_RISK_EV',
+  'ADVANCE_EXCEEDS_REMAINING',
+  // The directives of the steering meetings (lane DIR-1): one that is due within the reminder days or today, and one that is past its day.
+  'DIRECTIVE_DUE',
+  'DIRECTIVE_OVERDUE',
+  // The native clocks of the alert centre (lane GOV-2): an obligation a module started a clock for, running, near its end or past it.
+  'CLOCK_DEADLINE',
+  // The monitoring of the procurement workflow (lane PRC-1): a step past its day, a required item that is due, a package that has not moved, a package nobody answers for.
+  'PRC_STEP_OVERDUE',
+  'PRC_CHECKLIST_DUE',
+  'PRC_PACKAGE_STALLED',
+  'PRC_NO_OWNER',
+  // The integrity of the money and of the duties (lane D, integration GOV-INT): a difference with the Treasury past its day, three totals of the disbursed money that disagree, a separation-of-duties exception that ends soon or was used, a payment
+  // request a check blocked or sent with signals, a disbursement exception that lapses; and the lane B1 alert to the auditors: a milestone or a project end moved as many times as the rule says.
+  'TREASURY_RECON_ITEM_OVERDUE',
+  'CROSS_TOTAL_MISMATCH',
+  'SOD_EXCEPTION_EXPIRING',
+  'SOD_EXCEPTION_USED',
+  'PAYMENT_INTEGRITY_BLOCKED',
+  'PAYMENT_INTEGRITY_SIGNAL',
+  'DISBURSEMENT_EXCEPTION_EXPIRING',
+  'RESCHEDULE_COUNT',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export type WorkBucket = 'OVERDUE' | 'NEAR' | 'LATER';
@@ -39,6 +63,24 @@ const PRIORITY: Readonly<Record<WorkKind, number>> = {
   ISSUE_SLA_BREACH: 11,
   SITE_DIARY_MISSING: 12,
   GUARANTEE_EXPIRING: 13,
+  EAC_EXCEEDS_TMDT: 14,
+  RESERVE_BELOW_RISK_EV: 15,
+  ADVANCE_EXCEEDS_REMAINING: 16,
+  DIRECTIVE_DUE: 17,
+  DIRECTIVE_OVERDUE: 18,
+  CLOCK_DEADLINE: 19,
+  PRC_STEP_OVERDUE: 20,
+  PRC_CHECKLIST_DUE: 21,
+  PRC_PACKAGE_STALLED: 22,
+  PRC_NO_OWNER: 23,
+  TREASURY_RECON_ITEM_OVERDUE: 24,
+  CROSS_TOTAL_MISMATCH: 25,
+  SOD_EXCEPTION_EXPIRING: 26,
+  SOD_EXCEPTION_USED: 27,
+  PAYMENT_INTEGRITY_BLOCKED: 28,
+  PAYMENT_INTEGRITY_SIGNAL: 29,
+  DISBURSEMENT_EXCEPTION_EXPIRING: 30,
+  RESCHEDULE_COUNT: 31,
 };
 
 export interface WorkItem {

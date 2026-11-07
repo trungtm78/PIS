@@ -1,0 +1,34 @@
+{
+  "id": "FIN-REF-002",
+  "title": "IRR of exactly 10%: 1000 today, 1210 in two periods",
+  "source": "1210 / 1.1^2 = 1000, so the rate that discounts 1210 back to 1000 over two periods is 10%",
+  "hand_computation": [
+    "NPV(10%) = -1000 + 1210 / 1.21 = 0 exactly",
+    "Simple payback: cumulative -1000, -1000, +210 -> 1 + 1000 / 1210 = 1.8264",
+    "Discounted: cumulative -1000, -1000, 0 -> 1 + 1000 / 1000 = 2",
+    "B/C = 1000 / 1000 = 1"
+  ],
+  "input": {
+    "periodUnit": "YEAR",
+    "discountRatePct": "10",
+    "convention": "END",
+    "lines": [
+      {
+        "period": 0,
+        "capex": "1000"
+      },
+      {
+        "period": 2,
+        "benefit": "1210"
+      }
+    ]
+  },
+  "expected": {
+    "npv": "0.00",
+    "irr_pct": "10.000000",
+    "payback": "1.8264",
+    "discounted_payback": "2.0000",
+    "bcr": "1.0000"
+  },
+  "tolerance": "Exact cases are compared as text, character for character. Hand-computed cases state the result rounded the way the module rounds (half away from zero): money to 2 decimals, IRR in percent to 6, payback periods and ratios to 4. The module computes with exact rationals, so a stated value must match after that rounding; an independent floating point check of the same case is allowed a difference of 1e-6 relative."
+}

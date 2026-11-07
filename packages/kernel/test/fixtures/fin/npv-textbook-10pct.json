@@ -1,0 +1,54 @@
+{
+  "id": "FIN-REF-001",
+  "title": "Textbook cash flow at 10%: outlay 1000, then 300, 400, 500, 600",
+  "source": "Brealey, Myers, Allen, Principles of Corporate Finance, ch. 2 and 5 (NPV, payback); the figures are an exercise computed by hand below",
+  "hand_computation": [
+    "PV(1) = 300 / 1.1 = 272.7273; PV(2) = 400 / 1.21 = 330.5785; PV(3) = 500 / 1.331 = 375.6574; PV(4) = 600 / 1.4641 = 409.8081",
+    "NPV = 272.7273 + 330.5785 + 375.6574 + 409.8081 - 1000 = 388.7713 -> 388.77",
+    "Simple payback: cumulative -1000, -700, -300, +200 -> 2 + 300 / 500 = 2.6",
+    "Discounted: cumulative -1000, -727.27, -396.69, -21.04, +388.77 -> 3 + 21.0368 / 409.8081 = 3.0513",
+    "B/C = 1388.7713 / 1000 = 1.3888",
+    "IRR: NPV(24.888336%) = 0 (bisection by hand to 6 decimals)",
+    "Equivalent per period of the capex over 4 periods at 10%: 1000 / 3.169865 = 315.47"
+  ],
+  "input": {
+    "periodUnit": "YEAR",
+    "discountRatePct": "10",
+    "convention": "END",
+    "lines": [
+      {
+        "period": 0,
+        "capex": "1000"
+      },
+      {
+        "period": 1,
+        "benefit": "300"
+      },
+      {
+        "period": 2,
+        "benefit": "400"
+      },
+      {
+        "period": 3,
+        "benefit": "500"
+      },
+      {
+        "period": 4,
+        "benefit": "600"
+      }
+    ]
+  },
+  "expected": {
+    "npv": "388.77",
+    "irr_pct": "24.888336",
+    "payback": "2.6000",
+    "discounted_payback": "3.0513",
+    "bcr": "1.3888",
+    "tco": {
+      "nominal": "1000.00",
+      "present_value": "1000.00",
+      "equivalent_per_period": "315.47"
+    }
+  },
+  "tolerance": "Exact cases are compared as text, character for character. Hand-computed cases state the result rounded the way the module rounds (half away from zero): money to 2 decimals, IRR in percent to 6, payback periods and ratios to 4. The module computes with exact rationals, so a stated value must match after that rounding; an independent floating point check of the same case is allowed a difference of 1e-6 relative."
+}

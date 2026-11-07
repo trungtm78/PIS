@@ -196,3 +196,33 @@ export function addWorkingTime(
   }
   throw new DomainError('CALENDAR_NOT_EFFECTIVE', 422, 'duration');
 }
+
+/**
+ * How many minutes of working time lie between two instants, counted on the same calendars and in the same working window as `addWorkingTime`
+ * (the two are inverse: `addWorkingTime(c, from, { minutes: workingMinutesBetween(c, from, to) })` is `to` when `to` falls inside working time). Zero
+ * when `to` is not after `from`. Used by the clocks of the alert centre to say how much of a pause was working time. The calendar of each year the
+ * span passes through must be given, as it must for `addWorkingTime`: a year without one fails with 422 `CALENDAR_NOT_EFFECTIVE`, never a guessed day.
+ */
+export function workingMinutesBetween(calendars: WorkCalendarContent | WorkCalendarSource, from: Date, to: Date, intervals: readonly WorkingInterval[] = DEFAULT_WORKING_INTERVALS): number {
+  if (!(to.getTime() > from.getTime())) return 0;
+  const spans = spansOf(intervals);
+  const source = asSource(calendars);
+  const localFrom = from.getTime() + offsetMs();
+  const localTo = to.getTime() + offsetMs();
+  const firstDay = Math.floor(localFrom / DAY_MS);
+  const lastDay = Math.floor(localTo / DAY_MS);
+  if (lastDay - firstDay > MAX_SCAN_DAYS) throw new DomainError('CALENDAR_NOT_EFFECTIVE', 422, 'duration');
+  let total = 0;
+  for (let day = firstDay; day <= lastDay; day += 1) {
+    const calendar = source.forYear(new Date(day * DAY_MS).getUTCFullYear());
+    if (calendar === undefined) throw new DomainError('CALENDAR_NOT_EFFECTIVE', 422, 'year');
+    if (!isWorkingDay(calendar, isoOf(day))) continue;
+    const dayStart = day * DAY_MS;
+    for (const span of spans) {
+      const begin = Math.max(dayStart + span.from, localFrom);
+      const end = Math.min(dayStart + span.to, localTo);
+      if (end > begin) total += end - begin;
+    }
+  }
+  return Math.floor(total / MINUTE_MS);
+}

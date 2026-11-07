@@ -1,0 +1,33 @@
+{
+  "id": "FIN-REF-009",
+  "title": "Mid-period convention at 300%: the square root of 1 + r is exactly 2",
+  "source": "Period t discounted by (1 + r)^(t - 1/2): 2000 / 4^(1/2) = 1000",
+  "hand_computation": [
+    "MID: NPV = -1000 + 2000 / 2 = 0 exactly (END would give -1000 + 2000 / 4 = -500)",
+    "Simple payback: -1000, +1000 -> 0 + 1000 / 2000 = 0.5; discounted (MID): PV(1) = 1000 -> 0 + 1000 / 1000 = 1",
+    "B/C = 1000 / 1000 = 1; IRR = 100% (NPV = -1000 + 2000 / (1 + r) is zero at r = 100%; the IRR does not depend on the convention)"
+  ],
+  "input": {
+    "periodUnit": "YEAR",
+    "discountRatePct": "300",
+    "convention": "MID",
+    "lines": [
+      {
+        "period": 0,
+        "capex": "1000"
+      },
+      {
+        "period": 1,
+        "benefit": "2000"
+      }
+    ]
+  },
+  "expected": {
+    "npv": "0.00",
+    "irr_pct": "100.000000",
+    "payback": "0.5000",
+    "discounted_payback": "1.0000",
+    "bcr": "1.0000"
+  },
+  "tolerance": "Exact cases are compared as text, character for character. Hand-computed cases state the result rounded the way the module rounds (half away from zero): money to 2 decimals, IRR in percent to 6, payback periods and ratios to 4. The module computes with exact rationals, so a stated value must match after that rounding; an independent floating point check of the same case is allowed a difference of 1e-6 relative."
+}

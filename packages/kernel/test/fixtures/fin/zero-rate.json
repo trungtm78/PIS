@@ -1,0 +1,60 @@
+{
+  "id": "FIN-REF-005",
+  "title": "Zero discount rate: NPV is the plain sum",
+  "source": "Outlay 500 then 100 for six periods at 0%",
+  "hand_computation": [
+    "NPV = -500 + 6 x 100 = 100 exactly",
+    "Payback = discounted payback = 5 exactly (cumulative -500 ... 0 at period 5)",
+    "B/C = 600 / 500 = 1.2",
+    "IRR = 5.471793% (NPV(5.471793%) = 0 by bisection)",
+    "Equivalent per period = 500 / 6 = 83.33"
+  ],
+  "input": {
+    "periodUnit": "YEAR",
+    "discountRatePct": "0",
+    "convention": "END",
+    "lines": [
+      {
+        "period": 0,
+        "capex": "500"
+      },
+      {
+        "period": 1,
+        "benefit": "100"
+      },
+      {
+        "period": 2,
+        "benefit": "100"
+      },
+      {
+        "period": 3,
+        "benefit": "100"
+      },
+      {
+        "period": 4,
+        "benefit": "100"
+      },
+      {
+        "period": 5,
+        "benefit": "100"
+      },
+      {
+        "period": 6,
+        "benefit": "100"
+      }
+    ]
+  },
+  "expected": {
+    "npv": "100.00",
+    "irr_pct": "5.471793",
+    "payback": "5.0000",
+    "discounted_payback": "5.0000",
+    "bcr": "1.2000",
+    "tco": {
+      "nominal": "500.00",
+      "present_value": "500.00",
+      "equivalent_per_period": "83.33"
+    }
+  },
+  "tolerance": "Exact cases are compared as text, character for character. Hand-computed cases state the result rounded the way the module rounds (half away from zero): money to 2 decimals, IRR in percent to 6, payback periods and ratios to 4. The module computes with exact rationals, so a stated value must match after that rounding; an independent floating point check of the same case is allowed a difference of 1e-6 relative."
+}

@@ -1,0 +1,45 @@
+{
+  "id": "FIN-REF-008",
+  "title": "A rate of -100%: the discount factor does not exist, the IRR does not depend on the rate",
+  "source": "The cash flow of FIN-REF-001 at a rate of -100%",
+  "hand_computation": [
+    "1 + r = 0: discounting divides by zero, so NPV, discounted payback, B/C and TCO are not applicable (RATE_AT_OR_BELOW_MINUS_100)",
+    "IRR and the simple payback do not use the rate and keep their values: 24.888336%, 2.6"
+  ],
+  "input": {
+    "periodUnit": "YEAR",
+    "discountRatePct": "-100",
+    "convention": "END",
+    "lines": [
+      {
+        "period": 0,
+        "capex": "1000"
+      },
+      {
+        "period": 1,
+        "benefit": "300"
+      },
+      {
+        "period": 2,
+        "benefit": "400"
+      },
+      {
+        "period": 3,
+        "benefit": "500"
+      },
+      {
+        "period": 4,
+        "benefit": "600"
+      }
+    ]
+  },
+  "expected": {
+    "npv_reason": "RATE_AT_OR_BELOW_MINUS_100",
+    "irr_pct": "24.888336",
+    "payback": "2.6000",
+    "discounted_payback_reason": "RATE_AT_OR_BELOW_MINUS_100",
+    "bcr_reason": "RATE_AT_OR_BELOW_MINUS_100",
+    "tco_reason": "RATE_AT_OR_BELOW_MINUS_100"
+  },
+  "tolerance": "Exact cases are compared as text, character for character. Hand-computed cases state the result rounded the way the module rounds (half away from zero): money to 2 decimals, IRR in percent to 6, payback periods and ratios to 4. The module computes with exact rationals, so a stated value must match after that rounding; an independent floating point check of the same case is allowed a difference of 1e-6 relative."
+}
