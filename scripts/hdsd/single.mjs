@@ -9,6 +9,8 @@ import { FFMPEG } from './tts.mjs';
 
 const CATALOGUE = join('Design', 'MACHVON_Design', '03_Engineering', 'screen_catalog.json');
 
+const ROUTES = join('apps', 'web', 'src', 'routes', 'routes.generated.json');
+
 const escapeHtml = (text) => String(text).replace(/&/gu, '&amp;').replace(/</gu, '&lt;').replace(/>/gu, '&gt;').replace(/"/gu, '&quot;');
 
 /** The bytes of a file as a `data:` address, so that the page needs nothing but itself. */
@@ -40,6 +42,20 @@ export function packImage(png, target, { pack = PACK } = {}) {
   mkdirSync(dirname(target), { recursive: true });
   if (!fresh(target, png)) ffmpeg(['-i', png, '-vf', `scale=${pack.imageWidth}:-1`, '-q:v', String(pack.imageQuality), target]);
   return target;
+}
+
+/** The map of the menu: for each module its groups, each with the titles of its screens, from the route table of the web application. */
+export function menuOf(routes, moduleNames) {
+  const modules = new Map();
+  for (const route of routes) {
+    const groups = modules.get(route.module) ?? new Map();
+    groups.set(route.group, [...(groups.get(route.group) ?? []), route.title]);
+    modules.set(route.module, groups);
+  }
+  return [...modules].map(([module, groups]) => ({
+    group: moduleNames.get(module) ?? module,
+    items: [...groups].map(([group, titles]) => `${group}: ${titles.join('; ')}`).join('. '),
+  }));
 }
 
 const chips = (ids, screens) =>
@@ -200,6 +216,10 @@ export function buildSingle({ root = REPO_ROOT, cache = cacheDir(), out, log = c
   const intro = JSON.parse(readFileSync(join(root, 'scripts', 'hdsd', 'site.json'), 'utf8'));
   const contentFile = join(root, 'scripts', 'hdsd', 'content.json');
   const content = { roles: [], rolesIntro: '', menu: [], faq: [], glossary: [], notes: [], ...(existsSync(contentFile) ? JSON.parse(readFileSync(contentFile, 'utf8')) : {}) };
+  if (content.menu.length === 0) {
+    const names = new Map(catalogue.filter((screen) => screen.platform === 'web').map((screen) => [screen.module, screen.moduleName]));
+    content.menu = menuOf(JSON.parse(readFileSync(join(root, ROUTES), 'utf8')).routes, names);
+  }
 
   const assets = {
     film: (id) => dataUri('video/mp4', readFileSync(packFilm(id, { root, cache }))),

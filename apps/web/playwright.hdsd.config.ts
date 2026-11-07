@@ -10,6 +10,8 @@ export default defineConfig({
   testDir: './e2e/hdsd',
   testMatch: '**/*.hdsd.ts',
   timeout: 600_000,
+  // A chapter that failed is filmed once more (a service that was busy, a page that was slow); a chapter that still fails does not stop the others.
+  retries: 1,
   reporter: [['list']],
   outputDir: './e2e/test-results-hdsd',
 });

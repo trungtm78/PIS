@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { cacheDir, hashOf, loadFlow, parseCues, parseFfmpegDuration, VOICE } from './lib.mjs';
@@ -13,14 +13,35 @@ export function probeMs(file) {
   return parseFfmpegDuration(`${done.stderr}${done.stdout}`);
 }
 
-/** Speaks one narration with the neural voice of Microsoft Edge (the words go to the service of Microsoft; nothing else does). */
+/** Waits without spinning (the narration is made by synchronous calls). */
+const pause = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+
+/** The seconds to wait before each new attempt when the service answers with no audio (it does so for a while when it is asked too fast). */
+export const RETRY_WAITS_S = [10, 30, 60, 120];
+
+const spoken = (file) => existsSync(file) && statSync(file).size > 0;
+
+/** Speaks one narration with the neural voice of Microsoft Edge (the words go to the service of Microsoft; nothing else does). It tries again when the service sends nothing. */
 function speak(text, mp3, vtt) {
-  const done = spawnSync(PYTHON, ['-m', 'edge_tts', '--voice', VOICE, '--text', text, '--write-media', mp3, '--write-subtitles', vtt], {
-    encoding: 'utf8',
-    env: { ...process.env, PYTHONUTF8: '1' },
-    timeout: 120_000,
-  });
-  if (done.status !== 0 || !existsSync(mp3)) throw new Error(`the voice failed for "${text.slice(0, 40)}": ${done.stderr || done.stdout}`);
+  let failure = '';
+  for (let attempt = 0; attempt <= RETRY_WAITS_S.length; attempt += 1) {
+    rmSync(mp3, { force: true });
+    rmSync(vtt, { force: true });
+    const done = spawnSync(PYTHON, ['-m', 'edge_tts', '--voice', VOICE, '--text', text, '--write-media', mp3, '--write-subtitles', vtt], {
+      encoding: 'utf8',
+      env: { ...process.env, PYTHONUTF8: '1' },
+      timeout: 120_000,
+    });
+    if (done.status === 0 && spoken(mp3) && spoken(vtt)) {
+      pause(300);
+      return;
+    }
+    failure = done.stderr || done.stdout || 'no audio';
+    rmSync(mp3, { force: true });
+    rmSync(vtt, { force: true });
+    if (attempt < RETRY_WAITS_S.length) pause(RETRY_WAITS_S[attempt] * 1000);
+  }
+  throw new Error(`the voice failed for "${text.slice(0, 40)}": ${failure.split('\n').slice(-3).join(' ')}`);
 }
 
 /** The audio of every step of a flow: spoken once, kept by the hash of its words; the answer says where each file is and how long it lasts. */
@@ -33,7 +54,7 @@ export function narrate(flowId, { root, cache = cacheDir(), log = console.log } 
     const key = hashOf(step.text);
     const mp3 = join(audioDir, `${key}.mp3`);
     const vtt = join(audioDir, `${key}.vtt`);
-    if (!existsSync(mp3) || !existsSync(vtt)) {
+    if (!spoken(mp3) || !spoken(vtt)) {
       speak(step.text, mp3, vtt);
       log(`voice: ${flowId}/${step.id}`);
     }

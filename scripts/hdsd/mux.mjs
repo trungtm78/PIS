@@ -33,10 +33,12 @@ export function mux(flowId, { cache = cacheDir(), root = REPO_ROOT } = {}) {
   mkdirSync(clips, { recursive: true });
   mkdirSync(images, { recursive: true });
 
+  // A browser film is a webm file, a phone film an mp4 file.
+  const source = existsSync(join(rec, 'video.webm')) ? join(rec, 'video.webm') : join(rec, 'video.mp4');
   const mp3s = timeline.map((entry) => audio.steps[entry.id].mp3);
   const mp4 = join(clips, `${flowId}.mp4`);
   run([
-    '-i', join(rec, 'video.webm'),
+    '-i', source,
     ...mp3s.flatMap((file) => ['-i', file]),
     '-filter_complex', audioGraph(timeline.map((entry) => entry.voiceMs)),
     '-map', '0:v', '-map', '[a]',
@@ -46,7 +48,7 @@ export function mux(flowId, { cache = cacheDir(), root = REPO_ROOT } = {}) {
   ]);
   writeFileSync(join(clips, `${flowId}.vi.vtt`), captionsOf(timeline, audio));
   for (const entry of timeline) copyFileSync(entry.shot, join(images, `${entry.id}.png`));
-  run(['-ss', '0.2', '-i', join(rec, 'video.webm'), '-frames:v', '1', '-q:v', '4', join(images, 'poster.jpg')]);
+  run(['-ss', '0.2', '-i', source, '-frames:v', '1', '-q:v', '4', join(images, 'poster.jpg')]);
   writeFileSync(join(out, `${flowId}.timeline.json`), `${JSON.stringify({ flow: flowId, timeline: timeline.map((entry) => ({ id: entry.id, heading: entry.heading, screens: entry.screens, startMs: entry.startMs, endMs: entry.endMs, voiceMs: entry.voiceMs })) }, null, 2)}\n`);
   return { mp4, steps: timeline.length };
 }

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { chapterSection, dataUri, guideHtml, screensSection } from './single.mjs';
+import { chapterSection, dataUri, guideHtml, menuOf, screensSection } from './single.mjs';
 import { coverageOf, screensById } from './site.mjs';
 
 const catalogue = [
@@ -59,4 +59,15 @@ test('the whole guide is one page with every part and no outside address', () =>
   assert.doesNotMatch(html, /<link /);
   assert.doesNotMatch(html, /src="https?:/);
   assert.equal(html.startsWith('<!doctype html>'), true);
+});
+
+test('the map of the menu lists each module with its groups and the titles of their screens', () => {
+  const menu = menuOf(
+    [{ module: 'PRJ', group: 'Danh mục', title: 'Danh sách dự án' }, { module: 'PRJ', group: 'Danh mục', title: 'Tạo dự án' }, { module: 'CAP', group: 'Kế hoạch', title: 'Kế hoạch vốn' }],
+    new Map([['PRJ', 'Danh mục dự án']]),
+  );
+  assert.deepEqual(menu, [
+    { group: 'Danh mục dự án', items: 'Danh mục: Danh sách dự án; Tạo dự án' },
+    { group: 'CAP', items: 'Kế hoạch: Kế hoạch vốn' },
+  ]);
 });

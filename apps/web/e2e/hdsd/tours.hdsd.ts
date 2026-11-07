@@ -91,8 +91,6 @@ async function probe(page: Page): Promise<Facts> {
   });
 }
 
-test.describe.configure({ mode: 'serial' });
-
 // A chapter that was filmed is not filmed again unless HDSD_REDO=1: a run that was cut short goes on where it stopped.
 const done = (id: string): boolean => process.env.HDSD_REDO !== '1' && existsSync(join(ROOT, 'docs', 'hdsd', 'machvon', `${id}.timeline.json`));
 

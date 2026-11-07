@@ -1,0 +1,68 @@
+[
+  {
+    "id": "m01-dang-nhap-dien-thoai",
+    "group": "Ứng dụng điện thoại",
+    "title": "Ứng dụng điện thoại: đăng nhập, chọn đơn vị và xác thực lần hai",
+    "audience": "Mọi người dùng ứng dụng điện thoại",
+    "outcome": "Đăng nhập vào ứng dụng MACHVON trên điện thoại, chọn đơn vị và vai trò, xác thực lần hai và vào màn hình chính.",
+    "module": "MOB",
+    "steps": [
+      { "id": "mob-02", "screens": ["MOB-02"], "ops": [{ "clear": true }, { "wait": 2500 }] },
+      { "id": "mob-01", "screens": ["MOB-01"], "ops": [{ "tap": "^Đổi tổ chức" }] },
+      { "id": "mob-04", "screens": ["MOB-04"], "ops": [{ "relaunch": true }, { "sso": true }] },
+      { "id": "mob-03", "screens": ["MOB-03"], "ops": [{ "unit": "Cao Bằng" }] },
+      { "id": "mob-07", "screens": ["MOB-07"], "ops": [{ "mfa": true }] }
+    ]
+  },
+  {
+    "id": "m02-trang-chu-du-an-dien-thoai",
+    "group": "Ứng dụng điện thoại",
+    "title": "Ứng dụng điện thoại: trang chủ lãnh đạo và dự án",
+    "audience": "Lãnh đạo, cán bộ quản lý dự án",
+    "outcome": "Đọc trang chủ lãnh đạo, mở các lối tắt, xem danh sách dự án, bản đồ hiện trường, kế hoạch vốn, dự án chưa nộp báo cáo, vướng mắc theo tuần và chi tiết một dự án.",
+    "module": "MOB",
+    "steps": [
+      { "id": "mob-07", "screens": ["MOB-07"], "ops": [{ "relaunch": true }] },
+      { "id": "mob-58", "screens": ["MOB-58"], "ops": [{ "tap": "^Cơ cấu nguồn vốn", "scroll": true }] },
+      { "id": "mob-08", "screens": ["MOB-08"], "ops": [{ "relaunch": true }, { "tap": "^Việc của tôi", "scroll": true }] },
+      { "id": "mob-40", "screens": ["MOB-40"], "ops": [{ "relaunch": true }, { "tap": "^Dashboard BI của tôi", "scroll": true }] },
+      { "id": "mob-09", "screens": ["MOB-09"], "ops": [{ "relaunch": true }, { "tab": "Dự án" }] },
+      { "id": "mob-11", "screens": ["MOB-11"], "ops": [{ "tap": "^Bản đồ hiện trường" }] },
+      { "id": "mob-12", "screens": ["MOB-12"], "ops": [{ "relaunch": true }, { "tab": "Dự án" }, { "tap": "^Kế hoạch vốn" }] },
+      { "id": "mob-57", "screens": ["MOB-57"], "ops": [{ "back": true }, { "tap": "^Dự án chưa nộp báo cáo" }] },
+      { "id": "mob-59", "screens": ["MOB-59"], "ops": [{ "back": true }, { "tap": "^Vướng mắc theo tuần" }] },
+      { "id": "mob-10", "screens": ["MOB-10"], "ops": [{ "back": true }, { "tap": "^DA-" }] }
+    ]
+  },
+  {
+    "id": "m03-thong-bao-dien-thoai",
+    "group": "Ứng dụng điện thoại",
+    "title": "Ứng dụng điện thoại: phê duyệt, thông báo và hội thoại",
+    "audience": "Mọi người dùng ứng dụng điện thoại",
+    "outcome": "Biết danh sách phê duyệt, hộp thông báo, hội thoại gắn với hồ sơ, cài đặt thông báo và màn xin quyền thông báo đẩy.",
+    "module": "MOB",
+    "steps": [
+      { "id": "mob-23", "screens": ["MOB-23"], "ops": [{ "relaunch": true }, { "tab": "Phê duyệt" }] },
+      { "id": "mob-32", "screens": ["MOB-32"], "ops": [{ "tab": "Thông báo" }] },
+      { "id": "mob-35", "screens": ["MOB-35"], "ops": [{ "tap": "^Hội thoại gắn với hồ sơ" }] },
+      { "id": "mob-34", "screens": ["MOB-34"], "ops": [{ "back": true }, { "tap": "^Cài đặt thông báo" }] },
+      { "id": "mob-05", "screens": ["MOB-05"], "ops": [{ "relaunch": true }, { "tab": "Cá nhân" }, { "tap": "^Thông báo đẩy", "scroll": true }] }
+    ]
+  },
+  {
+    "id": "m04-tai-khoan-dien-thoai",
+    "group": "Ứng dụng điện thoại",
+    "title": "Ứng dụng điện thoại: tài khoản, thiết bị, ngoại tuyến và trợ giúp",
+    "audience": "Mọi người dùng ứng dụng điện thoại",
+    "outcome": "Biết màn hình tài khoản, thiết bị và đăng xuất, hàng đợi gửi, làm việc ngoại tuyến, tìm kiếm trong hệ thống và trợ giúp.",
+    "module": "MOB",
+    "steps": [
+      { "id": "mob-47", "screens": ["MOB-47"], "ops": [{ "relaunch": true }, { "tab": "Cá nhân" }] },
+      { "id": "mob-49", "screens": ["MOB-49"], "ops": [{ "tap": "^Thiết bị và đăng xuất" }] },
+      { "id": "mob-41", "screens": ["MOB-41"], "ops": [{ "back": true }, { "tap": "^Hàng đợi gửi" }] },
+      { "id": "mob-43", "screens": ["MOB-43"], "ops": [{ "back": true }, { "tap": "^Làm việc ngoại tuyến" }] },
+      { "id": "mob-51", "screens": ["MOB-51"], "ops": [{ "back": true }, { "tap": "^Tìm kiếm trong hệ thống" }] },
+      { "id": "mob-50", "screens": ["MOB-50"], "ops": [{ "back": true }, { "tap": "^Trợ giúp và phản hồi" }] }
+    ]
+  }
+]
