@@ -3,26 +3,49 @@ import type { Tokens } from './types.ts';
 
 export const TOKENS: Tokens = {
   "name": "MACHVON",
-  "version": "1.2",
+  "version": "1.3",
   "color": {
-    "ink": "#29272D",
-    "sidebar": "#FFFFFF",
-    "primary": "#B4233D",
-    "background": "#F7F5F4",
+    "ink": "#122D3B",
+    "sidebar": "#102E3B",
+    "primary": "#007D77",
+    "background": "#F3F6F5",
     "surface": "#FFFFFF",
-    "accent": "#99631C",
-    "danger": "#A22B22",
-    "textSecondary": "#68616C",
-    "border": "#E8E3E5",
-    "selected": "#FFF0F2",
-    "primaryHover": "#921B32",
-    "success": "#287866",
-    "info": "#376A92"
+    "accent": "#9A5B00",
+    "danger": "#A63838",
+    "textSecondary": "#5B6E77",
+    "border": "#DDE6E7",
+    "selected": "#1C4A52",
+    "primaryHover": "#00635E",
+    "success": "#2E7D4F",
+    "info": "#2F6690",
+    "menuText": "#FFFFFF",
+    "menuMuted": "#C4D5DC",
+    "workspaceCard": "#1C3B48",
+    "selectedBar": "#2FB5A8",
+    "primarySoft": "#E7F3EF",
+    "surface2": "#F4F7F6",
+    "tableHead": "#173D48",
+    "tableHeadGroup": "#102E3B",
+    "chartPlan": "#7A8F99",
+    "focus": "#007D77",
+    "focusOnDark": "#7FE0D6",
+    "warning": "#9A5B00",
+    "neutral": "#4F616A",
+    "successSoft": "#E5F3EB",
+    "warningSoft": "#FFF3DB",
+    "dangerSoft": "#FBE9E9",
+    "infoSoft": "#E6F0F8",
+    "neutralSoft": "#EBEFF1",
+    "fundYear": "#007D77",
+    "fundCarryOver": "#E0AA52",
+    "fundOther": "#B26B6B",
+    "fundIncrease": "#4C9BC9",
+    "fundProgramme": "#6D4BA3"
   },
   "font": {
-    "family": "Segoe UI, Arial, sans-serif",
+    "family": "Be Vietnam Pro, Segoe UI, Arial, sans-serif",
     "body": 14,
-    "title": 27,
+    "title": 28,
     "mobileBody": 16,
     "navPrimary": 14,
     "navSecondary": 12
@@ -40,7 +63,7 @@ export const TOKENS: Tokens = {
   "radius": {
     "control": 8,
     "card": 14,
-    "pill": 20
+    "pill": 999
   },
   "viewport": {
     "web": [
@@ -58,10 +81,10 @@ export const TOKENS: Tokens = {
   },
   "displayName": "H\u1ec7 Th\u1ed1ng L\u00fd D\u1ef1 \u00c1n \u0110\u1ea7u T\u01b0 C\u00f4ng",
   "prototypeNavigation": {
-    "surface": "#FFFFFF",
-    "identity": "#991C35",
-    "accent": "#B4233D",
-    "border": "#E8E3E5",
+    "surface": "#102E3B",
+    "identity": "#1C3B48",
+    "accent": "#007D77",
+    "border": "#DDE6E7",
     "radius": {
       "control": 11,
       "dialog": 19
@@ -73,25 +96,25 @@ export const TOKENS: Tokens = {
     "compactSidebarWidth": 236,
     "mobileDrawerBreakpoint": 980,
     "inboxSinglePaneBreakpoint": 720,
-    "surface": "#FFFFFF",
-    "selectedSurface": "#FFF0F2",
-    "selectedText": "#A11D37",
+    "surface": "#102E3B",
+    "selectedSurface": "#1C4A52",
+    "selectedText": "#FFFFFF",
     "structure": "single sidebar > direct destination > contextual shortcuts; secondary searchable library",
     "mapping": "../03_Engineering/navigation_architecture.json"
   },
-  "theme": "Ruby / Porcelain",
+  "theme": "Xanh d\u1ea7u \u0111i\u1ec1u h\u00e0nh",
   "tenantTheme": {
-    "primary": "#B4233D",
+    "primary": "#007D77",
     "primaryText": "#FFFFFF",
-    "menu": "#FFFFFF",
-    "menuText": "#68616C",
-    "selected": "#FFF0F2",
-    "selectedText": "#A11D37",
+    "menu": "#102E3B",
+    "menuText": "#FFFFFF",
+    "selected": "#1C4A52",
+    "selectedText": "#FFFFFF",
     "headerBg": "#FFFFFF",
-    "headerText": "#29272D",
+    "headerText": "#122D3B",
     "footerBg": "#FFFFFF",
-    "footerText": "#68616C",
-    "background": "#F7F5F4",
-    "titleColor": "#29272D"
+    "footerText": "#5B6E77",
+    "background": "#F3F6F5",
+    "titleColor": "#122D3B"
   }
 };

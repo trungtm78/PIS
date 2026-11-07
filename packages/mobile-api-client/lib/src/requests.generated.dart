@@ -10965,6 +10965,34 @@ final class UsageEventRecord implements RequestModel {
       };
 }
 
+final class WorkActionTarget implements RequestModel {
+  const WorkActionTarget({
+    required this.source,
+    required this.sourceId,
+    this.assigneeId,
+    this.dueOn,
+    this.snoozeUntil,
+    this.reason,
+  });
+
+  final String source;
+  final String sourceId;
+  final String? assigneeId;
+  final String? dueOn;
+  final String? snoozeUntil;
+  final String? reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'source': source,
+        'source_id': sourceId,
+        if (assigneeId != null) 'assignee_id': assigneeId,
+        if (dueOn != null) 'due_on': dueOn,
+        if (snoozeUntil != null) 'snooze_until': snoozeUntil,
+        if (reason != null) 'reason': reason,
+      };
+}
+
 final class WorkCalendarDraft implements RequestModel {
   const WorkCalendarDraft({
     required this.calendarCode,

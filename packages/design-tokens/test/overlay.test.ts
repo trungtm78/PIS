@@ -29,13 +29,13 @@ describe('validateTenantOverlay: accepted overlays', () => {
     if (result.ok) {
       expect(result.tokens.tenantTheme).toEqual(base.tenantTheme);
       expect(result.css).toContain('[data-mv-tenant-theme]');
-      expect(result.css).toContain('--mv-theme-primary: #B4233D;');
+      expect(result.css).toContain('--mv-theme-primary: #007D77;');
     }
   });
 
   it('accepts a navy theme, normalises the colours and leaves the base object untouched', () => {
     const before = JSON.stringify(base);
-    const result = validateTenantOverlay(base, { primary: '#244c78', selected: '#eaf1f8', selectedText: '#244c78', menu: '#fff' });
+    const result = validateTenantOverlay(base, { primary: '#244c78', selected: '#eaf1f8', selectedText: '#244c78', menu: '#fff', menuText: '#244c78' });
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.tokens.tenantTheme.primary).toBe('#244C78');
@@ -99,7 +99,7 @@ describe('validateTenantOverlay: contrast (AC-ST-KERNEL-031-2)', () => {
   });
 
   it('judges a changed background against the unchanged text colour of the base theme', () => {
-    // Base footer text is #68616C; a dark footer background breaks it even though only the background was sent.
+    // Base footer text is #5B6E77; a dark footer background breaks it even though only the background was sent.
     const result = validateTenantOverlay(base, { footerBg: '#222222' });
     expect(codes(result)).toEqual(['CONTRAST']);
   });
@@ -134,7 +134,7 @@ describe('validateTenantOverlay: values that must never reach CSS', () => {
   it('never partially applies: one bad token rejects an overlay that also holds good ones', () => {
     const result = validateTenantOverlay(base, { primary: '#244c78', selected: 'blue' });
     expect(result.ok).toBe(false);
-    expect(JSON.stringify(base)).toContain('#B4233D');
+    expect(JSON.stringify(base)).toContain('#007D77');
   });
 });
 

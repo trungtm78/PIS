@@ -4,33 +4,33 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 void main() {
   group('machvonTheme', () {
-    test('uses the Ruby / Porcelain primary colour of the design tokens', () {
+    test('uses the Xanh dầu điều hành primary colour of the design tokens', () {
       final ThemeData theme = machvonTheme();
-      expect(theme.colorScheme.primary, const Color(0xFFB4233D));
-      expect(theme.colorScheme.onSurface, const Color(0xFF29272D));
-      expect(theme.scaffoldBackgroundColor, const Color(0xFFF7F5F4));
-      expect(theme.colorScheme.error, const Color(0xFFA22B22));
+      expect(theme.colorScheme.primary, const Color(0xFF007D77));
+      expect(theme.colorScheme.onSurface, const Color(0xFF122D3B));
+      expect(theme.scaffoldBackgroundColor, const Color(0xFFF3F6F5));
+      expect(theme.colorScheme.error, const Color(0xFFA63838));
     });
 
-    test('sets the mobile body size of 16 and the title size of 27', () {
+    test('sets the mobile body size of 16 and the title size of 28', () {
       final ThemeData theme = machvonTheme();
       expect(theme.textTheme.bodyMedium!.fontSize, 16);
       expect(theme.textTheme.bodyLarge!.fontSize, 16);
-      expect(theme.textTheme.titleLarge!.fontSize, 27);
+      expect(theme.textTheme.titleLarge!.fontSize, 28);
       expect(theme.textTheme.bodySmall!.fontSize, MachvonFont.navSecondary);
     });
 
     test('uses the font family of the design with its fallbacks', () {
       final ThemeData theme = machvonTheme();
       expect(theme.textTheme.bodyMedium!.fontFamily, MachvonFont.family);
-      expect(MachvonFont.family, 'Segoe UI');
-      expect(MachvonFont.fallbackFamilies, <String>['Arial', 'sans-serif']);
+      expect(MachvonFont.family, 'Be Vietnam Pro');
+      expect(MachvonFont.fallbackFamilies, <String>['Segoe UI', 'Arial', 'sans-serif']);
     });
 
     test('keeps the radii and the spacing steps of the design', () {
       expect(MachvonRadius.control, 8);
       expect(MachvonRadius.card, 14);
-      expect(MachvonRadius.pill, 20);
+      expect(MachvonRadius.pill, 999);
       expect(MachvonSpace.space4, 4);
       expect(MachvonSpace.space48, 48);
     });

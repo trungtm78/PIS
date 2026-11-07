@@ -30,7 +30,7 @@ function baseTenantTheme(json: DesignTokens): ThemeColors {
     primary: colour(json, 'primary'),
     primaryText: colour(json, 'surface'),
     menu: colour(json, 'sidebar'),
-    menuText: colour(json, 'textSecondary'),
+    menuText: colour(json, 'menuText'),
     selected: colour(json, 'selected'),
     selectedText,
     headerBg: colour(json, 'surface'),

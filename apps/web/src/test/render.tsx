@@ -15,7 +15,7 @@ export const TENANT_A: SessionTenant = {
   name: 'Cao Bằng',
   monogram: 'CB',
   membershipId: '00000000-0000-4000-8000-0000000000f1',
-  theme: { themeId: 'theme-a', version: 3, overlay: { primary: '#B4233D', primaryText: '#FFFFFF' } },
+  theme: { themeId: 'theme-a', version: 3, overlay: { primary: '#007D77', primaryText: '#FFFFFF' } },
 };
 
 export const TENANT_B: SessionTenant = {

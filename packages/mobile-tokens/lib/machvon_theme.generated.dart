@@ -4,19 +4,42 @@ import 'package:flutter/material.dart';
 
 /// Colours of the design tokens.
 abstract final class MachvonColors {
-  static const Color ink = Color(0xFF29272D);
-  static const Color sidebar = Color(0xFFFFFFFF);
-  static const Color primary = Color(0xFFB4233D);
-  static const Color background = Color(0xFFF7F5F4);
+  static const Color ink = Color(0xFF122D3B);
+  static const Color sidebar = Color(0xFF102E3B);
+  static const Color primary = Color(0xFF007D77);
+  static const Color background = Color(0xFFF3F6F5);
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color accent = Color(0xFF99631C);
-  static const Color danger = Color(0xFFA22B22);
-  static const Color textSecondary = Color(0xFF68616C);
-  static const Color border = Color(0xFFE8E3E5);
-  static const Color selected = Color(0xFFFFF0F2);
-  static const Color primaryHover = Color(0xFF921B32);
-  static const Color success = Color(0xFF287866);
-  static const Color info = Color(0xFF376A92);
+  static const Color accent = Color(0xFF9A5B00);
+  static const Color danger = Color(0xFFA63838);
+  static const Color textSecondary = Color(0xFF5B6E77);
+  static const Color border = Color(0xFFDDE6E7);
+  static const Color selected = Color(0xFF1C4A52);
+  static const Color primaryHover = Color(0xFF00635E);
+  static const Color success = Color(0xFF2E7D4F);
+  static const Color info = Color(0xFF2F6690);
+  static const Color menuText = Color(0xFFFFFFFF);
+  static const Color menuMuted = Color(0xFFC4D5DC);
+  static const Color workspaceCard = Color(0xFF1C3B48);
+  static const Color selectedBar = Color(0xFF2FB5A8);
+  static const Color primarySoft = Color(0xFFE7F3EF);
+  static const Color surface2 = Color(0xFFF4F7F6);
+  static const Color tableHead = Color(0xFF173D48);
+  static const Color tableHeadGroup = Color(0xFF102E3B);
+  static const Color chartPlan = Color(0xFF7A8F99);
+  static const Color focus = Color(0xFF007D77);
+  static const Color focusOnDark = Color(0xFF7FE0D6);
+  static const Color warning = Color(0xFF9A5B00);
+  static const Color neutral = Color(0xFF4F616A);
+  static const Color successSoft = Color(0xFFE5F3EB);
+  static const Color warningSoft = Color(0xFFFFF3DB);
+  static const Color dangerSoft = Color(0xFFFBE9E9);
+  static const Color infoSoft = Color(0xFFE6F0F8);
+  static const Color neutralSoft = Color(0xFFEBEFF1);
+  static const Color fundYear = Color(0xFF007D77);
+  static const Color fundCarryOver = Color(0xFFE0AA52);
+  static const Color fundOther = Color(0xFFB26B6B);
+  static const Color fundIncrease = Color(0xFF4C9BC9);
+  static const Color fundProgramme = Color(0xFF6D4BA3);
 }
 
 /// Spacing steps in logical pixels.
@@ -35,15 +58,15 @@ abstract final class MachvonSpace {
 abstract final class MachvonRadius {
   static const double control = 8;
   static const double card = 14;
-  static const double pill = 20;
+  static const double pill = 999;
 }
 
 /// Typography: the family with its fallbacks and the font sizes; the mobile body size is `mobileBody`.
 abstract final class MachvonFont {
-  static const String family = 'Segoe UI';
-  static const List<String> fallbackFamilies = <String>['Arial', 'sans-serif'];
+  static const String family = 'Be Vietnam Pro';
+  static const List<String> fallbackFamilies = <String>['Segoe UI', 'Arial', 'sans-serif'];
   static const double body = 14;
-  static const double title = 27;
+  static const double title = 28;
   static const double mobileBody = 16;
   static const double navPrimary = 14;
   static const double navSecondary = 12;
@@ -69,18 +92,18 @@ const List<String> kThemeColorKeys = <String>['primary', 'primaryText', 'menu', 
 
 /// The base tenant theme: the value of every overridable colour before an overlay.
 const Map<String, Color> kBaseTenantTheme = <String, Color>{
-  'primary': Color(0xFFB4233D),
+  'primary': Color(0xFF007D77),
   'primaryText': Color(0xFFFFFFFF),
-  'menu': Color(0xFFFFFFFF),
-  'menuText': Color(0xFF68616C),
-  'selected': Color(0xFFFFF0F2),
-  'selectedText': Color(0xFFA11D37),
+  'menu': Color(0xFF102E3B),
+  'menuText': Color(0xFFFFFFFF),
+  'selected': Color(0xFF1C4A52),
+  'selectedText': Color(0xFFFFFFFF),
   'headerBg': Color(0xFFFFFFFF),
-  'headerText': Color(0xFF29272D),
+  'headerText': Color(0xFF122D3B),
   'footerBg': Color(0xFFFFFFFF),
-  'footerText': Color(0xFF68616C),
-  'background': Color(0xFFF7F5F4),
-  'titleColor': Color(0xFF29272D),
+  'footerText': Color(0xFF5B6E77),
+  'background': Color(0xFFF3F6F5),
+  'titleColor': Color(0xFF122D3B),
 };
 
 /// A text colour and the background it is drawn on, both named by theme colour key.

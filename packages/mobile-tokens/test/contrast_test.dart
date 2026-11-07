@@ -69,9 +69,9 @@ void main() {
     });
 
     test('rejects the 3.2:1 theme and accepts 4.5:1 or better', () {
-      expect(overlayAccepted(<String, String>{'menuText': '#909090'}), isFalse);
-      expect(overlayAccepted(<String, String>{'menuText': '#777777'}), isFalse);
-      expect(overlayAccepted(<String, String>{'menuText': '#767676'}), isTrue);
+      expect(overlayAccepted(<String, String>{'menu': '#FFFFFF', 'menuText': '#909090'}), isFalse);
+      expect(overlayAccepted(<String, String>{'menu': '#FFFFFF', 'menuText': '#777777'}), isFalse);
+      expect(overlayAccepted(<String, String>{'menu': '#FFFFFF', 'menuText': '#767676'}), isTrue);
     });
 
     test('rejects url, javascript and named colours', () {

@@ -145,6 +145,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> assignTenantOwner(TenantOwnerAssign body, {required String tenantId, CommandAttempt? attempt}) =>
       execute('assignTenantOwner', path: <String, Object?>{'tenantId': tenantId}, body: body, attempt: attempt);
 
+  Future<Object?> assignWork(WorkActionTarget body, {CommandAttempt? attempt}) =>
+      execute('assignWork', body: body, attempt: attempt);
+
   Future<Object?> attachAuditEvidence(AudEvidenceAttach body, {CommandAttempt? attempt}) =>
       execute('attachAuditEvidence', body: body, attempt: attempt);
 
@@ -198,6 +201,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> changeSubscriptionPlan(PlanChangeApply body, {required String subscriptionId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('changeSubscriptionPlan', path: <String, Object?>{'subscriptionId': subscriptionId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> claimWork(WorkActionTarget body, {CommandAttempt? attempt}) =>
+      execute('claimWork', body: body, attempt: attempt);
 
   Future<Object?> closeAuditEngagement(AudStatusNote body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('closeAuditEngagement', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
@@ -894,6 +900,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> getMyWork({Map<String, Object?>? query}) =>
       execute('getMyWork', query: query);
+
+  Future<Object?> getMyWorkCounts({Map<String, Object?>? query}) =>
+      execute('getMyWorkCounts', query: query);
 
   Future<Object?> getOutgoingDocument({required String id, Map<String, Object?>? query}) =>
       execute('getOutgoingDocument', path: <String, Object?>{'id': id}, query: query);
@@ -2787,6 +2796,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> signSiteDiaryByContractor(QmsSignSiteDiaryByContractor body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('signSiteDiaryByContractor', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> snoozeWork(WorkActionTarget body, {CommandAttempt? attempt}) =>
+      execute('snoozeWork', body: body, attempt: attempt);
 
   Future<Object?> softCloseReportingPeriod(DisPeriodTransition body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('softCloseReportingPeriod', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);

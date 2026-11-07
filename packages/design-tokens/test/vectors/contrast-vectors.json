@@ -12,23 +12,23 @@
     },
     {
       "foreground": "#FFFFFF",
-      "background": "#B4233D",
-      "ratio": 6.46
+      "background": "#007D77",
+      "ratio": 5
     },
     {
-      "foreground": "#29272D",
-      "background": "#F7F5F4",
-      "ratio": 13.58
+      "foreground": "#122D3B",
+      "background": "#F3F6F5",
+      "ratio": 13.19
     },
     {
-      "foreground": "#68616C",
+      "foreground": "#5B6E77",
       "background": "#FFFFFF",
-      "ratio": 5.97
+      "ratio": 5.33
     },
     {
-      "foreground": "#A11D37",
-      "background": "#FFF0F2",
-      "ratio": 6.92
+      "foreground": "#FFFFFF",
+      "background": "#1C4A52",
+      "ratio": 9.76
     },
     {
       "foreground": "#909090",
@@ -71,6 +71,7 @@
     {
       "name": "contrast 3.19 on menu",
       "overlay": {
+        "menu": "#FFFFFF",
         "menuText": "#909090"
       },
       "accepted": false,
@@ -81,6 +82,7 @@
     {
       "name": "contrast 4.48 on menu",
       "overlay": {
+        "menu": "#FFFFFF",
         "menuText": "#777777"
       },
       "accepted": false,
@@ -91,6 +93,7 @@
     {
       "name": "contrast 4.54 on menu",
       "overlay": {
+        "menu": "#FFFFFF",
         "menuText": "#767676"
       },
       "accepted": true,
@@ -99,6 +102,7 @@
     {
       "name": "three digit hex",
       "overlay": {
+        "menu": "#FFFFFF",
         "menuText": "#444"
       },
       "accepted": true,
@@ -114,9 +118,9 @@
       "codes": []
     },
     {
-      "name": "menu as dark as its text",
+      "name": "menu as light as its text",
       "overlay": {
-        "menu": "#68616C"
+        "menu": "#FFFFFF"
       },
       "accepted": false,
       "codes": [

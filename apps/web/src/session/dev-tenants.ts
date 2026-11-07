@@ -14,7 +14,7 @@ export const DEV_TENANTS: readonly SessionTenant[] = [
   {
     ...data.tenants[0]!,
     membershipId: FIXTURE_MEMBERSHIP,
-    theme: { themeId: 'theme-cao-bang', version: 2, overlay: { primary: '#B4233D', primaryText: '#FFFFFF' } },
+    theme: { themeId: 'theme-cao-bang', version: 2, overlay: { primary: '#007D77', primaryText: '#FFFFFF' } },
   },
   {
     ...data.tenants[1]!,

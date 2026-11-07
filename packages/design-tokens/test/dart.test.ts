@@ -22,16 +22,16 @@ describe('generateDart', () => {
     for (const [name, value] of Object.entries(json.color)) {
       expect(dart).toContain(`static const Color ${name} = Color(0xFF${value.slice(1).toUpperCase()});`);
     }
-    expect(dart).toContain('static const Color primary = Color(0xFFB4233D);');
+    expect(dart).toContain('static const Color primary = Color(0xFF007D77);');
   });
 
   it('writes the spacing steps, the radii and the font sizes with the mobile body size', () => {
     for (const step of json.space) expect(dart).toContain(`static const double space${step} = ${step};`);
     for (const [name, value] of Object.entries(json.radius)) expect(dart).toContain(`static const double ${name} = ${value};`);
     expect(dart).toContain('static const double mobileBody = 16;');
-    expect(dart).toContain('static const double title = 27;');
-    expect(dart).toContain("static const String family = 'Segoe UI';");
-    expect(dart).toContain("static const List<String> fallbackFamilies = <String>['Arial', 'sans-serif'];");
+    expect(dart).toContain('static const double title = 28;');
+    expect(dart).toContain("static const String family = 'Be Vietnam Pro';");
+    expect(dart).toContain("static const List<String> fallbackFamilies = <String>['Segoe UI', 'Arial', 'sans-serif'];");
   });
 
   it('writes the touch target constants for iOS and Android', () => {

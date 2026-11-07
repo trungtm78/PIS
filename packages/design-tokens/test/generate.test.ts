@@ -21,16 +21,16 @@ describe('generateTokens', () => {
     for (const [name, value] of Object.entries(json.color)) {
       expect(css).toContain(`--mv-color-${kebabCase(name)}: ${value};`);
     }
-    expect(css).toContain('--mv-color-text-secondary: #68616C;');
-    expect(css).toContain('--mv-color-primary-hover: #921B32;');
+    expect(css).toContain('--mv-color-text-secondary: #5B6E77;');
+    expect(css).toContain('--mv-color-primary-hover: #00635E;');
   });
 
   it('emits every space step, radius, font size and navigation metric', () => {
     for (const step of json.space) expect(css).toContain(`--mv-space-${step}: ${step}px;`);
     for (const [name, value] of Object.entries(json.radius)) expect(css).toContain(`--mv-radius-${kebabCase(name)}: ${value}px;`);
-    expect(css).toContain('--mv-font-family: Segoe UI, Arial, sans-serif;');
+    expect(css).toContain('--mv-font-family: Be Vietnam Pro, Segoe UI, Arial, sans-serif;');
     expect(css).toContain('--mv-font-body: 14px;');
-    expect(css).toContain('--mv-font-title: 27px;');
+    expect(css).toContain('--mv-font-title: 28px;');
     expect(css).toContain('--mv-nav-sidebar-width: 252px;');
     expect(css).toContain('--mv-nav-compact-sidebar-width: 236px;');
     expect(css).toContain('--mv-nav-mobile-drawer-breakpoint: 980px;');
@@ -38,14 +38,14 @@ describe('generateTokens', () => {
 
   it('emits the twelve tenant theme colours from the base theme', () => {
     for (const key of THEME_COLOR_KEYS) expect(css).toMatch(new RegExp(`--mv-theme-${kebabCase(key)}: #[0-9A-F]{6};`));
-    expect(css).toContain('--mv-theme-primary: #B4233D;');
+    expect(css).toContain('--mv-theme-primary: #007D77;');
   });
 
   it('writes the TypeScript module with the typed token object and a generated-file header', () => {
     expect(ts).toContain('Do not edit');
     expect(ts).toContain("import type { Tokens } from './types.ts';");
     expect(ts).toContain('export const TOKENS: Tokens =');
-    expect(ts).toContain('"primary": "#B4233D"');
+    expect(ts).toContain('"primary": "#007D77"');
     expect(ts.endsWith('\n')).toBe(true);
     expect(css.endsWith('\n')).toBe(true);
   });
@@ -63,10 +63,10 @@ describe('buildTokens', () => {
   const tokens = buildTokens(realDesignTokens());
 
   it('derives the base tenant theme from the design tokens', () => {
-    expect(tokens.tenantTheme.primary).toBe('#B4233D');
-    expect(tokens.tenantTheme.menu).toBe('#FFFFFF');
-    expect(tokens.tenantTheme.selectedText).toBe('#A11D37');
-    expect(tokens.tenantTheme.background).toBe('#F7F5F4');
+    expect(tokens.tenantTheme.primary).toBe('#007D77');
+    expect(tokens.tenantTheme.menu).toBe('#102E3B');
+    expect(tokens.tenantTheme.selectedText).toBe('#FFFFFF');
+    expect(tokens.tenantTheme.background).toBe('#F3F6F5');
     expect(Object.keys(tokens.tenantTheme).sort()).toEqual([...THEME_COLOR_KEYS].sort());
   });
 
@@ -77,7 +77,7 @@ describe('buildTokens', () => {
   });
 
   it('keeps the source tokens untouched', () => {
-    expect(tokens.color.primary).toBe('#B4233D');
+    expect(tokens.color.primary).toBe('#007D77');
     expect(tokens.space).toEqual([4, 8, 12, 16, 20, 24, 32, 48]);
   });
 
