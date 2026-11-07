@@ -219,6 +219,10 @@
     ]
   },
   {
+    "id": "02-tao-du-an",
+    "kind": "flow"
+  },
+  {
     "id": "tour-prj-danh-muc-theo-doi",
     "kind": "tour",
     "module": "PRJ",

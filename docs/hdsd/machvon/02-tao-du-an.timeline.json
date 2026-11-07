@@ -1,0 +1,75 @@
+{
+  "flow": "02-tao-du-an",
+  "timeline": [
+    {
+      "id": "danh-sach-du-an",
+      "heading": "Danh sách dự án",
+      "screens": [
+        "PRJ-01"
+      ],
+      "startMs": 109,
+      "endMs": 20193,
+      "voiceMs": 509
+    },
+    {
+      "id": "mo-bieu-mau",
+      "heading": "Mở biểu mẫu tạo dự án",
+      "screens": [
+        "PRJ-02"
+      ],
+      "startMs": 20193,
+      "endMs": 35967,
+      "voiceMs": 20593
+    },
+    {
+      "id": "kiem-tra-bat-buoc",
+      "heading": "Hệ thống kiểm tra trước khi gửi",
+      "screens": [
+        "PRJ-02"
+      ],
+      "startMs": 35967,
+      "endMs": 45425,
+      "voiceMs": 36367
+    },
+    {
+      "id": "dien-thong-tin",
+      "heading": "Điền thông tin dự án",
+      "screens": [
+        "PRJ-02"
+      ],
+      "startMs": 45425,
+      "endMs": 67855,
+      "voiceMs": 45825
+    },
+    {
+      "id": "ket-qua",
+      "heading": "Dự án đã được tạo",
+      "screens": [
+        "PRJ-02"
+      ],
+      "startMs": 67855,
+      "endMs": 85853,
+      "voiceMs": 68255
+    },
+    {
+      "id": "tim-trong-danh-sach",
+      "heading": "Tìm dự án trong danh sách",
+      "screens": [
+        "PRJ-01"
+      ],
+      "startMs": 85853,
+      "endMs": 98483,
+      "voiceMs": 86253
+    },
+    {
+      "id": "khong-gian-du-an",
+      "heading": "Mở không gian dự án",
+      "screens": [
+        "PRJ-03"
+      ],
+      "startMs": 98483,
+      "endMs": 109616,
+      "voiceMs": 98883
+    }
+  ]
+}
