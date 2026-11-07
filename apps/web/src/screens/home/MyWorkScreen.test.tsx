@@ -75,7 +75,7 @@ describe('HOME-02 my work: the full queue of the alert source (ST-HOME-004)', ()
     await waitFor(() => expect(rows()).toHaveLength(2));
     expect(screen.getByRole('region', { name: tr('home.queue.title') })).toBeTruthy();
     const urgent = rows()[0] as HTMLElement;
-    expect(within(urgent).getByText(tr('alerts.severity.URGENT'))).toBeTruthy();
+    expect(within(urgent).getByText(tr('alerts.severity.urgent'))).toBeTruthy();
     expect(within(urgent).getByText(fill(tr('alerts.deadline.late'), { days: 3 }))).toBeTruthy();
     expect(urgent.textContent).toContain(fill(tr('alerts.escalation.level'), { level: 2, of: 3 }));
     expect(within(urgent).getByRole('link', { name: new RegExp('Giấy phép hết hạn') }).getAttribute('href')).toBe('/prj/prj-19');
@@ -113,9 +113,9 @@ describe('HOME-02 my work: the full queue of the alert source (ST-HOME-004)', ()
     mount(<MyWorkScreen route={ROUTE} />, harness(backend({ mine: { items } })), { permissions: READER });
     await waitFor(() => expect(rows()).toHaveLength(3));
     const group = screen.getByRole('group', { name: tr('home.queue.filter.label') });
-    await user.click(within(group).getByRole('button', { name: exact(fill(tr('home.queue.filter.level'), { label: tr('alerts.severity.ACTION'), count: 2 })) }));
+    await user.click(within(group).getByRole('button', { name: exact(fill(tr('home.queue.filter.level'), { label: tr('alerts.severity.action'), count: 2 })) }));
     expect(rows()).toHaveLength(2);
-    await user.click(within(group).getByRole('button', { name: exact(fill(tr('home.queue.filter.level'), { label: tr('alerts.severity.WATCH'), count: 0 })) }));
+    await user.click(within(group).getByRole('button', { name: exact(fill(tr('home.queue.filter.level'), { label: tr('alerts.severity.watch'), count: 0 })) }));
     const empty = screen.getByTestId('queue-empty');
     expect(empty.getAttribute('data-kind')).toBe('filtered');
     await user.click(within(empty).getByRole('button', { name: tr('home.queue.empty.clear') }));
@@ -151,7 +151,7 @@ describe('HOME-02 my work: the full queue of the alert source (ST-HOME-004)', ()
   it('names the sources that could not be read and still shows the work of the others', async () => {
     mount(<MyWorkScreen route={ROUTE} />, harness(backend({ mine: { items: [item(E1, 'ACTION')], extra: { unavailable_sources: ['PERMIT', 'GUARANTEE'] } } })), { permissions: READER });
     const note = await screen.findByTestId('queue-unavailable');
-    expect(note.textContent).toContain(fill(tr('home.queue.unavailable'), { sources: `${tr('alerts.source.PERMIT')}, ${tr('alerts.source.GUARANTEE')}` }));
+    expect(note.textContent).toContain(fill(tr('home.queue.unavailable'), { sources: `${tr('alerts.source.permit')}, ${tr('alerts.source.guarantee')}` }));
     expect(rows()).toHaveLength(1);
   });
 

@@ -6,7 +6,7 @@ import { useTranslation } from '../../i18n';
 import { AlertActions } from './AlertActions';
 import type { SnoozeChoice } from './AlertActions';
 import { AlertRow, sourceLabel } from './AlertRow';
-import { clock, clockAndDay, dayMonth, morningOf, nextDay, todayOf } from './format';
+import { clock, clockAndDay, dayMonth, morningOf, nextDay, severitySuffix, todayOf } from './format';
 import { useFocusTrap } from './focus';
 import { useAlertAction, useAlertCounts, useAlertItems, useAssignees } from './hooks';
 import { SeverityIcon } from './SeverityBadge';
@@ -277,7 +277,7 @@ export function AlertCenter({ open, onClose }: AlertCenterProps) {
           return (
             <button key={severity} type="button" className="mv-alert-chip" data-severity={severity} aria-pressed={filter === severity} onClick={() => setFilter(severity)}>
               <SeverityIcon severity={severity} />
-              {t(`alerts.severity.${severity}`)}
+              {t(`alerts.severity.${severitySuffix(severity)}`)}
               {count === undefined ? null : <span className="mv-alert-chip__count">{count}</span>}
             </button>
           );
@@ -294,7 +294,7 @@ export function AlertCenter({ open, onClose }: AlertCenterProps) {
         </div>
         {stale ? (
           <p className="mv-alert-banner" data-tone="warning" role="status">
-            {t('alerts.stale', { time: clock(new Date(items.dataUpdatedAt)) })}{' '}
+            {t('alerts.state.stale', { time: clock(new Date(items.dataUpdatedAt)) })}{' '}
             <button type="button" className="mv-alert-link" onClick={() => void items.refetch()}>
               {t('alerts.error.retry')}
             </button>
@@ -302,7 +302,7 @@ export function AlertCenter({ open, onClose }: AlertCenterProps) {
         ) : null}
         {unavailable.length > 0 ? (
           <p className="mv-alert-banner" data-tone="warning" role="status" data-testid="alert-unavailable">
-            {t('alerts.unavailable', { sources: sourcesText })}{' '}
+            {t('alerts.state.unavailable', { sources: sourcesText })}{' '}
             <button type="button" className="mv-alert-link" onClick={() => void items.refetch()}>
               {t('alerts.error.retry')}
             </button>
@@ -318,7 +318,7 @@ export function AlertCenter({ open, onClose }: AlertCenterProps) {
         ) : null}
         {denied ? (
           <p className="mv-alert-banner" data-tone="warning" role="status">
-            {t('alerts.denied')}
+            {t('alerts.state.denied')}
           </p>
         ) : failed ? (
           <div className="mv-alert-banner" data-tone="danger" role="alert">

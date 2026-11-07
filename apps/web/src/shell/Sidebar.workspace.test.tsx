@@ -2,7 +2,7 @@ import { cleanup, render, screen, within } from '@testing-library/react';
 import { createRef } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it } from 'vitest';
-import shellVi from '../i18n/parts/shell.vi.json';
+import shellVi from '../i18n/vi.json';
 import vi_ from '../i18n/vi.json';
 import { ARCHITECTURE } from '../navigation/architecture';
 import { ALL_MODULES_VISIBLE, buildNavigation } from '../navigation/model';

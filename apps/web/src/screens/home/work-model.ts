@@ -4,7 +4,22 @@ const text = (value: unknown): string => (typeof value === 'string' ? value : ''
 const nullableText = (value: unknown): string | null => (typeof value === 'string' && value !== '' ? value : null);
 const count = (value: unknown): number => (typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : 0);
 
-export const WORK_KINDS = ['APPROVAL', 'EXPLANATION', 'REPORT_RETURNED', 'REPORT_DRAFT_OVERDUE', 'EXPLANATION_REVIEW', 'MNE_OBLIGATION'] as const;
+export const WORK_KINDS = [
+  'APPROVAL',
+  'EXPLANATION',
+  'REPORT_RETURNED',
+  'REPORT_DRAFT_OVERDUE',
+  'EXPLANATION_REVIEW',
+  'MNE_OBLIGATION',
+  // The sources of the alert centre (packages/kernel/src/home-work.ts).
+  'EARLY_WARNING',
+  'ADVANCE_OVERDUE',
+  'PERMIT_EXPIRY',
+  'AUDIT_RECOMMENDATION_OVERDUE',
+  'ISSUE_SLA_BREACH',
+  'SITE_DIARY_MISSING',
+  'GUARANTEE_EXPIRING',
+] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export const BUCKETS = ['OVERDUE', 'NEAR', 'LATER'] as const;
 export type Bucket = (typeof BUCKETS)[number];

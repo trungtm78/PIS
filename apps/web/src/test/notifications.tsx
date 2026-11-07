@@ -51,7 +51,10 @@ type Page = { items: RawNotification[]; next_cursor: string | null };
 /** A fake client: `pages` are served in order for the successive `listMyNotifications` calls (the last one repeats). */
 export function harness(pages: Page[] | Error = [{ items: inbox(), next_cursor: null }]): Harness {
   let call = 0;
-  const read = vi.fn(() => {
+  const read = vi.fn((operation?: string) => {
+    // The alert bell of the shell reads its own counts; they are not a page of the inbox and must not use one up.
+    if (operation === 'getMyWorkCounts') return Promise.resolve({ view: 'mine', counts: { urgent: 0, action: 0, watch: 0, total: 0 }, unavailable_sources: [], as_of: '2026-10-22T03:00:00Z' });
+    if (operation === 'getMyWork') return Promise.reject(new Error('not part of the inbox'));
     if (pages instanceof Error) return Promise.reject(pages);
     const page = pages[Math.min(call, pages.length - 1)];
     call += 1;

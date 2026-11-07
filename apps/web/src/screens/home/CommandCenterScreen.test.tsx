@@ -263,7 +263,7 @@ describe('HOME-09 command center (ST-HOME-001, BR-HOME-01)', () => {
       answer = failure(403, 'SCOPE_DENIED');
       await view.queries.invalidateQueries({ queryKey: [...homeRoot(TENANT), 'latest'] });
       await screen.findByText(vi_['states.denied.title']);
-      await user.click(screen.getByRole('button', { name: vi_['states.retry.action'] }));
+      await user.click(screen.getAllByRole('button', { name: /Thử lại/ }).at(-1)!);
       await new Promise((resolve) => setTimeout(resolve, 50));
       expect(screen.queryByTestId('home-rates')).toBeNull();
       expect(screen.queryByTestId('home-kpis')).toBeNull();

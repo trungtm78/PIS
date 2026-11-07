@@ -80,7 +80,7 @@ export function DataTable<T>({ columns, rows, rowKey, totals, totalsLabel, sever
   const { t } = useTranslation();
   const { top, bottom } = headRows(columns);
   const count = columns.length;
-  const severityLabel = (level: Severity): string => (level === 'URGENT' ? t('ui.dataTable.severity.URGENT') : level === 'ACTION' ? t('ui.dataTable.severity.ACTION') : t('ui.dataTable.severity.WATCH'));
+  const severityLabel = (level: Severity): string => (level === 'URGENT' ? t('ui.dataTable.severity.urgent') : level === 'ACTION' ? t('ui.dataTable.severity.action') : t('ui.dataTable.severity.watch'));
   const empty = state === 'empty' || (state === 'ready' && rows.length === 0);
   const emptyText =
     emptyKind === 'filtered' ? t('ui.dataTable.emptyFiltered') : emptyKind === 'noPeriod' ? t('ui.dataTable.emptyNoPeriod') : t('ui.dataTable.emptyNone');

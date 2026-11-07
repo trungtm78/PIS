@@ -6,7 +6,7 @@ import { useSession } from '../../session/SessionContext';
 import { AlertActions } from '../../ui/alerts/AlertActions';
 import type { SnoozeChoice } from '../../ui/alerts/AlertActions';
 import { AlertRow, sourceLabel } from '../../ui/alerts/AlertRow';
-import { clock, clockAndDay, dayMonth, morningOf, nextDay, todayOf } from '../../ui/alerts/format';
+import { clock, clockAndDay, dayMonth, morningOf, nextDay, severitySuffix, todayOf } from '../../ui/alerts/format';
 import { useAlertAction, useAlertCounts, useAssignees } from '../../ui/alerts/hooks';
 import { SeverityIcon } from '../../ui/alerts/SeverityBadge';
 import { SEVERITIES } from '../../ui/alerts/types';
@@ -118,7 +118,7 @@ function MyWorkContent({ route }: ScreenProps) {
         {SEVERITIES.map((severity) => (
           <button key={severity} type="button" className="mv-alert-chip" data-severity={severity} aria-pressed={filter === severity} onClick={() => setFilter(severity)}>
             <SeverityIcon severity={severity} />
-            {source.state === 'ready' ? t('home.queue.filter.level', { label: t(`alerts.severity.${severity}`), count: countOf(severity) }) : t(`alerts.severity.${severity}`)}
+            {source.state === 'ready' ? t('home.queue.filter.level', { label: t(`alerts.severity.${severitySuffix(severity)}`), count: countOf(severity) }) : t(`alerts.severity.${severitySuffix(severity)}`)}
           </button>
         ))}
       </div>

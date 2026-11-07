@@ -171,7 +171,7 @@ export function Sidebar(props: SidebarProps) {
       <div className="sidebar-brand">
         <Link to={props.homePath} className="sidebar-brand-link" aria-label={t('shell.brand.home.label')}>
           <span className="sidebar-brand-mark" aria-hidden="true">
-            M
+            {t('shell.brand.mark.text')}
           </span>
           <span className="sidebar-brand-copy">
             <strong>{t('shell.brand.name.text')}</strong>

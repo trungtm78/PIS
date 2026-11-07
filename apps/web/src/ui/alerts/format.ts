@@ -45,3 +45,9 @@ export function morningOf(day: string): string {
 export function nextDay(day: string): string {
   return new Date(Date.parse(`${day}T00:00:00Z`) + DAY_MS).toISOString().slice(0, 10);
 }
+
+const camel = (value: string): string => value.toLowerCase().replace(/_([a-z])/g, (_match, letter: string) => letter.toUpperCase());
+/** The last part of the key of the words of a severity, a lifecycle and a source (alerts.severity.urgent, alerts.lifecycle.inProgress, alerts.source.siteDiary). */
+export const severitySuffix = (severity: string): string => camel(severity);
+export const lifecycleSuffix = (lifecycle: string): string => camel(lifecycle);
+export const sourceSuffix = (source: string): string => camel(source);

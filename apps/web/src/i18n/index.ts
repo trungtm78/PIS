@@ -8,7 +8,11 @@ import vi from './vi.json';
  */
 const viParts = import.meta.glob<Record<string, string>>('./parts/*.vi.json', { eager: true, import: 'default' });
 const enParts = import.meta.glob<Record<string, string>>('./parts/*.en.json', { eager: true, import: 'default' });
-const withParts = (base: Record<string, string>, parts: Record<string, Record<string, string>>): Record<string, string> => Object.assign({}, ...Object.values(parts), base) as Record<string, string>;
+/** With no part to add the catalogue itself is used, so a test that adds the title of an event type to the imported catalogue is read by the translator too. */
+const withParts = (base: Record<string, string>, parts: Record<string, Record<string, string>>): Record<string, string> => {
+  const added = Object.values(parts).filter((part) => Object.keys(part).length > 0);
+  return added.length === 0 ? base : (Object.assign({}, ...added, base) as Record<string, string>);
+};
 const viAll = withParts(vi, viParts);
 const enAll = withParts(en, enParts);
 

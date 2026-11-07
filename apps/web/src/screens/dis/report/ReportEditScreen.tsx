@@ -128,7 +128,7 @@ function ReportEditContent({ route }: ScreenProps) {
   );
 }
 
-const BUCKET_TITLE: Record<Bucket, string> = { CURRENT_YEAR: 'dis.wr.bucket.year', CARRYOVER: 'dis.wr.bucket.carryover', OTHER: 'dis.wr.bucket.other' };
+const BUCKET_SUFFIX: Record<Bucket, string> = { CURRENT_YEAR: 'year', CARRYOVER: 'carryover', OTHER: 'other' };
 
 function Editor({ detail, sending, onAskSend }: { detail: ReportDetail; sending: boolean; onAskSend: (form: FundingForm) => void }) {
   const { t } = useTranslation();
@@ -219,7 +219,7 @@ function Editor({ detail, sending, onAskSend }: { detail: ReportDetail; sending:
     const local: CellKey = { bucket, level: 'LOCAL' };
     const sum = [central, local].reduce((total, key) => total + BigInt(digitsOf(form.cells[cellId(key)]?.cumulative ?? '') ?? '0'), 0n);
     return {
-      title: t(BUCKET_TITLE[bucket]),
+      title: t(`dis.wr.bucket.${BUCKET_SUFFIX[bucket]}`),
       total: formatVnd(sum.toString()),
       cells: [
         { label: t('dis.wr.level.central'), control: cellControl(central) },

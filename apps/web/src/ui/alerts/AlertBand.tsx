@@ -2,7 +2,7 @@ import { useId } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import { AlertRow, sourceLabel } from './AlertRow';
-import { clock, todayOf } from './format';
+import { clock, severitySuffix, todayOf } from './format';
 import { SeverityIcon } from './SeverityBadge';
 import { SEVERITIES, severityRankOf } from './types';
 import type { AlertCounts, AlertItem, Severity } from './types';
@@ -45,7 +45,7 @@ export function AlertBand({ items, counts, max = 5, state = 'ready', unavailable
   } else if (state === 'error') {
     body = (
       <div className="mv-alert-banner" data-tone="danger" role="alert">
-        <span>{sources === '' ? t('alerts.band.error') : t('alerts.unavailable', { sources })}</span>
+        <span>{sources === '' ? t('alerts.band.error') : t('alerts.state.unavailable', { sources })}</span>
         {onRetry === undefined ? null : (
           <>
             {' '}
@@ -67,7 +67,7 @@ export function AlertBand({ items, counts, max = 5, state = 'ready', unavailable
       <>
         {stale ? (
           <p className="mv-alert-banner" data-tone="warning" role="status">
-            {t('alerts.stale', { time: asOf === null ? '' : clock(asOf) })}
+            {t('alerts.state.stale', { time: asOf === null ? '' : clock(asOf) })}
             {onRetry === undefined ? null : (
               <>
                 {' '}
@@ -80,7 +80,7 @@ export function AlertBand({ items, counts, max = 5, state = 'ready', unavailable
         ) : null}
         {unavailable.length > 0 ? (
           <p className="mv-alert-banner" data-tone="warning" role="status" data-testid="alert-band-unavailable">
-            {t('alerts.unavailable', { sources })}
+            {t('alerts.state.unavailable', { sources })}
             {onRetry === undefined ? null : (
               <>
                 {' '}
@@ -95,7 +95,7 @@ export function AlertBand({ items, counts, max = 5, state = 'ready', unavailable
           {SEVERITIES.map((severity) => (
             <li key={severity} className="mv-alert-chip" data-severity={severity} data-readonly="true">
               <SeverityIcon severity={severity} />
-              <span>{t('alerts.band.countLabel', { label: t(`alerts.severity.${severity}`), count: countOf(counts, severity) })}</span>
+              <span>{t('alerts.band.countLabel', { label: t(`alerts.severity.${severitySuffix(severity)}`), count: countOf(counts, severity) })}</span>
             </li>
           ))}
         </ul>

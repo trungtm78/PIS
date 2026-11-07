@@ -7,7 +7,7 @@ import { WEB_ROUTES } from '../../routes/web-routes';
 import { DeadlineCountdown } from './DeadlineCountdown';
 import { EscalationTrail } from './EscalationTrail';
 import { SeverityBadge } from './SeverityBadge';
-import { clock, clockAndDay, dayMonth } from './format';
+import { clock, clockAndDay, dayMonth, lifecycleSuffix, severitySuffix, sourceSuffix } from './format';
 import type { AlertItem } from './types';
 import './alerts.css';
 
@@ -20,8 +20,8 @@ export function pathOfAlert(item: Pick<AlertItem, 'target'>): string | undefined
 
 /** The words of a source (APPROVAL, PERMIT, …); a source this build does not know is shown as it came. */
 export function sourceLabel(t: Translator['t'], source: string): string {
-  const key = `alerts.source.${source}`;
-  return hasMessage(key) ? t(key) : source;
+  const suffix = sourceSuffix(source);
+  return hasMessage(`alerts.source.${suffix}`) ? t(`alerts.source.${suffix}`) : source;
 }
 
 /** Who holds the item now, in one sentence. */
@@ -51,9 +51,9 @@ export function AlertRow({ item, today, actions, note, detailed = false }: Alert
   return (
     <li className="mv-alert-row" data-severity={item.severity} data-item-id={item.id} data-lifecycle={item.lifecycle}>
       <div className="mv-alert-row__head">
-        <SeverityBadge severity={item.severity} label={t(`alerts.severity.${item.severity}`)} />
+        <SeverityBadge severity={item.severity} label={t(`alerts.severity.${severitySuffix(item.severity)}`)} />
         <span className="mv-alert-row__source">{sourceLabel(t, item.source)}</span>
-        <span className="mv-alert-row__state">{t(`alerts.lifecycle.${item.lifecycle}`)}</span>
+        <span className="mv-alert-row__state">{t(`alerts.lifecycle.${lifecycleSuffix(item.lifecycle)}`)}</span>
       </div>
       <div className="mv-alert-row__title">
         {path === undefined ? (

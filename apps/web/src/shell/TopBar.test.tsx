@@ -2,7 +2,7 @@ import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/re
 import userEvent from '@testing-library/user-event';
 import { useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import shellVi from '../i18n/parts/shell.vi.json';
+import shellVi from '../i18n/vi.json';
 import vi_ from '../i18n/vi.json';
 import { mockMatchMedia, renderApp } from '../test/render';
 

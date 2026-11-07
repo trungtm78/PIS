@@ -8,7 +8,9 @@
     "PERIOD_LOCKED": "The reporting period is locked (422).",
     "SCOPE_DENIED": "The actor lacks the tenant, unit, project or contract scope (403).",
     "STAGE_TRANSITION_DENIED": "The state transition is not allowed from the current state (409).",
-    "REVIEW_INVALID": "A theme review is expired, used, foreign or based on a stale draft (409); REVIEW_STALE was dropped."
+    "REVIEW_INVALID": "A theme review is expired, used, foreign or based on a stale draft (409); REVIEW_STALE was dropped.",
+    "WORK_ITEM_GONE": "The work item is not in the visible work of the caller any more: done, closed or outside the scope (404).",
+    "WORK_SNOOZE_NOT_ALLOWED": "An urgent item cannot be snoozed, and a snooze never goes past the due day of the item (422)."
   },
   "aliases": {
     "IDEMPOTENCY_BODY_MISMATCH": "IDEMPOTENCY_CONFLICT",
