@@ -10,7 +10,20 @@
     "STAGE_TRANSITION_DENIED": "The state transition is not allowed from the current state (409).",
     "REVIEW_INVALID": "A theme review is expired, used, foreign or based on a stale draft (409); REVIEW_STALE was dropped.",
     "WORK_ITEM_GONE": "The work item is not in the visible work of the caller any more: done, closed or outside the scope (404).",
-    "WORK_SNOOZE_NOT_ALLOWED": "An urgent item cannot be snoozed, and a snooze never goes past the due day of the item (422)."
+    "WORK_SNOOZE_NOT_ALLOWED": "An urgent item cannot be snoozed, and a snooze never goes past the due day of the item (422).",
+    "SOD_VIOLATION": "422 SOD_VIOLATION: the person already holds the other duty of a pair of the separation-of-duties matrix on the same record, project, contract or package; the answer names the two duties and never the person (G4-1)",
+    "SOD_EXCEPTION_STATE_INVALID": "409 SOD_EXCEPTION_STATE_INVALID: the exception is not where the move starts, the person decided already, or a live exception of the same person, pair and subject covers a day of the window",
+    "SOD_EXCEPTION_WINDOW_INVALID": "422 SOD_EXCEPTION_WINDOW_INVALID: the days of an exception start in the past, end before they start, run longer than the pair allows or the pair allows no exception",
+    "SOD_CHECK_UNAVAILABLE": "503 SOD_CHECK_UNAVAILABLE: the matrix or the duties of the person could not be read, so the command is refused instead of read as no conflict",
+    "DUPLICATE_CLAIM": "422 DUPLICATE_CLAIM: another request of the same supplier has the same number and amount (the attributes the rule PAYMENT_INTEGRITY blocks on); the answer names the matched attributes and never the other supplier (G4-2)",
+    "EXCEEDS_CONTRACT": "422 EXCEEDS_CONTRACT: the request would take what is asked for, or the cash out with the advances not yet recovered, above the price of the contract in force (G4-2, G4-5)",
+    "EXCEEDS_PLAN": "422 EXCEEDS_PLAN: the net of the request is above what the capital plan line has left after what is disbursed and in flight (G4-2, G4-5)",
+    "EXCEEDS_ACCEPTED": "422 EXCEEDS_ACCEPTED: what is asked for against the acceptance would be above the value that was accepted; no exception exists for it (G4-2, G4-5)",
+    "DISBURSEMENT_EXCEPTION_STATE_INVALID": "409 DISBURSEMENT_EXCEPTION_STATE_INVALID: the exception is not in a state the move starts from, or a live exception for the request and ceiling already exists",
+    "DISBURSEMENT_EXCEPTION_NOT_ALLOWED": "422 DISBURSEMENT_EXCEPTION_NOT_ALLOWED: the ceiling has no exception (the value of an acceptance is kept by the ledger)",
+    "DISBURSEMENT_EXCEPTION_NOT_NEEDED": "422 DISBURSEMENT_EXCEPTION_NOT_NEEDED: no ceiling of that kind stands against the request, so there is nothing to except",
+    "DISBURSEMENT_EXCEPTION_WINDOW_INVALID": "422 DISBURSEMENT_EXCEPTION_WINDOW_INVALID: the day the exception holds to is in the past or later than the rule PAYMENT_INTEGRITY allows (exception_max_days)",
+    "CROSS_TOTAL_MISMATCH": "422 CROSS_TOTAL_MISMATCH: the disbursed money added up by unit, by fund and by project is not one number to the dong, so the snapshot is not frozen and the indicator is not published; the answer names the dimension that disagrees and the totals (G4-5)"
   },
   "aliases": {
     "IDEMPOTENCY_BODY_MISMATCH": "IDEMPOTENCY_CONFLICT",
@@ -1255,6 +1268,14 @@
       "statusBasis": "spec",
       "source": "spec:BI"
     },
+    "DATASET_SOURCE_UNAVAILABLE": {
+      "status": 422,
+      "title": "Dataset source unavailable",
+      "meaning": "The BI dataset (or the metric that reads its fields) is registered with the query engine but the source its lines are read from is not available in this build, so it cannot be queried or built yet (CA-1: the contract dataset DS-CTR until its CONTRACT_FACT source exists); the detail names the snapshot or dataset and the extensions the dataset code and the source kind",
+      "module": "BI",
+      "statusBasis": "convention",
+      "source": "spec:BI"
+    },
     "DISTRIBUTION_STATE_INVALID": {
       "status": 409,
       "title": "Distribution state invalid",
@@ -1486,6 +1507,30 @@
       "module": "MDM",
       "statusBasis": "spec",
       "source": "spec:MDM"
+    },
+    "EGP_API_UNAVAILABLE": {
+      "status": 503,
+      "title": "E-procurement API unavailable",
+      "meaning": "The API adapter of the national e-procurement network (EgpApiAdapter, connector egp.muasamcong) refuses every call: the operator has published no specification and the agency has no access; only files that a person hands over are read (docs/egp-connector.md).",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "spec:BID"
+    },
+    "EGP_OBLIGATION_STATE_INVALID": {
+      "status": 409,
+      "title": "Posting obligation state invalid",
+      "meaning": "A move of a posting obligation (prepare, submit, receipt, reject, cancel) that its state does not allow: DUE to PREPARED to SUBMITTED to RECEIPTED or REJECTED; a rejected posting is prepared again; RECEIPTED and CANCELLED are final.",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "spec:BID"
+    },
+    "EGP_RECONCILIATION_STATE_INVALID": {
+      "status": 409,
+      "title": "E-procurement reconciliation item state invalid",
+      "meaning": "A difference between our record and the one imported from the national network that is already settled (ACCEPT_EXTERNAL, CORRECT_OURS, DISPUTE or WAIVE) cannot be settled again.",
+      "module": "BID",
+      "statusBasis": "convention",
+      "source": "spec:BID"
     },
     "EINVOICE_ADJUSTMENT_INVALID": {
       "status": 422,
@@ -3675,6 +3720,38 @@
       "statusBasis": "convention",
       "source": "spec:KERNEL"
     },
+    "GOVERNANCE_RULE_PARAMS_INVALID": {
+      "status": 422,
+      "title": "Governance rule params invalid",
+      "meaning": "The params of a governance rule do not fit the schema of its rule type (a missing, unknown, mistyped or out-of-range field, or a line across fields such as green past amber); the detail names the first field and never a value (G0-1)",
+      "module": "ADM",
+      "statusBasis": "convention",
+      "source": "spec:ADM"
+    },
+    "GOVERNANCE_RULE_STATE_INVALID": {
+      "status": 409,
+      "title": "Governance rule state invalid",
+      "meaning": "The version of the governance rule is not in the status the command starts from: submit needs a draft, approve needs a submitted version, withdraw needs a submitted one, retire needs a version that is not retired (G0-1)",
+      "module": "ADM",
+      "statusBasis": "convention",
+      "source": "spec:ADM"
+    },
+    "GOVERNANCE_RULE_NOT_FOUND": {
+      "status": 404,
+      "title": "Governance rule not found",
+      "meaning": "No approved governance rule and no built-in default exist for the type and code asked for, or the version is not in the tenant (G0-1)",
+      "module": "ADM",
+      "statusBasis": "convention",
+      "source": "spec:ADM"
+    },
+    "GOVERNANCE_RULE_PERIOD_OVERLAP": {
+      "status": 409,
+      "title": "Governance rule period overlap",
+      "meaning": "The period of the version overlaps a version of the same type, code and unit that was approved and has not ended before it starts; a successor starts the day its predecessor ends (G0-1)",
+      "module": "ADM",
+      "statusBasis": "convention",
+      "source": "spec:ADM"
+    },
     "RECALL_BASIS_REQUIRED": {
       "status": 422,
       "title": "Recall basis required",
@@ -5443,6 +5520,326 @@
       "module": "KERNEL",
       "statusBasis": "convention",
       "source": "story:ST-KERNEL-014"
+    },
+    "RESERVE_LINK_REQUIRED": {
+      "status": 422,
+      "title": "Reserve link required",
+      "meaning": "một lần rút dự phòng gắn đúng một rủi ro hoặc một lệnh thay đổi, không cả hai và không để trống → 422 RESERVE_LINK_REQUIRED.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "RESERVE_LINK_INVALID": {
+      "status": 422,
+      "title": "Reserve link invalid",
+      "meaning": "rủi ro không còn mở hoặc lệnh thay đổi chưa được đánh giá → 422 RESERVE_LINK_INVALID.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "RESERVE_FUND_NOT_FOUND": {
+      "status": 422,
+      "title": "Reserve fund not found",
+      "meaning": "dự án chưa có quỹ loại này (dự phòng hoặc dự trữ quản lý) → 422 RESERVE_FUND_NOT_FOUND.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "RESERVE_BALANCE_INSUFFICIENT": {
+      "status": 422,
+      "title": "Reserve balance insufficient",
+      "meaning": "số tiền rút lớn hơn số dư còn lại của quỹ (đã trừ các đề nghị đang chờ) → 422 RESERVE_BALANCE_INSUFFICIENT.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "RESERVE_DRAWDOWN_STATE_INVALID": {
+      "status": 409,
+      "title": "Reserve drawdown state invalid",
+      "meaning": "đề nghị rút quỹ đã được quyết định hoặc rút lại → 409 RESERVE_DRAWDOWN_STATE_INVALID.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "PROJECT_ADJUSTMENT_CHECK_REQUIRED": {
+      "status": 422,
+      "title": "Project adjustment check required",
+      "meaning": "biến động cộng dồn của hợp đồng đạt ngưỡng: phải hoàn tất kiểm tra điều chỉnh dự án trước khi duyệt lệnh thay đổi → 422 PROJECT_ADJUSTMENT_CHECK_REQUIRED.",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "CHANGE_FUNDING_REQUIRED": {
+      "status": 422,
+      "title": "Change funding required",
+      "meaning": "lệnh thay đổi tăng giá cần nguồn: rút dự phòng đã duyệt cho đúng lệnh này hoặc điều chỉnh dự án đã kiểm tra → 422 CHANGE_FUNDING_REQUIRED.",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "ADJUSTMENT_CHECK_NOT_REQUIRED": {
+      "status": 409,
+      "title": "Adjustment check not required",
+      "meaning": "biến động cộng dồn chưa đạt ngưỡng nên không có kiểm tra điều chỉnh dự án để hoàn tất → 409 ADJUSTMENT_CHECK_NOT_REQUIRED.",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
+    },
+    "FINAL_PAYMENT_ADVANCE_OUTSTANDING": {
+      "status": 422,
+      "title": "Final payment advance outstanding",
+      "meaning": "thanh toán cuối bị chặn khi tạm ứng của hợp đồng chưa thu hồi hết sau lần thu hồi của chính đề nghị → 422 FINAL_PAYMENT_ADVANCE_OUTSTANDING.",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "BASELINE_NO_WBS": {
+      "status": 422,
+      "title": "Baseline has no work breakdown",
+      "meaning": "dự án chưa có cơ cấu thành phần có giá trị để chụp đường cơ sở phiên bản 0 → 422 BASELINE_NO_WBS.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "BASELINE_INCOMPLETE": {
+      "status": 422,
+      "title": "Baseline incomplete",
+      "meaning": "có thành phần cấp một thiếu ngày bắt đầu hoặc ngày kết thúc, hoặc ngày kết thúc trước ngày bắt đầu; không chụp đường cơ sở từ kế hoạch dở dang, phản hồi nêu từng thành phần → 422 BASELINE_INCOMPLETE.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "BASELINE_MISSING": {
+      "status": 422,
+      "title": "Baseline missing",
+      "meaning": "dự án chưa có đường cơ sở phiên bản 0 nên chưa tính được đường S và giá trị thu được → 422 BASELINE_MISSING.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "DIRECTIVE_STATE_INVALID": {
+      "status": 409,
+      "title": "Directive state invalid",
+      "meaning": "chỉ đạo đã đóng hoặc đã hủy thì không giao lại, ghi tiến độ, gia hạn hay đóng nữa; chỉ đạo chưa đóng thì không mở lại → 409 DIRECTIVE_STATE_INVALID.",
+      "module": "DIR",
+      "statusBasis": "spec",
+      "source": "spec:DIR"
+    },
+    "DIRECTIVE_EVIDENCE_REQUIRED": {
+      "status": 422,
+      "title": "Directive evidence required",
+      "meaning": "đóng chỉ đạo cần ít nhất một tài liệu bằng chứng khi chính sách yêu cầu → 422 DIRECTIVE_EVIDENCE_REQUIRED.",
+      "module": "DIR",
+      "statusBasis": "spec",
+      "source": "spec:DIR"
+    },
+    "DIRECTIVE_EXTENSION_INVALID": {
+      "status": 422,
+      "title": "Directive extension invalid",
+      "meaning": "hạn đề nghị phải sau hạn hiện tại và không quá số ngày chính sách cho một lần gia hạn → 422 DIRECTIVE_EXTENSION_INVALID.",
+      "module": "DIR",
+      "statusBasis": "spec",
+      "source": "spec:DIR"
+    },
+    "DIRECTIVE_EXTENSION_LIMIT": {
+      "status": 422,
+      "title": "Directive extension limit",
+      "meaning": "chỉ đạo đã gia hạn đủ số lần chính sách cho phép → 422 DIRECTIVE_EXTENSION_LIMIT.",
+      "module": "DIR",
+      "statusBasis": "spec",
+      "source": "spec:DIR"
+    },
+    "DIRECTIVE_EXTENSION_PENDING": {
+      "status": 409,
+      "title": "Directive extension pending",
+      "meaning": "chỉ đạo còn một đề nghị gia hạn chưa được quyết định: quyết định trước khi đề nghị thêm, đóng hoặc hủy → 409 DIRECTIVE_EXTENSION_PENDING.",
+      "module": "DIR",
+      "statusBasis": "spec",
+      "source": "spec:DIR"
+    },
+    "DIRECTIVE_EXTENSION_STATE_INVALID": {
+      "status": 409,
+      "title": "Directive extension state invalid",
+      "meaning": "đề nghị gia hạn đã được quyết định → 409 DIRECTIVE_EXTENSION_STATE_INVALID.",
+      "module": "DIR",
+      "statusBasis": "spec",
+      "source": "spec:DIR"
+    },
+    "WORK_SNOOZE_TOO_LONG": {
+      "status": 422,
+      "title": "Work snooze too long",
+      "meaning": "Việc bị hoãn lâu hơn trần của quy tắc SNOOZE_POLICY cho mức độ của nó (Cần xử lý tối đa 3 ngày, Theo dõi tối đa 14 ngày theo giá trị khởi điểm).",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
+    },
+    "WORK_SNOOZE_LIMIT": {
+      "status": 422,
+      "title": "Work snooze limit",
+      "meaning": "Việc đã được hoãn đủ số lần liên tiếp cho phép (tối đa 2 theo giá trị khởi điểm); một lần nhận xử lý hoặc giao việc bắt đầu đếm lại.",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
+    },
+    "WORK_CLOCK_PAUSE_TOO_LONG": {
+      "status": 422,
+      "title": "Work clock pause too long",
+      "meaning": "Đồng hồ bị tạm dừng lâu hơn max_pause_days của quy tắc CLOCK_POLICY.",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
+    },
+    "WORK_CLOCK_ALLOWER_INVALID": {
+      "status": 422,
+      "title": "Work clock allower invalid",
+      "meaning": "Người cho phép tạm dừng đồng hồ phải là thành viên đang hoạt động của một đơn vị người dùng được xem và không được là chính người tạm dừng.",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
+    },
+    "WORK_CLOCK_NOT_PAUSED": {
+      "status": 409,
+      "title": "Work clock not paused",
+      "meaning": "Đồng hồ của việc không đang tạm dừng nên không có gì để chạy lại.",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
+    },
+    "WORK_CLOCK_ALREADY_PAUSED": {
+      "status": 409,
+      "title": "Work clock already paused",
+      "meaning": "Đồng hồ của việc đang tạm dừng; hãy chạy lại trước khi tạm dừng lần nữa.",
+      "module": "HOME",
+      "statusBasis": "spec",
+      "source": "spec:HOME"
+    },
+    "BASELINE_ALREADY_TAKEN": {
+      "status": 409,
+      "title": "Baseline already taken",
+      "meaning": "đường cơ sở phiên bản 0 của dự án đã được chụp và không bao giờ thay đổi; các phiên bản sau đến từ điều chỉnh đã duyệt → 409 BASELINE_ALREADY_TAKEN.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "REAPPRAISAL_STATE_INVALID": {
+      "status": 409,
+      "title": "Reappraisal request state invalid",
+      "meaning": "yêu cầu thẩm định lại đã được quyết định (bắt đầu hoặc chấp nhận độ lệch) → 409 REAPPRAISAL_STATE_INVALID.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "GOVERNANCE_ALERT_STATE_INVALID": {
+      "status": 409,
+      "title": "Governance alert state invalid",
+      "meaning": "cảnh báo quản trị đã được xác nhận → 409 GOVERNANCE_ALERT_STATE_INVALID.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "COMPONENT_CONTRACT_UNCHANGED": {
+      "status": 409,
+      "title": "Component contract link unchanged",
+      "meaning": "hợp đồng đã gắn đúng gói này, hoặc chưa có liên kết nào để kết thúc → 409 COMPONENT_CONTRACT_UNCHANGED.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "DISBURSEMENT_PROJECT_NOT_LISTED": {
+      "status": 422,
+      "title": "Disbursement project not listed",
+      "meaning": "dự án chưa nằm trong danh mục dự án đầu tư (giai đoạn thuộc danh sách chưa được phép giải ngân theo quy tắc) nên không được thanh toán; phản hồi nêu giai đoạn và cách khắc phục là hoàn tất chuyển giai đoạn → 422 DISBURSEMENT_PROJECT_NOT_LISTED.",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "DISBURSEMENT_NO_APPROVED_PLAN": {
+      "status": 422,
+      "title": "Disbursement has no approved plan",
+      "meaning": "dự án chưa có số vốn được duyệt trong kế hoạch vốn trên hệ thống (số trên hệ thống thắng giấy tờ); phản hồi nêu số hiện có và cách khắc phục là nhập kế hoạch vốn đã duyệt → 422 DISBURSEMENT_NO_APPROVED_PLAN.",
+      "module": "PAY",
+      "statusBasis": "spec",
+      "source": "spec:PAY"
+    },
+    "APPRAISAL_STATE_INVALID": {
+      "status": 409,
+      "title": "Appraisal state invalid",
+      "meaning": "hồ sơ thẩm định hiệu quả đầu tư không ở trạng thái mà lệnh bắt đầu từ đó: chỉ bản nháp được sửa và tính, chỉ bản đã trình được duyệt hoặc trả, chỉ bản đã duyệt có phiên bản tiếp theo, và mỗi bản đã duyệt chỉ có một phiên bản tiếp theo → 409 APPRAISAL_STATE_INVALID.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "APPRAISAL_ASSUMPTION_MISSING": {
+      "status": 422,
+      "title": "Appraisal assumption missing",
+      "meaning": "còn đầu vào chưa có người chịu trách nhiệm và nguồn (thời gian phân tích, tỷ lệ chiết khấu, từng loại dòng tiền có số tiền, từng kịch bản); phản hồi nêu đầu vào đầu tiên và danh sách đủ → 422 APPRAISAL_ASSUMPTION_MISSING.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "APPRAISAL_RESULTS_STALE": {
+      "status": 409,
+      "title": "Appraisal results stale",
+      "meaning": "chưa có kết quả máy chủ tính, hoặc kết quả được tính từ đầu vào khác hoặc bằng phiên bản công thức khác; hãy tính lại trước khi trình, duyệt hoặc xuất → 409 APPRAISAL_RESULTS_STALE.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "APPRAISAL_INPUT_INCOMPLETE": {
+      "status": 422,
+      "title": "Appraisal input incomplete",
+      "meaning": "hồ sơ chưa có gì để thẩm định: hồ sơ tài chính cần dòng tiền, hồ sơ phi tài chính cần nhóm tiêu chí và điểm của mọi tiêu chí → 422 APPRAISAL_INPUT_INCOMPLETE.",
+      "module": "PRJ",
+      "statusBasis": "spec",
+      "source": "spec:PRJ"
+    },
+    "PACKAGE_WORKFLOW_STATE_INVALID": {
+      "status": 409,
+      "title": "Package workflow state invalid",
+      "meaning": "Quy trình của gói thầu không ở trạng thái mà lệnh cần (chưa bắt đầu, đã có, đang tạm dừng hoặc đã kết thúc); extensions.reason nêu lý do",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "PACKAGE_WORKFLOW_BLOCKED": {
+      "status": 409,
+      "title": "Package workflow blocked",
+      "meaning": "Gói thầu chưa được rời bước: còn mục bắt buộc chưa xong hoặc thiếu bằng chứng của bước (extensions.blockers); ngoại lệ do người khác duyệt có thể bao phủ",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "PACKAGE_WORKFLOW_METHOD_UNSUPPORTED": {
+      "status": 422,
+      "title": "Package workflow method unsupported",
+      "meaning": "Hình thức lựa chọn nhà thầu của gói chưa có định nghĩa quy trình đang hiệu lực (PROCUREMENT_WORKFLOW)",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "CHECKLIST_EVIDENCE_REQUIRED": {
+      "status": 422,
+      "title": "Checklist evidence required",
+      "meaning": "Mục danh mục kiểm đòi bằng chứng nhưng chưa đính kèm bằng chứng đúng loại",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "STEP_EXCEPTION_STATE_INVALID": {
+      "status": 409,
+      "title": "Step exception state invalid",
+      "meaning": "Ngoại lệ của bước không ở trạng thái cho phép lệnh (không còn chờ duyệt, đã có ngoại lệ đang mở, không có gì để ngoại lệ, gói thầu đã sang bước khác)",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "WORKFLOW_MAKER_IS_APPROVER": {
+      "status": 403,
+      "title": "Workflow maker is approver",
+      "meaning": "Bước yêu cầu người lập khác người duyệt: người rời bước đã hoàn thành một mục của chính bước đó",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
     }
   }
 }

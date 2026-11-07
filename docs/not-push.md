@@ -29,6 +29,10 @@ The provider says "accepted" and nothing more: no delivery receipt comes back, s
 - The consumer runs once for each delivery (`consumeOnce`, inbox row `not.silent-push`); the devices and tokens are collected in the inbox transaction and the sends are made after the commit, ten devices at a time. A failure of one provider does not stop the other; a dead token is revoked as above. The counter `push_silent_total{channel, outcome}` is incremented.
 - An event whose payload names another tenant than its signed one is ignored (the access events of the org-unit commands carry no tenant in the payload and use the signed one).
 
+## Web push (the installed manager application)
+
+A web device is a device registration of platform `web` whose token is its push subscription; `PUSH_FCM` serves it through `WebAwarePushProvider`, which sends a subscription to `WebPushProvider` and every other token to the native provider. The data is a generic title and a link only (`{"v":1,"title","url"}`); a silent push is not sent to a web device; the address of a subscription must be a push service of the browsers; the real sender (VAPID, RFC 8291) is used only when the keys are configured and stays MOCK until a sandbox spike. See docs/pwa.md.
+
 ## Not here
 
 The real providers (credentials, HTTP/2 to APNs, the FCM v1 API), delivery receipts, and the Flutter handlers of the silent message are not built; see TODOS.

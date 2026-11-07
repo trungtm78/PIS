@@ -60,3 +60,7 @@ compensated day that is a holiday or an ordinary working day.
 `adm.work_calendar.published.v1 { id, calendar_code, year, revision }` after a publication. Both commands need
 `adm.calendar.manage` on the whole tenant. The calendar is not maker-checker (BR-ADM-01 does not list it): the publisher may be
 the author; both are audited.
+
+## Used by the clocks of the alert centre
+
+`workingMinutesBetween` (the inverse of `addWorkingTime`) and the calendar `WORKDAY_VN` are what the two clocks of an item, the pauses and the reminders of the alert centre count in; see `docs/work-clocks.md`.

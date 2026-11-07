@@ -1,6 +1,6 @@
 /* Business navigation: workspace > module > task group > contextual screen. */
 const workspaceAreas=[
- {id:'overview',name:'Điều hành',icon:'overview',modules:['HOME','IAM','DOC']},
+ {id:'overview',name:'Điều hành',icon:'overview',modules:['HOME','DIR','IAM','DOC']},
  {id:'investment',name:'Đầu tư',icon:'investment',modules:['PRJ','CAP','DIS','PAY','CTR','ISS','LND','PMT','QMS','AST']},
  {id:'insights',name:'Phân tích',icon:'insights',modules:['BID','BI','MNE','AUD']},
  {id:'engagement',name:'Tương tác',icon:'engagement',modules:['NOT','OMNI']},
@@ -60,9 +60,10 @@ const contextualShortcuts={
  ADM:[[2,'Thành viên'],[3,'Vai trò & quyền'],[6,'Quy trình'],[11,'Nhật ký kiểm toán']],
  CTR:[[4,'BOQ & mốc thanh toán'],[9,'Nhật ký công trường'],[12,'Nghiệm thu'],[17,'Quyết toán']],
  OMNI:[[3,'Danh bạ'],[5,'Kết nối kênh'],[8,'Mẫu trả lời'],[10,'Thống kê']],
- ISS:[[5,'Kiểm tra hiện trường'],[6,'Tiến độ xử lý'],[8,'Ma trận vướng mắc']]
+ ISS:[[5,'Kiểm tra hiện trường'],[6,'Tiến độ xử lý'],[8,'Ma trận vướng mắc']],
+ DIR:[[3,'Bảng theo dõi chỉ đạo'],[1,'Các cuộc giao ban'],[5,'Chỉ đạo của kỳ']]
 };
-const moduleDescriptions={HOME:'Theo dõi danh mục đầu tư, tiến độ và việc cần quyết định.',IAM:'Tài khoản, truy cập và hỗ trợ sử dụng.',PRJ:'Hồ sơ, tiến độ và các mốc trong vòng đời dự án.',CAP:'Kế hoạch trung hạn, phân bổ và điều hành nguồn vốn.',DIS:'Lập, rà soát và theo dõi báo cáo giải ngân.',PAY:'Hồ sơ thanh toán, tạm ứng và đối soát Kho bạc.',BID:'Nhà thầu, lựa chọn và thẩm tra đề án có AI hỗ trợ.',BI:'Khám phá dữ liệu và thiết kế báo cáo theo nhu cầu.',NOT:'Các cập nhật liên quan đến công việc và hồ sơ bạn theo dõi.',OMNI:'Hội thoại, liên hệ và tương tác đa kênh.',LLM:'Model, chất lượng, ngân sách và hoạt động AI.',ADM:'Tổ chức, thành viên, quyền và quy trình.',SAS:'Tenant, thương hiệu, thuê bao và license.',MDM:'Dữ liệu nền thống nhất cho toàn bộ nghiệp vụ.',DGV:'Chất lượng, trách nhiệm và trưởng thành dữ liệu.',CTR:'Hợp đồng, khối lượng, nghiệm thu và bàn giao.',ISS:'Tiếp nhận vướng mắc và điều phối xử lý hiện trường.'};
+const moduleDescriptions={HOME:'Theo dõi danh mục đầu tư, tiến độ và việc cần quyết định.',IAM:'Tài khoản, truy cập và hỗ trợ sử dụng.',PRJ:'Hồ sơ, tiến độ và các mốc trong vòng đời dự án.',CAP:'Kế hoạch trung hạn, phân bổ và điều hành nguồn vốn.',DIS:'Lập, rà soát và theo dõi báo cáo giải ngân.',PAY:'Hồ sơ thanh toán, tạm ứng và đối soát Kho bạc.',BID:'Nhà thầu, lựa chọn và thẩm tra đề án có AI hỗ trợ.',BI:'Khám phá dữ liệu và thiết kế báo cáo theo nhu cầu.',NOT:'Các cập nhật liên quan đến công việc và hồ sơ bạn theo dõi.',OMNI:'Hội thoại, liên hệ và tương tác đa kênh.',LLM:'Model, chất lượng, ngân sách và hoạt động AI.',ADM:'Tổ chức, thành viên, quyền và quy trình.',SAS:'Tenant, thương hiệu, thuê bao và license.',MDM:'Dữ liệu nền thống nhất cho toàn bộ nghiệp vụ.',DGV:'Chất lượng, trách nhiệm và trưởng thành dữ liệu.',CTR:'Hợp đồng, khối lượng, nghiệm thu và bàn giao.',ISS:'Tiếp nhận vướng mắc và điều phối xử lý hiện trường.',DIR:'Cuộc giao ban đầu tư, chỉ đạo của lãnh đạo, đơn vị thực hiện, hạn và bằng chứng hoàn thành.'};
 /* Data-driven completion (screen_catalog -> SCREENS): every web screen is reachable from the single sidebar,
    whether its task group is hand-written, listed in workspaceExtensions, seeded, or generated from the screen kind. */
 Object.assign(moduleDescriptions,{DOC:'Văn bản hành chính, số ký hiệu, ký số và báo cáo theo chuẩn nhà nước.',LND:'Giải phóng mặt bằng, bồi thường, hỗ trợ và tái định cư.',PMT:'Hồ sơ pháp lý, giấy phép và mốc hiệu lực của dự án.',QMS:'Chất lượng công trình, nhật ký thi công và nghiệm thu.',AUD:'Thanh tra, kiểm toán, kiến nghị và theo dõi khắc phục.',AST:'Tài sản hình thành từ đầu tư, bàn giao và hạch toán.',MNE:'Báo cáo giám sát, đánh giá đầu tư và nộp Hệ thống quốc gia.'});
@@ -81,25 +82,26 @@ const workspaceSeeds={MNE:[taskGroup('Lịch & biểu mẫu','Nghĩa vụ báo c
  LND:[taskGroup('Tổng quan & thửa đất','Tình hình GPMB, thửa đất và hộ bị ảnh hưởng',[1,2,3],[1,2,3]),taskGroup('Kiểm đếm & phương án','Kiểm đếm, phương án, niêm yết và chi trả',[4,5,6,7],[4,5,7],{6:5}),taskGroup('Xử lý & bàn giao','Khiếu nại, cưỡng chế và bàn giao mặt bằng',[8,9,10,11],[8,9,10,11]),taskGroup('Tái định cư & dữ liệu cá nhân','Tái định cư và yêu cầu của chủ thể dữ liệu',[12,13],[12],{13:3})],
  AST:[taskGroup('Bàn giao tài sản','Danh sách, biên bản và hồ sơ tài sản',[1,2,3],[1,3],{2:1}),taskGroup('Bảo hành & vận hành','Giữ lại, yêu cầu bảo hành và bảo trì',[4,5,6,7],[4,5,6],{7:3})],
  DOC:[taskGroup('Tổng quan & soạn thảo','Tình hình văn bản, soạn thảo và danh sách đi',[1,2,3],[1,2,3]),taskGroup('Trình ký & phát hành','Rà soát, ký số, cấp số và phân phối',[4,5,6,7,8,9,10],[4,5,6,8,10],{7:5,9:8}),taskGroup('Văn bản đến','Tiếp nhận, phân công và xử lý',[11,12,13],[11,12],{13:12}),taskGroup('Mẫu, thể thức & lưu trữ','Mẫu, thể thức, hồ sơ lưu và liên thông',[14,15,16,17,18,19,20,21],[14,16,17,20,21],{15:14,18:17,19:10})],
- AUD:[taskGroup('Cuộc thanh tra, kiểm toán','Danh sách, hồ sơ và tiếp nhận kết luận',[1,2,3,4],[1,2,4],{3:2}),taskGroup('Phát hiện & kiến nghị','Phát hiện, kiến nghị và theo dõi thực hiện',[5,6,7,11],[5,6,7,11]),taskGroup('Khắc phục & báo cáo','Thu hồi, bằng chứng và báo cáo kết quả',[8,9,10],[8,9,10])]};
+ DIR:[taskGroup('Cuộc giao ban','Các cuộc giao ban đầu tư và chỉ đạo đã giao',[1,2],[1],{2:1}),taskGroup('Theo dõi chỉ đạo','Bảng theo dõi, chi tiết chỉ đạo và đầu vào báo cáo kỳ sau',[3,4,5],[3,5],{4:3})],
+ AUD:[taskGroup('Cuộc thanh tra, kiểm toán','Danh sách, hồ sơ và tiếp nhận kết luận',[1,2,3,4],[1,2,4],{3:2}),taskGroup('Phát hiện & kiến nghị','Phát hiện, kiến nghị và theo dõi thực hiện',[5,6,7,11,12,13],[5,6,7,11,12,13]),taskGroup('Khắc phục & báo cáo','Thu hồi, bằng chứng và báo cáo kết quả',[8,9,10],[8,9,10])]};
 const workspaceModuleNames={DOC:'Văn bản & báo cáo',LND:'GPMB & tái định cư',QMS:'Chất lượng & nhật ký thi công',AST:'Bàn giao tài sản & bảo hành',AUD:'Thanh tra & kiểm toán'};
 /* [group title, ids, primary ids, parents, description] appended to hand-written groups of existing modules. */
 const workspaceExtensions={
  IAM:[['Không gian cá nhân',[9],[9]]],
- HOME:[['Bức tranh tổng thể',[9,10],[9],{10:9}]],
- PRJ:[['Danh mục & theo dõi',[14,16,17,18,21],[14,16]],['Chuẩn bị đầu tư',[15],[15]],['Thực hiện & kết thúc',[19,20],[19,20]]],
- CAP:[['Kế hoạch vốn',[21],[21]],['Nguồn & phân bổ',[16,17,18,19],[16,17,19]],['Điều hành theo kỳ',[20],[20]]],
- DIS:[['Tổng hợp & phân tích',[19,23,24],[19,23,24]],['Quản lý kỳ báo cáo',[20,21,22,25],[20,21,25],{22:21}]],
+ HOME:[['Bức tranh tổng thể',[9,10,11],[9,11],{10:9}],['Công việc & cảnh báo',[12],[12]]],
+ PRJ:[['Danh mục & theo dõi',[14,16,17,18,21,26,27],[14,16,26,27]],['Chuẩn bị đầu tư',[15,23,24],[15,23],{24:23}],['Thực hiện & kết thúc',[19,20,22],[19,20,22]]],
+ CAP:[['Kế hoạch vốn',[21,22],[21,22]],['Nguồn & phân bổ',[16,17,18,19],[16,17,19]],['Điều hành theo kỳ',[20],[20]]],
+ DIS:[['Tổng hợp & phân tích',[19,23,24],[19,23,24]],['Quản lý kỳ báo cáo',[20,21,22,25,26],[20,21,25,26],{22:21}]],
  MDM:[['Tổ chức & đầu tư',[37],[37]],['Vòng đời danh mục',[34,35,36],[34,35,36]]],
- ADM:[['Tổ chức & con người',[15,16,17],[15,16,17]],['Quy trình & cấu hình',[18],[18]]],
+ ADM:[['Tổ chức & con người',[15,16,17],[15,16,17]],['Quy trình & cấu hình',[18],[18]],['Quy tắc quản trị',[19,20,21,22,23,24],[19,23,24],{20:19,21:20,22:20},'Ngưỡng, định nghĩa và loại cảnh báo có phiên bản, phê duyệt và hiệu lực']],
  SAS:[['Tenant & thương hiệu',[22],[],{22:1}],['Thương mại & thuê bao',[24],[],{24:9}],['License & quyền sử dụng',[25],[25]],['Vận hành nền tảng',[23],[23]]],
  NOT:[['Của tôi',[17],[17]]],
  OMNI:[['Hội thoại & liên hệ',[11],[11]]],
- PAY:[['Hồ sơ thanh toán',[11],[11]],['Đối soát & kiểm soát',[10,12],[10,12],{12:7}],['Theo dõi liên thông',[13,14,17],[13,14,17]],['Quyết toán',[15,16],[15],{16:15},'Quyết toán niên độ và dự án hoàn thành']],
- CTR:[['Hợp đồng & điều khoản',[20,21,25,26],[20,21],{25:2,26:2}],['Thực hiện & thay đổi',[19,22],[19,22]],['Nghiệm thu & kết thúc',[23,24],[23,24]]],
+ PAY:[['Hồ sơ thanh toán',[11,19],[11,19]],['Đối soát & kiểm soát',[10,12,18,20,21],[10,12,20,21],{12:7,18:7}],['Theo dõi liên thông',[13,14,17],[13,14,17]],['Quyết toán',[15,16],[15],{16:15},'Quyết toán niên độ và dự án hoàn thành']],
+ CTR:[['Hợp đồng & điều khoản',[20,21,25,26],[20,21],{25:2,26:2}],['Thực hiện & thay đổi',[19,22,27],[19,22],{27:19}],['Nghiệm thu & kết thúc',[23,24],[23,24]],['Phân tích hợp đồng',[28,29,30,31],[28],{29:28,30:28,31:28},'Báo cáo phân tích danh mục, chênh lệch giá trúng thầu và tập trung nhà thầu']],
  ISS:[['Tiếp nhận & xử lý',[9,10],[9,10]],['Giám sát hiện trường',[11],[11]]],
- BID:[['Nhà thầu & lựa chọn',[21],[21]]],
- BI:[['Chỉ tiêu & dữ liệu',[15,18],[15,18]],['Công bố & vận hành',[16,17],[16,17]]],
+ BID:[['Nhà thầu & lựa chọn',[21,27,28,29,30,31],[21,27,28,30,31],{29:28}],['Kết nối hệ thống quốc gia',[22,23,24],[22],{23:22,24:22},'Kết nối, ánh xạ mã và nhập tệp từ hệ thống mạng đấu thầu quốc gia']],
+ BI:[['Chỉ tiêu & dữ liệu',[15,18,19,20],[15,18,19,20]],['Công bố & vận hành',[16,17],[16,17]]],
  LLM:[['Model & định tuyến',[19,21],[19,21]],['Chất lượng & phát hành',[20],[20]]],
  DGV:[['Liên thông & bảo vệ',[19,20],[19,20]],['Trưởng thành & giá trị',[21],[21]]]
 };

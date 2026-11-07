@@ -90,6 +90,12 @@ Chuyển bị cấm (409 `ENGAGEMENT_STATE_INVALID` / `RECOMMENDATION_STATE_INVA
 - **BR-AUD-11** Dữ liệu AUD là CONFIDENTIAL; không gửi tới mô hình AI quốc tế; báo cáo tổng hợp lên cấp trên chỉ qua DOC (R6). Kết luận đã công khai (`is_public`) có thể hiển thị ở cổng công khai MNE sau khi duyệt [CXN-AUD-03].
 - **BR-AUD-12** Báo cáo kết quả thực hiện dùng số liệu as-of đóng băng; payload chuẩn hóa + băm theo BR-DOC-11.
 
+### Kiểm toán tách bạch nhiệm vụ (AUD-13; G4-1)
+Kiểm toán (`aud.sod.read`, chỉ đọc) xem `sod_exception` (ngoại lệ đã xin, đang hiệu lực, bị từ chối, thu hồi, hết hạn, kèm số người duyệt và số lần dùng) và `sod_exception_use` (mỗi lần một lệnh gặp xung đột nhiệm vụ: đi qua bằng ngoại lệ, đi qua vì cặp chỉ cảnh báo, hoặc bị chặn; không sửa, không xóa). Lọc theo kết quả, người, ngoại lệ. Loại cảnh báo `SOD_EXCEPTION_USED` (WATCH) nhắc kiểm toán xem lại các hồ sơ đã đi qua ngoại lệ. Ma trận và luật: ADM.md 3.14.
+
+### Phát hiện toàn vẹn thanh toán (AUD-12; G4-2)
+Kiểm toán nội bộ (`payment.integrity.audit.read`, chỉ đọc) xem mọi phát hiện của các lượt kiểm đề nghị thanh toán trong phạm vi của mình: `DUPLICATE_CLAIM`, `UNIT_PRICE_OUTLIER`, `QUANTITY_VS_DIARY`, `EXCEEDS_CONTRACT`, `EXCEEDS_PLAN`, `EXCEEDS_ACCEPTED`. Phát hiện chặn (INVARIANT, đã dừng tiền) tách khỏi tín hiệu (SIGNAL, chỉ nhờ người duyệt xem lại); mỗi dòng nêu ngày, đề nghị, hợp đồng, dự án, phiên bản quy tắc đã quyết (0 là mặc định chưa xác nhận) và việc có ngoại lệ che hay không. `payment_integrity_run` và `payment_integrity_finding` chỉ thêm, không sửa, không xóa; phát hiện của đề nghị bị chặn vẫn được giữ dù đề nghị không được gửi. Lọc theo mã, mức, hợp đồng, ngày; phân trang theo con trỏ. Màn AUD-12; chi tiết ở PAY 3.3b.
+
 ## 6. Dữ liệu
 
 | Bảng | Trường chính | Ràng buộc/Index | Owner | Classification | Retention |

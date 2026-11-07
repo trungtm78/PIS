@@ -110,6 +110,7 @@ Liên hệ ngoài (khách, nhà thầu) luôn cần consent cho mọi kênh tr�
 - **BR-NOT-14 Chỉ số giao.** `delivered_rate = |{Delivered, Read}| / (|attempt kết thúc trong kỳ| − |Suppressed|)`; Unknown nằm ở mẫu số và hiển thị riêng; cutoff = thời điểm chốt kỳ (UAT-AC193).
 - **BR-NOT-15 Danh mục sự kiện.** Chỉ event type Active mới dùng được; schema có version; phân hệ nguồn sở hữu đăng ký (seed theo migration của phân hệ).
 - **BR-NOT-16 Không chặn giao dịch nghiệp vụ.** Gửi thông báo luôn sau commit qua outbox; provider lỗi không làm lỗi lệnh nghiệp vụ (AC29); circuit breaker theo `channel_account` (mở sau 20 lỗi/1 phút, half-open sau 2 phút).
+- **BR-NOT-17 Nhắc việc và thông báo lên cấp trên của trung tâm cảnh báo (G2-4, G2-1, G2-2).** NOT nhận ba sự kiện từ HOME: `home.work_reminder.v1` (nhắc người đang chịu trách nhiệm theo nhịp của quy tắc `REMINDER_POLICY` tính bằng giờ làm việc), `home.work_reclaim_notice.v1` (việc đã nhận xử lý rồi im lặng, hoặc vừa được nhận lại) và `home.work_snooze_final.v1` (lần hoãn cuối cùng được phép). Sự kiện chỉ nêu việc, người, loại và mức độ, không mang lời của người dùng; hai loại sau dành cho cấp trên của người đó (audience `NEXT_LEVEL`), việc xác định cấp trên và gộp tin, giờ yên lặng, hạn mức mỗi ngày thuộc hồ sơ thông báo từng người (G2-5, G2-6). Mỗi lần nhắc đã có dòng `work_reminder` ở HOME; NOT không tự sinh nhắc.
 
 ## 6. Dữ liệu
 

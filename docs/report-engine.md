@@ -1,0 +1,60 @@
+# Report engine (RPT-1)
+
+Status: part 1 (libraries, pure model, writers, golden tests) and the six demo forms of the enterprise edition (section "The six PVFCCo forms"). Database, controllers and screens come in part 2 (migration block RPT-1 2140-2159). Basis: eng review R9 (vetted libraries), R17 (revision lineage, stale deliveries refused), customer requirement BC.01 (official forms with exact row/column layouts; Excel kept in the template; Word narrative; file naming; issued copies per period).
+
+## Libraries (R9)
+- `exceljs` 4.4.0: the only pure-JS option that reads a workbook, keeps styles, merges, number formats, widths, formulas and writes it back. Known cost: stale (last release Dec 2024), about 170 packages; its `uuid@8` has a moderate advisory (GHSA-w5hq-g745-h8pq) below the `high` gate. Revisit through the audit exceptions list if an advisory reaches high.
+- `docx` 9.15.3 for Word, `fflate` 0.8.3 for the deterministic zip. All MIT, exact-pinned in `apps/api/package.json`.
+- Templates holding charts, pivots, embedded objects or macros are refused.
+
+## Layout model (`packages/kernel/src/report-layout.ts`)
+- A layout is a grid: preface rows, header rows (derived from column header paths) and body rows of kind DATA, TOTAL or NOTE.
+- Cell bindings: TEXT, META, INDICATOR (a KPI code and a period basis), ROW_FIELD, ROW_NUMBER, SUM, COUNT, FORMULA.
+- DATA rows reserve `capacity` lines and `EXPAND` or `REFUSE` on overflow; unused reserved lines are cleared.
+- Statuses: `PENDING_EXTERNAL`, `DEMO`, `DRAFT`, `READY` (see "The six PVFCCo forms"). Formulas may use `{first:dataset}`, `{last:dataset}`, `{row}` and a row offset (`{row-1}`, `{row+1}`).
+- Period kinds: MONTH, QUARTER, HALF_YEAR, YEAR, AS_OF. Bases: IN_PERIOD, YEAR_TO_DATE, AS_OF_END, FULL_YEAR, SAME_PERIOD_LAST_YEAR, PREVIOUS_PERIOD (default from the KPI's own period).
+- Money is exact decimal text scaled from whole dong to đồng, nghìn, triệu or tỷ (ĐVT chip).
+- No value means an empty cell plus a reported issue, never 0; a missing KPI definition is never shown; figure flags travel as issues so the issued copy carries its caveats.
+
+## Excel fill (`apps/api/src/modules/reports/xlsx-template.ts`)
+Validate the template, insert rows when the data block grew (moving everything below, including print area, conditional formats and validations), set cells, apply merges, set widths where the template has none, write deterministic bytes (the zip is normalised, same inputs give the same sha256). The template's explicit number format wins unless the layout asks otherwise. Formulas that point at another sheet, defined names and shared formulas are not rewritten on row insertion (known limit).
+
+Stamp: when the grid carries a stamp (`grid.stamp`, set for a DEMO layout) the writer puts it in the print header (centre, red, bold) and the print footer (left) of the sheet and in the subject and description of the workbook, keeping whatever the template already prints and never repeating it. `readXlsxMarks` reads those back.
+
+## Word (`docx-render.ts`)
+Narrative blocks with `{{indicator:CODE@BASIS}}` tokens resolved by the kernel, so text and table cannot disagree. Defaults: A4, Times New Roman 13, Vietnamese administrative margins. `stamp` (the demo mark) is printed in red in the header of every page and at the start of the footer and written into the document properties; `readDocxHeaderFooter` reads those back.
+
+## File naming (`file-name.ts`)
+Default `<code>_<period>_<version>_<sha8>.<ext>`; the rule is data (pattern, version prefix and digits, max length, optional no-hash); `sha8` comes from the file bytes.
+
+## Issued copies (`packages/kernel/src/report-issue.ts`, R17)
+- Immutable; sha256 recorded; preparer, checker and approver are three different people; check/approve/issue state machine.
+- A series is (organisation, layout, period); lineage by revision with `supersedes`; a correction needs a reason; the idempotency key is (organisation, layout, period, revision); copies carry the DIS snapshot id and revision.
+- Marks (R18): a copy carries `marks` (`formStatus`, `demoMark`) from `issueMarksOf(layout, { demoMode })`; a copy made on a DEMO form never counts as accepted (`countsAsAcceptedCopy`; `assertAcceptable` refuses with `TEMPLATE_UNCONFIRMED`, detail `demo_not_acceptable`) and is not an acceptance that holds back a later delivery.
+- A stale or superseded delivery is refused with `REPORT_OUT_OF_DATE` and the current revision; a repeat push of the same bytes is `ALREADY_DELIVERED`.
+
+## Shape for part 2 (database)
+`report_layout`, `report_template_file` (by sha256), `report_issue` (insert-only, triggers refuse UPDATE/DELETE), `report_delivery`; each with RLS, audit and outbox.
+
+## The six PVFCCo forms (DEMO, official acceptance PENDING_EXTERNAL)
+Owner decision of 2026-11-08: the official forms of the customer are not available for the demo stage, so the system designs them itself and uses them in the demo and in the Đạm Phú Mỹ clip. `PVN-MONTHLY`, `PVN-QUARTERLY-F2`, `HPM-MONTHLY`, `COMMITTEE-PERIODIC`, `INVEST-STEERING` and `PLANT-PHU-MY` are listed in `REPORT_FORM_CATALOGUE` with `status: 'DEMO'` ("mẫu demo do hệ thống thiết kế, chưa phải mẫu chính thức") and `official: 'PENDING_EXTERNAL'` (the acceptance of the official form by the customer, which nothing here changes).
+
+Where things are (all in `packages/edition-enterprise`, server entry `src/server.ts`; the web build reads `src/index.ts` only and never pulls these in):
+- `src/report-forms/forms.ts`, `common.ts`: the six `ReportLayout` objects (status DEMO, `headerMode: KEEP`, ĐVT triệu đồng). Title block (parent group, "TỔNG CÔNG TY …", form number), the demo mark row, title, period, unit, a strip of six headline indicators bound to the KPI codes, a two-level header, rows per project grouped by kind (I ĐTXDCB, II mua sắm tài sản, III mua sắm TSCĐ, IV sửa chữa lớn; the plant form has I ĐTXDCB and II sửa chữa lớn; the HPM form is one flat list with a `Loại hình` column), a subtotal per group and a grand total as live `SUM` formulas, rates (% so kế hoạch năm) as live formulas, capital structure (vốn chủ sở hữu, vốn vay, khác), status, schedule assessment, causes, difficulties and solutions, next-period plan, proposals, notes and the three signatures (người lập biểu, người kiểm tra, người phê duyệt).
+- `src/report-forms/narratives.ts`: the Word narrative skeletons (thuyết minh) of the four forms with a narrative part (`PVN-QUARTERLY-F2`, `COMMITTEE-PERIODIC`, `INVEST-STEERING`, `PLANT-PHU-MY`), with `{{indicator:CODE@BASIS}}` tokens; the parts people write are bracketed placeholders.
+- `src/report-forms/rules.ts`: the enterprise indicator pack (`ENT_*` codes: investment total, plan of the year as given and in force, executed and disbursed in the period, estimate, cumulative from the start of the year and from the start of the project, outlook of the year, capital by source and its shares, rates, project counts), each a built-in default of `KPI_DEFINITION` with formula, numerator, denominator, source (FND-1, docs/fnd-funding-model.md, still a proposal) and as-of 2026-11-08, all flagged "chưa kiểm chứng"; and the rule type `REPORT_FORM_MODE`. `registerEnterpriseReportRules()` registers both once; the API's enterprise seam (`apps/api/src/editions/load-enterprise.ts`) calls it when the enterprise edition loads. It is not called from the manifest itself: the web build imports the manifest and must not load the rule registry or the Excel and Word libraries.
+- `src/report-forms/illustrative-data.ts`: invented, deterministic data labelled "(minh họa)" (22 ĐTXDCB projects, 1 asset purchase, 9 fixed-asset purchases, 6 major repairs; the plant form has its own 6 and 5), amounts in whole millions of dong so scaled sums have no rounding drift, figures summed from the records so the strip and the table agree.
+- `scripts/build-demo-templates.mjs` (`npm run templates:build -w @machvon/edition-enterprise`; `templates:check` compares without writing): writes `templates/demo/<CODE>.demo.xlsx` (ExcelJS: styles, merged two-level header, number formats, formulas, A3 landscape, fit to one page wide, header rows repeated, print area, mark in header and footer) and `<CODE>.demo.docx` for the four narrative forms. Bytes are deterministic (fixed dates, normalised zip). The test suite fails when a committed template differs from what the layouts give.
+
+Demo mode (R18):
+- `assertLayoutIssuable(layout, { demoMode })` allows a DEMO layout only when demo mode is on (`TEMPLATE_UNCONFIRMED`, detail `demo_forms_off` otherwise); a READY layout needs nothing; PENDING_EXTERNAL and DRAFT are refused (`layout_status`) even in demo mode.
+- Demo mode is `demoFormsOn({ env, ruleParams })`: the environment variable `DEMO_FORMS` (`true` or `false`; anything else is refused) wins; otherwise `demo_forms` of the governance rule `REPORT_FORM_MODE` (code `DEFAULT`, built-in default `false`; a tenant approves its own version); otherwise off. `demoFormsEnabled(rules, asOf, env)` of the enterprise package reads the rule the way the policy port gives it.
+- Every output of a DEMO form carries "MẪU DEMO — chờ mẫu chính thức" (`DEMO_MARK`): a visible first row of the sheet (required by `validateLayout`), the print header and footer, the workbook properties, the Word header and footer, and the issued-copy metadata (`IssuedCopyMarks`).
+- A DEMO form can never be marked READY (`assertStatusMove('DEMO', 'READY')` is `demo_not_ready`) and never counts as accepted (`countsAsAcceptedForm`, `countsAsAcceptedCopy`, `assertAcceptable`). `validateLayout` requires a DEMO layout to have no `formRef`, a name with "mẫu demo" and the mark in the preface.
+
+To replace a demo form by the official one: get the official xlsx and docx; read its rows and columns into a NEW layout with the same code, a new `version`, `formRef` set to the decision or letter, and status DRAFT; store the template by sha256; write its golden test with the customer's file; set READY only after the owner confirms it matches (DRAFT to READY is the only way to READY). Then drop the form from `DEMO_FORMS` and from `templates/demo/` (the demo layout stays available for demo environments until then). The KPI codes of the strip must exist in the KPI register; the enterprise indicators depend on FND-1 (`docs/fnd-funding-model.md`), whose semantics spec is not approved yet (R15), so every figure on a demo form is "chưa kiểm chứng".
+
+Known limits of the demo forms: the cumulative and capital columns of a project line are data fields the caller provides (the figure engine of FND-1 is not built); totals are formulas over the rounded cells of the lines, so with real data a total can differ by a rounding unit from the exact figure of the strip; when a group has more lines than the template holds, rows are inserted below its first line (formulas that point into another sheet are not rewritten; none of these do).
+
+## Tests
+Kernel: `packages/kernel/test/report-layout.test.ts`, `report-issue.test.ts`. API: `apps/api/test/reports/*` (run with `MACHVON_TEST_LANE=unit`, no database). Demo forms: `packages/edition-enterprise/test/report-forms.test.ts` (rules, the six layouts, demo mode and R18, golden cell maps in `test/golden/*.cells.txt` regenerated with `UPDATE_GOLDEN=1` and reviewed, narrative tokens, committed templates equal to the build, the `--check` script) and `apps/api/test/reports/demo-forms.enterprise.test.ts` (each committed template filled through the writer and read back: every cell, merges moved with the rows, print area, mark, same bytes twice). Golden tests build template fixtures programmatically, fill, re-read with the same library and compare a cell map including merges and formats; DOCX tests re-read text; same inputs give the same hash.
