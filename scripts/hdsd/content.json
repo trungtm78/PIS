@@ -46,7 +46,7 @@
     { "term": "Bảng điều hành (BI)", "means": "Các biểu đồ và chỉ số tổng hợp dành cho lãnh đạo." }
   ],
   "notes": [
-    "Các clip trong tài liệu được quay trên môi trường chạy thử của hệ thống MACHVON, trên cơ sở dữ liệu thật của môi trường đó. Dữ liệu ví dụ (tên dự án, số tiền, đơn vị) do chính các clip nhập qua màn hình, như một người dùng thật; không có dữ liệu nào được ghi thẳng vào cơ sở dữ liệu.",
+    "Các clip trong tài liệu được quay trên môi trường chạy thử của hệ thống MACHVON, trên cơ sở dữ liệu thật của môi trường đó. Phần có sẵn từ lúc triển khai là tổ chức, cây đơn vị, tài khoản của bảy người dùng mẫu, các vai trò và các danh mục nền do nền tảng công bố, như bộ phận công nghệ thông tin của khách hàng chuẩn bị. Mọi dữ liệu nghiệp vụ còn lại, như loại văn bản, văn bản quyết định, địa bàn và dự án, do chính các clip nhập qua màn hình như một người dùng thật; không có dữ liệu nghiệp vụ nào được ghi thẳng vào cơ sở dữ liệu. Tên người, tên dự án và số tiền trong các clip là dữ liệu ví dụ.",
     "Lời đọc của các clip là giọng tổng hợp tiếng Việt, kèm phụ đề có thể bật hoặc tắt trong trình phát.",
     "Những màn hình cần hạ tầng bên ngoài chưa có trong môi trường quay (ví dụ kho đối tượng có địa chỉ ký, sao lưu và khôi phục, đồng bộ ngoại tuyến thật trên điện thoại) vẫn có phần mô tả, kèm lý do chưa quay clip ở bảng tra cứu màn hình.",
     "Giao diện có thể thay đổi giữa các phiên bản; tài liệu này phản ánh phiên bản ghi ở đầu trang."
