@@ -9,6 +9,12 @@ import 'package:machvon_mobile/features/registry.generated.dart';
 /// The texts of the page of the identity provider, which the application does not own.
 const Set<String> _identityProviderTexts = <String>{'Sign in', 'Sign In'};
 
+/// The texts of the system browser (first start of Chrome on the emulator) and the names of the units of the seeded test tenant: neither is a string of the application.
+const Set<String> _systemAndFixtureTexts = <String>{'Use without an account', 'No thanks', 'Cao Bằng'};
+
+/// What a Maestro text stands for: a pattern ending in `.*` (a tab name carries "Tab 2 trong tổng số 5") is the text before it.
+String _plain(String text) => text.endsWith('.*') ? text.substring(0, text.length - 2) : text;
+
 List<File> _files(String directory, String extension) =>
     Directory(directory).listSync().whereType<File>().where((File f) => f.path.endsWith(extension)).toList()..sort((a, b) => a.path.compareTo(b.path));
 
@@ -30,9 +36,10 @@ void main() {
   final List<File> scripts = _files('qa/device/scripts', '.sh');
 
   group('AC-ST-MOB-040-1 AC-ST-MOB-040-2 AC-ST-MOB-040-3 TK-MOB-040-1 the device flows and scripts are marked as not run and stay in step with the application', () {
-    test('there are flows for sign-in, the tabs, the cold start and the flapping case, and scripts for the cold start and the audit', () {
+    test('there are flows for sign-in (against a real provider and against the test provider of the e2e stack), the tabs, the cold start and the flapping case, and scripts for the cold start and the audit', () {
       expect(flows.map((File f) => f.uri.pathSegments.last), <String>[
         '05_sign_in.yaml',
+        '06_sign_in_test_idp.yaml',
         '10_core_tabs_traversal.yaml',
         '20_cold_start_main_content.yaml',
         '30_flapping_and_kill_during_submit.yaml',
@@ -40,11 +47,15 @@ void main() {
       expect(scripts.map((File f) => f.uri.pathSegments.last), <String>['android_a11y_audit.sh', 'run_cold_start_samples.sh']);
     });
 
-    test('every flow and script says on its first line that it has not been run, and names the application', () {
+    test('every flow and script says on its first line that it has not been run on a device (a flow that was run on the emulator says so and still says "NOT RUN" for the phones), and names the application', () {
       for (final File file in <File>[...flows, ...scripts]) {
         final List<String> lines = file.readAsLinesSync();
         final String first = file.path.endsWith('.sh') ? lines[1] : lines.first;
-        expect(first, startsWith('# STATUS: NOT RUN'), reason: file.path);
+        if (!file.path.endsWith('.sh') && first.startsWith('# STATUS: RUN ON AN EMULATOR ONLY')) {
+          expect(lines.take(2).join(' '), contains('NOT RUN'), reason: '${file.path}: a run on an emulator proves nothing for the phones of the matrix and must say so');
+        } else {
+          expect(first, startsWith('# STATUS: NOT RUN'), reason: file.path);
+        }
       }
       for (final File flow in flows) {
         expect(flow.readAsStringSync(), contains('appId: vn.machvon.app'), reason: flow.path);
@@ -66,8 +77,8 @@ void main() {
       final Set<String> known = <String>{for (final String key in catalogue.viKeys) catalogue.lookup('vi', key)!};
       for (final File flow in flows) {
         for (final String text in _texts(flow.readAsStringSync())) {
-          if (_identityProviderTexts.contains(text) || text.startsWith(r'${')) continue;
-          expect(known, contains(text), reason: '${flow.path} uses "$text", which no string table of the application declares');
+          if (_identityProviderTexts.contains(text) || _systemAndFixtureTexts.contains(_plain(text)) || text.startsWith(r'${')) continue;
+          expect(known, contains(_plain(text)), reason: '${flow.path} uses "$text", which no string table of the application declares');
         }
       }
     });
@@ -76,7 +87,7 @@ void main() {
       final Set<String> texts = _texts(File('qa/device/flows/10_core_tabs_traversal.yaml').readAsStringSync());
       final StringCatalogue catalogue = _catalogue();
       for (final String tab in <String>['home', 'projects', 'approval', 'inbox', 'account']) {
-        expect(texts, contains(catalogue.lookup('vi', 'mob.shell.tab.$tab')), reason: tab);
+        expect(texts.map(_plain), contains(catalogue.lookup('vi', 'mob.shell.tab.$tab')), reason: tab);
       }
     });
 
@@ -89,11 +100,11 @@ void main() {
     test('the cold start is timed to the content of the home screen once loaded, not to the tab label that is there before it', () {
       final StringCatalogue catalogue = _catalogue();
       final Set<String> tabs = <String>{for (final String tab in <String>['home', 'projects', 'approval', 'inbox', 'account']) catalogue.lookup('vi', 'mob.shell.tab.$tab')!};
-      final String loaded = catalogue.lookup('vi', 'mob.home.rates.title')!;
+      final String loaded = catalogue.lookup('vi', 'mob.alert.list.title.label')!;
       final String script = File('qa/device/scripts/run_cold_start_samples.sh').readAsStringSync();
       final String marker = RegExp(r'^marker="([^"]+)"', multiLine: true).firstMatch(script)!.group(1)!;
       expect(tabs, isNot(contains(marker)), reason: 'the tab bar is drawn before the dashboard has asked the server for anything');
-      expect(marker, loaded, reason: 'the first card of the loaded home dashboard: it is on no loading, empty or failed screen');
+      expect(marker, loaded, reason: 'the heading "Cần xử lý ngay" at the top of the loaded home: the body is built only once the dashboard has its answer, so it is on no loading, empty or failed screen');
       final String flow = File('qa/device/flows/20_cold_start_main_content.yaml').readAsStringSync();
       final Set<String> waited = <String>{for (final RegExpMatch m in RegExp(r"visible:\s*'([^']+)'").allMatches(flow)) m.group(1)!};
       expect(waited, <String>{loaded});

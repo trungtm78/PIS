@@ -73,9 +73,14 @@ class _BoardScreenState extends State<_BoardScreen> {
                                 SectionCard(
                                   title: context.t('mob.treasury.board.summary.title'),
                                   children: <Widget>[
-                                    FactLine(label: context.t('mob.treasury.board.summary.waiting'), value: '${board.waiting}'),
-                                    FactLine(label: context.t('mob.treasury.board.summary.overdue'), value: '${board.overdue}'),
-                                    FactLine(label: context.t('mob.treasury.board.summary.difference'), value: dongLabel(context, board.waitingDifferenceVnd)),
+                                    KpiGroup(
+                                      tiles: <Widget>[
+                                        KpiTile(label: context.t('mob.treasury.board.summary.waiting'), value: '${board.waiting}'),
+                                        KpiTile(label: context.t('mob.treasury.board.summary.overdue'), value: '${board.overdue}'),
+                                      ],
+                                    ),
+                                    const SizedBox(height: MachvonSpace.space8),
+                                    KpiTile(label: context.t('mob.treasury.board.summary.difference'), value: dongLabel(context, board.waitingDifferenceVnd)),
                                   ],
                                 ),
                                 CheckboxListTile(
@@ -279,11 +284,17 @@ class _ItemBodyState extends ConsumerState<_ItemBody> with CommandFlow<_ItemBody
               SectionCard(
                 title: context.t('mob.treasury.figures.title'),
                 children: <Widget>[
-                  FactLine(label: context.t('mob.treasury.figures.internal'), value: moneyOrNone(context, item.internalVnd)),
-                  FactLine(label: context.t('mob.treasury.figures.confirmed'), value: moneyOrNone(context, item.confirmedVnd)),
-                  FactLine(label: context.t('mob.treasury.figures.difference'), value: moneyOrNone(context, item.shownDifference)),
-                  Text(differenceWords(context, item.shownDifference), style: theme.textTheme.bodyMedium),
-                  const SizedBox(height: MachvonSpace.space4),
+                  KpiTile(label: context.t('mob.treasury.figures.internal'), value: moneyOrNone(context, item.internalVnd)),
+                  const SizedBox(height: MachvonSpace.space8),
+                  KpiTile(label: context.t('mob.treasury.figures.confirmed'), value: moneyOrNone(context, item.confirmedVnd)),
+                  const SizedBox(height: MachvonSpace.space8),
+                  KpiTile(
+                    label: context.t('mob.treasury.figures.difference'),
+                    value: moneyOrNone(context, item.shownDifference),
+                    note: differenceWords(context, item.shownDifference),
+                    noteTone: item.shownDifference == '0' ? MachvonTone.success : (item.shownDifference == null ? MachvonTone.neutral : MachvonTone.warning),
+                  ),
+                  const SizedBox(height: MachvonSpace.space8),
                   Text(context.t('mob.treasury.figures.noChoice'), style: theme.textTheme.bodySmall),
                 ],
               ),

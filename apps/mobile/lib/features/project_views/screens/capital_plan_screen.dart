@@ -88,9 +88,15 @@ class _PlanBody extends StatelessWidget {
         SectionCard(
           title: context.t('mob.prj.capital.totals.title'),
           children: <Widget>[
-            FactLine(label: context.t('mob.prj.capital.allocated'), value: millionsLabel(context, plan.allocatedVnd)),
-            Text(context.t('mob.prj.capital.ctmtqg', <String, Object>{'value': millionsLabel(context, plan.ctmtqgVnd)}), style: theme.textTheme.bodyMedium),
-            FactLine(label: context.t('mob.prj.capital.disbursed'), value: disbursed == null ? context.t('mob.prj.capital.disbursed.none') : millionsLabel(context, disbursed)),
+            KpiTile(label: context.t('mob.prj.capital.allocated'), value: millionsLabel(context, plan.allocatedVnd)),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space8),
+              child: Text(context.t('mob.prj.capital.ctmtqg', <String, Object>{'value': millionsLabel(context, plan.ctmtqgVnd)}), style: theme.textTheme.bodyMedium),
+            ),
+            if (disbursed == null)
+              FactLine(label: context.t('mob.prj.capital.disbursed'), value: context.t('mob.prj.capital.disbursed.none'))
+            else
+              KpiTile(label: context.t('mob.prj.capital.disbursed'), value: millionsLabel(context, disbursed)),
             if (plan.truncated) Text(context.t('mob.prj.capital.truncated'), style: theme.textTheme.bodySmall),
           ],
         ),
@@ -116,9 +122,17 @@ class _SourceCard extends StatelessWidget {
     return SectionCard(
       title: context.t('mob.prj.capital.source.title', <String, Object>{'source': source.label}),
       children: <Widget>[
-        FactLine(label: context.t('mob.prj.capital.allocated'), value: millionsLabel(context, source.allocatedVnd)),
-        if (source.ctmtqgVnd != '0') Text(context.t('mob.prj.capital.ctmtqg', <String, Object>{'value': millionsLabel(context, source.ctmtqgVnd)}), style: theme.textTheme.bodyMedium),
-        FactLine(label: context.t('mob.prj.capital.disbursed'), value: disbursed == null ? context.t('mob.prj.capital.disbursed.none') : millionsLabel(context, disbursed)),
+        KpiTile(label: context.t('mob.prj.capital.allocated'), value: millionsLabel(context, source.allocatedVnd)),
+        if (source.ctmtqgVnd != '0')
+          Padding(
+            padding: const EdgeInsets.only(top: MachvonSpace.space8),
+            child: Text(context.t('mob.prj.capital.ctmtqg', <String, Object>{'value': millionsLabel(context, source.ctmtqgVnd)}), style: theme.textTheme.bodyMedium),
+          ),
+        const SizedBox(height: MachvonSpace.space8),
+        if (disbursed == null)
+          FactLine(label: context.t('mob.prj.capital.disbursed'), value: context.t('mob.prj.capital.disbursed.none'))
+        else
+          KpiTile(label: context.t('mob.prj.capital.disbursed'), value: millionsLabel(context, disbursed)),
         const Divider(),
         for (final CapitalLine line in source.lines)
           Padding(

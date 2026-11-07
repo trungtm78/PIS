@@ -89,9 +89,12 @@ class _DetailBody extends StatelessWidget {
         SectionCard(
           title: context.t('mob.apv.detail.content.title'),
           children: <Widget>[
+            if (task.amountVnd != null) ...<Widget>[
+              KpiTile(label: context.t('mob.apv.detail.content.amount'), value: millionsLabel(context, task.amountVnd)),
+              const SizedBox(height: MachvonSpace.space8),
+            ],
             FactLine(label: context.t('mob.apv.detail.content.type'), value: businessTypeLabel(context, task.businessType)),
             if (task.stepName.isNotEmpty) FactLine(label: context.t('mob.apv.detail.content.step'), value: task.stepName),
-            if (task.amountVnd != null) FactLine(label: context.t('mob.apv.detail.content.amount'), value: millionsLabel(context, task.amountVnd)),
             if (detail.unitName != null) FactLine(label: context.t('mob.apv.detail.content.unit'), value: detail.unitName!),
             FactLine(label: context.t('mob.apv.detail.content.due'), value: formatMoment(task.dueAt)),
             FactLine(label: context.t('mob.apv.detail.content.status'), value: taskStatusLabel(context, task.status)),

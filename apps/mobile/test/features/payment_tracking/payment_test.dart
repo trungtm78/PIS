@@ -226,7 +226,7 @@ void main() {
       _reads(server);
       final ProviderContainer container = await _open(tester, server, _board);
 
-      expect(find.text('Số hạng mục chờ:'), findsOneWidget);
+      expect(find.text('Số hạng mục chờ'), findsOneWidget, reason: 'a figure of the summary (KpiTile): its label has no colon');
       expect(find.text('2'), findsOneWidget);
       expect(find.text('-10.000.000 đồng'), findsWidgets);
       expect(tester.getTopLeft(find.text('Thiếu xác nhận')).dy, lessThan(tester.getTopLeft(find.text('Lệch số tiền')).dy), reason: 'the late one first');
@@ -264,11 +264,11 @@ void main() {
       await _open(tester, server, _item);
 
       expect(find.text('Lệch số tiền'), findsOneWidget);
-      expect(find.text('Số nội bộ:'), findsOneWidget);
+      expect(find.text('Số nội bộ'), findsOneWidget);
       expect(find.text('1.000.000.000 đồng'), findsOneWidget);
-      expect(find.text('Số Kho bạc xác nhận:'), findsOneWidget);
+      expect(find.text('Số Kho bạc xác nhận'), findsOneWidget);
       expect(find.text('990.000.000 đồng'), findsOneWidget);
-      expect(find.text('Chênh lệch (xác nhận trừ nội bộ):'), findsOneWidget);
+      expect(find.text('Chênh lệch (xác nhận trừ nội bộ)'), findsOneWidget);
       expect(find.text('-10.000.000 đồng'), findsOneWidget);
       expect(find.text('Kho bạc xác nhận ít hơn số nội bộ.'), findsOneWidget);
       expect(find.text('Điện thoại không chọn số nào và không sửa số nào: cả hai số và chênh lệch giữ nguyên như đã ghi nhận.'), findsOneWidget);

@@ -11,7 +11,9 @@ appId: vn.machvon.app
 - launchApp:
     clearState: false
     stopApp: true
-# The first card of the loaded dashboard, not the tab label: the tab bar is drawn before the dashboard has its answer.
+# The heading "Cần xử lý ngay" at the top of the loaded home, not the tab label: the tab bar is drawn before the dashboard has its answer,
+# and the body of the home (context line, alerts, command block) is built only once it has. The figures below the alerts are not used: they can
+# be below the fold when three alert cards are shown.
 - extendedWaitUntil:
-    visible: 'Hai tỷ lệ giải ngân'
+    visible: 'Cần xử lý ngay'
     timeout: 2500

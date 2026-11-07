@@ -1,0 +1,6 @@
+metric,device,run,ms
+cold_start_main_content_ms,guide-emulator-debug,1,15000
+cold_start_main_content_ms,guide-emulator-debug,2,15000
+cold_start_main_content_ms,guide-emulator-debug,3,15000
+cold_start_main_content_ms,guide-emulator-debug,4,15000
+cold_start_main_content_ms,guide-emulator-debug,5,15000

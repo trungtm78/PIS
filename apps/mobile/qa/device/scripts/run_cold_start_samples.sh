@@ -8,7 +8,7 @@
 #   dart run tool/device/perf_verdict.dart results/pixel-8a-android14/cold_start.csv
 #
 # For each run the application is force-stopped (a cold start: no process), started, and the screen is read with uiautomator until
-# the content of the loaded home screen is on it: the card "Hai tỷ lệ giải ngân", which is drawn only when the dashboard has its
+# the content of the loaded home screen is on it: the heading "Cần xử lý ngay" at the top of it, which is drawn only when the dashboard has its
 # answer (the tab label "Trang chủ" is on screen before that and would time the shell, not the main content). The time is
 # measured on this computer from the moment `am start` is issued to the moment the dump that contains the card was TAKEN, so the
 # sample includes the cost of one hierarchy dump (about 0.3 to 1 s on a phone): the figure is an UPPER bound on "cold start to the
@@ -30,8 +30,8 @@ activity="vn.machvon.machvon_mobile.MainActivity"
 dump_path="/sdcard/machvon_cold.xml"
 # the pause after the force-stop, so the process is really gone before the start (the seconds can be shortened only to test this script)
 settle="${COLD_START_SETTLE_SECONDS:-3}"
-# the first card of the loaded home dashboard (mob.home.rates.title): on no loading, empty or failed screen; a test keeps it equal to the string table
-marker="Hai tỷ lệ giải ngân"
+# the heading at the top of the loaded home (mob.alert.list.title.label): on no loading, empty or failed screen; a test keeps it equal to the string table
+marker="Cần xử lý ngay"
 adb_cmd=(adb)
 [ -n "$serial" ] && adb_cmd=(adb -s "$serial")
 

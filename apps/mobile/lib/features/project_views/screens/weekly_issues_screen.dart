@@ -89,12 +89,32 @@ class _Body extends StatelessWidget {
             ],
           ),
         ),
-        SectionCard(title: context.t('mob.prj.issues.totals.title'), children: <Widget>[_Counts(totals: matrix.totals)]),
+        SectionCard(title: context.t('mob.prj.issues.totals.title'), children: <Widget>[_Headline(totals: matrix.totals)]),
         for (final IssueRow row in matrix.rows)
           SectionCard(
             title: context.t('mob.prj.issues.group.title', <String, Object>{'unit': row.unitName, 'group': row.categoryLabel.isEmpty ? context.t('mob.prj.issues.group.none') : row.categoryLabel}),
             children: <Widget>[_Counts(totals: row.totals)],
           ),
+      ],
+    );
+  }
+}
+
+/// The totals of the whole matrix as figures (two to a line); the groups below keep the compact lines.
+class _Headline extends StatelessWidget {
+  const _Headline({required this.totals});
+
+  final IssueTotals totals;
+
+  @override
+  Widget build(BuildContext context) {
+    return KpiGroup(
+      tiles: <Widget>[
+        KpiTile(label: context.t('mob.prj.issues.opening'), value: '${totals.opening}'),
+        KpiTile(label: context.t('mob.prj.issues.opened'), value: '${totals.opened}'),
+        KpiTile(label: context.t('mob.prj.issues.resolved'), value: '${totals.resolved}'),
+        KpiTile(label: context.t('mob.prj.issues.closing'), value: '${totals.closing}'),
+        KpiTile(label: context.t('mob.prj.issues.overdue'), value: '${totals.overdue}'),
       ],
     );
   }

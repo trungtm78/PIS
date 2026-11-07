@@ -136,9 +136,15 @@ class _ChainBody extends StatelessWidget {
         SectionCard(
           title: context.t('mob.paytrack.chain.totals.title'),
           children: <Widget>[
-            FactLine(label: context.t('mob.paytrack.chain.totals.count'), value: '${chain.countedRequests}'),
-            FactLine(label: context.t('mob.paytrack.chain.totals.gross'), value: dongLabel(context, chain.countedGrossVnd)),
-            FactLine(label: context.t('mob.paytrack.chain.totals.settled'), value: dongLabel(context, chain.settledGrossVnd)),
+            KpiGroup(
+              columns: 1,
+              tiles: <Widget>[
+                KpiTile(label: context.t('mob.paytrack.chain.totals.count'), value: '${chain.countedRequests}'),
+                KpiTile(label: context.t('mob.paytrack.chain.totals.gross'), value: dongLabel(context, chain.countedGrossVnd)),
+                KpiTile(label: context.t('mob.paytrack.chain.totals.settled'), value: dongLabel(context, chain.settledGrossVnd)),
+              ],
+            ),
+            const SizedBox(height: MachvonSpace.space8),
             Text(context.t('mob.paytrack.readOnly'), style: theme.textTheme.bodySmall),
           ],
         ),
@@ -256,12 +262,14 @@ class _TimelineBody extends StatelessWidget {
         SectionCard(
           title: context.t('mob.paytrack.amounts.title'),
           children: <Widget>[
-            FactLine(label: context.t('mob.paytrack.amounts.gross'), value: dongLabel(context, request.grossVnd)),
+            KpiTile(label: context.t('mob.paytrack.amounts.gross'), value: dongLabel(context, request.grossVnd)),
+            const SizedBox(height: MachvonSpace.space8),
             FactLine(label: context.t('mob.paytrack.amounts.advance'), value: dongLabel(context, request.advanceRecoveryVnd)),
             FactLine(label: context.t('mob.paytrack.amounts.retention'), value: dongLabel(context, request.retentionVnd)),
             if (request.taxAdjustmentVnd != null) FactLine(label: context.t('mob.paytrack.amounts.tax'), value: dongLabel(context, request.taxAdjustmentVnd)),
             if (request.advanceRecoveryExtraVnd != null) FactLine(label: context.t('mob.paytrack.amounts.extra'), value: dongLabel(context, request.advanceRecoveryExtraVnd)),
-            FactLine(label: context.t('mob.paytrack.amounts.net'), value: dongLabel(context, request.netVnd)),
+            const SizedBox(height: MachvonSpace.space8),
+            KpiTile(label: context.t('mob.paytrack.amounts.net'), value: dongLabel(context, request.netVnd)),
           ],
         ),
         SectionCard(

@@ -11,6 +11,11 @@ tags: [P0, S2]
 - takeScreenshot: TC-UI-MOB-07-given
 - takeScreenshot: TC-UI-MOB-07-when
 - assertVisible: 'Trang chủ lãnh đạo'   # 1. screen identity
-- assertVisible: 'Ngữ cảnh của số liệu.*'   # 2. element of the screen
-- assertVisible: 'Hai tỷ lệ giải ngân.*'   # 3. text or data of the screen
+- assertVisible: 'Cần xử lý ngay'   # 2. element of the screen: the alerts block at the top (its cards and their "Nhận xử lý" button depend on the seeded work, so none is asserted)
+- scrollUntilVisible:   # the command block is below the alerts, which can fill the first screen
+    element: 'Điều hành'
+- scrollUntilVisible:
+    element: 'Hai tỷ lệ giải ngân.*'   # 3. text or data of the screen
+- scrollUntilVisible:   # the context card closes the summary at the end of the page
+    element: 'Ngữ cảnh của số liệu.*'
 - takeScreenshot: TC-UI-MOB-07-then

@@ -3,8 +3,10 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../core/l10n/app_strings.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/kpi_tile.dart';
 
 export '../../core/theme/machvon_semantic.dart' show MachvonTone;
+export '../../core/widgets/kpi_tile.dart';
 export '../../core/widgets/status_pill.dart';
 
 /// The frame of a screen that reads: a title bar (with the back button when the screen was opened from another) and the
@@ -81,6 +83,53 @@ class SectionCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The headline figures of a block as [KpiTile]s, two to a line ([columns]); one under the other when the text is enlarged so much (more than 150
+/// percent) that two columns would clip a figure. An odd last tile takes the width of one column. Put it inside a [SectionCard].
+class KpiGroup extends StatelessWidget {
+  const KpiGroup({required this.tiles, this.columns = 2, super.key});
+
+  final List<Widget> tiles;
+
+  /// 2 for short figures (counts), 1 for amounts, which need the whole width.
+  final int columns;
+
+  @override
+  Widget build(BuildContext context) {
+    if (tiles.isEmpty) return const SizedBox.shrink();
+    final bool stacked = columns < 2 || MediaQuery.textScalerOf(context).scale(1) > 1.5;
+    final List<Widget> lines = <Widget>[];
+    if (stacked) {
+      for (final Widget tile in tiles) {
+        lines.add(tile);
+      }
+    } else {
+      for (int index = 0; index < tiles.length; index += 2) {
+        lines.add(
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Expanded(child: tiles[index]),
+                const SizedBox(width: MachvonSpace.space8),
+                Expanded(child: index + 1 < tiles.length ? tiles[index + 1] : const SizedBox.shrink()),
+              ],
+            ),
+          ),
+        );
+      }
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        for (int index = 0; index < lines.length; index += 1) ...<Widget>[
+          if (index > 0) const SizedBox(height: MachvonSpace.space8),
+          lines[index],
+        ],
+      ],
     );
   }
 }

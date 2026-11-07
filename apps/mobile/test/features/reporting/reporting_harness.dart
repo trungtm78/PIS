@@ -375,4 +375,6 @@ Future<String> newDraft(ReportingApp app, {bool onServer = true, ReportForm Func
   return current.id;
 }
 
-Finder fact(String label, String value) => find.byWidgetPredicate((Widget w) => w is FactLine && w.label == label && w.value == value, description: '$label: $value');
+/// A label and its value on a screen: a line of facts, or a figure of a [KpiTile] (the headline figures of a block).
+Finder fact(String label, String value) =>
+    find.byWidgetPredicate((Widget w) => (w is FactLine && w.label == label && w.value == value) || (w is KpiTile && w.label == label && w.value == value), description: '$label: $value');

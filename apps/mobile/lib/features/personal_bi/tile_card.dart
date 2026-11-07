@@ -7,6 +7,7 @@ import '../../core/di/providers.dart';
 import '../../core/l10n/app_strings.dart';
 import '../../core/offline/drafts/decimal.dart';
 import '../../core/session/session.dart';
+import '../../core/widgets/kpi_tile.dart';
 import '../read_support/clock.dart';
 import '../read_support/data_view.dart' show defaultCacheTtl;
 import '../read_support/moment.dart';
@@ -278,10 +279,9 @@ class _TileCardState extends ConsumerState<TileCard> {
       if (_fromCopy) _CopyNote(result: base, stale: _stale),
       if (_steps.isNotEmpty) _Breadcrumb(base: base, steps: _steps, onBack: _back),
       if (_steps.isNotEmpty) _CheckLine(step: _steps.last),
-      Text(context.t('mob.pbi.tile.total.label'), style: theme.textTheme.bodySmall),
-      Text(figureLabel(context, current.total, unit), key: const ValueKey<String>('total'), style: theme.textTheme.headlineSmall),
+      KpiTile(key: const ValueKey<String>('total'), label: context.t('mob.pbi.tile.total.label'), value: figureLabel(context, current.total, unit)),
       if (ratio && current.total.numerator != null && current.total.denominator != null)
-        Text(context.t('mob.pbi.tile.ratio.parts', <String, Object>{'numerator': _number(context, current.total.numerator!), 'denominator': _number(context, current.total.denominator!)}), style: theme.textTheme.bodySmall),
+        Padding(padding: const EdgeInsets.only(top: MachvonSpace.space4), child: Text(context.t('mob.pbi.tile.ratio.parts', <String, Object>{'numerator': _number(context, current.total.numerator!), 'denominator': _number(context, current.total.denominator!)}), style: theme.textTheme.bodySmall)),
       if (line) LineSketch(values: values, area: widget.tile.kind == WidgetKind.area),
       if (current.children.isNotEmpty && widget.tile.kind != WidgetKind.kpi) ...<Widget>[
         const SizedBox(height: MachvonSpace.space12),

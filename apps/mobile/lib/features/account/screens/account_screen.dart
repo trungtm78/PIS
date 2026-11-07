@@ -15,6 +15,7 @@ import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
 import '../../permissions/permission_providers.dart';
 import '../../permissions/permission_service.dart';
+import '../../read_support/widgets.dart' show MachvonTone, StatusPill;
 import '../../release/app_info.dart';
 import '../../session/auth/auth_service.dart';
 import '../../session/auth/identity_api.dart';
@@ -140,9 +141,12 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   const SizedBox(height: MachvonSpace.space8),
                   Semantics(
                     liveRegion: true,
-                    child: Text(
-                      context.t('mob.account.readOnly.text'),
-                      style: theme.textTheme.bodySmall,
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: StatusPill(
+                        label: context.t('mob.account.readOnly.text'),
+                        tone: MachvonTone.warning,
+                      ),
                     ),
                   ),
                 ],
@@ -233,7 +237,15 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 const Divider(),
                 ListTile(
                   title: Text(context.t('mob.account.push.title')),
-                  subtitle: Text(_pushText(context, push.asData?.value)),
+                  subtitle: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: StatusPill(
+                      label: _pushText(context, push.asData?.value),
+                      tone: push.asData?.value == PermissionState.granted
+                          ? MachvonTone.success
+                          : MachvonTone.neutral,
+                    ),
+                  ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push(
                     ref.read(routeTableProvider).locationOf('MOB-05'),

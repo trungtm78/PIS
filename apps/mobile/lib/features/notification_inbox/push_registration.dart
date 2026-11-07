@@ -66,6 +66,10 @@ final Provider<PushPlatform> pushPlatformProvider = Provider<PushPlatform>((Ref 
 /// A push that arrived while the application runs (in the foreground, or one the person tapped to open it). The device adapter
 /// overrides this with the stream of the provider; it carries nothing of the message (no title, no amount): the screens only
 /// read again what the server holds, so the tab badge and the alert list follow the push.
+///
+/// GAP: no device adapter exists yet (the project has no push plugin: no `firebase_messaging` in pubspec.yaml, no FCM or APNs wiring in
+/// `android/` or `ios/`), so the default is an empty stream that ends at once: nothing arrives, nothing is held open, and the badge and the
+/// list follow a push only through the refresh on resume. `test/features/notification_inbox/push_registration_test.dart` pins this default.
 final Provider<Stream<void>> pushArrivalsProvider = Provider<Stream<void>>((Ref ref) => const Stream<void>.empty());
 
 /// The reason the server records with the revocation (it asks for at least ten characters).

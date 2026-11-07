@@ -416,9 +416,15 @@ class _Totals extends StatelessWidget {
     return SectionCard(
       title: context.t('mob.rep.totals.title'),
       children: <Widget>[
-        FactLine(label: context.t('mob.rep.totals.six.label'), value: millionsLabel(context, sumTyped(<String>[for (final CellKey key in kCells) form.cell(key).cumulative]))),
-        FactLine(label: context.t('mob.rep.totals.ctmtqg.label'), value: millionsLabel(context, sumTyped(<String>[for (final CellKey key in kCells) form.cell(key).ctmtqg]))),
-        FactLine(label: context.t('mob.rep.registration.total.label'), value: millionsLabel(context, sumTyped(<String>[for (final CellKey key in kCells) form.cell(key).nextMonth]))),
+        KpiGroup(
+          columns: 1,
+          tiles: <Widget>[
+            KpiTile(label: context.t('mob.rep.totals.six.label'), value: millionsLabel(context, sumTyped(<String>[for (final CellKey key in kCells) form.cell(key).cumulative]))),
+            KpiTile(label: context.t('mob.rep.totals.ctmtqg.label'), value: millionsLabel(context, sumTyped(<String>[for (final CellKey key in kCells) form.cell(key).ctmtqg]))),
+            KpiTile(label: context.t('mob.rep.registration.total.label'), value: millionsLabel(context, sumTyped(<String>[for (final CellKey key in kCells) form.cell(key).nextMonth]))),
+          ],
+        ),
+        const SizedBox(height: MachvonSpace.space8),
         FactLine(label: context.t('mob.rep.volumes.construction.label'), value: form.construction.trim().isEmpty ? context.t('mob.rep.review.diffUnknown.body') : millionsLabel(context, digitsOf(form.construction))),
         FactLine(label: context.t('mob.rep.basis.title'), value: basisLabel(context, form.basis)),
         Text(context.t('mob.rep.ctmtqg.note.body'), style: Theme.of(context).textTheme.bodySmall),

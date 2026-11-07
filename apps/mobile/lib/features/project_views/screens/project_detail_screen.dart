@@ -85,8 +85,11 @@ class _DetailBody extends StatelessWidget {
         SectionCard(
           title: context.t('mob.prj.detail.capital.title'),
           children: <Widget>[
-            FactLine(label: context.t('mob.prj.detail.capital.total'), value: millionsLabel(context, detail.totalInvestmentVnd)),
-            Text(dongLabel(context, detail.totalInvestmentVnd), style: theme.textTheme.bodySmall),
+            KpiTile(label: context.t('mob.prj.detail.capital.total'), value: millionsLabel(context, detail.totalInvestmentVnd)),
+            Padding(
+              padding: const EdgeInsets.only(top: MachvonSpace.space4),
+              child: Text(dongLabel(context, detail.totalInvestmentVnd), style: theme.textTheme.bodySmall),
+            ),
           ],
         ),
         SectionCard(

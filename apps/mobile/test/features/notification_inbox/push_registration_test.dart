@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_mobile/features/notification_inbox/push_registration.dart';
@@ -112,6 +115,43 @@ void main() {
         ..on('GET', '/me/devices', (_) => <String, Object?>{'items': <Object?>[<String, Object?>{'id': serverDeviceId, 'device_public_id': 'dev-abc-installation-0001', 'status': 'ACTIVE'}]})
         ..refuse('POST', '/me/devices/:id/revoke', 403, 'SCOPE_DENIED');
       expect(await _registration(refused, FakePush()).revoke(), isFalse);
+    });
+  });
+
+  group('the device adapter of push is not plugged in: the defaults are a clear no-op', () {
+    // GAP (no push plugin in pubspec.yaml, no FCM or APNs wiring in android/ or ios/): a build has no push token and no
+    // arrival stream. When the adapter on firebase_messaging exists it overrides pushPlatformProvider and pushArrivalsProvider
+    // in the app root; the tab badge and the alert list then follow a push without any change above these two ports.
+    test('pushArrivalsProvider emits nothing and ends at once, and pushPlatformProvider gives no token, no permission and no refresh', () async {
+      final ProviderContainer container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final List<void> arrivals = <void>[];
+      var done = false;
+      container.read(pushArrivalsProvider).listen(arrivals.add, onDone: () => done = true);
+      await Future<void>.delayed(Duration.zero);
+      expect(arrivals, isEmpty);
+      expect(done, isTrue, reason: 'the default stream is empty: it has no push to wait for and holds no resource open');
+
+      final PushPlatform platform = container.read(pushPlatformProvider);
+      expect(platform, isA<NoPushPlatform>());
+      expect(await platform.token(), isNull);
+      expect(await platform.permission(), PushPermission.unknown);
+      expect(await platform.tokenRefreshes.isEmpty, isTrue);
+    });
+
+    test('an override with a stream is what the listeners read: a push is delivered to each of them, and the default does not hide it', () async {
+      final StreamController<void> pushes = StreamController<void>.broadcast();
+      final ProviderContainer container = ProviderContainer(overrides: <Override>[pushArrivalsProvider.overrideWithValue(pushes.stream)]);
+      addTearDown(() async {
+        container.dispose();
+        await pushes.close();
+      });
+      var count = 0;
+      container.read(pushArrivalsProvider).listen((_) => count += 1);
+      pushes.add(null);
+      await Future<void>.delayed(Duration.zero);
+      expect(count, 1);
     });
   });
 }
