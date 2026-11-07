@@ -3,9 +3,8 @@ import { useTranslation } from '../../i18n';
 import type { Translator } from '../../i18n';
 import { formatVnd } from '../dis/report/money';
 import '../dis/dis.css';
-import { vietnamToday } from '../mne/model';
-import { FORMULA_REFERENCE, SNAPSHOT_SCREEN_PATH, drillPathOf, isStale, shortId } from './model';
-import type { CommandCenter, HomeProblem, QualityBadge, Tile } from './model';
+import { FORMULA_REFERENCE, SNAPSHOT_SCREEN_PATH, drillPathOf } from './model';
+import type { HomeProblem, QualityBadge, Tile } from './model';
 
 type T = Translator['t'];
 
@@ -84,36 +83,6 @@ export function QualityBadgeLabel({ badge }: { badge: QualityBadge }) {
     case 'NOT_ASSESSED':
       return <span className="pill">{t('home.quality.notAssessed')}</span>;
   }
-}
-
-/** The context of every figure on the page, in one place and above them: the scope, the day, the snapshot, the cutoff of the Treasury and the age of the snapshot. */
-export function ContextHeader({ center, unitName }: { center: CommandCenter; unitName: string | undefined }) {
-  const { t } = useTranslation();
-  return (
-    <section className="card" aria-labelledby="home-context-title" data-testid="home-context">
-      <div className="heading">
-        <h2 id="home-context-title">{t('home.context.title')}</h2>
-        <QualityBadgeLabel badge={center.qualityBadge} />
-      </div>
-      <dl className="aud-facts">
-        <dt>{t('home.context.scope.label')}</dt>
-        <dd data-testid="context-scope">{center.scope.unitId === null ? t('home.context.scope.all', { projects: center.scope.projects }) : t('home.context.scope.unit', { unit: unitName ?? shortId(center.scope.unitId), projects: center.scope.projects })}</dd>
-        <dt>{t('home.context.asOf.label')}</dt>
-        <dd data-testid="context-as-of">{center.asOfDate}</dd>
-        <dt>{t('home.context.snapshot.label')}</dt>
-        <dd data-testid="context-snapshot" title={center.snapshotId}>
-          {shortId(center.snapshotId)}
-        </dd>
-        <dt>{t('home.context.cutoff.label')}</dt>
-        <dd data-testid="context-cutoff">{center.treasuryCutoffDate}</dd>
-      </dl>
-      {isStale(center, vietnamToday()) ? (
-        <p role="status" className="pill warn" data-testid="stale-notice">
-          {t('home.fresh.stale')}
-        </p>
-      ) : null}
-    </section>
-  );
 }
 
 /** A newer snapshot was frozen while the leader reads this one: the banner offers it, and the figures on the page stay as they are until the leader takes it. */

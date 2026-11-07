@@ -1,66 +1,33 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { useApiClient } from '../../api/ApiClientContext';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { FormEvent } from 'react';
 import { useTranslation } from '../../i18n';
-import type { Translator } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
-import { StateBoundary } from '../../states/StateBoundary';
-import { useScreenState } from '../../states/useScreenState';
+import { AlertActions } from '../../ui/alerts/AlertActions';
+import type { SnoozeChoice } from '../../ui/alerts/AlertActions';
+import { AlertRow, sourceLabel } from '../../ui/alerts/AlertRow';
+import { clock, clockAndDay, dayMonth, morningOf, nextDay, todayOf } from '../../ui/alerts/format';
+import { useAlertAction, useAlertCounts, useAssignees } from '../../ui/alerts/hooks';
+import { SeverityIcon } from '../../ui/alerts/SeverityBadge';
+import { SEVERITIES } from '../../ui/alerts/types';
+import type { AlertItem, AlertView, Severity } from '../../ui/alerts/types';
 import '../dis/dis.css';
-import { homeRoot } from './hooks';
-import { BUCKETS, WORK_KINDS, inBucket, pathOf, toWorkPage } from './work-model';
-import type { Bucket, WorkItem, WorkKind, WorkPage } from './work-model';
+import './home.css';
+import { ofSeverity, useAlertSource } from './alert-source';
 
-type T = Translator['t'];
-const PAGE_SIZE = 50;
+type Filter = Severity | 'ALL';
+const HOUR_MS = 3_600_000;
 
-function kindLabel(t: T, kind: WorkKind): string {
-  switch (kind) {
-    case 'APPROVAL':
-      return t('home.work.kind.approval');
-    case 'EXPLANATION':
-      return t('home.work.kind.explanation');
-    case 'REPORT_RETURNED':
-      return t('home.work.kind.reportReturned');
-    case 'REPORT_DRAFT_OVERDUE':
-      return t('home.work.kind.reportDraft');
-    case 'EXPLANATION_REVIEW':
-      return t('home.work.kind.explanationReview');
-    case 'MNE_OBLIGATION':
-      return t('home.work.kind.mne');
-  }
-}
-
-function bucketLabel(t: T, bucket: Bucket): string {
-  switch (bucket) {
-    case 'OVERDUE':
-      return t('home.work.bucket.overdue');
-    case 'NEAR':
-      return t('home.work.bucket.near');
-    case 'LATER':
-      return t('home.work.bucket.later');
-  }
-}
-
-function useMyWork() {
-  const client = useApiClient();
-  const { tenant } = useSession();
-  return useInfiniteQuery<WorkPage, Error, { pages: WorkPage[] }, readonly unknown[], string | undefined>({
-    queryKey: [...homeRoot(tenant?.id), 'work', tenant?.membershipId],
-    initialPageParam: undefined,
-    queryFn: async ({ pageParam }) => toWorkPage(await client.read('getMyWork', { query: { limit: PAGE_SIZE, ...(pageParam === undefined ? {} : { cursor: pageParam }) } })),
-    getNextPageParam: (last) => last.nextCursor,
-    enabled: tenant !== undefined,
-    retry: false,
-  });
+/** The moment an item comes back for a choice of the person. */
+function snoozeUntil(choice: SnoozeChoice, now: Date): string {
+  if (choice.kind === 'hour') return new Date(now.getTime() + HOUR_MS).toISOString();
+  if (choice.kind === 'tomorrow') return morningOf(nextDay(todayOf(now)));
+  return morningOf(choice.day);
 }
 
 /**
- * HOME-02: my work (ST-HOME-004, HOME 3 F5): what is asked of the person who opens it, in every module, in one place: the approvals that wait for them, the explanations they owe and the ones they must conclude, the reports
- * of theirs that came back or are drafts past their period, and the monitoring reports of their unit near their day. Three columns, late first, near its day, and the rest, each card with the day it is due on (and the day
- * it was first asked for when that is another) and the way to open it. The counts at the top are of the whole list. Read-only: each task is done in the screen of its module.
+ * HOME-02: my work (ST-HOME-004). The full queue of the same source as the bell and the band of HOME-01: one list of what needs action, "mine" or "in my scope", by severity, each with its deadline, escalation and
+ * the three actions (claim, assign, snooze). A source that could not be read is named, and a list that could not be read is an error and never "no work".
  */
 export default function MyWorkScreen({ route }: ScreenProps) {
   const tenant = useSession().tenant;
@@ -68,80 +35,238 @@ export default function MyWorkScreen({ route }: ScreenProps) {
   return <MyWorkContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}`} route={route} />;
 }
 
+interface Receipt {
+  tone: 'success' | 'danger';
+  text: string;
+}
+
 function MyWorkContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const query = useMyWork();
-  const items = useMemo(() => query.data?.pages.flatMap((page) => page.items) ?? [], [query.data]);
-  const counts = query.data?.pages[0]?.counts ?? {};
-  const state = useScreenState({ isLoading: query.isLoading, error: query.error, data: query.data === undefined ? undefined : items });
+  const [view, setView] = useState<AlertView>('mine');
+  const [filter, setFilter] = useState<Filter>('ALL');
+  const [assigning, setAssigning] = useState<AlertItem | undefined>(undefined);
+  const [receipt, setReceipt] = useState<Receipt | undefined>(undefined);
+  // Whether the role reads the scope is asked once; a refusal is said, not hidden.
+  const probe = useAlertCounts('scope', { refreshMs: false });
+  const scopeDenied = probe.denied;
+  const scopeKnown = probe.isSuccess || (probe.isError && !scopeDenied);
+  const active: AlertView = view === 'scope' && !scopeKnown ? 'mine' : view;
+  const source = useAlertSource(active);
+  const { claim, assign, snooze, me } = useAlertAction();
+  const today = todayOf();
+  const shown = useMemo(() => ofSeverity(source.items, filter), [source.items, filter]);
+  const busyId = claim.isPending ? claim.variables?.id : assign.isPending ? assign.variables?.item.id : snooze.isPending ? snooze.variables?.item.id : undefined;
+  const sourcesText = source.unavailable.map((entry) => sourceLabel(t, entry)).join(', ');
+  const countOf = (severity: Severity): number => (severity === 'URGENT' ? source.counts.urgent : severity === 'ACTION' ? source.counts.action : source.counts.watch);
+
+  const done = (text: string): void => setReceipt({ tone: 'success', text });
+  const failed = (): void => setReceipt({ tone: 'danger', text: t('alerts.receipt.failed') });
+  const claimItem = (item: AlertItem): void => {
+    claim.mutate(item, { onSuccess: () => done(t('alerts.receipt.claimed', { name: me.name, time: clock(new Date()) })), onError: failed });
+  };
+  const snoozeItem = (item: AlertItem, choice: SnoozeChoice): void => {
+    const until = snoozeUntil(choice, new Date());
+    snooze.mutate({ item, until }, { onSuccess: () => done(t('alerts.receipt.snoozed', { time: clockAndDay(until) })), onError: failed });
+  };
+  const assignItem = (item: AlertItem, assignee: { id: string; name: string }, dueOn: string): void => {
+    assign.mutate(
+      { item, assignee, dueOn },
+      {
+        onSuccess: () => {
+          setAssigning(undefined);
+          done(t('alerts.receipt.assigned', { name: assignee.name, date: dayMonth(dueOn) }));
+        },
+      },
+    );
+  };
+
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       <div className="heading">
         <div>
-          <h1 id="screen-title">{t('home.work.page.title')}</h1>
-          <p>{t('home.work.page.subtitle')}</p>
+          <h1 id="screen-title">{t('home.queue.title')}</h1>
+          <p>{t('home.queue.subtitle')}</p>
         </div>
       </div>
-      <StateBoundary state={state} onRetry={() => void query.refetch()}>
-        <section className="card" aria-labelledby="work-summary-title" data-testid="work-summary">
-          <h2 id="work-summary-title">{t('home.work.summary.title', { total: counts.total ?? items.length, overdue: counts.overdue ?? 0 })}</h2>
-          {query.data?.pages[0]?.truncated === true ? (
-            <p role="status" className="pill warn" data-testid="work-truncated">
-              {t('home.work.truncated')}
-            </p>
-          ) : null}
-          <ul className="mne-lines">
-            {WORK_KINDS.filter((kind) => (counts[kind] ?? 0) > 0).map((kind) => (
-              <li key={kind} data-kind={kind}>
-                {kindLabel(t, kind)}: <strong>{counts[kind]}</strong>
-              </li>
-            ))}
-          </ul>
-        </section>
-        <div className="dis-rate-pair" data-testid="work-board">
-          {BUCKETS.map((bucket) => (
-            <section key={bucket} className="card" aria-labelledby={`work-${bucket}-title`} data-bucket={bucket}>
-              <h2 id={`work-${bucket}-title`}>
-                {bucketLabel(t, bucket)} ({inBucket(items, bucket).length})
-              </h2>
-              <ul className="mne-lines">
-                {inBucket(items, bucket).map((item) => (
-                  <WorkCard key={`${item.kind}:${item.id}`} item={item} />
-                ))}
-              </ul>
-            </section>
-          ))}
+      <div className="mv-alert-tabs" role="tablist" aria-label={t('home.queue.tabs')}>
+        {(['mine', ...(scopeKnown ? (['scope'] as const) : [])] as AlertView[]).map((entry) => (
+          <button
+            key={entry}
+            type="button"
+            role="tab"
+            aria-selected={active === entry}
+            className="mv-alert-tab"
+            data-view={entry}
+            onClick={() => {
+              setView(entry);
+              setFilter('ALL');
+            }}
+          >
+            {t(`alerts.view.${entry}`)}
+          </button>
+        ))}
+      </div>
+      {scopeDenied ? (
+        <p className="home-queue-note" role="status" data-testid="scope-denied">
+          {t('home.queue.scopeDenied')}
+        </p>
+      ) : null}
+      <div className="mv-alert-filter" role="group" aria-label={t('home.queue.filter.label')}>
+        <button type="button" className="mv-alert-chip" aria-pressed={filter === 'ALL'} onClick={() => setFilter('ALL')}>
+          {source.state === 'ready' ? t('home.queue.filter.all', { count: source.counts.total }) : t('alerts.center.filterAll')}
+        </button>
+        {SEVERITIES.map((severity) => (
+          <button key={severity} type="button" className="mv-alert-chip" data-severity={severity} aria-pressed={filter === severity} onClick={() => setFilter(severity)}>
+            <SeverityIcon severity={severity} />
+            {source.state === 'ready' ? t('home.queue.filter.level', { label: t(`alerts.severity.${severity}`), count: countOf(severity) }) : t(`alerts.severity.${severity}`)}
+          </button>
+        ))}
+      </div>
+      <div role={receipt?.tone === 'danger' ? 'alert' : 'status'} aria-label={t('alerts.center.receipts')} data-testid="queue-receipt">
+        {receipt === undefined ? null : (
+          <p className={receipt.tone === 'danger' ? 'home-queue-note home-queue-note--warn' : 'home-queue-note'}>{receipt.text}</p>
+        )}
+      </div>
+      {source.unavailable.length > 0 ? (
+        <p className="home-queue-note home-queue-note--warn" role="status" data-testid="queue-unavailable">
+          {t('home.queue.unavailable', { sources: sourcesText })}{' '}
+          <button type="button" className="mv-alert-link" onClick={source.retry}>
+            {t('home.queue.retry')}
+          </button>
+        </p>
+      ) : null}
+      {source.state === 'loading' ? (
+        <div className="mv-alert-skeleton" role="status" aria-busy="true" aria-label={t('alerts.center.loading')} data-testid="queue-loading">
+          <span className="mv-alert-skeleton__row" />
+          <span className="mv-alert-skeleton__row" />
+          <span className="mv-alert-skeleton__row" />
         </div>
-        {query.hasNextPage ? (
-          <div className="mne-actions">
-            <button type="button" className="btn" disabled={query.isFetchingNextPage} onClick={() => void query.fetchNextPage()}>
-              {t('home.work.more')}
+      ) : null}
+      {source.state === 'error' ? (
+        <div className="home-source-error" role="alert" data-testid="queue-error">
+          <p>{t('home.queue.error')}</p>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={source.retry}>
+            {t('home.queue.retry')}
+          </button>
+        </div>
+      ) : null}
+      {source.state === 'ready' && shown.length === 0 ? (
+        <div className="home-queue-note" role="status" data-testid="queue-empty" data-kind={source.items.length === 0 ? 'none' : 'filtered'}>
+          <p>{source.items.length === 0 ? t('home.queue.empty.none') : t('home.queue.empty.filtered')}</p>
+          {source.items.length === 0 ? null : (
+            <button type="button" className="mv-alert-button" onClick={() => setFilter('ALL')}>
+              {t('home.queue.empty.clear')}
             </button>
-          </div>
-        ) : null}
-      </StateBoundary>
+          )}
+        </div>
+      ) : null}
+      {source.state === 'ready' && source.hasMore ? (
+        <p className="home-queue-note" role="status" data-testid="queue-partial">
+          {t('home.queue.partial', { count: source.items.length })}
+        </p>
+      ) : null}
+      {shown.length > 0 ? (
+        <ul className="home-queue" aria-label={t('home.queue.list')} data-testid="queue-list">
+          {shown.map((item) => (
+            <AlertRow
+              key={item.id}
+              item={item}
+              today={today}
+              detailed
+              actions={<AlertActions item={item} can={{ claim: true, assign: true, snooze: true }} busy={busyId === item.id} onClaim={() => claimItem(item)} onAssign={() => setAssigning(item)} onSnooze={(choice) => snoozeItem(item, choice)} />}
+            />
+          ))}
+        </ul>
+      ) : null}
+      {assigning === undefined ? null : (
+        <div className="mv-alert-dialog-layer">
+          <AssignDialog item={assigning} pending={assign.isPending} refused={assign.isError} onCancel={() => setAssigning(undefined)} onSubmit={(assignee, dueOn) => assignItem(assigning, assignee, dueOn)} />
+        </div>
+      )}
     </section>
   );
 }
 
-function WorkCard({ item }: { item: WorkItem }) {
+interface AssignDialogProps {
+  item: AlertItem;
+  pending: boolean;
+  refused: boolean;
+  onSubmit: (assignee: { id: string; name: string }, dueOn: string) => void;
+  onCancel: () => void;
+}
+
+/** Gives an item to a person of the staff of the scope, with the day it must be handled by. */
+function AssignDialog({ item, pending, refused, onSubmit, onCancel }: AssignDialogProps) {
   const { t } = useTranslation();
-  const path = pathOf(item);
-  const changed = item.originalDueOn !== null && item.originalDueOn !== item.dueOn;
+  const people = useAssignees(true);
+  const [person, setPerson] = useState('');
+  const [dueOn, setDueOn] = useState(item.due_on ?? '');
+  const [tried, setTried] = useState(false);
+  const dialog = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    dialog.current?.focus();
+  }, []);
+  const submit = (event: FormEvent): void => {
+    event.preventDefault();
+    if (pending) return;
+    setTried(true);
+    const chosen = (people.data ?? []).find((member) => member.id === person);
+    if (chosen === undefined || dueOn === '') return;
+    onSubmit(chosen, dueOn);
+  };
   return (
-    <li data-item-id={item.id} data-kind={item.kind}>
-      <span className="pill">{kindLabel(t, item.kind)}</span> <strong>{item.title}</strong>
-      {item.subtitle === null ? null : <span className="sub"> {item.subtitle}</span>}
-      <div className="sub" data-testid={`due-${item.id}`}>
-        {item.dueOn === null ? t('home.work.due.none') : t('home.work.due.on', { date: item.dueOn })}
-        {item.bucket === 'OVERDUE' ? `, ${t('home.work.due.late', { days: item.daysLate })}` : ''}
-        {changed ? `, ${t('home.work.due.original', { date: item.originalDueOn ?? '' })}` : ''}
-      </div>
-      {path === undefined ? null : (
-        <Link to={path} aria-label={t('home.work.open.aria', { title: item.title })}>
-          {t('home.work.open')}
-        </Link>
-      )}
-    </li>
+    <div
+      ref={dialog}
+      className="mv-alert-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-label={t('alerts.assign.title')}
+      tabIndex={-1}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape') onCancel();
+      }}
+    >
+      <form onSubmit={submit} noValidate>
+        <h3>{t('alerts.assign.title')}</h3>
+        <p className="mv-alert-dialog__item">{item.title}</p>
+        {people.isError ? (
+          <p className="mv-alert-banner" data-tone="warning" role="alert">
+            {t('alerts.assign.lookupFailed')}
+          </p>
+        ) : null}
+        {refused ? (
+          <p className="mv-alert-banner" data-tone="danger" role="alert">
+            {t('alerts.assign.refused')}
+          </p>
+        ) : null}
+        <fieldset disabled={pending}>
+          <div className="mv-alert-field">
+            <label htmlFor="queue-assign-person">{t('alerts.assign.person')}</label>
+            <select id="queue-assign-person" value={person} aria-invalid={tried && person === ''} onChange={(event) => setPerson(event.target.value)}>
+              <option value="">{t('alerts.assign.choose')}</option>
+              {(people.data ?? []).map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.name}
+                </option>
+              ))}
+            </select>
+            {tried && person === '' ? <span className="mv-alert-field__error">{t('alerts.assign.personRequired')}</span> : null}
+          </div>
+          <div className="mv-alert-field">
+            <label htmlFor="queue-assign-due">{t('alerts.assign.due')}</label>
+            <input id="queue-assign-due" type="date" value={dueOn} min={todayOf()} aria-invalid={tried && dueOn === ''} onChange={(event) => setDueOn(event.target.value)} />
+            {tried && dueOn === '' ? <span className="mv-alert-field__error">{t('alerts.assign.dueRequired')}</span> : null}
+          </div>
+        </fieldset>
+        <div className="mv-alert-dialog__foot">
+          <button type="button" className="mv-alert-button" onClick={onCancel}>
+            {t('alerts.assign.cancel')}
+          </button>
+          <button type="submit" className="mv-alert-button mv-alert-button--primary" disabled={pending}>
+            {pending ? t('alerts.assign.pending') : t('alerts.assign.submit')}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }

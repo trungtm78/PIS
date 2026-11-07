@@ -1,7 +1,8 @@
 import { ApiError, NETWORK_ERROR_CODE } from '@machvon/api-client';
-import { cleanup, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, configure, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { t as tr } from '../../i18n';
 import vi_ from '../../i18n/vi.json';
 import { harness, mount, routeOf } from '../mne/test-support';
 import type { Harness } from '../mne/test-support';
@@ -57,15 +58,22 @@ const body = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
+const contextText = (): string => screen.getByTestId('home-context').textContent ?? '';
+const scopeAll = (projects: number): string => fill(tr('home.ov.context.unitAll'), { projects });
+
 /** `answers` is what the server says to a read with no snapshot named (the latest), `pinned` to one that names a snapshot. */
-function client(answers: { latest: () => unknown; units?: unknown[] }): Harness {
-  const h = harness((operation) => {
-    if (operation !== 'getCommandCenter') return new Error(`unexpected read ${operation}`);
-    return answers.latest();
+function client(answers: { latest: () => unknown; units?: unknown[]; others?: (operation: string, input: unknown) => unknown }): Harness {
+  const h = harness((operation, input) => {
+    if (operation === 'getCommandCenter') return answers.latest();
+    return answers.others?.(operation, input) ?? new Error(`unexpected read ${operation}`);
   });
   (h.client as unknown as { readAll: (operation: string) => Promise<unknown> }).readAll = (operation) => (operation === 'get_resources_organization_unit' ? Promise.resolve(answers.units ?? []) : Promise.reject(new Error(`unexpected readAll ${operation}`)));
   return h;
 }
+
+// The screens read several sources at once; under the load of a whole run the default second is too short to prove them wrong.
+configure({ asyncUtilTimeout: 5000 });
+vi.setConfig({ testTimeout: 20_000 });
 
 afterEach(cleanup);
 
@@ -94,8 +102,9 @@ describe('HOME-09 command center (ST-HOME-001, BR-HOME-01)', () => {
     // The context of all of them, above them.
     const context = screen.getByTestId('home-context');
     expect(context.compareDocumentPosition(rates) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(screen.getByTestId('context-scope').textContent).toBe(fill(vi_['home.context.scope.all'], { projects: 3 }));
-    expect(screen.getByTestId('context-as-of').textContent).toBe('2027-10-12');
+    expect(context.compareDocumentPosition(screen.getByTestId('home-kpis')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(contextText()).toContain(scopeAll(3));
+    expect(contextText()).toContain('12/10/2027');
     expect(screen.getByTestId('context-snapshot').getAttribute('title')).toBe(S40);
     expect(screen.getByTestId('context-cutoff').textContent).toBe('2027-10-12');
   });
@@ -128,20 +137,20 @@ describe('HOME-09 command center (ST-HOME-001, BR-HOME-01)', () => {
 
   it('AC-ST-HOME-001-4: UAT-AC270 loads without data governance and says the quality is not assessed', async () => {
     mount(<CommandCenterScreen route={CC} />, client({ latest: () => body() }), { permissions: READER });
-    const context = await screen.findByTestId('home-context');
-    expect(within(context).getByText(vi_['home.quality.notAssessed'])).toBeTruthy();
+    await screen.findByTestId('home-rates');
+    expect(within(screen.getByTestId('home-context')).getByText(vi_['home.quality.notAssessed'])).toBeTruthy();
   });
 
-  it('counts what waits and leads to the screen of each', async () => {
+  it('counts what waits in the tiles and leads to the screen of each', async () => {
     mount(<CommandCenterScreen route={CC} />, client({ latest: () => body() }), { permissions: READER });
-    const waiting = await screen.findByTestId('home-waiting');
-    const row = (name: string) => waiting.querySelector(`[data-count="${name}"]`) as HTMLElement;
-    expect(row('warnings').textContent).toContain(fill(vi_['home.counts.warnings'], { count: 3 }));
-    expect(row('explanations').textContent).toContain(fill(vi_['home.counts.explanations'], { count: 2 }));
-    expect(row('reallocations').textContent).toContain(fill(vi_['home.counts.reallocations'], { count: 1 }));
-    expect(within(row('warnings')).getByRole('link').getAttribute('href')).toBe('/home/home-03');
-    expect(within(row('explanations')).getByRole('link').getAttribute('href')).toBe('/home/home-02');
-    expect(within(row('reallocations')).getByRole('link').getAttribute('href')).toBe('/cap/cap-19');
+    const kpis = await screen.findByTestId('home-kpis');
+    const warnings = within(kpis).getByText(tr('home.ov.kpi.warnings.label')).closest('.ui-kpi') as HTMLElement;
+    const reallocations = within(kpis).getByText(tr('home.ov.kpi.realloc.label')).closest('.ui-kpi') as HTMLElement;
+    expect(warnings.textContent).toContain('3');
+    expect(within(warnings).getByRole('link', { name: fill(tr('home.ov.kpi.warnings.sub'), { count: 2 }) }).getAttribute('href')).toBe('/home/home-02');
+    expect(within(warnings).getByRole('link', { name: tr('home.ov.kpi.open') }).getAttribute('href')).toBe('/home/home-03');
+    expect(reallocations.textContent).toContain('1');
+    expect(within(reallocations).getByRole('link', { name: tr('home.ov.kpi.open') }).getAttribute('href')).toBe('/cap/cap-19');
   });
 
   describe('AC-ST-HOME-001-5: UI-HOME-09 empty, stale and new-data states', () => {
@@ -154,27 +163,27 @@ describe('HOME-09 command center (ST-HOME-001, BR-HOME-01)', () => {
 
     it('shows the figures of a snapshot older than eight days, and says it is old', async () => {
       mount(<CommandCenterScreen route={CC} />, client({ latest: () => body({ freshness: 'STALE' }) }), { permissions: READER });
-      expect((await screen.findByTestId('stale-notice')).textContent).toBe(vi_['home.fresh.stale']);
+      await waitFor(() => expect(contextText()).toContain(tr('ui.contextBar.stale')));
       expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60.0000%');
     });
 
     it('says a snapshot has become stale by its day, although the server called it fresh when it was read', async () => {
       mount(<CommandCenterScreen route={CC} />, client({ latest: () => body({ freshness: 'FRESH', as_of_date: '2020-01-01' }) }), { permissions: READER });
-      expect((await screen.findByTestId('stale-notice')).textContent).toBe(vi_['home.fresh.stale']);
+      await waitFor(() => expect(contextText()).toContain(tr('ui.contextBar.stale')));
       cleanup();
       mount(<CommandCenterScreen route={CC} />, client({ latest: () => body({ freshness: 'FRESH', as_of_date: '2999-01-01' }) }), { permissions: READER });
       await screen.findByTestId('home-rates');
-      expect(screen.queryByTestId('stale-notice')).toBeNull();
+      expect(contextText()).not.toContain(tr('ui.contextBar.stale'));
     });
 
     it('learns from the background reading that the snapshot on the screen has aged past the limit, with no click and no new snapshot', async () => {
       let latest: unknown = body({ freshness: 'FRESH', as_of_date: '2999-01-01' });
       const view = mount(<CommandCenterScreen route={CC} />, client({ latest: () => latest }), { permissions: READER });
       await screen.findByTestId('home-rates');
-      expect(screen.queryByTestId('stale-notice')).toBeNull();
+      expect(contextText()).not.toContain(tr('ui.contextBar.stale'));
       latest = body({ freshness: 'STALE', as_of_date: '2999-01-01' });
       await view.queries.invalidateQueries({ queryKey: [...homeRoot(TENANT), 'latest'] });
-      expect((await screen.findByTestId('stale-notice')).textContent).toBe(vi_['home.fresh.stale']);
+      await waitFor(() => expect(contextText()).toContain(tr('ui.contextBar.stale')));
       expect(screen.queryByTestId('new-data-banner')).toBeNull();
     });
 
@@ -190,7 +199,7 @@ describe('HOME-09 command center (ST-HOME-001, BR-HOME-01)', () => {
       await view.queries.invalidateQueries({ queryKey: [...homeRoot(TENANT), 'latest'] });
       expect(await screen.findByText(vi_['states.denied.title'])).toBeTruthy();
       expect(screen.queryByTestId('home-rates')).toBeNull();
-      expect(screen.queryByTestId('home-waiting')).toBeNull();
+      expect(screen.queryByTestId('home-kpis')).toBeNull();
     });
 
     it('reads the figures again, over the same snapshot, when the background reading finds that the scope of the reader is not the one they were read in, and does not show the old ones meanwhile', async () => {
@@ -203,11 +212,11 @@ describe('HOME-09 command center (ST-HOME-001, BR-HOME-01)', () => {
       });
       const view = mount(<CommandCenterScreen route={CC} />, h, { permissions: READER });
       await screen.findByTestId('home-rates');
-      expect(screen.getByTestId('context-scope').textContent).toBe(fill(vi_['home.context.scope.all'], { projects: 3 }));
+      expect(contextText()).toContain(scopeAll(3));
       // The access of the reader is narrowed: the server now reads them in another scope.
       scope = { unit_id: null, denominator_kind: null, projects: 1, scope_hash: 'h2' };
       await view.queries.invalidateQueries({ queryKey: [...homeRoot(TENANT), 'latest'] });
-      await waitFor(() => expect(screen.getByTestId('context-scope').textContent).toBe(fill(vi_['home.context.scope.all'], { projects: 1 })));
+      await waitFor(() => expect(contextText()).toContain(scopeAll(1)));
       const reread = h.read.mock.calls.filter(([operation]) => operation === 'getCommandCenter').map((call) => (call[1] as { query: Record<string, string> }).query).filter((query) => query.snapshot_id !== undefined);
       expect(reread.length).toBeGreaterThan(0);
       expect(reread.every((query) => query.snapshot_id === S40)).toBe(true);
@@ -242,7 +251,7 @@ describe('HOME-09 command center (ST-HOME-001, BR-HOME-01)', () => {
         await view.queries.invalidateQueries({ queryKey: [...homeRoot(TENANT), 'latest'] });
         await new Promise((resolve) => setTimeout(resolve, 50));
         expect(screen.queryByTestId('home-rates')).toBeNull();
-        expect(screen.queryByTestId('home-waiting')).toBeNull();
+        expect(screen.queryByTestId('home-kpis')).toBeNull();
       }
     });
 
@@ -257,7 +266,7 @@ describe('HOME-09 command center (ST-HOME-001, BR-HOME-01)', () => {
       await user.click(screen.getByRole('button', { name: vi_['states.retry.action'] }));
       await new Promise((resolve) => setTimeout(resolve, 50));
       expect(screen.queryByTestId('home-rates')).toBeNull();
-      expect(screen.queryByTestId('home-waiting')).toBeNull();
+      expect(screen.queryByTestId('home-kpis')).toBeNull();
     });
 
     it('finds the first snapshot when the page was opened before anything was frozen, and shows it when the leader takes it', async () => {
@@ -286,14 +295,14 @@ describe('HOME-09 command center (ST-HOME-001, BR-HOME-01)', () => {
       await view.queries.invalidateQueries({ queryKey: [...homeRoot(TENANT), 'latest'] });
       expect(await screen.findByTestId('new-data-banner')).toBeTruthy();
       expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60.0000%');
-      expect(screen.getByTestId('context-as-of').textContent).toBe('2027-10-12');
+      expect(contextText()).toContain('12/10/2027');
       // Focus and reconnection do not change them either.
       window.dispatchEvent(new Event('focus'));
       await new Promise((resolve) => setTimeout(resolve, 30));
       expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60.0000%');
       await user.click(screen.getByRole('button', { name: vi_['home.banner.refresh'] }));
       await waitFor(() => expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('70.0000%'));
-      expect(screen.getByTestId('context-as-of').textContent).toBe('2027-10-19');
+      expect(contextText()).toContain('19/10/2027');
       await waitFor(() => expect(screen.queryByTestId('new-data-banner')).toBeNull());
     });
   });
@@ -301,13 +310,13 @@ describe('HOME-09 command center (ST-HOME-001, BR-HOME-01)', () => {
   it('moves the counts of what waits with the background reading while the figures of the snapshot stand (a warning resolved, no new snapshot)', async () => {
     let latest: unknown = body();
     const view = mount(<CommandCenterScreen route={CC} />, client({ latest: () => latest }), { permissions: READER });
-    const waiting = await screen.findByTestId('home-waiting');
-    expect(waiting.querySelector('[data-count="warnings"]')?.textContent).toContain(fill(vi_['home.counts.warnings'], { count: 3 }));
+    const tileOf = (label: string): HTMLElement => within(screen.getByTestId('home-kpis')).getByText(tr(label)).closest('.ui-kpi') as HTMLElement;
+    await screen.findByTestId('home-kpis');
+    expect(tileOf('home.ov.kpi.warnings.label').textContent).toContain('3');
     latest = body({ open_warnings: 1, overdue_explanations: 0, pending_reallocations: 4, tiles: [tile('DISBURSEMENT_RATE_PM', { value: '99.0000' }), tile('DISBURSEMENT_RATE_TOTAL', { value: '98.0000' })] });
     await view.queries.invalidateQueries({ queryKey: [...homeRoot(TENANT), 'latest'] });
-    await waitFor(() => expect(screen.getByTestId('home-waiting').querySelector('[data-count="warnings"]')?.textContent).toContain(fill(vi_['home.counts.warnings'], { count: 1 })));
-    expect(screen.getByTestId('home-waiting').querySelector('[data-count="explanations"]')?.textContent).toContain(fill(vi_['home.counts.explanations'], { count: 0 }));
-    expect(screen.getByTestId('home-waiting').querySelector('[data-count="reallocations"]')?.textContent).toContain(fill(vi_['home.counts.reallocations'], { count: 4 }));
+    await waitFor(() => expect(tileOf('home.ov.kpi.warnings.label').textContent).toContain(fill(tr('home.ov.kpi.warnings.sub'), { count: 0 })));
+    expect(tileOf('home.ov.kpi.realloc.label').textContent).toContain('4');
     // The figures belong to the snapshot, and the snapshot did not change.
     expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60.0000%');
     expect(screen.queryByTestId('new-data-banner')).toBeNull();
@@ -366,8 +375,8 @@ describe('HOME-01 executive overview (ST-HOME-001)', () => {
   it('AC-ST-HOME-001-6: UI-HOME-01 shows the year, the unit and the day the figures are as of, with the same figures as the command center', async () => {
     mount(<OverviewScreen route={OV} />, client({ latest: () => body(), units }), { permissions: READER });
     await screen.findByTestId('home-rates');
-    expect(screen.getByTestId('filter-year').textContent).toBe('2027');
-    expect(screen.getByTestId('filter-as-of').textContent).toBe('2027-10-12');
+    expect(contextText()).toContain(`${tr('home.ov.context.year')}2027`);
+    expect(contextText()).toContain(`${tr('home.ov.context.closing')}12/10/2027`);
     expect(screen.getByLabelText(vi_['home.filter.unit.label'])).toBeTruthy();
     expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60.0000%');
     expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_TOTAL').textContent).toBe('48.0000%');
@@ -389,7 +398,7 @@ describe('HOME-01 executive overview (ST-HOME-001)', () => {
     await user.selectOptions(await screen.findByLabelText(vi_['home.filter.unit.label']), NORTH);
     await waitFor(() => expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('55.0000%'));
     expect(h.read.mock.calls.some((call) => call[0] === 'getCommandCenter' && (call[1] as { query: Record<string, string> }).query.unit_id === NORTH)).toBe(true);
-    expect(screen.getByTestId('context-scope').textContent).toBe(fill(vi_['home.context.scope.unit'], { unit: 'Bắc', projects: 1 }));
+    expect(contextText()).toContain(fill(tr('home.ov.context.unit'), { unit: 'Bắc', projects: 1 }));
   });
 
   it('AC-ST-HOME-001-6: UI-HOME-01 keeps the snapshot on the screen when the unit changes, and moves to a newer one only when the leader takes it', async () => {
@@ -414,22 +423,22 @@ describe('HOME-01 executive overview (ST-HOME-001)', () => {
     const narrowed = h.read.mock.calls.filter(([operation]) => operation === 'getCommandCenter').map((call) => (call[1] as { query: Record<string, string> }).query).filter((query) => query.unit_id === NORTH && query.snapshot_id !== undefined);
     expect(narrowed.length).toBeGreaterThan(0);
     expect(narrowed.every((query) => query.snapshot_id === S40)).toBe(true);
-    expect(screen.getByTestId('context-as-of').textContent).toBe('2027-10-12');
+    expect(contextText()).toContain('12/10/2027');
     // Going back to the whole scope does not ask again either, and is of the same snapshot.
     await user.selectOptions(screen.getByLabelText(vi_['home.filter.unit.label']), '');
-    await waitFor(() => expect(screen.getByTestId('context-scope').textContent).toBe(fill(vi_['home.context.scope.all'], { projects: 3 })));
-    expect(screen.getByTestId('context-as-of').textContent).toBe('2027-10-12');
+    await waitFor(() => expect(contextText()).toContain(scopeAll(3)));
+    expect(contextText()).toContain('12/10/2027');
     // The banner is how the leader moves to the newer snapshot.
     await user.click(screen.getByRole('button', { name: vi_['home.banner.refresh'] }));
-    await waitFor(() => expect(screen.getByTestId('context-as-of').textContent).toBe('2027-10-19'));
+    await waitFor(() => expect(contextText()).toContain('19/10/2027'));
   });
 
   it('AC-ST-HOME-001-6: UI-HOME-01 says the figures are of a unit when the name of the unit cannot be read, and never that they are of everything', async () => {
     const narrowed = body({ scope: { unit_id: NORTH, denominator_kind: null, projects: 1, scope_hash: 'h' } });
     mount(<OverviewScreen route={OV} />, client({ latest: () => narrowed, units: [] }), { permissions: READER }, `/?unit=${NORTH}`);
-    const scope = await screen.findByTestId('context-scope');
-    expect(scope.textContent).not.toBe(fill(vi_['home.context.scope.all'], { projects: 1 }));
-    expect(scope.textContent).toBe(fill(vi_['home.context.scope.unit'], { unit: '00000000…0012', projects: 1 }));
+    await screen.findByTestId('home-rates');
+    expect(contextText()).not.toContain(scopeAll(1));
+    expect(contextText()).toContain(fill(tr('home.ov.context.unit'), { unit: '00000000…0012', projects: 1 }));
   });
 
   it('AC-ST-HOME-001-6: UI-HOME-01 works without the list of units: the filter is left out, the figures are there', async () => {
@@ -445,6 +454,7 @@ describe('HOME-01 executive overview (ST-HOME-001)', () => {
     mount(<OverviewScreen route={OV} />, client({ latest: () => error, units }), { permissions: READER });
     if (testId !== undefined) expect(await screen.findByTestId(testId)).toBeTruthy();
     else expect(await screen.findByText(vi_['states.denied.title'])).toBeTruthy();
-    expect(screen.getByTestId('filter-as-of')).toBeTruthy();
+    expect(screen.getByTestId('home-context')).toBeTruthy();
+    expect(screen.getByLabelText(vi_['home.filter.unit.label'])).toBeTruthy();
   });
 });

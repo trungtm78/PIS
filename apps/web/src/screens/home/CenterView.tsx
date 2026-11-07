@@ -1,7 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -9,12 +9,18 @@ import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { useOrgUnits } from '../adm/org-tree/hooks';
 import { Field } from '../mne/components';
+import { AlertBand, ContextBar, FilterPanel } from '../../ui';
 import '../dis/dis.css';
-import { ContextHeader, MetricTile, NewDataBanner, ProblemCard } from './components';
+import './home.css';
+import { MetricTile, NewDataBanner, ProblemCard, QualityBadgeLabel } from './components';
 import { DegradedChannelsBanner } from './DegradedBanner';
 import { centerKey, homeRoot, useCommandCenter, useLatestSnapshot } from './hooks';
-import { MY_WORK_PATH, REALLOCATION_PATH, WARNINGS_PATH, amountTiles, describeCommandCenter, hasNewSnapshot, isAuthFailure, ratePair, waitingOf } from './model';
+import { useAlertSource } from './alert-source';
+import { amountTiles, describeCommandCenter, hasNewSnapshot, isAuthFailure, isStale, ratePair, shortId, waitingOf } from './model';
 import type { CommandCenter, WaitingCounts } from './model';
+import { clockText, dayText } from './overview-model';
+import { CashFlowCard, Causes, Hero, Kpis, RankingCard } from './overview-sections';
+import { vietnamToday } from '../mne/model';
 
 /** The failures that this screen answers with a page of its own; every other failure is one of the standard states. */
 const OWN_PROBLEMS = new Set(['RESOURCE_NOT_FOUND', 'SNAPSHOT_NOT_FROZEN', 'SCOPE_DENIED', 'METRIC_UNAVAILABLE', 'VALIDATION_FAILED']);
@@ -41,7 +47,9 @@ function CenterContent({ route, variant }: ScreenProps & { variant: Variant }) {
   const tenant = useSession().tenant;
   // The snapshot on the screen: empty until the first answer, then the one that answer was of. A change of unit reads that snapshot and not a newer one; the leader moves to a newer one by taking the banner.
   const [pinned, setPinned] = useState('');
-  const query = useCommandCenter({ snapshotId: pinned, unitId });
+  const [seed, setSeed] = useState<CommandCenter | undefined>(undefined);
+  const [revokedNow, setRevokedNow] = useState(false);
+  const query = useCommandCenter({ snapshotId: pinned, unitId }, revokedNow ? undefined : seed);
   const refetch = query.refetch;
   const units = useOrgUnits();
   const own = hasOwnPage(query.error);
@@ -52,6 +60,7 @@ function CenterContent({ route, variant }: ScreenProps & { variant: Variant }) {
   const problem = own ? describeCommandCenter(query.error) : undefined;
   // A refusal of the unit is the answer of the foreground reading and has its own card; any other refusal of the background reading ends the screen, and a retry that is refused too does not bring the old figures back.
   const revoked = isAuthFailure(latest.error) && problem !== 'unitDenied';
+  if (revoked !== revokedNow) setRevokedNow(revoked);
   // The access of the reader changed while the page was open (the server names the scope it read in): the figures kept for the old scope are not shown as if they were still the reader's, and are read again over the same snapshot.
   const scopeMoved = query.data !== undefined && latest.data !== undefined && latest.data.scopeHash !== '' && query.data.scope.hash !== '' && latest.data.scopeHash !== query.data.scope.hash;
   const state = useScreenState({ isLoading: query.isLoading || scopeMoved, error: revoked ? latest.error : own ? undefined : query.error, data: own ? undefined : query.data });
@@ -61,12 +70,14 @@ function CenterContent({ route, variant }: ScreenProps & { variant: Variant }) {
       // What was read under a right that was taken away is dropped, not only hidden: a later failure of the poll must not bring it back, and what is shown again is what a reading says once the right is back.
       queryClient.removeQueries({ queryKey: [...homeRoot(tenant?.id), 'center'] });
       setPinned('');
+      setSeed(undefined);
     }
   }, [revoked, queryClient, tenant?.id]);
   useEffect(() => {
     if (pinned === '' && center !== undefined) {
       // The answer is kept under the key of its snapshot, so that pinning it asks nothing again.
       queryClient.setQueryData(centerKey(tenant?.id, tenant?.membershipId, center.snapshotId, unitId), center);
+      setSeed(center);
       setPinned(center.snapshotId);
     }
   }, [pinned, center, queryClient, tenant?.id, tenant?.membershipId, unitId]);
@@ -78,10 +89,17 @@ function CenterContent({ route, variant }: ScreenProps & { variant: Variant }) {
     // What was read of the old snapshot is dropped, so that the next reading is of the latest one.
     queryClient.removeQueries({ queryKey: [...homeRoot(tenant?.id), 'center'] });
     setPinned('');
+    setSeed(undefined);
     void latest.refetch();
   };
   const title = variant === 'command' ? t('home.cc.page.title') : t('home.overview.page.title');
   const subtitle = variant === 'command' ? t('home.cc.page.subtitle') : t('home.overview.page.subtitle');
+  const context = center === undefined ? undefined : latest.data?.snapshotId === center.snapshotId && latest.data.freshness === 'STALE' ? { ...center, freshness: 'STALE' as const } : center;
+  const contextItems = [
+    { label: t('home.ov.context.scope'), value: context === undefined ? '—' : context.scope.unitId === null ? t('home.ov.context.unitAll', { projects: context.scope.projects }) : t('home.ov.context.unit', { unit: unitName ?? shortId(context.scope.unitId), projects: context.scope.projects }) },
+    { label: t('home.ov.context.year'), value: context === undefined ? '—' : context.asOfDate.slice(0, 4) },
+    { label: t('home.ov.context.closing'), value: context === undefined ? '—' : dayText(context.asOfDate) },
+  ];
 
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
@@ -91,46 +109,35 @@ function CenterContent({ route, variant }: ScreenProps & { variant: Variant }) {
           <p>{subtitle}</p>
         </div>
       </div>
-      <DegradedChannelsBanner />
-      {variant === 'overview' ? (
-        <div className="card">
-          <div className="dis-filters" role="group" aria-label={t('home.filter.title')}>
-            {units.data === undefined || units.data.length === 0 ? null : (
-              <Field id="home-unit" label={t('home.filter.unit.label')} error={undefined}>
-                <select
-                  id="home-unit"
-                  value={unitId}
-                  onChange={(event) => {
-                    const next = new URLSearchParams(params);
-                    if (event.target.value === '') next.delete('unit');
-                    else next.set('unit', event.target.value);
-                    setParams(next, { replace: true });
-                  }}
-                >
-                  <option value="">{t('home.filter.unit.all')}</option>
-                  {units.data.map((unit) => (
-                    <option key={unit.id} value={unit.id}>
-                      {unit.code} {unit.name}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-            )}
-            <div className="field" data-field="home-year">
-              <span id="home-year-label">{t('home.filter.year.label')}</span>
-              <strong aria-labelledby="home-year-label" data-testid="filter-year">
-                {center === undefined ? '—' : center.asOfDate.slice(0, 4)}
-              </strong>
-            </div>
-            <div className="field" data-field="home-as-of">
-              <span id="home-as-of-label">{t('home.filter.asOf.label')}</span>
-              <strong aria-labelledby="home-as-of-label" data-testid="filter-as-of">
-                {center === undefined ? '—' : center.asOfDate}
-              </strong>
-            </div>
-          </div>
-        </div>
+      <div data-testid="home-context" className="home-context">
+        <ContextBar items={contextItems} unit={t('home.ov.hero.unit')} asOf={context === undefined ? undefined : clockText(query.dataUpdatedAt)} stale={context !== undefined && isStale(context, vietnamToday())} />
+        {context === undefined ? null : <QualityBadgeLabel badge={context.qualityBadge} />}
+      </div>
+      {variant === 'overview' && units.data !== undefined && units.data.length > 0 ? (
+        <FilterPanel applied={unitId === '' ? 0 : 1}>
+          <Field id="home-unit" label={t('home.filter.unit.label')} error={undefined}>
+            <select
+              id="home-unit"
+              value={unitId}
+              onChange={(event) => {
+                const next = new URLSearchParams(params);
+                if (event.target.value === '') next.delete('unit');
+                else next.set('unit', event.target.value);
+                setParams(next, { replace: true });
+              }}
+            >
+              <option value="">{t('home.filter.unit.all')}</option>
+              {units.data.map((unit) => (
+                <option key={unit.id} value={unit.id}>
+                  {unit.code} {unit.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </FilterPanel>
       ) : null}
+      <NeedsActionBand />
+      <DegradedChannelsBanner />
       {problem !== undefined && !revoked ? <ProblemCard problem={problem} /> : null}
       {noSnapshot && latest.data !== undefined ? <NewDataBanner onRefresh={refresh} /> : null}
       <StateBoundary
@@ -143,8 +150,7 @@ function CenterContent({ route, variant }: ScreenProps & { variant: Variant }) {
         {center === undefined ? null : (
           <>
             {hasNewSnapshot(center.snapshotId, latest.data?.snapshotId) ? <NewDataBanner onRefresh={refresh} /> : null}
-            <ContextHeader center={latest.data?.snapshotId === center.snapshotId && latest.data.freshness === 'STALE' ? { ...center, freshness: 'STALE' } : center} unitName={unitName} />
-            <CenterBody center={center} waiting={latest.data?.waiting ?? waitingOf(center)} />
+            <CenterBody center={context ?? center} waiting={latest.data?.waiting ?? waitingOf(center)} unitId={unitId} />
           </>
         )}
       </StateBoundary>
@@ -152,47 +158,63 @@ function CenterContent({ route, variant }: ScreenProps & { variant: Variant }) {
   );
 }
 
-function CenterBody({ center, waiting }: { center: CommandCenter; waiting: WaitingCounts }) {
+/** "Cần xử lý ngay": the same source as the bell, the whole scope for a leader (the person's own work when the server refuses the scope). It is read on its own, so a failure of the figures never hides the work. */
+function NeedsActionBand() {
+  const source = useAlertSource('scope');
+  return (
+    <div data-testid="home-band" data-view={source.view}>
+      <AlertBand items={source.items} counts={source.counts} max={5} state={source.state} unavailable={source.unavailable} asOf={source.asOf} stale={source.stale} onRetry={source.retry} />
+    </div>
+  );
+}
+
+function CenterBody({ center, waiting, unitId }: { center: CommandCenter; waiting: WaitingCounts; unitId: string }) {
   const { t } = useTranslation();
   const pair = ratePair(center);
   const amounts = amountTiles(center);
+  const year = center.asOfDate.slice(0, 4);
   return (
     <>
-      <section className="card" aria-labelledby="home-rates-title" data-testid="home-rates">
-        <h2 id="home-rates-title">{t('home.rates.title')}</h2>
-        {pair === undefined ? (
-          <p role="alert">{t('home.problem.unavailable')}</p>
-        ) : (
-          <div className="dis-rate-pair" role="group" aria-label={t('home.rates.aria')}>
-            <MetricTile tile={pair.pm} rate="pm" />
-            <MetricTile tile={pair.total} rate="total" />
+      <Hero center={center} year={year} />
+      <Kpis center={center} waiting={waiting} />
+      <Causes />
+      <div className="home-pair">
+        <CashFlowCard snapshotId={center.snapshotId} unitId={unitId} year={year} />
+        <RankingCard />
+      </div>
+      <details className="home-details" data-testid="home-details">
+        <summary>{t('home.ov.details.title')}</summary>
+        <p className="sub">{t('home.ov.details.hint')}</p>
+        <dl className="aud-facts">
+          <dt>{t('home.context.snapshot.label')}</dt>
+          <dd data-testid="context-snapshot" title={center.snapshotId}>
+            {shortId(center.snapshotId)}
+          </dd>
+          <dt>{t('home.context.cutoff.label')}</dt>
+          <dd data-testid="context-cutoff">{center.treasuryCutoffDate}</dd>
+        </dl>
+        <section className="card" aria-labelledby="home-rates-title" data-testid="home-rates">
+          <h2 id="home-rates-title">{t('home.rates.title')}</h2>
+          {pair === undefined ? (
+            <p role="alert">{t('home.problem.unavailable')}</p>
+          ) : (
+            <div className="dis-rate-pair" role="group" aria-label={t('home.rates.aria')}>
+              <MetricTile tile={pair.pm} rate="pm" />
+              <MetricTile tile={pair.total} rate="total" />
+            </div>
+          )}
+          <div className="dis-rate-pair" data-testid="home-amounts">
+            {amounts.map((tile) => (
+              <MetricTile key={tile.metricCode} tile={tile} />
+            ))}
           </div>
-        )}
-        <div className="dis-rate-pair" data-testid="home-amounts">
-          {amounts.map((tile) => (
-            <MetricTile key={tile.metricCode} tile={tile} />
-          ))}
-        </div>
-        {center.projectsWithoutData > 0 ? (
-          <p className="sub" data-testid="without-data">
-            {t('home.footer.withoutData', { count: center.projectsWithoutData })}
-          </p>
-        ) : null}
-      </section>
-      <section className="card" aria-labelledby="home-waiting-title" data-testid="home-waiting">
-        <h2 id="home-waiting-title">{t('home.counts.title')}</h2>
-        <ul className="mne-lines">
-          <li data-count="warnings">
-            <strong>{t('home.counts.warnings', { count: waiting.openWarnings })}</strong> <Link to={WARNINGS_PATH}>{t('home.counts.open')}</Link>
-          </li>
-          <li data-count="explanations">
-            <strong>{t('home.counts.explanations', { count: waiting.overdueExplanations })}</strong> <Link to={MY_WORK_PATH}>{t('home.counts.open')}</Link>
-          </li>
-          <li data-count="reallocations">
-            <strong>{t('home.counts.reallocations', { count: waiting.pendingReallocations })}</strong> <Link to={REALLOCATION_PATH}>{t('home.counts.open')}</Link>
-          </li>
-        </ul>
-      </section>
+          {center.projectsWithoutData > 0 ? (
+            <p className="sub" data-testid="without-data">
+              {t('home.footer.withoutData', { count: center.projectsWithoutData })}
+            </p>
+          ) : null}
+        </section>
+      </details>
     </>
   );
 }

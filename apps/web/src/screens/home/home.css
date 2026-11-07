@@ -1,0 +1,14 @@
+/* The leader home (HOME-01, HOME-09) and the queue (HOME-02): layout only, colours are the --mv-color-* tokens. */
+.home-stack { display: grid; gap: var(--mv-space-16); }
+.home-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--mv-space-16); align-items: start; }
+@media (max-width: 1279px) { .home-pair { grid-template-columns: minmax(0, 1fr); } }
+.home-note { margin: 0 0 var(--mv-space-12); color: var(--mv-color-text-secondary); font-size: 12px; }
+.home-source-error { display: grid; gap: var(--mv-space-8); justify-items: start; padding: var(--mv-space-12) var(--mv-space-16); border: 1px solid var(--mv-color-danger); border-radius: var(--mv-radius-card); background: var(--mv-color-danger-soft); color: var(--mv-color-ink); }
+.home-source-error p { margin: 0; }
+.home-details { margin-top: var(--mv-space-16); }
+.home-details > summary { cursor: pointer; font-weight: 700; color: var(--mv-color-ink); min-height: 24px; }
+.home-details > summary:focus-visible { outline: 2px solid var(--mv-color-focus); outline-offset: 2px; }
+.home-queue { display: grid; gap: var(--mv-space-12); margin: 0; padding: 0; list-style: none; }
+.home-queue-note { margin: 0 0 var(--mv-space-12); padding: var(--mv-space-12) var(--mv-space-16); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-card); background: var(--mv-color-surface2); }
+.home-queue-note--warn { border-color: var(--mv-color-warning); background: var(--mv-color-warning-soft); }
+.home-context { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8) var(--mv-space-16); margin-bottom: var(--mv-space-16); }

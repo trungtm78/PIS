@@ -4,6 +4,9 @@ import { useSession } from '../../session/SessionContext';
 import { NEW_SNAPSHOT_POLL_MS, toCommandCenter, waitingOf } from './model';
 import type { CommandCenter, Freshness, WaitingCounts } from './model';
 
+/** How long a reading of a snapshot stays in the cache with no one observing it. */
+const PINNED_KEEP_MS = 5 * 60_000;
+
 export const homeRoot = (tenantId: string | undefined) => ['home', tenantId] as const;
 
 /** The key of a reading of the command center: the member, the snapshot (empty is the latest) and the unit. */
@@ -17,7 +20,7 @@ export interface CenterQuery {
 }
 
 /** The command center over a snapshot and a unit: what is asked is part of the key, so a change of unit never shows the figures of another. */
-export function useCommandCenter(query: CenterQuery) {
+export function useCommandCenter(query: CenterQuery, seed?: CommandCenter) {
   const client = useApiClient();
   const { tenant } = useSession();
   return useQuery<CommandCenter>({
@@ -27,6 +30,10 @@ export function useCommandCenter(query: CenterQuery) {
       if (center === undefined) throw new Error('the command center could not be read');
       return center;
     },
+    // The answer that pins a snapshot is written under the key of that snapshot before anything observes it: it must outlive the moment between the two, or pinning would ask again.
+    gcTime: PINNED_KEEP_MS,
+    // The answer that pinned the snapshot is also the data of the reading pinned to it (same snapshot, same unit): pinning asks nothing again, even when the cache drops a reading nobody observes for a moment.
+    ...(seed !== undefined && seed.snapshotId === query.snapshotId && (seed.scope.unitId ?? '') === query.unitId ? { initialData: seed } : {}),
     enabled: tenant !== undefined,
     retry: false,
     // The figures of a snapshot do not change under the reader: no refetch on focus, on reconnect or by age. A newer snapshot is offered by a banner and taken by a click (AC-ST-HOME-001-5).
