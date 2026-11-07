@@ -4,65 +4,1038 @@
     "group": "Ứng dụng điện thoại",
     "title": "Ứng dụng điện thoại: đăng nhập, chọn đơn vị và xác thực lần hai",
     "audience": "Mọi người dùng ứng dụng điện thoại",
-    "outcome": "Đăng nhập vào ứng dụng MACHVON trên điện thoại, chọn đơn vị và vai trò, xác thực lần hai và vào màn hình chính.",
+    "outcome": "Đăng nhập vào ứng dụng Hệ thống quản lý đầu tư công trên điện thoại, chọn đơn vị và vai trò, xác thực lần hai và vào màn hình chính.",
     "module": "MOB",
     "steps": [
-      { "id": "mob-02", "screens": ["MOB-02"], "ops": [{ "clear": true }, { "wait": 2500 }] },
-      { "id": "mob-01", "screens": ["MOB-01"], "ops": [{ "tap": "^Đổi tổ chức" }] },
-      { "id": "mob-04", "screens": ["MOB-04"], "ops": [{ "relaunch": true }, { "sso": true }] },
-      { "id": "mob-03", "screens": ["MOB-03"], "ops": [{ "unit": "Cao Bằng" }] },
-      { "id": "mob-07", "screens": ["MOB-07"], "ops": [{ "mfa": true }] }
+      {
+        "id": "mob-02",
+        "screens": [
+          "MOB-02"
+        ],
+        "ops": [
+          {
+            "clear": true
+          },
+          {
+            "wait": 2500
+          }
+        ]
+      },
+      {
+        "id": "mob-01",
+        "screens": [
+          "MOB-01"
+        ],
+        "ops": [
+          {
+            "tap": "^Đổi tổ chức"
+          }
+        ]
+      },
+      {
+        "id": "mob-04",
+        "screens": [
+          "MOB-04"
+        ],
+        "ops": [
+          {
+            "relaunch": true
+          },
+          {
+            "sso": true
+          }
+        ]
+      },
+      {
+        "id": "mob-03",
+        "screens": [
+          "MOB-03"
+        ],
+        "ops": [
+          {
+            "unit": "Cao Bằng"
+          }
+        ]
+      },
+      {
+        "id": "mob-07",
+        "screens": [
+          "MOB-07"
+        ],
+        "ops": [
+          {
+            "mfa": true
+          }
+        ]
+      }
     ]
   },
   {
-    "id": "m02-trang-chu-du-an-dien-thoai",
+    "id": "m02-trang-chu-dien-thoai",
     "group": "Ứng dụng điện thoại",
-    "title": "Ứng dụng điện thoại: trang chủ lãnh đạo và dự án",
+    "title": "Ứng dụng điện thoại: trang chủ lãnh đạo và các lối tắt",
     "audience": "Lãnh đạo, cán bộ quản lý dự án",
-    "outcome": "Đọc trang chủ lãnh đạo, mở các lối tắt, xem danh sách dự án, bản đồ hiện trường, kế hoạch vốn, dự án chưa nộp báo cáo, vướng mắc theo tuần và chi tiết một dự án.",
+    "outcome": "Mở các lối tắt của trang chủ lãnh đạo: việc của tôi, bảng điều hành cá nhân, cơ cấu nguồn vốn và danh sách dự án chưa nộp báo cáo.",
     "module": "MOB",
     "steps": [
-      { "id": "mob-07", "screens": ["MOB-07"], "ops": [{ "relaunch": true }] },
-      { "id": "mob-58", "screens": ["MOB-58"], "ops": [{ "tap": "^Cơ cấu nguồn vốn", "scroll": true }] },
-      { "id": "mob-08", "screens": ["MOB-08"], "ops": [{ "relaunch": true }, { "tap": "^Việc của tôi", "scroll": true }] },
-      { "id": "mob-40", "screens": ["MOB-40"], "ops": [{ "relaunch": true }, { "tap": "^Dashboard BI của tôi", "scroll": true }] },
-      { "id": "mob-09", "screens": ["MOB-09"], "ops": [{ "relaunch": true }, { "tab": "Dự án" }] },
-      { "id": "mob-11", "screens": ["MOB-11"], "ops": [{ "tap": "^Bản đồ hiện trường" }] },
-      { "id": "mob-12", "screens": ["MOB-12"], "ops": [{ "relaunch": true }, { "tab": "Dự án" }, { "tap": "^Kế hoạch vốn" }] },
-      { "id": "mob-57", "screens": ["MOB-57"], "ops": [{ "back": true }, { "tap": "^Dự án chưa nộp báo cáo" }] },
-      { "id": "mob-59", "screens": ["MOB-59"], "ops": [{ "back": true }, { "tap": "^Vướng mắc theo tuần" }] },
-      { "id": "mob-10", "screens": ["MOB-10"], "ops": [{ "back": true }, { "tap": "^DA-" }] }
+      {
+        "id": "mob-08",
+        "screens": [
+          "MOB-08"
+        ],
+        "ops": [
+          {
+            "tab": "Trang chủ"
+          },
+          {
+            "tap": "^Việc của tôi",
+            "scroll": true
+          }
+        ],
+        "expect": "^Trang chủ cán bộ"
+      },
+      {
+        "id": "mob-40",
+        "screens": [
+          "MOB-40"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "tap": "^Dashboard BI của tôi",
+            "scroll": true
+          }
+        ],
+        "expect": "^Dashboard BI"
+      },
+      {
+        "id": "mob-58",
+        "screens": [
+          "MOB-58"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "tap": "^Cơ cấu nguồn vốn",
+            "scroll": true
+          }
+        ],
+        "expect": "^Cơ cấu nguồn vốn"
+      },
+      {
+        "id": "mob-57",
+        "screens": [
+          "MOB-57"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "tap": "^Dự án chưa nộp báo cáo",
+            "scroll": true
+          }
+        ],
+        "expect": "^Dự án chưa nộp báo cáo"
+      }
     ]
   },
   {
-    "id": "m03-thong-bao-dien-thoai",
+    "id": "m03-du-an-dien-thoai",
     "group": "Ứng dụng điện thoại",
-    "title": "Ứng dụng điện thoại: phê duyệt, thông báo và hội thoại",
-    "audience": "Mọi người dùng ứng dụng điện thoại",
-    "outcome": "Biết danh sách phê duyệt, hộp thông báo, hội thoại gắn với hồ sơ, cài đặt thông báo và màn xin quyền thông báo đẩy.",
+    "title": "Ứng dụng điện thoại: danh sách dự án, chi tiết, bản đồ và kế hoạch vốn",
+    "audience": "Lãnh đạo, cán bộ quản lý dự án",
+    "outcome": "Xem danh sách dự án trong phạm vi của mình, mở chi tiết một dự án, bản đồ hiện trường, kế hoạch vốn và vướng mắc theo tuần, và biết màn hình hiện gì khi tìm không thấy.",
     "module": "MOB",
     "steps": [
-      { "id": "mob-23", "screens": ["MOB-23"], "ops": [{ "relaunch": true }, { "tab": "Phê duyệt" }] },
-      { "id": "mob-32", "screens": ["MOB-32"], "ops": [{ "tab": "Thông báo" }] },
-      { "id": "mob-35", "screens": ["MOB-35"], "ops": [{ "tap": "^Hội thoại gắn với hồ sơ" }] },
-      { "id": "mob-34", "screens": ["MOB-34"], "ops": [{ "back": true }, { "tap": "^Cài đặt thông báo" }] },
-      { "id": "mob-05", "screens": ["MOB-05"], "ops": [{ "relaunch": true }, { "tab": "Cá nhân" }, { "tap": "^Thông báo đẩy", "scroll": true }] }
+      {
+        "id": "mob-09",
+        "screens": [
+          "MOB-09"
+        ],
+        "ops": [
+          {
+            "tab": "Dự án"
+          }
+        ],
+        "expect": "^Danh sách dự án"
+      },
+      {
+        "id": "mob-10",
+        "screens": [
+          "MOB-10"
+        ],
+        "ops": [
+          {
+            "tap": "^DA-"
+          }
+        ],
+        "expect": "^Chi tiết dự án"
+      },
+      {
+        "id": "mob-11",
+        "screens": [
+          "MOB-11"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "tap": "^Bản đồ hiện trường"
+          }
+        ],
+        "expect": "^Bản đồ hiện trường"
+      },
+      {
+        "id": "mob-12",
+        "screens": [
+          "MOB-12"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "tap": "^Kế hoạch vốn"
+          }
+        ],
+        "expect": "^Kế hoạch vốn"
+      },
+      {
+        "id": "mob-59",
+        "screens": [
+          "MOB-59"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "tap": "^Vướng mắc theo tuần"
+          }
+        ],
+        "expect": "^Vướng mắc theo tuần"
+      },
+      {
+        "id": "mob-52",
+        "screens": [
+          "MOB-52"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "fill": {
+              "^Tìm theo mã": "khong co du an nay"
+            }
+          },
+          {
+            "hideKeyboard": true
+          }
+        ],
+        "expect": "^Chưa có dữ liệu",
+        "heading": "Khi tìm không thấy",
+        "text": "Khi từ khóa tìm kiếm hoặc bộ lọc không khớp dự án nào, màn hình không để trống mà hiện thẻ Chưa có dữ liệu, nêu rõ bộ lọc đang dùng và nút Xóa bộ lọc để quay về toàn bộ danh sách. Cùng một thẻ này hiện ở mọi danh sách của ứng dụng khi không có gì để xem.",
+        "note": "Thẻ này là màn hình Trống không có dữ liệu của thiết kế; ứng dụng dùng nó ngay trong từng danh sách chứ không mở thành một trang riêng."
+      }
     ]
   },
   {
-    "id": "m04-tai-khoan-dien-thoai",
+    "id": "m04-bao-cao-thang-dien-thoai",
     "group": "Ứng dụng điện thoại",
-    "title": "Ứng dụng điện thoại: tài khoản, thiết bị, ngoại tuyến và trợ giúp",
-    "audience": "Mọi người dùng ứng dụng điện thoại",
-    "outcome": "Biết màn hình tài khoản, thiết bị và đăng xuất, hàng đợi gửi, làm việc ngoại tuyến, tìm kiếm trong hệ thống và trợ giúp.",
+    "title": "Ứng dụng điện thoại: lập báo cáo tháng từ bản nháp",
+    "audience": "Cán bộ ban quản lý dự án",
+    "outcome": "Chọn dự án và kỳ báo cáo, tạo bản nháp, đăng ký tháng sau, viết thuyết minh, đính kèm chứng từ và xem danh sách bản nháp trên máy.",
     "module": "MOB",
     "steps": [
-      { "id": "mob-47", "screens": ["MOB-47"], "ops": [{ "relaunch": true }, { "tab": "Cá nhân" }] },
-      { "id": "mob-49", "screens": ["MOB-49"], "ops": [{ "tap": "^Thiết bị và đăng xuất" }] },
-      { "id": "mob-41", "screens": ["MOB-41"], "ops": [{ "back": true }, { "tap": "^Hàng đợi gửi" }] },
-      { "id": "mob-43", "screens": ["MOB-43"], "ops": [{ "back": true }, { "tap": "^Làm việc ngoại tuyến" }] },
-      { "id": "mob-51", "screens": ["MOB-51"], "ops": [{ "back": true }, { "tap": "^Tìm kiếm trong hệ thống" }] },
-      { "id": "mob-50", "screens": ["MOB-50"], "ops": [{ "back": true }, { "tap": "^Trợ giúp và phản hồi" }] }
+      {
+        "id": "mob-13",
+        "screens": [
+          "MOB-13"
+        ],
+        "ops": [
+          {
+            "tab": "Dự án"
+          },
+          {
+            "tap": "^Báo cáo tháng",
+            "open": "^Báo cáo và công việc hiện trường"
+          }
+        ],
+        "expect": "^Chọn kỳ báo cáo"
+      },
+      {
+        "id": "mob-22",
+        "screens": [
+          "MOB-22"
+        ],
+        "ops": [
+          {
+            "tap": "^Danh sách nháp"
+          }
+        ],
+        "expect": "^Danh sách nháp"
+      },
+      {
+        "id": "mob-18",
+        "screens": [
+          "MOB-18"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "pause": true
+          },
+          {
+            "tap": "^(Tạo bản nháp|Mở bản nháp đã có)"
+          },
+          {
+            "tap": "^Tiếp tục"
+          },
+          {
+            "tap": "^Tiếp tục"
+          },
+          {
+            "tap": "^Tiếp tục"
+          },
+          {
+            "tap": "^Tiếp tục"
+          },
+          {
+            "resume": true
+          }
+        ],
+        "expect": "^Đăng ký tháng sau"
+      },
+      {
+        "id": "mob-55",
+        "screens": [
+          "MOB-55"
+        ],
+        "ops": [
+          {
+            "tap": "^Tiếp tục"
+          }
+        ],
+        "expect": "^Thuyết minh"
+      },
+      {
+        "id": "mob-19",
+        "screens": [
+          "MOB-19"
+        ],
+        "ops": [
+          {
+            "tap": "^Tiếp tục"
+          }
+        ],
+        "expect": "^(Tệp đính kèm|Đính kèm)"
+      }
+    ],
+    "needs": [
+      "một dự án",
+      "một kỳ báo cáo đang mở",
+      "kế hoạch vốn của dự án"
+    ]
+  },
+  {
+    "id": "m05-vuong-mac-hien-truong-dien-thoai",
+    "group": "Ứng dụng điện thoại",
+    "title": "Ứng dụng điện thoại: ghi nhận vướng mắc tại hiện trường",
+    "audience": "Cán bộ hiện trường, cán bộ ban quản lý dự án",
+    "outcome": "Ghi nhận một vướng mắc có ảnh và vị trí, cho phép camera và vị trí khi ứng dụng hỏi, gửi báo cáo và theo dõi hạn xử lý.",
+    "module": "MOB",
+    "steps": [
+      {
+        "id": "mob-28",
+        "screens": [
+          "MOB-28"
+        ],
+        "ops": [
+          {
+            "tab": "Dự án"
+          },
+          {
+            "tap": "^Ghi nhận vướng mắc hiện trường",
+            "open": "^Báo cáo và công việc hiện trường"
+          }
+        ],
+        "expect": "^Ghi nhận vướng mắc"
+      },
+      {
+        "id": "mob-29",
+        "screens": [
+          "MOB-29"
+        ],
+        "ops": [
+          {
+            "tap": "^Chụp hoặc chọn ảnh"
+          }
+        ],
+        "expect": "^Ảnh và chú thích"
+      },
+      {
+        "id": "mob-06",
+        "screens": [
+          "MOB-06"
+        ],
+        "ops": [
+          {
+            "tap": "^Chụp ảnh"
+          }
+        ],
+        "expect": "^Quyền camera và vị trí"
+      },
+      {
+        "id": "mob-30",
+        "screens": [
+          "MOB-30"
+        ],
+        "ops": [
+          {
+            "tap": "^Để sau"
+          },
+          {
+            "back": true
+          },
+          {
+            "tap": "^Vị trí và kiểm tra trước khi gửi"
+          }
+        ],
+        "expect": "^Vị trí và kiểm tra"
+      },
+      {
+        "id": "mob-31",
+        "screens": [
+          "MOB-31"
+        ],
+        "ops": [
+          {
+            "fill": {
+              "^Vị trí nhập tay": "Km3 + 200 duong tinh 205"
+            }
+          },
+          {
+            "hideKeyboard": true
+          },
+          {
+            "tap": "^Dùng nơi này"
+          },
+          {
+            "tap": "^Gửi báo cáo"
+          }
+        ],
+        "expect": "^Theo dõi vướng mắc"
+      }
+    ],
+    "needs": [
+      "một dự án và đơn vị chịu trách nhiệm",
+      "các nhóm vướng mắc của danh mục"
+    ]
+  },
+  {
+    "id": "m06-hop-dong-nhat-ky-dien-thoai",
+    "group": "Ứng dụng điện thoại",
+    "title": "Ứng dụng điện thoại: hợp đồng, nhật ký công trường, khối lượng và chất lượng",
+    "audience": "Cán bộ giám sát hiện trường, nhà thầu",
+    "outcome": "Mở hợp đồng và các mốc, viết nhật ký công trường, ghi nhận khối lượng và kiểm tra chất lượng có bằng chứng, dùng nhật ký ngoại tuyến và chụp ảnh hiện trường.",
+    "module": "MOB",
+    "steps": [
+      {
+        "id": "mob-61",
+        "screens": [
+          "MOB-61"
+        ],
+        "ops": [
+          {
+            "tab": "Dự án"
+          },
+          {
+            "tap": "^Hợp đồng và nhật ký công trường",
+            "open": "^Báo cáo và công việc hiện trường"
+          }
+        ],
+        "expect": "^Hợp đồng và mốc hiện trường"
+      },
+      {
+        "id": "mob-62",
+        "screens": [
+          "MOB-62"
+        ],
+        "ops": [
+          {
+            "tap": "^Viết nhật ký công trường"
+          }
+        ],
+        "expect": "^Nhật ký công trường"
+      },
+      {
+        "id": "mob-63",
+        "screens": [
+          "MOB-63"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "tap": "^Ghi nhận khối lượng"
+          }
+        ],
+        "expect": "^Ghi nhận khối lượng và bằng chứng"
+      },
+      {
+        "id": "mob-64",
+        "screens": [
+          "MOB-64"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "tap": "^Kiểm tra chất lượng"
+          }
+        ],
+        "expect": "^Kiểm tra chất lượng hiện trường"
+      },
+      {
+        "id": "qms-09",
+        "screens": [
+          "QMS-09"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "tap": "^Nhật ký ngoại tuyến"
+          }
+        ],
+        "expect": "^Nhật ký ngoại tuyến"
+      },
+      {
+        "id": "qms-10",
+        "screens": [
+          "QMS-10"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "tap": "^Chụp ảnh hiện trường"
+          }
+        ],
+        "expect": "^Chụp ảnh hiện trường"
+      }
+    ],
+    "needs": [
+      "một nhà thầu",
+      "một hợp đồng đang thực hiện có mốc và khối lượng"
+    ]
+  },
+  {
+    "id": "m07-nghiem-thu-ban-giao-dien-thoai",
+    "group": "Ứng dụng điện thoại",
+    "title": "Ứng dụng điện thoại: bàn giao, giải phóng mặt bằng, nghiệm thu và văn bản đến",
+    "audience": "Cán bộ ban quản lý dự án, người duyệt nghiệm thu",
+    "outcome": "Xem bàn giao và bảo hành, nhiệm vụ giải phóng mặt bằng tại hiện trường, duyệt nghiệm thu và xử lý văn bản đến.",
+    "module": "MOB",
+    "steps": [
+      {
+        "id": "mob-66",
+        "screens": [
+          "MOB-66"
+        ],
+        "ops": [
+          {
+            "tab": "Dự án"
+          },
+          {
+            "tap": "^Bàn giao và bảo hành",
+            "open": "^Báo cáo và công việc hiện trường"
+          }
+        ],
+        "expect": "^Bàn giao và bảo hành"
+      },
+      {
+        "id": "mob-68",
+        "screens": [
+          "MOB-68"
+        ],
+        "ops": [
+          {
+            "tab": "Dự án"
+          },
+          {
+            "tap": "^Giải phóng mặt bằng hiện trường",
+            "open": "^Báo cáo và công việc hiện trường"
+          }
+        ],
+        "expect": "^Giải phóng mặt bằng"
+      },
+      {
+        "id": "mob-65",
+        "screens": [
+          "MOB-65"
+        ],
+        "ops": [
+          {
+            "pause": true
+          },
+          {
+            "tab": "Phê duyệt"
+          },
+          {
+            "tap": "^Duyệt nghiệm thu"
+          },
+          {
+            "resume": true
+          }
+        ],
+        "expect": "^Nghiệm thu chất lượng"
+      },
+      {
+        "id": "doc-23",
+        "screens": [
+          "DOC-23"
+        ],
+        "ops": [
+          {
+            "pause": true
+          },
+          {
+            "back": true
+          },
+          {
+            "tap": "^Văn bản đến cần xử lý"
+          },
+          {
+            "resume": true
+          }
+        ],
+        "expect": "^Văn bản đến cần xử lý"
+      }
+    ],
+    "needs": [
+      "biên bản nghiệm thu chờ duyệt",
+      "dòng bàn giao",
+      "hộ bị ảnh hưởng của một dự án",
+      "văn bản đến"
+    ]
+  },
+  {
+    "id": "m08-hoi-dap-ai-dien-thoai",
+    "group": "Ứng dụng điện thoại",
+    "title": "Ứng dụng điện thoại: hỏi đáp có nguồn và phân tích nhà thầu",
+    "audience": "Cán bộ ban quản lý dự án, lãnh đạo",
+    "outcome": "Hỏi đáp về hồ sơ và nhận câu trả lời kèm dẫn chứng, đọc tóm tắt phân tích nhà thầu và mở dẫn chứng gốc.",
+    "module": "MOB",
+    "steps": [
+      {
+        "id": "mob-37",
+        "screens": [
+          "MOB-37"
+        ],
+        "ops": [
+          {
+            "tab": "Dự án"
+          },
+          {
+            "tap": "^Hỏi đáp có nguồn về hồ sơ",
+            "open": "^Báo cáo và công việc hiện trường"
+          }
+        ],
+        "expect": "^Hỏi đáp có nguồn"
+      },
+      {
+        "id": "mob-38",
+        "screens": [
+          "MOB-38"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "tap": "^Phân tích nhà thầu"
+          }
+        ],
+        "expect": "^Phân tích nhà thầu"
+      },
+      {
+        "id": "mob-39",
+        "screens": [
+          "MOB-39"
+        ],
+        "ops": [
+          {
+            "tap": "^Tóm tắt"
+          },
+          {
+            "tap": "^Dẫn chứng gốc"
+          }
+        ],
+        "expect": "^Dẫn chứng gốc"
+      }
+    ],
+    "needs": [
+      "gói hồ sơ đã lập chỉ mục",
+      "một lượt phân tích nhà thầu có phát hiện và dẫn chứng"
+    ]
+  },
+  {
+    "id": "m09-thong-bao-hoi-thoai-dien-thoai",
+    "group": "Ứng dụng điện thoại",
+    "title": "Ứng dụng điện thoại: hộp thông báo và hội thoại",
+    "audience": "Mọi người dùng ứng dụng điện thoại",
+    "outcome": "Đọc hộp thông báo và chi tiết một thông báo, chỉnh cài đặt thông báo, mở hội thoại gắn với hồ sơ và xem một cuộc trao đổi.",
+    "module": "MOB",
+    "steps": [
+      {
+        "id": "mob-32",
+        "screens": [
+          "MOB-32"
+        ],
+        "ops": [
+          {
+            "tab": "Thông báo"
+          }
+        ],
+        "expect": "^Hộp thông báo"
+      },
+      {
+        "id": "mob-33",
+        "screens": [
+          "MOB-33"
+        ],
+        "ops": [
+          {
+            "tap": "^Thông báo"
+          }
+        ],
+        "expect": "^Chi tiết thông báo"
+      },
+      {
+        "id": "mob-34",
+        "screens": [
+          "MOB-34"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "tap": "^Cài đặt thông báo"
+          }
+        ],
+        "expect": "^Cài đặt thông báo"
+      },
+      {
+        "id": "mob-35",
+        "screens": [
+          "MOB-35"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "tap": "^Hội thoại gắn với hồ sơ"
+          }
+        ],
+        "expect": "^Hội thoại"
+      },
+      {
+        "id": "mob-36",
+        "screens": [
+          "MOB-36"
+        ],
+        "ops": [
+          {
+            "tap": "^Hội thoại|^Trao đổi"
+          }
+        ],
+        "expect": "^Trao đổi theo hồ sơ"
+      }
+    ],
+    "needs": [
+      "thông báo gửi tới người dùng",
+      "một hội thoại gắn với hồ sơ"
+    ]
+  },
+  {
+    "id": "m10-tai-khoan-dien-thoai",
+    "group": "Ứng dụng điện thoại",
+    "title": "Ứng dụng điện thoại: tài khoản, đổi đơn vị, thiết bị, thông báo đẩy, trợ giúp và tìm kiếm",
+    "audience": "Mọi người dùng ứng dụng điện thoại",
+    "outcome": "Xem tài khoản, đổi đơn vị hoặc vai trò, quản lý thiết bị và đăng xuất, bật thông báo đẩy, gửi yêu cầu trợ giúp và tìm kiếm trong hệ thống.",
+    "module": "MOB",
+    "steps": [
+      {
+        "id": "mob-47",
+        "screens": [
+          "MOB-47"
+        ],
+        "ops": [
+          {
+            "tab": "Cá nhân"
+          }
+        ]
+      },
+      {
+        "id": "mob-48",
+        "screens": [
+          "MOB-48"
+        ],
+        "ops": [
+          {
+            "tap": "^Đổi tổ chức hoặc vai trò",
+            "scroll": true
+          }
+        ]
+      },
+      {
+        "id": "mob-49",
+        "screens": [
+          "MOB-49"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "tap": "^Thiết bị và đăng xuất",
+            "scroll": true
+          }
+        ],
+        "expect": "^Thiết bị và đăng xuất"
+      },
+      {
+        "id": "mob-05",
+        "screens": [
+          "MOB-05"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "tap": "^Thông báo đẩy",
+            "scroll": true
+          }
+        ],
+        "expect": "^Thông báo đẩy"
+      },
+      {
+        "id": "mob-50",
+        "screens": [
+          "MOB-50"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "tap": "^Trợ giúp và phản hồi",
+            "scroll": true
+          }
+        ],
+        "expect": "^Trợ giúp"
+      },
+      {
+        "id": "mob-51",
+        "screens": [
+          "MOB-51"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "tap": "^Tìm kiếm trong hệ thống",
+            "scroll": true
+          }
+        ],
+        "expect": "^Tìm kiếm"
+      }
+    ]
+  },
+  {
+    "id": "m11-ngoai-tuyen-dien-thoai",
+    "group": "Ứng dụng điện thoại",
+    "title": "Ứng dụng điện thoại: làm việc ngoại tuyến, hàng đợi gửi và xử lý xung đột",
+    "audience": "Cán bộ hiện trường",
+    "outcome": "Biết việc nào làm được khi mất mạng, xem hàng đợi các thao tác chưa gửi và chọn bản đúng khi một thao tác bị xung đột với máy chủ.",
+    "module": "MOB",
+    "steps": [
+      {
+        "id": "mob-43",
+        "screens": [
+          "MOB-43"
+        ],
+        "ops": [
+          {
+            "tab": "Cá nhân"
+          },
+          {
+            "tap": "^Làm việc ngoại tuyến",
+            "scroll": true
+          }
+        ]
+      },
+      {
+        "id": "mob-41",
+        "screens": [
+          "MOB-41"
+        ],
+        "ops": [
+          {
+            "back": true
+          },
+          {
+            "tap": "^Hàng đợi gửi",
+            "scroll": true
+          }
+        ]
+      },
+      {
+        "id": "mob-42",
+        "screens": [
+          "MOB-42"
+        ],
+        "ops": [
+          {
+            "tap": "^Xem và chọn"
+          }
+        ]
+      }
+    ],
+    "prepare": [
+      {
+        "run": "conflict"
+      }
+    ],
+    "needs": [
+      "một thao tác ghi nhật ký làm khi ngoại tuyến bị xung đột với bản trên máy chủ"
+    ]
+  },
+  {
+    "id": "m12-su-co-dien-thoai",
+    "group": "Ứng dụng điện thoại",
+    "title": "Ứng dụng điện thoại: khi không đủ quyền, giấy phép hết hạn, lỗi dịch vụ, bảo trì và hết phiên",
+    "audience": "Mọi người dùng ứng dụng điện thoại",
+    "outcome": "Hiểu năm màn hình báo sự cố: không đủ quyền, giấy phép hết hạn, lỗi dịch vụ có nút thử lại, thông báo bảo trì hoặc cập nhật bắt buộc và hết phiên làm việc.",
+    "module": "MOB",
+    "steps": [
+      {
+        "id": "mob-45",
+        "screens": [
+          "MOB-45"
+        ],
+        "ops": [
+          {
+            "run": "denied"
+          },
+          {
+            "clear": true
+          },
+          {
+            "sso": true
+          },
+          {
+            "unit": "Cao Bằng"
+          },
+          {
+            "mfa": true
+          },
+          {
+            "tab": "Dự án"
+          },
+          {
+            "tap": "^Theo dõi thanh toán",
+            "open": "^Báo cáo và công việc hiện trường"
+          }
+        ]
+      },
+      {
+        "id": "mob-46",
+        "screens": [
+          "MOB-46"
+        ],
+        "ops": [
+          {
+            "run": "licence-expired"
+          },
+          {
+            "relaunch": true
+          }
+        ]
+      },
+      {
+        "id": "mob-53",
+        "screens": [
+          "MOB-53"
+        ],
+        "ops": [
+          {
+            "run": "service-down"
+          },
+          {
+            "relaunch": true
+          }
+        ]
+      },
+      {
+        "id": "mob-54",
+        "screens": [
+          "MOB-54"
+        ],
+        "ops": [
+          {
+            "run": "maintenance"
+          },
+          {
+            "relaunch": true
+          },
+          {
+            "wait": 3000
+          }
+        ]
+      },
+      {
+        "id": "mob-44",
+        "screens": [
+          "MOB-44"
+        ],
+        "ops": [
+          {
+            "run": "ok"
+          },
+          {
+            "run": "revoke-session nobody"
+          },
+          {
+            "relaunch": true
+          }
+        ]
+      }
+    ],
+    "needs": [
+      "một tài khoản không có quyền với màn hình",
+      "giấy phép của tổ chức hết hạn",
+      "phiên bị thu hồi",
+      "dịch vụ trả lỗi",
+      "cửa sổ bảo trì"
     ]
   }
 ]

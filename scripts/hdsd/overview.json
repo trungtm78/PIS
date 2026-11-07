@@ -1,6 +1,6 @@
 {
   "valueTitle": "Hệ thống mang lại gì cho đơn vị và lãnh đạo",
-  "valueLead": "MACHVON gom toàn bộ công việc quản lý đầu tư công của một tỉnh, thành phố hoặc bộ ngành vào một nơi: từ khi hình thành dự án, bố trí vốn, chọn nhà thầu, thi công, thanh toán qua Kho bạc cho đến quyết toán, bàn giao và bảo hành. Mọi con số và mọi quyết định đều có người chịu trách nhiệm, có phiên bản, có dấu vết và có thể truy ngược về hồ sơ gốc. Các mục tiêu dưới đây là mục tiêu thiết kế và tiêu chí nghiệm thu của hệ thống; kết quả thực tế được đo trong giai đoạn chạy thử cùng khách hàng.",
+  "valueLead": "Hệ thống quản lý đầu tư công gom toàn bộ công việc quản lý đầu tư công của một tỉnh, thành phố hoặc bộ ngành vào một nơi: từ khi hình thành dự án, bố trí vốn, chọn nhà thầu, thi công, thanh toán qua Kho bạc cho đến quyết toán, bàn giao và bảo hành. Mọi con số và mọi quyết định đều có người chịu trách nhiệm, có phiên bản, có dấu vết và có thể truy ngược về hồ sơ gốc. Các mục tiêu dưới đây là mục tiêu thiết kế và tiêu chí nghiệm thu của hệ thống; kết quả thực tế được đo trong giai đoạn chạy thử cùng khách hàng.",
   "values": [
     {
       "title": "Một nguồn số liệu duy nhất cho điều hành",
@@ -179,7 +179,7 @@
     }
   ],
   "governanceTitle": "Cơ chế quản trị và kiểm soát",
-  "governanceLead": "Quản trị trong MACHVON không phải là một màn hình riêng, mà là các nguyên tắc được cài vào cách hệ thống làm việc. Bảng dưới đây liệt kê từng cơ chế, ý nghĩa với người lãnh đạo, và nơi bạn có thể nhìn thấy nó trong hệ thống.",
+  "governanceLead": "Quản trị trong hệ thống không phải là một màn hình riêng, mà là các nguyên tắc được cài vào cách hệ thống làm việc. Bảng dưới đây liệt kê từng cơ chế, ý nghĩa với người lãnh đạo, và nơi bạn có thể nhìn thấy nó trong hệ thống.",
   "governance": [
     {
       "name": "Cách ly dữ liệu giữa các tổ chức",

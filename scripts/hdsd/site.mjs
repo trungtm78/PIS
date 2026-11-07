@@ -92,7 +92,7 @@ document.querySelectorAll('button.at').forEach((button) => button.addEventListen
   clip.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }));
 </script>`;
-  return shell({ title: `${flow.title} · Hướng dẫn sử dụng MACHVON`, body });
+  return shell({ title: `${flow.title} · Hướng dẫn sử dụng Hệ thống quản lý đầu tư công`, body });
 }
 
 /** The table of the screens: each one with the chapter and the moment that shows it, or the reason it is not filmed. */
@@ -120,7 +120,7 @@ export function screensHtml(catalogue, coverage, reasons = new Map()) {
 <p class="meta">${coverage.covered} trên ${coverage.total} màn hình đã có đoạn hướng dẫn trong clip. Các màn còn lại ghi rõ lý do chưa quay.</p>
 ${sections}
 </main>`;
-  return shell({ title: 'Tra cứu màn hình · Hướng dẫn sử dụng MACHVON', body });
+  return shell({ title: 'Tra cứu màn hình · Hướng dẫn sử dụng Hệ thống quản lý đầu tư công', body });
 }
 
 /** The first page: what the system is, how to start, and the chapters in the order of the work. */

@@ -3,12 +3,13 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadChapters } from './chapters.mjs';
 import { REPO_ROOT, loadFlow } from './lib.mjs';
+import { gapsFound, loadNotFilmed, notFilmedProblems, phoneGaps, reasonsOf } from './notfilmed.mjs';
 import { chapterHtml, coverageOf, indexHtml, screensById, screensHtml } from './site.mjs';
 
 const CATALOGUE = join('Design', 'MACHVON_Design', '03_Engineering', 'screen_catalog.json');
 
 /** Writes the pages of the guide from the flows, the measured timelines and the catalogue of screens. */
-export function build(root = REPO_ROOT, log = console.log) {
+export function build(root = REPO_ROOT, log = console.log, { strict = false } = {}) {
   const docs = join(root, 'docs', 'hdsd');
   const out = join(docs, 'machvon');
   mkdirSync(out, { recursive: true });
@@ -20,8 +21,10 @@ export function build(root = REPO_ROOT, log = console.log) {
     .map((chapter) => loadFlow(chapter.id, root));
   const timelines = new Map(flows.map((flow) => [flow.id, JSON.parse(readFileSync(join(out, `${flow.id}.timeline.json`), 'utf8')).timeline]));
   const coverage = coverageOf(catalogue, flows, timelines);
-  const reasonsFile = join(root, 'scripts', 'hdsd', 'not-filmed.json');
-  const reasons = new Map(existsSync(reasonsFile) ? Object.entries(JSON.parse(readFileSync(reasonsFile, 'utf8'))) : []);
+  const entries = loadNotFilmed(root);
+  const problems = notFilmedProblems(entries, catalogue);
+  if (problems.length > 0) throw new Error('not-filmed.json: ' + problems.join('; '));
+  const reasons = reasonsOf(entries);
 
   flows.forEach((flow, index) => {
     const timeline = timelines.get(flow.id);
@@ -33,8 +36,11 @@ export function build(root = REPO_ROOT, log = console.log) {
   const intro = JSON.parse(readFileSync(join(root, 'scripts', 'hdsd', 'site.json'), 'utf8'));
   writeFileSync(join(docs, 'Huong-dan-su-dung-MACHVON.html'), indexHtml({ chapters, coverage, intro }));
   const missing = catalogue.filter((screen) => !coverage.shown.has(screen.id) && !reasons.has(screen.id)).length;
+  const gaps = phoneGaps(catalogue, coverage, root);
+  if (gapsFound(gaps)) log('phone screens: ' + JSON.stringify(gaps));
+  if (strict && gapsFound(gaps)) throw new Error('the phone part of the guide has gaps: ' + JSON.stringify(gaps));
   log(`${flows.length} chapters; ${coverage.covered}/${coverage.total} screens shown; ${reasons.size} with a reason; ${missing} neither shown nor explained`);
   return { chapters: flows.length, covered: coverage.covered, total: coverage.total, missing };
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) build();
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) build(REPO_ROOT, console.log, { strict: process.argv.includes('--strict') });

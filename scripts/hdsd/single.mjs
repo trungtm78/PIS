@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { loadChapters } from './chapters.mjs';
 import { overviewHtml } from './overview.mjs';
 import { REPO_ROOT, cacheDir, loadFlow, mmss } from './lib.mjs';
+import { gapsFound, loadNotFilmed, notFilmedProblems, phoneGaps, reasonsOf } from './notfilmed.mjs';
 import { coverageOf, screensById } from './site.mjs';
 import { FFMPEG } from './tts.mjs';
 
@@ -177,7 +178,7 @@ section[id]{scroll-margin-top:60px}h4{margin:1.2em 0 .3em}details.steps>summary,
 </style>
 </head>
 <body>
-<header class="top"><strong>MACHVON</strong><nav><a href="#gioi-thieu">Giới thiệu</a>${about === undefined ? '' : '<a href="#gia-tri">Giá trị</a><a href="#chuoi-nghiep-vu">Nghiệp vụ</a><a href="#quan-tri">Quản trị</a><a href="#phan-he">Phân hệ</a>'}<a href="#vai-tro">Vai trò</a><a href="#muc-luc">Các chương</a><a href="#thuc-don">Thực đơn</a><a href="#tra-cuu">Tra cứu màn hình</a><a href="#hoi-dap">Hỏi đáp</a><a href="#thuat-ngu">Thuật ngữ</a></nav></header>
+<header class="top"><strong>Hệ thống quản lý đầu tư công</strong><nav><a href="#gioi-thieu">Giới thiệu</a>${about === undefined ? '' : '<a href="#gia-tri">Giá trị</a><a href="#chuoi-nghiep-vu">Nghiệp vụ</a><a href="#quan-tri">Quản trị</a><a href="#phan-he">Phân hệ</a>'}<a href="#vai-tro">Vai trò</a><a href="#muc-luc">Các chương</a><a href="#thuc-don">Thực đơn</a><a href="#tra-cuu">Tra cứu màn hình</a><a href="#hoi-dap">Hỏi đáp</a><a href="#thuat-ngu">Thuật ngữ</a></nav></header>
 <main class="chapter home">
 <section class="hero"><h1>${escapeHtml(intro.title)}</h1><p>${escapeHtml(intro.lead)}</p><span class="badge">${chapters.length} clip hướng dẫn · ${coverage.covered}/${coverage.total} màn hình · bản ${escapeHtml(built)}</span></section>
 <section id="gioi-thieu"><h2>Giới thiệu</h2>${intro.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('\n')}</section>
@@ -205,7 +206,7 @@ ${glossary}
 }
 
 /** Gathers the chapters that were filmed and writes the one file. */
-export function buildSingle({ root = REPO_ROOT, cache = cacheDir(), out, log = console.log } = {}) {
+export function buildSingle({ root = REPO_ROOT, cache = cacheDir(), out, log = console.log, strict = false } = {}) {
   const docs = join(root, 'docs', 'hdsd');
   const machvon = join(docs, 'machvon');
   const catalogue = JSON.parse(readFileSync(join(root, CATALOGUE), 'utf8'));
@@ -219,8 +220,13 @@ export function buildSingle({ root = REPO_ROOT, cache = cacheDir(), out, log = c
     });
   const timelines = new Map(chapters.map((chapter) => [chapter.id, chapter.timeline]));
   const coverage = coverageOf(catalogue, chapters.map((chapter) => chapter.flow), timelines);
-  const reasonsFile = join(root, 'scripts', 'hdsd', 'not-filmed.json');
-  const reasons = new Map(existsSync(reasonsFile) ? Object.entries(JSON.parse(readFileSync(reasonsFile, 'utf8'))) : []);
+  const entries = loadNotFilmed(root);
+  const problems = notFilmedProblems(entries, catalogue);
+  if (problems.length > 0) throw new Error('not-filmed.json: ' + problems.join('; '));
+  const reasons = reasonsOf(entries);
+  const gaps = phoneGaps(catalogue, coverage, root);
+  if (gapsFound(gaps)) log('phone screens: ' + JSON.stringify(gaps));
+  if (strict && gapsFound(gaps)) throw new Error('the phone part of the guide has gaps: ' + JSON.stringify(gaps));
   const intro = JSON.parse(readFileSync(join(root, 'scripts', 'hdsd', 'site.json'), 'utf8'));
   const overviewFile = join(root, 'scripts', 'hdsd', 'overview.json');
   const overview = existsSync(overviewFile) ? JSON.parse(readFileSync(overviewFile, 'utf8')) : undefined;
@@ -245,4 +251,4 @@ export function buildSingle({ root = REPO_ROOT, cache = cacheDir(), out, log = c
   return { target, megabytes, chapters: chapters.length, covered: coverage.covered, total: coverage.total };
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) buildSingle();
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) buildSingle({ strict: process.argv.includes('--strict') });

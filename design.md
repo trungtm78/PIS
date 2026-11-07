@@ -86,3 +86,8 @@ Tokens above · Be Vietnam Pro · the 3-layer header · `ContextBar` on every nu
 
 ## What pages may differ on
 Layout inside the app workbench family (list, record workspace, form, dashboard, ledger) and which components they compose. Never colours, fonts, radius or the header.
+
+## Product name
+Displayed name (web shell, tab title, phone app label, guide text and voice): **Hệ thống quản lý đầu tư công**; English: **Public Investment Management System**.
+MACHVON is the internal code name only (package, file and directory names, ids, env vars, tokens, URLs, `Huong-dan-su-dung-MACHVON.html`, `docs/hdsd/machvon`); it is never shown to a customer or read aloud.
+In guide narration the first mention of a chapter uses the full name, later mentions say "hệ thống".

@@ -19,7 +19,7 @@
         "IAM-01"
       ],
       "heading": "Bấm Đăng nhập",
-      "text": "Hệ thống chuyển sang trang xác thực của tổ chức, nơi bạn nhập tài khoản và mật khẩu. Mật khẩu chỉ được nhập ở đó, hệ thống MACHVON không bao giờ nhìn thấy mật khẩu của bạn. Xác thực xong, bạn được đưa trở lại hệ thống.",
+      "text": "Hệ thống chuyển sang trang xác thực của tổ chức, nơi bạn nhập tài khoản và mật khẩu. Mật khẩu chỉ được nhập ở đó, hệ thống không bao giờ nhìn thấy mật khẩu của bạn. Xác thực xong, bạn được đưa trở lại hệ thống.",
       "note": "Trong môi trường quay clip, nhà cung cấp xác thực thử đăng nhập ngay nên không hiện trang nhập mật khẩu. Hệ thống thật hiện trang đăng nhập của tổ chức bạn."
     },
     {

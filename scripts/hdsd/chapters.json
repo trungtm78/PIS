@@ -1089,17 +1089,57 @@
     "module": "MOB"
   },
   {
-    "id": "m02-trang-chu-du-an-dien-thoai",
+    "id": "m02-trang-chu-dien-thoai",
     "kind": "mobile",
     "module": "MOB"
   },
   {
-    "id": "m03-thong-bao-dien-thoai",
+    "id": "m03-du-an-dien-thoai",
     "kind": "mobile",
     "module": "MOB"
   },
   {
-    "id": "m04-tai-khoan-dien-thoai",
+    "id": "m04-bao-cao-thang-dien-thoai",
+    "kind": "mobile",
+    "module": "MOB"
+  },
+  {
+    "id": "m05-vuong-mac-hien-truong-dien-thoai",
+    "kind": "mobile",
+    "module": "MOB"
+  },
+  {
+    "id": "m06-hop-dong-nhat-ky-dien-thoai",
+    "kind": "mobile",
+    "module": "MOB"
+  },
+  {
+    "id": "m07-nghiem-thu-ban-giao-dien-thoai",
+    "kind": "mobile",
+    "module": "MOB"
+  },
+  {
+    "id": "m08-hoi-dap-ai-dien-thoai",
+    "kind": "mobile",
+    "module": "MOB"
+  },
+  {
+    "id": "m09-thong-bao-hoi-thoai-dien-thoai",
+    "kind": "mobile",
+    "module": "MOB"
+  },
+  {
+    "id": "m10-tai-khoan-dien-thoai",
+    "kind": "mobile",
+    "module": "MOB"
+  },
+  {
+    "id": "m11-ngoai-tuyen-dien-thoai",
+    "kind": "mobile",
+    "module": "MOB"
+  },
+  {
+    "id": "m12-su-co-dien-thoai",
     "kind": "mobile",
     "module": "MOB"
   }

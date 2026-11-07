@@ -17,7 +17,7 @@
     { "name": "Thành viên", "does": "Quyền cơ bản của mọi người dùng: nhận thông báo, quản lý hồ sơ và phiên làm việc của mình, gửi và xem yêu cầu hỗ trợ." }
   ],
   "faq": [
-    { "q": "Tôi quên mật khẩu thì làm thế nào?", "a": "Mật khẩu do trang xác thực của tổ chức quản lý, không phải do hệ thống MACHVON. Hãy dùng chức năng khôi phục mật khẩu trên trang đăng nhập của tổ chức hoặc liên hệ quản trị viên." },
+    { "q": "Tôi quên mật khẩu thì làm thế nào?", "a": "Mật khẩu do trang xác thực của tổ chức quản lý, không phải do hệ thống. Hãy dùng chức năng khôi phục mật khẩu trên trang đăng nhập của tổ chức hoặc liên hệ quản trị viên." },
     { "q": "Vì sao tôi bị hỏi xác thực lần hai?", "a": "Các thao tác nhạy cảm, như chọn tổ chức với vai trò quản trị hoặc thay đổi quyền, yêu cầu bạn đã xác thực mạnh trong 15 phút gần nhất. Bấm Xác thực rồi làm lại thao tác." },
     { "q": "Tôi không thấy một chức năng mà đồng nghiệp có?", "a": "Thực đơn chỉ hiện những chức năng mà vai trò của bạn được phép dùng. Hãy nhờ quản trị viên đơn vị cấp thêm vai trò phù hợp." },
     { "q": "Tổ chức hiện nhãn Tạm ngừng thì làm được gì?", "a": "Bạn chỉ xem và xuất dữ liệu, không thay đổi được. Liên hệ bộ phận phụ trách thuê bao của tổ chức để kích hoạt lại." },
@@ -46,7 +46,7 @@
     { "term": "Bảng điều hành (BI)", "means": "Các biểu đồ và chỉ số tổng hợp dành cho lãnh đạo." }
   ],
   "notes": [
-    "Các clip trong tài liệu được quay trên môi trường chạy thử của hệ thống MACHVON, trên cơ sở dữ liệu thật của môi trường đó. Phần có sẵn từ lúc triển khai là tổ chức, cây đơn vị, tài khoản của bảy người dùng mẫu, các vai trò và các danh mục nền do nền tảng công bố, như bộ phận công nghệ thông tin của khách hàng chuẩn bị. Mọi dữ liệu nghiệp vụ còn lại, như loại văn bản, văn bản quyết định, địa bàn và dự án, do chính các clip nhập qua màn hình như một người dùng thật; không có dữ liệu nghiệp vụ nào được ghi thẳng vào cơ sở dữ liệu. Tên người, tên dự án và số tiền trong các clip là dữ liệu ví dụ.",
+    "Các clip trong tài liệu được quay trên môi trường chạy thử của hệ thống, trên cơ sở dữ liệu thật của môi trường đó. Phần có sẵn từ lúc triển khai là tổ chức, cây đơn vị, tài khoản của bảy người dùng mẫu, các vai trò và các danh mục nền do nền tảng công bố, như bộ phận công nghệ thông tin của khách hàng chuẩn bị. Mọi dữ liệu nghiệp vụ còn lại, như loại văn bản, văn bản quyết định, địa bàn và dự án, do chính các clip nhập qua màn hình như một người dùng thật; không có dữ liệu nghiệp vụ nào được ghi thẳng vào cơ sở dữ liệu. Tên người, tên dự án và số tiền trong các clip là dữ liệu ví dụ.",
     "Lời đọc của các clip là giọng tổng hợp tiếng Việt, kèm phụ đề có thể bật hoặc tắt trong trình phát.",
     "Những màn hình cần hạ tầng bên ngoài chưa có trong môi trường quay (ví dụ kho đối tượng có địa chỉ ký, sao lưu và khôi phục, đồng bộ ngoại tuyến thật trên điện thoại) vẫn có phần mô tả, kèm lý do chưa quay clip ở bảng tra cứu màn hình.",
     "Giao diện có thể thay đổi giữa các phiên bản; tài liệu này phản ánh phiên bản ghi ở đầu trang."
