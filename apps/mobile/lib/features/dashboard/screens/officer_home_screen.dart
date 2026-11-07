@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
@@ -6,32 +7,68 @@ import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../read_support/amounts.dart';
 import '../../read_support/data_view.dart';
+import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/paged.dart';
 import '../../read_support/widgets.dart';
+import '../alert_badge.dart';
+import '../alerts.dart';
 import '../my_work.dart';
+import '../widgets/alert_list.dart';
 
 /// The page size of the work list; the screen follows the pages to the end (or to the limit of pages).
 const int workPageSize = 50;
 
-/// MOB-08: the home of a reporting officer. What is asked of the person who opens it, in every module, in one place: the
-/// report deadlines and the reports that came back, the drafts past their period, and the work given to them. Late first.
-/// Read-only: each task is done in the screen of its module; only an approval task opens here (MOB-24).
+/// MOB-08: the home of a reporting officer. What is due comes first: the alerts of the person ("Việc đến hạn", the same source as
+/// the home of a leader, view `mine`), each with one primary action. Under them what is asked of the person in every module, in one
+/// place: the report deadlines and the reports that came back, the drafts past their period, and the work given to them. Late first.
+/// Each task is done in the screen of its module; only an approval task opens here (MOB-24).
 Widget buildOfficerHomeScreen(BuildContext context, ScreenContext screen) => const OfficerHomeScreen();
 
-class OfficerHomeScreen extends StatelessWidget {
+/// The work of the person read once: as groups by kind and as alerts by level.
+final class OfficerHome {
+  const OfficerHome({required this.work, required this.alerts});
+
+  final MyWork work;
+  final AlertFeed alerts;
+}
+
+OfficerHome? parseOfficerHome(Object? raw) {
+  final MyWork? work = parseMyWork(raw);
+  final AlertFeed? alerts = parseAlertFeed(raw);
+  return work == null || alerts == null ? null : OfficerHome(work: work, alerts: alerts);
+}
+
+/// The alerts shown above the groups.
+const int officerAlertLimit = 5;
+
+class OfficerHomeScreen extends ConsumerStatefulWidget {
   const OfficerHomeScreen({super.key});
+
+  @override
+  ConsumerState<OfficerHomeScreen> createState() => _OfficerHomeScreenState();
+}
+
+class _OfficerHomeScreenState extends ConsumerState<OfficerHomeScreen> {
+  int _retry = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    ref.read(alertBadgeProvider);
+  }
 
   @override
   Widget build(BuildContext context) {
     return ScreenFrame(
       title: context.t('mob.home.officer.title'),
-      body: DataView<MyWork>(
+      body: DataView<OfficerHome>(
         cacheKey: 'home.work',
-        read: (MachvonApiClient client) => readMerged(client, 'getMyWork', query: <String, Object?>{'limit': workPageSize}),
-        parse: parseMyWork,
-        isEmpty: (MyWork work) => work.items.isEmpty,
-        builder: (BuildContext context, loaded) => _WorkBody(work: loaded.value),
+        reloadKey: (_retry, ref.watch(alertsChangedProvider)),
+        read: (MachvonApiClient client) => readMerged(client, 'getMyWork', query: <String, Object?>{'view': 'mine', 'limit': workPageSize}),
+        parse: parseOfficerHome,
+        asOf: (OfficerHome home) => home.alerts.asOf,
+        builder: (BuildContext context, Loaded<OfficerHome> loaded) => _WorkBody(home: loaded.value, loaded: loaded, onRetry: () => setState(() => _retry += 1)),
       ),
     );
   }
@@ -41,9 +78,13 @@ const Set<WorkKind> _deadlineKinds = <WorkKind>{WorkKind.reportReturned, WorkKin
 const Set<WorkKind> _draftKinds = <WorkKind>{WorkKind.reportDraftOverdue};
 
 class _WorkBody extends StatelessWidget {
-  const _WorkBody({required this.work});
+  const _WorkBody({required this.home, required this.loaded, required this.onRetry});
 
-  final MyWork work;
+  final OfficerHome home;
+  final Loaded<OfficerHome> loaded;
+  final VoidCallback onRetry;
+
+  MyWork get work => home.work;
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +97,17 @@ class _WorkBody extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
       children: <Widget>[
-        SectionCard(
+        AlertsPanel(
+          feed: home.alerts,
+          onReload: onRetry,
+          limit: officerAlertLimit,
+          title: context.t('mob.alert.list.titleDue.label'),
+          allowAssign: false,
+          readOnly: loaded.fromCache,
+          stale: loaded.fromCache && loaded.stale,
+          fetchedAt: loaded.fetchedAt,
+        ),
+        if (work.total > 0) SectionCard(
           title: context.t('mob.home.work.summary', <String, Object>{'total': work.total, 'overdue': work.overdue}),
           children: <Widget>[
             if (work.truncated) StatusPill(label: context.t('mob.home.work.truncated'), warn: true),

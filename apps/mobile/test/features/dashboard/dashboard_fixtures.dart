@@ -76,3 +76,64 @@ Map<String, Object?> allocationLine(String appropriationId, String ctmtqg, {Stri
     };
 
 Map<String, Object?> page(List<Object?> items, {String? next}) => <String, Object?>{'items': items, 'next_cursor': next};
+
+/// One item of the alert centre (`getMyWork` with the fields of the alert contract). [severity] null leaves the field out, as an
+/// older server does.
+Map<String, Object?> alertItem(
+  String id, {
+  String? severity = 'ACTION',
+  String source = 'APPROVAL',
+  String title = 'Phê duyệt kế hoạch vốn',
+  String? dueOn = '2026-11-05',
+  bool overdue = false,
+  int daysLate = 0,
+  String lifecycle = 'NEW',
+  Map<String, Object?>? claimedBy,
+  Map<String, Object?>? assignee,
+  Map<String, Object?>? escalation,
+  String? consequence,
+  String screen = 'ADM-06',
+}) =>
+    <String, Object?>{
+      'id': id,
+      'kind': 'APPROVAL',
+      'title': title,
+      'subtitle': 'Dự án đường vành đai',
+      'status': 'OPEN',
+      'due_on': dueOn,
+      'original_due_on': dueOn,
+      'bucket': overdue ? 'OVERDUE' : 'NEAR',
+      'overdue': overdue,
+      'days_late': daysLate,
+      'target': <String, Object?>{'screen': screen, 'id': id},
+      'source': source,
+      if (severity != null) 'severity': severity,
+      'lifecycle': lifecycle,
+      'claimed_by': claimedBy,
+      'assignee': assignee,
+      'escalation': escalation,
+      'consequence': consequence,
+      'snoozed_until': null,
+    };
+
+Map<String, Object?> alertWork(List<Map<String, Object?>> items, {List<String> unavailable = const <String>[], String view = 'scope'}) => <String, Object?>{
+      'view': view,
+      'items': items,
+      'counts': <String, Object?>{
+        'urgent': items.where((Map<String, Object?> item) => item['severity'] == 'URGENT').length,
+        'action': items.where((Map<String, Object?> item) => item['severity'] == 'ACTION' || item['severity'] == null).length,
+        'watch': items.where((Map<String, Object?> item) => item['severity'] == 'WATCH').length,
+        'total': items.length,
+      },
+      'unavailable_sources': unavailable,
+      'as_of': '2026-11-03T03:00:00Z',
+      'next_cursor': null,
+      'truncated': false,
+    };
+
+Map<String, Object?> alertCounts({int urgent = 0, int action = 0, int watch = 0}) => <String, Object?>{
+      'view': 'mine',
+      'counts': <String, Object?>{'urgent': urgent, 'action': action, 'watch': watch, 'total': urgent + action + watch},
+      'unavailable_sources': <String>[],
+      'as_of': '2026-11-03T03:00:00Z',
+    };

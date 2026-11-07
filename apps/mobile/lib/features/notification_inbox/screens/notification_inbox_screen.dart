@@ -10,6 +10,8 @@ import '../../../core/navigation/feature.dart';
 import '../../../core/navigation/route_catalogue.dart';
 import '../../../core/navigation/tab_badges.dart';
 import '../../../core/state/empty_state_view.dart';
+import '../../dashboard/alert_badge.dart';
+import '../../dashboard/widgets/alerts_section.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
@@ -43,6 +45,7 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
   void initState() {
     super.initState();
     ref.read(pushRefreshListenerProvider);
+    ref.read(alertBadgeProvider);
     unawaited(ref.read(pushRegistrationProvider).sync());
   }
 
@@ -71,7 +74,8 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
         builder: (BuildContext context, Loaded<NotificationList> loaded) {
           final NotificationList list = loaded.value;
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) ref.read(tabBadgeProvider.notifier).set(AppTab.inbox, list.unreadCount);
+            // The number on the tab is the count of alerts the server gave; the unread notifications stand in for it only until it answers.
+            if (mounted && ref.read(alertBadgeProvider) == null) ref.read(tabBadgeProvider.notifier).set(AppTab.inbox, list.unreadCount);
           });
           return _InboxBody(list: list, filter: _filter, onFilter: (NotificationFilter next) => setState(() => _filter = next));
         },
@@ -104,6 +108,7 @@ class _InboxBody extends StatelessWidget {
       InboxView.action: list.items.where((NotificationItem item) => item.needsAction).length,
     };
     final List<Widget> header = <Widget>[
+      const AlertsSection(),
       Padding(
         padding: const EdgeInsets.all(MachvonSpace.space16),
         child: Column(
@@ -152,10 +157,11 @@ class _InboxBody extends StatelessWidget {
       ),
     ];
     if (shown.isEmpty) {
-      return Column(
+      return ListView(
         children: <Widget>[
           ...header,
-          Expanded(
+          SizedBox(
+            height: 360,
             child: EmptyStateView(
               activeFilters: <String>[
                 if (filter.view != InboxView.all) _viewLabel(context, filter.view),

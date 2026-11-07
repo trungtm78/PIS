@@ -1,0 +1,147 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:machvon_api_client/machvon_api_client.dart' show HttpCall;
+import 'package:machvon_mobile/core/navigation/feature.dart';
+import 'package:machvon_mobile/core/navigation/route_catalogue.dart';
+import 'package:machvon_mobile/core/navigation/tab_badges.dart';
+import 'package:machvon_mobile/features/dashboard/dashboard_feature.dart' as dashboard;
+import 'package:machvon_mobile/features/notification_inbox/notification_inbox_feature.dart' as notifications;
+
+import '../../support/harness.dart';
+import '../dashboard/dashboard_fixtures.dart';
+import '../support/screen_contract.dart';
+import '../support/scripted_server.dart';
+import 'notification_fixtures.dart';
+
+Future<ProviderContainer> _open(WidgetTester tester, ScriptedServer server, String location) =>
+    pumpWithServer(tester, features: <MobileFeature>[notifications.feature, dashboard.feature], server: server, location: location);
+
+ScriptedServer _server({List<Map<String, Object?>>? alerts}) {
+  final ScriptedServer server = ScriptedServer();
+  server
+    ..on('GET', '/me/notifications', (_) => notificationsPage(standardNotifications()))
+    ..on(
+      'GET',
+      '/home/my-work',
+      (_) => alertWork(
+        alerts ??
+            <Map<String, Object?>>[
+              alertItem('a-urgent', severity: 'URGENT', source: 'PERMIT', title: 'Giấy phép DA-DT205 đã hết hạn', dueOn: '2026-11-01', overdue: true, daysLate: 2),
+              alertItem('a-watch', severity: 'WATCH', source: 'SITE_DIARY', title: 'Thiếu nhật ký công trường', dueOn: '2026-11-10'),
+            ],
+        view: 'mine',
+      ),
+    )
+    ..on('GET', '/home/my-work/counts', (_) => alertCounts(urgent: 1, watch: 1))
+    ..on('POST', '/notifications/:id/read', (_) => <String, Object?>{'operation_id': 'o', 'status': 'Read', 'resource_version': 2});
+  return server;
+}
+
+void main() {
+  group('MOB-32 shows the alerts and the notifications with the same words for the severity', () {
+    testWidgets('the alerts of the person come first, with the levels Khẩn and Theo dõi, then the notifications', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = _server();
+      await _open(tester, server, '/inbox');
+
+      expect(find.text('Việc cần xử lý'), findsOneWidget);
+      expect(find.text('Giấy phép DA-DT205 đã hết hạn'), findsOneWidget);
+      expect(find.text('Quá hạn 2 ngày'), findsOneWidget);
+      expect(find.text('Khẩn 1'), findsOneWidget);
+      expect(find.text('Theo dõi 1'), findsOneWidget);
+      final double alertTop = tester.getTopLeft(find.text('Việc cần xử lý')).dy;
+      final double notificationTop = tester.getTopLeft(find.text('Tất cả (4)')).dy;
+      expect(alertTop, lessThan(notificationTop));
+      expect(server.callsTo('GET', '/home/my-work').any((HttpCall call) => call.url.queryParameters['view'] == 'mine'), isTrue, reason: 'the inbox shows the alerts of the person');
+    });
+
+    testWidgets('the number on the tab is the alerts to act on once the server has given it; the unread notifications stand in until then', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ProviderContainer withCounts = await _open(tester, _server(), '/inbox');
+      expect(withCounts.read(tabBadgeProvider)[AppTab.inbox], 1, reason: 'one urgent alert, the watched one is not counted');
+
+      final ScriptedServer old = _server()..refuse('GET', '/home/my-work/counts', 404, 'RESOURCE_NOT_FOUND');
+      final ProviderContainer without = await _open(tester, old, '/inbox');
+      expect(without.read(tabBadgeProvider)[AppTab.inbox], 3, reason: 'three notifications are unread');
+    });
+
+    testWidgets('while the alerts load there is a skeleton and no figure; a failure names the source and retries in place', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final Completer<void> slow = Completer<void>();
+      final ScriptedServer server = _server();
+      server.answer('GET', '/home/my-work', (HttpCall call) async {
+        await slow.future;
+        return FakeTransport.json(500, <String, Object?>{'type': 'about:blank', 'title': 'x', 'status': 500, 'code': 'INTERNAL_ERROR'});
+      });
+      await _open(tester, server, '/inbox');
+      expect(find.byTooltip('Thao tác với việc này'), findsNothing);
+      expect(find.text('Khẩn 0'), findsNothing);
+      expect(find.byWidgetPredicate((Widget widget) => widget.runtimeType.toString() == 'AlertListSkeleton'), findsOneWidget);
+
+      slow.complete();
+      await tester.pumpAndSettle();
+      expect(find.text('Chưa tải được việc cần xử lý'), findsOneWidget);
+      expect(find.textContaining('INTERNAL_ERROR'), findsOneWidget);
+      expect(find.text('Tất cả (4)'), findsOneWidget, reason: 'the notifications are still there');
+
+      server.on('GET', '/home/my-work', (_) => alertWork(<Map<String, Object?>>[alertItem('a-1', title: 'Tạm ứng quá hạn')], view: 'mine'));
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Thử lại'));
+      await tester.pumpAndSettle();
+      expect(find.text('Tạm ứng quá hạn'), findsOneWidget);
+    });
+
+    testWidgets('no alerts: the line says nothing urgent is left, and the notifications are unaffected', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      await _open(tester, _server(alerts: <Map<String, Object?>>[]), '/inbox');
+      expect(find.textContaining('Không còn việc khẩn · đã kiểm tra lúc'), findsOneWidget);
+      expect(find.text('Tất cả (4)'), findsOneWidget);
+    });
+
+    testWidgets('the screen holds at three sizes and 200 percent text', (WidgetTester tester) async {
+      await expectScreenContract(
+        tester,
+        open: (WidgetTester tester, ScriptedServer server) => _open(tester, server, '/inbox'),
+        healthy: (ScriptedServer server) {
+          server
+            ..on('GET', '/me/notifications', (_) => notificationsPage(standardNotifications()))
+            ..on('GET', '/home/my-work', (_) => alertWork(<Map<String, Object?>>[alertItem('a-u', severity: 'URGENT', title: 'Giấy phép đã hết hạn'), alertItem('a-w', severity: 'WATCH', title: 'Thiếu nhật ký')], view: 'mine'));
+        },
+      );
+    });
+  });
+
+  group('a notification whose record is closed or no longer readable says so; the lock screen text never carries an amount', () {
+    testWidgets('a push for a record the member lost shows "Hồ sơ đã đóng" and nothing of the record', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      await _open(tester, _server(), '/r/$idRevoked');
+
+      expect(find.text('Hồ sơ đã đóng'), findsOneWidget);
+      expect(find.textContaining('Bạn không còn quyền xem hồ sơ'), findsOneWidget);
+      expect(find.text('Mở hồ sơ'), findsNothing);
+    });
+
+    testWidgets('a push whose notification is gone says the record is closed too, and offers the way back', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = _server();
+      server.on('GET', '/me/notifications', (_) => notificationsPage(<Map<String, Object?>>[]));
+      await _open(tester, server, '/r/$idUnread');
+
+      expect(find.text('Hồ sơ đã đóng'), findsOneWidget);
+      expect(find.text('Không tìm thấy thông báo'), findsOneWidget);
+      expect(find.widgetWithText(FilledButton, 'Về hộp thông báo'), findsOneWidget);
+    });
+
+    testWidgets('a title that carries an amount in free text is not shown: only the translated event title is', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = _server();
+      server.on('GET', '/me/notifications', (_) => notificationsPage(<Map<String, Object?>>[notification(idPlain, title: 'Đã chi 5.000.000.000 đồng cho dự án A')]));
+      await _open(tester, server, '/inbox');
+
+      expect(find.textContaining('5.000.000.000'), findsNothing);
+      expect(find.textContaining('đồng'), findsNothing);
+    });
+  });
+}

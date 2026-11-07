@@ -1,81 +1,358 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
-import 'package:machvon_api_client/machvon_api_client.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../read_support/amounts.dart';
 import '../../read_support/data_view.dart';
+import '../../read_support/loaded.dart';
 import '../../read_support/money.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/widgets.dart';
+import '../alert_badge.dart';
+import '../alerts.dart';
 import '../command_center.dart';
+import '../home_data.dart';
+import '../widgets/alert_list.dart';
 
-/// MOB-07: the home of a leader. The two disbursement rates side by side, each with its numerator and denominator, the
-/// amounts beside them, and what waits, all of one frozen snapshot and of the projects in the scope of the reader (the
-/// server decides the scope; nothing here adds a project). A rate that cannot be given says why and is never shown as zero.
+/// MOB-07: the home of a leader, work before figures. From the top: one line of context (scope, closing day, freshness); the
+/// alerts "Cần xử lý ngay" (the three most important of the scope, each with one primary action; the alerts of the person when the
+/// scope is refused); a compact command block (the amount, a small ring, the two rates with their denominators); the shortcuts of
+/// the role; and the summary of the figures. All figures are of one frozen snapshot and of the projects in the scope of the reader
+/// (the server decides the scope; nothing here adds a project). A rate that cannot be given says why and is never shown as zero.
+/// The alerts and the command center are read apart: one failing is named and leaves the other in place.
 Widget buildLeaderHomeScreen(BuildContext context, ScreenContext screen) => const LeaderHomeScreen();
 
-class LeaderHomeScreen extends StatelessWidget {
+class LeaderHomeScreen extends ConsumerStatefulWidget {
   const LeaderHomeScreen({super.key});
+
+  @override
+  ConsumerState<LeaderHomeScreen> createState() => _LeaderHomeScreenState();
+}
+
+class _LeaderHomeScreenState extends ConsumerState<LeaderHomeScreen> {
+  int _retry = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Starts the count of the Thông báo tab (it reads again on resume, on a push and after an act); nothing here depends on it.
+    ref.read(alertBadgeProvider);
+  }
 
   @override
   Widget build(BuildContext context) {
     return ScreenFrame(
       title: context.t('mob.home.leader.title'),
-      body: DataView<CommandCenter>(
-        cacheKey: 'home.center',
-        read: (MachvonApiClient client) => client.getCommandCenter(),
-        parse: parseCommandCenter,
-        asOf: (CommandCenter center) => center.asOfDate,
+      body: DataView<LeaderHomeData>(
+        cacheKey: 'home.leader',
+        reloadKey: (_retry, ref.watch(alertsChangedProvider)),
+        read: readLeaderHome,
+        parse: parseLeaderHome,
+        asOf: (LeaderHomeData home) => home.center?.asOfDate ?? home.alerts?.asOf,
         emptyOnCodes: const <String>{'RESOURCE_NOT_FOUND'},
-        builder: (BuildContext context, loaded) => _CenterBody(center: loaded.value),
+        builder: (BuildContext context, Loaded<LeaderHomeData> loaded) => _HomeBody(loaded: loaded, onRetry: () => setState(() => _retry += 1)),
       ),
     );
   }
 }
 
-class _CenterBody extends StatelessWidget {
-  const _CenterBody({required this.center});
+class _HomeBody extends StatelessWidget {
+  const _HomeBody({required this.loaded, required this.onRetry});
 
-  final CommandCenter center;
+  final Loaded<LeaderHomeData> loaded;
+  final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
-    final ({Tile pm, Tile total})? pair = center.ratePair;
+    final LeaderHomeData home = loaded.value;
+    final CommandCenter? center = home.center;
+    final ({Tile pm, Tile total})? pair = center?.ratePair;
     return ListView(
       padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
       children: <Widget>[
-        _ContextCard(center: center),
+        _ContextLine(center: center, loaded: loaded),
+        AlertsPanel(
+          feed: home.alerts,
+          errorCode: home.alertsError,
+          onReload: onRetry,
+          readOnly: loaded.fromCache,
+          stale: loaded.fromCache && loaded.stale,
+          fetchedAt: loaded.fetchedAt,
+          scopeRefused: home.scopeRefused,
+        ),
+        if (center != null) _CommandBlock(center: center, pair: pair) else _CommandBlockProblem(code: home.centerError ?? 'UNKNOWN', onRetry: onRetry),
         SectionCard(
-          title: context.t('mob.home.rates.title'),
+          title: context.t('mob.home.shortcuts.title'),
           children: <Widget>[
-            if (pair == null)
-              Text(context.t('mob.home.rates.unavailable'), style: Theme.of(context).textTheme.bodyMedium)
-            else
-              _SideBySide(children: <Widget>[MetricTileCard(tile: pair.pm), MetricTileCard(tile: pair.total)]),
-            for (final Tile tile in center.amountTiles) ...<Widget>[const SizedBox(height: MachvonSpace.space8), MetricTileCard(tile: tile)],
-            if (center.projectsWithoutData > 0)
-              Padding(
-                padding: const EdgeInsets.only(top: MachvonSpace.space8),
-                child: Text(context.t('mob.home.rates.withoutData', <String, Object>{'count': center.projectsWithoutData})),
-              ),
+            _LinkRow(label: context.t('mob.home.link.work'), onTap: () => openScreen(context, 'MOB-08')),
+            _LinkRow(label: context.t('mob.pbi.link.dashboard'), onTap: () => openScreen(context, 'MOB-40')),
+            _LinkRow(label: context.t('mob.home.link.funding'), onTap: () => openScreen(context, 'MOB-58')),
+            _LinkRow(label: context.t('mob.home.link.unreported'), onTap: () => openScreen(context, 'MOB-57')),
           ],
         ),
-        SectionCard(
-          title: context.t('mob.home.waiting.title'),
-          children: <Widget>[
-            Text(context.t('mob.home.waiting.warnings', <String, Object>{'count': center.openWarnings})),
-            Text(context.t('mob.home.waiting.explanations', <String, Object>{'count': center.overdueExplanations})),
-            Text(context.t('mob.home.waiting.reallocations', <String, Object>{'count': center.pendingReallocations})),
-          ],
-        ),
-        _LinkRow(label: context.t('mob.home.link.work'), onTap: () => openScreen(context, 'MOB-08')),
-        _LinkRow(label: context.t('mob.pbi.link.dashboard'), onTap: () => openScreen(context, 'MOB-40')),
-        _LinkRow(label: context.t('mob.home.link.funding'), onTap: () => openScreen(context, 'MOB-58')),
-        _LinkRow(label: context.t('mob.home.link.unreported'), onTap: () => openScreen(context, 'MOB-57')),
+        if (center != null) ...<Widget>[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(MachvonSpace.space16, MachvonSpace.space8, MachvonSpace.space16, 0),
+            child: Semantics(header: true, child: Text(context.t('mob.home.summary.title'), style: Theme.of(context).textTheme.titleMedium)),
+          ),
+          SectionCard(
+            title: context.t('mob.home.summary.rates.title'),
+            children: <Widget>[
+              if (pair == null)
+                Text(context.t('mob.home.rates.unavailable'), style: Theme.of(context).textTheme.bodyMedium)
+              else
+                _SideBySide(children: <Widget>[MetricTileCard(tile: pair.pm), MetricTileCard(tile: pair.total)]),
+              for (final Tile tile in center.amountTiles) ...<Widget>[const SizedBox(height: MachvonSpace.space8), MetricTileCard(tile: tile)],
+              if (center.projectsWithoutData > 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: MachvonSpace.space8),
+                  child: Text(context.t('mob.home.rates.withoutData', <String, Object>{'count': center.projectsWithoutData})),
+                ),
+            ],
+          ),
+          SectionCard(
+            title: context.t('mob.home.waiting.title'),
+            children: <Widget>[
+              Text(context.t('mob.home.waiting.warnings', <String, Object>{'count': center.openWarnings})),
+              Text(context.t('mob.home.waiting.explanations', <String, Object>{'count': center.overdueExplanations})),
+              Text(context.t('mob.home.waiting.reallocations', <String, Object>{'count': center.pendingReallocations})),
+            ],
+          ),
+          _ContextCard(center: center),
+        ],
       ],
     );
+  }
+}
+
+/// The scope, the closing day and the freshness of what is on the screen, in one line.
+class _ContextLine extends StatelessWidget {
+  const _ContextLine({required this.center, required this.loaded});
+
+  final CommandCenter? center;
+  final Loaded<LeaderHomeData> loaded;
+
+  @override
+  Widget build(BuildContext context) {
+    final CommandCenter? c = center;
+    final String updated = formatFetched(loaded.fetchedAt);
+    final List<String> parts = <String>[
+      if (c != null)
+        c.scopeUnitId == null
+            ? context.t('mob.home.line.scope.all', <String, Object>{'projects': c.scopeProjects})
+            : context.t('mob.home.line.scope.unit', <String, Object>{'projects': c.scopeProjects}),
+      if (c != null) context.t('mob.home.line.closing.text', <String, Object>{'date': asOfLabel(c.asOfDate)}),
+      context.t('mob.home.line.updated.text', <String, Object>{'time': updated.substring(updated.length - 5)}),
+      if ((c?.isStale ?? false) || (loaded.fromCache && loaded.stale)) context.t('mob.home.line.stale.text'),
+    ];
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(MachvonSpace.space16, MachvonSpace.space8, MachvonSpace.space16, 0),
+      child: Text(parts.join(' · '), style: Theme.of(context).textTheme.bodySmall),
+    );
+  }
+}
+
+/// A rate without its trailing zeros for the ring (`12,5%`); the exact figure with its denominator is beside it.
+String _shortPercent(String value, String language) {
+  final double? parsed = double.tryParse(value);
+  if (parsed == null) return value;
+  String text = parsed.toStringAsFixed(1);
+  if (text.endsWith('.0')) text = text.substring(0, text.length - 2);
+  return '${language == 'en' ? text : text.replaceAll('.', ',')}%';
+}
+
+/// The command block, compact: the amount at 32 and a small ring for the rate on the total plan, then the two rates each with the
+/// numerator over the denominator it was computed from. About 140 logical pixels at the normal text size.
+class _CommandBlock extends StatelessWidget {
+  const _CommandBlock({required this.center, required this.pair});
+
+  final CommandCenter center;
+  final ({Tile pm, Tile total})? pair;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final String language = AppStrings.of(context).language;
+    Tile? amount;
+    for (final Tile tile in center.amountTiles) {
+      if (tile.metricCode == 'DISBURSED_TREASURY') amount = tile;
+    }
+    amount ??= center.amountTiles.isEmpty ? null : center.amountTiles.first;
+    final String? totalValue = pair?.total.value;
+    final double? ringValue = totalValue == null ? null : double.tryParse(totalValue);
+    final Tile? shownAmount = amount;
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
+      child: Padding(
+        padding: const EdgeInsets.all(MachvonSpace.space16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Semantics(header: true, child: Text(context.t('mob.home.command.title'), style: theme.textTheme.titleMedium)),
+            const SizedBox(height: MachvonSpace.space8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Expanded(
+                  child: MergeSemantics(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(context.t('mob.home.tile.metric.disbursed'), style: theme.textTheme.bodySmall),
+                        Text(
+                          shownAmount == null
+                              ? context.t('mob.home.tile.nullReason.other')
+                              : (shownAmount.value == null ? _nullReasonText(context, shownAmount.nullReason) : millionsLabel(context, shownAmount.value)),
+                          style: theme.textTheme.headlineSmall?.copyWith(fontSize: 32, fontWeight: FontWeight.w700, height: 1.1),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (ringValue != null && totalValue != null)
+                  Semantics(
+                    label: context.t('mob.home.command.ring.aria', <String, Object>{'value': context.t('mob.home.tile.value.percent', <String, Object>{'value': formatPercent(totalValue, language)})}),
+                    excludeSemantics: true,
+                    child: _Ring(fraction: (ringValue / 100).clamp(0.0, 1.0), label: _shortPercent(totalValue, language)),
+                  ),
+              ],
+            ),
+            if (pair != null) ...<Widget>[
+              const SizedBox(height: MachvonSpace.space8),
+              Semantics(header: true, child: Text(context.t('mob.home.rates.title'), style: theme.textTheme.labelLarge)),
+              _rateLine(context, pair!.pm),
+              _rateLine(context, pair!.total),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _rateLine(BuildContext context, Tile tile) {
+    final String label = metricLabel(context, tile.metricCode);
+    final String value = tile.value == null
+        ? _nullReasonText(context, tile.nullReason)
+        : context.t('mob.home.tile.value.percent', <String, Object>{'value': formatPercent(tile.value!, AppStrings.of(context).language)});
+    final String line = tile.hasSums && tile.value != null
+        ? context.t('mob.home.command.rate.line', <String, Object>{'label': label, 'value': value, 'numerator': millionsLabel(context, tile.numerator), 'denominator': millionsLabel(context, tile.denominator)})
+        : '$label: $value';
+    return Padding(padding: const EdgeInsets.only(top: MachvonSpace.space4), child: Text(line, style: Theme.of(context).textTheme.bodySmall));
+  }
+}
+
+class _Ring extends StatelessWidget {
+  const _Ring({required this.fraction, required this.label});
+
+  final double fraction;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 64,
+      height: 64,
+      child: Stack(
+        alignment: Alignment.center,
+        children: <Widget>[
+          CustomPaint(size: const Size(64, 64), painter: _RingPainter(fraction)),
+          Text(label, style: Theme.of(context).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700)),
+        ],
+      ),
+    );
+  }
+}
+
+class _RingPainter extends CustomPainter {
+  const _RingPainter(this.fraction);
+
+  final double fraction;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const double stroke = 7;
+    final Rect arc = (Offset.zero & size).deflate(stroke / 2);
+    final Paint track = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke
+      ..color = MachvonColors.neutralSoft;
+    final Paint value = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke
+      ..strokeCap = StrokeCap.round
+      ..color = MachvonColors.primary;
+    canvas.drawArc(arc, 0, 2 * math.pi, false, track);
+    canvas.drawArc(arc, -math.pi / 2, 2 * math.pi * fraction, false, value);
+  }
+
+  @override
+  bool shouldRepaint(_RingPainter oldDelegate) => oldDelegate.fraction != fraction;
+}
+
+class _CommandBlockProblem extends StatelessWidget {
+  const _CommandBlockProblem({required this.code, required this.onRetry});
+
+  final String code;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool noSnapshot = code == 'RESOURCE_NOT_FOUND';
+    return SectionCard(
+      title: context.t('mob.home.command.title'),
+      children: <Widget>[
+        Semantics(
+          liveRegion: true,
+          container: true,
+          child: noSnapshot
+              ? Text(context.t('mob.home.command.empty.body'))
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(context.t('mob.home.command.error.title'), style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
+                    Text(context.t('mob.home.command.error.body', <String, Object>{'code': code})),
+                    const SizedBox(height: MachvonSpace.space8),
+                    OutlinedButton(onPressed: onRetry, child: Text(context.t('mob.alert.list.retry.action'))),
+                  ],
+                ),
+        ),
+      ],
+    );
+  }
+}
+
+String _nullReasonText(BuildContext context, String? reason) {
+  switch (reason) {
+    case 'NO_DATA':
+      return context.t('mob.home.tile.nullReason.noData');
+    case 'ZERO_DENOMINATOR':
+      return context.t('mob.home.tile.nullReason.zeroDenominator');
+    case 'TREASURY_COVERAGE_NONE':
+      return context.t('mob.home.tile.nullReason.treasuryNone');
+    default:
+      return context.t('mob.home.tile.nullReason.other');
+  }
+}
+
+/// The name of a metric in the words of the interface (its code when it is not one the home knows).
+String metricLabel(BuildContext context, String code) {
+  switch (code) {
+    case ratePmMetric:
+      return context.t('mob.home.tile.metric.ratePm');
+    case rateTotalMetric:
+      return context.t('mob.home.tile.metric.rateTotal');
+    case 'DISBURSED_TREASURY':
+      return context.t('mob.home.tile.metric.disbursed');
+    case 'PLAN_PM_ASSIGNED':
+      return context.t('mob.home.tile.metric.planPm');
+    case 'PLAN_TOTAL':
+      return context.t('mob.home.tile.metric.planTotal');
+    default:
+      return code;
   }
 }
 
@@ -184,7 +461,7 @@ class MetricTileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final String label = _metricLabel(context, tile.metricCode);
+    final String label = metricLabel(context, tile.metricCode);
     final String value = _valueOf(context, tile);
     final String? sums = tile.hasSums
         ? '${context.t('mob.home.tile.numerator', <String, Object>{'value': millionsLabel(context, tile.numerator)})} · '
@@ -218,40 +495,10 @@ class MetricTileCard extends StatelessWidget {
 
   String _valueOf(BuildContext context, Tile tile) {
     final String? value = tile.value;
-    if (value == null) return _nullReason(context, tile.nullReason);
+    if (value == null) return _nullReasonText(context, tile.nullReason);
     if (tile.unit == TileUnit.percent) {
       return context.t('mob.home.tile.value.percent', <String, Object>{'value': formatPercent(value, AppStrings.of(context).language)});
     }
     return millionsLabel(context, value);
-  }
-
-  String _nullReason(BuildContext context, String? reason) {
-    switch (reason) {
-      case 'NO_DATA':
-        return context.t('mob.home.tile.nullReason.noData');
-      case 'ZERO_DENOMINATOR':
-        return context.t('mob.home.tile.nullReason.zeroDenominator');
-      case 'TREASURY_COVERAGE_NONE':
-        return context.t('mob.home.tile.nullReason.treasuryNone');
-      default:
-        return context.t('mob.home.tile.nullReason.other');
-    }
-  }
-
-  String _metricLabel(BuildContext context, String code) {
-    switch (code) {
-      case ratePmMetric:
-        return context.t('mob.home.tile.metric.ratePm');
-      case rateTotalMetric:
-        return context.t('mob.home.tile.metric.rateTotal');
-      case 'DISBURSED_TREASURY':
-        return context.t('mob.home.tile.metric.disbursed');
-      case 'PLAN_PM_ASSIGNED':
-        return context.t('mob.home.tile.metric.planPm');
-      case 'PLAN_TOTAL':
-        return context.t('mob.home.tile.metric.planTotal');
-      default:
-        return code;
-    }
   }
 }

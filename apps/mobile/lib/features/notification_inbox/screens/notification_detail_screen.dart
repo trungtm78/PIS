@@ -108,7 +108,9 @@ class _NotFound extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(MachvonSpace.space16),
       children: <Widget>[
-        Semantics(liveRegion: true, container: true, child: Text(context.t('mob.ntf.detail.notFound.title'), style: theme.textTheme.titleMedium)),
+        Semantics(liveRegion: true, container: true, child: Text(context.t('mob.ntf.detail.closed.title'), style: theme.textTheme.titleMedium)),
+        const SizedBox(height: MachvonSpace.space4),
+        Text(context.t('mob.ntf.detail.notFound.title'), style: theme.textTheme.bodyLarge),
         const SizedBox(height: MachvonSpace.space8),
         Text(context.t('mob.ntf.detail.notFound.body')),
         const SizedBox(height: MachvonSpace.space16),
@@ -202,7 +204,20 @@ class _DetailState extends ConsumerState<_Detail> {
           children: <Widget>[
             Wrap(spacing: MachvonSpace.space8, children: <Widget>[StatusPill(label: stateLabel(context, item), warn: item.needsAction)]),
             if (item.isUnavailable)
-              Padding(padding: const EdgeInsets.only(top: MachvonSpace.space8), child: Text(context.t('mob.ntf.detail.unavailable.body'), style: theme.textTheme.bodyMedium))
+              Padding(
+                padding: const EdgeInsets.only(top: MachvonSpace.space8),
+                child: Semantics(
+                  liveRegion: true,
+                  container: true,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(context.t('mob.ntf.detail.closed.title'), style: theme.textTheme.titleSmall),
+                      Text(context.t('mob.ntf.detail.unavailable.body'), style: theme.textTheme.bodyMedium),
+                    ],
+                  ),
+                ),
+              )
             else ...<Widget>[
               FactLine(label: context.t('mob.ntf.detail.priority.label'), value: priorityLabel(context, item.priority)),
               if (item.readAt != null) FactLine(label: context.t('mob.ntf.detail.readAt.label'), value: formatMoment(item.readAt!)),

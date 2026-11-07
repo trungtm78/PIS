@@ -187,7 +187,7 @@ void main() {
         open: (WidgetTester tester, ScriptedServer server) => _open(tester, server, '/home'),
         script: StateScript(
           healthy: _healthyCenter,
-          content: find.text('Hai tỷ lệ giải ngân'),
+          content: find.text('Điều hành'),
           empty: (ScriptedServer server) => server.refuse('GET', '/home/command-center', 404, 'RESOURCE_NOT_FOUND'),
         ),
       );
@@ -219,7 +219,7 @@ void main() {
       expect(find.text('Bản nháp (1)'), findsOneWidget);
       expect(find.text('Việc giao (2)'), findsOneWidget);
       expect(find.text('Hạn 30/10/2026, trễ 4 ngày, hạn ban đầu 28/10/2026'), findsOneWidget);
-      expect(find.text('Không có hạn'), findsOneWidget);
+      expect(find.text('Không có hạn'), findsNWidgets(2), reason: 'the card of the alert and the line of the group');
       expect(find.text('Hạn 05/11/2026'), findsOneWidget);
     });
 
@@ -229,7 +229,7 @@ void main() {
       healthy(server);
       final ProviderContainer container = await _open(tester, server, '/home/mob-08');
 
-      await tester.tap(find.text('Phê duyệt kế hoạch vốn'));
+      await tester.tap(find.text('Phê duyệt kế hoạch vốn').last);
       await tester.pumpAndSettle();
       expect(currentLocation(container), '/approval/mob-24/w-approval');
       expect(find.text('task w-approval'), findsOneWidget);
@@ -247,7 +247,7 @@ void main() {
       await expectEveryState(
         tester,
         open: (WidgetTester tester, ScriptedServer server) => _open(tester, server, '/home/mob-08'),
-        script: StateScript(healthy: healthy, content: find.text('Việc giao (2)'), empty: (ScriptedServer server) => server.on('GET', '/home/my-work', (_) => myWork(<Map<String, Object?>>[]))),
+        script: StateScript(healthy: healthy, content: find.text('Việc đến hạn')),
       );
       await expectScreenContract(tester, open: (WidgetTester tester, ScriptedServer server) => _open(tester, server, '/home/mob-08'), healthy: healthy);
     });

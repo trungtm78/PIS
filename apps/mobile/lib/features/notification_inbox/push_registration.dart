@@ -63,6 +63,11 @@ final class NoPushPlatform implements PushPlatform {
 /// The push port of the application; the device adapter overrides it.
 final Provider<PushPlatform> pushPlatformProvider = Provider<PushPlatform>((Ref ref) => const NoPushPlatform());
 
+/// A push that arrived while the application runs (in the foreground, or one the person tapped to open it). The device adapter
+/// overrides this with the stream of the provider; it carries nothing of the message (no title, no amount): the screens only
+/// read again what the server holds, so the tab badge and the alert list follow the push.
+final Provider<Stream<void>> pushArrivalsProvider = Provider<Stream<void>>((Ref ref) => const Stream<void>.empty());
+
 /// The reason the server records with the revocation (it asks for at least ten characters).
 const String signOutReason = 'Signed out on this device';
 
