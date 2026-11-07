@@ -1,0 +1,9 @@
+[
+  { "key": "owner", "name": "Nguyễn Văn An", "initials": "VA", "unit": 1, "role": "TENANT_OWNER", "kind": "TENANT" },
+  { "key": "unitAdmin", "name": "Lê Minh Cường", "initials": "MC", "unit": 2, "role": "UNIT_ADMIN", "kind": "UNIT_SUBTREE" },
+  { "key": "projectManager", "name": "Phạm Quốc Dũng", "initials": "QD", "unit": 5, "role": "CAN_BO_BAN_QLDA", "kind": "TENANT" },
+  { "key": "capApprover", "name": "Trần Thị Bích", "initials": "TB", "unit": 2, "role": "LANH_DAO_SO", "kind": "TENANT" },
+  { "key": "treasuryMaker", "name": "Hoàng Thị Lan", "initials": "TL", "unit": 3, "role": "KE_TOAN_THANH_TOAN", "kind": "TENANT" },
+  { "key": "auditor", "name": "Vũ Đức Minh", "initials": "ĐM", "unit": 1, "role": "AUDITOR", "kind": "TENANT" },
+  { "key": "nobody", "name": "Đỗ Thị Hà", "initials": "TH", "unit": 4, "role": "MEMBER", "kind": "TENANT" }
+]

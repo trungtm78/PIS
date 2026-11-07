@@ -1148,10 +1148,41 @@ function providerFixtures(tenantId: string): Array<[string, unknown[]]> {
 /** The tenants whose notifications the delivery job of this stack sends: tenant A keeps the queue the notification screens plant and read (`deliveryFixtures`), so the job does not touch it. */
 const deliveryTenants = new Set<string>([fixtures.tenants.B]);
 
+/** Every role the tests make: the browser flows each have people with one narrow role. */
+const E2E_ROLES = [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...CHANGE_ROLES, ...MEASUREMENT_ROLES, ...PETITION_ROLES, ...INSPECTION_ROLES, ...ACCEPTANCE_ROLES, ...WORK_ACCEPTANCE_ROLES, ...LEDGER_ROLES, ...PAYMENT_ROLES, ...ADVANCE_ROLES, ...RECONCILE_ROLES, ...SETTLEMENT_ROLES, ...CHAIN_ROLES, ...NCR_ROLES, ...COMPLETION_ROLES, ...HANDOVER_ROLES, ...ASSET_ROLES, ...WARRANTY_ROLES, ...RETENTION_ROLES, ...CLOSURE_ROLES, ...HOUSEHOLD_ROLES, ...INVENTORY_ROLES, ...PLAN_COMP_ROLES, ...AUD_ROLES, ...DIS_REPORT_ROLES, ...MASTER_ROLES];
+
+/**
+ * The stack of the user guide (E2E_SEED=docs): the tenants and their units, seven people with real names and the roles of a unit, and no business data at all.
+ * The clips of the guide make the data through the screens, as the people of a unit would; nothing a test made is left on them (no "E2E 00", no test projects).
+ */
+const DOCS = process.env.E2E_SEED === 'docs';
+
+/** The people of the guide, each standing on the account of a fixture user (the browser and the identity provider know those): apps/web/e2e/support/docs-people.json. */
+interface DocsPerson {
+  key: string;
+  name: string;
+  unit: number;
+  role: string;
+  kind: 'TENANT' | 'UNIT_SUBTREE';
+}
+const DOCS_PEOPLE: DocsPerson[] = JSON.parse(readFileSync(resolve(REPO_ROOT, 'apps', 'web', 'e2e', 'support', 'docs-people.json'), 'utf8')) as DocsPerson[];
+
+/** The roles of a unit made from the permissions the tests use: the staff of the project board do the work, the leader decides, the accountant pays. */
+function docsRoles(): Array<{ n: number; code: string; permissions: string[]; rank: number }> {
+  const unique = (roles: ReadonlyArray<{ permissions: readonly string[] }>): string[] => [...new Set(roles.flatMap((role) => role.permissions))];
+  const everything = unique(E2E_ROLES);
+  const deciding = (permission: string): boolean => /approve|publish|decide|certify|sign/.test(permission);
+  return [
+    { n: 901, code: 'CAN_BO_BAN_QLDA', permissions: everything.filter((permission) => !deciding(permission)), rank: 45 },
+    { n: 902, code: 'LANH_DAO_SO', permissions: everything.filter((permission) => deciding(permission) || permission.endsWith('.read')), rank: 65 },
+    { n: 903, code: 'KE_TOAN_THANH_TOAN', permissions: unique([...PAY_ROLES, ...PAYMENT_ROLES, ...LEDGER_ROLES, ...ADVANCE_ROLES, ...RECONCILE_ROLES, ...SETTLEMENT_ROLES, ...CHAIN_ROLES]), rank: 40 },
+  ];
+}
+
 async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name: TenantName): Promise<void> {
   const tenantId = fixtures.tenants[name];
   await tenants.withTenant({ tenantId, membershipId: ACTOR, scopeVersion: 1 }, (tx) => seedSystemRoles(tx, ACTOR));
-  const memberships = name === 'A' ? fixtures.users.filter((user) => user.audience !== 'control').map((user) => user.membershipId).concat(fixtures.recipientMembershipId) : [userKey('owner').membershipId];
+  const memberships = name === 'A' ? (DOCS ? DOCS_PEOPLE.map((person) => userKey(person.key).membershipId) : fixtures.users.filter((user) => user.audience !== 'control').map((user) => user.membershipId).concat(fixtures.recipientMembershipId)) : [userKey('owner').membershipId];
   const statements: Array<[string, unknown[]?]> = [];
   for (const unit of UNITS[name]) {
     statements.push([
@@ -1161,24 +1192,25 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
     ]);
   }
   for (const membershipId of memberships) {
-    const organization = membershipId === userKey('unitAdmin').membershipId ? unitId(2) : unitId(1);
+    const person = DOCS && name === 'A' ? DOCS_PEOPLE.find((candidate) => userKey(candidate.key).membershipId === membershipId) : undefined;
+    const organization = person !== undefined ? unitId(person.unit) : membershipId === userKey('unitAdmin').membershipId ? unitId(2) : unitId(1);
     statements.push([
       "insert into machvon.user_account (id, idp_subject, email_normalized, display_name, status) values ($1, $2, $3, $4, 'Active') on conflict do nothing",
-      [membershipId, `e2e-${membershipId}`, `${membershipId}@example.test`, `E2E ${membershipId.slice(-2)}`],
+      [membershipId, `e2e-${membershipId}`, `${membershipId}@example.test`, person?.name ?? `E2E ${membershipId.slice(-2)}`],
     ]);
     statements.push([
       "insert into machvon.membership (tenant_id, id, user_id, organization_id, status, valid_from) values ($1, $2, $3, $4, 'Active', now() - interval '1 day')",
       [tenantId, membershipId, membershipId, organization],
     ]);
   }
-  for (const role of [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...CHANGE_ROLES, ...MEASUREMENT_ROLES, ...PETITION_ROLES, ...INSPECTION_ROLES, ...ACCEPTANCE_ROLES, ...WORK_ACCEPTANCE_ROLES, ...LEDGER_ROLES, ...PAYMENT_ROLES, ...ADVANCE_ROLES, ...RECONCILE_ROLES, ...SETTLEMENT_ROLES, ...CHAIN_ROLES, ...NCR_ROLES, ...COMPLETION_ROLES, ...HANDOVER_ROLES, ...ASSET_ROLES, ...WARRANTY_ROLES, ...RETENTION_ROLES, ...CLOSURE_ROLES, ...HOUSEHOLD_ROLES, ...INVENTORY_ROLES, ...PLAN_COMP_ROLES, ...AUD_ROLES, ...DIS_REPORT_ROLES, ...MASTER_ROLES]) {
+  for (const role of DOCS ? docsRoles() : E2E_ROLES) {
     statements.push([
       "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
       [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],
     ]);
   }
   if (name === 'B') statements.push(...providerFixtures(tenantId));
-  if (name === 'A') statements.push(...issueFixtures(tenantId), ...investmentFixtures(tenantId), ...governanceFixtures(tenantId), ...deliveryFixtures(tenantId), ...docDraftFixtures(tenantId));
+  if (name === 'A' && !DOCS) statements.push(...issueFixtures(tenantId), ...investmentFixtures(tenantId), ...governanceFixtures(tenantId), ...deliveryFixtures(tenantId), ...docDraftFixtures(tenantId));
   // The units that owe the reports of the investors in the monitoring calendar (MNE-01): the Office and the Project Management Board of the Department.
   if (name === 'A') statements.push(["update machvon.organization_unit set is_investor = true where tenant_id = $1 and code = any($2::text[])", [tenantId, ['CB-SKHDT-VP', 'CB-SKHDT-QLDA']]]);
   await asOwner(database, tenantId, statements);
@@ -1187,7 +1219,11 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
 
   const roles = await asOwner<{ id: string; code: string }>(database, tenantId, [['select id, code from machvon.role_definition', []]]);
   const roleByCode = new Map(roles.map((row) => [row.code, row.id]));
-  const plans: GrantPlan[] = name === 'A' ? GRANTS : GRANTS.filter((grant) => grant.user === 'owner');
+  const docsGrants = DOCS_PEOPLE.flatMap((person, index): GrantPlan[] => [
+    { n: 900 + index, user: person.key, role: person.role, kind: person.kind, refs: person.kind === 'TENANT' ? [] : [unitId(person.unit)] },
+    ...(person.key === 'capApprover' ? [{ n: 950, user: person.key, role: 'LEADER', kind: 'TENANT' as const, refs: [] }] : []),
+  ]);
+  const plans: GrantPlan[] = name === 'A' ? (DOCS ? docsGrants : GRANTS) : GRANTS.filter((grant) => grant.user === 'owner');
   await asOwner(
     database,
     tenantId,
@@ -1717,13 +1753,18 @@ describe('e2e API stack', () => {
       await seedTenant(database, tenants, 'A');
       await seedTenant(database, tenants, 'B');
       await seedTenant(database, tenants, 'C');
-      await seedMemberFixtures(database);
-      await seedCtrFixtures(database);
-      await seedPayFixtures(database);
-      await seedDisbursementFixtures(database, tenants);
+      if (!DOCS) {
+        await seedMemberFixtures(database);
+        await seedCtrFixtures(database);
+        await seedPayFixtures(database);
+        await seedDisbursementFixtures(database, tenants);
+      }
+      // The registry of the tenants is the platform's own data, not business data: the docs mode needs it too.
       await seedPlacement(database);
       // Outgoing documents of tenant A with a signed PDF, a certificate authority of the test and a signing adapter that approves by itself.
-      const outgoing = await seedOutgoingDocuments({
+      const outgoing: OutgoingSeed = DOCS
+        ? ({ documents: { visualSubmitted: '', flowSubmitted: '', visualSigned: '' } } as unknown as OutgoingSeed)
+        : await seedOutgoingDocuments({
         database,
         tenants,
         tenantId: fixtures.tenants.A,

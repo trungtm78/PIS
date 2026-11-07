@@ -47,8 +47,8 @@
         "HOME-01"
       ],
       "heading": "Màn hình Tổng quan điều hành",
-      "text": "Đây là màn hình Tổng quan điều hành của tổ chức bạn vừa chọn. Phía trên là bộ chọn Đơn vị, năm của số liệu và ngày số liệu đến. Phần Ngữ cảnh của số liệu cho biết phạm vi, ngày chốt và ảnh chụp số liệu đang xem. Tiếp theo là hai tỷ lệ giải ngân.",
-      "note": "Mọi con số đều kèm ngữ cảnh: phạm vi, ngày chốt và ảnh chụp số liệu, để bạn biết con số này tính từ đâu."
+      "text": "Đây là màn hình Tổng quan điều hành của tổ chức bạn vừa chọn. Phía trên là bộ chọn Đơn vị, năm của số liệu và ngày số liệu đến. Vì tổ chức mới bắt đầu dùng hệ thống, chưa có báo cáo nào được chốt, nên màn hình báo là chưa có ảnh chụp số liệu nào được chốt. Khi các đơn vị nộp báo cáo giải ngân và số liệu được chốt, các tỷ lệ giải ngân sẽ hiện ở đây.",
+     "note": "Trung tâm điều hành chỉ hiển thị số liệu của ảnh chụp đã chốt, để mọi con số đều biết mình tính từ đâu."
     },
     {
       "id": "thuc-don",

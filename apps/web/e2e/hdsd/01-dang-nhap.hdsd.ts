@@ -43,8 +43,9 @@ test('clip 01: sign in, choose the organisation and look at the home screen', as
     await page.waitForURL(/\/home\/home-01/);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await ui.wait(1200);
-    const context = page.getByRole('heading', { name: 'Ngữ cảnh của số liệu' }).locator('xpath=ancestor::*[self::section or self::article or self::div][1]');
-    await ui.spot(context, () => ui.point(context));
+    // A new organisation has no frozen snapshot yet, and the screen says so; the figures arrive with the reports of the later chapters.
+    const status = page.getByRole('status').filter({ has: page.getByRole('heading', { name: 'Chưa có ảnh chụp số liệu nào được chốt' }) });
+    await ui.spot(status, () => ui.point(status));
   });
 
   await clip.step('thuc-don', async () => {
