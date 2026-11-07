@@ -14982,6 +14982,7 @@
   "doc.incoming.field.docType": "Type of document",
   "doc.incoming.field.docType.choose": "Choose a type",
   "doc.incoming.field.channel": "Channel",
+  "doc.incoming.fact.document": "Document code (the ground cited on other screens)",
   "doc.incoming.field.sender": "Sender",
   "doc.incoming.field.symbol": "Symbol on the document",
   "doc.incoming.field.issuedOn": "Date on the document",

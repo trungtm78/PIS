@@ -177,6 +177,7 @@ function Facts({ line, moment }: { line: IncomingLine; moment: (iso: string | nu
     <dl className="qms-facts">
       {row(t('doc.incoming.column.number'), line.symbol ?? t('doc.incoming.none'), 'fact-number')}
       {row(t('doc.incoming.field.sender'), line.senderName, 'fact-sender')}
+      {line.documentId === '' ? null : row(t('doc.incoming.fact.document'), <code>{line.documentId}</code>, 'fact-document')}
       {row(t('doc.incoming.field.symbol'), line.originalSymbol ?? t('doc.incoming.none'), 'fact-symbol')}
       {row(t('doc.incoming.field.issuedOn'), moment(line.originalIssuedOn), 'fact-issued')}
       {row(t('doc.incoming.field.channel'), channelLabel(t, line.channel), 'fact-channel')}

@@ -14982,6 +14982,7 @@
   "doc.incoming.field.docType": "Loại văn bản",
   "doc.incoming.field.docType.choose": "Chọn loại văn bản",
   "doc.incoming.field.channel": "Kênh nhận",
+  "doc.incoming.fact.document": "Mã văn bản (dùng làm căn cứ ở các màn khác)",
   "doc.incoming.field.sender": "Cơ quan gửi",
   "doc.incoming.field.symbol": "Ký hiệu gốc",
   "doc.incoming.field.issuedOn": "Ngày ban hành",

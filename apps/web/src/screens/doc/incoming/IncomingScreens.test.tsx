@@ -16,13 +16,14 @@ const problem = (code: string, status = 422, extensions: Record<string, unknown>
 
 const UNIT = '00000000-0000-4000-8000-000000000f01';
 const USER = '00000000-0000-4000-8000-0000000000b1';
+const documentOf = (n: number): string => `00000000-0000-4000-8000-0000000e${String(n).padStart(4, '0')}`;
 const letterId = (n: number): string => `00000000-0000-4000-8000-0000000d${String(n).padStart(4, '0')}`;
 const actions = (on: Partial<Record<'register' | 'reject' | 'assign' | 'startProcessing' | 'resolve', boolean>> = {}) => ({ register: false, reject: false, assign: false, startProcessing: false, resolve: false, ...on });
 
 /** A letter as the ledger answers it: assigned to the unit and a handler, due on the 27th, nothing the caller may do unless the test says so. */
 const letter = (n: number, overrides: Record<string, unknown> = {}) => ({
   id: letterId(n),
-  document_id: `00000000-0000-4000-8000-0000000e${String(n).padStart(4, '0')}`,
+  document_id: documentOf(n),
   status: 'ASSIGNED',
   channel: 'UPLOAD',
   title: `Công văn số ${n}`,
@@ -366,6 +367,8 @@ describe('IncomingHandlingScreen (DOC-13): handling one letter', () => {
     expect(screen.getByTestId('overdue').textContent).toBe(text('doc.incoming.overdue', { days: 2, date: '27/10/26' }));
     expect(screen.getByTestId('fact-number').textContent).toBe('10/REG-DEN-2026');
     expect(screen.getByTestId('fact-sender').textContent).toBe('Bộ Tài chính');
+    // The code of the document is what the other screens ask for when a decision is the ground of a step (the publication of a catalogue entry), so the person can read it here.
+    expect(screen.getByTestId('fact-document').textContent).toBe(documentOf(1));
     expect(screen.getByTestId('fact-assigned').textContent).toBe('Phòng Kế hoạch · Chuyên viên An');
     expect(screen.getByTestId('fact-duplicate').querySelector('a')?.getAttribute('href')).toBe(`/doc/doc-13?id=${letterId(7)}`);
     const history = screen.getByTestId('history');

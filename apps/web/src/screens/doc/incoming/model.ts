@@ -42,6 +42,8 @@ export interface IncomingAssignmentLine {
 /** One letter as DOC-11..13 show it. */
 export interface IncomingLine {
   id: string;
+  /** The code of the document the letter is: what other screens ask for when a decision is the ground of a step. */
+  documentId: string;
   status: IncomingStatus;
   channel: Channel;
   title: string;
@@ -85,6 +87,7 @@ export function toIncomingLine(raw: unknown): IncomingLine | undefined {
   const actions = asRecord(row.actions);
   return {
     id,
+    documentId: text(row.document_id) ?? '',
     status,
     channel,
     title: text(row.title) ?? '',
