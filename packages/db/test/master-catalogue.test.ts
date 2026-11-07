@@ -529,5 +529,16 @@ describe('the catalogue types, the platform baseline and the rule port (ST-MDM-0
       expect(retentions.find((row) => row.businessKey === 'MASTER_DATA')?.attributes).toMatchObject({ permanent: true, awaiting_confirmation: true, cxn: 'CXN-05' });
       expect(retentions.find((row) => row.businessKey === 'FINANCIAL_RECORD')?.attributes).toMatchObject({ retention_years: 10, legal_hold_allowed: true });
     });
+
+    // A tenant may only extend the areas the platform publishes (it adds children); with none published, a new tenant could not name the area of its first project.
+    it('publishes the provinces as areas, so that a tenant can extend one with a ward of its own', async () => {
+      const areas = await as(STEWARD, (tx) => store.search(tx, { masterType: 'AREA', namespace: 'PLATFORM', asOf: TODAY, limit: 100, after: undefined }));
+      expect(areas).toHaveLength(34);
+      const province = areas.find((row) => row.businessKey === 'CAO-BANG');
+      expect(province?.label).toBe('Cao Bằng');
+      const ward = await inForce('AREA', 'CB-THUC-PHAN', { label: 'Phường Thục Phán', parentRecordId: province?.id ?? null });
+      const found = await as(STEWARD, (tx) => store.findRecord(tx, ward.recordId));
+      expect(found).toMatchObject({ namespace: 'TENANT', masterType: 'AREA', businessKey: 'CB-THUC-PHAN', status: 'EFFECTIVE' });
+    });
   });
 });

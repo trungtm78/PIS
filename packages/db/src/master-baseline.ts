@@ -353,6 +353,13 @@ const ADVANCE_CAPS: readonly BaselineEntry[] = [
 ];
 
 /** The days the verification of a settlement may take (BR-PAY-15): the numbers are the fixture of the acceptance tests (UAT-AC339), not a regulation, and wait for the confirmation named by CXN-09. */
+/**
+ * The areas the platform publishes: the 34 provinces and cities in force since the arrangement of 2025. A tenant extends them with entries of its own (a ward, a commune)
+ * under the province they belong to; with none published, a new tenant could not name the area of its first project.
+ */
+const PROVINCES: readonly string[] = ['HA-NOI', 'HUE', 'LAI-CHAU', 'DIEN-BIEN', 'SON-LA', 'LANG-SON', 'QUANG-NINH', 'THANH-HOA', 'NGHE-AN', 'HA-TINH', 'CAO-BANG', 'TUYEN-QUANG', 'LAO-CAI', 'THAI-NGUYEN', 'PHU-THO', 'BAC-NINH', 'HUNG-YEN', 'HAI-PHONG', 'NINH-BINH', 'QUANG-TRI', 'DA-NANG', 'QUANG-NGAI', 'GIA-LAI', 'KHANH-HOA', 'LAM-DONG', 'DAK-LAK', 'HO-CHI-MINH', 'DONG-NAI', 'TAY-NINH', 'CAN-THO', 'VINH-LONG', 'DONG-THAP', 'CA-MAU', 'AN-GIANG'];
+const AREAS: readonly BaselineEntry[] = PROVINCES.map((key) => entry('AREA', key, vi(`area.${key}.label`), {}, { validFrom: '2025-07-01', legalBasis: vi('legal.province_arrangement') }));
+
 const SETTLEMENT_DEADLINES: readonly BaselineEntry[] = [
   entry(
     'PAY_SETTLEMENT_DEADLINE',
@@ -373,7 +380,7 @@ const SETTLEMENT_DEADLINES: readonly BaselineEntry[] = [
   ),
 ];
 
-export const BASELINE_PACK: BaselinePack = sealPack('PLATFORM-2026.1', [...ENTRIES, ...CALENDAR_AND_UNITS, ...OPERATIONAL_CATALOGUES, ...LAND_TIMERS, ...PETITION_DEADLINES, ...QMS_REGIMES, ...WARRANTY_MINIMUMS, ...ADVANCE_CAPS, ...SETTLEMENT_DEADLINES]);
+export const BASELINE_PACK: BaselinePack = sealPack('PLATFORM-2026.1', [...ENTRIES, ...CALENDAR_AND_UNITS, ...OPERATIONAL_CATALOGUES, ...LAND_TIMERS, ...PETITION_DEADLINES, ...QMS_REGIMES, ...WARRANTY_MINIMUMS, ...ADVANCE_CAPS, ...SETTLEMENT_DEADLINES, ...AREAS]);
 
 export interface BaselineResult {
   created: number;
