@@ -1,0 +1,20 @@
+# A metric of the contract portfolio as code (CA-1, ST-BI-001). The meaning of the number is written once, in `packages/kernel/src/ctr-analytics.ts` (indicator TOP_N_SHARE); this file only says which
+# fields of the dataset DS-CTR it is made of. The dataset is read from the certified contract fact of a frozen snapshot; until that source exists (part 2 of CA-1) a query over it answers DATASET_SOURCE_UNAVAILABLE.
+# Changing what the number means (grain, unit, kind, expression, numerator, denominator) under this code needs a later effective_from, or a new code.
+# Two stages: the ACTIVE value is summed per group of the dimension of the query (investor, unit, fund source or contractor), then the five largest groups over all of them. A dimension is required: it is what the groups are.
+code: ctr_top5_share
+grain: contract
+aggregation_type: ratio
+numerator:
+  op: top_n_sum
+  args:
+    - { op: sum, args: [{ op: field, name: ACTIVE_VALUE }] }
+    - { op: const, value: 5 }
+denominator:
+  op: sum
+  args:
+    - { op: field, name: ACTIVE_VALUE }
+unit: percent
+null_policy: NULL_NOT_ZERO
+dimensions: [unit, fund_source, investor, contractor]
+effective_from: "2026-11-08"

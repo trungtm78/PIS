@@ -1,0 +1,18 @@
+# Schedule performance index of a project (G1-4, ST-BI-001): the earned value over the planned value of the baseline, from the result frozen with the snapshot of a closed period. SPI = EV / PV, four decimals;
+# below the amber line of the rule EVM_POLICY the project earns less than the baseline planned. A project with no planned value yet has no SPI: the metric is empty for it, never zero.
+# Changing what the number means under this code needs a later effective_from, or a new code.
+code: prj_spi
+grain: project
+aggregation_type: ratio
+numerator:
+  op: sum
+  args:
+    - { op: field, name: EV }
+denominator:
+  op: sum
+  args:
+    - { op: field, name: PV }
+unit: ratio
+null_policy: NULL_NOT_ZERO
+dimensions: [unit, project, fund_source]
+effective_from: "2026-11-08"

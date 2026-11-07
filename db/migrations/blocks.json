@@ -196,6 +196,61 @@
       "slice": "PRJ-2",
       "from": 1740,
       "to": 1759
+    },
+    {
+      "slice": "GOV-4",
+      "from": 1770,
+      "to": 1789
+    },
+    {
+      "slice": "GOV-6",
+      "from": 1810,
+      "to": 1829
+    },
+    {
+      "slice": "GOV-3",
+      "from": 1790,
+      "to": 1809
+    },
+    {
+      "slice": "GOV-1",
+      "from": 1850,
+      "to": 1869
+    },
+    {
+      "slice": "GOV-7",
+      "from": 1830,
+      "to": 1849
+    },
+    {
+      "slice": "GOV-2",
+      "from": 1900,
+      "to": 1919
+    },
+    {
+      "slice": "DIR-1",
+      "from": 2120,
+      "to": 2139
+    },
+    {
+      "slice": "FIN-1",
+      "from": 2260,
+      "to": 2279
+    },
+    {
+      "slice": "PRC-1",
+      "from": 2320,
+      "to": 2339
+    },
+    {
+      "slice": "CTR-4",
+      "from": 1920,
+      "to": 1939
+    },
+    {
+      "slice": "GOVINT-1",
+      "from": 2340,
+      "to": 2359
     }
   ]
 }

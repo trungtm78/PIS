@@ -1,0 +1,20 @@
+# Cost performance index of a project (G1-4, ST-BI-001): the earned value over the actual cost, from the result that was frozen with the snapshot of a closed period (table `evm_frozen_result`, written by
+# `PrjEvmStore.freezeForSnapshot`). The meaning of the number is written once, in `packages/kernel/src/prj-evm.ts` (CPI = EV / AC, four decimals); the earned value comes only from the quantities that were accepted
+# and the actual cost only from the payments that were certified. A project with no actual cost has no CPI, so the metric is empty for it (NULL_NOT_ZERO), never zero. Below the amber line of the rule
+# EVM_POLICY the project costs more than it earns. The dataset DS-EVM reads the frozen results; until its source is registered a query over it answers DATASET_SOURCE_UNAVAILABLE.
+# Changing what the number means (grain, unit, kind, expression, numerator, denominator) under this code needs a later effective_from, or a new code.
+code: prj_cpi
+grain: project
+aggregation_type: ratio
+numerator:
+  op: sum
+  args:
+    - { op: field, name: EV }
+denominator:
+  op: sum
+  args:
+    - { op: field, name: AC }
+unit: ratio
+null_policy: NULL_NOT_ZERO
+dimensions: [unit, project, fund_source]
+effective_from: "2026-11-08"

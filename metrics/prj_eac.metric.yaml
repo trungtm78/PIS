@@ -1,0 +1,15 @@
+# Estimate at completion of a project (G1-4, ST-BI-001): the forecast of what the project will cost in all, in whole dong, by the formula of the rule EVM_POLICY (the cumulative CPI by default: BAC x AC / EV), from
+# the result frozen with the snapshot of a closed period. A stock of one snapshot: it adds up over the projects of that snapshot, never over periods. A project whose earned value or actual cost is not known has
+# no estimate: the metric is empty for it, never zero.
+# Changing what the number means under this code needs a later effective_from, or a new code.
+code: prj_eac
+grain: project
+aggregation_type: semi_additive
+expression:
+  op: sum
+  args:
+    - { op: field, name: EAC }
+unit: VND
+null_policy: NULL_NOT_ZERO
+dimensions: [unit, project, fund_source]
+effective_from: "2026-11-08"

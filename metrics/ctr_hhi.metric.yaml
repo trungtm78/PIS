@@ -1,0 +1,23 @@
+# A metric of the contract portfolio as code (CA-1, ST-BI-001). The meaning of the number is written once, in `packages/kernel/src/ctr-analytics.ts` (indicator HHI); this file only says which
+# fields of the dataset DS-CTR it is made of. The dataset is read from the certified contract fact of a frozen snapshot; until that source exists (part 2 of CA-1) a query over it answers DATASET_SOURCE_UNAVAILABLE.
+# Changing what the number means (grain, unit, kind, expression, numerator, denominator) under this code needs a later effective_from, or a new code.
+# Two stages: the sum of the squares of the group values over the square of the total, times 100, which the percent of a ratio times 100 turns into the index (sum of the squared shares in percent, from 10000 / n to 10000). A dimension is required.
+code: ctr_hhi
+grain: contract
+aggregation_type: ratio
+numerator:
+  op: mul
+  args:
+    - { op: const, value: 100 }
+    - op: sum_of_squares
+      args:
+        - { op: sum, args: [{ op: field, name: ACTIVE_VALUE }] }
+denominator:
+  op: mul
+  args:
+    - { op: sum, args: [{ op: field, name: ACTIVE_VALUE }] }
+    - { op: sum, args: [{ op: field, name: ACTIVE_VALUE }] }
+unit: index
+null_policy: NULL_NOT_ZERO
+dimensions: [unit, fund_source, investor, contractor]
+effective_from: "2026-11-08"

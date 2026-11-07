@@ -1,0 +1,15 @@
+# A metric of the contract portfolio as code (CA-1, ST-BI-001). The meaning of the number is written once, in `packages/kernel/src/ctr-analytics.ts` (indicator none (a count of contracts)); this file only says which
+# fields of the dataset DS-CTR it is made of. The dataset is read from the certified contract fact of a frozen snapshot; until that source exists (part 2 of CA-1) a query over it answers DATASET_SOURCE_UNAVAILABLE.
+# Changing what the number means (grain, unit, kind, expression, numerator, denominator) under this code needs a later effective_from, or a new code.
+# Contracts in the snapshot, each counted once in a group; a joint venture is in the group of each of its contractors and once in the total, so the groups of the contractor dimension do not add up (DISTINCT_NOT_ADDITIVE).
+code: ctr_contract_count
+grain: contract
+aggregation_type: distinct
+expression:
+  op: count_distinct
+  args:
+    - { op: field, name: CONTRACT }
+unit: count
+null_policy: ZERO_IF_NO_ROWS
+dimensions: [unit, project, fund_source, investor, contractor, contract_status, contract_type]
+effective_from: "2026-11-08"

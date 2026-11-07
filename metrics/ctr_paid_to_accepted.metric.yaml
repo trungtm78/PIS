@@ -1,0 +1,19 @@
+# A metric of the contract portfolio as code (CA-1, ST-BI-001). The meaning of the number is written once, in `packages/kernel/src/ctr-analytics.ts` (indicator PAID_TO_ACCEPTED); this file only says which
+# fields of the dataset DS-CTR it is made of. The dataset is read from the certified contract fact of a frozen snapshot; until that source exists (part 2 of CA-1) a query over it answers DATASET_SOURCE_UNAVAILABLE.
+# Changing what the number means (grain, unit, kind, expression, numerator, denominator) under this code needs a later effective_from, or a new code.
+# Paid over accepted: above 100 the contractors were paid for work nobody accepted yet. The ratio of a group is made from the sums, never from the ratios of its contracts.
+code: ctr_paid_to_accepted
+grain: contract
+aggregation_type: ratio
+numerator:
+  op: sum
+  args:
+    - { op: field, name: PAID }
+denominator:
+  op: sum
+  args:
+    - { op: field, name: ACCEPTED }
+unit: percent
+null_policy: NULL_NOT_ZERO
+dimensions: [unit, project, fund_source, investor, contractor, contract_status, contract_type]
+effective_from: "2026-11-08"
