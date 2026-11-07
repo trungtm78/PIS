@@ -7,10 +7,10 @@ import type { NavigationAccess } from './model';
 const model = buildNavigation(ARCHITECTURE, WEB_ROUTES, ALL_MODULES_VISIBLE);
 
 describe('buildNavigation for the real architecture file', () => {
-  it('has the personal destinations, six quick modules and six library areas', () => {
+  it('has the personal destinations, seven quick modules and six library areas', () => {
     expect(model.personal.map((link) => link.id)).toEqual(['HOME-01', 'HOME-02', 'NOT-01']);
     expect(model.personal.map((link) => link.expandable)).toEqual([false, false, true]);
-    expect(model.quick.map((link) => link.module)).toEqual(['PRJ', 'CAP', 'DIS', 'PAY', 'BID', 'BI']);
+    expect(model.quick.map((link) => link.module)).toEqual(['PRJ', 'CAP', 'DIS', 'CTR', 'PAY', 'BID', 'BI']);
     expect(model.quick.every((link) => link.expandable && link.id === `${link.module}-01`)).toBe(true);
     expect(model.library.map((area) => area.id)).toEqual(['overview', 'investment', 'insights', 'engagement', 'data', 'admin']);
   });

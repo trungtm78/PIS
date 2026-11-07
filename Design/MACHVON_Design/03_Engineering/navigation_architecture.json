@@ -1,7 +1,7 @@
 {
   "structure": "Single sidebar with direct destinations, contextual shortcuts and searchable application library; native mobile uses a five-tab bottom navigation",
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
-  "date": "2026-10-22",
+  "date": "2026-11-07",
   "coverage": {
     "webRoutes": 406,
     "webCatalog": 406,
@@ -1734,6 +1734,11 @@
       "insights"
     ],
     [
+      "CTR",
+      "Hợp đồng",
+      "agreement"
+    ],
+    [
       "PAY",
       "Thanh toán",
       "contract"
@@ -2310,7 +2315,7 @@
         "label": "Cá nhân"
       }
     ],
-    "rule": "MOB-01..06 onboarding without tabs; 47-54 account; 32-36 inbox; 23-26, 65 and any later approval-kind screen approval; 7, 8, 40, 58 home; other mobile screens: id outside MOB (QMS-09, QMS-10, DOC-22, DOC-23) uses approval for approval-kind and DOC screens, otherwise projects; everything else projects (mobileTabKey in workspace-navigation.js); other mobile screens: id outside MOB (QMS-09, QMS-10, DOC-22, DOC-23) uses approval for approval-kind and DOC screens, otherwise projects; everything else projects (mobileTabKey in workspace-navigation.js); other mobile screens: id outside MOB (QMS-09, QMS-10, DOC-22, DOC-23) uses approval for approval-kind and DOC screens, otherwise projects; everything else projects (mobileTabKey in workspace-navigation.js)"
+    "rule": "MOB-01..06 onboarding without tabs; 47-54 account; 32-36 inbox; 23-26, 65 and any later approval-kind screen approval; 7, 8, 40, 58 home; other mobile screens: id outside MOB (QMS-09, QMS-10, DOC-22, DOC-23) uses approval for approval-kind and DOC screens, otherwise projects; everything else projects (mobileTabKey in workspace-navigation.js); other mobile screens: id outside MOB (QMS-09, QMS-10, DOC-22, DOC-23) uses approval for approval-kind and DOC screens, otherwise projects; everything else projects (mobileTabKey in workspace-navigation.js); other mobile screens: id outside MOB (QMS-09, QMS-10, DOC-22, DOC-23) uses approval for approval-kind and DOC screens, otherwise projects; everything else projects (mobileTabKey in workspace-navigation.js); other mobile screens: id outside MOB (QMS-09, QMS-10, DOC-22, DOC-23) uses approval for approval-kind and DOC screens, otherwise projects; everything else projects (mobileTabKey in workspace-navigation.js)"
   },
   "webRoutes": [
     {

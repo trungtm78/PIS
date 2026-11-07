@@ -37,13 +37,14 @@ Object.assign(workspaceSymbols,{
  inbox:'<path d="M4 4h16l2 13v3H2v-3L4 4Z"/><path d="M2 15h6l2 3h4l2-3h6"/>',
  task:'<rect x="4" y="3" width="16" height="18" rx="3"/><path d="m8 12 3 3 5-6"/>',
  wallet:'<rect x="3" y="5" width="18" height="15" rx="3"/><path d="M16 11h5v5h-5a2.5 2.5 0 0 1 0-5ZM5 5V3h13"/>',
+ agreement:'<path d="M6 2h9l4 4v8M6 2v20h6M9 8h5M9 12h4"/><circle cx="17" cy="18" r="3"/><path d="m15.5 20.5-.5 2 2-1 2 1-.5-2"/>',
  contract:'<path d="M6 2h9l4 4v16H6V2Z M14 2v5h5M9 11h7m-7 4h7m-7 4h4"/>',
  pin:'<path d="m8 3 8 0-1 6 4 4v2H5v-2l4-4-1-6ZM12 15v7"/>',
  star:'<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',
  help:'<circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 4m0 3h.01"/>'
 });
-const quickModules=[['PRJ','Dự án','investment'],['CAP','Kế hoạch vốn','wallet'],['DIS','Giải ngân','insights'],['PAY','Thanh toán','contract'],['BID','Nhà thầu','task'],['BI','BI & báo cáo','overview']];
+const quickModules=[['PRJ','Dự án','investment'],['CAP','Kế hoạch vốn','wallet'],['DIS','Giải ngân','insights'],['CTR','Hợp đồng','agreement'],['PAY','Thanh toán','contract'],['BID','Nhà thầu','task'],['BI','BI & báo cáo','overview']];
 const contextualShortcuts={
  NOT:[[6,'Điều phối thông báo'],[4,'Vận hành gửi tin'],[3,'Tùy chọn nhận tin']],
  PRJ:[[7,'Tiến độ & mốc'],[4,'Hồ sơ pháp lý'],[9,'Chủ trương đầu tư'],[12,'Quyết toán']],
