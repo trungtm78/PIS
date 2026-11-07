@@ -70,7 +70,6 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
         reloadKey: ref.watch(notificationsChangedProvider),
         read: readNotifications,
         parse: parseNotificationList,
-        isEmpty: (NotificationList list) => list.items.isEmpty,
         builder: (BuildContext context, Loaded<NotificationList> loaded) {
           final NotificationList list = loaded.value;
           WidgetsBinding.instance.addPostFrameCallback((_) {

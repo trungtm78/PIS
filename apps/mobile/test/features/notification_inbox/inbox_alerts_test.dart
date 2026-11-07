@@ -58,6 +58,17 @@ void main() {
       expect(server.callsTo('GET', '/home/my-work').any((HttpCall call) => call.url.queryParameters['view'] == 'mine'), isTrue, reason: 'the inbox shows the alerts of the person');
     });
 
+    testWidgets('an inbox with no notification still shows the alerts of the person, above the empty message', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = _server();
+      server.on('GET', '/me/notifications', (_) => notificationsPage(<Map<String, Object?>>[]));
+      await _open(tester, server, '/inbox');
+
+      expect(find.text('Giấy phép DA-DT205 đã hết hạn'), findsOneWidget);
+      expect(find.text('Khẩn 1'), findsOneWidget);
+      expect(find.text('Tất cả (0)'), findsOneWidget);
+    });
+
     testWidgets('the number on the tab is the alerts to act on once the server has given it; the unread notifications stand in until then', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ProviderContainer withCounts = await _open(tester, _server(), '/inbox');
