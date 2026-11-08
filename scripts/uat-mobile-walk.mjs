@@ -8,15 +8,12 @@ const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(SCRIPT_DIR, '..');
 const CATALOG = join('Design', 'MACHVON_Design', '03_Engineering', 'screen_catalog.json');
 const PACKAGE = 'vn.machvon.app';
+/** The words of the phone application (tab names, titles, buttons) live in uat-mobile-walk.json next to this script. */
+const WORDS = JSON.parse(readFileSync(join(SCRIPT_DIR, 'uat-mobile-walk.json'), 'utf8'));
+const PATTERNS = Object.fromEntries(Object.entries(WORDS.patterns).map(([name, { source, flags }]) => [name, new RegExp(source, flags)]));
 
 /** The tab bar of the application (apps/mobile/lib/core/navigation/app_shell.dart) as the pixels of the 720 x 1560 emulator: the centre of each tab. */
-const TABS = [
-  { name: 'Trang chủ', x: 72 },
-  { name: 'Dự án', x: 216 },
-  { name: 'Phê duyệt', x: 360 },
-  { name: 'Thông báo', x: 504 },
-  { name: 'Cá nhân', x: 648 },
-];
+const TABS = WORDS.tabs;
 const TAB_Y = 1432;
 /** Where the content of a screen is: under the bar of the system and the title, over the tab bar. */
 const CONTENT_TOP = 240;
@@ -29,24 +26,13 @@ const MAX_PAGES = 4;
 /** 48 dp at the 2 pixels per dp of the emulator. */
 const MIN_TOUCH_PX = 96;
 /** What a walk never taps: it leaves the session, deletes, sends, decides, switches the tenant or sets a filter (a menu is not a screen). The screens are looked at, not used. */
-const NEVER_TAP = /^(đăng xuất|xóa|xoá|gửi|nộp|phê duyệt|duyệt|từ chối|ký|trả lại|đổi tổ chức|đổi tenant|thoát|hủy|huỷ|làm mới|đồng ý|xác nhận|tiếp tục|trạng thái|bộ lọc|lọc|english|tiếng việt|ngôn ngữ|quay lại)(?!\p{L})/iu;
+const NEVER_TAP = PATTERNS.neverTap;
 /** The screens whose rows are an action (a choice of tenant or unit, the device list with its sign-out): the walk does not go below them. */
 const NO_DESCEND = new Set(['MOB-03', 'MOB-04', 'MOB-48', 'MOB-49']);
 const LOG_PROBLEM = /FATAL EXCEPTION|EXCEPTION CAUGHT BY|RenderFlex overflowed|overflowed by|ANR in|Process vn\.machvon\.app.*has died/u;
 
 /** The title the application writes where it is not the one of the screen catalogue (the strings files of the features in apps/mobile/lib/features). */
-export const TITLE_ALIASES = {
-  'Biểu trưng MACHVON': 'MOB-01',
-  'Tài khoản': 'MOB-47',
-  'Hàng đợi gửi': 'MOB-41',
-  'Làm việc ngoại tuyến': 'MOB-43',
-  'Tìm kiếm': 'MOB-51',
-  'Dashboard BI của tôi': 'MOB-40',
-  'Thông báo đẩy': 'MOB-05',
-  'Hội thoại': 'MOB-35',
-  'Đăng nhập': 'MOB-02',
-  'Xác thực hai yếu tố': 'MOB-03',
-};
+export const TITLE_ALIASES = WORDS.titleAliases;
 
 const normal = (text) => String(text).normalize('NFC').toLowerCase().replace(/\s+/gu, ' ').trim();
 
@@ -97,7 +83,7 @@ export function identify(nodes, titles) {
 
 /** The first label in the bar of the screen, for a screen the catalogue does not know. */
 export function headingOf(nodes) {
-  const node = nodes.find((candidate) => candidate.label !== '' && candidate.label !== 'Quay lại' && candidate.bounds.top >= STATUS_BAR && candidate.bounds.top < CONTENT_TOP + 120);
+  const node = nodes.find((candidate) => candidate.label !== '' && candidate.label !== WORDS.backLabel && candidate.bounds.top >= STATUS_BAR && candidate.bounds.top < CONTENT_TOP + 120);
   return node === undefined ? '' : node.label.split('\n')[0];
 }
 
@@ -258,17 +244,17 @@ export async function walk({ root = REPO_ROOT, label, journal, budgetMinutes, pe
     const nodes = readScreen();
     const id = identify(nodes, titles);
     const find = (pattern) => nodes.find((node) => pattern.test(node.label));
-    if (find(/^Use without an account$/u)) {
-      tap(...centre(find(/^Use without an account$/u)));
+    if (find(PATTERNS.useWithoutAccount)) {
+      tap(...centre(find(PATTERNS.useWithoutAccount)));
       await sleep(3000);
     } else if (id === 'MOB-02') {
       visit(at, nodes, 'launch');
-      if (!seenWelcome && find(/Đổi tổ chức/u)) {
+      if (!seenWelcome && find(PATTERNS.changeTenant)) {
         seenWelcome = true;
         const started = new Date();
-        tap(...centre(find(/Đổi tổ chức/u)));
+        tap(...centre(find(PATTERNS.changeTenant)));
         const welcome = await settle();
-        visit(started, welcome, 'Đổi tổ chức');
+        visit(started, welcome, PATTERNS.changeTenant.source);
         back();
         await sleep(2000);
         // The welcome screen is the first of its stack: the back key leaves the application.
@@ -277,20 +263,20 @@ export async function walk({ root = REPO_ROOT, label, journal, budgetMinutes, pe
           await sleep(6000);
         }
       }
-      const sso = readScreen().find((node) => /Đăng nhập bằng SSO/u.test(node.label));
+      const sso = readScreen().find((node) => PATTERNS.sso.test(node.label));
       if (sso) tap(...centre(sso));
       await sleep(6000);
     } else if (id === 'MOB-04') {
       visit(at, nodes, 'sign-in');
-      const unit = find(/^Cao Bằng/u);
+      const unit = find(PATTERNS.unit);
       if (unit) tap(...centre(unit));
       await sleep(1000);
-      const next = readScreen().find((node) => /^Tiếp tục$/u.test(node.label));
+      const next = readScreen().find((node) => PATTERNS.next.test(node.label));
       if (next) tap(...centre(next));
       await sleep(5000);
     } else if (id === 'MOB-03') {
       visit(at, nodes, 'sign-in');
-      const browser = find(/Xác thực trong trình duyệt/u);
+      const browser = find(PATTERNS.secondFactor);
       if (browser) tap(...centre(browser));
       await sleep(8000);
     } else if (id === 'MOB-07') {

@@ -103,7 +103,7 @@ async function apiCall(key, method, path, body) {
   return { status: response.status, json: text === '' ? {} : JSON.parse(text) };
 }
 
-/** Revokes the open sessions of a person through the product (the same call as "Thu hồi" on the screen of devices); the phone's next call is refused with 401. */
+/** Revokes the open sessions of a person through the product (the same call as the revoke button on the screen of devices); the phone's next call is refused with 401. */
 export async function revokeSessions(key) {
   const listed = await apiCall(key, 'GET', '/me/sessions');
   const sessions = (listed.json.items ?? listed.json.sessions ?? listed.json.data ?? []);

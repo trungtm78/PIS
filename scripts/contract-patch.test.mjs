@@ -6,6 +6,7 @@ import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { setTimeout as delay } from 'node:timers/promises';
 import {
   FILES,
   PatchError,
@@ -656,17 +657,22 @@ test('stepFromOptions maps flags to the step a spec would carry', () => {
 
 // --- the real files --------------------------------------------------------------------------------------------------
 
-test('on temp copies of the real contract files: canonical, patched and idempotent, and the real files stay untouched', async (t) => {
+test('on temp copies of the real contract files: canonical, patched and idempotent, and the real files stay untouched', async () => {
   const real = Object.values(FILES).map((file) => join(REPO_ROOT, file));
   const hashes = real.map(sha);
   const root = mkdtempSync(join(tmpdir(), 'machvon-contract-copy-'));
   try {
-    for (const file of Object.values(FILES)) {
-      mkdirSync(dirname(join(root, file)), { recursive: true });
-      copyFileSync(join(REPO_ROOT, file), join(root, file));
+    // A shared file may be caught half written by another lane: the copy is taken again until every file parses (the real files are only read).
+    let reports = [];
+    for (let attempt = 0; attempt < 50; attempt += 1) {
+      for (const file of Object.values(FILES)) {
+        mkdirSync(dirname(join(root, file)), { recursive: true });
+        copyFileSync(join(REPO_ROOT, file), join(root, file));
+      }
+      reports = checkFiles(root);
+      if (!reports.some((report) => !report.ok && report.error.key === 'notJson')) break;
+      await delay(100);
     }
-    const reports = checkFiles(root);
-    if (reports.some((report) => !report.ok && report.error.key === 'notJson')) return t.skip('a shared file is being written right now');
     assert.deepEqual(reports.filter((report) => !report.ok).map((report) => `${report.file}: ${report.error.message}`), [], 'every real file must be a byte-exact round trip');
     const steps = [
       { command: 'add-schema', name: 'ContractPatchProbe', schema: { type: 'object', properties: { id: { type: 'string', format: 'uuid' } } } },

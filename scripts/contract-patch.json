@@ -1,0 +1,3 @@
+{
+  "readModelReason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold."
+}

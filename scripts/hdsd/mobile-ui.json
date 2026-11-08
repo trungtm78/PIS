@@ -1,0 +1,14 @@
+{
+  "tabs": { "Trang chủ": 72, "Dự án": 216, "Phê duyệt": 360, "Thông báo": 504, "Cá nhân": 648 },
+  "buttonsLeftOut": ["Quay lại", "Làm mới"],
+  "patterns": {
+    "empty": { "source": "chưa có dữ liệu", "flags": "iu" },
+    "denied": { "source": "không đủ quyền", "flags": "iu" },
+    "sso": { "source": "Đăng nhập bằng SSO", "flags": "u" },
+    "browserChrome": { "source": "^Use without an account$|^Sử dụng mà không|^Không, cảm ơn", "flags": "iu" },
+    "unitChoice": { "source": "^Chọn đơn vị và vai trò", "flags": "u" },
+    "next": { "source": "^Tiếp tục$", "flags": "u" },
+    "secondFactor": { "source": "Xác thực trong trình duyệt", "flags": "u" },
+    "leaderHome": { "source": "Trang chủ lãnh đạo", "flags": "u" }
+  }
+}

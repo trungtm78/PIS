@@ -1,3 +1,4 @@
+import { LABELS, fill } from './labels.mjs';
 import { mmss } from './lib.mjs';
 
 const escapeHtml = (text) => String(text).replace(/&/gu, '&amp;').replace(/</gu, '&lt;').replace(/>/gu, '&gt;').replace(/"/gu, '&quot;');
@@ -57,28 +58,28 @@ export function chapterHtml(flow, timeline, screens, { number, previous, next } 
       if (entry === undefined) return '';
       const seconds = (entry.voiceMs / 1000).toFixed(1);
       return `<li class="step" id="${escapeHtml(step.id)}">
-  <button class="at" data-seek="${seconds}" aria-label="Phát từ ${mmss(entry.voiceMs)}">▶ ${mmss(entry.voiceMs)}</button>
+  <button class="at" data-seek="${seconds}" aria-label="${LABELS.playFrom} ${mmss(entry.voiceMs)}">▶ ${mmss(entry.voiceMs)}</button>
   <div class="step-body">
     <h3>${index + 1}. ${escapeHtml(step.heading)}</h3>
-    ${step.screens.length > 0 ? `<p class="screens">Màn hình: ${screenChips(step.screens, screens)}</p>` : ''}
+    ${step.screens.length > 0 ? `<p class="screens">${LABELS.screensLabel} ${screenChips(step.screens, screens)}</p>` : ''}
     <p>${escapeHtml(step.text)}</p>
     ${step.note ? `<p class="note">${escapeHtml(step.note)}</p>` : ''}
-    <img loading="lazy" src="img/${escapeHtml(flow.id)}/${escapeHtml(step.id)}.png" alt="Màn hình ở bước: ${escapeHtml(step.heading)}">
+    <img loading="lazy" src="img/${escapeHtml(flow.id)}/${escapeHtml(step.id)}.png" alt="${LABELS.stepAlt} ${escapeHtml(step.heading)}">
   </div>
 </li>`;
     })
     .join('\n');
-  const body = `<header class="top"><a href="../Huong-dan-su-dung-MACHVON.html">← Mục lục</a></header>
+  const body = `<header class="top"><a href="../Huong-dan-su-dung-MACHVON.html">${LABELS.toContents}</a></header>
 <main class="chapter">
   <h1>${number === undefined ? '' : `<span class="num">${number}</span>`}${escapeHtml(flow.title)}</h1>
-  <p class="meta"><strong>Dành cho:</strong> ${escapeHtml(flow.audience)}<br><strong>Bạn sẽ làm được:</strong> ${escapeHtml(flow.outcome)}</p>
+  <p class="meta"><strong>${LABELS.audience}</strong> ${escapeHtml(flow.audience)}<br><strong>${LABELS.outcome}</strong> ${escapeHtml(flow.outcome)}</p>
   <figure class="player">
-    <video id="clip" controls preload="metadata" playsinline poster="img/${escapeHtml(flow.id)}/poster.jpg" src="clips/${escapeHtml(flow.id)}.mp4" aria-label="Clip hướng dẫn: ${escapeHtml(flow.title)}">
-      <track kind="captions" srclang="vi" label="Tiếng Việt" src="clips/${escapeHtml(flow.id)}.vi.vtt" default>
+    <video id="clip" controls preload="metadata" playsinline poster="img/${escapeHtml(flow.id)}/poster.jpg" src="clips/${escapeHtml(flow.id)}.mp4" aria-label="${LABELS.clipLabel} ${escapeHtml(flow.title)}">
+      <track kind="captions" srclang="vi" label="${LABELS.captionsLabel}" src="clips/${escapeHtml(flow.id)}.vi.vtt" default>
     </video>
-    <figcaption>Clip có giọng đọc tiếng Việt và phụ đề. Bấm vào mốc thời gian bên dưới để nhảy tới đúng đoạn.</figcaption>
+    <figcaption>${LABELS.clipCaption}</figcaption>
   </figure>
-  <h2>Các bước trong clip (${timeline.length})</h2>
+  <h2>${LABELS.stepsInClip} (${timeline.length})</h2>
   <ol class="steps">
 ${steps}
   </ol>
@@ -92,7 +93,7 @@ document.querySelectorAll('button.at').forEach((button) => button.addEventListen
   clip.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }));
 </script>`;
-  return shell({ title: `${flow.title} · Hướng dẫn sử dụng Hệ thống quản lý đầu tư công`, body });
+  return shell({ title: `${flow.title} · ${LABELS.guideName}`, body });
 }
 
 /** The table of the screens: each one with the chapter and the moment that shows it, or the reason it is not filmed. */
@@ -107,26 +108,26 @@ export function screensHtml(catalogue, coverage, reasons = new Map()) {
           const cell =
             shown.length > 0
               ? shown.map((place) => `<a href="${escapeHtml(place.flow)}.html#${escapeHtml(place.step)}">${escapeHtml(place.chapter)} · ${mmss(place.startMs)}</a>`).join('<br>')
-              : `<span class="pending">${escapeHtml(reasons.get(screen.id) ?? 'Chưa quay')}</span>`;
+              : `<span class="pending">${escapeHtml(reasons.get(screen.id) ?? LABELS.notFilmed)}</span>`;
           const detail = shown.length > 0 ? `<br><small>${escapeHtml(shown[0].text)}</small>` : '';
           return `<tr id="${escapeHtml(screen.id)}"><td><code>${escapeHtml(screen.id)}</code></td><td>${escapeHtml(screen.title)}${detail}</td><td>${cell}</td></tr>`;
         })
         .join('\n');
-      return `<h2>${escapeHtml(module)} (${list.length})</h2>\n<table><thead><tr><th>Mã</th><th>Màn hình</th><th>Xem trong clip</th></tr></thead><tbody>\n${rows}\n</tbody></table>`;
+      return `<h2>${escapeHtml(module)} (${list.length})</h2>\n<table><thead><tr><th>${LABELS.colCode}</th><th>${LABELS.colScreen}</th><th>${LABELS.colWatch}</th></tr></thead><tbody>\n${rows}\n</tbody></table>`;
     })
     .join('\n');
-  const body = `<header class="top"><a href="../Huong-dan-su-dung-MACHVON.html">← Mục lục</a></header>
-<main class="chapter"><h1>Tra cứu màn hình</h1>
-<p class="meta">${coverage.covered} trên ${coverage.total} màn hình đã có đoạn hướng dẫn trong clip. Các màn còn lại ghi rõ lý do chưa quay.</p>
+  const body = `<header class="top"><a href="../Huong-dan-su-dung-MACHVON.html">${LABELS.toContents}</a></header>
+<main class="chapter"><h1>${LABELS.lookupTitle}</h1>
+<p class="meta">${fill(LABELS.siteLookupLead, coverage)}</p>
 ${sections}
 </main>`;
-  return shell({ title: 'Tra cứu màn hình · Hướng dẫn sử dụng Hệ thống quản lý đầu tư công', body });
+  return shell({ title: `${LABELS.lookupTitle} · ${LABELS.guideName}`, body });
 }
 
 /** The first page: what the system is, how to start, and the chapters in the order of the work. */
 export function indexHtml({ chapters, coverage, intro }) {
   const groups = new Map();
-  chapters.forEach((chapter, index) => groups.set(chapter.group ?? 'Khác', [...(groups.get(chapter.group ?? 'Khác') ?? []), { ...chapter, number: index + 1 }]));
+  chapters.forEach((chapter, index) => groups.set(chapter.group ?? LABELS.otherGroup, [...(groups.get(chapter.group ?? LABELS.otherGroup) ?? []), { ...chapter, number: index + 1 }]));
   const toc = [...groups]
     .map(
       ([group, list]) => `<h3>${escapeHtml(group)}</h3>
@@ -134,11 +135,11 @@ export function indexHtml({ chapters, coverage, intro }) {
     )
     .join('\n');
   const body = `<main class="chapter home">
-<section class="hero"><h1>${escapeHtml(intro.title)}</h1><p>${escapeHtml(intro.lead)}</p><span class="badge">${chapters.length} clip hướng dẫn · ${coverage.covered}/${coverage.total} màn hình</span></section>
-<section><h2>Giới thiệu</h2>${intro.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('\n')}</section>
-<section><h2>Bắt đầu nhanh</h2><ol>${intro.quickStart.map((item) => `<li>${escapeHtml(item)}</li>`).join('\n')}</ol></section>
-<section><h2>Các chương theo thứ tự công việc</h2>${toc}</section>
-<section><h2>Tra cứu</h2><p><a href="machvon/man-hinh.html">Tra cứu theo màn hình</a>: mỗi màn hình dẫn tới đúng mốc trong clip.</p></section>
+<section class="hero"><h1>${escapeHtml(intro.title)}</h1><p>${escapeHtml(intro.lead)}</p><span class="badge">${fill(LABELS.siteBadge, { clips: chapters.length, covered: coverage.covered, total: coverage.total })}</span></section>
+<section><h2>${LABELS.introTitle}</h2>${intro.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('\n')}</section>
+<section><h2>${LABELS.quickStart}</h2><ol>${intro.quickStart.map((item) => `<li>${escapeHtml(item)}</li>`).join('\n')}</ol></section>
+<section><h2>${LABELS.chaptersByWork}</h2>${toc}</section>
+<section><h2>${LABELS.indexLookupTitle}</h2><p><a href="machvon/man-hinh.html">${LABELS.indexLookupLink}</a>${LABELS.indexLookupRest}</p></section>
 </main>`;
   return shell({ title: intro.title, body, css: 'machvon/style.css' });
 }

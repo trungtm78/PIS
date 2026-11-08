@@ -1,3 +1,5 @@
+import { LABELS, fill } from './labels.mjs';
+
 const escapeHtml = (text) => String(text).replace(/&/gu, '&amp;').replace(/</gu, '&lt;').replace(/>/gu, '&gt;').replace(/"/gu, '&quot;');
 
 /** A link to the row of a screen in the table of the screens (the row opens the chapter and the moment that shows it). */
@@ -33,13 +35,13 @@ export function overviewHtml(overview, { catalogue, screens, chapters }) {
     .map(
       (step) => `<li><h4>${escapeHtml(step.name)}</h4>
 <p class="mods">${moduleLinks(step.modules)}</p>
-<dl><dt>Ai làm</dt><dd>${escapeHtml(step.who)}</dd><dt>Làm gì</dt><dd>${escapeHtml(step.does)}</dd><dt>Hệ thống kiểm soát</dt><dd>${escapeHtml(step.control)}</dd><dt>Kết quả</dt><dd>${escapeHtml(step.result)}</dd></dl></li>`,
+<dl><dt>${LABELS.chainWho}</dt><dd>${escapeHtml(step.who)}</dd><dt>${LABELS.chainDoes}</dt><dd>${escapeHtml(step.does)}</dd><dt>${LABELS.chainControl}</dt><dd>${escapeHtml(step.control)}</dd><dt>${LABELS.chainResult}</dt><dd>${escapeHtml(step.result)}</dd></dl></li>`,
     )
     .join('\n')}</ol></section>`;
   const governance = `<section id="quan-tri"><h2>${escapeHtml(overview.governanceTitle)}</h2><p>${escapeHtml(overview.governanceLead)}</p>
 <div class="cards">${overview.governance
     .map(
-      (control) => `<article class="card"><h4>${escapeHtml(control.name)}</h4><p>${escapeHtml(control.what)}</p><p><strong>Với người lãnh đạo:</strong> ${escapeHtml(control.forLeader)}</p><p class="screens">Xem ở: ${control.see.map((id) => chip(id, screens)).join(' ')}</p></article>`,
+      (control) => `<article class="card"><h4>${escapeHtml(control.name)}</h4><p>${escapeHtml(control.what)}</p><p><strong>${LABELS.forLeader}</strong> ${escapeHtml(control.forLeader)}</p><p class="screens">${LABELS.seeAt} ${control.see.map((id) => chip(id, screens)).join(' ')}</p></article>`,
     )
     .join('\n')}</div></section>`;
   const modules = `<section id="phan-he"><h2>${escapeHtml(overview.modulesTitle)}</h2><p>${escapeHtml(overview.modulesLead)}</p>
@@ -47,13 +49,13 @@ export function overviewHtml(overview, { catalogue, screens, chapters }) {
     .map((module) => {
       const count = counts.get(module.code) ?? { web: 0, mobile: 0 };
       const related = chapters.filter((chapter) => modulesOfChapter(chapter, overview.flowModules ?? {}).includes(module.code));
-      const sizes = [count.web > 0 ? `${count.web} màn hình web` : '', count.mobile > 0 ? `${count.mobile} màn hình điện thoại` : ''].filter((part) => part !== '').join(' · ');
+      const sizes = [count.web > 0 ? fill(LABELS.sizesWeb, { count: count.web }) : '', count.mobile > 0 ? fill(LABELS.sizesPhone, { count: count.mobile }) : ''].filter((part) => part !== '').join(' · ');
       return `<article class="card" id="pm-${escapeHtml(module.code)}"><h4>${escapeHtml(names(module.code))} <small>(${escapeHtml(module.code)})</small></h4><p>${escapeHtml(module.does)}</p>
-<p><strong>Ai dùng:</strong> ${escapeHtml(module.users)}</p><p><strong>Đóng góp cho quản trị:</strong> ${escapeHtml(module.governance)}</p>
-<p class="meta">${escapeHtml(sizes)}${related.length > 0 ? ` · Clip: ${related.map((chapter) => `<a href="#ch-${escapeHtml(chapter.id)}">${escapeHtml(chapter.title)}</a>`).join('; ')}` : ''}</p></article>`;
+<p><strong>${LABELS.moduleUsers}</strong> ${escapeHtml(module.users)}</p><p><strong>${LABELS.moduleGovernance}</strong> ${escapeHtml(module.governance)}</p>
+<p class="meta">${escapeHtml(sizes)}${related.length > 0 ? ` · ${LABELS.clipsPrefix} ${related.map((chapter) => `<a href="#ch-${escapeHtml(chapter.id)}">${escapeHtml(chapter.title)}</a>`).join('; ')}` : ''}</p></article>`;
     })
     .join('\n')}</div></section>`;
   const phone = `<section id="dien-thoai"><h2>${escapeHtml(overview.phoneTitle)}</h2><p>${escapeHtml(overview.phoneLead)}</p>
-<table><thead><tr><th>Người dùng</th><th>Làm được gì trên điện thoại</th></tr></thead><tbody>${overview.phoneItems.map((item) => `<tr><td>${escapeHtml(item.who)}</td><td>${escapeHtml(item.does)}</td></tr>`).join('')}</tbody></table></section>`;
+<table><thead><tr><th>${LABELS.phoneColUser}</th><th>${LABELS.phoneColDoes}</th></tr></thead><tbody>${overview.phoneItems.map((item) => `<tr><td>${escapeHtml(item.who)}</td><td>${escapeHtml(item.does)}</td></tr>`).join('')}</tbody></table></section>`;
   return { values, chain, governance, modules, phone };
 }

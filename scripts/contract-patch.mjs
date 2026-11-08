@@ -114,7 +114,9 @@ const STANDARD_ERROR_RESPONSES = [
   ['503', 'Dependency unavailable'],
 ];
 const IDEMPOTENCY_TEXT = 'tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT';
-const READ_MODEL_REASON = 'Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.';
+/** Vietnamese text written into the contract lives in contract-patch.json next to this script. */
+const CONTRACT_TEXT = JSON.parse(readFileSync(join(SCRIPT_DIR, 'contract-patch.json'), 'utf8'));
+const READ_MODEL_REASON = CONTRACT_TEXT.readModelReason;
 const COMMAND_OK = 'Command accepted; returns resource id/version/status';
 const READ_OK = 'Scoped DTO; amounts as decimal strings; carries as_of';
 const IF_MATCH_TEXT = 'Strong ETag of the current resource version; required for changes to versioned records.';

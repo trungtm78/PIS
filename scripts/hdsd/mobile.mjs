@@ -1,10 +1,16 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { cacheDir } from './lib.mjs';
 
+/** The words of the phone application the recorder looks for (tab names, button names, texts of a screen) live in mobile-ui.json. */
+const UI = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'mobile-ui.json'), 'utf8'));
+/** A pattern of mobile-ui.json by its name. */
+export const uiPattern = (name) => new RegExp(UI.patterns[name].source, UI.patterns[name].flags);
+
 /** The tab bar of the phone application (apps/mobile/lib/core/navigation/app_shell.dart): the centre of each tab on a 720 x 1560 screen. */
-export const TABS = { 'Trang chủ': 72, 'Dự án': 216, 'Phê duyệt': 360, 'Thông báo': 504, 'Cá nhân': 648 };
+export const TABS = UI.tabs;
 export const TAB_Y = 1432;
 const TAB_BAR_TOP = 1352;
 const STATUS_BAR = 128;
@@ -36,9 +42,9 @@ export function factsOfNodes(nodes) {
   const unique = (items) => [...new Set(items)];
   const first = (node) => node.label.split('\n')[0];
   const labels = unique(content.filter((node) => !node.clickable).map(first)).filter((label) => label.length <= 60);
-  const buttons = unique(content.filter((node) => node.clickable).map(first)).filter((label) => label !== 'Quay lại' && label !== 'Làm mới');
+  const buttons = unique(content.filter((node) => node.clickable).map(first)).filter((label) => !UI.buttonsLeftOut.includes(label));
   const text = content.map((node) => node.label).join(' ');
-  return { labels, buttons, rows: 0, empty: /chưa có dữ liệu/iu.test(text), denied: /không đủ quyền/iu.test(text), needsRecord: false };
+  return { labels, buttons, rows: 0, empty: uiPattern('empty').test(text), denied: uiPattern('denied').test(text), needsRecord: false };
 }
 
 /** The first node whose name matches, in the content of the screen. */

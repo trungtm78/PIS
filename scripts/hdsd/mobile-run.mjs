@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { REPO_ROOT, cacheDir } from './lib.mjs';
-import { Screen, TABS, TAB_Y, adb, applyOverrides, back, centre, chapterProblems, factsOfNodes, filmMsOf, findNode, inputTextOf, launch, opNameOf, readScreen, sameBounds, sleep, swipeUp, tap } from './mobile.mjs';
+import { Screen, TABS, TAB_Y, adb, applyOverrides, back, centre, chapterProblems, factsOfNodes, filmMsOf, findNode, inputTextOf, launch, opNameOf, readScreen, sameBounds, sleep, swipeUp, tap, uiPattern } from './mobile.mjs';
 import { composeTour } from './narration.mjs';
 import { FFMPEG, narrate, probeMs } from './tts.mjs';
 
@@ -111,15 +111,15 @@ async function operate(serial, op, log, recorder) {
   } else if (name === 'resume') {
     await recorder?.resume();
   } else if (name === 'sso') {
-    const sso = findNode(readScreen(serial), /Đăng nhập bằng SSO/u);
+    const sso = findNode(readScreen(serial), uiPattern('sso'));
     if (sso === undefined) throw new Error('the sign-in screen has no SSO button');
     tap(serial, ...centre(sso));
     for (let wait = 0; wait < 20; wait += 1) {
       await sleep(3000);
       const nodes = readScreen(serial);
-      const chrome = nodes.find((node) => /^Use without an account$|^Sử dụng mà không|^Không, cảm ơn/iu.test(node.label));
+      const chrome = nodes.find((node) => uiPattern('browserChrome').test(node.label));
       if (chrome !== undefined) tap(serial, ...centre(chrome));
-      if (findNode(nodes, /^Chọn đơn vị và vai trò/u) !== undefined) return;
+      if (findNode(nodes, uiPattern('unitChoice')) !== undefined) return;
     }
     throw new Error('the sign-in did not reach the choice of the unit');
   } else if (name === 'unit') {
@@ -127,17 +127,17 @@ async function operate(serial, op, log, recorder) {
     if (unit === undefined) throw new Error(`no unit named ${op.unit}`);
     tap(serial, ...centre(unit));
     await sleep(1000);
-    const next = findNode(readScreen(serial), /^Tiếp tục$/u);
+    const next = findNode(readScreen(serial), uiPattern('next'));
     if (next === undefined) throw new Error('no Continue button');
     tap(serial, ...centre(next));
     await sleep(5000);
   } else if (name === 'mfa') {
-    const second = findNode(readScreen(serial), /Xác thực trong trình duyệt/u);
+    const second = findNode(readScreen(serial), uiPattern('secondFactor'));
     if (second === undefined) throw new Error('no second factor button');
     tap(serial, ...centre(second));
     for (let wait = 0; wait < 20; wait += 1) {
       await sleep(3000);
-      if (findNode(readScreen(serial), /Trang chủ lãnh đạo/u) !== undefined) return;
+      if (findNode(readScreen(serial), uiPattern('leaderHome')) !== undefined) return;
     }
     throw new Error('the second factor did not reach the home screen');
   } else {

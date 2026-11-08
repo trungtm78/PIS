@@ -1,0 +1,31 @@
+{
+  "tabs": [
+    { "name": "Trang chủ", "x": 72 },
+    { "name": "Dự án", "x": 216 },
+    { "name": "Phê duyệt", "x": 360 },
+    { "name": "Thông báo", "x": 504 },
+    { "name": "Cá nhân", "x": 648 }
+  ],
+  "titleAliases": {
+    "Biểu trưng MACHVON": "MOB-01",
+    "Tài khoản": "MOB-47",
+    "Hàng đợi gửi": "MOB-41",
+    "Làm việc ngoại tuyến": "MOB-43",
+    "Tìm kiếm": "MOB-51",
+    "Dashboard BI của tôi": "MOB-40",
+    "Thông báo đẩy": "MOB-05",
+    "Hội thoại": "MOB-35",
+    "Đăng nhập": "MOB-02",
+    "Xác thực hai yếu tố": "MOB-03"
+  },
+  "backLabel": "Quay lại",
+  "patterns": {
+    "neverTap": { "source": "^(đăng xuất|xóa|xoá|gửi|nộp|phê duyệt|duyệt|từ chối|ký|trả lại|đổi tổ chức|đổi tenant|thoát|hủy|huỷ|làm mới|đồng ý|xác nhận|tiếp tục|trạng thái|bộ lọc|lọc|english|tiếng việt|ngôn ngữ|quay lại)(?!\\p{L})", "flags": "iu" },
+    "useWithoutAccount": { "source": "^Use without an account$", "flags": "u" },
+    "changeTenant": { "source": "Đổi tổ chức", "flags": "u" },
+    "sso": { "source": "Đăng nhập bằng SSO", "flags": "u" },
+    "unit": { "source": "^Cao Bằng", "flags": "u" },
+    "next": { "source": "^Tiếp tục$", "flags": "u" },
+    "secondFactor": { "source": "Xác thực trong trình duyệt", "flags": "u" }
+  }
+}
