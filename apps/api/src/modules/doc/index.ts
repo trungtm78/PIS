@@ -37,6 +37,14 @@ import { UnconfiguredSigningPort } from './signing-adapters';
 import { DocumentTemplatesController } from './templates.controller';
 import { DOC_CLOCK, DOC_EMAIL_CHANNEL, DOC_INTEROP_CODEC, DOC_INTEROP_TRANSPORT, DOC_METRICS, DOC_RESOURCES, DOC_REVOCATION, DOC_SIGNING_PORT, DOC_STATE_TEXT, DOC_TRUST_STORE, PDF_RENDERER } from './tokens';
 import { StaticTrustStoreProvider, UnavailableRevocationPort, loadTrustAnchors } from './trust-anchors';
+import { DocumentCommentsController } from './repository-comments.controller';
+import { ProjectDocumentFilesController, ProjectDocumentsController } from './repository.controller';
+import { ProjectDocumentReadsController } from './repository-reads.controller';
+import { DocumentReviewBinding, DocumentReviewReadsController, DocumentReviewsController } from './repository-review.controller';
+import { RepositoryFiles } from './repository-files';
+import { LocalTextExtractor } from './local-text-extractor';
+import { DOC_TEXT_EXTRACTION } from './text-extraction';
+import type { DocumentTextExtractionPort } from './text-extraction';
 
 /**
  * DOC, documents: the anchor and file versions, deterministic PDF rendering, document types and number registers
@@ -72,8 +80,20 @@ export const docModule = defineModule({
     DocInteropController,
     OutgoingRecallController,
     OutgoingSupersessionController,
+    // The project document repository (DOC-2): the files of a project with versions, citable text, comments and the review flow.
+    ProjectDocumentFilesController,
+    ProjectDocumentsController,
+    ProjectDocumentReadsController,
+    DocumentCommentsController,
+    DocumentReviewsController,
+    DocumentReviewReadsController,
   ],
   providers: [
+    // The reader of the text of a file: the local one (no network). An OCR engine hosted by the tenant is bound here as another adapter of the same port.
+    { provide: DOC_TEXT_EXTRACTION, useValue: new LocalTextExtractor() },
+    { provide: RepositoryFiles, useFactory: (files: FileService, reader: DocumentTextExtractionPort) => new RepositoryFiles(files, reader), inject: [FileService, DOC_TEXT_EXTRACTION] },
+    // The end of the workflow of a review: the final command of the business type document.review.
+    DocumentReviewBinding,
     // The object storage of the platform replaces the in-memory adapter when it is bound (KERNEL-024).
     { provide: DOCUMENT_FILE_PORT, useValue: new MockDocumentFilePort() },
     // Fonts and fixed texts are read when the application starts, not when this file is imported.

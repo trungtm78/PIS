@@ -789,7 +789,19 @@
     "removeTenantDomain",
     "startSiloPromotion",
     "approvePlacementCutover",
-    "abortPlacementMigration"
+    "abortPlacementMigration",
+    "uploadProjectDocumentFile",
+    "createProjectDocument",
+    "updateProjectDocument",
+    "addProjectDocumentVersion",
+    "archiveProjectDocument",
+    "restoreProjectDocument",
+    "rerunDocumentExtraction",
+    "addDocumentComment",
+    "resolveDocumentComment",
+    "reopenDocumentComment",
+    "submitDocumentForReview",
+    "withdrawDocumentReview"
   ],
   "identityCommands": [
     "acceptInvitation",

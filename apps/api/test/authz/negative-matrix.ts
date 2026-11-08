@@ -4330,6 +4330,25 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   closeContractEarlyWarning: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/contract-early-warnings/00000000-0000-4000-8000-0000000000f1/closure', ifMatch: '"1"', body: { outcome: 'WITHDRAWN', reason: REASON } }) },
   recordContractEarlyWarningMeeting: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/contracts/00000000-0000-4000-8000-0000000000f1/early-warning-meetings', body: { held_on: '2026-01-02', attendees: REASON, reviews: [] } }) },
   issueContractEarlyWarningRegister: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/contracts/00000000-0000-4000-8000-0000000000f1/early-warning-issues', body: {} }) },
+  // DOC-2: the project document repository; a caller who is refused uploads nothing, changes no document, comments nowhere and starts no review.
+  uploadProjectDocumentFile: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/project-documents/files', body: {} }) },
+  createProjectDocument: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/project-documents', body: { project_id: '00000000-0000-4000-8000-0000000000f1', doc_class: 'DESIGN', title: 'Matrix document', file_object_key: 'tenants/00000000-0000-4000-8000-00000000000a/document/00000000-0000-4000-8000-0000000000aa', file_sha256: 'a'.repeat(64) } }),
+  },
+  updateProjectDocument: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/project-documents/00000000-0000-4000-8000-0000000000f1/description', ifMatch: '"1"', body: { title: 'Matrix title' } }) },
+  addProjectDocumentVersion: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/project-documents/00000000-0000-4000-8000-0000000000f1/versions', body: { file_object_key: 'tenants/00000000-0000-4000-8000-00000000000a/document/00000000-0000-4000-8000-0000000000aa', file_sha256: 'b'.repeat(64) } }),
+  },
+  archiveProjectDocument: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/project-documents/00000000-0000-4000-8000-0000000000f1/archive', ifMatch: '"1"', body: { reason: REASON } }) },
+  restoreProjectDocument: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/project-documents/00000000-0000-4000-8000-0000000000f1/restore', ifMatch: '"1"', body: {} }) },
+  rerunDocumentExtraction: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/project-document-versions/00000000-0000-4000-8000-0000000000f1/extraction', body: {} }) },
+  addDocumentComment: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/project-document-versions/00000000-0000-4000-8000-0000000000f1/comments', body: { body: 'Matrix comment' } }) },
+  resolveDocumentComment: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/document-comments/00000000-0000-4000-8000-0000000000f1/resolve', body: {} }) },
+  reopenDocumentComment: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/document-comments/00000000-0000-4000-8000-0000000000f1/reopen', body: {} }) },
+  submitDocumentForReview: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/project-documents/00000000-0000-4000-8000-0000000000f1/reviews', body: { version_id: '00000000-0000-4000-8000-0000000000f1' } }) },
+  withdrawDocumentReview: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/document-reviews/00000000-0000-4000-8000-0000000000f1/withdraw', ifMatch: '"1"', body: { reason: REASON } }) },
 };
 
 export type MatrixCaseKind = 'role' | 'wrong-tenant' | 'control-plane';
