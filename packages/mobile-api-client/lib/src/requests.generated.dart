@@ -12424,6 +12424,499 @@ final class UsageEventRecord implements RequestModel {
       };
 }
 
+final class VendorCaseDecision implements RequestModel {
+  const VendorCaseDecision({
+    required this.decision,
+    required this.reason,
+    this.scope,
+    this.banMonths,
+    this.effectiveFrom,
+    this.decisionDocumentId,
+    this.culpableMemberIds,
+  });
+
+  final String decision;
+  final String reason;
+  final String? scope;
+  final int? banMonths;
+  final String? effectiveFrom;
+  final String? decisionDocumentId;
+  final List<String>? culpableMemberIds;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        'reason': reason,
+        if (scope != null) 'scope': scope,
+        if (banMonths != null) 'ban_months': banMonths,
+        if (effectiveFrom != null) 'effective_from': effectiveFrom,
+        if (decisionDocumentId != null) 'decision_document_id': decisionDocumentId,
+        if (culpableMemberIds != null) 'culpable_member_ids': culpableMemberIds,
+      };
+}
+
+final class VendorCaseFromEgp implements RequestModel {
+  const VendorCaseFromEgp({
+    required this.egpRecordId,
+    required this.violationGroups,
+    this.violationSummary,
+    this.proposalDocumentId,
+  });
+
+  final String egpRecordId;
+  final List<String> violationGroups;
+  final String? violationSummary;
+  final String? proposalDocumentId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'egp_record_id': egpRecordId,
+        'violation_groups': violationGroups,
+        if (violationSummary != null) 'violation_summary': violationSummary,
+        if (proposalDocumentId != null) 'proposal_document_id': proposalDocumentId,
+      };
+}
+
+final class VendorCaseLift implements RequestModel {
+  const VendorCaseLift({
+    required this.reason,
+    this.documentId,
+  });
+
+  final String reason;
+  final String? documentId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+        if (documentId != null) 'document_id': documentId,
+      };
+}
+
+final class VendorCaseMove implements RequestModel {
+  const VendorCaseMove({
+    required this.move,
+    this.noticeDocumentId,
+    this.summary,
+    this.responseDocumentId,
+    this.reason,
+  });
+
+  final String move;
+  final String? noticeDocumentId;
+  final String? summary;
+  final String? responseDocumentId;
+  final String? reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'move': move,
+        if (noticeDocumentId != null) 'notice_document_id': noticeDocumentId,
+        if (summary != null) 'summary': summary,
+        if (responseDocumentId != null) 'response_document_id': responseDocumentId,
+        if (reason != null) 'reason': reason,
+      };
+}
+
+final class VendorCaseNew implements RequestModel {
+  const VendorCaseNew({
+    required this.subjectKind,
+    required this.triggerKind,
+    required this.violationGroups,
+    required this.violationSummary,
+    required this.violationOn,
+    this.contractorId,
+    this.jointVentureId,
+    this.triggerRef,
+    this.proposalDocumentId,
+  });
+
+  final String subjectKind;
+  final String? contractorId;
+  final String? jointVentureId;
+  final String triggerKind;
+  final String? triggerRef;
+  final List<String> violationGroups;
+  final String violationSummary;
+  final String violationOn;
+  final String? proposalDocumentId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'subject_kind': subjectKind,
+        if (contractorId != null) 'contractor_id': contractorId,
+        if (jointVentureId != null) 'joint_venture_id': jointVentureId,
+        'trigger_kind': triggerKind,
+        if (triggerRef != null) 'trigger_ref': triggerRef,
+        'violation_groups': violationGroups,
+        'violation_summary': violationSummary,
+        'violation_on': violationOn,
+        if (proposalDocumentId != null) 'proposal_document_id': proposalDocumentId,
+      };
+}
+
+final class VendorDuplicateDecision implements RequestModel {
+  const VendorDuplicateDecision({
+    required this.decision,
+    required this.reason,
+  });
+
+  final String decision;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        'reason': reason,
+      };
+}
+
+final class VendorKeyStaffNew implements RequestModel {
+  const VendorKeyStaffNew({
+    required this.staffRole,
+    required this.personName,
+    required this.qualificationTitle,
+    required this.issuedOn,
+    this.certificateNo,
+    this.expiresOn,
+    this.documentId,
+  });
+
+  final String staffRole;
+  final String personName;
+  final String qualificationTitle;
+  final String? certificateNo;
+  final String issuedOn;
+  final String? expiresOn;
+  final String? documentId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'staff_role': staffRole,
+        'person_name': personName,
+        'qualification_title': qualificationTitle,
+        if (certificateNo != null) 'certificate_no': certificateNo,
+        'issued_on': issuedOn,
+        if (expiresOn != null) 'expires_on': expiresOn,
+        if (documentId != null) 'document_id': documentId,
+      };
+}
+
+final class VendorOwnerNew implements RequestModel {
+  const VendorOwnerNew({
+    required this.ownerKind,
+    required this.ownerName,
+    required this.beneficialOwner,
+    this.identityNumber,
+    this.sharePct,
+    this.controlBasis,
+    this.sourceDocumentId,
+  });
+
+  final String ownerKind;
+  final String ownerName;
+  final String? identityNumber;
+  final String? sharePct;
+  final bool beneficialOwner;
+  final String? controlBasis;
+  final String? sourceDocumentId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'owner_kind': ownerKind,
+        'owner_name': ownerName,
+        if (identityNumber != null) 'identity_number': identityNumber,
+        if (sharePct != null) 'share_pct': sharePct,
+        'beneficial_owner': beneficialOwner,
+        if (controlBasis != null) 'control_basis': controlBasis,
+        if (sourceDocumentId != null) 'source_document_id': sourceDocumentId,
+      };
+}
+
+final class VendorOwnershipDeclaration implements RequestModel {
+  const VendorOwnershipDeclaration({
+    this.note,
+  });
+
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (note != null) 'note': note,
+      };
+}
+
+final class VendorPayeeApproval implements RequestModel {
+  const VendorPayeeApproval({
+    required this.role,
+    this.note,
+  });
+
+  final String role;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'role': role,
+        if (note != null) 'note': note,
+      };
+}
+
+final class VendorPayeeCallback implements RequestModel {
+  const VendorPayeeCallback({
+    required this.outcome,
+    required this.calledNumber,
+    required this.usedNumberOnFile,
+    this.note,
+  });
+
+  final String outcome;
+  final String calledNumber;
+  final bool usedNumberOnFile;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'outcome': outcome,
+        'called_number': calledNumber,
+        'used_number_on_file': usedNumberOnFile,
+        if (note != null) 'note': note,
+      };
+}
+
+final class VendorPayeeChangeNew implements RequestModel {
+  const VendorPayeeChangeNew({
+    required this.bankName,
+    required this.accountHolder,
+    required this.accountNumber,
+    required this.reason,
+    required this.evidenceDocumentId,
+  });
+
+  final String bankName;
+  final String accountHolder;
+  final String accountNumber;
+  final String reason;
+  final String evidenceDocumentId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'bank_name': bankName,
+        'account_holder': accountHolder,
+        'account_number': accountNumber,
+        'reason': reason,
+        'evidence_document_id': evidenceDocumentId,
+      };
+}
+
+final class VendorProfileUpdate implements RequestModel {
+  const VendorProfileUpdate({
+    this.legalRepName,
+    this.legalRepPosition,
+    this.registeredAddress,
+    this.phone,
+    this.email,
+    this.businessRegistrationNo,
+  });
+
+  final Object? legalRepName;
+  final Object? legalRepPosition;
+  final Object? registeredAddress;
+  final Object? phone;
+  final Object? email;
+  final Object? businessRegistrationNo;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (legalRepName != null) 'legal_rep_name': legalRepName,
+        if (legalRepPosition != null) 'legal_rep_position': legalRepPosition,
+        if (registeredAddress != null) 'registered_address': registeredAddress,
+        if (phone != null) 'phone': phone,
+        if (email != null) 'email': email,
+        if (businessRegistrationNo != null) 'business_registration_no': businessRegistrationNo,
+      };
+}
+
+final class VendorQualificationNew implements RequestModel {
+  const VendorQualificationNew({
+    required this.kind,
+    required this.certificateNo,
+    required this.issuer,
+    required this.issuedOn,
+    this.grade,
+    this.scope,
+    this.expiresOn,
+    this.documentId,
+  });
+
+  final String kind;
+  final String certificateNo;
+  final String? grade;
+  final String? scope;
+  final String issuer;
+  final String issuedOn;
+  final String? expiresOn;
+  final String? documentId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'certificate_no': certificateNo,
+        if (grade != null) 'grade': grade,
+        if (scope != null) 'scope': scope,
+        'issuer': issuer,
+        'issued_on': issuedOn,
+        if (expiresOn != null) 'expires_on': expiresOn,
+        if (documentId != null) 'document_id': documentId,
+      };
+}
+
+final class VendorReason implements RequestModel {
+  const VendorReason({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
+final class VendorReputationEventNew implements RequestModel {
+  const VendorReputationEventNew({
+    required this.contractorId,
+    required this.behaviourCode,
+    required this.eventOn,
+    required this.description,
+    this.packageId,
+    this.contractId,
+    this.evidenceDocumentId,
+  });
+
+  final String contractorId;
+  final String? packageId;
+  final String? contractId;
+  final String behaviourCode;
+  final String eventOn;
+  final String description;
+  final String? evidenceDocumentId;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'contractor_id': contractorId,
+        if (packageId != null) 'package_id': packageId,
+        if (contractId != null) 'contract_id': contractId,
+        'behaviour_code': behaviourCode,
+        'event_on': eventOn,
+        'description': description,
+        if (evidenceDocumentId != null) 'evidence_document_id': evidenceDocumentId,
+      };
+}
+
+final class VendorReputationPost implements RequestModel {
+  const VendorReputationPost({
+    required this.receipt,
+  });
+
+  final String receipt;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'receipt': receipt,
+      };
+}
+
+final class VendorReputationRetract implements RequestModel {
+  const VendorReputationRetract({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
+final class VendorRequirement implements RequestModel {
+  const VendorRequirement({
+    required this.kind,
+    required this.minGrade,
+    required this.scopeKeyword,
+  });
+
+  final String kind;
+  final Object? minGrade;
+  final Object? scopeKeyword;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'min_grade': minGrade,
+        'scope_keyword': scopeKeyword,
+      };
+}
+
+final class VendorRequirementsSetRequest implements RequestModel {
+  const VendorRequirementsSetRequest({
+    required this.requirements,
+  });
+
+  final List<VendorRequirement> requirements;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'requirements': requirements,
+      };
+}
+
+final class VendorVentureNew implements RequestModel {
+  const VendorVentureNew({
+    required this.name,
+    required this.members,
+    this.agreementDocumentId,
+    this.packageId,
+    this.startsOn,
+  });
+
+  final String name;
+  final List<VendorVentureNewMembersItem> members;
+  final String? agreementDocumentId;
+  final String? packageId;
+  final String? startsOn;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'name': name,
+        'members': members,
+        if (agreementDocumentId != null) 'agreement_document_id': agreementDocumentId,
+        if (packageId != null) 'package_id': packageId,
+        if (startsOn != null) 'starts_on': startsOn,
+      };
+}
+
+final class VendorVentureNewMembersItem implements RequestModel {
+  const VendorVentureNewMembersItem({
+    required this.contractorId,
+    required this.sharePct,
+    required this.lead,
+  });
+
+  final String contractorId;
+  final String sharePct;
+  final bool lead;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'contractor_id': contractorId,
+        'share_pct': sharePct,
+        'lead': lead,
+      };
+}
+
 final class WorkActionTarget implements RequestModel {
   const WorkActionTarget({
     required this.source,

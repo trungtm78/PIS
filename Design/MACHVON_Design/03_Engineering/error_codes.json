@@ -5976,6 +5976,118 @@
       "module": "DIS",
       "statusBasis": "spec",
       "source": "spec:DIS"
+    },
+    "PAYEE_ACCOUNT_NOT_VALID": {
+      "status": 422,
+      "title": "Account is not valid for a payment",
+      "meaning": "Nhà thầu chưa có tài khoản nhận tiền hiệu lực: đổi tài khoản còn trong thời gian chờ, tài khoản đã đóng, hoặc chưa đăng ký (VND-1, V12).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "PAYEE_ACCOUNT_NAME_MISMATCH": {
+      "status": 422,
+      "title": "Account holder is not the contractor",
+      "meaning": "Tên chủ tài khoản không khớp tên pháp lý của nhà thầu khi quy tắc yêu cầu khớp (VND-1, V12).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "BANK_CHANGE_STATE_INVALID": {
+      "status": 409,
+      "title": "Change of account is not in the state the move needs",
+      "meaning": "Đề nghị đổi tài khoản không ở trạng thái mà thao tác cần: đã đóng, hết hạn, hoặc vai duyệt đã có người làm (VND-1, V12).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "BANK_CHANGE_CALLBACK_INVALID": {
+      "status": 422,
+      "title": "Call-back is not valid",
+      "meaning": "Gọi lại không hợp lệ: không dùng số đã có trong hồ sơ, số quá mới, hoặc nhà thầu chưa có số điện thoại (VND-1, V12).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "RESTRICTION_CASE_STATE_INVALID": {
+      "status": 409,
+      "title": "Case is not in the state the move needs",
+      "meaning": "Hồ sơ cấm không ở trạng thái mà bước cần (VND-1, V2).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "RESTRICTION_BAN_PERIOD_INVALID": {
+      "status": 422,
+      "title": "Ban period is outside the range of its violation groups",
+      "meaning": "Thời gian cấm nằm ngoài khoảng của các nhóm hành vi vi phạm (Điều 133 NĐ 214/2025; số cấu hình, chưa kiểm chứng) (VND-1, V2).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "RESTRICTION_CASE_TIME_BARRED": {
+      "status": 422,
+      "title": "Violation is past the limitation",
+      "meaning": "Hành vi vi phạm đã quá thời hiệu đề nghị cấm (VND-1, V2).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "RESTRICTION_CASE_DUPLICATE": {
+      "status": 409,
+      "title": "The same proposal is already open",
+      "meaning": "Đề nghị này đã có hồ sơ cấm đang mở (VND-1, V2).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "RESTRICTION_RESPONSE_WINDOW_OPEN": {
+      "status": 409,
+      "title": "The window to answer is still open",
+      "meaning": "Cửa sổ phản hồi của nhà thầu chưa hết nên chưa đóng được (VND-1, V2).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "RESTRICTION_NOT_YET_EFFECTIVE": {
+      "status": 409,
+      "title": "The ban has not started",
+      "meaning": "Quyết định cấm chưa đến ngày bắt đầu nên chưa đưa vào hiệu lực (VND-1, V2).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "RESTRICTION_NOT_YET_ENDED": {
+      "status": 409,
+      "title": "The ban has not ended",
+      "meaning": "Thời gian cấm chưa hết nên chưa kết thúc được (VND-1, V2).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "JOINT_VENTURE_SHARES_INVALID": {
+      "status": 422,
+      "title": "Shares of the joint venture are not valid",
+      "meaning": "Tỷ lệ góp của liên danh không hợp lệ: cần ít nhất hai thành viên, một trưởng liên danh, tổng bằng 100 (VND-1, V2).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "CONTRACTOR_PROFILE_INCOMPLETE": {
+      "status": 422,
+      "title": "Profile of the contractor is incomplete",
+      "meaning": "Hồ sơ nhà thầu thiếu trường bắt buộc trước khi nộp thầu hoặc ký hợp đồng (VND-1, V1).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "CONTRACTOR_QUALIFICATION_MISSING": {
+      "status": 422,
+      "title": "Contractor lacks a certificate the package asks for",
+      "meaning": "Nhà thầu thiếu chứng chỉ mà gói thầu yêu cầu, hoặc chứng chỉ hết hạn, chưa đối chiếu, thấp hạng (VND-1, V8).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
     }
   }
 }
