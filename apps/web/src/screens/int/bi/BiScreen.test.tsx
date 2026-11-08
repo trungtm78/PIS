@@ -32,7 +32,7 @@ const readersShown = async (): Promise<void> => {
 };
 
 describe('BiScreen (INT-04): certified datasets and the logins of BI tools', () => {
-  it('UI-INT-04: says how a login is bound, shows each dataset with its gate and the schema to point a tool at', async () => {
+  it('UI-INT-04 AC-ST-INT-001-7: says how a login is bound, shows each dataset with its gate and the schema to point a tool at', async () => {
     mountWith();
     await readersShown();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(t('int.bi.page.title'));

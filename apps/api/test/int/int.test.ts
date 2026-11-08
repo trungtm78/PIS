@@ -336,7 +336,7 @@ describe('the open interface over HTTP: machine accounts, the open API, certifie
       expect(((await call('GET', `/int/access-log?account_id=${reader.id}`, { member: ADMIN, tenantId: TENANT_B })).json.items as unknown[]).length).toBe(0);
     });
 
-    it('reaches a token that is still alive: a suspension refuses the next call, a reactivation restores it', async () => {
+    it('AC-ST-INT-001-1: reaches a token that is still alive: a suspension refuses the next call, a reactivation restores it', async () => {
       const account = await machine('Suspended while holding a token', ['open.projects.read']);
       expect((await open('GET', '/open/v1/projects', { bearer: account.token })).status).toBe(200);
       await call('POST', `/int/machine-accounts/${account.id}/decision`, { member: ADMIN, ifMatch: etag(account.version), body: { decision: 'SUSPEND', reason: REASON } });

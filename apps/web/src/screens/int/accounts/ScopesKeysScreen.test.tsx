@@ -12,7 +12,7 @@ afterEach(() => {
 const route = routeFor('INT-02', 'FR-INT-02');
 
 describe('ScopesKeysScreen (INT-02): the scopes of the open API and the keys of an account', () => {
-  it('UI-INT-02: lists the scopes with the dataset behind each and how many accounts hold it, and never shows a secret', async () => {
+  it('UI-INT-02 AC-ST-INT-001-5: lists the scopes with the dataset behind each and how many accounts hold it, and never shows a secret', async () => {
     const h = clientFor({ listMachineAccounts: accountPage([account(1), account(2, { status: 'REVOKED', scopes: ['open.projects.read'] })]) });
     mount(<ScopesKeysScreen route={route} />, h);
     await waitFor(() => expect(document.querySelector('[data-scope]')).not.toBeNull());

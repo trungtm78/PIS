@@ -24,7 +24,7 @@ const rowsShown = async (): Promise<void> => {
 };
 
 describe('AccountsScreen (INT-01): the machine accounts of the open API', () => {
-  it('UI-INT-01: shows the title, the secret note and the columns of the catalogue', async () => {
+  it('UI-INT-01 AC-ST-INT-001-4: shows the title, the secret note and the columns of the catalogue', async () => {
     mountWith();
     await rowsShown();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(t('int.accounts.page.title'));

@@ -31,7 +31,7 @@ const rowsShown = async (): Promise<void> => {
 };
 
 describe('CodesScreen (INT-03): the codes of our projects in other systems', () => {
-  it('UI-INT-03: shows the note on the crosswalk, the systems and the columns of the catalogue', async () => {
+  it('UI-INT-03 AC-ST-INT-001-6: shows the note on the crosswalk, the systems and the columns of the catalogue', async () => {
     mountWith();
     await rowsShown();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(t('int.codes.page.title'));

@@ -143,7 +143,7 @@ describe('the open interface: systems, codes, machine accounts, certified datase
       expect(await as((tx) => systems.list(tx), MAKER, TENANT_B)).toEqual([]);
     });
 
-    it('proposes a code, refuses the maker as approver, activates it on another person, and keeps the history', async () => {
+    it('AC-ST-INT-001-3: proposes a code, refuses the maker as approver, activates it on another person, and keeps the history', async () => {
       const proposed = await as((tx) => codes.propose(tx, { sourceSystem: 'EBS', ourCode: 'PRJ-INT-1', externalCode: 'P-100', validFrom: null, validUntil: null, reason: REASON }, memberId(MAKER), NOW));
       expect(proposed).toMatchObject({ status: 'PROPOSED', projectCode: 'PRJ-INT-1', sourceSystem: 'EBS', externalCode: 'P-100', projectId, version: 1 });
       const self = await refusal(as((tx) => codes.decide(tx, proposed.id, 1, { move: 'APPROVE', reason: REASON }, memberId(MAKER), NOW)));
@@ -456,7 +456,7 @@ describe('the open interface: systems, codes, machine accounts, certified datase
         expect(open.map((row) => [row.dataset_code, row.is_open, row.reason])).toEqual([['DS-CTR', true, 'OPEN'], ['DS-DISB', true, 'OPEN']]);
       });
 
-      it('NEGATIVE (R13): a login that sets app.tenant_id to another tenant reads NOTHING, from the views and from the tables', async () => {
+      it('AC-ST-INT-001-2 NEGATIVE (R13): a login that sets app.tenant_id to another tenant reads NOTHING, from the views and from the tables', async () => {
         const a = await connect(readerA);
         expect(await rowsOf(a, 'select 1 from v_disbursement_lines')).toHaveLength(2);
         await a.query("select set_config('app.tenant_id', $1, false)", [TENANT_B]);

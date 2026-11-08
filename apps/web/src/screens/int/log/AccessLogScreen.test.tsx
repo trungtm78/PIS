@@ -16,7 +16,7 @@ const rowsShown = async (): Promise<void> => {
 };
 
 describe('AccessLogScreen (INT-05): every call of a machine to the open API', () => {
-  it('UI-INT-05: shows the notes on names and on BI reads, the columns of the catalogue and each call in words', async () => {
+  it('UI-INT-05 AC-ST-INT-001-8: shows the notes on names and on BI reads, the columns of the catalogue and each call in words', async () => {
     const h = clientFor({ listOpenAccessLog: page([logEntry(1), logEntry(2, { outcome: 'RATE_LIMITED', status: 429, row_count: null, scope: null, query_keys: [] })]) });
     mount(<AccessLogScreen route={route} />, h);
     await rowsShown();
