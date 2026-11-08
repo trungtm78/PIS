@@ -178,3 +178,17 @@ describe('the rule type of a mapping', () => {
     expect(refused({ lines: [{ indicator: 'PLAN_YEAR', source: 'A', scale: 'TRILLION' }] })).toBe('lines[0].scale');
   });
 });
+
+describe('the problems of a mapping against the dictionary', () => {
+  it('names a line that points at an indicator nobody defined or one that is derived, and none for the sample mappings', async () => {
+    const { INDICATOR_SEEDS, indicatorOf, mappingProblems, resolveGovernanceRule } = await import('../src/index');
+    const entries = INDICATOR_SEEDS.map((seed) => indicatorOf(resolveGovernanceRule([], 'KPI_DEFINITION', seed.code, '2026-11-08') as NonNullable<ReturnType<typeof resolveGovernanceRule>>));
+    expect(mappingProblems(sample('SAMPLE_COLUMNS_FORM'), entries)).toEqual([]);
+    expect(mappingProblems(sample('SAMPLE_ROWS_FORM'), entries)).toEqual([]);
+    const broken: ImportMapping = { ...sample('SAMPLE_COLUMNS_FORM'), lines: [{ indicator: 'NO_SUCH', source: 'A', scale: 'ONE', required: false }, { indicator: 'REMAINING_YEAR', source: 'B', scale: 'ONE', required: false }, { indicator: 'PLAN_YEAR', source: 'C', scale: 'ONE', required: false }] };
+    expect(mappingProblems(broken, entries)).toEqual([
+      { code: 'INDICATOR_UNKNOWN', indicator: 'NO_SUCH', line: 0 },
+      { code: 'INDICATOR_NOT_ENTERABLE', indicator: 'REMAINING_YEAR', line: 1 },
+    ]);
+  });
+});
