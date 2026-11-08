@@ -48677,7 +48677,20 @@
         "BID-23",
         "BID-24"
       ],
-      "operations": [],
+      "operations": [
+        "getEgpConnection",
+        "setEgpConnectionState",
+        "uploadEgpFile",
+        "previewEgpFile",
+        "importEgpFile",
+        "listEgpImports",
+        "getEgpImport",
+        "listEgpMappings",
+        "proposeEgpMapping",
+        "listEgpMappingSuggestions",
+        "decideEgpMapping",
+        "retireEgpMapping"
+      ],
       "tables": [],
       "nfr": [
         "NFR-TENANCY-01",
