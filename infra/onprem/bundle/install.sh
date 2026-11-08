@@ -93,6 +93,10 @@ say "7/8 setting the passwords of the database roles from the secret files"
 for role in app control outbox_relay; do
   password=$(sed -n "s#^postgres://machvon_${role}:\([^@]*\)@.*#\1#p" "${SECRETS_DIR}/database_url_${role}")
   [ -n "${password}" ] || fail "database_url_${role} is not a postgres URL for role machvon_${role}"
+  # The password goes into one SQL statement: a hex or base64url string only, so that nothing in it can end the literal.
+  case "${password}" in
+    *[!A-Za-z0-9_.~-]*) fail "the password in database_url_${role} may only hold letters, digits and _ . ~ - (use openssl rand -hex 32)" ;;
+  esac
   printf "ALTER ROLE machvon_%s PASSWORD '%s';\n" "${role}" "${password}" | ${COMPOSE} exec -T db psql --quiet --username machvon_owner --dbname machvon >/dev/null
 done
 

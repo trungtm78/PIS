@@ -240,8 +240,6 @@ services:
   web:
     image: machvon/web:${MACHVON_VERSION:?set MACHVON_VERSION to the release being installed}
     <<: *hardening
-    cap_add:
-      - NET_BIND_SERVICE
     networks: [edge, app]
     depends_on:
       api:

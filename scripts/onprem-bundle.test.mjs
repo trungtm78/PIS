@@ -245,6 +245,8 @@ test('the install and rollback scripts check the bundle before they load anythin
     assert.doesNotMatch(script, /:latest/);
     assert.doesNotMatch(script, /curl|wget|docker pull/);
   }
+  assert.match(install, /\*\[!A-Za-z0-9_.~-\]\*\)/, 'a role password is checked before it goes into a statement');
+  assert.ok(install.indexOf('*[!A-Za-z0-9_.~-]*)') < install.indexOf('ALTER ROLE'));
   assert.match(install, /stanza-create/);
   assert.match(install, /backup --type=full/);
   assert.match(rollback, /schema is NOT rolled back/);
