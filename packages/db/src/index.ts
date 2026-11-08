@@ -1882,3 +1882,4 @@ export type { NewRemediationPlan, RemediationActionRow, RemediationEventRow, Rem
 export { CLAIM_OUTCOMES, PETITION_OUTCOMES, VendorDisputeStore, VendorOcdsReader } from './vnd-dispute-store.ts';
 export type { DisputeReport, DisputeRow } from './vnd-dispute-store.ts';
 export { HomeVendorPortalSources } from './home-vendor-portal-sources.ts';
+export { FeedProvinceFactsReader, SnapshotOrFeedFactsReader, stableId } from './province-facts-feed.ts';

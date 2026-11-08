@@ -3217,3 +3217,5 @@ export { MOF_FORMS, MOF_RECEIVER, PERIOD_REPORT_RULE_TYPE, SIGNATURE_PROVIDERS, 
 export type { MofFormCode, PeriodLockFacts, PeriodReportPolicy, ReportSignatureFacts, SignatureProvider } from './period-report.ts';
 export { GOV12_SCREENS } from './gov12-screens.ts';
 export { MOF_FORM_VERSION, MOF_LAYOUTS } from './mof-forms.ts';
+export { feedFactsToProvinceFacts } from './committee-feed-facts.ts';
+export type { FeedToFactsInput, OurProjectRef } from './committee-feed-facts.ts';

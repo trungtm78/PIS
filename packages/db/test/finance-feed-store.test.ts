@@ -4,6 +4,8 @@ import type { FeedGeneratorParams } from '@machvon/kernel';
 import { FeedImportAdapter } from '../src/finance-feed-import';
 import { FeedDifferenceStore, FeedMappingStore } from '../src/finance-feed-mapping-store';
 import { ProvinceFactsReader } from '../src/finance-feed-reader';
+import { emptyProvinceFacts } from '../src/province-facts';
+import { FeedProvinceFactsReader, SnapshotOrFeedFactsReader } from '../src/province-facts-feed';
 import { FeedConnectionStore, FeedRecordStore, feedStateOf, storedGeneratorParams } from '../src/finance-feed-store';
 import { previewFileImport } from '../src/file-import-preview';
 import { FileImportStore } from '../src/file-import-store';
@@ -317,6 +319,37 @@ describe('the feed of the Finance Department (FEED-1)', () => {
 
     it('is not seen by another tenant', async () => {
       expect(await as((tx) => differences.list(tx, {}, { limit: 5, after: undefined }), LOADER, TENANT_B)).toEqual([]);
+    });
+  });
+
+  describe('the committee workspace stands on the feed where there is no frozen snapshot (FEED-1 to BAN-1)', () => {
+    it('gives the province facts from the records of the feed: our project by the code the feed maps to, the others by their feed code, money in whole dong', async () => {
+      const ours = await seedBidPackage(harness);
+      await apply('PROJECT', bytes(PROJECT_HEADER, `F-700,2026-01-10,Province road,GT,D01,CDT-7,${ours.projectCode}`, 'F-701,2026-01-10,Province school,GD,D02,CDT-8,'));
+      await apply('PLAN', bytes(PLAN_HEADER, 'F-700,2026,NSTW,2000000000,2026-01-20', 'F-701,2026,NSDP,500000000,2026-01-20'));
+      await apply('DISBURSEMENT', bytes(DISBURSEMENT_HEADER, 'F-700,2026,3,NSTW,800000000,800000000,2026-04-03,2026-04-03'));
+      const facts = await as((tx) => new FeedProvinceFactsReader().read(tx, { asOf: '2026-11-08' }));
+      expect(facts.feed).toMatchObject({ basis: 'CORE_LIVE', reference: 'feed:2026' });
+      const road = facts.projects.find((project) => project.code === ours.projectCode);
+      const school = facts.projects.find((project) => project.code === 'F-701');
+      expect(road?.projectId).toBe(ours.projectId);
+      expect(school?.projectId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-8[0-9a-f]{3}-[0-9a-f]{12}$/);
+      expect(facts.lines.find((line) => line.projectId === ours.projectId)).toMatchObject({ fundSourceCode: 'NSTW', planVnd: '2000000000', disbursedVnd: '800000000' });
+      expect(facts.lines.find((line) => line.projectId === school?.projectId)).toMatchObject({ fundSourceCode: 'NSDP', planVnd: '500000000', disbursedVnd: null });
+    });
+
+    it('is not seen by another tenant', async () => {
+      const facts = await as((tx) => new FeedProvinceFactsReader().read(tx, { asOf: '2026-11-08' }), LOADER, TENANT_B);
+      expect(facts.projects).toEqual([]);
+    });
+
+    it('is the second choice: the snapshot answers when it holds facts, the feed when it holds none', async () => {
+      const withSnapshot = { ...emptyProvinceFacts('2026-10-31'), projects: [{ projectId: 'p', code: 'P', name: 'P', status: 'IMPLEMENTATION', investorUnitId: 'u', investorName: 'U', sectorCode: 'S', sectorName: 'S', districtCode: 'D', districtName: 'D', totalInvestmentVnd: '1', eacVnd: null, delayDays: null, stalledDays: null, stalledStep: null, lastReportedOn: null }] };
+      const feed = new FeedProvinceFactsReader();
+      expect((await as((tx) => new SnapshotOrFeedFactsReader({ read: async () => withSnapshot }, feed).read(tx, { asOf: '2026-11-08' }))).feed.basis).toBe('DIS_SNAPSHOT');
+      const fed = await as((tx) => new SnapshotOrFeedFactsReader({ read: async (_tx, request) => emptyProvinceFacts(request.asOf) }, feed).read(tx, { asOf: '2026-11-08' }));
+      expect(fed.feed.basis).toBe('CORE_LIVE');
+      expect(fed.projects.length).toBeGreaterThan(0);
     });
   });
 });

@@ -1,4 +1,4 @@
-import { AnalyticsGovernanceStore, CommitteeAlertStore, CommitteeDecisionStore, CommitteeDirectiveReader, CommitteePolicyReader, CoreProvinceFactsReader, DirectivePolicyReader, GovernancePolicyPort } from '@machvon/db';
+import { AnalyticsGovernanceStore, CommitteeAlertStore, CommitteeDecisionStore, CommitteeDirectiveReader, CommitteePolicyReader, CoreProvinceFactsReader, DirectivePolicyReader, FeedProvinceFactsReader, GovernancePolicyPort, SnapshotOrFeedFactsReader } from '@machvon/db';
 import type { AttentionDecisionRow, CommitteeAlertRow, DirectiveTracker, ProvinceFactsReader, TenantTx } from '@machvon/db';
 import { addDirectiveDays, buildWorkspace, filterFacts, rankAttention } from '@machvon/kernel';
 import type { AttentionItem, CommitteePolicyReading, CommitteeWorkspace, FactsFilter, KpiDefinition, ProvinceFacts } from '@machvon/kernel';
@@ -40,7 +40,8 @@ export class CommitteeWorkspaceService {
   private readonly register = new AnalyticsGovernanceStore();
   readonly alerts = new CommitteeAlertStore();
 
-  constructor(private readonly reader: ProvinceFactsReader = new CoreProvinceFactsReader()) {}
+  // The frozen snapshot is the official source; where there is none the facts come from the feed of the Finance Department app (FEED-1).
+  constructor(private readonly reader: ProvinceFactsReader = new SnapshotOrFeedFactsReader(new CoreProvinceFactsReader(), new FeedProvinceFactsReader())) {}
 
   /** Reads everything one screen of the workspace needs inside the transaction of the caller. */
   async read(tx: TenantTx, request: CommitteeReadRequest): Promise<CommitteeRead> {
