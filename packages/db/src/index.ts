@@ -1789,3 +1789,5 @@ export { CtrSettlementClockStore, SETTLEMENT_CLOCK_MET_EVENT, SETTLEMENT_CLOCK_R
 export type { SettlementClockFilter, SettlementClockRow, SettlementRuleReading, SyncResult as SettlementClockSyncResult } from './ctr-settlement-clock-store.ts';
 export { CONTRACT_ADJUSTMENT_RECORDED_EVENT, CONTRACT_ADJUSTMENT_RESOURCE, CONTRACT_ADJUSTMENT_REVIEWED_EVENT, CtrAdjustmentStore, adjustmentRecord } from './ctr-adjustment-store.ts';
 export type { AdjustmentRow, ReviewResult as AdjustmentReviewResult } from './ctr-adjustment-store.ts';
+export { CtrLinkageReads } from './ctr-linkage-reads.ts';
+export type { LinkageView as CtrLinkageView } from './ctr-linkage-reads.ts';

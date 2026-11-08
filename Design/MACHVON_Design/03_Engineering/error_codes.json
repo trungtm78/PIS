@@ -6851,6 +6851,14 @@
       "module": "CAP",
       "statusBasis": "spec",
       "source": "spec:CAP"
+    },
+    "ADJUSTMENT_STATE_INVALID": {
+      "status": 409,
+      "title": "Adjustment version is not waiting for a review",
+      "meaning": "Phiên bản điều chỉnh hợp đồng không ở trạng thái chờ xem xét đường cơ sở.",
+      "module": "CTR",
+      "statusBasis": "spec",
+      "source": "spec:CTR"
     }
   }
 }
