@@ -162,4 +162,24 @@ Phiên bản đặc tả M1 · 08/11/2026 · Nguồn nghiên cứu: `research-ve
 
 **Kiểm thử:** UI-VND-13 đến UI-VND-22 (7 trạng thái và nhãn trường); UAT-VND3-01 (đồ thị liên kết và xem xét đầu mối), UAT-VND3-02 (tín hiệu thông thầu), UAT-VND3-03 (dấu vết nộp hồ sơ), UAT-VND3-04 (sàng lọc, tạm giữ, quyết định), UAT-VND3-05 (cách ly cổng nhà thầu), UAT-VND3-06 (yêu cầu và đồng hồ), UAT-VND3-07 (chứng chỉ và xác nhận lại), UAT-VND3-08 (kế hoạch khắc phục), UAT-VND3-09 (kiến nghị và OCDS), UAT-VND3-10 (cảnh báo và chỉ số).
 
-**Rủi ro và câu hỏi mở:** các mẫu thông thầu là kiến thức chung (hướng dẫn OECD 2025 chưa mở được nên chưa kiểm chứng từng câu); ngưỡng và trọng số cần chốt với khách và kiểm toán; căn cứ pháp lý để công bố chủ sở hữu hưởng lợi chưa xác nhận (mặc định tắt); chưa có giao diện công khai của mạng đấu thầu cho danh sách bên bị cấm nên danh sách vào bằng tệp; cấp quyền cổng cho tài khoản khách không phụ thuộc hợp đồng cần chỉnh ở màn hình ADM-17.
+**Rủi ro và câu hỏi mở:** các mẫu thông thầu là kiến thức chung (hướng dẫn OECD 2025 chưa mở được nên chưa kiểm chứng từng câu); ngưỡng và trọng số cần chốt với khách và kiểm toán; căn cứ pháp lý để công bố chủ sở hữu hưởng lợi chưa xác nhận (mặc định tắt); chưa có giao diện công khai của mạng đấu thầu cho danh sách bên bị cấm nên danh sách vào bằng tệp; cấp quyền cổng cho tài khoản khách không phụ thuộc hợp đồng đã làm ở PORTAL-2 (mục 15) bằng lời mời gắn với hồ sơ nhà thầu.
+
+## 15. Làn PORTAL-2: cổng nhà thầu không cần hợp đồng, tệp đính kèm (VND-23, VND-24)
+
+Phiên bản đặc tả M1 · 08/11/2026 · Kế hoạch `docs/plans/portal2.md`; mô tả đầy đủ: `docs/vendor-investigation.md` mục 14. Mã: `packages/kernel/src/vnd-portal-access.ts`, migration `V2640` đến `V2644`; thao tác dưới `/vendor/portal/invitations...` và `/portal/attachments` (thẻ VND); câu chuyện ST-VND-017, ST-VND-018.
+
+**Phạm vi.** (1) Lời mời vào cổng **gắn với hồ sơ nhà thầu đã xác minh, không gắn với hợp đồng**: một người đề xuất đầu mối (tên, thư điện tử) kèm căn cứ đầu mối thuộc nhà thầu (thư điện tử trùng hồ sơ do máy kiểm, hoặc số hiệu giấy tờ do người duyệt đọc), người khác phê duyệt hoặc từ chối kèm lý do; phê duyệt tạo tài khoản khách gắn nhà thầu với vai trò hệ thống `PORTAL_CONTRACTOR` (chỉ quyền cổng, không `contract.read`) và gửi lời mời qua đường thư của ADM-17; đề xuất hết hạn sau `proposal_days`, quyền truy cập hết hạn sau `access_days`, thu hồi có hiệu lực ngay kèm lý do; nhật ký kiểm toán và sự kiện chỉ mang mã, không mang thư điện tử. (2) Tải tệp lên cổng qua đường tệp chung: kiểm theo nội dung (PDF, PNG, JPEG), giới hạn dung lượng theo quy tắc, cổng quét mã độc (port) **mặc định từ chối khi chưa quét được**, ghi vào kho tài liệu (DOC) và bảng `portal_attachment`; mọi trường `document_id` của cổng chỉ nhận tệp của chính nhà thầu; trên đường cổng, bảng `document` và `document_version` không trả dòng nào.
+
+**Màn hình:** VND-23 Lời mời vào cổng nhà thầu (nhân viên); VND-24 Tệp đính kèm trên cổng nhà thầu (nhà thầu).
+
+**Quyền** (cả tenant): `vnd.portal.invite`, `vnd.portal.invite.approve`, `vnd.portal.invite.revoke`; khách nhà thầu: `vnd.portal.upload` (thêm vào `GUEST_CONTRACTOR` và vai trò mới `PORTAL_CONTRACTOR`).
+
+**Quy tắc quản trị** (chưa kiểm chứng, 08/11/2026): `VENDOR_PORTAL_ACCESS` (`proposal_days` 7, `access_days` 365 tối đa 730, `max_live_accounts` 3, `max_upload_bytes` 10 MiB).
+
+**Bảng và sự kiện:** `contractor_portal_invitation`, `portal_attachment`; sự kiện `vnd.portal.invitation.changed.v1`.
+
+**Mã lỗi:** `PORTAL_INVITATION_STATE_INVALID`, `PORTAL_INVITATION_EXISTS`, `PORTAL_CONTACT_UNPROVEN`, `CONTRACTOR_NOT_INVITABLE`, `PORTAL_ACCESS_LIMIT`; dùng lại `FILE_NOT_CLEAN`, `SCAN_PENDING`, `PAYLOAD_TOO_LARGE`, `FILE_TYPE_NOT_ALLOWED`.
+
+**Kiểm thử:** UI-VND-23, UI-VND-24; UAT-PORTAL2-01 (lời mời, căn cứ đầu mối, hai người), UAT-PORTAL2-02 (cách ly, hết hạn, giới hạn, thu hồi), UAT-PORTAL2-03 (giới hạn tải, quét mã độc, từ chối mặc định), UAT-PORTAL2-05 (tệp của nhà thầu này không đến nhà thầu khác).
+
+**Rủi ro và câu hỏi mở:** chưa có bộ quét mã độc thật (port đã có, mặc định đóng); căn cứ đầu mối là tham chiếu giấy tờ do người thứ hai đọc, chưa tra cứu sổ chính thức; gia hạn quyền truy cập là một lời mời mới.
