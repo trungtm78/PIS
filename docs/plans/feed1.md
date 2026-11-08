@@ -15,13 +15,14 @@ Branch `lane/feed1`, worktree `D:\PIS-feed1`, migration block FEED-1 2500-2519. 
 |---|---|---|
 | 1 | Kernel: model, layouts, port and three adapters, generator, reader, management rules, rules registration (policy, freshness line, three KPIs, three alert types), connection descriptor, tests | done |
 | 2 | Migrations V2500-V2503 (connection and events, runs and records, differences, reconciliation runs), RLS, append-only, maker-checker checks | done |
-| 3 | DB stores: connection, records and runs, mapping on `master_crosswalk`, differences, reader, file import adapter; db tests through the lane | in progress |
-| 4 | Alerts into the alert centre (`CONNECTOR` source): FEED_STALE, FEED_UNIT_LATE, FEED_DISCREPANCY_LARGE | open |
-| 5 | Contract (contract-patch: operations, schemas, error codes, screens FEED-01..FEED-05), generated clients | open |
-| 6 | API: controllers, authz matrix, command registry, isolation cases, API tests, no-egress test | open |
-| 7 | Web: five screens, kit, states matrix, i18n parts, vitest | done |
-| 8 | Design JSON (story, traceability, backlog), `docs/finance-feed.md` | open |
-| 9 | Gates: lint, typecheck, migrations:check, commands:check, contracts:check, error codes lint, isolation, conformance, outbox consumers, dis/report, Codex review and triage | open |
+| 3 | DB stores: connection, records and runs, mapping on `master_crosswalk`, differences, reader, file import adapter; db tests through the lane | done (test file written; run result in the report) |
+| 4 | Alerts into the alert centre (`CONNECTOR` source): FEED_STALE, FEED_UNIT_LATE, FEED_DISCREPANCY_LARGE | done |
+| 5 | Contract (contract-patch: 20 operations, schemas, 6 error codes, screens FEED-01..FEED-05), generated clients | done |
+| 6 | API: controllers, authz matrix, command registry, isolation fixtures and foreign-id cases, API tests, no-egress test | done (run results in the report) |
+| 7 | Web: five screens, kit, states matrix, i18n parts, vitest (by a delegated agent) | done |
+| 8 | Design JSON (story ST-FEED-001, traceability, backlog, test cases), `docs/finance-feed.md` | done |
+| 9 | Edge collector agent (`scripts/feed-collector/`, Node, no native dependency, offline spool, idempotent push, heartbeat), fake-only tests | done |
+| 10 | Gates: lint, typecheck, migrations:check, commands:check, contracts:check, error codes lint, isolation, conformance, outbox consumers, dis/report, Codex review and triage | in progress |
 
 ## Hooks left for other lanes
 
