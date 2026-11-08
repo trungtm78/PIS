@@ -17,6 +17,7 @@ const TODAY = '2027-10-15';
 const PROJECT = randomUUID();
 const FIRST = randomUUID();
 const CLEAN = randomUUID();
+const at = (minutes: number): Date => new Date(NOW.getTime() + minutes * 60_000);
 const everything = () => ({ sql: 'true', params: [] as unknown[] });
 
 const as = <T>(work_: (tx: Parameters<Parameters<typeof harness.tenants.withTenant>[1]>[0]) => Promise<T>, tenant = TENANT_A, member = AUDITOR): Promise<T> => harness.tenants.withTenant(contextFor(tenant, memberId(member)), work_);
@@ -109,25 +110,25 @@ describe('red flags and the new alert sources', () => {
     it('is reviewed in two steps: clearing needs a second auditor, and a new signal reopens a cleared finding', async () => {
       const [finding] = await as((tx) => flags.list(tx, memberId(AUDITOR), { limit: 10, offset: 0 }));
       const id = (finding as NonNullable<typeof finding>).id;
-      const taken = await as((tx) => flags.move(tx, id, 1, 'TAKE', memberId(AUDITOR), undefined, NOW));
+      const taken = await as((tx) => flags.move(tx, id, 1, 'TAKE', memberId(AUDITOR), undefined, at(1)));
       expect(taken).toMatchObject({ status: 'IN_REVIEW', reviewerId: memberId(AUDITOR), version: 2 });
-      await expect(as((tx) => flags.move(tx, id, 1, 'PROPOSE_CLEAR', memberId(AUDITOR), 'The single bid is justified', NOW))).rejects.toMatchObject({ code: 'VERSION_CONFLICT' });
-      await expect(as((tx) => flags.move(tx, id, 2, 'PROPOSE_CLEAR', memberId(AUDITOR), 'ok', NOW))).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
-      await as((tx) => flags.move(tx, id, 2, 'PROPOSE_CLEAR', memberId(AUDITOR), 'The single bid is justified by the market', NOW));
-      await expect(as((tx) => flags.move(tx, id, 3, 'CONFIRM_CLEAR', memberId(AUDITOR), undefined, NOW))).rejects.toMatchObject({ code: 'SELF_APPROVAL_DENIED' });
-      const cleared = await as((tx) => flags.move(tx, id, 3, 'CONFIRM_CLEAR', memberId(SECOND), undefined, NOW), TENANT_A, SECOND);
+      await expect(as((tx) => flags.move(tx, id, 1, 'PROPOSE_CLEAR', memberId(AUDITOR), 'The single bid is justified', at(2)))).rejects.toMatchObject({ code: 'VERSION_CONFLICT' });
+      await expect(as((tx) => flags.move(tx, id, 2, 'PROPOSE_CLEAR', memberId(AUDITOR), 'ok', at(3)))).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
+      await as((tx) => flags.move(tx, id, 2, 'PROPOSE_CLEAR', memberId(AUDITOR), 'The single bid is justified by the market', at(4)));
+      await expect(as((tx) => flags.move(tx, id, 3, 'CONFIRM_CLEAR', memberId(AUDITOR), undefined, at(5)))).rejects.toMatchObject({ code: 'SELF_APPROVAL_DENIED' });
+      const cleared = await as((tx) => flags.move(tx, id, 3, 'CONFIRM_CLEAR', memberId(SECOND), undefined, at(6)), TENANT_A, SECOND);
       expect(cleared).toMatchObject({ status: 'CLEARED', clearedBy: memberId(SECOND), clearProposedBy: memberId(AUDITOR) });
-      await expect(as((tx) => flags.move(tx, id, cleared.version, 'TAKE', memberId(AUDITOR), undefined, NOW))).rejects.toMatchObject({ code: 'RED_FLAG_STATE_INVALID' });
+      await expect(as((tx) => flags.move(tx, id, cleared.version, 'TAKE', memberId(AUDITOR), undefined, at(7)))).rejects.toMatchObject({ code: 'RED_FLAG_STATE_INVALID' });
       // The same signals again do not reopen it; a second bid with the same price fires another indicator and does.
-      expect((await as((tx) => flags.scan(tx, NOW, 'slot:test-3', TODAY))).reopened).toBe(0);
+      expect((await as((tx) => flags.scan(tx, at(20), 'slot:test-3', TODAY))).reopened).toBe(0);
       await admin([proposal(FIRST, '800000000')]);
-      const reopened = await as((tx) => flags.scan(tx, NOW, 'slot:test-4', TODAY));
+      const reopened = await as((tx) => flags.scan(tx, at(30), 'slot:test-4', TODAY));
       expect(reopened.reopened).toBe(1);
       const after = await as((tx) => flags.findOne(tx, memberId(AUDITOR), id));
       expect(after).toMatchObject({ status: 'NEW', reopenedCount: 1, clearedBy: null });
       expect(after?.fired.map((entry) => entry.code)).toEqual(expect.arrayContaining(['IDENTICAL_BID_PRICES']));
       const history = await as((tx) => flags.reviews(tx, id));
-      expect(history.map((entry) => entry.move)).toEqual(['FLAGGED', 'TAKE', 'PROPOSE_CLEAR', 'CONFIRM_CLEAR', 'RESCORED', 'REOPENED']);
+      expect(history.map((entry) => entry.move)).toEqual(['FLAGGED', 'TAKE', 'PROPOSE_CLEAR', 'CONFIRM_CLEAR', 'REOPENED']);
     });
 
     it('shows the registry of indicators with formula, source, day and an unconfirmed status', async () => {
@@ -196,7 +197,7 @@ describe('red flags and the new alert sources', () => {
     it('reads an advance paid while an earlier one is open as an anomaly for the auditors, with the rule able to switch it off', async () => {
       const contract = randomUUID();
       await admin([
-        [`insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, signed_on, effective_from) values ($1, $2, $3, $4, $5, 'HD-AN-1', 'LUMP_SUM', 'VND', 'ACTIVE', 1, date '2027-01-01', date '2027-01-01')`, [TENANT_A, contract, PROJECT, FIRST, randomUUID()]],
+        [`insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, signed_on, effective_from, contract_value_vnd) values ($1, $2, $3, $4, $5, 'HD-AN-1', 'LUMP_SUM', 'VND', 'ACTIVE', 1, date '2027-01-01', date '2027-01-01', 1000000)`, [TENANT_A, contract, PROJECT, FIRST, randomUUID()]],
         [
           `insert into machvon.contract_advance (tenant_id, id, contract_id, party_id, tranche_no, kind, amount_vnd, cap_vnd, status, paid_vnd, recovered_vnd, paid_on, recovery_deadline, recovery_threshold_pct, created_by, updated_by)
            values ($1, $2, $3, $4, 1, 'GPMB', 100, 1000, 'PAID', 100, 10, '2027-08-01', '2027-12-01', 80, $5, $5), ($1, $6, $3, $4, 2, 'GPMB', 100, 1000, 'PAID', 100, 0, '2027-10-01', '2028-01-01', 80, $5, $5)`,
@@ -222,8 +223,8 @@ describe('red flags and the new alert sources', () => {
       const contract = randomUUID();
       await admin([
         [
-          `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, completion_due, signed_on, effective_from)
-           values ($1, $2, $3, $4, $5, 'HD-CK-1', 'LUMP_SUM', 'VND', 'ACTIVE', 1, '2027-10-20', date '2027-01-01', date '2027-01-01')`,
+          `insert into machvon.contract (tenant_id, id, project_id, package_id, contractor_id, code, type, currency, status, version, completion_due, signed_on, effective_from, contract_value_vnd)
+           values ($1, $2, $3, $4, $5, 'HD-CK-1', 'LUMP_SUM', 'VND', 'ACTIVE', 1, '2027-10-20', date '2027-01-01', date '2027-01-01', 1000000)`,
           [TENANT_A, contract, PROJECT, CLEAN, randomUUID()],
         ],
       ]);
