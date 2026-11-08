@@ -2,6 +2,8 @@ import { ApiError } from '@machvon/api-client';
 import type { components } from '@machvon/contracts';
 import type { Locale } from '../../i18n';
 import type { Tone } from '../../ui';
+import { CHANGE_KINDS, CHANGE_LINKS, CHANGE_PARAMS, MAX_CHANGE_LINES } from '../home/gov-model';
+import type { ChangeLine } from '../home/gov-model';
 import { FIGURE_FLAGS, toKpiInfo } from '../home/model';
 import type { FigureFlag, Tile } from '../home/model';
 
@@ -139,10 +141,7 @@ export const ALERT_TYPE_WORD: Readonly<Record<Alert['alert_type'], string>> = {
 };
 
 export const DECISION_WORD: Readonly<Record<DecisionKind, string>> = { ACKNOWLEDGED: 'acknowledged', DEFERRED: 'deferred', DIRECTED: 'directed', REOPENED: 'reopened' };
-export const ROLE_WORD: Readonly<Record<MemberRole, string>> = { HEAD: 'head', DEPUTY: 'deputy', MEMBER: 'member', SECRETARIAT: 'secretariat' };
 export const ROLES: readonly MemberRole[] = ['HEAD', 'DEPUTY', 'MEMBER', 'SECRETARIAT'];
-export const ASSURANCE_WORD: Readonly<Record<AuditRow['assurance_level'], string>> = { UNKNOWN: 'unknown', PASSWORD: 'password', MFA: 'mfa' };
-export const UNIT_REASON_WORD: Readonly<Record<NonNullable<Unit['reason']>, string>> = { NEVER_REPORTED: 'never', STALE: 'stale', LOW_RATE: 'lowRate' };
 export const SCREENS = ['WORKSPACE', 'ATTENTION', 'MEETING_PACK', 'DIRECTIVE_TRACKER', 'ALERTS', 'ROSTER', 'VIEW_AUDIT'] as const;
 export const screenWord = (screen: string): string => screen.toLowerCase().replace(/_(\w)/g, (_match, letter: string) => letter.toUpperCase());
 
@@ -420,4 +419,30 @@ export class DirectiveFlowError extends Error {
   ) {
     super(`directive flow failed at ${step}`);
   }
+}
+
+// ---- "changes since last week" ------------------------------------------------------------------------------------------------------------------------
+
+/**
+ * The lines of the week as HOME writes its own: a line the screen has no sentence for, or one whose numbers are not all there, is not said (no placeholder, no number made up). The committee lines carry no token of a figure,
+ * so a drill line has no link; the screens of HOME are not promised to a reader of the committee.
+ */
+export function toChangeLines(lines: Workspace['changes']['lines'] | undefined): ChangeLine[] {
+  return (lines ?? []).flatMap((line) => {
+    const kind = oneOf(line.kind, CHANGE_KINDS);
+    const link = oneOf(line.link, CHANGE_LINKS);
+    if (kind === undefined || link === undefined) return [];
+    const params: Record<string, string> = {};
+    for (const [name, value] of Object.entries(line.params ?? {})) if (typeof value === 'string' || typeof value === 'number') params[name] = String(value);
+    if (CHANGE_PARAMS[kind].some((name) => params[name] === undefined || params[name] === '')) return [];
+    return [{ kind, direction: line.direction, params, link, metricCode: line.metric_code, contextToken: null }];
+  }).slice(0, MAX_CHANGE_LINES);
+}
+
+// ---- the audit of views -------------------------------------------------------------------------------------------------------------------------------
+
+/** The filters of a view as a line of `name=value` pairs (the audit holds the filters, never a figure); a filter that was not set is left out. */
+export function filtersText(filters: Record<string, unknown> | null | undefined): string {
+  const pairs = Object.entries(filters ?? {}).flatMap(([name, value]) => (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' ? (String(value) === '' ? [] : [`${name}=${String(value)}`]) : []));
+  return pairs.join(', ');
 }

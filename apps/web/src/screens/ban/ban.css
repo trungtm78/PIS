@@ -1,0 +1,33 @@
+.ban-screen { display: grid; gap: var(--space-4, 16px); min-width: 0; }
+.ban-screen > * { min-width: 0; }
+.ban-muted { color: var(--text-muted, #5b6770); font-size: 0.875rem; }
+.ban-figures { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: var(--space-3, 12px); }
+.ban-figure { min-width: 0; }
+.ban-figure__sub { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--space-2, 8px); }
+.ban-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: var(--space-3, 12px); margin: var(--space-3, 12px) 0; }
+.ban-facts dt { color: var(--text-muted, #5b6770); font-size: 0.8125rem; }
+.ban-facts dd { margin: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.ban-reasons { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.ban-changes { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2, 8px); }
+.ban-alert { border: 1px solid var(--border, #cfd8dc); border-radius: 8px; padding: var(--space-3, 12px); display: grid; gap: var(--space-2, 8px); }
+.ban-alert__head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2, 8px); }
+.ban-alerts { display: grid; gap: var(--space-3, 12px); }
+.ban-empty { border: 1px dashed var(--border, #cfd8dc); border-radius: 8px; padding: var(--space-3, 12px); display: grid; gap: var(--space-2, 8px); }
+.ban-tabs { display: flex; flex-wrap: wrap; gap: var(--space-2, 8px); margin-bottom: var(--space-3, 12px); }
+.ban-tab { min-height: 2.75rem; }
+.ban-tab[aria-selected='true'] { border-width: 2px; font-weight: 600; }
+.ban-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: var(--space-3, 12px); }
+.ban-filters label, .ban-form label { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ban-filters select, .ban-form select, .ban-form input, .ban-form textarea { max-width: 100%; }
+.ban-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: var(--space-3, 12px); }
+.ban-form .ban-wide { grid-column: 1 / -1; }
+.ban-error { color: var(--danger, #a63838); font-size: 0.875rem; }
+.ban-actions { display: flex; flex-wrap: wrap; gap: var(--space-2, 8px); }
+.ban-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: var(--space-3, 12px); }
+.ban-summary__item { border: 1px solid var(--border, #cfd8dc); border-radius: 8px; padding: var(--space-3, 12px); display: grid; gap: 4px; }
+.ban-summary__item strong { font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+.ban-policy { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2, 8px); }
+.ban-sections { margin: 0; padding-left: 1.25rem; display: grid; gap: 4px; }
+.ban-audit-filters { display: flex; flex-wrap: wrap; gap: var(--space-3, 12px); align-items: end; }
+.ban-roster-member { display: grid; gap: var(--space-2, 8px); }
+@media (max-width: 640px) { .ban-figures, .ban-facts, .ban-form, .ban-filters, .ban-summary { grid-template-columns: minmax(0, 1fr); } }

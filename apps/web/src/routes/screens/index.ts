@@ -519,4 +519,13 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'HUB-01': () => import('../../screens/hub/CatalogueScreen'),
   'HUB-02': () => import('../../screens/hub/ConnectorScreen'),
   'HUB-03': () => import('../../screens/hub/IncidentScreen'),
+=======
+  // The committee workspace (BAN-1): dashboard, attention list, meeting pack, directive tracker, alerts, roster, audit of views.
+  'BAN-01': () => import('../../screens/ban/DashboardScreen'),
+  'BAN-02': () => import('../../screens/ban/AttentionScreen'),
+  'BAN-03': () => import('../../screens/ban/PackScreen'),
+  'BAN-04': () => import('../../screens/ban/TrackerScreen'),
+  'BAN-05': () => import('../../screens/ban/AlertsScreen'),
+  'BAN-06': () => import('../../screens/ban/RosterScreen'),
+  'BAN-07': () => import('../../screens/ban/ViewAuditScreen'),
 };

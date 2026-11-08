@@ -13,6 +13,7 @@ import { clockText, dayText } from '../../screens/home/overview-model';
 import { Hero, Kpis } from '../../screens/home/overview-sections';
 import { vietnamToday } from '../../screens/mne/model';
 import { AlertBand, ContextBar } from '../../ui';
+import { CommitteeCard } from './CommitteeCard';
 import { FunnelCard } from './FunnelCard';
 import { PwaBackLink } from './PwaBackLink';
 import { ApiError } from '@machvon/api-client';
@@ -85,6 +86,7 @@ function DashboardContent() {
       <Context center={center} updatedAt={query.dataUpdatedAt} />
       <NeedsAction />
       <FunnelCard />
+      <CommitteeCard />
       {problem !== undefined && !revoked ? <ProblemCard problem={problem} /> : null}
       <StateBoundary
         state={state}

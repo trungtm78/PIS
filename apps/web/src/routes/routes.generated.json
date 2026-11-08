@@ -460,6 +460,7 @@
     {"id":"RPT-02","path":"/rpt/rpt-02","title":"Bản nháp báo cáo, xem trước và luồng kiểm tra, phê duyệt, phát hành","kind":"detail","area":"insights","module":"RPT","group":"Lập và phát hành","role":"workspace","parent":null,"req":"FR-RPT-02"},
     {"id":"RPT-03","path":"/rpt/rpt-03","title":"Các bản báo cáo đã phát hành","kind":"table","area":"insights","module":"RPT","group":"Đã phát hành và giao","role":"workspace","parent":null,"req":"FR-RPT-03"},
     {"id":"RPT-04","path":"/rpt/rpt-04","title":"Nhật ký giao báo cáo cho bên nhận","kind":"table","area":"insights","module":"RPT","group":"Đã phát hành và giao","role":"workspace","parent":null,"req":"FR-RPT-04"},
+<<<<<<< HEAD
     {"id":"DIS-27","path":"/dis/dis-27","title":"Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ","kind":"table","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-27"},
     {"id":"DIS-28","path":"/dis/dis-28","title":"Lập và duyệt lô số liệu vốn: kế hoạch phân kỳ, số ước, số thực, điều chỉnh muộn","kind":"form","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-28"},
     {"id":"DIS-29","path":"/dis/dis-29","title":"Lịch sử chuyển đổi của một kỳ: các lần ước rồi số thực thay thế","kind":"detail","area":"investment","module":"DIS","group":"Quản lý kỳ báo cáo","role":"workspace","parent":null,"req":"FR-DIS-29"},
@@ -507,5 +508,14 @@
     {"id":"HUB-02","path":"/hub/hub-02","title":"Chi tiết bộ kết nối","kind":"detail","area":"data","module":"HUB","group":"Kết nối và sức khỏe","role":"workspace","parent":null,"req":"FR-HUB-02"},
     {"id":"HUB-03","path":"/hub/hub-03","title":"Nhật ký sự cố tích hợp","kind":"table","area":"data","module":"HUB","group":"Sự cố","role":"workspace","parent":null,"req":"FR-HUB-03"}
 >>>>>>> ff2b50cb (feat(web): register HUB screens, navigation, routes and folded i18n)
+=======
+    {"id":"BAN-01","path":"/ban/ban-01","title":"Bảng điều hành Ban chỉ đạo","kind":"dashboard","area":"overview","module":"BAN","group":"Điều hành","role":"workspace","parent":null,"req":"FR-BAN-01"},
+    {"id":"BAN-02","path":"/ban/ban-02","title":"Dự án cần Trưởng ban quan tâm","kind":"table","area":"overview","module":"BAN","group":"Điều hành","role":"workspace","parent":null,"req":"FR-BAN-02"},
+    {"id":"BAN-03","path":"/ban/ban-03","title":"Hồ sơ họp Ban chỉ đạo","kind":"documents","area":"overview","module":"BAN","group":"Điều hành","role":"workspace","parent":null,"req":"FR-BAN-03"},
+    {"id":"BAN-04","path":"/ban/ban-04","title":"Theo dõi chỉ đạo của Ban chỉ đạo","kind":"board","area":"overview","module":"BAN","group":"Theo dõi và quản trị","role":"workspace","parent":null,"req":"FR-BAN-04"},
+    {"id":"BAN-05","path":"/ban/ban-05","title":"Cảnh báo của Ban chỉ đạo","kind":"list","area":"overview","module":"BAN","group":"Theo dõi và quản trị","role":"workspace","parent":null,"req":"FR-BAN-05"},
+    {"id":"BAN-06","path":"/ban/ban-06","title":"Danh sách Ban chỉ đạo và vị trí","kind":"form","area":"overview","module":"BAN","group":"Theo dõi và quản trị","role":"workspace","parent":null,"req":"FR-BAN-06"},
+    {"id":"BAN-07","path":"/ban/ban-07","title":"Nhật ký xem màn hình nhạy cảm của Ban chỉ đạo","kind":"table","area":"overview","module":"BAN","group":"Theo dõi và quản trị","role":"workspace","parent":null,"req":"FR-BAN-07"}
+>>>>>>> 70baf081 (feat(web): committee workspace screens BAN-01 to BAN-07, PWA card, routes and strings)
   ]
 }
