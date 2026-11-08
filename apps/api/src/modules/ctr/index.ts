@@ -12,6 +12,7 @@ import { RetentionController, RetentionReadsController } from './retention.contr
 import { ContractorExportController, ContractorExportReadsController } from './export.controller';
 import { RatingController, RatingReadsController } from './rating.controller';
 import { ScorecardController, ScorecardReadsController } from './scorecard.controller';
+import { SettlementClockController } from './settlement-clock.controller';
 import { ExpiringGuaranteesController, GuaranteeController, GuaranteeReadsController } from './guarantee.controller';
 
 /**
@@ -53,6 +54,7 @@ export const ctrModule = defineModule({
     RatingReadsController,
     ContractorExportController,
     ContractorExportReadsController,
+    SettlementClockController,
     ContractAnalyticsController,
     ClaimTermController,
     ClaimController,

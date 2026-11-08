@@ -3121,6 +3121,22 @@ final class CtrActivateContract implements RequestModel {
       };
 }
 
+final class CtrAdjustmentReview implements RequestModel {
+  const CtrAdjustmentReview({
+    required this.decision,
+    this.note,
+  });
+
+  final String decision;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        if (note != null) 'note': note,
+      };
+}
+
 final class CtrAdoptContractRating implements RequestModel {
   const CtrAdoptContractRating({
     this.note,
@@ -10825,15 +10841,18 @@ final class PayResolveReconciliationItem implements RequestModel {
 final class PayReturnPaymentRequest implements RequestModel {
   const PayReturnPaymentRequest({
     required this.reason,
+    this.reasonCode,
     this.returnedByTreasury,
   });
 
   final String reason;
+  final String? reasonCode;
   final bool? returnedByTreasury;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'reason': reason,
+        if (reasonCode != null) 'reason_code': reasonCode,
         if (returnedByTreasury != null) 'returned_by_treasury': returnedByTreasury,
       };
 }
@@ -11919,6 +11938,149 @@ final class PrjLeaderAssignment implements RequestModel {
         'accountability_role': accountabilityRole,
         'valid_from': validFrom,
         if (assignmentDocumentId != null) 'assignment_document_id': assignmentDocumentId,
+      };
+}
+
+final class PrjLessonDecision implements RequestModel {
+  const PrjLessonDecision({
+    required this.decision,
+    this.note,
+  });
+
+  final String decision;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        if (note != null) 'note': note,
+      };
+}
+
+final class PrjLessonDraft implements RequestModel {
+  const PrjLessonDraft({
+    required this.category,
+    required this.title,
+    required this.situation,
+    required this.recommendation,
+  });
+
+  final String category;
+  final String title;
+  final String situation;
+  final String recommendation;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'category': category,
+        'title': title,
+        'situation': situation,
+        'recommendation': recommendation,
+      };
+}
+
+final class PrjLessonWaiverRequest implements RequestModel {
+  const PrjLessonWaiverRequest({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
+final class PrjLookAheadConstraintClear implements RequestModel {
+  const PrjLookAheadConstraintClear({
+    this.note,
+  });
+
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (note != null) 'note': note,
+      };
+}
+
+final class PrjLookAheadConstraintRaise implements RequestModel {
+  const PrjLookAheadConstraintRaise({
+    required this.kind,
+    required this.description,
+    this.ownerMembershipId,
+    this.dueOn,
+  });
+
+  final String kind;
+  final String description;
+  final String? ownerMembershipId;
+  final String? dueOn;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'description': description,
+        if (ownerMembershipId != null) 'owner_membership_id': ownerMembershipId,
+        if (dueOn != null) 'due_on': dueOn,
+      };
+}
+
+final class PrjLookAheadOutcome implements RequestModel {
+  const PrjLookAheadOutcome({
+    required this.outcome,
+    this.reasonCode,
+  });
+
+  final String outcome;
+  final String? reasonCode;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'outcome': outcome,
+        if (reasonCode != null) 'reason_code': reasonCode,
+      };
+}
+
+final class PrjLookAheadPlanCreate implements RequestModel {
+  const PrjLookAheadPlanCreate({
+    required this.weekStart,
+    required this.horizonWeeks,
+    required this.items,
+  });
+
+  final String weekStart;
+  final int horizonWeeks;
+  final List<PrjLookAheadPlanCreateItemsItem> items;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'week_start': weekStart,
+        'horizon_weeks': horizonWeeks,
+        'items': items,
+      };
+}
+
+final class PrjLookAheadPlanCreateItemsItem implements RequestModel {
+  const PrjLookAheadPlanCreateItemsItem({
+    required this.description,
+    required this.plannedStart,
+    required this.plannedFinish,
+    this.responsible,
+  });
+
+  final String description;
+  final String plannedStart;
+  final String plannedFinish;
+  final String? responsible;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'description': description,
+        'planned_start': plannedStart,
+        'planned_finish': plannedFinish,
+        if (responsible != null) 'responsible': responsible,
       };
 }
 
