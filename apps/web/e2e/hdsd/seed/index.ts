@@ -3,6 +3,7 @@ import { seedCapital } from './capital.ts';
 import type { SeedContext } from './context.ts';
 import { seedFieldAssurance } from './field-assurance.ts';
 import { seedIntelligence } from './intelligence.ts';
+import { applyClipPlan } from './clip/plan.ts';
 import { seedProcurementFinance } from './procurement-finance.ts';
 
 /**
@@ -36,6 +37,7 @@ export interface SeedSummary {
  * The ledger of each group is written when the group ends, even when it failed (what it made up to there is on it).
  */
 export async function runSeed(ctx: SeedContext, names?: readonly string[]): Promise<SeedSummary> {
+  applyClipPlan();
   const known = GROUPS.map((group) => group.name);
   for (const name of names ?? []) if (!known.includes(name)) throw new Error(`unknown seed group "${name}" (known: ${known.join(', ')})`);
   const chosen = GROUPS.filter((group) => names === undefined || names.includes(group.name));

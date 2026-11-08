@@ -1,0 +1,68 @@
+{
+  "schema": "clip-dataset/1",
+  "dataset": "public",
+  "edition": "public",
+  "title": "Bộ dữ liệu minh họa cấp tỉnh (Cao Bằng) cho clip Hệ thống quản lý đầu tư công",
+  "illustrative": "Dữ liệu minh họa, không phải số liệu thật của khách hàng",
+  "seed": 20261108,
+  "reservedProjectCodes": ["DA-DT205", "DA-TH012", "DA-YT007", "DA-NN031", "DA-MT019", "DA-CN026", "DA-VH044", "DA-GT118", "DA-GD022", "DA-ICT03", "DA-TL001", "DA-DC071", "DA-TT015"],
+  "extraProjects": 32,
+  "stageMix": {
+    "IMPLEMENTATION": 14,
+    "BUDGETED": 7,
+    "COMPLETED": 3,
+    "SUSPENDED": 1,
+    "APPRAISAL": 2,
+    "PIPELINE": 3,
+    "REJECTED": 1,
+    "CONCEPT": 1
+  },
+  "extraAreas": [
+    { "key": "CB-BAO-LAC", "name": "Thị trấn Bảo Lạc" },
+    { "key": "CB-HA-LANG", "name": "Thị trấn Thanh Nhật" },
+    { "key": "CB-HOA-AN", "name": "Thị trấn Nước Hai" },
+    { "key": "CB-NGUYEN-BINH", "name": "Thị trấn Nguyên Bình" },
+    { "key": "CB-THACH-AN", "name": "Thị trấn Đông Khê" },
+    { "key": "CB-TRA-LINH", "name": "Thị trấn Hùng Quốc" },
+    { "key": "CB-TRUNG-KHANH", "name": "Thị trấn Trùng Khánh" },
+    { "key": "CB-THONG-NONG", "name": "Thị trấn Thông Nông" }
+  ],
+  "existingAreas": [
+    { "key": "CB-THUC-PHAN", "name": "phường Thục Phán" },
+    { "key": "CB-NUNG-TRI-CAO", "name": "phường Nùng Trí Cao" },
+    { "key": "CB-TAN-GIANG", "name": "phường Tân Giang" },
+    { "key": "CB-HOP-GIANG", "name": "phường Hợp Giang" },
+    { "key": "CB-SONG-HIEN", "name": "phường Sông Hiến" },
+    { "key": "CB-QUANG-HOA", "name": "xã Quảng Hòa" },
+    { "key": "CB-BAN-GIOC", "name": "xã Bản Giốc" },
+    { "key": "CB-TAM-KIM", "name": "xã Tam Kim" }
+  ],
+  "sectors": [
+    { "code": "TRANSPORT", "prefix": "GT", "weight": 5, "type": ["NEW_BUILD", "UPGRADE"], "sizeBillions": [40, 260], "templates": ["Nâng cấp đường liên xã {place}", "Cầu qua suối {place}", "Đường giao thông nông thôn {place}", "Cải tạo tuyến tỉnh lộ qua {place}"] },
+    { "code": "AGRICULTURE", "prefix": "NN", "weight": 4, "type": ["NEW_BUILD", "UPGRADE"], "sizeBillions": [20, 120], "templates": ["Kênh mương nội đồng {place}", "Hồ chứa nước sinh hoạt {place}", "Đường lâm nghiệp {place}", "Trạm bơm tưới tiêu {place}"] },
+    { "code": "EDUCATION", "prefix": "GD", "weight": 4, "type": ["NEW_BUILD", "UPGRADE"], "sizeBillions": [15, 70], "templates": ["Xây dựng Trường tiểu học {place}", "Nhà lớp học bán trú {place}", "Trường mầm non {place}", "Nhà đa năng Trường THCS {place}"] },
+    { "code": "HEALTH", "prefix": "YT", "weight": 3, "type": ["NEW_BUILD", "UPGRADE"], "sizeBillions": [8, 60], "templates": ["Trạm y tế {place}", "Trung tâm y tế khu vực {place}", "Nâng cấp bệnh viện đa khoa {place}"] },
+    { "code": "CULTURE_SPORT", "prefix": "VH", "weight": 3, "type": ["NEW_BUILD", "UPGRADE"], "sizeBillions": [10, 80], "templates": ["Nhà văn hóa trung tâm {place}", "Sân vận động {place}", "Tu bổ di tích {place}"] },
+    { "code": "ENVIRONMENT", "prefix": "MT", "weight": 2, "type": ["NEW_BUILD"], "sizeBillions": [15, 90], "templates": ["Hệ thống thoát nước thải {place}", "Bãi xử lý rác thải {place}", "Kè chống sạt lở {place}"] },
+    { "code": "ICT", "prefix": "TT", "weight": 1, "type": ["NEW_BUILD"], "sizeBillions": [8, 40], "templates": ["Hạ tầng số và mạng truyền dẫn {place}", "Trung tâm điều hành thông minh {place}"] },
+    { "code": "URBAN", "prefix": "CN", "weight": 3, "type": ["NEW_BUILD", "UPGRADE"], "sizeBillions": [20, 130], "templates": ["Chỉnh trang đô thị {place}", "Hệ thống cấp nước {place}", "Chiếu sáng công cộng {place}", "Khu tái định cư {place}"] }
+  ],
+  "funding": {
+    "appropriationOverrides": { "NSTW": 520, "NSDP": 640, "SUPPORT": 140 },
+    "extraAppropriations": [
+      { "key": "ODAV", "fund": "ODA-ONLEND", "origin": "CENTRAL_SUPPORT", "level": "CENTRAL", "billions": 160, "sourceYear": 2026, "authority": "Thủ tướng Chính phủ", "symbol": "1840/QĐ-TTg", "title": "Quyết định về việc giao kế hoạch vốn nước ngoài (ODA vay lại) năm 2026", "issuedOn": "2026-02-11" }
+    ],
+    "shares": { "NSTW": 0.4, "NSDP": 0.4, "SUPPORT": 0.1, "ODAV": 0.1 },
+    "planShareOfTotal": [0.25, 0.45]
+  },
+  "texts": {
+    "areaDecisionSymbol": "131/QĐ-UBND",
+    "areaDecisionTitle": "Quyết định về việc bổ sung danh mục thị trấn dùng chung của tỉnh Cao Bằng",
+    "projectNote": "Dự án minh họa của bộ dữ liệu clip"
+  },
+  "expect": {
+    "projects": { "min": 40 },
+    "sectors": { "min": 8 },
+    "fundSources": ["NSTW-DTPT", "NSDP-DTPT", "ODA-NONLEND", "ODA-ONLEND"]
+  }
+}

@@ -218,7 +218,8 @@ export class SeedContext {
     if (key === undefined || key === '') throw new SeedError('E2E_SESSION_KEY is not set (it must be the key the stack was started with)');
     this.sessionKey = Buffer.from(key, 'base64');
     this.info = JSON.parse(readFileSync(STACK_INFO_PATH, 'utf8')) as StackInfoFile;
-    this.base = `http://127.0.0.1:${this.info.apiPort}`;
+    // CLIP_API_URL points the seeds at an API that is not on the loopback port of the stack info (scripts/clip-seed.mjs apply --api).
+    this.base = (process.env.CLIP_API_URL ?? '') === '' ? `http://127.0.0.1:${this.info.apiPort}` : String(process.env.CLIP_API_URL).replace(/\/+$/u, '');
     this.stackDir = STACK_DIR;
     this.asOf = options.asOf ?? new Date();
     this.today = vietnamDate(this.asOf);

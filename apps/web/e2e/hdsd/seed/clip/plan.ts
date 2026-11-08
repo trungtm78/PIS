@@ -1,0 +1,66 @@
+import { readFileSync } from 'node:fs';
+import { APPROPRIATIONS } from '../capital-plan.ts';
+import type { AppropriationSpec, LineSpec } from '../capital-plan.ts';
+import { LINES } from '../capital-plan.ts';
+import { MORE_AREAS, PROJECTS } from '../capital-projects.ts';
+import type { ProjectSpec } from '../capital-projects.ts';
+
+/**
+ * The plan of a clip dataset (scripts/clip-seed-lib.mjs, written by `node scripts/clip-seed.mjs apply`): the seed layer reads it from the file named by
+ * CLIP_PLAN_FILE and grows its own tables with it (the portfolio, the lines of capital, the appropriations, the wards), so the groups of the guide run
+ * unchanged on a bigger province. Without the variable nothing changes.
+ */
+export interface ClipPlan {
+  schema: 'clip-plan/1';
+  dataset: 'public' | 'enterprise';
+  edition: string;
+  seed: number;
+  areas: Array<{ key: string; name: string }>;
+  areaDecision: { symbol: string; title: string };
+  appropriationOverrides: Record<string, number>;
+  extraAppropriations: Array<{ key: string; fund: string; origin: AppropriationSpec['origin']; level: 'CENTRAL' | 'LOCAL'; billions: number; sourceYear: number; authority: string; symbol: string; title: string; issuedOn: string }>;
+  projects: ProjectSpec[];
+  lines: Array<{ project: string; appropriation: string; billions: number }>;
+  [more: string]: unknown;
+}
+
+let loaded: ClipPlan | undefined;
+let applied = false;
+
+/** The plan named by CLIP_PLAN_FILE, or undefined when the variable is not set. */
+export function clipPlan(): ClipPlan | undefined {
+  const file = process.env.CLIP_PLAN_FILE;
+  if (file === undefined || file === '') return undefined;
+  loaded ??= JSON.parse(readFileSync(file, 'utf8')) as ClipPlan;
+  return loaded;
+}
+
+/** Grows the tables of the capital groups with the plan (once per process). */
+export function applyClipPlan(): ClipPlan | undefined {
+  const plan = clipPlan();
+  if (plan === undefined || applied) return plan;
+  applied = true;
+  if (plan.dataset !== 'public') return plan;
+  MORE_AREAS.push(...plan.areas.filter((area) => !MORE_AREAS.some((known) => known.key === area.key)));
+  for (const [key, billions] of Object.entries(plan.appropriationOverrides)) {
+    const spec = APPROPRIATIONS.find((candidate) => candidate.key === key);
+    if (spec !== undefined) spec.billions = billions;
+  }
+  for (const extra of plan.extraAppropriations) {
+    if (APPROPRIATIONS.some((spec) => spec.key === extra.key)) continue;
+    APPROPRIATIONS.push({
+      key: extra.key,
+      fund: extra.fund,
+      origin: extra.origin,
+      level: extra.level,
+      billions: extra.billions,
+      authority: extra.authority,
+      sourceYear: extra.sourceYear,
+      letter: { symbol: extra.symbol, title: extra.title, issuedOn: extra.issuedOn, sender: extra.authority },
+      decide: 'approve',
+    });
+  }
+  for (const project of plan.projects) if (!PROJECTS.some((known) => known.code === project.code)) PROJECTS.push(project);
+  for (const line of plan.lines) LINES.push({ project: line.project, appropriation: line.appropriation, billions: line.billions } satisfies LineSpec);
+  return plan;
+}

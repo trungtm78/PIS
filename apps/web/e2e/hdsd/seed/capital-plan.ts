@@ -34,7 +34,7 @@ const PROVINCE = tx('PROVINCE.002');
 export const APPROPRIATIONS: AppropriationSpec[] = [
   { key: 'NSTW', fund: 'NSTW-DTPT', origin: 'PM_ASSIGNED', level: 'CENTRAL', billions: 120, authority: PRIME_MINISTER, sourceYear: 2026, letter: { symbol: tx('symbol.003'), title: tx('title.004'), issuedOn: '2025-12-14', sender: tx('sender.005') }, decide: 'approve' },
   { key: 'NSDP', fund: 'NSDP-DTPT', origin: 'LOCAL_ADDED', level: 'LOCAL', billions: 180, authority: PROVINCE, sourceYear: 2026, letter: { symbol: tx('symbol.006'), title: tx('title.007'), issuedOn: '2025-12-28', sender: PROVINCE }, decide: 'approve' },
-  { key: 'NTM', fund: 'CTMTQG-NTM', origin: 'PM_ASSIGNED', level: 'CENTRAL', program: 'NTM', billions: 60, authority: PRIME_MINISTER, sourceYear: 2026, letter: { symbol: tx('symbol.008'), title: tx('title.009'), issuedOn: '2025-12-14', sender: tx('sender.005') }, decide: 'approve' },
+  { key: 'NTM', fund: 'NSTW-DTPT', origin: 'CENTRAL_SUPPORT', level: 'CENTRAL', program: 'NTM', billions: 60, authority: PRIME_MINISTER, sourceYear: 2026, letter: { symbol: tx('symbol.008'), title: tx('title.009'), issuedOn: '2025-12-14', sender: tx('sender.005') }, decide: 'approve' },
   { key: 'CARRY', fund: 'NSDP', origin: 'CARRYOVER', level: 'LOCAL', billions: 25, authority: PROVINCE, sourceYear: 2025, extendedTo: '2026-12-31', letter: { symbol: tx('symbol.010'), title: tx('title.011'), issuedOn: '2026-01-20', sender: PROVINCE }, decide: 'approve' },
   { key: 'SUPPORT', fund: 'ODA-NONLEND', origin: 'CENTRAL_SUPPORT', level: 'CENTRAL', billions: 30, authority: tx('authority.012'), sourceYear: 2026, letter: { symbol: tx('symbol.013'), title: tx('title.014'), issuedOn: '2026-03-18', sender: tx('authority.012') }, decide: 'approve' },
   { key: 'REVENUE', fund: 'NSDP', origin: 'REVENUE_INCREASE', level: 'LOCAL', billions: 20, authority: PROVINCE, sourceYear: 2026, letter: { symbol: tx('symbol.015'), title: tx('title.016'), issuedOn: ctxDate(-9), sender: PROVINCE }, decide: 'pending' },
@@ -70,7 +70,7 @@ export const LINES: LineSpec[] = [
 
 /** The appropriation of a spec as the register has it now (by fund source, origin and year), or undefined. */
 export async function appropriationOf(ctx: SeedContext, spec: AppropriationSpec): Promise<Obj | undefined> {
-  return ctx.find('projectManager', '/appropriations', (row) => asObj(row.fund_source).business_key === spec.fund && row.origin === spec.origin && Number(row.source_year) === spec.sourceYear && Number(row.plan_year) === 2026);
+  return ctx.find('projectManager', '/appropriations', (row) => asObj(row.fund_source).business_key === spec.fund && row.origin === spec.origin && String(asObj(row.program).business_key ?? asObj(row.program).key ?? '') === (spec.program ?? '') && Number(row.source_year) === spec.sourceYear && Number(row.plan_year) === 2026);
 }
 
 /** Registers the assignments of capital: each cites the decision of the authority; the leader publishes them (or leaves the last one in the queue). */
