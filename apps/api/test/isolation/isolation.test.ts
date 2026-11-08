@@ -1415,6 +1415,13 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'importIndicatorFile',
         'listIndicatorImports',
         'listIndicatorImportRows',
+        'proposeContractRating',
+        'notifyContractRating',
+        'recordContractRatingResponse',
+        'adoptContractRating',
+        'withdrawContractRating',
+        'getContractRatingProposal',
+        'listContractRatingProposals',
       ].sort(),
     );
   });
