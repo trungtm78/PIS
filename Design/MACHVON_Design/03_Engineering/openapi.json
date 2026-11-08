@@ -198474,6 +198474,267 @@
           "ebs.difference.reassigned.v1"
         ]
       }
+    },
+    "/payment-clocks": {
+      "get": {
+        "operationId": "listPaymentClocks",
+        "summary": "The clocks of the Treasury control of payment and advance requests (2 and 1 working days), judged now",
+        "tags": [
+          "PAY"
+        ],
+        "x-permission": "payment.clock.read",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayPaymentClockBoard"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/payment-return-reasons": {
+      "get": {
+        "operationId": "listPaymentReturnReasons",
+        "summary": "The standard reasons to return a payment request, from the rule PAYMENT_RETURN_REASON",
+        "tags": [
+          "PAY"
+        ],
+        "x-permission": "payment.clock.read",
+        "parameters": [],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayReturnReasonCatalogue"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
     }
   },
   "components": {
@@ -208776,6 +209037,11 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 2000
+          },
+          "reason_code": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{1,39}$",
+            "description": "One of the standard reasons of the rule PAYMENT_RETURN_REASON; required unless the rule PAYMENT_CLOCK says otherwise."
           },
           "returned_by_treasury": {
             "type": "boolean"
@@ -267212,6 +267478,431 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {}
+      },
+      "PayClockProvenance": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "formula": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date"
+          },
+          "legal_status": {
+            "type": "string",
+            "enum": [
+              "VERIFIED",
+              "UNVERIFIED"
+            ]
+          }
+        },
+        "required": [
+          "formula",
+          "source",
+          "as_of",
+          "legal_status"
+        ]
+      },
+      "PayPaymentClockRow": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "payment_request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request_no": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "request_status": {
+            "type": "string"
+          },
+          "net_vnd": {
+            "type": "string"
+          },
+          "project": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "code",
+              "name"
+            ]
+          },
+          "contract": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "code"
+            ]
+          },
+          "investor": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "clock_kind": {
+            "type": "string",
+            "enum": [
+              "PAYMENT",
+              "ADVANCE"
+            ]
+          },
+          "attempt": {
+            "type": "integer"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "working_days": {
+            "type": "integer"
+          },
+          "policy_version": {
+            "type": "integer"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "RUNNING",
+              "NEAR",
+              "BREACHED",
+              "MET",
+              "MET_LATE",
+              "RETURNED",
+              "RETURNED_LATE"
+            ]
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "WORKING_TIME",
+              "CALENDAR_UNAVAILABLE"
+            ]
+          },
+          "due_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "working_minutes_left": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "working_minutes_late": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "ended_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "end_kind": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "SETTLED",
+              "RETURNED",
+              null
+            ]
+          },
+          "return_reason_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "returned_by_treasury": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "payment_request_id",
+          "request_status",
+          "net_vnd",
+          "project",
+          "contract",
+          "clock_kind",
+          "attempt",
+          "started_at",
+          "working_days",
+          "policy_version",
+          "state",
+          "basis",
+          "due_at",
+          "ended_at"
+        ]
+      },
+      "PayPaymentClockBoard": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayPaymentClockRow"
+            }
+          },
+          "summary": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer"
+              },
+              "open": {
+                "type": "integer"
+              },
+              "breached": {
+                "type": "integer"
+              },
+              "near": {
+                "type": "integer"
+              },
+              "in_time_rate_pct": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "returned": {
+                "type": "integer"
+              },
+              "returns_by_reason": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "reason_code": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "count": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "reason_code",
+                    "count"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "total",
+              "open",
+              "breached",
+              "near",
+              "in_time_rate_pct",
+              "returned",
+              "returns_by_reason"
+            ]
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string"
+                },
+                "working_days": {
+                  "type": "integer"
+                },
+                "near_working_hours": {
+                  "type": "integer"
+                },
+                "reason_code_required": {
+                  "type": "boolean"
+                },
+                "version": {
+                  "type": "integer"
+                },
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "RULE",
+                    "DEFAULT"
+                  ]
+                },
+                "unverified": {
+                  "type": "boolean"
+                },
+                "provenance": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/PayClockProvenance"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "working_days",
+                "near_working_hours",
+                "reason_code_required",
+                "version",
+                "source",
+                "unverified",
+                "provenance"
+              ]
+            }
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "calendar_found": {
+            "type": "boolean"
+          },
+          "calendar_unavailable": {
+            "type": "boolean"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "items",
+          "summary",
+          "rules",
+          "truncated",
+          "calendar_found",
+          "calendar_unavailable",
+          "as_of"
+        ]
+      },
+      "PayReturnReasonCatalogue": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "requires_note": {
+                  "type": "boolean"
+                },
+                "owner_side": {
+                  "type": "string",
+                  "enum": [
+                    "INVESTOR",
+                    "TREASURY"
+                  ]
+                },
+                "active": {
+                  "type": "boolean"
+                },
+                "version": {
+                  "type": "integer"
+                },
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "RULE",
+                    "DEFAULT"
+                  ]
+                },
+                "unverified": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "code",
+                "category",
+                "requires_note",
+                "owner_side",
+                "active",
+                "version",
+                "source",
+                "unverified"
+              ]
+            }
+          },
+          "reason_code_required": {
+            "type": "boolean"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": [
+          "items",
+          "reason_code_required",
+          "as_of"
+        ]
       }
     }
   }

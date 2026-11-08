@@ -4,11 +4,14 @@ import {
   NOOP_METRICS,
   assertContractAllows,
   assertNotProposer,
+  clockKindOf,
   groupForLedger,
+  judgeReturnReason,
   recoverFromTranches,
   requiredNote,
   signedDong,
   versionConflict,
+  vietnamDateOf,
   wholeVnd,
 } from '@machvon/kernel';
 import type { MetricsSink, PaymentKind, PaymentStatus } from '@machvon/kernel';
@@ -17,6 +20,7 @@ import { normalizeUuid } from './file-import-item-store.ts';
 import type { ContractScopes } from './ctr-contract-store.ts';
 import { PAY_LEDGER_LOCK_WAIT_METRIC, PayLedgerStore, valueExceeded } from './pay-ledger-store.ts';
 import { PayAdvanceRecoveryReads } from './pay-advance-recovery-reads.ts';
+import { PayClockStore } from './pay-clock-store.ts';
 import { PayDisbursementCheck } from './pay-disbursement-check.ts';
 import { VendorGate } from './vendor-gate.ts';
 import { PayPaymentStore } from './pay-payment-store.ts';
@@ -112,6 +116,7 @@ export class PayClaimStore {
   private readonly advanceRecovery = new PayAdvanceRecoveryReads();
   private readonly disbursement = new PayDisbursementCheck();
   private readonly vendorGate = new VendorGate();
+  private readonly clocks = new PayClockStore();
   private readonly ledger: PayLedgerStore;
   private readonly metrics: MetricsSink;
   private readonly applicationChecks: boolean;
@@ -153,18 +158,23 @@ export class PayClaimStore {
    * Returns a request that was sent, with the reason: the claim on the acceptance is released, the advance it recovered is given back, the retention it held is let go and the totals of the
    * contract are brought back, each by the opposite of the entry that made it. A request already with the Treasury is returned only by the Treasury (`returned_by_treasury`).
    */
-  async returnRequest(tx: TenantTx, id: string, expectedVersion: number, input: { reason: string; returnedByTreasury?: boolean | undefined; requestId: string }, actor: string, scopes: ContractScopes): Promise<PaymentResult> {
+  async returnRequest(tx: TenantTx, id: string, expectedVersion: number, input: { reason: string; reasonCode?: string | undefined; returnedByTreasury?: boolean | undefined; requestId: string }, actor: string, scopes: ContractScopes): Promise<PaymentResult> {
     const reason = textOf(input.reason, 'reason');
     const held = await this.lock(tx, id, expectedVersion, scopes);
     const byTreasury = input.returnedByTreasury === true;
     const open = held.status === 'SUBMITTED' || held.status === 'VERIFIED' || (held.status === 'SENT_TREASURY' && byTreasury);
     if (!open) throw new DomainError('PAYMENT_STATE_INVALID', 409, 'id', { extensions: { status: held.status } });
+    // G1-17: a return names one of the standard reasons of the rule PAYMENT_RETURN_REASON (the code is required unless the rule of the kind of request says otherwise).
+    const kind = clockKindOf(held.request_kind);
+    const rules = await this.clocks.returnRules(tx, vietnamDateOf(new Date()));
+    const reasonCode = judgeReturnReason({ reasonCode: input.reasonCode, note: reason, catalogue: rules.catalogue, required: rules.required[kind] });
     await tx.query(
       `update machvon.payment_request
-          set status = 'RETURNED', claims_acceptance = false, return_reason = $2, returned_by = $3::uuid, returned_at = now(), returned_by_treasury = $4, updated_at = now(), updated_by = $3::uuid, version = version + 1
+          set status = 'RETURNED', claims_acceptance = false, return_reason = $2, return_reason_code = $5, returned_by = $3::uuid, returned_at = now(), returned_by_treasury = $4, updated_at = now(), updated_by = $3::uuid, version = version + 1
         where id = $1::uuid`,
-      [id, reason, actor, byTreasury],
+      [id, reason, actor, byTreasury, reasonCode],
     );
+    await this.clocks.end(tx, { requestId: id, endKind: 'RETURNED', actor, now: new Date(), reasonCode, byTreasury });
     // The forms drawn for the figures of this request are no longer the forms of the request that comes back: they are superseded, and drawn again when it has been corrected and checked.
     await tx.query("update machvon.payment_form_instance set status = 'SUPERSEDED', updated_at = now(), updated_by = $2::uuid, version = version + 1 where payment_request_id = $1::uuid and status = 'GENERATED'", [id, actor]);
     if (held.request_kind !== 'ADVANCE') {
