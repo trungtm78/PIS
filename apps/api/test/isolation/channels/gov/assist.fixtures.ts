@@ -3,7 +3,7 @@ import { fixtureId } from './support';
 import type { Marker } from './support';
 
 /** The group digit of the AI assistant fragment in the ids of its fixtures. */
-const GROUP = 8;
+const GROUP = 9;
 
 /** The families of ids: the run, the checklist, the set of criteria and the exception. */
 const FAMILY = { run: 1, checklist: 2, criteria: 3, exception: 4 } as const;

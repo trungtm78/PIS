@@ -1387,10 +1387,6 @@ export const LLM_FIXTURES: Readonly<
       killReason: string;
       decisionId: string;
       decisionRationale: string;
-      assistRunId: string;
-      checklistId: string;
-      criteriaSetId: string;
-      exceptionId: string;
     }
   >
 > = {
@@ -1426,10 +1422,6 @@ export const LLM_FIXTURES: Readonly<
     killReason: 'Alpha tenant emergency stop reason 0001',
     decisionId: '00000000-0000-4000-a0d7-00000000000f',
     decisionRationale: 'Alpha tenant decision rationale 0001 of the person',
-    assistRunId: '00000000-0000-4000-a0d7-000000000010',
-    checklistId: '00000000-0000-4000-a0d7-000000000011',
-    criteriaSetId: '00000000-0000-4000-a0d7-000000000012',
-    exceptionId: '00000000-0000-4000-a0d7-000000000013',
   },
   'TNT-B': {
     providerId: '00000000-0000-4000-b0d7-000000000001',
@@ -1463,10 +1455,6 @@ export const LLM_FIXTURES: Readonly<
     killReason: 'Beta tenant emergency stop reason 0001',
     decisionId: '00000000-0000-4000-b0d7-00000000000f',
     decisionRationale: 'Beta tenant decision rationale 0001 of the person',
-    assistRunId: '00000000-0000-4000-b0d7-000000000010',
-    checklistId: '00000000-0000-4000-b0d7-000000000011',
-    criteriaSetId: '00000000-0000-4000-b0d7-000000000012',
-    exceptionId: '00000000-0000-4000-b0d7-000000000013',
   },
 };
 

@@ -1142,16 +1142,6 @@ const EARLIER_FULL_RIGHTS_OPERATIONS = [
   'listAiDecisionRecords',
   'listAiRequests',
   'getAiRequestRoute',
-  'getAiAssistRun',
-  'decideAiAssistRun',
-  'publishAiReviewChecklist',
-  'getAiReviewChecklist',
-  'publishAiEvalCriteriaSet',
-  'getAiEvalCriteriaSet',
-  'attestAiProvider',
-  'decideAiExternalException',
-  'revokeAiExternalException',
-  'getAiExternalException',
   'get_resources_llm_attempt',
   'get_resources_llm_attempt_id',
   'signAiEvalRun',
@@ -2146,10 +2136,12 @@ const INSERT_REPO_VERSION = `insert into machvon.project_document_version (tenan
 const INSERT_REPO_VERSION_TWO = `insert into machvon.project_document_version (tenant_id, id, document_id, version_no, file_object_key, file_sha256, size_bytes, format, mime, created_by)
   values ($1, $2, $3, 2, $4, repeat('f', 64), 2048, 'PDF', 'application/pdf', $5) on conflict do nothing`;
 
+// The guard of the table refuses a text unit once the version is read, even one that `on conflict` would skip, so the seed (which may run again) inserts only when the unit is missing.
 const INSERT_REPO_UNIT = `insert into machvon.document_text_unit (tenant_id, version_id, seq, citation_id, kind, locator_key, label, page_no, paragraph_no, text, text_sha256)
-  values ($1, $2, 1, $3, 'PARAGRAPH', 'p1/para1', 'p1 para1', 1, 1, $4, repeat('e', 64)) on conflict do nothing`;
+  select $1::uuid, $2::uuid, 1, $3::text, 'PARAGRAPH', 'p1/para1', 'p1 para1', 1, 1, $4::text, repeat('e', 64)
+   where not exists (select 1 from machvon.document_text_unit where tenant_id = $1::uuid and version_id = $2::uuid and citation_id = $3::text)`;
 
-const READ_REPO_VERSION = `update machvon.project_document_version set extraction_status = 'EXTRACTED', unit_count = 1, extracted_at = now(), extraction_engine = 'isolation', extraction_engine_version = '1' where id = $1`;
+const READ_REPO_VERSION = `update machvon.project_document_version set extraction_status = 'EXTRACTED', unit_count = 1, extracted_at = now(), extraction_engine = 'isolation', extraction_engine_version = '1' where id = $1 and extraction_status <> 'EXTRACTED'`;
 
 const POINT_REPO_DOCUMENT = `update machvon.project_document set current_version_id = $2 where id = $1`;
 
@@ -2356,18 +2348,6 @@ const INSERT_LLM_KILL = `insert into machvon.ai_kill_switch
 const INSERT_LLM_DECISION = `insert into machvon.ai_decision_record
   (tenant_id, id, ai_request_id, subject_module, subject_kind, subject_id, ai_output_sha256, action_kind, decision, rationale, decided_by)
   values ($1, $2, $3, 'PAY', 'alert', $2, $4, 'MONEY', 'ACCEPTED', $5, $6) on conflict do nothing`;
-const INSERT_AI_ASSIST_RUN = `insert into machvon.ai_assist_run
-  (tenant_id, id, kind, request_text, source_refs, status, asked_by)
-  values ($1, $2, 'QA', 'A question of this tenant', '[{"kind":"PROJECT","id":"00000000-0000-4000-8000-000000000001"}]'::jsonb, 'COMPLETED', $3) on conflict do nothing`;
-const INSERT_AI_CHECKLIST = `insert into machvon.ai_review_checklist
-  (tenant_id, id, code, revision, title, applies_to, status, created_by)
-  values ($1, $2, 'ISO-CHECKLIST', 1, 'A checklist of this tenant', 'DIS_REPORT', 'DRAFT', $3) on conflict do nothing`;
-const INSERT_AI_CRITERIA = `insert into machvon.ai_eval_criteria_set
-  (tenant_id, id, code, revision, title, scale_max, status, created_by)
-  values ($1, $2, 'ISO-CRITERIA', 1, 'A set of criteria of this tenant', 100, 'DRAFT', $3) on conflict do nothing`;
-const INSERT_AI_EXCEPTION = `insert into machvon.ai_external_exception
-  (tenant_id, id, provider_id, max_classification, reason, requested_by, requested_valid_days)
-  values ($1, $2, $3, 'PUBLIC', 'An exception of this tenant for a provider', $4, 7) on conflict do nothing`;
 const INSERT_LLM_RECONCILIATION = `insert into machvon.ai_invoice_reconciliation
   (tenant_id, id, provider_id, invoice_ref, invoice_amount, currency, period_from, period_to, attempts_total, variance, tolerance_pct, attempt_count, status, owner_id, created_by, updated_by)
   values ($1, $2, $3, $4, 1000, 'VND', '2026-01-01', '2026-01-31', 900, 100, 0.5, 1, 'VARIANCE', $5, $5, $5) on conflict do nothing`;
@@ -2752,8 +2732,8 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     }
     // The committee of BAN-1: the body, a place on it held by another person than the one who appointed, and an open alert.
     const committee = COMMITTEE_FIXTURES[tenant];
-    await client.query(INSERT_COMMITTEE, [tenantId, committee.committeeId, committee.committeeName, ACTOR_ID]);
-    await client.query(INSERT_COMMITTEE_MEMBER, [tenantId, committee.memberId, committee.committeeId, MEMBERSHIP_ID, ACTOR_ID]);
+    await client.query(INSERT_COMMITTEE, [tenantId, committee.committeeId, committee.committeeName, MEMBERSHIP_FIXTURES[tenant].id]);
+    await client.query(INSERT_COMMITTEE_MEMBER, [tenantId, committee.memberId, committee.committeeId, MEMBERSHIP_ID, MEMBERSHIP_FIXTURES[tenant].id]);
     await client.query(INSERT_COMMITTEE_ALERT, [tenantId, committee.alertId, `COMMITTEE_UNIT_NOT_REPORTING:${committee.alertId}:2026`, committee.alertId, committee.alertLabel]);
 
     // The Integration Hub: a run, a manual incident that waits for a person, a proposed mapping and an open reject, for the foreign-id cases of the decisions.
@@ -2919,10 +2899,6 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_LLM_ATTEMPT, [tenantId, llm.attemptId, llm.modelCode, llm.priceId, llm.requestId, `iso-${llm.attemptId}`]);
     await client.query(INSERT_LLM_KILL, [tenantId, llm.killId, llm.killScope, llm.killReason, ACTOR_ID]);
     await client.query(INSERT_LLM_DECISION, [tenantId, llm.decisionId, llm.requestId, 'd'.repeat(64), llm.decisionRationale, ACTOR_ID]);
-    await client.query(INSERT_AI_ASSIST_RUN, [tenantId, llm.assistRunId, ACTOR_ID]);
-    await client.query(INSERT_AI_CHECKLIST, [tenantId, llm.checklistId, ACTOR_ID]);
-    await client.query(INSERT_AI_CRITERIA, [tenantId, llm.criteriaSetId, ACTOR_ID]);
-    await client.query(INSERT_AI_EXCEPTION, [tenantId, llm.exceptionId, llm.providerId, ACTOR_ID]);
     // What an expert decided about the finding of the analysis: a row of its own that points at the finding and at the record of the decision of a person.
     await client.query(INSERT_ANALYSIS_REVIEW, [tenantId, analysis.reviewId, analysis.findingId, ACTOR_ID, analysis.reviewReason, llm.decisionId]);
     // The minutes of the evaluation of the package, drafted from the run.

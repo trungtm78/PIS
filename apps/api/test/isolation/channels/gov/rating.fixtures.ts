@@ -3,7 +3,7 @@ import { fixtureId } from './support';
 import type { Marker } from './support';
 
 /** The group digit of the contract rating fragment (CA-3) in the ids of its fixtures. */
-const GROUP = 8;
+const GROUP = 0xc;
 
 const FAMILY = {
   read: 0x01,

@@ -3,7 +3,7 @@ import { fixtureId } from './support';
 import type { Marker } from './support';
 
 /** The group digit of the MR-1 fragment in the ids of its fixtures. */
-const GROUP = 8;
+const GROUP = 0xa;
 
 /** The families of ids: the signal line, the alert, the two target sets, their indicators and the assessment. */
 const FAMILY = { signal: 1, alert: 2, fixedSet: 3, draftSet: 4, indicator: 5, assessment: 6 } as const;

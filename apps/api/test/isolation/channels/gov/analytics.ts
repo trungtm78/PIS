@@ -74,8 +74,9 @@ export async function seedAnalytics(client: Client, context: SeedContext): Promi
     [tenantId, fixtures.complaint.id, context.home, fixtures.complaint.claim, principal],
   );
   await client.query(
-    `insert into machvon.project_halt_dossier (tenant_id, id, project_id, reason_code, reason_text, halted_on, created_by)
-     values ($1, $2, $3, 'OTHER', $4, current_date - 5, $5) on conflict do nothing`,
+    // The plan was saved once (version 1), so the step of the fixture belongs to the plan in force and may be closed.
+    `insert into machvon.project_halt_dossier (tenant_id, id, project_id, reason_code, reason_text, halted_on, created_by, plan_version, plan_saved_by, plan_saved_at)
+     values ($1, $2, $3, 'OTHER', $4, current_date - 5, $5, 1, $5, now()) on conflict do nothing`,
     [tenantId, fixtures.dossier.id, project, fixtures.dossier.reason, principal],
   );
   await client.query(
