@@ -16,7 +16,7 @@ Branch `lane/lookahead` (worktree `D:\PIS-lookahead`), deadline: everything comm
 - [x] 3. A11y: `ProcessTree.tsx` row becomes a real button with keyboard support; the a11y-lint baseline shrinks by the finding; vitest.
 - [x] 4. Classification of the uncalled operations (table in `docs/lookahead.md`); screen actions for the user-facing ones in their owning screens, each with a test; design rows (catalogue, navigation, route registry, backlog, traceability, test cases) only for a new screen id, through the design tooling.
 - [x] 5. Gates: web `tsc`, `eslint`, `i18n:check` on a scratch copy of the folded catalogues (folded files are not committed), `routes:check`, architecture, design `check-cli` and `baseline-cli` to 0 errors, repo `npm run lint` / `typecheck`.
-- [ ] 6. Codex review (`gpt-6-astra`), every finding triaged, valid ones fixed with a test.
+- [x] 6. Codex review (`gpt-6-astra`), every finding triaged, valid ones fixed with a test.
 
 ## Tests per step
 
