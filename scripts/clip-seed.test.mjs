@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -149,6 +149,8 @@ function seededPublic(plan) {
     '/resources/payment_request': [{ status: 'SETTLED' }, { status: 'SENT_TREASURY' }, { status: 'SETTLED' }],
     '/advances': [{ id: 1 }],
     '/advances/overdue': [{ id: 1 }],
+    '/resources/metric_definition': [{ status: 'CERTIFIED' }, { status: 'CERTIFIED' }],
+    '/bi/dashboards': plan.bi.dashboards.map((entry) => ({ code: entry.code, status: 'PUBLISHED' })),
   };
   const gets = {
     '/egp/connection': { record_counts: { KHLCNT: 12, TBMT: 7 } },
@@ -185,6 +187,8 @@ test('verify passes on a fully seeded stack and fails, naming the check, when on
   assert.ok(projects.results.some((result) => !result.ok && result.name.includes('IMPLEMENTATION')));
   const noCritical = { ...seeded, lists: { ...seeded.lists, '/home/warnings': [{ severity: 'INFO' }, { severity: 'WARNING' }] } };
   assert.ok(judgeAll(await verifyChecks(plan, readerOf(noCritical))).results.some((result) => !result.ok && result.name === 'warnings CRITICAL'));
+  const unpublished = { ...seeded, lists: { ...seeded.lists, '/bi/dashboards': [] } };
+  assert.ok(judgeAll(await verifyChecks(plan, readerOf(unpublished))).results.some((result) => !result.ok && result.name === 'dashboards published'));
   const noOverdueAdvance = { ...seeded, lists: { ...seeded.lists, '/advances/overdue': [] } };
   assert.ok(judgeAll(await verifyChecks(plan, readerOf(noOverdueAdvance))).results.some((result) => !result.ok && result.name === 'advances over the recovery deadline'));
   const noWorkflowLate = { ...seeded, gets: { ...seeded.gets, '/package-workflows/summary': { total: 42, not_started: 2, late: 0, on_hold: 2 } } };
@@ -322,4 +326,16 @@ test('every package of the plan is driven at one of the workflow clocks, and the
   const clocks = plan.procurement.plans.flatMap((entry) => entry.packages.map((item) => item.clockDays));
   assert.ok(clocks.every((clock) => WORKFLOW_CLOCKS.includes(clock)));
   assert.ok(new Set(clocks).size >= 5);
+});
+
+test('the dashboards of the dataset use only metrics the repository defines, and the payment forms and groups agree with the plan', () => {
+  const plan = buildPlan(publicDataset());
+  const defined = new Set(readdirSync(join(HERE, '..', 'metrics')).filter((name) => name.endsWith('.metric.yaml')).map((name) => name.replace('.metric.yaml', '')));
+  for (const dashboard of plan.bi.dashboards) {
+    assert.ok(dashboard.metrics.length >= 2, dashboard.code);
+    for (const code of dashboard.metrics) assert.ok(defined.has(code), code);
+  }
+  assert.equal(new Set(plan.bi.dashboards.map((entry) => entry.code)).size, plan.bi.dashboards.length);
+  assert.deepEqual(plan.payments.formCodes, ['03.a/TT', '04.a/TT', '04.b/TT', '05.a/TT']);
+  assert.ok(plan.bi.sourceCommit.length >= 7);
 });

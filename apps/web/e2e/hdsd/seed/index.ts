@@ -7,6 +7,7 @@ import { applyClipPlan } from './clip/plan.ts';
 import { ensureDoaMatrix } from './clip/doa.ts';
 import { seedClipFeed } from './clip/public-feed.ts';
 import { seedClipEnterpriseReports } from './clip/enterprise-reports.ts';
+import { seedClipBi } from './clip/public-bi.ts';
 import { seedClipPayments } from './clip/public-payments.ts';
 import { seedClipContracts } from './clip/public-contracts.ts';
 import { seedClipAlerts } from './clip/public-alerts.ts';
@@ -44,6 +45,7 @@ export const GROUPS: SeedGroup[] = [
   { name: 'clip-public-egp', seed: seedClipEgp },
   { name: 'clip-public-disbursement', seed: seedClipDisbursement },
   { name: 'clip-public-feed', seed: seedClipFeed },
+  { name: 'clip-public-bi', seed: seedClipBi },
   { name: 'clip-public-directives', seed: seedMeetings },
   { name: 'clip-public-committee', seed: seedClipCommittee },
   { name: 'clip-ent-projects', seed: seedClipEnterpriseProjects },
