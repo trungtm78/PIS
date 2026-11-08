@@ -10,7 +10,13 @@
       "minSec": 30,
       "before": [
         {
+          "reset": true
+        },
+        {
           "tab": "Trang chủ"
+        },
+        {
+          "reset": true
         }
       ],
       "ops": [
@@ -55,7 +61,13 @@
       "minSec": 28,
       "before": [
         {
+          "reset": true
+        },
+        {
           "tab": "Trang chủ"
+        },
+        {
+          "reset": true
         }
       ],
       "ops": [
@@ -97,7 +109,13 @@
       "minSec": 28,
       "before": [
         {
+          "reset": true
+        },
+        {
           "tab": "Trang chủ"
+        },
+        {
+          "reset": true
         }
       ],
       "ops": [
@@ -139,7 +157,13 @@
       "minSec": 40,
       "before": [
         {
+          "reset": true
+        },
+        {
           "tab": "Trang chủ"
+        },
+        {
+          "reset": true
         }
       ],
       "ops": [
@@ -194,7 +218,13 @@
       "minSec": 40,
       "before": [
         {
+          "reset": true
+        },
+        {
           "tab": "Dự án"
+        },
+        {
+          "reset": true
         }
       ],
       "ops": [
@@ -240,7 +270,13 @@
       "minSec": 45,
       "before": [
         {
+          "reset": true
+        },
+        {
           "tab": "Dự án"
+        },
+        {
+          "reset": true
         }
       ],
       "ops": [
@@ -289,7 +325,13 @@
       "minSec": 32,
       "before": [
         {
+          "reset": true
+        },
+        {
           "tab": "Trang chủ"
+        },
+        {
+          "reset": true
         }
       ],
       "ops": [
@@ -326,7 +368,13 @@
       "minSec": 32,
       "before": [
         {
+          "reset": true
+        },
+        {
           "tab": "Dự án"
+        },
+        {
+          "reset": true
         }
       ],
       "ops": [
@@ -363,7 +411,13 @@
       "minSec": 28,
       "before": [
         {
+          "reset": true
+        },
+        {
           "tab": "Dự án"
+        },
+        {
+          "reset": true
         }
       ],
       "ops": [
@@ -406,7 +460,13 @@
       "minSec": 28,
       "before": [
         {
+          "reset": true
+        },
+        {
           "tab": "Dự án"
+        },
+        {
+          "reset": true
         }
       ],
       "ops": [
@@ -449,7 +509,13 @@
       "minSec": 28,
       "before": [
         {
+          "reset": true
+        },
+        {
           "tab": "Cá nhân"
+        },
+        {
+          "reset": true
         }
       ],
       "ops": [
@@ -490,7 +556,13 @@
       "minSec": 30,
       "before": [
         {
+          "reset": true
+        },
+        {
           "tab": "Cá nhân"
+        },
+        {
+          "reset": true
         }
       ],
       "ops": [

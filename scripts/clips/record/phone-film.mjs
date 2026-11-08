@@ -60,6 +60,16 @@ async function walk(serial, ops, recorder, log) {
       await sleep(op.hold);
       continue;
     }
+    if ('reset' in op) {
+      // Back to the root of the tab: the back button of the bar is pressed while the screen shows one.
+      for (let step = 0; step < 6; step += 1) {
+        const back = readScreen(serial).find((node) => /^Quay lại$/u.test(node.label));
+        if (back === undefined) break;
+        tap(serial, ...centre(back));
+        await sleep(1500);
+      }
+      continue;
+    }
     await operate(serial, op, log, recorder);
   }
 }

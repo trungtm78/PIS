@@ -119,7 +119,7 @@ export async function operate(serial, op, log, recorder) {
       const nodes = readScreen(serial);
       const chrome = nodes.find((node) => uiPattern('browserChrome').test(node.label));
       if (chrome !== undefined) tap(serial, ...centre(chrome));
-      if (findNode(nodes, uiPattern('unitChoice')) !== undefined || nodes.some((node) => /Tab 1 trong tổng số/u.test(node.label))) return;
+      if (findNode(nodes, uiPattern('unitChoice')) !== undefined || findNode(nodes, uiPattern('secondFactor')) !== undefined || nodes.some((node) => /Tab 1 trong tổng số/u.test(node.label))) return;
     }
     throw new Error('the sign-in did not reach the choice of the unit');
   } else if (name === 'unit') {
