@@ -82,6 +82,7 @@ export class TransmittalController {
   async register(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['RegisterDocContainer']): Promise<CommandResult> {
     assertWholeTenant(access, PERMISSIONS.registerDocContainer);
     const { container, created } = await this.store.registerContainer(scope.tx, { projectId: body.project_id.toLowerCase(), documentId: body.document_id.toLowerCase(), documentKind: body.document_kind, revisionLabel: body.revision_label }, scope.tenant.membershipId);
+    if (!created) await scope.audit({ action: 'doc.container_register_repeated', resourceType: CONTAINER, resourceId: container.id, diff: { outcome: 'EXISTING', document_id: container.documentId, revision_label: container.revisionLabel } });
     if (created) {
       await scope.audit({ action: 'doc.container_registered', resourceType: CONTAINER, resourceId: container.id, diff: { project_id: container.projectId, document_id: container.documentId, revision_label: container.revisionLabel, content_sha256: container.contentSha256 } });
       await scope.emit({ aggregateType: CONTAINER, aggregateId: container.id, aggregateVersion: container.version, type: 'doc.container.registered.v1', schemaVersion: 1, payload: { tenant_id: scope.tenant.tenantId, container_id: container.id, document_id: container.documentId, actor_id: scope.tenant.membershipId }, eventKey: `${CONTAINER}:${container.id}:registered` });

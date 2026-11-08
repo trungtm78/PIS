@@ -480,3 +480,8 @@ Bộ fixture synthetic dùng chung được định nghĩa tại `PAY.md` §10 (
 | R-QMS-02 | Chữ ký trong app có đủ giá trị pháp lý cho nhật ký [CXN-EXE-05] | Pháp chế | Ý kiến pháp chế; nếu không đủ, R1 dùng chữ ký số qua DOC adapter |
 | R-QMS-03 | Ngưỡng GPS/EXIF/pHash là [GIẢ ĐỊNH]; EXIF không là bằng chứng tuyệt đối | PO | Đo trên ảnh pilot; ghi rõ là cờ rà soát |
 | R-QMS-04 | Vùng công trường (geofence) cần dữ liệu ranh giới dự án | PRJ | PRJ cung cấp tâm + bán kính hoặc polygon |
+
+
+## Làn GOV-12: ảnh hiện trường giữa các dự án (G4-12)
+
+Lớp rà soát thứ hai trên cờ của từng ảnh (QMS-08): cùng tệp (SHA-256) ở hai dự án, cùng nơi (trong 30 m) cùng lúc (trong 10 phút) ở hai dự án, hoặc cùng tệp ở hai ngày nhật ký của một dự án; ngưỡng đọc từ quy tắc `PHOTO_INTEGRITY_RULE` (chưa kiểm chứng). Mỗi cặp ghi một lần; người chụp một trong hai ảnh không tự giải trình; là tín hiệu để người giải trình, không kết luận ảnh giả. Màn hình QMS-12.

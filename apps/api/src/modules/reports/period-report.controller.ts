@@ -98,7 +98,10 @@ export class PeriodReportController {
     const ref: SessionRef = { provider: session.provider, sessionId: session.providerSessionId, expiresAt: new Date(session.expiresAt) };
     const collected = await this.signing.collect(ref);
     // The signer has not approved on their device yet: nothing changes and the caller asks again.
-    if (collected === 'PENDING') return commandResult(scope, 'PENDING', session.version, session.id);
+    if (collected === 'PENDING') {
+      await scope.audit({ action: 'rpt.signature_pending', resourceType: SESSION, resourceId: session.id, classification: 'INTERNAL', diff: { issue_id: session.issueId } });
+      return commandResult(scope, 'PENDING', session.version, session.id);
+    }
     const cms = collected.cms;
     const covered = signedDigestOf(cms);
     if (covered === null || covered.toString('hex') !== session.digestSha256) throw new DomainError('SIGNATURE_INVALID', 422, 'cms');

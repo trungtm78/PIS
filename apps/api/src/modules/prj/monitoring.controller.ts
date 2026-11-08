@@ -87,6 +87,7 @@ export class MonitoringController {
     assertWholeTenant(access, PERMISSIONS.openMonitoringFile);
     const { file, created } = await this.store.openFile(scope.tx, body.project_id.toLowerCase(), scope.tenant.membershipId);
     if (created) await this.record(scope, 'prj.monitoring_file_opened', FILE, file.id, file.version, 'prj.monitoring_file.opened.v1', { project_id: file.projectId });
+    else await scope.audit({ action: 'prj.monitoring_file_open_repeated', resourceType: FILE, resourceId: file.id, diff: { outcome: 'EXISTING', project_id: file.projectId } });
     return commandResult(scope, created ? 'OPENED' : 'EXISTING', file.version, file.id);
   }
 
@@ -160,6 +161,7 @@ export class MonitoringController {
     );
     // The words of the community are not copied into the audit row or the event: they name the feedback by its id and its topic.
     if (created) await this.record(scope, 'prj.monitoring_feedback_received', FEEDBACK, feedback.id, feedback.version, 'prj.monitoring_feedback.received.v1', { file_id: id, topic: feedback.topic, channel: feedback.channel, due_on: feedback.response.dueOn });
+    else await scope.audit({ action: 'prj.monitoring_feedback_receive_repeated', resourceType: FEEDBACK, resourceId: feedback.id, diff: { outcome: 'EXISTING', file_id: id } });
     return commandResult(scope, created ? 'RECEIVED' : 'EXISTING', feedback.version, feedback.id);
   }
 

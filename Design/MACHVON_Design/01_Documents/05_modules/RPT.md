@@ -103,3 +103,8 @@ R1 dùng thật: biểu mẫu tuần giải ngân công khai, luồng ba ngườ
 - Ngữ nghĩa số liệu doanh nghiệp (owner: chủ sở hữu FND-1; điều kiện: đặc tả R15 được duyệt) — các mã `ENT_*` đều "chưa kiểm chứng".
 - Thư viện `exceljs` ít cập nhật (owner: kỹ thuật; điều kiện: xem lại khi có advisory mức high).
 - Công thức tham chiếu sang sheet khác không được viết lại khi chèn dòng (giới hạn đã biết).
+
+
+## Làn GOV-12: báo cáo kỳ gửi Bộ Tài chính, chữ ký số, khóa kỳ (G4-6)
+
+Bốn mẫu `MOF-DIS-WEEKLY`, `MOF-DIS-MONTHLY`, `MOF-DIS-QUARTERLY`, `MOF-DIS-YEARLY` dựng trên bộ máy báo cáo RPT-1, trạng thái PENDING_EXTERNAL (chờ biểu mẫu chính thức của Bộ Tài chính): soạn và xem được, không phát hành được; số liệu lấy từ bản chụp đã chốt tại cuối kỳ. Người duyệt bản phát hành ký số mã băm của bản qua cổng ký của DOC bằng chứng thư cá nhân của mình; chữ ký của nhà cung cấp thử không được tính khi gửi Bộ Tài chính. Kỳ bị khóa khi bản được ký thật (hoặc được nhận, theo quy tắc `PERIOD_REPORT_RULE`); kỳ khóa không nhận bản mới (`PERIOD_LOCKED`); mở khóa cần người thứ hai và lý do. Màn hình RPT-05 và RPT-06.

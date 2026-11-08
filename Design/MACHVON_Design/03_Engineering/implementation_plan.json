@@ -55667,7 +55667,7 @@
       "spikes": [],
       "acceptance": [
         {
-          "id": "AC-RPT-121-1",
+          "id": "AC-ST-RPT-121-1",
           "given": "An issued copy of a monthly report for the Ministry, approved by user C; a second user D; the signing port of the MOCK provider.",
           "when": "C starts the signature and completes it; Deliver the copy to the receiver MOF; Make a new copy of the same period; D unlocks the period with a short reason, then with a reason of enough length",
           "then": "A MOCK signature is kept as a test signature: delivery to the Ministry is refused with REPORT_SIGNATURE_REQUIRED; with a real signature the period is locked, a new copy is refused PERIOD_LOCKED, the unlock by the locker is refused as self approval and by D with a reason it opens the period.",
@@ -55766,7 +55766,7 @@
       "spikes": [],
       "acceptance": [
         {
-          "id": "AC-PRJ-121-1",
+          "id": "AC-ST-PRJ-121-1",
           "given": "A project with a monitoring file whose duty began on 2027-01-01; the rule of 45 days; officers O and R.",
           "when": "Read the file on day 46 without a notice; Send the notice without the schedule in the pack, then with the pack complete; Log a feedback, O answers it, O tries to close it, R closes it",
           "then": "The notice is overdue from the day after 2027-02-15; the notice is refused until the pack holds the notice text, the project information and the schedule; a notice sent after the due day is late; O is refused as self approval and R closes the answer.",
@@ -55863,7 +55863,7 @@
       "spikes": [],
       "acceptance": [
         {
-          "id": "AC-PRJ-122-1",
+          "id": "AC-ST-PRJ-122-1",
           "given": "A tenant with a public project and a confidential project; the allowed fields without the budget; a visitor with no session.",
           "when": "Publish both projects; Read the public list and the OC4IDS export as the visitor; Allow the budget and publish again; Withdraw the record; Read as the visitor until the rate limit answers",
           "then": "The confidential project is refused; the public answer holds only the allowed fields and no internal id; the export lists the required field that was not allowed instead of inventing it; the withdrawn record is gone at once; the limit answers 429 with Retry-After.",
@@ -55952,7 +55952,7 @@
       "spikes": [],
       "acceptance": [
         {
-          "id": "AC-AUD-121-1",
+          "id": "AC-ST-AUD-121-1",
           "given": "Two investor units with recommendations, one with an overdue one and money owed; a frozen disbursement ranking.",
           "when": "Read the standings; Read the profile of the first unit; Read the disbursement ranking",
           "then": "The unit with more overdue, disputed and open recommendations and money owed comes first; its place in the disbursement ranking is shown beside it and the ranking is unchanged; no red flag appears.",
@@ -56052,7 +56052,7 @@
       "spikes": [],
       "acceptance": [
         {
-          "id": "AC-AUD-122-1",
+          "id": "AC-ST-AUD-122-1",
           "given": "A portal with the anonymous channel on; auditors A and B, B in the unit the report is about; a member M who received a gift of 3,000,000 dong.",
           "when": "A visitor submits a report and keeps the code; A acknowledges it, names the unit, replies; B opens the queue; The visitor reads the answer with the code; M declares the gift, A takes the review, A closes it as kept, then as returned",
           "then": "No identity is stored; B does not see the report; the visitor reads the answer; the gift over the line is refused as kept and closed as returned by the reviewer who is not M.",
@@ -56150,7 +56150,7 @@
       "spikes": [],
       "acceptance": [
         {
-          "id": "AC-DOC-121-1",
+          "id": "AC-ST-DOC-121-1",
           "given": "A project with two documents of DOC; an author U, a reviewer V and a publisher W.",
           "when": "U registers the documents and tries to share without a transmittal; U sends a transmittal for review to V; V answers with comments; U tries to publish, then W publishes; U extends a due day twice",
           "then": "Sharing is refused until the transmittal is sent; the answer is given once; the author is refused as self approval and W publishes; the due day moves once.",
@@ -56241,7 +56241,7 @@
       "spikes": [],
       "acceptance": [
         {
-          "id": "AC-QMS-121-1",
+          "id": "AC-ST-QMS-121-1",
           "given": "The same photo file registered in two projects and two photos of one place within ten minutes in two projects; an uploader U and an auditor A.",
           "when": "A scans; A scans again; U tries to explain the pair; A takes the pair and explains it with a reason",
           "then": "Each pair is written once; the second scan adds nothing; U is refused as self approval; the explanation is kept with its reason and the pair stays a signal, not a conclusion.",

@@ -2,7 +2,7 @@
 
 Items of docs/governance-roadmap-10of10.md: G4-6 (period reports of the Ministry of Finance with digital signature and locked periods, on the RPT-1 report engine), G4-8 (community monitoring file with a notice deadline of 45 days, feedback and responses), G4-9 (read-only public portal with an allowed field set and OC4IDS export), G4-10 (audit recommendations in the ranking and in the investor profile), G4-11 (document transmittal with review deadlines and states WIP / Shared / Published / Archive), and the should-have part of G4-12 (anonymous report channel, gifts register, site photo checks across projects). G4-7 belongs to MR-1.
 
-Migration block GOV-12 2600-2619 (registered in db/migrations/blocks.json).
+Migration block GOV-12 2600-2619 (registered in db/migrations/blocks.json); V2600-V2608 are used (see docs/gov12.md for the map of files).
 
 ## Decisions (owner standing rule: decide by deepest governance, never cut scope)
 - No new API module code: G4-6 lives in RPT, G4-8 and G4-9 in PRJ (the public portal controller is in the control-plane part of PRJ because it needs the control database), G4-10 and the anonymous channel and the gifts register in AUD, G4-11 in DOC, the photo findings in QMS.
@@ -16,11 +16,11 @@ Migration block GOV-12 2600-2619 (registered in db/migrations/blocks.json).
 - Not done on purpose (hooks): alert sources for the new overdue lists (`ALERT_TYPE` seeds) are left to the alert-centre lane; contractor portal, Monte Carlo, deep benefit measurement and direct national system connections of G4-12 are NICE and outside the should-have part.
 
 ## Layers and status
-- [ ] Kernel: gov12 rules and screens constants, monitoring, transmittal, portal fields and OC4IDS, whistle and gift rules, photo findings, audit standing, period lock and report signature (unit tests).
-- [ ] DB: migrations V2600-V2619, stores, DB tests (RLS, append-only, indexes, directory function).
-- [ ] API: controllers, contract-patch (operations, schemas, error codes, screens), authz matrix, command registry, API tests, isolation entries.
-- [ ] Web: screens with the kit, states matrix, i18n part `gov12`, vitest.
-- [ ] Docs and design rows: module specs, implementation_plan stories, traceability, backlog.
+- [x] Kernel: gov12 rules and screens constants, monitoring, transmittal, portal fields and OC4IDS, whistle and gift rules, photo findings, audit standing, period lock and report signature, MOF forms (unit tests: packages/kernel/test/gov12-*.test.ts).
+- [x] DB: migrations V2600-V2608, stores, DB tests (RLS, append-only, indexes, directory function): packages/db/test/gov12-stores.test.ts, rls-catalog.
+- [x] API: controllers, contract-patch (operations, schemas, error codes, screens), authz matrix, command registry, API tests (apps/api/test/gov12), isolation entries (written, not run: the lead runs the shared suites).
+- [x] Web: 12 screens with the kit, states matrix, i18n parts gov12-prj, gov12-docaud, gov12-rpt (not folded: the lead folds), vitest.
+- [x] Docs and design rows: module specs, implementation_plan stories, traceability, backlog, test cases, navigation (docs/gov12.md).
 - [ ] Gates: lint, typecheck, tests of what I touched, Codex review, triage.
 
 ## Steps and tests

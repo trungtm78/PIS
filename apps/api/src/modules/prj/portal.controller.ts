@@ -74,7 +74,8 @@ export class PortalController {
   async publish(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['PublishPortalRecord']): Promise<CommandResult> {
     assertWholeTenant(access, PERMISSIONS.publishPortalRecord);
     const { record, change } = await this.store.publish(scope.tx, body.project_id.toLowerCase(), { summary: body.summary, sector: body.sector, projectType: body.project_type, purpose: body.purpose }, scope.tenant.membershipId, todayOf(new Date()));
-    if (change !== 'UNCHANGED') {
+    if (change === 'UNCHANGED') await scope.audit({ action: 'prj.portal_record_publish_repeated', resourceType: RECORD, resourceId: record.id, classification: 'PUBLIC', diff: { outcome: 'UNCHANGED', project_id: record.projectId, revision: record.revision, fields_sha256: record.fieldsSha256 } });
+    else {
       // The audit row carries the hash and the field names, not the published text; the published text is the portal record itself.
       await scope.audit({ action: `prj.portal_record_${change.toLowerCase()}`, resourceType: RECORD, resourceId: record.id, classification: 'PUBLIC', diff: { project_id: record.projectId, public_code: record.publicCode, revision: record.revision, fields_sha256: record.fieldsSha256, fields: Object.keys(record.fields) } });
       await scope.emit({ aggregateType: RECORD, aggregateId: record.id, aggregateVersion: record.version, type: 'prj.portal_record.published.v1', schemaVersion: 1, payload: { tenant_id: scope.tenant.tenantId, project_id: record.projectId, revision: record.revision, fields_sha256: record.fieldsSha256, actor_id: scope.tenant.membershipId }, eventKey: `${RECORD}:${record.id}:${record.revision}` });

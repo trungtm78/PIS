@@ -231,3 +231,12 @@ Test màn hình `UI-AUD-01…UI-AUD-11` nằm trong `test_cases.json`.
 **Thay đổi bản ghi baseline (CR, baseline-first):**
 
 Không có thay đổi bản ghi baseline.
+
+
+## Làn GOV-12: thứ tự theo dõi kiến nghị, tố giác ẩn danh, sổ quà tặng (G4-10, G4-12)
+
+**Thứ tự theo dõi kiến nghị của chủ đầu tư (AUD-17).** Điểm theo dõi cộng quá hạn, đang tranh luận, còn mở và số tiền còn phải thu nhân trọng số của quy tắc `AUDIT_STANDING_RULE` (chưa kiểm chứng); vị trí trong xếp hạng giải ngân mới nhất đã chốt được đọc bên cạnh và không bị đổi; không chứa tín hiệu rủi ro mua sắm.
+
+**Tố giác ẩn danh (AUD-18).** Người tố giác gửi qua trang công khai, không để lại địa chỉ, thiết bị hay danh tính, nhận mã truy cập 160 bit một lần (chỉ lưu mã băm), và đọc trả lời bằng mã. Hai đồng hồ theo quy tắc `WHISTLE_RULE` (7 và 90 ngày, chưa kiểm chứng) lấy từ thiết lập cổng. Người thuộc đơn vị được nêu không thấy báo cáo. Nội dung tố giác là CONFIDENTIAL trong nhật ký và không có trong sự kiện.
+
+**Sổ quà tặng (AUD-19).** Quà kê khai trong 5 ngày kể từ ngày nhận; trên 200.000 đồng phải có người thứ hai xem xét; trên 1.000.000 đồng không được giữ (trả lại hoặc nộp đơn vị); người xem xét khác người nhận; quy tắc `GIFT_RULE`, chưa kiểm chứng.
