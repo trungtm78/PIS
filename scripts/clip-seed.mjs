@@ -62,6 +62,30 @@ export async function setClock(api, days, fetchImpl = fetch) {
   }
 }
 
+/** The hour (Vietnam time) at which the daily sweep of the overdue advances runs (ADVANCE_OVERDUE_HOUR in packages/db/src/jobs.ts). */
+export const OVERDUE_SWEEP_HOUR = 6;
+
+/** The offset in days that puts the clock of the stack at `hour`:30 Vietnam time of the same day (in the past or ahead by under a day). Pure. */
+export function offsetToHour(now, hour = OVERDUE_SWEEP_HOUR) {
+  const vietnam = new Date(now.getTime() + 7 * 3_600_000);
+  const target = Date.UTC(vietnam.getUTCFullYear(), vietnam.getUTCMonth(), vietnam.getUTCDate(), hour, 30, 0);
+  return (target - vietnam.getTime()) / 86_400_000;
+}
+
+/**
+ * The sweep that raises the alert levels of the advances runs once a day, at six in the morning. The clip data needs it to have run (an advance over its recovery deadline is listed
+ * as overdue), so the clock of the stack is put at half past six of the same day for a short while, the sweep runs on its own, and the clock comes back.
+ */
+export async function sweepOverdueAdvances(api, { waitMs = 30_000, fetchImpl = fetch, sleep = (ms) => new Promise((done) => setTimeout(done, ms)) } = {}) {
+  if (!(await setClock(api, offsetToHour(new Date()), fetchImpl))) return false;
+  try {
+    await sleep(waitMs);
+  } finally {
+    await setClock(api, 0, fetchImpl);
+  }
+  return true;
+}
+
 function run(command, args, options) {
   return new Promise((resolveRun) => {
     const child = spawn(command, args, { stdio: 'inherit', ...options });
@@ -92,6 +116,10 @@ async function commandApply(flags) {
         env: { ...process.env, ...(phase.env ?? {}), CLIP_PLAN_FILE: planFile, CLIP_API_URL: flags.api, E2E_STACK_INFO: stack.path },
       });
       if (code !== 0) break;
+    }
+    if (code === 0 && plan.dataset === 'public' && asked === undefined) {
+      process.stdout.write('sweep of the overdue advances (the clock of the stack at 06:30 for 30 seconds)\n');
+      await sweepOverdueAdvances(flags.api);
     }
   } finally {
     // The clock of the stack always comes back to the real day, whatever happened.
