@@ -48,7 +48,7 @@ const clientOf = (fetchImpl, now) => createClient({ baseUrl: 'https://platform.i
 
 describe('the reading of an export', () => {
   it('reads a byte order mark, quoted cells with the delimiter in them, CRLF and the three delimiters', () => {
-    const table = readTable(new TextEncoder().encode(`﻿${PROJECT}`));
+    const table = readTable(new TextEncoder().encode(`${String.fromCharCode(0xfeff)}${PROJECT}`));
     assert.deepEqual(table.headers.slice(0, 3), ['feed_project_code', 'as_of', 'project_name']);
     assert.equal(table.rows[1][2], 'Road, two');
     assert.equal(delimiterOf(DISBURSEMENT), ';');

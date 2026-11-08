@@ -37,7 +37,7 @@ import { holdsOnWholeTenant } from '../adm/tenant-authority';
 import { FileService } from '../files';
 import { ImportFileUploadGuard, UploadedBytes } from '../sas/theme-assets';
 import type { UploadedFile } from '../sas/theme-assets';
-import { differenceDto, kindsFittingHeaders, mappingDto, rowErrorDto, runDto } from './feed-view';
+import { differenceDto, kindsFittingHeaders, mappingDto, rowErrorDto } from './feed-view';
 import { FEED_METRICS } from './tokens';
 
 const CONNECTION_RESOURCE = 'finance_feed_connection';
