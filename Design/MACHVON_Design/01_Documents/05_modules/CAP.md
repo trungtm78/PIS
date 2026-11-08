@@ -215,3 +215,14 @@ Fixture: **FX-CAP-001** appropriation 10.000.000.000, đã phân bổ 9.000.000.
 | PAY cần phát `treasury_paid_on` và liên kết `allocation_line_id` trong sự kiện thanh toán | PAY owner | Bổ sung trường + event version (cross-module) |
 | DoA (ai duyệt kế hoạch theo giá trị) | ADM owner | Ma trận DoA cấu hình theo tenant |
 | Migration dữ liệu kế hoạch cũ (D04) | Data Owner | Mapping văn bản giao vốn ↔ appropriation |
+
+## 14. Điều chuyển vốn theo hiệu suất, mô phỏng tác động và duyệt theo ủy quyền (GOV-11a, G1-12)
+
+**Mục đích.** Đề xuất điều chuyển (CAP-19) được dựng trên danh sách ứng viên xếp theo hiệu suất dự báo, kèm mô phỏng tác động lên tỷ lệ giải ngân của toàn tỉnh và từng đơn vị; người duyệt đọc bản mô phỏng đã ghi lúc nộp và bị giới hạn theo ma trận ủy quyền.
+
+**Quy tắc.**
+- Quy tắc `REALLOCATION_POLICY` (mã `DEFAULT`, **chưa kiểm chứng**): ngưỡng dự án cho (80% = `REALLOCATION_THRESHOLD_PCT` của DIS), biên giữ lại, ngưỡng dự án nhận, tỷ lệ hấp thụ, mức chuyển tối thiểu, tỷ lệ tối đa của kế hoạch dự án cho, bắt buộc mô phỏng, loại văn bản ủy quyền `CAP_REALLOCATION`.
+- Mô phỏng dùng đúng hàm `rateOfSums` của DIS trên các tổng của ảnh chụp cơ sở: không có điều chuyển thì trước = sau = tỷ lệ DIS (kiểm thử vàng). Điều chuyển trong một đơn vị không đổi tỷ lệ đơn vị; giữa hai đơn vị chỉ đổi hai đơn vị đó; tổng kế hoạch của tỉnh không đổi nên tỷ lệ toàn tỉnh trên tổng kế hoạch không đổi. Dự báo cuối năm sau điều chuyển: dự án cho bị chặn bởi kế hoạch nhỏ hơn, dự án nhận cộng nhu cầu vượt kế hoạch nhân tỷ lệ hấp thụ.
+- Khi nộp, mô phỏng được ghi một lần (`reallocation_impact`, chỉ thêm, có băm, ghi phiên bản quy tắc). Duyệt bị từ chối nếu chưa có bản ghi khi quy tắc bắt buộc (422 `REALLOCATION_IMPACT_MISSING`). Duyệt và áp dụng bị giới hạn theo ma trận DoA cho loại `CAP_REALLOCATION` theo tổng số tiền (403 `SCOPE_DENIED`, 422 `DOA_RULE_NOT_FOUND`); tenant chưa cấu hình dải nào giữ hành vi cũ.
+
+**API.** `GET /reallocation-proposals/{id}/impact` (`getReallocationImpact`), `GET /reallocation-candidates` (`listReallocationCandidates`). **Màn.** CAP-23.

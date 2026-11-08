@@ -269,3 +269,10 @@ Sự kiện của làn FIN-1 (payload tối thiểu `tenant_id, appraisal_id, co
 | Bảng sổ văn bản DOC chưa ổn định → `*_document_id` chưa có FK | DOC owner | Thêm FK composite khi bảng DOC chốt |
 | Cột `organization_unit` lịch sử khi chuyển dự án | IAM owner | IAM cung cấp `valid_from/until` + successor (đã có) |
 | Không có API Hệ thống TTQG về ĐTC | Integration Lead (D05) | Giữ import tệp, adapter PROPOSED |
+
+## 18. Kế hoạch nhìn trước và bài học kinh nghiệm ở cổng đóng (GOV-11a, G1-19)
+
+- **Look-ahead.** Quy tắc `LOOK_AHEAD_POLICY` (**chưa kiểm chứng**): cửa sổ 2 đến 6 tuần bắt đầu vào thứ Hai; hạng mục sắp bắt đầu (trong số ngày dẫn của quy tắc) mà còn vướng mắc chưa gỡ là chưa sẵn sàng; cuối tuần ghi từng hạng mục xong hoặc không xong (không xong có lý do chuẩn); PPC = xong / đã ghi nhận. Kế hoạch công bố một lần, vướng mắc gỡ một lần, kết quả ghi một lần. Cảnh báo `LOOK_AHEAD_NOT_READY`, `LOOK_AHEAD_MISSING`.
+- **Bài học kinh nghiệm.** Bài học do một người đề xuất và người khác duyệt; khi không có gì để ghi thì xin miễn trừ có lý do, do người khác duyệt (quy tắc `LESSONS_LEARNED_POLICY`, chưa kiểm chứng). Cổng `closeProject` thêm điều kiện: đủ bài học đã duyệt hoặc miễn trừ đã duyệt, nếu không 422 `LESSONS_LEARNED_REQUIRED`. Cảnh báo `LESSONS_LEARNED_MISSING` cho dự án đã hoàn thành hoặc quyết toán mà chưa đạt cổng.
+
+**API.** `createLookAheadPlan`, `publishLookAheadPlan`, `raiseLookAheadConstraint`, `clearLookAheadConstraint`, `recordLookAheadOutcome`, `getLookAhead`, `proposeLesson`, `decideLesson`, `requestLessonWaiver`, `decideLessonWaiver`, `listLessons`. **Màn.** PRJ-28, PRJ-29.

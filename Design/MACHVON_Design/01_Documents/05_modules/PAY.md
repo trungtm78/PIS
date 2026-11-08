@@ -817,3 +817,9 @@ WIP ≤ 2 slice chờ người duyệt (R2): thứ tự đề xuất slice 1 = s
 | R-PAY-06 | Hiệu năng khóa hàng hợp đồng khi nhiều đề nghị đồng thời | Kiến trúc | Đo ở staging: p95 lock wait ≤ 2 giây; nếu vượt, tách khóa theo `acceptance` (CR) |
 | R-PAY-07 | Thanh toán không qua hợp đồng (giao nhiệm vụ/dự toán thuần) chưa có mô hình riêng ngoài `ESTIMATE_BASED` | Chủ nghiệp vụ vốn | Quyết định phạm vi R2 [GIẢ ĐỊNH] |
 | R-PAY-08 | Quy tắc chặn khi dự án thiếu mã TTQG [CXN-01] | Chủ nghiệp vụ vốn | Văn bản gốc; cờ policy tenant |
+
+## 16. Đồng hồ xử lý của Kho bạc và lý do trả lại chuẩn (GOV-11a, G1-17)
+
+Quy tắc `PAYMENT_CLOCK` (**chưa kiểm chứng**, theo lộ trình/NĐ 254/2025): hồ sơ thanh toán 2 ngày làm việc, tạm ứng 1 ngày làm việc kể từ lúc Kho bạc nhận hồ sơ đủ (`treasury_sent_at`), đếm trên lịch làm việc đã công bố; năm không có lịch thì đồng hồ nói rõ và không đoán ngày. Mỗi lần gửi là một đồng hồ (`payment_clock`); kết thúc khi thanh toán hoặc trả lại. Trạng thái (đang chạy, sắp hết hạn, quá hạn, đúng hạn, muộn, trả lại) được suy ra khi đọc. Trả lại phải chọn một lý do của quy tắc `PAYMENT_RETURN_REASON` (422 `VALIDATION_FAILED` ở `reason_code` khi thiếu hoặc không hợp lệ; lý do cần ghi chú thì thêm ghi chú). Cảnh báo `PAYMENT_CLOCK_NEAR`, `PAYMENT_CLOCK_BREACHED`.
+
+**API.** `GET /payment-clocks`, `GET /payment-return-reasons`; `returnPaymentRequest` nhận thêm `reason_code`. **Màn.** PAY-22.
