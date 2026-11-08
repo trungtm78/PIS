@@ -313,7 +313,7 @@ export async function replayStep(ui, step, { typed = {}, table = bindings(), avo
         avoid.push(found.box);
       }
     }
-    return finish(record(step, 'replayed', { via, fallback: source.includes('region') && !source.includes('ref') }));
+    return finish(record(step, 'replayed', { via, fallback: source.includes('region') && !source.includes('ref'), ...(step.do === 'spot' ? { box: found.box, startedAt: began } : {}) }));
   } catch (error) {
     const reason = String(error instanceof Error ? error.message : error).split('\n')[0].slice(0, 160);
     log(`  warning: step ${step.do} ${step.ref ?? ''} skipped: ${reason}`);

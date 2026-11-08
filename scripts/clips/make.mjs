@@ -11,6 +11,9 @@ import { CURSOR_SCRIPT } from './record/cursor.mjs';
 import { Ui } from './record/ui.mjs';
 import { ReplayUi, groupSteps, replayView, summariseReplay, viewShares } from './record/replay.mjs';
 import { sentencesOf } from './text.mjs';
+import { Painter, brandFile, readBrand } from './compose/render.mjs';
+import { LOOP_SEC, brandOf, layouts, frames, headlineOf, keyTerm, layoutOf, mapBox, tickerOf } from './compose/design.mjs';
+import { cardArgs, chipsFor, segmentArgs } from './compose/plan.mjs';
 import { buildTimeline, cuesOf, formatSrt, formatVtt, checkCues } from './subtitles.mjs';
 
 /**
@@ -150,7 +153,7 @@ async function findContext(ui, page, target, persona, hints, log) {
 }
 
 /** Records the views of a scene in an open browser for `durationMs` after the first screen has drawn; returns the file and the second the content begins at. */
-async function recordViews(browser, { views: wanted, durationMs, baseUrl, dir, log, scene, typed = {}, replay = true }) {
+async function recordViews(browser, { views: wanted, durationMs, baseUrl, dir, log, scene, typed = {}, replay = true, viewport = VIEWPORT, mobile = false }) {
   let views = wanted;
   // The records that open the detail screens are looked for first, in a page that is not filmed.
   const scout = await browser.newContext({ viewport: VIEWPORT, deviceScaleFactor: 1, locale: 'vi-VN' });
@@ -169,7 +172,7 @@ async function recordViews(browser, { views: wanted, durationMs, baseUrl, dir, l
   } finally {
     await scout.close();
   }
-  const context = await browser.newContext({ viewport: VIEWPORT, deviceScaleFactor: 1, locale: 'vi-VN', recordVideo: { dir, size: VIEWPORT } });
+  const context = await browser.newContext({ viewport, deviceScaleFactor: 1, locale: 'vi-VN', recordVideo: { dir, size: viewport }, ...(mobile ? { isMobile: true, hasTouch: true } : {}) });
   await context.addInitScript(CURSOR_SCRIPT);
   const page = await context.newPage();
   const started = Date.now();
@@ -223,7 +226,7 @@ async function recordViews(browser, { views: wanted, durationMs, baseUrl, dir, l
   }
   const video = page.video();
   const path = await video.path();
-  return { path, contentAt, problems, replay: replayLines, spans };
+  return { path, contentAt, problems, replay: replayLines, spans, startedAt: started };
 }
 
 /** The phone scenes. The emulator is used when `--serial` is given (scripts/clips/record/phone.mjs); without one the scene is shown as a card (animatic) that names the phone screens. */
@@ -235,13 +238,50 @@ function phoneCard(scene, out, dir) {
   if (done.status !== 0) throw new Error(`phone card failed: ${(done.stderr || done.stdout).split('\n').slice(-4).join(' ')}`);
 }
 
+/** The quoted subtitles filter of the on-screen stamps of a scene (null-safe: undefined when there is no caption file). */
+const assFilterOf = (ass) => (ass === null ? undefined : `subtitles=filename=${filterPath(ass)}:fontsdir=${filterPath(fontsDir)}`);
+
+/** The footage of a phone scene made on an emulator (REC4): <phone-dir>/<name>.mp4 or .webm; undefined when there is none. */
+function phoneFootage(phoneDir, names) {
+  if (phoneDir === undefined) return undefined;
+  for (const name of names.filter(Boolean)) for (const extension of ['mp4', 'webm']) if (existsSync(join(phoneDir, `${name}.${extension}`))) return join(phoneDir, `${name}.${extension}`);
+  return undefined;
+}
+
+/** Screens of a scene that is not a screen recording but shows the product (the intro: web next to the phone app): the `showcase` field of the scene. */
+const showcaseViews = (scene) => (scene.showcase?.screens ?? []).filter((screen) => ROUTES[screen] !== undefined).map((screen) => ({ screen, persona: KNOWN_PERSONAS.has(scene.showcase.persona) ? scene.showcase.persona : 'capApprover' }));
+
+/** The chapters of a cut for the ticker, with how many scenes each has. */
+const tickerChapters = (scenario, scenes) => scenario.chapters.filter((chapter) => scenes.some((scene) => scene.chapter === chapter.id)).map((chapter) => ({ id: chapter.id, title: chapter.title, scenes: scenes.filter((scene) => scene.chapter === chapter.id).length }));
+
+/** One composed segment: background, footage in its frame, headline, chips, ticker, brand, and the stamps of the scene burned on top. */
+async function composeSegment({ painter, work, bg, brand, scenario, scenes, scene, entry, layout, web, phone, spots, ass, out, seconds }) {
+  const spec = layouts();
+  const chapterList = tickerChapters(scenario, scenes);
+  const inChapter = scenes.filter((candidate) => candidate.chapter === scene.chapter);
+  const ticker = tickerOf(chapterList, scene.chapter, inChapter.findIndex((candidate) => candidate.id === scene.id), inChapter.length);
+  const kicker = scenario.chapters.find((chapter) => chapter.id === scene.chapter)?.title;
+  const overlay = await painter.overlay({ layout, headline: headlineOf(scene), kicker, ticker, brand }, join(work, `${scene.id}.frame.png`));
+  const geometry = frames(layout, spec);
+  const sentences = sentencesOf(entry.subtitles.map((cue) => cue.text).join(' '));
+  const labels = sentences.map((sentence) => keyTerm(sentence));
+  const chips = [];
+  if (geometry.chips && geometry.web !== undefined && web !== undefined) {
+    const placed = chipsFor({ spots: spots.map((spot) => ({ ...spot, box: mapBox(spot.box, { x: 0, y: 0, width: geometry.web.hole.width, height: geometry.web.hole.height }) })), labels, hole: geometry.web.hole, seconds });
+    for (const [index, chip] of placed.entries()) chips.push({ ...chip, png: await painter.chip({ x: chip.x, y: chip.y, label: chip.label, accent: brand.accent }, join(work, `${scene.id}.chip${index}.png`)) });
+  }
+  const args = segmentArgs({ layout, bg: { file: bg, offsetSec: (entry.startMs / 1000) % LOOP_SEC }, web, phone, overlay, chips: chips.map((chip) => ({ png: chip.png, fromSec: chip.fromSec, toSec: chip.toSec })), seconds, assFilter: assFilterOf(ass), out, spec });
+  ffmpeg(args.slice(4));
+  return { chips: chips.length };
+}
+
 async function main(argv) {
   const [clip, cut = 'main'] = positionals(argv, ['audio', 'manifest', 'web-url', 'out', 'only', 'phone-cards']);
   const audioPath = argument(argv, 'audio');
   const manifestPath = argument(argv, 'manifest');
   const out = argument(argv, 'out');
   if (clip === undefined || audioPath === undefined || manifestPath === undefined || out === undefined) {
-    console.error('usage: node scripts/clips/make.mjs <clip> [main|chapter] --audio <clip>.audio.json --manifest data-manifest.json --web-url http://127.0.0.1:47313 --out <dir> [--only id,id] [--reuse] [--no-web] [--no-steps]');
+    console.error('usage: node scripts/clips/make.mjs <clip> [main|chapter] --audio <clip>.audio.json --manifest data-manifest.json --web-url http://127.0.0.1:47313 --out <dir> [--only id,id] [--reuse] [--no-web] [--no-steps] [--no-compose] [--phone-dir <dir with <scene id>.mp4 films of the phone>]');
     return 2;
   }
   const scenario = loadScenario(clip);
@@ -261,6 +301,23 @@ async function main(argv) {
   const reuse = flag(argv, 'reuse');
   const webUrl = argument(argv, 'web-url');
   let browser;
+  const compose = !flag(argv, 'no-compose');
+  const phoneDir = argument(argv, 'phone-dir');
+  const brandSource = compose ? readBrand() : undefined;
+  const layoutSpec = layouts();
+  const brandFor = (edition) => {
+    const brand = brandOf(edition, brandSource?.raw, layoutSpec.productNames);
+    return { ...brand, tagline: brand.tagline || layoutSpec.taglines[edition], logo: brandFile(brandSource, brand.logo) };
+  };
+  let painter;
+  let barFile;
+  const painterFor = async () => {
+    if (painter === undefined) {
+      painter = await new Painter(join(dir, 'compose')).open();
+      await painter.background(join(dir, 'compose', 'bg.mp4'));
+    }
+    return painter;
+  };
   const report = [];
   const segments = [];
   try {
@@ -275,12 +332,49 @@ async function main(argv) {
       const ass = captionsAss(entry.captions, entry.startMs, join(dir, 'seg', `${entry.id}.ass`));
       const platform = scene.screen.platform;
       const stamp = Date.now();
-      if (platform === 'title' || platform === 'animatic') {
+      const layout = compose ? layoutOf(scene) : null;
+      const bgFile = join(dir, 'compose', 'bg.mp4');
+      const showcase = layout !== null && platform === 'animatic' && scene.showcase !== undefined;
+      const phoneFile = phoneFootage(phoneDir, [scene.id, scene.showcase?.phone]);
+      if (layout === 'title' && platform === 'title') {
+        const data = JSON.parse(readFileSync(join(CLIPS_DIR, 'animatic', 'data', `${scene.screen.animatic}.json`), 'utf8'));
+        const paint = await painterFor();
+        const png = await paint.card({ kicker: data.kicker, title: data.title, subtitle: data.subtitle, footer: data.footer, brand: brandFor(scenario.edition) }, join(dir, 'compose', `${entry.id}.card.png`));
+        ffmpeg(cardArgs({ bg: { file: bgFile, offsetSec: (entry.startMs / 1000) % LOOP_SEC }, overlay: png, seconds, assFilter: assFilterOf(ass), out: file }).slice(4));
+        report.push({ id: entry.id, kind: 'card', animatic: scene.screen.animatic, seconds });
+      } else if (layout === null && (platform === 'title' || platform === 'animatic')) {
         mkdirSync(join(dir, 'anim'), { recursive: true });
         const raw = join(dir, 'anim', `${scene.screen.animatic}.mp4`);
         if (!existsSync(raw)) renderAnimatic(scene.screen.animatic, raw);
         finishSegment({ input: raw, seconds, ass, out: file, hold: true });
         report.push({ id: entry.id, kind: 'animatic', animatic: scene.screen.animatic, seconds });
+      } else if (layout !== null && (((platform === 'web' || platform === 'pwa') && viewsOf(scene).length > 0) || showcase || (platform === 'phone' && phoneFile !== undefined))) {
+        const views = showcase ? showcaseViews(scene) : platform === 'phone' ? [] : viewsOf(scene);
+        if (views.length > 0 && (webUrl === undefined || flag(argv, 'no-web'))) throw new Error(`scene ${entry.id}: no web address or no screen to open`);
+        if (views.length > 0 && freemem() < 1.5 * 1024 ** 3) throw new Error('less than 1.5 GB of memory is free: wait before the browser starts');
+        if (views.length > 0 && browser === undefined) {
+          const { chromium } = await import('playwright');
+          browser = await chromium.launch({ headless: true });
+        }
+        const rawDir = join(dir, 'seg', `${entry.id}.raw`);
+        rmSync(rawDir, { recursive: true, force: true });
+        const wide = layout === 'split' || layout === 'phone-right';
+        const recorded = views.length === 0 || layout === 'phone-right' ? undefined : await recordViews(browser, { views, durationMs: seconds * 1000, baseUrl: webUrl, dir: rawDir, log: console.log, scene, typed: scenario.typed, replay: showcase ? false : !flag(argv, 'no-steps') });
+        let phone = phoneFile === undefined ? undefined : { file: phoneFile, startSec: 0 };
+        let phoneSource = phone === undefined ? null : 'emulator';
+        if (phone === undefined && wide && views.length > 0) {
+          // No emulator film: the real web app at the size of a phone (responsive view), named as such in the report.
+          const preview = await recordViews(browser, { views: views.slice(0, 1), durationMs: seconds * 1000, baseUrl: webUrl, dir: join(rawDir, 'phone'), log: console.log, scene, replay: false, viewport: { width: 380, height: 820 }, mobile: true });
+          phone = { file: preview.path, startSec: preview.contentAt / 1000 };
+          phoneSource = 'responsive-web-preview';
+        }
+        const paint = await painterFor();
+        const spots = recorded === undefined ? [] : recorded.replay.filter((line) => line.do === 'spot' && line.status === 'replayed' && line.box !== undefined).map((line) => ({ atSec: (line.startedAt - recorded.startedAt - recorded.contentAt) / 1000, holdSec: line.ms / 1000, box: line.box }));
+        const composed = await composeSegment({ painter: paint, work: join(dir, 'compose'), bg: bgFile, brand: brandFor(scenario.edition), scenario, scenes, scene, entry, layout, web: recorded === undefined ? undefined : { file: recorded.path, startSec: recorded.contentAt / 1000 }, phone, spots, ass, out: file, seconds });
+        rmSync(rawDir, { recursive: true, force: true });
+        const replaySummary = summariseReplay(recorded?.replay ?? []);
+        console.log(`  steps of ${entry.id}: ${replaySummary.replayed} replayed, ${replaySummary.skipped} skipped (${replaySummary.offScreen} not clicks); layout ${layout}, ${composed.chips} chips`);
+        report.push({ id: entry.id, kind: 'composed', layout, phoneSource, screens: views.map((view) => view.screen), seconds, problems: recorded?.problems ?? [], steps: { ...replaySummary, lines: recorded?.replay ?? [] } });
       } else if ((platform === 'web' || platform === 'pwa') && viewsOf(scene).length > 0) {
         const views = viewsOf(scene);
         if (webUrl === undefined || views.length === 0 || flag(argv, 'no-web')) throw new Error(`scene ${entry.id}: no web address or no screen to open`);
@@ -307,8 +401,14 @@ async function main(argv) {
       }
       console.log(`segment ${entry.id} (${platform}) ${seconds.toFixed(1)} s made in ${((Date.now() - stamp) / 1000).toFixed(0)} s`);
     }
+    if (compose && segments.every((file) => existsSync(file))) {
+      const paint = await painterFor();
+      barFile = await paint.subtitleBar(cues, timeline.totalMs, join(dir, `${clip}.${cut}.bar.txt`), brandFor(scenario.edition).accent);
+      console.log(`subtitle bar: ${barFile}`);
+    }
   } finally {
     if (browser !== undefined) await browser.close();
+    if (painter !== undefined) await painter.close();
   }
   const absent = segments.filter((file) => !existsSync(file));
   if (absent.length > 0) {
@@ -319,7 +419,7 @@ async function main(argv) {
   writeFileSync(list, segments.map((file) => `file '${file.replace(/\\/gu, '/')}'`).join('\n'));
   const screen = join(dir, `${clip}.${cut}.screen.mp4`);
   ffmpeg(['-f', 'concat', '-safe', '0', '-i', list, '-c', 'copy', '-movflags', '+faststart', screen]);
-  writeFileSync(join(dir, `${clip}.${cut}.make.json`), `${JSON.stringify({ screen, scenes: report }, null, 2)}\n`);
+  writeFileSync(join(dir, `${clip}.${cut}.make.json`), `${JSON.stringify({ screen, bar: barFile ?? null, scenes: report }, null, 2)}\n`);
   console.log(`screen film: ${screen}`);
   return 0;
 }
