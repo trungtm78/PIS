@@ -550,7 +550,7 @@
     {"id":"AUD-19","path":"/aud/aud-19","title":"Sổ quà tặng","kind":"table","area":"insights","module":"AUD","group":"Phát hiện & kiến nghị","role":"workspace","parent":null,"req":"FR-AUD-19"},
     {"id":"DOC-28","path":"/doc/doc-28","title":"Tài liệu dự án theo trạng thái và transmittal","kind":"table","area":"overview","module":"DOC","group":"Kiểm soát tài liệu","role":"workspace","parent":null,"req":"FR-DOC-28"},
     {"id":"DOC-29","path":"/doc/doc-29","title":"Chi tiết transmittal tài liệu","kind":"detail","area":"overview","module":"DOC","group":"Kiểm soát tài liệu","role":"workspace","parent":null,"req":"FR-DOC-29"},
-    {"id":"QMS-12","path":"/qms/qms-12","title":"Ảnh hiện trường cần giải trình giữa các dự án","kind":"review","area":"investment","module":"QMS","group":"Chất lượng thi công","role":"workspace","parent":null,"req":"FR-QMS-12"},
+    {"id":"QMS-12","path":"/qms/qms-12","title":"Ảnh hiện trường cần giải trình giữa các dự án","kind":"review","area":"investment","module":"QMS","group":"Chất lượng & nghiệm thu","role":"workspace","parent":null,"req":"FR-QMS-12"},
     {"id":"VND-09","path":"/vnd/vnd-09","title":"Sổ bảo đảm dự thầu","kind":"table","area":"insights","module":"VND","group":"Bảo đảm dự thầu và thầu phụ","role":"workspace","parent":null,"req":"FR-VND-09"},
     {"id":"VND-10","path":"/vnd/vnd-10","title":"Nhà thầu phụ của hợp đồng","kind":"table","area":"insights","module":"VND","group":"Bảo đảm dự thầu và thầu phụ","role":"workspace","parent":null,"req":"FR-VND-10"},
     {"id":"VND-11","path":"/vnd/vnd-11","title":"Hạng rủi ro nhà thầu","kind":"table","area":"insights","module":"VND","group":"Hạng rủi ro và kết quả thực hiện","role":"workspace","parent":null,"req":"FR-VND-11"},

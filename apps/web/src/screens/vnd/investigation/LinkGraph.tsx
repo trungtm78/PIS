@@ -19,7 +19,7 @@ export interface LinkGraphProps {
 }
 
 /**
- * The graph of related parties, drawn without a graph library: an inline SVG whose places the kernel works out (`radialLayout`: the same input gives the same picture). Nobody has to look at the picture to read it: the table
+ * The graph of related parties, drawn without a graph library: an inline SVG whose places the model works out (`radialLayout`: the same input gives the same picture). Nobody has to look at the picture to read it: the table
  * under it lists every link with its strength and its evidence, and a node is a focusable control that opens the links of that contractor. A restricted contractor is marked with a dashed ring AND the word, never by colour
  * alone; the strength of a link is its thickness AND its number; an old link (stale) is dashed AND says so in the table.
  */

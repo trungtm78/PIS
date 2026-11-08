@@ -1,6 +1,4 @@
 import type { components } from '@machvon/contracts';
-import { radialLayout } from '@machvon/kernel/src/vnd-link-graph.ts';
-import type { PartyLink } from '@machvon/kernel/src/vnd-link-graph.ts';
 import type { TimelineGroup, Tone } from '../../../ui';
 import { vietnamDay } from '../shared/vnd-model';
 
@@ -134,16 +132,41 @@ export interface DrawnGraph {
   edges: DrawnEdge[];
 }
 
-const asPartyLinks = (links: readonly LeadLink[]): PartyLink[] => links.map((link) => ({ a: link.a_id, b: link.b_id, strength: link.strength, evidence: link.evidence.map((entry) => ({ kind: entry.kind, fingerprint: entry.fingerprint, weight: entry.weight })) }));
+interface Place {
+  id: string;
+  x: number;
+  y: number;
+}
+
+const round1 = (value: number): number => Math.round(value * 10) / 10;
 
 /**
- * The drawing: the kernel lays the members out (the focus in the middle, the others on a circle by the strength of their link to it), this adds the edges with their thickness and the middle of each edge for its label.
+ * The places of the members: the focus in the middle (when it is a member), the others on a circle in the order of the strength of their link to it, then by id. The same input gives the same drawing.
+ */
+function radialLayout(members: readonly string[], links: readonly LeadLink[], focusId: string | null, width: number, height: number): Place[] {
+  const centre = focusId !== null && members.includes(focusId) ? focusId : null;
+  const strength = (id: string): number => (centre === null ? 0 : (links.find((link) => (link.a_id === centre && link.b_id === id) || (link.b_id === centre && link.a_id === id))?.strength ?? 0));
+  const ring = members.filter((id) => id !== centre).sort((x, y) => strength(y) - strength(x) || (x < y ? -1 : 1));
+  const cx = width / 2;
+  const cy = height / 2;
+  const radius = Math.min(width, height) / 2 - 36;
+  const places: Place[] = [];
+  if (centre !== null) places.push({ id: centre, x: round1(cx), y: round1(cy) });
+  ring.forEach((id, index) => {
+    const angle = -Math.PI / 2 + (2 * Math.PI * index) / Math.max(1, ring.length);
+    places.push({ id, x: round1(cx + radius * Math.cos(angle)), y: round1(cy + radius * Math.sin(angle)) });
+  });
+  return places;
+}
+
+/**
+ * The drawing: the members are laid out here (the focus in the middle, the others on a circle by the strength of their link to it), this adds the edges with their thickness and the middle of each edge for its label.
  * A link to a contractor that is not among the nodes is left out of the drawing (it stays in the table).
  */
 export function drawGraph(nodes: readonly LinkNode[], links: readonly LeadLink[], focusId: string | null, width = GRAPH_WIDTH, height = GRAPH_HEIGHT): DrawnGraph {
   const placed = radialLayout(
     nodes.map((node) => node.id),
-    asPartyLinks(links),
+    links,
     focusId,
     width,
     height,
@@ -168,8 +191,8 @@ export function drawGraph(nodes: readonly LinkNode[], links: readonly LeadLink[]
       y1: from.y,
       x2: to.x,
       y2: to.y,
-      mx: Math.round(((from.x + to.x) / 2) * 10) / 10,
-      my: Math.round(((from.y + to.y) / 2) * 10) / 10,
+      mx: round1((from.x + to.x) / 2),
+      my: round1((from.y + to.y) / 2),
       strength: link.strength,
       width: edgeWidth(link.strength),
       stale: link.status === 'STALE',

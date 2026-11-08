@@ -226,7 +226,7 @@ export function Pill({ label, tones }: { label: string; tones: Tone }) {
   return <StatusPill tone={tones}>{label}</StatusPill>;
 }
 
-/** A `<select>` of the words of a list, each word looked up under a prefix. */
+/** A select box of the words of a list, each word looked up under a prefix. */
 export function WordSelect({ id, label, labelOf, values, value, onChange, any }: { id: string; label: string; labelOf: (value: string) => string; values: readonly string[]; value: string; onChange: (value: string) => void; any?: string }) {
   return (
     <label className="g12-field" htmlFor={id}>

@@ -101,17 +101,17 @@ describe('PerformanceScreen (VND-12): performance and its publication', () => {
     await loaded();
     const [overdue, posted, soon] = rows();
     expect(overdue?.textContent).toContain('HD-1');
-    expect(overdue?.textContent).toContain(word('vnd.performance.rating.POOR.name'));
+    expect(overdue?.textContent).toContain(word('vnd.performance.rating.poor.name'));
     expect(overdue?.textContent).toContain(word('vnd.performance.score.text', { score: '41.50' }));
     expect(overdue?.textContent).toContain('31/03/2026');
-    expect(overdue?.textContent).toContain(word('vnd.performance.clock.OVERDUE.name'));
+    expect(overdue?.textContent).toContain(word('vnd.performance.clock.overdue.name'));
     expect(overdue?.textContent).toContain(word('vnd.performance.due.text', { date: '30/09/2026' }));
-    expect(overdue?.textContent).toContain(word('vnd.performance.review.NOT_ANSWERED.name'));
-    expect(posted?.textContent).toContain(word('vnd.performance.clock.MET.name'));
+    expect(overdue?.textContent).toContain(word('vnd.performance.review.notAnswered.name'));
+    expect(posted?.textContent).toContain(word('vnd.performance.clock.met.name'));
     expect(posted?.textContent).toContain(word('vnd.performance.receipt.text', { receipt: 'BN-2026-0042', date: '01/08/2026' }));
-    expect(posted?.textContent).toContain(word('vnd.performance.updates.text', { count: 1, kind: word('vnd.performance.kind.UPDATE_AFTER_WARRANTY.name') }));
-    expect(soon?.textContent).toContain(word('vnd.performance.clock.DUE_SOON.name'));
-    expect(soon?.textContent).toContain(word('vnd.performance.review.DUE_SOON.name'));
+    expect(posted?.textContent).toContain(word('vnd.performance.updates.text', { count: 1, kind: word('vnd.performance.kind.updateAfterWarranty.name') }));
+    expect(soon?.textContent).toContain(word('vnd.performance.clock.dueSoon.name'));
+    expect(soon?.textContent).toContain(word('vnd.performance.review.dueSoon.name'));
     expect(soon?.textContent).toContain(word('vnd.performance.response.text', { date: '25/10/2026' }));
   });
 
@@ -208,7 +208,7 @@ describe('PerformanceScreen (VND-12): performance and its publication', () => {
     fireEvent.click(within(rows()[0] as HTMLElement).getByTestId('open-history'));
     const banner = await screen.findByTestId('streak-banner');
     expect(h.read).toHaveBeenCalledWith('getVendorPerformance', { path: { id: CONTRACTOR } });
-    expect(banner.textContent).toContain(word('vnd.performance.suggestion.PROPOSE_RESTRICTION.name'));
+    expect(banner.textContent).toContain(word('vnd.performance.suggestion.proposeRestriction.name'));
     expect(banner.textContent).toContain(word('vnd.performance.streak.text', { count: 3 }));
     expect(within(banner).getByRole('link', { name: word('vnd.performance.streak.cases.link') }).getAttribute('href')).toBe('/vnd/vnd-03');
     expect(screen.getByText(word('vnd.performance.panel.retrospect.text', { count: 2 }))).toBeTruthy();
@@ -218,7 +218,7 @@ describe('PerformanceScreen (VND-12): performance and its publication', () => {
     open(page([line(1)]), view([line(1)], { streak: 2, suggestion: 'REMEDY_PLAN' }));
     await loaded();
     fireEvent.click(within(rows()[0] as HTMLElement).getByTestId('open-history'));
-    expect((await screen.findByTestId('streak-banner')).textContent).toContain(word('vnd.performance.suggestion.REMEDY_PLAN.name'));
+    expect((await screen.findByTestId('streak-banner')).textContent).toContain(word('vnd.performance.suggestion.remedyPlan.name'));
     expect(screen.queryByRole('link', { name: word('vnd.performance.streak.cases.link') })).toBeNull();
     cleanup();
     open(page([line(1)]), view([], { streak: 1 }));

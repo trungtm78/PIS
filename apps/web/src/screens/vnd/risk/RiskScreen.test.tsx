@@ -118,12 +118,12 @@ describe('RiskScreen (VND-11): the risk grade', () => {
     open(page([item(1), item(2, { tier: 'CRITICAL', score: 80, review_overdue: true, next_review_on: '2026-10-01', pending_assessment_id: ASSESSMENT, pending_tier: 'HIGH' }), item(3, { tier: null, score: null, next_review_on: null, assessment_id: null })]));
     await loaded();
     const [first, second, third] = rows();
-    expect(first?.textContent).toContain(word('vnd.risk.tier.MEDIUM.name'));
+    expect(first?.textContent).toContain(word('vnd.risk.tier.medium.name'));
     expect(first?.textContent).toContain('25');
     expect(first?.textContent).toContain('08/05/2027');
-    expect(second?.textContent).toContain(word('vnd.risk.tier.CRITICAL.name'));
+    expect(second?.textContent).toContain(word('vnd.risk.tier.critical.name'));
     expect(second?.textContent).toContain(word('vnd.risk.review.overdue.badge'));
-    expect(second?.textContent).toContain(word('vnd.risk.pending.text', { tier: word('vnd.risk.tier.HIGH.name') }));
+    expect(second?.textContent).toContain(word('vnd.risk.pending.text', { tier: word('vnd.risk.tier.high.name') }));
     expect(third?.textContent).toContain(word('vnd.risk.tier.none.text'));
     const rule = screen.getByTestId('risk-rule');
     expect(rule.textContent).toContain(word('vnd.risk.rule.text'));
@@ -153,7 +153,7 @@ describe('RiskScreen (VND-11): the risk grade', () => {
     await screen.findByTestId('explanation');
     expect(h.read).toHaveBeenCalledWith('getVendorRiskGrade', { path: { id: CONTRACTOR } });
     expect(screen.getByTestId('live-score').textContent).toBe(word('vnd.risk.live.score.text', { score: 14 }));
-    expect(screen.getByTestId('main-reason').textContent).toBe(word('vnd.risk.live.main.text', { factor: word('vnd.risk.factor.RESTRICTION.name'), points: 10 }));
+    expect(screen.getByTestId('main-reason').textContent).toBe(word('vnd.risk.live.main.text', { factor: word('vnd.risk.factor.restriction.name'), points: 10 }));
     const factorRows = Array.from(document.querySelectorAll<HTMLElement>('tr[data-factor]'));
     expect(factorRows.map((row) => row.getAttribute('data-factor'))).toEqual(FACTORS);
     const restriction = factorRows[1] as HTMLElement;
@@ -161,8 +161,8 @@ describe('RiskScreen (VND-11): the risk grade', () => {
     expect(restriction.textContent).toContain('count: 10');
     expect((restriction.querySelector('.vnd-bar__fill') as HTMLElement).style.width).toBe('100%');
     expect((factorRows[2]?.querySelector('.vnd-bar__fill') as HTMLElement).style.width).toBe('0%');
-    fireEvent.click(within(restriction).getByRole('button', { name: word('vnd.info.open.label', { name: word('vnd.risk.factor.RESTRICTION.name') }) }));
-    expect(screen.getByRole('dialog', { name: word('vnd.risk.factor.RESTRICTION.name') }).textContent).toContain(word('vnd.risk.factor.RESTRICTION.formula'));
+    fireEvent.click(within(restriction).getByRole('button', { name: word('vnd.info.open.label', { name: word('vnd.risk.factor.restriction.name') }) }));
+    expect(screen.getByRole('dialog', { name: word('vnd.risk.factor.restriction.name') }).textContent).toContain(word('vnd.risk.factor.restriction.formula'));
     expect(screen.getByTestId('explanation').textContent).toContain(word('vnd.risk.live.review.text', { months: 24, date: '08/11/2028', dual: word('vnd.risk.live.dual.no') }));
   });
 
@@ -171,7 +171,7 @@ describe('RiskScreen (VND-11): the risk grade', () => {
     await loaded();
     fireEvent.click(within(rows()[0] as HTMLElement).getByTestId('open-grade'));
     await screen.findByTestId('explanation');
-    expect(screen.getByTestId('explanation').textContent).toContain(word('vnd.risk.live.floored.badge', { tier: word('vnd.risk.tier.LOW.name') }));
+    expect(screen.getByTestId('explanation').textContent).toContain(word('vnd.risk.live.floored.badge', { tier: word('vnd.risk.tier.low.name') }));
     cleanup();
     open(page([item(1)]), grade({ live: { score: 0, tier: 'LOW', score_tier: 'LOW', floored: false, factors: factors(), reasons: [], review_months: 24, next_review_on: '2028-11-08', dual_check: false, inputs: {} } }));
     await loaded();
@@ -251,8 +251,8 @@ describe('RiskScreen (VND-11): the risk grade', () => {
     fireEvent.click(within(rows()[0] as HTMLElement).getByTestId('open-grade'));
     await screen.findByTestId('explanation');
     const history = screen.getByRole('table', { name: word('vnd.risk.history.caption') });
-    expect(history.textContent).toContain(word('vnd.risk.state.CONFIRMED.name'));
-    expect(history.textContent).toContain(word('vnd.risk.state.SUPERSEDED.name'));
+    expect(history.textContent).toContain(word('vnd.risk.state.confirmed.name'));
+    expect(history.textContent).toContain(word('vnd.risk.state.superseded.name'));
     expect(history.textContent).toContain('Phạm Quốc Bảo');
     cleanup();
     open(page([item(1)]), new Error('boom'));

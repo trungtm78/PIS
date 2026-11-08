@@ -23,7 +23,9 @@
 .inv-edge--stale { stroke-dasharray: 6 4; }
 .inv-edge--on { stroke: var(--mv-color-primary); }
 .inv-edge__label { fill: var(--mv-color-ink); font-size: 11px; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--mv-color-surface2); stroke-width: 4px; }
-.inv-node { cursor: pointer; outline: none; }
+.inv-node { cursor: pointer; }
+.inv-node:focus { outline: none; }
+.inv-node:focus-visible { outline: 3px solid var(--mv-color-focus); outline-offset: 2px; }
 .inv-node circle { fill: var(--mv-color-surface); stroke: var(--mv-color-ink); stroke-width: 2; }
 .inv-node--focus circle { fill: var(--mv-color-primary-soft); stroke: var(--mv-color-primary); stroke-width: 4; }
 .inv-node--restricted circle { stroke: var(--mv-color-danger); stroke-dasharray: 5 3; }
