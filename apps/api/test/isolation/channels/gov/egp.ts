@@ -83,6 +83,18 @@ export const EGP_OPERATIONS: readonly string[] = [
   'getProjectEacControl',
   'getChangeTier',
   'clearChangeAdjustmentCheck',
+  'listEgpObligations',
+  'openEgpObligation',
+  'getEgpObligation',
+  'sweepEgpObligations',
+  'prepareEgpObligation',
+  'submitEgpObligation',
+  'receiptEgpObligation',
+  'rejectEgpObligation',
+  'cancelEgpObligation',
+  'listEgpReconciliationItems',
+  'runEgpReconciliation',
+  'resolveEgpReconciliationItem',
 ];
 
 /**
