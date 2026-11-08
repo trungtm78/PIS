@@ -168,7 +168,7 @@ describe('the Integration Hub store (HUB-1)', () => {
         apply: async () => [],
       };
       const bytes = new TextEncoder().encode('code\nP-1\n');
-      const run = (): Promise<unknown> => as((tx) => new FileImportStore().run(tx, { adapter, bytes, fileObjectKey: `tenants/${TENANT_A}/import/${randomUUID()}`, importedBy: memberId(MAKER), fallbackOwnerId: memberId(MAKER), correlationId: 'hub-switch', now: NOW }));
+      const run = (): Promise<unknown> => as((tx) => new FileImportStore().run(tx, { adapter, bytes, fileObjectKey: `tenants/${TENANT_A}/import/${randomUUID()}`, importedBy: memberId(MAKER), fallbackOwnerId: memberId(MAKER), correlationId: randomUUID(), now: NOW }));
       const before = await as((tx) => hub.reading(tx, descriptor('national.project_codes'), NOW));
       await as((tx) => hub.setState(tx, 'national.project_codes', before.stateVersion, { enabled: false, reason: REASON }, memberId(CHECKER)), CHECKER);
       expect(await refusal(run())).toMatchObject({ code: 'HUB_CONNECTOR_DISABLED', status: 409 });
