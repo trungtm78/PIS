@@ -1,0 +1,45 @@
+/* PRJ-28, the risk board scored from signals: tokens only, no hex. */
+.rs-block {
+  display: block;
+}
+.rs-score {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--mv-space-4) var(--mv-space-8);
+}
+.rs-trend {
+  white-space: nowrap;
+}
+.rs-evidence__list {
+  display: grid;
+  gap: var(--mv-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.rs-evidence__reason {
+  margin: var(--mv-space-4) 0 0;
+}
+.rs-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--mv-space-4) var(--mv-space-16);
+  margin: var(--mv-space-8) 0 0;
+}
+.rs-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.rs-rule-lines {
+  display: grid;
+  gap: var(--mv-space-4);
+  margin: var(--mv-space-12) 0 0;
+  padding-left: var(--mv-space-16);
+}
+.rs-charts {
+  display: grid;
+  gap: var(--mv-space-24);
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}

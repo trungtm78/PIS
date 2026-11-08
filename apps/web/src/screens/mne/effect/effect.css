@@ -1,0 +1,41 @@
+/* MNE-11, the effectiveness of a project after the investment: tokens only, no hex. */
+.eff-picker {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--mv-space-8) var(--mv-space-12);
+  margin: var(--mv-space-8) 0 var(--mv-space-16);
+}
+.eff-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mv-space-8);
+  margin: var(--mv-space-8) 0 var(--mv-space-16);
+}
+.eff-block {
+  display: block;
+}
+.eff-form {
+  display: grid;
+  gap: var(--mv-space-12);
+}
+.eff-indicator {
+  display: grid;
+  gap: var(--mv-space-8);
+  margin: 0;
+  padding: var(--mv-space-12);
+  border: 1px solid var(--mv-color-border);
+  border-radius: var(--mv-radius-control);
+}
+.eff-check {
+  display: flex;
+  align-items: center;
+  gap: var(--mv-space-8);
+}
+.eff-unverified {
+  border-width: 2px;
+}
+.eff-frozen > summary {
+  cursor: pointer;
+  color: var(--mv-color-primary);
+}

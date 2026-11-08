@@ -557,4 +557,8 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'FEED-03': () => import('../../screens/feed/MappingScreen'),
   'FEED-04': () => import('../../screens/feed/DifferencesScreen'),
   'FEED-05': () => import('../../screens/feed/GeneratorScreen'),
+=======
+  // The risk board scored from signals and the effectiveness after the investment (lane MR-1).
+  'PRJ-28': () => import('../../screens/prj/risk-signals/RiskSignalBoardScreen'),
+  'MNE-11': () => import('../../screens/mne/effect/EffectivenessScreen'),
 };
