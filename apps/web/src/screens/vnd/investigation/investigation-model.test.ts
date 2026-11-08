@@ -97,6 +97,10 @@ describe('the entries of a list that is pasted', () => {
     const withHeader = parseEntries('ref,name,tax_code\nA1;Công ty A;0101234567\nA2\tCông ty B\n');
     expect(withHeader.entries.map((entry) => entry.ref)).toEqual(['A1', 'A2']);
     expect(withHeader.errors).toEqual([]);
+    // A reference that starts with ref is data, not a header; a name in double quotes keeps its commas.
+    const quoted = parseEntries('ref-001,"Công ty A, B và C",0101234567');
+    expect(quoted.entries).toEqual([{ ref: 'ref-001', name: 'Công ty A, B và C', tax_code: '0101234567' }]);
+    expect(quoted.errors).toEqual([]);
     const bare = parseEntries('A1,Công ty A\n,No ref');
     expect(bare.entries).toHaveLength(1);
     expect(bare.errors).toEqual([{ line: 2, problem: 'REF' }]);

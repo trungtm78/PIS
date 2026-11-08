@@ -1,4 +1,5 @@
 import { randomBytes, randomUUID } from 'node:crypto';
+import { Client } from 'pg';
 import { FieldCipher, staticKeyProvider } from '@machvon/kernel';
 import { HomeVendorInvestigationSources } from '../src/home-vendor-investigation-sources';
 import { VendorGate } from '../src/vendor-gate';
@@ -36,6 +37,18 @@ async function refusal(work: Promise<unknown>): Promise<{ code: string; status: 
     return { code: e.code ?? '', status: e.status ?? 0, ...(e.detail === undefined ? {} : { detail: e.detail }), ...(e.extensions === undefined ? {} : { extensions: e.extensions }) };
   }
   throw new Error('expected a refusal');
+}
+
+/** Seeds a row of a table this story only reads (a project) with the foreign keys it has to other modules switched off. */
+async function seedReplica(sql: string, params: unknown[]): Promise<void> {
+  const client = new Client({ connectionString: harness.database.adminUrl });
+  await client.connect();
+  try {
+    await client.query('set session_replication_role = replica');
+    await client.query(sql, params);
+  } finally {
+    await client.end();
+  }
 }
 
 async function document(): Promise<string> {
@@ -78,7 +91,7 @@ interface Bid {
 async function closedPackage(code: string, bids: Bid[], winner: string, drafter = M4): Promise<{ packageId: string; proposals: Map<string, string> }> {
   const projectId = randomUUID();
   const packageId = randomUUID();
-  await owner(
+  await seedReplica(
     `insert into machvon.project (tenant_id, id, code, name, owner_unit_id, investor_unit_id, area_master_version_id, classification, total_investment_vnd, status, version, project_group)
      values ($1, $2, $3, 'Investigation project', $4, $4, $5, 'INTERNAL', 1000, 'IMPLEMENTATION', 1, 'B')`,
     [TENANT_A, projectId, `P-${code}`, unitId(1), randomUUID()],
@@ -147,7 +160,7 @@ describe('the investigation and the screening of contractors (VND-3)', () => {
       await as((tx) => leads.scan(tx, null, 'JOB', NOW, TODAY));
       expect((await owner<{ status: string }>('select status from machvon.contractor_party_link')).map((row) => row.status)).toEqual(['STALE']);
       expect((await as((tx) => leads.list(tx, memberId(M1), { limit: 10, kind: 'LINK_CLUSTER' }))).length).toBe(1);
-      await expect(owner('delete from machvon.contractor_party_link')).rejects.toThrow();
+      await expect(as((tx) => tx.query('delete from machvon.contractor_party_link'))).rejects.toThrow();
       await expect(owner('update machvon.vendor_link_scan set links = 99')).rejects.toThrow(/appended once/);
     });
 
@@ -159,13 +172,14 @@ describe('the investigation and the screening of contractors (VND-3)', () => {
       await as((tx) => leads.scan(tx, null, 'JOB', NOW, TODAY));
       const found = (await as((tx) => leads.list(tx, memberId(M4), { limit: 50, kind: 'LINK_CLUSTER', contractorId: a })))[0];
       const id = (found as NonNullable<typeof found>).id;
-      const taken = await as((tx) => leads.move(tx, memberId(M4), id, 1, 'TAKE', undefined, NOW), M4);
+      const at = (seconds: number): Date => new Date(NOW.getTime() + seconds * 1000);
+      const taken = await as((tx) => leads.move(tx, memberId(M4), id, 1, 'TAKE', undefined, at(1)), M4);
       expect(taken).toMatchObject({ status: 'IN_REVIEW', reviewerId: memberId(M4), version: 2 });
       expect((await refusal(as((tx) => leads.move(tx, memberId(M4), id, 1, 'TAKE', undefined, NOW), M4))).code).toBe('VERSION_CONFLICT');
       expect((await refusal(as((tx) => leads.move(tx, memberId(M4), id, 2, 'PROPOSE_DISMISS', 'no', NOW), M4))).code).toBe('VALIDATION_FAILED');
-      await as((tx) => leads.move(tx, memberId(M4), id, 2, 'PROPOSE_DISMISS', 'the address is a shared accounting office', NOW), M4);
+      await as((tx) => leads.move(tx, memberId(M4), id, 2, 'PROPOSE_DISMISS', 'the address is a shared accounting office', at(2)), M4);
       expect((await refusal(as((tx) => leads.move(tx, memberId(M4), id, 3, 'CONFIRM_DISMISS', undefined, NOW), M4))).code).toBe('SELF_APPROVAL_DENIED');
-      const dismissed = await as((tx) => leads.move(tx, memberId(M5), id, 3, 'CONFIRM_DISMISS', undefined, NOW), M5);
+      const dismissed = await as((tx) => leads.move(tx, memberId(M5), id, 3, 'CONFIRM_DISMISS', undefined, at(3)), M5);
       expect(dismissed).toMatchObject({ status: 'DISMISSED', decidedRank: dismissed.rank });
       expect((await refusal(as((tx) => leads.move(tx, memberId(M5), id, 4, 'REFER', 'send it to the inspectorate', NOW), M5))).code).toBe('LEAD_STATE_INVALID');
       expect((await as((tx) => leads.historyOf(tx, id))).map((row) => row.move)).toEqual(['SCAN_NEW', 'TAKE', 'PROPOSE_DISMISS', 'CONFIRM_DISMISS']);

@@ -395,7 +395,7 @@ export class VendorLeadStore {
 
   async historyOf(tx: TenantTx, leadId: string): Promise<LeadHistoryRow[]> {
     const rows = await tx.query<{ id: string; move: string; from_status: string | null; to_status: string; actor_id: string | null; reason: string | null; rank: number; at: string }>(
-      `select id, move, from_status, to_status, actor_id, reason, rank, ${timestampKey('at')} as at from machvon.vendor_lead_review where lead_id = $1::uuid order by at, id`,
+      `select id, move, from_status, to_status, actor_id, reason, rank, ${timestampKey('at')} as at from machvon.vendor_lead_review where lead_id = $1::uuid order by at, (move = 'SCAN_NEW') desc, id`,
       [leadId],
     );
     return rows.map((row) => ({ id: row.id, move: row.move, fromStatus: row.from_status, toStatus: row.to_status, actorId: row.actor_id, reason: row.reason, rank: row.rank, at: row.at }));

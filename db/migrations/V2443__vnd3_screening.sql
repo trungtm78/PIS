@@ -16,9 +16,10 @@ CREATE TABLE machvon.screening_list_import (
   imported_by uuid NOT NULL,
   imported_at timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY (tenant_id, id),
-  FOREIGN KEY (tenant_id, imported_by) REFERENCES machvon.membership (tenant_id, id),
-  CONSTRAINT screening_import_once UNIQUE (tenant_id, source, content_sha256)
+  FOREIGN KEY (tenant_id, imported_by) REFERENCES machvon.membership (tenant_id, id)
 );
+-- Idempotent means: the LATEST import of a source with the same content is the same import. A list that comes back after another one (the same content again) is a new import that lists its entries again.
+CREATE INDEX screening_import_content_idx ON machvon.screening_list_import (tenant_id, source, content_sha256);
 CREATE INDEX screening_import_actor_idx ON machvon.screening_list_import (tenant_id, imported_by);
 CREATE INDEX screening_import_time_idx ON machvon.screening_list_import (tenant_id, source, imported_at DESC);
 
@@ -33,7 +34,7 @@ CREATE POLICY tenant_access ON machvon.screening_list_import AS PERMISSIVE FOR A
 REVOKE UPDATE, DELETE, TRUNCATE ON TABLE machvon.screening_list_import FROM machvon_app;
 CREATE TRIGGER screening_list_import_append_only BEFORE UPDATE OR DELETE ON machvon.screening_list_import FOR EACH ROW EXECUTE FUNCTION machvon.vnd3_append_only();
 
-COMMENT ON TABLE machvon.screening_list_import IS 'VND-3: one import of a list of parties that may not be dealt with (not the national list, which the file import keeps); idempotent by the hash of its content.';
+COMMENT ON TABLE machvon.screening_list_import IS 'VND-3: one import of a list of parties that may not be dealt with (not the national list, which the file import keeps); idempotent when it repeats the latest import of its source.';
 
 CREATE TABLE machvon.screening_list_entry (
   tenant_id uuid NOT NULL,

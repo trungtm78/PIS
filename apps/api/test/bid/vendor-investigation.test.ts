@@ -1,4 +1,5 @@
 import { randomBytes, randomUUID } from 'node:crypto';
+import { Client } from 'pg';
 import { APP_FILTER } from '@nestjs/core';
 import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
 import { FieldCipher, loadErrorRegistry, signTenantContext, staticKeyProvider } from '@machvon/kernel';
@@ -54,6 +55,17 @@ describe('the investigation and the screening of contractors (VND-3: VND-13 to V
     return { status: response.status, json: text === '' ? {} : (JSON.parse(text) as Record<string, unknown>) };
   }
 
+  /** Seeds a row of a table this story only reads (a project) with the foreign keys it has to other modules switched off. */
+  const seedReplica = async (sql: string, params: unknown[]): Promise<void> => {
+    const client = new Client({ connectionString: harness.database.adminUrl });
+    await client.connect();
+    try {
+      await client.query('set session_replication_role = replica');
+      await client.query(sql, params);
+    } finally {
+      await client.end();
+    }
+  };
   const rows = async <R extends object>(sql: string, params: unknown[] = [], tenant = TENANT_A): Promise<R[]> => harness.owner<R>(tenant, [[sql, params]]);
   const audits = (resourceId: string, action: string) => rows<{ safe_diff: Record<string, unknown>; reason: string | null; actor_id: string; classification: string }>('select safe_diff, reason, actor_id, classification from machvon.audit_event where resource_id = $1 and action = $2 order by occurred_at', [resourceId, action]);
   const events = (aggregateId: string, type: string) => rows<{ payload: Record<string, unknown> }>('select payload from machvon.outbox_event where aggregate_id = $1 and type = $2 order by created_at', [aggregateId, type]);
@@ -72,7 +84,7 @@ describe('the investigation and the screening of contractors (VND-3: VND-13 to V
     const contractorId = randomUUID();
     await rows(
       `insert into machvon.contractor (tenant_id, id, tax_identifier, legal_name, verification_status, profile_document_id, created_by, updated_by, verified_by, verified_at, verification_evidence_document_id, verification_basis, legal_rep_key, address_key, phone_key, phone, phone_set_at)
-       values ($1, $2, $3, $4, 'VERIFIED', $5, $6, $6, $7, now(), $8, 'EVIDENCE_DOCUMENT', $9, $10, $11, case when $11::text is null then null else '0912345678' end, case when $11::text is null then null else now() end)`,
+       values ($1, $2, $3, $4, 'VERIFIED', $5, $6, $6, $7, now(), $8, 'EVIDENCE_DOCUMENT', $9, $10, $11::text, case when $11::text is null then null else '0912345678' end, case when $11::text is null then null else now() end)`,
       [TENANT_A, contractorId, taxId ?? `07${String(counter).padStart(8, '0')}`, name, await document(), memberId(FIRST), memberId(SECOND), await document(), keys.rep ?? null, keys.address ?? null, keys.phone ?? null],
     );
     return contractorId;
@@ -81,7 +93,7 @@ describe('the investigation and the screening of contractors (VND-3: VND-13 to V
   async function closedPackage(code: string, bids: Array<{ contractor: string; price: string }>, drafter: number): Promise<{ packageId: string; proposals: string[] }> {
     const projectId = randomUUID();
     const packageId = randomUUID();
-    await rows(
+    await seedReplica(
       `insert into machvon.project (tenant_id, id, code, name, owner_unit_id, investor_unit_id, area_master_version_id, classification, total_investment_vnd, status, version, project_group)
        values ($1, $2, $3, 'Investigation project', $4, $5, $6, 'INTERNAL', 1000, 'IMPLEMENTATION', 1, 'B')`,
       [TENANT_A, projectId, `P-${code}`, unitId(DEPARTMENT), unitId(ROOT), id(FAMILY, 90)],
@@ -255,7 +267,7 @@ describe('the investigation and the screening of contractors (VND-3: VND-13 to V
       const id = await contractor('Cty Sang Loc Mot', '0800000001');
       const body = { source: 'WORLD_BANK', as_of: '2026-11-01', reference: 'WB list of 2026-11-01', entries: [{ ref: 'WB-API-1', name: 'Sang Loc Mot Construction', tax_code: '0800000001' }] };
       expect((await call('POST', '/vendor/screening/list-imports', { member: READER, body })).status).toBe(403);
-      expect((await call('POST', '/vendor/screening/list-imports', { member: FIRST, body: { ...body, entries: [] } })).status).toBe(422);
+      expect((await call('POST', '/vendor/screening/list-imports', { member: FIRST, body: { ...body, entries: [{ ref: 'X-1' }] } })).status).toBe(422);
       const imported = await call('POST', '/vendor/screening/list-imports', { member: FIRST, body });
       expect(imported).toMatchObject({ status: 200, json: { status: 'IMPORTED' } });
       const [audit] = await audits(imported.json.resource_id as string, 'vnd.screening_list_imported');

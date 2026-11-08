@@ -258,8 +258,41 @@ function entryOf(raw: Record<string, unknown>, line: number, errors: EntryError[
   return { ref, ...(name === '' ? {} : { name }), ...(tax === '' ? {} : { tax_code: tax }), ...(from === '' ? {} : { valid_from: from }), ...(until === '' ? {} : { valid_until: until }) };
 }
 
+const HEADER_CELLS = new Set(['ref', 'name', 'tax_code', 'valid_from', 'valid_until']);
+
+/** The first line is a header when it is made of the column names and nothing else (a reference that merely starts with "ref" is data). */
+function isHeaderLine(line: string): boolean {
+  const cells = splitCells(line).map((cell) => cell.toLowerCase());
+  return cells[0] === 'ref' && cells.every((cell) => HEADER_CELLS.has(cell));
+}
+
+/** The cells of a line separated by a comma, a semicolon or a tab; a cell in double quotes keeps the separators inside it (two quotes in a row are one quote). */
+function splitCells(line: string): string[] {
+  const cells: string[] = [];
+  let current = '';
+  let quoted = false;
+  for (let index = 0; index < line.length; index += 1) {
+    const char = line.charAt(index);
+    if (quoted) {
+      if (char === '"' && line.charAt(index + 1) === '"') {
+        current += '"';
+        index += 1;
+      } else if (char === '"') quoted = false;
+      else current += char;
+    } else if (char === '"' && current.trim() === '') {
+      quoted = true;
+      current = '';
+    } else if (char === ',' || char === ';' || char === '\t') {
+      cells.push(current.trim());
+      current = '';
+    } else current += char;
+  }
+  cells.push(current.trim());
+  return cells;
+}
+
 /**
- * The entries of a pasted list: a JSON array of objects, or lines of text with the columns ref, name, tax code, valid from, valid until (separated by a comma, a semicolon or a tab; a first line that starts with `ref` is the header).
+ * The entries of a pasted list: a JSON array of objects, or lines of text with the columns ref, name, tax code, valid from, valid until (separated by a comma, a semicolon or a tab, a cell in double quotes may hold them; a first line made of the column names is the header).
  * Every line is judged on its own and a bad line is named, so that nothing is sent that the server would refuse and nothing is dropped without being said. The server judges again.
  */
 export function parseEntries(source: string): ParsedEntries {
@@ -287,11 +320,11 @@ export function parseEntries(source: string): ParsedEntries {
     return { entries, errors };
   }
   const lines = text.split(/\r?\n/).filter((line) => line.trim() !== '');
-  const body = /^ref\b/i.test(lines[0] ?? '') ? lines.slice(1) : lines;
+  const body = isHeaderLine(lines[0] ?? '') ? lines.slice(1) : lines;
   if (body.length > MAX_ENTRIES) return { entries, errors: [{ line: 1, problem: 'TOO_MANY' }] };
   const offset = body.length === lines.length ? 1 : 2;
   body.forEach((line, index) => {
-    const cells = line.split(/[,;\t]/).map((cell) => cell.trim());
+    const cells = splitCells(line);
     const entry = entryOf({ ref: cells[0], name: cells[1], tax_code: cells[2], valid_from: cells[3], valid_until: cells[4] }, index + offset, errors);
     if (entry !== undefined) entries.push(entry);
   });

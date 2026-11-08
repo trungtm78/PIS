@@ -221,7 +221,7 @@ function LeadsContent({ route }: ScreenProps) {
                     { key: 'reviewer', header: t('vnd3.leads.column.reviewer'), render: (row) => row.reviewer_name ?? '–' },
                   ]}
                 />
-                <CursorPager page={page} hasNext={data.next_cursor !== null} onPrev={() => setCursors((current) => current.slice(0, -1))} onNext={() => data.next_cursor !== null && setCursors((current) => [...current, data.next_cursor ?? undefined])} />
+                <CursorPager page={page} hasNext={!query.isFetching && data.next_cursor !== null} onPrev={() => setCursors((current) => current.slice(0, -1))} onNext={() => !query.isFetching && data.next_cursor !== null && setCursors((current) => [...current, data.next_cursor ?? undefined])} />
               </SectionCard>
             )}
           </StateBoundary>

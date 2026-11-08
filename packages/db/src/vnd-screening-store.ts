@@ -217,7 +217,8 @@ export class VendorScreeningStore {
       return { ref, name: name ?? null, taxCode: taxCode ?? null, validFrom: entry.validFrom ?? null, validUntil: entry.validUntil ?? null, rowHash };
     });
     const content = createHash('sha256').update(JSON.stringify([input.source, prepared.map((entry) => [entry.ref, entry.rowHash]).sort()]), 'utf8').digest('hex');
-    const [again] = await tx.query<{ id: string; entry_count: number; withdrawn_count: number }>('select id, entry_count, withdrawn_count from machvon.screening_list_import where source = $1 and content_sha256 = $2', [input.source, content]);
+    const [latest] = await tx.query<{ id: string; entry_count: number; withdrawn_count: number; content_sha256: string }>('select id, entry_count, withdrawn_count, content_sha256 from machvon.screening_list_import where source = $1 order by imported_at desc, id desc limit 1', [input.source]);
+    const again = latest?.content_sha256 === content ? latest : undefined;
     if (again !== undefined) return { importId: again.id, entries: again.entry_count, withdrawn: again.withdrawn_count, replayed: true };
     const importId = randomUUID();
     const listed = new Set(prepared.map((entry) => entry.ref));
@@ -402,7 +403,7 @@ export class VendorScreeningStore {
 
   async events(tx: TenantTx, hitId: string): Promise<HitEventRow[]> {
     const rows = await tx.query<{ id: string; move: string; from_status: string | null; to_status: string; actor_id: string | null; reason: string | null; score: number; at: string }>(
-      `select id, move, from_status, to_status, actor_id, reason, score, ${timestampKey('at')} as at from machvon.screening_hit_event where hit_id = $1::uuid order by at, id`,
+      `select id, move, from_status, to_status, actor_id, reason, score, ${timestampKey('at')} as at from machvon.screening_hit_event where hit_id = $1::uuid order by at, (move = 'FOUND') desc, id`,
       [hitId],
     );
     return rows.map((row) => ({ id: row.id, move: row.move, fromStatus: row.from_status, toStatus: row.to_status, actorId: row.actor_id, reason: row.reason, score: row.score, at: row.at }));
