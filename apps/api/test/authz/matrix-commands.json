@@ -766,7 +766,18 @@
     "decideLesson",
     "requestLessonWaiver",
     "decideLessonWaiver",
-    "reviewContractAdjustment"
+    "reviewContractAdjustment",
+    "setFinanceFeedConnectionState",
+    "controlFinanceFeedGenerator",
+    "uploadFinanceFeedFile",
+    "previewFinanceFeedFile",
+    "importFinanceFeedFile",
+    "pushFinanceFeedBatch",
+    "proposeFinanceFeedMapping",
+    "decideFinanceFeedMapping",
+    "retireFinanceFeedMapping",
+    "runFinanceFeedReconciliation",
+    "resolveFinanceFeedDifference"
   ],
   "controlCommands": [
     "decideTenantRestore",
