@@ -5469,6 +5469,110 @@ final class DrillQueryFiltersItem implements RequestModel {
       };
 }
 
+final class EgpConnectionState implements RequestModel {
+  const EgpConnectionState({
+    required this.enabled,
+    required this.reason,
+  });
+
+  final bool enabled;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'enabled': enabled,
+        'reason': reason,
+      };
+}
+
+final class EgpImportRequest implements RequestModel {
+  const EgpImportRequest({
+    required this.kind,
+    required this.fileObjectKey,
+    required this.fileSha256,
+    this.mappingVersion,
+  });
+
+  final String kind;
+  final String fileObjectKey;
+  final String fileSha256;
+  final String? mappingVersion;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'file_object_key': fileObjectKey,
+        'file_sha256': fileSha256,
+        if (mappingVersion != null) 'mapping_version': mappingVersion,
+      };
+}
+
+final class EgpMappingDecision implements RequestModel {
+  const EgpMappingDecision({
+    required this.decision,
+    required this.reason,
+  });
+
+  final String decision;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        'reason': reason,
+      };
+}
+
+final class EgpMappingPropose implements RequestModel {
+  const EgpMappingPropose({
+    required this.subjectType,
+    required this.ourCode,
+    required this.externalCode,
+    required this.reason,
+    this.ourProjectCode,
+    this.matchMethod,
+    this.confidence,
+    this.validFrom,
+    this.validUntil,
+  });
+
+  final String subjectType;
+  final String ourCode;
+  final String? ourProjectCode;
+  final String externalCode;
+  final String? matchMethod;
+  final num? confidence;
+  final String? validFrom;
+  final String? validUntil;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'subject_type': subjectType,
+        'our_code': ourCode,
+        if (ourProjectCode != null) 'our_project_code': ourProjectCode,
+        'external_code': externalCode,
+        if (matchMethod != null) 'match_method': matchMethod,
+        if (confidence != null) 'confidence': confidence,
+        if (validFrom != null) 'valid_from': validFrom,
+        if (validUntil != null) 'valid_until': validUntil,
+        'reason': reason,
+      };
+}
+
+final class EgpMappingRetire implements RequestModel {
+  const EgpMappingRetire({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
 final class EntitlementOverrideRequest implements RequestModel {
   const EntitlementOverrideRequest({
     required this.featureCode,

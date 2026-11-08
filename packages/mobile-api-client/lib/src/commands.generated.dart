@@ -616,6 +616,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> decideDossierDisposal(DocDisposalDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('decideDossierDisposal', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> decideEgpMapping(EgpMappingDecision body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('decideEgpMapping', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> decideEntitlementOverride(Decision body, {required String overrideId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('decideEntitlementOverride', path: <String, Object?>{'overrideId': overrideId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -969,6 +972,12 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> getEffectiveGovernanceRule({Map<String, Object?>? query}) =>
       execute('getEffectiveGovernanceRule', query: query);
+
+  Future<Object?> getEgpConnection({Map<String, Object?>? query}) =>
+      execute('getEgpConnection', query: query);
+
+  Future<Object?> getEgpImport({required String id, Map<String, Object?>? query}) =>
+      execute('getEgpImport', path: <String, Object?>{'id': id}, query: query);
 
   Future<Object?> getEvaluationReport({required String id, Map<String, Object?>? query}) =>
       execute('getEvaluationReport', path: <String, Object?>{'id': id}, query: query);
@@ -1759,6 +1768,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> importBoqLines(CtrImportBoqLines body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('importBoqLines', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> importEgpFile(EgpImportRequest body, {CommandAttempt? attempt}) =>
+      execute('importEgpFile', body: body, attempt: attempt);
+
   Future<Object?> importLandParcels(LndImportLandParcels body, {CommandAttempt? attempt}) =>
       execute('importLandParcels', body: body, attempt: attempt);
 
@@ -1998,6 +2010,15 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> listEarlyWarnings({Map<String, Object?>? query}) =>
       execute('listEarlyWarnings', query: query);
+
+  Future<Object?> listEgpImports({Map<String, Object?>? query}) =>
+      execute('listEgpImports', query: query);
+
+  Future<Object?> listEgpMappingSuggestions({Map<String, Object?>? query}) =>
+      execute('listEgpMappingSuggestions', query: query);
+
+  Future<Object?> listEgpMappings({Map<String, Object?>? query}) =>
+      execute('listEgpMappings', query: query);
 
   Future<Object?> listEnforcementCases({Map<String, Object?>? query}) =>
       execute('listEnforcementCases', query: query);
@@ -2479,6 +2500,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> previewCampaignRecipients(ReasonOnly body, {required String campaignId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('previewCampaignRecipients', path: <String, Object?>{'campaignId': campaignId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> previewEgpFile(EgpImportRequest body, {CommandAttempt? attempt}) =>
+      execute('previewEgpFile', body: body, attempt: attempt);
+
   Future<Object?> previewPlanChange(PlanChange body, {required String subscriptionId, CommandAttempt? attempt}) =>
       execute('previewPlanChange', path: <String, Object?>{'subscriptionId': subscriptionId}, body: body, attempt: attempt);
 
@@ -2490,6 +2514,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> proposeDossierDisposal(DocDisposalProposal body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('proposeDossierDisposal', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> proposeEgpMapping(EgpMappingPropose body, {CommandAttempt? attempt}) =>
+      execute('proposeEgpMapping', body: body, attempt: attempt);
 
   Future<Object?> proposeGlossaryTerm(MdmGlossaryTerm body, {CommandAttempt? attempt}) =>
       execute('proposeGlossaryTerm', body: body, attempt: attempt);
@@ -2944,6 +2971,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> retireDocumentTemplate(DocReason body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('retireDocumentTemplate', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> retireEgpMapping(EgpMappingRetire body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('retireEgpMapping', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> retireGovernanceRule(GovernanceRuleRetire body, {required String ruleId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('retireGovernanceRule', path: <String, Object?>{'ruleId': ruleId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -3141,6 +3171,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> setChannelLimits(ChannelLimits body, {required String channelAccountId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('setChannelLimits', path: <String, Object?>{'channelAccountId': channelAccountId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> setEgpConnectionState(EgpConnectionState body, {required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('setEgpConnectionState', body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> setMilestoneDependency(PrjMilestoneDependency body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('setMilestoneDependency', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);

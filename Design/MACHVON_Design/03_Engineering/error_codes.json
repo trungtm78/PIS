@@ -5840,6 +5840,30 @@
       "module": "BID",
       "statusBasis": "spec",
       "source": "spec:BID"
+    },
+    "EGP_CONNECTION_DISABLED": {
+      "status": 409,
+      "title": "Connection to the national procurement network is switched off",
+      "meaning": "Kết nối hệ thống mạng đấu thầu quốc gia đang tắt nên không áp dụng được tệp; chạy thử vẫn dùng được. Bật lại kết nối kèm lý do ở BID-22 (BR-BID-16, EGP-1).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "EGP_LAYOUT_VERSION_UNKNOWN": {
+      "status": 422,
+      "title": "Unknown layout version of the national procurement network file",
+      "meaning": "Phiên bản mẫu tệp yêu cầu không được hỗ trợ; trả lời nêu phiên bản đã hỏi và các phiên bản có (extensions.layout_version, extensions.supported), bị từ chối trước khi mở tệp (BR-BID-16, EGP-1).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "EGP_MAPPING_STATE_INVALID": {
+      "status": 409,
+      "title": "Mapping is not in the state the move needs",
+      "meaning": "Ánh xạ mã hệ thống mạng đấu thầu quốc gia không ở trạng thái mà thao tác cần: duyệt hoặc từ chối chỉ từ PROPOSED, ngừng chỉ từ ACTIVE; REJECTED và RETIRED là trạng thái cuối (BR-BID-15, EGP-1).",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
     }
   }
 }
