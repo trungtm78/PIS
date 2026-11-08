@@ -205,14 +205,15 @@ export class AlertCoverStore {
     if (current.version !== expectedVersion) throw versionConflict(current.version);
     if (current.status !== 'DECLARED') throw new DomainError('ALERT_ABSENCE_STATE_INVALID', 409, 'status');
     if (new Date(current.effectiveUntil).getTime() <= input.now.getTime()) throw new DomainError('ALERT_ABSENCE_STATE_INVALID', 409, 'valid_until');
+    const changed = await tx.query<{ id: string }>(
+      `update machvon.alert_absence set status = $2, ended_at = $3::timestamptz, ended_by = $4::uuid, end_reason = $5, version = version + 1 where id = $1::uuid and version = $6::int and status = 'DECLARED' returning id`,
+      [id, input.status, input.now.toISOString(), input.actor.toLowerCase(), input.reason, expectedVersion],
+    );
+    if (changed.length === 0) throw versionConflict((await this.findAbsence(tx, id))?.version ?? 0);
     const revoked = await tx.query<{ id: string }>(
       `update machvon.alert_absence_cover set status = 'REVOKED', revoked_by = $2::uuid, revoked_at = $3::timestamptz, revoke_reason = $4, version = version + 1
         where absence_id = $1::uuid and status in ('PENDING', 'APPROVED') returning id`,
       [id, input.actor.toLowerCase(), input.now.toISOString(), input.reason],
-    );
-    await tx.query(
-      `update machvon.alert_absence set status = $2, ended_at = $3::timestamptz, ended_by = $4::uuid, end_reason = $5, version = version + 1 where id = $1::uuid`,
-      [id, input.status, input.now.toISOString(), input.actor.toLowerCase(), input.reason],
     );
     return { absence: (await this.findAbsence(tx, id)) as AbsenceRecord, revokedCovers: revoked.map((row) => row.id) };
   }
@@ -257,11 +258,18 @@ export class AlertCoverStore {
     if (current === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'id');
     if (current.version !== expectedVersion) throw versionConflict(current.version);
     const next = nextCoverStatus(current.status, move, { actor: input.actor, requester: current.requestedBy, absent: current.absentId, deputy: current.deputyId });
-    if (move === 'REVOKE') {
-      await tx.query(`update machvon.alert_absence_cover set status = $2, revoked_by = $3::uuid, revoked_at = $4::timestamptz, revoke_reason = $5, version = version + 1 where id = $1::uuid`, [id, next, input.actor.toLowerCase(), input.now.toISOString(), input.note ?? null]);
-    } else {
-      await tx.query(`update machvon.alert_absence_cover set status = $2, decided_by = $3::uuid, decided_at = $4::timestamptz, decision_note = $5, version = version + 1 where id = $1::uuid`, [id, next, input.actor.toLowerCase(), input.now.toISOString(), input.note ?? null]);
-    }
+    // The version and the state the move started from are in the statement: a decision that raced this one finds no row to change and is a conflict, not a second decision.
+    const changed =
+      move === 'REVOKE'
+        ? await tx.query<{ id: string }>(
+            `update machvon.alert_absence_cover set status = $2, revoked_by = $3::uuid, revoked_at = $4::timestamptz, revoke_reason = $5, version = version + 1 where id = $1::uuid and version = $6::int and status = $7 returning id`,
+            [id, next, input.actor.toLowerCase(), input.now.toISOString(), input.note ?? null, expectedVersion, current.status],
+          )
+        : await tx.query<{ id: string }>(
+            `update machvon.alert_absence_cover set status = $2, decided_by = $3::uuid, decided_at = $4::timestamptz, decision_note = $5, version = version + 1 where id = $1::uuid and version = $6::int and status = $7 returning id`,
+            [id, next, input.actor.toLowerCase(), input.now.toISOString(), input.note ?? null, expectedVersion, current.status],
+          );
+    if (changed.length === 0) throw versionConflict((await this.findCover(tx, id))?.version ?? 0);
     return { before: current.status, cover: (await this.findCover(tx, id)) as CoverRecord };
   }
 

@@ -368,6 +368,17 @@ describe('the stores of the governance of the alert system', () => {
       await expect(as((tx) => tx.query('delete from machvon.alert_absence_cover where id = $1', [cover.id]))).rejects.toThrow(/permission denied/);
     });
 
+    it('lets only one of two decisions on the same version of a cover win, whatever the order they reach the database in', async () => {
+      const absence = await declare(OFFICER, { from: new Date('2028-02-01T00:00:00Z'), until: new Date('2028-02-10T00:00:00Z') });
+      const cover = await as((tx) => covers.proposeCover(tx, { absence, deputyId: memberId(DEPUTY), from: new Date('2028-02-01T00:00:00Z'), until: new Date('2028-02-05T00:00:00Z'), scopeKind: 'ALL', sources: [], requestedBy: memberId(OFFICER) }));
+      const decide = (move: 'APPROVE' | 'REJECT') => as((tx) => covers.moveCover(tx, cover.id, 1, move, { actor: memberId(ADMIN), note: undefined, now: T0 }));
+      const settled = await Promise.allSettled([decide('APPROVE'), decide('REJECT')]);
+      expect(settled.filter((one) => one.status === 'fulfilled')).toHaveLength(1);
+      const lost = settled.find((one) => one.status === 'rejected') as PromiseRejectedResult;
+      expect(['VERSION_CONFLICT', 'ALERT_COVER_STATE_INVALID']).toContain((lost.reason as { code: string }).code);
+      expect((await as((tx) => covers.findCover(tx, cover.id)))?.version).toBe(2);
+    });
+
     it('ends an absence early or withdraws it, revoking the covers that are still live, and refuses it twice or on a stale version', async () => {
       const absence = await declare(AUDITOR, { from: new Date('2027-12-01T00:00:00Z'), until: new Date('2027-12-10T00:00:00Z') });
       const cover = await as((tx) => covers.proposeCover(tx, { absence, deputyId: memberId(LEADER), from: new Date('2027-12-01T00:00:00Z'), until: new Date('2027-12-05T00:00:00Z'), scopeKind: 'ALL', sources: [], requestedBy: memberId(AUDITOR) }));
