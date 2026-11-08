@@ -45,6 +45,8 @@ export const WORK_KINDS = [
   // The Treasury answer to a complete dossier is near its end, or past it (lane GOV-11a).
   'PAYMENT_CLOCK_NEAR',
   'PAYMENT_CLOCK_BREACHED',
+  // The projection to a directive milestone is below its target (lane GOV-11a).
+  'DIS_MILESTONE_AT_RISK',
   // The connection to the national procurement network is older than its rule allows (lane EGP-1).
   'CONNECTOR_STALE',
   // The duties of posting to the national procurement network: one near its deadline, one past it (lane EGP-2).

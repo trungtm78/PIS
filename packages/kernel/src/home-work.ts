@@ -44,6 +44,8 @@ export const WORK_KINDS = [
   // The Treasury answer to a complete dossier is near its end, or past it (lane GOV-11a, G1-17).
   'PAYMENT_CLOCK_NEAR',
   'PAYMENT_CLOCK_BREACHED',
+  // The projection of the cumulative disbursement to a directive milestone is below its target (lane GOV-11a, G1-16).
+  'DIS_MILESTONE_AT_RISK',
   // The connection to the national procurement network is older than its rule allows (lane EGP-1): the files it fed are shown as not up to date.
   'CONNECTOR_STALE',
   // The duties of posting to the national procurement network (lane EGP-2): a posting near its deadline, and one past it.
@@ -119,6 +121,7 @@ const PRIORITY: Readonly<Record<WorkKind, number>> = {
   RESCHEDULE_COUNT: 31,
   PAYMENT_CLOCK_NEAR: 40,
   PAYMENT_CLOCK_BREACHED: 41,
+  DIS_MILESTONE_AT_RISK: 42,
   CONNECTOR_STALE: 32,
   EGP_POSTING_DUE: 33,
   EGP_POSTING_OVERDUE: 34,

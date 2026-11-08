@@ -12,6 +12,7 @@ import { HomeConnectorSources } from './home-connector-sources.ts';
 import { HomeEgpPostingSources } from './home-egp-posting-sources.ts';
 import { HomeVendorSources } from './home-vendor-sources.ts';
 import { HomeContractRegisterSources } from './home-contract-register-sources.ts';
+import { HomeGov11Sources } from './home-gov11-sources.ts';
 import { HomeDirectiveSources } from './home-directive-sources.ts';
 import { HomeAlertFeedbackSources } from './home-alert-feedback-sources.ts';
 import { HomeGov10Sources } from './home-gov10-sources.ts';
@@ -154,6 +155,7 @@ export class HomeWorkStore {
   private readonly gov10 = new HomeGov10Sources();
   private readonly redFlags = new HomeRedFlagSources();
   private readonly feedback = new HomeAlertFeedbackSources();
+  private readonly gov11 = new HomeGov11Sources();
   private readonly clocks = new HomeClockSources();
   private readonly actions = new HomeWorkActionStore();
   private readonly policies = new WorkPolicyReader();
@@ -212,6 +214,8 @@ export class HomeWorkStore {
       ['ANOMALY', () => this.gov10.anomalies(context)],
       ['RED_FLAG', () => this.redFlags.items(context)],
       ['ALERT_FEEDBACK', () => this.feedback.items(context)],
+      ['PAYMENT_CLOCK', () => this.gov11.paymentClockItems(context)],
+      ['DISBURSEMENT_FORECAST', () => this.gov11.disMilestones(context)],
     ];
     const read: SourceRow[][] = [];
     const unavailableSources: WorkSource[] = [];
