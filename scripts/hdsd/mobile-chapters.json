@@ -1132,11 +1132,11 @@
             "see": "^Cần xử lý ngay"
           },
           {
-            "tap": "^Bảng điều hành Ban chỉ đạo",
+            "tap": "^Mở bảng điều hành đầy đủ",
             "scroll": true
           }
         ],
-        "expect": "^Bảng điều hành Ban chỉ đạo"
+        "expect": "^Chỉ đọc. Mỗi lần mở bảng này"
       },
       {
         "id": "mob-73",
@@ -1155,7 +1155,7 @@
             "open": "^Báo cáo và công việc hiện trường"
           }
         ],
-        "expect": "^Xếp hạng rủi ro nhà thầu"
+        "expect": "^Chỉ đọc. Mức rủi ro là tín hiệu"
       },
       {
         "id": "mob-74",
@@ -1167,7 +1167,7 @@
             "tap": ", (Thấp|Trung bình|Cao|Nghiêm trọng)$"
           }
         ],
-        "expect": "^Rủi ro và kết quả thực hiện"
+        "expect": "^Mức rủi ro"
       }
     ],
     "needs": [
