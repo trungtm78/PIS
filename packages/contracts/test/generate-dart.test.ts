@@ -274,7 +274,7 @@ describe('generateDart: the response classes and the sample responses (AC-ST-KER
   it('writes one sample response for each operation that satisfies the contract, with every member and the simplest value of its type', () => {
     const fixtures = JSON.parse(responses().responseFixtures) as Record<string, Record<string, unknown>>;
     expect(Object.keys(fixtures)).toEqual(['createItem', 'getInline', 'getOwner', 'listItems', 'listNames']);
-    expect(fixtures.getInline).toEqual({ count: 1 });
+    expect(fixtures.getInline).toEqual({ count: 100 });
     expect(fixtures.listNames).toEqual(['sample']);
     expect(fixtures.getOwner).toEqual({ id: 'sample', label: 'sample', since: '2026-01-01' });
     const item = fixtures.createItem as Record<string, unknown>;
@@ -284,7 +284,7 @@ describe('generateDart: the response classes and the sample responses (AC-ST-KER
       label: 'sample',
       status: 'OPEN',
       tags: ['sample'],
-      scores: { key: 1 },
+      scores: { key: 100 },
       choice: 'sample',
       free: {},
       when: '2026-01-01T00:00:00Z',

@@ -23,6 +23,8 @@ const RESERVED = new Set(
 );
 /** Deeper than this a sample leaves out what it may and stops at lists, so that a schema that contains itself ends. */
 const SAMPLE_DEPTH = 6;
+/** The sample of a count or a number that the schema does not bound from below: a round number, so that it reads as a count and not as a flag. */
+const SAMPLE_COUNT = 100;
 const SAMPLE_UUID = '00000000-0000-4000-8000-000000000001';
 
 type Node = Record<string, unknown>;
@@ -290,7 +292,9 @@ function sampleOf(schema: Node, schemas: Record<string, Node>, depth: number): u
     }
     case 'integer':
     case 'number':
-      return typeof flat.minimum === 'number' ? Math.ceil(flat.minimum) : 1;
+      if (typeof flat.minimum === 'number') return Math.ceil(flat.minimum);
+      // A round count, kept within the maximum when the schema names one.
+      return typeof flat.maximum === 'number' ? Math.min(SAMPLE_COUNT, Math.floor(flat.maximum)) : SAMPLE_COUNT;
     case 'boolean':
       return true;
     case 'array': {
