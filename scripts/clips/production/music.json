@@ -1,0 +1,65 @@
+{
+  "schema": "clip-music/1",
+  "note": "Music cue sheet of the two clips. Only CC0 tracks are allowed. Nothing is downloaded by the tooling; the owner approves a track after reading the licence line on its page (see ../music.md). The mixer takes one music file per film, so the relative levels below are guidance for the owner and for a later per-chapter mix; a chapter cut starts the track from its beginning.",
+  "levels": {
+    "bed": { "relativeDb": 0, "mood": "nền ổn định, nhạc thưa, giọng đọc luôn rõ" },
+    "quiet": { "relativeDb": -3, "mood": "nhạc lùi thêm khi lời đọc dày số liệu hoặc nhiều thuật ngữ" },
+    "lift": { "relativeDb": 2, "mood": "nhạc nhỉnh lên một chút ở cảnh ít lời, có chuyển động trên hình" }
+  },
+  "tracks": [
+    {
+      "id": "track-1",
+      "title": "Classical Pop (Instrumental)",
+      "author": "Pro Sensory",
+      "licence": "CC0",
+      "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "page": "https://opengameart.org/content/classical-pop-instrumental",
+      "mood": "piano nhẹ, nhịp đều, điềm tĩnh; hợp giọng điệu nghiêm túc của cơ quan nhà nước",
+      "approval": { "status": "PENDING_OWNER", "licenceReadOn": null, "note": "Dòng giấy phép trong bản liệt kê là CC0 nhưng chưa mở được trang để xác nhận." }
+    },
+    {
+      "id": "track-2",
+      "title": "Chill Beats Collection",
+      "author": "Holizna",
+      "licence": "CC0",
+      "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "page": "https://opengameart.org/content/chill-beats-collection",
+      "mood": "nhịp nhẹ thư giãn, hợp chương điện thoại và phân tích nếu chủ sở hữu muốn sinh động hơn",
+      "approval": { "status": "PENDING_OWNER", "licenceReadOn": null, "note": "Gói nhiều bản; chọn một bản không có giọng hát." }
+    },
+    {
+      "id": "track-3",
+      "title": "Music for the background",
+      "author": "ghi trên trang",
+      "licence": "CC0",
+      "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "page": "https://opengameart.org/content/music-for-the-background",
+      "mood": "bản dự phòng, điềm tĩnh",
+      "approval": { "status": "PENDING_OWNER", "licenceReadOn": null, "note": "Dự phòng." }
+    }
+  ],
+  "clips": {
+    "public-investment": {
+      "track": "track-1",
+      "cues": [
+        { "id": "pub-open", "chapters": ["intro"], "level": "bed", "fadeInSec": 2, "note": "Vào dần trong hai giây, nhạc mở đầu trên thẻ tiêu đề và hoạt cảnh bài toán." },
+        { "id": "pub-overview", "chapters": ["leader-home", "disbursement", "contracts"], "level": "bed", "note": "Phần điều hành, vốn và hợp đồng: nền ổn định." },
+        { "id": "pub-numbers", "chapters": ["analytics", "alerts", "contractors"], "level": "quiet", "note": "Lời đọc dày chỉ tiêu và thuật ngữ: nhạc lùi." },
+        { "id": "pub-egp", "chapters": ["egp", "province-committee"], "level": "quiet", "note": "Hai chương nhiều quy trình và số liệu: nhạc lùi." },
+        { "id": "pub-tree-phone", "chapters": ["process-tree", "phone"], "level": "lift", "note": "Chương có nhiều chuyển động trên hình và trên điện thoại: nhạc nhỉnh lên." },
+        { "id": "pub-close", "chapters": ["close"], "level": "bed", "fadeOutSec": 4, "note": "Kết thúc: nhạc tắt dần trong bốn giây sau thẻ cuối." }
+      ]
+    },
+    "enterprise-phu-my": {
+      "track": "track-1",
+      "cues": [
+        { "id": "ent-open", "chapters": ["intro"], "level": "bed", "fadeInSec": 2, "note": "Vào dần trong hai giây, nhạc mở đầu trên thẻ tiêu đề và hoạt cảnh bài toán." },
+        { "id": "ent-overview", "chapters": ["leader-home", "capital", "projects"], "level": "bed", "note": "Phần điều hành, cơ cấu vốn và dự án: nền ổn định." },
+        { "id": "ent-reports", "chapters": ["reports-pvn", "workflow", "hpm-ebs", "directives"], "level": "quiet", "note": "Biểu mẫu báo cáo, luồng kỳ, đẩy HPM và đối chiếu kế toán: nhạc lùi." },
+        { "id": "ent-docs", "chapters": ["docs-ai", "analytics", "alerts", "contractors"], "level": "quiet", "note": "Kho hồ sơ, trợ lý, phân tích, cảnh báo và nhà thầu: nhạc lùi." },
+        { "id": "ent-tree-phone", "chapters": ["process-tree", "phone"], "level": "lift", "note": "Chương có nhiều chuyển động trên hình và trên điện thoại: nhạc nhỉnh lên." },
+        { "id": "ent-close", "chapters": ["close"], "level": "bed", "fadeOutSec": 4, "note": "Kết thúc: nhạc tắt dần trong bốn giây sau thẻ cuối." }
+      ]
+    }
+  }
+}

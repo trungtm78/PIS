@@ -1,0 +1,104 @@
+{
+  "schema": "clip-shots/1",
+  "note": "Curated extras of the shot checklist, by scene id (a shared scene has one entry for both clips). The rest of the checklist is derived from the scene: screens with routes, captions, stamps, figures, pointer targets. Figures are never written here.",
+  "scenes": {
+    "ban-roster": [
+      "Danh sách có đủ bốn vị trí Trưởng ban, Phó ban, thành viên, thư ký, kèm cơ quan của từng người và quyết định bổ nhiệm",
+      "Tài khoản đang đăng nhập là Trưởng ban và màn hình không có nút sửa số tài chính"
+    ],
+    "ban-dashboard": [
+      "Thanh ngữ cảnh trên cùng ghi ngày chốt, kỳ và nguồn số liệu",
+      "Bảng theo ngành có cột kế hoạch, đã giải ngân và tỷ lệ",
+      "Dải dự báo cuối năm hiện thành một dải, không phải một con số",
+      "Không có nhãn MÔ PHỎNG ở bất kỳ góc nào của màn hình"
+    ],
+    "ban-attention": [
+      "Mỗi dòng dự án có lý do bằng chữ, không chỉ bằng màu",
+      "Khung ghi quyết định của Trưởng ban hiện cùng nút ra chỉ đạo"
+    ],
+    "ban-directives": [
+      "Bảng đơn vị có ba cột: đang mở, quá hạn, đã leo thang",
+      "Màn chi tiết chỉ đạo mở được từ một dòng quá hạn và hiện dòng thời gian"
+    ],
+    "ban-alerts": [
+      "Ít nhất một cảnh báo hiện đủ chủ sở hữu, việc cần làm, hậu quả và hạn phản hồi",
+      "Ô ghi chú khi Trưởng ban xác nhận đã nhận"
+    ],
+    "ban-pack": [
+      "Ba vai lập, kiểm, duyệt hiện ba tên khác nhau",
+      "Danh sách bản đã phát hành có tệp Word và tệp Excel"
+    ],
+    "ban-feed": [
+      "Dấu giả định của mẫu tệp hiện trên hình, không chỉ nằm trong lời đọc",
+      "Kết quả chạy thử có dòng bị từ chối kèm lý do từng dòng",
+      "Các chỉ số độ tuổi, độ đầy đủ và độ kịp thời của nguồn cấp dữ liệu"
+    ],
+    "ban-reconcile": [
+      "Danh sách mã chưa ánh xạ hiện riêng",
+      "Cột chủ sở hữu và hạn xử lý của từng chênh lệch có giá trị"
+    ],
+    "ban-audit": [
+      "Mỗi dòng nhật ký có người xem, vị trí, màn hình, bộ lọc, ngày số liệu và mức xác thực",
+      "Nhật ký có lần xem của Trưởng ban vừa quay ở các cảnh trước"
+    ],
+    "egp-connection": [
+      "Trạng thái kết nối, độ tuổi dữ liệu và phiên bản mẫu tệp hiện cùng nhau",
+      "Dấu mẫu tệp là giả định hiện trên hình"
+    ],
+    "egp-import": [
+      "Kết quả chạy thử liệt kê dòng lỗi (sai mã số thuế, sai ngày, trùng) trước khi áp dụng",
+      "Nhập lại cùng một tệp bị từ chối với thông báo rõ ràng"
+    ],
+    "egp-mapping": [
+      "Một đề xuất ánh xạ chờ người duyệt thứ hai, người đề xuất không tự duyệt được",
+      "Một xung đột ánh xạ được tô riêng"
+    ],
+    "egp-obligations": [
+      "Đồng hồ nghĩa vụ có một dòng sắp đến hạn và một dòng quá hạn, kèm mức Khẩn hoặc Cần xử lý",
+      "Biên nhận dùng để đóng cảnh báo"
+    ],
+    "egp-reconcile": [
+      "Mỗi chênh lệch hiện số của mình, số trên mạng đấu thầu, người xử lý và kết quả",
+      "Có đủ các cách giải quyết: chấp nhận, sửa, tranh chấp, miễn có hạn xét lại"
+    ],
+    "egp-tree-evidence": [
+      "Mốc nhập từ mạng đấu thầu hiện làm bằng chứng của một bước trong tiến trình gói thầu"
+    ],
+    "tree-overview": [
+      "Cây trạng thái có số gói ở từng nút",
+      "Có đồng thời nút trễ, nút tạm dừng và nút trả lại"
+    ],
+    "tree-package": [
+      "Dòng thời gian từng ngày của một gói, bước quá hạn được tô riêng"
+    ],
+    "tree-bottleneck": [
+      "Bảng nút nghẽn xếp theo ngày trung vị"
+    ],
+    "rpt-six-forms": [
+      "Sáu biểu mẫu đều mang dấu MẪU DEMO — chờ mẫu chính thức ngay trên hình"
+    ],
+    "rpt-issue": [
+      "Lập, kiểm, duyệt là ba người khác nhau",
+      "Bản đã phát hành mang dấu MẪU DEMO — chờ mẫu chính thức"
+    ],
+    "hpm-push": [
+      "Nhật ký đẩy có một lần ghi tệp thành công và một lần bị từ chối kèm lý do",
+      "Giả định tạm về bên nhận hiện trên hình"
+    ],
+    "ebs-reconcile": [
+      "Chênh lệch theo mã dự án: số báo cáo, số kế toán, chênh lệch và người giải trình"
+    ],
+    "ent-capital": [
+      "Vốn chủ sở hữu và vốn vay hiện cạnh nhau, tổng bằng kế hoạch năm"
+    ],
+    "dir-track": [
+      "Chỉ đạo của ba cuộc giao ban, trong đó có chỉ đạo quá hạn"
+    ],
+    "ph-pwa": [
+      "Ứng dụng cài đặt chạy trong khung điện thoại, không thấy thanh địa chỉ của trình duyệt"
+    ],
+    "ph-approval": [
+      "Màn xác nhận phê duyệt bị hệ điều hành chặn quay nên dùng hình dựng lại, ghi rõ đó là hình dựng lại"
+    ]
+  }
+}

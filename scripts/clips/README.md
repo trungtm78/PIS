@@ -4,12 +4,32 @@ Two clips, each a main video of 8 to 12 minutes plus chapter cuts that stand alo
 
 | Clip id | Product name shown and read | Edition | Chapters (cuts) |
 |---|---|---|---|
-| `public-investment` | Hệ thống quản lý đầu tư công | public | leader-home, disbursement, contracts, analytics, alerts, contractors, egp (muasamcong), process-tree, phone |
+| `public-investment` | Hệ thống quản lý đầu tư công | public | leader-home, disbursement, contracts, analytics, alerts, contractors, egp (muasamcong), province-committee, process-tree, phone |
 | `enterprise-phu-my` | Phần mềm quản lý đầu tư xây dựng (Đạm Phú Mỹ, PVFCCo) | enterprise | leader-home, capital, projects, reports-pvn, workflow, hpm-ebs, directives, docs-ai, analytics, alerts, contractors, process-tree, phone |
 
 `intro` and `close` are parts of the main video only (`standalone: false`). The internal code name is never shown or read (check enforced). The six PVFCCo forms are DEMO forms: every scene that shows them is stamped "MẪU DEMO — chờ mẫu chính thức" (caption and narration). Everything built on a working assumption (e-GP file layouts, the file writer standing in for HPM, the accounting file layout, legal deadlines) carries its stamp on screen and in the narration (`clip-spec.json` `stamps`, rule R18 of the plan).
 
-Source files here are English only; the Vietnamese text lives in JSON and markdown data files.
+Source files here are English only; the Vietnamese text lives in JSON and markdown data files. The clips are in Vietnamese only (owner decision): narration, subtitles and on-screen text, no English track.
+
+## Production layer (scripts, shot checklist, music, data readiness)
+
+`production/` holds the data that turns the scenarios into a shooting plan, and `node scripts/clip-scripts-check.mjs` checks all of it (it runs in `npm run qa:check`):
+
+| File | What it holds |
+|---|---|
+| `production/rules.json` | Limits and scope: words per sentence for the voice, caption length, removed labels, English stop words, secret patterns, required chapters and platforms, stamps that some screens always need, chapter budgets. |
+| `production/texts.json` | Vietnamese words of the shot checklist and of the shooting script (the code only fills the placeholders). |
+| `production/shots.json` | Curated extras of the checklist by scene id. The rest of the checklist is derived from the scene: screens with their routes, pointer targets, captions, stamps, and each figure with the operation it is read from. |
+| `production/music.json` | CC0 tracks (pending owner approval) and the cue sheet of each clip. |
+| `production/readiness.json` | Which groups of the clip seed (`docs/clip-data.md`) make the data of each chapter and what is proven; chapters at risk are listed. |
+
+```
+node scripts/clip-scripts-check.mjs check [clip] [--strict] [--strict-data]   screen ids and routes, durations, English-only sentences, sentence length for the voice, phonetic table, secrets, subtitle lines, music cues, data groups, up-to-date shooting scripts
+node scripts/clip-scripts-check.mjs book [clip] --write                      writes docs/clips/<clip>.script.md (narration, respelled voice text, subtitles, steps, checklist, music)
+node scripts/clip-scripts-check.mjs report                                   warnings only
+```
+
+`--strict` fails on a screen that has a route but no module in this build yet; `--strict-data` fails on a chapter whose data groups are not all run and verified. Run both before the recording starts.
 
 ## The flow
 
@@ -17,7 +37,7 @@ Source files here are English only; the Vietnamese text lives in JSON and markdo
 scenarios/*.json ──check──▶ plan of what to record
        │                       (screens, real operations, steps, figures, stamps)
        ▼
-seed layer (apps/web/e2e/hdsd/seed) + new groups listed in each scenario `data`
+seed layer (apps/web/e2e/hdsd/seed): the groups of docs/clip-data.md, `scripts/clip-seed.mjs`
        │  real commands on a real stack ──▶ data-manifest.json  (the figures)
        ▼
 tts.mjs  (narration text = respelled + numbers as words, cached by sha256)  ──▶ <clip>.audio.json (+ WAV files)
@@ -120,7 +140,7 @@ A later recorder implements each verb once (Playwright for `web` and `pwa`, the 
 
 ## What is still needed at record time
 
-1. **The real data.** Run the groups of the seed layer named in each scenario `data.seedGroups`, then build the groups listed in `data.newSeedGroups` (for example `clip-public-egp`, `clip-public-packages`, `clip-enterprise-reports`) in `apps/web/e2e/hdsd/seed/`, with real commands only. Then write the data manifest by reading each figure `source` (`operation` and `select`) from the running stack. The planned screens and operations of `planned.json` must exist (`check --strict`).
+1. **The real data.** Apply the dataset named in each scenario `data.dataset` with `node scripts/clip-seed.mjs apply` (see `docs/clip-data.md`; `production/readiness.json` says which groups are proven and which chapters are at risk), with real commands only. Then write the data manifest by reading each figure `source` (`operation` and `select`) from the running stack. The planned screens and operations of `planned.json` must exist (`check --strict`).
 2. **Recorder specs.** One Playwright spec per clip that runs the step lists with the `Clip`/`Ui` classes of `apps/web/e2e/hdsd/recorder.ts`, binds `refs.json` to locators, paces each scene to its measured voice (`<clip>.audio.json`), and films at 1920x1080 (the guide recorder films 1280x720). Phone scenes run in the emulator; the approval confirmation sheet uses the reconstructed picture.
 3. **Animatics (CLIP-2).** The ids in each scenario `animatics` (titles, problem, platform map, service flow, obligations, no-egress proof, outro). Rendered at 1080p30 with the design tokens and Be Vietnam Pro.
 4. **Keys.** `VIENEU_TTS_API_KEY` (and `NGHI_TTS_API_KEY` only if the fallback is wanted) in the environment of the machine that runs `tts.mjs`.

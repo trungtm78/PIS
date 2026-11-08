@@ -1,0 +1,43 @@
+{
+  "schema": "clip-production-rules/1",
+  "note": "The rules of the production script check (scripts/clip-scripts-check.mjs). The clips are in Vietnamese only: narration, subtitles and on-screen text.",
+  "maxSentenceWords": 30,
+  "maxSentenceChars": 240,
+  "maxCaptionChars": 64,
+  "sumDriftPerSceneSec": 0.06,
+  "forbiddenLabels": ["MÔ PHỎNG", "SIMULATION", "MACHVON"],
+  "forbiddenPhrases": ["dữ liệu mô phỏng", "số liệu mô phỏng", "nguồn mô phỏng", "bản mô phỏng", "chế độ mô phỏng"],
+  "english": {
+    "stopwords": ["the", "and", "of", "to", "is", "are", "was", "for", "with", "in", "on", "that", "this", "from", "by", "an", "it", "as", "be", "or", "at", "your", "you", "we", "our", "can", "will", "has", "have", "not", "all", "into", "when", "which", "what", "how", "than", "then", "their", "they"],
+    "minHits": 2,
+    "minRatio": 0.3
+  },
+  "secretPatterns": [
+    { "name": "provider key", "source": "\\bsk-[A-Za-z0-9_-]{20,}", "flags": "u" },
+    { "name": "bearer token", "source": "\\bBearer\\s+[A-Za-z0-9._~+/-]{20,}", "flags": "u" },
+    { "name": "key assignment", "source": "(?:API_?KEY|SECRET|TOKEN|PASSWORD|SESSION_KEY)\\s*[=:]\\s*[\"']?[A-Za-z0-9+/_=-]{16,}", "flags": "iu" },
+    { "name": "private key block", "source": "-----BEGIN [A-Z ]*PRIVATE KEY-----", "flags": "u" },
+    { "name": "cloud access key", "source": "\\bAKIA[0-9A-Z]{16}\\b", "flags": "u" },
+    { "name": "json web token", "source": "\\beyJ[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}", "flags": "u" }
+  ],
+  "requiredChapters": {
+    "public": ["intro", "leader-home", "disbursement", "contracts", "analytics", "alerts", "contractors", "egp", "province-committee", "process-tree", "phone", "close"],
+    "enterprise": ["intro", "leader-home", "capital", "projects", "reports-pvn", "workflow", "hpm-ebs", "directives", "docs-ai", "analytics", "alerts", "contractors", "process-tree", "phone", "close"]
+  },
+  "requiredPlatforms": {
+    "public": ["web", "phone", "animatic", "title"],
+    "enterprise": ["web", "phone", "pwa", "animatic", "title"]
+  },
+  "stampRequiredFor": {
+    "public": {
+      "egp-assumption": ["BID-24", "FEED-01", "FEED-02"]
+    },
+    "enterprise": {
+      "demo-form": ["RPT-01", "RPT-03", "HPM-01"]
+    }
+  },
+  "chapterBudgetSec": {
+    "public": { "intro": [30, 90], "egp": [120, 240], "province-committee": [90, 200] },
+    "enterprise": { "intro": [30, 90], "reports-pvn": [60, 150], "hpm-ebs": [60, 150] }
+  }
+}

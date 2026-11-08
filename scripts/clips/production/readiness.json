@@ -1,0 +1,62 @@
+{
+  "schema": "clip-readiness/1",
+  "note": "Which groups of the clip seed layer (docs/clip-data.md, scripts/clip-seed-lib.mjs DATASET_PHASES) make the data of each chapter, and what is proven. The proof states come from the 'State of the proof' section of docs/clip-data.md: RUN_VERIFIED (ran on a stack and read back), WRITTEN_NOT_RUN (written and reviewed, not run end to end), NOT_DONE (no seed exists). A chapter that needs a group that is not RUN_VERIFIED is listed as at risk in the shooting script, never hidden.",
+  "datasets": {
+    "public": {
+      "groups": {
+        "base": { "proof": "RUN_VERIFIED" },
+        "capital": { "proof": "RUN_VERIFIED" },
+        "clip-public-documents": { "proof": "RUN_VERIFIED" },
+        "clip-public-procurement": { "proof": "RUN_VERIFIED" },
+        "clip-public-contracts": { "proof": "WRITTEN_NOT_RUN" },
+        "clip-public-workflow": { "proof": "RUN_VERIFIED" },
+        "clip-public-alerts": { "proof": "WRITTEN_NOT_RUN" },
+        "clip-public-egp": { "proof": "RUN_VERIFIED" },
+        "clip-public-disbursement": { "proof": "RUN_VERIFIED" },
+        "clip-public-feed": { "proof": "WRITTEN_NOT_RUN" },
+        "clip-public-directives": { "proof": "WRITTEN_NOT_RUN" },
+        "clip-public-committee": { "proof": "RUN_VERIFIED" }
+      },
+      "chapters": {
+        "intro": { "groups": [] },
+        "leader-home": { "groups": ["capital", "clip-public-disbursement"] },
+        "disbursement": { "groups": ["capital", "clip-public-disbursement"], "gaps": ["Chưa có seed cho nghiệm thu khối lượng, thanh toán và tạm ứng, nên các cảnh điều kiện thanh toán và tạm ứng cần dữ liệu bổ sung."] },
+        "contracts": { "groups": ["clip-public-procurement", "clip-public-contracts"], "gaps": ["Chưa có seed cho nghiệm thu, thanh toán và tạm ứng của hợp đồng."] },
+        "analytics": { "groups": ["capital", "clip-public-procurement", "clip-public-contracts"], "gaps": ["Chưa nạp được gói chỉ tiêu BI vì chưa có đường HTTP lưu tệp gói chỉ tiêu: các cảnh dashboard BI cần dữ liệu bổ sung."] },
+        "alerts": { "groups": ["clip-public-alerts", "clip-public-disbursement"] },
+        "contractors": { "groups": ["clip-public-procurement", "clip-public-contracts"] },
+        "egp": { "groups": ["clip-public-egp", "clip-public-workflow"] },
+        "province-committee": { "groups": ["clip-public-committee", "clip-public-disbursement", "clip-public-feed", "clip-public-directives"], "gaps": ["Không gian làm việc của Ban chỉ đạo đọc ảnh chụp kỳ đã chốt, chưa đọc bản ghi nguồn cấp; nguồn cấp được quay qua các chỉ số chất lượng, sai lệch và cảnh báo của chính nó."] },
+        "process-tree": { "groups": ["clip-public-workflow", "clip-public-procurement"] },
+        "phone": { "groups": ["clip-public-procurement", "clip-public-alerts", "clip-public-contracts"], "gaps": ["Cảnh điện thoại quay bằng máy ảo; màn Phê duyệt bị hệ điều hành chặn quay nên dùng hình dựng lại."] },
+        "close": { "groups": [] }
+      }
+    },
+    "enterprise": {
+      "groups": {
+        "clip-ent-projects": { "proof": "RUN_VERIFIED" },
+        "clip-ent-funding": { "proof": "RUN_VERIFIED" },
+        "clip-ent-directives": { "proof": "RUN_VERIFIED" },
+        "clip-ent-ebs": { "proof": "RUN_VERIFIED" },
+        "clip-ent-reports": { "proof": "WRITTEN_NOT_RUN" }
+      },
+      "chapters": {
+        "intro": { "groups": [] },
+        "leader-home": { "groups": ["clip-ent-projects", "clip-ent-funding"] },
+        "capital": { "groups": ["clip-ent-funding"] },
+        "projects": { "groups": ["clip-ent-projects"] },
+        "reports-pvn": { "groups": ["clip-ent-reports"], "gaps": ["Sáu biểu mẫu là bản demo do hệ thống tự thiết kế, đóng dấu MẪU DEMO — chờ mẫu chính thức."] },
+        "workflow": { "groups": ["clip-ent-reports"] },
+        "hpm-ebs": { "groups": ["clip-ent-reports", "clip-ent-ebs"], "gaps": ["Bản demo không bao giờ được HPM chấp nhận: nhật ký đẩy có một lần ghi tệp và một lần bị từ chối kèm lý do."] },
+        "directives": { "groups": ["clip-ent-directives"] },
+        "docs-ai": { "groups": [], "gaps": ["Bộ dữ liệu doanh nghiệp chưa có nhóm cho kho hồ sơ dự án và trợ lý AI: cần nhóm bổ sung hoặc quay trên kho đã có."] },
+        "analytics": { "groups": ["clip-ent-projects", "clip-ent-funding"], "gaps": ["Chưa nạp được gói chỉ tiêu BI; các chương dùng chung cần số liệu đủ dày trên bộ dữ liệu doanh nghiệp."] },
+        "alerts": { "groups": [], "gaps": ["Bộ dữ liệu doanh nghiệp không có nhóm luật và cảnh báo; chạy các nhóm cảnh báo của bộ công khai trên bản doanh nghiệp hoặc quay chương dùng chung trên bộ công khai."] },
+        "contractors": { "groups": [], "gaps": ["Bộ dữ liệu doanh nghiệp không có nhóm nhà thầu; cần nhóm bổ sung hoặc dùng cảnh quay chung."] },
+        "process-tree": { "groups": [], "gaps": ["Bộ dữ liệu doanh nghiệp không có nhóm quy trình gói thầu; cần chạy nhóm quy trình trên bản doanh nghiệp hoặc dùng cảnh quay chung."] },
+        "phone": { "groups": ["clip-ent-projects", "clip-ent-directives"], "gaps": ["Ứng dụng cài đặt (PWA) cho lãnh đạo đọc tổng quan, hàng chờ duyệt và chỉ đạo của cùng bộ dữ liệu."] },
+        "close": { "groups": [] }
+      }
+    }
+  }
+}
