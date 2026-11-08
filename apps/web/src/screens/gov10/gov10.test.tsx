@@ -151,7 +151,7 @@ describe('the red flags of procurement (AUD-14, AUD-15, AUD-16)', () => {
   });
 
   it('says "not found" the same way for a finding that does not exist and one the reader took part in', async () => {
-    mount(<RedFlagDetailScreen route={routeOf('AUD-15', 'FR-AUD-15')} />, harness((operation) => (operation === 'getRedFlag' ? failure(404, 'NOT_FOUND') : indicators)), { permissions: AUDITOR }, '/aud/aud-15?finding=nope');
+    mount(<RedFlagDetailScreen route={routeOf('AUD-15', 'FR-AUD-15')} />, harness((operation) => (operation === 'getRedFlag' ? failure(404, 'RESOURCE_NOT_FOUND') : indicators)), { permissions: AUDITOR }, '/aud/aud-15?finding=nope');
     expect((await screen.findByTestId('red-flag-not-found')).textContent).toContain(tr('gov10.red.detail.notFound'));
   });
 

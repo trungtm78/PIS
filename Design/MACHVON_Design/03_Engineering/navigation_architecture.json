@@ -2592,7 +2592,13 @@
         "NOT-18",
         "NOT-19",
         "ADM-25",
-        "HOME-13"
+        "HOME-13",
+        "AUD-14",
+        "AUD-15",
+        "AUD-16",
+        "NOT-30",
+        "HOME-30",
+        "HOME-31"
       ],
       "autoAssigned": [],
       "dropped": [],
@@ -7334,6 +7340,66 @@
     {
       "id": "HOME-13",
       "title": "Sức khỏe hệ thống cảnh báo",
+      "kind": "dashboard",
+      "area": "overview",
+      "module": "HOME",
+      "group": "Công việc & cảnh báo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "AUD-14",
+      "title": "Tín hiệu rủi ro mua sắm (red flag)",
+      "kind": "table",
+      "area": "insights",
+      "module": "AUD",
+      "group": "Phát hiện & kiến nghị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "AUD-15",
+      "title": "Chi tiết tín hiệu rủi ro mua sắm",
+      "kind": "detail",
+      "area": "insights",
+      "module": "AUD",
+      "group": "Phát hiện & kiến nghị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "AUD-16",
+      "title": "Sổ chỉ báo red flag",
+      "kind": "table",
+      "area": "insights",
+      "module": "AUD",
+      "group": "Phát hiện & kiến nghị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "NOT-30",
+      "title": "Thang kênh và biên nhận cảnh báo",
+      "kind": "policy",
+      "area": "engagement",
+      "module": "NOT",
+      "group": "Kênh & kiểm soát",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "HOME-30",
+      "title": "Phản hồi cảnh báo không đúng",
+      "kind": "review",
+      "area": "overview",
+      "module": "HOME",
+      "group": "Công việc & cảnh báo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "HOME-31",
+      "title": "Cảnh báo đã đóng, mở lại và lũ cảnh báo",
       "kind": "dashboard",
       "area": "overview",
       "module": "HOME",

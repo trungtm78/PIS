@@ -42,8 +42,8 @@ const milestone = (packageId: string, kind: string, at: string): [string, unknow
   [TENANT_A, randomUUID(), packageId, kind, at, memberId(AUDITOR)],
 ];
 const proposal = (packageId: string, price: string): [string, unknown[]] => [
-  `insert into machvon.proposal (tenant_id, id, project_id, package_id, contractor_id, document_version_ids, revision, status, submitted_at, bid_price_vnd, created_by)
-   values ($1, $2, $3, $4, $5, '[]'::jsonb, 1, 'RECEIVED', '2027-09-05T01:00:00Z', $6, $7)`,
+  `insert into machvon.proposal (tenant_id, id, project_id, package_id, contractor_id, document_version_ids, revision, status, submitted_at, access_released_at, bid_price_vnd, created_by)
+   values ($1, $2, $3, $4, $5, '[]'::jsonb, 1, 'RECEIVED', '2027-09-05T01:00:00Z', '2027-09-07T01:00:00Z', $6, $7)`,
   [TENANT_A, randomUUID(), PROJECT, packageId, randomUUID(), price, memberId(AUDITOR)],
 ];
 
@@ -102,7 +102,7 @@ describe('red flags and the new alert sources', () => {
       expect((await as((tx) => flags.summary(tx, memberId(DRAFTER)), TENANT_A, DRAFTER)).total).toBe(0);
       const [finding] = await as((tx) => flags.list(tx, memberId(AUDITOR), { limit: 10, offset: 0 }));
       expect(await as((tx) => flags.get(tx, memberId(DRAFTER), (finding as NonNullable<typeof finding>).id), TENANT_A, DRAFTER)).toBeUndefined();
-      await expect(as((tx) => flags.move(tx, (finding as NonNullable<typeof finding>).id, 1, 'TAKE', memberId(DRAFTER), undefined, NOW), TENANT_A, DRAFTER)).rejects.toMatchObject({ code: 'NOT_FOUND' });
+      await expect(as((tx) => flags.move(tx, (finding as NonNullable<typeof finding>).id, 1, 'TAKE', memberId(DRAFTER), undefined, NOW), TENANT_A, DRAFTER)).rejects.toMatchObject({ code: 'RESOURCE_NOT_FOUND' });
       expect(await as((tx) => flags.list(tx, memberId(AUDITOR), { limit: 10, offset: 0 }), TENANT_B)).toEqual([]);
     });
 

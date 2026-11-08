@@ -19189,5 +19189,126 @@
     "stories": [
       "ST-ADM-026"
     ]
+  },
+  {
+    "id": "BL-AUD-14",
+    "requirement": "FR-AUD-14",
+    "screen": "AUD-14",
+    "title": "Tín hiệu rủi ro mua sắm (red flag)",
+    "module": "AUD",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,HOME",
+    "fields": [
+      "Gói thầu hoặc hợp đồng",
+      "Điểm và mức",
+      "Chỉ báo đã kích hoạt",
+      "Chỉ báo chưa tính được",
+      "Trạng thái xem xét",
+      "Lần đánh giá gần nhất"
+    ],
+    "rule": "12 chỉ báo OCP tính từ dữ liệu đấu thầu và hợp đồng, xếp theo điểm để điều tra, không kết luận; chỉ báo thiếu dữ liệu ghi rõ chưa tính được, không hiện là sạch; ngưỡng đọc từ quy tắc quản trị, số mặc định ghi chưa kiểm chứng."
+  },
+  {
+    "id": "BL-AUD-15",
+    "requirement": "FR-AUD-15",
+    "screen": "AUD-15",
+    "title": "Chi tiết tín hiệu rủi ro mua sắm",
+    "module": "AUD",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,HOME",
+    "fields": [
+      "Chỉ báo",
+      "Trạng thái chỉ báo",
+      "Số đo so với ngưỡng",
+      "Trọng số",
+      "Dữ kiện còn thiếu",
+      "Lịch sử xem xét"
+    ],
+    "rule": "Xác nhận không có vấn đề cần hai kiểm toán viên và lý do; chuyển điều tra cần lý do; người tham gia gói thầu nhận 404; tín hiệu mới làm mở lại tín hiệu đã đóng."
+  },
+  {
+    "id": "BL-AUD-16",
+    "requirement": "FR-AUD-16",
+    "screen": "AUD-16",
+    "title": "Sổ chỉ báo red flag",
+    "module": "AUD",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,HOME",
+    "fields": [
+      "Chỉ báo và mã OCP",
+      "Dữ liệu đọc",
+      "Công thức",
+      "Ngưỡng đang hiệu lực",
+      "Ngày lấy số",
+      "Tình trạng pháp lý",
+      "Bật hoặc tắt"
+    ],
+    "rule": "Mỗi chỉ báo có công thức, nguồn, thời điểm và tình trạng pháp lý; ngưỡng đọc từ governance_rule; chỉ báo phía nhà thầu của làn khác đăng ký cùng dạng."
+  },
+  {
+    "id": "BL-NOT-30",
+    "requirement": "FR-NOT-20",
+    "screen": "NOT-30",
+    "title": "Thang kênh và biên nhận cảnh báo",
+    "module": "NOT",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,HOME",
+    "fields": [
+      "Thang kênh từng mức",
+      "Thời gian chờ biên nhận",
+      "Chuyển cấp trên",
+      "Giao nhận Khẩn trong số phút quy định",
+      "Kết cục từng kênh",
+      "Các thang đang chạy và biên nhận từng bậc"
+    ],
+    "rule": "Cảnh báo Khẩn đi từ ứng dụng, đẩy, Zalo, SMS theo biên nhận chứ không theo việc đã gửi; hết bậc thì chuyển cấp trên; tin không chứa số liệu tài chính; bậc không có luồng thông báo ghi rõ NO_WORKFLOW."
+  },
+  {
+    "id": "BL-HOME-30",
+    "requirement": "FR-HOME-14",
+    "screen": "HOME-30",
+    "title": "Phản hồi cảnh báo không đúng",
+    "module": "HOME",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,HOME",
+    "fields": [
+      "Loại cảnh báo",
+      "Lý do",
+      "Ghi chú của người báo",
+      "Trạng thái",
+      "Ngày báo",
+      "Tỷ lệ phản hồi theo loại"
+    ],
+    "rule": "Phản hồi không ẩn và không tắt cảnh báo; chủ loại chấp nhận để chỉnh quy tắc qua quy tắc quản trị, từ chối kèm lý do hoặc đánh dấu trùng; tỷ lệ từ ngưỡng thì đưa loại vào xét lại."
+  },
+  {
+    "id": "BL-HOME-31",
+    "requirement": "FR-HOME-15",
+    "screen": "HOME-31",
+    "title": "Cảnh báo đã đóng, mở lại và lũ cảnh báo",
+    "module": "HOME",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "ADM,HOME",
+    "fields": [
+      "Đã đóng bởi hệ thống",
+      "Mở lại",
+      "Đóng nhưng không có bản ghi",
+      "Thời gian mở trung vị",
+      "Trạng thái lũ của tôi",
+      "Các đợt lũ"
+    ],
+    "rule": "Hệ thống chỉ đóng cảnh báo khi nguồn của nó đã trả lời ở mọi danh sách; nguồn lỗi không bao giờ đóng gì; cảnh báo quay lại thì mở lại; lũ gom cảnh báo mới dưới mức Khẩn thành thẻ, Khẩn không bao giờ bị gộp."
   }
 ]

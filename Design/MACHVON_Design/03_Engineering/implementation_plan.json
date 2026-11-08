@@ -51861,6 +51861,308 @@
           ]
         }
       ]
+    },
+    {
+      "id": "ST-AUD-010",
+      "epic": "EP-AUD",
+      "feature": "FT-AUD-05",
+      "module": "AUD",
+      "title": "Procurement red flags for the auditors: twelve OCP indicators ranked for investigation",
+      "narrative": "As an auditor I see the signals of procurement ranked by score, each indicator with its measure, formula, source and legal status, and review a signal in two steps, without ever being told a conclusion.",
+      "release": "R2",
+      "screens": [
+        "AUD-14",
+        "AUD-15",
+        "AUD-16"
+      ],
+      "operations": [
+        "listRedFlags",
+        "getRedFlagSummary",
+        "listRedFlagIndicators",
+        "getRedFlag",
+        "scanRedFlags",
+        "takeRedFlag",
+        "proposeClearRedFlag",
+        "confirmClearRedFlag",
+        "rejectClearRedFlag",
+        "referRedFlag"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-AUD-010-1",
+          "given": "A package with one bidder and a short period, and the user who drafted it",
+          "when": "The scan runs and the list is read",
+          "then": "The package is flagged with a score, indicators without input say not computable, and the drafter sees nothing, not even a count",
+          "test_id": "UAT-PLAN-141"
+        },
+        {
+          "id": "AC-ST-AUD-010-2",
+          "given": "A signal proposed for clearing by an auditor",
+          "when": "The same auditor confirms it, then a different one does",
+          "then": "The first is refused as self approval and the second clears it",
+          "test_id": "UAT-PLAN-141"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "Every threshold is a starting value flagged as not confirmed until the customer and the auditors approve their own rule."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-AUD-010-1",
+          "kind": "backend",
+          "title": "Server-side read models, rules and commands behind AUD-14, AUD-15, AUD-16",
+          "test_ids": []
+        },
+        {
+          "id": "TK-AUD-010-2",
+          "kind": "web",
+          "title": "AUD-14, AUD-15, AUD-16 screens built with the kit, the seven standard states and the \"i\" on every figure",
+          "test_ids": []
+        },
+        {
+          "id": "TK-AUD-010-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for AUD-14, AUD-15, AUD-16; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-AUD-010-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-141"
+          ]
+        },
+        {
+          "id": "TK-AUD-010-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-AUD-14",
+            "UI-AUD-15",
+            "UI-AUD-16"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-NOT-012",
+      "epic": "EP-NOT",
+      "feature": "FT-NOT-05",
+      "module": "NOT",
+      "title": "Channel ladder and delivery receipts for urgent alerts",
+      "narrative": "As a notification administrator I see the ladder of each alert level, the receipt of each rung and the delivery KPI, and know when a rung had no workflow to carry it.",
+      "release": "R2",
+      "screens": [
+        "NOT-30"
+      ],
+      "operations": [
+        "getAlertLadderPolicy",
+        "listAlertLadderRuns",
+        "getAlertLadderForItem",
+        "getAlertLadderKpi"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-NOT-012-1",
+          "given": "An urgent alert nobody has seen",
+          "when": "The rungs go up with the waits of the ladder",
+          "then": "A rung is satisfied by a receipt not by a send, a rung that cannot carry the message gives way at once, and the end hands the alert to the escalation",
+          "test_id": "UAT-PLAN-142"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "Every threshold is a starting value flagged as not confirmed until the customer and the auditors approve their own rule."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-NOT-012-1",
+          "kind": "backend",
+          "title": "Server-side read models, rules and commands behind NOT-30",
+          "test_ids": []
+        },
+        {
+          "id": "TK-NOT-012-2",
+          "kind": "web",
+          "title": "NOT-30 screens built with the kit, the seven standard states and the \"i\" on every figure",
+          "test_ids": []
+        },
+        {
+          "id": "TK-NOT-012-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for NOT-30; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-NOT-012-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-142"
+          ]
+        },
+        {
+          "id": "TK-NOT-012-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-NOT-30"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-HOME-011",
+      "epic": "EP-HOME",
+      "feature": "FT-HOME-04",
+      "module": "HOME",
+      "title": "Closing, feedback and flood protection of the alert centre",
+      "narrative": "As an alert owner I see which alerts the system closed or reopened, review the reports that an alert is wrong, and see how the centre protected a list in a storm.",
+      "release": "R2",
+      "screens": [
+        "HOME-30",
+        "HOME-31"
+      ],
+      "operations": [
+        "reportAlertWrong",
+        "withdrawAlertFeedback",
+        "reviewAlertFeedback",
+        "listAlertFeedback",
+        "listMyAlertFeedback",
+        "getAlertFeedbackStats",
+        "listAlertClosures",
+        "getAlertClosureSummary",
+        "getAlertFlood",
+        "listAlertStorms"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-HOME-011-1",
+          "given": "A source that fails in a pass",
+          "when": "The pass runs",
+          "then": "Nothing of that source is closed and the source is named as unavailable",
+          "test_id": "UAT-PLAN-143"
+        },
+        {
+          "id": "AC-ST-HOME-011-2",
+          "given": "A report that an alert is wrong",
+          "when": "The reporter reviews it, then somebody else does",
+          "then": "The first is refused, the second decides, and the alert is never hidden",
+          "test_id": "UAT-PLAN-143"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 30,
+          "max": 70
+        },
+        "confidence": "low",
+        "assumption": "Every threshold is a starting value flagged as not confirmed until the customer and the auditors approve their own rule."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-HOME-011-1",
+          "kind": "backend",
+          "title": "Server-side read models, rules and commands behind HOME-30, HOME-31",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HOME-011-2",
+          "kind": "web",
+          "title": "HOME-30, HOME-31 screens built with the kit, the seven standard states and the \"i\" on every figure",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HOME-011-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for HOME-30, HOME-31; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-HOME-011-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-143"
+          ]
+        },
+        {
+          "id": "TK-HOME-011-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-HOME-30",
+            "UI-HOME-31"
+          ]
+        }
+      ]
     }
   ]
 }

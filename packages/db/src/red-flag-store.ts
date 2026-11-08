@@ -436,7 +436,7 @@ export class RedFlagStore {
   /** One move of the review. The one who acts is an auditor (the caller judged the permission); clearing needs a second auditor than the proposer; a finding the actor took part in is not found. */
   async move(tx: TenantTx, id: string, expectedVersion: number, move: RedFlagMove, actor: string, reason: string | undefined, now: Date): Promise<FindingRow> {
     const [row] = await tx.query<Raw>(`select ${FINDING_COLUMNS} from machvon.red_flag_finding f where f.id = $2::uuid and ${NOT_INVOLVED('$1')} for update`, [actor, id]);
-    if (row === undefined) throw new DomainError('NOT_FOUND', 404, 'id');
+    if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'id');
     const current = toFinding(row);
     if (current.version !== expectedVersion) throw versionConflict(current.version);
     const next = nextRedFlagStatus(current.status, move, { actor, proposer: current.clearProposedBy, reason: reason ?? null });

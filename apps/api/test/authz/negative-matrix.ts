@@ -2927,6 +2927,16 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   retractVendorReputationEvent: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/vendor/reputation-events/00000000-0000-4000-8000-0000000000f1/retraction', ifMatch: '"1"', body: {reason:'negative authorization matrix of a retraction'} }) },
   createVendorJointVenture: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/vendor/joint-ventures', body: {name:'Matrix venture',members:[{contractor_id:'00000000-0000-4000-8000-0000000000f1',share_pct:'50',lead:true},{contractor_id:'00000000-0000-4000-8000-0000000000d1',share_pct:'50',lead:false}]} }) },
   endVendorJointVenture: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/vendor/joint-ventures/00000000-0000-4000-8000-0000000000f1/end', ifMatch: '"1"', body: {reason:'negative authorization matrix'} }) },
+  // GOV-10: the report that an alert is wrong, its review, and the review of the red flags of procurement; a caller who is refused changes and reads nothing.
+  reportAlertWrong: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/home/alert-feedback', body: { source: 'GUARANTEE', source_id: 'g-1', reason: 'WRONG_DATA' } }) },
+  withdrawAlertFeedback: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/home/alert-feedback/00000000-0000-4000-8000-0000000000f1/withdraw', ifMatch: '"1"', body: {} }) },
+  reviewAlertFeedback: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/home/alert-feedback/00000000-0000-4000-8000-0000000000f1/review', ifMatch: '"1"', body: { move: 'REJECT', review_note: REASON } }) },
+  scanRedFlags: { referencesTenantIds: false, build: () => ({ method: 'POST', path: '/red-flags/scan', body: {} }) },
+  takeRedFlag: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/red-flags/00000000-0000-4000-8000-0000000000f1/take', ifMatch: '"1"', body: {} }) },
+  proposeClearRedFlag: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/red-flags/00000000-0000-4000-8000-0000000000f1/propose-clear', ifMatch: '"1"', body: { reason: REASON } }) },
+  confirmClearRedFlag: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/red-flags/00000000-0000-4000-8000-0000000000f1/confirm-clear', ifMatch: '"1"', body: {} }) },
+  rejectClearRedFlag: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/red-flags/00000000-0000-4000-8000-0000000000f1/reject-clear', ifMatch: '"1"', body: { reason: REASON } }) },
+  referRedFlag: { referencesTenantIds: true, build: () => ({ method: 'POST', path: '/red-flags/00000000-0000-4000-8000-0000000000f1/refer', ifMatch: '"1"', body: { reason: REASON } }) },
   decideProcurementResult: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/procurement-results/${t.resultId}/decision`, ifMatch: '"1"', body: { decision: 'REJECT', comment: 'Matrix decision of a refused call.' } }),

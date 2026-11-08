@@ -128,7 +128,7 @@ export class AlertFeedbackStore {
 
   async require(tx: TenantTx, id: string): Promise<FeedbackRow> {
     const found = await this.find(tx, id);
-    if (found === undefined) throw new DomainError('NOT_FOUND', 404, 'id');
+    if (found === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'id');
     return found;
   }
 
@@ -161,7 +161,7 @@ export class AlertFeedbackStore {
 
   private async lock(tx: TenantTx, id: string): Promise<FeedbackRow> {
     const [row] = await tx.query<Row>(`select ${COLUMNS} from machvon.alert_feedback f where f.id = $1::uuid for update`, [id]);
-    if (row === undefined) throw new DomainError('NOT_FOUND', 404, 'id');
+    if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'id');
     return toRow(row);
   }
 

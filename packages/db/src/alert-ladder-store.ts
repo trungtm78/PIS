@@ -157,7 +157,7 @@ export class AlertLadderStore {
 
   async require(tx: TenantTx, id: string): Promise<RunRow> {
     const found = await this.find(tx, id);
-    if (found === undefined) throw new DomainError('NOT_FOUND', 404, 'id');
+    if (found === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'id');
     return found;
   }
 

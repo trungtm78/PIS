@@ -10684,5 +10684,113 @@
       "UAT-PLAN-147",
       "UAT-PLAN-148"
     ]
+  },
+  {
+    "requirement": "FR-AUD-14",
+    "screen": "AUD-14",
+    "title": "Tín hiệu rủi ro mua sắm (red flag)",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn GOV-10; docs/governance-roadmap-10of10.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/gov10/gov10.test.tsx",
+    "backlog_id": "BL-AUD-14",
+    "test_ids": [
+      "UI-AUD-14",
+      "UAT-PLAN-141"
+    ]
+  },
+  {
+    "requirement": "FR-AUD-15",
+    "screen": "AUD-15",
+    "title": "Chi tiết tín hiệu rủi ro mua sắm",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn GOV-10; docs/governance-roadmap-10of10.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/gov10/gov10.test.tsx",
+    "backlog_id": "BL-AUD-15",
+    "test_ids": [
+      "UI-AUD-15",
+      "UAT-PLAN-141"
+    ]
+  },
+  {
+    "requirement": "FR-AUD-16",
+    "screen": "AUD-16",
+    "title": "Sổ chỉ báo red flag",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn GOV-10; docs/governance-roadmap-10of10.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/gov10/gov10.test.tsx",
+    "backlog_id": "BL-AUD-16",
+    "test_ids": [
+      "UI-AUD-16",
+      "UAT-PLAN-141"
+    ]
+  },
+  {
+    "requirement": "FR-NOT-20",
+    "screen": "NOT-30",
+    "title": "Thang kênh và biên nhận cảnh báo",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn GOV-10; docs/governance-roadmap-10of10.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/gov10/gov10.test.tsx",
+    "backlog_id": "BL-NOT-30",
+    "test_ids": [
+      "UI-NOT-30",
+      "UAT-PLAN-142"
+    ]
+  },
+  {
+    "requirement": "FR-HOME-14",
+    "screen": "HOME-30",
+    "title": "Phản hồi cảnh báo không đúng",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn GOV-10; docs/governance-roadmap-10of10.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/gov10/gov10.test.tsx",
+    "backlog_id": "BL-HOME-30",
+    "test_ids": [
+      "UI-HOME-30",
+      "UAT-PLAN-143"
+    ]
+  },
+  {
+    "requirement": "FR-HOME-15",
+    "screen": "HOME-31",
+    "title": "Cảnh báo đã đóng, mở lại và lũ cảnh báo",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Làn GOV-10; docs/governance-roadmap-10of10.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "apps/web/src/screens/gov10/gov10.test.tsx",
+    "backlog_id": "BL-HOME-31",
+    "test_ids": [
+      "UI-HOME-31",
+      "UAT-PLAN-143"
+    ]
   }
 ]

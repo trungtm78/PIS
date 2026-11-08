@@ -22236,5 +22236,168 @@
     "covers": [
       "FR-ADM-25"
     ]
+  },
+  {
+    "id": "UI-AUD-14",
+    "source": "FR-AUD-14",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Tín hiệu rủi ro mua sắm (red flag); người dùng có quyền và người dùng không có quyền; route AUD-14",
+    "steps": [
+      "Mở AUD-14 từ menu và deep link; kiểm nhãn trường: Gói thầu hoặc hợp đồng, Điểm và mức, Chỉ báo đã kích hoạt, Chỉ báo chưa tính được, Trạng thái xem xét, Lần đánh giá gần nhất",
+      "Thực hiện thao tác chính theo quy tắc: 12 chỉ báo OCP tính từ dữ liệu đấu thầu và hợp đồng, xếp theo điểm để điều tra, không kết luận; chỉ báo thiếu dữ liệu ghi rõ chưa tính được, không hiện là sạch; ngưỡng đọc từ quy tắc quản trị, số mặc định ghi chưa kiểm chứng.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AUD-14"
+    ],
+    "expected": "Tín hiệu rủi ro mua sắm (red flag): hiển thị đúng các trường, áp quy tắc \"12 chỉ báo OCP tính từ dữ liệu đấu thầu và hợp đồng, xếp theo điểm để điều tra, không kết luận; chỉ báo thiếu dữ liệu ghi rõ chưa tính được, không hiện là sạch; ngưỡng đọc từ quy tắc quản trị, số mặc định ghi chưa kiểm chứng.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-AUD-14"
+    ]
+  },
+  {
+    "id": "UI-AUD-15",
+    "source": "FR-AUD-15",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Chi tiết tín hiệu rủi ro mua sắm; người dùng có quyền và người dùng không có quyền; route AUD-15",
+    "steps": [
+      "Mở AUD-15 từ menu và deep link; kiểm nhãn trường: Chỉ báo, Trạng thái chỉ báo, Số đo so với ngưỡng, Trọng số, Dữ kiện còn thiếu, Lịch sử xem xét",
+      "Thực hiện thao tác chính theo quy tắc: Xác nhận không có vấn đề cần hai kiểm toán viên và lý do; chuyển điều tra cần lý do; người tham gia gói thầu nhận 404; tín hiệu mới làm mở lại tín hiệu đã đóng.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AUD-15"
+    ],
+    "expected": "Chi tiết tín hiệu rủi ro mua sắm: hiển thị đúng các trường, áp quy tắc \"Xác nhận không có vấn đề cần hai kiểm toán viên và lý do; chuyển điều tra cần lý do; người tham gia gói thầu nhận 404; tín hiệu mới làm mở lại tín hiệu đã đóng.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-AUD-15"
+    ]
+  },
+  {
+    "id": "UI-AUD-16",
+    "source": "FR-AUD-16",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Sổ chỉ báo red flag; người dùng có quyền và người dùng không có quyền; route AUD-16",
+    "steps": [
+      "Mở AUD-16 từ menu và deep link; kiểm nhãn trường: Chỉ báo và mã OCP, Dữ liệu đọc, Công thức, Ngưỡng đang hiệu lực, Ngày lấy số, Tình trạng pháp lý, Bật hoặc tắt",
+      "Thực hiện thao tác chính theo quy tắc: Mỗi chỉ báo có công thức, nguồn, thời điểm và tình trạng pháp lý; ngưỡng đọc từ governance_rule; chỉ báo phía nhà thầu của làn khác đăng ký cùng dạng.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên AUD-16"
+    ],
+    "expected": "Sổ chỉ báo red flag: hiển thị đúng các trường, áp quy tắc \"Mỗi chỉ báo có công thức, nguồn, thời điểm và tình trạng pháp lý; ngưỡng đọc từ governance_rule; chỉ báo phía nhà thầu của làn khác đăng ký cùng dạng.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-AUD-16"
+    ]
+  },
+  {
+    "id": "UI-NOT-30",
+    "source": "FR-NOT-20",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Thang kênh và biên nhận cảnh báo; người dùng có quyền và người dùng không có quyền; route NOT-30",
+    "steps": [
+      "Mở NOT-30 từ menu và deep link; kiểm nhãn trường: Thang kênh từng mức, Thời gian chờ biên nhận, Chuyển cấp trên, Giao nhận Khẩn trong số phút quy định, Kết cục từng kênh, Các thang đang chạy và biên nhận từng bậc",
+      "Thực hiện thao tác chính theo quy tắc: Cảnh báo Khẩn đi từ ứng dụng, đẩy, Zalo, SMS theo biên nhận chứ không theo việc đã gửi; hết bậc thì chuyển cấp trên; tin không chứa số liệu tài chính; bậc không có luồng thông báo ghi rõ NO_WORKFLOW.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên NOT-30"
+    ],
+    "expected": "Thang kênh và biên nhận cảnh báo: hiển thị đúng các trường, áp quy tắc \"Cảnh báo Khẩn đi từ ứng dụng, đẩy, Zalo, SMS theo biên nhận chứ không theo việc đã gửi; hết bậc thì chuyển cấp trên; tin không chứa số liệu tài chính; bậc không có luồng thông báo ghi rõ NO_WORKFLOW.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-20"
+    ]
+  },
+  {
+    "id": "UI-HOME-30",
+    "source": "FR-HOME-14",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Phản hồi cảnh báo không đúng; người dùng có quyền và người dùng không có quyền; route HOME-30",
+    "steps": [
+      "Mở HOME-30 từ menu và deep link; kiểm nhãn trường: Loại cảnh báo, Lý do, Ghi chú của người báo, Trạng thái, Ngày báo, Tỷ lệ phản hồi theo loại",
+      "Thực hiện thao tác chính theo quy tắc: Phản hồi không ẩn và không tắt cảnh báo; chủ loại chấp nhận để chỉnh quy tắc qua quy tắc quản trị, từ chối kèm lý do hoặc đánh dấu trùng; tỷ lệ từ ngưỡng thì đưa loại vào xét lại.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên HOME-30"
+    ],
+    "expected": "Phản hồi cảnh báo không đúng: hiển thị đúng các trường, áp quy tắc \"Phản hồi không ẩn và không tắt cảnh báo; chủ loại chấp nhận để chỉnh quy tắc qua quy tắc quản trị, từ chối kèm lý do hoặc đánh dấu trùng; tỷ lệ từ ngưỡng thì đưa loại vào xét lại.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HOME-14"
+    ]
+  },
+  {
+    "id": "UI-HOME-31",
+    "source": "FR-HOME-15",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A với dữ liệu synthetic của Cảnh báo đã đóng, mở lại và lũ cảnh báo; người dùng có quyền và người dùng không có quyền; route HOME-31",
+    "steps": [
+      "Mở HOME-31 từ menu và deep link; kiểm nhãn trường: Đã đóng bởi hệ thống, Mở lại, Đóng nhưng không có bản ghi, Thời gian mở trung vị, Trạng thái lũ của tôi, Các đợt lũ",
+      "Thực hiện thao tác chính theo quy tắc: Hệ thống chỉ đóng cảnh báo khi nguồn của nó đã trả lời ở mọi danh sách; nguồn lỗi không bao giờ đóng gì; cảnh báo quay lại thì mở lại; lũ gom cảnh báo mới dưới mức Khẩn thành thẻ, Khẩn không bao giờ bị gộp.",
+      "Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên HOME-31"
+    ],
+    "expected": "Cảnh báo đã đóng, mở lại và lũ cảnh báo: hiển thị đúng các trường, áp quy tắc \"Hệ thống chỉ đóng cảnh báo khi nguồn của nó đã trả lời ở mọi danh sách; nguồn lỗi không bao giờ đóng gì; cảnh báo quay lại thì mở lại; lũ gom cảnh báo mới dưới mức Khẩn thành thẻ, Khẩn không bao giờ bị gộp.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HOME-15"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-141",
+    "source": "GOV-10",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A package with one bidder and a short tender period, drafted by user D; auditors A and B.",
+    "steps": [
+      "Scan the red flags",
+      "Read the list as D and as A",
+      "A proposes clearing, A confirms, B confirms"
+    ],
+    "expected": "The package is flagged for A and invisible to D including counts; indicators without input say not computable; step 3: A is refused as self approval and B clears it.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-AUD-14",
+      "FR-AUD-15",
+      "FR-AUD-16"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-142",
+    "source": "GOV-10",
+    "type": "business",
+    "priority": "P1",
+    "setup": "An urgent alert nobody sees; a tenant with no workflow published for the SMS rung.",
+    "steps": [
+      "Let the ladder run past each wait",
+      "Read the receipts and the KPI"
+    ],
+    "expected": "Each rung goes by receipt not by send; the SMS rung is NO_WORKFLOW and counted apart; the end hands the alert to the escalation.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-NOT-20"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-143",
+    "source": "GOV-10",
+    "type": "business",
+    "priority": "P1",
+    "setup": "An alert whose source cleared, one whose source failed in the pass, and a report that an alert is wrong.",
+    "steps": [
+      "Run the observation pass",
+      "Report the alert as wrong and review it as the reporter, then as another person"
+    ],
+    "expected": "Only the cleared one is closed; the failed source closes nothing; the reporter is refused as self approval, the alert stays in the list.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HOME-14",
+      "FR-HOME-15"
+    ]
   }
 ]

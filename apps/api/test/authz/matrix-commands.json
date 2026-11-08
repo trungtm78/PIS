@@ -688,7 +688,16 @@
     "completeContractEarlyWarningAction",
     "closeContractEarlyWarning",
     "recordContractEarlyWarningMeeting",
-    "issueContractEarlyWarningRegister"
+    "issueContractEarlyWarningRegister",
+    "reportAlertWrong",
+    "withdrawAlertFeedback",
+    "reviewAlertFeedback",
+    "scanRedFlags",
+    "takeRedFlag",
+    "proposeClearRedFlag",
+    "confirmClearRedFlag",
+    "rejectClearRedFlag",
+    "referRedFlag"
   ],
   "controlCommands": [
     "decideTenantRestore",
