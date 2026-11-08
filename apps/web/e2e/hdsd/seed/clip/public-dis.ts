@@ -98,6 +98,29 @@ async function closeAndFreeze(ctx: SeedContext, block: DisbursementBlock): Promi
   }
 }
 
+/**
+ * The early warnings are evaluated over the WEEKLY close snapshots only (a monthly period neither opens nor clears them), by the event of the freeze. So the weeks of the year
+ * are generated, the ones whose deadline has passed are soft-closed, and the snapshots of the last two closed weeks are built and frozen, the older one first.
+ */
+async function closeWeeksAndFreeze(ctx: SeedContext, block: DisbursementBlock): Promise<void> {
+  await ctx.attempt(MAKER, 'POST', '/reporting-periods/generate', { calendar_code: 'DEFAULT', fiscal_year: block.fiscalYear, period_type: 'WEEK' });
+  const periods = await ctx.list<Obj>(MAKER, '/resources/reporting_period');
+  const startOf = (row: Obj): string => String(row.starts_on ?? row.start_date);
+  const endOf = (row: Obj): string => String(row.ends_on ?? row.end_date);
+  const weeks = periods.filter((row) => row.period_type === 'WEEK' && Number(row.fiscal_year) === block.fiscalYear).sort((a, b) => startOf(a).localeCompare(startOf(b)));
+  const due = weeks.filter((row) => endOf(row) < ctx.today && Date.parse(String(row.deadline_at)) < ctx.asOf.getTime());
+  ctx.log(`  [dis] ${weeks.length} weekly periods, ${due.length} past their deadline`);
+  for (const period of due) {
+    if (String(period.status) === 'OPEN') await ctx.attempt(MAKER, 'POST', `/reporting-periods/${String(period.id)}/soft-close`, { reason: block.reason }, { version: Number(period.version) });
+  }
+  for (const period of due.slice(-2)) {
+    const built = await ctx.attempt<Obj>(MAKER, 'POST', '/period-snapshots', { period_id: String(period.id), snapshot_kind: 'PERIOD_CLOSE', treasury_cutoff_date: endOf(period) });
+    if (!built.ok) continue;
+    await ctx.attempt(MAKER, 'POST', `/period-snapshots/${String(built.json.resource_id)}/freeze`, {}, { version: Number(built.json.resource_version) });
+    ctx.record({ module: 'DIS', screen: 'DIS-21', kind: 'period-snapshot', id: String(built.json.resource_id), code: String(period.code), note: 'frozen, weekly close' });
+  }
+}
+
 export async function seedClipDisbursement(ctx: SeedContext): Promise<void> {
   const block = clipPlan()?.disbursement as DisbursementBlock | undefined;
   if (block === undefined) {
@@ -113,5 +136,6 @@ export async function seedClipDisbursement(ctx: SeedContext): Promise<void> {
   });
   await ctx.step('PAY', 'Treasury statement', () => importStatement(ctx, block));
   await ctx.step('DIS', 'periods and snapshots', () => closeAndFreeze(ctx, block));
+  await ctx.step('DIS', 'weekly periods and snapshots', () => closeWeeksAndFreeze(ctx, block));
   void asObj;
 }

@@ -112,8 +112,8 @@ export async function paymentChecks(plan, reader) {
 /** Checks of BI: the metrics of the platform (certified, synced from the bundle of the repository) and the dashboards the leader published. */
 export async function biChecks(plan, reader) {
   const metrics = await safe(() => reader.list('capApprover', '/resources/metric_definition'));
-  // The leader's scope may not list the dashboards on every stack: the owner of the tenant reads them then.
-  const dashboards = (await safe(() => reader.list('capApprover', '/bi/dashboards'))) ?? (await safe(() => reader.list('owner', '/bi/dashboards')));
+  // The officer lists the dashboards; the leader's scope or the owner of the tenant read them when the officer's list is not given.
+  const dashboards = (await safe(() => reader.list('projectManager', '/bi/dashboards'))) ?? (await safe(() => reader.list('capApprover', '/bi/dashboards'))) ?? (await safe(() => reader.list('owner', '/bi/dashboards')));
   const wanted = new Set(plan.bi.dashboards.map((entry) => entry.code));
   return [
     { name: 'metrics certified', value: metrics === undefined ? undefined : metrics.filter((row) => row.status === 'CERTIFIED').length, min: 1 },

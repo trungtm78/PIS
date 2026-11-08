@@ -221,7 +221,10 @@ export class ReplayUi extends Ui {
         if (values.length === 0) throw new Error('the list has no option to choose');
         await locator.selectOption(values[0]);
       } else {
-        await locator.selectOption({ label: option });
+        // The label may carry a count after the name ("Name (2 hợp đồng)"): the first option whose text holds the words is the one.
+        const value = await locator.evaluate((element, text) => Array.from(element.options).find((entry) => entry.label === text || (entry.textContent ?? '').includes(text))?.value, option);
+        if (value === undefined) throw new Error('the list has no option named ' + option);
+        await locator.selectOption(value);
       }
       return;
     }

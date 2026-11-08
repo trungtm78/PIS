@@ -6,7 +6,7 @@ import { clipPlan } from './plan.ts';
 /**
  * Group `clip-public-bi`: the metrics of the platform and the dashboards of the leaders, through the real commands. The bundle of the metrics is built from the files of the repository
  * (scripts/bi-metrics-bundle.mjs, judged by the validator the server uses) and given INLINE to the sync (`syncMetricRegistry` takes the document itself when no pipeline stores the file);
- * the platform metrics arrive CERTIFIED. A dashboard is created and given a version over certified metrics by the officer, and published by the leader on a document (maker is not checker).
+ * the platform metrics arrive CERTIFIED. A dashboard is created and given a version over certified metrics by the officer, and published by the leader on a document (maker is not checker: the officer owns and saves the dashboard).
  */
 
 const MAKER = 'projectManager';
@@ -69,12 +69,12 @@ async function dashboardWithVersion(ctx: SeedContext, spec: DashboardSpec, metri
   // The request may be refused for the leader of this stack (docs/clip-data.md): the direct publication below is then the way.
   if (asked.ok) await ctx.attempt(LEADER, 'POST', `/bi/publication-requests/${asked.json.resource_id}/decision`, { decision: 'APPROVED', comment: block.publishReason }, { version: asked.json.resource_version });
   const evidence = await ctx.letter({ symbol: block.evidence.symbol, title: block.evidence.title, sender: block.evidence.sender, issuedOn: ctx.day(-5) });
-  // The leader's scope may not read a dashboard of the officer (403): the owner of the tenant, a second person, reads it and publishes it.
-  for (const publisher of [MAKER, LEADER, OWNER]) {
-    const read = await ctx.attempt<Obj>(publisher, 'GET', `/bi/dashboards/${id}`);
-    if (!read.ok) continue;
-    const published = await ctx.attempt(publisher, 'POST', `/dashboards/${id}/publish`, { decision: 'approve', reason: block.publishReason, evidence_ids: [evidence.documentId] }, { version: Number(read.json.version) });
-    if (published.ok) break;
+  const dashboard = await ctx.get<Obj>(MAKER, `/bi/dashboards/${id}`);
+  await ctx.attempt(LEADER, 'POST', `/dashboards/${id}/publish`, { decision: 'approve', reason: block.publishReason, evidence_ids: [evidence.documentId] }, { version: Number(dashboard.version) });
+  // The dashboard is the officer's own (private): the persons who show it in the clip get a view of it by the real share command (the officer owns it, so he shares it).
+  for (const person of [OWNER, LEADER]) {
+    const shared = await ctx.get<Obj>(MAKER, `/bi/dashboards/${id}`);
+    await ctx.attempt(MAKER, 'POST', `/bi/dashboards/${id}/shares`, { grantee_kind: 'USER', grantee_ref_id: ctx.person(person).membershipId, permission: 'VIEW' }, { version: Number(shared.version) });
   }
   ctx.record({ module: 'BI', screen: 'BI-05', kind: 'dashboard', id, code: spec.code, note: spec.title });
 }

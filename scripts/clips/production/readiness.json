@@ -17,7 +17,8 @@
         "clip-public-feed": { "proof": "WRITTEN_NOT_RUN" },
         "clip-public-bi": { "proof": "WRITTEN_NOT_RUN" },
         "clip-public-directives": { "proof": "WRITTEN_NOT_RUN" },
-        "clip-public-committee": { "proof": "RUN_VERIFIED" }
+        "clip-public-committee": { "proof": "RUN_VERIFIED" },
+        "clip-public-extras": { "proof": "WRITTEN_NOT_RUN" }
       },
       "chapters": {
         "intro": { "groups": [] },

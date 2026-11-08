@@ -47,6 +47,9 @@ async function measuredAndAccepted(ctx: SeedContext, contract: Obj, periodId: st
     ctx.warn(`the contract ${String(contract.code)} has no revision or bill of quantities`);
     return undefined;
   }
+  // A payment is made to a party of the contract: the lead of the joint venture takes the work.
+  const detail = await ctx.get<Obj>(MAKER, `/resources/contract/${contractId}`);
+  const lead = ((detail.parties ?? []) as Obj[]).find((party) => party.role === 'LEAD');
   const evidence = await paper(ctx, { symbol: `NT-${tag}/2026`, title: clipText('pay.measurementPaper', tag), docType: 'BB', sender: clipText('pay.supervisor'), issuedOn: ctx.day(-3) });
   const measured = await ctx.attempt<CommandReply>(MAKER, 'POST', `/contracts/${contractId}/measurements`, {
     contract_revision_id: String(revision.id),
@@ -54,6 +57,7 @@ async function measuredAndAccepted(ctx: SeedContext, contract: Obj, periodId: st
     period_id: periodId,
     quantity_period: '300',
     reference_no: `KL-${tag}`,
+    ...(lead === undefined ? {} : { party_id: String(lead.id) }),
     evidence_refs: [{ document_version_id: evidence.versionId }],
   });
   if (!measured.ok) return undefined;

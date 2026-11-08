@@ -178,8 +178,7 @@
         "screens": [
           "PWA-01",
           "PWA-02",
-          "PWA-03",
-          "PWA-04"
+          "PWA-03"
         ]
       },
       "steps": [
@@ -210,20 +209,12 @@
         {
           "do": "spot",
           "ref": "pwa.dashboard.cards"
-        },
-        {
-          "do": "open",
-          "screen": "PWA-04"
-        },
-        {
-          "do": "spot",
-          "ref": "pwa.directives.list"
         }
       ],
       "captions": [
         {
           "text": "PWA: chỉ lưu vỏ ứng dụng, không lưu dữ liệu",
-          "atSec": 4,
+          "atSec": 14,
           "forSec": 6
         }
       ],

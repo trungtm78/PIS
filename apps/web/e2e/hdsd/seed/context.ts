@@ -277,6 +277,17 @@ export class SeedContext {
     }
   }
 
+  /** The legal confirmation of a layout profile is an act outside the product; the stack (POST /__e2e/layout-confirmation) stands in for the legal officer. False when the stack has no such route. */
+  async confirmLayout(profileCode: string, reference: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.base}/__e2e/layout-confirmation`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ profile_code: profileCode, legal_confirmation_ref: reference }) });
+      if (!response.ok) return false;
+      return ((await response.json()) as { confirmed?: number }).confirmed !== 0;
+    } catch {
+      return false;
+    }
+  }
+
   /** The date `days` days from today (negative: in the past), YYYY-MM-DD. */
   day(days: number): string {
     return shiftDate(this.today, days);

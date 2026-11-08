@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { ApiReader, sessionToken } from './clip-seed-client.mjs';
 import { DATASETS, DATASET_GROUPS, DATASET_PHASES, FUNDED, WORKFLOW_CLOCKS, phasesFor, buildPlan, checkPlan, createRng, judge, judgeAll, parseArgs, planDigest, streamSeed } from './clip-seed-lib.mjs';
 import { verifyChecks } from './clip-seed-verify.mjs';
-import { loadDataset, main, setClock } from './clip-seed.mjs';
+import { loadDataset, main, offsetToHour, setClock } from './clip-seed.mjs';
 
 const HERE = fileURLToPath(new URL('.', import.meta.url));
 const enterpriseDataset = () => JSON.parse(readFileSync(join(HERE, 'fixtures', 'clip-data', 'enterprise.json'), 'utf8'));
@@ -397,4 +397,14 @@ test('the dashboards of the dataset use only metrics the repository defines, and
   assert.equal(new Set(plan.bi.dashboards.map((entry) => entry.code)).size, plan.bi.dashboards.length);
   assert.deepEqual(plan.payments.formCodes, ['03.a/TT', '04.a/TT', '04.b/TT', '05.a/TT']);
   assert.ok(plan.bi.sourceCommit.length >= 7);
+});
+
+test('the clock offset for the overdue sweep lands on half past six in Vietnam, within a day', () => {
+  for (const iso of ['2026-11-08T15:20:00Z', '2026-11-08T22:45:00Z', '2026-11-08T03:00:00Z']) {
+    const now = new Date(iso);
+    const offset = offsetToHour(now);
+    assert.ok(Math.abs(offset) < 1, iso);
+    const vietnam = new Date(now.getTime() + offset * 86_400_000 + 7 * 3_600_000);
+    assert.equal(`${vietnam.getUTCHours()}:${vietnam.getUTCMinutes()}`, '6:30', iso);
+  }
 });

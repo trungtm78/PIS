@@ -166,7 +166,7 @@ function DocumentTitle() {
   const { manifest } = useEdition();
   useEffect(() => {
     document.title = t('shell.app.name.title');
-    applyBrand(document, manifest, locale);
+    applyBrand(document, manifest);
   }, [t, locale, manifest]);
   return null;
 }

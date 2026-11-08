@@ -142,15 +142,20 @@
       "steps": [
         {
           "do": "as",
-          "persona": "projectManager"
+          "persona": "owner"
         },
         {
           "do": "open",
           "screen": "CTR-23"
         },
         {
+          "do": "choose",
+          "ref": "ctr.scorecard.contractor",
+          "option": "Công ty Cổ phần Xây dựng Giao thông Cao Bằng"
+        },
+        {
           "do": "click",
-          "ref": "ctr.scorecard.new-evaluation"
+          "ref": "ctr.scorecard.view"
         },
         {
           "do": "command",
@@ -159,7 +164,7 @@
         },
         {
           "do": "as",
-          "persona": "capApprover"
+          "persona": "owner"
         },
         {
           "do": "command",

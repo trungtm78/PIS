@@ -1726,6 +1726,22 @@ class ClockController {
   }
 }
 
+/**
+ * The legal confirmation of a layout profile (CXN-DOC-01) is an act of the legal officer outside the product: no command gives it. For the DEMO forms of the clips the
+ * stack stands in for that officer: POST /__e2e/layout-confirmation {profile_code, legal_confirmation_ref} confirms the layout profile of that code in every tenant.
+ */
+let confirmLayoutProfile: ((profileCode: string, reference: string) => Promise<number>) | undefined;
+
+@Controller('__e2e')
+class LayoutConfirmationController {
+  @Post('layout-confirmation')
+  @Public()
+  async confirm(@Body() body: { profile_code?: string; legal_confirmation_ref?: string }): Promise<{ confirmed: number }> {
+    if (confirmLayoutProfile === undefined || typeof body.profile_code !== 'string' || typeof body.legal_confirmation_ref !== 'string') return { confirmed: 0 };
+    return { confirmed: await confirmLayoutProfile(body.profile_code, body.legal_confirmation_ref) };
+  }
+}
+
 @Controller('__e2e')
 class HealthController {
   @Get('health')
@@ -1786,6 +1802,21 @@ describe('e2e API stack', () => {
     relayPool.on('error', () => undefined);
     const lockPool = new Pool({ connectionString: database.urlFor('machvon_outbox_relay'), max: 6 });
     lockPool.on('error', () => undefined);
+    confirmLayoutProfile = async (profileCode, reference): Promise<number> => {
+      const client = new Client({ connectionString: database.adminUrl });
+      await client.connect();
+      try {
+        // The guard of the layout profile fixes the content of a revision; the legal confirmation is an act made outside the product, so the stack lifts the guard for this one statement.
+        await client.query('begin');
+        await client.query('alter table machvon.document_layout_profile disable trigger user');
+        const done = await client.query("update machvon.document_layout_profile set confirmation_status = 'CONFIRMED', legal_confirmation_ref = $2 where profile_code = $1 and status = 'PUBLISHED'", [profileCode, reference]);
+        await client.query('alter table machvon.document_layout_profile enable trigger user');
+        await client.query('commit');
+        return done.rowCount ?? 0;
+      } finally {
+        await client.end();
+      }
+    };
     let workers: RunningWorkers | undefined;
     let objectRoot: string | undefined;
     let app: INestApplication | undefined;
@@ -1899,7 +1930,7 @@ describe('e2e API stack', () => {
                 // MACHVON_EDITION names the edition the stack serves (the clip dataset of the second edition needs its modules); unset or public leaves the stack as it always was.
                 ...(process.env.MACHVON_EDITION === 'enterprise' ? { edition: await loadEditionManifest('enterprise'), editionModules: await loadEditionModules('enterprise') } : {}),
               })],
-            controllers: [HealthController, ClockController, DevMailboxController, E2eProviderController],
+            controllers: [HealthController, ClockController, LayoutConfirmationController, DevMailboxController, E2eProviderController],
             providers: [
               { provide: SIGNING_KEY, useValue: key },
               { provide: TENANT_RUNTIME, useValue: tenantRuntime },
@@ -1989,6 +2020,8 @@ describe('e2e API stack', () => {
             'issue-sla': 2,
             'outbox-relay': 1,
             'dis-period-autoclose': 86_400,
+            // The sweep that raises the alert levels of the advances over their recovery deadline (the clip data makes one) runs within seconds here.
+            'advance-overdue': 20,
             'dgv-quality-run': 2,
             // The sends that are due go out within seconds, and a send whose result was lost is asked about at its provider soon after (the application does both every 5 seconds and 5 minutes).
             'notification-dispatch': 2,

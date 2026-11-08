@@ -87,8 +87,7 @@
       "screen": {
         "platform": "web",
         "screens": [
-          "HOME-02",
-          "HOME-12"
+          "HOME-02"
         ]
       },
       "steps": [

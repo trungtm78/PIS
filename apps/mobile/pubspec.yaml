@@ -45,6 +45,9 @@ hooks:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/brand/logo-public.png
+    - assets/brand/logo-enterprise.png
   fonts:
     - family: Be Vietnam Pro
       fonts:

@@ -1,14 +1,11 @@
 import { PUBLIC_EDITION_MANIFEST } from '@machvon/kernel/src/edition.ts';
 import type { EditionManifest } from '@machvon/kernel/src/edition.ts';
+import { paletteOf } from '../brand/palettes';
+import { iconSvg } from '../pwa/icon-art';
 
-/** The icon of the browser tab: the mark of the edition on its colour, the same drawing as the one of `index.html`. */
-export function faviconHref(mark: string, color: string): string {
-  const svg =
-    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='" +
-    color +
-    "'/><text x='16' y='22' font-family='Segoe UI,Arial' font-size='14' font-weight='700' fill='white' text-anchor='middle'>" +
-    mark +
-    '</text></svg>';
+/** The icon of the browser tab: the master mark on the tile of the edition (`src/pwa/icon-art.ts`), the same drawing as `/icons/icon.svg` of the public edition. */
+export function faviconHref(edition: string, color: string): string {
+  const svg = iconSvg({ ...paletteOf(edition).mark, background: color });
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
@@ -24,7 +21,7 @@ function headElement(doc: Document, selector: string, create: () => HTMLElement)
  * Puts the brand of the edition in the head of the document: the colour of the browser chrome and the icon of the tab. The public edition keeps
  * what `index.html` already says, so nothing is touched for it. The title is set by the application from the translator (the overlay says it).
  */
-export function applyBrand(doc: Document, manifest: EditionManifest, language: string): void {
+export function applyBrand(doc: Document, manifest: EditionManifest): void {
   if (manifest === PUBLIC_EDITION_MANIFEST) return;
   const color = headElement(doc, 'meta[name="theme-color"]', () => {
     const meta = doc.createElement('meta');
@@ -38,5 +35,5 @@ export function applyBrand(doc: Document, manifest: EditionManifest, language: s
     link.setAttribute('type', 'image/svg+xml');
     return link;
   });
-  icon.setAttribute('href', faviconHref(language === 'en' ? manifest.brand.mark.en : manifest.brand.mark.vi, manifest.brand.themeColor));
+  icon.setAttribute('href', faviconHref(manifest.edition, manifest.brand.themeColor));
 }

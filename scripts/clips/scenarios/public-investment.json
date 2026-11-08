@@ -902,7 +902,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "auditor"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -937,6 +937,10 @@
         {
           "do": "open",
           "screen": "BID-29"
+        },
+        {
+          "do": "wait",
+          "ms": 4500
         },
         {
           "do": "spot",

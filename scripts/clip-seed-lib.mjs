@@ -11,7 +11,7 @@ export const ENTERPRISE_GROUPS = ['clip-ent-projects', 'clip-ent-capital', 'clip
 
 /** The groups of the seed layer each dataset runs, in order (the registry of apps/web/e2e/hdsd/seed/index.ts keeps the order of dependencies). */
 export const DATASET_GROUPS = {
-  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement', 'clip-public-contracts', 'clip-public-payments', 'clip-public-workflow', 'clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-bi', 'clip-public-directives', 'clip-public-committee'],
+  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement', 'clip-public-contracts', 'clip-public-payments', 'clip-public-workflow', 'clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-bi', 'clip-public-directives', 'clip-public-committee', 'clip-public-extras'],
   enterprise: ENTERPRISE_GROUPS,
 };
 
@@ -33,7 +33,7 @@ export const DATASET_PHASES = {
     { clockDays: PAYMENT_SEND_CLOCK, groups: ['clip-public-payments'], env: { CLIP_PAY_STAGE: 'SEND' } },
     ...WORKFLOW_CLOCKS.map((clockDays) => ({ clockDays, groups: ['clip-public-workflow'], env: { CLIP_WORKFLOW_CLOCK: String(clockDays) } })),
     { clockDays: 0, groups: ['clip-public-payments'], env: { CLIP_PAY_STAGE: 'CLOSE' } },
-    { clockDays: 0, groups: ['clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-bi', 'clip-public-directives', 'clip-public-committee'] },
+    { clockDays: 0, groups: ['clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-bi', 'clip-public-directives', 'clip-public-committee', 'clip-public-extras'] },
   ],
   enterprise: [
     { clockDays: 0, groups: ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts'] },
