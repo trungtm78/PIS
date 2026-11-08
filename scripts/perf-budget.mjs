@@ -200,7 +200,7 @@ function readJson(path, label) {
 
 const USAGE = [
   'usage: node scripts/perf-budget.mjs --base-url <url> [--token <jwt>] [--vars <file.json>] [--var name=value] [--only <ids,areas,class>] [--samples <n>] [--warmup <n>] [--stat p50|p95|max]',
-  '                                    [--budget <file>] [--header "Name: value"] [--strict] [--list] [--out <file.json>]',
+  '                                    [--budget <file>] [--header "Name: value"] [--strict] [--list] [--check] [--out <file.json>]',
   'the token can also be given in PERF_TOKEN; the base URL includes the version prefix (https://host/v1).',
 ].join('\n');
 
@@ -222,6 +222,7 @@ export async function main(argv, { log = console.log, env = process.env, fetchIm
         header: { type: 'string', multiple: true },
         strict: { type: 'boolean', default: false },
         list: { type: 'boolean', default: false },
+        check: { type: 'boolean', default: false },
         out: { type: 'string' },
       },
     }));
@@ -242,6 +243,11 @@ export async function main(argv, { log = console.log, env = process.env, fetchIm
     return 2;
   }
   const only = values.only === undefined ? undefined : values.only.split(',').map((item) => item.trim()).filter((item) => item !== '');
+  if (values.check) {
+    const count = (name) => budget.operations.filter((entry) => entry.class === name).length;
+    log(`the budget table is valid: ${budget.operations.length} operations (${Object.keys(budget.classes).map((name) => `${count(name)} ${name} at ${budget.classes[name].budgetMs} ms`).join(', ')})`);
+    return 0;
+  }
   if (values.list) {
     for (const entry of selectOperations(budget, only)) log(`${pad(entry.id, 9)}${pad(entry.class, 9)}${pad(`${budget.classes[entry.class].budgetMs} ms`, 10)}${entry.method} ${entry.path}`);
     return 0;

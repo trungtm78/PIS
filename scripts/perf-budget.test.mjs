@@ -183,6 +183,12 @@ test('main: usage errors, an invalid table and a missing variables file give exi
   }
 });
 
+test('main --check validates the table and says what it holds', async () => {
+  const lines = [];
+  assert.equal(await main(['--check'], { log: (line) => lines.push(line) }), 0);
+  assert.match(lines[0], /^the budget table is valid: \d+ operations \(\d+ FUNCTION at 5000 ms, \d+ REPORT at 20000 ms\)$/);
+});
+
 test('main: lists the table, runs it with variables from a file and the command line, takes the token from the environment and writes the result', async () => {
   const dir = scratch();
   try {

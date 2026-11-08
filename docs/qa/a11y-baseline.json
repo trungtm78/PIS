@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "rules": {
+    "A11Y-IMG-ALT": "an image has an alt attribute (an empty one marks it as decoration)",
+    "A11Y-BUTTON-TYPE": "a native button says its type, so it never submits a form by accident",
+    "A11Y-CONTROL-NAME": "a native input, select or textarea has a name: a label around it, a FormField around it, an id, aria-label, aria-labelledby or title",
+    "A11Y-STATIC-CLICK": "an element that is not interactive and has a click handler also has a role and a key handler",
+    "A11Y-TABINDEX": "tabIndex is never positive (it breaks the order of the page)",
+    "A11Y-BLANK-REL": "a link that opens a new tab says rel=\"noopener\" (noreferrer implies it)",
+    "A11Y-SVG-NAME": "an inline svg is hidden from assistive technology or has a name",
+    "A11Y-ANCHOR-HREF": "an anchor has an href (otherwise it is a button)",
+    "A11Y-OUTLINE-NONE": "a stylesheet does not remove the focus outline without a visible replacement",
+    "RSP-FIXED-WIDTH": "an inline style does not fix a width of 600 px or more (a phone is 390 px wide)",
+    "RSP-VIEWPORT-WIDTH": "nothing is sized with 100vw (it ignores the scrollbar and overflows)",
+    "RSP-VIEWPORT-META": "the page has a device-width viewport that allows zoom, and a language"
+  },
+  "violations": {
+    "A11Y-STATIC-CLICK": {
+      "apps/web/src/ui/ProcessTree.tsx": 1
+    }
+  }
+}
