@@ -374,6 +374,79 @@
       ],
       "captions": [],
       "expectedSec": 14.8
+    },
+    {
+      "id": "ph-pwa",
+      "chapter": "phone",
+      "main": true,
+      "narration": "Người không cài ứng dụng dùng PWA, ứng dụng web cài thẳng vào màn hình chính. Chạm Cài đặt ứng dụng, rồi mở như một ứng dụng thật, không có thanh địa chỉ. Thông báo đẩy chỉ mang đường dẫn, không mang số liệu. Bên trong có hàng đợi phê duyệt, bảng điều hành và theo dõi chỉ đạo. PWA chỉ lưu vỏ ứng dụng, không lưu dữ liệu, đăng xuất là xóa sạch.",
+      "screen": {
+        "platform": "pwa",
+        "screens": [
+          "PWA-01",
+          "PWA-02",
+          "PWA-03",
+          "PWA-04"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "PWA-01"
+        },
+        {
+          "do": "click",
+          "ref": "pwa.install.button"
+        },
+        {
+          "do": "open",
+          "screen": "PWA-02"
+        },
+        {
+          "do": "spot",
+          "ref": "pwa.approvals.queue"
+        },
+        {
+          "do": "open",
+          "screen": "PWA-03"
+        },
+        {
+          "do": "spot",
+          "ref": "pwa.dashboard.cards"
+        },
+        {
+          "do": "open",
+          "screen": "PWA-04"
+        },
+        {
+          "do": "spot",
+          "ref": "pwa.directives.list"
+        }
+      ],
+      "captions": [
+        {
+          "text": "PWA: chỉ lưu vỏ ứng dụng, không lưu dữ liệu",
+          "atSec": 4,
+          "forSec": 6
+        }
+      ],
+      "layout": "phone-right",
+      "headline": "PWA cài vào màn hình chính",
+      "callouts": [
+        {
+          "text": "Cài đặt vào màn hình chính",
+          "anchor": "phone",
+          "x": 0.3,
+          "y": 0.17,
+          "atSec": 3,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 26.7
     }
   ]
 }
