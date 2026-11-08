@@ -55,6 +55,8 @@ export class HomeConnectorSources {
 
   private async nationalNetwork(context: SourceContext): Promise<SourceRow[]> {
     return [...(await this.egpItems(context)), ...(await this.feedItems(context))];
+    const own = [...(await this.egpItems(context)), ...(await this.feedItems(context))];
+    return [...own, ...(await this.hubItems(context, own))];
   }
 
   private async egpItems(context: SourceContext): Promise<SourceRow[]> {
@@ -81,6 +83,41 @@ export class HomeConnectorSources {
       target: { screen: 'BID-22', id: connection.id },
     };
     return forAudience(context, 'CONNECTOR', CONNECTOR_AUDIENCE_PERMISSION, [row], true);
+  }
+
+  /**
+   * The open incidents of the Integration Hub (HUB-2): a connector whose last runs failed (CONNECTOR_FAILING), one whose data is older than its rule allows (CONNECTOR_STALE) and many stale at once (CONNECTOR_HUB_STALE).
+   * The stale incident of a connection that raises a stale alert of its own (e-GP and the feed) is left out when that alert is on the list of the reader, which carries the same cause, so the centre shows the cause once. Acknowledged incidents stay on
+   * the list as taken up; resolved ones are gone. The severity is the one the hub fixed when it opened the incident from its policy.
+   */
+  private async hubItems(context: SourceContext, own: readonly SourceRow[]): Promise<SourceRow[]> {
+    const incidents = await this.hub.listIncidents(context.tx, { open: true, limit: 200, after: undefined });
+    const rows: SourceRow[] = [];
+    for (const incident of incidents) {
+      if (incident.kind === 'MANUAL') continue;
+      const code = incident.connectorCode;
+      // The stale alert of e-GP and of the feed carries the same cause: the incident is left out only when that alert is on the list of this reader (it has its own audience), never otherwise.
+      if (incident.kind === 'STALE' && own.some((row) => row.causeKey === `connector:${code}`)) continue;
+      const kind = incident.kind === 'FAILING' ? 'CONNECTOR_FAILING' : incident.kind === 'STALE' ? 'CONNECTOR_STALE' : 'CONNECTOR_HUB_STALE';
+      const facet = `${incident.kind === 'FAILING' ? 'FAILING' : incident.kind === 'STALE' ? 'STALE' : 'HUB_STALE'}_${incident.severity}`;
+      const title = incident.kind === 'FAILING' ? message('home.source.connector_failing.title', { code: code ?? '' }) : incident.kind === 'STALE' ? message('home.source.connector.title', { code: code ?? '' }) : message('home.source.connector_hub_stale.title');
+      rows.push({
+        ...base(kind),
+        id: `hub-incident:${incident.id}`,
+        dueOn: context.today,
+        originalDueOn: incident.openedAt.slice(0, 10),
+        title,
+        subtitle: incident.summary,
+        status: incident.state === 'ACKNOWLEDGED' ? 'ACKNOWLEDGED' : 'OPEN',
+        severity: severityOf('CONNECTOR', facet, context.rules),
+        lifecycle: incident.state === 'ACKNOWLEDGED' ? 'CLAIMED' : 'NEW',
+        consequence: CONSEQUENCES[kind] ?? null,
+        causeKey: code === null ? 'connector:hub' : `connector:${code}`,
+        startedAt: incident.openedAt,
+        target: { screen: 'HUB-03', id: incident.id },
+      });
+    }
+    return forAudience(context, 'CONNECTOR', HUB_AUDIENCE_PERMISSION, rows, true);
   }
 
   /**

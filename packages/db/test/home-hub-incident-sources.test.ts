@@ -88,6 +88,13 @@ describe('the incidents of the Integration Hub in the alert centre', () => {
     expect((await read([HUB_AUDIENCE_PERMISSION])).map((row) => row.kind)).toEqual(['CONNECTOR_STALE']);
   });
 
+  it('keeps the stale incident of e-GP on the list of a reader whom the alert of the connection itself does not reach (the deduplication never hides what the reader may manage)', async () => {
+    await seedFile('EGP_TBMT_FILE', 'APPLIED', new Date(NOW.getTime() - 400 * 3_600_000));
+    await sweep(new Date(NOW.getTime() + 10 * 3_600_000));
+    const rows = await read([HUB_AUDIENCE_PERMISSION]);
+    expect(rows.find((row) => row.causeKey === 'connector:egp.muasamcong')).toMatchObject({ kind: 'CONNECTOR_STALE', target: { screen: 'HUB-03' } });
+  });
+
   it('does not show one tenant the incidents of another', async () => {
     expect(await read([HUB_AUDIENCE_PERMISSION], TENANT_B)).toEqual([]);
   });
