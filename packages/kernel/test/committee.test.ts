@@ -18,6 +18,8 @@ import {
 } from '../src/committee';
 import { builtInDefault, registerAllGovernanceRules, validateRuleParams } from '../src/governance-rules';
 import { message } from '../src/messages';
+import { COMMITTEE_PACK_LAYOUT, packDatasetsOf } from '../src/committee-pack-form';
+import { validateLayout } from '../src/report-layout';
 
 const POLICY = COMMITTEE_POLICY_DEFAULTS;
 const ASOF = '2026-09-30';
@@ -322,3 +324,20 @@ describe('the workspace', () => {
 });
 
 const SEED_UNIT = '00000000-0000-4000-8100-000000000001';
+
+describe('the meeting pack form', () => {
+  it('is a valid READY layout whose datasets are the rows of the workspace, with unknown values left null', () => {
+    validateLayout(COMMITTEE_PACK_LAYOUT);
+    expect(COMMITTEE_PACK_LAYOUT.status).toBe('READY');
+    expect(JSON.stringify(COMMITTEE_PACK_LAYOUT).toLowerCase()).not.toMatch(/simulat|mo phong/);
+    const workspace = buildWorkspace(seedProvinceFacts(ASOF), null, POLICY, [{ unitId: SEED_UNIT, unitName: 'X', overdue: 1, escalated: 0 }]);
+    const datasets = packDatasetsOf(workspace, [{ unitName: 'X', open: 2, overdue: 1, escalated: 0 }], workspace.attention);
+    expect(Object.keys(datasets).sort()).toEqual(['attention', 'directives', 'districts', 'funds', 'investors', 'province', 'sectors']);
+    expect(datasets.sectors?.length).toBe(workspace.bySector.length);
+    expect(datasets.province?.[0]?.plan).toBe(workspace.province.planVnd);
+    expect(datasets.directives?.[0]).toMatchObject({ name: 'X', open: 2, overdue: 1 });
+    const unknown = packDatasetsOf(buildWorkspace(facts({ lines: [line({ disbursedVnd: null })] }), null, POLICY), [], []);
+    expect(unknown.province?.[0]?.disbursed).toBeNull();
+    expect(unknown.province?.[0]?.rate).toBeNull();
+  });
+});
