@@ -1,6 +1,6 @@
 import { DeliveryEngine } from '@machvon/db';
 import type { AuditWriter, InboxHandlerRegistry } from '@machvon/db';
-import { isProductionEnvironment } from '@machvon/kernel';
+import { TEAMS_OUTBOX_VARIABLE, isProductionEnvironment } from '@machvon/kernel';
 import type { MetricsSink } from '@machvon/kernel';
 import { dedupeKeyOf } from '../dedupe';
 import { channelCallbackHandler } from './callback-handler';
@@ -9,6 +9,7 @@ import { MockPushProvider } from '../push/ports';
 import { WebAwarePushProvider, WebPushProvider, allowedSuffixesFromEnv, webPushSenderFromEnv } from '../push/web-push';
 import { ChannelAdapterRegistry, inMemoryEmailAdapter } from './channel-adapters';
 import { SmsHoursAdapter } from './sms-adapter';
+import { FileTeamsCardSink, TeamsOutboxChannelAdapter } from './teams-adapter';
 import type { WebhookPayloadStore } from './webhook-support';
 
 /**
@@ -17,10 +18,14 @@ import type { WebhookPayloadStore } from './webhook-support';
  * where `MACHVON_ENVIRONMENT` is production, dr or not named.
  */
 export function defaultChannelAdapters(environment: string | undefined, variables: Readonly<Record<string, string | undefined>> = process.env): ChannelAdapterRegistry {
+  // The Teams channel (WF-1) hands its cards to an outbox directory a relay of the operator reads: it exists only where the directory is named, and where real data lives it is PROPOSED (never sends) until the relay is contracted.
+  const teamsDirectory = variables[TEAMS_OUTBOX_VARIABLE];
+  const teams = teamsDirectory === undefined || teamsDirectory === '' ? [] : [new TeamsOutboxChannelAdapter(new FileTeamsCardSink(teamsDirectory), isProductionEnvironment(environment) ? 'PROPOSED' : 'MOCK')];
   return new ChannelAdapterRegistry(
     isProductionEnvironment(environment)
-      ? []
+      ? teams
       : [
+          ...teams,
           inMemoryEmailAdapter(),
           // PUSH_FCM serves Android and the web: a token that is a web subscription (the installed manager application, YCK.01) goes to the web provider, which is the
           // stand-in until the VAPID keys are configured; every other token to the native one.

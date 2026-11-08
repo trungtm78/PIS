@@ -26,7 +26,7 @@ export interface NotificationDefinition {
 }
 
 const PRIORITIES: readonly string[] = ['CRITICAL', 'HIGH', 'NORMAL', 'LOW'];
-const CHANNELS: readonly string[] = ['IN_APP', 'EMAIL', 'SMS', 'PUSH_FCM', 'PUSH_APNS', 'ZALO_OA', 'ZALO_ZNS', 'WHATSAPP'];
+const CHANNELS: readonly string[] = ['IN_APP', 'EMAIL', 'SMS', 'PUSH_FCM', 'PUSH_APNS', 'ZALO_OA', 'ZALO_ZNS', 'WHATSAPP', 'TEAMS'];
 const MAX_CHANNELS = 6;
 const TEMPLATE_CODE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$/;
 const DEFAULT_EXPIRY_MINUTES = 7 * 24 * 60;
