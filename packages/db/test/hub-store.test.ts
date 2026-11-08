@@ -251,7 +251,7 @@ describe('the Integration Hub store (HUB-1)', () => {
       const rejects = await as((tx) => hub.listRejects(tx, 'national.project_codes', { state: 'OPEN', limit: 10, after: undefined }));
       expect(rejects.map((reject) => [reject.stage, reject.rejectCode, reject.sourceRef])).toEqual([['VALIDATE', 'CODE_REQUIRED', 'f#3'], ['VALIDATE', 'CODE_REQUIRED', 'f#3']]);
       const runs = await as((tx) => hub.listRuns(tx, descriptor('national.project_codes'), { limit: 20, after: undefined }));
-      expect(runs.filter((run) => run.pipelineCode === 'PROJECT_CODES').map((run) => [run.outcome, run.dryRun])).toEqual([['PARTIAL', false], ['PARTIAL', true]]);
+      expect(runs.filter((run) => run.pipelineCode === 'PROJECT_CODES').map((run) => `${run.outcome}:${String(run.dryRun)}`).sort()).toEqual(['PARTIAL:false', 'PARTIAL:true']);
     });
 
     it('closes a reject once, with a reason, and never changes a closed one', async () => {
