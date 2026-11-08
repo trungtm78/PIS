@@ -118,3 +118,11 @@
   gap: 8px;
   margin: 0 0 8px;
 }
+
+/* CA-3: the proposals of a rating of the contractor */
+.ca3-proposals { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4, 16px); }
+.ca3-badges { display: flex; flex-wrap: wrap; gap: var(--space-2, 8px); align-items: center; }
+.ca3-criteria { width: 100%; border-collapse: collapse; }
+.ca3-criteria th, .ca3-criteria td { text-align: left; padding: var(--space-2, 8px); border-bottom: 1px solid var(--line, #d9dde3); vertical-align: top; }
+.ca3-overrides { border: 1px solid var(--line, #d9dde3); padding: var(--space-3, 12px); display: grid; gap: var(--space-2, 8px); }
+.ca3-related { margin-right: var(--space-3, 12px); }

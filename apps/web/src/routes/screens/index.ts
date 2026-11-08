@@ -244,6 +244,7 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'CTR-27': () => import('../../screens/gov4/ChangeTierScreen'),
   // The analytics of the contract portfolio (CA-1, part 2).
   'CTR-28': () => import('../../screens/ctr/analytics/HubScreen'),
+  'CTR-32': () => import('../../screens/ctr/analytics/RatingScreen'),
   'CTR-29': () => import('../../screens/ctr/analytics/PortfolioScreen'),
   'CTR-30': () => import('../../screens/ctr/analytics/BidVarianceScreen'),
   'CTR-31': () => import('../../screens/ctr/analytics/ConcentrationScreen'),
