@@ -55,7 +55,7 @@ export interface AiRequestRow {
   profileVersionId: string;
   promptVersionId: string | null;
   dataClassification: Classification;
-  classificationBasis: Array<{ document_version_id: string; classification: Classification }>;
+  classificationBasis: Array<{ document_version_id: string; classification: Classification } | { record_kind: string; record_id: string; classification: Classification }>;
   anonymisationAttestationId: string | null;
   policyVersionId: string | null;
   routeClass: Route | null;

@@ -21,6 +21,14 @@ export interface ProviderRow {
   createdBy: string;
   createdAt: string;
   version: number;
+  /** Where the provider processes and stores the data it is sent, and whether it trains on it: attested by a person (AI-2, R5). */
+  dataLocationCountry: string | null;
+  dataLocationDetail: string | null;
+  noTrainingAttested: boolean;
+  attestationRef: string | null;
+  attestationDocumentId: string | null;
+  attestedBy: string | null;
+  attestedAt: string | null;
 }
 
 export interface ModelRow {
@@ -98,6 +106,13 @@ interface Sql {
   approved_by: string | null;
   created_by: string;
   created_at: string | number | Date;
+  data_location_country: string | null;
+  data_location_detail: string | null;
+  no_training_attested: boolean;
+  attestation_ref: string | null;
+  attestation_document_id: string | null;
+  attested_by: string | null;
+  attested_at: string | number | Date | null;
   provider_id: string;
   model_id: string;
   model_version: string | null;
@@ -111,7 +126,8 @@ interface Sql {
   effective_from: string | number | Date;
 }
 
-const PROVIDER = `select id, provider_code, name, region_country, route_class, max_classification, data_agreement_document_id, d07_approval_ref, adapter_status, status, approved_by, created_by, created_at, version::text as version
+const PROVIDER = `select id, provider_code, name, region_country, route_class, max_classification, data_agreement_document_id, d07_approval_ref, adapter_status, status, approved_by, created_by, created_at, version::text as version,
+  data_location_country, data_location_detail, no_training_attested, attestation_ref, attestation_document_id, attested_by, attested_at
   from machvon.ai_provider`;
 const MODEL = `select id, provider_id, model_id, model_version, capabilities, context_window, max_output, max_classification, status, created_by, created_at, version::text as version from machvon.ai_model`;
 const POLICY = `select id, revision, matrix_json, international_enabled, d07_approval_ref, legal_basis, effective_from, status, approved_by, created_by, created_at, version::text as version
@@ -132,8 +148,15 @@ const provider = (row: Sql): ProviderRow => ({
   createdBy: row.created_by,
   createdAt: new Date(row.created_at).toISOString(),
   version: Number(row.version),
+  dataLocationCountry: row.data_location_country === null ? null : row.data_location_country.trim(),
+  dataLocationDetail: row.data_location_detail,
+  noTrainingAttested: row.no_training_attested,
+  attestationRef: row.attestation_ref,
+  attestationDocumentId: row.attestation_document_id,
+  attestedBy: row.attested_by,
+  attestedAt: row.attested_at === null ? null : new Date(row.attested_at).toISOString(),
 });
-const model = (row: Sql): ModelRow => ({
+const model =(row: Sql): ModelRow => ({
   id: row.id,
   providerId: row.provider_id,
   modelId: row.model_id,
@@ -208,6 +231,28 @@ export class LlmRegistryStore {
     assertActivation({ routeClass: named.routeClass, maxClassification: named.maxClassification, d07ApprovalRef: d07, dataAgreementDocumentId: named.dataAgreementDocumentId, registeredBy: named.createdBy, actor: input.actor });
     await tx.query("update machvon.ai_provider set status = 'ACTIVE', d07_approval_ref = $2, approved_by = $3::uuid, updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid", [id, d07, input.actor]);
     return (await this.findProvider(tx, id)) as ProviderRow;
+  }
+
+  /** Records where a provider keeps the data and whether it trains on it (AI-2, R5): by a person, with the paper; the version moves so that a stale screen cannot overwrite it. */
+  async attestProvider(
+    tx: TenantTx,
+    id: string,
+    input: { dataLocationCountry: string; dataLocationDetail: string | null; noTrainingAttested: boolean; attestationRef: string; attestationDocumentId: string | null; actor: string; expectedVersion: number },
+  ): Promise<{ row: ProviderRow; before: ProviderRow }> {
+    const before = await this.findProvider(tx, id, true);
+    if (before === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    if (before.version !== input.expectedVersion) throw new DomainError('VERSION_CONFLICT', 409);
+    if (before.status === 'RETIRED') throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'status');
+    if (input.attestationDocumentId !== null) {
+      const document = await tx.query('select 1 from machvon.document where id = $1::uuid', [input.attestationDocumentId]);
+      if (document.length === 0) throw new DomainError('VALIDATION_FAILED', 422, 'attestation_document_id');
+    }
+    await tx.query(
+      `update machvon.ai_provider set data_location_country = $2, data_location_detail = $3, no_training_attested = $4::boolean, attestation_ref = $5, attestation_document_id = $6::uuid, attested_by = $7::uuid, attested_at = now(),
+         updated_at = now(), updated_by = $7::uuid, version = version + 1 where id = $1::uuid`,
+      [id, input.dataLocationCountry, input.dataLocationDetail, input.noTrainingAttested, input.attestationRef, input.attestationDocumentId, input.actor],
+    );
+    return { row: (await this.findProvider(tx, id)) as ProviderRow, before };
   }
 
   // ---- models ------------------------------------------------------------------------------------------------------------------------------

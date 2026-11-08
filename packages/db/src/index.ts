@@ -1740,3 +1740,10 @@ export type { ActingRecord, NewActing } from './iam-acting-store.ts';
 export { PeriodScopeStore } from './iam-period-scope-store.ts';
 export type { PeriodScopeRecord, PeriodScopeStatus } from './iam-period-scope-store.ts';
 export type { DelegationKind, NewStandingDelegation } from './delegation-store.ts';
+// AI-2: the AI assistant (runs, decisions, checklists, criteria), the readers of its sources and the exceptions to the routing of an edition.
+export { AiAssistStore } from './ai-assist-store.ts';
+export type { AssistDecisionRow, AssistRunRow, ChecklistRow, CriteriaSetRow, NewAssistRun, Page as AssistPage, RunFilter as AssistRunFilter } from './ai-assist-store.ts';
+export { AiAssistSourceStore } from './ai-assist-source-store.ts';
+export type { AssistReadScopes, ReadableSource } from './ai-assist-source-store.ts';
+export { LlmExternalExceptionStore } from './llm-external-exception-store.ts';
+export type { AiExceptionFilter, ExceptionRow, ExceptionUseRow } from './llm-external-exception-store.ts';
