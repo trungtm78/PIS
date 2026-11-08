@@ -108,7 +108,7 @@ describe('the register reports and the rating of the contractors over HTTP (CA-3
     counter += 1;
     await rows(
       `insert into machvon.quality_nonconformance (tenant_id, id, project_id, contract_id, severity, action_owner_id, due_at, status, closure_evidence, ncr_no, title, detected_on, reopen_count, reopened_at, blocks_acceptance, created_by, updated_by, closed_at, closed_by, closure_note, verified_by, verified_at)
-       values ($1, gen_random_uuid(), $2, $3, $4, $5, $6::timestamptz, $7, '[]'::jsonb, $8, $9, current_date - 20, $10, case when $10 > 0 then now() else null end, false, $5, $5,
+       values ($1, gen_random_uuid(), $2, $3, $4, $5, $6::timestamptz, $7, '[]'::jsonb, $8, $9, current_date - 20, $10, case when $10 > 0 then now() else null end, ($4 = 'CRITICAL'), $5, $5,
                case when $7 in ('CLOSED') then now() else null end, case when $7 in ('CLOSED') then $11::uuid else null end, case when $7 in ('CLOSED') then 'Closed' else null end,
                case when $7 in ('VERIFIED', 'CLOSED') then $11::uuid else null end, case when $7 in ('VERIFIED', 'CLOSED') then now() else null end)`,
       [TENANT_A, project, ids[code], severity, memberId(ADMIN), at(patch.dueOffset), status, `NCR-C3-${counter}`, `Defect ${counter}`, patch.reopen ?? 0, memberId(SECOND)],
