@@ -8,7 +8,7 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { ConfirmDialog, ContextBar, SectionCard, StatusPill } from '../../ui';
-import { commaText, dayText, vndText } from './common';
+import { codeKey, commaText, dayText, vndText } from './common';
 import { AnaFigureInfo, NaNote, UnverifiedNote } from './components';
 import { useMultiRanking, useRankingCommands } from './ranking-hooks';
 import { ANNOTATE_PERMISSION, COMPLAIN_PERMISSION, NOTES_PATH, RANKING_PATH } from './ranking-model';
@@ -69,7 +69,7 @@ export function rankReason(t: T, reason: string): string {
 }
 
 /** The words of a reason of an annotation: the platform's own reasons are translated, one a tenant added is written as its code. */
-export const annotationReasonLabel = (t: T, code: string): string => (translator.has(`ana.rank.reason.${code}`) ? t(`ana.rank.reason.${code}`) : code);
+export const annotationReasonLabel = (t: T, code: string): string => (translator.has(`ana.rank.reason.${codeKey(code)}`) ? t(`ana.rank.reason.${codeKey(code)}`) : code);
 
 function valueText(t: T, metric: MetricView): string {
   if (metric.value === null) return t('ana.common.na');

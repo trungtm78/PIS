@@ -5,6 +5,8 @@ export const text = (value: unknown): string => (typeof value === 'string' ? val
 export const nullableText = (value: unknown): string | null => (typeof value === 'string' ? value : null);
 export const nullableNumber = (value: unknown): number | null => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 export const flag = (value: unknown): boolean | null => (typeof value === 'boolean' ? value : null);
+// A code such as LAND_CLEARANCE is looked up under the lower-camel key landClearance.
+export const codeKey = (code: string): string => code.toLowerCase().replace(/_([a-z0-9])/g, (_match, letter: string) => letter.toUpperCase());
 export const list = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
 
 /** Whole dong written with dots between the thousands ("1.234.567"); a value that is not a whole number gives the placeholder. */

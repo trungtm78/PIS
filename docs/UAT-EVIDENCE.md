@@ -7,6 +7,8 @@ Screens complete: 63 of 589 (10.7 percent); screens with no test of the design: 
 Requirement rows complete: 63 of 589 (589 requirements); by state: PASS 63, WAIVED 0, UNPROVEN 1, NOT_RUN 524, SKIPPED 0, FAIL 1, GAP 0.
 Screens complete: 63 of 535 (11.8 percent); screens with no test of the design: 0.
 Requirement rows complete: 63 of 535 (535 requirements); by state: PASS 63, WAIVED 0, UNPROVEN 1, NOT_RUN 470, SKIPPED 0, FAIL 1, GAP 0.
+Screens complete: 63 of 542 (11.6 percent); screens with no test of the design: 0.
+Requirement rows complete: 63 of 542 (542 requirements); by state: PASS 63, WAIVED 0, UNPROVEN 1, NOT_RUN 477, SKIPPED 0, FAIL 1, GAP 0.
 A row is PASS only when every test it names has a recorded PASS with its evidence (when it ran, the build, the schema version, the hash of the dataset, the request ids and a link to the evidence). FAIL, SKIPPED and NOT_RUN never count as PASS; a PASS without its evidence is UNPROVEN; a row without any known test is a GAP; WAIVED needs an approved waiver with an owner, a reason and an expiry that has not passed.
 
 ## Critical tests (money, isolation, restore)
@@ -653,6 +655,16 @@ Every screen names at least one test.
 | CTR-33 | CTR | NOT_RUN |
 | PRJ-28 | PRJ | NOT_RUN |
 | PRJ-29 | PRJ | NOT_RUN |
+| BI-21 | BI | NOT_RUN |
+| BI-22 | BI | NOT_RUN |
+| BI-23 | BI | NOT_RUN |
+| BI-24 | BI | NOT_RUN |
+| BI-25 | BI | NOT_RUN |
+| BI-26 | BI | NOT_RUN |
+| BI-27 | BI | NOT_RUN |
+| BI-28 | BI | NOT_RUN |
+| BI-29 | BI | NOT_RUN |
+| BI-30 | BI | NOT_RUN |
 
 ## Requirements
 
@@ -1255,3 +1267,13 @@ Every screen names at least one test.
 | FR-CTR-33 | CTR-33 | UI-CTR-33 NOT_RUN | NOT_RUN |
 | FR-PRJ-28 | PRJ-28 | UI-PRJ-28 NOT_RUN | NOT_RUN |
 | FR-PRJ-29 | PRJ-29 | UI-PRJ-29 NOT_RUN | NOT_RUN |
+| FR-BI-21 | BI-21 | UI-BI-21 NOT_RUN<br>UAT-PLAN-2580 NOT_RUN<br>UAT-PLAN-2581 NOT_RUN | NOT_RUN |
+| FR-BI-22 | BI-22 | UI-BI-22 NOT_RUN<br>UAT-PLAN-2582 NOT_RUN<br>UAT-PLAN-2583 NOT_RUN | NOT_RUN |
+| FR-BI-23 | BI-23 | UI-BI-23 NOT_RUN<br>UAT-PLAN-2584 NOT_RUN | NOT_RUN |
+| FR-BI-24 | BI-24 | UI-BI-24 NOT_RUN<br>UAT-PLAN-2585 NOT_RUN | NOT_RUN |
+| FR-BI-25 | BI-25 | UI-BI-25 NOT_RUN<br>UAT-PLAN-2586 NOT_RUN | NOT_RUN |
+| FR-BI-26 | BI-26 | UI-BI-26 NOT_RUN<br>UAT-PLAN-2587 NOT_RUN<br>UAT-PLAN-2588 NOT_RUN | NOT_RUN |
+| FR-BI-27 | BI-27 | UI-BI-27 NOT_RUN<br>UAT-PLAN-2589 NOT_RUN | NOT_RUN |
+| FR-BI-28 | BI-28 | UI-BI-28 NOT_RUN<br>UAT-PLAN-2590 NOT_RUN<br>UAT-PLAN-2591 NOT_RUN | NOT_RUN |
+| FR-BI-29 | BI-29 | UI-BI-29 NOT_RUN<br>UAT-PLAN-2592 NOT_RUN | NOT_RUN |
+| FR-BI-30 | BI-30 | UI-BI-30 NOT_RUN<br>UAT-PLAN-2593 NOT_RUN | NOT_RUN |

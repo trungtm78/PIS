@@ -10,13 +10,13 @@ import { ContextBar, SectionCard, StatusPill } from '../../ui';
 import { useBottlenecks } from './bottleneck-hooks';
 import { HALTED_PATH, sourceLink } from './bottleneck-model';
 import type { Analysis, Holder, Item, Source } from './bottleneck-model';
-import { dayText, vndText } from './common';
+import { codeKey, dayText, vndText } from './common';
 import { AnaFigureInfo, NaNote, UnverifiedNote } from './components';
 
 type T = Translator['t'];
 
-export const causeLabel = (t: T, code: string): string => (translator.has(`ana.bn.cause.${code}`) ? t(`ana.bn.cause.${code}`) : code);
-export const causeAction = (t: T, code: string): string => (translator.has(`ana.bn.action.${code}`) ? t(`ana.bn.action.${code}`) : t('ana.bn.action.default'));
+export const causeLabel = (t: T, code: string): string => (translator.has(`ana.bn.cause.${codeKey(code)}`) ? t(`ana.bn.cause.${codeKey(code)}`) : code);
+export const causeAction = (t: T, code: string): string => (translator.has(`ana.bn.action.${codeKey(code)}`) ? t(`ana.bn.action.${codeKey(code)}`) : t('ana.bn.action.default'));
 
 function sourceLabel(t: T, source: Source): string {
   switch (source) {

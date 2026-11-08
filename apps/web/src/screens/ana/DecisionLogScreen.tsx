@@ -9,7 +9,7 @@ import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { ConfirmDialog, ContextBar, SectionCard, StatusPill } from '../../ui';
 import type { Tone } from '../../ui';
-import { dayText } from './common';
+import { codeKey, dayText } from './common';
 import { UnverifiedNote } from './components';
 import { useDecision, useDecisionCommands, useDecisions } from './decision-hooks';
 import type { DecisionFilters } from './decision-hooks';
@@ -20,7 +20,7 @@ type T = Translator['t'];
 const COMMAND_CENTER_PATH = '/home/home-09';
 
 /** The words of a kind of decision: the platform's own kinds have a translation; a kind a tenant added is written as its code. */
-export const kindLabel = (t: T, kind: string): string => (translator.has(`ana.decision.kind.${kind}`) ? t(`ana.decision.kind.${kind}`) : kind);
+export const kindLabel = (t: T, kind: string): string => (translator.has(`ana.decision.kind.${codeKey(kind)}`) ? t(`ana.decision.kind.${codeKey(kind)}`) : kind);
 
 export function subjectLabel(t: T, item: Pick<DecisionItem, 'subjectKind' | 'metricCode' | 'title' | 'source' | 'sourceId' | 'unitName'>): string {
   if (item.subjectKind === 'KPI_TILE') return t('ana.decision.subject.tile', { code: item.metricCode ?? '', unit: item.unitName ?? t('ana.decision.subject.wholeScope') });
