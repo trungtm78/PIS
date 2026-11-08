@@ -50,6 +50,9 @@ import { DELEGATION_FIXTURES, REORGANIZATION_FIXTURES, QUALITY_FIXTURES, QUALITY
 import { ESCALATION_FIXTURES, ISSUE_FIXTURES, SLA_POLICY_FIXTURES, WORK_CALENDAR_FIXTURES } from '../suite';
 import { TEMPLATE_FIXTURES } from '../suite';
 import { seedVendorFixtures } from './vendor-fixtures';
+import { seedVendorControlsAFixtures } from './vendor-controls-a-fixtures';
+import { seedVendorControlsBFixtures } from './vendor-controls-b-fixtures';
+import { seedVendorControlsCFixtures } from './vendor-controls-c-fixtures';
 import { BI_FIXTURES, LLM_FIXTURES, MNE_FIXTURES } from '../suite';
 import { PERMIT_FIXTURES, PERMIT_TYPE_FIXTURES } from '../suite';
 import { WAIVER_FIXTURES } from '../suite';
@@ -1192,6 +1195,19 @@ const EARLIER_FULL_RIGHTS_OPERATIONS = [
   'getTenantExportManifest',
   'downloadTenantExportFile',
   // VND-1: the management of contractors
+  // VND-2 (alpha): independence, finance and load
+  'listVendorPersonInterests',
+  'getVendorIndependence',
+  'getVendorPackageControls',
+  'getVendorFinance',
+  'getVendorCapacity',
+  'declareVendorPersonInterest',
+  'endVendorPersonInterest',
+  'runVendorIndependenceCheck',
+  'decideVendorIndependenceFinding',
+  'recordVendorFinancialPeriod',
+  'verifyVendorFinancialPeriod',
+  'setVendorPackageControls',
   'listVendorRegister',
   'getVendorContractor',
   'listVendorDuplicates',
@@ -1205,6 +1221,7 @@ const EARLIER_FULL_RIGHTS_OPERATIONS = [
   'createVendorJointVenture',
   'listVendorExpiries',
   'getVendorFigures',
+  'getVendorControlFigures',
   'checkVendorGate',
   'getVendorPackageRequirements',
   'setVendorPackageRequirements',
@@ -1228,12 +1245,36 @@ const EARLIER_FULL_RIGHTS_OPERATIONS = [
   'liftVendorRestrictionCase',
   'postVendorReputationEvent',
   'retractVendorReputationEvent',
+  // VND-2 (gamma): the risk grade and the performance.
+  'assessVendorRisk',
+  'decideVendorRiskGrade',
+  'postVendorPerformance',
+  'getVendorRiskGrade',
+  'listVendorRiskGrades',
+  'getVendorPerformance',
+  'listVendorPerformancePublications',
   'endVendorJointVenture',
   'endVendorOwner',
   'verifyVendorQualification',
   'verifyVendorKeyStaff',
   'revokeVendorQualification',
   'revokeVendorKeyStaff',
+  'receiveVendorBidSecurity',
+  'confirmVendorBidSecurity',
+  'rejectVendorBidSecurity',
+  'proposeVendorBidSecurityForfeiture',
+  'withdrawVendorBidSecurityForfeiture',
+  'decideVendorBidSecurityForfeiture',
+  'releaseVendorBidSecurity',
+  'declareVendorBidSubcontracting',
+  'proposeVendorSubcontract',
+  'approveVendorSubcontract',
+  'rejectVendorSubcontract',
+  'terminateVendorSubcontract',
+  'recordVendorSubcontractPayment',
+  'listVendorBidSecurities',
+  'getVendorBidSecurity',
+  'listVendorSubcontracts',
   'proposeClaimTerm',
   'decideClaimTerm',
   'listClaimTerms',
@@ -2774,6 +2815,9 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const draft = CONTRACT_FIXTURES[tenant];
     await client.query(INSERT_PACKAGE, [tenantId, draft.packageId, project.id, `${draft.code}-PKG`]);
     await client.query(INSERT_CONTRACT, [tenantId, draft.id, project.id, draft.packageId, contractor.id, draft.code, draft.title, ACTOR_ID]);
+    await seedVendorControlsBFixtures(client, tenant, { tenantId, packageId: draft.packageId, contractId: draft.id, contractorId: contractor.id, membershipId: MEMBERSHIP_ID, actorId: ACTOR_ID });
+    await seedVendorControlsAFixtures(client, tenant, { tenantId, packageId: draft.packageId, contractorId: contractor.id, membershipId: MEMBERSHIP_ID, actorId: ACTOR_ID });
+    await seedVendorControlsCFixtures(client, tenant, { tenantId, contractorId: contractor.id, membershipId: MEMBERSHIP_ID });
     await client.query(INSERT_CONTRACT_REVISION, [tenantId, draft.revisionId, draft.id, documents.versionId, ACTOR_ID]);
     const change = CHANGE_FIXTURES[tenant];
     await client.query(INSERT_CHANGE_CONFIG, [tenantId, change.configId, project.id, ACTOR_ID]);
