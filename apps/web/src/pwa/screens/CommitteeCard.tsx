@@ -1,3 +1,4 @@
+import { ApiError } from '@machvon/api-client';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import { useSession } from '../../session/SessionContext';
@@ -19,10 +20,11 @@ export function CommitteeCard() {
   const allowed = may(permissions, PERMISSION.read);
   const query = useWorkspace(NO_FILTERS, allowed);
   const data = query.data;
+  const denied = !allowed || (query.error instanceof ApiError && query.error.status === 403);
   return (
     <SectionCard title={t('ban.pwa.card.title')}>
       <div data-testid="pwa-committee">
-        {!allowed ? (
+        {denied ? (
           <p role="status" data-testid="pwa-committee-denied">
             {t('ban.pwa.card.denied')}
           </p>
