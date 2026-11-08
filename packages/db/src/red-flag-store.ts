@@ -393,7 +393,7 @@ export class RedFlagStore {
   }
 
   /** One finding, or nothing when it does not exist or the reader took part in what it is about (the caller answers 404 for both: the reader must not learn that a finding exists). */
-  async get(tx: TenantTx, reader: string, id: string): Promise<FindingRow | undefined> {
+  async findOne(tx: TenantTx, reader: string, id: string): Promise<FindingRow | undefined> {
     const [row] = await tx.query<Raw>(`select ${FINDING_COLUMNS} from machvon.red_flag_finding f where f.id = $2::uuid and ${NOT_INVOLVED('$1')}`, [reader, id]);
     return row === undefined ? undefined : toFinding(row);
   }
@@ -449,7 +449,7 @@ export class RedFlagStore {
     else if (move === 'REJECT_CLEAR') await tx.query("update machvon.red_flag_finding set status = $2, clear_proposed_by = null, clear_reason = null, version = version + 1 where id = $1::uuid", [id, next]);
     else await tx.query("update machvon.red_flag_finding set status = $2, referred_by = $3::uuid, referred_at = $4::timestamptz, referral_reason = $5, version = version + 1 where id = $1::uuid", [id, next, actor, at, text]);
     await this.history(tx, id, move, current.status, next, actor, text, current.score, now);
-    return (await this.get(tx, actor, id)) as FindingRow;
+    return (await this.findOne(tx, actor, id)) as FindingRow;
   }
 
   // -- the registry (what each indicator is, for the screen) ---------------------------------------------------------------------------------------------------------------------

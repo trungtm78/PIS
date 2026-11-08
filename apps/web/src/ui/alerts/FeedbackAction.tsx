@@ -44,7 +44,7 @@ export function FeedbackAction({ item }: { item: Pick<AlertItem, 'source' | 'id'
           title={t('gov10.feedback.report.title')}
           context={[{ label: t('gov10.feedback.report.item'), value: item.title }]}
           confirmLabel={t('gov10.feedback.report.send')}
-          cancelLabel={t('gov10.cancel')}
+          cancelLabel={t('gov10.dialog.cancel.label')}
           pending={report.isPending}
           onCancel={() => setOpen(false)}
           onConfirm={(note) => {

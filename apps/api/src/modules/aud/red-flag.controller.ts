@@ -233,7 +233,7 @@ export class RedFlagReadsController {
   async get(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string): Promise<Record<string, unknown>> {
     if (!holdsOnWholeTenant(access, READ)) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'id');
     const found = await this.database.withTenant(tenant, async (tx) => {
-      const row = await this.store.get(tx, tenant.membershipId, id.toLowerCase());
+      const row = await this.store.findOne(tx, tenant.membershipId, id.toLowerCase());
       return row === undefined ? undefined : { row, history: await this.store.reviews(tx, row.id) };
     });
     // Whoever took part in the procurement, and whoever asks for what does not exist, hears the same thing.

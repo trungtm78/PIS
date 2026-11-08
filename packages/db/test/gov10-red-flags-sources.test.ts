@@ -93,7 +93,7 @@ describe('red flags and the new alert sources', () => {
       expect(found.rankingVersion).toBe('builtin');
       // A scan of another slot changes nothing but the count of evaluations.
       expect((await as((tx) => flags.scan(tx, NOW, 'slot:test-2', TODAY))).rescored).toBe(0);
-      expect((await as((tx) => flags.get(tx, memberId(AUDITOR), found.id)))?.evaluationCount).toBe(2);
+      expect((await as((tx) => flags.findOne(tx, memberId(AUDITOR), found.id)))?.evaluationCount).toBe(2);
       expect((await as((tx) => flags.summary(tx, memberId(AUDITOR)))).lastScan).toMatchObject({ status: 'FINISHED', subjects: 2 });
     });
 
@@ -101,7 +101,7 @@ describe('red flags and the new alert sources', () => {
       expect(await as((tx) => flags.list(tx, memberId(DRAFTER), { limit: 10, offset: 0 }), TENANT_A, DRAFTER)).toEqual([]);
       expect((await as((tx) => flags.summary(tx, memberId(DRAFTER)), TENANT_A, DRAFTER)).total).toBe(0);
       const [finding] = await as((tx) => flags.list(tx, memberId(AUDITOR), { limit: 10, offset: 0 }));
-      expect(await as((tx) => flags.get(tx, memberId(DRAFTER), (finding as NonNullable<typeof finding>).id), TENANT_A, DRAFTER)).toBeUndefined();
+      expect(await as((tx) => flags.findOne(tx, memberId(DRAFTER), (finding as NonNullable<typeof finding>).id), TENANT_A, DRAFTER)).toBeUndefined();
       await expect(as((tx) => flags.move(tx, (finding as NonNullable<typeof finding>).id, 1, 'TAKE', memberId(DRAFTER), undefined, NOW), TENANT_A, DRAFTER)).rejects.toMatchObject({ code: 'RESOURCE_NOT_FOUND' });
       expect(await as((tx) => flags.list(tx, memberId(AUDITOR), { limit: 10, offset: 0 }), TENANT_B)).toEqual([]);
     });
@@ -123,7 +123,7 @@ describe('red flags and the new alert sources', () => {
       await admin([proposal(FIRST, '800000000')]);
       const reopened = await as((tx) => flags.scan(tx, NOW, 'slot:test-4', TODAY));
       expect(reopened.reopened).toBe(1);
-      const after = await as((tx) => flags.get(tx, memberId(AUDITOR), id));
+      const after = await as((tx) => flags.findOne(tx, memberId(AUDITOR), id));
       expect(after).toMatchObject({ status: 'NEW', reopenedCount: 1, clearedBy: null });
       expect(after?.fired.map((entry) => entry.code)).toEqual(expect.arrayContaining(['IDENTICAL_BID_PRICES']));
       const history = await as((tx) => flags.reviews(tx, id));

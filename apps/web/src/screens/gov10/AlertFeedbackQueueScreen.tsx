@@ -134,7 +134,7 @@ function QueueContent({ route }: ScreenProps) {
           <p className="gov10-notice gov10-notice--warn" role="status" data-testid="feedback-stale">
             {t('gov10.feedback.stale')}{' '}
             <button type="button" className="mv-alert-link" onClick={() => void queue.refetch()}>
-              {t('gov10.retry')}
+              {t('gov10.state.retry.label')}
             </button>
           </p>
         ) : null}
@@ -169,7 +169,7 @@ function QueueContent({ route }: ScreenProps) {
             <p role="alert" data-testid="stats-error">
               {t('gov10.feedback.stats.failed')}{' '}
               <button type="button" className="mv-alert-link" onClick={() => void stats.refetch()}>
-                {t('gov10.retry')}
+                {t('gov10.state.retry.label')}
               </button>
             </p>
           ) : stats.data.items.length === 0 ? (
@@ -189,7 +189,7 @@ function QueueContent({ route }: ScreenProps) {
               { label: t('gov10.feedback.column.reason'), value: feedbackReasonLabel(t, pending.item.reason) },
             ]}
             confirmLabel={title}
-            cancelLabel={t('gov10.cancel')}
+            cancelLabel={t('gov10.dialog.cancel.label')}
             pending={review.isPending}
             onConfirm={confirm}
             onCancel={() => setPending(null)}

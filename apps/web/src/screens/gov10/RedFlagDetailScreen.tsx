@@ -204,7 +204,7 @@ function DetailContent({ route }: ScreenProps) {
                       { label: t('gov10.red.detail.score'), value: String(finding.score) },
                     ]}
                     confirmLabel={titleOf(pending.move)}
-                    cancelLabel={t('gov10.cancel')}
+                    cancelLabel={t('gov10.dialog.cancel.label')}
                     pending={move.isPending}
                     onConfirm={confirm}
                     onCancel={() => setPending(null)}

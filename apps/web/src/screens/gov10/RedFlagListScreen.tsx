@@ -164,7 +164,7 @@ function RedFlagListContent({ route }: ScreenProps) {
           <p className="gov10-notice gov10-notice--warn" role="status" data-testid="red-flag-stale">
             {t('gov10.red.stale')}{' '}
             <button type="button" className="mv-alert-link" onClick={() => void list.refetch()}>
-              {t('gov10.retry')}
+              {t('gov10.state.retry.label')}
             </button>
           </p>
         ) : null}

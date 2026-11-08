@@ -85,7 +85,7 @@ function ClosuresContent({ route }: ScreenProps) {
             <p role="alert" data-testid="flood-error">
               {t('gov10.flood.failed')}{' '}
               <button type="button" className="mv-alert-link" onClick={() => void flood.refetch()}>
-                {t('gov10.retry')}
+                {t('gov10.state.retry.label')}
               </button>
             </p>
           ) : (
@@ -163,7 +163,7 @@ function ClosuresContent({ route }: ScreenProps) {
                 <p role="alert" data-testid="closures-error">
                   {t('gov10.closures.failed')}{' '}
                   <button type="button" className="mv-alert-link" onClick={() => void closures.refetch()}>
-                    {t('gov10.retry')}
+                    {t('gov10.state.retry.label')}
                   </button>
                 </p>
               ) : closures.data.items.length === 0 ? (
@@ -190,7 +190,7 @@ function ClosuresContent({ route }: ScreenProps) {
                   <p role="alert" data-testid="storms-error">
                     {t('gov10.storms.failed')}{' '}
                     <button type="button" className="mv-alert-link" onClick={() => void storms.refetch()}>
-                      {t('gov10.retry')}
+                      {t('gov10.state.retry.label')}
                     </button>
                   </p>
                 ) : storms.data.length === 0 ? (

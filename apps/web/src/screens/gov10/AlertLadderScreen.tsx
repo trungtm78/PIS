@@ -104,7 +104,7 @@ function LadderContent({ route }: ScreenProps) {
           <p className="gov10-notice gov10-notice--warn" role="status" data-testid="ladder-stale">
             {t('gov10.ladder.stale')}{' '}
             <button type="button" className="mv-alert-link" onClick={() => void Promise.all([policies.refetch(), kpi.refetch(), runs.refetch()])}>
-              {t('gov10.retry')}
+              {t('gov10.state.retry.label')}
             </button>
           </p>
         ) : null}
@@ -156,7 +156,7 @@ function LadderContent({ route }: ScreenProps) {
                   <p role="alert" data-testid="kpi-error">
                     {t('gov10.ladder.kpi.failed')}{' '}
                     <button type="button" className="mv-alert-link" onClick={() => void kpi.refetch()}>
-                      {t('gov10.retry')}
+                      {t('gov10.state.retry.label')}
                     </button>
                   </p>
                 ) : (
@@ -226,7 +226,7 @@ function LadderContent({ route }: ScreenProps) {
                   <p role="alert" data-testid="runs-error">
                     {t('gov10.ladder.runs.failed')}{' '}
                     <button type="button" className="mv-alert-link" onClick={() => void runs.refetch()}>
-                      {t('gov10.retry')}
+                      {t('gov10.state.retry.label')}
                     </button>
                   </p>
                 ) : runs.data.items.length === 0 ? (
