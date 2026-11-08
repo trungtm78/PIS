@@ -233,8 +233,8 @@
         {
           "text": "Cài đặt vào màn hình chính",
           "anchor": "phone",
-          "x": 0.5,
-          "y": 0.5,
+          "x": 0.3,
+          "y": 0.17,
           "atSec": 3,
           "forSec": 5
         }
