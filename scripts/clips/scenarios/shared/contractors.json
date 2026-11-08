@@ -212,7 +212,7 @@
       "id": "vnd-egp-link",
       "chapter": "contractors",
       "main": false,
-      "narration": "Quản lý nhà thầu nối với mạng đấu thầu quốc gia qua nhập và xuất tệp. Hệ thống nhận danh sách hạn chế và đăng tải đánh giá thực hiện hợp đồng trong thời hạn. Từng trường giữa số của mình và số trên mạng được đối chiếu. Hệ thống không quét trang web.",
+      "narration": "Quản lý nhà thầu nối với mạng đấu thầu quốc gia qua nhập và xuất tệp. Hệ thống nhận danh sách hạn chế và đăng tải đánh giá thực hiện hợp đồng trong thời hạn. Từng trường giữa số của mình và số trên mạng được đối chiếu. Hệ thống không quét trang web. Mẫu tệp là giả định, chờ đặc tả chính thức.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -239,9 +239,17 @@
           "text": "Chỉ nhập và xuất tệp, không quét trang web",
           "atSec": 3,
           "forSec": 5
+        },
+        {
+          "text": "Mẫu tệp là giả định, chờ đặc tả chính thức",
+          "atSec": 9,
+          "forSec": 6
         }
       ],
-      "expectedSec": 18.5
+      "expectedSec": 21.9,
+      "stamps": [
+        "egp-assumption"
+      ]
     },
     {
       "id": "vnd-redflag",

@@ -731,7 +731,7 @@
       "id": "egp-import",
       "chapter": "egp",
       "main": true,
-      "narration": "Nhập tệp kế hoạch, thông báo, kết quả, nhà thầu hoặc hạn chế. Chạy thử trước, chưa ghi gì: có {{figure:egp-rows-valid}} dòng hợp lệ và {{figure:egp-rows-error}} dòng lỗi, báo theo cột. Áp dụng xong, nhập lại đúng tệp đó bị từ chối.",
+      "narration": "Nhập tệp kế hoạch, thông báo, kết quả, nhà thầu hoặc hạn chế. Chạy thử trước, chưa ghi gì: có {{figure:egp-rows-valid}} dòng hợp lệ và {{figure:egp-rows-error}} dòng lỗi, báo theo cột. Áp dụng xong, nhập lại đúng tệp đó bị từ chối. Mẫu tệp là giả định, chờ đặc tả chính thức.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -765,8 +765,17 @@
           "ref": "bid.egp.import.already-applied"
         }
       ],
-      "captions": [],
-      "expectedSec": 15.1
+      "captions": [
+        {
+          "text": "Mẫu tệp là giả định, chờ đặc tả chính thức",
+          "atSec": 3,
+          "forSec": 6
+        }
+      ],
+      "expectedSec": 18.5,
+      "stamps": [
+        "egp-assumption"
+      ]
     },
     {
       "id": "egp-mapping",

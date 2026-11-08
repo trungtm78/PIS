@@ -594,7 +594,7 @@
       "id": "rpt-generate",
       "chapter": "reports-pvn",
       "main": true,
-      "narration": "Bộ sinh báo cáo điền thẳng vào tệp Excel mẫu, giữ nguyên bố cục, hàng tổng là công thức thật. Phần thuyết minh sinh ra tệp Word, các con số trong lời văn lấy từ cùng chỉ tiêu nên không lệch với bảng.",
+      "narration": "Bộ sinh báo cáo điền thẳng vào tệp Excel mẫu, giữ nguyên bố cục, hàng tổng là công thức thật. Phần thuyết minh sinh ra tệp Word, các con số trong lời văn lấy từ cùng chỉ tiêu nên không lệch với bảng. Sáu biểu mẫu là mẫu demo do hệ thống tự thiết kế.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -624,8 +624,17 @@
           "ref": "rpt.generate.preview-sheet"
         }
       ],
-      "captions": [],
-      "expectedSec": 14.8
+      "captions": [
+        {
+          "text": "MẪU DEMO — chờ mẫu chính thức",
+          "atSec": 2,
+          "forSec": 6
+        }
+      ],
+      "expectedSec": 19.1,
+      "stamps": [
+        "demo-form"
+      ]
     },
     {
       "id": "rpt-six-forms",
@@ -668,7 +677,7 @@
       "id": "rpt-issue",
       "chapter": "reports-pvn",
       "main": true,
-      "narration": "Bản phát hành theo kỳ không sửa được và có mã băm. Người lập, người kiểm tra và người duyệt là ba người khác nhau. Sửa số đã phát hành phải tạo phiên bản mới có lý do, bản cũ vẫn giữ nguyên.",
+      "narration": "Bản phát hành theo kỳ không sửa được và có mã băm. Người lập, người kiểm tra và người duyệt là ba người khác nhau. Sửa số đã phát hành phải tạo phiên bản mới có lý do, bản cũ vẫn giữ nguyên. Bản phát hành này là mẫu demo, chờ mẫu chính thức.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -699,15 +708,23 @@
           "text": "Lập ≠ kiểm ≠ duyệt",
           "atSec": 3,
           "forSec": 5
+        },
+        {
+          "text": "MẪU DEMO — chờ mẫu chính thức",
+          "atSec": 9,
+          "forSec": 5
         }
       ],
-      "expectedSec": 14.8
+      "expectedSec": 18.8,
+      "stamps": [
+        "demo-form"
+      ]
     },
     {
       "id": "rpt-naming",
       "chapter": "reports-pvn",
       "main": false,
-      "narration": "Tên tệp tuân theo quy tắc đặt tên: mã biểu, kỳ, phiên bản và một đoạn mã băm của nội dung. Cùng đầu vào thì ra một tệp giống hệt, nên bên nhận kiểm được tệp mình nhận có đúng bản đã phát hành hay không.",
+      "narration": "Tên tệp tuân theo quy tắc đặt tên: mã biểu, kỳ, phiên bản và một đoạn mã băm của nội dung. Cùng đầu vào thì ra một tệp giống hệt, nên bên nhận kiểm được tệp mình nhận có đúng bản đã phát hành hay không. Đây là mẫu demo, chờ mẫu chính thức.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -728,8 +745,17 @@
           "ref": "rpt.issued.file-name"
         }
       ],
-      "captions": [],
-      "expectedSec": 15.4
+      "captions": [
+        {
+          "text": "MẪU DEMO — chờ mẫu chính thức",
+          "atSec": 3,
+          "forSec": 6
+        }
+      ],
+      "expectedSec": 18.5,
+      "stamps": [
+        "demo-form"
+      ]
     },
     {
       "id": "rpt-word",
@@ -892,7 +918,7 @@
       "id": "hpm-push",
       "chapter": "hpm-ebs",
       "main": true,
-      "narration": "Kỳ đã chốt được đẩy sang HPM. Mỗi lần đẩy có khóa theo tổ chức, kỳ và phiên bản báo cáo, nên gửi lại không bao giờ trùng. Hiện bộ ghi tệp chuẩn thay chỗ HPM, là giả định tạm chờ thông tin kỹ thuật chính thức.",
+      "narration": "Kỳ đã chốt được đẩy sang HPM. Mỗi lần đẩy có khóa theo tổ chức, kỳ và phiên bản báo cáo, nên gửi lại không bao giờ trùng. Hiện bộ ghi tệp chuẩn thay chỗ HPM, là giả định tạm chờ thông tin kỹ thuật chính thức. Biểu mẫu gửi đi là mẫu demo.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -922,18 +948,24 @@
           "text": "Giả định tạm, chờ tài liệu chính thức của bên nhận",
           "atSec": 6,
           "forSec": 8
+        },
+        {
+          "text": "MẪU DEMO — chờ mẫu chính thức",
+          "atSec": 15,
+          "forSec": 4
         }
       ],
       "stamps": [
-        "external-assumption"
+        "external-assumption",
+        "demo-form"
       ],
-      "expectedSec": 17.3
+      "expectedSec": 20
     },
     {
       "id": "hpm-stale",
       "chapter": "hpm-ebs",
       "main": false,
-      "narration": "Bản báo cáo cũ hơn bản HPM đã nhận bị từ chối kèm lý do. Muốn ghi đè một kỳ đã được nhận, phải mở lại kỳ, có điều chỉnh được duyệt, và việc đó ghi vào nhật ký kiểm toán.",
+      "narration": "Bản báo cáo cũ hơn bản HPM đã nhận bị từ chối kèm lý do. Muốn ghi đè một kỳ đã được nhận, phải mở lại kỳ, có điều chỉnh được duyệt, và việc đó ghi vào nhật ký kiểm toán. Bản gửi là mẫu demo, chờ mẫu chính thức.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -951,8 +983,17 @@
           "ref": "hpm.push.stale-refusal"
         }
       ],
-      "captions": [],
-      "expectedSec": 14.5
+      "captions": [
+        {
+          "text": "MẪU DEMO — chờ mẫu chính thức",
+          "atSec": 2,
+          "forSec": 6
+        }
+      ],
+      "expectedSec": 17.9,
+      "stamps": [
+        "demo-form"
+      ]
     },
     {
       "id": "ebs-reconcile",

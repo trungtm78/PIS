@@ -316,7 +316,7 @@
       "id": "tree-alerts",
       "chapter": "process-tree",
       "main": false,
-      "narration": "Quy trình tự sinh cảnh báo. Đó là bước quá hạn, mục bắt buộc sát hạn mà chưa xong, gói đứng yên quá lâu, gói thiếu người phụ trách và thứ tự đăng tải sai trên mạng đấu thầu. Mỗi cảnh báo có chủ, hành động mong đợi và hậu quả.",
+      "narration": "Quy trình tự sinh cảnh báo. Đó là bước quá hạn, mục bắt buộc sát hạn mà chưa xong và gói đứng yên quá lâu. Còn có gói thiếu người phụ trách và thứ tự đăng tải sai trên mạng đấu thầu. Mỗi cảnh báo có chủ, hành động mong đợi và hậu quả.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -339,7 +339,7 @@
         }
       ],
       "captions": [],
-      "expectedSec": 17.3
+      "expectedSec": 18.5
     }
   ]
 }
