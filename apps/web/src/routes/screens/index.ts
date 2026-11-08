@@ -543,12 +543,12 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'IND-03': () => import('../../screens/ind/MappingsScreen'),
   // GOV-11a: reallocation by performance, milestones and forecast accuracy, Treasury clocks, settlement clocks and linkage, look-ahead and lessons learned.
   'CAP-23': () => import('../../screens/gov11/ReallocationImpactScreen'),
-  'DIS-27': () => import('../../screens/gov11/MilestonesScreen'),
-  'DIS-28': () => import('../../screens/gov11/AccuracyScreen'),
+  'DIS-30': () => import('../../screens/gov11/MilestonesScreen'),
+  'DIS-31': () => import('../../screens/gov11/AccuracyScreen'),
   'PAY-22': () => import('../../screens/gov11/PaymentClocksScreen'),
-  'CTR-32': () => import('../../screens/gov11/SettlementClocksScreen'),
-  'CTR-33': () => import('../../screens/gov11/LinkageScreen'),
-  'PRJ-28': () => import('../../screens/gov11/LookAheadScreen'),
+  'CTR-38': () => import('../../screens/gov11/SettlementClocksScreen'),
+  'CTR-39': () => import('../../screens/gov11/LinkageScreen'),
+  'PRJ-30': () => import('../../screens/gov11/LookAheadScreen'),
   'PRJ-29': () => import('../../screens/gov11/LessonsScreen'),
   // The feed of the Finance Department (FEED-1): connection, runs and imports, code mapping, differences, data generator.
   'FEED-01': () => import('../../screens/feed/ConnectionScreen'),

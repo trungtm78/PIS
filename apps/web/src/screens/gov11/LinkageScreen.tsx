@@ -11,7 +11,7 @@ import type { RuleReading } from './gov11-kit';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
- * CTR-33, a contract tied to its project, package and contractor, and its adjustment versions (G1-18): the chain is checked again on the record and the findings say where it breaks; every version that took effect
+ * CTR-39, a contract tied to its project, package and contractor, and its adjustment versions (G1-18): the chain is checked again on the record and the findings say where it breaks; every version that took effect
  * says what it did to the value and to the cost of the baseline, and a version over the thresholds of the rule waits for a review by a person other than who made the change.
  */
 export default function LinkageScreen({ route }: ScreenProps) {

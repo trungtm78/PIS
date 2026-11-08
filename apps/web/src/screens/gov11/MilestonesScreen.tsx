@@ -9,7 +9,7 @@ type Tone = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
 const TONE: Readonly<Record<string, Tone>> = { ACHIEVED: 'success', ON_TRACK: 'success', AT_RISK: 'warning', OFF_TRACK: 'danger', MISSED: 'danger', NO_DATA: 'neutral' };
 
 /**
- * DIS-27, the projection of the cumulative disbursement to each directive milestone (G1-16): the vintages written when the snapshot was frozen, by investor, with the target, the projection, the gap and the
+ * DIS-30, the projection of the cumulative disbursement to each directive milestone (G1-16): the vintages written when the snapshot was frozen, by investor, with the target, the projection, the gap and the
  * status. A snapshot that was not read yet is told apart from one that has no milestone; a projection that lacks a month says it is a lower bound and never invents the month.
  */
 export default function MilestonesScreen({ route }: ScreenProps) {

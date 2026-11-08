@@ -174,6 +174,19 @@ export function pathOf(item: Pick<WorkItem, 'target'>): string | undefined {
     // The alert of the baseline (lane B1): the item names the project.
     case 'PRJ-26':
       return `/prj/prj-26?project=${item.target.id}`;
+    // The risk board (lane MR-1) and the forecast, clock, linkage, look-ahead and lessons screens (lane GOV-11a): the boards open on their own page, the records take the id of the project or the contract.
+    case 'PRJ-28':
+    case 'PRJ-29':
+    case 'PRJ-30':
+      return `/prj/${item.target.screen.toLowerCase()}?id=${item.target.id}`;
+    case 'CTR-39':
+      return `/ctr/ctr-39?id=${item.target.id}`;
+    case 'CTR-38':
+      return '/ctr/ctr-38';
+    case 'DIS-30':
+      return '/dis/dis-30';
+    case 'PAY-22':
+      return '/pay/pay-22';
     // The management of contractors (lane VND-1): the item names the contractor (profile, accounts, certificates), the debarment case or the event of bid conduct.
     case 'VND-02':
     case 'VND-04':

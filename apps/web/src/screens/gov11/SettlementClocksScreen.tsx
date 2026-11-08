@@ -12,7 +12,7 @@ const TONE: Readonly<Record<string, Tone>> = { RUNNING: 'info', NEAR: 'warning',
 const STATES = ['RUNNING', 'NEAR', 'OVERDUE', 'MET', 'MET_LATE'] as const;
 
 /**
- * CTR-32, the settlement clocks of completed contracts (G1-18): the last day to hand in the settlement file is the day the contract was completed plus the months of its project group (5 for the large groups and
+ * CTR-38, the settlement clocks of completed contracts (G1-18): the last day to hand in the settlement file is the day the contract was completed plus the months of its project group (5 for the large groups and
  * 4 for the small one are starting values, not confirmed). The clock ends when the file is handed in, on time or late; near and overdue are read from the day, not stored.
  */
 export default function SettlementClocksScreen({ route }: ScreenProps) {
@@ -115,7 +115,7 @@ export default function SettlementClocksScreen({ route }: ScreenProps) {
                       return (
                         <tr key={text(row.id)} data-testid={`clock-${text(contract.code)}`}>
                           <th scope="row">
-                            <Link to={`/ctr/ctr-33?id=${text(contract.id)}`}>{text(contract.code)}</Link>
+                            <Link to={`/ctr/ctr-39?id=${text(contract.id)}`}>{text(contract.code)}</Link>
                           </th>
                           <td>{text(project.code)}</td>
                           <td>{row.project_group === null ? t('gov11.settlement.noGroup') : text(row.project_group)}</td>

@@ -26,7 +26,7 @@ afterEach(() => {
 
 const problem = (status: number, code: string) => new ApiError({ status, code, correlationId: 'c' });
 
-describe('DIS-27 the milestones (G1-16)', () => {
+describe('DIS-30 the milestones (G1-16)', () => {
   const unit = (over: Record<string, unknown> = {}) => ({ id: 'u1', unit: { id: 'x', code: 'CDT1', name: 'Investor one' }, plan_total_vnd: '1000000000', target_vnd: '500000000', disbursed_vnd: '300000000', projected_vnd: '450000000', projected_pct: '45.00', gap_pct: '-5.00', basis: 'FORECAST', coverage: 'COMPLETE', status: 'AT_RISK', projects: 3, ...over });
   const board = (over: Record<string, unknown> = {}) => ({
     snapshot: { id: ID, as_of_date: '2026-10-31', treasury_cutoff_date: '2026-10-31', plan_year: 2026 },
@@ -38,7 +38,7 @@ describe('DIS-27 the milestones (G1-16)', () => {
   });
 
   it('shows the projection, the gap and the status of each investor, the "i" of every figure and the note that the rule is not confirmed', async () => {
-    mount(<MilestonesScreen route={route('DIS-27', 'DIS')} />, harness(() => board()), PERMISSIONS);
+    mount(<MilestonesScreen route={route('DIS-30', 'DIS')} />, harness(() => board()), PERMISSIONS);
     const section = await screen.findByTestId('milestone-M_1231');
     expect(within(section).getByText('Investor one')).toBeTruthy();
     expect(within(section).getAllByRole('button', { name: /A|i/ }).length).toBeGreaterThan(2);
@@ -48,23 +48,23 @@ describe('DIS-27 the milestones (G1-16)', () => {
   });
 
   it('says a snapshot that was not read is not the same as one with no milestones', async () => {
-    mount(<MilestonesScreen route={route('DIS-27', 'DIS')} />, harness(() => board({ run: null, milestones: [] })), PERMISSIONS);
+    mount(<MilestonesScreen route={route('DIS-30', 'DIS')} />, harness(() => board({ run: null, milestones: [] })), PERMISSIONS);
     expect((await screen.findByTestId('not-recorded')).textContent).toBeTruthy();
     expect(screen.queryByTestId('nothing-to-project')).toBeNull();
   });
 
   it('says the snapshot had nothing to project, and shows the empty kind when there is no frozen snapshot at all', async () => {
-    mount(<MilestonesScreen route={route('DIS-27', 'DIS')} />, harness(() => board({ run: { outcome: 'NO_MILESTONES', rows_written: 0 }, milestones: [] })), PERMISSIONS);
+    mount(<MilestonesScreen route={route('DIS-30', 'DIS')} />, harness(() => board({ run: { outcome: 'NO_MILESTONES', rows_written: 0 }, milestones: [] })), PERMISSIONS);
     expect(await screen.findByTestId('nothing-to-project')).toBeTruthy();
     cleanup();
-    mount(<MilestonesScreen route={route('DIS-27', 'DIS')} />, harness(() => board({ snapshot: null, run: null, milestones: [] })), PERMISSIONS);
+    mount(<MilestonesScreen route={route('DIS-30', 'DIS')} />, harness(() => board({ snapshot: null, run: null, milestones: [] })), PERMISSIONS);
     expect(await screen.findByText(translator.t('states.empty.title'))).toBeTruthy();
   });
 
   it('shows a skeleton while loading, and an error with a retry that reads again', async () => {
     let calls = 0;
     const h = harness(() => (calls++ === 0 ? problem(500, 'INTERNAL') : board()));
-    mount(<MilestonesScreen route={route('DIS-27', 'DIS')} />, h, PERMISSIONS);
+    mount(<MilestonesScreen route={route('DIS-30', 'DIS')} />, h, PERMISSIONS);
     const retry = await screen.findByRole('button', { name: /thử lại|try again|retry/i });
     fireEvent.click(retry);
     expect(await screen.findByTestId('milestone-M_1231')).toBeTruthy();
@@ -72,18 +72,18 @@ describe('DIS-27 the milestones (G1-16)', () => {
   });
 
   it('says the scope is hidden on a refusal and leaks nothing', async () => {
-    mount(<MilestonesScreen route={route('DIS-27', 'DIS')} />, harness(() => problem(403, 'SCOPE_DENIED')), PERMISSIONS);
+    mount(<MilestonesScreen route={route('DIS-30', 'DIS')} />, harness(() => problem(403, 'SCOPE_DENIED')), PERMISSIONS);
     await waitFor(() => expect(screen.queryByTestId('milestone-M_1231')).toBeNull());
     expect(await screen.findByRole('alert')).toBeTruthy();
   });
 });
 
-describe('DIS-28 the accuracy of the forecasts (G1-16)', () => {
+describe('DIS-31 the accuracy of the forecasts (G1-16)', () => {
   const row = (over: Record<string, unknown> = {}) => ({ investor: { id: 'i1', code: 'CDT1', name: 'Investor one' }, pairs: 6, months: 3, forecast_vnd: '900000000', actual_vnd: '800000000', abs_error_vnd: '150000000', wape_pct: '18.75', bias_pct: '12.50', band: 'FAIR', bias_flag: null, ...over });
   const accuracy = (rows: unknown[]) => ({ plan_year: 2026, last_measured_month: 9, rows, overall: row({ investor: null }), by_month: [], rule: rule(), truncated: false, as_of: AS_OF });
 
   it('lists the investors with their error, bias and band, and a band it cannot give says so', async () => {
-    mount(<AccuracyScreen route={route('DIS-28', 'DIS')} />, harness(() => accuracy([row(), row({ investor: { id: 'i2', code: 'CDT2', name: 'Investor two' }, band: 'INSUFFICIENT', months: 1, bias_flag: 'OVER' })])), PERMISSIONS);
+    mount(<AccuracyScreen route={route('DIS-31', 'DIS')} />, harness(() => accuracy([row(), row({ investor: { id: 'i2', code: 'CDT2', name: 'Investor two' }, band: 'INSUFFICIENT', months: 1, bias_flag: 'OVER' })])), PERMISSIONS);
     const one = await screen.findByTestId('investor-CDT1');
     expect(one.textContent).toContain('18.75%');
     const two = screen.getByTestId('investor-CDT2');
@@ -92,7 +92,7 @@ describe('DIS-28 the accuracy of the forecasts (G1-16)', () => {
   });
 
   it('shows the empty kind when nothing was measured', async () => {
-    mount(<AccuracyScreen route={route('DIS-28', 'DIS')} />, harness(() => accuracy([])), PERMISSIONS);
+    mount(<AccuracyScreen route={route('DIS-31', 'DIS')} />, harness(() => accuracy([])), PERMISSIONS);
     await waitFor(() => expect(screen.queryByTestId('accuracy-table')).toBeNull());
   });
 });
@@ -162,12 +162,12 @@ describe('PAY-22 the clocks of the Treasury control (G1-17)', () => {
   });
 });
 
-describe('CTR-32 the settlement clocks (G1-18)', () => {
+describe('CTR-38 the settlement clocks (G1-18)', () => {
   const row = (over: Record<string, unknown> = {}) => ({ id: 'k1', contract: { id: ID, code: 'HD-001', status: 'COMPLETED' }, project: { id: 'p', code: 'DA1', name: 'P' }, contractor: null, project_group: 'B', started_on: '2026-06-15', months_allowed: 5, due_on: '2026-11-15', policy_version: 0, state: 'NEAR', days_left: 7, met_on: null, settlement_id: null, ...over });
   const board = (items: unknown[]) => ({ items, summary: { total: items.length, open: 1, running: 0, near: 1, overdue: 0, met: 0, met_late: 0, in_time_rate_pct: null }, rule: rule({ params: { months_by_group: { QTQG: 5, A: 5, B: 5, C: 4 } } }), truncated: false, as_of: AS_OF });
 
   it('shows the months by group, the due day and the days left, with a group-less contract told apart', async () => {
-    mount(<SettlementClocksScreen route={route('CTR-32', 'CTR')} />, harness(() => board([row(), row({ id: 'k2', contract: { id: 'x', code: 'HD-002', status: 'COMPLETED' }, project_group: null, state: 'OVERDUE', days_left: -3 })])), PERMISSIONS);
+    mount(<SettlementClocksScreen route={route('CTR-38', 'CTR')} />, harness(() => board([row(), row({ id: 'k2', contract: { id: 'x', code: 'HD-002', status: 'COMPLETED' }, project_group: null, state: 'OVERDUE', days_left: -3 })])), PERMISSIONS);
     expect((await screen.findByTestId('clock-HD-001')).textContent).toContain('15/11/2026');
     expect(screen.getByTestId('clock-HD-002').textContent).toMatch(/Quá hạn|overdue/i);
     expect(screen.getByTestId('clock-HD-002').textContent).toMatch(/nhóm|group/i);
@@ -177,12 +177,12 @@ describe('CTR-32 the settlement clocks (G1-18)', () => {
   });
 
   it('shows the empty kind when no contract has a clock', async () => {
-    mount(<SettlementClocksScreen route={route('CTR-32', 'CTR')} />, harness(() => ({ ...board([]), summary: { total: 0 } })), PERMISSIONS);
+    mount(<SettlementClocksScreen route={route('CTR-38', 'CTR')} />, harness(() => ({ ...board([]), summary: { total: 0 } })), PERMISSIONS);
     await waitFor(() => expect(screen.queryByTestId('settlement-table')).toBeNull());
   });
 });
 
-describe('CTR-33 the linkage and the adjustment versions (G1-18)', () => {
+describe('CTR-39 the linkage and the adjustment versions (G1-18)', () => {
   const linkage = (over: Record<string, unknown> = {}) => ({
     contract: { id: ID, code: 'HD-001', status: 'ACTIVE', original_value_vnd: '1000000', current_value_vnd: '1100000', revisions: 2 },
     project: { id: 'p', code: 'DA1', name: 'Project', group: 'B' },
@@ -198,10 +198,10 @@ describe('CTR-33 the linkage and the adjustment versions (G1-18)', () => {
   });
   const version = (over: Record<string, unknown> = {}) => ({ id: 'a1', revision_id: 'r', revision: 2, change_request_id: null, contract: { id: ID, code: 'HD-001' }, project: { id: 'p', code: 'DA1', name: 'P' }, original_vnd: '1000000', previous_vnd: '1000000', new_vnd: '1100000', delta_vnd: '100000', delta_pct_of_previous: '10.00', cumulative_delta_vnd: '100000', cumulative_pct_of_original: '10.00', baseline_version: 1, baseline_bac_vnd: '5000000', share_of_baseline_pct: '2.00', classification: 'REVIEW_REQUIRED', reasons: ['ORIGINAL'], policy_version: 0, made_by: 'm', review_status: 'PENDING', review_decision: null, reviewed_by: null, reviewed_at: null, review_note: null, created_at: '2026-11-01T00:00:00.000Z', version: 1, ...over });
   const answer = (items: unknown[]) => (operation: string) => (operation === 'getContractLinkage' ? linkage() : { items, rule: rule({ params: {} }), as_of: AS_OF });
-  const mountAt = (h: ReturnType<typeof harness>) => mount(<LinkageScreen route={route('CTR-33', 'CTR')} />, h, PERMISSIONS, `/ctr/ctr-33?id=${ID}`);
+  const mountAt = (h: ReturnType<typeof harness>) => mount(<LinkageScreen route={route('CTR-39', 'CTR')} />, h, PERMISSIONS, `/ctr/ctr-39?id=${ID}`);
 
   it('asks for the contract when none is given and names a bad identifier', async () => {
-    mount(<LinkageScreen route={route('CTR-33', 'CTR')} />, harness(() => ({})), PERMISSIONS, '/ctr/ctr-33?id=nope');
+    mount(<LinkageScreen route={route('CTR-39', 'CTR')} />, harness(() => ({})), PERMISSIONS, '/ctr/ctr-39?id=nope');
     expect(await screen.findByTestId('bad-id')).toBeTruthy();
   });
 
@@ -234,7 +234,7 @@ describe('CTR-33 the linkage and the adjustment versions (G1-18)', () => {
   });
 });
 
-describe('PRJ-28 the look-ahead plan (G1-19)', () => {
+describe('PRJ-30 the look-ahead plan (G1-19)', () => {
   const item = (n: number, over: Record<string, unknown> = {}) => ({ id: `i${n}`, sequence: n, description: `Item ${n}`, planned_start: '2026-11-10', planned_finish: '2026-11-12', responsible: 'Crew', outcome: 'PLANNED', variance_reason_code: null, outcome_at: null, state: 'READY', constraints: [], version: 1, ...over });
   const view = (items: unknown[], over: Record<string, unknown> = {}) => ({
     project: { id: ID, code: 'DA1', name: 'P', status: 'IMPLEMENTATION' },
@@ -245,7 +245,7 @@ describe('PRJ-28 the look-ahead plan (G1-19)', () => {
     as_of: AS_OF,
     ...over,
   });
-  const mountAt = (h: ReturnType<typeof harness>) => mount(<LookAheadScreen route={route('PRJ-28', 'PRJ')} />, h, PERMISSIONS, `/prj/prj-28?id=${ID}`);
+  const mountAt = (h: ReturnType<typeof harness>) => mount(<LookAheadScreen route={route('PRJ-30', 'PRJ')} />, h, PERMISSIONS, `/prj/prj-30?id=${ID}`);
 
   it('shows the items with their readiness, the open constraints and the PPC with its band', async () => {
     mountAt(harness(() => view([item(1, { state: 'NOT_READY', constraints: [{ id: 'k1', kind: 'MATERIAL', description: 'Rebar not confirmed', status: 'OPEN', version: 1 }] }), item(2, { outcome: 'NOT_DONE', variance_reason_code: 'WEATHER', state: 'NOT_DONE' })])));
@@ -277,7 +277,7 @@ describe('PRJ-28 the look-ahead plan (G1-19)', () => {
   });
 
   it('asks for the project when none is given', async () => {
-    mount(<LookAheadScreen route={route('PRJ-28', 'PRJ')} />, harness(() => ({})), PERMISSIONS, '/prj/prj-28');
+    mount(<LookAheadScreen route={route('PRJ-30', 'PRJ')} />, harness(() => ({})), PERMISSIONS, '/prj/prj-30');
     expect(await screen.findByTestId('pick-id')).toBeTruthy();
   });
 });

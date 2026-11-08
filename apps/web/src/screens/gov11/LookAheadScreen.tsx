@@ -13,7 +13,7 @@ const TONE: Readonly<Record<string, Tone>> = { READY: 'success', CONSTRAINED: 'w
 const BAND_TONE: Readonly<Record<string, Tone>> = { ON_TARGET: 'success', BELOW_TARGET: 'warning', ALERT: 'danger', NO_DATA: 'neutral' };
 
 /**
- * PRJ-28, the look-ahead plan of a project (G1-19): the work of the next 2 to 6 weeks, what has to be ready before each item starts, and what was done at the end of the week with the standard reason when it was not
+ * PRJ-30, the look-ahead plan of a project (G1-19): the work of the next 2 to 6 weeks, what has to be ready before each item starts, and what was done at the end of the week with the standard reason when it was not
  * (PPC). A plan is published once; constraints are cleared once; an outcome is recorded once. The window and the thresholds are the rule LOOK_AHEAD_POLICY (not confirmed).
  */
 export default function LookAheadScreen({ route }: ScreenProps) {

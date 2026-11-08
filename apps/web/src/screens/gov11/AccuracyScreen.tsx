@@ -9,7 +9,7 @@ type Tone = 'success' | 'warning' | 'danger' | 'neutral';
 const BAND: Readonly<Record<string, Tone>> = { GOOD: 'success', FAIR: 'warning', POOR: 'danger', INSUFFICIENT: 'neutral' };
 
 /**
- * DIS-28, how well the monthly forecast of each investor foretold what the Treasury paid (G1-16): the weighted absolute percentage error and the bias, from the last forecast made before each month (the history
+ * DIS-31, how well the monthly forecast of each investor foretold what the Treasury paid (G1-16): the weighted absolute percentage error and the bias, from the last forecast made before each month (the history
  * of the schedule is never overwritten). An investor with too few measured months is not given a band, and the figures say so instead of looking good.
  */
 export default function AccuracyScreen({ route }: ScreenProps) {
