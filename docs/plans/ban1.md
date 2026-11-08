@@ -12,7 +12,7 @@ Branch `lane/ban1`, worktree `D:\PIS-ban1`, migration block 2520-2539. Design re
 | Spec text BAN.md, story, traceability, backlog, test cases | to do | `Design/MACHVON_Design` |
 | Web screens (dashboard, attention, pack, tracker, alerts, roster, view audit), i18n parts, states matrix | done (commits 70baf081 to 513f3b95) | `apps/web/src/screens/ban` |
 | PWA card on the leader dashboard | done (`CommitteeCard`) | `apps/web/src/pwa/screens` |
-| Phone card | to do | `apps/mobile/lib/features/dashboard` |
+| Phone card (`CommitteeCard` on the leader home: ten figures with the "i", the colour in words and a shape, the top three attention items, live alerts; one audited read per opening plus a refresh button; hidden for a reader the server refuses; tests in `test/features/dashboard/committee_card_test.dart`) | done | `apps/mobile/lib/features/dashboard` |
 | Gates, Codex review with triage | to do | |
 
 Owner decisions applied: real core first, no simulation label; decide by governance criteria; no scope cut.
