@@ -21122,6 +21122,60 @@
     ]
   },
   {
+    "id": "UI-MOB-72",
+    "source": "Screen MOB-72",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "TNT-A; người dùng có quyền xem MOB-72 (committee.read) và một người không có; dữ liệu synthetic theo fixture",
+    "steps": [
+      "Mở màn hình trên thiết bị 390×844 và 360×800",
+      "Kiểm 7 trạng thái chuẩn cộng offline và quyền camera/push bị từ chối",
+      "Kiểm vùng chạm ≥44 pt/48 dp, dynamic type 200% và trình đọc màn hình"
+    ],
+    "expected": "MOB-72 hiển thị đúng quyền, trạng thái và theo mockup; số không có giá trị không đọc thành 0; màu luôn kèm biểu tượng và chữ; không có dữ liệu ngoài phạm vi",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-72"
+    ]
+  },
+  {
+    "id": "UI-MOB-73",
+    "source": "Screen MOB-73",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "TNT-A; người dùng có quyền xem MOB-73 (vnd.read) và một người không có; dữ liệu synthetic theo fixture",
+    "steps": [
+      "Mở màn hình trên thiết bị 390×844 và 360×800",
+      "Kiểm 7 trạng thái chuẩn cộng offline và quyền camera/push bị từ chối",
+      "Kiểm vùng chạm ≥44 pt/48 dp, dynamic type 200% và trình đọc màn hình"
+    ],
+    "expected": "MOB-73 hiển thị đúng quyền, trạng thái và theo mockup; mức rủi ro là tín hiệu kèm điểm, quy tắc và cờ chưa kiểm chứng; không có dữ liệu ngoài phạm vi",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-73"
+    ]
+  },
+  {
+    "id": "UI-MOB-74",
+    "source": "Screen MOB-74",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "TNT-A; người dùng có quyền xem MOB-74 (vnd.read) và một người không có; dữ liệu synthetic theo fixture",
+    "steps": [
+      "Mở màn hình trên thiết bị 390×844 và 360×800",
+      "Kiểm 7 trạng thái chuẩn cộng offline và quyền camera/push bị từ chối",
+      "Kiểm vùng chạm ≥44 pt/48 dp, dynamic type 200% và trình đọc màn hình"
+    ],
+    "expected": "MOB-74 hiển thị đúng quyền, trạng thái và theo mockup; không có nút quyết định; mọi con số kèm quy tắc, phiên bản và ngày tính; không có dữ liệu ngoài phạm vi",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-74"
+    ]
+  },
+  {
     "id": "UAT-PLAN-132",
     "source": "DIR.md",
     "type": "business",
@@ -24978,6 +25032,30 @@
     "evidence": null,
     "covers": [
       "FR-QMS-12"
+    ]
+  },
+  {
+    "id": "UAT-PLAN-3101",
+    "source": "MOB.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Phone signed in as a committee member with vendor read; open alerts of at least one source for each target (package, project, directive, committee, contractor) and one source with no phone screen; a contractor with a risk grade and performance rows; the committee workspace of the province.",
+    "steps": [
+      "Open the alert centre and read every alert",
+      "Tap the alerts of the package, project, directive, committee and contractor sources",
+      "Open the committee dashboard from the home card, check the audit rows of the server, scroll and refresh once",
+      "Open the contractor risk list, then one contractor",
+      "Open the packages by step, choose a node and read its statistics",
+      "Go offline and open the committee dashboard and the contractor list again"
+    ],
+    "expected": "Every alert shows a source label in words (never a raw code), its severity and consequence; each tap opens MOB-70, MOB-10, DIR-06, MOB-72 or MOB-74, and an alert with no phone screen stays handled from its actions; the dashboard writes one view row for the opening and one for the refresh, none for scrolling; the risk list and the contractor show tier, score, factors, reasons, rule version and the UNVERIFIED flag as the server sends them with no decision button; the node statistics equal the web figures; offline every screen shows the as-of time and a figure without a value is never read as 0.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-69",
+      "FR-MOB-72",
+      "FR-MOB-73",
+      "FR-MOB-74"
     ]
   },
   {

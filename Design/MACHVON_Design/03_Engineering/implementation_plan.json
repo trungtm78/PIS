@@ -49541,6 +49541,120 @@
       ]
     },
     {
+      "id": "ST-MOB-029",
+      "epic": "EP-MOB",
+      "feature": "FT-MOB-06",
+      "module": "MOB",
+      "title": "Governance views on the phone, read-only: steering committee dashboard, contractor risk list and one contractor, alert source labels and targets, node statistics of the progress tree",
+      "narrative": "As a committee member or a contract manager on the move I read the committee dashboard, the contractor risk grades and the performance of one contractor on my phone, and every alert names its source and opens the phone screen that exists for it, with the same figures and rules as the web.",
+      "release": "R3",
+      "screens": [
+        "MOB-72",
+        "MOB-73",
+        "MOB-74"
+      ],
+      "operations": [],
+      "tables": [],
+      "nfr": [
+        "NFR-ACCESSIBILITY-02",
+        "NFR-TENANCY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-MOB-029-1",
+          "given": "A phone with alerts of every source value of the contract, a reader of the committee and a contract manager",
+          "when": "The alert centre is opened and each alert is tapped",
+          "then": "Each alert shows a label for its source in words (no raw code), its severity and consequence, and opens the phone screen of its target (package MOB-70, project MOB-10, directives DIR-06, committee MOB-72, contractor MOB-74) or stays handled from its actions when the phone has no such screen; the committee dashboard writes one view row on the server for the opening and none for scrolling",
+          "test_id": "UAT-PLAN-3101"
+        },
+        {
+          "id": "AC-ST-MOB-029-2",
+          "given": "MOB-72 opened on 360x800 and 390x844 devices by a reader with the committee read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, a figure without a value is never read as 0, colour always comes with an icon and text, every labelled field of the screen is present, tap targets are at least 44 pt or 48 dp and the screen reader announces each region",
+          "test_id": "UI-MOB-72"
+        },
+        {
+          "id": "AC-ST-MOB-029-3",
+          "given": "MOB-73 opened on 360x800 and 390x844 devices by a reader with the vendor read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, the tier is shown as a signal with its score and rule version and the UNVERIFIED flag, every labelled field of the screen is present, tap targets are at least 44 pt or 48 dp and the screen reader announces each region",
+          "test_id": "UI-MOB-73"
+        },
+        {
+          "id": "AC-ST-MOB-029-4",
+          "given": "MOB-74 opened on 360x800 and 390x844 devices by a reader with the vendor read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, factors, reasons, grading history and performance clocks carry their rule, version and calculation date, no decision button is offered, tap targets are at least 44 pt or 48 dp and the screen reader announces each region",
+          "test_id": "UI-MOB-74"
+        }
+      ],
+      "dependencies": [
+        "ST-MOB-028",
+        "ST-BAN-001",
+        "ST-VND-010",
+        "ST-VND-011"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 0.5,
+          "max": 1.5
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 24,
+          "max": 56
+        },
+        "confidence": "medium",
+        "assumption": "No command exists on these screens; offline data carries its as-of time and is never presented as the latest; the committee read writes a view row on the server."
+      },
+      "mobile": "flutter-screen",
+      "tasks": [
+        {
+          "id": "TK-MOB-029-1",
+          "kind": "backend",
+          "title": "Server-side read models behind MOB-72, MOB-73, MOB-74; no new command",
+          "test_ids": []
+        },
+        {
+          "id": "TK-MOB-029-2",
+          "kind": "mobile",
+          "title": "MOB-72, MOB-73, MOB-74 Flutter screens, alert source labels and targets, node statistics on MOB-69, with offline state and as-of time",
+          "test_ids": []
+        },
+        {
+          "id": "TK-MOB-029-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for MOB-72, MOB-73, MOB-74 and the alert sources; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-MOB-029-4",
+          "kind": "qa",
+          "title": "Automated domain, API, authorization and negative tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-PLAN-3101"
+          ]
+        },
+        {
+          "id": "TK-MOB-029-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-MOB-72",
+            "UI-MOB-73",
+            "UI-MOB-74"
+          ]
+        }
+      ]
+    },
+    {
       "id": "ST-DIR-001",
       "epic": "EP-DIR",
       "feature": "FT-DIR-01",

@@ -18117,6 +18117,100 @@
     ]
   },
   {
+    "id": "BL-MOB-72",
+    "requirement": "FR-MOB-72",
+    "screen": "MOB-72",
+    "title": "Bảng điều hành Ban chỉ đạo tỉnh trên điện thoại",
+    "module": "MOB",
+    "platform": "mobile",
+    "phase": "P1",
+    "owner": "Mobile",
+    "dependencies": "IAM,BAN",
+    "fields": [
+      "Tiến độ giải ngân toàn tỉnh so với đường cong kỳ vọng, dải dự báo cuối năm",
+      "Tiến độ theo ngành, huyện, chủ đầu tư và nguồn vốn",
+      "Dự án cần chú ý với lý do, chỉ đạo quá hạn theo đơn vị, đơn vị chưa báo cáo, cảnh báo của Ban",
+      "Nút i của từng số: công thức, nguồn, ngày số liệu"
+    ],
+    "rule": "Chỉ đọc; mỗi lần mở ghi một dòng nhật ký xem ở máy chủ; số không có giá trị không bao giờ đọc thành 0; màu luôn kèm biểu tượng và chữ",
+    "test_ids": [
+      "UI-MOB-72",
+      "UAT-PLAN-3101"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/MOB.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-MOB-029"
+    ]
+  },
+  {
+    "id": "BL-MOB-73",
+    "requirement": "FR-MOB-73",
+    "screen": "MOB-73",
+    "title": "Xếp hạng rủi ro nhà thầu trên điện thoại",
+    "module": "MOB",
+    "platform": "mobile",
+    "phase": "P1",
+    "owner": "Mobile",
+    "dependencies": "IAM,VND",
+    "fields": [
+      "Danh sách nhà thầu theo mức rủi ro (thấp, trung bình, cao, nghiêm trọng) và điểm",
+      "Ngày xét lại kế tiếp, quá hạn xét lại, đề xuất mức đang chờ xác nhận",
+      "Các số tổng của danh sách và quy tắc đang áp dụng"
+    ],
+    "rule": "Chỉ đọc; mức rủi ro là tín hiệu có giải thích, không phải kết luận; quy tắc chưa kiểm chứng được ghi rõ",
+    "test_ids": [
+      "UI-MOB-73",
+      "UAT-PLAN-3101"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/MOB.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-MOB-029"
+    ]
+  },
+  {
+    "id": "BL-MOB-74",
+    "requirement": "FR-MOB-74",
+    "screen": "MOB-74",
+    "title": "Rủi ro và kết quả thực hiện của một nhà thầu trên điện thoại",
+    "module": "MOB",
+    "platform": "mobile",
+    "phase": "P1",
+    "owner": "Mobile",
+    "dependencies": "IAM,VND",
+    "fields": [
+      "Mức rủi ro đã xác nhận, điểm và các yếu tố tạo nên điểm, lý do bằng chữ",
+      "Lịch sử các lần chấm điểm",
+      "Kết quả thực hiện hợp đồng: xếp loại, đồng hồ đăng tải, đồng hồ phản hồi, chuỗi xếp loại kém và gợi ý"
+    ],
+    "rule": "Chỉ đọc; không có nút quyết định trên điện thoại; mọi con số kèm quy tắc, phiên bản và ngày tính",
+    "test_ids": [
+      "UI-MOB-74",
+      "UAT-PLAN-3101"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/MOB.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-MOB-029"
+    ]
+  },
+  {
     "id": "BL-DIR-01",
     "requirement": "FR-DIR-01",
     "screen": "DIR-01",

@@ -10149,6 +10149,60 @@
     ]
   },
   {
+    "requirement": "FR-MOB-72",
+    "screen": "MOB-72",
+    "title": "Bảng điều hành Ban chỉ đạo tỉnh trên điện thoại",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch BAN-1, docs/committee-workspace.md; phần điện thoại chỉ đọc",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MOB.md §10–§11; 2 test",
+    "backlog_id": "BL-MOB-72",
+    "test_ids": [
+      "UI-MOB-72",
+      "UAT-PLAN-3101"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-73",
+    "screen": "MOB-73",
+    "title": "Xếp hạng rủi ro nhà thầu trên điện thoại",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-2, docs/vendor-controls.md; phần điện thoại chỉ đọc",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MOB.md §10–§11; 2 test",
+    "backlog_id": "BL-MOB-73",
+    "test_ids": [
+      "UI-MOB-73",
+      "UAT-PLAN-3101"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-74",
+    "screen": "MOB-74",
+    "title": "Rủi ro và kết quả thực hiện của một nhà thầu trên điện thoại",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch VND-2, docs/vendor-controls.md; phần điện thoại chỉ đọc",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MOB.md §10–§11; 2 test",
+    "backlog_id": "BL-MOB-74",
+    "test_ids": [
+      "UI-MOB-74",
+      "UAT-PLAN-3101"
+    ]
+  },
+  {
     "requirement": "FR-DIR-01",
     "screen": "DIR-01",
     "title": "Các cuộc giao ban đầu tư",

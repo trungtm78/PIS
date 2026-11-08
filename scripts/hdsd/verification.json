@@ -14,21 +14,70 @@
     }
   ],
   "criteria": {
-    "mob-02": { "pattern": "^Đăng nhập", "confirmedBy": "walk-android15-2026-11-06-deep" },
-    "mob-01": { "pattern": "MACHVON", "confirmedBy": "walk-android15-2026-11-06-deep" },
-    "mob-04": { "pattern": "^Chọn đơn vị và vai trò", "confirmedBy": "walk-android15-2026-11-06-deep" },
-    "mob-03": { "pattern": "^Xác thực hai yếu tố", "confirmedBy": "walk-android15-2026-11-06-deep" },
-    "mob-07": { "pattern": "^Trang chủ lãnh đạo", "confirmedBy": "walk-android15-2026-11-06-deep" },
-    "mob-47": { "pattern": "^Tài khoản", "confirmedBy": "walk-android15-2026-11-06-deep" },
-    "mob-43": { "pattern": "^Làm việc ngoại tuyến", "confirmedBy": "walk-android15-2026-11-06-deep" },
-    "mob-41": { "pattern": "^Hàng đợi gửi", "confirmedBy": "walk-android15-2026-11-06-deep" },
-    "mob-48": { "pattern": "Đổi tenant|Đổi tổ chức" },
-    "mob-42": { "pattern": "Xử lý xung đột|xung đột" },
-    "mob-45": { "pattern": "không đủ quyền" },
-    "mob-46": { "pattern": "giấy phép|license" },
-    "mob-53": { "pattern": "Lỗi dịch vụ|thử lại" },
-    "mob-54": { "pattern": "Bảo trì|cập nhật bắt buộc" },
-    "mob-44": { "pattern": "Hết phiên|phiên" }
+    "mob-02": {
+      "pattern": "^Đăng nhập",
+      "confirmedBy": "walk-android15-2026-11-06-deep"
+    },
+    "mob-01": {
+      "pattern": "MACHVON",
+      "confirmedBy": "walk-android15-2026-11-06-deep"
+    },
+    "mob-04": {
+      "pattern": "^Chọn đơn vị và vai trò",
+      "confirmedBy": "walk-android15-2026-11-06-deep"
+    },
+    "mob-03": {
+      "pattern": "^Xác thực hai yếu tố",
+      "confirmedBy": "walk-android15-2026-11-06-deep"
+    },
+    "mob-07": {
+      "pattern": "^Trang chủ lãnh đạo",
+      "confirmedBy": "walk-android15-2026-11-06-deep"
+    },
+    "mob-47": {
+      "pattern": "^Tài khoản",
+      "confirmedBy": "walk-android15-2026-11-06-deep"
+    },
+    "mob-43": {
+      "pattern": "^Làm việc ngoại tuyến",
+      "confirmedBy": "walk-android15-2026-11-06-deep"
+    },
+    "mob-41": {
+      "pattern": "^Hàng đợi gửi",
+      "confirmedBy": "walk-android15-2026-11-06-deep"
+    },
+    "mob-48": {
+      "pattern": "Đổi tenant|Đổi tổ chức"
+    },
+    "mob-42": {
+      "pattern": "Xử lý xung đột|xung đột"
+    },
+    "mob-45": {
+      "pattern": "không đủ quyền"
+    },
+    "mob-46": {
+      "pattern": "giấy phép|license"
+    },
+    "mob-53": {
+      "pattern": "Lỗi dịch vụ|thử lại"
+    },
+    "mob-54": {
+      "pattern": "Bảo trì|cập nhật bắt buộc"
+    },
+    "mob-44": {
+      "pattern": "Hết phiên|phiên"
+    }
   },
-  "blockers": {}
+  "blockers": {},
+  "alertCentre": {
+    "status": "UNTESTED",
+    "note": "The alert centre (the block Needs action now of the home screens, MOB-07 and MOB-08) is not a screen of its own, so it has no step in mobile-chapters.json; its pass criteria are kept here and in UAT-PLAN-3101. The chapter m14 only waits for the block before it opens MOB-72.",
+    "criteria": [
+      "Every alert of the feed shows a label for its source in words; a raw source code on screen fails the check (the 43 values of WorkSource in openapi.json each have a label).",
+      "Every alert shows its severity as icon and text and its consequence line; colour alone never carries the severity.",
+      "An alert of the source of package BID-29 opens MOB-70, of project PRJ-30 or PRJ-03 opens MOB-10, of directive DIR-04 opens DIR-06, of committee BAN-05 opens MOB-72, of contractor VND-11 or VND-12 opens MOB-74.",
+      "An alert whose target the phone has no screen for stays handled from its actions (claim, assign, snooze) and does not open a blank page.",
+      "Offline, the block says when the copy was synced and offers no act."
+    ]
+  }
 }
